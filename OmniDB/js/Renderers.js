@@ -1,0 +1,212 @@
+/*
+Copyright 2016 The OmniDB Team
+
+This file is part of OmniDB.
+
+OmniDB is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
+*/
+
+function blueHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="password") {
+	  	Handsontable.renderers.PasswordRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="checkbox") {
+  	  Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+    }
+    else {
+  	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+    }
+
+  	td.style.background = 'rgb(234, 237, 249)';
+}
+
+function greenHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="password") {
+	  	Handsontable.renderers.PasswordRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="checkbox") {
+  	  Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+    }
+    else {
+  	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+    }
+
+  	td.style.background = 'rgb(206, 255, 209)';
+}
+
+function yellowHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="password") {
+	  	Handsontable.renderers.PasswordRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="checkbox") {
+  	  Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+    }
+    else {
+  	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+    }
+
+  	td.style.background = 'rgb(255, 251, 215)';
+}
+
+
+
+function whiteHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+	  }
+	  else {
+	  	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+	  }
+
+  	td.style.background = 'rgb(255, 255, 255)';
+}
+
+function redHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+	  }
+	  else {
+	  	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+	  }
+
+  	td.style.background = 'rgb(255, 213, 213)';
+}
+
+function grayHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+	  }
+	  else {
+	  	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+	  }
+
+  	td.style.background = 'rgb(242, 242, 242)';
+}
+
+
+function yellowRenderer(instance, td, row, col, prop, value, cellProperties) {
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+	  }
+	  else {
+	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
+	  }
+
+  	td.style.background = 'rgb(255, 251, 215)';
+}
+
+function blueRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+	  }
+	  else {
+	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
+	  }
+
+  	td.style.background = 'rgb(234, 237, 249)';
+}
+
+function whiteRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+	  }
+	  else {
+	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
+	  }
+
+  	td.style.background = 'rgb(255, 255, 255)';
+}
+
+function redRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+	  }
+	  else {
+	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
+	  }
+
+  	td.style.background = 'rgb(255, 213, 213)';
+}
+
+function grayRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+	  }
+	  else {
+	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
+	  }
+
+  	td.style.background = 'rgb(242, 242, 242)';
+}
+
+function greenRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+	  }
+	  else {
+	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
+	  }
+
+  	td.style.background = 'rgb(206, 255, 209)';
+}
+
+function grayEmptyRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	arguments[5] = '';
+
+	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+
+  	td.style.background = 'rgb(242, 242, 242)';
+}
+
+function newRowRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	arguments[5] = '<img class="img_ht" src="images/new_row.png"/>';
+
+	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+
+  	td.style.background = 'rgb(242, 242, 242)';
+}
+
+function columnsActionRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	arguments[5] = '<img src="images/tab_close.png" class="img_ht" onclick="dropColumnAlterTable()"/>';
+
+	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+
+  	td.style.background = 'rgb(242, 242, 242)';
+}
+
+function editDataActionRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	arguments[5] = '<img src="images/tab_close.png" class="img_ht" onclick="deleteRowEditData()"/>';
+
+	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+
+  	td.style.background = 'rgb(242, 242, 242)';
+
+}

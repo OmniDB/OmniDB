@@ -1,0 +1,62 @@
+.div_tabs {
+	padding: 2px;
+	border: 1px solid #c3c3c3;
+	border-radius: 3px;
+}
+
+.tabs {
+	margin: 0px;
+	padding: 0px;
+	list-style-type: none;
+	font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;
+	font-size: 0;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	background-color: rgb(74, 104, 150);
+	color: #375A82;
+}
+
+.tabs li {
+	opacity: 0.5;
+	font-size: 11px;
+	display: inline-block;
+	background-color: #fcfdfd;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	padding-left: 8px;
+	padding-right: 8px;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	cursor: default;
+	margin-top: 5px;
+  	margin-left: 5px;
+  	cursor: pointer;
+  	vertical-align: bottom;
+}
+
+.tabs li img {
+	vertical-align: middle;
+	margin-left: 6px;
+}
+
+.tabs li span {
+	height: 16px;
+}
+
+.tabs .selected {
+opacity: 1.0;
+	background-color: #fcfdfd;
+}
+
+.tab {
+	background-color: #fcfdfd;
+	padding: 5px;
+	display: none;
+}
+
+.selected_div {
+	display: block;
+}

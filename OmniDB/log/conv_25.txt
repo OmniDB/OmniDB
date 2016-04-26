@@ -1,0 +1,45 @@
+25/04/2016 21:01:42 - Starting conversion.
+
+Column Indexing Done.
+*** DATA TYPE MAPPING ***
+
+SOURCE DATA TYPE - CATEGORY - TARGET DATATYPE
+
+            char -     char -            char
+         integer -  integer -         integer
+            real -       fp -            real
+            text -     text -            text
+         varchar -  varchar -         varchar
+
+
+25/04/2016 21:01:42 - Initial Setup Done.
+25/04/2016 21:01:42 - Creating Conversion Commands...
+25/04/2016 21:01:42 - Conversion commands successfully created.
+
+0 delete commands
+9 table creation commands
+9 table data transfer commands
+0 primary key creation commands
+0 foreign key creation commands
+0 unique creation commands
+0 index creation commands
+
+25/04/2016 21:01:53 - *** OMNIDB DATABASE COMMAND ERROR ***
+Command:
+
+update conv_tables_data set ctd_re_transfperc = 73, ctd_in_transfrecords = 300, ctd_re_transferrate=1443.83 where conv_id = 25 and ctd_st_table='conv_tables_data'
+
+Error:
+
+[26/04/2016 04:01:53] Spartacus.Database.Exception: Exception of type 'Spartacus.Database.Exception' was thrown. ---> Mono.Data.Sqlite.SqliteException: The database file is locked
+database is locked
+  at Mono.Data.Sqlite.SQLite3.Step (Mono.Data.Sqlite.SqliteStatement stmt) <0x7f9638 + 0x00227> in <filename unknown>:0 
+  at Mono.Data.Sqlite.SqliteDataReader.NextResult () <0x7f7b20 + 0x0042e> in <filename unknown>:0 
+  at Mono.Data.Sqlite.SqliteDataReader..ctor (Mono.Data.Sqlite.SqliteCommand cmd, CommandBehavior behave) <0x7f7948 + 0x000f3> in <filename unknown>:0 
+  at (wrapper remoting-invoke-with-check) Mono.Data.Sqlite.SqliteDataReader:.ctor (Mono.Data.Sqlite.SqliteCommand,System.Data.CommandBehavior)
+  at Mono.Data.Sqlite.SqliteCommand.ExecuteReader (CommandBehavior behavior) <0x7f70b8 + 0x00037> in <filename unknown>:0 
+  at Mono.Data.Sqlite.SqliteCommand.ExecuteNonQuery () <0x7f7028 + 0x0001f> in <filename unknown>:0 
+  at Spartacus.Database.Sqlite.Execute (System.String p_sql) <0x7ecdf0 + 0x001a2> in <filename unknown>:0 
+  --- End of inner exception stack trace ---
+
+25/04/2016 21:01:53 - Conversion Completed.

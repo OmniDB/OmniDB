@@ -38,7 +38,7 @@ Supported DBMS:
 
 # Database Schema Management
 
-OmniDB is ideal for designed for easy database management. Here are some features:
+OmniDB is designed for easy database management. Here are some features:
 
 - Tree view showing database structure
   - Included structures:

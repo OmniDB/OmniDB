@@ -122,7 +122,7 @@ namespace OmniDB
                 try
                 {
 					v_database = OmniDatabase.Generic.InstantiateDatabase(
-						"alias_" + v_count,
+						v_cryptor.Decrypt(v_connection["alias"].ToString()),
 						v_connection["conn_id"].ToString(),
 						v_connection["dbt_st_name"].ToString(),
 						v_cryptor.Decrypt(v_connection["server"].ToString()),
@@ -145,7 +145,7 @@ namespace OmniDB
                 catch (Spartacus.Utils.Exception)
                 {
 					v_database = OmniDatabase.Generic.InstantiateDatabase (
-						"alias_" + v_count,
+						v_connection ["alias"].ToString (),
 						v_connection ["conn_id"].ToString (),
 						v_connection ["dbt_st_name"].ToString (),
 						v_connection ["server"].ToString (),

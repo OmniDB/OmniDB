@@ -164,14 +164,17 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				v_tree.selectNode(p_node);
 			};
 
-			if (p_node.contextMenu!=null) {
+			v_span.oncontextmenu = function(e) {
+				if (e.button==2) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
 
-				v_span.oncontextmenu = function(e) {
-					v_tree.selectNode(p_node);
-					v_tree.nodeContextMenu(e,p_node);
-				};
-
-			}
+				if (p_node.contextMenu!=null) {
+						v_tree.selectNode(p_node);
+						v_tree.nodeContextMenu(e,p_node);
+				}
+			};
 
 			if (v_icon!=undefined)
 				v_span.appendChild(v_icon);
@@ -343,8 +346,6 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		// p_node: Reference to the node;
 		nodeContextMenu: function(p_event,p_node) {
 			if (p_event.button==2) {
-				p_event.preventDefault();
-				p_event.stopPropagation();
 				if (p_node.contextMenu!=undefined) {
 
 					var v_tree = this;

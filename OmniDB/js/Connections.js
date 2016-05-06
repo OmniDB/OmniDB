@@ -239,6 +239,10 @@ function listConnections() {
 				columnProperties.push(col);
 
 				var col = new Object();
+				col.title =  'Alias';
+				columnProperties.push(col);
+
+				var col = new Object();
 				col.title =  'Actions';
 				col.renderer = 'html';
 				col.readOnly = true;

@@ -370,12 +370,17 @@ namespace OmniDB
 
 			for (int i=0; i<v_session.v_databases.Count; i++) {
 
+				string v_alias = "";
+
 				if (p_filter == null || (p_filter != null && v_session.v_databases [i].v_db_type == p_filter)) {
 
+					if (v_session.v_databases [i].v_alias != "")
+						v_alias = "(" + v_session.v_databases [i].v_alias + ") ";
+
 					if (i == v_session.v_database_index)	
-						v_atu_options += "<option selected=\"selected\" data-image=\"images/" + v_session.v_databases [i].v_db_type + "_medium.png\" value=\"" + i + "\" data-description=\"" + v_session.v_databases [i].PrintDatabaseDetails() + "\">" + v_session.v_databases [i].PrintDatabaseInfo() + "</option>";
+						v_atu_options += "<option selected=\"selected\" data-image=\"images/" + v_session.v_databases [i].v_db_type + "_medium.png\" value=\"" + i + "\" data-description=\"" + v_session.v_databases [i].PrintDatabaseDetails() + "\">" + v_alias + v_session.v_databases [i].PrintDatabaseInfo() + "</option>";
 					else	
-						v_atu_options += "<option data-image=\"images/" + v_session.v_databases [i].v_db_type + "_medium.png\" value=\"" + i + "\" data-description=\"" + v_session.v_databases [i].PrintDatabaseDetails() + "\">" + v_session.v_databases [i].PrintDatabaseInfo() + "</option>";
+						v_atu_options += "<option data-image=\"images/" + v_session.v_databases [i].v_db_type + "_medium.png\" value=\"" + i + "\" data-description=\"" + v_session.v_databases [i].PrintDatabaseDetails() + "\">" + v_alias + v_session.v_databases [i].PrintDatabaseInfo() + "</option>";
 
 				}
 			}

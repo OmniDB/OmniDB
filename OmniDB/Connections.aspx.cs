@@ -152,7 +152,7 @@ namespace OmniDB
 			v_session.v_omnidb_database.v_connection.Execute ("insert into connections values ( " +
 															  v_connections.Rows [0] ["next_id"].ToString () + "," +
 															  v_session.v_user_id + "," +
-															  "'sqlite','','','','','','')");
+															  "'sqlite','','','','','','','')");
 
 			v_session.RefreshDatabaseList ();
 
@@ -238,7 +238,8 @@ namespace OmniDB
 				"service         = '#p_service#', " +
 				"schema          = '#p_schema#', " +
 				"user            = '#p_user#', " +
-				"password        = '#p_password#' " +
+				"password        = '#p_password#', " +
+				"alias           = '#p_alias#' " +
 			    "where conn_id   = #p_conn_id#";
 
 			for (int i=0; i < p_data.Count; i++)
@@ -254,7 +255,8 @@ namespace OmniDB
                     v_update = v_update.Replace ("#p_service#", v_cryptor.Encrypt(p_data [i][3]));
                     v_update = v_update.Replace ("#p_schema#", v_cryptor.Encrypt(p_data [i][4]));
                     v_update = v_update.Replace ("#p_user#", v_cryptor.Encrypt(p_data [i][5]));
-                    v_update = v_update.Replace ("#p_password#", v_cryptor.Encrypt(p_data [i][6]));
+					v_update = v_update.Replace ("#p_password#", v_cryptor.Encrypt(p_data [i][6]));
+					v_update = v_update.Replace ("#p_alias#", v_cryptor.Encrypt(p_data [i][7]));
                 }
                 catch (Spartacus.Utils.Exception)
                 {
@@ -263,7 +265,8 @@ namespace OmniDB
                     v_update = v_update.Replace ("#p_service#", p_data [i][3]);
                     v_update = v_update.Replace ("#p_schema#", p_data [i][4]);
                     v_update = v_update.Replace ("#p_user#", p_data [i][5]);
-                    v_update = v_update.Replace ("#p_password#", p_data [i][6]);
+					v_update = v_update.Replace ("#p_password#", p_data [i][6]);
+					v_update = v_update.Replace ("#p_alias#", p_data [i][7]);
                 }
 
 				v_session.v_omnidb_database.v_connection.Execute (v_update);
@@ -323,7 +326,8 @@ namespace OmniDB
                     v_connection_data_list.Add(v_cryptor.Decrypt(v_connection["service"].ToString()));
                     v_connection_data_list.Add(v_cryptor.Decrypt(v_connection["schema"].ToString()));
                     v_connection_data_list.Add(v_cryptor.Decrypt(v_connection["user"].ToString()));
-                    v_connection_data_list.Add(v_cryptor.Decrypt(v_connection["password"].ToString()));
+					v_connection_data_list.Add(v_cryptor.Decrypt(v_connection["password"].ToString()));
+					v_connection_data_list.Add(v_cryptor.Decrypt(v_connection["alias"].ToString()));
                 }
                 catch (Spartacus.Utils.Exception)
                 {
@@ -332,7 +336,8 @@ namespace OmniDB
                     v_connection_data_list.Add(v_connection["service"].ToString());
                     v_connection_data_list.Add(v_connection["schema"].ToString());
                     v_connection_data_list.Add(v_connection["user"].ToString());
-                    v_connection_data_list.Add(v_connection["password"].ToString());
+					v_connection_data_list.Add(v_connection["password"].ToString());
+					v_connection_data_list.Add(v_connection["alias"].ToString());
                 }
 
 				v_connection_data_list.Add("<img src='images/tab_close.png' class='img_ht' onclick='removeConnection(" + v_connection["conn_id"].ToString() + ")'/>" +

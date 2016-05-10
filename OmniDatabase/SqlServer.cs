@@ -20,7 +20,7 @@ namespace OmniDatabase
 	public class SqlServer : Generic
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="OmniDB.Database.Oracle"/> class.
+		/// Initializes a new instance of the <see cref="OmniDB.Database.SqlServer"/> class.
 		/// </summary>
 		/// <param name="p_server">Connection address.</param>
 		/// <param name="p_port">Connection port.</param>

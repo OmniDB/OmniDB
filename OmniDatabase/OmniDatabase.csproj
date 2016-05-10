@@ -33,19 +33,19 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="IKVM.OpenJDK.Core">
-      <HintPath>..\dll\IKVM.OpenJDK.Core.dll</HintPath>
+      <HintPath>..\Deps\IKVM.OpenJDK.Core.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Jdbc">
-      <HintPath>..\dll\IKVM.OpenJDK.Jdbc.dll</HintPath>
+      <HintPath>..\Deps\IKVM.OpenJDK.Jdbc.dll</HintPath>
     </Reference>
     <Reference Include="IKVM.Runtime">
-      <HintPath>..\dll\IKVM.Runtime.dll</HintPath>
+      <HintPath>..\Deps\IKVM.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="UCanAccess">
-      <HintPath>..\dll\UCanAccess.dll</HintPath>
+      <HintPath>..\Deps\UCanAccess.dll</HintPath>
     </Reference>
     <Reference Include="Spartacus">
-      <HintPath>..\dll\Spartacus.dll</HintPath>
+      <HintPath>..\Deps\Spartacus.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +58,7 @@
     <Compile Include="SQLite.cs" />
     <Compile Include="SqlServer.cs" />
     <Compile Include="Access.cs" />
+    <Compile Include="SqlCe.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

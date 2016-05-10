@@ -40,4 +40,5 @@
     <None Include="sqlite3.dll" />
     <None Include="UCanAccess.dll" />
   </ItemGroup>
+  <Target Name="Build" DependsOnTargets="$(BuildDependsOn)" Outputs="$(TargetPath)"/>
 </Project>

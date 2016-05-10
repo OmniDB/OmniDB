@@ -264,29 +264,32 @@ namespace OmniDatabase
 
 			switch (p_db_type)
 			{
-			case "oracle":
-				v_database = new Oracle (p_conn_id, p_server, p_port, p_service, p_user, p_password);
-				break;
-			case "firebird":
-				v_database = new Firebird(p_conn_id,p_server,p_port,p_service,p_user,p_password);
-				break;
-			case "mysql":
-				v_database = new MySQL(p_conn_id,p_server,p_port,p_service,p_user,p_password);
-				break;
-			case "postgresql":
-				v_database = new PostgreSQL(p_conn_id,p_server,p_port,p_service,p_user,p_password,p_schema);
-				break;
-			case "sqlite":
-				v_database = new SQLite(p_conn_id,p_service);
-				break;
-			case "sqlserver":
-				v_database = new SqlServer(p_conn_id,p_server,p_port,p_service,p_user,p_password,p_schema);
-				break;
-			case "access":
-				v_database = new Access (p_conn_id, p_service);
-				break;
-			default:
-				return null;
+    			case "oracle":
+    				v_database = new Oracle (p_conn_id, p_server, p_port, p_service, p_user, p_password);
+    				break;
+    			case "firebird":
+    				v_database = new Firebird(p_conn_id,p_server,p_port,p_service,p_user,p_password);
+    				break;
+    			case "mysql":
+    				v_database = new MySQL(p_conn_id,p_server,p_port,p_service,p_user,p_password);
+    				break;
+    			case "postgresql":
+    				v_database = new PostgreSQL(p_conn_id,p_server,p_port,p_service,p_user,p_password,p_schema);
+    				break;
+    			case "sqlite":
+    				v_database = new SQLite(p_conn_id,p_service);
+    				break;
+    			case "sqlserver":
+    				v_database = new SqlServer(p_conn_id,p_server,p_port,p_service,p_user,p_password,p_schema);
+    				break;
+    			case "access":
+    				v_database = new Access (p_conn_id, p_service);
+    				break;
+                case "sqlce":
+                    v_database = new SqlCe(p_conn_id, p_service);
+                    break;
+    			default:
+    				return null;
 			}
 
 			v_database.v_alias = p_alias;

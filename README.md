@@ -35,6 +35,7 @@ Supported DBMS:
 - SQLite
 - Microsoft SQL Server
 - Microsoft Access
+- Microsoft SQL Compact (Windows only)
 
 # Database Schema Management
 

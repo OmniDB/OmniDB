@@ -33,10 +33,10 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Data" />
-    <Reference Include="Spartacus">
-      <HintPath>..\dll\Spartacus.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="Spartacus">
+      <HintPath>..\Deps\Spartacus.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
@@ -383,7 +383,6 @@
     <Content Include="images\new_row.png" />
     <Content Include="images\new_table.png" />
     <Content Include="images\sqlserver_medium.png" />
-    <Content Include="images\sqlserver_medium1.png" />
     <Content Include="images\start.png" />
     <Content Include="images\status_blue.png" />
     <Content Include="images\status_green.png" />
@@ -399,6 +398,9 @@
     <Content Include="js\CreateConversion.js" />
     <Content Include="js\Conversions.js" />
     <Content Include="js\MainDB.js" />
+    <Content Include="images\command_list.png" />
+    <Content Include="images\fbembed_medium.png" />
+    <Content Include="images\sqlce_medium.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -483,14 +485,8 @@
     <None Include="images\msdropdown\icons\Thumbs.db" />
     <None Include="images\msdropdown\skin1\.directory" />
     <None Include="images\.directory" />
-    <None Include="bin\OmniDB.dll" />
-    <None Include="bin\Spartacus.dll" />
-    <None Include="bin\libsqlite3.so" />
-    <None Include="bin\sqlite3.dll" />
     <None Include="databases\tool_database" />
-    <None Include="bin\OmniDatabase.dll" />
     <None Include="cassini.exe" />
-    <None Include="bin\TaskMigration.exe" />
     <None Include="databases\basecadastro.db" />
     <None Include="databases\guide_database.db" />
     <None Include="databases\northwind.db" />
@@ -500,6 +496,21 @@
     <None Include="images\favicon.ico" />
     <None Include="images\favicon2.ico" />
     <None Include="images\favicon3.ico" />
+    <None Include="config\admin.txt" />
+    <None Include="doc\omnidb-manualdousurio.pdf" />
+    <None Include="doc\omnidb-usersguide.pdf" />
+    <None Include="bin\libsqlite3.so" />
+    <None Include="bin\msvcr90.dll" />
+    <None Include="bin\sqlceca40.dll" />
+    <None Include="bin\sqlcecompact40.dll" />
+    <None Include="bin\sqlceer40EN.dll" />
+    <None Include="bin\sqlceme40.dll" />
+    <None Include="bin\sqlceqp40.dll" />
+    <None Include="bin\sqlcese40.dll" />
+    <None Include="bin\sqlite3.dll" />
+    <None Include="databases\empty.sdf" />
+    <None Include="databases\northwind.fdb" />
+    <None Include="databases\northwind.sdf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OmniDatabase\OmniDatabase.csproj">

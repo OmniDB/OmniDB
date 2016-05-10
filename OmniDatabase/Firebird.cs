@@ -20,14 +20,13 @@ namespace OmniDatabase
 	public class Firebird : Generic
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="OmniDB.Database.Oracle"/> class.
+		/// Initializes a new instance of the <see cref="OmniDB.Database.Firebird"/> class.
 		/// </summary>
 		/// <param name="p_server">Connection address.</param>
 		/// <param name="p_port">Connection port.</param>
 		/// <param name="p_service">Database name.</param>
 		/// <param name="p_user">Database user.</param>
 		/// <param name="p_password">Database password.</param>
-		/// <param name="p_schema">Schema.</param>
 		public Firebird (string p_conn_id, string p_server, string p_port, string p_service, string p_user, string p_password)
 			: base ("firebird",p_conn_id)
 		{

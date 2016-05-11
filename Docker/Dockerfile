@@ -7,9 +7,9 @@ RUN apt update -y && \
 # setup omniDB
 RUN mkdir -p /opt \
 	&& cd /tmp \
-	&& wget http://omnidb.com.br/OmniDB-1.3.zip \
-	&& unzip OmniDB-1.3.zip \
-	&& cd OmniDB-1.3 \
+	&& wget https://github.com/OmniDB/OmniDB/releases/download/v1.4/OmniDB-1.4.zip \
+	&& unzip OmniDB-1.4.zip \
+	&& cd OmniDB-1.4 \
 	&& mv * /opt \
 	&& cd .. \
 	&& rm -rf Omni*

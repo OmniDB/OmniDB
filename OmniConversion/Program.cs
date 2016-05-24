@@ -1285,15 +1285,16 @@ namespace TaskConversion
 		/// <param name="p_conv_tables">Source datatable.</param>
 		public static void AssingConversionTables(DataTable p_tables, DataTable p_conv_tables) {
 
-			int v_index = 0;
-
 			foreach (DataRow v_table in p_tables.Rows) {
-				v_table ["drop_records"] = p_conv_tables.Rows [v_index] ["ctd_ch_droprecords"].ToString ();
-				v_table ["create_table"] = p_conv_tables.Rows [v_index] ["ctd_ch_createtable"].ToString ();
-				v_table ["transfer_data"] = p_conv_tables.Rows [v_index] ["ctd_ch_transferdata"].ToString ();
-				v_table ["transfer_filter"] = p_conv_tables.Rows [v_index] ["ctd_st_transferfilter"].ToString ();
-				v_index++;
-
+				foreach (DataRow v_conv_table in p_conv_tables.Rows) {
+					if (v_conv_table ["ctd_st_table"].ToString () == v_table ["table_name"].ToString ()) {
+						v_table ["drop_records"] = v_conv_table["ctd_ch_droprecords"].ToString ();
+						v_table ["create_table"] = v_conv_table["ctd_ch_createtable"].ToString ();
+						v_table ["transfer_data"] = v_conv_table["ctd_ch_transferdata"].ToString ();
+						v_table ["transfer_filter"] = v_conv_table["ctd_st_transferfilter"].ToString ();
+						break;
+					}
+				}
 			}
 
 		}

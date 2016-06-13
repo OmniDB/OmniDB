@@ -9,29 +9,29 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css"                   />
 	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css"       />
 	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css"           />
-    <link rel="stylesheet" type="text/css" href="lib/vis/vis.min.css"             />
     <link rel="stylesheet" type="text/css" href="lib/jquery-ui/jquery-ui.css"     />
     <link rel="stylesheet" type="text/css" href="lib/jqplot/jquery.jqplot.min.css"/>
     <link rel="stylesheet" type="text/css" href="lib/aimaraJS/css/Aimara.css"     />
     <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css"           />
 
-	<script type="text/javascript" src="js/jquery-1.11.2.min.js"      ></script>
-	<script type="text/javascript" src="lib/jquery-ui/jquery-ui.js"   ></script>
-	<script type="text/javascript" src="js/jquery.dd.min.js"          ></script>
-	<script type="text/javascript" src="js/handsontable.full.js"      ></script>
-    <script type="text/javascript" src="lib/vis/vis.min.js"           ></script>
-    <script type="text/javascript" src="lib/chart/chart.min.js"       ></script>
-    <script type="text/javascript" src="js/Tree.js"                   ></script>
-    <script type="text/javascript" src="js/NotificationControl.js"    ></script>
-    <script type="text/javascript" src="js/AjaxControl.js"            ></script>
-    <script type="text/javascript" src="lib/tabs/lib/tabs.js"         ></script>
-    <script type="text/javascript" src="lib/aimaraJS/lib/Aimara.js"   ></script>
-    <script type="text/javascript" src="lib/ace/ace.js"               ></script>
-	<script type="text/javascript" src="lib/ace/mode-sql.js"          ></script>
-	<script type="text/javascript" src="lib/ace/ext-language_tools.js"></script>
-	<script type="text/javascript" src="js/Renderers.js"              ></script>
-    <script type="text/javascript" src="js/HeaderActions.js"          ></script>
-    <script type="text/javascript" src="js/MainDB.js"                 ></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"                                ></script>
+	<script type="text/javascript" src="lib/jquery-ui/jquery-ui.js"                             ></script>
+	<script type="text/javascript" src="js/jquery.dd.min.js"                                    ></script>
+	<script type="text/javascript" src="js/handsontable.full.js"                                ></script>
+    <script type="text/javascript" src="lib/cytoscape/cytoscape.min.js"                         ></script>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-spread/1.0.9/cytoscape-spread.js"></script>
+    <script type="text/javascript" src="lib/chart/chart.min.js"                                 ></script>
+    <script type="text/javascript" src="js/Tree.js"                                             ></script>
+    <script type="text/javascript" src="js/NotificationControl.js"                              ></script>
+    <script type="text/javascript" src="js/AjaxControl.js"                                      ></script>
+    <script type="text/javascript" src="lib/tabs/lib/tabs.js"                                   ></script>
+    <script type="text/javascript" src="lib/aimaraJS/lib/Aimara.js"                             ></script>
+    <script type="text/javascript" src="lib/ace/ace.js"                                         ></script>
+	<script type="text/javascript" src="lib/ace/mode-sql.js"                                    ></script>
+	<script type="text/javascript" src="lib/ace/ext-language_tools.js"                          ></script>
+	<script type="text/javascript" src="js/Renderers.js"                                        ></script>
+    <script type="text/javascript" src="js/HeaderActions.js"                                    ></script>
+    <script type="text/javascript" src="js/MainDB.js"                                           ></script>
 
 	<script type="text/javascript">
 
@@ -50,6 +50,10 @@
 		var v_editor_font_size = "<%= v_session.v_editor_font_size %>";
 		var v_completer_ready = true;
 		var v_tree_object;
+		var v_keybind_object = { v_execute_win: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Execute.Win"].ToString() %>",
+								 v_execute_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Execute.Mac"].ToString() %>",
+								 v_replace_win: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Replace.Win"].ToString() %>",
+								 v_replace_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Replace.Mac"].ToString() %>" };
 
 	</script>
 </head>
@@ -119,9 +123,7 @@
 
                 <div id="visualization" style="height:100%; width:100%;">
 
-                <svg id='svg1' height='100%' width='100%'>
-
-				</svg>
+                	<div id="div_graph_content" style="height:100%; width:100%; z-index: 999"></div>
 
                 </div>
             </div>
@@ -250,6 +252,40 @@
 
                 </div>
 
+
+
+            </div>
+        </div>
+    </div>
+
+    <div id="div_find_replace" style="display: none;">
+        <div class="modal_background_dark" style="z-index: 2000">
+            <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
+                <img src="images/window_close.png" class="img_close" onclick="hideFindReplace()"/>
+
+                <div id="find_replace" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
+	                <ul>
+	                <li id="find_replace_tab1">Find & Replace</li>
+	  				</ul>
+	  				<div id="div_find_replace_tab1">
+
+	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
+		                <div style="text-align: center;">
+		                <div style="margin-bottom: 10px;">Text</div>
+		                <input id="txt_replacement_text" type="text" style="width: 200px; margin-bottom: 20px;">
+		                </div>
+		                <div style="text-align: center;">
+		                <div style="margin-bottom: 10px;">Replacement</div>
+		                <input id="txt_replacement_text_new" type="text" style="width: 200px; margin-bottom: 20px;">
+		                </div>
+		                <div style="text-align: center;">
+		                	<button class="bt_blue" onclick="replaceText();">Replace</button>
+		                </div>
+		                </div>
+
+
+	  				</div>
+  				</div>
 
 
             </div>

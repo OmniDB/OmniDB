@@ -470,7 +470,7 @@ namespace OmniDB
 				string v_curr_to = "";
 
 				for (int j = 0; j < v_data.Rows.Count; j++) {
-					if (v_curr_constraint!="" && v_curr_constraint!=v_data.Rows [j] ["constraint_name"].ToString ()) {
+					if (v_curr_constraint!="" && v_curr_constraint!=v_data.Rows [j] ["constraint_name"].ToString () && (!v_database.v_has_schema || (v_database.v_schema==v_data.Rows [j] ["r_table_schema"].ToString () && v_database.v_has_schema))) {
 
 						v_edge = new GraphEdge ();
 						v_edge.from = v_curr_from;
@@ -1036,6 +1036,49 @@ namespace OmniDB
 			v_g1.v_col_names = v_col_names;
 
 			v_return.v_data = v_g1;
+
+			return v_return;
+
+		}
+
+		/// <summary>
+		/// Exports data from query.
+		/// </summary>
+		/// <param name="p_sql">SQL string.</param>
+		/// <param name="p_select_value">Command type.</param>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn ExportData(string p_sql, string p_select_value, string p_tab_name)
+		{
+			Session v_session = (Session)System.Web.HttpContext.Current.Session ["DB_SESSION"];
+
+			AjaxReturn v_return = new AjaxReturn ();
+
+			if (v_session == null) 
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			} 
+
+			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase();
+
+			Spartacus.Utils.Cryptor v_cryptor = new Spartacus.Utils.Cryptor ("OmniDB");
+
+			string v_filename = v_cryptor.RandomString () +  "." + p_select_value;
+
+			System.Web.HttpContext.Current.Session ["OMNIDB_EXPORTED_FILE"] = v_filename;
+			System.Web.HttpContext.Current.Session ["OMNIDB_EXPORTED_TYPE"] = p_select_value;
+			System.Web.HttpContext.Current.Session ["OMNIDB_EXPORTED_NAME"] = p_tab_name;
+
+			if (p_select_value=="csv")
+				v_database.v_connection.TransferToCSV (p_sql,
+					System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.ExportedFilesFolder"] + "/" + v_filename,
+					System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.ExportedCSVSeparator"].ToString (),
+					System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.ExportedCSVDelimiter"],
+					true,
+					System.Text.Encoding.UTF8);
+			else
+				v_database.v_connection.TransferToFile (p_sql,System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.ExportedFilesFolder"] + "/" + v_filename);
 
 			return v_return;
 

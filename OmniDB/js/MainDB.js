@@ -15,8 +15,15 @@ You should have received a copy of the GNU General Public License along with Omn
 /// </summary>
 $(function () {
 
+	console.log(v_keybind_object);
+
 	var v_configTabControl = createTabControl('config_tabs',0,null);
 	v_configTabControl.selectTabIndex(0);
+
+	v_copyPasteObject = new Object();
+
+	v_copyPasteObject.v_tabControl = createTabControl('find_replace',0,null);
+	v_copyPasteObject.v_tabControl.selectTabIndex(0);
 
 	getDatabaseList('sl_database',null);
 	getTree();
@@ -89,6 +96,44 @@ $(function () {
 });
 
 /// <summary>
+/// Opens copy & paste window.
+/// </summary>
+function showFindReplace(p_editor) {
+
+	v_copyPasteObject.v_editor = p_editor;
+
+	$('#div_find_replace').show();
+
+	document.getElementById('txt_replacement_text').value = '';
+	document.getElementById('txt_replacement_text_new').value = '';
+
+}
+
+/// <summary>
+/// Hides copy & paste window.
+/// </summary>
+function replaceText() {
+	
+	var v_old_text = v_copyPasteObject.v_editor.getValue();
+
+	var v_new_text = v_old_text.split(document.getElementById('txt_replacement_text').value).join(document.getElementById('txt_replacement_text_new').value);
+
+	v_copyPasteObject.v_editor.setValue(v_new_text);
+
+	hideFindReplace();
+
+}
+
+/// <summary>
+/// Opens copy & paste window.
+/// </summary>
+function hideFindReplace() {
+
+	$('#div_find_replace').hide();
+
+}
+
+/// <summary>
 /// Renames tab.
 /// </summary>
 /// <param name="p_tab">Tab object.</param>
@@ -128,9 +173,11 @@ function createTab() {
 	v_tabControl.selectTab(v_tab);
 
 	var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 300px;border: 1px solid #c3c3c3;'></div>" +
-				 "<button id='bt_execute' title='Run (CTRL + Q)' style='margin-top: 15px; margin-bottom: 15px; margin-right: 15px; display: inline-block;' onclick='querySQL();'><img src='images/play.png' style='vertical-align: middle;'/></button>" +
+				 "<button id='bt_execute' title='Run' style='margin-top: 15px; margin-bottom: 15px; margin-right: 15px; display: inline-block;' onclick='querySQL();'><img src='images/play.png' style='vertical-align: middle;'/></button>" +
 				 "<select id='sel_filtered_data_" + v_tab.id + "'><option value='-3' >Script</option><option value='-2' >Execute</option><option selected='selected' value='10' >Query 10 rows</option><option value='100'>Query 100 rows</option><option value='1000'>Query 1000 rows</option><option value='-1'>Query All rows</option></select>" +
 				 "<div id='div_query_info_" + v_tab.id + "' style='display: inline-block; margin-left: 15px; vertical-align: middle;'></div>" +
+				 "<button id='bt_export' title='Export Data' style='margin-top: 15px; margin-bottom: 15px; margin-left: 15px; float: right; display: inline-block;' onclick='exportData();'><img src='images/table_export.png' style='vertical-align: middle;'/></button>" +
+				 "<select id='sel_export_type_" + v_tab.id + "' style='margin-top: 15px; float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='DBF' >DBF</option></select>" +
 				 "<div id='div_result_" + v_tab.id + "' style='width: 100%; height: 250px; overflow: auto;'></div>";
 
 	var v_div = document.getElementById('div_' + v_tab.id);
@@ -160,11 +207,25 @@ function createTab() {
 	var command = {
 		name: "save",
 		bindKey: {
-		      mac: "Command-Q",
-		      win: "Ctrl-Q"
+		      mac: v_keybind_object.v_execute_mac,
+		      win: v_keybind_object.v_execute_win
 		    },
 		exec: function(){
 		querySQL();
+		}
+	}
+
+	v_editor.commands.addCommand(command);
+
+	var command = {
+		name: "replace",
+		bindKey: {
+		      mac: v_keybind_object.v_replace_mac,
+		      win: v_keybind_object.v_replace_win
+		    },
+		exec: function(){
+			v_copyPasteObject.v_tabControl.selectTabIndex(0);
+			showFindReplace(v_editor);
 		}
 	}
 
@@ -211,7 +272,8 @@ function createTab() {
 		editor: v_editor,
 		query_info: document.getElementById('div_query_info_' + v_tab.id),
 		div_result: document.getElementById('div_result_' + v_tab.id),
-		sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id)
+		sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id),
+		sel_export_type : document.getElementById('sel_export_type_' + v_tab.id)
 	};
 
 	v_tab.tag = v_tag;
@@ -296,139 +358,131 @@ function drawGraph(p_graph_type) {
 			function(p_return) {
 
 				$('#div_legend').hide();
+				$('#div_graph').show();
+
+				if (p_graph_type==1) {
+		        	$('#div_legend').show();
+
+		        	for (i=0; i<6; i++) {
+		        		document.getElementById('p_legend_' + i).innerHTML = p_return.v_data.v_legends[i];
+		        	}
+		        }
 
 	            v_nodes = [];
 	            v_edges = [];
 
 	            for (var i=0; i<p_return.v_data.v_nodes.length; i++)
 	            {
-	            	var temp = { group: '', data: { id: p_return.v_data.v_nodes[i].id, label: p_return.v_data.v_nodes[i].label }, position: { x:100, y: 100 } };
-	            	v_nodes.push(temp);
+
+	            	var v_node_object = new Object();
+					v_node_object.data = new Object();
+					v_node_object.position = new Object();
+					v_node_object.data.id = p_return.v_data.v_nodes[i].id;
+					v_node_object.data.label = p_return.v_data.v_nodes[i].label;
+					v_node_object.classes = 'group' + p_return.v_data.v_nodes[i].group;
+
+					v_nodes.push(v_node_object);
+
 	            }
 
 	            for (var i=0; i<p_return.v_data.v_edges.length; i++)
 	            {
-	            	var temp = { group: 'edges', data: { id: 'e' + i, source: p_return.v_data.v_edges[i].from, target: p_return.v_data.v_edges[i].to } };
-	            	v_edges.push(temp);
+	            	
+	            	var v_edge_object = new Object();
+					v_edge_object.data = new Object();
+					v_edge_object.data.target = p_return.v_data.v_edges[i].from;
+					v_edge_object.data.source = p_return.v_data.v_edges[i].to;
+					v_edge_object.data.label = p_return.v_data.v_edges[i].label;
+					v_edge_object.data.faveColor = '#9dbaea';
+					v_edge_object.data.arrowColor = '#9dbaea';
+					v_edges.push(v_edge_object);
+
 	            }
 
 
 
-	            var container = document.getElementById('visualization');
-	            var data = {
-	                nodes: p_return.v_data.v_nodes,
-	                edges: p_return.v_data.v_edges
-	            };
+				network = window.cy = cytoscape({
+					container: document.getElementById('div_graph_content'),
+					boxSelectionEnabled: false,
+					autounselectify: true,
+					layout: {
+						name: 'cose',
+            			idealEdgeLength: 100,
+            			nodeOverlap: 20
+					},
+					style: [
+						{
+							selector: 'node',
+							style: {
+								'content': 'data(label)',
+								'text-opacity': 0.5,
+								'text-valign': 'top',
+								'text-halign': 'right',
+								'background-color': '#11479e',
+								'text-wrap': 'wrap',
 
-	            var options;
-
-	            if (p_graph_type==0) {
-	            	$('#div_legend').hide();
-								options = {
-			                edges: {
-	                            color: 'green'
-			                },
-			                nodes: {
-			                    shape: 'dot'
-			                },
-							physics: {
-								repulsion: {
-									centralGravity: 0,
-									springLength: 300,
-									nodeDistance: 300,
-									springConstant: 0,
-									damping: 0.035
-
-								}},
-					        groups: {
-					          6: {
-					            color: 'red'
-					          },
-					          5: {
-					            color: 'orange'
-					          },
-					          4: {
-					            color: "yellow"
-					          },
-					          3: {
-					            color: 'lightgreen'
-					          },
-					          2: {
-					            color: 'cyan'
-					          },
-					          1: {
-					            color: 'blue'
-					          }
-					    }
-			            };
-		        }
-		        else if (p_graph_type==1) {
-		        	$('#div_legend').show();
-		        	for (i=0; i<6; i++) {
-		        		document.getElementById('p_legend_' + i).innerHTML = p_return.v_data.v_legends[i];
-		        	}
-
-		        	options = {
-		                edges: {
-                            color: 'green'
-		                },
-		                nodes: {
-		                    shape: 'dot'
-		                },
-						physics: {
-							repulsion: {
-								centralGravity: 0,
-								springLength: 300,
-								nodeDistance: 300,
-								springConstant: 0,
-								damping: 0.035
 
 							}
 						},
-				        groups: {
-							6: {
-								color: 'red'
-							},
-							5: {
-								color: 'orange'
-							},
-							4: {
-								color: "yellow"
-							},
-							3: {
-								color: 'lightgreen'
-							},
-							2: {
-								color: 'cyan'
-							},
-							1: {
-								color: '#6E6EFD'
+						{
+							selector: 'node.group1',
+							style: {
+								'background-color': 'blue'
 							}
-				    	}
-		            };
-				}
-				else {
-					$('#div_legend').hide();
-					options = {
-					    edges: {
-					        color: 'green',
-					        smooth: true
-					    },
-					    nodes: {
-					        shape: 'box'
-					    },
-						"physics": {
-						    "repulsion": {
-						      "nodeDistance": 300
-						    },
-						    "minVelocity": 0.75,
-						    "solver": "repulsion"
-						  }
-					};
-				}
+						},
+						{
+							selector: 'node.group2',
+							style: {
+								'background-color': 'cyan'
+							}
+						},
+						{
+							selector: 'node.group3',
+							style: {
+								'background-color': 'lightgreen'
+							}
+						},
+						{
+							selector: 'node.group4',
+							style: {
+								'background-color': 'yellow'
+							}
+						},
+						{
+							selector: 'node.group5',
+							style: {
+								'background-color': 'orange'
+							}
+						},
+						{
+							selector: 'node.group6',
+							style: {
+								'background-color': 'red'
+							}
+						},
 
-				network = new vis.Network(container, data, options);
-				$('#div_graph').show();
+						{
+							selector: 'edge',
+							style: {
+								'curve-style': 'bezier',
+						        'target-arrow-shape': 'triangle',
+						        'target-arrow-color': 'data(faveColor)',
+						        'line-color': 'data(arrowColor)',
+						        'text-opacity': 0.75,
+						        'width': 2,
+						        'control-point-distances': 50,
+						        'content': 'data(label)',
+						        'text-wrap': 'wrap',
+						        'edge-text-rotation': 'autorotate'
+							}
+						}
+					],
+
+					elements: {
+						nodes: v_nodes,
+						edges: v_edges
+					},
+				});
 
 			},
 			null,
@@ -577,6 +631,46 @@ function querySQL() {
 				},
 				null,
 				'box');
+	}
+
+}
+
+/// <summary>
+/// Queries and displays query results.
+/// </summary>
+function exportData() {
+
+	var v_sql_value = v_tabControl.selectedTab.tag.editor.getValue();
+	var v_sel_value = v_tabControl.selectedTab.tag.sel_export_type.value;
+
+	if (v_sql_value=='') {
+		showAlert('Please provide a string.');
+	}
+	else {
+
+		showConfirm('Are you sure you want to export data from the result of this query?',
+				function() {
+
+					var input = JSON.stringify({"p_sql": v_sql_value, "p_select_value" : v_sel_value, "p_tab_name" : v_tabControl.selectedTab.text});
+
+					var start_time = new Date().getTime();
+
+					execAjax('MainDB.aspx/ExportData',
+							input,
+							function(p_return) {
+
+								var iframe = document.createElement('iframe');
+								iframe.style.display = 'none';
+								iframe.setAttribute("src", "DownloadFile.aspx");
+								document.body.appendChild(iframe);
+								setTimeout(function(){ iframe.parentElement.removeChild(iframe); }, 5000);
+
+							},
+							null,
+							'box');
+
+				});
+		
 	}
 
 }
@@ -1290,6 +1384,20 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
   		v_editor.focus();
     };
 
+    var command = {
+		name: "replace",
+		bindKey: {
+		      mac: v_keybind_object.v_replace_mac,
+		      win: v_keybind_object.v_replace_win
+		    },
+		exec: function(){
+			v_copyPasteObject.v_tabControl.selectTabIndex(0);
+			showFindReplace(v_editor);
+		}
+	}
+
+	v_editor.commands.addCommand(command);
+
 	if (p_content!=null)
 		v_editor.setValue(p_content);
 	else
@@ -1472,8 +1580,8 @@ function startEditData(p_table) {
 				var command = {
 			         name: "save",
 			         bindKey: {
-			                  mac: "Command-Q",
-			                  win: "Ctrl-Q"
+			                  mac: v_keybind_object.v_execute_mac,
+			                  win: v_keybind_object.v_execute_win
 			                },
 			         exec: function(){
 			           queryEditData();
@@ -1481,6 +1589,20 @@ function startEditData(p_table) {
 			      }
 
 			    v_editor.commands.addCommand(command);
+
+			    var command = {
+					name: "replace",
+					bindKey: {
+					      mac: v_keybind_object.v_replace_mac,
+					      win: v_keybind_object.v_replace_win
+					    },
+					exec: function(){
+						v_copyPasteObject.v_tabControl.selectTabIndex(0);
+						showFindReplace(v_editor);
+					}
+				}
+
+				v_editor.commands.addCommand(command);
 
 				var qtags = {
 					getCompletions: function(editor, session, pos, prefix, callback) {

@@ -35,8 +35,6 @@ namespace OmniDB
 
 			System.IO.FileInfo v_file_info = new System.IO.FileInfo(System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.ExportedFilesFolder"] + "/" + v_file);
 
-			Console.WriteLine (v_file_info.Length.ToString());
-
 			this.Response.ContentType = "application/" + v_type;
 			this.Response.AddHeader("content-disposition", "attachment; filename=\"" + v_name + "." + v_type + "\"");
 			this.Response.AddHeader("content-length", v_file_info.Length.ToString());

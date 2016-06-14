@@ -50,10 +50,10 @@
 		var v_editor_font_size = "<%= v_session.v_editor_font_size %>";
 		var v_completer_ready = true;
 		var v_tree_object;
-		var v_keybind_object = { v_execute_win: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Execute.Win"].ToString() %>",
-								 v_execute_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Execute.Mac"].ToString() %>",
-								 v_replace_win: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Replace.Win"].ToString() %>",
-								 v_replace_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Replace.Mac"].ToString() %>" };
+		var v_keybind_object = { v_execute: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Execute"].ToString() %>",
+								 v_execute_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ExecuteMac"].ToString() %>",
+								 v_replace: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Replace"].ToString() %>",
+								 v_replace_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ReplaceMac"].ToString() %>" };
 
 	</script>
 </head>

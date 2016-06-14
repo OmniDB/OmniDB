@@ -1,6 +1,12 @@
 ﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/web.config">
+    <Files>
+      <File FileName="OmniDB/web.config" Line="8" Column="19" />
+      <File FileName="OmniDB/js/MainDB.js" Line="17" Column="1" />
+      <File FileName="OmniDB/DownloadFile.aspx.cs" Line="27" Column="26" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

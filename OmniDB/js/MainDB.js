@@ -206,7 +206,7 @@ function createTab() {
 		name: "save",
 		bindKey: {
 		      mac: v_keybind_object.v_execute_mac,
-		      win: v_keybind_object.v_execute_win
+		      win: v_keybind_object.v_execute
 		    },
 		exec: function(){
 		querySQL();
@@ -219,7 +219,7 @@ function createTab() {
 		name: "replace",
 		bindKey: {
 		      mac: v_keybind_object.v_replace_mac,
-		      win: v_keybind_object.v_replace_win
+		      win: v_keybind_object.v_replace
 		    },
 		exec: function(){
 			v_copyPasteObject.v_tabControl.selectTabIndex(0);
@@ -1386,7 +1386,7 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 		name: "replace",
 		bindKey: {
 		      mac: v_keybind_object.v_replace_mac,
-		      win: v_keybind_object.v_replace_win
+		      win: v_keybind_object.v_replace
 		    },
 		exec: function(){
 			v_copyPasteObject.v_tabControl.selectTabIndex(0);
@@ -1579,7 +1579,7 @@ function startEditData(p_table) {
 			         name: "save",
 			         bindKey: {
 			                  mac: v_keybind_object.v_execute_mac,
-			                  win: v_keybind_object.v_execute_win
+			                  win: v_keybind_object.v_execute
 			                },
 			         exec: function(){
 			           queryEditData();
@@ -1592,7 +1592,7 @@ function startEditData(p_table) {
 					name: "replace",
 					bindKey: {
 					      mac: v_keybind_object.v_replace_mac,
-					      win: v_keybind_object.v_replace_win
+					      win: v_keybind_object.v_replace
 					    },
 					exec: function(){
 						v_copyPasteObject.v_tabControl.selectTabIndex(0);

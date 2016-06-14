@@ -15,8 +15,6 @@ You should have received a copy of the GNU General Public License along with Omn
 /// </summary>
 $(function () {
 
-	console.log(v_keybind_object);
-
 	var v_configTabControl = createTabControl('config_tabs',0,null);
 	v_configTabControl.selectTabIndex(0);
 

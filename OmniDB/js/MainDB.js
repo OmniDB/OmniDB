@@ -388,16 +388,14 @@ function drawGraph(p_graph_type) {
 	            	
 	            	var v_edge_object = new Object();
 					v_edge_object.data = new Object();
-					v_edge_object.data.target = p_return.v_data.v_edges[i].from;
-					v_edge_object.data.source = p_return.v_data.v_edges[i].to;
+					v_edge_object.data.source = p_return.v_data.v_edges[i].from;
+					v_edge_object.data.target = p_return.v_data.v_edges[i].to;
 					v_edge_object.data.label = p_return.v_data.v_edges[i].label;
 					v_edge_object.data.faveColor = '#9dbaea';
 					v_edge_object.data.arrowColor = '#9dbaea';
 					v_edges.push(v_edge_object);
 
 	            }
-
-
 
 				network = window.cy = cytoscape({
 					container: document.getElementById('div_graph_content'),

@@ -904,7 +904,6 @@ namespace OmniDB
 			if (p_select_value == -2) {
 				try {
 					v_database.v_connection.Execute (p_sql);
-					return v_return;
 				} catch (Spartacus.Database.Exception e) {
 
 					v_return.v_error = true;
@@ -983,6 +982,12 @@ namespace OmniDB
 						v_table.Add (v_row_data);
 
 					}
+
+					v_g1.v_data = v_table;
+					v_g1.v_col_names = v_col_names;
+
+					v_return.v_data = v_g1;
+
 				} catch (Spartacus.Database.Exception e) {
 
 					v_return.v_error = true;
@@ -1002,8 +1007,6 @@ namespace OmniDB
 				}
 
 			}
-
-
 
 			//Logging the command
 			System.Data.DataTable v_command_table;
@@ -1031,11 +1034,6 @@ namespace OmniDB
 
 				return v_return;
 			}
-
-			v_g1.v_data = v_table;
-			v_g1.v_col_names = v_col_names;
-
-			v_return.v_data = v_g1;
 
 			return v_return;
 
@@ -1070,15 +1068,37 @@ namespace OmniDB
 			System.Web.HttpContext.Current.Session ["OMNIDB_EXPORTED_TYPE"] = p_select_value;
 			System.Web.HttpContext.Current.Session ["OMNIDB_EXPORTED_NAME"] = p_tab_name;
 
-			if (p_select_value=="csv")
-				v_database.v_connection.TransferToCSV (p_sql,
-					System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.ExportedFilesFolder"] + "/" + v_filename,
-					System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.ExportedCSVSeparator"].ToString (),
-					System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.ExportedCSVDelimiter"],
-					true,
-					System.Text.Encoding.UTF8);
-			else
-				v_database.v_connection.TransferToFile (p_sql,System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.ExportedFilesFolder"] + "/" + v_filename);
+			try
+			{
+				
+				if (p_select_value == "csv")
+					v_database.v_connection.TransferToCSV(p_sql,
+						System.Web.Configuration.WebConfigurationManager.AppSettings["OmniDB.ExportedFilesFolder"] + "/" + v_filename,
+						System.Web.Configuration.WebConfigurationManager.AppSettings["OmniDB.ExportedCSVSeparator"].ToString(),
+						System.Web.Configuration.WebConfigurationManager.AppSettings["OmniDB.ExportedCSVDelimiter"],
+						true,
+						System.Text.Encoding.UTF8);
+				else
+					v_database.v_connection.TransferToFile(p_sql, System.Web.Configuration.WebConfigurationManager.AppSettings["OmniDB.ExportedFilesFolder"] + "/" + v_filename);
+			
+			} 
+			catch (Spartacus.Database.Exception e) {
+
+				v_return.v_error = true;
+				v_return.v_data = e.v_message.Replace ("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			} catch (System.InvalidOperationException e) {
+				v_return.v_error = true;
+				v_return.v_data = e.Message.Replace ("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			} catch (System.Data.DuplicateNameException e) {
+				v_return.v_error = true;
+				v_return.v_data = e.Message.Replace ("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			}
 
 			return v_return;
 

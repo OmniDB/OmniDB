@@ -6,32 +6,32 @@
 
 	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
 
-	<link rel="stylesheet" type="text/css" href="css/style.css"                   />
-	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css"       />
-	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css"           />
-    <link rel="stylesheet" type="text/css" href="lib/jquery-ui/jquery-ui.css"     />
-    <link rel="stylesheet" type="text/css" href="lib/jqplot/jquery.jqplot.min.css"/>
-    <link rel="stylesheet" type="text/css" href="lib/aimaraJS/css/Aimara.css"     />
-    <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css"           />
+	<link rel="stylesheet" type="text/css" href="css/style.css?v1.5"                   />
+	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.5"       />
+	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.5"           />
+    <link rel="stylesheet" type="text/css" href="lib/jquery-ui/jquery-ui.css?v1.5"     />
+    <link rel="stylesheet" type="text/css" href="lib/jqplot/jquery.jqplot.min.css?v1.5"/>
+    <link rel="stylesheet" type="text/css" href="lib/aimaraJS/css/Aimara.css?v1.5"     />
+    <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css?v1.5"           />
 
-	<script type="text/javascript" src="js/jquery-1.11.2.min.js"                                ></script>
-	<script type="text/javascript" src="lib/jquery-ui/jquery-ui.js"                             ></script>
-	<script type="text/javascript" src="js/jquery.dd.min.js"                                    ></script>
-	<script type="text/javascript" src="js/handsontable.full.js"                                ></script>
-    <script type="text/javascript" src="lib/cytoscape/cytoscape.min.js"                         ></script>
-    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-spread/1.0.9/cytoscape-spread.js"></script>
-    <script type="text/javascript" src="lib/chart/chart.min.js"                                 ></script>
-    <script type="text/javascript" src="js/Tree.js"                                             ></script>
-    <script type="text/javascript" src="js/NotificationControl.js"                              ></script>
-    <script type="text/javascript" src="js/AjaxControl.js"                                      ></script>
-    <script type="text/javascript" src="lib/tabs/lib/tabs.js"                                   ></script>
-    <script type="text/javascript" src="lib/aimaraJS/lib/Aimara.js"                             ></script>
-    <script type="text/javascript" src="lib/ace/ace.js"                                         ></script>
-	<script type="text/javascript" src="lib/ace/mode-sql.js"                                    ></script>
-	<script type="text/javascript" src="lib/ace/ext-language_tools.js"                          ></script>
-	<script type="text/javascript" src="js/Renderers.js"                                        ></script>
-    <script type="text/javascript" src="js/HeaderActions.js"                                    ></script>
-    <script type="text/javascript" src="js/MainDB.js"                                           ></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.5"                                ></script>
+	<script type="text/javascript" src="lib/jquery-ui/jquery-ui.js?v1.5"                             ></script>
+	<script type="text/javascript" src="js/jquery.dd.min.js?v1.5"                                    ></script>
+	<script type="text/javascript" src="js/handsontable.full.js?v1.5"                                ></script>
+    <script type="text/javascript" src="lib/cytoscape/cytoscape.min.js?v1.5"                         ></script>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-spread/1.0.9/cytoscape-spread.js?v1.5"></script>
+    <script type="text/javascript" src="lib/chart/chart.min.js?v1.5"                                 ></script>
+    <script type="text/javascript" src="js/Tree.js?v1.5"                                             ></script>
+    <script type="text/javascript" src="js/NotificationControl.js?v1.5"                              ></script>
+    <script type="text/javascript" src="js/AjaxControl.js?v1.5"                                      ></script>
+    <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.5"                                   ></script>
+    <script type="text/javascript" src="lib/aimaraJS/lib/Aimara.js?v1.5"                             ></script>
+    <script type="text/javascript" src="lib/ace/ace.js?v1.5"                                         ></script>
+	<script type="text/javascript" src="lib/ace/mode-sql.js?v1.5"                                    ></script>
+	<script type="text/javascript" src="lib/ace/ext-language_tools.js?v1.5"                          ></script>
+	<script type="text/javascript" src="js/Renderers.js?v1.5"                                        ></script>
+    <script type="text/javascript" src="js/HeaderActions.js?v1.5"                                    ></script>
+    <script type="text/javascript" src="js/MainDB.js?v1.5"                                           ></script>
 
 	<script type="text/javascript">
 

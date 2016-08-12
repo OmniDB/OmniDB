@@ -24,6 +24,7 @@ ul.tree li {
 	padding: 0 12px;
 	line-height: 20px;
 	background: url(node.png) no-repeat;
+	white-space: nowrap;
 }
 
 ul.tree li.last {
@@ -45,10 +46,19 @@ img.exp_col_empty {
 	width: 16px;
 }
 
-img.icon_tree {
-	vertical-align: middle;
-	padding-left: 3px;
-	margin-top: -3px;
+.icon_tree {
+	//vertical-align: middle;
+	//padding-left: 3px;
+	//margin-top: -3px;
+
+	margin-top: 5px;
+    margin-left: 3px;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-repeat: no-repeat;
+    position: absolute;
+
 }
 
 a.node {
@@ -56,13 +66,13 @@ a.node {
 }
 
 span.node a {
-	padding-left: 3px;
+	padding-left: 23px;
 }
 
 span.node {
 	margin-left: 2px;
 	padding-right: 3px;
-
+	position: relative;
 	padding-top: 4px;
 	padding-bottom: 4px;
 }
@@ -79,7 +89,7 @@ span.node:hover {
 span.node_selected {
 	margin-left: 1px;
 	padding-right: 3px;
-
+	position: relative;
 	padding-top: 4px;
 	padding-bottom: 4px;
 	background-color: #CEFFCE;
@@ -88,70 +98,70 @@ span.node_selected {
 }
 
 span.node_selected a {
-	padding-left: 3px;
+	padding-left: 23px;
 }
 
-.menu,.sub-menu {
+.aimara_menu,.aimara_sub-menu {
   margin: 0;
   padding: 0;
 	font: 10px Verdana, sans-serif;
 }
 
-.menu,
-.sub-menu {
+.aimara_menu,
+.aimara_sub-menu {
   list-style: none;
   background: #000;
 	z-index: 1000;
 }
-.sub-menu {
+.aimara_sub-menu {
   background: #F1F1F1;
 }
-.menu a {
+.aimara_menu a {
   text-decoration: none;
   display: inline-block;
   padding: 8px;
 }
 
-.menu span {
+.aimara_menu span {
   position: absolute;
 	width: 100%;
 	height: 100%;
 }
 
-.menu div {
+.aimara_menu div {
   position: absolute;
 	right: 4px;
 	top: 0px;
 	padding: 8px;
 }
 
-.menu .menu_img {
+.aimara_menu .menu_img {
 	vertical-align: middle;
 }
 
-.menu img {
+.aimara_menu img {
   text-decoration: none;
   display: inline-block;
 	vertical-align: sub;
   padding-left: 5px;
 }
-.menu li {
+.aimara_menu li {
   position: relative;
 }
 
-.menu li:hover {
+.aimara_menu li:hover {
   background: #BAF5B9;
 	cursor: pointer;
 }
 
-.sub-menu li:hover {
+.aimara_sub-menu li:hover {
   background: #BAF5B9;
 }
-.menu li:hover > .sub-menu {
+.aimara_menu li:hover > .aimara_sub-menu {
   display: block;
 }
 
-.menu {
+.aimara_menu {
 	width: 150px;
 	position: absolute;
 	background: #F1F1F1;
@@ -165,7 +175,7 @@ span.node_selected a {
 }
 
 
-.sub-menu {
+.aimara_sub-menu {
 	display: none;
 	position: absolute;
 	min-width: 150px;
@@ -175,7 +185,7 @@ span.node_selected a {
     margin-top: -1px;
 }
 
-.menu .sub-menu {
+.aimara_menu .aimara_sub-menu {
   top: 0;
   left: 100%;
 }

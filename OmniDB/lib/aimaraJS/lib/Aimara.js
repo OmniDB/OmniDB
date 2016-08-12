@@ -130,7 +130,8 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			var v_icon = null;
 
 			if (p_node.icon!=null)
-				v_icon = createImgElement(null,'icon_tree',p_node.icon);
+				v_icon = createSimpleElement('span',null,'icon_tree');
+				v_icon.style.backgroundImage = 'url(' + p_node.icon + ')';
 
 			var v_li = document.createElement('li');
 			p_node.elementLi = v_li;
@@ -354,7 +355,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 					var v_div;
 					if (this.contextMenuDiv==null) {
-						v_div = createSimpleElement('ul','ul_cm','menu');
+						v_div = createSimpleElement('ul','ul_cm','aimara_menu');
 						document.body.appendChild(v_div);
 					}
 					else
@@ -400,7 +401,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 						};
 
 						var v_a = createSimpleElement('a',null,null);
-						var v_ul = createSimpleElement('ul',null,'sub-menu');
+						var v_ul = createSimpleElement('ul',null,'aimara_sub-menu');
 
 						v_a.appendChild(document.createTextNode(v_menu.elements[i].text));
 
@@ -453,7 +454,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				};
 
 				var v_a = createSimpleElement('a',null,null);
-				var v_ul = createSimpleElement('ul',null,'sub-menu');
+				var v_ul = createSimpleElement('ul',null,'aimara_sub-menu');
 
 				v_a.appendChild(document.createTextNode(p_submenu.elements[i].text));
 

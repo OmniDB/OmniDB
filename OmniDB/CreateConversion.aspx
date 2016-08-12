@@ -6,25 +6,27 @@
 
     <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
 
-	<link rel="stylesheet" type="text/css" href="css/style.css?v1.5"            />
-	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.5"/>
-	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.5"    />
-    <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css?v1.5"    />
+	<link rel="stylesheet" type="text/css" href="css/style.css?v1.6"            />
+	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.6"/>
+	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.6"    />
+    <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css?v1.6"    />
 
-    <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.5"     ></script>
-	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.5"  ></script>
-	<script type="text/javascript" src="js/jquery.dd.min.js?v1.5"      ></script>
-	<script type="text/javascript" src="js/handsontable.full.js?v1.5"  ></script>
-    <script type="text/javascript" src="js/AjaxControl.js?v1.5"        ></script>
-    <script type="text/javascript" src="js/NotificationControl.js?v1.5"></script>
-    <script type="text/javascript" src="js/HeaderActions.js?v1.5"      ></script>
-    <script type="text/javascript" src="js/CreateConversion.js?v1.5"   ></script>
+    <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.6"     ></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.6"  ></script>
+	<script type="text/javascript" src="js/jquery.dd.min.js?v1.6"      ></script>
+	<script type="text/javascript" src="js/handsontable.full.js?v1.6"  ></script>
+    <script type="text/javascript" src="js/AjaxControl.js?v1.6"        ></script>
+    <script type="text/javascript" src="js/NotificationControl.js?v1.6"></script>
+    <script type="text/javascript" src="js/HeaderActions.js?v1.6"      ></script>
+    <script type="text/javascript" src="js/CreateConversion.js?v1.6"   ></script>
 
 	<script type="text/javascript">
 
 		//Global variables
 		var v_tables = [];
 		var v_editor_theme = "<%= v_session.v_editor_theme %>";
+		var	v_theme_type = "<%= v_session.v_theme_type %>";
+		var	v_theme_id = "<%= v_session.v_theme_id %>";
 		var v_editor_font_size = "<%= v_session.v_editor_font_size %>";
 
     </script>
@@ -50,9 +52,9 @@
 		</div>
 	</div>
 </div>
-
+<div class="div_left">
 <h2 style="text-align: center;">Source Database</h2>
-<div id="div_select_db1" style="width: 250px; margin: 10px auto;">
+<div id="div_select_db1" style="width: 350px; margin: 10px auto;">
 
 </div>
 
@@ -65,15 +67,16 @@
 
 <div id="div_execute" style="display: none; width: 250px; margin: 10px auto; text-align: center;">
 	<h2>Target Database</h2>
-	<div id="div_select_db2" style="width: 250px; margin: 10px auto; text-align: left;">
+	<div id="div_select_db2" style="width: 350px; margin: 10px auto; text-align: left;">
 	</div>
 	<button id="bt_execute" onclick="startConversion()">Create Conversion</button>
+</div>
 </div>
 
 <div id="div_config_user" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideConfigUser()"/>
+				<a class="modal-closer" onclick="hideConfigUser()">x</a>
 
                 <div id="config_tabs" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
 	                <ul>
@@ -173,7 +176,7 @@
   <div id="div_about" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideAbout()"/>
+				<a class="modal-closer" onclick="hideAbout()">x</a>
                 <div style="width: 100%; text-align: center;">
                 	<div style="margin: 20px;"><h1><% Response.Write(v_session.v_omnidb_version); %></h1></div>
                 	<div style="margin: 20px;">

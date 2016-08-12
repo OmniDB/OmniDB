@@ -6,48 +6,48 @@
 
 	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
 
-	<link rel="stylesheet" type="text/css" href="css/style.css?v1.5"                   />
-	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.5"       />
-	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.5"           />
-    <link rel="stylesheet" type="text/css" href="lib/jquery-ui/jquery-ui.css?v1.5"     />
-    <link rel="stylesheet" type="text/css" href="lib/jqplot/jquery.jqplot.min.css?v1.5"/>
-    <link rel="stylesheet" type="text/css" href="lib/aimaraJS/css/Aimara.css?v1.5"     />
-    <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css?v1.5"           />
+	<link rel="stylesheet" type="text/css" href="css/style.css?v1.6"                   />
+	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.6"       />
+	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.6"           />
+    <link rel="stylesheet" type="text/css" href="lib/jquery-ui/jquery-ui.css?v1.6"     />
+    <link rel="stylesheet" type="text/css" href="lib/jqplot/jquery.jqplot.min.css?v1.6"/>
+    <link rel="stylesheet" type="text/css" href="lib/aimaraJS/css/Aimara.css?v1.6"     />
+    <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css?v1.6"           />
 
-	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.5"                                ></script>
-	<script type="text/javascript" src="lib/jquery-ui/jquery-ui.js?v1.5"                             ></script>
-	<script type="text/javascript" src="js/jquery.dd.min.js?v1.5"                                    ></script>
-	<script type="text/javascript" src="js/handsontable.full.js?v1.5"                                ></script>
-    <script type="text/javascript" src="lib/cytoscape/cytoscape.min.js?v1.5"                         ></script>
-    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-spread/1.0.9/cytoscape-spread.js?v1.5"></script>
-    <script type="text/javascript" src="lib/chart/chart.min.js?v1.5"                                 ></script>
-    <script type="text/javascript" src="js/Tree.js?v1.5"                                             ></script>
-    <script type="text/javascript" src="js/NotificationControl.js?v1.5"                              ></script>
-    <script type="text/javascript" src="js/AjaxControl.js?v1.5"                                      ></script>
-    <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.5"                                   ></script>
-    <script type="text/javascript" src="lib/aimaraJS/lib/Aimara.js?v1.5"                             ></script>
-    <script type="text/javascript" src="lib/ace/ace.js?v1.5"                                         ></script>
-	<script type="text/javascript" src="lib/ace/mode-sql.js?v1.5"                                    ></script>
-	<script type="text/javascript" src="lib/ace/ext-language_tools.js?v1.5"                          ></script>
-	<script type="text/javascript" src="js/Renderers.js?v1.5"                                        ></script>
-    <script type="text/javascript" src="js/HeaderActions.js?v1.5"                                    ></script>
-    <script type="text/javascript" src="js/MainDB.js?v1.5"                                           ></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.6"                                ></script>
+	<script type="text/javascript" src="lib/jquery-ui/jquery-ui.js?v1.6"                             ></script>
+	<script type="text/javascript" src="js/jquery.dd.min.js?v1.6"                                    ></script>
+	<script type="text/javascript" src="js/handsontable.full.js?v1.6"                                ></script>
+    <script type="text/javascript" src="lib/cytoscape/cytoscape.min.js?v1.6"                         ></script>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-spread/1.0.9/cytoscape-spread.js?v1.6"></script>
+    <script type="text/javascript" src="lib/chart/chart.min.js?v1.6"                                 ></script>
+    <script type="text/javascript" src="js/Tree.js?v1.6"                                             ></script>
+    <script type="text/javascript" src="js/NotificationControl.js?v1.6"                              ></script>
+    <script type="text/javascript" src="js/AjaxControl.js?v1.6"                                      ></script>
+    <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.6"                                   ></script>
+    <script type="text/javascript" src="lib/aimaraJS/lib/Aimara.js?v1.6"                             ></script>
+    <script type="text/javascript" src="lib/ace/ace.js?v1.6"                                         ></script>
+	<script type="text/javascript" src="lib/ace/mode-sql.js?v1.6"                                    ></script>
+	<script type="text/javascript" src="lib/ace/ext-language_tools.js?v1.6"                          ></script>
+	<script type="text/javascript" src="js/Renderers.js?v1.6"                                        ></script>
+    <script type="text/javascript" src="js/HeaderActions.js?v1.6"                                    ></script>
+    <script type="text/javascript" src="js/MainDB.js?v1.6"                                           ></script>
 
 	<script type="text/javascript">
 
 		//Global variables
 		var ht;
 		var network;
-		var v_tabControl;
-		var v_alterTableObject;
-		var v_firstModeTable;
-		var v_alterTabControl;
+		var v_connTabControl;
 		var v_commandListObject;
 		var v_editDataObject;
 		var v_canEditContent;
 		var v_editContentObject;
 		var v_editor_theme = "<%= v_session.v_editor_theme %>";
+		var	v_theme_type = "<%= v_session.v_theme_type %>";
+		var	v_theme_id = "<%= v_session.v_theme_id %>";
 		var v_editor_font_size = "<%= v_session.v_editor_font_size %>";
+		var v_database_list = null;
 		var v_completer_ready = true;
 		var v_tree_object;
 		var v_keybind_object = { v_execute: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Execute"].ToString() %>",
@@ -79,35 +79,17 @@
 		</div>
 	</div>
 </div>
-
-
-
-    <div id="div_left" style="float:left; width:30%; height: 90%;">
-
-    	<div id="div_select_db" style="width: 97%; padding-left: 5px;">
-        </div>
-
-        <div id="tree1" style="margin: 10px; overflow: auto; font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;">
-        </div>
-
-        <div id="html1">
-        </div>
-
-    </div>
-
-    <div id="div_right" style="float:left; width:70%;">
-
-    	<div id="tabs" style="width: 99%;">
-  <ul>
-  </ul>
-
+<div class="conn_tabs">	
+		
+<div id="conn_tabs" style='margin-left: 5px; margin-right: 5px;'>
+    <ul>
+	</ul>
 </div>
-</div>
-
+</div>	
     <div id="div_graph" style="display:none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
-                <img src="images/window_close.png" class="img_close" onclick="modalGraph('hide')"/>
+                <a class="modal-closer" onclick="modalGraph('hide')">x</a>
 
                 <div id="div_legend">
                 <ul style="padding-left: 10px; padding-right: 10px;">
@@ -133,7 +115,7 @@
     <div id="div_error" style="display:none;">
         <div class="modal_background_dark" style="z-index: 2000">
             <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%; z-index: 2000;">
-                <img src="images/window_close.png" class="img_close" onclick="hideError()"/>
+                <a class="modal-closer" onclick="hideError()">x</a>
                 <div id="div_error_msg" style="height:100%; width:100%; margin-top:20px; text-align: center;"></div>
             </div>
         </div>
@@ -142,7 +124,7 @@
     <div id="div_statistics" style="display:none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideStatistics()"/>
+                <a class="modal-closer" onclick="hideStatistics()">x</a>
                 <div id="div_statistics" style="width:100%; overflow: auto;">
                 	<div id="tot_records" style="margin: 10px;"></div>
                 	<canvas id="stat_chart" width="800px" height="500px"></canvas>
@@ -154,9 +136,9 @@
     <div id="div_alter_table" style="display:none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
-                <img src="images/window_close.png" class="img_close" onclick="hideAlterTable()"/>
+                <a class="modal-closer" onclick="hideAlterTable()">x</a>
                 <span style="margin-left: 10px;">Table Name: </span><input type="text" id="txt_tableNameAlterTable" onchange='changeTableName()' style="margin: 10px;"/>
-                <button id="bt_saveAlterTable" class="bt_blue" onclick="saveAlterTable()" style="visibility: hidden;">Save Changes</button>
+                <button id="bt_saveAlterTable" onclick="saveAlterTable()" style="visibility: hidden;">Save Changes</button>
                 <div id="alter_tabs" style='margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
 	                <ul>
 	                <li id="alter_tabs_tab1">Columns</li>
@@ -190,7 +172,7 @@
     <div id="div_edit_data" style="display:none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
-                <img src="images/window_close.png" class="img_close" onclick="hideAlterData()"/>
+                <a class="modal-closer" onclick="hideAlterData()">x</a>
                 <div id='div_edit_data_select' style='margin: 10px; font-size: 14px;'></div>
                 <div id='txt_filter_data' style=' margin-left: 10px; margin-right: 10px; height: 100px;border: 1px solid #c3c3c3;'></div>
                 <button title='Run (CTRL + Q)' style='margin-top: 10px; margin-bottom: 10px; margin-left: 10px; margin-right: 5px; display: inline-block;' onclick='queryEditData()'><img src='images/play.png' style='vertical-align: middle;'/></button>
@@ -200,7 +182,7 @@
                 	<option value="1000">1000 rows</option>
                 </select>
                 <div id='div_edit_data_query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>
-                <button id="bt_saveEditData" class="bt_blue" onclick="saveEditData()" style="visibility: hidden; margin-left: 5px;">Save Changes</button>
+                <button id="bt_saveEditData" onclick="saveEditData()" style="visibility: hidden; margin-left: 5px;">Save Changes</button>
                 <div style="padding: 10px;">
                 	<div id='div_edit_data_data' style='width: 100%; height: 400px; overflow: auto;'></div>
                 </div>
@@ -211,7 +193,7 @@
     <div id="div_command_list" style="display:none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
-                <img src="images/window_close.png" class="img_close" onclick="hideCommandList()"/>
+                <a class="modal-closer" onclick="hideCommandList()">x</a>
              	<div style='margin-left:20px; margin-top: 20px; display:inline-block;'>
 			      <button onclick="deleteCommandList()">Clear list</button>
 			    </div>
@@ -225,7 +207,7 @@
     <div id="div_column_selection" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; height: 40%; left: 30%; top: 30%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideColumnSelection()"/>
+                <a class="modal-closer" onclick="hideColumnSelection()">x</a>
 
                 <div style="margin: 30px; position: absolute; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
 
@@ -261,7 +243,7 @@
     <div id="div_find_replace" style="display: none;">
         <div class="modal_background_dark" style="z-index: 2000">
             <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideFindReplace()"/>
+                <a class="modal-closer" onclick="hideFindReplace()">x</a>
 
                 <div id="find_replace" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
 	                <ul>
@@ -279,7 +261,7 @@
 		                <input id="txt_replacement_text_new" type="text" style="width: 200px; margin-bottom: 20px;">
 		                </div>
 		                <div style="text-align: center;">
-		                	<button class="bt_blue" onclick="replaceText();">Replace</button>
+		                	<button onclick="replaceText();">Replace</button>
 		                </div>
 		                </div>
 
@@ -295,7 +277,7 @@
     <div id="div_config_user" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideConfigUser()"/>
+                <a class="modal-closer" onclick="hideConfigUser()">x</a>
 
                 <div id="config_tabs" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
 	                <ul>
@@ -323,45 +305,46 @@
 		                <div style="text-align: center;">
 		                <div  style="margin-bottom: 10px;">Editor theme</div>
 		                <select id="sel_editor_theme" style="width: 200px; margin-bottom: 20px;">
-		                	<option value="omnidb">(Light) OmniDB</option>
-		                	<option value="chrome">(Light) Chrome</option>
-		                	<option value="clouds">(Light) Clouds</option>
-		                	<option value="crimson_editor">(Light) Crimson Editor</option>
-		                	<option value="dawn">(Light) Dawn</option>
-		                	<option value="dreamweaver">(Light) Dreamweaver</option>
-		                	<option value="eclipse">(Light) Eclipse</option>
-		                	<option value="github">(Light) Github</option>
-		                	<option value="iplastic">(Light) Iplastic</option>
-		                	<option value="katzenmilch">(Light) Katzenmilch</option>
-		                	<option value="kuroir">(Light) Kuroir</option>
-		                	<option value="solarized_light">(Light) Solarized Light</option>
-		                	<option value="sqlserver">(Light) SQL Server</option>
-		                	<option value="textmate">(Light) Textmate</option>
-		                	<option value="tomorrow">(Light) Tomorrow</option>
-		                	<option value="xcode">(Light) XCode</option>
-		                	<option value="ambiance">(Dark) Ambiance</option>
-		                	<option value="chaos">(Dark) Chaos</option>
-		                	<option value="clouds_midnight">(Dark) Clouds Midnight</option>
-		                	<option value="cobalt">(Dark) Cobalt</option>
-		                	<option value="idle_fingers">(Dark) Idle Fingers</option>
-		                	<option value="kr_theme">(Dark) KR Theme</option>
-		                	<option value="merbivore">(Dark) Merbivore</option>
-		                	<option value="merbivore_soft">(Dark) Merbivore Soft</option>
-		                	<option value="mono_industrial">(Dark) Mono Industrial</option>
-		                	<option value="monokai">(Dark) Monokai</option>
-		                	<option value="pastel_on_dark">(Dark) Pastel On Dark</option>
-		                	<option value="solarized_dark">(Dark) Solarized Dark</option>
-		                	<option value="terminal">(Dark) Terminal</option>
-		                	<option value="tomorrow_night">(Dark) Tomorrow Night</option>
-		                	<option value="tomorrow_night_blue">(Dark) Tomorrow Night Blue</option>
-		                	<option value="tomorrow_night_bright">(Dark) Tomorrow Night Bright</option>
-		                	<option value="tomorrow_night_eighties">(Dark) Tomorrow Night 80s</option>
-		                	<option value="twilight">(Dark) Twilight</option>
-		                	<option value="vibrant_ink">(Dark) Vibrant Ink</option>
+		                	<option value="1">(Light) OmniDB</option>
+		                	<option value="2">(Light) Chrome</option>
+		                	<option value="3">(Light) Clouds</option>
+		                	<option value="4">(Light) Crimson Editor</option>
+		                	<option value="5">(Light) Dawn</option>
+		                	<option value="6">(Light) Dreamweaver</option>
+		                	<option value="7">(Light) Eclipse</option>
+		                	<option value="8">(Light) Github</option>
+		                	<option value="9">(Light) Iplastic</option>
+		                	<option value="10">(Light) Katzenmilch</option>
+		                	<option value="11">(Light) Kuroir</option>
+		                	<option value="12">(Light) Solarized Light</option>
+		                	<option value="13">(Light) SQL Server</option>
+		                	<option value="14">(Light) Textmate</option>
+		                	<option value="15">(Light) Tomorrow</option>
+		                	<option value="16">(Light) XCode</option>
+							<option value="17">(Dark) OmniDB Dark</option>
+		                	<option value="18">(Dark) Ambiance</option>
+		                	<option value="19">(Dark) Chaos</option>
+		                	<option value="20">(Dark) Clouds Midnight</option>
+		                	<option value="21">(Dark) Cobalt</option>
+		                	<option value="22">(Dark) Idle Fingers</option>
+		                	<option value="23">(Dark) KR Theme</option>
+		                	<option value="24">(Dark) Merbivore</option>
+		                	<option value="25">(Dark) Merbivore Soft</option>
+		                	<option value="26">(Dark) Mono Industrial</option>
+		                	<option value="27">(Dark) Monokai</option>
+		                	<option value="28">(Dark) Pastel On Dark</option>
+		                	<option value="29">(Dark) Solarized Dark</option>
+		                	<option value="30">(Dark) Terminal</option>
+		                	<option value="31">(Dark) Tomorrow Night</option>
+		                	<option value="32">(Dark) Tomorrow Night Blue</option>
+		                	<option value="33">(Dark) Tomorrow Night Bright</option>
+		                	<option value="34">(Dark) Tomorrow Night 80s</option>
+		                	<option value="35">(Dark) Twilight</option>
+		                	<option value="36">(Dark) Vibrant Ink</option>
 		                </select>
 		                </div>
 		                <div style="text-align: center;">
-		                	<button class="bt_blue" onclick="saveConfigUser();">Save Changes</button>
+		                	<button onclick="saveConfigUser();">Save Changes</button>
 		                </div>
 		                </div>
 
@@ -379,7 +362,7 @@
 		                <input id="txt_confirm_new_pwd" type="password" style="width: 200px; margin-bottom: 20px;">
 		                </div>
 		                <div style="text-align: center;">
-		                	<button class="bt_blue" onclick="saveConfigUser();">Save Changes</button>
+		                	<button onclick="saveConfigUser();">Save Changes</button>
 		                </div>
 		                </div>
 
@@ -395,7 +378,7 @@
     <div id="div_about" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideAbout()"/>
+                <a class="modal-closer" onclick="hideAbout()">x</a>
                 <div style="width: 100%; text-align: center;">
                 	<div style="margin: 20px;"><h1><% Response.Write(v_session.v_omnidb_version); %></h1></div>
                 	<div style="margin: 20px;">
@@ -419,7 +402,7 @@
     <div id="div_commands_log" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideCommandsLog()"/>
+                <a class="modal-closer" onclick="hideCommandsLog()">x</a>
 
                 <div style="height: 100%;">
 	                <div id="div_commands_log_list" style="margin: 20px; height: 90%; overflow: scroll;">
@@ -432,7 +415,7 @@
     <div id="div_edit_content" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideEditContent()"/>
+                <a class="modal-closer" onclick="hideEditContent()">x</a>
 
                 <div style="height: 90%; padding: 30px;">
 	                <div id="txt_edit_content" style="width: 100%; height: 100%; font-size: 12px; border: 1px solid rgb(195, 195, 195);">

@@ -18,6 +18,12 @@ body {
 	font-size: 11px;
 	font-family: sans-serif;
 	margin: 0px;
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none; 
 }
 
 #div_form {
@@ -331,7 +337,7 @@ body.loading .div_loading {
     left: 0;
     height: 100%;
     width: 100%;
-    background: rgba( 255, 255, 255, .8 ) url(../images/loading.gif) 50% 50% no-repeat;
+    background: rgba( 255, 255, 255, .8 ) url(../images/loading.svg) 50% 50% no-repeat;
 }
 
 .white_box {
@@ -584,3 +590,31 @@ button:hover {
 .bar_green { background-color: #AAE2A0; width:0%; height:16px; border-radius: 0px; }
 
 .percent { position:absolute; top:0px; font-size: 11px; line-height: 16px; width: 100%; height: 20px;}
+
+a.modal-closer {
+	position: absolute;
+    display: block;
+    width: 25px;
+    height: 25px;
+    right: -15px;
+    top: -15px;
+    cursor: pointer;
+    z-index: 1000;
+    border-radius: 20px;
+    color: #ffffff;
+    border: 1px solid #4d6d9d;
+    background-color: #74a1e5;
+    text-align: center;
+    line-height: 23px;
+    font-size: 16px;
+    font-family: Tahoma, Geneva, sans-serif;
+    font-weight: 500;
+}
+a.modal-closer:hover {
+    background-color: #ffffff;
+    color: #74a1e5;
+    border-color: #74a1e5;
+}
+.even_tr {
+	background-color: rgb(234, 237, 249);
+}

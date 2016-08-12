@@ -401,6 +401,9 @@
     <Content Include="images\fbembed_medium.png" />
     <Content Include="images\sqlce_medium.png" />
     <Content Include="DownloadFile.aspx" />
+    <Content Include="css\themes\dark.css" />
+    <Content Include="css\themes\dark-chaos-override.css" />
+    <Content Include="css\themes\light.css" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -518,6 +521,7 @@
     <None Include="databases\northwind.fdb" />
     <None Include="databases\northwind.sdf" />
     <None Include="exported_files\README.txt" />
+    <None Include="css\themes\.DS_Store" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OmniDatabase\OmniDatabase.csproj">

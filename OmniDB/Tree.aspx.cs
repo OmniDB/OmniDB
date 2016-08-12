@@ -31,6 +31,16 @@ namespace OmniDB
 		public string v_database;
 		public string v_schema;
 		public bool v_has_schema;
+		public bool v_has_functions;
+	}
+
+	/// <summary>
+	/// Function return information.
+	/// </summary>
+	public class FunctionReturn
+	{
+		public string v_name;
+		public string v_complete_name;
 	}
 
 	/// <summary>
@@ -43,7 +53,7 @@ namespace OmniDB
 		/// Get database information to render initial tree of components.
 		/// </summary>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn GetTreeInfo()
+		public static AjaxReturn GetTreeInfo(int p_database_index)
 		{
 			AjaxReturn v_return = new AjaxReturn();
 			TreeReturn v_tree_data = new TreeReturn ();
@@ -61,10 +71,11 @@ namespace OmniDB
 
 			TreeDatabaseReturn v_database_return = new TreeDatabaseReturn ();
 
-			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase ();
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
 
 			v_database_return.v_database = v_database.GetName ();
 			v_database_return.v_has_schema = v_database.v_has_schema;
+			v_database_return.v_has_functions = v_database.v_has_functions;
 
 			if (v_database_return.v_has_schema)
 				v_database_return.v_schema = v_database.v_schema;
@@ -83,21 +94,21 @@ namespace OmniDB
 		/// Get all database tables.
 		/// </summary>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn GetTables()
+		public static AjaxReturn GetTables(int p_database_index)
 		{
 			AjaxReturn v_return = new AjaxReturn();
-			Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];
+			Session v_session = (Session)System.Web.HttpContext.Current.Session["OMNIDB_SESSION"];
 
-			if (v_session == null) 
+			if (v_session == null)
 			{
 				v_return.v_error = true;
 				v_return.v_error_id = 1;
 				return v_return;
-			} 
+			}
 
-			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase();
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
 
-			System.Collections.Generic.List<string> v_list_tables = new System.Collections.Generic.List<string> ();
+			System.Collections.Generic.List<string> v_list_tables = new System.Collections.Generic.List<string>();
 
 			try
 			{
@@ -111,7 +122,7 @@ namespace OmniDB
 			{
 
 				v_return.v_error = true;
-				v_return.v_data = e.v_message.Replace("<","&lt;").Replace(">","&gt;").Replace(System.Environment.NewLine, "<br/>");
+				v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
 
 				return v_return;
 			}
@@ -124,10 +135,60 @@ namespace OmniDB
 		}
 
 		/// <summary>
+		/// Get all database functions.
+		/// </summary>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn GetFunctions(int p_database_index)
+		{
+			AjaxReturn v_return = new AjaxReturn();
+			Session v_session = (Session)System.Web.HttpContext.Current.Session["OMNIDB_SESSION"];
+
+			System.Collections.Generic.List<FunctionReturn> v_function_data_list = new System.Collections.Generic.List<FunctionReturn>();
+
+			if (v_session == null)
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			}
+
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+			try
+			{
+				System.Data.DataTable v_tables = v_database.QueryFunctions();
+
+				foreach (System.Data.DataRow v_table in v_tables.Rows) {
+
+					FunctionReturn v_function_data = new FunctionReturn();
+					v_function_data.v_name 			= v_table["name"].ToString();
+					v_function_data.v_complete_name = v_table["complete_name"].ToString();
+
+					v_function_data_list.Add(v_function_data);
+				}
+
+			}
+			catch (Spartacus.Database.Exception e)
+			{
+
+				v_return.v_error = true;
+				v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			}
+
+
+			v_return.v_data = v_function_data_list;
+
+			return v_return;
+
+		}
+
+		/// <summary>
 		/// Get all database views.
 		/// </summary>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn GetViews()
+		public static AjaxReturn GetViews(int p_database_index)
 		{
 			AjaxReturn v_return = new AjaxReturn();
 			Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];
@@ -139,7 +200,7 @@ namespace OmniDB
 				return v_return;
 			} 
 
-			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase();
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
 
 			System.Collections.Generic.List<string> v_list_views = new System.Collections.Generic.List<string> ();
 
@@ -172,7 +233,7 @@ namespace OmniDB
 		/// </summary>
 		/// <param name="p_table">Table name.</param>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn GetColumns(string p_table)
+		public static AjaxReturn GetColumns(int p_database_index, string p_table)
 		{
 			AjaxReturn v_return = new AjaxReturn();
 			Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];
@@ -184,7 +245,7 @@ namespace OmniDB
 				return v_return;
 			} 
 
-			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase();
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
 
 			System.Collections.Generic.List<System.Collections.Generic.List<string>> v_list_columns = new System.Collections.Generic.List<System.Collections.Generic.List<string>> ();
 
@@ -227,7 +288,7 @@ namespace OmniDB
 		/// </summary>
 		/// <param name="p_table">Table name.</param>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn GetUniques(string p_table)
+		public static AjaxReturn GetUniques(int p_database_index, string p_table)
 		{
 			AjaxReturn v_return = new AjaxReturn();
 			Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];
@@ -239,7 +300,7 @@ namespace OmniDB
 				return v_return;
 			} 
 
-			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase();
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
 
 			System.Collections.Generic.List<System.Collections.Generic.List<string>> v_list_pks = new System.Collections.Generic.List<System.Collections.Generic.List<string>> ();
 
@@ -278,7 +339,7 @@ namespace OmniDB
 		/// </summary>
 		/// <param name="p_table">Table name.</param>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn GetIndexes(string p_table)
+		public static AjaxReturn GetIndexes(int p_database_index, string p_table)
 		{
 			AjaxReturn v_return = new AjaxReturn();
 			Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];
@@ -290,7 +351,7 @@ namespace OmniDB
 				return v_return;
 			} 
 
-			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase();
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
 
 			System.Collections.Generic.List<System.Collections.Generic.List<string>> v_list_pks = new System.Collections.Generic.List<System.Collections.Generic.List<string>> ();
 
@@ -331,7 +392,7 @@ namespace OmniDB
 		/// </summary>
 		/// <param name="p_table">Table name.</param>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn GetPK(string p_table)
+		public static AjaxReturn GetPK(int p_database_index, string p_table)
 		{
 			AjaxReturn v_return = new AjaxReturn();
 			Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];
@@ -343,7 +404,7 @@ namespace OmniDB
 				return v_return;
 			} 
 
-			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase();
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
 
 			System.Collections.Generic.List<System.Collections.Generic.List<string>> v_list_pks = new System.Collections.Generic.List<System.Collections.Generic.List<string>> ();
 
@@ -383,7 +444,7 @@ namespace OmniDB
 		/// </summary>
 		/// <param name="p_table">Table name.</param>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn GetFKs(string p_table)
+		public static AjaxReturn GetFKs(int p_database_index, string p_table)
 		{
 			AjaxReturn v_return = new AjaxReturn();
 			Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];
@@ -395,7 +456,7 @@ namespace OmniDB
 				return v_return;
 			} 
 
-			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase();
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
 
 			System.Collections.Generic.List<System.Collections.Generic.List<string>> v_list_fks = new System.Collections.Generic.List<System.Collections.Generic.List<string>> ();
 
@@ -428,6 +489,47 @@ namespace OmniDB
 
 
 			v_return.v_data = v_list_fks;
+
+			return v_return;
+
+		}
+
+		/// <summary>
+		/// Get function definition.
+		/// </summary>
+		/// <param name="p_function">Function name.</param>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn GetFunctionDefinition(int p_database_index, string p_function)
+		{
+			AjaxReturn v_return = new AjaxReturn();
+			Session v_session = (Session)System.Web.HttpContext.Current.Session["OMNIDB_SESSION"];
+
+			if (v_session == null)
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			}
+
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+			try
+			{
+				string v_function_definition = v_database.GetFunctionDefinition(p_function);
+				v_return.v_data = v_function_definition;
+
+			}
+			catch (Spartacus.Database.Exception e)
+			{
+
+				v_return.v_error = true;
+				v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			}
+
+
+
 
 			return v_return;
 

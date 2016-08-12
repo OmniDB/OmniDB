@@ -6,18 +6,18 @@
 
     <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
 
-	<link rel="stylesheet" type="text/css" href="css/style.css?v1.5"            />
-	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.5"/>
-	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.5"    />
+	<link rel="stylesheet" type="text/css" href="css/style.css?v1.6"            />
+	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.6"/>
+	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.6"    />
 
-	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.5"  ></script>
-	<script type="text/javascript" src="js/jquery.dd.min.js?v1.5"      ></script>
-	<script type="text/javascript" src="js/handsontable.full.js?v1.5"  ></script>
-    <script type="text/javascript" src="js/AjaxControl.js?v1.5"        ></script>
-    <script type="text/javascript" src="js/NotificationControl.js?v1.5"></script>
-    <script type="text/javascript" src="js/Renderers.js?v1.5"          ></script>
-    <script type="text/javascript" src="js/HeaderActions.js?v1.5"      ></script>
-    <script type="text/javascript" src="js/Users.js?v1.5"              ></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.6"  ></script>
+	<script type="text/javascript" src="js/jquery.dd.min.js?v1.6"      ></script>
+	<script type="text/javascript" src="js/handsontable.full.js?v1.6"  ></script>
+    <script type="text/javascript" src="js/AjaxControl.js?v1.6"        ></script>
+    <script type="text/javascript" src="js/NotificationControl.js?v1.6"></script>
+    <script type="text/javascript" src="js/Renderers.js?v1.6"          ></script>
+    <script type="text/javascript" src="js/HeaderActions.js?v1.6"      ></script>
+    <script type="text/javascript" src="js/Users.js?v1.6"              ></script>
 
 	<script type="text/javascript">
 

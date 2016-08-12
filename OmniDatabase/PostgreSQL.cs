@@ -113,6 +113,8 @@ namespace OmniDatabase
 			v_connection = new Spartacus.Database.Postgresql (p_server, p_port, p_service, p_user, p_password);
 			v_connection.v_execute_security = false;
 
+			v_has_functions = true;
+
 		}
 
 		/// <summary>
@@ -435,6 +437,32 @@ namespace OmniDatabase
 				"from " + p_table + "  t       " +
 				p_filter + "                   " +
 				v_limit, "Limited Query");
+
+		}
+
+		/// <summary>
+		/// Get a datatable with all functions.
+		/// </summary>
+		public override System.Data.DataTable QueryFunctions() {
+			
+			return v_connection.Query(
+				"select p.proname as name,                                                                      " +
+				"n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as complete_name, " +
+				"format_type(p.prorettype, null) as return_type,                                                " +
+				"oidvectortypes(p.proargtypes) as arguments_type                                                " +
+				"from pg_proc p,                                                                                " +
+				"pg_namespace n                                                                                 " +
+				"where p.pronamespace = n.oid                                                                   " +
+				"and lower(n.nspname) = '" + v_schema.ToLower() + "'", "Tables");
+			
+		}
+
+		/// <summary>
+		/// Get function definition.
+		/// </summary>
+		public override string GetFunctionDefinition(string p_function) {
+
+			return v_connection.ExecuteScalar("select pg_get_functiondef('" + p_function + "'::regprocedure)");
 
 		}
 

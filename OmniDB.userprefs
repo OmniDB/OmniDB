@@ -1,13 +1,15 @@
 ﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
-  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/web.config">
+  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/css/themes/dark.css">
     <Files>
-      <File FileName="OmniDB/MainDB.aspx" Line="10" Column="87" />
-      <File FileName="OmniDB/Users.aspx" Line="13" Column="79" />
-      <File FileName="OmniDB/Login.aspx" Line="11" Column="61" />
-      <File FileName="OmniDB/CreateConversion.aspx" Line="10" Column="80" />
-      <File FileName="OmniDB/Conversions.aspx" Line="20" Column="86" />
-      <File FileName="OmniDB/Connections.aspx" Line="17" Column="82" />
-      <File FileName="OmniDB/web.config" Line="27" Column="54" />
+      <File FileName="OmniDB/MainDB.aspx" Line="15" Column="90" />
+      <File FileName="OmniDB/js/MainDB.js" Line="211" Column="24" />
+      <File FileName="OmniDB/MainDB.aspx.cs" Line="573" Column="66" />
+      <File FileName="OmniDB/css/themes/dark.css" Line="6" Column="2" />
+      <File FileName="OmniDB/js/Renderers.js" Line="91" Column="28" />
+      <File FileName="OmniDB/css/themes/light.css" Line="18" Column="38" />
+      <File FileName="OmniDB/js/Tree.js" Line="179" Column="14" />
+      <File FileName="OmniDB/CreateConversion.aspx" Line="70" Column="81" />
+      <File FileName="OmniDB/css/style.css" Line="340" Column="68" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />

@@ -6,23 +6,23 @@
 
     <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico"/>
 
-	<link rel="stylesheet" type="text/css" href="css/style.css?v1.5"            />
-	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.5"/>
-	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.5"    />
-    <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css?v1.5"    />
+	<link rel="stylesheet" type="text/css" href="css/style.css?v1.6"            />
+	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.6"/>
+	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.6"    />
+    <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css?v1.6"    />
 
-	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.5"      ></script>
-	<script type="text/javascript" src="js/jquery.dd.min.js?v1.5"          ></script>
-	<script type="text/javascript" src="js/handsontable.full.js?v1.5"      ></script>
-    <script type="text/javascript" src="js/AjaxControl.js?v1.5"            ></script>
-    <script type="text/javascript" src="js/NotificationControl.js?v1.5"    ></script>
-    <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.5"         ></script>
-    <script type="text/javascript" src="lib/ace/ace.js?v1.5"               ></script>
-	<script type="text/javascript" src="lib/ace/mode-sql.js?v1.5"          ></script>
-	<script type="text/javascript" src="lib/ace/ext-language_tools.js?v1.5"></script>
-	<script type="text/javascript" src="js/Renderers.js?v1.5"              ></script>
-    <script type="text/javascript" src="js/HeaderActions.js?v1.5"          ></script>
-    <script type="text/javascript" src="js/Conversions.js?v1.5"            ></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.6"      ></script>
+	<script type="text/javascript" src="js/jquery.dd.min.js?v1.6"          ></script>
+	<script type="text/javascript" src="js/handsontable.full.js?v1.6"      ></script>
+    <script type="text/javascript" src="js/AjaxControl.js?v1.6"            ></script>
+    <script type="text/javascript" src="js/NotificationControl.js?v1.6"    ></script>
+    <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.6"         ></script>
+    <script type="text/javascript" src="lib/ace/ace.js?v1.6"               ></script>
+	<script type="text/javascript" src="lib/ace/mode-sql.js?v1.6"          ></script>
+	<script type="text/javascript" src="lib/ace/ext-language_tools.js?v1.6"></script>
+	<script type="text/javascript" src="js/Renderers.js?v1.6"              ></script>
+    <script type="text/javascript" src="js/HeaderActions.js?v1.6"          ></script>
+    <script type="text/javascript" src="js/Conversions.js?v1.6"            ></script>
 
 	<script type="text/javascript">
 
@@ -30,6 +30,8 @@
     	var v_conv_data;
     	var v_logObject;
     	var v_editor_theme = "<%= v_session.v_editor_theme %>";
+		var	v_theme_type = "<%= v_session.v_theme_type %>";
+		var	v_theme_id = "<%= v_session.v_theme_id %>";
 		var v_editor_font_size = "<%= v_session.v_editor_font_size %>";
 
     </script>
@@ -70,7 +72,7 @@
   <div id="div_conv_details" style="display:none;">
         <div class="modal_background_dark">
             <div id="div_box_details" class="white_box" style="width: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
-                <img src="images/window_close.png" class="img_close" onclick="hideConvDetails()"/>
+				<a class="modal-closer" onclick="hideConvDetails()">x</a>
                 <div style='margin-left:20px; margin-top: 20px; display:inline-block;'>
 			      <button onclick="refreshConvDetails()">Refresh</button>
 			    </div>
@@ -97,7 +99,7 @@
       <div class="modal_background_dark">
           <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
               <!--<a class="bt_close" onclick="hideError()">x</a>-->
-              <img src="images/window_close.png" class="img_close" onclick="hideError()"/>
+			  <a class="modal-closer" onclick="hideError()">x</a>
               <div id="div_error_msg" style="height:100%; width:100%; margin-top:20px; text-align: center;"></div>
           </div>
       </div>
@@ -107,7 +109,7 @@
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
                 <!---<a class="bt_close" onclick="hideConfigUser()">x</a>-->
-                <img src="images/window_close.png" class="img_close" onclick="hideConfigUser()"/>
+				<a class="modal-closer" onclick="hideConfigUser()">x</a>
 
                 <div id="config_tabs" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
 	                <ul>
@@ -207,7 +209,7 @@
     <div id="div_about" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideAbout()"/>
+				<a class="modal-closer" onclick="hideAbout()">x</a>
                 <div style="width: 100%; text-align: center;">
                 	<div style="margin: 20px;"><h1><% Response.Write(v_session.v_omnidb_version); %></h1></div>
                 	<div style="margin: 20px;">
@@ -232,7 +234,7 @@
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
                 <!--<a class="bt_close" onclick="hideLog()">x</a>-->
-                <img src="images/window_close.png" class="img_close" onclick="hideLog()"/>
+				<a class="modal-closer" onclick="hideLog()">x</a>
 
                 <div style="height: 90%; padding: 30px;">
 	                <div id="txt_log" style="width: 100%; height: 100%; font-size: 12px; border: 1px solid rgb(195, 195, 195);">

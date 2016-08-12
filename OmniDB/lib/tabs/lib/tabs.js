@@ -1,7 +1,8 @@
-function createTabControl(p_div, p_selected_index, p_contextMenu) {
+function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 	var v_tabControl = {
 		id: p_div,
+		tabColor: p_tabColor,
 		selectedTab: null,
 		selectedDiv: null,
 		selectedLi: null,
@@ -11,6 +12,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu) {
 		contextMenu: p_contextMenu,
 		contextMenuDiv: null,
 		tabCounter : 0,
+		tag: new Object(),
 		selectTabIndex : function(p_index) {
 
 
@@ -101,9 +103,6 @@ function createTabControl(p_div, p_selected_index, p_contextMenu) {
 
 			this.tabCounter++;
 
-
-
-
 			var v_tab = {
 				id : p_div + '_tab' + v_index,
 				text: p_name,
@@ -121,6 +120,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu) {
 
 			if (p_close) {
 				var v_li = createSimpleElement('li',p_div + '_tab' + v_index,null);
+
 				var v_img = createImgElement(null,null,'images/tab_close.png');
 				v_img.onclick = function() {
 					showConfirm('Are you sure you want to remove this tab?',
@@ -141,6 +141,9 @@ function createTabControl(p_div, p_selected_index, p_contextMenu) {
 				v_li.innerHTML = '<span>' + p_name + '</span>';
 			}
 
+			if (this.tabColor!=null)
+				v_li.style['background-color'] = this.tabColor;
+
 			v_li.oncontextmenu = function(e) {
 				v_control.selectTab(v_tab);
 				v_control.tabContextMenu(e,v_tab);
@@ -153,6 +156,9 @@ function createTabControl(p_div, p_selected_index, p_contextMenu) {
 			};
 
 			var v_div = createSimpleElement('div','div_' + p_div + '_tab' + v_index,'tab');
+
+			if (this.tabColor!=null)
+				v_div.style['background-color'] = this.tabColor;
 
 			v_tab.elementLi = v_li;
 			v_tab.elementDiv = v_div;
@@ -342,11 +348,17 @@ function createTabControl(p_div, p_selected_index, p_contextMenu) {
 
 				v_new_tab.elementLi = v_lis[j];
 
+				if (p_tabColor!=null)
+				v_lis[j].style['background-color'] = p_tabColor;
+
 				var v_div = document.getElementById('div_' + v_lis[j].id);
 
 				v_new_tab.elementDiv = v_div;
 				v_new_tab.elementLi = v_lis[j];
 				v_div.className = 'tab';
+
+				if (p_tabColor!=null)
+					v_div.style['background-color'] = p_tabColor;
 
 
 				v_lis[j].oncontextmenu = function(x) {

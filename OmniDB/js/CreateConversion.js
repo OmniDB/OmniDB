@@ -15,6 +15,12 @@ You should have received a copy of the GNU General Public License along with Omn
 /// </summary>
 $(function () {
 
+	var v_fileref = document.createElement("link");
+    v_fileref.setAttribute("rel", "stylesheet");
+    v_fileref.setAttribute("type", "text/css");
+    v_fileref.setAttribute("href", 'css/themes/' + v_theme_type + '.css');
+    document.getElementsByTagName("head")[0].appendChild(v_fileref);
+
 	var v_configTabControl = createTabControl('config_tabs',0,null);
 	v_configTabControl.selectTabIndex(0);
 
@@ -28,15 +34,17 @@ $(function () {
 /// <param name="p_sel_id">Selection tag ID.</param>
 /// <param name="p_div">Div.</param>
 /// <param name="p_filter">Filtering a specific database technology.</param>
-function getDatabaseList(p_sel_id, p_div, p_filter) {
+function getDatabaseList(p_sel_id,p_div) {
 
 	execAjax('MainDB.aspx/GetDatabaseList',
-			JSON.stringify({"p_sel_id": p_sel_id, "p_filter": null}),
+			null,
 			function(p_return) {
 				
 				document.getElementById(p_div).innerHTML = p_return.v_data.v_select_html;
 
-				$('#' + p_sel_id).msDropDown();
+				document.getElementById(p_div).childNodes[0].id = p_sel_id;
+				$(document.getElementById(p_div).childNodes[0]).msDropDown();
+
 
 			},
 			null,
@@ -44,24 +52,7 @@ function getDatabaseList(p_sel_id, p_div, p_filter) {
 
 }
 
-/// <summary>
-/// Changing selected database.
-/// </summary>
-/// <param name="p_sel_id">Selection tag ID.</param>
-/// <param name="p_value">Database ID.</param>
-function changeDatabase(p_sel_id,p_value) {
-	
-	if (p_sel_id == 'sl_database1') {
-		execAjax('MainDB.aspx/ChangeDatabase',
-				JSON.stringify({"p_value": p_value}),
-				function(p_return) {
-
-					getDatabaseList('sl_database1','div_select_db1');
-
-				},
-				null,
-				'box');
-	}
+function changeDatabase() {
 
 }
 
@@ -69,9 +60,9 @@ function changeDatabase(p_sel_id,p_value) {
 /// Retrieves a grid full of checkboxes to select conversion info.
 /// </summary>
 function conversionData() {
-
+	console.log(document.getElementById('sl_database1').value);
 	execAjax('CreateConversion.aspx/ConversionData',
-			null,
+			JSON.stringify({"p_database_index": document.getElementById('sl_database1').value}),
 			function(p_return) {
 
 				v_tables = p_return.v_data.v_tables;

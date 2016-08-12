@@ -96,6 +96,8 @@ namespace OmniDatabase
 			v_connection = new Spartacus.Database.Access (p_database);
 			v_connection.v_execute_security = false;
 
+			v_has_functions = false;
+
 		}
 
 		/// <summary>
@@ -835,6 +837,24 @@ namespace OmniDatabase
 				"select " + v_limit + " " + p_column_list + " " +
 				"from  " + p_table + " t                      " +
 				p_filter, "Limited Query");
+
+		}
+
+		/// <summary>
+		/// Get a datatable with all functions.
+		/// </summary>
+		public override System.Data.DataTable QueryFunctions() {
+			
+			return null;
+
+		}
+
+		/// <summary>
+		/// Get function definition.
+		/// </summary>
+		public override string GetFunctionDefinition(string p_function) {
+
+			return null;
 
 		}
 

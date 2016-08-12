@@ -15,6 +15,12 @@ You should have received a copy of the GNU General Public License along with Omn
 /// </summary>
 $(function() {
 
+	var v_fileref = document.createElement("link");
+    v_fileref.setAttribute("rel", "stylesheet");
+    v_fileref.setAttribute("type", "text/css");
+    v_fileref.setAttribute("href", 'css/themes/' + v_theme_type + '.css');
+    document.getElementsByTagName("head")[0].appendChild(v_fileref);
+
 	var v_configTabControl = createTabControl('config_tabs',0,null);
 	v_configTabControl.selectTabIndex(0);
 
@@ -301,8 +307,9 @@ function listConnections() {
 																    var cell = v_connections_data.ht.getCell(rowIndex, columnIndex);
 																    var foreColor = '#000';
 																    var backgroundColor = 'rgb(255, 251, 215)';
-																    cell.style.color = foreColor;
-																    cell.style.background = backgroundColor;
+																    //cell.style.color = foreColor;
+																    //cell.style.background = backgroundColor;
+																    cell.className = 'cellEdit';
 																});
 
 															},

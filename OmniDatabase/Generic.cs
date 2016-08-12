@@ -236,6 +236,11 @@ namespace OmniDatabase
 		/// </summary>
 		public System.Collections.Generic.List<string> v_delete_rules;
 
+		/// <summary>
+		/// If technology supports custom functions.
+		/// </summary>
+		public bool v_has_functions;
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="OmniDB.Database.Generic"/> class.
@@ -360,6 +365,16 @@ namespace OmniDatabase
 		/// Test connection.
 		/// </summary>
 		public abstract string TestConnection();
+
+		/// <summary>
+		/// Get a datatable with all functions.
+		/// </summary>
+		public abstract System.Data.DataTable QueryFunctions();
+
+		/// <summary>
+		/// Get function definition.
+		/// </summary>
+		public abstract string GetFunctionDefinition(string p_function);
 
 		/// <summary>
 		/// Count all tables records.

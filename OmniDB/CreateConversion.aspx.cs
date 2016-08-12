@@ -75,7 +75,7 @@ namespace OmniDB
 		/// Generate Conversion data.
 		/// </summary>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn ConversionData()
+		public static AjaxReturn ConversionData(int p_database_index)
 		{
 			AjaxReturn v_return = new AjaxReturn ();
 
@@ -115,7 +115,7 @@ namespace OmniDB
 
 			System.Collections.Generic.List<string> v_tables_list = new System.Collections.Generic.List<string> ();
 
-			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase ();
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
 
 			try {
 				System.Data.DataTable v_tables = v_database.QueryTables (false);
@@ -128,12 +128,12 @@ namespace OmniDB
 
 					v_tables_list.Add (tname);
 
-					string v_style = "";
+					string v_class = "";
 
 					if (v_counter % 2 == 0)
-						v_style = "style='background-color: rgb(234, 237, 249)'";
+						v_class = "class='even_tr'";
 
-					v_html += "<tr " + v_style + ">" +
+					v_html += "<tr " + v_class + ">" +
 						"<td><input id='cb_"  + tname + "_drop_records' type='checkbox'/></td>" +
 						"<td><input id='cb_"  + tname + "_create_table' type='checkbox'/></td>" +
 						"<td><input id='cb_"  + tname + "_transfer_data' type='checkbox'/></td>" +

@@ -7,26 +7,28 @@
 
     <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico"/>
 
-	<link rel="stylesheet" type="text/css" href="css/style.css?v1.5"            />
-	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.5"/>
-	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.5"    />
-    <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css?v1.5"    />
+	<link rel="stylesheet" type="text/css" href="css/style.css?v1.6"            />
+	<link rel="stylesheet" type="text/css" href="css/handsontable.full.css?v1.6"/>
+	<link rel="stylesheet" type="text/css" href="css/msdropdown/dd.css?v1.6"    />
+    <link rel="stylesheet" type="text/css" href="lib/tabs/css/tabs.css?v1.6"    />
 
-	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.5"  ></script>
-	<script type="text/javascript" src="js/jquery.dd.min.js?v1.5"      ></script>
-    <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.5"     ></script>
-	<script type="text/javascript" src="js/handsontable.full.js?v1.5"  ></script>
-    <script type="text/javascript" src="js/AjaxControl.js?v1.5"        ></script>
-    <script type="text/javascript" src="js/NotificationControl.js?v1.5"></script>
-    <script type="text/javascript" src="js/Renderers.js?v1.5"          ></script>
-    <script type="text/javascript" src="js/HeaderActions.js?v1.5"      ></script>
-    <script type="text/javascript" src="js/Connections.js?v1.5"        ></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.6"  ></script>
+	<script type="text/javascript" src="js/jquery.dd.min.js?v1.6"      ></script>
+    <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.6"     ></script>
+	<script type="text/javascript" src="js/handsontable.full.js?v1.6"  ></script>
+    <script type="text/javascript" src="js/AjaxControl.js?v1.6"        ></script>
+    <script type="text/javascript" src="js/NotificationControl.js?v1.6"></script>
+    <script type="text/javascript" src="js/Renderers.js?v1.6"          ></script>
+    <script type="text/javascript" src="js/HeaderActions.js?v1.6"      ></script>
+    <script type="text/javascript" src="js/Connections.js?v1.6"        ></script>
 
     <script type="text/javascript">
 
 		//Global variables
 		var v_connections_data;
 		var v_editor_theme = "<%= v_session.v_editor_theme %>";
+		var	v_theme_type = "<%= v_session.v_theme_type %>";
+		var	v_theme_id = "<%= v_session.v_theme_id %>";
 		var v_editor_font_size = "<%= v_session.v_editor_font_size %>";
 
     </script>
@@ -59,7 +61,7 @@
 	</div>
 
 	<div id='div_save' style='visibility: hidden; display:inline-block;'>
-		<button class="bt_blue" onclick="saveConnections()">Save Data</button>
+		<button onclick="saveConnections()">Save Data</button>
 	</div>
 
 	<div id='div_conn_list' style='width: 80%; margin:20px;'></div>
@@ -67,7 +69,7 @@
 	<div id="div_config_user" style="display: none;">
 	    <div class="modal_background_dark">
 	        <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
-	            <img src="images/window_close.png" class="img_close" onclick="hideConfigUser()"/>
+	            <a class="modal-closer" onclick="hideConfigUser()">x</a>
 
 	            <div id="config_tabs" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
 	                <ul>
@@ -95,45 +97,46 @@
 		                <div style="text-align: center;">
 		                <div  style="margin-bottom: 10px;">Editor theme</div>
 		                <select id="sel_editor_theme" style="width: 200px; margin-bottom: 20px;">
-		                	<option value="omnidb">(Light) OmniDB</option>
-		                	<option value="chrome">(Light) Chrome</option>
-		                	<option value="clouds">(Light) Clouds</option>
-		                	<option value="crimson_editor">(Light) Crimson Editor</option>
-		                	<option value="dawn">(Light) Dawn</option>
-		                	<option value="dreamweaver">(Light) Dreamweaver</option>
-		                	<option value="eclipse">(Light) Eclipse</option>
-		                	<option value="github">(Light) Github</option>
-		                	<option value="iplastic">(Light) Iplastic</option>
-		                	<option value="katzenmilch">(Light) Katzenmilch</option>
-		                	<option value="kuroir">(Light) Kuroir</option>
-		                	<option value="solarized_light">(Light) Solarized Light</option>
-		                	<option value="sqlserver">(Light) SQL Server</option>
-		                	<option value="textmate">(Light) Textmate</option>
-		                	<option value="tomorrow">(Light) Tomorrow</option>
-		                	<option value="xcode">(Light) XCode</option>
-		                	<option value="ambiance">(Dark) Ambiance</option>
-		                	<option value="chaos">(Dark) Chaos</option>
-		                	<option value="clouds_midnight">(Dark) Clouds Midnight</option>
-		                	<option value="cobalt">(Dark) Cobalt</option>
-		                	<option value="idle_fingers">(Dark) Idle Fingers</option>
-		                	<option value="kr_theme">(Dark) KR Theme</option>
-		                	<option value="merbivore">(Dark) Merbivore</option>
-		                	<option value="merbivore_soft">(Dark) Merbivore Soft</option>
-		                	<option value="mono_industrial">(Dark) Mono Industrial</option>
-		                	<option value="monokai">(Dark) Monokai</option>
-		                	<option value="pastel_on_dark">(Dark) Pastel On Dark</option>
-		                	<option value="solarized_dark">(Dark) Solarized Dark</option>
-		                	<option value="terminal">(Dark) Terminal</option>
-		                	<option value="tomorrow_night">(Dark) Tomorrow Night</option>
-		                	<option value="tomorrow_night_blue">(Dark) Tomorrow Night Blue</option>
-		                	<option value="tomorrow_night_bright">(Dark) Tomorrow Night Bright</option>
-		                	<option value="tomorrow_night_eighties">(Dark) Tomorrow Night 80s</option>
-		                	<option value="twilight">(Dark) Twilight</option>
-		                	<option value="vibrant_ink">(Dark) Vibrant Ink</option>
+		                	<option value="1">(Light) OmniDB</option>
+		                	<option value="2">(Light) Chrome</option>
+		                	<option value="3">(Light) Clouds</option>
+		                	<option value="4">(Light) Crimson Editor</option>
+		                	<option value="5">(Light) Dawn</option>
+		                	<option value="6">(Light) Dreamweaver</option>
+		                	<option value="7">(Light) Eclipse</option>
+		                	<option value="8">(Light) Github</option>
+		                	<option value="9">(Light) Iplastic</option>
+		                	<option value="10">(Light) Katzenmilch</option>
+		                	<option value="11">(Light) Kuroir</option>
+		                	<option value="12">(Light) Solarized Light</option>
+		                	<option value="13">(Light) SQL Server</option>
+		                	<option value="14">(Light) Textmate</option>
+		                	<option value="15">(Light) Tomorrow</option>
+		                	<option value="16">(Light) XCode</option>
+							<option value="17">(Dark) OmniDB Dark</option>
+		                	<option value="18">(Dark) Ambiance</option>
+		                	<option value="19">(Dark) Chaos</option>
+		                	<option value="20">(Dark) Clouds Midnight</option>
+		                	<option value="21">(Dark) Cobalt</option>
+		                	<option value="22">(Dark) Idle Fingers</option>
+		                	<option value="23">(Dark) KR Theme</option>
+		                	<option value="24">(Dark) Merbivore</option>
+		                	<option value="25">(Dark) Merbivore Soft</option>
+		                	<option value="26">(Dark) Mono Industrial</option>
+		                	<option value="27">(Dark) Monokai</option>
+		                	<option value="28">(Dark) Pastel On Dark</option>
+		                	<option value="29">(Dark) Solarized Dark</option>
+		                	<option value="30">(Dark) Terminal</option>
+		                	<option value="31">(Dark) Tomorrow Night</option>
+		                	<option value="32">(Dark) Tomorrow Night Blue</option>
+		                	<option value="33">(Dark) Tomorrow Night Bright</option>
+		                	<option value="34">(Dark) Tomorrow Night 80s</option>
+		                	<option value="35">(Dark) Twilight</option>
+		                	<option value="36">(Dark) Vibrant Ink</option>
 		                </select>
 		                </div>
 		                <div style="text-align: center;">
-		                	<button class="bt_blue" onclick="saveConfigUser();">Save Changes</button>
+		                	<button onclick="saveConfigUser();">Save Changes</button>
 		                </div>
 		                </div>
 
@@ -151,7 +154,7 @@
 		                <input id="txt_confirm_new_pwd" type="password" style="width: 200px; margin-bottom: 20px;">
 		                </div>
 		                <div style="text-align: center;">
-		                	<button class="bt_blue" onclick="saveConfigUser();">Save Changes</button>
+		                	<button onclick="saveConfigUser();">Save Changes</button>
 		                </div>
 		                </div>
 	  				</div>
@@ -163,7 +166,7 @@
     <div id="div_about" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
-                <img src="images/window_close.png" class="img_close" onclick="hideAbout()"/>
+                <a class="modal-closer" onclick="hideAbout()">x</a>
                 <div style="width: 100%; text-align: center;">
                 	<div style="margin: 20px;"><h1><% Response.Write(v_session.v_omnidb_version); %></h1></div>
                 	<div style="margin: 20px;">

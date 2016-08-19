@@ -1196,7 +1196,6 @@ namespace OmniDB
 		/// <summary>
 		/// Drops a table
 		/// </summary>
-		/// <param name="p_table">Table name.</param>
 		[System.Web.Services.WebMethod]
 		public static AjaxReturn DropTable(int p_database_index, string p_table)
 		{
@@ -1236,6 +1235,78 @@ namespace OmniDB
 			return v_return;
 
 		}
+
+        /// <summary>
+        /// Drops a function
+        /// </summary>
+        [System.Web.Services.WebMethod]
+        public static AjaxReturn DropFunction(int p_database_index, string p_function)
+        {
+            Session v_session = (Session)System.Web.HttpContext.Current.Session ["DB_SESSION"];
+
+            AjaxReturn v_return = new AjaxReturn ();
+
+            if (v_session == null) 
+            {
+                v_return.v_error = true;
+                v_return.v_error_id = 1;
+                return v_return;
+            } 
+
+            OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+            try
+            {
+                v_database.v_connection.Execute("drop function " + p_function);
+            }
+            catch (Spartacus.Database.Exception e)
+            {
+
+                v_return.v_error = true;
+                v_return.v_data = e.v_message.Replace("<","&lt;").Replace(">","&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+                return v_return;
+            }
+
+            return v_return;
+
+        }
+
+        /// <summary>
+        /// Drops a procedure
+        /// </summary>
+        [System.Web.Services.WebMethod]
+        public static AjaxReturn DropProcedure(int p_database_index, string p_procedure)
+        {
+            Session v_session = (Session)System.Web.HttpContext.Current.Session ["DB_SESSION"];
+
+            AjaxReturn v_return = new AjaxReturn ();
+
+            if (v_session == null) 
+            {
+                v_return.v_error = true;
+                v_return.v_error_id = 1;
+                return v_return;
+            } 
+
+            OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+            try
+            {
+                v_database.v_connection.Execute("drop procedure " + p_procedure);
+            }
+            catch (Spartacus.Database.Exception e)
+            {
+
+                v_return.v_error = true;
+                v_return.v_data = e.v_message.Replace("<","&lt;").Replace(">","&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+                return v_return;
+            }
+
+            return v_return;
+
+        }
 
 		/// <summary>
 		/// Wipes table records.

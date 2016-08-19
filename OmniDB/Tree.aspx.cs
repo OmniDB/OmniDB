@@ -32,16 +32,40 @@ namespace OmniDB
 		public string v_schema;
 		public bool v_has_schema;
 		public bool v_has_functions;
+        public bool v_has_procedures;
 	}
 
 	/// <summary>
 	/// Function return information.
 	/// </summary>
-	public class FunctionReturn
-	{
+	public class FunctionReturn {
 		public string v_name;
-		public string v_complete_name;
+		public string v_id;
 	}
+
+    /// <summary>
+    /// Function field return information.
+    /// </summary>
+    public class FunctionFieldReturn {
+        public string v_type;
+        public string v_name;
+    }
+
+    /// <summary>
+    /// Procedure return information.
+    /// </summary>
+    public class ProcedureReturn {
+        public string v_name;
+        public string v_id;
+    }
+
+    /// <summary>
+    /// Procedure field return information.
+    /// </summary>
+    public class ProcedureFieldReturn {
+        public string v_type;
+        public string v_name;
+    }
 
 	/// <summary>
 	/// Contains all webmethods to retrieve database components to render the treeview.
@@ -76,6 +100,7 @@ namespace OmniDB
 			v_database_return.v_database = v_database.GetName ();
 			v_database_return.v_has_schema = v_database.v_has_schema;
 			v_database_return.v_has_functions = v_database.v_has_functions;
+            v_database_return.v_has_procedures = v_database.v_has_procedures;
 
 			if (v_database_return.v_has_schema)
 				v_database_return.v_schema = v_database.v_schema;
@@ -161,8 +186,8 @@ namespace OmniDB
 				foreach (System.Data.DataRow v_table in v_tables.Rows) {
 
 					FunctionReturn v_function_data = new FunctionReturn();
-					v_function_data.v_name 			= v_table["name"].ToString();
-					v_function_data.v_complete_name = v_table["complete_name"].ToString();
+					v_function_data.v_name = v_table["name"].ToString();
+					v_function_data.v_id   = v_table["id"].ToString();
 
 					v_function_data_list.Add(v_function_data);
 				}
@@ -177,12 +202,60 @@ namespace OmniDB
 				return v_return;
 			}
 
-
 			v_return.v_data = v_function_data_list;
 
 			return v_return;
 
 		}
+
+        /// <summary>
+        /// Get all database procedures.
+        /// </summary>
+        [System.Web.Services.WebMethod]
+        public static AjaxReturn GetProcedures(int p_database_index)
+        {
+            AjaxReturn v_return = new AjaxReturn();
+            Session v_session = (Session)System.Web.HttpContext.Current.Session["OMNIDB_SESSION"];
+
+            System.Collections.Generic.List<ProcedureReturn> v_procedure_data_list = new System.Collections.Generic.List<ProcedureReturn>();
+
+            if (v_session == null)
+            {
+                v_return.v_error = true;
+                v_return.v_error_id = 1;
+                return v_return;
+            }
+
+            OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+            try
+            {
+                System.Data.DataTable v_tables = v_database.QueryProcedures();
+
+                foreach (System.Data.DataRow v_table in v_tables.Rows) {
+
+                    ProcedureReturn v_procedure_data = new ProcedureReturn();
+                    v_procedure_data.v_name = v_table["name"].ToString();
+                    v_procedure_data.v_id   = v_table["id"].ToString();
+
+                    v_procedure_data_list.Add(v_procedure_data);
+                }
+
+            }
+            catch (Spartacus.Database.Exception e)
+            {
+
+                v_return.v_error = true;
+                v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+                return v_return;
+            }
+
+            v_return.v_data = v_procedure_data_list;
+
+            return v_return;
+
+        }
 
 		/// <summary>
 		/// Get all database views.
@@ -494,10 +567,60 @@ namespace OmniDB
 
 		}
 
+        /// <summary>
+        /// Get fields of a database function.
+        /// </summary>
+        [System.Web.Services.WebMethod]
+        public static AjaxReturn GetFunctionFields(int p_database_index, string p_function)
+        {
+            AjaxReturn v_return = new AjaxReturn();
+            Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];
+
+            if (v_session == null) 
+            {
+                v_return.v_error = true;
+                v_return.v_error_id = 1;
+                return v_return;
+            } 
+
+            OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+            System.Collections.Generic.List<FunctionFieldReturn> v_list_fields = new System.Collections.Generic.List<FunctionFieldReturn> ();
+
+            try
+            {
+
+                System.Data.DataTable v_fields = v_database.QueryFunctionFields(p_function);
+
+                foreach (System.Data.DataRow v_field in v_fields.Rows)
+                {
+
+                    FunctionFieldReturn v_field_data = new FunctionFieldReturn();
+                    v_field_data.v_name = v_field["name"].ToString();
+                    v_field_data.v_type = v_field["type"].ToString();
+
+                    v_list_fields.Add(v_field_data);
+                }
+
+            }
+            catch (Spartacus.Database.Exception e)
+            {
+
+                v_return.v_error = true;
+                v_return.v_data = e.v_message.Replace("<","&lt;").Replace(">","&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+                return v_return;
+            }
+
+            v_return.v_data = v_list_fields;
+
+            return v_return;
+
+        }
+
 		/// <summary>
 		/// Get function definition.
 		/// </summary>
-		/// <param name="p_function">Function name.</param>
 		[System.Web.Services.WebMethod]
 		public static AjaxReturn GetFunctionDefinition(int p_database_index, string p_function)
 		{
@@ -528,13 +651,97 @@ namespace OmniDB
 				return v_return;
 			}
 
-
-
-
 			return v_return;
 
 		}
+
+        /// <summary>
+        /// Get fields of a database procedure.
+        /// </summary>
+        [System.Web.Services.WebMethod]
+        public static AjaxReturn GetProcedureFields(int p_database_index, string p_procedure)
+        {
+            AjaxReturn v_return = new AjaxReturn();
+            Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];
+
+            if (v_session == null) 
+            {
+                v_return.v_error = true;
+                v_return.v_error_id = 1;
+                return v_return;
+            } 
+
+            OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+            System.Collections.Generic.List<ProcedureFieldReturn> v_list_fields = new System.Collections.Generic.List<ProcedureFieldReturn> ();
+
+            try
+            {
+
+                System.Data.DataTable v_fields = v_database.QueryProcedureFields(p_procedure);
+
+                foreach (System.Data.DataRow v_field in v_fields.Rows)
+                {
+
+                    ProcedureFieldReturn v_field_data = new ProcedureFieldReturn();
+                    v_field_data.v_name = v_field["name"].ToString();
+                    v_field_data.v_type = v_field["type"].ToString();
+
+                    v_list_fields.Add(v_field_data);
+                }
+
+            }
+            catch (Spartacus.Database.Exception e)
+            {
+
+                v_return.v_error = true;
+                v_return.v_data = e.v_message.Replace("<","&lt;").Replace(">","&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+                return v_return;
+            }
+
+            v_return.v_data = v_list_fields;
+
+            return v_return;
+
+        }
+
+        /// <summary>
+        /// Get procedure definition.
+        /// </summary>
+        [System.Web.Services.WebMethod]
+        public static AjaxReturn GetProcedureDefinition(int p_database_index, string p_procedure)
+        {
+            AjaxReturn v_return = new AjaxReturn();
+            Session v_session = (Session)System.Web.HttpContext.Current.Session["OMNIDB_SESSION"];
+
+            if (v_session == null)
+            {
+                v_return.v_error = true;
+                v_return.v_error_id = 1;
+                return v_return;
+            }
+
+            OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+            try
+            {
+                string v_procedure_definition = v_database.GetProcedureDefinition(p_procedure);
+                v_return.v_data = v_procedure_definition;
+
+            }
+            catch (Spartacus.Database.Exception e)
+            {
+
+                v_return.v_error = true;
+                v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+                return v_return;
+            }
+
+            return v_return;
+
+        }
 	}
 
 }
-

@@ -114,6 +114,7 @@ namespace OmniDatabase
 			v_connection.v_execute_security = false;
 
 			v_has_functions = true;
+            v_has_procedures = false;
 
 		}
 
@@ -446,25 +447,85 @@ namespace OmniDatabase
 		public override System.Data.DataTable QueryFunctions() {
 			
 			return v_connection.Query(
-				"select p.proname as name,                                                                      " +
-				"n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as complete_name, " +
-				"format_type(p.prorettype, null) as return_type,                                                " +
-				"oidvectortypes(p.proargtypes) as arguments_type                                                " +
-				"from pg_proc p,                                                                                " +
-				"pg_namespace n                                                                                 " +
-				"where p.pronamespace = n.oid                                                                   " +
-				"and lower(n.nspname) = '" + v_schema.ToLower() + "'", "Tables");
+                "select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as id, " +
+                "       p.proname as name                                                                   " +
+                "from pg_proc p,                                                                            " +
+                "     pg_namespace n                                                                        " +
+                "where p.pronamespace = n.oid                                                               " +
+                "  and lower(n.nspname) = '" + v_schema.ToLower() + "'                                      " +
+                "order by 1", "Functions");
 			
 		}
+
+        /// <summary>
+        /// Get a datatable with all fields of a function.
+        /// </summary>
+        public override System.Data.DataTable QueryFunctionFields(string p_function) {
+
+            return v_connection.Query(
+                "select y.type::character varying as type,                                                                              " +
+                "       y.name                                                                                                          " +
+                "from (                                                                                                                 " +
+                "    select 'O' as type,                                                                                                " +
+                "           'return ' || format_type(p.prorettype, null) as name                                                                     " +
+                "    from pg_proc p,                                                                                                    " +
+                "         pg_namespace n                                                                                                " +
+                "    where p.pronamespace = n.oid                                                                                       " +
+                "      and n.nspname = '" + v_schema.ToLower() + "'                                                                     " +
+                "      and n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' = '" + p_function + "'          " +
+                ") y                                                                                                                    " +
+                "union all                                                                                                              " +
+                "select x.type::character varying as type,                                                                              " +
+                "       trim(x.name) as name                                                                                            " +
+                "from (                                                                                                                 " +
+                "    select 'I' as type,                                                                                                " +
+                "    unnest(regexp_split_to_array(pg_get_function_identity_arguments('" + p_function + "'::regprocedure), ',')) as name " +
+                ") x                                                                                                                    " +
+                "where length(trim(x.name)) > 0                                                                                         " +
+                "order by 1 desc", "FunctionFields");
+
+        }
 
 		/// <summary>
 		/// Get function definition.
 		/// </summary>
 		public override string GetFunctionDefinition(string p_function) {
 
-			return v_connection.ExecuteScalar("select pg_get_functiondef('" + p_function + "'::regprocedure)");
+            string v_body;
+
+            v_body = "-- DROP FUNCTION " + p_function + ";\n\n";
+            v_body += v_connection.ExecuteScalar("select pg_get_functiondef('" + p_function + "'::regprocedure)");
+
+            return v_body;
 
 		}
+
+        /// <summary>
+        /// Get a datatable with all procedures.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedures() {
+
+            return null;
+
+        }
+
+        /// <summary>
+        /// Get a datatable with all fields of a procedure.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedureFields(string p_procedure) {
+
+            return null;
+
+        }
+
+        /// <summary>
+        /// Get procedure definition.
+        /// </summary>
+        public override string GetProcedureDefinition(string p_procedure) {
+
+            return null;
+
+        }
 
 	}
 }

@@ -9,6 +9,7 @@
     <RootNamespace>OmniDB</RootNamespace>
     <AssemblyName>OmniDB</AssemblyName>
     <ReleaseVersion>2.0</ReleaseVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -521,7 +522,6 @@
     <None Include="databases\northwind.fdb" />
     <None Include="databases\northwind.sdf" />
     <None Include="exported_files\README.txt" />
-    <None Include="css\themes\.DS_Store" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OmniDatabase\OmniDatabase.csproj">

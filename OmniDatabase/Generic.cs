@@ -298,6 +298,9 @@ namespace OmniDatabase
                 case "sqlce":
                     v_database = new SqlCe(p_conn_id, p_service);
                     break;
+                case "mariadb":
+                    v_database = new MariaDB(p_conn_id, p_server, p_port, p_service, p_user, p_password);
+                    break;
     			default:
     				return null;
 			}

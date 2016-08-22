@@ -389,6 +389,7 @@
                 		<img src="images/firebird_medium.png" title="Firebird"/>
                 		<img src="images/sqlite_medium.png" title="SQLite"/>
                 		<img src="images/access_medium.png" title="Microsoft Access"/>
+                		<img src="images/mariadb_medium.png" title="MariaDB"/>
                 	</div>
                 	<div style="margin: 20px;">Rafael Thofehrn Castro<br/><b>Creator</b></div>
                 	<div style="margin: 20px;">William Ivanski<br/><b>Collaborator</b></div>

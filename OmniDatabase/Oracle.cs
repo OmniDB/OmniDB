@@ -96,7 +96,8 @@ namespace OmniDatabase
 			v_connection = new Spartacus.Database.Oracle (p_server, p_port, p_service, p_user, p_password);
 			v_connection.v_execute_security = false;
 
-			v_has_functions = false;
+			v_has_functions = true;
+            v_has_procedures = true;
 
 		}
 
@@ -455,18 +456,98 @@ namespace OmniDatabase
 		/// </summary>
 		public override System.Data.DataTable QueryFunctions() {
 
-			return null;
+            return v_connection.Query(
+                "select t.object_name as id, " +
+                "       lower(t.object_name) as name                 " +
+                "from all_procedures t                               " +
+                "where t.object_type = 'FUNCTION'                    " +
+                "  and lower(t.owner) = '" + v_schema.ToLower() + "' " +
+                "order by 2", "Functions");
 
 		}
+
+        /// <summary>
+        /// Get a datatable with all fields of a function.
+        /// </summary>
+        public override System.Data.DataTable QueryFunctionFields(string p_function) {
+
+            return v_connection.Query(
+                "select (case t.in_out                                                     " +
+                "          when 'IN' then 'I'                                              " +
+                "          when 'OUT' then 'O'                                             " +
+                "          else 'R'                                                        " +
+                "        end) as type,                                                     " +
+                "       (case when t.position = 0                                          " +
+                "             then 'return ' || lower(t.data_type)                         " +
+                "             else lower(t.argument_name) || ' ' || lower(t.data_type)     " +
+                "        end) as name                                                      " +
+                "from all_arguments t                                                      " +
+                "where lower(t.owner) = '" + v_schema.ToLower() + "'                       " +
+                "  and lower(t.object_name) = '" + p_function.ToLower() + "'               " +
+                "order by 1 desc", "FunctionFields");
+
+        }
 
 		/// <summary>
 		/// Get function definition.
 		/// </summary>
 		public override string GetFunctionDefinition(string p_function) {
 
-			return null;
+            string v_body;
+
+            v_body = "-- DROP FUNCTION " + p_function + ";\n";
+            v_body += v_connection.ExecuteScalar("select dbms_metadata.get_ddl('FUNCTION','" + p_function + "') from dual");
+
+            return v_body;
 
 		}
+
+        /// <summary>
+        /// Get a datatable with all procedures.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedures() {
+
+            return v_connection.Query(
+                "select t.object_name as id, " +
+                "       lower(t.object_name) as name                 " +
+                "from all_procedures t                               " +
+                "where t.object_type = 'PROCEDURE'                   " +
+                "  and lower(t.owner) = '" + v_schema.ToLower() + "' " +
+                "order by 2", "Procedures");
+
+        }
+
+        /// <summary>
+        /// Get a datatable with all fields of a procedure.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedureFields(string p_procedure) {
+
+            return v_connection.Query(
+                "select (case t.in_out                                                     " +
+                "          when 'IN' then 'I'                                              " +
+                "          when 'OUT' then 'O'                                             " +
+                "          else 'R'                                                        " +
+                "        end) as type,                                                     " +
+                "       lower(t.argument_name) || ' ' || lower(t.data_type) as name        " +
+                "from all_arguments t                                                      " +
+                "where lower(t.owner) = '" + v_schema.ToLower() + "'                       " +
+                "  and lower(t.object_name) = '" + p_procedure.ToLower() + "' ", "ProcedureFields");
+
+        }
+
+        /// <summary>
+        /// Get procedure definition.
+        /// </summary>
+        public override string GetProcedureDefinition(string p_procedure) {
+
+            string v_body;
+
+            v_body = "-- DROP PROCEDURE " + p_procedure + ";\n";
+            v_body += v_connection.ExecuteScalar("select dbms_metadata.get_ddl('PROCEDURE','" + p_procedure + "') from dual");
+
+            return v_body;
+
+        }
 
 	}
 }

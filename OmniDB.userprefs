@@ -1,18 +1,18 @@
 ﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
-  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/css/themes/dark.css">
+  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDatabase/Oracle.cs">
     <Files>
-      <File FileName="OmniDB/MainDB.aspx" Line="15" Column="90" />
-      <File FileName="OmniDB/js/MainDB.js" Line="211" Column="24" />
-      <File FileName="OmniDB/MainDB.aspx.cs" Line="573" Column="66" />
-      <File FileName="OmniDB/css/themes/dark.css" Line="6" Column="2" />
-      <File FileName="OmniDB/js/Renderers.js" Line="91" Column="28" />
-      <File FileName="OmniDB/css/themes/light.css" Line="18" Column="38" />
-      <File FileName="OmniDB/js/Tree.js" Line="179" Column="14" />
-      <File FileName="OmniDB/CreateConversion.aspx" Line="70" Column="81" />
-      <File FileName="OmniDB/css/style.css" Line="340" Column="68" />
+      <File FileName="OmniDB/js/Tree.js" Line="351" Column="43" />
+      <File FileName="OmniDB/Tree.aspx.cs" Line="103" Column="31" />
+      <File FileName="OmniDatabase/PostgreSQL.cs" Line="116" Column="4" />
+      <File FileName="OmniDatabase/Oracle.cs" Line="487" Column="33" />
+      <File FileName="OmniDatabase/SqlServer.cs" Line="122" Column="4" />
+      <File FileName="OmniDatabase/Firebird.cs" Line="116" Column="4" />
+      <File FileName="OmniDatabase/MySQL.cs" Line="110" Column="4" />
+      <File FileName="OmniDB/js/MainDB.js" Line="2661" Column="24" />
+      <File FileName="OmniDB/MainDB.aspx.cs" Line="1289" Column="33" />
     </Files>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="firefox" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

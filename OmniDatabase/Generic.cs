@@ -241,6 +241,11 @@ namespace OmniDatabase
 		/// </summary>
 		public bool v_has_functions;
 
+        /// <summary>
+        /// If technology supports custom procedures.
+        /// </summary>
+        public bool v_has_procedures;
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="OmniDB.Database.Generic"/> class.
@@ -292,6 +297,9 @@ namespace OmniDatabase
     				break;
                 case "sqlce":
                     v_database = new SqlCe(p_conn_id, p_service);
+                    break;
+                case "mariadb":
+                    v_database = new MariaDB(p_conn_id, p_server, p_port, p_service, p_user, p_password);
                     break;
     			default:
     				return null;
@@ -371,10 +379,30 @@ namespace OmniDatabase
 		/// </summary>
 		public abstract System.Data.DataTable QueryFunctions();
 
+        /// <summary>
+        /// Get a datatable with all fields of a function.
+        /// </summary>
+        public abstract System.Data.DataTable QueryFunctionFields(string p_function);
+
 		/// <summary>
 		/// Get function definition.
 		/// </summary>
 		public abstract string GetFunctionDefinition(string p_function);
+
+        /// <summary>
+        /// Get a datatable with all procedures.
+        /// </summary>
+        public abstract System.Data.DataTable QueryProcedures();
+
+        /// <summary>
+        /// Get a datatable with all fields of a procedure.
+        /// </summary>
+        public abstract System.Data.DataTable QueryProcedureFields(string p_procedure);
+
+        /// <summary>
+        /// Get procedure definition.
+        /// </summary>
+        public abstract string GetProcedureDefinition(string p_function);
 
 		/// <summary>
 		/// Count all tables records.

@@ -114,6 +114,7 @@ namespace OmniDatabase
 			v_connection.v_execute_security = false;
 
 			v_has_functions = false;
+            v_has_procedures = true;
 
 		}
 
@@ -426,6 +427,15 @@ namespace OmniDatabase
 
 		}
 
+        /// <summary>
+        /// Get a datatable with all fields of a function.
+        /// </summary>
+        public override System.Data.DataTable QueryFunctionFields(string p_function) {
+
+            return null;
+
+        }
+
 		/// <summary>
 		/// Get function definition.
 		/// </summary>
@@ -435,8 +445,104 @@ namespace OmniDatabase
 
 		}
 
+        /// <summary>
+        /// Get a datatable with all procedures.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedures() {
+
+            return v_connection.Query(
+                "select lower(t.rdb$procedure_name) as id,  " +
+                "       lower(t.rdb$procedure_name) as name " +
+                "from rdb$procedures t                      " +
+                "order by 1", "Procedures");
+
+        }
+
+        /// <summary>
+        /// Get a datatable with all fields of a procedure.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedureFields(string p_procedure) {
+
+            return v_connection.Query(
+                "select lower(t.rdb$parameter_name) || ' ' ||              " +
+                "       case f.rdb$field_type                              " +
+                "         when 261 then 'blob'                             " +
+                "         when 14 then 'char'                              " +
+                "         when 40 then 'cstring'                           " +
+                "         when 11 then 'd_float'                           " +
+                "         when 27 then 'double'                            " +
+                "         when 10 then 'float'                             " +
+                "         when 16 then 'int64'                             " +
+                "         when 8 then 'integer'                            " +
+                "         when 9 then 'quad'                               " +
+                "         when 7 then 'smallint'                           " +
+                "         when 12 then 'date'                              " +
+                "         when 13 then 'time'                              " +
+                "         when 35 then 'timestamp'                         " +
+                "         when 37 then 'varchar'                           " +
+                "         else 'unknown'                                   " +
+                "       end as name,                                       " +
+                "       case t.rdb$parameter_type                          " +
+                "         when 0 then 'I'                                  " +
+                "         else 'O'                                         " +
+                "       end as type                                        " +
+                "from rdb$procedure_parameters t,                          " +
+                "     rdb$fields f                                         " +
+                "where f.rdb$field_name = t.rdb$field_source               " +
+                "  and lower(t.rdb$procedure_name) = '" + p_procedure + "' " +
+                "order by 2 desc", "ProcedureFields");
+
+        }
+
+        /// <summary>
+        /// Get procedure definition.
+        /// </summary>
+        public override string GetProcedureDefinition(string p_procedure) {
+
+            string v_body, v_input, v_output;
+            System.Data.DataTable v_table;
+            int v_num_input, v_num_output;
+
+            v_table = this.QueryProcedureFields(p_procedure);
+
+            v_input = "";
+            v_num_input = 0;
+            v_output = "";
+            v_num_output = 0;
+
+            foreach (System.Data.DataRow v_row in v_table.Rows)
+            {
+                if (v_row["type"].ToString() == "I")
+                {
+                    if (v_num_input == 0)
+                        v_input += System.Text.RegularExpressions.Regex.Replace(v_row["name"].ToString(), @"\s+", " ").Trim();
+                    else
+                        v_input += ", " + System.Text.RegularExpressions.Regex.Replace(v_row["name"].ToString(), @"\s+", " ").Trim();
+                    v_num_input++;
+                }
+                else
+                {
+                    if (v_num_output == 0)
+                        v_output += System.Text.RegularExpressions.Regex.Replace(v_row["name"].ToString(), @"\s+", " ").Trim();
+                    else
+                        v_output += ", " + System.Text.RegularExpressions.Regex.Replace(v_row["name"].ToString(), @"\s+", " ").Trim();
+                    v_num_output++;
+                }
+            }
+
+            v_body = "-- DROP PROCEDURE " + p_procedure.Trim() + ";\n";
+            v_body += "CREATE OR ALTER PROCEDURE " + p_procedure.Trim() + " (" + v_input + ")\n";
+            if (v_num_output > 0)
+                v_body += "RETURNS (" + v_output + ")\n";
+            v_body += "AS\n";
+
+            v_body += v_connection.ExecuteScalar(
+                "select t.rdb$procedure_source                             " +
+                "from rdb$procedures t                                     " +
+                "where lower(t.rdb$procedure_name) = '" + p_procedure + "' ");
+
+            return v_body;
+        }
+
 	}
 }
-
-
-

@@ -119,7 +119,7 @@ function getTree(p_div) {
 							icon: 'images/text_edit.png',
 							action : function(node) {
 								if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
-												v_connTabControl.selectedTab.tag.tabControl.tag.createQueryTab(node.text);
+									v_connTabControl.selectedTab.tag.tabControl.tag.createQueryTab(node.text);
 
 								getFunctionDefinition(node);
 							}
@@ -129,6 +129,67 @@ function getTree(p_div) {
 							icon: 'images/tab_close.png',
 							action : function(node) {
 								dropFunction(node);
+							}
+						},
+						{
+							text : 'Refresh',
+							icon: 'images/refresh.png',
+							action : function(node) {
+								if (node.childNodes==0)
+									refreshTree(node);
+								else {
+									node.collapseNode();
+									node.expandNode();
+								}
+							}
+						}
+					]
+				},
+				'cm_procedures' : {
+					elements : [
+						{
+							text : 'Refresh',
+							icon: 'images/refresh.png',
+							action : function(node) {
+								if (node.childNodes==0)
+									getProcedures(node);
+								else {
+									node.collapseNode();
+									node.expandNode();
+								}
+							}
+						}
+					]
+				},
+				'cm_procedure' : {
+					elements : [
+						{
+							text : 'Edit Procedure',
+							icon: 'images/text_edit.png',
+							action : function(node) {
+								if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
+									v_connTabControl.selectedTab.tag.tabControl.tag.createQueryTab(node.text);
+
+								getProcedureDefinition(node);
+							}
+						},
+						{
+							text : 'Drop Procedure',
+							icon: 'images/tab_close.png',
+							action : function(node) {
+								dropProcedure(node);
+							}
+						},
+						{
+							text : 'Refresh',
+							icon: 'images/refresh.png',
+							action : function(node) {
+								if (node.childNodes==0)
+									refreshTree(node);
+								else {
+									node.collapseNode();
+									node.expandNode();
+								}
 							}
 						}
 					]
@@ -292,6 +353,11 @@ function getTree(p_div) {
 					node_tables.createChildNode('',true,'images/spin.svg',null,null);
 				}
 
+				if (p_return.v_data.v_database_return.v_has_procedures) {
+					var node_tables = tree.createNode('Procedures',false,'images/gear.png',node2,{ type:'procedure_list', num_tables : 0 },'cm_procedures');
+					node_tables.createChildNode('',true,'images/spin.svg',null,null);
+				}
+
 				v_tree_object.refreshTables = function() {
 					refreshTree(v_tree_object.tables_node);
 				}
@@ -342,6 +408,15 @@ function refreshTree(node) {
 		}
 		else if (node.tag.type=='function_list') {
 			getFunctions(node);
+		}
+		else if (node.tag.type=='function') {
+			getFunctionFields(node);
+		}
+		else if (node.tag.type=='procedure_list') {
+			getProcedures(node);
+		}
+		else if (node.tag.type=='procedure') {
+			getProcedureFields(node);
 		}
 
 }
@@ -719,7 +794,46 @@ function getFunctions(node) {
 
 				for (i=0; i<p_return.v_data.length; i++) {
 
-		        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'images/gear.png',{ type:'function', complete_name: p_return.v_data[i].v_complete_name },'cm_function');
+		        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'images/gear.png',{ type:'function', id: p_return.v_data[i].v_id },'cm_function');
+		        	getFunctionFields(v_node);
+
+		        }
+
+			},
+			null,
+			'box',
+			false);
+}
+
+/// <summary>
+/// Retrieving function fields.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getFunctionFields(node) {
+
+	node.removeChildNodes();
+	node.createChildNode('',false,'images/spin.svg',null,null);
+
+
+	execAjax('Tree.aspx/GetFunctionFields',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_function": node.tag.id}),
+			function(p_return) {
+
+				if (node.childNodes.length > 0)
+					node.removeChildNodes();
+
+				node.tag.num_tables = p_return.v_data.length;
+
+				for (i=0; i<p_return.v_data.length; i++) {
+
+					if (p_return.v_data[i].v_type == 'O')
+						v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/output.png', null, null);
+					else {
+						if (p_return.v_data[i].v_type == 'I')
+							v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/input.png', null, null);
+						else
+ 							v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/input_output.png', null, null);
+					}
 
 		        }
 
@@ -736,7 +850,112 @@ function getFunctions(node) {
 function getFunctionDefinition(node) {
 
 	execAjax('Tree.aspx/GetFunctionDefinition',
-			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_function": node.tag.complete_name}),
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_function": node.tag.id}),
+			function(p_return) {
+
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value = -2;
+
+				var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;
+
+				if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht!=null) {
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.destroy();
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht = null;
+				}
+
+				v_div_result.innerHTML = '';
+
+				maximizeEditor();
+
+			},
+			null,
+			'box',
+			true);
+
+}
+
+/// <summary>
+/// Retrieving procedures.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getProcedures(node) {
+
+	node.removeChildNodes();
+	node.createChildNode('',false,'images/spin.svg',null,null);
+
+
+	execAjax('Tree.aspx/GetProcedures',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
+			function(p_return) {
+
+				if (node.childNodes.length > 0)
+					node.removeChildNodes();
+
+				node.setText('Procedures (' + p_return.v_data.length + ')');
+
+				node.tag.num_tables = p_return.v_data.length;
+
+				for (i=0; i<p_return.v_data.length; i++) {
+
+		        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'images/gear.png',{ type:'procedure', id: p_return.v_data[i].v_id },'cm_procedure');
+		        	getProcedureFields(v_node);
+
+		        }
+
+			},
+			null,
+			'box',
+			false);
+}
+
+/// <summary>
+/// Retrieving procedure fields.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getProcedureFields(node) {
+
+	node.removeChildNodes();
+	node.createChildNode('',false,'images/spin.svg',null,null);
+
+
+	execAjax('Tree.aspx/GetProcedureFields',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_procedure": node.tag.id}),
+			function(p_return) {
+
+				if (node.childNodes.length > 0)
+					node.removeChildNodes();
+
+				node.tag.num_tables = p_return.v_data.length;
+
+				for (i=0; i<p_return.v_data.length; i++) {
+
+					if (p_return.v_data[i].v_type == 'O')
+						v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/output.png', null, null);
+					else {
+						if (p_return.v_data[i].v_type == 'I')
+							v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/input.png', null, null);
+						else
+ 							v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/input_output.png', null, null);
+					}
+
+		        }
+
+			},
+			null,
+			'box',
+			false);
+}
+
+/// <summary>
+/// Retrieving procedure definition.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getProcedureDefinition(node) {
+
+	execAjax('Tree.aspx/GetProcedureDefinition',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_procedure": node.tag.id}),
 			function(p_return) {
 
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);

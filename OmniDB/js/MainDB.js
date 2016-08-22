@@ -2555,6 +2555,36 @@ function dropTable(p_node) {
 }
 
 /// <summary>
+/// Displays message to drop function.
+/// </summary>
+/// <param name="p_node">Tree node object.</param>
+function dropFunction(p_node) {
+
+	showConfirm('Are you sure you want to drop the function ' + p_node.text + '?',
+				function() {
+
+					dropFunctionConfirm(p_node);
+
+				});
+
+}
+
+/// <summary>
+/// Displays message to drop procedure.
+/// </summary>
+/// <param name="p_node">Tree node object.</param>
+function dropProcedure(p_node) {
+
+	showConfirm('Are you sure you want to drop the procedure ' + p_node.text + '?',
+				function() {
+
+					dropProcedureConfirm(p_node);
+
+				});
+
+}
+
+/// <summary>
 /// Displays message to delete table records.
 /// </summary>
 /// <param name="p_node">Tree node object.</param>
@@ -2588,6 +2618,58 @@ function dropTableConfirm(p_node) {
 					p_node.parent.setText('Tables (' + p_node.parent.tag.num_tables + ')');
 
 					showAlert('Table dropped.');
+
+				},
+				null,
+				'box');
+
+}
+
+/// <summary>
+/// Drops function.
+/// </summary>
+/// <param name="p_node">Tree node object.</param>
+function dropFunctionConfirm(p_node) {
+
+	p_node.tag.num_tables = 0;
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_function": p_node.text});
+
+	execAjax('MainDB.aspx/DropFunction',
+				input,
+				function(p_return) {
+
+					p_node.removeNode();
+
+					p_node.parent.tag.num_tables = p_node.parent.tag.num_tables-1;
+					p_node.parent.setText('Functions (' + p_node.parent.tag.num_tables + ')');
+
+					showAlert('Function dropped.');
+
+				},
+				null,
+				'box');
+
+}
+
+/// <summary>
+/// Drops procedure.
+/// </summary>
+/// <param name="p_node">Tree node object.</param>
+function dropProcedureConfirm(p_node) {
+
+	p_node.tag.num_tables = 0;
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_procedure": p_node.text});
+
+	execAjax('MainDB.aspx/DropProcedure',
+				input,
+				function(p_return) {
+
+					p_node.removeNode();
+
+					p_node.parent.tag.num_tables = p_node.parent.tag.num_tables-1;
+					p_node.parent.setText('Procedures (' + p_node.parent.tag.num_tables + ')');
+
+					showAlert('Procedure dropped.');
 
 				},
 				null,

@@ -1,0 +1,19 @@
+.cellNew {
+	background-color: rgb(206, 255, 209) !important;
+}
+
+.cellEdit {
+	background-color: rgb(255, 251, 215) !important;
+}
+
+.cellRemove {
+	background-color: rgb(255, 213, 213) !important;
+}
+
+.cellReadOnly {
+	background-color: rgb(242, 242, 242) !important;
+}
+
+.cellEven {
+	background-color: rgb(234, 237, 249) !important;
+}

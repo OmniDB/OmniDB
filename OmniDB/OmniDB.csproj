@@ -9,6 +9,7 @@
     <RootNamespace>OmniDB</RootNamespace>
     <AssemblyName>OmniDB</AssemblyName>
     <ReleaseVersion>2.0</ReleaseVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -401,6 +402,9 @@
     <Content Include="images\fbembed_medium.png" />
     <Content Include="images\sqlce_medium.png" />
     <Content Include="DownloadFile.aspx" />
+    <Content Include="css\themes\dark.css" />
+    <Content Include="css\themes\dark-chaos-override.css" />
+    <Content Include="css\themes\light.css" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">

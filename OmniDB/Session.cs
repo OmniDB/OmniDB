@@ -47,9 +47,19 @@ namespace OmniDB
 		public string v_user_name;
 
 		/// <summary>
+		/// Theme id.
+		/// </summary>
+		public string v_theme_id;
+
+		/// <summary>
 		/// Editor Theme.
 		/// </summary>
 		public string v_editor_theme;
+
+		/// <summary>
+		/// Theme type.
+		/// </summary>
+		public string v_theme_type;
 
 		/// <summary>
 		/// Editor Font Size.
@@ -74,7 +84,7 @@ namespace OmniDB
 		/// <param name="p_user_id">User ID.</param>
 		/// <param name="p_user_name">Username.</param>
 		/// <param name="p_database">Database that manages the application.</param>
-		public Session (string p_user_id, string p_user_name, OmniDatabase.Generic p_database, string p_editor_theme, string p_editor_font_size)
+		public Session (string p_user_id, string p_user_name, OmniDatabase.Generic p_database, string p_editor_theme, string p_theme_type, string p_theme_id, string p_editor_font_size)
 		{
 			
 			v_omnidb_database  = p_database;
@@ -82,7 +92,9 @@ namespace OmniDB
 			v_user_id          = p_user_id;
 			v_user_name        = p_user_name;
 			v_databases        = new System.Collections.Generic.List<OmniDatabase.Generic> ();
+			v_theme_id 		   = p_theme_id;
 			v_editor_theme     = p_editor_theme;
+			v_theme_type       = p_theme_type;
 			v_editor_font_size = p_editor_font_size;
 
 			if (Environment.OSVersion.ToString ().ToLower ().Contains ("unix"))

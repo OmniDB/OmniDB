@@ -109,6 +109,9 @@ namespace OmniDatabase
             v_connection = new Spartacus.Database.Sqlce(p_service);
             v_connection.v_execute_security = false;
 
+			v_has_functions = false;
+            v_has_procedures = false;
+
         }
 
         /// <summary>
@@ -393,6 +396,60 @@ namespace OmniDatabase
                 "select " + v_limit + " " + p_column_list + " " +
                 "from  " + p_table + " t                      " +
                 p_filter, "Limited Query");
+
+        }
+
+		/// <summary>
+		/// Get a datatable with all functions.
+		/// </summary>
+		public override System.Data.DataTable QueryFunctions() {
+
+			return null;
+
+		}
+
+        /// <summary>
+        /// Get a datatable with all fields of a function.
+        /// </summary>
+        public override System.Data.DataTable QueryFunctionFields(string p_function) {
+
+            return null;
+
+        }
+
+		/// <summary>
+		/// Get function definition.
+		/// </summary>
+		public override string GetFunctionDefinition(string p_function) {
+
+			return null;
+
+		}
+
+        /// <summary>
+        /// Get a datatable with all procedures.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedures() {
+
+            return null;
+
+        }
+
+        /// <summary>
+        /// Get a datatable with all fields of a procedure.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedureFields(string p_procedure) {
+
+            return null;
+
+        }
+
+        /// <summary>
+        /// Get procedure definition.
+        /// </summary>
+        public override string GetProcedureDefinition(string p_procedure) {
+
+            return null;
 
         }
 

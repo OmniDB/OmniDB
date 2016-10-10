@@ -15,6 +15,12 @@ You should have received a copy of the GNU General Public License along with Omn
 /// </summary>
 $(function () {
 
+	var v_fileref = document.createElement("link");
+    v_fileref.setAttribute("rel", "stylesheet");
+    v_fileref.setAttribute("type", "text/css");
+    v_fileref.setAttribute("href", 'css/themes/' + v_theme_type + '.css');
+    document.getElementsByTagName("head")[0].appendChild(v_fileref);
+
 	var v_configTabControl = createTabControl('config_tabs',0,null);
 	v_configTabControl.selectTabIndex(0);
 
@@ -23,73 +29,12 @@ $(function () {
 	v_copyPasteObject.v_tabControl = createTabControl('find_replace',0,null);
 	v_copyPasteObject.v_tabControl.selectTabIndex(0);
 
-	getDatabaseList('sl_database',null);
-	getTree();
+	v_connTabControl = createTabControl('conn_tabs',0,null);
 
-	var v_height  = $(window).height() - $('#tree1').offset().top - 50;
-	document.getElementById('tree1').style.height = v_height + "px"
 
-	var v_contextMenu = {
-		'cm_tab' : {
-			elements : [
-				{
-					text : 'Remove Tab',
-					icon: 'images/tab_close.png',
-					action : function(tab) {
-						showConfirm('Are you sure you want to remove this tab?',
-		                    function() {
-													removeTab(tab);
-													tab.removeTab();
-		                    });
-					}
-				},
-				{
-					text : 'Rename',
-					icon: 'images/rename.png',
-					action : function(tab) {
-						renameTab(tab);
-					}
-				}
-			]
-		}
-	};
+	v_connTabControl.createTab('+',false,createConnTab);
 
-	v_tabControl = createTabControl('tabs',0,v_contextMenu);
-
-	v_alterTabControl = createTabControl('alter_tabs',0,null);
-
-	v_alterTabControl.tabList[0].elementLi.onclick = function() {
-
-		v_alterTabControl.selectTabIndex(0);
-		v_alterTableObject.ht.render();
-		v_alterTableObject.window = 'columns';
-
-	}
-
-	v_alterTabControl.tabList[1].elementLi.onclick = function() {
-
-		v_alterTabControl.selectTabIndex(1);
-		v_alterTableObject.ht_constraints.render();
-		v_alterTableObject.window = 'constraints';
-
-	}
-
-	v_alterTabControl.tabList[2].elementLi.onclick = function() {
-
-		if (v_alterTableObject.mode!='alter')
-			showAlert('Create the table first.');
-		else {
-			v_alterTabControl.selectTabIndex(2);
-			v_alterTableObject.ht_indexes.render();
-			v_alterTableObject.window = 'indexes';
-		}
-
-	}
-
-	v_alterTabControl.selectTabIndex(0);
-	v_tabControl.createTab('+',false,createTab);
-
-	createTab();
+	getDatabaseList();
 
 });
 
@@ -111,7 +56,7 @@ function showFindReplace(p_editor) {
 /// Hides copy & paste window.
 /// </summary>
 function replaceText() {
-	
+
 	var v_old_text = v_copyPasteObject.v_editor.getValue();
 
 	var v_new_text = v_old_text.split(document.getElementById('txt_replacement_text').value).join(document.getElementById('txt_replacement_text_new').value);
@@ -157,146 +102,8 @@ function removeTab(p_tab) {
 		p_tab.tag.div_result.innerHTML = '';
 	}
 
-	p_tab.tag.editor.destroy();
-
-}
-
-/// <summary>
-/// Creates tab.
-/// </summary>
-function createTab() {
-
-	v_tabControl.removeTabIndex(v_tabControl.tabList.length-1);
-	var v_tab = v_tabControl.createTab('Query',true,null,renameTab,'cm_tab',removeTab);
-	v_tabControl.selectTab(v_tab);
-
-	var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 300px;border: 1px solid #c3c3c3;'></div>" +
-				 "<button id='bt_execute' title='Run' style='margin-top: 15px; margin-bottom: 15px; margin-right: 15px; display: inline-block;' onclick='querySQL();'><img src='images/play.png' style='vertical-align: middle;'/></button>" +
-				 "<select id='sel_filtered_data_" + v_tab.id + "'><option value='-3' >Script</option><option value='-2' >Execute</option><option selected='selected' value='10' >Query 10 rows</option><option value='100'>Query 100 rows</option><option value='1000'>Query 1000 rows</option><option value='-1'>Query All rows</option></select>" +
-				 "<div id='div_query_info_" + v_tab.id + "' style='display: inline-block; margin-left: 15px; vertical-align: middle;'></div>" +
-				 "<button id='bt_export' title='Export Data' style='margin-top: 15px; margin-bottom: 15px; margin-left: 15px; float: right; display: inline-block;' onclick='exportData();'><img src='images/table_export.png' style='vertical-align: middle;'/></button>" +
-				 "<select id='sel_export_type_" + v_tab.id + "' style='margin-top: 15px; float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='DBF' >DBF</option></select>" +
-				 "<div id='div_result_" + v_tab.id + "' style='width: 100%; height: 250px; overflow: auto;'></div>";
-
-	var v_div = document.getElementById('div_' + v_tab.id);
-	v_div.innerHTML = v_html;
-
-	var v_height  = $(window).height() - $('#div_result_' + v_tab.id).offset().top - 20;
-
-	document.getElementById('div_result_' + v_tab.id).style.height = v_height + "px"
-
-	var langTools = ace.require("ace/ext/language_tools");
-	var v_editor = ace.edit('txt_query_' + v_tab.id);
-	v_editor.setTheme("ace/theme/" + v_editor_theme);
-	v_editor.session.setMode("ace/mode/sql");
-	v_editor.commands.bindKey(".", "startAutocomplete");
-
-	v_editor.setFontSize(Number(v_editor_font_size));
-
-	v_editor.commands.bindKey("ctrl-space", null);
-
-	document.getElementById('txt_query_' + v_tab.id).onclick = function() {
-
-		v_editor.focus();
-
-	};
-
-
-	var command = {
-		name: "save",
-		bindKey: {
-		      mac: v_keybind_object.v_execute_mac,
-		      win: v_keybind_object.v_execute
-		    },
-		exec: function(){
-		querySQL();
-		}
-	}
-
-	v_editor.commands.addCommand(command);
-
-	var command = {
-		name: "replace",
-		bindKey: {
-		      mac: v_keybind_object.v_replace_mac,
-		      win: v_keybind_object.v_replace
-		    },
-		exec: function(){
-			v_copyPasteObject.v_tabControl.selectTabIndex(0);
-			showFindReplace(v_editor);
-		}
-	}
-
-	v_editor.commands.addCommand(command);
-
-	var qtags = {
-		getCompletions: function(editor, session, pos, prefix, callback) {
-
-			if (v_completer_ready) {
-
-			  	var wordlist = [];
-
-			  	v_completer_ready = false;
-			  	setTimeout(function(){ v_completer_ready = true; }, 1000);
-
-			  	if (prefix!='') {
-
-					execAjax('MainDB.aspx/GetCompletions',
-							JSON.stringify({ p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
-							function(p_return) {
-
-								if (p_return.v_data.length==0)
-									editor.insert('.');
-
-								wordlist = p_return.v_data;
-								callback(null, wordlist);
-
-							},
-							null,
-							'box',
-							false);
-
-				}
-
-			}
-
-		}
-	}
-
-	langTools.setCompleters([qtags]);
-	v_editor.setOptions({enableBasicAutocompletion: true});
-
-	var v_tag = {
-		editor: v_editor,
-		query_info: document.getElementById('div_query_info_' + v_tab.id),
-		div_result: document.getElementById('div_result_' + v_tab.id),
-		sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id),
-		sel_export_type : document.getElementById('sel_export_type_' + v_tab.id)
-	};
-
-	v_tab.tag = v_tag;
-
-	v_tabControl.createTab('+',false,createTab);
-
-}
-
-/// <summary>
-/// Retrieves database list.
-/// </summary>
-/// <param name="p_sel_id">Selection tag ID.</param>
-/// <param name="p_filter">Filtering a specific database technology.</param>
-function getDatabaseList(p_sel_id,p_filter) {
-
-	execAjax('MainDB.aspx/GetDatabaseList',
-			JSON.stringify({"p_sel_id": p_sel_id, "p_filter": p_filter}),
-			function(p_return) {
-
-				document.getElementById('div_select_db').innerHTML = p_return.v_data.v_select_html;
-				$('#' + p_sel_id).msDropDown();
-
-			},
-			null,
-			'box');
+	if (p_tab.tag.editor!=null)
+		p_tab.tag.editor.destroy();
 
 }
 
@@ -305,17 +112,572 @@ function getDatabaseList(p_sel_id,p_filter) {
 /// </summary>
 /// <param name="p_sel_id">Selection tag ID.</param>
 /// <param name="p_value">Database ID.</param>
-function changeDatabase(p_sel_id,p_value) {
+function changeDatabase(p_value) {
 
-	execAjax('MainDB.aspx/ChangeDatabase',
+	v_connTabControl.selectedTab.tag.selectedDatabaseIndex = p_value;
+
+	v_connTabControl.selectedTab.renameTab('<img src="images/' + v_connTabControl.tag.connections[p_value].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[p_value].v_alias);
+	getTree(v_connTabControl.selectedTab.tag.divTree.id);
+
+	/*execAjax('MainDB.aspx/ChangeDatabase',
 			JSON.stringify({"p_value": p_value}),
 			function(p_return) {
 
-				getTree();
+				getTree(v_connTabControl.selectedTab.tag.divTree.id);
+
+			},
+			null,
+			'box');*/
+
+}
+
+/// <summary>
+/// Retrieves database list.
+/// </summary>
+/// <param name="p_sel_id">Selection tag ID.</param>
+/// <param name="p_filter">Filtering a specific database technology.</param>
+function getDatabaseList() {
+
+	execAjax('MainDB.aspx/GetDatabaseList',
+			null,
+			function(p_return) {
+
+				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
+				v_connTabControl.tag.connections = p_return.v_data.v_connections;
+				createConnTab();
 
 			},
 			null,
 			'box');
+
+}
+
+/// <summary>
+/// Resize SQL editor and result div.
+/// </summary>
+function resizeVertical(event) {
+
+	v_start_height = event.screenY;
+	document.body.addEventListener("mouseup", resizeVerticalEnd);
+
+}
+
+/// <summary>
+/// Resize SQL editor and result div.
+/// </summary>
+function resizeVerticalEnd(event) {
+
+	document.body.removeEventListener("mouseup", resizeVerticalEnd);
+
+	var v_height_diff = event.screenY - v_start_height;
+
+	var v_editor_div = document.getElementById(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editorDivId);
+	var v_result_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;
+
+	if (v_height_diff < 0) {
+		if (Math.abs(v_height_diff) > parseInt(v_editor_div.style.height, 10))
+		 v_height_diff = parseInt(v_editor_div.style.height, 10)*-1 + 10;
+	}
+	else {
+		if (Math.abs(v_height_diff) > parseInt(v_result_div.style.height, 10))
+		 v_height_diff = parseInt(v_result_div.style.height, 10) - 10;
+	}
+
+	v_editor_div.style.height = parseInt(v_editor_div.style.height, 10) + v_height_diff + 'px';
+	v_result_div.style.height = parseInt(v_result_div.style.height, 10) - v_height_diff + 'px';
+
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.resize();
+
+	if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query') {
+		if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht!=null)
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.render();
+	}
+	else {
+		if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editDataObject.ht!=null) {
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editDataObject.ht.render();
+		}
+	}
+
+}
+
+/// <summary>
+/// Maximize SQL Editor.
+/// </summary>
+function maximizeEditor() {
+
+	var v_editor_div = document.getElementById(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editorDivId);
+	var v_result_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;
+
+	var v_height_diff = parseInt(v_result_div.style.height, 10) - 10;
+
+	v_editor_div.style.height = parseInt(v_editor_div.style.height, 10) + v_height_diff + 'px';
+	v_result_div.style.height = parseInt(v_result_div.style.height, 10) - v_height_diff + 'px';
+
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.resize();
+
+}
+
+/// <summary>
+/// Minimize SQL Editor.
+/// </summary>
+function minimizeEditor() {
+
+	var v_editor_div = document.getElementById(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editorDivId);
+	var v_result_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;
+
+	var v_height_diff = parseInt(v_editor_div.style.height, 10) - 10;
+
+
+	v_result_div.style.height = (parseInt(v_result_div.style.height, 10) + parseInt(v_editor_div.style.height, 10) - 300) + 'px';
+
+	v_editor_div.style.height = '300px';
+
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.resize();
+
+}
+
+/// <summary>
+/// Resize Tab.
+/// </summary>
+function resizeHorizontal(event) {
+
+	document.body.addEventListener("mouseup", resizeHorizontalEnd);
+	v_start_width = event.screenX;
+}
+
+/// <summary>
+/// Resize Tab.
+/// </summary>
+function resizeHorizontalEnd(event) {
+	document.body.removeEventListener("mouseup", resizeHorizontalEnd);
+
+	var v_width_diff = event.screenX - v_start_width;
+
+	v_width_diff = Math.ceil(v_width_diff/window.innerWidth*100);
+
+	var v_left_div = v_connTabControl.selectedTab.tag.divLeft;
+	var v_right_div = v_connTabControl.selectedTab.tag.divRight;
+
+	v_left_div.style.width = parseInt(v_left_div.style.width, 10) + v_width_diff + '%';
+	v_right_div.style.width = parseInt(v_right_div.style.width, 10) - v_width_diff + '%';
+
+
+
+	if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query') {
+		v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.resize();
+		if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht!=null) {
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.render();
+		}
+	}
+	else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit') {
+		v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.resize();
+		if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editDataObject.ht!=null)
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editDataObject.ht.render();
+	}
+	else {
+        v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.render();
+	}
+
+}
+
+/// <summary>
+/// Creates connection tab.
+/// </summary>
+function createConnTab() {
+
+	v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
+	var v_tab = v_connTabControl.createTab('<img src="images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[0].v_alias,true,null,null,null,null);
+
+	v_connTabControl.selectTab(v_tab);
+
+	var v_html = "<div id='" + v_tab.id + "_div_left' class='div_left' style='float:left; position: relative; width:25%; height: 90%;'>" +
+	"<div style='padding-right: 12px;'><div id='" + v_tab.id + "_div_select_db' style='width: 100%; display: inline-block;'></div>" +
+	"</div>" +
+	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: col-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
+	"<div style='width: 97%;'><div id='" + v_tab.id + "_tree' style='margin-top: 10px; overflow: auto; font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;'></div>" +
+	"</div>" +
+	"<div id='html1'>" +
+	"</div>" +
+	"</div>" +
+	"<div id='" + v_tab.id + "_div_right' class='div_right' style='float:left; width:75%;'>" +
+	"<div id='" + v_tab.id + "_tabs'>" +
+	"<ul>" +
+	"</ul>" +
+	"</div>" +
+	"</div>";
+
+	var v_div = document.getElementById('div_' + v_tab.id);
+	v_div.innerHTML = v_html;
+
+	var v_height  = $(window).height() - $('#' + v_tab.id + '_tree').offset().top - 35;
+	document.getElementById(v_tab.id + '_tree').style.height = v_height + "px";
+
+	var v_currTabControl = createTabControl(v_tab.id + '_tabs',0,null);
+
+	var v_createTabFunction = function() {
+
+		v_currTabControl.removeTabIndex(v_currTabControl.tabList.length-1);
+		var v_tab = v_currTabControl.createTab('Query',true,null,renameTab,'cm_tab',removeTab);
+		v_currTabControl.selectTab(v_tab);
+
+		var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 300px;border: 1px solid #c3c3c3;'></div>" +
+
+					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: row-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+
+					 "<button class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='querySQL();'><img src='images/play.png' style='vertical-align: middle;'/></button>" +
+					 "<select id='sel_filtered_data_" + v_tab.id + "'><option value='-3' >Script</option><option value='-2' >Execute</option><option selected='selected' value='10' >Query 10 rows</option><option value='100'>Query 100 rows</option><option value='1000'>Query 1000 rows</option><option value='-1'>Query All rows</option></select>" +
+					 "<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
+					 "<button class='bt_export' title='Export Data' style='margin-bottom: 5px; margin-left: 5px; float: right; display: inline-block;' onclick='exportData();'><img src='images/table_export.png' style='vertical-align: middle;'/></button>" +
+					 "<select id='sel_export_type_" + v_tab.id + "' style='float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='DBF' >DBF</option></select>" +
+					 "<div id='div_result_" + v_tab.id + "' style='width: 100%; overflow: hidden;'></div>";
+
+		var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+		var v_height  = $(window).height() - $('#div_result_' + v_tab.id).offset().top - 20;
+
+		document.getElementById('div_result_' + v_tab.id).style.height = v_height + "px";
+
+		var langTools = ace.require("ace/ext/language_tools");
+		var v_editor = ace.edit('txt_query_' + v_tab.id);
+		v_editor.setTheme("ace/theme/" + v_editor_theme);
+		v_editor.session.setMode("ace/mode/sql");
+		v_editor.commands.bindKey(".", "startAutocomplete");
+
+		v_editor.setFontSize(Number(v_editor_font_size));
+
+		v_editor.commands.bindKey("ctrl-space", null);
+
+		document.getElementById('txt_query_' + v_tab.id).onclick = function() {
+
+			v_editor.focus();
+
+		};
+
+
+		var command = {
+			name: "save",
+			bindKey: {
+			      mac: v_keybind_object.v_execute_mac,
+			      win: v_keybind_object.v_execute
+			    },
+			exec: function(){
+			querySQL();
+			}
+		}
+
+		v_editor.commands.addCommand(command);
+
+		var command = {
+			name: "replace",
+			bindKey: {
+			      mac: v_keybind_object.v_replace_mac,
+			      win: v_keybind_object.v_replace
+			    },
+			exec: function(){
+				v_copyPasteObject.v_tabControl.selectTabIndex(0);
+				showFindReplace(v_editor);
+			}
+		}
+
+		v_editor.commands.addCommand(command);
+
+		var qtags = {
+			getCompletions: function(editor, session, pos, prefix, callback) {
+
+				if (v_completer_ready) {
+
+				  	var wordlist = [];
+
+				  	v_completer_ready = false;
+				  	setTimeout(function(){ v_completer_ready = true; }, 1000);
+
+				  	if (prefix!='') {
+
+						execAjax('MainDB.aspx/GetCompletions',
+								JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
+								function(p_return) {
+
+									if (p_return.v_data.length==0)
+										editor.insert('.');
+
+									wordlist = p_return.v_data;
+									callback(null, wordlist);
+
+								},
+								null,
+								'box',
+								false);
+
+					}
+
+				}
+
+			}
+		}
+
+		langTools.setCompleters([qtags]);
+		v_editor.setOptions({enableBasicAutocompletion: true});
+
+		var v_tag = {
+			mode: 'query',
+			editor: v_editor,
+			editorDivId: 'txt_query_' + v_tab.id,
+			query_info: document.getElementById('div_query_info_' + v_tab.id),
+			div_result: document.getElementById('div_result_' + v_tab.id),
+			sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id),
+			sel_export_type : document.getElementById('sel_export_type_' + v_tab.id)
+		};
+
+		v_tab.tag = v_tag;
+
+		v_currTabControl.createTab('+',false,v_createTabFunction);
+
+	};
+
+	var v_createEditDataTabFunction = function(p_table) {
+
+		v_currTabControl.removeTabIndex(v_currTabControl.tabList.length-1);
+		var v_tab = v_currTabControl.createTab('<img src="images/edit_data.png"/> ' + p_table,true,null,null,null,removeTab);
+		v_currTabControl.selectTab(v_tab);
+
+		var v_html = "<div id='div_edit_data_select_" + v_tab.id + "' class='query_info' style='margin-top: 5px; margin-bottom: 5px; font-size: 14px;'>select * from " + p_table + " t</div>" +
+					 "<div id='txt_filter_data_" + v_tab.id + "' style=' width: 100%; height: 100px;border: 1px solid #c3c3c3;'></div>" +
+					 "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: row-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+					 "<button class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='queryEditData();'><img src='images/play.png' style='vertical-align: middle;'/></button>" +
+					 "<select id='sel_filtered_data_" + v_tab.id + "' onchange='queryEditData()'><option selected='selected' value='10' >Query 10 rows</option><option value='100'>Query 100 rows</option><option value='1000'>Query 1000 rows</option></select>" +
+					 "<div id='div_edit_data_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
+					 "<button id='bt_saveEditData_" + v_tab.id + "' onclick='saveEditData()' style='visibility: hidden; margin-left: 5px;'>Save Changes</button>" +
+					 "<div id='div_edit_data_data_" + v_tab.id + "' style='width: 100%; height: 250px; overflow: hidden;'></div>";
+
+		var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+		var v_height  = $(window).height() - $('#div_edit_data_data_' + v_tab.id).offset().top - 20;
+
+		document.getElementById('div_edit_data_data_' + v_tab.id).style.height = v_height + "px"
+
+		var langTools = ace.require("ace/ext/language_tools");
+		var v_editor = ace.edit('txt_filter_data_' + v_tab.id);
+		v_editor.setTheme("ace/theme/" + v_editor_theme);
+		v_editor.session.setMode("ace/mode/sql");
+		v_editor.commands.bindKey(".", "startAutocomplete");
+
+		v_editor.setFontSize(Number(v_editor_font_size));
+
+		v_editor.commands.bindKey("ctrl-space", null);
+
+		document.getElementById('txt_filter_data_' + v_tab.id).onclick = function() {
+
+			v_editor.focus();
+
+		};
+
+
+		var command = {
+			name: "save",
+			bindKey: {
+			      mac: v_keybind_object.v_execute_mac,
+			      win: v_keybind_object.v_execute
+			    },
+			exec: function(){
+			queryEditData();
+			}
+		}
+
+		v_editor.commands.addCommand(command);
+
+		var command = {
+			name: "replace",
+			bindKey: {
+			      mac: v_keybind_object.v_replace_mac,
+			      win: v_keybind_object.v_replace
+			    },
+			exec: function(){
+				v_copyPasteObject.v_tabControl.selectTabIndex(0);
+				showFindReplace(v_editor);
+			}
+		}
+
+		v_editor.commands.addCommand(command);
+
+		var qtags = {
+			getCompletions: function(editor, session, pos, prefix, callback) {
+
+				if (v_completer_ready) {
+
+				  	var wordlist = [];
+
+				  	v_completer_ready = false;
+				  	setTimeout(function(){ v_completer_ready = true; }, 1000);
+
+				  	if (prefix!='') {
+
+						execAjax('MainDB.aspx/GetCompletionsTable',
+								JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, p_table: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editDataObject.table}),
+								function(p_return) {
+
+									if (p_return.v_data.length==0)
+										editor.insert('.');
+
+									wordlist = p_return.v_data;
+									callback(null, wordlist);
+
+								},
+								null,
+								'box',
+								false);
+
+					}
+
+				}
+
+			}
+		}
+
+		langTools.setCompleters([qtags]);
+		v_editor.setOptions({enableBasicAutocompletion: true});
+
+		var v_tag = {
+			mode: 'edit',
+			editor: v_editor,
+			editorDivId: 'txt_filter_data_' + v_tab.id,
+			query_info: document.getElementById('div_edit_data_query_info_' + v_tab.id),
+			div_result: document.getElementById('div_edit_data_data_' + v_tab.id),
+			sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id),
+			button_save: document.getElementById('bt_saveEditData_' + v_tab.id),
+			sel_export_type : document.getElementById('sel_export_type_' + v_tab.id)
+		};
+
+		v_tab.tag = v_tag;
+
+		v_currTabControl.createTab('+',false,v_createTabFunction);
+
+	};
+
+	var v_createAlterTableTabFunction = function(p_table) {
+
+		v_currTabControl.removeTabIndex(v_currTabControl.tabList.length-1);
+		var v_tab = v_currTabControl.createTab('<img src="images/table_edit.png"/> ' + p_table,true,null,null,null,removeTab);
+		v_currTabControl.selectTab(v_tab);
+
+		var v_html = "<span style='margin-left: 10px;'>Table Name: </span><input type='text' id='txt_tableNameAlterTable_" + v_tab.id + "' onchange='changeTableName()' style='margin: 10px;'/>" +
+		"<button id='bt_saveAlterTable_" + v_tab.id + "' onclick='saveAlterTable()' style='visibility: hidden;'>Save Changes</button>" +
+        "        <div id='alter_tabs_" + v_tab.id + "' style='margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>" +
+	    "            <ul>" +
+	    "            <li id='alter_tabs_" + v_tab.id + "_tab1'>Columns</li>" +
+	    "            <li id='alter_tabs_" + v_tab.id + "_tab2'>Constraints</li>" +
+	    "            <li id='alter_tabs_" + v_tab.id + "_tab3'>Indexes</li>" +
+	  	"			</ul>" +
+	  	"			<div id='div_alter_tabs_" + v_tab.id + "_tab1'>" +
+	  	"				<div style='padding: 20px;'>" +
+		"                	<div id='div_alter_table_data_" + v_tab.id + "' style='height: 400px; overflow: hidden;'></div>" +
+		"                </div>" +
+	  	"			</div>" +
+	  	"			<div id='div_alter_tabs_" + v_tab.id + "_tab2'>" +
+	  	"				<button id='bt_newConstraintAlterTable_" + v_tab.id + "' onclick='newConstraintAlterTable()' style='margin-left: 20px; margin-top: 20px;'>New Constraint</button>" +
+	  	"				<div style='padding: 20px;'>" +
+	  	"					<div id='div_alter_constraint_data_" + v_tab.id + "' style='width: 100%; height: 400px; overflow: hidden;'></div>" +
+	  	"				</div>" +
+	  	"			</div>" +
+	  	"			<div id='div_alter_tabs_" + v_tab.id + "_tab3'>" +
+	  	"				<button id='bt_newIndexAlterTable_" + v_tab.id + "' onclick='newIndexAlterTable()' style='display: block; margin-left: 20px; margin-top: 20px;'>New Index</button>" +
+	  	"				<div style='padding: 20px;'>" +
+	  	"					<div id='div_alter_index_data_" + v_tab.id + "' style='width: 100%; height: 400px; overflow: hidden;'></div>" +
+	  	"				</div>" +
+	  	"			</div>" +
+  		"		</div>";
+
+		var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+		var v_height  = $(window).height() - $('#div_alter_table_data_' + v_tab.id).offset().top - 35;
+
+		document.getElementById('div_alter_table_data_' + v_tab.id).style.height = v_height + "px";
+		document.getElementById('div_alter_constraint_data_' + v_tab.id).style.height = v_height + "px";
+		document.getElementById('div_alter_index_data_' + v_tab.id).style.height = v_height + "px";
+
+		var v_curr_tabs = createTabControl('alter_tabs_' + v_tab.id,0,null);
+
+
+
+		var v_tag = {
+			mode: 'alter',
+			txtTableName: document.getElementById('txt_tableNameAlterTable_' + v_tab.id),
+			btSave: document.getElementById('bt_saveAlterTable_' + v_tab.id),
+			btNewConstraint: document.getElementById('bt_newConstraintAlterTable_' + v_tab.id),
+			btNewIndex: document.getElementById('bt_newIndexAlterTable_' + v_tab.id),
+			htColumns: null,
+			htConstraints: null,
+			htIndexes: null,
+			htDivColumns: document.getElementById('div_alter_table_data_' + v_tab.id),
+			htDivConstraints: document.getElementById('div_alter_constraint_data_' + v_tab.id),
+			htDivIndexes: document.getElementById('div_alter_index_data_' + v_tab.id),
+			tabControl: v_curr_tabs,
+			alterTableObject: { mode: null }
+		};
+
+		v_curr_tabs.tabList[0].elementLi.onclick = function() {
+
+			v_curr_tabs.selectTabIndex(0);
+			v_tag.alterTableObject.htColumns.render();
+			v_tag.alterTableObject.window = 'columns';
+
+		}
+
+		v_curr_tabs.tabList[1].elementLi.onclick = function() {
+
+			v_curr_tabs.selectTabIndex(1);
+			v_tag.alterTableObject.htConstraints.render();
+			v_tag.alterTableObject.window = 'constraints';
+
+		}
+
+		v_curr_tabs.tabList[2].elementLi.onclick = function() {
+
+			if (v_tag.alterTableObject.mode!='alter')
+				showAlert('Create the table first.');
+			else {
+				v_curr_tabs.selectTabIndex(2);
+				v_tag.alterTableObject.htIndexes.render();
+				v_tag.alterTableObject.window = 'indexes';
+			}
+
+		}
+
+		v_curr_tabs.selectTabIndex(0);
+
+		v_tab.tag = v_tag;
+
+		v_currTabControl.createTab('+',false,v_createTabFunction);
+
+	};
+
+	v_currTabControl.tag.createQueryTab = v_createTabFunction;
+	v_currTabControl.tag.createEditDataTab = v_createEditDataTabFunction;
+	v_currTabControl.tag.createAlterTableTab = v_createAlterTableTabFunction;
+
+	v_currTabControl.createTab('+',false,v_createTabFunction);
+
+	v_createTabFunction();
+
+	var v_tag = {
+		tabControl: v_currTabControl,
+		divTree: document.getElementById(v_tab.id + '_tree'),
+		divLeft: document.getElementById(v_tab.id + '_div_left'),
+		divRight: document.getElementById(v_tab.id + '_div_right'),
+		selectedDatabaseIndex: 0
+	};
+
+	v_tab.tag = v_tag;
+
+	var v_div_select_db = document.getElementById(v_tab.id + '_div_select_db');
+	v_div_select_db.innerHTML = v_connTabControl.tag.selectHTML;
+	$(v_div_select_db.childNodes[0]).msDropDown();
+
+	getTree(v_tab.id + '_tree');
+
+	v_connTabControl.createTab('+',false,createConnTab);
 
 }
 
@@ -352,7 +714,7 @@ function drawGraph(p_graph_type) {
 		v_type='DrawGraphComplete';
 
 	execAjax('MainDB.aspx/' + v_type,
-			null,
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
 			function(p_return) {
 
 				$('#div_legend').hide();
@@ -385,7 +747,7 @@ function drawGraph(p_graph_type) {
 
 	            for (var i=0; i<p_return.v_data.v_edges.length; i++)
 	            {
-	            	
+
 	            	var v_edge_object = new Object();
 					v_edge_object.data = new Object();
 					v_edge_object.data.source = p_return.v_data.v_edges[i].from;
@@ -502,7 +864,7 @@ function hideStatistics() {
 function getStatistics() {
 
 	execAjax('MainDB.aspx/GetStatistics',
-			null,
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
 			function(p_return) {
 
 				$('#div_statistics').show();
@@ -537,14 +899,14 @@ function getStatistics() {
 /// </summary>
 function querySQL() {
 
-	var v_sql_value = v_tabControl.selectedTab.tag.editor.getValue();
-	var v_sel_value = v_tabControl.selectedTab.tag.sel_filtered_data.value;
+	var v_sql_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
+	var v_sel_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value;
 
 	if (v_sql_value=='') {
 		showAlert('Please provide a string.');
 	}
 	else {
-		var input = JSON.stringify({"p_sql": v_sql_value, "p_select_value" : v_sel_value});
+		var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value});
 
 		var start_time = new Date().getTime();
 
@@ -552,12 +914,12 @@ function querySQL() {
 				input,
 				function(p_return) {
 
-					var v_div_result = v_tabControl.selectedTab.tag.div_result;
-					var v_query_info = v_tabControl.selectedTab.tag.query_info;
+					var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;
+					var v_query_info = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.query_info;
 
-					if (v_tabControl.selectedTab.tag.ht!=null) {
-						v_tabControl.selectedTab.tag.ht.destroy();
-						v_tabControl.selectedTab.tag.ht = null;
+					if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht!=null) {
+						v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.destroy();
+						v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht = null;
 					}
 
 					v_div_result.innerHTML = '';
@@ -572,7 +934,7 @@ function querySQL() {
 
 						v_query_info.innerHTML = "Response time: " + request_time/1000 + " seconds";
 
-						v_div_result.innerHTML = p_return.v_data;
+						v_div_result.innerHTML = '<div class="query_info">' + p_return.v_data + '</div>';
 
 					}
 					else {
@@ -595,7 +957,7 @@ function querySQL() {
 						}
 
 						var container = v_div_result;
-						v_tabControl.selectedTab.tag.ht = new Handsontable(container,
+						v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht = new Handsontable(container,
 						{
 							data: p_return.v_data.v_data,
 							columns : columnProperties,
@@ -618,6 +980,8 @@ function querySQL() {
 							    var cellProperties = {};
 							    if (row % 2 == 0)
 									cellProperties.renderer = blueRenderer;
+								else
+    								cellProperties.renderer = whiteRenderer;
 							    return cellProperties;
 							}
 						});
@@ -636,8 +1000,8 @@ function querySQL() {
 /// </summary>
 function exportData() {
 
-	var v_sql_value = v_tabControl.selectedTab.tag.editor.getValue();
-	var v_sel_value = v_tabControl.selectedTab.tag.sel_export_type.value;
+	var v_sql_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
+	var v_sel_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_export_type.value;
 
 	if (v_sql_value=='') {
 		showAlert('Please provide a string.');
@@ -647,7 +1011,7 @@ function exportData() {
 		showConfirm('Are you sure you want to export data from the result of this query?',
 				function() {
 
-					var input = JSON.stringify({"p_sql": v_sql_value, "p_select_value" : v_sel_value, "p_tab_name" : v_tabControl.selectedTab.text});
+					var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value, "p_tab_name" : v_connTabControl.selectedTab.tag.tabControl.selectedTab.text});
 
 					var start_time = new Date().getTime();
 
@@ -666,43 +1030,8 @@ function exportData() {
 							'box');
 
 				});
-		
+
 	}
-
-}
-
-/// <summary>
-/// Hides alter table window.
-/// </summary>
-function hideAlterTable() {
-	
-	$('#div_alter_table').hide();
-
-	document.getElementById('div_alter_table_data').innerHTML = '';
-
-	v_alterTableObject.ht_constraints.destroy();
-	v_alterTableObject.ht_indexes.destroy();
-	v_alterTableObject.ht.destroy();
-
-	document.getElementById('bt_saveAlterTable').style.visibility = 'hidden';
-
-	v_tree_object.refreshTables();
-
-}
-
-/// <summary>
-/// Hides edit data window.
-/// </summary>
-function hideAlterData() {
-	
-	$('#div_edit_data').hide();
-
-	v_editDataObject.ht.destroy();
-	v_editDataObject.editor.destroy();
-
-	document.getElementById('div_edit_data_data').innerHTML = '';
-
-	document.getElementById('bt_saveEditData').style.visibility = 'hidden';
 
 }
 
@@ -710,6 +1039,8 @@ function hideAlterData() {
 /// Saves alter table changes.
 /// </summary>
 function saveAlterTable() {
+
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_changedRowsColumnsInfo = [];
 	var v_changedRowsColumnsData = [];
@@ -720,20 +1051,20 @@ function saveAlterTable() {
 	var v_changedRowsIndexesInfo = [];
 	var v_changedRowsIndexesData = [];
 
-	for (var i=0; i < v_alterTableObject.infoRowsColumns.length; i++) {
-		if (v_alterTableObject.infoRowsColumns[i].mode!=0) {
-			v_alterTableObject.infoRowsColumns[i].index = i;
-			v_changedRowsColumnsInfo.push(v_alterTableObject.infoRowsColumns[i]);
-			v_changedRowsColumnsData.push(v_alterTableObject.ht.getDataAtRow(i));
+	for (var i=0; i < v_currTabTag.alterTableObject.infoRowsColumns.length; i++) {
+		if (v_currTabTag.alterTableObject.infoRowsColumns[i].mode!=0) {
+			v_currTabTag.alterTableObject.infoRowsColumns[i].index = i;
+			v_changedRowsColumnsInfo.push(v_currTabTag.alterTableObject.infoRowsColumns[i]);
+			v_changedRowsColumnsData.push(v_currTabTag.alterTableObject.htColumns.getDataAtRow(i));
 
 		}
 	}
 
-	for (var i=0; i < v_alterTableObject.infoRowsConstraints.length; i++) {
-		if (v_alterTableObject.infoRowsConstraints[i].mode!=0) {
-			v_alterTableObject.infoRowsConstraints[i].index = i;
-			v_changedRowsConstraintsInfo.push(v_alterTableObject.infoRowsConstraints[i]);
-			var v_row = v_alterTableObject.ht_constraints.getDataAtRow(i);
+	for (var i=0; i < v_currTabTag.alterTableObject.infoRowsConstraints.length; i++) {
+		if (v_currTabTag.alterTableObject.infoRowsConstraints[i].mode!=0) {
+			v_currTabTag.alterTableObject.infoRowsConstraints[i].index = i;
+			v_changedRowsConstraintsInfo.push(v_currTabTag.alterTableObject.infoRowsConstraints[i]);
+			var v_row = v_currTabTag.alterTableObject.htConstraints.getDataAtRow(i);
 
 			v_row[2] = v_row[2].substring(95);
 
@@ -742,11 +1073,11 @@ function saveAlterTable() {
 
 	}
 
-	for (var i=0; i < v_alterTableObject.infoRowsIndexes.length; i++) {
-		if (v_alterTableObject.infoRowsIndexes[i].mode!=0) {
-			v_alterTableObject.infoRowsIndexes[i].index = i;
-			v_changedRowsIndexesInfo.push(v_alterTableObject.infoRowsIndexes[i]);
-			var v_row = v_alterTableObject.ht_indexes.getDataAtRow(i);
+	for (var i=0; i < v_currTabTag.alterTableObject.infoRowsIndexes.length; i++) {
+		if (v_currTabTag.alterTableObject.infoRowsIndexes[i].mode!=0) {
+			v_currTabTag.alterTableObject.infoRowsIndexes[i].index = i;
+			v_changedRowsIndexesInfo.push(v_currTabTag.alterTableObject.infoRowsIndexes[i]);
+			var v_row = v_currTabTag.alterTableObject.htIndexes.getDataAtRow(i);
 
 			v_row[2] = v_row[2].substring(91);
 
@@ -755,10 +1086,10 @@ function saveAlterTable() {
 
 	}
 
-	var v_new_table_name = document.getElementById('txt_tableNameAlterTable').value;
+	var v_new_table_name = v_currTabTag.txtTableName.value;
 
 
-	var input = JSON.stringify({"p_mode" : v_alterTableObject.mode,"p_new_table_name": v_new_table_name, "p_original_table_name": v_alterTableObject.tableName, "p_data_columns": v_changedRowsColumnsData, "p_row_columns_info": v_changedRowsColumnsInfo, "p_data_constraints": v_changedRowsConstraintsData, "p_row_constraints_info": v_changedRowsConstraintsInfo, "p_data_indexes": v_changedRowsIndexesData, "p_row_indexes_info": v_changedRowsIndexesInfo});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_mode" : v_currTabTag.alterTableObject.mode,"p_new_table_name": v_new_table_name, "p_original_table_name": v_currTabTag.alterTableObject.tableName, "p_data_columns": v_changedRowsColumnsData, "p_row_columns_info": v_changedRowsColumnsInfo, "p_data_constraints": v_changedRowsConstraintsData, "p_row_constraints_info": v_changedRowsConstraintsInfo, "p_data_indexes": v_changedRowsIndexesData, "p_row_indexes_info": v_changedRowsIndexesInfo});
 
 	execAjax('MainDB.aspx/SaveAlterTable',
 			input,
@@ -770,20 +1101,21 @@ function saveAlterTable() {
 
 				var v_has_error = false;
 
-				document.getElementById('bt_saveAlterTable').style.visibility = 'hidden';
+				v_currTabTag.btSave.style.visibility = 'hidden';
 
 				//Creating new table
 				if (p_return.v_data.v_create_table_command!=null) {
 
 					if (!p_return.v_data.v_create_table_command.error) {
 						startAlterTable('alter',v_new_table_name);
+						v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab('<img src="images/table_edit.png"/> ' + v_new_table_name);
 					}
 					else {
 						v_has_error = true;
 
 						v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_create_table_command.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_create_table_command.v_message + '<br/><br/>';
 
-						document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+						v_currTabTag.btSave.style.visibility = 'visible';
 
 					}
 
@@ -795,35 +1127,35 @@ function saveAlterTable() {
 
 						if (!p_return.v_data.v_rename_table_command.error) {
 
-							v_alterTableObject.tableName = v_new_table_name;
-							document.getElementById('txt_tableNameAlterTable').style.backgroundColor = 'rgb(255, 255, 255)';
+							v_currTabTag.alterTableObject.tableName = v_new_table_name;
+							$(v_currTabTag.txtTableName).removeClass('changed_input');
+							v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab('<img src="images/table_edit.png"/> ' + v_new_table_name);
 
 
-							
 						}
 						else {
 							v_has_error = true;
 
 							v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_rename_table_command.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_rename_table_command.v_message + '<br/><br/>';
 
-							document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+							v_currTabTag.btSave.style.visibility = 'visible';
 
 						}
 
 
 					}
 					else {
-						document.getElementById('txt_tableNameAlterTable').style.backgroundColor = 'rgb(255, 255, 255)';
+						$(v_currTabTag.txtTableName).removeClass('changed_input');
 					}
 
 					// New column or delete column
 					for (var i = p_return.v_data.v_columns_simple_commands_return.length-1; i >= 0; i--) {
-						
+
 						if (p_return.v_data.v_columns_simple_commands_return[i].mode==-1) {
 							if (!p_return.v_data.v_columns_simple_commands_return[i].error) {
 
-								v_alterTableObject.infoRowsColumns.splice(p_return.v_data.v_columns_simple_commands_return[i].index, 1);
-								v_alterTableObject.ht.alter('remove_row', p_return.v_data.v_columns_simple_commands_return[i].index);
+								v_currTabTag.alterTableObject.infoRowsColumns.splice(p_return.v_data.v_columns_simple_commands_return[i].index, 1);
+								v_currTabTag.alterTableObject.htColumns.alter('remove_row', p_return.v_data.v_columns_simple_commands_return[i].index);
 
 
 							}
@@ -833,18 +1165,18 @@ function saveAlterTable() {
 
 								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_message + '<br/><br/>';
 
-								document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+								v_currTabTag.btSave.style.visibility = 'visible';
 							}
 						}
 						else if (p_return.v_data.v_columns_simple_commands_return[i].mode==2) {
 							if (!p_return.v_data.v_columns_simple_commands_return[i].error) {
 
-								v_alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].mode = 0;
-								v_alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].old_mode = -1;
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].mode = 0;
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].old_mode = -1;
 
-								v_alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalColName = v_alterTableObject.ht.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,0);
-								v_alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalDataType = v_alterTableObject.ht.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,1);
-								v_alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalNullable = v_alterTableObject.ht.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,2);
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalColName = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,0);
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalDataType = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,1);
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalNullable = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,2);
 
 							}
 							else {
@@ -853,7 +1185,7 @@ function saveAlterTable() {
 
 								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_message  + '<br/><br/>';
 
-								document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+								v_currTabTag.btSave.style.visibility = 'visible';
 							}
 						}
 
@@ -865,11 +1197,11 @@ function saveAlterTable() {
 					for (var i = p_return.v_data.v_columns_group_commands_return.length-1; i >= 0; i--) {
 
 						v_has_group_error = false;
-						
+
 						if (p_return.v_data.v_columns_group_commands_return[i].alter_datatype!=null) {
 							if (!p_return.v_data.v_columns_group_commands_return[i].alter_datatype.error) {
 
-								v_alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalDataType = v_alterTableObject.ht.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,1);
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalDataType = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,1);
 
 							}
 							else {
@@ -887,7 +1219,7 @@ function saveAlterTable() {
 						if (p_return.v_data.v_columns_group_commands_return[i].alter_nullable!=null) {
 							if (!p_return.v_data.v_columns_group_commands_return[i].alter_nullable.error) {
 
-								v_alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalNullable = v_alterTableObject.ht.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,2);
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalNullable = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,2);
 
 							}
 							else {
@@ -905,7 +1237,7 @@ function saveAlterTable() {
 						if (p_return.v_data.v_columns_group_commands_return[i].alter_colname!=null) {
 							if (!p_return.v_data.v_columns_group_commands_return[i].alter_colname.error) {
 
-								v_alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalColName = v_alterTableObject.ht.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,0);
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalColName = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,0);
 
 							}
 							else {
@@ -921,20 +1253,20 @@ function saveAlterTable() {
 						}
 
 						if (!v_has_group_error) {
-							v_alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].mode = 0;
-							v_alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].old_mode = -1;
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].mode = 0;
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].old_mode = -1;
 						}
 
 					}
 
 					// New constraint or delete constraint
 					for (var i = p_return.v_data.v_constraints_commands_return.length-1; i >= 0; i--) {
-						
+
 						if (p_return.v_data.v_constraints_commands_return[i].mode==-1) {
 							if (!p_return.v_data.v_constraints_commands_return[i].error) {
 
-								v_alterTableObject.infoRowsConstraints.splice(p_return.v_data.v_constraints_commands_return[i].index, 1);
-								v_alterTableObject.ht_constraints.alter('remove_row', p_return.v_data.v_constraints_commands_return[i].index);
+								v_currTabTag.alterTableObject.infoRowsConstraints.splice(p_return.v_data.v_constraints_commands_return[i].index, 1);
+								v_currTabTag.alterTableObject.htConstraints.alter('remove_row', p_return.v_data.v_constraints_commands_return[i].index);
 
 
 							}
@@ -949,8 +1281,8 @@ function saveAlterTable() {
 						else if (p_return.v_data.v_constraints_commands_return[i].mode==2) {
 							if (!p_return.v_data.v_constraints_commands_return[i].error) {
 
-								v_alterTableObject.infoRowsConstraints[p_return.v_data.v_constraints_commands_return[i].index].mode = 0;
-								v_alterTableObject.infoRowsConstraints[p_return.v_data.v_constraints_commands_return[i].index].old_mode = -1;
+								v_currTabTag.alterTableObject.infoRowsConstraints[p_return.v_data.v_constraints_commands_return[i].index].mode = 0;
+								v_currTabTag.alterTableObject.infoRowsConstraints[p_return.v_data.v_constraints_commands_return[i].index].old_mode = -1;
 
 							}
 							else {
@@ -966,12 +1298,12 @@ function saveAlterTable() {
 
 					// New index or delete index
 					for (var i = p_return.v_data.v_indexes_commands_return.length-1; i >= 0; i--) {
-						
+
 						if (p_return.v_data.v_indexes_commands_return[i].mode==-1) {
 							if (!p_return.v_data.v_indexes_commands_return[i].error) {
 
-								v_alterTableObject.infoRowsIndexes.splice(p_return.v_data.v_indexes_commands_return[i].index, 1);
-								v_alterTableObject.ht_indexes.alter('remove_row', p_return.v_data.v_indexes_commands_return[i].index);
+								v_currTabTag.alterTableObject.infoRowsIndexes.splice(p_return.v_data.v_indexes_commands_return[i].index, 1);
+								v_currTabTag.alterTableObject.htIndexes.alter('remove_row', p_return.v_data.v_indexes_commands_return[i].index);
 
 
 							}
@@ -986,8 +1318,8 @@ function saveAlterTable() {
 						else if (p_return.v_data.v_indexes_commands_return[i].mode==2) {
 							if (!p_return.v_data.v_indexes_commands_return[i].error) {
 
-								v_alterTableObject.infoRowsIndexes[p_return.v_data.v_indexes_commands_return[i].index].mode = 0;
-								v_alterTableObject.infoRowsIndexes[p_return.v_data.v_indexes_commands_return[i].index].old_mode = -1;
+								v_currTabTag.alterTableObject.infoRowsIndexes[p_return.v_data.v_indexes_commands_return[i].index].mode = 0;
+								v_currTabTag.alterTableObject.infoRowsIndexes[p_return.v_data.v_indexes_commands_return[i].index].old_mode = -1;
 
 							}
 							else {
@@ -1008,12 +1340,12 @@ function saveAlterTable() {
 
 				}
 				else {
-					document.getElementById('bt_saveAlterTable').style.visibility = 'hidden';
+					v_currTabTag.btSave.style.visibility = 'hidden';
 				}
 
-				v_alterTableObject.ht.render();
-				v_alterTableObject.ht_constraints.render();
-				v_alterTableObject.ht_indexes.render();
+				v_currTabTag.alterTableObject.htColumns.render();
+				v_currTabTag.alterTableObject.htConstraints.render();
+				v_currTabTag.alterTableObject.htIndexes.render();
 
 			},
 			null,
@@ -1029,15 +1361,17 @@ function saveEditData() {
 	var v_changedRowsInfo = [];
 	var v_changedRowsData = [];
 
-	for (var i = 0; i < v_editDataObject.infoRows.length; i++) {
-		if (v_editDataObject.infoRows[i].mode!=0) {
-			v_editDataObject.infoRows[i].index = i;
-			v_changedRowsInfo.push(v_editDataObject.infoRows[i]);
-			v_changedRowsData.push(v_editDataObject.ht.getDataAtRow(i));
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	for (var i = 0; i < v_currTabTag.editDataObject.infoRows.length; i++) {
+		if (v_currTabTag.editDataObject.infoRows[i].mode!=0) {
+			v_currTabTag.editDataObject.infoRows[i].index = i;
+			v_changedRowsInfo.push(v_currTabTag.editDataObject.infoRows[i]);
+			v_changedRowsData.push(v_currTabTag.editDataObject.ht.getDataAtRow(i));
 		}
 	}
 
-	var input = JSON.stringify({"p_table_name": v_editDataObject.table, "p_data_rows": v_changedRowsData, "p_rows_info": v_changedRowsInfo, "p_columns": v_editDataObject.columns, "p_pk_info" : v_editDataObject.pk});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table_name": v_currTabTag.editDataObject.table, "p_data_rows": v_changedRowsData, "p_rows_info": v_changedRowsInfo, "p_columns": v_currTabTag.editDataObject.columns, "p_pk_info" : v_currTabTag.editDataObject.pk});
 
 	execAjax('MainDB.aspx/SaveEditData',
 			input,
@@ -1049,15 +1383,15 @@ function saveEditData() {
 
 				var v_has_error = false;
 
-				document.getElementById('bt_saveEditData').style.visibility = 'hidden';
+				v_currTabTag.button_save.style.visibility = 'hidden';
 
 				for (var i = p_return.v_data.length-1; i >= 0; i--) {
-					
+
 					if (p_return.v_data[i].mode==-1) {
 						if (!p_return.v_data[i].error) {
 
-							v_editDataObject.infoRows.splice(p_return.v_data[i].index, 1);
-							v_editDataObject.ht.alter('remove_row', p_return.v_data[i].index);
+							v_currTabTag.editDataObject.infoRows.splice(p_return.v_data[i].index, 1);
+							v_currTabTag.editDataObject.ht.alter('remove_row', p_return.v_data[i].index);
 
 						}
 						else {
@@ -1066,28 +1400,28 @@ function saveEditData() {
 
 							v_commands_log += '<b>Command:</b> ' + p_return.v_data[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data[i].v_message + '<br/><br/>';
 
-							document.getElementById('bt_saveEditData').style.visibility = 'visible';
+							v_currTabTag.button_save.style.visibility = 'visible';
 						}
 					}
 					else if (p_return.v_data[i].mode==2) {
 						if (!p_return.v_data[i].error) {
 
-							v_editDataObject.infoRows[p_return.v_data[i].index].mode = 0;
-							v_editDataObject.infoRows[p_return.v_data[i].index].old_mode = -1;
-							v_editDataObject.infoRows[p_return.v_data[i].index].changed_cols = [];
+							v_currTabTag.editDataObject.infoRows[p_return.v_data[i].index].mode = 0;
+							v_currTabTag.editDataObject.infoRows[p_return.v_data[i].index].old_mode = -1;
+							v_currTabTag.editDataObject.infoRows[p_return.v_data[i].index].changed_cols = [];
 
 							//Creating pk
 							var v_pk_list = [];
 
-							for (var j = 0; j < v_editDataObject.pk.length; j++) {
-								
-								var v_pk = { v_column: v_editDataObject.pk[j].v_column,
-											 v_value : v_editDataObject.ht.getDataAtCell(p_return.v_data[i].index, v_editDataObject.pk[j].v_index + 1)
+							for (var j = 0; j < v_currTabTag.editDataObject.pk.length; j++) {
+
+								var v_pk = { v_column: v_currTabTag.editDataObject.pk[j].v_column,
+											 v_value : v_currTabTag.editDataObject.ht.getDataAtCell(p_return.v_data[i].index, v_currTabTag.editDataObject.pk[j].v_index + 1)
 										   };
 							    v_pk_list.push(v_pk);
 							}
 
-							v_editDataObject.infoRows[p_return.v_data[i].index].pk = v_pk_list;
+							v_currTabTag.editDataObject.infoRows[p_return.v_data[i].index].pk = v_pk_list;
 
 						}
 						else {
@@ -1096,28 +1430,28 @@ function saveEditData() {
 
 							v_commands_log += '<b>Command:</b> ' + p_return.v_data[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data[i].v_message  + '<br/><br/>';
 
-							document.getElementById('bt_saveEditData').style.visibility = 'visible';
+							v_currTabTag.button_save.style.visibility = 'visible';
 						}
 					}
 					else if (p_return.v_data[i].mode==1) {
 						if (!p_return.v_data[i].error) {
 
-							v_editDataObject.infoRows[p_return.v_data[i].index].mode = 0;
-							v_editDataObject.infoRows[p_return.v_data[i].index].old_mode = -1;
-							v_editDataObject.infoRows[p_return.v_data[i].index].changed_cols = [];
+							v_currTabTag.editDataObject.infoRows[p_return.v_data[i].index].mode = 0;
+							v_currTabTag.editDataObject.infoRows[p_return.v_data[i].index].old_mode = -1;
+							v_currTabTag.editDataObject.infoRows[p_return.v_data[i].index].changed_cols = [];
 
 							//Creating pk
 							var v_pk_list = [];
 
-							for (var j = 0; j < v_editDataObject.pk.length; j++) {
-								
-								var v_pk = { v_column: v_editDataObject.pk[j].v_column,
-											 v_value : v_editDataObject.ht.getDataAtCell(p_return.v_data[i].index, v_editDataObject.pk[j].v_index + 1)
+							for (var j = 0; j < v_currTabTag.editDataObject.pk.length; j++) {
+
+								var v_pk = { v_column: v_currTabTag.editDataObject.pk[j].v_column,
+											 v_value : v_currTabTag.editDataObject.ht.getDataAtCell(p_return.v_data[i].index, v_currTabTag.editDataObject.pk[j].v_index + 1)
 										   };
 							    v_pk_list.push(v_pk);
 							}
 
-							v_editDataObject.infoRows[p_return.v_data[i].index].pk = v_pk_list;
+							v_currTabTag.editDataObject.infoRows[p_return.v_data[i].index].pk = v_pk_list;
 
 
 						}
@@ -1127,7 +1461,7 @@ function saveEditData() {
 
 							v_commands_log += '<b>Command:</b> ' + p_return.v_data[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data[i].v_message  + '<br/><br/>';
 
-							document.getElementById('bt_saveEditData').style.visibility = 'visible';
+							v_currTabTag.button_save.style.visibility = 'visible';
 						}
 					}
 
@@ -1139,7 +1473,7 @@ function saveEditData() {
 
 				}
 
-				v_editDataObject.ht.render();
+				v_currTabTag.editDataObject.ht.render();
 
 
 			},
@@ -1152,9 +1486,11 @@ function saveEditData() {
 /// Changes table name.
 /// </summary>
 function changeTableName() {
-	
-	document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
-	document.getElementById('txt_tableNameAlterTable').style.backgroundColor = 'rgb(206, 255, 209)';
+
+	var v_curr_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	v_curr_tab_tag.btSave.style.visibility = 'visible';
+	$(v_curr_tab_tag.txtTableName).addClass('changed_input');
 
 }
 
@@ -1163,40 +1499,42 @@ function changeTableName() {
 /// </summary>
 function queryEditData() {
 
-	var input = JSON.stringify({"p_table" : v_editDataObject.table, "p_filter" : v_editDataObject.editor.getValue(), "p_count": document.getElementById('sel_filtered_data').value, "p_pk_list" : v_editDataObject.pk, "p_columns" : v_editDataObject.columns});
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	document.getElementById('bt_saveEditData').style.visibility = 'hidden';
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table" : v_currTabTag.editDataObject.table, "p_filter" : v_currTabTag.editDataObject.editor.getValue(), "p_count": v_currTabTag.sel_filtered_data.value, "p_pk_list" : v_currTabTag.editDataObject.pk, "p_columns" : v_currTabTag.editDataObject.columns});
+
+	v_currTabTag.button_save.style.visibility = 'hidden';
 
 	execAjax('MainDB.aspx/QueryEditData',
 			input,
 			function(p_return) {
 
-				if (v_editDataObject.pk.length==0) {
-					if (v_editDataObject.firstRender)
+				if (v_currTabTag.editDataObject.pk.length==0) {
+					if (v_currTabTag.editDataObject.firstRender)
 						showAlert('Table has no primary key, existing rows will be read only.');
 
-					v_editDataObject.firstRender = false;
-					v_editDataObject.hasPK = false;
+					v_currTabTag.editDataObject.firstRender = false;
+					v_currTabTag.editDataObject.hasPK = false;
 				}
 				else
-					v_editDataObject.hasPK = true;
+					v_currTabTag.editDataObject.hasPK = true;
 
-				document.getElementById('div_edit_data_query_info').innerHTML = p_return.v_data.v_query_info;
+				v_currTabTag.query_info.innerHTML = p_return.v_data.v_query_info;
 
 				var columnProperties = [];
 
 				var col = new Object();
 				col.title = ' ';
-				col.width = 28;
+				col.width = 25;
 				columnProperties.push(col);
 
-				for (var i = 0; i < v_editDataObject.columns.length; i++) {
+				for (var i = 0; i < v_currTabTag.editDataObject.columns.length; i++) {
 				    var col = new Object();
 
-				    if (!v_editDataObject.columns[i].v_is_pk)
-				    	col.title =  '<b>' + v_editDataObject.columns[i].v_column + '</b> (' + v_editDataObject.columns[i].v_type + ')';
+				    if (!v_currTabTag.editDataObject.columns[i].v_is_pk)
+				    	col.title =  '<b>' + v_currTabTag.editDataObject.columns[i].v_column + '</b> (' + v_currTabTag.editDataObject.columns[i].v_type + ')';
 				    else
-				    	col.title = '<img src="images/key.png" style="vertical-align: middle;"/> <b>' + v_editDataObject.columns[i].v_column + '</b> (' + v_editDataObject.columns[i].v_type + ')';
+				    	col.title = '<img src="images/key.png" style="vertical-align: middle;"/> <b>' + v_currTabTag.editDataObject.columns[i].v_column + '</b> (' + v_currTabTag.editDataObject.columns[i].v_type + ')';
 
 				    col.renderer = 'text';
 					columnProperties.push(col);
@@ -1215,28 +1553,29 @@ function queryEditData() {
                 	v_infoRows.push(v_object);
                 }
 
-				var v_div_result = document.getElementById('div_edit_data_data');
+				var v_div_result = v_currTabTag.div_result;
 
 				if (v_div_result.innerHTML!='') {
 
-					v_editDataObject.ht.destroy();
+					v_currTabTag.editDataObject.ht.destroy();
 				}
 
-				v_editDataObject.infoRows = v_infoRows;
+				v_currTabTag.editDataObject.infoRows = v_infoRows;
 
 				var container = v_div_result;
-				v_editDataObject.ht = new Handsontable(container,
+				v_currTabTag.editDataObject.ht = new Handsontable(container,
 				{
 					columns : columnProperties,
 					data : p_return.v_data.v_data,
 					colHeaders : true,
 					rowHeaders : true,
 					manualColumnResize: true,
+					fixedColumnsLeft: 1,
 					minSpareRows: 1,
 					contextMenu: {
 				      callback: function (key, options) {
 				        if (key === 'edit_data') {
-				          if (v_editDataObject.hasPK)
+				          if (v_currTabTag.editDataObject.hasPK)
 				          	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),true);
 				          else
 				          	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
@@ -1258,38 +1597,38 @@ function queryEditData() {
                             var oldValue = change[2];
                             var newValue = change[3];
 
-                            if (rowIndex >= v_editDataObject.infoRows.length)
+                            if (rowIndex >= v_currTabTag.editDataObject.infoRows.length)
                             {
                             	var v_object = new Object();
 					        	v_object.mode = 2;
 					        	v_object.old_mode = -1;
 					        	v_object.changed_cols = [];
-					        	v_object.index = v_editDataObject.infoRows.length;
+					        	v_object.index = v_currTabTag.editDataObject.infoRows.length;
 					        	v_object.pk = null;
 
-								v_editDataObject.infoRows.push(v_object);
+								v_currTabTag.editDataObject.infoRows.push(v_object);
 
-								document.getElementById('bt_saveEditData').style.visibility = 'visible';
+								v_currTabTag.button_save.style.visibility = 'visible';
 
                             }
 
-                            if(oldValue != newValue && v_editDataObject.infoRows[rowIndex].mode!=2){
+                            if(oldValue != newValue && v_currTabTag.editDataObject.infoRows[rowIndex].mode!=2){
 
                             	var v_found = false;
 
-                            	if (v_editDataObject.infoRows[rowIndex].changed_cols.indexOf(columnIndex-1)==-1) {
-                        			v_editDataObject.infoRows[rowIndex].changed_cols.push(columnIndex-1);
+                            	if (v_currTabTag.editDataObject.infoRows[rowIndex].changed_cols.indexOf(columnIndex-1)==-1) {
+                        			v_currTabTag.editDataObject.infoRows[rowIndex].changed_cols.push(columnIndex-1);
                         		}
 
 
-                            	if (v_editDataObject.infoRows[rowIndex].mode!=-1) {
-                            		v_editDataObject.infoRows[rowIndex].mode = 1;
+                            	if (v_currTabTag.editDataObject.infoRows[rowIndex].mode!=-1) {
+                            		v_currTabTag.editDataObject.infoRows[rowIndex].mode = 1;
 
                             	}
                             	else
-                            		v_editDataObject.infoRows[rowIndex].old_mode = 1;
+                            		v_currTabTag.editDataObject.infoRows[rowIndex].old_mode = 1;
 
-                                document.getElementById('bt_saveEditData').style.visibility = 'visible';
+                                v_currTabTag.button_save.style.visibility = 'visible';
 
                             }
                         });
@@ -1299,9 +1638,9 @@ function queryEditData() {
                     	var cellProperties = {};
 
 
-					    if (v_editDataObject.infoRows[row]!=null) {
+					    if (v_currTabTag.editDataObject.infoRows[row]!=null) {
 
-					    	if (!v_editDataObject.hasPK && v_editDataObject.infoRows[row].mode!=2) {
+					    	if (!v_currTabTag.editDataObject.hasPK && v_currTabTag.editDataObject.infoRows[row].mode!=2) {
 					    		if (col==0)
 					    			cellProperties.renderer = grayEmptyRenderer;
 					    		else
@@ -1312,13 +1651,13 @@ function queryEditData() {
 					    		cellProperties.renderer = editDataActionRenderer;
     							cellProperties.readOnly = true;
 							}
-    						else if (v_editDataObject.infoRows[row].mode==2) {
+    						else if (v_currTabTag.editDataObject.infoRows[row].mode==2) {
     							cellProperties.renderer = greenRenderer;
     						}
-    						else if (v_editDataObject.infoRows[row].mode==-1) {
+    						else if (v_currTabTag.editDataObject.infoRows[row].mode==-1) {
     							cellProperties.renderer = redRenderer;
     						}
-    						else if (v_editDataObject.infoRows[row].mode==1) {
+    						else if (v_currTabTag.editDataObject.infoRows[row].mode==1) {
     							cellProperties.renderer = yellowRenderer;
     						}
     						else {
@@ -1420,7 +1759,7 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 /// Hides edit cell window.
 /// </summary>
 function hideEditContent() {
-	
+
 	$('#div_edit_content').hide();
 
 	if (v_canEditContent)
@@ -1434,7 +1773,7 @@ function hideEditContent() {
 /// Hides command history window.
 /// </summary>
 function hideCommandList() {
-	
+
 	$('#div_command_list').hide();
 
 	v_commandListObject.ht.destroy();
@@ -1542,110 +1881,29 @@ function showCommandList() {
 /// <param name="p_table">Table name.</param>
 function startEditData(p_table) {
 
-	var input = JSON.stringify({"p_table" : p_table});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table" : p_table});
 
 	execAjax('MainDB.aspx/StartEditData',
 			input,
 			function(p_return) {
 
-				$('#div_edit_data').show();
+				var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-				var v_height  = $(window).height() - $('#div_edit_data_data').offset().top - 80;
-				document.getElementById('div_edit_data_data').style.height = v_height + "px";
-
-				document.getElementById('div_edit_data_select').innerHTML = 'select * from ' + p_table + ' t';
-
-				if (v_editDataObject!=null)
-				if (v_editDataObject.editor!=null) {
-					 v_editDataObject.editor.destroy();
-					 document.getElementById('txt_filter_data').innerHTML = '';
+				if (v_currTabTag.editDataObject!=null)
+				if (v_currTabTag.editor!=null) {
+					 v_currTabTag.editor.destroy();
 				}
 
-				var langTools = ace.require("ace/ext/language_tools");
-				var v_editor = ace.edit('txt_filter_data');
-				v_editor.setTheme("ace/theme/" + v_editor_theme);
-				v_editor.session.setMode("ace/mode/sql");
-				v_editor.commands.bindKey(".", "startAutocomplete");
 
-				v_editor.setFontSize(Number(v_editor_font_size));
+				v_currTabTag.editor.setValue(p_return.v_data.v_ini_orderby);
+				v_currTabTag.editor.clearSelection();
 
-				document.getElementById('txt_filter_data').onclick = function() {
-			  		v_editor.focus();
-			    };
-
-				var command = {
-			         name: "save",
-			         bindKey: {
-			                  mac: v_keybind_object.v_execute_mac,
-			                  win: v_keybind_object.v_execute
-			                },
-			         exec: function(){
-			           queryEditData();
-			         }
-			      }
-
-			    v_editor.commands.addCommand(command);
-
-			    var command = {
-					name: "replace",
-					bindKey: {
-					      mac: v_keybind_object.v_replace_mac,
-					      win: v_keybind_object.v_replace
-					    },
-					exec: function(){
-						v_copyPasteObject.v_tabControl.selectTabIndex(0);
-						showFindReplace(v_editor);
-					}
-				}
-
-				v_editor.commands.addCommand(command);
-
-				var qtags = {
-					getCompletions: function(editor, session, pos, prefix, callback) {
-
-						if (v_completer_ready) {
-
-						  	var wordlist = [];
-
-						  	v_completer_ready = false;
-						  	setTimeout(function(){ v_completer_ready = true; }, 1000);
-
-						  	if (prefix!='') {
-
-								execAjax('MainDB.aspx/GetCompletionsTable',
-								JSON.stringify({ p_table: p_table}),
-								function(p_return) {
-
-									if (p_return.v_data.length==0)
-										editor.insert('.');
-
-									wordlist = p_return.v_data;
-									callback(null, wordlist);
-
-								},
-								null,
-								'box',
-								false);
-
-							}
-
-						}
-
-					}
-				}
-
-				langTools.setCompleters([qtags]);
-				v_editor.setOptions({enableBasicAutocompletion: true});
-
-				v_editor.setValue(p_return.v_data.v_ini_orderby);
-				v_editor.clearSelection();
-
-				v_editDataObject = new Object();
-				v_editDataObject.editor = v_editor;
-				v_editDataObject.table = p_table;
-				v_editDataObject.firstRender = true;
-				v_editDataObject.pk = p_return.v_data.v_pk;
-				v_editDataObject.columns = p_return.v_data.v_cols;
+				v_currTabTag.editDataObject = new Object();
+				v_currTabTag.editDataObject.editor = v_currTabTag.editor;
+				v_currTabTag.editDataObject.table = p_table;
+				v_currTabTag.editDataObject.firstRender = true;
+				v_currTabTag.editDataObject.pk = p_return.v_data.v_pk;
+				v_currTabTag.editDataObject.columns = p_return.v_data.v_cols;
 
 				queryEditData();
 
@@ -1660,40 +1918,43 @@ function startEditData(p_table) {
 /// <param name="p_table">Table name.</param>
 function startAlterTable(p_mode,p_table) {
 
-	v_alterTabControl.selectTabIndex(0);
+	
 
-	document.getElementById('txt_tableNameAlterTable').value = p_table;
-	document.getElementById('txt_tableNameAlterTable').style.backgroundColor = 'white';
+	var v_curr_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+	v_curr_tab_tag.tabControl.selectTabIndex(0);
 
-	var input = JSON.stringify({"p_table": p_table});
+	v_curr_tab_tag.txtTableName.value = p_table;
+	//document.getElementById('txt_tableNameAlterTable').style.backgroundColor = 'white';
+
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": p_table});
 
 	execAjax('MainDB.aspx/AlterTableData',
 				input,
 				function(p_return) {
 
 					if (!p_return.v_data.v_can_add_constraint && p_mode=='alter')
-						$('#bt_newConstraintAlterTable').hide();
+						$(v_curr_tab_tag.btNewConstraint).hide();
 					else
-						$('#bt_newConstraintAlterTable').show();
+						$(v_curr_tab_tag.btNewConstraint).show();
 
 					if (!p_return.v_data.v_can_rename_table && p_mode=='alter') {
-						$('#txt_tableNameAlterTable').prop("readonly", true);
-						document.getElementById('txt_tableNameAlterTable').style.backgroundColor = 'rgb(242, 242, 242)';
+						$(v_curr_tab_tag.txtTableName).prop("readonly", true);
+						v_curr_tab_tag.txtTableName.style.backgroundColor = 'rgb(242, 242, 242)';
 
 					}
 					else {
-						$('#txt_tableNameAlterTable').prop("readonly", false);
-						$('#txt_tableNameAlterTable').removeClass("txt_readonly");
+						$(v_curr_tab_tag.txtTableName).prop("readonly", false);
+						$(v_curr_tab_tag.txtTableName).removeClass("txt_readonly");
 					}
 
-					$('#div_alter_table').show();
+					/*$('#div_alter_table').show();
 
 					var v_height  = $(window).height() - $('#div_alter_table_data').offset().top - 120;
 					document.getElementById('div_alter_table_data').style.height = v_height + "px";
-					document.getElementById('div_alter_constraint_data').style.height = v_height + "px";
+					document.getElementById('div_alter_constraint_data').style.height = v_height + "px";*/
 
 					//Columns Table
-					var v_div_result = document.getElementById('div_alter_table_data');
+					var v_div_result = v_curr_tab_tag.htDivColumns;
 
 					var columnProperties = [];
 
@@ -1737,43 +1998,42 @@ function startAlterTable(p_mode,p_table) {
 
 
 
-					if (document.getElementById('div_alter_table_data').innerHTML!='') {
+					if (v_curr_tab_tag.htDivColumns.innerHTML!='') {
 
-						v_alterTableObject.ht.destroy();
-
-					}
-
-					if (document.getElementById('div_alter_constraint_data').innerHTML!='') {
-
-						v_alterTableObject.ht_constraints.destroy();
+						v_curr_tab_tag.alterTableObject.htColumns.destroy();
 
 					}
 
-					if (document.getElementById('div_alter_index_data').innerHTML!='') {
+					if (v_curr_tab_tag.htDivConstraints.innerHTML!='') {
 
-						v_alterTableObject.ht_indexes.destroy();
+						v_curr_tab_tag.alterTableObject.htConstraints.destroy();
+
+					}
+
+					if (v_curr_tab_tag.htDivIndexes.innerHTML!='') {
+
+						v_curr_tab_tag.alterTableObject.htIndexes.destroy();
 
 					}
 
 					var container = v_div_result;
 
-					v_alterTableObject = new Object();
+					v_curr_tab_tag.alterTableObject = new Object();
 
-					v_alterTableObject.tableName = p_table;
-					v_alterTableObject.infoRowsColumns = v_infoRowsColumns;
-					v_alterTableObject.cellChanges = [];
-					v_alterTableObject.mode = p_mode;
-					v_alterTableObject.window = 'columns';
-					v_alterTableObject.canAlterType = p_return.v_data.v_can_alter_type;
-                	v_alterTableObject.canAlterNullable = p_return.v_data.v_can_alter_nullable;
-                	v_alterTableObject.canRenameColumn = p_return.v_data.v_can_rename_column;
-                	v_alterTableObject.hasUpdateRule = p_return.v_data.v_has_update_rule;
-					v_alterTableObject.ht_constraints = null;
-					v_alterTableObject.fkRefColumns = p_return.v_data.table_ref_columns;
-					v_alterTableObject.can_drop_column = p_return.v_data.v_can_drop_column;
+					v_curr_tab_tag.alterTableObject.tableName = p_table;
+					v_curr_tab_tag.alterTableObject.infoRowsColumns = v_infoRowsColumns;
+					v_curr_tab_tag.alterTableObject.cellChanges = [];
+					v_curr_tab_tag.alterTableObject.mode = p_mode;
+					v_curr_tab_tag.alterTableObject.window = 'columns';
+					v_curr_tab_tag.alterTableObject.canAlterType = p_return.v_data.v_can_alter_type;
+                	v_curr_tab_tag.alterTableObject.canAlterNullable = p_return.v_data.v_can_alter_nullable;
+                	v_curr_tab_tag.alterTableObject.canRenameColumn = p_return.v_data.v_can_rename_column;
+                	v_curr_tab_tag.alterTableObject.hasUpdateRule = p_return.v_data.v_has_update_rule;
+					v_curr_tab_tag.alterTableObject.htConstraints = null;
+					v_curr_tab_tag.alterTableObject.fkRefColumns = p_return.v_data.table_ref_columns;
+					v_curr_tab_tag.alterTableObject.can_drop_column = p_return.v_data.v_can_drop_column;
 
-
-					v_alterTableObject.ht = new Handsontable(container,
+					v_curr_tab_tag.alterTableObject.htColumns = new Handsontable(container,
 					{
 						data: p_return.v_data.v_data_columns,
 						columns : columnProperties,
@@ -1794,30 +2054,30 @@ function startAlterTable(p_mode,p_table) {
 	                            var oldValue = change[2];
 	                            var newValue = change[3];
 
-	                            if (rowIndex >= v_alterTableObject.infoRowsColumns.length)
+	                            if (rowIndex >= v_curr_tab_tag.alterTableObject.infoRowsColumns.length)
 	                            {
 	                            	var v_object = new Object();
 						        	v_object.mode = 2;
 						        	v_object.old_mode = 2;
 						        	v_object.originalColName = '';
 						        	v_object.originalDataType = '';
-						        	v_object.index = v_alterTableObject.infoRowsColumns.length;
+						        	v_object.index = v_curr_tab_tag.alterTableObject.infoRowsColumns.length;
 						        	v_object.nullable = '';
 
-									v_alterTableObject.infoRowsColumns.push(v_object);
+									v_curr_tab_tag.alterTableObject.infoRowsColumns.push(v_object);
 
-									document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+									v_curr_tab_tag.btSave.style.visibility = 'visible';
 
 	                            }
 
-	                            if(oldValue != newValue && v_alterTableObject.infoRowsColumns[rowIndex].mode!=2) {
+	                            if(oldValue != newValue && v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].mode!=2) {
 
-	                            	if (v_alterTableObject.infoRowsColumns[rowIndex].mode!=-1)
-	                            		v_alterTableObject.infoRowsColumns[rowIndex].mode = 1;
+	                            	if (v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].mode!=-1)
+	                            		v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].mode = 1;
 	                            	else
-	                            		v_alterTableObject.infoRowsColumns[rowIndex].old_mode = 1;
+	                            		v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].old_mode = 1;
 
-	                                document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+	                                v_curr_tab_tag.btSave.style.visibility = 'visible';
 
 	                            }
 	                        });
@@ -1827,25 +2087,25 @@ function startAlterTable(p_mode,p_table) {
 
 						    var cellProperties = {};
 
-						    if (v_alterTableObject.infoRowsColumns[row]!=null) {
+						    if (v_curr_tab_tag.alterTableObject.infoRowsColumns[row]!=null) {
 
 						    	if (col==3) {
-						    		if (v_alterTableObject.can_drop_column || v_alterTableObject.infoRowsColumns[row].mode==2)
+						    		if (v_curr_tab_tag.alterTableObject.can_drop_column || v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode==2)
 						    			cellProperties.renderer = columnsActionRenderer;
 						    		else
 						    			cellProperties.renderer = grayEmptyRenderer;
 	    							cellProperties.readOnly = true;
 								}
-								else if (v_alterTableObject.infoRowsColumns[row].mode==2) {
+								else if (v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode==2) {
 	    							cellProperties.renderer = greenHtmlRenderer;
 	    						}
-	    						else if (v_alterTableObject.infoRowsColumns[row].mode==-1) {
+	    						else if (v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode==-1) {
 	    							cellProperties.renderer = redHtmlRenderer;
 	    						}
-	    						else if (v_alterTableObject.infoRowsColumns[row].mode== 1) {
+	    						else if (v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode== 1) {
 	    							cellProperties.renderer = yellowHtmlRenderer;
 	    						}
-	    						else if ((!v_alterTableObject.canAlterType && col==1) || (!v_alterTableObject.canAlterNullable && col==2) || (!v_alterTableObject.canRenameColumn && col==0)) {
+	    						else if ((!v_curr_tab_tag.alterTableObject.canAlterType && col==1) || (!v_curr_tab_tag.alterTableObject.canAlterNullable && col==2) || (!v_curr_tab_tag.alterTableObject.canRenameColumn && col==0)) {
 	    							cellProperties.renderer = grayHtmlRenderer;
 	    							cellProperties.readOnly = true;
 	    						}
@@ -1869,8 +2129,10 @@ function startAlterTable(p_mode,p_table) {
 						}
 					});
 
+					v_curr_tab_tag.tabControl.tabList[0].tag = { ht: v_curr_tab_tag.alterTableObject.htColumns };
+
 					//Constraints Table
-					var v_div_result = document.getElementById('div_alter_constraint_data');
+					var v_div_result = v_curr_tab_tag.htDivConstraints;
 
 					var columnProperties = [];
 
@@ -1888,32 +2150,32 @@ function startAlterTable(p_mode,p_table) {
 
 	                var col = new Object();
       				col.title =  'Columns';
-      				col.width = '160px';
+      				col.width = '140px';
      	 			columnProperties.push(col);
 
      	 			var col = new Object();
 	                col.title =  'Referenced Table';
-	                col.width = '160px';
+	                col.width = '140px';
 	                col.type = 'autocomplete';
 	                col.source = p_return.v_data.v_tables;
 	                columnProperties.push(col);
 
      	 			var col = new Object();
       				col.title =  'Referenced Columns';
-      				col.width = '240px';
+      				col.width = '140px';
       				col.type = 'autocomplete';
      	 			columnProperties.push(col);
 
      	 			var col = new Object();
 	                col.title =  'Delete Rule';
-	                col.width = '160px';
+	                col.width = '100px';
 	                col.type = 'autocomplete';
 	                col.source = p_return.v_data.v_delete_rules;
 	                columnProperties.push(col);
 
 	                var col = new Object();
 	                col.title =  'Update Rule';
-	                col.width = '160px';
+	                col.width = '100px';
 	                col.type = 'autocomplete';
 	                col.source = p_return.v_data.v_update_rules;
 	                columnProperties.push(col);
@@ -1933,14 +2195,14 @@ function startAlterTable(p_mode,p_table) {
 	                	v_infoRowsConstraints.push(v_object);
 	                }
 
-	                v_alterTableObject.infoRowsConstraints = v_infoRowsConstraints;
-	                v_alterTableObject.canAlterConstraints = false;
+	                v_curr_tab_tag.alterTableObject.infoRowsConstraints = v_infoRowsConstraints;
+	                v_curr_tab_tag.alterTableObject.canAlterConstraints = false;
 
 
 					var container = v_div_result;
 
 
-					v_alterTableObject.ht_constraints = new Handsontable(container,
+					v_curr_tab_tag.alterTableObject.htConstraints = new Handsontable(container,
 					{
 						data: p_return.v_data.v_data_constraints,
 						columns : columnProperties,
@@ -1964,7 +2226,7 @@ function startAlterTable(p_mode,p_table) {
 	                            		getReferenceColumnsList(rowIndex,newValue);
 	                            	}
 
-	                            	document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+	                            	v_curr_tab_tag.btSave.style.visibility = 'visible';
 	                            }
 	                        });
 
@@ -1973,15 +2235,15 @@ function startAlterTable(p_mode,p_table) {
 
 						    var cellProperties = {};
 
-						    if (v_alterTableObject.infoRowsConstraints[row]!=null) {
+						    if (v_curr_tab_tag.alterTableObject.infoRowsConstraints[row]!=null) {
 
 					    		var v_constraint_type = p_return.v_data.v_data_constraints[row][1];
 
-						    	if (col==7 || (!v_alterTableObject.hasUpdateRule && col==6)) {
+						    	if (col==7 || (!v_curr_tab_tag.alterTableObject.hasUpdateRule && col==6)) {
 						    		cellProperties.renderer = grayHtmlRenderer;
 	    							cellProperties.readOnly = true;
 								}
-								else if (v_alterTableObject.infoRowsConstraints[row].mode==-1) {
+								else if (v_curr_tab_tag.alterTableObject.infoRowsConstraints[row].mode==-1) {
 	    							cellProperties.renderer = redHtmlRenderer;
 	    						}
 								else if ( (v_constraint_type!='Primary Key' && v_constraint_type!='Foreign Key' && v_constraint_type!='Unique') && (col==2) ) {
@@ -1992,11 +2254,11 @@ function startAlterTable(p_mode,p_table) {
 						    		cellProperties.renderer = grayHtmlRenderer;
 	    							cellProperties.readOnly = true;
 								}
-								else if (v_alterTableObject.infoRowsConstraints[row].mode==2) {
+								else if (v_curr_tab_tag.alterTableObject.infoRowsConstraints[row].mode==2) {
 	    							cellProperties.renderer = greenHtmlRenderer;
 	    							cellProperties.readOnly = false;
 	    						}
-	    						else if (!v_alterTableObject.canAlterConstraints) {
+	    						else if (!v_curr_tab_tag.alterTableObject.canAlterConstraints) {
 	    							cellProperties.renderer = grayHtmlRenderer;
 	    							cellProperties.readOnly = true;
 	    						}
@@ -2014,7 +2276,7 @@ function startAlterTable(p_mode,p_table) {
 							    	if (p_return.v_data.v_data_constraints[row][1]=='Foreign Key') {
 
 							    		cellProperties.type='dropdown';
-							    		cellProperties.source = v_alterTableObject.fkRefColumns[row];
+							    		cellProperties.source = v_curr_tab_tag.alterTableObject.fkRefColumns[row];
 
 							    	}
 						    	}
@@ -2027,8 +2289,10 @@ function startAlterTable(p_mode,p_table) {
 
 					});
 
+					v_curr_tab_tag.tabControl.tabList[1].tag = { ht: v_curr_tab_tag.alterTableObject.htConstraints };
+
 					//Indexes Table
-					var v_div_result = document.getElementById('div_alter_index_data');
+					var v_div_result = v_curr_tab_tag.htDivIndexes;
 
 					var columnProperties = [];
 
@@ -2064,13 +2328,13 @@ function startAlterTable(p_mode,p_table) {
 	                	v_infoRowsIndexes.push(v_object);
 	                }
 
-	                v_alterTableObject.infoRowsIndexes = v_infoRowsIndexes;
-	                v_alterTableObject.canAlterIndexes = false;
+	                v_curr_tab_tag.alterTableObject.infoRowsIndexes = v_infoRowsIndexes;
+	                v_curr_tab_tag.alterTableObject.canAlterIndexes = false;
 
 
 					var container = v_div_result;
 
-					v_alterTableObject.ht_indexes = new Handsontable(container,
+					v_curr_tab_tag.alterTableObject.htIndexes = new Handsontable(container,
 					{
 						data: p_return.v_data.v_data_indexes,
 						columns : columnProperties,
@@ -2094,7 +2358,7 @@ function startAlterTable(p_mode,p_table) {
 	                            		getReferenceColumnsList(rowIndex,newValue);
 	                            	}
 
-	                            	document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+	                            	v_curr_tab_tag.btSave.style.visibility = 'visible';
 	                            }
 	                        });
 
@@ -2103,20 +2367,20 @@ function startAlterTable(p_mode,p_table) {
 
 						    var cellProperties = {};
 
-						    if (v_alterTableObject.infoRowsIndexes[row]!=null) {
+						    if (v_curr_tab_tag.alterTableObject.infoRowsIndexes[row]!=null) {
 
 						    	if (col==3) {
 						    		cellProperties.renderer = grayHtmlRenderer;
 	    							cellProperties.readOnly = true;
 								}
-								else if (v_alterTableObject.infoRowsIndexes[row].mode==-1) {
+								else if (v_curr_tab_tag.alterTableObject.infoRowsIndexes[row].mode==-1) {
 	    							cellProperties.renderer = redHtmlRenderer;
 	    						}
-								else if (v_alterTableObject.infoRowsIndexes[row].mode==2) {
+								else if (v_curr_tab_tag.alterTableObject.infoRowsIndexes[row].mode==2) {
 	    							cellProperties.renderer = greenHtmlRenderer;
 	    							cellProperties.readOnly = false;
 	    						}
-	    						else if (!v_alterTableObject.canAlterIndexes) {
+	    						else if (!v_curr_tab_tag.alterTableObject.canAlterIndexes) {
 	    							cellProperties.renderer = grayHtmlRenderer;
 	    							cellProperties.readOnly = true;
 	    						}
@@ -2138,6 +2402,8 @@ function startAlterTable(p_mode,p_table) {
 
 					});
 
+					v_curr_tab_tag.tabControl.tabList[2].tag = { ht: v_curr_tab_tag.alterTableObject.htIndexes };
+
 
 				},
 				null,
@@ -2152,14 +2418,16 @@ function startAlterTable(p_mode,p_table) {
 /// <param name="p_table_name">Table name.</param>
 function getReferenceColumnsList(p_row_index, p_table_name) {
 
-	var input = JSON.stringify({"p_table_name": p_table_name});
+	var v_currAlterTableObject = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.alterTableObject;
+
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table_name": p_table_name});
 
 	execAjax('MainDB.aspx/RefreshRefColumnsList',
 				input,
 				function(p_return) {
-					
-					v_alterTableObject.fkRefColumns[p_row_index] = p_return.v_data;
-					v_alterTableObject.ht_constraints.render();
+
+					v_currAlterTableObject.fkRefColumns[p_row_index] = p_return.v_data;
+					v_currAlterTableObject.htConstraints.render();
 
 				},
 				null,
@@ -2177,6 +2445,36 @@ function dropTable(p_node) {
 				function() {
 
 					dropTableConfirm(p_node);
+
+				});
+
+}
+
+/// <summary>
+/// Displays message to drop function.
+/// </summary>
+/// <param name="p_node">Tree node object.</param>
+function dropFunction(p_node) {
+
+	showConfirm('Are you sure you want to drop the function ' + p_node.text + '?',
+				function() {
+
+					dropFunctionConfirm(p_node);
+
+				});
+
+}
+
+/// <summary>
+/// Displays message to drop procedure.
+/// </summary>
+/// <param name="p_node">Tree node object.</param>
+function dropProcedure(p_node) {
+
+	showConfirm('Are you sure you want to drop the procedure ' + p_node.text + '?',
+				function() {
+
+					dropProcedureConfirm(p_node);
 
 				});
 
@@ -2204,8 +2502,7 @@ function deleteData(p_node) {
 function dropTableConfirm(p_node) {
 
 	p_node.tag.num_tables = 0;
-
-	var input = JSON.stringify({"p_table": p_node.text});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": p_node.text});
 
 	execAjax('MainDB.aspx/DropTable',
 				input,
@@ -2225,6 +2522,58 @@ function dropTableConfirm(p_node) {
 }
 
 /// <summary>
+/// Drops function.
+/// </summary>
+/// <param name="p_node">Tree node object.</param>
+function dropFunctionConfirm(p_node) {
+
+	p_node.tag.num_tables = 0;
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_function": p_node.text});
+
+	execAjax('MainDB.aspx/DropFunction',
+				input,
+				function(p_return) {
+
+					p_node.removeNode();
+
+					p_node.parent.tag.num_tables = p_node.parent.tag.num_tables-1;
+					p_node.parent.setText('Functions (' + p_node.parent.tag.num_tables + ')');
+
+					showAlert('Function dropped.');
+
+				},
+				null,
+				'box');
+
+}
+
+/// <summary>
+/// Drops procedure.
+/// </summary>
+/// <param name="p_node">Tree node object.</param>
+function dropProcedureConfirm(p_node) {
+
+	p_node.tag.num_tables = 0;
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_procedure": p_node.text});
+
+	execAjax('MainDB.aspx/DropProcedure',
+				input,
+				function(p_return) {
+
+					p_node.removeNode();
+
+					p_node.parent.tag.num_tables = p_node.parent.tag.num_tables-1;
+					p_node.parent.setText('Procedures (' + p_node.parent.tag.num_tables + ')');
+
+					showAlert('Procedure dropped.');
+
+				},
+				null,
+				'box');
+
+}
+
+/// <summary>
 /// Deletes table records.
 /// </summary>
 /// <param name="p_node">Tree node object.</param>
@@ -2232,7 +2581,7 @@ function deleteDataConfirm(p_node) {
 
 	p_node.tag.num_tables = 0;
 
-	var input = JSON.stringify({"p_table": p_node.text});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": p_node.text});
 
 	execAjax('MainDB.aspx/DeleteData',
 				input,
@@ -2251,27 +2600,28 @@ function deleteDataConfirm(p_node) {
 /// </summary>
 function deleteRowEditData() {
 
-	var v_data = v_editDataObject.ht.getData();
-	var v_row = v_editDataObject.ht.getSelected()[0];
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+	var v_data = v_currTabTag.editDataObject.ht.getData();
+	var v_row = v_currTabTag.editDataObject.ht.getSelected()[0];
 
-	if (v_editDataObject.infoRows[v_row].mode==2) {
+	if (v_currTabTag.editDataObject.infoRows[v_row].mode==2) {
 
-		v_editDataObject.infoRows.splice(v_row,1);
+		v_currTabTag.editDataObject.infoRows.splice(v_row,1);
 		v_data.splice(v_row,1);
-		v_editDataObject.ht.loadData(v_data);
+		v_currTabTag.editDataObject.ht.loadData(v_data);
 
 
 	}
 	else {
 
-		var v_mode = v_editDataObject.infoRows[v_row].mode;
-		v_editDataObject.infoRows[v_row].mode = v_editDataObject.infoRows[v_row].old_mode;
-		v_editDataObject.infoRows[v_row].old_mode = v_mode;
-		v_editDataObject.ht.render();
+		var v_mode = v_currTabTag.editDataObject.infoRows[v_row].mode;
+		v_currTabTag.editDataObject.infoRows[v_row].mode = v_currTabTag.editDataObject.infoRows[v_row].old_mode;
+		v_currTabTag.editDataObject.infoRows[v_row].old_mode = v_mode;
+		v_currTabTag.editDataObject.ht.render();
 
 	}
 
-	document.getElementById('bt_saveEditData').style.visibility = 'visible';
+	v_currTabTag.button_save.style.visibility = 'visible';
 
 }
 
@@ -2280,28 +2630,30 @@ function deleteRowEditData() {
 /// </summary>
 function dropColumnAlterTable() {
 
-	var v_data = v_alterTableObject.ht.getData();
-	var v_row = v_alterTableObject.ht.getSelected()[0];
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	if (v_alterTableObject.infoRowsColumns[v_row].mode==2) {
+	var v_data = v_currTabTag.alterTableObject.htColumns.getData();
+	var v_row = v_currTabTag.alterTableObject.htColumns.getSelected()[0];
 
-		v_alterTableObject.infoRowsColumns.splice(v_row,1);
+	if (v_currTabTag.alterTableObject.infoRowsColumns[v_row].mode==2) {
+
+		v_currTabTag.alterTableObject.infoRowsColumns.splice(v_row,1);
 		v_data.splice(v_row,1);
 
-		v_alterTableObject.ht.loadData(v_data);
+		v_currTabTag.alterTableObject.htColumns.loadData(v_data);
 
 	}
 	else {
 
-		var v_mode = v_alterTableObject.infoRowsColumns[v_row].mode;
-		v_alterTableObject.infoRowsColumns[v_row].mode = v_alterTableObject.infoRowsColumns[v_row].old_mode;
-		v_alterTableObject.infoRowsColumns[v_row].old_mode = v_mode;
+		var v_mode = v_currTabTag.alterTableObject.infoRowsColumns[v_row].mode;
+		v_currTabTag.alterTableObject.infoRowsColumns[v_row].mode = v_currTabTag.alterTableObject.infoRowsColumns[v_row].old_mode;
+		v_currTabTag.alterTableObject.infoRowsColumns[v_row].old_mode = v_mode;
 
-		v_alterTableObject.ht.loadData(v_data);
+		v_currTabTag.alterTableObject.htColumns.loadData(v_data);
 
 	}
 
-	document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+	v_currTabTag.btSave.style.visibility = 'visible';
 
 }
 
@@ -2310,28 +2662,30 @@ function dropColumnAlterTable() {
 /// </summary>
 function dropConstraintAlterTable() {
 
-	var v_data = v_alterTableObject.ht_constraints.getData();
-	var v_row = v_alterTableObject.ht_constraints.getSelected()[0];
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	if (v_alterTableObject.infoRowsConstraints[v_row].mode==2) {
+	var v_data = v_currTabTag.alterTableObject.htConstraints.getData();
+	var v_row = v_currTabTag.alterTableObject.htConstraints.getSelected()[0];
 
-		v_alterTableObject.infoRowsConstraints.splice(v_row,1);
+	if (v_currTabTag.alterTableObject.infoRowsConstraints[v_row].mode==2) {
+
+		v_currTabTag.alterTableObject.infoRowsConstraints.splice(v_row,1);
 		v_data.splice(v_row,1);
 
-		v_alterTableObject.ht_constraints.loadData(v_data);
+		v_currTabTag.alterTableObject.htConstraints.loadData(v_data);
 
 	}
 	else {
 
-		var v_mode = v_alterTableObject.infoRowsConstraints[v_row].mode;
-		v_alterTableObject.infoRowsConstraints[v_row].mode = v_alterTableObject.infoRowsConstraints[v_row].old_mode;
-		v_alterTableObject.infoRowsConstraints[v_row].old_mode = v_mode;
+		var v_mode = v_currTabTag.alterTableObject.infoRowsConstraints[v_row].mode;
+		v_currTabTag.alterTableObject.infoRowsConstraints[v_row].mode = v_currTabTag.alterTableObject.infoRowsConstraints[v_row].old_mode;
+		v_currTabTag.alterTableObject.infoRowsConstraints[v_row].old_mode = v_mode;
 
-		v_alterTableObject.ht_constraints.loadData(v_data);
+		v_currTabTag.alterTableObject.htConstraints.loadData(v_data);
 
 	}
 
-	document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+	v_currTabTag.btSave.style.visibility = 'visible';
 
 }
 
@@ -2340,28 +2694,30 @@ function dropConstraintAlterTable() {
 /// </summary>
 function dropIndexAlterTable() {
 
-	var v_data = v_alterTableObject.ht_indexes.getData();
-	var v_row = v_alterTableObject.ht_indexes.getSelected()[0];
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	if (v_alterTableObject.infoRowsIndexes[v_row].mode==2) {
+	var v_data = v_currTabTag.alterTableObject.htIndexes.getData();
+	var v_row = v_currTabTag.alterTableObject.htIndexes.getSelected()[0];
 
-		v_alterTableObject.infoRowsIndexes.splice(v_row,1);
+	if (v_currTabTag.alterTableObject.infoRowsIndexes[v_row].mode==2) {
+
+		v_currTabTag.alterTableObject.infoRowsIndexes.splice(v_row,1);
 		v_data.splice(v_row,1);
 
-		v_alterTableObject.ht_indexes.loadData(v_data);
+		v_currTabTag.alterTableObject.htIndexes.loadData(v_data);
 
 	}
 	else {
 
-		var v_mode = v_alterTableObject.infoRowsIndexes[v_row].mode;
-		v_alterTableObject.infoRowsIndexes[v_row].mode = v_alterTableObject.infoRowsIndexes[v_row].old_mode;
-		v_alterTableObject.infoRowsIndexes[v_row].old_mode = v_mode;
+		var v_mode = v_currTabTag.alterTableObject.infoRowsIndexes[v_row].mode;
+		v_currTabTag.alterTableObject.infoRowsIndexes[v_row].mode = v_currTabTag.alterTableObject.infoRowsIndexes[v_row].old_mode;
+		v_currTabTag.alterTableObject.infoRowsIndexes[v_row].old_mode = v_mode;
 
-		v_alterTableObject.ht_indexes.loadData(v_data);
+		v_currTabTag.alterTableObject.htIndexes.loadData(v_data);
 
 	}
 
-	document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+	v_currTabTag.btSave.style.visibility = 'visible';
 
 }
 
@@ -2370,7 +2726,9 @@ function dropIndexAlterTable() {
 /// </summary>
 function newColumnAlterTable() {
 
-	var v_data = v_alterTableObject.ht.getData();
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	var v_data = v_currTabTag.alterTableObject.htColumns.getData();
 
 	var v_object = new Object();
 	v_object.canAlterType = true;
@@ -2381,13 +2739,13 @@ function newColumnAlterTable() {
 	v_object.originalDataType = '';
 	v_object.nullable = '';
 
-	v_alterTableObject.infoRowsColumns.push(v_object);
+	v_currTabTag.alterTableObject.infoRowsColumns.push(v_object);
 
 	v_data.push(['','','YES','<img src="images/tab_close.png" onclick="dropColumnAlterTable()"/>']);
 
-	v_alterTableObject.ht.loadData(v_data);
+	v_currTabTag.alterTableObject.htColumns.loadData(v_data);
 
-	document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+	v_currTabTag.btSave.style.visibility = 'visible';
 
 }
 
@@ -2396,21 +2754,23 @@ function newColumnAlterTable() {
 /// </summary>
 function newIndexAlterTable() {
 
-	var v_data = v_alterTableObject.ht_indexes.getData();
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	var v_data = v_currTabTag.alterTableObject.htIndexes.getData();
 
 	var v_object = new Object();
 	v_object.mode = 2;
 	v_object.old_mode = 2;
-	v_object.index = v_alterTableObject.infoRowsIndexes.length;
+	v_object.index = v_currTabTag.alterTableObject.infoRowsIndexes.length;
 
 
-	v_alterTableObject.infoRowsIndexes.push(v_object);
+	v_currTabTag.alterTableObject.infoRowsIndexes.push(v_object);
 
 	v_data.push(['','',"<img src='images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> ",'<img src="images/tab_close.png" onclick="dropIndexAlterTable()"/>']);
 
-	v_alterTableObject.ht_indexes.loadData(v_data);
+	v_currTabTag.alterTableObject.htIndexes.loadData(v_data);
 
-	document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+	v_currTabTag.btSave.style.visibility = 'visible';
 
 }
 
@@ -2419,21 +2779,23 @@ function newIndexAlterTable() {
 /// </summary>
 function newConstraintAlterTable() {
 
-	var v_data = v_alterTableObject.ht_constraints.getData();
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	var v_data = v_currTabTag.alterTableObject.htConstraints.getData();
 
 	var v_object = new Object();
 	v_object.mode = 2;
 	v_object.old_mode = 2;
-	v_object.index = v_alterTableObject.infoRowsConstraints.length;
+	v_object.index = v_currTabTag.alterTableObject.infoRowsConstraints.length;
 
 
-	v_alterTableObject.infoRowsConstraints.push(v_object);
+	v_currTabTag.alterTableObject.infoRowsConstraints.push(v_object);
 
 	v_data.push(['','',"<img src='images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> ",'','','','','<img src="images/tab_close.png" onclick="dropConstraintAlterTable()"/>']);
 
-	v_alterTableObject.ht_constraints.loadData(v_data);
+	v_currTabTag.alterTableObject.htConstraints.loadData(v_data);
 
-	document.getElementById('bt_saveAlterTable').style.visibility = 'visible';
+	v_currTabTag.btSave.style.visibility = 'visible';
 
 }
 
@@ -2483,6 +2845,8 @@ function hideCommandsLog() {
 /// </summary>
 function hideColumnSelection() {
 
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
 	var v_select_right = document.getElementById('sel_columns_right');
 
 	var v_first = true;
@@ -2497,13 +2861,13 @@ function hideColumnSelection() {
 
 	}
 
-	if (v_alterTableObject.window=='constraints') {
+	if (v_currTabTag.alterTableObject.window=='constraints') {
 		v_column_string = "<img src='images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_string;
-		v_alterTableObject.ht_constraints.setDataAtCell(v_alterTableObject.selectedConstraintRow, 2, v_column_string);
+		v_currTabTag.alterTableObject.htConstraints.setDataAtCell(v_currTabTag.alterTableObject.selectedConstraintRow, 2, v_column_string);
 	}
 	else {
 		v_column_string = "<img src='images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_string;
-		v_alterTableObject.ht_indexes.setDataAtCell(v_alterTableObject.selectedIndexRow, 2, v_column_string);
+		v_currTabTag.alterTableObject.htIndexes.setDataAtCell(v_currTabTag.alterTableObject.selectedIndexRow, 2, v_column_string);
 	}
 	$('#div_column_selection').hide();
 
@@ -2514,23 +2878,25 @@ function hideColumnSelection() {
 /// </summary>
 function showColumnSelectionConstraints() {
 
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
 	$("#sel_columns_left").empty();
 	$("#sel_columns_right").empty();
 
 	var v_select_left = document.getElementById('sel_columns_left');
 	var v_select_right = document.getElementById('sel_columns_right');
 
-	var v_selected = v_alterTableObject.ht_constraints.getSelected();
+	var v_selected = v_currTabTag.alterTableObject.htConstraints.getSelected();
 
-	if (v_alterTableObject.infoRowsConstraints[v_selected[0]].mode==2) {
+	if (v_currTabTag.alterTableObject.infoRowsConstraints[v_selected[0]].mode==2) {
 
-		v_alterTableObject.selectedConstraintRow = v_selected[0];
+		v_currTabTag.alterTableObject.selectedConstraintRow = v_selected[0];
 
-		var v_type = v_alterTableObject.ht_constraints.getDataAtCell(v_selected[0],1);
+		var v_type = v_currTabTag.alterTableObject.htConstraints.getDataAtCell(v_selected[0],1);
 
 		if (v_type=='Primary Key' || v_type=='Foreign Key' || v_type=='Unique') {
 
-			var v_columns = v_alterTableObject.ht_constraints.getDataAtCell(v_selected[0],v_selected[1]);
+			var v_columns = v_currTabTag.alterTableObject.htConstraints.getDataAtCell(v_selected[0],v_selected[1]);
 			v_columns = v_columns.substring(95);
 
 			var v_constraint_columns_list;
@@ -2546,7 +2912,7 @@ function showColumnSelectionConstraints() {
 				v_select_right.add(option);
 			}
 
-			var v_table_columns_list = v_alterTableObject.ht.getDataAtCol(0);
+			var v_table_columns_list = v_currTabTag.alterTableObject.htColumns.getDataAtCol(0);
 
 			for (var i=0; i < v_table_columns_list.length-1; i++) {
 				if (v_constraint_columns_list.indexOf(v_table_columns_list[i])==-1) {
@@ -2569,22 +2935,24 @@ function showColumnSelectionConstraints() {
 /// </summary>
 function showColumnSelectionIndexes() {
 
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
 	$("#sel_columns_left").empty();
 	$("#sel_columns_right").empty();
 
 	var v_select_left = document.getElementById('sel_columns_left');
 	var v_select_right = document.getElementById('sel_columns_right');
 
-	var v_selected = v_alterTableObject.ht_indexes.getSelected();
+	var v_selected = v_currTabTag.alterTableObject.htIndexes.getSelected();
 
-	if (v_alterTableObject.infoRowsIndexes[v_selected[0]].mode==2) {
+	if (v_currTabTag.alterTableObject.infoRowsIndexes[v_selected[0]].mode==2) {
 
-		v_alterTableObject.selectedIndexRow = v_selected[0];
+		v_currTabTag.alterTableObject.selectedIndexRow = v_selected[0];
 
-		var v_type = v_alterTableObject.ht_indexes.getDataAtCell(v_selected[0],1);
+		var v_type = v_currTabTag.alterTableObject.htIndexes.getDataAtCell(v_selected[0],1);
 
 
-		var v_columns = v_alterTableObject.ht_indexes.getDataAtCell(v_selected[0],v_selected[1]);
+		var v_columns = v_currTabTag.alterTableObject.htIndexes.getDataAtCell(v_selected[0],v_selected[1]);
 		v_columns = v_columns.substring(91);
 
 		var v_index_columns_list;
@@ -2600,7 +2968,7 @@ function showColumnSelectionIndexes() {
 			v_select_right.add(option);
 		}
 
-		var v_table_columns_list = v_alterTableObject.ht.getDataAtCol(0);
+		var v_table_columns_list = v_currTabTag.alterTableObject.htColumns.getDataAtCol(0);
 
 		for (var i=0; i < v_table_columns_list.length-1; i++) {
 			if (v_index_columns_list.indexOf(v_table_columns_list[i])==-1) {

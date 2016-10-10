@@ -25,7 +25,9 @@ function blueHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
   	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
     }
 
-  	td.style.background = 'rgb(234, 237, 249)';
+  	//td.style.background = 'rgb(234, 237, 249)';
+
+  	td.className ='cellEven';
 }
 
 function greenHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -43,7 +45,12 @@ function greenHtmlRenderer(instance, td, row, col, prop, value, cellProperties) 
   	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
     }
 
-  	td.style.background = 'rgb(206, 255, 209)';
+    //td.style.background ='rgb(102, 183, 45)';
+  	//td.style.color = '#000';
+
+  	//td.style.background = 'rgb(206, 255, 209)';
+
+  	td.className ='cellNew';
 }
 
 function yellowHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -61,7 +68,12 @@ function yellowHtmlRenderer(instance, td, row, col, prop, value, cellProperties)
   	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
     }
 
-  	td.style.background = 'rgb(255, 251, 215)';
+  	//td.style.background = 'rgb(255, 251, 215)';
+
+  	//td.style.background ='rgb(224, 184, 57)';
+  	//td.style.color = '#000';
+
+  	td.className ='cellEdit';
 }
 
 
@@ -75,7 +87,8 @@ function whiteHtmlRenderer(instance, td, row, col, prop, value, cellProperties) 
 	  	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 	  }
 
-  	td.style.background = 'rgb(255, 255, 255)';
+  	//td.style.background = 'rgb(255, 255, 255)';
+  	td.className ='cellOdd';
 }
 
 function redHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -87,7 +100,11 @@ function redHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
 	  	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 	  }
 
-  	td.style.background = 'rgb(255, 213, 213)';
+  	//td.style.background = 'rgb(255, 213, 213)';
+  	//td.style.background = 'rgb(183, 46, 46)';
+  	//td.style.color = '#000';
+
+  	td.className ='cellRemove';
 }
 
 function grayHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -99,7 +116,9 @@ function grayHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
 	  	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 	  }
 
-  	td.style.background = 'rgb(242, 242, 242)';
+  	//td.style.background = 'rgb(242, 242, 242)';
+
+  	td.className ='cellReadOnly';
 }
 
 
@@ -111,7 +130,11 @@ function yellowRenderer(instance, td, row, col, prop, value, cellProperties) {
 	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
 	  }
 
-  	td.style.background = 'rgb(255, 251, 215)';
+  	//td.style.background = 'rgb(255, 251, 215)';
+  	//td.style.background ='rgb(224, 184, 57)';
+  	//td.style.color = '#000';
+
+  	td.className ='cellEdit';
 }
 
 function blueRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -123,7 +146,9 @@ function blueRenderer(instance, td, row, col, prop, value, cellProperties) {
 	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
 	  }
 
-  	td.style.background = 'rgb(234, 237, 249)';
+  	//td.style.background = 'rgb(234, 237, 249)';
+
+  	td.className ='cellEven';
 }
 
 function whiteRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -135,7 +160,8 @@ function whiteRenderer(instance, td, row, col, prop, value, cellProperties) {
 	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
 	  }
 
-  	td.style.background = 'rgb(255, 255, 255)';
+  	//td.style.background = 'rgb(255, 255, 255)';
+  	td.className ='cellOdd';
 }
 
 function redRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -147,7 +173,11 @@ function redRenderer(instance, td, row, col, prop, value, cellProperties) {
 	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
 	  }
 
-  	td.style.background = 'rgb(255, 213, 213)';
+  	//td.style.background = 'rgb(255, 213, 213)';
+  	//td.style.background = 'rgb(183, 46, 46)';
+  	//td.style.color = '#000';
+
+  	td.className ='cellRemove';
 }
 
 function grayRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -159,7 +189,9 @@ function grayRenderer(instance, td, row, col, prop, value, cellProperties) {
 	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
 	  }
 
-  	td.style.background = 'rgb(242, 242, 242)';
+  	//td.style.background = 'rgb(242, 242, 242)';
+
+  	td.className ='cellReadOnly';
 }
 
 function greenRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -171,7 +203,13 @@ function greenRenderer(instance, td, row, col, prop, value, cellProperties) {
 	  	Handsontable.renderers.TextRenderer.apply(this, arguments);
 	  }
 
-  	td.style.background = 'rgb(206, 255, 209)';
+  	//td.style.background = 'rgb(206, 255, 209)';
+
+  	//td.style.background ='rgb(102, 183, 45)';
+  	//td.style.color = '#000';
+
+  	td.className ='cellNew';
+
 }
 
 function grayEmptyRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -180,16 +218,22 @@ function grayEmptyRenderer(instance, td, row, col, prop, value, cellProperties) 
 
 	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 
-  	td.style.background = 'rgb(242, 242, 242)';
+  	//td.style.background = 'rgb(242, 242, 242)';
+
+  	td.className ='cellReadOnly';
 }
 
 function newRowRenderer(instance, td, row, col, prop, value, cellProperties) {
 
-	arguments[5] = '<img class="img_ht" src="images/new_row.png"/>';
+	//arguments[5] = '<img class="img_ht" src="images/new_row.png"/>';
+	arguments[5] = '+';
+	td.style.textAlign = 'center';
 
 	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 
-  	td.style.background = 'rgb(242, 242, 242)';
+  	//td.style.background = 'rgb(242, 242, 242)';
+
+  	td.className ='cellReadOnly';
 }
 
 function columnsActionRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -198,7 +242,9 @@ function columnsActionRenderer(instance, td, row, col, prop, value, cellProperti
 
 	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 
-  	td.style.background = 'rgb(242, 242, 242)';
+  	//td.style.background = 'rgb(242, 242, 242)';
+
+  	td.className ='cellReadOnly';
 }
 
 function editDataActionRenderer(instance, td, row, col, prop, value, cellProperties) {
@@ -207,6 +253,8 @@ function editDataActionRenderer(instance, td, row, col, prop, value, cellPropert
 
 	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 
-  	td.style.background = 'rgb(242, 242, 242)';
+  	//td.style.background = 'rgb(242, 242, 242)';
+
+  	td.className ='cellReadOnly';
 
 }

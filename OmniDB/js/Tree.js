@@ -13,10 +13,10 @@ You should have received a copy of the GNU General Public License along with Omn
 /// <summary>
 /// Retrieving tree.
 /// </summary>
-function getTree() {
+function getTree(p_div) {
 
 	execAjax('Tree.aspx/GetTreeInfo',
-			null,
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
 			function(p_return) {
 
 				var context_menu = {
@@ -88,8 +88,108 @@ function getTree() {
 							text : 'New Table',
 							icon: 'images/new_table.png',
 							action : function(node) {
-								v_firstModeTable = 'new';
+								//v_firstModeTable = 'new';
+								//startAlterTable('new',null);
+								v_connTabControl.selectedTab.tag.tabControl.tag.createAlterTableTab("New Table");
 								startAlterTable('new',null);
+							}
+						}
+					]
+				},
+				'cm_functions' : {
+					elements : [
+						{
+							text : 'Refresh',
+							icon: 'images/refresh.png',
+							action : function(node) {
+								if (node.childNodes==0)
+									getFunctions(node);
+								else {
+									node.collapseNode();
+									node.expandNode();
+								}
+							}
+						}
+					]
+				},
+				'cm_function' : {
+					elements : [
+						{
+							text : 'Edit Function',
+							icon: 'images/text_edit.png',
+							action : function(node) {
+								if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
+									v_connTabControl.selectedTab.tag.tabControl.tag.createQueryTab(node.text);
+
+								getFunctionDefinition(node);
+							}
+						},
+						{
+							text : 'Drop Function',
+							icon: 'images/tab_close.png',
+							action : function(node) {
+								dropFunction(node);
+							}
+						},
+						{
+							text : 'Refresh',
+							icon: 'images/refresh.png',
+							action : function(node) {
+								if (node.childNodes==0)
+									refreshTree(node);
+								else {
+									node.collapseNode();
+									node.expandNode();
+								}
+							}
+						}
+					]
+				},
+				'cm_procedures' : {
+					elements : [
+						{
+							text : 'Refresh',
+							icon: 'images/refresh.png',
+							action : function(node) {
+								if (node.childNodes==0)
+									getProcedures(node);
+								else {
+									node.collapseNode();
+									node.expandNode();
+								}
+							}
+						}
+					]
+				},
+				'cm_procedure' : {
+					elements : [
+						{
+							text : 'Edit Procedure',
+							icon: 'images/text_edit.png',
+							action : function(node) {
+								if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
+									v_connTabControl.selectedTab.tag.tabControl.tag.createQueryTab(node.text);
+
+								getProcedureDefinition(node);
+							}
+						},
+						{
+							text : 'Drop Procedure',
+							icon: 'images/tab_close.png',
+							action : function(node) {
+								dropProcedure(node);
+							}
+						},
+						{
+							text : 'Refresh',
+							icon: 'images/refresh.png',
+							action : function(node) {
+								if (node.childNodes==0)
+									refreshTree(node);
+								else {
+									node.collapseNode();
+									node.expandNode();
+								}
 							}
 						}
 					]
@@ -121,7 +221,6 @@ function getTree() {
 										text : 'Query Data',
 										icon: 'images/query.png',
 										action : function(node) {
-											//createTab();
 
 											var v_table_name = '';
 											if (node.parent.parent.parent.parent!=null)
@@ -129,9 +228,16 @@ function getTree() {
 											else
 												v_table_name = node.text;
 
-											v_tabControl.selectedTab.tag.editor.setValue('-- Querying Data\nselect t.*\nfrom ' + v_table_name + ' t');
-											v_tabControl.selectedTab.tag.editor.clearSelection();
-											v_tabControl.selectedTab.renameTab(node.text);
+											if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query')
+												v_connTabControl.selectedTab.tag.tabControl.tag.createQueryTab(node.text);
+
+											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value = 10;
+
+											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue('-- Querying Data\nselect t.*\nfrom ' + v_table_name + ' t');
+											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
+											v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+
+											//minimizeEditor();
 
 			                				querySQL();
 										}
@@ -140,14 +246,16 @@ function getTree() {
 										text : 'Edit Data',
 										icon: 'images/edit_data.png',
 										action : function(node) {
+											
+											v_connTabControl.selectedTab.tag.tabControl.tag.createEditDataTab(node.text);
 											startEditData(node.text);
+
 										}
 									},
 									{
 										text : 'Count Records',
 										icon: 'images/counter.png',
 										action : function(node) {
-											//createTab();
 
 											var v_table_name = '';
 											if (node.parent.parent.parent.parent!=null)
@@ -155,9 +263,13 @@ function getTree() {
 											else
 												v_table_name = node.text;
 
-											v_tabControl.selectedTab.tag.editor.setValue("-- Counting Records\nselect count(*) as count\nfrom " + v_table_name + " t");
-											v_tabControl.selectedTab.tag.editor.clearSelection();
-											v_tabControl.selectedTab.renameTab(node.text);
+											if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query')
+												v_connTabControl.selectedTab.tag.tabControl.tag.createQueryTab(node.text);
+
+											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue("-- Counting Records\nselect count(*) as count\nfrom " + v_table_name + " t");
+											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
+											v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+
 			                				querySQL();
 										}
 									},
@@ -180,7 +292,9 @@ function getTree() {
 										text : 'Alter Table',
 										icon: 'images/table_edit.png',
 										action : function(node) {
-											v_firstModeTable = 'alter';
+											//v_firstModeTable = 'alter';
+											//startAlterTable('alter',node.text);
+											v_connTabControl.selectedTab.tag.tabControl.tag.createAlterTableTab(node.text);
 											startAlterTable('alter',node.text);
 										}
 									},
@@ -211,7 +325,7 @@ function getTree() {
 				}
 			};
 
-				tree = createTree('tree1','white',context_menu);
+				tree = createTree(p_div,'#fcfdfd',context_menu);
 
 				tree.nodeAfterOpenEvent = function(node) {
 					refreshTree(node);
@@ -221,21 +335,27 @@ function getTree() {
 
 				v_tree_object = new Object();
 
+				var node2 = node1;
+
 				if (p_return.v_data.v_database_return.v_has_schema) {
-					var node2 = tree.createNode(p_return.v_data.v_database_return.v_schema,true,'images/schemas.png',node1,null,null);
 
-					var node3 = tree.createNode('Tables',false,'images/table_multiple.png',node2,{ type:'table_list', num_tables : 0 },'cm_tables');
-					node3.createChildNode('',true,'images/466.gif',null,null);
-
-					v_tree_object.tables_node = node3;
+					node2 = tree.createNode(p_return.v_data.v_database_return.v_schema,true,'images/schemas.png',node1,null,null);
 
 				}
-				else {
-					var node2 = tree.createNode('Tables',false,'images/table_multiple.png',node1,{ type:'table_list'},'cm_tables');
-					node2.createChildNode('',true,'images/466.gif',null,null);
 
-					v_tree_object.tables_node = node2;
+				var node_tables = tree.createNode('Tables',false,'images/table_multiple.png',node2,{ type:'table_list', num_tables : 0 },'cm_tables');
+				node_tables.createChildNode('',true,'images/spin.svg',null,null);
 
+				v_tree_object.tables_node = node_tables;
+
+				if (p_return.v_data.v_database_return.v_has_functions) {
+					var node_tables = tree.createNode('Functions',false,'images/gear.png',node2,{ type:'function_list', num_tables : 0 },'cm_functions');
+					node_tables.createChildNode('',true,'images/spin.svg',null,null);
+				}
+
+				if (p_return.v_data.v_database_return.v_has_procedures) {
+					var node_tables = tree.createNode('Procedures',false,'images/gear.png',node2,{ type:'procedure_list', num_tables : 0 },'cm_procedures');
+					node_tables.createChildNode('',true,'images/spin.svg',null,null);
 				}
 
 				v_tree_object.refreshTables = function() {
@@ -286,6 +406,18 @@ function refreshTree(node) {
 		else if (node.tag.type=='indexes') {
 			getIndexes(node);
 		}
+		else if (node.tag.type=='function_list') {
+			getFunctions(node);
+		}
+		else if (node.tag.type=='function') {
+			getFunctionFields(node);
+		}
+		else if (node.tag.type=='procedure_list') {
+			getProcedures(node);
+		}
+		else if (node.tag.type=='procedure') {
+			getProcedureFields(node);
+		}
 
 }
 
@@ -296,11 +428,11 @@ function refreshTree(node) {
 function getTables(node) {
 
 	node.removeChildNodes();
-	node.createChildNode('',false,'images/466.gif',null,null);
+	node.createChildNode('',false,'images/spin.svg',null,null);
 
 
 	execAjax('Tree.aspx/GetTables',
-			null,
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
 			function(p_return) {
 
 				if (node.childNodes.length > 0)
@@ -312,9 +444,8 @@ function getTables(node) {
 
 				for (i=0; i<p_return.v_data.length; i++) {
 
-
 		        	v_node = node.createChildNode(p_return.v_data[i],false,'images/table.png',{ type:'table'},'cm_table');
-		        	v_node.createChildNode('',false,'images/466.gif',{ type:'table_field'},null);
+		        	v_node.createChildNode('',false,'images/spin.svg',{ type:'table_field'},null);
 
 		        }
 
@@ -330,10 +461,10 @@ function getTables(node) {
 /// <param name="node">Node object.</param>
 function getSequences(node) {
 	node.removeChildNodes();
-	node.createChildNode('',false,'images/466.gif',null,null);
+	node.createChildNode('',false,'images/spin.svg',null,null);
 
 	execAjax('Tree.aspx/GetSequences',
-			null,
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
 			function(p_return) {
 
 				node.setText('Sequences (' + p_return.v_data.length + ')');
@@ -361,10 +492,10 @@ function getSequences(node) {
 function getViews(node) {
 
 	node.removeChildNodes();
-	node.createChildNode('',false,'images/466.gif',null,null);
+	node.createChildNode('',false,'images/spin.svg',null,null);
 
 	execAjax('Tree.aspx/GetViews',
-			null,
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
 			function(p_return) {
 
 				node.setText('Views (' + p_return.v_data.length + ')');
@@ -391,10 +522,10 @@ function getViews(node) {
 function getColumns(node) {
 
 	node.removeChildNodes();
-	node.createChildNode('',false,'images/466.gif',null,null);
+	node.createChildNode('',false,'images/spin.svg',null,null);
 
 	execAjax('Tree.aspx/GetColumns',
-			JSON.stringify({"p_table": node.text}),
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": node.text}),
 			function(p_return) {
 
 				if (node.childNodes.length > 0)
@@ -411,16 +542,16 @@ function getColumns(node) {
 		        }
 
 		        v_node = node.createChildNode('Primary Key',false,'images/key.png',{ type:'primary_key'},'cm_refresh');
-		        v_node.createChildNode('',false,'images/466.gif',null,null);
+		        v_node.createChildNode('',false,'images/spin.svg',null,null);
 
 		        v_node = node.createChildNode('Foreign Keys',false,'images/silver_key.png',{ type:'foreign_keys'},'cm_refresh');
-		        v_node.createChildNode('',false,'images/466.gif',null,null);
+		        v_node.createChildNode('',false,'images/spin.svg',null,null);
 
 		        v_node = node.createChildNode('Uniques',false,'images/blue_key.png',{ type:'uniques'},'cm_refresh');
-		        v_node.createChildNode('',false,'images/466.gif',null,null);
+		        v_node.createChildNode('',false,'images/spin.svg',null,null);
 
 		        v_node = node.createChildNode('Indexes',false,'images/index.png',{ type:'indexes'},'cm_refresh');
-		        v_node.createChildNode('',false,'images/466.gif',null,null);
+		        v_node.createChildNode('',false,'images/spin.svg',null,null);
 
 
 			},
@@ -436,10 +567,10 @@ function getColumns(node) {
 function getPK(node) {
 
 	node.removeChildNodes();
-	node.createChildNode('',false,'images/466.gif',null,null);
+	node.createChildNode('',false,'images/spin.svg',null,null);
 
 	execAjax('Tree.aspx/GetPK',
-			JSON.stringify({"p_table": node.parent.text}),
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": node.parent.text}),
 			function(p_return) {
 
 
@@ -470,10 +601,10 @@ function getPK(node) {
 function getUniques(node) {
 
 	node.removeChildNodes();
-	node.createChildNode('',false,'images/466.gif',null,null);
+	node.createChildNode('',false,'images/spin.svg',null,null);
 
 	execAjax('Tree.aspx/GetUniques',
-			JSON.stringify({"p_table": node.parent.text}),
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": node.parent.text}),
 			function(p_return) {
 
 				if (node.childNodes.length > 0)
@@ -518,10 +649,10 @@ function getUniques(node) {
 function getIndexes(node) {
 
 	node.removeChildNodes();
-	node.createChildNode('',false,'images/466.gif',null,null);
+	node.createChildNode('',false,'images/spin.svg',null,null);
 
 	execAjax('Tree.aspx/GetIndexes',
-			JSON.stringify({"p_table": node.parent.text}),
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": node.parent.text}),
 			function(p_return) {
 
 				if (node.childNodes.length > 0)
@@ -566,10 +697,10 @@ function getIndexes(node) {
 function getFKs(node) {
 
 	node.removeChildNodes();
-	node.createChildNode('',false,'images/466.gif',null,null);
+	node.createChildNode('',false,'images/spin.svg',null,null);
 
 	execAjax('Tree.aspx/GetFKs',
-			JSON.stringify({"p_table": node.parent.text}),
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": node.parent.text}),
 			function(p_return) {
 
 				if (node.childNodes.length > 0)
@@ -618,10 +749,10 @@ function getFKs(node) {
 function getViewsColumns(node) {
 
 	node.removeChildNodes();
-	node.createChildNode('',false,'images/466.gif',null,null);
+	node.createChildNode('',false,'images/spin.svg',null,null);
 
 	execAjax('Tree.aspx/GetViewColumns',
-			JSON.stringify({"p_table": node.text}),
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": node.text}),
 			function(p_return) {
 
 				if (node.childNodes.length > 0)
@@ -638,4 +769,215 @@ function getViewsColumns(node) {
 			},
 			null,
 			'box');
+}
+
+/// <summary>
+/// Retrieving functions.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getFunctions(node) {
+
+	node.removeChildNodes();
+	node.createChildNode('',false,'images/spin.svg',null,null);
+
+
+	execAjax('Tree.aspx/GetFunctions',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
+			function(p_return) {
+
+				if (node.childNodes.length > 0)
+					node.removeChildNodes();
+
+				node.setText('Functions (' + p_return.v_data.length + ')');
+
+				node.tag.num_tables = p_return.v_data.length;
+
+				for (i=0; i<p_return.v_data.length; i++) {
+
+		        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'images/gear.png',{ type:'function', id: p_return.v_data[i].v_id },'cm_function');
+		        	getFunctionFields(v_node);
+
+		        }
+
+			},
+			null,
+			'box',
+			false);
+}
+
+/// <summary>
+/// Retrieving function fields.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getFunctionFields(node) {
+
+	node.removeChildNodes();
+	node.createChildNode('',false,'images/spin.svg',null,null);
+
+
+	execAjax('Tree.aspx/GetFunctionFields',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_function": node.tag.id}),
+			function(p_return) {
+
+				if (node.childNodes.length > 0)
+					node.removeChildNodes();
+
+				node.tag.num_tables = p_return.v_data.length;
+
+				for (i=0; i<p_return.v_data.length; i++) {
+
+					if (p_return.v_data[i].v_type == 'O')
+						v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/output.png', null, null);
+					else {
+						if (p_return.v_data[i].v_type == 'I')
+							v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/input.png', null, null);
+						else
+ 							v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/input_output.png', null, null);
+					}
+
+		        }
+
+			},
+			null,
+			'box',
+			false);
+}
+
+/// <summary>
+/// Retrieving function definition.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getFunctionDefinition(node) {
+
+	execAjax('Tree.aspx/GetFunctionDefinition',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_function": node.tag.id}),
+			function(p_return) {
+
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value = -2;
+
+				var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;
+
+				if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht!=null) {
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.destroy();
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht = null;
+				}
+
+				v_div_result.innerHTML = '';
+
+				maximizeEditor();
+
+			},
+			null,
+			'box',
+			true);
+
+}
+
+/// <summary>
+/// Retrieving procedures.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getProcedures(node) {
+
+	node.removeChildNodes();
+	node.createChildNode('',false,'images/spin.svg',null,null);
+
+
+	execAjax('Tree.aspx/GetProcedures',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
+			function(p_return) {
+
+				if (node.childNodes.length > 0)
+					node.removeChildNodes();
+
+				node.setText('Procedures (' + p_return.v_data.length + ')');
+
+				node.tag.num_tables = p_return.v_data.length;
+
+				for (i=0; i<p_return.v_data.length; i++) {
+
+		        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'images/gear.png',{ type:'procedure', id: p_return.v_data[i].v_id },'cm_procedure');
+		        	getProcedureFields(v_node);
+
+		        }
+
+			},
+			null,
+			'box',
+			false);
+}
+
+/// <summary>
+/// Retrieving procedure fields.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getProcedureFields(node) {
+
+	node.removeChildNodes();
+	node.createChildNode('',false,'images/spin.svg',null,null);
+
+
+	execAjax('Tree.aspx/GetProcedureFields',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_procedure": node.tag.id}),
+			function(p_return) {
+
+				if (node.childNodes.length > 0)
+					node.removeChildNodes();
+
+				node.tag.num_tables = p_return.v_data.length;
+
+				for (i=0; i<p_return.v_data.length; i++) {
+
+					if (p_return.v_data[i].v_type == 'O')
+						v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/output.png', null, null);
+					else {
+						if (p_return.v_data[i].v_type == 'I')
+							v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/input.png', null, null);
+						else
+ 							v_node = node.createChildNode(p_return.v_data[i].v_name, false, 'images/input_output.png', null, null);
+					}
+
+		        }
+
+			},
+			null,
+			'box',
+			false);
+}
+
+/// <summary>
+/// Retrieving procedure definition.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getProcedureDefinition(node) {
+
+	execAjax('Tree.aspx/GetProcedureDefinition',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_procedure": node.tag.id}),
+			function(p_return) {
+
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value = -2;
+
+				var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;
+
+				if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht!=null) {
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.destroy();
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht = null;
+				}
+
+				v_div_result.innerHTML = '';
+
+				maximizeEditor();
+
+			},
+			null,
+			'box',
+			true);
+
 }

@@ -15,7 +15,7 @@ using System;
 namespace OmniDatabase
 {
 	/// <summary>
-	/// Class to store information of an Firebird database.
+	/// Class to store information of an MySQL database.
 	/// </summary>
 	public class MySQL : Generic
 	{
@@ -106,6 +106,9 @@ namespace OmniDatabase
 
 			v_connection = new Spartacus.Database.Mysql (p_server, p_port, p_service, p_user, p_password);
 			v_connection.v_execute_security = false;
+
+			v_has_functions = true;
+            v_has_procedures = true;
 
 		}
 
@@ -393,8 +396,170 @@ namespace OmniDatabase
 
 		}
 
+		/// <summary>
+		/// Get a datatable with all functions.
+		/// </summary>
+		public override System.Data.DataTable QueryFunctions() {
+
+            return v_connection.Query(
+                "select t.routine_name as id,                      " +
+                "       t.routine_name as name                     " +
+                "from information_schema.routines t                " +
+                "where t.routine_type = 'FUNCTION'                 " +
+                "  and t.routine_schema = '" + this.v_service + "' " +
+                "order by t.routine_name", "Functions");
+
+		}
+
+        /// <summary>
+        /// Get a datatable with all fields of a function.
+        /// </summary>
+        public override System.Data.DataTable QueryFunctionFields(string p_function) {
+
+            return v_connection.Query(
+                "select concat('returns ', t.data_type) as name,            " +
+                "       'O' as type                                         " +
+                "from information_schema.routines t                         " +
+                "where t.routine_type = 'FUNCTION'                          " +
+                "  and t.routine_schema = '" + this.v_service + "'          " +
+                "  and t.specific_name = '" + p_function + "'               " +
+                "union                                                      " +
+                "select concat(t.parameter_name, ' ', t.data_type) as name, " +
+                "       (case t.parameter_mode                              " +
+                "          when 'IN' then 'I'                               " +
+                "          when 'OUT' then 'O'                              " +
+                "          else 'R'                                         " +
+                "        end) as type                                       " +
+                "from information_schema.parameters t                       " +
+                "where t.ordinal_position > 0                               " +
+                "  and t.specific_schema = '" + this.v_service + "'         " +
+                "  and t.specific_name = '" + p_function + "'               " +
+                "order by 2 desc", "FunctionFields");
+
+
+        }
+
+		/// <summary>
+		/// Get function definition.
+		/// </summary>
+		public override string GetFunctionDefinition(string p_function) {
+
+            string v_body, v_input, v_output;
+            System.Data.DataTable v_table;
+            int v_num_input, v_num_output;
+
+            v_table = this.QueryFunctionFields(p_function);
+
+            v_input = "";
+            v_num_input = 0;
+            v_output = "";
+            v_num_output = 0;
+
+            foreach (System.Data.DataRow v_row in v_table.Rows)
+            {
+                if (v_row["type"].ToString() == "I")
+                {
+                    if (v_num_input == 0)
+                        v_input += System.Text.RegularExpressions.Regex.Replace(v_row["name"].ToString(), @"\s+", " ").Trim();
+                    else
+                        v_input += ", " + System.Text.RegularExpressions.Regex.Replace(v_row["name"].ToString(), @"\s+", " ").Trim();
+                    v_num_input++;
+                }
+                else
+                {
+                    if (v_num_output == 0)
+                        v_output += System.Text.RegularExpressions.Regex.Replace(v_row["name"].ToString(), @"\s+", " ").Trim();
+                    else
+                        v_output += ", " + System.Text.RegularExpressions.Regex.Replace(v_row["name"].ToString(), @"\s+", " ").Trim();
+                    v_num_output++;
+                }
+            }
+
+            v_body = "-- DROP FUNCTION " + p_function.Trim() + ";\n";
+            v_body += "CREATE FUNCTION " + p_function.Trim() + " (" + v_input + ")\n";
+            v_body += v_output + "\n";
+
+            v_body += v_connection.ExecuteScalar(
+                "select t.routine_definition                       " +
+                "from information_schema.routines t                " +
+                "where t.routine_type = 'FUNCTION'                 " +
+                "  and t.routine_schema = '" + this.v_service + "' " +
+                "  and t.routine_name = '" + p_function + "'");
+
+            return v_body;
+
+		}
+
+        /// <summary>
+        /// Get a datatable with all procedures.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedures() {
+
+            return v_connection.Query(
+                "select t.routine_name as id,                      " +
+                "       t.routine_name as name                     " +
+                "from information_schema.routines t                " +
+                "where t.routine_type = 'PROCEDURE'                " +
+                "  and t.routine_schema = '" + this.v_service + "' " +
+                "order by t.routine_name", "Procedures");
+
+        }
+
+        /// <summary>
+        /// Get a datatable with all fields of a procedure.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedureFields(string p_procedure) {
+
+            return v_connection.Query(
+                "select concat(t.parameter_name, ' ', t.data_type) as name, " +
+                "       (case t.parameter_mode                              " +
+                "          when 'IN' then 'I'                               " +
+                "          when 'OUT' then 'O'                              " +
+                "          else 'R'                                         " +
+                "        end) as type                                       " +
+                "from information_schema.parameters t                       " +
+                "where t.specific_schema = '" + this.v_service + "'         " +
+                "  and t.specific_name = '" + p_procedure + "'              " +
+                "order by 2 desc", "ProcedureFields");
+
+        }
+
+        /// <summary>
+        /// Get procedure definition.
+        /// </summary>
+        public override string GetProcedureDefinition(string p_procedure) {
+
+            string v_body, v_input;
+            System.Data.DataTable v_table;
+            int v_num_input;
+
+            v_table = this.QueryProcedureFields(p_procedure);
+
+            v_input = "";
+            v_num_input = 0;
+
+            foreach (System.Data.DataRow v_row in v_table.Rows)
+            {
+                if (v_num_input == 0)
+                    v_input += System.Text.RegularExpressions.Regex.Replace(v_row["name"].ToString(), @"\s+", " ").Trim();
+                else
+                    v_input += ", " + System.Text.RegularExpressions.Regex.Replace(v_row["name"].ToString(), @"\s+", " ").Trim();
+                v_num_input++;
+            }
+
+            v_body = "-- DROP PROCEDURE " + p_procedure.Trim() + ";\n";
+            v_body += "CREATE PROCEDURE " + p_procedure.Trim() + " (" + v_input + ")\n";
+
+            v_body += v_connection.ExecuteScalar(
+                "select t.routine_definition                       " +
+                "from information_schema.routines t                " +
+                "where t.routine_type = 'PROCEDURE'                " +
+                "  and t.routine_schema = '" + this.v_service + "' " +
+                "  and t.routine_name = '" + p_procedure + "'");
+
+            return v_body;
+
+        }
+
 	}
 }
-
-
-

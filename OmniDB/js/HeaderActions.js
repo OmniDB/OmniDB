@@ -24,7 +24,7 @@ $(function() {
 function showConfigUser() {
 
 	document.getElementById('sel_editor_font_size').value = v_editor_font_size;
-	document.getElementById('sel_editor_theme').value = v_editor_theme;
+	document.getElementById('sel_editor_theme').value = v_theme_id;
 
 	document.getElementById('txt_confirm_new_pwd').value = '';
 	document.getElementById('txt_new_pwd').value = '';
@@ -66,7 +66,7 @@ function hideConfigUser() {
 function saveConfigUser() {
 
 	v_editor_font_size = document.getElementById('sel_editor_font_size').value;
-	v_editor_theme = document.getElementById('sel_editor_theme').value;
+	v_theme_id = document.getElementById('sel_editor_theme').value;
 
 	var v_confirm_pwd = document.getElementById('txt_confirm_new_pwd');
 	var v_pwd = document.getElementById('txt_new_pwd');
@@ -74,12 +74,13 @@ function saveConfigUser() {
 	if ((v_confirm_pwd.value!='' || v_pwd.value!='') && (v_pwd.value!=v_confirm_pwd.value))
 		showAlert('New Password and Confirm New Password fields do not match.');
 	else {
-		var input = JSON.stringify({"p_font_size" : v_editor_font_size, "p_theme" : v_editor_theme, "p_pwd" : v_pwd.value});
+		var input = JSON.stringify({"p_font_size" : v_editor_font_size, "p_theme" : v_theme_id, "p_pwd" : v_pwd.value});
 
 		execAjax('MainDB.aspx/SaveConfigUser',
 				input,
 				function(p_return) {
-
+					v_editor_theme = p_return.v_data.v_theme_name;
+					v_theme_type = p_return.v_data.v_theme_type;
 					$('#div_config_user').hide();
 					showAlert('Configuration changed.');
 

@@ -6,12 +6,12 @@
 
 	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
 
-	<link rel="stylesheet" type="text/css" href="css/style.css?v1.5"/>
+	<link rel="stylesheet" type="text/css" href="css/style.css?v1.6"/>
 		
-	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.5"   ></script>
-	<script type="text/javascript" src="lib/jquery-ui/jquery-ui.js?v1.5"></script>
-  	<script type="text/javascript" src="js/NotificationControl.js?v1.5" ></script>
-  	<script type="text/javascript" src="js/AjaxControl.js?v1.5"         ></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js?v1.6"   ></script>
+	<script type="text/javascript" src="lib/jquery-ui/jquery-ui.js?v1.6"></script>
+  	<script type="text/javascript" src="js/NotificationControl.js?v1.6" ></script>
+  	<script type="text/javascript" src="js/AjaxControl.js?v1.6"         ></script>
 	<script type="text/javascript">
 
 		$(function () {

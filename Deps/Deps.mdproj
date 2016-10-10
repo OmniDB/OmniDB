@@ -5,9 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ItemType>GenericProject</ItemType>
     <ProjectGuid>{A1E62CD3-3A15-4CC4-8DFA-209DEFD4D446}</ProjectGuid>
+    <ReleaseVersion>2.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Default|AnyCPU' ">
-    <OutputPath>.\</OutputPath>
+    <OutputPath>.</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <None Include="IKVM.OpenJDK.Beans.dll" />
@@ -30,7 +31,6 @@
     <None Include="IKVM.Runtime.dll" />
     <None Include="libsqlite3.so" />
     <None Include="msvcr90.dll" />
-    <None Include="Spartacus.dll" />
     <None Include="sqlceca40.dll" />
     <None Include="sqlcecompact40.dll" />
     <None Include="sqlceer40EN.dll" />
@@ -39,6 +39,7 @@
     <None Include="sqlcese40.dll" />
     <None Include="sqlite3.dll" />
     <None Include="UCanAccess.dll" />
+    <None Include="Spartacus.dll" />
   </ItemGroup>
-  <Target Name="Build" DependsOnTargets="$(BuildDependsOn)" Outputs="$(TargetPath)"/>
+  <Target Name="Build" DependsOnTargets="$(BuildDependsOn)" Outputs="$(TargetPath)" />
 </Project>

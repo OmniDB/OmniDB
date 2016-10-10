@@ -119,6 +119,9 @@ namespace OmniDatabase
 
 			v_connection.v_execute_security = false;
 
+			v_has_functions = true;
+            v_has_procedures = true;
+
 		}
 
 		/// <summary>
@@ -448,6 +451,124 @@ namespace OmniDatabase
 				p_filter, "Limited Query");
 
 		}
+
+		/// <summary>
+		/// Get a datatable with all functions.
+		/// </summary>
+		public override System.Data.DataTable QueryFunctions() {
+
+            return v_connection.Query(
+                "select t.routine_name as id,                  " +
+                "       t.routine_name as name                 " +
+                "from information_schema.routines t            " +
+                "where t.routine_catalog = '" + v_service + "' " +
+                "  and t.routine_schema = '" + v_schema + "'   " +
+                "  and t.routine_type = 'FUNCTION'             " +
+                "order by 1", "Functions");
+
+		}
+
+        /// <summary>
+        /// Get a datatable with all fields of a function.
+        /// </summary>
+        public override System.Data.DataTable QueryFunctionFields(string p_function) {
+
+            return v_connection.Query(
+                "select (case t.parameter_mode                                     " +
+                "          when 'IN' then 'I'                                      " +
+                "          when 'OUT' then 'O'                                     " +
+                "          else 'R'                                                " +
+                "        end) as type,                                             " +
+                "       (case when t.ordinal_position = 0                          " +
+                "          then 'return ' + lower(t.data_type)                     " +
+                "          else lower(t.parameter_name) + ' ' + lower(t.data_type) " +
+                "        end) as name                                              " +
+                "from information_schema.parameters t                              " +
+                "where t.specific_catalog = '" + v_service + "'                    " +
+                "  and t.specific_schema = '" + v_schema + "'                      " +
+                "  and t.specific_name = '" + p_function + "'", "FunctionFields");
+
+        }
+
+		/// <summary>
+		/// Get function definition.
+		/// </summary>
+		public override string GetFunctionDefinition(string p_function) {
+
+            string v_body;
+
+            v_body = "-- DROP FUNCTION " + p_function + ";\n\n";
+
+            v_body += v_connection.ExecuteScalar(
+                "select t.routine_definition                   " +
+                "from information_schema.routines t            " +
+                "where t.routine_catalog = '" + v_service + "' " +
+                "  and t.routine_schema = '" + v_schema + "'   " +
+                "  and t.routine_type = 'FUNCTION'             " +
+                "  and t.routine_name = '" + p_function + "'");
+
+            return v_body;
+
+		}
+
+        /// <summary>
+        /// Get a datatable with all procedures.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedures() {
+
+            return v_connection.Query(
+                "select t.routine_name as id,                  " +
+                "       t.routine_name as name                 " +
+                "from information_schema.routines t            " +
+                "where t.routine_catalog = '" + v_service + "' " +
+                "  and t.routine_schema = '" + v_schema + "'   " +
+                "  and t.routine_type = 'PROCEDURE'            " +
+                "order by 1", "Procedures");
+
+        }
+
+        /// <summary>
+        /// Get a datatable with all fields of a procedure.
+        /// </summary>
+        public override System.Data.DataTable QueryProcedureFields(string p_procedure) {
+
+            return v_connection.Query(
+                "select (case t.parameter_mode                                     " +
+                "          when 'IN' then 'I'                                      " +
+                "          when 'OUT' then 'O'                                     " +
+                "          else 'R'                                                " +
+                "        end) as type,                                             " +
+                "       (case when t.ordinal_position = 0                          " +
+                "          then 'return ' + lower(t.data_type)                     " +
+                "          else lower(t.parameter_name) + ' ' + lower(t.data_type) " +
+                "        end) as name                                              " +
+                "from information_schema.parameters t                              " +
+                "where t.specific_catalog = '" + v_service + "'                    " +
+                "  and t.specific_schema = '" + v_schema + "'                      " +
+                "  and t.specific_name = '" + p_procedure + "'", "ProcedureFields");
+
+        }
+
+        /// <summary>
+        /// Get procedure definition.
+        /// </summary>
+        public override string GetProcedureDefinition(string p_procedure) {
+
+            string v_body;
+
+            v_body = "-- DROP PROCEDURE " + p_procedure + ";\n\n";
+
+            v_body += v_connection.ExecuteScalar(
+                "select t.routine_definition                   " +
+                "from information_schema.routines t            " +
+                "where t.routine_catalog = '" + v_service + "' " +
+                "  and t.routine_schema = '" + v_schema + "'   " +
+                "  and t.routine_type = 'PROCEDURE'            " +
+                "  and t.routine_name = '" + p_procedure + "'");
+
+            return v_body;
+
+        }
 
 	}
 }

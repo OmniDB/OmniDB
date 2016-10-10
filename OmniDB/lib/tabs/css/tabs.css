@@ -55,6 +55,7 @@ opacity: 1.0;
 	background-color: #fcfdfd;
 	padding: 5px;
 	display: none;
+	overflow: auto;
 }
 
 .selected_div {

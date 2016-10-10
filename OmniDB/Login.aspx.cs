@@ -63,7 +63,7 @@ namespace OmniDB
 					v_pwd = v_cryptor.Decrypt (v_encrypted_pwd);
 
 					if (v_pwd == p_pwd) {
-						Session v_session = new Session("-1", p_username, v_omnidb_database, "", "");
+						Session v_session = new Session("-1", p_username, v_omnidb_database, "", "", "", "");
 						v_session.v_omnidb_version = System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Version"].ToString ();
 						System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = v_session;
 						v_return.v_data = true;
@@ -86,12 +86,16 @@ namespace OmniDB
 				try {
 					// Querying user information.
 					System.Data.DataTable v_user_data = v_omnidb_database.v_connection.Query (
-						                                               "select user_id,         " +
-						                                               "       password,        " +
-						                                               "       editor_theme,    " +
-						                                               "       editor_font_size " +
-						                                               "from users              " +
-						                                               "where user_name = '" + p_username + "' ", "db_data");
+						                                               "select u.user_id,              " +
+						                                               "       u.password,             " +
+																	   "       t.theme_id,             " +
+						                                               "       t.theme_name,           " +
+																	   "       t.theme_type,           " +
+						                                               "       u.editor_font_size      " +
+						                                               "from users u,                  " +
+																	   "     themes t                  " +
+																	   " where u.theme_id = t.theme_id " +
+						                                               "and u.user_name = '" + p_username + "' ", "db_data");
 
 					// If username exists, decrypt password.
 					if (v_user_data.Rows.Count > 0) {
@@ -105,7 +109,7 @@ namespace OmniDB
 						// If password is correct, instantiate Session and return true.
 						if (v_pwd == p_pwd) {
 
-							Session v_session = new Session (v_user_data.Rows [0] ["user_id"].ToString (), p_username, v_omnidb_database, v_user_data.Rows [0] ["editor_theme"].ToString (), v_user_data.Rows [0] ["editor_font_size"].ToString ());
+							Session v_session = new Session (v_user_data.Rows [0] ["user_id"].ToString (), p_username, v_omnidb_database, v_user_data.Rows[0]["theme_name"].ToString(), v_user_data.Rows[0]["theme_type"].ToString(), v_user_data.Rows[0]["theme_id"].ToString(), v_user_data.Rows [0] ["editor_font_size"].ToString ());
 							v_session.v_omnidb_version = System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Version"].ToString ();
 							System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = v_session;
 							v_return.v_data = true;

@@ -60,7 +60,6 @@ function changeDatabase() {
 /// Retrieves a grid full of checkboxes to select conversion info.
 /// </summary>
 function conversionData() {
-	console.log(document.getElementById('sl_database1').value);
 	execAjax('CreateConversion.aspx/ConversionData',
 			JSON.stringify({"p_database_index": document.getElementById('sl_database1').value}),
 			function(p_return) {
@@ -133,7 +132,7 @@ function startConversion() {
 	}
 
 	execAjax('CreateConversion.aspx/StartConversion',
-			JSON.stringify({"p_dst_index": document.getElementById('sl_database2').value, "p_tables_data": v_tables_data}),
+			JSON.stringify({"p_src_index": document.getElementById('sl_database1').value, "p_dst_index": document.getElementById('sl_database2').value, "p_tables_data": v_tables_data}),
 			function(p_return) {
 
 				window.open("Conversions.aspx","_self");

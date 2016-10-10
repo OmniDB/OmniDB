@@ -92,7 +92,7 @@
                 <a class="modal-closer" onclick="modalGraph('hide')">x</a>
 
                 <div id="div_legend">
-                <ul style="padding-left: 10px; padding-right: 10px;">
+                <ul style="padding-left: 10px; padding-right: 10px; color: black;">
                 <li class="li_legend"><div class="div_legend_color" style=" background-color: red;"></div><p id="p_legend_5" class="p_legend_label">Vermelho</p></li>
                 <li class="li_legend"><div class="div_legend_color" style=" background-color: orange;"></div><p id="p_legend_4" class="p_legend_label">Vermelho</p></li>
                 <li class="li_legend"><div class="div_legend_color" style=" background-color: yellow;"></div><p id="p_legend_3" class="p_legend_label">Vermelho</p></li>
@@ -103,7 +103,7 @@
 
                 </div>
 
-                <div id="visualization" style="height:100%; width:100%;">
+                <div id="visualization" style="height:100%; width:100%; background-color: white;">
 
                 	<div id="div_graph_content" style="height:100%; width:100%; z-index: 999"></div>
 

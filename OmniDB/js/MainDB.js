@@ -152,6 +152,9 @@ function getDatabaseList() {
 
 }
 
+/// <summary>
+/// Resize SQL editor and result div.
+/// </summary>
 function resizeVertical(event) {
 
 	v_start_height = event.screenY;
@@ -159,6 +162,9 @@ function resizeVertical(event) {
 
 }
 
+/// <summary>
+/// Resize SQL editor and result div.
+/// </summary>
 function resizeVerticalEnd(event) {
 
 	document.body.removeEventListener("mouseup", resizeVerticalEnd);
@@ -194,6 +200,9 @@ function resizeVerticalEnd(event) {
 
 }
 
+/// <summary>
+/// Maximize SQL Editor.
+/// </summary>
 function maximizeEditor() {
 
 	var v_editor_div = document.getElementById(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editorDivId);
@@ -208,6 +217,9 @@ function maximizeEditor() {
 
 }
 
+/// <summary>
+/// Minimize SQL Editor.
+/// </summary>
 function minimizeEditor() {
 
 	var v_editor_div = document.getElementById(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editorDivId);
@@ -224,12 +236,18 @@ function minimizeEditor() {
 
 }
 
+/// <summary>
+/// Resize Tab.
+/// </summary>
 function resizeHorizontal(event) {
 
 	document.body.addEventListener("mouseup", resizeHorizontalEnd);
 	v_start_width = event.screenX;
 }
 
+/// <summary>
+/// Resize Tab.
+/// </summary>
 function resizeHorizontalEnd(event) {
 	document.body.removeEventListener("mouseup", resizeHorizontalEnd);
 
@@ -463,7 +481,7 @@ function createConnTab() {
 			      win: v_keybind_object.v_execute
 			    },
 			exec: function(){
-			querySQL();
+			queryEditData();
 			}
 		}
 
@@ -664,125 +682,6 @@ function createConnTab() {
 }
 
 /// <summary>
-/// Creates tab.
-/// </summary>
-/*function createTab() {
-
-	v_tabControl.removeTabIndex(v_tabControl.tabList.length-1);
-	var v_tab = v_tabControl.createTab('Query',true,null,renameTab,'cm_tab',removeTab);
-	v_tabControl.selectTab(v_tab);
-
-	var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 300px;border: 1px solid #c3c3c3;'></div>" +
-				 "<button id='bt_execute' title='Run' style='margin-top: 15px; margin-bottom: 15px; margin-right: 15px; display: inline-block;' onclick='querySQL();'><img src='images/play.png' style='vertical-align: middle;'/></button>" +
-				 "<select id='sel_filtered_data_" + v_tab.id + "'><option value='-3' >Script</option><option value='-2' >Execute</option><option selected='selected' value='10' >Query 10 rows</option><option value='100'>Query 100 rows</option><option value='1000'>Query 1000 rows</option><option value='-1'>Query All rows</option></select>" +
-				 "<div id='div_query_info_" + v_tab.id + "' style='display: inline-block; margin-left: 15px; vertical-align: middle;'></div>" +
-				 "<button id='bt_export' title='Export Data' style='margin-top: 15px; margin-bottom: 15px; margin-left: 15px; float: right; display: inline-block;' onclick='exportData();'><img src='images/table_export.png' style='vertical-align: middle;'/></button>" +
-				 "<select id='sel_export_type_" + v_tab.id + "' style='margin-top: 15px; float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='DBF' >DBF</option></select>" +
-				 "<div id='div_result_" + v_tab.id + "' style='width: 100%; height: 250px; overflow: auto;'></div>";
-
-	var v_div = document.getElementById('div_' + v_tab.id);
-	v_div.innerHTML = v_html;
-
-	var v_height  = $(window).height() - $('#div_result_' + v_tab.id).offset().top - 20;
-
-	document.getElementById('div_result_' + v_tab.id).style.height = v_height + "px"
-
-	var langTools = ace.require("ace/ext/language_tools");
-	var v_editor = ace.edit('txt_query_' + v_tab.id);
-	v_editor.setTheme("ace/theme/" + v_editor_theme);
-	v_editor.session.setMode("ace/mode/sql");
-	v_editor.commands.bindKey(".", "startAutocomplete");
-
-	v_editor.setFontSize(Number(v_editor_font_size));
-
-	v_editor.commands.bindKey("ctrl-space", null);
-
-	document.getElementById('txt_query_' + v_tab.id).onclick = function() {
-
-		v_editor.focus();
-
-	};
-
-
-	var command = {
-		name: "save",
-		bindKey: {
-		      mac: v_keybind_object.v_execute_mac,
-		      win: v_keybind_object.v_execute
-		    },
-		exec: function(){
-		querySQL();
-		}
-	}
-
-	v_editor.commands.addCommand(command);
-
-	var command = {
-		name: "replace",
-		bindKey: {
-		      mac: v_keybind_object.v_replace_mac,
-		      win: v_keybind_object.v_replace
-		    },
-		exec: function(){
-			v_copyPasteObject.v_tabControl.selectTabIndex(0);
-			showFindReplace(v_editor);
-		}
-	}
-
-	v_editor.commands.addCommand(command);
-
-	var qtags = {
-		getCompletions: function(editor, session, pos, prefix, callback) {
-
-			if (v_completer_ready) {
-
-			  	var wordlist = [];
-
-			  	v_completer_ready = false;
-			  	setTimeout(function(){ v_completer_ready = true; }, 1000);
-
-			  	if (prefix!='') {
-
-					execAjax('MainDB.aspx/GetCompletions',
-							JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
-							function(p_return) {
-
-								if (p_return.v_data.length==0)
-									editor.insert('.');
-
-								wordlist = p_return.v_data;
-								callback(null, wordlist);
-
-							},
-							null,
-							'box',
-							false);
-
-				}
-
-			}
-
-		}
-	}
-
-	langTools.setCompleters([qtags]);
-	v_editor.setOptions({enableBasicAutocompletion: true});
-
-	var v_tag = {
-		editor: v_editor,
-		query_info: document.getElementById('div_query_info_' + v_tab.id),
-		div_result: document.getElementById('div_result_' + v_tab.id),
-		sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id),
-		sel_export_type : document.getElementById('sel_export_type_' + v_tab.id)
-	};
-
-	v_tab.tag = v_tag;
-
-	v_tabControl.createTab('+',false,createTab);
-
-}*/
-
-/// <summary>
 /// Shows or hides graph window.
 /// </summary>
 /// <param name="p_mode">Mode.</param>
@@ -854,10 +753,8 @@ function drawGraph(p_graph_type) {
 					v_edge_object.data.source = p_return.v_data.v_edges[i].from;
 					v_edge_object.data.target = p_return.v_data.v_edges[i].to;
 					v_edge_object.data.label = p_return.v_data.v_edges[i].label;
-					//v_edge_object.data.faveColor = '#9dbaea';
-					//v_edge_object.data.arrowColor = '#9dbaea';
-					v_edge_object.data.faveColor = 'white';
-					v_edge_object.data.arrowColor = 'white';
+					v_edge_object.data.faveColor = '#9dbaea';
+					v_edge_object.data.arrowColor = '#9dbaea';
 					v_edges.push(v_edge_object);
 
 	            }
@@ -876,11 +773,10 @@ function drawGraph(p_graph_type) {
 							selector: 'node',
 							style: {
 								'content': 'data(label)',
-								//'text-opacity': 0.5,
+								'text-opacity': 0.5,
 								'text-valign': 'top',
 								'text-halign': 'right',
-								'background-color': '#1e90ff',
-								'color': 'white',
+								'background-color': '#11479e',
 								'text-wrap': 'wrap',
 
 
@@ -1038,7 +934,7 @@ function querySQL() {
 
 						v_query_info.innerHTML = "Response time: " + request_time/1000 + " seconds";
 
-						v_div_result.innerHTML = p_return.v_data;
+						v_div_result.innerHTML = '<div class="query_info">' + p_return.v_data + '</div>';
 
 					}
 					else {

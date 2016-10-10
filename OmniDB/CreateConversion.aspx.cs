@@ -175,7 +175,7 @@ namespace OmniDB
 		/// <param name="p_dst_index">Target connection index in connections list.</param>
 		/// <param name="p_tables_data">Object containing info of each table.</param>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn StartConversion(int p_dst_index, System.Collections.Generic.List<ConversionTableData> p_tables_data)
+		public static AjaxReturn StartConversion(int p_src_index, int p_dst_index, System.Collections.Generic.List<ConversionTableData> p_tables_data)
 		{
 			AjaxReturn v_return = new AjaxReturn ();
 
@@ -198,11 +198,9 @@ namespace OmniDB
 			else
 				v_next_id = "0";
 
-			OmniDatabase.Generic v_database = v_session.GetSelectedDatabase ();
-
 			v_session.v_omnidb_database.v_connection.Execute ("insert into conversions values ( " +
 				v_next_id + "," +
-				v_database.v_conn_id + "," +
+				v_session.v_databases[p_src_index].v_conn_id + "," +
 				v_session.v_databases[v_dst_index].v_conn_id + "," +
 				"'','','0','R','',''," + v_session.v_user_id + ",'')");
 

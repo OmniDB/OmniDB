@@ -1,18 +1,6 @@
-﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
-  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDatabase/Oracle.cs">
-    <Files>
-      <File FileName="OmniDB/js/Tree.js" Line="351" Column="43" />
-      <File FileName="OmniDB/Tree.aspx.cs" Line="103" Column="31" />
-      <File FileName="OmniDatabase/PostgreSQL.cs" Line="116" Column="4" />
-      <File FileName="OmniDatabase/Oracle.cs" Line="487" Column="33" />
-      <File FileName="OmniDatabase/SqlServer.cs" Line="122" Column="4" />
-      <File FileName="OmniDatabase/Firebird.cs" Line="116" Column="4" />
-      <File FileName="OmniDatabase/MySQL.cs" Line="110" Column="4" />
-      <File FileName="OmniDB/js/MainDB.js" Line="2661" Column="24" />
-      <File FileName="OmniDB/MainDB.aspx.cs" Line="1289" Column="33" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="firefox" />
+﻿<Properties StartupConfiguration="{63F55D57-D1FF-43E5-929A-029E1DDEBC99}|">
+  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

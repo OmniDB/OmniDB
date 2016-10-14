@@ -203,5 +203,115 @@ namespace OmniDB
 
 		}
 
+        /// <summary>
+        /// Execute the specified SQL string.
+        /// </summary>
+        /// <param name="p_database_index">Database index.</param>
+        /// <param name="p_sql">SQL string.</param>
+        /// <param name="p_loghistory">If set to <c>true</c>, logs the command to the history.</param>
+        /// <param name="p_logmigration">If set to <c>true</c>, logs the command to the migration.</param>
+        public void Execute(int p_database_index, string p_sql, bool p_loghistory, bool p_logmigration) {
+
+            v_databases[p_database_index].v_connection.Execute(p_sql);
+
+            if (p_loghistory)
+                this.LogHistory(p_sql);
+
+            if (p_logmigration)
+                this.LogMigration(p_database_index, p_sql);
+
+        }
+
+        /// <summary>
+        /// Queries the specified SQL string.
+        /// </summary>
+        /// <param name="p_database_index">Database index.</param>
+        /// <param name="p_sql">SQL string.</param>
+        /// <param name="p_loghistory">If set to <c>true</c>, logs the command to the history.</param>
+        /// <param name="p_logmigration">If set to <c>true</c>, logs the command to the migration.</param>
+        public System.Data.DataTable Query(int p_database_index, string p_sql, bool p_loghistory, bool p_logmigration) {
+
+            System.Data.DataTable v_table = v_databases[p_database_index].v_connection.Query(p_sql, "Data");
+
+            if (p_loghistory)
+                this.LogHistory(p_sql);
+
+            if (p_logmigration)
+                this.LogMigration(p_database_index, p_sql);
+
+            return v_table;
+
+        }
+
+        /// <summary>
+        /// Queries the specified SQL string, limited by a number of registers.
+        /// </summary>
+        /// <param name="p_database_index">Database index.</param>
+        /// <param name="p_sql">SQL string.</param>
+        /// <param name="p_count">Number of registers.</param>
+        /// <param name="p_loghistory">If set to <c>true</c>, logs the command to the history.</param>
+        /// <param name="p_logmigration">If set to <c>true</c>, logs the command to the migration.</param>
+        public System.Data.DataTable QueryDataLimited(int p_database_index, string p_sql, int p_count, bool p_loghistory, bool p_logmigration) {
+
+            System.Data.DataTable v_table = v_databases[p_database_index].QueryDataLimited(p_sql, p_count);
+
+            if (p_loghistory)
+                this.LogHistory(p_sql);
+
+            if (p_logmigration)
+                this.LogMigration(p_database_index, p_sql);
+
+            return v_table;
+
+        }
+
+        private void LogHistory(string p_sql) {
+
+            System.Data.DataTable v_command_table;
+
+            int v_numcommands = int.Parse(v_omnidb_database.v_connection.ExecuteScalar("select count(*) from command_list"));
+            if (v_numcommands > 0)
+                v_command_table = v_omnidb_database.v_connection.Query ("select max(cl_in_codigo)+1 as next_id from command_list", "Command List");
+            else
+                v_command_table = v_omnidb_database.v_connection.Query ("select 1 as next_id", "Command List");
+
+            v_omnidb_database.v_connection.Execute ("insert into command_list values ( " +
+                v_user_id + "," +
+                v_command_table.Rows [0] ["next_id"].ToString () + ",'" +
+                p_sql.Replace("'","''") +
+                "','" +
+                DateTime.Now +
+                "')");
+
+        }
+
+        private void LogMigration(int p_database_index, string p_sql) {
+
+            OmniDatabase.Generic v_database = v_databases[p_database_index];
+            System.Data.DataTable v_command_table;
+
+            try
+            {
+                int v_migid = int.Parse(v_database.v_connection.ExecuteScalar("select max(mig_id) from omnidb_migrations where mig_status = 'E'"));
+
+                int v_numcommands = int.Parse(v_database.v_connection.ExecuteScalar("select count(*) from omnidb_mig_commands"));
+                if (v_numcommands > 0)
+                    v_command_table = v_database.v_connection.Query ("select max(cmd_id)+1 as next_id from omnidb_mig_commands", "Command List");
+                else
+                    v_command_table = v_database.v_connection.Query ("select 1 as next_id", "Command List");
+
+                v_database.v_connection.Execute ("insert into omnidb_mig_commands values ( " +
+                    v_migid.ToString() + "," +
+                    v_command_table.Rows [0] ["next_id"].ToString () + ",'" +
+                    DateTime.Now + "','" +
+                    v_user_name + "','" +
+                    p_sql.Replace("'","''") +
+                    "')");
+            }
+            catch
+            {
+            }
+        }
+
 	}
 }

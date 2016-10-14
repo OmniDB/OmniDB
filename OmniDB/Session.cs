@@ -289,18 +289,24 @@ namespace OmniDB
 
             OmniDatabase.Generic v_database = v_databases[p_database_index];
             System.Data.DataTable v_command_table;
+            string v_schema;
+
+            if (v_database.v_has_schema)
+                v_schema = v_database.v_schema + ".";
+            else
+                v_schema = "";
 
             try
             {
-                int v_migid = int.Parse(v_database.v_connection.ExecuteScalar("select max(mig_id) from omnidb_migrations where mig_status = 'E'"));
+                int v_migid = int.Parse(v_database.v_connection.ExecuteScalar("select max(mig_id) from " + v_schema + "omnidb_migrations where mig_status = 'E'"));
 
-                int v_numcommands = int.Parse(v_database.v_connection.ExecuteScalar("select count(*) from omnidb_mig_commands"));
+                int v_numcommands = int.Parse(v_database.v_connection.ExecuteScalar("select count(*) from " + v_schema + "omnidb_mig_commands"));
                 if (v_numcommands > 0)
-                    v_command_table = v_database.v_connection.Query ("select max(cmd_id)+1 as next_id from omnidb_mig_commands", "Command List");
+                    v_command_table = v_database.v_connection.Query ("select max(cmd_id)+1 as next_id from " + v_schema + "omnidb_mig_commands", "Command List");
                 else
                     v_command_table = v_database.v_connection.Query ("select 1 as next_id", "Command List");
 
-                v_database.v_connection.Execute ("insert into omnidb_mig_commands values ( " +
+                v_database.v_connection.Execute ("insert into " + v_schema + "omnidb_mig_commands values ( " +
                     v_migid.ToString() + "," +
                     v_command_table.Rows [0] ["next_id"].ToString () + ",'" +
                     DateTime.Now + "','" +

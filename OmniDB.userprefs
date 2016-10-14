@@ -1,6 +1,11 @@
-﻿<Properties StartupConfiguration="{63F55D57-D1FF-43E5-929A-029E1DDEBC99}|">
-  <MonoDevelop.Ide.Workbench />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+﻿<Properties StartupConfiguration="{63F55D57-D1FF-43E5-929A-029E1DDEBC99}|" StartupItem="OmniDB/OmniDB.csproj">
+  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/Session.cs">
+    <Files>
+      <File FileName="OmniDB/Session.cs" Line="293" Column="13" />
+      <File FileName="OmniDB/MainDB.aspx.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="firefox" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

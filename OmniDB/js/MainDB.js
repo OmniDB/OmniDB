@@ -2456,7 +2456,7 @@ function dropTable(p_node) {
 /// <param name="p_node">Tree node object.</param>
 function dropFunction(p_node) {
 
-	showConfirm('Are you sure you want to drop the function ' + p_node.text + '?',
+	showConfirm('Are you sure you want to drop the function ' + p_node.tag.id + '?',
 				function() {
 
 					dropFunctionConfirm(p_node);
@@ -2471,7 +2471,7 @@ function dropFunction(p_node) {
 /// <param name="p_node">Tree node object.</param>
 function dropProcedure(p_node) {
 
-	showConfirm('Are you sure you want to drop the procedure ' + p_node.text + '?',
+	showConfirm('Are you sure you want to drop the procedure ' + p_node.tag.id + '?',
 				function() {
 
 					dropProcedureConfirm(p_node);
@@ -2528,7 +2528,7 @@ function dropTableConfirm(p_node) {
 function dropFunctionConfirm(p_node) {
 
 	p_node.tag.num_tables = 0;
-	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_function": p_node.text});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_function": p_node.tag.id});
 
 	execAjax('MainDB.aspx/DropFunction',
 				input,
@@ -2554,7 +2554,7 @@ function dropFunctionConfirm(p_node) {
 function dropProcedureConfirm(p_node) {
 
 	p_node.tag.num_tables = 0;
-	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_procedure": p_node.text});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_procedure": p_node.tag.id});
 
 	execAjax('MainDB.aspx/DropProcedure',
 				input,

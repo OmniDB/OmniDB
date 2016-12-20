@@ -32,7 +32,7 @@ $(function () {
 	v_connTabControl = createTabControl('conn_tabs',0,null);
 
 
-	v_connTabControl.createTab('+',false,createConnTab);
+	v_connTabControl.createTab('+',false,createConnTab,false);
 
 	getDatabaseList();
 
@@ -286,7 +286,7 @@ function resizeHorizontalEnd(event) {
 function createConnTab() {
 
 	v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
-	var v_tab = v_connTabControl.createTab('<img src="images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[0].v_alias,true,null,null,null,null);
+	var v_tab = v_connTabControl.createTab('<img src="images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[0].v_alias,true,null,null,null,null,true);
 
 	v_connTabControl.selectTab(v_tab);
 
@@ -317,7 +317,7 @@ function createConnTab() {
 	var v_createTabFunction = function() {
 
 		v_currTabControl.removeTabIndex(v_currTabControl.tabList.length-1);
-		var v_tab = v_currTabControl.createTab('Query',true,null,renameTab,'cm_tab',removeTab);
+		var v_tab = v_currTabControl.createTab('Query',true,null,renameTab,'cm_tab',removeTab,true);
 		v_currTabControl.selectTab(v_tab);
 
 		var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 300px;border: 1px solid #c3c3c3;'></div>" +
@@ -438,7 +438,7 @@ function createConnTab() {
 	var v_createEditDataTabFunction = function(p_table) {
 
 		v_currTabControl.removeTabIndex(v_currTabControl.tabList.length-1);
-		var v_tab = v_currTabControl.createTab('<img src="images/edit_data.png"/> ' + p_table,true,null,null,null,removeTab);
+		var v_tab = v_currTabControl.createTab('<img src="images/edit_data.png"/> ' + p_table,true,null,null,null,removeTab,true);
 		v_currTabControl.selectTab(v_tab);
 
 		var v_html = "<div id='div_edit_data_select_" + v_tab.id + "' class='query_info' style='margin-top: 5px; margin-bottom: 5px; font-size: 14px;'>select * from " + p_table + " t</div>" +
@@ -558,7 +558,7 @@ function createConnTab() {
 	var v_createAlterTableTabFunction = function(p_table) {
 
 		v_currTabControl.removeTabIndex(v_currTabControl.tabList.length-1);
-		var v_tab = v_currTabControl.createTab('<img src="images/table_edit.png"/> ' + p_table,true,null,null,null,removeTab);
+		var v_tab = v_currTabControl.createTab('<img src="images/table_edit.png"/> ' + p_table,true,null,null,null,removeTab,true);
 		v_currTabControl.selectTab(v_tab);
 
 		var v_html = "<span style='margin-left: 10px;'>Table Name: </span><input type='text' id='txt_tableNameAlterTable_" + v_tab.id + "' onchange='changeTableName()' style='margin: 10px;'/>" +

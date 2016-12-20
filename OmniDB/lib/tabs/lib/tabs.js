@@ -1,5 +1,32 @@
 function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
+	// Get an element's exact position
+	function getPosition(el) {
+		var xPos = 0;
+		var yPos = 0;
+
+		while (el) {
+			if (el.tagName == "BODY") {
+				var xScroll = el.scrollLeft || document.documentElement.scrollLeft;
+				var yScroll = el.scrollTop || document.documentElement.scrollTop;
+
+				xPos += (el.offsetLeft - xScroll + el.clientLeft);
+				yPos += (el.offsetTop - yScroll + el.clientTop);
+			}
+			else {
+				xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+				yPos += (el.offsetTop - el.scrollTop + el.clientTop);
+			}
+
+			el = el.offsetParent;
+		}
+
+		return {
+			x: xPos,
+			y: yPos
+		};
+	}
+
 	var v_tabControl = {
 		id: p_div,
 		tabColor: p_tabColor,
@@ -25,10 +52,10 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 			if (this.selectedDiv!=null) {
 				this.selectedDiv.className = 'tab';
-				this.selectedLi.className = '';
+				this.selectedLi.className = 'original';
 			}
 
-			this.tabList[p_index].elementLi.className = 'selected';
+			this.tabList[p_index].elementLi.className = 'original selected';
 
 			this.tabList[p_index].elementDiv.className = 'tab selected_div';
 
@@ -50,10 +77,10 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 				if (this.selectedDiv!=null) {
 					this.selectedDiv.className = 'tab';
-					this.selectedLi.className = '';
+					this.selectedLi.className = 'original';
 				}
 
-				p_tab.elementLi.className = 'selected';
+				p_tab.elementLi.className = 'original selected';
 
 				p_tab.elementDiv.className = 'tab selected_div';
 
@@ -96,7 +123,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 			p_tab.text = p_name;
 
 		},
-		createTab : function(p_name,p_close,p_clickFunction,p_dblClickFunction,p_contextMenu, p_deleteFunction) {
+		createTab : function(p_name,p_close,p_clickFunction,p_dblClickFunction,p_contextMenu, p_deleteFunction, p_isDraggable) {
 
 			var v_control = this;
 			var v_index = this.tabCounter;
@@ -115,11 +142,12 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 				deleteFunction: p_deleteFunction,
 				contextMenu : p_contextMenu,
 				removeTab: function() { v_control.removeTab(this); },
-				renameTab: function(p_name) { v_control.renameTab(this,p_name); }
+				renameTab: function(p_name) { v_control.renameTab(this,p_name); },
+				isDraggable: p_isDraggable
 			};
 
 			if (p_close) {
-				var v_li = createSimpleElement('li',p_div + '_tab' + v_index,null);
+				var v_li = createSimpleElement('li',p_div + '_tab' + v_index,'original');
 
 				var v_img = createImgElement(null,null,'images/tab_close.png');
 				v_img.onclick = function() {
@@ -137,7 +165,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 				v_li.appendChild(v_img);
 			}
 			else {
-				var v_li = createSimpleElement('li',p_div + '_tab' + v_index,null);
+				var v_li = createSimpleElement('li',p_div + '_tab' + v_index,'original');
 				v_li.innerHTML = '<span>' + p_name + '</span>';
 			}
 
@@ -170,6 +198,136 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 				if (v_tab.clickFunction!=null)
 					v_tab.clickFunction();
 			};
+
+						if(typeof p_isDraggable != 'undefined' && p_isDraggable != null && p_isDraggable == true) {
+				v_li.draggable = true;
+
+				function handleDragStart(e) {
+					var v_srcIndex = Array.prototype.indexOf.call(document.querySelectorAll('#' + v_tabControl.id + ' > ul > li'), this);
+					console.log('source index: ' + v_srcIndex);
+					gv_dragSrcTab = v_tabControl.tabList.splice(v_srcIndex, 1)[0];
+
+					gv_dragSrcElement = this;
+					var v_parentElement = gv_dragSrcElement.parentElement;
+
+					setTimeout(function() {//Used because of bug in chrome during dragstart
+							gv_dragSrcElement.style.display = 'none';
+
+							gv_dragSrcElementFake = createSimpleElement('li', null, 'fake')
+							gv_dragSrcElementFake.classList.add('fake');
+							gv_dragSrcElementFake.innerHTML = gv_dragSrcElement.innerHTML;
+							gv_dragSrcElement.parentElement.insertBefore(gv_dragSrcElementFake, gv_dragSrcElement);
+
+							v_parentElement.removeChild(gv_dragSrcElement);
+							v_parentElement.appendChild(gv_dragSrcElement);
+						},
+						10
+					);
+				}
+
+				function handleDragOver(e) {
+					if(e.path.length == 0) {
+						return false;
+					}
+
+					var v_found = false;
+					var v_overElement;
+					for(var i = 0; i < e.path.length && !v_found; i++) {
+						if(typeof e.path[i].classList != 'undefined' && e.path[i].classList != null && e.path[i].classList.length != 0) {
+							for(var j = 0; j < e.path[i].classList.length && !v_found; j++) {
+								if(e.path[i].classList[j] == 'original') {
+									if(e.path[i].parentElement.parentElement.id == gv_dragSrcElement.parentElement.parentElement.id) {
+										v_found = true;
+										v_overElement = e.path[i];
+									}
+								}
+							}
+						}
+					}
+
+					if(!v_found) {
+						return false;
+					}
+
+					if(typeof gv_dragSrcElementFake == 'undefined' || gv_dragSrcElementFake == null) {
+						return false;
+					}
+
+					if((v_overElement.offsetWidth - gv_dragSrcElementFake.offsetWidth) > 0) {
+						v_overElementPosition = getPosition(v_overElement);
+
+						if(e.pageX < (v_overElementPosition.x + ((v_overElement.offsetWidth - gv_dragSrcElementFake.offsetWidth) / 2)) ||
+						   e.pageX > v_overElementPosition.x + (v_overElement.offsetWidth - ((v_overElement.offsetWidth - gv_dragSrcElementFake.offsetWidth) / 2))) {
+						  	return false;
+						}
+					}
+
+					if (e.preventDefault) {
+						e.preventDefault(); // Allows dropping.
+					}
+
+					e.dataTransfer.dropEffect = 'move';  
+					var v_overIndex = Array.prototype.indexOf.call(this.parentElement.childNodes, this);
+					var v_fakeIndex = Array.prototype.indexOf.call(this.parentElement.childNodes, gv_dragSrcElementFake);
+
+					if(v_overIndex < v_fakeIndex) {
+						this.parentElement.insertBefore(gv_dragSrcElementFake, this.parentElement.childNodes[v_overIndex]);
+					}
+					else {
+						this.parentElement.insertBefore(gv_dragSrcElementFake, this.parentElement.childNodes[v_overIndex + 1]);
+					}
+
+					return false;
+				}
+
+				function handleDragEnter(e) {
+					
+				}
+
+				function handleDragLeave(e) {
+					
+				}
+
+				function handleDrop(e) {
+					
+
+					if (e.stopPropagation) {
+						e.stopPropagation(); // stops the browser from redirecting.
+					}
+
+					return false;
+				}
+
+				function handleDragEnd(e) {
+					var v_dragSrcElement = this;
+					var v_parentElement = this.parentElement;
+					var v_fakeIndex = Array.prototype.indexOf.call(document.querySelectorAll('#' + v_tabControl.id + ' > ul > li'), gv_dragSrcElementFake);
+					console.log('dest index: ' + v_fakeIndex);
+
+					v_tabControl.tabList.join();
+					v_tabControl.tabList.splice((v_fakeIndex), 0, gv_dragSrcTab);
+					v_tabControl.tabList.join();
+					console.log(v_tabControl.tabList);
+
+					this.parentElement.removeChild(this);
+					v_dragSrcElement.style.display = 'inline-block';
+					v_parentElement.insertBefore(v_dragSrcElement, v_parentElement.childNodes[v_fakeIndex + 1]);
+
+					[].forEach.call(
+						document.querySelectorAll('.tabs li.fake'),
+						function(element) {
+							element.parentElement.removeChild(element);
+						}
+					);
+				}
+
+				v_li.addEventListener('dragstart', handleDragStart, false);
+				v_li.addEventListener('dragenter', handleDragEnter, false);
+				v_li.addEventListener('dragover', handleDragOver, false);
+				v_li.addEventListener('dragleave', handleDragLeave, false);
+				v_li.addEventListener('drop', handleDrop, false);
+				v_li.addEventListener('dragend', handleDragEnd, false);
+			}
 
 			this.elementUl.appendChild(v_li);
 			this.elementDiv.appendChild(v_div);

@@ -35,6 +35,10 @@
   	margin-left: 5px;
   	cursor: pointer;
   	vertical-align: bottom;
+  	box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border: 2px solid transparent;
 }
 
 .tabs li img {
@@ -60,4 +64,31 @@ opacity: 1.0;
 
 .selected_div {
 	display: block;
+}
+
+.tabs li.original {
+}
+
+.tabs li.fake {
+	opacity: 1.0;
+	background-color: gray;
+}
+
+.tabs li.fake span {
+	color: transparent;
+}
+
+.tabs li.fake img {
+	visibility: hidden;
+}
+
+/* Prevent the text contents of draggable elements from being selectable. */
+[draggable] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Required to make elements draggable in old WebKit */
+  -khtml-user-drag: element;
+  -webkit-user-drag: element;
 }

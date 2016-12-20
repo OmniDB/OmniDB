@@ -36,6 +36,10 @@ $(function () {
 
 	getDatabaseList();
 
+	/*ISRAEL CHAT
+	setTimeout(refreshChatMessages,3000);
+	setInterval(refreshChatMessages, 3000);
+	FIM ISRAEL CHAT*/
 });
 
 /// <summary>
@@ -2983,3 +2987,21 @@ function showColumnSelectionIndexes() {
 	}
 
 }
+
+/*ISRAEL CHAT
+function refreshChatMessages() {
+	execAjax(
+		'../MainDB.aspx/GetMessageList',
+		JSON.stringify({
+			p_page_index: v_pagina_noti,
+			p_num_rows: v_linhas_noti
+		}),
+		function(p_return) {
+			sucessNotifications(p_return.v_data);
+		},
+		null,
+		'box',
+		false
+	); 
+}
+FIM ISRAEL CHAT*/

@@ -445,7 +445,7 @@
   	<div class="div_chat_content">
   	</div>
   	<div class="div_chat_footer">
-  		<textarea style="height: 100%; width: 80%;">
+  		<textarea id="textarea_chat_message">
   		</textarea>
   		<button style="vertical-align: top;">
   			Send

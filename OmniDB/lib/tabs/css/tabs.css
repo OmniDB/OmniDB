@@ -38,12 +38,17 @@
   	box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
-    border: 2px solid transparent;
 }
 
 .tabs li img {
 	vertical-align: middle;
 	margin-left: 6px;
+	user-drag: none; 
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
 }
 
 .tabs li span {

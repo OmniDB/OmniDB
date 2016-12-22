@@ -204,7 +204,6 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 				function handleDragStart(e) {
 					var v_srcIndex = Array.prototype.indexOf.call(document.querySelectorAll('#' + v_tabControl.id + ' > ul > li'), this);
-					console.log('source index: ' + v_srcIndex);
 					gv_dragSrcTab = v_tabControl.tabList.splice(v_srcIndex, 1)[0];
 
 					gv_dragSrcElement = this;
@@ -227,6 +226,10 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 				function handleDragOver(e) {
 					if(e.path.length == 0) {
+						return false;
+					}
+
+					if(typeof gv_dragSrcElement == 'undefined' || gv_dragSrcElement == null) {
 						return false;
 					}
 
@@ -302,12 +305,10 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 					var v_dragSrcElement = this;
 					var v_parentElement = this.parentElement;
 					var v_fakeIndex = Array.prototype.indexOf.call(document.querySelectorAll('#' + v_tabControl.id + ' > ul > li'), gv_dragSrcElementFake);
-					console.log('dest index: ' + v_fakeIndex);
 
 					v_tabControl.tabList.join();
 					v_tabControl.tabList.splice((v_fakeIndex), 0, gv_dragSrcTab);
 					v_tabControl.tabList.join();
-					console.log(v_tabControl.tabList);
 
 					this.parentElement.removeChild(this);
 					v_dragSrcElement.style.display = 'inline-block';
@@ -319,6 +320,10 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 							element.parentElement.removeChild(element);
 						}
 					);
+
+					gv_dragSrcTab = null;
+					gv_dragSrcElement = null;
+					gv_dragSrcElementFake = null;
 				}
 
 				v_li.addEventListener('dragstart', handleDragStart, false);

@@ -36,6 +36,20 @@ $(function () {
 
 	getDatabaseList();
 
+	/*ISRAEL CHAT
+	setTimeout(refreshChatMessages,3000);
+	setInterval(refreshChatMessages, 3000);
+	FIM ISRAEL CHAT*/
+
+	var v_textarea = document.getElementById('textarea_chat_message');
+	v_textarea.value = '';
+	v_textarea.onkeydown = function(event) {
+		if(event.keyCode == 13) {//Enter
+			sendMessage();
+			event.preventDefault();
+			event.stopPropagation();
+		}
+	}
 });
 
 /// <summary>
@@ -2982,4 +2996,28 @@ function showColumnSelectionIndexes() {
 
 	}
 
+}
+
+/*ISRAEL CHAT
+function refreshChatMessages() {
+	execAjax(
+		'../MainDB.aspx/GetMessageList',
+		JSON.stringify({
+			p_page_index: v_pagina_noti,
+			p_num_rows: v_linhas_noti
+		}),
+		function(p_return) {
+			sucessNotifications(p_return.v_data);
+		},
+		null,
+		'box',
+		false
+	); 
+}
+FIM ISRAEL CHAT*/
+
+function sendMessage() {
+	var v_textarea = document.getElementById('textarea_chat_message');
+	console.log(v_textarea.value);
+	v_textarea.value = '';
 }

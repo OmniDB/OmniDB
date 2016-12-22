@@ -618,3 +618,55 @@ a.modal-closer:hover {
 .even_tr {
 	background-color: rgb(234, 237, 249);
 }
+
+#div_chat {
+	position: fixed;
+	bottom: 5px;
+	right: 5px;
+	margin-right: 0px;
+	width: 25%;
+	height: 300px;
+	background-color: yellow;
+	box-sizing: border-box;
+}
+
+.div_chat_header {
+    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;
+    margin: 0px;
+    padding: 0px;
+	height: 50px;
+	width: 100%;
+	text-align: center;
+	box-sizing: border-box;
+	line-height: 50px;
+	color: white;
+	background-color: rgb(74, 104, 150);
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.div_chat_content {
+	height: 65%;
+	width: 100%;
+	text-align: left;
+	overflow: auto;
+	box-sizing: border-box;
+	background: #f6f6f6;
+	color: #4D4D4C;
+}
+
+.div_chat_footer {
+	width: 100%;
+	box-sizing: border-box;
+	border: 1px solid black;
+}
+
+#textarea_chat_message {
+	font-size: 14px;
+	font-weight: normal;
+	resize: none;
+	overflow-y: scroll;
+	width: 80%;
+}

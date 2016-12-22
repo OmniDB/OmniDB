@@ -438,5 +438,20 @@
     <div class="div_loading">
     </div>
 
+  <div id="div_chat">
+  	<div class="div_chat_header">
+  		OmniChat
+  	</div>
+  	<div class="div_chat_content">
+  	</div>
+  	<div class="div_chat_footer">
+  		<textarea id="textarea_chat_message">
+  		</textarea>
+  		<button style="vertical-align: top;" onclick="sendMessage();">
+  			Send
+  		</button>
+  	</div>
+  </div>
+
 </body>
 </html>

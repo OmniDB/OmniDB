@@ -438,20 +438,5 @@
     <div class="div_loading">
     </div>
 
-  <div id="div_chat">
-  	<div class="div_chat_header">
-  		ISSO E UM CHAT
-  	</div>
-  	<div class="div_chat_content">
-  	</div>
-  	<div class="div_chat_footer">
-  		<textarea id="textarea_chat_message">
-  		</textarea>
-  		<button style="vertical-align: top;">
-  			Send
-  		</button>
-  	</div>
-  </div>
-
 </body>
 </html>

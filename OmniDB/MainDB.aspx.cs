@@ -3203,7 +3203,54 @@ namespace OmniDB
 
 			return v_return;
 		}
-		
+
+		/// <summary>
+		/// Sends a message through OmniChat.
+		/// </summary>
+		/// <param name="p_table">Table name.</param>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn SendChatMessage(string p_text)
+		{
+			Session v_session = (Session)System.Web.HttpContext.Current.Session ["DB_SESSION"];
+
+			AjaxReturn v_return = new AjaxReturn ();
+
+			if (v_session == null) 
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			} 
+
+			OmniDatabase.Generic v_database = v_session.v_omnidb_database;
+
+			try {
+				string v_sql = 
+					"insert into messages (" +
+					"    mes_st_text, " +
+					"    mes_dt_timestamp, " +
+					"    user_id " +
+					") values ( " +
+					"  " + p_text + ", " +
+					"    datetime('now'), " +
+					"  " + v_session.v_user_id +
+					");" +
+					"select max(mes_in_code) " +
+					"from messages;";
+
+				int v_messsageCode = int.Parse(v_database.v_connection.ExecuteScalar(v_sql));
+			}
+			catch (Spartacus.Database.Exception e)
+			{
+
+				v_return.v_error = true;
+				v_return.v_data = e.v_message.Replace("<","&lt;").Replace(">","&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			}
+
+			return v_return;
+		}
 	}
 }
 

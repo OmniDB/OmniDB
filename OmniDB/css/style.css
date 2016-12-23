@@ -620,21 +620,23 @@ a.modal-closer:hover {
 }
 
 #div_chat {
+	border: 1px solid #c3c3c3;
+	border-radius: 3px;
 	position: fixed;
 	bottom: 5px;
 	right: 5px;
 	margin-right: 0px;
-	width: 25%;
-	height: 300px;
-	background-color: yellow;
+	width: 400px;
+	height: 350px;
 	box-sizing: border-box;
+	z-index: 100000;
 }
 
 .div_chat_header {
     font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;
     margin: 0px;
     padding: 0px;
-	height: 50px;
+	height: 10%;
 	width: 100%;
 	text-align: center;
 	box-sizing: border-box;
@@ -643,12 +645,13 @@ a.modal-closer:hover {
 	background-color: rgb(74, 104, 150);
     border-top-right-radius: 3px;
     border-top-left-radius: 3px;
+    1px solid #c3c3c3
     font-weight: bold;
     font-size: 14px;
 }
 
 .div_chat_content {
-	height: 65%;
+	height: 75%;
 	width: 100%;
 	text-align: left;
 	overflow: auto;
@@ -659,8 +662,11 @@ a.modal-closer:hover {
 
 .div_chat_footer {
 	width: 100%;
+	height: 15%;
 	box-sizing: border-box;
-	border: 1px solid black;
+	border: 1px solid #c3c3c3;
+	border-radius: 3px;
+	position: relative;
 }
 
 #textarea_chat_message {
@@ -669,4 +675,14 @@ a.modal-closer:hover {
 	resize: none;
 	overflow-y: scroll;
 	width: 80%;
+	position: absolute;
+	height: 70%;
+	top: 10%;
+	left: 5px;
+}
+
+#button_chat_send_message {
+	position: absolute;
+	right: 2.5%;
+	top: 20%;
 }

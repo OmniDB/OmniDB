@@ -447,7 +447,7 @@
   	<div class="div_chat_footer">
   		<textarea id="textarea_chat_message">
   		</textarea>
-  		<button style="vertical-align: top;" onclick="sendMessage();">
+  		<button id="button_chat_send_message" onclick="sendMessage();">
   			Send
   		</button>
   	</div>

@@ -269,6 +269,16 @@ namespace OmniDB
 	}
 
 	/// <summary>
+	/// Chat message.
+	/// </summary>
+	public class ChatMessage
+	{
+		public string v_user_name;
+		public string v_text;
+		public string v_timestamp;
+	}
+
+	/// <summary>
 	/// Main page. Contains the treeview of database components and query area.
 	/// </summary>
 	public partial class MainDB : System.Web.UI.Page
@@ -3205,6 +3215,69 @@ namespace OmniDB
 		}
 
 		/// <summary>
+		/// Get messages to be viewed in OmniChat.
+		/// </summary>
+		/// <param name="p_table">Table name.</param>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn GetChatMessages()
+		{
+			Session v_session = (Session)System.Web.HttpContext.Current.Session["DB_SESSION"];
+
+			AjaxReturn v_return = new AjaxReturn();
+
+			if (v_session == null)
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			}
+
+			OmniDatabase.Generic v_database = v_session.v_omnidb_database;
+			System.Collections.Generic.List<ChatMessage> v_messageList = new System.Collections.Generic.List<ChatMessage>();
+
+			try
+			{
+				string v_sql =
+					"select use.user_name, " +
+					"    mes.mes_st_text, " +
+					"    mes.mes_dt_timestamp " +
+					"from messages mes " +
+					"inner join messages_users meu " +
+					"           on mes.mes_in_code = meu.mes_in_code " +
+					"inner join users use " +
+					"           on mes.user_id = use.user_id " +
+					"where meu.user_id = " + v_session.v_user_id + ";";
+				Console.WriteLine(v_sql);
+
+				System.Data.DataTable v_table = v_database.v_connection.Query(v_sql, "chat_messages");
+
+				if (v_table != null && v_table.Rows.Count > 0)
+				{
+					for (int i = 0; i < v_table.Rows.Count; i++)
+					{
+						ChatMessage v_message = new ChatMessage();
+						v_message.v_user_name = v_table.Rows[i]["user_name"].ToString();
+						v_message.v_text = v_table.Rows[i]["mes_st_text"].ToString();
+						v_message.v_timestamp = v_table.Rows[i]["mes_dt_timestamp"].ToString();
+
+						v_messageList.Add(v_message);
+					}
+				}
+			}
+			catch (Spartacus.Database.Exception e)
+			{
+
+				v_return.v_error = true;
+				v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			}
+
+			v_return.v_data = v_messageList;
+			return v_return;
+		}
+
+		/// <summary>
 		/// Sends a message through OmniChat.
 		/// </summary>
 		/// <param name="p_table">Table name.</param>
@@ -3231,7 +3304,7 @@ namespace OmniDB
 					"    mes_dt_timestamp, " +
 					"    user_id " +
 					") values ( " +
-					"  " + p_text + ", " +
+					"  '" + p_text + "', " +
 					"    datetime('now'), " +
 					"  " + v_session.v_user_id +
 					");" +
@@ -3239,6 +3312,20 @@ namespace OmniDB
 					"from messages;";
 
 				int v_messsageCode = int.Parse(v_database.v_connection.ExecuteScalar(v_sql));
+
+				v_sql =
+					"insert into messages_users (" +
+					"    mes_in_code, " +
+					"    meu_bo_viewed, " +
+					"    user_id " +
+					")" +
+					"select " + v_messsageCode + ", " +
+					"    'N', " +
+					"    use.user_id " +
+					"from users use " +
+					"where use.user_id <> " + v_session.v_user_id + ";";
+
+				v_database.v_connection.Execute(v_sql);
 			}
 			catch (Spartacus.Database.Exception e)
 			{
@@ -3253,4 +3340,3 @@ namespace OmniDB
 		}
 	}
 }
-

@@ -36,10 +36,8 @@ $(function () {
 
 	getDatabaseList();
 
-	/*ISRAEL CHAT
 	setTimeout(refreshChatMessages,3000);
 	setInterval(refreshChatMessages, 3000);
-	FIM ISRAEL CHAT*/
 
 	var v_textarea = document.getElementById('textarea_chat_message');
 	v_textarea.value = '';
@@ -2998,26 +2996,46 @@ function showColumnSelectionIndexes() {
 
 }
 
-/*ISRAEL CHAT
 function refreshChatMessages() {
 	execAjax(
-		'../MainDB.aspx/GetMessageList',
-		JSON.stringify({
-			p_page_index: v_pagina_noti,
-			p_num_rows: v_linhas_noti
-		}),
+		'../MainDB.aspx/GetChatMessages',
+		null,
 		function(p_return) {
-			sucessNotifications(p_return.v_data);
+			console.log(p_return.v_data);
 		},
 		null,
 		'box',
 		false
 	); 
 }
-FIM ISRAEL CHAT*/
 
 function sendMessage() {
 	var v_textarea = document.getElementById('textarea_chat_message');
-	console.log(v_textarea.value);
-	v_textarea.value = '';
+
+	execAjax(
+		'../MainDB.aspx/SendChatMessage',
+		JSON.stringify({
+			p_text: v_textarea.value
+		}),
+		function(p_return) {
+			var v_messageDiv = document.createElement('div');
+
+			var v_messageUser = document.createElement('div');
+			v_messageUser.classList.add('div_message_user');
+			v_messageUser.innerHTML = 'me:';
+			v_messageDiv.appendChild(v_messageUser);
+
+			var v_messageText = document.createElement('div');
+			v_messageText.classList.add('div_message_text');
+			v_messageText.innerHTML = v_textarea.value;
+			v_messageDiv.appendChild(v_messageText);
+
+			document.getElementsByClassName('div_chat_content')[0].appendChild(v_messageDiv);
+
+			v_textarea.value = '';
+		},
+		null,
+		'box',
+		false
+	); 
 }

@@ -654,7 +654,8 @@ a.modal-closer:hover {
 	height: 75%;
 	width: 100%;
 	text-align: left;
-	overflow: auto;
+	overflow-y: auto;
+	overflow-x: hidden;
 	box-sizing: border-box;
 	background: #f6f6f6;
 	color: #4D4D4C;
@@ -685,4 +686,17 @@ a.modal-closer:hover {
 	position: absolute;
 	right: 2.5%;
 	top: 20%;
+}
+
+.div_message_user {
+	display: inline-block;
+	width: 20%;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.div_message_text {
+	display: inline-block;
+	width: 80%;
+	word-wrap: break-word;
 }

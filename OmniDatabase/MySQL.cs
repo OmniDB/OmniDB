@@ -226,7 +226,7 @@ namespace OmniDatabase
 				v_filter = "and lower(c.table_name) = '" + p_table.ToLower() + "' ";
 
 			return v_connection.Query (
-				"select c.table_name as table_name,                        " +
+				"select distinct c.table_name as table_name,               " +
 				"lower(c.column_name) as column_name,                      " +
 				"lower(c.data_type) as data_type,                          " +
 				"c.is_nullable as nullable,                                " +

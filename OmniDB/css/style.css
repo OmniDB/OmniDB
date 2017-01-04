@@ -688,6 +688,10 @@ a.modal-closer:hover {
 	top: 20%;
 }
 
+.div_message {
+	margin: 2.5px 0px;
+}
+
 .div_message_user {
 	display: inline-block;
 	width: 20%;

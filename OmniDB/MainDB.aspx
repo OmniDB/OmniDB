@@ -439,7 +439,7 @@
     </div>
 
   <div id="div_chat">
-  	<div class="div_chat_header">
+  	<div class="div_chat_header" onclick="divChatHeaderClick();">
   		OmniChat
   	</div>
   	<div class="div_chat_content">

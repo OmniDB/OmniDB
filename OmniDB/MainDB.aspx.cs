@@ -273,6 +273,7 @@ namespace OmniDB
 	/// </summary>
 	public class ChatMessage
 	{
+		public int v_message_id;
 		public string v_user_name;
 		public string v_text;
 		public string v_timestamp;
@@ -3217,7 +3218,6 @@ namespace OmniDB
 		/// <summary>
 		/// Get messages to be viewed in OmniChat.
 		/// </summary>
-		/// <param name="p_table">Table name.</param>
 		[System.Web.Services.WebMethod]
 		public static AjaxReturn GetChatMessages()
 		{
@@ -3238,7 +3238,8 @@ namespace OmniDB
 			try
 			{
 				string v_sql =
-					"select use.user_name, " +
+					"select mes.mes_in_code, " +
+					"    use.user_name, " +
 					"    mes.mes_st_text, " +
 					"    mes.mes_dt_timestamp " +
 					"from messages mes " +
@@ -3246,8 +3247,8 @@ namespace OmniDB
 					"           on mes.mes_in_code = meu.mes_in_code " +
 					"inner join users use " +
 					"           on mes.user_id = use.user_id " +
-					"where meu.user_id = " + v_session.v_user_id + ";";
-				Console.WriteLine(v_sql);
+					"where meu.user_id = " + v_session.v_user_id + " " +
+					"  and meu.meu_bo_viewed = 'N';";
 
 				System.Data.DataTable v_table = v_database.v_connection.Query(v_sql, "chat_messages");
 
@@ -3256,6 +3257,7 @@ namespace OmniDB
 					for (int i = 0; i < v_table.Rows.Count; i++)
 					{
 						ChatMessage v_message = new ChatMessage();
+						v_message.v_message_id = int.Parse(v_table.Rows[i]["mes_in_code"].ToString());
 						v_message.v_user_name = v_table.Rows[i]["user_name"].ToString();
 						v_message.v_text = v_table.Rows[i]["mes_st_text"].ToString();
 						v_message.v_timestamp = v_table.Rows[i]["mes_dt_timestamp"].ToString();
@@ -3278,9 +3280,62 @@ namespace OmniDB
 		}
 
 		/// <summary>
+		/// Set messages as viewed by OmniChat.
+		/// </summary>
+		/// <param name="p_message_list">List of messages that were viewed by OmniChat.</param>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn ViewChatMessages(System.Collections.Generic.List<ChatMessage> p_message_list)
+		{
+			Session v_session = (Session)System.Web.HttpContext.Current.Session["DB_SESSION"];
+
+			AjaxReturn v_return = new AjaxReturn();
+
+			if (v_session == null)
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			}
+
+			OmniDatabase.Generic v_database = v_session.v_omnidb_database;
+
+			try
+			{
+				if(p_message_list.Count > 0)
+				{
+					string v_sql =
+						"update messages_users " +
+						"set meu_bo_viewed = 'Y' " +
+						"where user_id = " + v_session.v_user_id + " " +
+						"  and mes_in_code in (";
+
+					for(int i = 0; i < p_message_list.Count; i++)
+					{
+						v_sql += p_message_list[i].v_message_id + ", ";
+					}
+
+					v_sql = v_sql.Remove(v_sql.Length - 2);
+					v_sql += ");";
+
+					v_database.v_connection.Execute(v_sql);
+				}
+			}
+			catch (Spartacus.Database.Exception e)
+			{
+
+				v_return.v_error = true;
+				v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			}
+			
+			return v_return;
+		}
+
+		/// <summary>
 		/// Sends a message through OmniChat.
 		/// </summary>
-		/// <param name="p_table">Table name.</param>
+		/// <param name="p_text">Message text.</param>
 		[System.Web.Services.WebMethod]
 		public static AjaxReturn SendChatMessage(string p_text)
 		{

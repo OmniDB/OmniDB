@@ -36,8 +36,8 @@ $(function () {
 
 	getDatabaseList();
 
-	setTimeout(refreshChatMessages,3000);
-	setInterval(refreshChatMessages, 3000);
+	setTimeout(refreshChatMessages, 5000);
+	setInterval(refreshChatMessages, 5000);
 
 	var v_textarea = document.getElementById('textarea_chat_message');
 	v_textarea.value = '';
@@ -3001,7 +3001,37 @@ function refreshChatMessages() {
 		'../MainDB.aspx/GetChatMessages',
 		null,
 		function(p_return) {
-			console.log(p_return.v_data);
+			var v_messageList = p_return.v_data
+
+			for(var i = 0; i < v_messageList.length; i++) {
+				var v_messageDiv = document.createElement('div');
+				v_messageDiv.classList.add('div_message');
+
+				var v_messageUser = document.createElement('div');
+				v_messageUser.classList.add('div_message_user');
+				v_messageUser.innerHTML = v_messageList[i].v_user_name;
+				v_messageDiv.appendChild(v_messageUser);
+
+				var v_messageText = document.createElement('div');
+				v_messageText.classList.add('div_message_text');
+				v_messageText.innerHTML = v_messageList[i].v_text;
+				v_messageDiv.appendChild(v_messageText);
+
+				var v_chatContent = document.getElementsByClassName('div_chat_content')[0];
+				v_chatContent.appendChild(v_messageDiv);
+				v_chatContent.scrollTop = v_chatContent.scrollHeight;
+			}
+
+			execAjax(
+				'../MainDB.aspx/ViewChatMessages',
+				JSON.stringify({
+					p_message_list: v_messageList
+				}),
+				null,
+				null,
+				'box',
+				false
+			);
 		},
 		null,
 		'box',
@@ -3019,6 +3049,7 @@ function sendMessage() {
 		}),
 		function(p_return) {
 			var v_messageDiv = document.createElement('div');
+			v_messageDiv.classList.add('div_message');
 
 			var v_messageUser = document.createElement('div');
 			v_messageUser.classList.add('div_message_user');
@@ -3030,7 +3061,9 @@ function sendMessage() {
 			v_messageText.innerHTML = v_textarea.value;
 			v_messageDiv.appendChild(v_messageText);
 
-			document.getElementsByClassName('div_chat_content')[0].appendChild(v_messageDiv);
+			var v_chatContent = document.getElementsByClassName('div_chat_content')[0];
+			v_chatContent.appendChild(v_messageDiv);
+			v_chatContent.scrollTop = v_chatContent.scrollHeight;
 
 			v_textarea.value = '';
 		},
@@ -3038,4 +3071,17 @@ function sendMessage() {
 		'box',
 		false
 	); 
+}
+
+function divChatHeaderClick() {
+	var v_chatContent = document.getElementsByClassName('div_chat_content')[0];
+
+	if(v_chatContent.style.display = '') {
+		v_chatContent.style.display = 'none';
+		document.getElementsByClassName('div_chat_footer')[0].style.display = 'none';
+	}
+	else {
+		v_chatContent.style.display = '';
+		document.getElementsByClassName('div_chat_footer')[0].style.display = '';
+	}
 }

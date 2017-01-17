@@ -3275,6 +3275,36 @@ namespace OmniDB
 				return v_return;
 			}
 
+			try
+			{
+				if(v_messageList.Count > 0)
+				{
+					string v_sql =
+						"update messages_users " +
+						"set meu_bo_viewed = 'Y' " +
+						"where user_id = " + v_session.v_user_id + " " +
+						"  and mes_in_code in (";
+
+					for(int i = 0; i < v_messageList.Count; i++)
+					{
+						v_sql += v_messageList[i].v_message_id + ", ";
+					}
+
+					v_sql = v_sql.Remove(v_sql.Length - 2);
+					v_sql += ");";
+
+					v_database.v_connection.Execute(v_sql);
+				}
+			}
+			catch (Spartacus.Database.Exception e)
+			{
+
+				v_return.v_error = true;
+				v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			}
+
 			v_return.v_data = v_messageList;
 			return v_return;
 		}
@@ -3283,7 +3313,7 @@ namespace OmniDB
 		/// Set messages as viewed by OmniChat.
 		/// </summary>
 		/// <param name="p_message_list">List of messages that were viewed by OmniChat.</param>
-		[System.Web.Services.WebMethod]
+		/*[System.Web.Services.WebMethod]
 		public static AjaxReturn ViewChatMessages(System.Collections.Generic.List<ChatMessage> p_message_list)
 		{
 			Session v_session = (Session)System.Web.HttpContext.Current.Session["DB_SESSION"];
@@ -3330,7 +3360,7 @@ namespace OmniDB
 			}
 			
 			return v_return;
-		}
+		}*/
 
 		/// <summary>
 		/// Sends a message through OmniChat.
@@ -3351,6 +3381,7 @@ namespace OmniDB
 			} 
 
 			OmniDatabase.Generic v_database = v_session.v_omnidb_database;
+			ChatMessage v_message;
 
 			try {
 				string v_sql = 
@@ -3360,7 +3391,7 @@ namespace OmniDB
 					"    user_id " +
 					") values ( " +
 					"  '" + p_text + "', " +
-					"    datetime('now'), " +
+					"    datetime('now', 'localtime'), " +
 					"  " + v_session.v_user_id +
 					");" +
 					"select max(mes_in_code) " +
@@ -3381,6 +3412,18 @@ namespace OmniDB
 					"where use.user_id <> " + v_session.v_user_id + ";";
 
 				v_database.v_connection.Execute(v_sql);
+
+				v_sql = 
+					"select mes_dt_timestamp " +
+					"from messages " +
+					"where mes_in_code = " + v_messsageCode;
+
+				v_message = new ChatMessage();
+				v_message.v_message_id = v_messsageCode;
+				v_message.v_user_name = v_session.v_user_name;
+				v_message.v_text = p_text;
+				v_message.v_timestamp = v_database.v_connection.ExecuteScalar(v_sql);
+
 			}
 			catch (Spartacus.Database.Exception e)
 			{
@@ -3391,6 +3434,7 @@ namespace OmniDB
 				return v_return;
 			}
 
+			v_return.v_data = v_message;
 			return v_return;
 		}
 	}

@@ -439,12 +439,12 @@
     </div>
 
   <div id="div_chat">
-  	<div class="div_chat_header" onclick="divChatHeaderClick();">
+  	<div id="div_chat_header" onclick="clickChatHeader();">
   		OmniChat
   	</div>
-  	<div class="div_chat_content">
+  	<div id="div_chat_content">
   	</div>
-  	<div class="div_chat_footer">
+  	<div id="div_chat_footer">
   		<textarea id="textarea_chat_message">
   		</textarea>
   		<button id="button_chat_send_message" onclick="sendMessage();">

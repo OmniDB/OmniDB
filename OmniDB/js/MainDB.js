@@ -3001,28 +3001,39 @@ function refreshChatMessages() {
 		'../MainDB.aspx/GetChatMessages',
 		null,
 		function(p_return) {
-			var v_messageList = p_return.v_data
+			var v_chatContent = document.getElementById('div_chat_content');
+			var v_messageList = p_return.v_data;
 
 			for(var i = 0; i < v_messageList.length; i++) {
 				var v_messageDiv = document.createElement('div');
 				v_messageDiv.classList.add('div_message');
 
-				var v_messageUser = document.createElement('div');
-				v_messageUser.classList.add('div_message_user');
-				v_messageUser.innerHTML = v_messageList[i].v_user_name;
-				v_messageDiv.appendChild(v_messageUser);
+				var v_lastUser = null;
+				var v_chatMessages = v_chatContent.children;
 
-				var v_messageTime = document.createElement('div');
-				v_messageTime.classList.add('div_message_time');
-				v_messageTime.innerHTML = '(' + v_messageList[i].v_timestamp.substring(11, 16) + ') ';
-				v_messageDiv.appendChild(v_messageTime);
+				for(var j = v_chatMessages.length - 1; j >= 0 && v_lastUser == null; j--) {
+					if(v_chatMessages[j].firstChild.classList.contains('div_message_user')) {
+						v_lastUser = v_chatMessages[j].firstChild.innerHTML;
+					}
+				}
+
+				if(v_lastUser != v_messageList[i].v_user_name) {
+					var v_messageUser = document.createElement('div');
+					v_messageUser.classList.add('div_message_user');
+					v_messageUser.innerHTML = v_messageList[i].v_user_name;
+					v_messageDiv.appendChild(v_messageUser);
+
+					var v_messageTime = document.createElement('div');
+					v_messageTime.classList.add('div_message_time');
+					v_messageTime.innerHTML = '(' + v_messageList[i].v_timestamp.substring(11, 16) + ') ';
+					v_messageDiv.appendChild(v_messageTime);
+				}
 
 				var v_messageText = document.createElement('div');
 				v_messageText.classList.add('div_message_text');
 				v_messageText.innerHTML = v_messageList[i].v_text;
 				v_messageDiv.appendChild(v_messageText);
 
-				var v_chatContent = document.getElementById('div_chat_content');
 				v_chatContent.appendChild(v_messageDiv);
 				v_chatContent.scrollTop = v_chatContent.scrollHeight;
 			}
@@ -3065,7 +3076,7 @@ function sendMessage() {
 				}
 			}
 
-			if(!(v_lastUser == 'me')) {
+			if(v_lastUser != 'me') {
 				var v_messageUser = document.createElement('div');
 				v_messageUser.classList.add('div_message_user');
 				v_messageUser.innerHTML = 'me';

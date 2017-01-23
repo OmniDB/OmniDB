@@ -55,20 +55,20 @@ namespace OmniDatabase
 			v_create_fk_command = "constraint #p_constraint_name# foreign key (#p_columns#) references #p_r_table_name# (#p_r_columns#) #p_delete_update_rules#";
 			v_create_unique_command = "constraint #p_constraint_name# unique (#p_columns#)";
 
-			v_can_alter_type = false;
+			v_can_alter_type = true;
 
-			v_can_alter_nullable = false;
+			v_can_alter_nullable = true;
 
-			v_can_rename_column = false;
+			v_can_rename_column = true;
 
 			v_can_add_column = true;
 			v_add_column_command = "alter table #p_table_name# add column #p_column_name# #p_data_type# #p_nullable#";
 
-			v_can_drop_column = false;
+			v_can_drop_column = true;
 
-			v_can_add_constraint = false;
+			v_can_add_constraint = true;
 
-			v_can_drop_constraint = false;
+			v_can_drop_constraint = true;
 
 			v_create_index_command = "create index #p_index_name# on #p_table_name# (#p_columns#)";
 			v_create_unique_index_command = "create unique index #p_index_name# on #p_table_name# (#p_columns#)";

@@ -650,8 +650,13 @@ a.modal-closer:hover {
     font-size: 14px;
 }
 
+#div_chat_details {
+	height: 315px;
+	transition: height 0.5s;
+}
+
 #div_chat_content {
-	height: 262.5px;
+	height: 83.33%;
 	width: 100%;
 	text-align: left;
 	overflow-y: auto;
@@ -662,10 +667,10 @@ a.modal-closer:hover {
 }
 
 #div_chat_footer {
+	height: 16.67%;
 	width: 100%;
-	height: 52.5px;
 	box-sizing: border-box;
-	border: 1px solid #c3c3c3;
+	border-top: 1px solid #c3c3c3;
 	border-radius: 3px;
 	position: relative;
 	background: #f6f6f6;
@@ -685,8 +690,9 @@ a.modal-closer:hover {
 
 #button_chat_send_message {
 	position: absolute;
-	right: 2.5%;
+	right: 1.5%;
 	top: 20%;
+	height: 60%;
 }
 
 .div_message {

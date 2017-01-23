@@ -3038,6 +3038,24 @@ function refreshChatMessages() {
 				v_chatContent.scrollTop = v_chatContent.scrollHeight;
 			}
 
+			if(v_messageList.length > 0) {
+				var v_chatDetails = document.getElementById('div_chat_details');
+				if(v_chatDetails.style.height == '0px') {
+					var v_chatHeader = document.getElementById('div_chat_header');
+					messageNotification = setInterval(
+						function() {
+							if(v_chatHeader.style.backgroundColor == 'rgb(74, 104, 150)') {
+								v_chatHeader.style.backgroundColor = 'rgb(255, 147, 15)';
+							}
+							else {
+								v_chatHeader.style.backgroundColor = 'rgb(74, 104, 150)';
+							}
+						},
+						400
+					);
+				}
+			}
+
 			/*execAjax(
 				'../MainDB.aspx/ViewChatMessages',
 				JSON.stringify({
@@ -3107,14 +3125,44 @@ function sendMessage() {
 }
 
 function clickChatHeader() {
-	var v_chatContent = document.getElementById('div_chat_content');
+	var v_chatDetails = document.getElementById('div_chat_details');
 
-	if(v_chatContent.style.display == '') {
-		v_chatContent.style.display = 'none';
-		document.getElementById('div_chat_footer').style.display = 'none';
+	if(v_chatDetails.style.height == '0px') {
+		for(var i = 0; i < v_chatDetails.children.length; i++) {
+			v_chatDetails.children[i].style.display = '';
+		}
+
+		setTimeout(
+			function() {
+				document.getElementById('button_chat_send_message').innerHTML = 'Send';
+			},
+			150
+		);
+
+		v_chatDetails.style.height = '315px';
+		document.getElementById('div_chat_header').style.backgroundColor = 'rgb(74, 104, 150)';
+
+		if(typeof messageNotification != 'undefined' && messageNotification != null) {
+			clearInterval(messageNotification);
+		}
 	}
 	else {
-		v_chatContent.style.display = '';
-		document.getElementById('div_chat_footer').style.display = '';
+		v_chatDetails.style.height = '0px';
+
+		setTimeout(
+			function() {
+				for(var i = 0; i < v_chatDetails.children.length; i++) {
+					v_chatDetails.children[i].style.display = 'none';
+				}
+			},
+			350
+		);
+
+		setTimeout(
+			function() {
+				document.getElementById('button_chat_send_message').innerHTML = '';
+			},
+			150
+		);
 	}
 }

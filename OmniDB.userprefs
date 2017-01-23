@@ -1,12 +1,25 @@
 ﻿<Properties StartupConfiguration="{63F55D57-D1FF-43E5-929A-029E1DDEBC99}|" StartupItem="OmniDB/OmniDB.csproj">
   <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/MainDB.aspx">
     <Files>
-      <File FileName="OmniDB/js/MainDB.js" Line="3110" Column="19" />
+      <File FileName="OmniDB/js/MainDB.js" Line="3041" Column="34" />
       <File FileName="OmniDB/MainDB.aspx.cs" Line="1" Column="1" />
-      <File FileName="OmniDB/css/style.css" Line="651" Column="2" />
-      <File FileName="OmniDB/MainDB.aspx" Line="457" Column="8" />
-      <File FileName="OmniDB/Session.cs" Line="26" Column="48" />
+      <File FileName="OmniDB/css/style.css" Line="656" Column="2" />
+      <File FileName="OmniDB/MainDB.aspx" Line="445" Column="31" />
+      <File FileName="OmniDB/Session.cs" Line="1" Column="1" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="OmniDB" expanded="True">
+            <Node name="OmniDB" expanded="True">
+              <Node name="css" expanded="True" />
+              <Node name="js" expanded="True" />
+              <Node name="MainDB.aspx" expanded="True" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="monodevelop" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

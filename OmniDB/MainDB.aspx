@@ -442,15 +442,17 @@
   	<div id="div_chat_header" onclick="clickChatHeader();">
   		OmniChat
   	</div>
-  	<div id="div_chat_content">
-  	</div>
-  	<div id="div_chat_footer">
-  		<textarea id="textarea_chat_message">
-  		</textarea>
-  		<button id="button_chat_send_message" onclick="sendMessage();">
-  			Send
-  		</button>
-  	</div>
+  	<div id="div_chat_details">
+	  	<div id="div_chat_content">
+	  	</div>
+	  	<div id="div_chat_footer">
+	  		<textarea id="textarea_chat_message">
+	  		</textarea>
+	  		<button id="button_chat_send_message" onclick="sendMessage();">
+	  			Send
+	  		</button>
+	  	</div>
+	</div>
   </div>
 
 </body>

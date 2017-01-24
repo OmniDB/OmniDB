@@ -29,6 +29,50 @@ namespace OmniDB
 			this.Response.Redirect("Login.aspx");
 		}
 
+		/// <summary>
+		/// Logging out from the application.
+		/// </summary>
+		/// <returns>The out.</returns>
+		/// <param name="p_username">Username.</param>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn SignOut(string p_userid)
+		{
+			AjaxReturn v_return = new AjaxReturn ();
+
+			Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];
+
+			if (v_session == null) 
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			} 
+
+			// Instantiating tool management database.
+			OmniDatabase.Generic v_omnidb_database = OmniDatabase.Generic.InstantiateDatabase ("","0",
+				"sqlite",
+				"",
+				"",
+				System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Database"].ToString (),
+				"",
+				"",
+				"");
+				
+			try {
+				
+				v_omnidb_database.v_connection.Execute (
+					"update users " +
+					"set online = 0 " +
+					"where user_id = '" + p_userid + "'");
+
+			} catch (Spartacus.Database.Exception e) {
+				v_return.v_error = true;
+				v_return.v_data = e.v_message;
+			}
+
+			return v_return;
+
+		}
 	}
 }
 

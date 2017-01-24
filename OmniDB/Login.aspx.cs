@@ -106,12 +106,18 @@ namespace OmniDB
 							v_pwd = v_user_data.Rows [0] ["password"].ToString ();
 						}
 
-						// If password is correct, instantiate Session and return true.
+						// If password is correct, set user as logged in, instantiate Session and return true.
 						if (v_pwd == p_pwd) {
 
 							Session v_session = new Session (v_user_data.Rows [0] ["user_id"].ToString (), p_username, v_omnidb_database, v_user_data.Rows[0]["theme_name"].ToString(), v_user_data.Rows[0]["theme_type"].ToString(), v_user_data.Rows[0]["theme_id"].ToString(), v_user_data.Rows [0] ["editor_font_size"].ToString ());
 							v_session.v_omnidb_version = System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Version"].ToString ();
 							System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = v_session;
+
+							v_omnidb_database.v_connection.Execute (
+											"update users " +
+											"set online = 1 " +
+											"where user_id = " + v_user_data.Rows [0] ["user_id"]);
+
 							v_return.v_data = true;
 
 						} else {

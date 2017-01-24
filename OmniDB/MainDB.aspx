@@ -54,6 +54,19 @@
 								 v_execute_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ExecuteMac"].ToString() %>",
 								 v_replace: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Replace"].ToString() %>",
 								 v_replace_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ReplaceMac"].ToString() %>" };
+		var v_user_id = "<%= v_session.v_user_id %>";
+
+		function signOut() {
+			execAjax('Logout.aspx/SignOut',
+					JSON.stringify({"p_userid": v_user_id}),
+					function(p_return) {
+
+						window.location.href = 'Logout.aspx'
+
+					},
+					null,
+					'box');
+		}
 
 	</script>
 </head>
@@ -74,7 +87,7 @@
 				<li style="padding-left: 10px; padding-right: 10px; color: #F1F7FF;"><img style="vertical-align: middle; cursor: pointer;" onclick="showConfigUser();" src="images/gear.png"/></li>
 				<li style="padding-right: 10px; color: #F1F7FF;"><img style="vertical-align: middle; cursor: pointer;" onclick="showAbout();" src="images/about.png"/></li>
 				<li style="padding-right: 10px; color: #F1F7FF;"><img style="vertical-align: middle; cursor: pointer;" onclick="showCommandList();" src="images/command_list.png"/></li>
-				<li><a href="Logout.aspx">Logout</a></li>
+				<li><a onclick="signOut();" style="cursor: pointer;">Logout</a></li>
 			</ul>
 		</div>
 	</div>
@@ -443,15 +456,19 @@
   		OmniChat
   	</div>
   	<div id="div_chat_details">
-	  	<div id="div_chat_content">
-	  	</div>
-	  	<div id="div_chat_footer">
-	  		<textarea id="textarea_chat_message">
-	  		</textarea>
-	  		<button id="button_chat_send_message" onclick="sendMessage();">
-	  			Send
-	  		</button>
-	  	</div>
+  		<div id="div_chat_left_panel">
+  		</div>
+  		<div id="div_chat_right_panel">
+		  	<div id="div_chat_content">
+		  	</div>
+		  	<div id="div_chat_footer">
+		  		<textarea id="textarea_chat_message">
+		  		</textarea>
+		  		<button id="button_chat_send_message" onclick="sendMessage();">
+		  			Send
+		  		</button>
+		  	</div>
+		</div>
 	</div>
   </div>
 

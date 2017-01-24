@@ -626,7 +626,7 @@ a.modal-closer:hover {
 	bottom: 11px;
 	right: 13px;
 	margin-right: 0px;
-	width: 400px;
+	width: 600px;
 	box-sizing: border-box;
 	z-index: 100000;
 }
@@ -653,6 +653,20 @@ a.modal-closer:hover {
 #div_chat_details {
 	height: 315px;
 	transition: height 0.5s;
+}
+
+#div_chat_right_panel {
+	height: 100%;
+	width: 66.67%;
+	float: right;
+}
+
+#div_chat_left_panel {
+	height: 100%;
+	width: 33.15%;
+	float: left;
+	border-right: 1px solid #c3c3c3;
+	background: #f6f6f6;
 }
 
 #div_chat_content {
@@ -716,4 +730,22 @@ a.modal-closer:hover {
 	word-wrap: break-word;
 	margin-left: 10px;
 	margin-right: 5px;
+}
+
+.div_user {
+	width: 100%;
+	height: 20px;
+	border-top: 1px solid #c3c3c3;
+}
+
+.div_user:first-child {
+	border-top: 0;
+}
+
+.div_user_name {
+
+}
+
+.div_user_status {
+
 }

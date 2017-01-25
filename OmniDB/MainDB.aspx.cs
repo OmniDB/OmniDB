@@ -280,6 +280,16 @@ namespace OmniDB
 	}
 
 	/// <summary>
+	/// Chat user.
+	/// </summary>
+	public class ChatUser
+	{
+		public int v_user_id;
+		public string v_user_name;
+		public int v_user_online;
+	}
+
+	/// <summary>
 	/// Main page. Contains the treeview of database components and query area.
 	/// </summary>
 	public partial class MainDB : System.Web.UI.Page
@@ -3435,6 +3445,64 @@ namespace OmniDB
 			}
 
 			v_return.v_data = v_message;
+			return v_return;
+		}
+
+		/// <summary>
+		/// Get users to be shown in OmniChat.
+		/// </summary>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn GetChatUsers()
+		{
+			Session v_session = (Session)System.Web.HttpContext.Current.Session["DB_SESSION"];
+
+			AjaxReturn v_return = new AjaxReturn();
+
+			if (v_session == null)
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			}
+
+			OmniDatabase.Generic v_database = v_session.v_omnidb_database;
+			System.Collections.Generic.List<ChatUser> v_userList = new System.Collections.Generic.List<ChatUser>();
+
+			try
+			{
+				string v_sql =
+					"select user_id, " +
+					"       user_name, " +
+					"       online " +
+					"from users " +
+					"order by online desc, user_name";
+
+				System.Data.DataTable v_table = v_database.v_connection.Query(v_sql, "chat_users");
+
+				if (v_table != null && v_table.Rows.Count > 0)
+				{
+					for (int i = 0; i < v_table.Rows.Count; i++)
+					{
+						ChatUser v_user = new ChatUser();
+
+						v_user.v_user_id = int.Parse(v_table.Rows[i]["user_id"].ToString());
+						v_user.v_user_name = v_table.Rows[i]["user_name"].ToString();
+						v_user.v_user_online = int.Parse(v_table.Rows[i]["online"].ToString());
+
+						v_userList.Add(v_user);
+					}
+				}
+			}
+			catch (Spartacus.Database.Exception e)
+			{
+
+				v_return.v_error = true;
+				v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			}
+
+			v_return.v_data = v_userList;
 			return v_return;
 		}
 	}

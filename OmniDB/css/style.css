@@ -667,6 +667,7 @@ a.modal-closer:hover {
 	float: left;
 	border-right: 1px solid #c3c3c3;
 	background: #f6f6f6;
+	overflow-y: auto;
 }
 
 #div_chat_content {
@@ -735,17 +736,22 @@ a.modal-closer:hover {
 .div_user {
 	width: 100%;
 	height: 20px;
-	border-top: 1px solid #c3c3c3;
-}
-
-.div_user:first-child {
-	border-top: 0;
+	border-bottom: 1px solid #c3c3c3;
+	padding: 3px 10px;
+	box-sizing: border-box;
 }
 
 .div_user_name {
-
+	display: inline-block;
+	vertical-align: middle;
+	font-size: 12px;
 }
 
 .div_user_status {
+	display: inline-block;
+	margin-left: 5px;
+}
 
+.div_user_status > img {
+	vertical-align: middle;
 }

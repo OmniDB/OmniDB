@@ -37,11 +37,11 @@
 
 		function signOut() {
 			execAjax('Logout.aspx/SignOut',
-					JSON.stringify({"p_userid": v_user_id}),
+					JSON.stringify({
+						'p_userid': v_user_id
+					}),
 					function(p_return) {
-
 						window.location.href = 'Logout.aspx'
-
 					},
 					null,
 					'box');

@@ -54,19 +54,55 @@
 								 v_execute_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ExecuteMac"].ToString() %>",
 								 v_replace: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Replace"].ToString() %>",
 								 v_replace_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ReplaceMac"].ToString() %>" };
+
 		var v_user_id = "<%= v_session.v_user_id %>";
 
 		function signOut() {
 			execAjax('Logout.aspx/SignOut',
-					JSON.stringify({"p_userid": v_user_id}),
+					JSON.stringify({
+						'p_userid': v_user_id
+					}),
 					function(p_return) {
-
 						window.location.href = 'Logout.aspx'
-
 					},
 					null,
 					'box');
 		}
+
+		$(function () {
+			var v_validNavigation = false;
+
+			// Attach the event keypress to exclude the F5 refresh
+			$(document).keydown(function(e) {
+				var v_key = e.which || e.keyCode;
+
+				if (v_key == 116) {
+					v_validNavigation = true;
+				}
+			});
+
+			// Attach the event click for all links in the page
+			$("a").bind("click", function() {
+				v_validNavigation = true;
+			});
+
+			window.onbeforeunload = function(e) {
+				//if(!v_validNavigation) {
+					//var dialogText = 'Dialog text here';
+					//e.returnValue = dialogText;
+					//console.log(dialogText);
+					//signOut();
+					//return 'hehe';
+				//}
+
+				setTimeout(
+					function() {
+						return 'hehe';
+					},
+					10000
+				);
+			}
+		});
 
 	</script>
 </head>

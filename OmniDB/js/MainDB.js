@@ -3179,7 +3179,6 @@ function refreshChatUsers() {
 			v_chatLeftPanel.innerHTML = '';
 
 			var v_userList = p_return.v_data;
-			console.log(v_userList);
 			for(var i = 0; i < v_userList.length; i++) {
 				var v_userDiv = document.createElement('div');
 				v_userDiv.id = v_userList[i].v_user_id;

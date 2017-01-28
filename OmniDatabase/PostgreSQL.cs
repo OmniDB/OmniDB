@@ -80,6 +80,17 @@ namespace OmniDatabase
 
 			v_drop_index_command = "drop index #p_schema_name#.#p_index_name#";
 
+			v_can_rename_sequence = true;
+
+			v_can_alter_sequence_min_value = true;
+			v_can_alter_sequence_max_value = true;
+			v_can_alter_sequence_curr_value = true;
+			v_can_alter_sequence_increment = true;
+
+			v_create_sequence_command = "create sequence #p_sequence_name# increment #p_increment# minvalue #p_min_value# maxvalue #p_max_value# start #p_curr_value#";
+			v_alter_sequence_command = "alter sequence #p_sequence_name# increment #p_increment# minvalue #p_min_value# maxvalue #p_max_value# restart #p_curr_value#";
+			v_rename_sequence_command = "alter sequence #p_sequence_name# rename to #p_new_sequence_name#";
+
 			v_update_rules = new System.Collections.Generic.List<string> ();
 			v_delete_rules = new System.Collections.Generic.List<string> ();
 
@@ -115,6 +126,7 @@ namespace OmniDatabase
 
 			v_has_functions = true;
             v_has_procedures = false;
+			v_has_sequences = true;
 
 		}
 
@@ -285,7 +297,9 @@ namespace OmniDatabase
 				"KCU1.ORDINAL_POSITION,                                                                           " +
 				"RC.update_rule as update_rule,                                                                   " +
 				"RC.delete_rule as delete_rule                                                                    " +
-				"FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS RC                                               " +
+				"FROM (SELECT *                                                                                   " +
+				"      FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS RC                                         " +
+				"      WHERE lower(RC.constraint_schema) = '" + v_schema.ToLower() + "') RC                       " +
 				"JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU1 ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG " +
 				"AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA                                                " +
 				"AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME                                                    " +
@@ -294,7 +308,6 @@ namespace OmniDatabase
 				"AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA                                         " +
 				"AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME                                             " +
 				"AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION                                                " +
-				"where lower(KCU1.TABLE_SCHEMA) ='" + v_schema.ToLower() + "'                                     " +
 				v_filter +
 				") t                                                                                              " +
 				"order by CONSTRAINT_NAME,                                                                        " +
@@ -526,6 +539,28 @@ namespace OmniDatabase
             return null;
 
         }
+
+		/// <summary>
+		/// Get a datatable with sequences.
+		/// </summary>
+		public override System.Data.DataTable QuerySequences(string p_sequence) {
+
+			string v_filter = "";
+
+			if (p_sequence != null)
+				v_filter = "and lower(sequence_name) = '" + p_sequence.ToLower() + "' ";
+
+			return v_connection.Query(
+				"select lower(sequence_name) as sequence_name,               " +
+				"       minimum_value,                                       " +
+				"       maximum_value,                                       " +
+				"       start_value as current_value,                        " +
+				"       increment                                            " +
+				"from information_schema.sequences                           " +
+				"where lower(sequence_schema) = '" + v_schema.ToLower() + "' " +
+				v_filter, "Sequences");
+
+		}
 
 	}
 }

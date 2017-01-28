@@ -104,6 +104,7 @@ namespace OmniDatabase
 
 			v_has_functions = false;
             v_has_procedures = false;
+			v_has_sequences = false;
 
 		}
 
@@ -376,6 +377,8 @@ namespace OmniDatabase
 				v_all_fks.Columns.Add ("constraint_name");
 				v_all_fks.Columns.Add ("update_rule");
 				v_all_fks.Columns.Add ("delete_rule");
+				v_all_fks.Columns.Add ("table_schema");
+				v_all_fks.Columns.Add ("r_table_schema");
 
 				System.Data.DataTable v_tables = v_connection.Query ("select name as table_name " +
 					"from sqlite_master " +
@@ -396,6 +399,8 @@ namespace OmniDatabase
 						v_fks.Columns.Remove ("seq");
 						v_fks.Columns.Remove ("match");
 						v_fks.Columns.Add ("table_name");
+						v_fks.Columns.Add("table_schema");
+						v_fks.Columns.Add("r_table_schema");
 
 						foreach (System.Data.DataRow v_fk in v_fks.Rows) {
 							
@@ -431,6 +436,8 @@ namespace OmniDatabase
 					v_fks.Columns.Remove ("seq");
 					v_fks.Columns.Remove ("match");
 					v_fks.Columns.Add ("table_name");
+					v_fks.Columns.Add("table_schema");
+					v_fks.Columns.Add("r_table_schema");
 
 					foreach (System.Data.DataRow v_fk in v_fks.Rows) {
 						
@@ -785,6 +792,16 @@ namespace OmniDatabase
             return null;
 
         }
+
+		/// <summary>
+		/// Get a datatable with sequences.
+		/// </summary>
+		public override System.Data.DataTable QuerySequences(string p_sequence)
+		{
+
+			return null;
+
+		}
 
 	}
 }

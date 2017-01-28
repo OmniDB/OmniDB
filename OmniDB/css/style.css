@@ -618,3 +618,7 @@ a.modal-closer:hover {
 .even_tr {
 	background-color: rgb(234, 237, 249);
 }
+
+.changed_input {
+	/*background-color: rgb(255, 251, 215);*/
+}

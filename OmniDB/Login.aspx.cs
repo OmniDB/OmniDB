@@ -49,14 +49,14 @@ namespace OmniDB
 				"sqlite",
 				"",
 				"",
-				System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Database"].ToString (),
+                HttpContext.Current.Server.MapPath(System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Database"].ToString ()),
 				"",
 				"",
 				"");
 
 
 			if (p_username == "admin") {
-				string v_encrypted_pwd = System.IO.File.ReadAllText("config/admin.txt");
+				string v_encrypted_pwd = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("config/admin.txt"));
 
 				string v_pwd;
 				try {

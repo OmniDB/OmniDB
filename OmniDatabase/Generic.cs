@@ -246,6 +246,51 @@ namespace OmniDatabase
         /// </summary>
         public bool v_has_procedures;
 
+		/// <summary>
+		/// If technology supports sequences.
+		/// </summary>
+		public bool v_has_sequences;
+
+		/// <summary>
+		/// ALTER TABLE command to create sequence.
+		/// </summary>
+		public string v_create_sequence_command;
+
+		/// <summary>
+		/// ALTER TABLE command to alter sequence.
+		/// </summary>
+		public string v_alter_sequence_command;
+
+		/// <summary>
+		/// If technology supports renaming sequence with ALTER SEQUENCE commands.
+		/// </summary>
+		public bool v_can_rename_sequence;
+
+		/// <summary>
+		/// ALTER TABLE command to rename sequence.
+		/// </summary>
+		public string v_rename_sequence_command;
+
+		/// <summary>
+		/// If technology supports altering sequence min value.
+		/// </summary>
+		public bool v_can_alter_sequence_min_value;
+
+		/// <summary>
+		/// If technology supports altering sequence min value.
+		/// </summary>
+		public bool v_can_alter_sequence_max_value;
+
+		/// <summary>
+		/// If technology supports altering sequence min value.
+		/// </summary>
+		public bool v_can_alter_sequence_curr_value;
+
+		/// <summary>
+		/// If technology supports altering sequence min value.
+		/// </summary>
+		public bool v_can_alter_sequence_increment;
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="OmniDB.Database.Generic"/> class.
@@ -403,6 +448,11 @@ namespace OmniDatabase
         /// Get procedure definition.
         /// </summary>
         public abstract string GetProcedureDefinition(string p_function);
+
+		/// <summary>
+		/// Get a datatable with sequences.
+		/// </summary>
+		public abstract System.Data.DataTable QuerySequences(string p_sequence);
 
 		/// <summary>
 		/// Count all tables records.

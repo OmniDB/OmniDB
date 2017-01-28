@@ -322,6 +322,37 @@ function getTree(p_div) {
 							}
 						}
 					]
+				},
+				'cm_sequences' : {
+					elements : [
+						{
+							text : 'New Sequence',
+							icon: 'images/text_edit.png',
+							action : function(node) {
+								v_connTabControl.selectedTab.tag.tabControl.tag.createSequenceTab('New Sequence');
+								startAlterSequence('new',null);
+							}
+						}
+					]
+				},
+				'cm_sequence' : {
+					elements : [
+						{
+							text : 'Edit Sequence',
+							icon: 'images/text_edit.png',
+							action : function(node) {
+								v_connTabControl.selectedTab.tag.tabControl.tag.createSequenceTab(node.text);
+								startAlterSequence('alter',node.text);
+							}
+						},
+						{
+							text : 'Drop Sequence',
+							icon: 'images/tab_close.png',
+							action : function(node) {
+								dropSequence(node);
+							}
+						}
+					]
 				}
 			};
 
@@ -355,6 +386,11 @@ function getTree(p_div) {
 
 				if (p_return.v_data.v_database_return.v_has_procedures) {
 					var node_tables = tree.createNode('Procedures',false,'images/gear.png',node2,{ type:'procedure_list', num_tables : 0 },'cm_procedures');
+					node_tables.createChildNode('',true,'images/spin.svg',null,null);
+				}
+
+				if (p_return.v_data.v_database_return.v_has_sequences) {
+					var node_tables = tree.createNode('Sequences',false,'images/sequence_list.png',node2,{ type:'sequence_list', num_tables : 0 },'cm_sequences');
 					node_tables.createChildNode('',true,'images/spin.svg',null,null);
 				}
 
@@ -418,6 +454,9 @@ function refreshTree(node) {
 		else if (node.tag.type=='procedure') {
 			getProcedureFields(node);
 		}
+		else if (node.tag.type=='sequence_list') {
+			getSequences(node);
+		}
 
 }
 
@@ -469,12 +508,14 @@ function getSequences(node) {
 
 				node.setText('Sequences (' + p_return.v_data.length + ')');
 
+				node.tag.num_tables = p_return.v_data.length;
+
 				if (node.childNodes.length > 0)
 					node.removeChildNodes();
 
 		        for (i=0; i<p_return.v_data.length; i++) {
 
-		        	v_node = node.createChildNode(p_return.v_data[i],false,'images/sequence_list.png',{ type:'sequence'},null);
+		        	v_node = node.createChildNode(p_return.v_data[i],false,'images/sequence_list.png',{ type:'sequence'},'cm_sequence');
 
 
 		        }

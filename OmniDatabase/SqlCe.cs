@@ -111,6 +111,7 @@ namespace OmniDatabase
 
 			v_has_functions = false;
             v_has_procedures = false;
+			v_has_sequences = true;
 
         }
 
@@ -452,6 +453,16 @@ namespace OmniDatabase
             return null;
 
         }
+
+		/// <summary>
+		/// Get a datatable with sequences.
+		/// </summary>
+		public override System.Data.DataTable QuerySequences(string p_sequence)
+		{
+
+			return null;
+
+		}
 
     }
 }

@@ -17,6 +17,7 @@
     <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.6"     ></script>
 	<script type="text/javascript" src="js/handsontable.full.js?v1.6"  ></script>
     <script type="text/javascript" src="js/AjaxControl.js?v1.6"        ></script>
+    <script type="text/javascript" src="js/WebSocketControl.js?v1.6"   ></script>
     <script type="text/javascript" src="js/NotificationControl.js?v1.6"></script>
     <script type="text/javascript" src="js/Renderers.js?v1.6"          ></script>
     <script type="text/javascript" src="js/HeaderActions.js?v1.6"      ></script>

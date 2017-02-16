@@ -7,9 +7,12 @@
     <ProjectGuid>{A1E62CD3-3A15-4CC4-8DFA-209DEFD4D446}</ProjectGuid>
     <ReleaseVersion>2.0</ReleaseVersion>
     <OutputType>Exe</OutputType>
+    <AssemblyName>Deps</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Default|AnyCPU' ">
     <OutputPath>.</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <None Include="IKVM.OpenJDK.Beans.dll" />
@@ -41,6 +44,15 @@
     <None Include="sqlite3.dll" />
     <None Include="UCanAccess.dll" />
     <None Include="Spartacus.dll" />
+    <None Include="websocket\log4net.dll" />
+    <None Include="websocket\Newtonsoft.Json.dll" />
+    <None Include="websocket\SuperSocket.Common.dll" />
+    <None Include="websocket\SuperSocket.Dlr.dll" />
+    <None Include="websocket\SuperSocket.Facility.dll" />
+    <None Include="websocket\SuperSocket.ServerManager.dll" />
+    <None Include="websocket\SuperSocket.SocketBase.dll" />
+    <None Include="websocket\SuperSocket.SocketEngine.dll" />
+    <None Include="websocket\SuperSocket.WebSocket.dll" />
   </ItemGroup>
   <Target Name="Build" DependsOnTargets="$(BuildDependsOn)" Outputs="$(TargetPath)" />
 </Project>

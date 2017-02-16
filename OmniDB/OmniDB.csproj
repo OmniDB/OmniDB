@@ -37,6 +37,33 @@
     <Reference Include="Spartacus">
       <HintPath>..\Deps\Spartacus.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\Deps\websocket\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Deps\websocket\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.Common">
+      <HintPath>..\Deps\websocket\SuperSocket.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.Dlr">
+      <HintPath>..\Deps\websocket\SuperSocket.Dlr.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.Facility">
+      <HintPath>..\Deps\websocket\SuperSocket.Facility.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.ServerManager">
+      <HintPath>..\Deps\websocket\SuperSocket.ServerManager.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.SocketBase">
+      <HintPath>..\Deps\websocket\SuperSocket.SocketBase.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.SocketEngine">
+      <HintPath>..\Deps\websocket\SuperSocket.SocketEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.WebSocket">
+      <HintPath>..\Deps\websocket\SuperSocket.WebSocket.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
@@ -405,6 +432,7 @@
     <Content Include="css\themes\dark.css" />
     <Content Include="css\themes\dark-chaos-override.css" />
     <Content Include="css\themes\light.css" />
+    <Content Include="js\WebSocketControl.js" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">

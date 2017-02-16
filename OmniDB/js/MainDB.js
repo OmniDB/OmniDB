@@ -139,7 +139,7 @@ function changeDatabase(p_value) {
 function getDatabaseList() {
 
 	execAjax('MainDB.aspx/GetDatabaseList',
-			null,
+			JSON.stringify({}),
 			function(p_return) {
 
 				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
@@ -1850,7 +1850,7 @@ function deleteCommandList() {
 				function() {
 
 					execAjax('MainDB.aspx/ClearCommandList',
-					null,
+					JSON.stringify({}),
 					function(p_return) {
 
 						hideCommandList();
@@ -1867,7 +1867,7 @@ function deleteCommandList() {
 function showCommandList() {
 
 	execAjax('MainDB.aspx/GetCommandList',
-			null,
+			JSON.stringify({}),
 			function(p_return) {
 
 				$('#div_command_list').show();

@@ -40,7 +40,7 @@ namespace OmniDB
 		/// </summary>
 		protected void Page_Load(object sender, EventArgs e)
 		{
-
+			Console.WriteLine("opa");
 			v_session = (Session)Session ["OMNIDB_SESSION"];
 
 			if (v_session == null) {
@@ -196,6 +196,7 @@ namespace OmniDB
 		[System.Web.Services.WebMethod]
 		public static AjaxReturn GetUsers()
 		{
+			Console.WriteLine("Inicio GetUsers");
 
 			AjaxReturn v_return = new AjaxReturn();
 			UsersData v_return_data = new UsersData ();
@@ -247,6 +248,8 @@ namespace OmniDB
 
 			v_return_data.v_data = v_user_list;
 			v_return_data.v_user_ids = v_user_id_list;
+
+			Console.WriteLine("Fim GetUsers");
 
 			v_return.v_data = v_return_data;
 			return v_return;

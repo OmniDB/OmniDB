@@ -37,7 +37,7 @@ $(function () {
 function getDatabaseList(p_sel_id,p_div) {
 
 	execAjax('MainDB.aspx/GetDatabaseList',
-			null,
+			JSON.stringify({}),
 			function(p_return) {
 				
 				document.getElementById(p_div).innerHTML = p_return.v_data.v_select_html;

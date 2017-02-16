@@ -75,6 +75,7 @@ namespace OmniDB
 		[System.Web.Services.WebMethod]
 		public static AjaxReturn CheckSessionMessage()
 		{
+
 			AjaxReturn v_return = new AjaxReturn();
 
 			string v_message;
@@ -85,7 +86,6 @@ namespace OmniDB
 				v_message = "";
 
 			System.Web.HttpContext.Current.Session ["OMNIDB_ALERT_MESSAGE"] = "";
-			
 
 			v_return.v_data = v_message;
 			return v_return;

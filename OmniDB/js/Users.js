@@ -74,7 +74,7 @@ function saveConfigUser() {
 function newUserConfirm() {
 
 	execAjax('Users.aspx/NewUser',
-			null,
+			JSON.stringify({}),
 			function(p_return) {
 				listUsers();
 			},
@@ -197,7 +197,7 @@ function saveUsers() {
 function listUsers() {
 
 	execAjax('Users.aspx/GetUsers',
-			null,
+			JSON.stringify({}),
 			function(p_return) {
 
 				window.scrollTo(0,0);

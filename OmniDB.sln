@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OmniDatabase", "OmniDatabas
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OmniConversion", "OmniConversion\OmniConversion.csproj", "{5183174C-8D67-4B00-9063-1F7CA100A2B9}"
 EndProject
-Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Deps", "Deps\Deps.mdproj", "{A1E62CD3-3A15-4CC4-8DFA-209DEFD4D446}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deps", "Deps\Deps.csproj", "{A1E62CD3-3A15-4CC4-8DFA-209DEFD4D446}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

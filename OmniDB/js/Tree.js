@@ -235,7 +235,7 @@ function getTree(p_div) {
 
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue('-- Querying Data\nselect t.*\nfrom ' + v_table_name + ' t');
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
-											v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+											renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,node.text);
 
 											//minimizeEditor();
 
@@ -268,7 +268,7 @@ function getTree(p_div) {
 
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue("-- Counting Records\nselect count(*) as count\nfrom " + v_table_name + " t");
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
-											v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+											renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,node.text);
 
 			                				querySQL();
 										}

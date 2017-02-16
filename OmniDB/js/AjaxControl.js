@@ -42,8 +42,8 @@ function endLoading()
 /// <param name="p_loading">Has loading or not.</param>
 function execAjax(p_url,p_data,p_successFunc,p_errorFunc,p_notifMode,p_loading) {
 
-	if (p_loading==null || p_loading==true)
-		startLoading();
+	//if (p_loading==null || p_loading==true)
+	//	startLoading();
 
 	var v_status_img = document.getElementById("ajax_status");
 
@@ -61,8 +61,8 @@ function execAjax(p_url,p_data,p_successFunc,p_errorFunc,p_notifMode,p_loading) 
         	if (v_status_img!=null)
 				v_status_img.src = "images/status_green.png";
 
-        	if (p_loading==null || p_loading==true)
-				endLoading();
+        	//if (p_loading==null || p_loading==true)
+			//	endLoading();
 
         	if (p_return.d.v_error) {
 

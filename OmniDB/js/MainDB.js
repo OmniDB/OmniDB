@@ -82,12 +82,23 @@ function hideFindReplace() {
 /// <param name="p_tab">Tab object.</param>
 function renameTab(p_tab) {
 
-	showConfirm('<input id="tab_name"/ value="' + p_tab.text + '" style="width: 200px;">',
+	showConfirm('<input id="tab_name"/ value="' + p_tab.tag.tab_title_span.innerHTML + '" style="width: 200px;">',
 	            function() {
 
-					p_tab.renameTab(document.getElementById('tab_name').value);
+					renameTabConfirm(p_tab,document.getElementById('tab_name').value);
 
 	            });
+
+}
+
+/// <summary>
+/// Renames tab.
+/// </summary>
+/// <param name="p_tab">Tab object.</param>
+/// <param name="p_name">New name.</param>
+function renameTabConfirm(p_tab, p_name) {
+
+	p_tab.tag.tab_title_span.innerHTML=p_name;
 
 }
 
@@ -97,14 +108,18 @@ function renameTab(p_tab) {
 /// <param name="p_tab">Tab object.</param>
 function removeTab(p_tab) {
 
-	if (p_tab.tag.ht!=null) {
-		p_tab.tag.ht.destroy();
-		p_tab.tag.div_result.innerHTML = '';
-	}
+	showConfirm('Are you sure you want to remove this tab?',
+                function() {
+                	p_tab.removeTab();
+                	if (p_tab.tag.ht!=null) {
+						p_tab.tag.ht.destroy();
+						p_tab.tag.div_result.innerHTML = '';
+					}
 
-	if (p_tab.tag.editor!=null)
-		p_tab.tag.editor.destroy();
-
+					if (p_tab.tag.editor!=null)
+						p_tab.tag.editor.destroy();
+                });
+	
 }
 
 /// <summary>
@@ -317,8 +332,19 @@ function createConnTab() {
 	var v_createTabFunction = function() {
 
 		v_currTabControl.removeTabIndex(v_currTabControl.tabList.length-1);
-		var v_tab = v_currTabControl.createTab('Query',true,null,renameTab,'cm_tab',removeTab,true);
+		var v_tab = v_currTabControl.createTab('<span id="tab_title">Query</span><span id="tab_loading" style="display:none;"><img src="images/spin.svg"/></span><span id="tab_close"><img src="images/tab_close.png"/></span>',false,null,renameTab,'cm_tab',null,true);
 		v_currTabControl.selectTab(v_tab);
+
+		//Adding unique names to spans
+		var v_tab_title_span = document.getElementById('tab_title');
+		v_tab_title_span.id = 'tab_title_' + v_tab.id;
+		var v_tab_loading_span = document.getElementById('tab_loading');
+		v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
+		var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function() {
+			removeTab(v_tab);
+		};
 
 		var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 300px;border: 1px solid #c3c3c3;'></div>" +
 
@@ -426,7 +452,10 @@ function createConnTab() {
 			query_info: document.getElementById('div_query_info_' + v_tab.id),
 			div_result: document.getElementById('div_result_' + v_tab.id),
 			sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id),
-			sel_export_type : document.getElementById('sel_export_type_' + v_tab.id)
+			sel_export_type : document.getElementById('sel_export_type_' + v_tab.id),
+			tab_title_span : v_tab_title_span,
+			tab_loading_span : v_tab_loading_span,
+			tab_close_span : v_tab_close_span
 		};
 
 		v_tab.tag = v_tag;
@@ -948,6 +977,8 @@ function querySQL() {
 
 	var v_sql_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
 	var v_sel_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value;
+	var v_tab_loading_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_loading_span;
+	var v_tab_close_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_close_span;
 
 	if (v_sql_value=='') {
 		showAlert('Please provide a string.');
@@ -956,6 +987,9 @@ function querySQL() {
 		var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value});
 
 		var start_time = new Date().getTime();
+
+		v_tab_loading_span.style.display = '';
+		v_tab_close_span.style.display = 'none';
 
 		execAjax('MainDB.aspx/QuerySQL',
 				input,
@@ -1034,6 +1068,9 @@ function querySQL() {
 						});
 
 					}
+
+					v_tab_loading_span.style.display = 'none';
+					v_tab_close_span.style.display = '';
 
 				},
 				null,

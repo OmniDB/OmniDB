@@ -2,20 +2,8 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/MainDB.aspx">
     <Files>
       <File FileName="OmniDB/MainDB.aspx" Line="100" Column="21" />
-      <File FileName="OmniDB/js/MainDB.js" Line="3181" Column="37" />
+      <File FileName="OmniDB/js/MainDB.js" Line="1" Column="1" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State name="__root__">
-          <Node name="OmniDB" expanded="True">
-            <Node name="OmniDB" expanded="True">
-              <Node name="js" expanded="True" />
-              <Node name="MainDB.aspx" expanded="True" selected="True" />
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="monodevelop" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

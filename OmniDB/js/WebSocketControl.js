@@ -51,11 +51,16 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 	return v_connection;
 }
 
-function sendWebSocketMessage(p_connection, p_message) {
+function sendWebSocketMessage(p_connection, p_messageCode, p_messageData) {
 	waitForSocketConnection(
 		p_connection,
 		function() {
-			p_connection.send(JSON.stringify(p_message));
+			p_connection.send(
+				JSON.stringify({
+					v_code: p_messageCode,
+					v_data: p_messageData
+				})
+			);
 		}
 	);
 }

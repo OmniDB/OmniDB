@@ -34,28 +34,10 @@
 				function(p_return) {
 
 					if (p_return.v_data==true) {
-						if (v_user_name=='admin')
+						if (v_user_name=='admin') {
 							window.open("Users.aspx",'_self');
+						}
 						else {
-							var v_webSocket = createWebSocket(
-								'ws://localhost',
-								2011,
-								function(p_event) {
-									alert('porra');
-								},
-								function(p_event) {
-									alert('mensagem');
-								},
-								function(p_event) {
-									alert('fechou');
-								},
-								function(p_event) {
-									alert('errou');
-								}
-							);
-
-							sendWebSocketMessage(v_webSocket, '1');
-
 							window.open("Connections.aspx",'_self');
 						}
 					}

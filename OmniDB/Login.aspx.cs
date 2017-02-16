@@ -27,6 +27,15 @@ namespace OmniDB
 	}
 
 	/// <summary>
+	/// Data structure used to store data of WebSocket messages.
+	/// </summary>
+	public class WebSocketMessage
+	{
+		public int v_code;
+		public Object v_data;
+	}
+
+	/// <summary>
 	/// Page to log into the application.
 	/// </summary>
 	public partial class Login : System.Web.UI.Page

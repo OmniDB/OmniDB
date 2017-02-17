@@ -31,14 +31,12 @@ namespace OmniDB
 	/// </summary>
 	public class WebSocketMessage
 	{
-		public int v_user_id;
 		public int v_code;
 		public bool v_error;
 		public Object v_data;
 
 		public WebSocketMessage()
 		{
-			this.v_user_id = 0;
 			this.v_code = 0;
 			this.v_error = false;
 		}
@@ -130,11 +128,6 @@ namespace OmniDB
 							Session v_session = new Session (v_user_data.Rows [0] ["user_id"].ToString (), p_username, v_omnidb_database, v_user_data.Rows[0]["theme_name"].ToString(), v_user_data.Rows[0]["theme_type"].ToString(), v_user_data.Rows[0]["theme_id"].ToString(), v_user_data.Rows [0] ["editor_font_size"].ToString ());
 							v_session.v_omnidb_version = System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Version"].ToString ();
 							System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = v_session;
-
-							v_omnidb_database.v_connection.Execute (
-											"update users " +
-											"set online = 1 " +
-											"where user_id = " + v_user_data.Rows [0] ["user_id"]);
 
 							v_return.v_data = true;
 

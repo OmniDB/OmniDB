@@ -35,18 +35,6 @@
 		var v_editor_font_size = "<%= v_session.v_editor_font_size %>";
 		var v_user_id = "<%= v_session.v_user_id %>";
 
-		function signOut() {
-			execAjax('Logout.aspx/SignOut',
-					JSON.stringify({
-						'p_userid': v_user_id
-					}),
-					function(p_return) {
-						window.location.href = 'Logout.aspx'
-					},
-					null,
-					'box');
-		}
-
     </script>
 </head>
 <body>
@@ -66,7 +54,7 @@
 				<li style="color: #F1F7FF;"><% Response.Write(v_session.v_user_name); %></li>
 				<li style="padding-left: 10px; padding-right: 10px; color: #F1F7FF;"><img style="vertical-align: middle; cursor: pointer;" onclick="showConfigUser();" src="images/gear.png"/></li>
 				<li style="padding-right: 10px; color: #F1F7FF;"><img style="vertical-align: middle; cursor: pointer;" onclick="showAbout();" src="images/about.png"/></li>
-				<li><a onclick="signOut();" style="cursor: pointer;">Logout</a></li>
+				<li><a href="Logout.aspx">Logout</a></li>
 			</ul>
 		</div>
 	</div>

@@ -36,21 +36,6 @@ $(function () {
 
 	getDatabaseList();
 
-	setTimeout(refreshChatMessages, 1500);
-	setInterval(refreshChatMessages, 1500);
-
-	setTimeout(refreshChatUsers, 1500);
-	setInterval(refreshChatUsers, 30000);
-
-	var v_textarea = document.getElementById('textarea_chat_message');
-	v_textarea.value = '';
-	v_textarea.onkeydown = function(event) {
-		if(event.keyCode == 13) {//Enter
-			sendMessage();
-			event.preventDefault();
-			event.stopPropagation();
-		}
-	}
 });
 
 /// <summary>
@@ -3168,50 +3153,4 @@ function clickChatHeader() {
 			150
 		);
 	}
-}
-
-function refreshChatUsers() {
-	execAjax(
-		'../MainDB.aspx/GetChatUsers',
-		null,
-		function(p_return) {
-			var v_chatLeftPanel = document.getElementById('div_chat_left_panel');
-			v_chatLeftPanel.innerHTML = '';
-
-			var v_userList = p_return.v_data;
-			for(var i = 0; i < v_userList.length; i++) {
-				var v_userDiv = document.createElement('div');
-				v_userDiv.id = v_userList[i].v_user_id;
-				v_userDiv.classList.add('div_user');
-
-				var v_userNameDiv = document.createElement('div');
-				v_userNameDiv.classList.add('div_user_name');
-				v_userNameDiv.innerHTML = v_userList[i].v_user_name;
-				v_userDiv.appendChild(v_userNameDiv);
-
-				var v_userStatusDiv = document.createElement('div');
-				v_userStatusDiv.classList.add('div_user_status');
-
-				if(v_userList[i].v_user_online == 1) {
-					var v_userOnline = document.createElement('img');
-					v_userOnline.src = 'images/status_green.png';
-
-					v_userStatusDiv.appendChild(v_userOnline);
-				}
-				else {
-					var v_userOnline = document.createElement('img');
-					v_userOnline.src = 'images/status_red.png';
-
-					v_userStatusDiv.appendChild(v_userOnline);
-				}
-
-				v_userDiv.appendChild(v_userStatusDiv);
-
-				v_chatLeftPanel.appendChild(v_userDiv);
-			}
-		},
-		null,
-		'box',
-		false
-	); 
 }

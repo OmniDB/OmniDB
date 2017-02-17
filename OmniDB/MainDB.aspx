@@ -58,64 +58,110 @@
 
 		var v_user_id = "<%= v_session.v_user_id %>";
 
-		var v_chatWebSocket = createWebSocket(
-			'ws://localhost',
-			2011,
-			null,
-			function(p_event) {
-				console.log(p_event.data);
-			},
-			null,
-			null,
-			v_user_id
-		);
+		var v_chatRequestCodes = {
+			Login: '0',
+			GetOldMessages: '1',
+			ViewMessages: '2',
+			SendMessage: '3'
+		}
 
-		sendWebSocketMessage(v_chatWebSocket, '1', 'kk', false);
+		var v_chatResponseCodes = {
+			OldMessages: '0',
+			NewMessage: '1',
+			UserList: '2'
+		}
 
-		function signOut() {
-			execAjax('Logout.aspx/SignOut',
-					JSON.stringify({
-						'p_userid': v_user_id
-					}),
-					function(p_return) {
-						window.location.href = 'Logout.aspx'
-					},
-					null,
-					'box');
+		var v_chatWebSocket;
+
+		function sendMessage() {
+			
+		}
+
+		function buildUserList(p_userList) {
+			var v_chatLeftPanel = document.getElementById('div_chat_left_panel');
+			v_chatLeftPanel.innerHTML = '';
+
+			var v_userList = p_userList;
+			for(var i = 0; i < v_userList.length; i++) {
+				var v_userDiv = document.createElement('div');
+				v_userDiv.id = v_userList[i].v_user_id;
+				v_userDiv.classList.add('div_user');
+
+				var v_userNameDiv = document.createElement('div');
+				v_userNameDiv.classList.add('div_user_name');
+				v_userNameDiv.innerHTML = v_userList[i].v_user_name;
+				v_userDiv.appendChild(v_userNameDiv);
+
+				var v_userStatusDiv = document.createElement('div');
+				v_userStatusDiv.classList.add('div_user_status');
+
+				if(v_userList[i].v_user_online == 1) {
+					var v_userOnline = document.createElement('img');
+					v_userOnline.src = 'images/status_green.png';
+
+					v_userStatusDiv.appendChild(v_userOnline);
+				}
+				else {
+					var v_userOnline = document.createElement('img');
+					v_userOnline.src = 'images/status_red.png';
+
+					v_userStatusDiv.appendChild(v_userOnline);
+				}
+
+				v_userDiv.appendChild(v_userStatusDiv);
+
+				v_chatLeftPanel.appendChild(v_userDiv);
+			}
 		}
 
 		$(function () {
-			var v_validNavigation = false;
 
-			// Attach the event keypress to exclude the F5 refresh
-			$(document).keydown(function(e) {
-				var v_key = e.which || e.keyCode;
+			v_chatWebSocket  = createWebSocket(
+				'ws://' + window.location.hostname,
+				2011,
+				function(p_event) {//Open
+					sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Login, v_user_id, false);
+				},
+				function(p_event) {//Message
+					var v_message = JSON.parse(p_event.data);
 
-				if (v_key == 116) {
-					v_validNavigation = true;
+					if(v_message.v_error) {
+						return;
+					}
+
+					switch(v_message.v_code) {
+						case parseInt(v_chatResponseCodes.OldMessages): {
+							break;
+						}
+						case parseInt(v_chatResponseCodes.NewMessage): {
+							break;
+						}
+						case parseInt(v_chatResponseCodes.UserList): {
+							buildUserList(v_message.v_data);
+
+							break;
+						}
+						default: {
+							break;
+						}
+					}
+				},
+				function(p_event) {//Close
+					console.log(p_event);
+				},
+				function(p_event) {//Error
+					console.log(p_event);
 				}
-			});
+			);
 
-			// Attach the event click for all links in the page
-			$("a").bind("click", function() {
-				v_validNavigation = true;
-			});
-
-			window.onbeforeunload = function(e) {
-				//if(!v_validNavigation) {
-					//var dialogText = 'Dialog text here';
-					//e.returnValue = dialogText;
-					//console.log(dialogText);
-					//signOut();
-					//return 'hehe';
-				//}
-
-				setTimeout(
-					function() {
-						return 'hehe';
-					},
-					10000
-				);
+			var v_textarea = document.getElementById('textarea_chat_message');
+			v_textarea.value = '';
+			v_textarea.onkeydown = function(event) {
+				if(event.keyCode == 13) {//Enter
+					sendMessage();
+					event.preventDefault();
+					event.stopPropagation();
+				}
 			}
 		});
 
@@ -138,7 +184,7 @@
 				<li style="padding-left: 10px; padding-right: 10px; color: #F1F7FF;"><img style="vertical-align: middle; cursor: pointer;" onclick="showConfigUser();" src="images/gear.png"/></li>
 				<li style="padding-right: 10px; color: #F1F7FF;"><img style="vertical-align: middle; cursor: pointer;" onclick="showAbout();" src="images/about.png"/></li>
 				<li style="padding-right: 10px; color: #F1F7FF;"><img style="vertical-align: middle; cursor: pointer;" onclick="showCommandList();" src="images/command_list.png"/></li>
-				<li><a onclick="signOut();" style="cursor: pointer;">Logout</a></li>
+				<li><a href="Logout.aspx">Logout</a></li>
 			</ul>
 		</div>
 	</div>

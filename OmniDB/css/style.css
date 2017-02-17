@@ -618,3 +618,140 @@ a.modal-closer:hover {
 .even_tr {
 	background-color: rgb(234, 237, 249);
 }
+
+#div_chat {
+	border: 1px solid #c3c3c3;
+	border-radius: 3px;
+	position: fixed;
+	bottom: 11px;
+	right: 13px;
+	margin-right: 0px;
+	width: 500px;
+	box-sizing: border-box;
+	z-index: 100000;
+}
+
+#div_chat_header {
+	cursor: pointer;
+    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;
+    margin: 0px;
+    padding: 0px;
+	height: 35px;
+	width: 100%;
+	text-align: center;
+	box-sizing: border-box;
+	line-height: 35px;
+	color: white;
+	background-color: rgb(74, 104, 150);
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    1px solid #c3c3c3
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#div_chat_details {
+	height: 315px;
+	transition: height 0.5s;
+}
+
+#div_chat_right_panel {
+	height: 100%;
+	width: 74.8%;
+	float: right;
+}
+
+#div_chat_left_panel {
+	height: 100%;
+	width: 25%;
+	float: left;
+	border-right: 1px solid #c3c3c3;
+	background: #f6f6f6;
+	overflow-y: auto;
+}
+
+#div_chat_content {
+	height: 83.33%;
+	width: 100%;
+	text-align: left;
+	overflow-y: auto;
+	overflow-x: hidden;
+	box-sizing: border-box;
+	background: #f6f6f6;
+	color: #4D4D4C;
+}
+
+#div_chat_footer {
+	height: 16.67%;
+	width: 100%;
+	box-sizing: border-box;
+	border-top: 1px solid #c3c3c3;
+	border-radius: 3px;
+	position: relative;
+	background: #f6f6f6;
+}
+
+#textarea_chat_message {
+	font-size: 14px;
+	font-weight: normal;
+	resize: none;
+	overflow-y: scroll;
+	width: 80%;
+	position: absolute;
+	height: 70%;
+	top: 10%;
+	left: 5px;
+}
+
+#button_chat_send_message {
+	position: absolute;
+	right: 1.5%;
+	top: 20%;
+	height: 60%;
+}
+
+.div_message {
+	margin: 2.5px 0px;
+}
+
+.div_message_user {
+	font-weight: bold;
+	margin-left: 5px;
+	display: inline-block;
+}
+
+.div_message_time {
+	color: #9e9ea6;
+	margin-left: 5px;
+	margin-right: 5px;
+	display: inline-block;
+}
+
+.div_message_text {
+	word-wrap: break-word;
+	margin-left: 10px;
+	margin-right: 5px;
+}
+
+.div_user {
+	width: 100%;
+	height: 20px;
+	border-bottom: 1px solid #c3c3c3;
+	padding: 3px 5px;
+	box-sizing: border-box;
+}
+
+.div_user_name {
+	display: inline-block;
+	vertical-align: middle;
+	font-size: 12px;
+}
+
+.div_user_status {
+	display: inline-block;
+	margin-right: 5px;
+}
+
+.div_user_status > img {
+	vertical-align: middle;
+}

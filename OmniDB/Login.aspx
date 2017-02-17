@@ -12,6 +12,7 @@
 	<script type="text/javascript" src="lib/jquery-ui/jquery-ui.js?v1.6"></script>
   	<script type="text/javascript" src="js/NotificationControl.js?v1.6" ></script>
   	<script type="text/javascript" src="js/AjaxControl.js?v1.6"         ></script>
+  	<script type="text/javascript" src="js/WebSocketControl.js?v1.6"    ></script>
 	<script type="text/javascript">
 
 		$(function () {
@@ -29,21 +30,24 @@
 			var v_pwd = document.getElementById('txt_pwd').value;
 
 			execAjax('Login.aspx/SignIn',
-					JSON.stringify({"p_username": v_user_name, "p_pwd": v_pwd}),
-					function(p_return) {
+				JSON.stringify({"p_username": v_user_name, "p_pwd": v_pwd}),
+				function(p_return) {
 
-						if (p_return.v_data==true) {
-							if (v_user_name=='admin')
-								window.open("Users.aspx",'_self');
-							else
-								window.open("Connections.aspx",'_self');
+					if (p_return.v_data==true) {
+						if (v_user_name=='admin') {
+							window.open("Users.aspx",'_self');
 						}
-						else
-							showAlert('Invalid username or password.');
+						else {
+							window.open("Connections.aspx",'_self');
+						}
+					}
+					else
+						showAlert('Invalid username or password.');
 
-					},
-					null,
-					'box');
+				},
+				null,
+				'box'
+			);
 		}
 
 	</script>

@@ -24,6 +24,7 @@
     <script type="text/javascript" src="js/Tree.js?v1.6"                                             ></script>
     <script type="text/javascript" src="js/NotificationControl.js?v1.6"                              ></script>
     <script type="text/javascript" src="js/AjaxControl.js?v1.6"                                      ></script>
+    <script type="text/javascript" src="js/WebSocketControl.js?v1.6"                                 ></script>
     <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.6"                                   ></script>
     <script type="text/javascript" src="lib/aimaraJS/lib/Aimara.js?v1.6"                             ></script>
     <script type="text/javascript" src="lib/ace/ace.js?v1.6"                                         ></script>
@@ -32,6 +33,7 @@
 	<script type="text/javascript" src="js/Renderers.js?v1.6"                                        ></script>
     <script type="text/javascript" src="js/HeaderActions.js?v1.6"                                    ></script>
     <script type="text/javascript" src="js/MainDB.js?v1.6"                                           ></script>
+    <script type="text/javascript" src="js/ChatClient.js?v1.6"                                       ></script>
 
 	<script type="text/javascript">
 
@@ -54,6 +56,8 @@
 								 v_execute_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ExecuteMac"].ToString() %>",
 								 v_replace: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.Replace"].ToString() %>",
 								 v_replace_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ReplaceMac"].ToString() %>" };
+
+		var v_user_id = "<%= v_session.v_user_id %>";
 
 	</script>
 </head>
@@ -437,6 +441,27 @@
 
     <div class="div_loading">
     </div>
+
+  <div id="div_chat">
+  	<div id="div_chat_header" onclick="clickChatHeader();">
+  		OmniChat
+  	</div>
+  	<div id="div_chat_details">
+  		<div id="div_chat_left_panel">
+  		</div>
+  		<div id="div_chat_right_panel">
+		  	<div id="div_chat_content">
+		  	</div>
+		  	<div id="div_chat_footer">
+		  		<textarea id="textarea_chat_message">
+		  		</textarea>
+		  		<button id="button_chat_send_message" onclick="sendMessage();">
+		  			Send
+		  		</button>
+		  	</div>
+		</div>
+	</div>
+  </div>
 
 </body>
 </html>

@@ -3203,7 +3203,5 @@ namespace OmniDB
 
 			return v_return;
 		}
-		
 	}
 }
-

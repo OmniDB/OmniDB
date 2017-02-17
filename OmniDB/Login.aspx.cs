@@ -13,6 +13,7 @@ You should have received a copy of the GNU General Public License along with Omn
 using System;
 using System.Web;
 using System.Web.UI;
+using System.Collections.Generic;
 
 namespace OmniDB
 {
@@ -83,7 +84,6 @@ namespace OmniDB
 						v_session.v_omnidb_version = System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Version"].ToString ();
 						System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = v_session;
 						v_return.v_data = true;
-
 					}
 					else {
 						System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = null;
@@ -128,6 +128,11 @@ namespace OmniDB
 							Session v_session = new Session (v_user_data.Rows [0] ["user_id"].ToString (), p_username, v_omnidb_database, v_user_data.Rows[0]["theme_name"].ToString(), v_user_data.Rows[0]["theme_type"].ToString(), v_user_data.Rows[0]["theme_id"].ToString(), v_user_data.Rows [0] ["editor_font_size"].ToString ());
 							v_session.v_omnidb_version = System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Version"].ToString ();
 							System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = v_session;
+
+							if(!((Dictionary<string, Session>)System.Web.HttpContext.Current.Application["OMNIDB_SESSION_LIST"]).ContainsKey(v_session.v_user_id))
+								((Dictionary<string, Session>)System.Web.HttpContext.Current.Application["OMNIDB_SESSION_LIST"]).Add(v_session.v_user_id, v_session);
+							else
+								((Dictionary<string, Session>)System.Web.HttpContext.Current.Application["OMNIDB_SESSION_LIST"])[v_session.v_user_id] = v_session;
 
 							v_return.v_data = true;
 

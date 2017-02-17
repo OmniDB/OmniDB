@@ -22,35 +22,24 @@ namespace OmniDB
 {
 	public class Global : System.Web.HttpApplication
 	{
-		private Dictionary<string, Session> v_httpSessions = new Dictionary<string, Session>();
-		private ChatServer v_chatServer;
-
 		protected void Application_Start (Object sender, EventArgs e)
 		{
-			//StartChatServer();
-			this.v_chatServer = new ChatServer(2011, this.v_httpSessions);
+			Dictionary<string, Session> v_httpSessions = new Dictionary<string, Session>();
+			System.Web.HttpContext.Current.Application["OMNIDB_SESSION_LIST"] = v_httpSessions;
+
+			ChatServer v_chatServer = new ChatServer(2011, ref v_httpSessions);
 			v_chatServer.Start();
+			System.Web.HttpContext.Current.Application["ChatServer"] = v_chatServer;
 		}
 
 		protected void Application_AcquireRequestState(Object sender, EventArgs e)
 		{
-			if(System.Web.HttpContext.Current != null && System.Web.HttpContext.Current.Session != null)
-			{
-				Session v_httpSession = (Session)System.Web.HttpContext.Current.Session["OMNIDB_SESSION"];
-
-				if(v_httpSession != null)
-				{
-					if(!v_httpSessions.ContainsKey(v_httpSession.v_user_id))
-					{
-						v_httpSessions.Add(v_httpSession.v_user_id, v_httpSession);
-					}
-				}
-			}
+			
 		}
 
 		protected void Session_Start (Object sender, EventArgs e)
 		{
-
+			
 		}
 
 		protected void Application_BeginRequest (Object sender, EventArgs e)
@@ -70,7 +59,7 @@ namespace OmniDB
 
 		protected void Application_Error (Object sender, EventArgs e)
 		{
-
+			
 		}
 
 		protected void Session_End (Object sender, EventArgs e)

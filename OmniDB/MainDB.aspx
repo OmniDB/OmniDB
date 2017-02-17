@@ -33,6 +33,7 @@
 	<script type="text/javascript" src="js/Renderers.js?v1.6"                                        ></script>
     <script type="text/javascript" src="js/HeaderActions.js?v1.6"                                    ></script>
     <script type="text/javascript" src="js/MainDB.js?v1.6"                                           ></script>
+    <script type="text/javascript" src="js/ChatClient.js?v1.6"                                       ></script>
 
 	<script type="text/javascript">
 
@@ -57,113 +58,6 @@
 								 v_replace_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ReplaceMac"].ToString() %>" };
 
 		var v_user_id = "<%= v_session.v_user_id %>";
-
-		var v_chatRequestCodes = {
-			Login: '0',
-			GetOldMessages: '1',
-			ViewMessages: '2',
-			SendMessage: '3'
-		}
-
-		var v_chatResponseCodes = {
-			OldMessages: '0',
-			NewMessage: '1',
-			UserList: '2'
-		}
-
-		var v_chatWebSocket;
-
-		function sendMessage() {
-			
-		}
-
-		function buildUserList(p_userList) {
-			var v_chatLeftPanel = document.getElementById('div_chat_left_panel');
-			v_chatLeftPanel.innerHTML = '';
-
-			var v_userList = p_userList;
-			for(var i = 0; i < v_userList.length; i++) {
-				var v_userDiv = document.createElement('div');
-				v_userDiv.id = v_userList[i].v_user_id;
-				v_userDiv.classList.add('div_user');
-
-				var v_userNameDiv = document.createElement('div');
-				v_userNameDiv.classList.add('div_user_name');
-				v_userNameDiv.innerHTML = v_userList[i].v_user_name;
-				v_userDiv.appendChild(v_userNameDiv);
-
-				var v_userStatusDiv = document.createElement('div');
-				v_userStatusDiv.classList.add('div_user_status');
-
-				if(v_userList[i].v_user_online == 1) {
-					var v_userOnline = document.createElement('img');
-					v_userOnline.src = 'images/status_green.png';
-
-					v_userStatusDiv.appendChild(v_userOnline);
-				}
-				else {
-					var v_userOnline = document.createElement('img');
-					v_userOnline.src = 'images/status_red.png';
-
-					v_userStatusDiv.appendChild(v_userOnline);
-				}
-
-				v_userDiv.appendChild(v_userStatusDiv);
-
-				v_chatLeftPanel.appendChild(v_userDiv);
-			}
-		}
-
-		$(function () {
-
-			v_chatWebSocket  = createWebSocket(
-				'ws://' + window.location.hostname,
-				2011,
-				function(p_event) {//Open
-					sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Login, v_user_id, false);
-				},
-				function(p_event) {//Message
-					var v_message = JSON.parse(p_event.data);
-
-					if(v_message.v_error) {
-						return;
-					}
-
-					switch(v_message.v_code) {
-						case parseInt(v_chatResponseCodes.OldMessages): {
-							break;
-						}
-						case parseInt(v_chatResponseCodes.NewMessage): {
-							break;
-						}
-						case parseInt(v_chatResponseCodes.UserList): {
-							buildUserList(v_message.v_data);
-
-							break;
-						}
-						default: {
-							break;
-						}
-					}
-				},
-				function(p_event) {//Close
-					console.log(p_event);
-				},
-				function(p_event) {//Error
-					console.log(p_event);
-				}
-			);
-
-			var v_textarea = document.getElementById('textarea_chat_message');
-			v_textarea.value = '';
-			v_textarea.onkeydown = function(event) {
-				if(event.keyCode == 13) {//Enter
-					sendMessage();
-					event.preventDefault();
-					event.stopPropagation();
-				}
-			}
-		});
 
 	</script>
 </head>

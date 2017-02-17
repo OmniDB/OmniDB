@@ -52,6 +52,13 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 	return v_connection;
 }
 
+/// <summary>
+/// Sends a message through the websocket connection to the server.
+/// </summary>
+/// <param name="p_connection">The websocket object that corresponds to the connection.</param>
+/// <param name="p_messageCode">Transaction code that identify the operation.</param>
+/// <param name="p_messageData">A object that will be send to the server.</param>
+/// <param name="p_error">If it's an error message.</param>
 function sendWebSocketMessage(p_connection, p_messageCode, p_messageData, p_error) {
 	waitForSocketConnection(
 		p_connection,
@@ -67,6 +74,11 @@ function sendWebSocketMessage(p_connection, p_messageCode, p_messageData, p_erro
 	);
 }
 
+/// <summary>
+/// Do something when the connection is opened
+/// </summary>
+/// <param name="p_connection">The websocket object that corresponds to the connection.</param>
+/// <param name="p_callback">The callback that contains somenthing to be done.</param>
 function waitForSocketConnection(p_connection, p_callback){
 	setTimeout(
 		function () {

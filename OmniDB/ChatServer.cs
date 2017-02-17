@@ -29,7 +29,7 @@ namespace OmniDB
 		{
 			Login,
 			GetOldMessages,
-			ViewMessages,
+			ViewMessage,
 			SendMessage
 		}
 
@@ -41,7 +41,7 @@ namespace OmniDB
 			UserList
 		}
 
-		public ChatServer(int p_port, Dictionary<string, Session> p_httpSessions)
+		public ChatServer(int p_port, ref Dictionary<string, Session> p_httpSessions)
 		{
 			this.v_chatSessions = new List<WebSocketSession>();
 			this.v_chatSessionsSyncRoot = new object();
@@ -49,6 +49,9 @@ namespace OmniDB
 			this.v_httpSessions = p_httpSessions;
 		}
 
+		/// <summary>
+		/// Starts the chat websocket server.
+		/// </summary>
 		public void Start()
 		{
 			WebSocketServer v_socketServer = new WebSocketServer();
@@ -76,12 +79,21 @@ namespace OmniDB
 			v_socketServer.Start();
 		}
 
+		/// <summary>
+		/// Handler called when a new client connects to the server.
+		/// </summary>
+		/// <param name="p_webSocketSession">The connection session.</param>
 		private void NewSessionConnected(WebSocketSession p_webSocketSession)
 		{
 			lock(this.v_chatSessionsSyncRoot)
 				this.v_chatSessions.Add(p_webSocketSession);
 		}
 
+		/// <summary>
+		/// Handler called when a new message from a client arrives to the server.
+		/// </summary>
+		/// <param name="p_webSocketSession">The connection session.</param>
+		/// <param name="p_message">The message send by the client session.</param>
 		private void NewMessageReceived(WebSocketSession p_webSocketSession, string p_message)
 		{
 			WebSocketMessage v_request = JsonConvert.DeserializeObject<WebSocketMessage>(p_message);
@@ -97,11 +109,11 @@ namespace OmniDB
 			}
 
 			WebSocketMessage v_response = new WebSocketMessage();
-
+			
 			if(!this.v_httpSessions.ContainsKey(p_webSocketSession.Cookies["user_id"]))
 			{
 				v_response.v_error = true;
-				v_response.v_data = "Session Object was destroyed. Please, restart the application.";
+				v_response.v_data = "kkkkkkkkkkkkk Session Object was destroyed. Please, restart the application.";
 				SendToClient(p_webSocketSession, v_response);
 
 				return;
@@ -112,7 +124,7 @@ namespace OmniDB
 			if(v_httpSession == null) 
 			{
 				v_response.v_error = true;
-				v_response.v_data = "Session Object was destroyed. Please, restart the application.";
+				v_response.v_data = "hahaha Session Object was destroyed. Please, restart the application.";
 				SendToClient(p_webSocketSession, v_response);
 
 				return;
@@ -242,31 +254,20 @@ namespace OmniDB
 					
 					return;
 				}
-				case (int)request.ViewMessages:
+				case (int)request.ViewMessage:
 				{
 					OmniDatabase.Generic v_database = v_httpSession.v_omnidb_database;
-					List<ChatMessage> v_messageList = (List<ChatMessage>)v_request.v_data;
+					ChatMessage v_message = JsonConvert.DeserializeObject<ChatMessage>(v_request.v_data.ToString());
 
 					try
 					{
-						if(v_messageList.Count > 0)
-						{
-							string v_sql =
-								"update messages_users " +
-								"set meu_bo_viewed = 'Y' " +
-								"where user_id = " + v_httpSession.v_user_id + " " +
-								"  and mes_in_code in (";
+						string v_sql =
+							"update messages_users " +
+							"set meu_bo_viewed = 'Y' " +
+							"where user_id = " + v_httpSession.v_user_id + " " +
+							"  and mes_in_code = " + v_message.v_message_id;
 
-							for(int i = 0; i < v_messageList.Count; i++)
-							{
-								v_sql += v_messageList[i].v_message_id + ", ";
-							}
-
-							v_sql = v_sql.Remove(v_sql.Length - 2);
-							v_sql += ");";
-
-							v_database.v_connection.Execute(v_sql);
-						}
+						v_database.v_connection.Execute(v_sql);
 					}
 					catch(Spartacus.Database.Exception e)
 					{
@@ -357,6 +358,11 @@ namespace OmniDB
 			v_sendResponse.Start((Object)p_webSocketSession);*/
 		}
 
+		/// <summary>
+		/// Handler called when a connection is closed.
+		/// </summary>
+		/// <param name="p_webSocketSession">The connection session.</param>
+		/// <param name="p_reason">The reason why connection was closed.</param>
 		private void SessionClosed(WebSocketSession p_webSocketSession, CloseReason p_reason)
 		{
 			lock(v_chatSessionsSyncRoot)
@@ -455,11 +461,20 @@ namespace OmniDB
 			SendToAllClients(v_response);
 		}
 
+		/// <summary>
+		/// Sends a message to the client that generated the request.
+		/// </summary>
+		/// <param name="p_webSocketSession">The connection session.</param>
+		/// <param name="p_message">The message to be send to the client.</param>
 		private void SendToClient(WebSocketSession p_webSocketSession, WebSocketMessage p_message)
 		{
 			p_webSocketSession.Send(JsonConvert.SerializeObject(p_message));
 		}
 
+		/// <summary>
+		/// Sends a message to all clients connected to the server.
+		/// </summary>
+		/// <param name="p_message">The message to be send to the clients.</param>
 		private void SendToAllClients(WebSocketMessage p_message)
 		{
 			lock(this.v_chatSessionsSyncRoot)

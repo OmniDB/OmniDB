@@ -1,39 +1,6 @@
 ﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="/usr/bin/google-chrome-stable" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/js/WebSocketControl.js">
-    <Files>
-<<<<<<< HEAD
-      <File FileName="OmniDB/Login.aspx" Line="1" Column="1" />
-      <File FileName="OmniDB/MainDB.aspx" Line="36" Column="5" />
-      <File FileName="OmniDB/MainDB.aspx.cs" Line="1" Column="1" />
-      <File FileName="OmniDB/js/WebSocketControl.js" Line="1" Column="1" />
-      <File FileName="OmniDB/Login.aspx.cs" Line="1" Column="1" />
-    </Files>
-=======
-      <File FileName="OmniDB/Global.asax.cs" Line="52" Column="1" />
-      <File FileName="OmniDB/ChatServer.cs" Line="88" Column="1" />
-      <File FileName="OmniDB/Login.aspx.cs" Line="34" Column="21" />
-      <File FileName="OmniDB/MainDB.aspx" Line="79" Column="9" />
-      <File FileName="OmniDB/js/WebSocketControl.js" Line="23" Column="26" />
-    </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State name="__root__">
-          <Node name="OmniDB" expanded="True">
-            <Node name="OmniDB" expanded="True">
-              <Node name="js" expanded="True">
-                <Node name="WebSocketControl.js" selected="True" />
-              </Node>
-              <Node name="Global.asax" expanded="True" />
-              <Node name="Login.aspx" expanded="True" />
-              <Node name="MainDB.aspx" expanded="True" />
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
->>>>>>> 08a87050f53d684f0fbd0d40416d58c237125e93
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="monodevelop" />
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

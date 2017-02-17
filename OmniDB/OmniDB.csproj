@@ -433,6 +433,7 @@
     <Content Include="css\themes\dark-chaos-override.css" />
     <Content Include="css\themes\light.css" />
     <Content Include="js\WebSocketControl.js" />
+    <Content Include="js\ChatClient.js" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -551,6 +552,7 @@
     <None Include="databases\northwind.fdb" />
     <None Include="databases\northwind.sdf" />
     <None Include="exported_files\README.txt" />
+    <None Include="WebServer.exe" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OmniDatabase\OmniDatabase.csproj">

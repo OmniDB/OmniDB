@@ -194,7 +194,7 @@ function startChatWebSocket(p_port) {
 			var v_message = JSON.parse(p_event.data);
 
 			if(v_message.v_error) {
-				console.log(v_message);
+				showError('An error message has been received from the server:  <br>' + v_message.v_data);
 				return;
 			}
 
@@ -221,7 +221,6 @@ function startChatWebSocket(p_port) {
 			}
 		},
 		function(p_event) {//Close
-			console.log(p_event);
 			showError('The connection with chat server was closed.<br>WebSocket error code: ' + p_event.code + '.');
 		},
 		function(p_event) {//Error

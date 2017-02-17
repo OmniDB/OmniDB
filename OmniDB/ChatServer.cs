@@ -113,7 +113,7 @@ namespace OmniDB
 			if(!this.v_httpSessions.ContainsKey(p_webSocketSession.Cookies["user_id"]))
 			{
 				v_response.v_error = true;
-				v_response.v_data = "kkkkkkkkkkkkk Session Object was destroyed. Please, restart the application.";
+				v_response.v_data = "Session Object was destroyed. Please, restart the application.";
 				SendToClient(p_webSocketSession, v_response);
 
 				return;
@@ -124,7 +124,7 @@ namespace OmniDB
 			if(v_httpSession == null) 
 			{
 				v_response.v_error = true;
-				v_response.v_data = "hahaha Session Object was destroyed. Please, restart the application.";
+				v_response.v_data = "Session Object was destroyed. Please, restart the application.";
 				SendToClient(p_webSocketSession, v_response);
 
 				return;

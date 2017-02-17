@@ -36,6 +36,8 @@ $(function () {
 
 	getDatabaseList();
 
+	//WebSockets
+	startChatWebSocket(2011);
 });
 
 /// <summary>

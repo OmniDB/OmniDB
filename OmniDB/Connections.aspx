@@ -17,6 +17,7 @@
     <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.6"     ></script>
 	<script type="text/javascript" src="js/handsontable.full.js?v1.6"  ></script>
     <script type="text/javascript" src="js/AjaxControl.js?v1.6"        ></script>
+    <script type="text/javascript" src="js/WebSocketControl.js?v1.6"   ></script>
     <script type="text/javascript" src="js/NotificationControl.js?v1.6"></script>
     <script type="text/javascript" src="js/Renderers.js?v1.6"          ></script>
     <script type="text/javascript" src="js/HeaderActions.js?v1.6"      ></script>
@@ -30,6 +31,7 @@
 		var	v_theme_type = "<%= v_session.v_theme_type %>";
 		var	v_theme_id = "<%= v_session.v_theme_id %>";
 		var v_editor_font_size = "<%= v_session.v_editor_font_size %>";
+		var v_user_id = "<%= v_session.v_user_id %>";
 
     </script>
 

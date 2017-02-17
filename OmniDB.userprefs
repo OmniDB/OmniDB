@@ -2,26 +2,12 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="monodevelop" />
   <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/MainDB.aspx">
     <Files>
-      <File FileName="OmniDB/Login.aspx" Line="39" Column="8" />
-      <File FileName="OmniDB/MainDB.aspx" Line="32" Column="99" />
+      <File FileName="OmniDB/Login.aspx" Line="1" Column="1" />
+      <File FileName="OmniDB/MainDB.aspx" Line="36" Column="5" />
       <File FileName="OmniDB/MainDB.aspx.cs" Line="1" Column="1" />
-      <File FileName="OmniDB/js/WebSocketControl.js" Line="61" Column="8" />
-      <File FileName="OmniDB/Login.aspx.cs" Line="30" Column="29" />
+      <File FileName="OmniDB/js/WebSocketControl.js" Line="1" Column="1" />
+      <File FileName="OmniDB/Login.aspx.cs" Line="1" Column="1" />
     </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State name="__root__">
-          <Node name="OmniDB" expanded="True">
-            <Node name="OmniDB" expanded="True">
-              <Node name="js" expanded="True" />
-              <Node name="Global.asax" expanded="True" />
-              <Node name="Login.aspx" expanded="True" />
-              <Node name="MainDB.aspx" expanded="True" selected="True" />
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

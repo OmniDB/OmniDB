@@ -1,34 +1,30 @@
-<<<<<<< HEAD
-﻿<Properties StartupConfiguration="{63F55D57-D1FF-43E5-929A-029E1DDEBC99}|" StartupItem="OmniDB/OmniDB.csproj">
-  <MonoDevelop.Ide.Workbench />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" PreferredExecutionTarget="/usr/bin/google-chrome-stable" />
-=======
 ﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="monodevelop" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/MainDB.aspx">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="/usr/bin/google-chrome-stable" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/js/WebSocketControl.js">
     <Files>
-      <File FileName="OmniDB/Login.aspx" Line="39" Column="8" />
-      <File FileName="OmniDB/MainDB.aspx" Line="32" Column="99" />
-      <File FileName="OmniDB/MainDB.aspx.cs" Line="1" Column="1" />
-      <File FileName="OmniDB/js/WebSocketControl.js" Line="61" Column="8" />
-      <File FileName="OmniDB/Login.aspx.cs" Line="30" Column="29" />
+      <File FileName="OmniDB/Global.asax.cs" Line="52" Column="1" />
+      <File FileName="OmniDB/ChatServer.cs" Line="88" Column="1" />
+      <File FileName="OmniDB/Login.aspx.cs" Line="34" Column="21" />
+      <File FileName="OmniDB/MainDB.aspx" Line="79" Column="9" />
+      <File FileName="OmniDB/js/WebSocketControl.js" Line="23" Column="26" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="OmniDB" expanded="True">
             <Node name="OmniDB" expanded="True">
-              <Node name="js" expanded="True" />
+              <Node name="js" expanded="True">
+                <Node name="WebSocketControl.js" selected="True" />
+              </Node>
               <Node name="Global.asax" expanded="True" />
               <Node name="Login.aspx" expanded="True" />
-              <Node name="MainDB.aspx" expanded="True" selected="True" />
+              <Node name="MainDB.aspx" expanded="True" />
             </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
->>>>>>> 8a43bd47a3434f5597e9aea4786d7e0e725491ee
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

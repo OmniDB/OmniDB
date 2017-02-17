@@ -19,7 +19,8 @@ You should have received a copy of the GNU General Public License along with Omn
 /// <param name="p_onMessage">On message receive callback.</param>
 /// <param name="p_onClose">On connection close callback.</param>
 /// <param name="p_onError">On connection error callback.</param>
-function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_onError) {
+/// <param name="p_userId">On connection error callback.</param>
+function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_onError, p_userId) {
 	if(typeof p_address == 'undefined' || p_address == null) {
 		return;
 	}
@@ -31,6 +32,7 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 	}
 
 	var v_connection = new WebSocket(p_address + ':' + v_port);
+	v_connection.v_userId = p_userId;
 
 	if(p_onOpen != null && typeof p_onOpen == 'function') {
 		v_connection.onopen = p_onOpen;
@@ -51,13 +53,15 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 	return v_connection;
 }
 
-function sendWebSocketMessage(p_connection, p_messageCode, p_messageData) {
+function sendWebSocketMessage(p_connection, p_messageCode, p_messageData, p_error) {
 	waitForSocketConnection(
 		p_connection,
 		function() {
 			p_connection.send(
 				JSON.stringify({
+					v_user_id: p_connection.v_userId,
 					v_code: p_messageCode,
+					v_error: p_error,
 					v_data: p_messageData
 				})
 			);

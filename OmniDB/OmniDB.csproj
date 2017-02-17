@@ -506,6 +506,7 @@
     <Compile Include="DownloadFile.aspx.designer.cs">
       <DependentUpon>DownloadFile.aspx</DependentUpon>
     </Compile>
+    <Compile Include="ChatServer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

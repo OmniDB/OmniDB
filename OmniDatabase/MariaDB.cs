@@ -226,7 +226,7 @@ namespace OmniDatabase
                 v_filter = "and lower(c.table_name) = '" + p_table.ToLower() + "' ";
 
             return v_connection.Query (
-                "select c.table_name as table_name,                        " +
+                "select distinct c.table_name as table_name,               " +
                 "lower(c.column_name) as column_name,                      " +
                 "lower(c.data_type) as data_type,                          " +
                 "c.is_nullable as nullable,                                " +
@@ -256,7 +256,7 @@ namespace OmniDatabase
                 v_filter = "and lower(i.table_name) = '" + p_table.ToLower() + "' ";
 
             return v_connection.Query (
-                "select lower(i.constraint_name) as constraint_name,                                             " +
+                "select distinct lower(i.constraint_name) as constraint_name,                                             " +
                 "i.table_name as table_name,                                                                     " +
                 "k.referenced_table_name as r_table_name,                                                        " +
                 "lower(k.column_name) as column_name,                                                            " +
@@ -289,7 +289,7 @@ namespace OmniDatabase
                 v_filter = "and lower(k.table_name) = '" + p_table.ToLower() + "' ";
 
             return v_connection.Query (
-                "SELECT concat('pk_',lower(k.table_name)) as constraint_name, " +
+                "SELECT distinct concat('pk_',lower(k.table_name)) as constraint_name, " +
                 "lower(k.column_name) as column_name,                         " +
                 "k.table_name as table_name                                   " +
                 "FROM information_schema.table_constraints t                  " +
@@ -316,7 +316,7 @@ namespace OmniDatabase
                 v_filter = "and lower(k.table_name) = '" + p_table.ToLower() + "' ";
 
             return v_connection.Query (
-                "SELECT lower(k.constraint_name) as constraint_name,     " +
+                "SELECT distinct lower(k.constraint_name) as constraint_name,     " +
                 "lower(k.column_name) as column_name,                    " +
                 "k.table_name as table_name                              " +
                 "FROM information_schema.table_constraints t             " +
@@ -342,7 +342,7 @@ namespace OmniDatabase
                 v_filter = "and lower(t.table_name) = '" + p_table.ToLower() + "' ";
 
             return v_connection.Query (
-                "SELECT t.table_name AS table_name,                      " +
+                "SELECT distinct t.table_name AS table_name,                      " +
                 "lower(t.index_name) AS index_name,                      " +
                 "lower(t.column_name) AS column_name,                    " +
                 "case when t.non_unique = 1 then 'Non Unique'            " +

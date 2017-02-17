@@ -24,6 +24,7 @@
     <script type="text/javascript" src="js/Tree.js?v1.6"                                             ></script>
     <script type="text/javascript" src="js/NotificationControl.js?v1.6"                              ></script>
     <script type="text/javascript" src="js/AjaxControl.js?v1.6"                                      ></script>
+    <script type="text/javascript" src="js/WebSocketControl.js?v1.6"                                 ></script>
     <script type="text/javascript" src="lib/tabs/lib/tabs.js?v1.6"                                   ></script>
     <script type="text/javascript" src="lib/aimaraJS/lib/Aimara.js?v1.6"                             ></script>
     <script type="text/javascript" src="lib/ace/ace.js?v1.6"                                         ></script>
@@ -56,6 +57,19 @@
 								 v_replace_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ReplaceMac"].ToString() %>" };
 
 		var v_user_id = "<%= v_session.v_user_id %>";
+
+		var v_chatWebSocket = createWebSocket(
+			'ws://localhost',
+			2011,
+			null,
+			function(p_event) {
+				console.log(p_event);
+			},
+			null,
+			null
+		);
+
+		sendWebSocketMessage(v_chatWebSocket, '1');
 
 		function signOut() {
 			execAjax('Logout.aspx/SignOut',

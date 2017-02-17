@@ -63,13 +63,14 @@
 			2011,
 			null,
 			function(p_event) {
-				console.log(p_event);
+				console.log(p_event.data);
 			},
 			null,
-			null
+			null,
+			v_user_id
 		);
 
-		sendWebSocketMessage(v_chatWebSocket, '1');
+		sendWebSocketMessage(v_chatWebSocket, '1', 'kk', false);
 
 		function signOut() {
 			execAjax('Logout.aspx/SignOut',

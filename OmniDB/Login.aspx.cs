@@ -31,8 +31,17 @@ namespace OmniDB
 	/// </summary>
 	public class WebSocketMessage
 	{
+		public int v_user_id;
 		public int v_code;
+		public bool v_error;
 		public Object v_data;
+
+		public WebSocketMessage()
+		{
+			this.v_user_id = 0;
+			this.v_code = 0;
+			this.v_error = false;
+		}
 	}
 
 	/// <summary>

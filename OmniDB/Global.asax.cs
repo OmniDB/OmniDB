@@ -12,6 +12,7 @@ You should have received a copy of the GNU General Public License along with Omn
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Web;
 using System.Web.SessionState;
@@ -20,10 +21,12 @@ namespace OmniDB
 {
 	public class Global : System.Web.HttpApplication
 	{
+
 		protected void Application_Start (Object sender, EventArgs e)
 		{
 
 		}
+
 
 		protected void Session_Start (Object sender, EventArgs e)
 		{

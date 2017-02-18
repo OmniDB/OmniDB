@@ -33,6 +33,7 @@
 		var	v_theme_type = "<%= v_session.v_theme_type %>";
 		var	v_theme_id = "<%= v_session.v_theme_id %>";
 		var v_editor_font_size = "<%= v_session.v_editor_font_size %>";
+		var v_user_id = "<%= v_session.v_user_id %>";
 
     </script>
 </head>

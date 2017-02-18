@@ -13,6 +13,7 @@ You should have received a copy of the GNU General Public License along with Omn
 using System;
 using System.Web;
 using System.Web.UI;
+using System.Collections.Generic;
 
 namespace OmniDB
 {
@@ -24,6 +25,22 @@ namespace OmniDB
 		public Object v_data;
 		public bool v_error;
 		public int v_error_id; // 0: Session object is null; 1: Other
+	}
+
+	/// <summary>
+	/// Data structure used to store data of WebSocket messages.
+	/// </summary>
+	public class WebSocketMessage
+	{
+		public int v_code;
+		public bool v_error;
+		public Object v_data;
+
+		public WebSocketMessage()
+		{
+			this.v_code = 0;
+			this.v_error = false;
+		}
 	}
 
 	/// <summary>
@@ -69,7 +86,6 @@ namespace OmniDB
 						v_session.v_omnidb_version = System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Version"].ToString ();
 						System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = v_session;
 						v_return.v_data = true;
-
 					}
 					else {
 						System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = null;
@@ -110,12 +126,18 @@ namespace OmniDB
 							v_pwd = v_user_data.Rows [0] ["password"].ToString ();
 						}
 
-						// If password is correct, instantiate Session and return true.
+						// If password is correct, set user as logged in, instantiate Session and return true.
 						if (v_pwd == p_pwd) {
 
 							Session v_session = new Session (v_user_data.Rows [0] ["user_id"].ToString (), p_username, v_omnidb_database, v_user_data.Rows[0]["theme_name"].ToString(), v_user_data.Rows[0]["theme_type"].ToString(), v_user_data.Rows[0]["theme_id"].ToString(), v_user_data.Rows [0] ["editor_font_size"].ToString ());
 							v_session.v_omnidb_version = System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Version"].ToString ();
 							System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = v_session;
+
+							if(!((Dictionary<string, Session>)System.Web.HttpContext.Current.Application["OMNIDB_SESSION_LIST"]).ContainsKey(v_session.v_user_id))
+								((Dictionary<string, Session>)System.Web.HttpContext.Current.Application["OMNIDB_SESSION_LIST"]).Add(v_session.v_user_id, v_session);
+							else
+								((Dictionary<string, Session>)System.Web.HttpContext.Current.Application["OMNIDB_SESSION_LIST"])[v_session.v_user_id] = v_session;
+
 							v_return.v_data = true;
 
 						} else {

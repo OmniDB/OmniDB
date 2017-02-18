@@ -1,14 +1,6 @@
-﻿<Properties StartupConfiguration="{63F55D57-D1FF-43E5-929A-029E1DDEBC99}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/Global.asax.cs">
-    <Files>
-      <File FileName="OmniDB/js/MainDB.js" Line="17" Column="1" />
-      <File FileName="OmniDB/Global.asax.cs" Line="105" Column="53" />
-      <File FileName="OmniDB/Login.aspx" Line="24" Column="6" />
-      <File FileName="OmniDB/MainDB.aspx.cs" Line="309" Column="52" />
-      <File FileName="OmniDB/Login.aspx.cs" Line="54" Column="48" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="monodevelop" />
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

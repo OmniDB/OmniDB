@@ -30,7 +30,9 @@ namespace OmniDB
 			Login,
 			GetOldMessages,
 			ViewMessage,
-			SendMessage
+			SendMessage,
+			Writing,
+			NotWriting
 		}
 
 		//Message codes send to clients in response
@@ -38,7 +40,9 @@ namespace OmniDB
 		{
 			OldMessages,
 			NewMessage,
-			UserList
+			UserList,
+			UserWriting,
+			UserNotWriting
 		}
 
 		public ChatServer(int p_port, ref Dictionary<string, Session> p_httpSessions)
@@ -340,6 +344,22 @@ namespace OmniDB
 
 					v_response.v_code = (int)response.NewMessage;
 					v_response.v_data = v_message;
+					SendToAllClients(v_response);
+
+					return;
+				}
+				case (int)request.Writing:
+				{
+					v_response.v_code = (int)response.UserWriting;
+					v_response.v_data = v_httpSession.v_user_id;
+					SendToAllClients(v_response);
+
+					return;
+				}
+				case (int)request.NotWriting:
+				{
+					v_response.v_code = (int)response.UserNotWriting;
+					v_response.v_data = v_httpSession.v_user_id;
 					SendToAllClients(v_response);
 
 					return;

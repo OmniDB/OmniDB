@@ -5,7 +5,9 @@ var v_chatRequestCodes = {
 	Login: '0',
 	GetOldMessages: '1',
 	ViewMessage: '2',
-	SendMessage: '3'
+	SendMessage: '3',
+	Writing: '4',
+	NotWriting: '5'
 }
 
 /// <summary>
@@ -14,8 +16,15 @@ var v_chatRequestCodes = {
 var v_chatResponseCodes = {
 	OldMessages: '0',
 	NewMessage: '1',
-	UserList: '2'
+	UserList: '2',
+	UserWriting: '3',
+	UserNotWriting: '4'
 }
+
+/// <summary>
+/// Global Variable to say if user is or is not writing a message
+/// </summary>
+var v_wasWriting = false;
 
 /// <summary>
 /// The variable that will receive the WebSocket object.
@@ -42,7 +51,7 @@ function buildUserList(p_userList) {
 	var v_userList = p_userList;
 	for(var i = 0; i < v_userList.length; i++) {
 		var v_userDiv = document.createElement('div');
-		v_userDiv.id = v_userList[i].v_user_id;
+		v_userDiv.id = 'chat_user_' + v_userList[i].v_user_id;
 		v_userDiv.classList.add('div_user');
 
 		var v_userStatusDiv = document.createElement('div');
@@ -116,6 +125,11 @@ function NewMessage(p_message) {
 	var v_chatDetails = document.getElementById('div_chat_details');
 	if(v_chatDetails.style.height == '0px') {
 		var v_chatHeader = document.getElementById('div_chat_header');
+
+		if(typeof messageNotification != 'undefined' && messageNotification != null) {
+			clearInterval(messageNotification);
+		}
+
 		messageNotification = setInterval(
 			function() {
 				if(v_chatHeader.style.backgroundColor == 'rgb(74, 104, 150)') {
@@ -127,6 +141,13 @@ function NewMessage(p_message) {
 			},
 			400
 		);
+	}
+
+	if(v_browserTabActive) {
+		document.title = 'OmniDB';
+	}
+	else {
+		document.title = 'OmniDB (!)';
 	}
 
 	sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.ViewMessage, p_message, false);
@@ -215,6 +236,40 @@ function startChatWebSocket(p_port) {
 
 					break;
 				}
+				case parseInt(v_chatResponseCodes.UserWriting): {
+					var v_userDiv = document.getElementById('chat_user_' + v_message.v_data);
+
+					if(typeof v_userDiv != 'undefined' && v_userDiv != null && v_userDiv.childNodes.length > 0) {
+						var v_lastChild = v_userDiv.childNodes[v_userDiv.childNodes.length -1];
+
+						if(!v_lastChild.classList.contains('div_user_writing')) {
+							var v_img = document.createElement('img');
+							v_img.src = 'images/icons/bubble_64.png';
+							v_img.style.width = '15px';
+
+							var v_div = document.createElement('div');
+							v_div.classList.add('div_user_writing');
+							v_div.appendChild(v_img);
+
+							v_userDiv.appendChild(v_div);
+						}
+					}
+
+					break;
+				}
+				case parseInt(v_chatResponseCodes.UserNotWriting): {
+					var v_userDiv = document.getElementById('chat_user_' + v_message.v_data);
+
+					if(typeof v_userDiv != 'undefined' && v_userDiv != null && v_userDiv.childNodes.length > 0) {
+						var v_lastChild = v_userDiv.childNodes[v_userDiv.childNodes.length -1];
+
+						if(v_lastChild.classList.contains('div_user_writing')) {
+							v_userDiv.removeChild(v_lastChild);
+						}
+					}
+
+					break;
+				}
 				default: {
 					break;
 				}
@@ -235,6 +290,17 @@ function startChatWebSocket(p_port) {
 			sendMessage();
 			event.preventDefault();
 			event.stopPropagation();
+		}
+	}
+
+	v_textarea.onkeyup = function(event) {
+		if(this.value.length > 0 && !v_wasWriting) {
+			v_wasWriting = true;
+			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Writing, '', false);
+		}
+		else if(this.value.length == 0 && v_wasWriting) {
+			v_wasWriting = false;
+			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.NotWriting, '', false);
 		}
 	}
 }

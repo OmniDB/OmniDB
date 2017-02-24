@@ -299,6 +299,11 @@ input {
 	font-family: monospace;
 	font-weight: 500;
 	color: red;
+	-moz-user-select: text;
+   -khtml-user-select: text;
+   -webkit-user-select: text;
+   -o-user-select: text;
+   user-select: text;
 }
 
 #div_query_info {
@@ -731,6 +736,11 @@ a.modal-closer:hover {
 	word-wrap: break-word;
 	margin-left: 10px;
 	margin-right: 5px;
+	-moz-user-select: text;
+   -khtml-user-select: text;
+   -webkit-user-select: text;
+   -o-user-select: text;
+   user-select: text;
 }
 
 .div_user {
@@ -745,6 +755,7 @@ a.modal-closer:hover {
 	display: inline-block;
 	vertical-align: middle;
 	font-size: 12px;
+	margin-right: 5px;
 }
 
 .div_user_status {
@@ -753,5 +764,14 @@ a.modal-closer:hover {
 }
 
 .div_user_status > img {
+	vertical-align: middle;
+}
+
+.div_user_writing {
+	width: 15px;
+	display: inline-block;
+}
+
+.div_user_writing > img {
 	vertical-align: middle;
 }

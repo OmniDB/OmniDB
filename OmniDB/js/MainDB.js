@@ -38,6 +38,7 @@ $(function () {
 
 	//WebSockets
 	startChatWebSocket(2011);
+	startQueryWebSocket(2012);
 });
 
 /// <summary>
@@ -334,7 +335,7 @@ function createConnTab() {
 	var v_createTabFunction = function() {
 
 		v_currTabControl.removeTabIndex(v_currTabControl.tabList.length-1);
-		var v_tab = v_currTabControl.createTab('<span id="tab_title">Query</span><span id="tab_loading" style="display:none;"><img src="images/spin.svg"/></span><span id="tab_close"><img src="images/tab_close.png"/></span>',false,null,renameTab,'cm_tab',null,true);
+		var v_tab = v_currTabControl.createTab('<span id="tab_title">Query</span><span id="tab_loading" style="display:none;"><img src="images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="images/check.png"/></span><span id="tab_close"><img src="images/tab_close.png"/></span>',false,null,renameTab,'cm_tab',null,true);
 		v_currTabControl.selectTab(v_tab);
 
 		//Adding unique names to spans
@@ -342,6 +343,8 @@ function createConnTab() {
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
 		var v_tab_loading_span = document.getElementById('tab_loading');
 		v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
+		var v_tab_check_span = document.getElementById('tab_check');
+		v_tab_check_span.id = 'tab_check_' + v_tab.id;
 		var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
 		v_tab_close_span.onclick = function() {
@@ -352,7 +355,7 @@ function createConnTab() {
 
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: row-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
 
-					 "<button class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='querySQL();'><img src='images/play.png' style='vertical-align: middle;'/></button>" +
+					 "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='querySQL();'><img src='images/play.png' style='vertical-align: middle;'/></button>" +
 					 "<select id='sel_filtered_data_" + v_tab.id + "'><option value='-3' >Script</option><option value='-2' >Execute</option><option selected='selected' value='10' >Query 10 rows</option><option value='100'>Query 100 rows</option><option value='1000'>Query 1000 rows</option><option value='-1'>Query All rows</option></select>" +
 					 "<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
 					 "<button class='bt_export' title='Export Data' style='margin-bottom: 5px; margin-left: 5px; float: right; display: inline-block;' onclick='exportData();'><img src='images/table_export.png' style='vertical-align: middle;'/></button>" +
@@ -448,6 +451,7 @@ function createConnTab() {
 		v_editor.setOptions({enableBasicAutocompletion: true});
 
 		var v_tag = {
+			tab_id: v_tab.id,
 			mode: 'query',
 			editor: v_editor,
 			editorDivId: 'txt_query_' + v_tab.id,
@@ -457,10 +461,17 @@ function createConnTab() {
 			sel_export_type : document.getElementById('sel_export_type_' + v_tab.id),
 			tab_title_span : v_tab_title_span,
 			tab_loading_span : v_tab_loading_span,
-			tab_close_span : v_tab_close_span
+			tab_check_span : v_tab_check_span,
+			tab_close_span : v_tab_close_span,
+			bt_start: document.getElementById('bt_start_' + v_tab.id),
+			state : 0,
+			tabControl: v_currTabControl,
+			connTab: v_connTabControl.selectedTab
 		};
 
 		v_tab.tag = v_tag;
+
+		v_tab.setClickFunction(function() { checkQueryStatus(v_tab); });
 
 		v_currTabControl.createTab('+',false,v_createTabFunction);
 
@@ -736,10 +747,13 @@ function createConnTab() {
 		divTree: document.getElementById(v_tab.id + '_tree'),
 		divLeft: document.getElementById(v_tab.id + '_div_left'),
 		divRight: document.getElementById(v_tab.id + '_div_right'),
-		selectedDatabaseIndex: 0
+		selectedDatabaseIndex: 0,
+		connTabControl: v_connTabControl
 	};
 
 	v_tab.tag = v_tag;
+
+	v_tab.setClickFunction(function() { checkTabStatus(v_tab); });
 
 	var v_div_select_db = document.getElementById(v_tab.id + '_div_select_db');
 	v_div_select_db.innerHTML = v_connTabControl.tag.selectHTML;
@@ -750,6 +764,14 @@ function createConnTab() {
 	v_connTabControl.createTab('+',false,createConnTab);
 
 }
+
+function checkTabStatus(v_tab) {
+
+	if (v_tab.tag.tabControl.selectedTab.tag.mode=='query')
+		checkQueryStatus(v_tab.tag.tabControl.selectedTab);
+
+}
+
 
 /// <summary>
 /// Shows or hides graph window.
@@ -975,7 +997,7 @@ function getStatistics() {
 /// <summary>
 /// Queries and displays query results.
 /// </summary>
-function querySQL() {
+function querySQL_old() {
 
 	var v_sql_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
 	var v_sel_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value;
@@ -1097,7 +1119,7 @@ function exportData() {
 		showConfirm('Are you sure you want to export data from the result of this query?',
 				function() {
 
-					var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value, "p_tab_name" : v_connTabControl.selectedTab.tag.tabControl.selectedTab.text});
+					var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value, "p_tab_name" : v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_title_span.innerHTML});
 
 					var start_time = new Date().getTime();
 
@@ -3132,8 +3154,6 @@ function startAlterSequence(p_mode,p_sequence) {
 
 	var v_curr_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	console.log(v_curr_tab_tag);
-
 	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sequence": p_sequence});
 
 	execAjax('MainDB.aspx/AlterSequenceData',
@@ -3454,4 +3474,4 @@ function saveAlterSequence() {
 			'box');
 
 }
-}
+

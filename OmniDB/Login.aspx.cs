@@ -33,6 +33,7 @@ namespace OmniDB
 	public class WebSocketMessage
 	{
 		public int v_code;
+		public int v_context_code;
 		public bool v_error;
 		public Object v_data;
 
@@ -58,7 +59,6 @@ namespace OmniDB
 		[System.Web.Services.WebMethod]
 		public static AjaxReturn SignIn(string p_username, string p_pwd)
 		{
-			Console.WriteLine("Inicio Sign In");
 
 			AjaxReturn v_return = new AjaxReturn ();
             Spartacus.Utils.Cryptor v_cryptor = new Spartacus.Utils.Cryptor("omnidb_spartacus");
@@ -96,8 +96,6 @@ namespace OmniDB
 					System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = null;
 					v_return.v_data = false;
 				}
-
-				Console.WriteLine("Fim Sign In");
 
 				return v_return;
 
@@ -155,8 +153,6 @@ namespace OmniDB
 					v_return.v_error = true;
 					v_return.v_data = e.v_message;
 				}
-
-				Console.WriteLine("Fim Sign In");
 
 				return v_return;
 			}

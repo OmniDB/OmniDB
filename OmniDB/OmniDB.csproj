@@ -434,6 +434,7 @@
     <Content Include="css\themes\light.css" />
     <Content Include="js\WebSocketControl.js" />
     <Content Include="js\ChatClient.js" />
+    <Content Include="js\QueryClient.js" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -508,6 +509,7 @@
       <DependentUpon>DownloadFile.aspx</DependentUpon>
     </Compile>
     <Compile Include="ChatServer.cs" />
+    <Compile Include="QueryServer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

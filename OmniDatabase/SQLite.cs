@@ -31,14 +31,14 @@ namespace OmniDatabase
 			: base ("sqlite",p_conn_id)
 		{
 
-			if (p_database.Contains("/")) {
+			//if (p_database.Contains("/")) {
 
-				string []v_strings = p_database.Split ('/');
+			//	string []v_strings = p_database.Split ('/');
 
-				v_service = v_strings [v_strings.Length - 1];
+			//	v_service = v_strings [v_strings.Length - 1];
 
-			}
-			else
+			//}
+			//else
 				v_service = p_database;
 
 			v_has_schema = false;
@@ -715,6 +715,26 @@ namespace OmniDatabase
 				"select *                 " +
 				"from ( " + p_query + " ) " +
 				v_filter, "Limited Query");
+
+		}
+
+		/// <summary>
+		/// Query limited number of records.
+		/// </summary>
+		/// <param name="p_query">Query string.</param>
+		/// <param name="p_count">Max number of records.</param>
+		/// <param name="p_columns">Column names.</param>
+		public override System.Collections.Generic.List<System.Collections.Generic.List<string>> QueryDataLimitedList(string p_query, int p_count, out System.Collections.Generic.List<string> p_columns)
+		{
+
+			string v_filter = "";
+			if (p_count != -1)
+				v_filter = " limit  " + p_count;
+
+			return v_connection.QuerySList(
+				"select *                 " +
+				"from ( " + p_query + " ) " +
+				v_filter, out p_columns);
 
 		}
 

@@ -897,7 +897,8 @@ function getFunctionDefinition(node) {
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
-				v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+				//v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+				renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,node.text);
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value = -2;
 
 				var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;
@@ -1002,7 +1003,8 @@ function getProcedureDefinition(node) {
 
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
-				v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+				//v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+				renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,node.text);
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value = -2;
 
 				var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;

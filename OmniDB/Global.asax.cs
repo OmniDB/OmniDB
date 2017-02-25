@@ -16,7 +16,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Web;
 using System.Web.SessionState;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace OmniDB
@@ -32,6 +31,10 @@ namespace OmniDB
 			ChatServer v_chatServer = new ChatServer(2011, ref v_httpSessions);
 			v_chatServer.Start();
 			System.Web.HttpContext.Current.Application["ChatServer"] = v_chatServer;
+
+			QueryServer v_queryServer = new QueryServer(2012, ref v_httpSessions);
+			v_queryServer.Start();
+			System.Web.HttpContext.Current.Application["QueryServer"] = v_queryServer;
 		}
 
 

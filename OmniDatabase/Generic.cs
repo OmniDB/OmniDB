@@ -406,6 +406,12 @@ namespace OmniDatabase
 		/// Query limited number of records.
 		/// </summary>
 		/// <param name="p_table">Table name.</param>
+		public abstract System.Collections.Generic.List<System.Collections.Generic.List<string>> QueryDataLimitedList(string p_query, int p_count, out System.Collections.Generic.List<string> p_columns);
+
+		/// <summary>
+		/// Query limited number of records.
+		/// </summary>
+		/// <param name="p_table">Table name.</param>
 		public abstract System.Data.DataTable QueryTableRecords(string p_column_list, string p_table, string p_filter, int p_count);
 
 		/// <summary>

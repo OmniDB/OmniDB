@@ -1159,7 +1159,7 @@ namespace OmniDB
 			if (p_select_value == -2) {
                 
 				try {
-                    v_session.Execute(p_database_index, p_sql, true, true);
+					v_session.Execute(v_database, p_sql, true, true);
 				} catch (Spartacus.Database.Exception e) {
 
 					v_return.v_error = true;
@@ -1189,7 +1189,7 @@ namespace OmniDB
 					if (v_command.Trim () != "") {
 					
 						try {
-                            v_session.Execute(p_database_index, v_command, true, true);
+							v_session.Execute(v_database, v_command, true, true);
 							v_num_success_commands++;
 
 						} catch (Spartacus.Database.Exception e) {
@@ -1215,9 +1215,9 @@ namespace OmniDB
 			} else {
 				try {
 					if (p_select_value == -1)
-                        v_data1 = v_session.Query(p_database_index, p_sql, true, true);
+                        v_data1 = v_session.Query(v_database, p_sql, true, true);
 					else
-                        v_data1 = v_session.QueryDataLimited(p_database_index, p_sql, p_select_value, true, false);
+                        v_data1 = v_session.QueryDataLimited(v_database, p_sql, p_select_value, true, false);
 
 					for (int j = 0; j < v_data1.Columns.Count; j++) {
 						v_col_names.Add (v_data1.Columns [j].ColumnName);
@@ -1407,7 +1407,7 @@ namespace OmniDB
 
 			try
 			{
-                v_session.Execute(p_database_index, "drop table " + v_table_name, false, true);
+                v_session.Execute(v_database, "drop table " + v_table_name, false, true);
 			}
 			catch (Spartacus.Database.Exception e)
 			{
@@ -1443,7 +1443,7 @@ namespace OmniDB
 
             try
             {
-                v_session.Execute(p_database_index, "drop function " + p_function, false, true);
+                v_session.Execute(v_database, "drop function " + p_function, false, true);
             }
             catch (Spartacus.Database.Exception e)
             {
@@ -1479,7 +1479,7 @@ namespace OmniDB
 
             try
             {
-                v_session.Execute(p_database_index, "drop procedure " + p_procedure, false, true);
+                v_session.Execute(v_database, "drop procedure " + p_procedure, false, true);
             }
             catch (Spartacus.Database.Exception e)
             {
@@ -1522,7 +1522,7 @@ namespace OmniDB
 
 			try
 			{
-				v_session.Execute(p_database_index, "drop sequence " + v_sequence_name, false, true);
+				v_session.Execute(v_database, "drop sequence " + v_sequence_name, false, true);
 			}
 			catch (Spartacus.Database.Exception e)
 			{
@@ -1566,7 +1566,7 @@ namespace OmniDB
 
 			try
 			{
-                v_session.Execute(p_database_index, "delete from " + v_table_name, false, false);
+                v_session.Execute(v_database, "delete from " + v_table_name, false, false);
 			}
 			catch (Spartacus.Database.Exception e)
 			{
@@ -2450,7 +2450,7 @@ namespace OmniDB
 					v_row_info_return.v_command = v_command;
 
 					try {
-                        v_session.Execute(p_database_index, v_command, false, false);
+                        v_session.Execute(v_database, v_command, false, false);
 						v_row_info_return.error = false;
 						v_row_info_return.v_message = "Success.";
 
@@ -2514,7 +2514,7 @@ namespace OmniDB
 					v_row_info_return.v_command = v_command;
 
 					try {
-                        v_session.Execute(p_database_index, v_command, false, false);
+                        v_session.Execute(v_database, v_command, false, false);
 						v_row_info_return.error = false;
 						v_row_info_return.v_message = "Success.";
 
@@ -2591,7 +2591,7 @@ namespace OmniDB
 					v_row_info_return.v_command = v_command;
 
 					try {
-                        v_session.Execute(p_database_index, v_command, false, false);
+                        v_session.Execute(v_database, v_command, false, false);
 						v_row_info_return.error = false;
 						v_row_info_return.v_message = "Success.";
 
@@ -2688,7 +2688,7 @@ namespace OmniDB
 						v_info_return.v_command = v_command;
 
 						try {
-                            v_session.Execute(p_database_index, v_command, false, true);
+                            v_session.Execute(v_database, v_command, false, true);
 							v_info_return.error = false;
 							v_info_return.v_message = "Success.";
 
@@ -2712,7 +2712,7 @@ namespace OmniDB
 						v_info_return.v_command = v_command;
 
 						try {
-                            v_session.Execute(p_database_index, v_command, false, true);
+                            v_session.Execute(v_database, v_command, false, true);
 							v_info_return.error = false;
 							v_info_return.v_message = "Success.";
 
@@ -2751,7 +2751,7 @@ namespace OmniDB
 							v_info_return1.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 							} catch (Spartacus.Database.Exception e) {
 								v_info_return1.error = true;
 								v_info_return1.v_message = e.v_message.Replace("<","&lt;").Replace(">","&gt;").Replace(System.Environment.NewLine, "<br/>");
@@ -2785,7 +2785,7 @@ namespace OmniDB
 							v_info_return1.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 
 							} catch (Spartacus.Database.Exception e) {
 								v_info_return1.error = true;
@@ -2819,7 +2819,7 @@ namespace OmniDB
 							v_info_return1.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 
 							} catch (Spartacus.Database.Exception e) {
 								v_info_return1.error = true;
@@ -2859,7 +2859,7 @@ namespace OmniDB
 							v_info_return.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2889,7 +2889,7 @@ namespace OmniDB
 
 							try {
 
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2915,7 +2915,7 @@ namespace OmniDB
 							v_info_return.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2945,7 +2945,7 @@ namespace OmniDB
 							v_info_return.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2970,7 +2970,7 @@ namespace OmniDB
 							v_info_return.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2995,7 +2995,7 @@ namespace OmniDB
 							v_info_return.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -3038,7 +3038,7 @@ namespace OmniDB
 						v_info_return.v_command = v_command;
 
 						try {
-                            v_session.Execute(p_database_index, v_command, false, true);
+                            v_session.Execute(v_database, v_command, false, true);
 							v_info_return.error = false;
 							v_info_return.v_message = "Success.";
 
@@ -3065,7 +3065,7 @@ namespace OmniDB
 						v_info_return.v_command = v_command;
 
 						try {
-                            v_session.Execute(p_database_index, v_command, false, true);
+                            v_session.Execute(v_database, v_command, false, true);
 							v_info_return.error = false;
 							v_info_return.v_message = "Success.";
 
@@ -3092,7 +3092,7 @@ namespace OmniDB
 					v_info_return.v_command = v_command;
 
 					try {
-                        v_session.Execute(p_database_index, v_command, false, true);
+                        v_session.Execute(v_database, v_command, false, true);
 						v_info_return.error = false;
 						v_info_return.v_message = "Success.";
 					} catch (Spartacus.Database.Exception e) {
@@ -3192,7 +3192,7 @@ namespace OmniDB
 				v_info_return.v_command = v_command;
 
 				try {
-                    v_session.Execute(p_database_index, v_command, false, true);
+                    v_session.Execute(v_database, v_command, false, true);
 					v_info_return.error = false;
 					v_info_return.v_message = "Success.";
 				} catch (Spartacus.Database.Exception e) {
@@ -3596,7 +3596,7 @@ namespace OmniDB
 
 				try
 				{
-					v_session.Execute(p_database_index, v_alter_command, false, true);
+					v_session.Execute(v_database, v_alter_command, false, true);
 					v_alter_info_return.error = false;
 					v_alter_info_return.v_message = "Success.";
 				}
@@ -3621,7 +3621,7 @@ namespace OmniDB
 
 					try
 					{
-						v_session.Execute(p_database_index, v_rename_command, false, true);
+						v_session.Execute(v_database, v_rename_command, false, true);
 						v_info_return.error = false;
 						v_info_return.v_message = "Success.";
 					}
@@ -3659,7 +3659,7 @@ namespace OmniDB
 
 				try
 				{
-					v_session.Execute(p_database_index, v_command, false, true);
+					v_session.Execute(v_database, v_command, false, true);
 					v_info_return.error = false;
 					v_info_return.v_message = "Success.";
 				}

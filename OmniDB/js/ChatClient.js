@@ -1,13 +1,20 @@
-﻿/// <summary>
+﻿/*
+Copyright 2015-2017 The OmniDB Team
+This file is part of OmniDB.
+OmniDB is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
+*/
+
+/// <summary>
 /// Transaction codes of client requests.
 /// </summary>
 var v_chatRequestCodes = {
 	Login: '0',
 	GetOldMessages: '1',
-	ViewMessage: '2',
-	SendMessage: '3',
-	Writing: '4',
-	NotWriting: '5'
+	SendMessage: '2',
+	Writing: '3',
+	NotWriting: '4'
 }
 
 /// <summary>
@@ -25,6 +32,11 @@ var v_chatResponseCodes = {
 /// Global Variable to say if user is or is not writing a message
 /// </summary>
 var v_wasWriting = false;
+
+/// <summary>
+/// Global Variable to say how many old messages the user has requested to the chat server
+/// </summary>
+var v_oldMessagesRequested = 0;
 
 /// <summary>
 /// The variable that will receive the WebSocket object.
@@ -90,6 +102,12 @@ function buildUserList(p_userList) {
 function NewMessage(p_message) {
 	var v_chatContent = document.getElementById('div_chat_content');
 
+	var v_scrollAtBottom = false;
+
+	if(v_chatContent.scrollTop == v_chatContent.scrollHeight) {
+		v_scrollAtBottom = true;
+	}
+
 	var v_messageDiv = document.createElement('div');
 	v_messageDiv.classList.add('div_message');
 
@@ -120,7 +138,10 @@ function NewMessage(p_message) {
 	v_messageDiv.appendChild(v_messageText);
 
 	v_chatContent.appendChild(v_messageDiv);
-	v_chatContent.scrollTop = v_chatContent.scrollHeight;
+
+	if(v_scrollAtBottom) {
+		v_chatContent.scrollTop = v_chatContent.scrollHeight;
+	}
 
 	var v_chatDetails = document.getElementById('div_chat_details');
 	if(v_chatDetails.style.height == '0px') {
@@ -149,8 +170,53 @@ function NewMessage(p_message) {
 	else {
 		document.title = 'OmniDB (!)';
 	}
+}
 
-	sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.ViewMessage, p_message, false);
+/// <summary>
+/// Function called when a chat client receives a list of old messages.
+/// </summary>
+/// <param name="p_messageList">The message list.</param>
+function OldMessages(p_messageList) {
+	if(p_messageList.length > 0) {
+		var v_lastUser = '';
+
+		var v_fakeDiv = document.createElement('div');
+
+		for(var i = 0; i < p_messageList.length; i++) {
+			var v_messageDiv = document.createElement('div');
+			v_messageDiv.classList.add('div_message');
+
+			if(v_lastUser != p_messageList[i].v_user_name) {
+				var v_messageUser = document.createElement('div');
+				v_messageUser.classList.add('div_message_user');
+				v_messageUser.innerHTML = p_messageList[i].v_user_name;
+				v_messageDiv.appendChild(v_messageUser);
+
+				var v_messageTime = document.createElement('div');
+				v_messageTime.classList.add('div_message_time');
+				v_messageTime.innerHTML = '(' + p_messageList[i].v_timestamp.substring(11, 16) + ') ';
+				v_messageDiv.appendChild(v_messageTime);
+
+				v_lastUser = p_messageList[i].v_user_name;
+			}
+
+			var v_messageText = document.createElement('div');
+			v_messageText.classList.add('div_message_text');
+			v_messageText.innerHTML = p_messageList[i].v_text;
+			v_messageDiv.appendChild(v_messageText);
+
+			v_fakeDiv.appendChild(v_messageDiv);
+		}
+
+		var v_chatContent = document.getElementById('div_chat_content');
+		var v_messageList = v_fakeDiv.childNodes;
+
+		for(var i = v_messageList.length - 1; i >= 0; i--) {
+			v_chatContent.insertBefore(v_messageList[i], v_chatContent.firstChild);
+		}
+
+		v_fakeDiv = null;
+	}
 }
 
 /// <summary>
@@ -209,7 +275,8 @@ function startChatWebSocket(p_port) {
 		p_port,
 		function(p_event) {//Open
 			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Login, v_user_id, false);
-			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.GetOldMessages, v_user_id, false);
+			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.GetOldMessages, v_oldMessagesRequested, false);
+			v_oldMessagesRequested += 10;
 		},
 		function(p_event) {//Message
 			var v_message = p_event;
@@ -221,9 +288,7 @@ function startChatWebSocket(p_port) {
 
 			switch(v_message.v_code) {
 				case parseInt(v_chatResponseCodes.OldMessages): {
-					for(var i = 0; i < v_message.v_data.length; i++) {
-						NewMessage(v_message.v_data[i]);
-					}
+					OldMessages(v_message.v_data);
 
 					break;
 				}

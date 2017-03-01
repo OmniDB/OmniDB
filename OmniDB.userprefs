@@ -1,13 +1,10 @@
-<<<<<<< HEAD
 ﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="monodevelop" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/js/MainDB.js">
+  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/js/ChatClient.js">
     <Files>
-      <File FileName="OmniDB/Session.cs" Line="136" Column="6" />
-      <File FileName="OmniDB/js/ChatClient.js" Line="147" Column="29" />
-      <File FileName="OmniDB/ChatServer.cs" Line="361" Column="54" />
-      <File FileName="OmniDB/css/style.css" Line="771" Column="11" />
-      <File FileName="OmniDB/js/MainDB.js" Line="25" Column="6" />
+      <File FileName="OmniDB/js/ChatClient.js" Line="144" Column="3" />
+      <File FileName="OmniDB/ChatServer.cs" Line="242" Column="57" />
+      <File FileName="OmniDB/css/style.css" Line="772" Column="2" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -18,23 +15,17 @@
                 <Node name="themes" expanded="True" />
               </Node>
               <Node name="js" expanded="True">
-                <Node name="MainDB.js" selected="True" />
+                <Node name="ChatClient.js" selected="True" />
               </Node>
+              <Node name="CompareDB.aspx" expanded="True" />
             </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-=======
-﻿<Properties StartupConfiguration="{63F55D57-D1FF-43E5-929A-029E1DDEBC99}|">
-  <MonoDevelop.Ide.Workbench />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
->>>>>>> upstream/master
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.OmniDB PreferredExecutionTarget="MonoDevelop.Default" />
-  <MultiItemStartupConfigurations />
 </Properties>

@@ -12,16 +12,17 @@ You should have received a copy of the GNU General Public License along with Omn
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Web;
 using System.Web.SessionState;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace OmniDB
 {
 	public class Global : System.Web.HttpApplication
 	{
+
 		protected void Application_Start (Object sender, EventArgs e)
 		{
 			Dictionary<string, Session> v_httpSessions = new Dictionary<string, Session>();
@@ -30,7 +31,12 @@ namespace OmniDB
 			ChatServer v_chatServer = new ChatServer(2011, ref v_httpSessions);
 			v_chatServer.Start();
 			System.Web.HttpContext.Current.Application["ChatServer"] = v_chatServer;
+
+			QueryServer v_queryServer = new QueryServer(2012, ref v_httpSessions);
+			v_queryServer.Start();
+			System.Web.HttpContext.Current.Application["QueryServer"] = v_queryServer;
 		}
+
 
 		protected void Application_AcquireRequestState(Object sender, EventArgs e)
 		{

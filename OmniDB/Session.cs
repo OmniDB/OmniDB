@@ -210,15 +210,15 @@ namespace OmniDB
         /// <param name="p_sql">SQL string.</param>
         /// <param name="p_loghistory">If set to <c>true</c>, logs the command to the history.</param>
         /// <param name="p_logmigration">If set to <c>true</c>, logs the command to the migration.</param>
-        public void Execute(int p_database_index, string p_sql, bool p_loghistory, bool p_logmigration) {
+        public void Execute(OmniDatabase.Generic p_database, string p_sql, bool p_loghistory, bool p_logmigration) {
 
-            v_databases[p_database_index].v_connection.Execute(p_sql);
+			p_database.v_connection.Execute(p_sql);
 
             if (p_loghistory)
                 this.LogHistory(p_sql);
 
             if (p_logmigration)
-                this.LogMigration(p_database_index, p_sql);
+                this.LogMigration(p_database, p_sql);
 
         }
 
@@ -229,19 +229,32 @@ namespace OmniDB
         /// <param name="p_sql">SQL string.</param>
         /// <param name="p_loghistory">If set to <c>true</c>, logs the command to the history.</param>
         /// <param name="p_logmigration">If set to <c>true</c>, logs the command to the migration.</param>
-        public System.Data.DataTable Query(int p_database_index, string p_sql, bool p_loghistory, bool p_logmigration) {
+        public System.Data.DataTable Query(OmniDatabase.Generic p_database, string p_sql, bool p_loghistory, bool p_logmigration) {
 
-            System.Data.DataTable v_table = v_databases[p_database_index].v_connection.Query(p_sql, "Data");
+			System.Data.DataTable v_table = p_database.v_connection.Query(p_sql, "Data");
 
             if (p_loghistory)
                 this.LogHistory(p_sql);
 
             if (p_logmigration)
-                this.LogMigration(p_database_index, p_sql);
+                this.LogMigration(p_database, p_sql);
 
             return v_table;
 
         }
+
+		public System.Collections.Generic.List<System.Collections.Generic.List<string>> QueryList(OmniDatabase.Generic p_database, string p_sql, bool p_loghistory, bool p_logmigration, out System.Collections.Generic.List<string> p_columns)
+		{
+
+			if (p_loghistory)
+				this.LogHistory(p_sql);
+
+			if (p_logmigration)
+				this.LogMigration(p_database, p_sql);
+
+			return p_database.v_connection.QuerySList(p_sql, out p_columns);
+
+		}
 
         /// <summary>
         /// Queries the specified SQL string, limited by a number of registers.
@@ -251,19 +264,32 @@ namespace OmniDB
         /// <param name="p_count">Number of registers.</param>
         /// <param name="p_loghistory">If set to <c>true</c>, logs the command to the history.</param>
         /// <param name="p_logmigration">If set to <c>true</c>, logs the command to the migration.</param>
-        public System.Data.DataTable QueryDataLimited(int p_database_index, string p_sql, int p_count, bool p_loghistory, bool p_logmigration) {
+        public System.Data.DataTable QueryDataLimited(OmniDatabase.Generic p_database, string p_sql, int p_count, bool p_loghistory, bool p_logmigration) {
 
-            System.Data.DataTable v_table = v_databases[p_database_index].QueryDataLimited(p_sql, p_count);
+            System.Data.DataTable v_table = p_database.QueryDataLimited(p_sql, p_count);
 
             if (p_loghistory)
                 this.LogHistory(p_sql);
 
             if (p_logmigration)
-                this.LogMigration(p_database_index, p_sql);
+                this.LogMigration(p_database, p_sql);
 
             return v_table;
 
         }
+
+		public System.Collections.Generic.List<System.Collections.Generic.List<string>> QueryListLimited(OmniDatabase.Generic p_database, string p_sql, int p_count, bool p_loghistory, bool p_logmigration, out System.Collections.Generic.List<string> p_columns)
+		{
+
+			if (p_loghistory)
+				this.LogHistory(p_sql);
+
+			if (p_logmigration)
+				this.LogMigration(p_database, p_sql);
+
+			return p_database.QueryDataLimitedList(p_sql,p_count, out p_columns);
+
+		}
 
         private void LogHistory(string p_sql) {
 
@@ -285,9 +311,9 @@ namespace OmniDB
 
         }
 
-        private void LogMigration(int p_database_index, string p_sql) {
+        private void LogMigration(OmniDatabase.Generic p_database, string p_sql) {
 
-            OmniDatabase.Generic v_database = v_databases[p_database_index];
+            OmniDatabase.Generic v_database = p_database;
             System.Data.DataTable v_command_table;
             string v_schema;
 

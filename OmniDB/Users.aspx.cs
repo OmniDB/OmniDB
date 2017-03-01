@@ -40,7 +40,6 @@ namespace OmniDB
 		/// </summary>
 		protected void Page_Load(object sender, EventArgs e)
 		{
-
 			v_session = (Session)Session ["OMNIDB_SESSION"];
 
 			if (v_session == null) {
@@ -196,7 +195,6 @@ namespace OmniDB
 		[System.Web.Services.WebMethod]
 		public static AjaxReturn GetUsers()
 		{
-
 			AjaxReturn v_return = new AjaxReturn();
 			UsersData v_return_data = new UsersData ();
 			Session v_session = (Session)System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"];

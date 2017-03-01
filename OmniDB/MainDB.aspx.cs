@@ -269,6 +269,29 @@ namespace OmniDB
 	}
 
 	/// <summary>
+	/// Alter Sequence Data Return.
+	/// </summary>
+	public class AlterSequenceDataReturn
+	{
+		public string v_min_value;
+		public string v_max_value;
+		public string v_current_value;
+		public string v_increment;
+		public bool v_can_rename;
+		public bool v_can_alter_min_value;
+		public bool v_can_alter_max_value;
+		public bool v_can_alter_curr_value;
+		public bool v_can_alter_increment;
+	}
+
+	public class SaveAlterSequenceReturn
+	{
+		public CommandInfoReturn v_create_sequence_command;
+		public CommandInfoReturn v_alter_sequence_command;
+		public CommandInfoReturn v_rename_sequence_command;
+	}
+
+	/// <summary>
 	/// Main page. Contains the treeview of database components and query area.
 	/// </summary>
 	public partial class MainDB : System.Web.UI.Page
@@ -502,7 +525,8 @@ namespace OmniDB
 					v_node = new GraphNode();
 
 					v_node.id = v_data.Rows [j] ["table_name"].ToString ();
-					v_node.label = v_data.Rows [j] ["table_name"].ToString (); 
+					v_node.label = v_data.Rows [j] ["table_name"].ToString ();
+					v_node.group = 1;
 
 					v_nodes.Add(v_node);
 				}
@@ -512,9 +536,10 @@ namespace OmniDB
 				string v_curr_constraint = "";
 				string v_curr_from = "";
 				string v_curr_to = "";
+				string v_curr_to_schema = "";
 
 				for (int j = 0; j < v_data.Rows.Count; j++) {
-					if (v_curr_constraint!="" && v_curr_constraint!=v_data.Rows [j] ["constraint_name"].ToString () && (!v_database.v_has_schema || (v_database.v_schema==v_data.Rows [j] ["r_table_schema"].ToString () && v_database.v_has_schema))) {
+					if (v_curr_constraint!="" && v_curr_constraint!=v_data.Rows [j] ["constraint_name"].ToString ()) {
 
 						v_edge = new GraphEdge ();
 						v_edge.from = v_curr_from;
@@ -522,13 +547,45 @@ namespace OmniDB
 						v_edge.label = "";
 						v_edge.arrows = "to";
 
+						//FK referencing other schema, create a new node if it isn't in v_nodes list.
+						if (v_database.v_schema != v_curr_to_schema)
+						{
+
+							bool v_found = false;
+
+							for (int k = v_nodes.Count - 1; k >= 0; k--)
+							{
+
+								if (v_nodes[k].label == v_curr_to)
+								{
+									v_found = true;
+									break;
+								}
+
+							}
+
+							if (!v_found)
+							{
+								v_node = new GraphNode();
+
+								v_node.id = v_curr_to;
+								v_node.label = v_curr_to;
+								v_node.group = 0;
+
+								v_nodes.Add(v_node);
+							}
+
+						}
+
 						v_edges.Add (v_edge);
 						v_curr_constraint = "";
 					}
 
 					v_curr_from = v_data.Rows [j] ["table_name"].ToString ();
 					v_curr_to = v_data.Rows [j] ["r_table_name"].ToString ();
-					v_curr_constraint = v_data.Rows [j] ["constraint_name"].ToString ();
+					v_curr_constraint = v_data.Rows[j]["constraint_name"].ToString();
+					v_curr_to_schema = v_data.Rows[j]["r_table_schema"].ToString();
+
 
 				}
 
@@ -542,9 +599,37 @@ namespace OmniDB
 
 					v_edges.Add (v_edge);
 
+					//FK referencing other schema, create a new node if it isn't in v_nodes list.
+					if (v_database.v_schema != v_curr_to_schema)
+					{
+
+						bool v_found = false;
+
+						for (int k = v_nodes.Count - 1; k >= 0; k--)
+						{
+
+							if (v_nodes[k].label == v_curr_to)
+							{
+								v_found = true;
+								break;
+							}
+
+						}
+
+						if (!v_found)
+						{
+							v_node = new GraphNode();
+
+							v_node.id = v_curr_to;
+							v_node.label = v_curr_to;
+							v_node.group = 0;
+
+							v_nodes.Add(v_node);
+						}
+
+					}
+
 				}
-
-
 
 			}
 			catch (Spartacus.Database.Exception e)
@@ -602,7 +687,8 @@ namespace OmniDB
 					v_node = new GraphNode();
 
 					v_node.id = v_data.Rows [j] ["table_name"].ToString ();
-					v_node.label = v_data.Rows [j] ["table_name"].ToString () + "\n"; 
+					v_node.label = v_data.Rows [j] ["table_name"].ToString () + "\n";
+					v_node.group = 1;
 
 					foreach (System.Data.DataRow v_column in v_columns.Rows)
 						v_node.label += "\n" + v_column["column_name"].ToString() + ": " + v_column["data_type"].ToString();
@@ -617,6 +703,7 @@ namespace OmniDB
 				string v_curr_label = "";
 				string v_curr_from = "";
 				string v_curr_to = "";
+				string v_curr_to_schema = "";
 				bool v_first = true;
 
 				for (int j = 0; j < v_data.Rows.Count; j++) {
@@ -633,6 +720,37 @@ namespace OmniDB
 						v_first = true;
 						v_curr_label = "";
 
+						//FK referencing other schema, create a new node if it isn't in v_nodes list.
+						if (v_database.v_schema != v_curr_to_schema)
+						{
+
+							bool v_found = false;
+
+							for (int k = v_nodes.Count - 1; k >= 0; k--)
+							{
+
+								if (v_nodes[k].label == v_curr_to)
+								{
+									v_found = true;
+									break;
+								}
+
+							}
+
+							if (!v_found)
+							{
+								v_node = new GraphNode();
+
+								v_node.id = v_curr_to;
+								v_node.label = v_curr_to;
+								v_node.group = 0;
+
+								v_nodes.Add(v_node);
+							}
+
+						}
+
+
 					}
 
 					if (!v_first)
@@ -644,6 +762,7 @@ namespace OmniDB
 					v_curr_from = v_data.Rows [j] ["table_name"].ToString ();
 					v_curr_to = v_data.Rows [j] ["r_table_name"].ToString ();
 					v_curr_constraint = v_data.Rows [j] ["constraint_name"].ToString ();
+					v_curr_to_schema = v_data.Rows[j]["r_table_schema"].ToString();
 
 				}
 
@@ -659,6 +778,36 @@ namespace OmniDB
 
 					v_first = true;
 					v_curr_label = "";
+
+					//FK referencing other schema, create a new node if it isn't in v_nodes list.
+					if (v_database.v_schema != v_curr_to_schema)
+					{
+
+						bool v_found = false;
+
+						for (int k = v_nodes.Count - 1; k >= 0; k--)
+						{
+
+							if (v_nodes[k].label == v_curr_to)
+							{
+								v_found = true;
+								break;
+							}
+
+						}
+
+						if (!v_found)
+						{
+							v_node = new GraphNode();
+
+							v_node.id = v_curr_to;
+							v_node.label = v_curr_to;
+							v_node.group = 0;
+
+							v_nodes.Add(v_node);
+						}
+
+					}
 
 				}
 
@@ -740,7 +889,6 @@ namespace OmniDB
 					v_node.id = v_count_total_table.Rows [j] ["table_name"].ToString ();
 					v_node.label = v_count_total_table.Rows [j] ["table_name"].ToString () + "\nRows: " + v_count_total_table.Rows [j] ["total"].ToString ();
 
-
 					int v_curr_count = Convert.ToInt32(v_count_total_table.Rows [j] ["total"]);
 
 					for (int i=1; i<7; i++) {
@@ -762,6 +910,7 @@ namespace OmniDB
 				string v_curr_constraint = "";
 				string v_curr_from = "";
 				string v_curr_to = "";
+				string v_curr_to_schema = "";
 
 				for (int j = 0; j < v_foreign_keys.Rows.Count; j++) {
 					if (v_curr_constraint!="" && v_curr_constraint!=v_foreign_keys.Rows [j] ["constraint_name"].ToString ()) {
@@ -774,11 +923,43 @@ namespace OmniDB
 
 						v_edges.Add (v_edge);
 						v_curr_constraint = "";
+
+						//FK referencing other schema, create a new node if it isn't in v_nodes list.
+						if (v_database.v_schema != v_curr_to_schema)
+						{
+
+							bool v_found = false;
+
+							for (int k = v_nodes.Count - 1; k >= 0; k--)
+							{
+
+								if (v_nodes[k].label == v_curr_to)
+								{
+									v_found = true;
+									break;
+								}
+
+							}
+
+							if (!v_found)
+							{
+								v_node = new GraphNode();
+
+								v_node.id = v_curr_to;
+								v_node.label = v_curr_to;
+								v_node.group = 0;
+
+								v_nodes.Add(v_node);
+							}
+
+						}
+
 					}
 
 					v_curr_from = v_foreign_keys.Rows [j] ["table_name"].ToString ();
 					v_curr_to = v_foreign_keys.Rows [j] ["r_table_name"].ToString ();
 					v_curr_constraint = v_foreign_keys.Rows [j] ["constraint_name"].ToString ();
+					v_curr_to_schema = v_foreign_keys.Rows[j]["r_table_schema"].ToString();
 
 				}
 
@@ -791,6 +972,36 @@ namespace OmniDB
 					v_edge.arrows = "to";
 
 					v_edges.Add (v_edge);
+
+					//FK referencing other schema, create a new node if it isn't in v_nodes list.
+					if (v_database.v_schema != v_curr_to_schema)
+					{
+
+						bool v_found = false;
+
+						for (int k = v_nodes.Count - 1; k >= 0; k--)
+						{
+
+							if (v_nodes[k].label == v_curr_to)
+							{
+								v_found = true;
+								break;
+							}
+
+						}
+
+						if (!v_found)
+						{
+							v_node = new GraphNode();
+
+							v_node.id = v_curr_to;
+							v_node.label = v_curr_to;
+							v_node.group = 0;
+
+							v_nodes.Add(v_node);
+						}
+
+					}
 
 				}
 
@@ -948,7 +1159,7 @@ namespace OmniDB
 			if (p_select_value == -2) {
                 
 				try {
-                    v_session.Execute(p_database_index, p_sql, true, true);
+					v_session.Execute(v_database, p_sql, true, true);
 				} catch (Spartacus.Database.Exception e) {
 
 					v_return.v_error = true;
@@ -978,7 +1189,7 @@ namespace OmniDB
 					if (v_command.Trim () != "") {
 					
 						try {
-                            v_session.Execute(p_database_index, v_command, true, true);
+							v_session.Execute(v_database, v_command, true, true);
 							v_num_success_commands++;
 
 						} catch (Spartacus.Database.Exception e) {
@@ -1004,9 +1215,9 @@ namespace OmniDB
 			} else {
 				try {
 					if (p_select_value == -1)
-                        v_data1 = v_session.Query(p_database_index, p_sql, true, true);
+                        v_data1 = v_session.Query(v_database, p_sql, true, true);
 					else
-                        v_data1 = v_session.QueryDataLimited(p_database_index, p_sql, p_select_value, true, false);
+                        v_data1 = v_session.QueryDataLimited(v_database, p_sql, p_select_value, true, false);
 
 					for (int j = 0; j < v_data1.Columns.Count; j++) {
 						v_col_names.Add (v_data1.Columns [j].ColumnName);
@@ -1196,7 +1407,7 @@ namespace OmniDB
 
 			try
 			{
-                v_session.Execute(p_database_index, "drop table " + v_table_name, false, true);
+                v_session.Execute(v_database, "drop table " + v_table_name, false, true);
 			}
 			catch (Spartacus.Database.Exception e)
 			{
@@ -1232,7 +1443,7 @@ namespace OmniDB
 
             try
             {
-                v_session.Execute(p_database_index, "drop function " + p_function, false, true);
+                v_session.Execute(v_database, "drop function " + p_function, false, true);
             }
             catch (Spartacus.Database.Exception e)
             {
@@ -1268,7 +1479,7 @@ namespace OmniDB
 
             try
             {
-                v_session.Execute(p_database_index, "drop procedure " + p_procedure, false, true);
+                v_session.Execute(v_database, "drop procedure " + p_procedure, false, true);
             }
             catch (Spartacus.Database.Exception e)
             {
@@ -1282,6 +1493,49 @@ namespace OmniDB
             return v_return;
 
         }
+
+		/// <summary>
+		/// Drops a sequence
+		/// </summary>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn DropSequence(int p_database_index, string p_sequence)
+		{
+			Session v_session = (Session)System.Web.HttpContext.Current.Session["DB_SESSION"];
+
+			AjaxReturn v_return = new AjaxReturn();
+
+			if (v_session == null)
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			}
+
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+			string v_sequence_name = "";
+
+			if (v_database.v_has_schema)
+				v_sequence_name = v_database.v_schema + "." + p_sequence;
+			else
+				v_sequence_name = p_sequence;
+
+			try
+			{
+				v_session.Execute(v_database, "drop sequence " + v_sequence_name, false, true);
+			}
+			catch (Spartacus.Database.Exception e)
+			{
+
+				v_return.v_error = true;
+				v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			}
+
+			return v_return;
+
+		}
 
 		/// <summary>
 		/// Wipes table records.
@@ -1312,7 +1566,7 @@ namespace OmniDB
 
 			try
 			{
-                v_session.Execute(p_database_index, "delete from " + v_table_name, false, false);
+                v_session.Execute(v_database, "delete from " + v_table_name, false, false);
 			}
 			catch (Spartacus.Database.Exception e)
 			{
@@ -2196,7 +2450,7 @@ namespace OmniDB
 					v_row_info_return.v_command = v_command;
 
 					try {
-                        v_session.Execute(p_database_index, v_command, false, false);
+                        v_session.Execute(v_database, v_command, false, false);
 						v_row_info_return.error = false;
 						v_row_info_return.v_message = "Success.";
 
@@ -2260,7 +2514,7 @@ namespace OmniDB
 					v_row_info_return.v_command = v_command;
 
 					try {
-                        v_session.Execute(p_database_index, v_command, false, false);
+                        v_session.Execute(v_database, v_command, false, false);
 						v_row_info_return.error = false;
 						v_row_info_return.v_message = "Success.";
 
@@ -2337,7 +2591,7 @@ namespace OmniDB
 					v_row_info_return.v_command = v_command;
 
 					try {
-                        v_session.Execute(p_database_index, v_command, false, false);
+                        v_session.Execute(v_database, v_command, false, false);
 						v_row_info_return.error = false;
 						v_row_info_return.v_message = "Success.";
 
@@ -2434,7 +2688,7 @@ namespace OmniDB
 						v_info_return.v_command = v_command;
 
 						try {
-                            v_session.Execute(p_database_index, v_command, false, true);
+                            v_session.Execute(v_database, v_command, false, true);
 							v_info_return.error = false;
 							v_info_return.v_message = "Success.";
 
@@ -2458,7 +2712,7 @@ namespace OmniDB
 						v_info_return.v_command = v_command;
 
 						try {
-                            v_session.Execute(p_database_index, v_command, false, true);
+                            v_session.Execute(v_database, v_command, false, true);
 							v_info_return.error = false;
 							v_info_return.v_message = "Success.";
 
@@ -2497,7 +2751,7 @@ namespace OmniDB
 							v_info_return1.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 							} catch (Spartacus.Database.Exception e) {
 								v_info_return1.error = true;
 								v_info_return1.v_message = e.v_message.Replace("<","&lt;").Replace(">","&gt;").Replace(System.Environment.NewLine, "<br/>");
@@ -2531,7 +2785,7 @@ namespace OmniDB
 							v_info_return1.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 
 							} catch (Spartacus.Database.Exception e) {
 								v_info_return1.error = true;
@@ -2565,7 +2819,7 @@ namespace OmniDB
 							v_info_return1.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 
 							} catch (Spartacus.Database.Exception e) {
 								v_info_return1.error = true;
@@ -2605,7 +2859,7 @@ namespace OmniDB
 							v_info_return.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2635,7 +2889,7 @@ namespace OmniDB
 
 							try {
 
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2661,7 +2915,7 @@ namespace OmniDB
 							v_info_return.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2691,7 +2945,7 @@ namespace OmniDB
 							v_info_return.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2716,7 +2970,7 @@ namespace OmniDB
 							v_info_return.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2741,7 +2995,7 @@ namespace OmniDB
 							v_info_return.v_command = v_command;
 
 							try {
-                                v_session.Execute(p_database_index, v_command, false, true);
+                                v_session.Execute(v_database, v_command, false, true);
 								v_info_return.error = false;
 								v_info_return.v_message = "Success.";
 
@@ -2784,7 +3038,7 @@ namespace OmniDB
 						v_info_return.v_command = v_command;
 
 						try {
-                            v_session.Execute(p_database_index, v_command, false, true);
+                            v_session.Execute(v_database, v_command, false, true);
 							v_info_return.error = false;
 							v_info_return.v_message = "Success.";
 
@@ -2811,7 +3065,7 @@ namespace OmniDB
 						v_info_return.v_command = v_command;
 
 						try {
-                            v_session.Execute(p_database_index, v_command, false, true);
+                            v_session.Execute(v_database, v_command, false, true);
 							v_info_return.error = false;
 							v_info_return.v_message = "Success.";
 
@@ -2838,7 +3092,7 @@ namespace OmniDB
 					v_info_return.v_command = v_command;
 
 					try {
-                        v_session.Execute(p_database_index, v_command, false, true);
+                        v_session.Execute(v_database, v_command, false, true);
 						v_info_return.error = false;
 						v_info_return.v_message = "Success.";
 					} catch (Spartacus.Database.Exception e) {
@@ -2938,7 +3192,7 @@ namespace OmniDB
 				v_info_return.v_command = v_command;
 
 				try {
-                    v_session.Execute(p_database_index, v_command, false, true);
+                    v_session.Execute(v_database, v_command, false, true);
 					v_info_return.error = false;
 					v_info_return.v_message = "Success.";
 				} catch (Spartacus.Database.Exception e) {
@@ -3203,5 +3457,229 @@ namespace OmniDB
 
 			return v_return;
 		}
+
+		/// <summary>
+		/// Retrieves alter sequence data.
+		/// </summary>
+		/// <param name="p_sequence">Sequence name.</param>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn AlterSequenceData(int p_database_index, string p_sequence)
+		{
+			Session v_session = (Session)System.Web.HttpContext.Current.Session["DB_SESSION"];
+
+			AjaxReturn v_return = new AjaxReturn();
+
+			AlterSequenceDataReturn v_alter_data = new AlterSequenceDataReturn();
+
+			if (v_session == null)
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			}
+
+			v_alter_data.v_min_value = "";
+			v_alter_data.v_max_value = "";
+			v_alter_data.v_current_value = "";
+			v_alter_data.v_increment = "";
+			v_alter_data.v_can_rename = true;
+			v_alter_data.v_can_alter_min_value = true;
+			v_alter_data.v_can_alter_max_value = true;
+			v_alter_data.v_can_alter_curr_value = true;
+			v_alter_data.v_can_alter_increment = true;
+
+			if (p_sequence != null)
+			{
+
+				OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+				try
+				{
+
+					System.Data.DataTable v_sequence_data = v_database.QuerySequences(p_sequence);
+
+					v_alter_data.v_min_value = v_sequence_data.Rows[0]["minimum_value"].ToString();
+					v_alter_data.v_max_value = v_sequence_data.Rows[0]["maximum_value"].ToString();
+					v_alter_data.v_current_value = v_sequence_data.Rows[0]["current_value"].ToString();
+					v_alter_data.v_increment = v_sequence_data.Rows[0]["increment"].ToString();
+
+					v_alter_data.v_can_rename = v_database.v_can_rename_sequence;
+					v_alter_data.v_can_alter_min_value = v_database.v_can_alter_sequence_min_value;
+					v_alter_data.v_can_alter_max_value = v_database.v_can_alter_sequence_max_value;
+					v_alter_data.v_can_alter_curr_value = v_database.v_can_alter_sequence_curr_value;
+					v_alter_data.v_can_alter_increment = v_database.v_can_alter_sequence_increment;
+
+				}
+				catch (Spartacus.Database.Exception e)
+				{
+
+					v_return.v_error = true;
+					v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+					return v_return;
+				}
+				catch (System.InvalidOperationException e)
+				{
+					v_return.v_error = true;
+					v_return.v_data = e.Message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+					return v_return;
+			}
+
+			}
+
+			v_return.v_data = v_alter_data;
+
+			return v_return;
+
+		}
+
+		/// <summary>
+		/// Saves alter table window changes.
+		/// </summary>
+		/// <param name="p_mode">Mode.</param>
+		/// <param name="p_new_table_name">New table name.</param>
+		/// <param name="p_original_table_name">Original table name.</param>
+		/// <param name="p_data_columns">Columns data.</param>
+		/// <param name="p_row_columns_info">Columns info.</param>
+		/// <param name="p_data_constraints">Constraints data.</param>
+		/// <param name="p_row_constraints_info">Constraints info.</param>
+		/// <param name="p_data_indexes">Indexes data.</param>
+		/// <param name="p_row_indexes_info">Indexes info.</param>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn SaveAlterSequence(int p_database_index,
+												string p_mode,
+												string p_new_sequence_name,
+												string p_original_sequence_name,
+												string p_min_value,
+	                                            string p_max_value,
+	                                            string p_increment,
+	                                            string p_curr_value)
+		{
+			AjaxReturn v_return = new AjaxReturn();
+			Session v_session = (Session)System.Web.HttpContext.Current.Session["OMNIDB_SESSION"];
+
+			SaveAlterSequenceReturn v_alter_return = new SaveAlterSequenceReturn();
+
+			if (v_session == null)
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			}
+
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+
+			// Changing existing sequence
+			if (p_mode == "alter")
+			{
+				string v_original_sequence_name = "";
+
+				if (v_database.v_has_schema)
+				{
+					v_original_sequence_name = v_database.v_schema + "." + p_original_sequence_name;
+				}
+				else {
+					v_original_sequence_name = p_original_sequence_name;
+				}
+
+				string v_alter_command = v_database.v_alter_sequence_command;
+				v_alter_command = v_alter_command.Replace("#p_sequence_name#", v_original_sequence_name);
+				v_alter_command = v_alter_command.Replace("#p_increment#", p_increment);
+				v_alter_command = v_alter_command.Replace("#p_min_value#", p_min_value);
+				v_alter_command = v_alter_command.Replace("#p_max_value#", p_max_value);
+				v_alter_command = v_alter_command.Replace("#p_curr_value#", p_curr_value);
+
+				CommandInfoReturn v_alter_info_return = new CommandInfoReturn();
+				v_alter_info_return.v_command = v_alter_command;
+
+				try
+				{
+					v_session.Execute(v_database, v_alter_command, false, true);
+					v_alter_info_return.error = false;
+					v_alter_info_return.v_message = "Success.";
+				}
+				catch (Spartacus.Database.Exception e)
+				{
+
+					v_alter_info_return.error = true;
+					v_alter_info_return.v_message = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+				}
+
+				v_alter_return.v_alter_sequence_command = v_alter_info_return;
+
+				//Renaming sequence
+				if (p_new_sequence_name != p_original_sequence_name)
+				{
+
+
+					string v_rename_command = v_database.v_rename_sequence_command.Replace("#p_sequence_name#", v_original_sequence_name).Replace("#p_new_sequence_name#", p_new_sequence_name);
+
+					CommandInfoReturn v_info_return = new CommandInfoReturn();
+					v_info_return.v_command = v_rename_command;
+
+					try
+					{
+						v_session.Execute(v_database, v_rename_command, false, true);
+						v_info_return.error = false;
+						v_info_return.v_message = "Success.";
+					}
+					catch (Spartacus.Database.Exception e)
+					{
+
+						v_info_return.error = true;
+						v_info_return.v_message = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+					}
+
+					v_alter_return.v_rename_sequence_command = v_info_return;
+
+				}
+
+			}
+			// Creating new sequence
+			else {
+
+				string v_sequence_name = "";
+
+				if (v_database.v_has_schema)
+					v_sequence_name = v_database.v_schema + "." + p_new_sequence_name;
+				else
+					v_sequence_name = p_new_sequence_name;
+
+				string v_command = v_database.v_create_sequence_command;
+				v_command = v_command.Replace("#p_sequence_name#", v_sequence_name);
+				v_command = v_command.Replace("#p_increment#", p_increment);
+				v_command = v_command.Replace("#p_min_value#", p_min_value);
+				v_command = v_command.Replace("#p_max_value#", p_max_value);
+				v_command = v_command.Replace("#p_curr_value#", p_curr_value);
+
+				CommandInfoReturn v_info_return = new CommandInfoReturn();
+				v_info_return.v_command = v_command;
+
+				try
+				{
+					v_session.Execute(v_database, v_command, false, true);
+					v_info_return.error = false;
+					v_info_return.v_message = "Success.";
+				}
+				catch (Spartacus.Database.Exception e)
+				{
+
+					v_info_return.error = true;
+					v_info_return.v_message = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				}
+
+				v_alter_return.v_create_sequence_command = v_info_return;
+
+			}
+
+			v_return.v_data = v_alter_return;
+
+			return v_return;
+
+		}
+		
 	}
 }

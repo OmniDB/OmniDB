@@ -31,14 +31,14 @@ namespace OmniDatabase
 			: base ("sqlite",p_conn_id)
 		{
 
-			if (p_database.Contains("/")) {
+			//if (p_database.Contains("/")) {
 
-				string []v_strings = p_database.Split ('/');
+			//	string []v_strings = p_database.Split ('/');
 
-				v_service = v_strings [v_strings.Length - 1];
+			//	v_service = v_strings [v_strings.Length - 1];
 
-			}
-			else
+			//}
+			//else
 				v_service = p_database;
 
 			v_has_schema = false;
@@ -104,6 +104,7 @@ namespace OmniDatabase
 
 			v_has_functions = false;
             v_has_procedures = false;
+			v_has_sequences = false;
 
 		}
 
@@ -376,6 +377,8 @@ namespace OmniDatabase
 				v_all_fks.Columns.Add ("constraint_name");
 				v_all_fks.Columns.Add ("update_rule");
 				v_all_fks.Columns.Add ("delete_rule");
+				v_all_fks.Columns.Add ("table_schema");
+				v_all_fks.Columns.Add ("r_table_schema");
 
 				System.Data.DataTable v_tables = v_connection.Query ("select name as table_name " +
 					"from sqlite_master " +
@@ -396,6 +399,8 @@ namespace OmniDatabase
 						v_fks.Columns.Remove ("seq");
 						v_fks.Columns.Remove ("match");
 						v_fks.Columns.Add ("table_name");
+						v_fks.Columns.Add("table_schema");
+						v_fks.Columns.Add("r_table_schema");
 
 						foreach (System.Data.DataRow v_fk in v_fks.Rows) {
 							
@@ -431,6 +436,8 @@ namespace OmniDatabase
 					v_fks.Columns.Remove ("seq");
 					v_fks.Columns.Remove ("match");
 					v_fks.Columns.Add ("table_name");
+					v_fks.Columns.Add("table_schema");
+					v_fks.Columns.Add("r_table_schema");
 
 					foreach (System.Data.DataRow v_fk in v_fks.Rows) {
 						
@@ -714,6 +721,26 @@ namespace OmniDatabase
 		/// <summary>
 		/// Query limited number of records.
 		/// </summary>
+		/// <param name="p_query">Query string.</param>
+		/// <param name="p_count">Max number of records.</param>
+		/// <param name="p_columns">Column names.</param>
+		public override System.Collections.Generic.List<System.Collections.Generic.List<string>> QueryDataLimitedList(string p_query, int p_count, out System.Collections.Generic.List<string> p_columns)
+		{
+
+			string v_filter = "";
+			if (p_count != -1)
+				v_filter = " limit  " + p_count;
+
+			return v_connection.QuerySList(
+				"select *                 " +
+				"from ( " + p_query + " ) " +
+				v_filter, out p_columns);
+
+		}
+
+		/// <summary>
+		/// Query limited number of records.
+		/// </summary>
 		/// <param name="p_column_list">List of columns separated by comma.</param> 
 		/// <param name="p_table">Table name.</param>
 		/// <param name="p_filter">Query filter.</param>
@@ -785,6 +812,16 @@ namespace OmniDatabase
             return null;
 
         }
+
+		/// <summary>
+		/// Get a datatable with sequences.
+		/// </summary>
+		public override System.Data.DataTable QuerySequences(string p_sequence)
+		{
+
+			return null;
+
+		}
 
 	}
 }

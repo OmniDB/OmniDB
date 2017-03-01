@@ -43,7 +43,7 @@ function newConversion() {
 function listConversions() {
 
 	execAjax('Conversions.aspx/GetConversions',
-			null,
+			JSON.stringify({}),
 			function(p_return) {
 
 				window.scrollTo(0,0);

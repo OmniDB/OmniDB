@@ -38,6 +38,7 @@ $(function () {
 
 	//WebSockets
 	startChatWebSocket(2011);
+	startQueryWebSocket(2012);
 });
 
 /// <summary>
@@ -84,12 +85,23 @@ function hideFindReplace() {
 /// <param name="p_tab">Tab object.</param>
 function renameTab(p_tab) {
 
-	showConfirm('<input id="tab_name"/ value="' + p_tab.text + '" style="width: 200px;">',
+	showConfirm('<input id="tab_name"/ value="' + p_tab.tag.tab_title_span.innerHTML + '" style="width: 200px;">',
 	            function() {
 
-					p_tab.renameTab(document.getElementById('tab_name').value);
+					renameTabConfirm(p_tab,document.getElementById('tab_name').value);
 
 	            });
+
+}
+
+/// <summary>
+/// Renames tab.
+/// </summary>
+/// <param name="p_tab">Tab object.</param>
+/// <param name="p_name">New name.</param>
+function renameTabConfirm(p_tab, p_name) {
+
+	p_tab.tag.tab_title_span.innerHTML=p_name;
 
 }
 
@@ -99,14 +111,18 @@ function renameTab(p_tab) {
 /// <param name="p_tab">Tab object.</param>
 function removeTab(p_tab) {
 
-	if (p_tab.tag.ht!=null) {
-		p_tab.tag.ht.destroy();
-		p_tab.tag.div_result.innerHTML = '';
-	}
+	showConfirm('Are you sure you want to remove this tab?',
+                function() {
+                	p_tab.removeTab();
+                	if (p_tab.tag.ht!=null) {
+						p_tab.tag.ht.destroy();
+						p_tab.tag.div_result.innerHTML = '';
+					}
 
-	if (p_tab.tag.editor!=null)
-		p_tab.tag.editor.destroy();
-
+					if (p_tab.tag.editor!=null)
+						p_tab.tag.editor.destroy();
+                });
+	
 }
 
 /// <summary>
@@ -141,7 +157,7 @@ function changeDatabase(p_value) {
 function getDatabaseList() {
 
 	execAjax('MainDB.aspx/GetDatabaseList',
-			null,
+			JSON.stringify({}),
 			function(p_return) {
 
 				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
@@ -319,14 +335,27 @@ function createConnTab() {
 	var v_createTabFunction = function() {
 
 		v_currTabControl.removeTabIndex(v_currTabControl.tabList.length-1);
-		var v_tab = v_currTabControl.createTab('Query',true,null,renameTab,'cm_tab',removeTab,true);
+		var v_tab = v_currTabControl.createTab('<span id="tab_title">Query</span><span id="tab_loading" style="display:none;"><img src="images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="images/check.png"/></span><span id="tab_close"><img src="images/tab_close.png"/></span>',false,null,renameTab,'cm_tab',null,true);
 		v_currTabControl.selectTab(v_tab);
+
+		//Adding unique names to spans
+		var v_tab_title_span = document.getElementById('tab_title');
+		v_tab_title_span.id = 'tab_title_' + v_tab.id;
+		var v_tab_loading_span = document.getElementById('tab_loading');
+		v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
+		var v_tab_check_span = document.getElementById('tab_check');
+		v_tab_check_span.id = 'tab_check_' + v_tab.id;
+		var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function() {
+			removeTab(v_tab);
+		};
 
 		var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 300px;border: 1px solid #c3c3c3;'></div>" +
 
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: row-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
 
-					 "<button class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='querySQL();'><img src='images/play.png' style='vertical-align: middle;'/></button>" +
+					 "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='querySQL();'><img src='images/play.png' style='vertical-align: middle;'/></button>" +
 					 "<select id='sel_filtered_data_" + v_tab.id + "'><option value='-3' >Script</option><option value='-2' >Execute</option><option selected='selected' value='10' >Query 10 rows</option><option value='100'>Query 100 rows</option><option value='1000'>Query 1000 rows</option><option value='-1'>Query All rows</option></select>" +
 					 "<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
 					 "<button class='bt_export' title='Export Data' style='margin-bottom: 5px; margin-left: 5px; float: right; display: inline-block;' onclick='exportData();'><img src='images/table_export.png' style='vertical-align: middle;'/></button>" +
@@ -422,16 +451,27 @@ function createConnTab() {
 		v_editor.setOptions({enableBasicAutocompletion: true});
 
 		var v_tag = {
+			tab_id: v_tab.id,
 			mode: 'query',
 			editor: v_editor,
 			editorDivId: 'txt_query_' + v_tab.id,
 			query_info: document.getElementById('div_query_info_' + v_tab.id),
 			div_result: document.getElementById('div_result_' + v_tab.id),
 			sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id),
-			sel_export_type : document.getElementById('sel_export_type_' + v_tab.id)
+			sel_export_type : document.getElementById('sel_export_type_' + v_tab.id),
+			tab_title_span : v_tab_title_span,
+			tab_loading_span : v_tab_loading_span,
+			tab_check_span : v_tab_check_span,
+			tab_close_span : v_tab_close_span,
+			bt_start: document.getElementById('bt_start_' + v_tab.id),
+			state : 0,
+			tabControl: v_currTabControl,
+			connTab: v_connTabControl.selectedTab
 		};
 
 		v_tab.tag = v_tag;
+
+		v_tab.setClickFunction(function() { checkQueryStatus(v_tab); });
 
 		v_currTabControl.createTab('+',false,v_createTabFunction);
 
@@ -655,9 +695,48 @@ function createConnTab() {
 
 	};
 
+	var v_createSequenceTabFunction = function(p_sequence) {
+
+		v_currTabControl.removeTabIndex(v_currTabControl.tabList.length-1);
+		var v_tab = v_currTabControl.createTab('<img src="images/sequence_list.png"/> ' + p_sequence,true,null,null,null,removeTab,true);
+		v_currTabControl.selectTab(v_tab);
+
+		var v_html = "<div id='div_edit_sequence_" + v_tab.id + "' style='padding: 20px 0px 0px 20px;'>" +
+		"<div style='margin-bottom: 20px;'><span style='width: 100px; display: inline-block;'><b>Sequence Name:</b> </span><input type='text' onchange='changeSequenceField(this)' id='txt_sequenceNameAlterSequence_" + v_tab.id + "' /></div>" +
+		"<div style='margin-bottom: 20px;'><span style='width: 100px; display: inline-block;'>Minimum value: </span><input type='text' onchange='changeSequenceField(this)' id='txt_minValueAlterSequence_" + v_tab.id + "' /></div>" +
+		"<div style='margin-bottom: 20px;'><span style='width: 100px; display: inline-block;'>Maximum value: </span><input type='text' onchange='changeSequenceField(this)' id='txt_maxValueAlterSequence_" + v_tab.id + "' /></div>" +
+		"<div style='margin-bottom: 20px;'><span style='width: 100px; display: inline-block;'>Increment: </span><input type='text' onchange='changeSequenceField(this)' id='txt_incrementAlterSequence_" + v_tab.id + "' /></div>" +
+		"<div style='margin-bottom: 20px;'><span style='width: 100px; display: inline-block;'>Current value: </span><input type='text' onchange='changeSequenceField(this)' id='txt_currValueAlterSequence_" + v_tab.id + "' /></div>" +
+		"<button id='bt_saveAlterSequence_" + v_tab.id + "' onclick='saveAlterSequence()' style='visibility: hidden;'>Save Changes</button>" +
+		"</div>";
+
+		var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+		var v_height  = $(window).height() - $('#div_edit_sequence_' + v_tab.id).offset().top - 20;
+
+		document.getElementById('div_edit_sequence_' + v_tab.id).style.height = v_height + "px"
+
+		var v_tag = {
+			mode: 'sequence',
+			btSave: document.getElementById('bt_saveAlterSequence_' + v_tab.id),
+			txtSequenceName: document.getElementById('txt_sequenceNameAlterSequence_' + v_tab.id),
+			txtMinValue    : document.getElementById('txt_minValueAlterSequence_' + v_tab.id),
+			txtMaxValue    : document.getElementById('txt_maxValueAlterSequence_' + v_tab.id),
+			txtIncrement   : document.getElementById('txt_incrementAlterSequence_' + v_tab.id),
+			txtCurrValue   : document.getElementById('txt_currValueAlterSequence_' + v_tab.id)
+		};
+
+		v_tab.tag = v_tag;
+
+		v_currTabControl.createTab('+',false,v_createTabFunction);
+
+	};
+
 	v_currTabControl.tag.createQueryTab = v_createTabFunction;
 	v_currTabControl.tag.createEditDataTab = v_createEditDataTabFunction;
 	v_currTabControl.tag.createAlterTableTab = v_createAlterTableTabFunction;
+	v_currTabControl.tag.createSequenceTab = v_createSequenceTabFunction;
 
 	v_currTabControl.createTab('+',false,v_createTabFunction);
 
@@ -668,10 +747,13 @@ function createConnTab() {
 		divTree: document.getElementById(v_tab.id + '_tree'),
 		divLeft: document.getElementById(v_tab.id + '_div_left'),
 		divRight: document.getElementById(v_tab.id + '_div_right'),
-		selectedDatabaseIndex: 0
+		selectedDatabaseIndex: 0,
+		connTabControl: v_connTabControl
 	};
 
 	v_tab.tag = v_tag;
+
+	v_tab.setClickFunction(function() { checkTabStatus(v_tab); });
 
 	var v_div_select_db = document.getElementById(v_tab.id + '_div_select_db');
 	v_div_select_db.innerHTML = v_connTabControl.tag.selectHTML;
@@ -682,6 +764,14 @@ function createConnTab() {
 	v_connTabControl.createTab('+',false,createConnTab);
 
 }
+
+function checkTabStatus(v_tab) {
+
+	if (v_tab.tag.tabControl.selectedTab.tag.mode=='query')
+		checkQueryStatus(v_tab.tag.tabControl.selectedTab);
+
+}
+
 
 /// <summary>
 /// Shows or hides graph window.
@@ -785,6 +875,13 @@ function drawGraph(p_graph_type) {
 							}
 						},
 						{
+							selector: 'node.group0',
+							style: {
+								'background-color': 'slategrey',
+								'shape': 'square'
+							}
+						},
+						{
 							selector: 'node.group1',
 							style: {
 								'background-color': 'blue'
@@ -833,7 +930,8 @@ function drawGraph(p_graph_type) {
 						        'control-point-distances': 50,
 						        'content': 'data(label)',
 						        'text-wrap': 'wrap',
-						        'edge-text-rotation': 'autorotate'
+						        'edge-text-rotation': 'autorotate',
+						        'line-style': 'solid'
 							}
 						}
 					],
@@ -899,10 +997,12 @@ function getStatistics() {
 /// <summary>
 /// Queries and displays query results.
 /// </summary>
-function querySQL() {
+function querySQL_old() {
 
 	var v_sql_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
 	var v_sel_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value;
+	var v_tab_loading_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_loading_span;
+	var v_tab_close_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_close_span;
 
 	if (v_sql_value=='') {
 		showAlert('Please provide a string.');
@@ -911,6 +1011,9 @@ function querySQL() {
 		var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value});
 
 		var start_time = new Date().getTime();
+
+		v_tab_loading_span.style.display = '';
+		v_tab_close_span.style.display = 'none';
 
 		execAjax('MainDB.aspx/QuerySQL',
 				input,
@@ -990,6 +1093,9 @@ function querySQL() {
 
 					}
 
+					v_tab_loading_span.style.display = 'none';
+					v_tab_close_span.style.display = '';
+
 				},
 				null,
 				'box');
@@ -1013,7 +1119,7 @@ function exportData() {
 		showConfirm('Are you sure you want to export data from the result of this query?',
 				function() {
 
-					var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value, "p_tab_name" : v_connTabControl.selectedTab.tag.tabControl.selectedTab.text});
+					var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value, "p_tab_name" : v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_title_span.innerHTML});
 
 					var start_time = new Date().getTime();
 
@@ -1497,6 +1603,18 @@ function changeTableName() {
 }
 
 /// <summary>
+/// Changes sequence field.
+/// </summary>
+function changeSequenceField(p_element) {
+
+	var v_curr_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	v_curr_tab_tag.btSave.style.visibility = 'visible';
+	$(p_element).addClass('changed_input');
+
+}
+
+/// <summary>
 /// Queries edit data window.
 /// </summary>
 function queryEditData() {
@@ -1793,7 +1911,7 @@ function deleteCommandList() {
 				function() {
 
 					execAjax('MainDB.aspx/ClearCommandList',
-					null,
+					JSON.stringify({}),
 					function(p_return) {
 
 						hideCommandList();
@@ -1810,7 +1928,7 @@ function deleteCommandList() {
 function showCommandList() {
 
 	execAjax('MainDB.aspx/GetCommandList',
-			null,
+			JSON.stringify({}),
 			function(p_return) {
 
 				$('#div_command_list').show();
@@ -2483,6 +2601,21 @@ function dropProcedure(p_node) {
 }
 
 /// <summary>
+/// Displays message to drop sequence.
+/// </summary>
+/// <param name="p_node">Tree node object.</param>
+function dropSequence(p_node) {
+
+	showConfirm('Are you sure you want to drop the sequence ' + p_node.text + '?',
+				function() {
+
+					dropSequenceConfirm(p_node);
+
+				});
+
+}
+
+/// <summary>
 /// Displays message to delete table records.
 /// </summary>
 /// <param name="p_node">Tree node object.</param>
@@ -2568,6 +2701,32 @@ function dropProcedureConfirm(p_node) {
 					p_node.parent.setText('Procedures (' + p_node.parent.tag.num_tables + ')');
 
 					showAlert('Procedure dropped.');
+
+				},
+				null,
+				'box');
+
+}
+
+/// <summary>
+/// Drops sequence.
+/// </summary>
+/// <param name="p_node">Tree node object.</param>
+function dropSequenceConfirm(p_node) {
+
+	p_node.tag.num_tables = 0;
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sequence": p_node.text});
+
+	execAjax('MainDB.aspx/DropSequence',
+				input,
+				function(p_return) {
+
+					p_node.removeNode();
+
+					p_node.parent.tag.num_tables = p_node.parent.tag.num_tables-1;
+					p_node.parent.setText('Sequences (' + p_node.parent.tag.num_tables + ')');
+
+					showAlert('Sequence dropped.');
 
 				},
 				null,
@@ -2985,3 +3144,334 @@ function showColumnSelectionIndexes() {
 	}
 
 }
+
+/// <summary>
+/// Initiates alter sequence window.
+/// </summary>
+/// <param name="p_mode">Alter or new sequence.</param>
+/// <param name="p_sequence">Sequence name.</param>
+function startAlterSequence(p_mode,p_sequence) {
+
+	var v_curr_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sequence": p_sequence});
+
+	execAjax('MainDB.aspx/AlterSequenceData',
+				input,
+				function(p_return) {
+
+					v_curr_tab_tag.alterSequenceObject = new Object();
+
+					v_curr_tab_tag.alterSequenceObject.sequenceName = p_sequence;
+					v_curr_tab_tag.alterSequenceObject.mode = p_mode;
+
+					v_curr_tab_tag.txtSequenceName.value = p_sequence;
+					v_curr_tab_tag.txtMinValue.value     = p_return.v_data.v_min_value;
+					v_curr_tab_tag.txtMaxValue.value     = p_return.v_data.v_max_value;
+					v_curr_tab_tag.txtIncrement.value    = p_return.v_data.v_increment;
+					v_curr_tab_tag.txtCurrValue.value    = p_return.v_data.v_current_value;
+
+					if (!p_return.v_data.v_can_rename) {
+						$(v_curr_tab_tag.txtSequenceName).prop("readonly", true);
+						v_curr_tab_tag.txtSequenceName.style.backgroundColor = 'rgb(242, 242, 242)';
+					}
+
+					if (!p_return.v_data.v_can_alter_min_value) {
+						$(v_curr_tab_tag.txtMinValue).prop("readonly", true);
+						v_curr_tab_tag.txtMinValue.style.backgroundColor = 'rgb(242, 242, 242)';
+					}
+					if (!p_return.v_data.v_can_alter_max_value) {
+						$(v_curr_tab_tag.txtMaxValue).prop("readonly", true);
+						v_curr_tab_tag.txtMaxValue.style.backgroundColor = 'rgb(242, 242, 242)';
+					}
+					if (!p_return.v_data.v_can_alter_curr_value) {
+						$(v_curr_tab_tag.txtCurrValue).prop("readonly", true);
+						v_curr_tab_tag.txtCurrValue.style.backgroundColor = 'rgb(242, 242, 242)';
+					}
+					if (!p_return.v_data.v_can_alter_increment) {
+						$(v_curr_tab_tag.txtIncrement).prop("readonly", true);
+						v_curr_tab_tag.txtIncrement.style.backgroundColor = 'rgb(242, 242, 242)';
+					}
+
+
+				},
+				null,
+				'box');
+
+}
+
+/// <summary>
+/// Saves alter sequence changes.
+/// </summary>
+function saveAlterSequence() {
+
+	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	var v_new_sequence_name = v_currTabTag.txtSequenceName.value;
+
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_mode" : v_currTabTag.alterSequenceObject.mode,"p_new_sequence_name": v_new_sequence_name, "p_original_sequence_name": v_currTabTag.alterSequenceObject.sequenceName, "p_min_value": v_currTabTag.txtMinValue.value, "p_max_value": v_currTabTag.txtMaxValue.value, "p_increment": v_currTabTag.txtIncrement.value, "p_curr_value": v_currTabTag.txtCurrValue.value});
+
+	execAjax('MainDB.aspx/SaveAlterSequence',
+			input,
+			function(p_return) {
+
+				/*
+
+				var v_div_commands_log = document.getElementById('div_commands_log_list');
+				v_div_commands_log.innerHTML = '';
+				var v_commands_log = '';
+
+				var v_has_error = false;
+
+				v_currTabTag.btSave.style.visibility = 'hidden';
+
+				//Creating new table
+				if (p_return.v_data.v_create_table_command!=null) {
+
+					if (!p_return.v_data.v_create_table_command.error) {
+						startAlterTable('alter',v_new_table_name);
+						v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab('<img src="images/table_edit.png"/> ' + v_new_table_name);
+					}
+					else {
+						v_has_error = true;
+
+						v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_create_table_command.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_create_table_command.v_message + '<br/><br/>';
+
+						v_currTabTag.btSave.style.visibility = 'visible';
+
+					}
+
+
+				}
+				else {
+
+					if (p_return.v_data.v_rename_table_command!=null) {
+
+						if (!p_return.v_data.v_rename_table_command.error) {
+
+							v_currTabTag.alterTableObject.tableName = v_new_table_name;
+							$(v_currTabTag.txtTableName).removeClass('changed_input');
+							v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab('<img src="images/table_edit.png"/> ' + v_new_table_name);
+
+
+						}
+						else {
+							v_has_error = true;
+
+							v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_rename_table_command.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_rename_table_command.v_message + '<br/><br/>';
+
+							v_currTabTag.btSave.style.visibility = 'visible';
+
+						}
+
+
+					}
+					else {
+						$(v_currTabTag.txtTableName).removeClass('changed_input');
+					}
+
+					// New column or delete column
+					for (var i = p_return.v_data.v_columns_simple_commands_return.length-1; i >= 0; i--) {
+
+						if (p_return.v_data.v_columns_simple_commands_return[i].mode==-1) {
+							if (!p_return.v_data.v_columns_simple_commands_return[i].error) {
+
+								v_currTabTag.alterTableObject.infoRowsColumns.splice(p_return.v_data.v_columns_simple_commands_return[i].index, 1);
+								v_currTabTag.alterTableObject.htColumns.alter('remove_row', p_return.v_data.v_columns_simple_commands_return[i].index);
+
+
+							}
+							else {
+
+								v_has_error = true;
+
+								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_message + '<br/><br/>';
+
+								v_currTabTag.btSave.style.visibility = 'visible';
+							}
+						}
+						else if (p_return.v_data.v_columns_simple_commands_return[i].mode==2) {
+							if (!p_return.v_data.v_columns_simple_commands_return[i].error) {
+
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].mode = 0;
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].old_mode = -1;
+
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalColName = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,0);
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalDataType = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,1);
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalNullable = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,2);
+
+							}
+							else {
+
+								v_has_error = true;
+
+								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_message  + '<br/><br/>';
+
+								v_currTabTag.btSave.style.visibility = 'visible';
+							}
+						}
+
+					}
+
+					var v_has_group_error;
+
+					// Altering column
+					for (var i = p_return.v_data.v_columns_group_commands_return.length-1; i >= 0; i--) {
+
+						v_has_group_error = false;
+
+						if (p_return.v_data.v_columns_group_commands_return[i].alter_datatype!=null) {
+							if (!p_return.v_data.v_columns_group_commands_return[i].alter_datatype.error) {
+
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalDataType = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,1);
+
+							}
+							else {
+
+								v_has_error = true;
+								v_has_group_error = true;
+
+								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_datatype.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_datatype.v_message  + '<br/><br/>';
+
+
+							}
+
+						}
+
+						if (p_return.v_data.v_columns_group_commands_return[i].alter_nullable!=null) {
+							if (!p_return.v_data.v_columns_group_commands_return[i].alter_nullable.error) {
+
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalNullable = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,2);
+
+							}
+							else {
+
+								v_has_error = true;
+								v_has_group_error = true;
+
+								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_nullable.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_nullable.v_message  + '<br/><br/>';
+
+
+							}
+
+						}
+
+						if (p_return.v_data.v_columns_group_commands_return[i].alter_colname!=null) {
+							if (!p_return.v_data.v_columns_group_commands_return[i].alter_colname.error) {
+
+								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalColName = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,0);
+
+							}
+							else {
+
+								v_has_error = true;
+								v_has_group_error = true;
+
+								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_colname.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_colname.v_message  + '<br/><br/>';
+
+
+							}
+
+						}
+
+						if (!v_has_group_error) {
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].mode = 0;
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].old_mode = -1;
+						}
+
+					}
+
+					// New constraint or delete constraint
+					for (var i = p_return.v_data.v_constraints_commands_return.length-1; i >= 0; i--) {
+
+						if (p_return.v_data.v_constraints_commands_return[i].mode==-1) {
+							if (!p_return.v_data.v_constraints_commands_return[i].error) {
+
+								v_currTabTag.alterTableObject.infoRowsConstraints.splice(p_return.v_data.v_constraints_commands_return[i].index, 1);
+								v_currTabTag.alterTableObject.htConstraints.alter('remove_row', p_return.v_data.v_constraints_commands_return[i].index);
+
+
+							}
+							else {
+
+								v_has_error = true;
+
+								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_message + '<br/><br/>';
+
+							}
+						}
+						else if (p_return.v_data.v_constraints_commands_return[i].mode==2) {
+							if (!p_return.v_data.v_constraints_commands_return[i].error) {
+
+								v_currTabTag.alterTableObject.infoRowsConstraints[p_return.v_data.v_constraints_commands_return[i].index].mode = 0;
+								v_currTabTag.alterTableObject.infoRowsConstraints[p_return.v_data.v_constraints_commands_return[i].index].old_mode = -1;
+
+							}
+							else {
+
+								v_has_error = true;
+
+								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_message  + '<br/><br/>';
+
+							}
+						}
+
+					}
+
+					// New index or delete index
+					for (var i = p_return.v_data.v_indexes_commands_return.length-1; i >= 0; i--) {
+
+						if (p_return.v_data.v_indexes_commands_return[i].mode==-1) {
+							if (!p_return.v_data.v_indexes_commands_return[i].error) {
+
+								v_currTabTag.alterTableObject.infoRowsIndexes.splice(p_return.v_data.v_indexes_commands_return[i].index, 1);
+								v_currTabTag.alterTableObject.htIndexes.alter('remove_row', p_return.v_data.v_indexes_commands_return[i].index);
+
+
+							}
+							else {
+
+								v_has_error = true;
+
+								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_message + '<br/><br/>';
+
+							}
+						}
+						else if (p_return.v_data.v_indexes_commands_return[i].mode==2) {
+							if (!p_return.v_data.v_indexes_commands_return[i].error) {
+
+								v_currTabTag.alterTableObject.infoRowsIndexes[p_return.v_data.v_indexes_commands_return[i].index].mode = 0;
+								v_currTabTag.alterTableObject.infoRowsIndexes[p_return.v_data.v_indexes_commands_return[i].index].old_mode = -1;
+
+							}
+							else {
+
+								v_has_error = true;
+
+								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_message  + '<br/><br/>';
+
+							}
+						}
+
+					}
+				}
+
+				if (v_has_error) {
+					v_div_commands_log.innerHTML = v_commands_log;
+					$('#div_commands_log').show();
+
+				}
+				else {
+					v_currTabTag.btSave.style.visibility = 'hidden';
+				}
+
+				v_currTabTag.alterTableObject.htColumns.render();
+				v_currTabTag.alterTableObject.htConstraints.render();
+				v_currTabTag.alterTableObject.htIndexes.render();*/
+
+			},
+			null,
+			'box');
+
+}
+

@@ -35,7 +35,7 @@ $(function() {
 function newConnectionConfirm() {
 
 	execAjax('Connections.aspx/NewConnection',
-			null,
+			JSON.stringify({}),
 			function(p_return) {
 
 				listConnections();
@@ -205,7 +205,7 @@ function saveConnections() {
 function listConnections() {
 
 	execAjax('Connections.aspx/GetConnections',
-			null,
+			JSON.stringify({}),
 			function(p_return) {
 
 				window.scrollTo(0,0);

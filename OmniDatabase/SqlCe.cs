@@ -111,6 +111,7 @@ namespace OmniDatabase
 
 			v_has_functions = false;
             v_has_procedures = false;
+			v_has_sequences = true;
 
         }
 
@@ -379,6 +380,25 @@ namespace OmniDatabase
 
         }
 
+		/// <summary>
+		/// Query limited number of records.
+		/// </summary>
+		/// <param name="p_query">Query string.</param>
+		/// <param name="p_count">Max number of records.</param>
+		/// <param name="p_columns">Column names.</param>
+		public override System.Collections.Generic.List<System.Collections.Generic.List<string>> QueryDataLimitedList(string p_query, int p_count, out System.Collections.Generic.List<string> p_columns)
+		{
+
+			string v_filter = "";
+			if (p_count != -1)
+				v_filter = " top  " + p_count;
+
+			return v_connection.QuerySList(
+				"select " + v_filter + " limit_alias.* " +
+				"from ( " + p_query + " ) limit_alias", out p_columns);
+
+		}
+
         /// <summary>
         /// Query limited number of records.
         /// </summary>
@@ -452,6 +472,16 @@ namespace OmniDatabase
             return null;
 
         }
+
+		/// <summary>
+		/// Get a datatable with sequences.
+		/// </summary>
+		public override System.Data.DataTable QuerySequences(string p_sequence)
+		{
+
+			return null;
+
+		}
 
     }
 }

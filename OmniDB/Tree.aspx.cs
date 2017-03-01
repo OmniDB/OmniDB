@@ -33,6 +33,7 @@ namespace OmniDB
 		public bool v_has_schema;
 		public bool v_has_functions;
         public bool v_has_procedures;
+		public bool v_has_sequences;
 	}
 
 	/// <summary>
@@ -101,6 +102,7 @@ namespace OmniDB
 			v_database_return.v_has_schema = v_database.v_has_schema;
 			v_database_return.v_has_functions = v_database.v_has_functions;
             v_database_return.v_has_procedures = v_database.v_has_procedures;
+			v_database_return.v_has_sequences = v_database.v_has_sequences;
 
 			if (v_database_return.v_has_schema)
 				v_database_return.v_schema = v_database.v_schema;
@@ -742,6 +744,50 @@ namespace OmniDB
             return v_return;
 
         }
+
+		/// <summary>
+		/// Get all database tables.
+		/// </summary>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn GetSequences(int p_database_index)
+		{
+			AjaxReturn v_return = new AjaxReturn();
+			Session v_session = (Session)System.Web.HttpContext.Current.Session["OMNIDB_SESSION"];
+
+			if (v_session == null)
+			{
+				v_return.v_error = true;
+				v_return.v_error_id = 1;
+				return v_return;
+			}
+
+			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
+
+			System.Collections.Generic.List<string> v_list_tables = new System.Collections.Generic.List<string>();
+
+			try
+			{
+				System.Data.DataTable v_tables = v_database.QuerySequences(null);
+
+				foreach (System.Data.DataRow v_table in v_tables.Rows)
+					v_list_tables.Add(v_table["sequence_name"].ToString());
+
+			}
+			catch (Spartacus.Database.Exception e)
+			{
+
+				v_return.v_error = true;
+				v_return.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
+
+				return v_return;
+			}
+
+
+			v_return.v_data = v_list_tables;
+
+			return v_return;
+
+		}
 	}
 
 }

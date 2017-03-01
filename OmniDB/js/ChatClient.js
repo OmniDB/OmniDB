@@ -212,7 +212,7 @@ function startChatWebSocket(p_port) {
 			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.GetOldMessages, v_user_id, false);
 		},
 		function(p_event) {//Message
-			var v_message = JSON.parse(p_event.data);
+			var v_message = p_event;
 
 			if(v_message.v_error) {
 				showError('An error message has been received from the server:  <br>' + v_message.v_data);

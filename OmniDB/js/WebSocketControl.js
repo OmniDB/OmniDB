@@ -38,7 +38,32 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 	}
 
 	if(p_onMessage != null && typeof p_onMessage == 'function') {
-		v_connection.onmessage = p_onMessage;
+		
+		v_connection.onmessage = (function() {
+
+			return function(e) { 
+
+				var v_message = JSON.parse(e.data);
+				var v_context = null;
+
+				if (v_message.v_context_code!=0 && v_message.v_context_code!=null) {
+
+					for (var i=0; i<v_connection.contextList.length; i++) {
+
+						if (v_connection.contextList[i].code == v_message.v_context_code) {
+							v_context = v_connection.contextList[i].context;
+							v_connection.contextList.splice(i,1);
+							break;
+						}
+
+					}
+
+				}
+
+				p_onMessage(v_message,v_context);
+
+			}
+		})();
 	}
 
 	if(p_onClose != null && typeof p_onClose == 'function') {
@@ -48,6 +73,9 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 	if(p_onError != null && typeof p_onError == 'function') {
 		v_connection.onerror = p_onError;
 	}
+
+	v_connection.contextList = [];
+	v_connection.contextCode = 1;
 
 	return v_connection;
 }
@@ -59,13 +87,29 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 /// <param name="p_messageCode">Transaction code that identify the operation.</param>
 /// <param name="p_messageData">A object that will be send to the server.</param>
 /// <param name="p_error">If it's an error message.</param>
-function sendWebSocketMessage(p_connection, p_messageCode, p_messageData, p_error) {
+function sendWebSocketMessage(p_connection, p_messageCode, p_messageData, p_error, p_context) {
 	waitForSocketConnection(
 		p_connection,
 		function() {
+
+			var v_context_code = 0;
+
+			//Configuring context
+			if (p_context!=null) {
+				p_connection.contextCode += 1;
+				v_context_code = p_connection.contextCode;
+				var v_context = {
+					code: v_context_code,
+					context: p_context
+				}
+				p_connection.contextList.push(v_context);
+			}
+
+
 			p_connection.send(
 				JSON.stringify({
 					v_code: p_messageCode,
+					v_context_code: v_context_code,
 					v_error: p_error,
 					v_data: p_messageData
 				})

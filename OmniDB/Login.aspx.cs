@@ -33,6 +33,7 @@ namespace OmniDB
 	public class WebSocketMessage
 	{
 		public int v_code;
+		public int v_context_code;
 		public bool v_error;
 		public Object v_data;
 
@@ -58,6 +59,7 @@ namespace OmniDB
 		[System.Web.Services.WebMethod]
 		public static AjaxReturn SignIn(string p_username, string p_pwd)
 		{
+
 			AjaxReturn v_return = new AjaxReturn ();
             Spartacus.Utils.Cryptor v_cryptor = new Spartacus.Utils.Cryptor("omnidb_spartacus");
 
@@ -66,14 +68,14 @@ namespace OmniDB
 				"sqlite",
 				"",
 				"",
-				System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Database"].ToString (),
+                HttpContext.Current.Server.MapPath(System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Database"].ToString ()),
 				"",
 				"",
 				"");
 
 
 			if (p_username == "admin") {
-				string v_encrypted_pwd = System.IO.File.ReadAllText("config/admin.txt");
+				string v_encrypted_pwd = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("config/admin.txt"));
 
 				string v_pwd;
 				try {

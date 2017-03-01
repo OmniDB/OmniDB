@@ -19,6 +19,12 @@
 
 			checkSessionMessage();
 
+			//WEBSOCKET
+
+			//var connection = new WebSocket('ws://localhost:2011/');
+			//console.log('done');
+			
+
 		});
 
 		function signIn() {

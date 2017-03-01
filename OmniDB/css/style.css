@@ -624,6 +624,10 @@ a.modal-closer:hover {
 	background-color: rgb(234, 237, 249);
 }
 
+.changed_input {
+	/*background-color: rgb(255, 251, 215);*/
+}
+
 #div_chat {
 	border: 1px solid #c3c3c3;
 	border-radius: 3px;
@@ -766,6 +770,7 @@ a.modal-closer:hover {
 .div_user_status > img {
 	vertical-align: middle;
 }
+<<<<<<< HEAD
 
 .div_user_writing {
 	width: 15px;
@@ -775,3 +780,5 @@ a.modal-closer:hover {
 .div_user_writing > img {
 	vertical-align: middle;
 }
+=======
+>>>>>>> upstream/master

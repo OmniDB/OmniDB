@@ -12,7 +12,7 @@ You should have received a copy of the GNU General Public License along with Omn
 
 function checkSessionMessage() {
 	execAjax('Connections.aspx/CheckSessionMessage',
-        null,
+        JSON.stringify({}),
         function(p_return) {
           if (p_return.v_data!='')
           	showAlert(p_return.v_data);

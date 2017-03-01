@@ -143,6 +143,16 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 				contextMenu : p_contextMenu,
 				removeTab: function() { v_control.removeTab(this); },
 				renameTab: function(p_name) { v_control.renameTab(this,p_name); },
+				setClickFunction: function(p_function) {
+
+					this.clickFunction = p_function;
+					var v_tab = this;
+					v_li.onclick = function() {
+						v_control.selectTab(v_tab);
+						v_tab.clickFunction();
+					};
+
+				},
 				isDraggable: p_isDraggable
 			};
 

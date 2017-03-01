@@ -508,7 +508,6 @@ namespace OmniDB
 			catch (Spartacus.Database.Exception e)
 			{
 				System.Console.WriteLine(e.v_message);
-				System.Console.WriteLine("Erro");
 			}
 
 			v_d1.v_html = v_html;

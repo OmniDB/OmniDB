@@ -1,9 +1,29 @@
 ﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="monodevelop" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/Session.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/js/MainDB.js">
     <Files>
       <File FileName="OmniDB/Session.cs" Line="136" Column="6" />
+      <File FileName="OmniDB/js/ChatClient.js" Line="147" Column="29" />
+      <File FileName="OmniDB/ChatServer.cs" Line="361" Column="54" />
+      <File FileName="OmniDB/css/style.css" Line="771" Column="11" />
+      <File FileName="OmniDB/js/MainDB.js" Line="25" Column="6" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="OmniDB" expanded="True">
+            <Node name="OmniDB" expanded="True">
+              <Node name="css" expanded="True">
+                <Node name="themes" expanded="True" />
+              </Node>
+              <Node name="js" expanded="True">
+                <Node name="MainDB.js" selected="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

@@ -651,10 +651,9 @@ a.modal-closer:hover {
 	box-sizing: border-box;
 	line-height: 35px;
 	color: white;
-	background-color: rgb(74, 104, 150);
     border-top-right-radius: 3px;
     border-top-left-radius: 3px;
-    1px solid #c3c3c3
+    border-bottom: 1px solid #c3c3c3
     font-weight: bold;
     font-size: 14px;
 }
@@ -683,7 +682,7 @@ a.modal-closer:hover {
 	height: 83.33%;
 	width: 100%;
 	text-align: left;
-	overflow-y: auto;
+	overflow-y: scroll;
 	overflow-x: hidden;
 	box-sizing: border-box;
 	background: #f6f6f6;
@@ -714,7 +713,7 @@ a.modal-closer:hover {
 
 #button_chat_send_message {
 	position: absolute;
-	right: 1.5%;
+	right: 1.0%;
 	top: 20%;
 	height: 60%;
 }
@@ -778,4 +777,12 @@ a.modal-closer:hover {
 
 .div_user_writing > img {
 	vertical-align: middle;
+}
+
+.div_chat_header_default {
+	background-color: rgb(74, 104, 150);
+}
+
+.div_chat_header_blink {
+	background-color: rgb(255, 147, 15) !important;
 }

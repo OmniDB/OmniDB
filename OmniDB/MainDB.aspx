@@ -59,6 +59,7 @@
 								 v_replace_mac: "<%= System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Keybind.ReplaceMac"].ToString() %>" };
 
 		var v_user_id = "<%= v_session.v_user_id %>";
+		var v_user_name = "<%= v_session.v_user_name %>";
 
 	</script>
 </head>
@@ -444,7 +445,7 @@
     </div>
 
   <div id="div_chat">
-  	<div id="div_chat_header" onclick="clickChatHeader();">
+  	<div id="div_chat_header" class="div_chat_header_default">
   		OmniChat
   	</div>
   	<div id="div_chat_details">
@@ -456,7 +457,7 @@
 		  	<div id="div_chat_footer">
 		  		<textarea id="textarea_chat_message">
 		  		</textarea>
-		  		<button id="button_chat_send_message" onclick="sendMessage();">
+		  		<button id="button_chat_send_message">
 		  			Send
 		  		</button>
 		  	</div>

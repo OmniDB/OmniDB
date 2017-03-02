@@ -233,7 +233,7 @@ namespace OmniDB
 							"           on mes.user_id = use.user_id " +
 							"where meu.user_id = " + v_httpSession.v_user_id + " " +
 							"order by meu.mes_in_code desc " +
-							"limit 10 offset " + v_request.v_data;
+							"limit 20 offset " + v_request.v_data;
 
 						System.Data.DataTable v_table = v_database.v_connection.Query(v_sql, "chat_messages");
 

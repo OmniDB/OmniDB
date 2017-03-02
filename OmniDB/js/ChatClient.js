@@ -39,9 +39,29 @@ var v_wasWriting = false;
 var v_oldMessagesRequested = 0;
 
 /// <summary>
+/// Global Variable to say if it's the first time the chat receive old messages
+/// </summary>
+var v_firstOldMessages = true;
+
+/// <summary>
 /// The variable that will receive the WebSocket object.
 /// </summary>
 var v_chatWebSocket;
+
+/// <summary>
+/// Stops blinking effect of new message notification.
+/// </summary>
+function stopMessageNotification() {
+	if(typeof messageNotification != 'undefined' && messageNotification != null) {
+		clearInterval(messageNotification);
+
+		var v_chatHeader = document.getElementById('div_chat_header');
+
+		if(v_chatHeader.classList.contains('div_chat_header_blink')) {
+			v_chatHeader.classList.remove('div_chat_header_blink');
+		}
+	}
+}
 
 /// <summary>
 /// Sends a message from an user to chat server.
@@ -94,7 +114,6 @@ function buildUserList(p_userList) {
 	}
 }
 
-
 /// <summary>
 /// Function called when a chat client receives a user message.
 /// </summary>
@@ -104,7 +123,7 @@ function NewMessage(p_message) {
 
 	var v_scrollAtBottom = false;
 
-	if(v_chatContent.scrollTop == v_chatContent.scrollHeight) {
+	if((v_chatContent.scrollTop + v_chatContent.offsetHeight) == v_chatContent.scrollHeight) {
 		v_scrollAtBottom = true;
 	}
 
@@ -140,24 +159,23 @@ function NewMessage(p_message) {
 	v_chatContent.appendChild(v_messageDiv);
 
 	if(v_scrollAtBottom) {
-		v_chatContent.scrollTop = v_chatContent.scrollHeight;
+		v_chatContent.scrollTop = v_chatContent.scrollHeight - v_chatContent.offsetHeight;
 	}
 
 	var v_chatDetails = document.getElementById('div_chat_details');
-	if(v_chatDetails.style.height == '0px') {
+
+	if(((v_chatDetails.style.height == '0px') || (!v_scrollAtBottom)) && (!(v_user_name == p_message.v_user_name))) {
 		var v_chatHeader = document.getElementById('div_chat_header');
 
-		if(typeof messageNotification != 'undefined' && messageNotification != null) {
-			clearInterval(messageNotification);
-		}
+		stopMessageNotification();
 
 		messageNotification = setInterval(
 			function() {
-				if(v_chatHeader.style.backgroundColor == 'rgb(74, 104, 150)') {
-					v_chatHeader.style.backgroundColor = 'rgb(255, 147, 15)';
+				if(v_chatHeader.classList.contains('div_chat_header_blink')) {
+					v_chatHeader.classList.remove('div_chat_header_blink');
 				}
 				else {
-					v_chatHeader.style.backgroundColor = 'rgb(74, 104, 150)';
+					v_chatHeader.classList.add('div_chat_header_blink');
 				}
 			},
 			400
@@ -215,6 +233,12 @@ function OldMessages(p_messageList) {
 			v_chatContent.insertBefore(v_messageList[i], v_chatContent.firstChild);
 		}
 
+		if(v_firstOldMessages) {
+			v_chatContent.scrollTop = v_chatContent.scrollHeight - v_chatContent.offsetHeight;
+
+			v_firstOldMessages = false;
+		}
+
 		v_fakeDiv = null;
 	}
 }
@@ -240,9 +264,7 @@ function clickChatHeader() {
 		v_chatDetails.style.height = '315px';
 		document.getElementById('div_chat_header').style.backgroundColor = 'rgb(74, 104, 150)';
 
-		if(typeof messageNotification != 'undefined' && messageNotification != null) {
-			clearInterval(messageNotification);
-		}
+		stopMessageNotification();
 	}
 	else {
 		v_chatDetails.style.height = '0px';
@@ -266,6 +288,23 @@ function clickChatHeader() {
 }
 
 /// <summary>
+/// Function called when a user scrolls the div that contains chat messages
+/// </summary>
+/// <param name="p_event">The javascript scroll event object.</param>
+function scrollChatContent(p_event) {
+	var v_chatContent = document.getElementById('div_chat_content');
+
+	if(v_chatContent.scrollTop == 0) {
+		sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.GetOldMessages, v_oldMessagesRequested, false);
+		v_oldMessagesRequested += 20;
+		v_chatContent.scrollTop = 1;
+	}
+	else if(v_chatContent.scrollTop == (v_chatContent.scrollHeight - v_chatContent.offsetHeight)){
+		stopMessageNotification();
+	}
+}
+
+/// <summary>
 /// Starts chat server
 /// </summary>
 /// <param name="p_port">Port where chat will listen for connections.</param>
@@ -276,7 +315,7 @@ function startChatWebSocket(p_port) {
 		function(p_event) {//Open
 			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Login, v_user_id, false);
 			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.GetOldMessages, v_oldMessagesRequested, false);
-			v_oldMessagesRequested += 10;
+			v_oldMessagesRequested += 20;
 		},
 		function(p_event) {//Message
 			var v_message = p_event;
@@ -367,5 +406,41 @@ function startChatWebSocket(p_port) {
 			v_wasWriting = false;
 			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.NotWriting, '', false);
 		}
+	}
+
+	document.getElementById('div_chat_header').onclick = function(e) {
+		clickChatHeader();
+	}
+
+	document.getElementById('button_chat_send_message').onclick = function(e) {
+		sendMessage();
+
+		//In order to remove "Writing" icon when sending messages by button click
+		var v_keyboardEvent = new KeyboardEvent(
+			'keyup',
+			{
+				bubbles : true,
+				cancelable : true,
+				shiftKey : false,
+				ctrlKey: false,
+				altKey: false,
+				metaKey: false
+			}
+		);
+
+		delete v_keyboardEvent.keyCode;
+		Object.defineProperty(
+			v_keyboardEvent,
+			'keyCode',
+			{'value' : 13}
+		);
+
+		v_textarea.dispatchEvent(v_keyboardEvent);
+
+		v_textarea.focus();
+	}
+
+	document.getElementById('div_chat_content').onscroll = function(e) {
+		scrollChatContent(e);
 	}
 }

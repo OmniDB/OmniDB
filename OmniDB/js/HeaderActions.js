@@ -82,7 +82,7 @@ function saveConfigUser() {
 					v_editor_theme = p_return.v_data.v_theme_name;
 					v_theme_type = p_return.v_data.v_theme_type;
 					$('#div_config_user').hide();
-					showAlert('Configuration changed.');
+					showAlert('Configuration saved. Please, refresh the page for changes to take effect.');
 
 				});
 	}

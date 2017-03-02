@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The OmniDB Team
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 

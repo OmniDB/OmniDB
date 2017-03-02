@@ -317,8 +317,6 @@
     <Content Include="images\key.png" />
     <Content Include="images\leaf.png" />
     <Content Include="images\loading.gif" />
-    <Content Include="images\loading2.gif" />
-    <Content Include="images\loading3.gif" />
     <Content Include="images\login_wp.jpg" />
     <Content Include="images\mysql_logo.png" />
     <Content Include="images\mysql_medium.png" />
@@ -426,7 +424,6 @@
     <Content Include="js\Conversions.js" />
     <Content Include="js\MainDB.js" />
     <Content Include="images\command_list.png" />
-    <Content Include="images\fbembed_medium.png" />
     <Content Include="images\sqlce_medium.png" />
     <Content Include="DownloadFile.aspx" />
     <Content Include="css\themes\dark.css" />
@@ -435,6 +432,27 @@
     <Content Include="js\WebSocketControl.js" />
     <Content Include="js\ChatClient.js" />
     <Content Include="js\QueryClient.js" />
+    <Content Include="images\text_edit.png" />
+    <Content Include="images\table-white.png" />
+    <Content Include="images\table_export.png" />
+    <Content Include="images\spin_black.svg" />
+    <Content Include="images\spin.svg" />
+    <Content Include="images\output.png" />
+    <Content Include="images\omnidb-negative.png" />
+    <Content Include="images\mariadb_medium.png" />
+    <Content Include="images\loading.svg" />
+    <Content Include="images\input_output.png" />
+    <Content Include="images\input.png" />
+    <Content Include="images\gear-16.png" />
+    <Content Include="images\functions.png" />
+    <Content Include="images\db-white.png" />
+    <Content Include="images\check.png" />
+    <Content Include="images\box_loading.gif" />
+    <Content Include="lib\ace\theme-omnidb.js" />
+    <Content Include="lib\ace\theme-omnidb_dark.js" />
+    <Content Include="lib\cytoscape\cytoscape.min.js" />
+    <Content Include="lib\cytoscape\cytoscape-spread.js" />
+    <Content Include="images\filedb_medium.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -555,6 +573,9 @@
     <None Include="databases\northwind.sdf" />
     <None Include="exported_files\README.txt" />
     <None Include="WebServer.exe" />
+    <None Include="images\OmniDB.webarchive" />
+    <None Include="images\omnidb.ico" />
+    <None Include="Spartacus.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OmniDatabase\OmniDatabase.csproj">

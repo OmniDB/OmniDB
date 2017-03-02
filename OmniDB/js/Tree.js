@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The OmniDB Team
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -326,6 +326,18 @@ function getTree(p_div) {
 				'cm_sequences' : {
 					elements : [
 						{
+							text : 'Refresh',
+							icon: 'images/refresh.png',
+							action : function(node) {
+								if (node.childNodes==0)
+									refreshTree(node);
+								else {
+									node.collapseNode();
+									node.expandNode();
+								}
+							}
+						},
+						{
 							text : 'New Sequence',
 							icon: 'images/text_edit.png',
 							action : function(node) {
@@ -483,7 +495,7 @@ function getTables(node) {
 
 				for (i=0; i<p_return.v_data.length; i++) {
 
-		        	v_node = node.createChildNode(p_return.v_data[i],false,'images/table.png',{ type:'table'},'cm_table');
+		        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'images/table.png',{ type:'table', has_primary_keys: p_return.v_data[i].v_has_primary_keys, has_foreign_keys: p_return.v_data[i].v_has_foreign_keys, has_uniques: p_return.v_data[i].v_has_uniques, has_indexes: p_return.v_data[i].v_has_indexes},'cm_table');
 		        	v_node.createChildNode('',false,'images/spin.svg',{ type:'table_field'},null);
 
 		        }
@@ -572,8 +584,6 @@ function getColumns(node) {
 				if (node.childNodes.length > 0)
 					node.removeChildNodes();
 
-
-
 				for (i=0; i<p_return.v_data.length; i++) {
 
 		        	v_node = node.createChildNode(p_return.v_data[i][0],false,'images/add.png',{ type:'table_field'},null);
@@ -582,17 +592,29 @@ function getColumns(node) {
 
 		        }
 
-		        v_node = node.createChildNode('Primary Key',false,'images/key.png',{ type:'primary_key'},'cm_refresh');
-		        v_node.createChildNode('',false,'images/spin.svg',null,null);
+		        if (node.tag.has_primary_keys)
+		        {
+		        	v_node = node.createChildNode('Primary Key',false,'images/key.png',{ type:'primary_key'},'cm_refresh');
+		        	v_node.createChildNode('',false,'images/spin.svg',null,null);
+		        }
 
-		        v_node = node.createChildNode('Foreign Keys',false,'images/silver_key.png',{ type:'foreign_keys'},'cm_refresh');
-		        v_node.createChildNode('',false,'images/spin.svg',null,null);
+		        if (node.tag.has_foreign_keys)
+		        {
+		        	v_node = node.createChildNode('Foreign Keys',false,'images/silver_key.png',{ type:'foreign_keys'},'cm_refresh');
+		        	v_node.createChildNode('',false,'images/spin.svg',null,null);
+		        }
 
-		        v_node = node.createChildNode('Uniques',false,'images/blue_key.png',{ type:'uniques'},'cm_refresh');
-		        v_node.createChildNode('',false,'images/spin.svg',null,null);
+		        if (node.tag.has_uniques)
+		        {
+		        	v_node = node.createChildNode('Uniques',false,'images/blue_key.png',{ type:'uniques'},'cm_refresh');
+		        	v_node.createChildNode('',false,'images/spin.svg',null,null);
+		        }
 
-		        v_node = node.createChildNode('Indexes',false,'images/index.png',{ type:'indexes'},'cm_refresh');
-		        v_node.createChildNode('',false,'images/spin.svg',null,null);
+		        if (node.tag.has_indexes)
+		        {
+		        	v_node = node.createChildNode('Indexes',false,'images/index.png',{ type:'indexes'},'cm_refresh');
+		        	v_node.createChildNode('',false,'images/spin.svg',null,null);
+		        }
 
 
 			},

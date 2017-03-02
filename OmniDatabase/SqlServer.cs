@@ -1,5 +1,5 @@
-﻿/*
-Copyright 2016 The OmniDB Team
+/*
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -37,7 +37,8 @@ namespace OmniDatabase
 			v_service = p_service;
 			if (p_user!="")
 				v_user = p_user;
-			else v_user = "windows_user";
+			else
+				v_user = "windows_user";
 			v_has_schema = true;
 			v_has_update_rule = true;
 
@@ -82,6 +83,18 @@ namespace OmniDatabase
 
 			v_drop_index_command = "drop index #p_table_name#.#p_index_name#";
 
+			v_can_rename_sequence = false;
+			v_can_drop_sequence = true;
+
+			v_can_alter_sequence_min_value = true;
+			v_can_alter_sequence_max_value = true;
+			v_can_alter_sequence_curr_value = true;
+			v_can_alter_sequence_increment = true;
+
+			v_create_sequence_command = "create sequence #p_sequence_name# increment by #p_increment# minvalue #p_min_value# maxvalue #p_max_value# start with #p_curr_value#";
+			v_alter_sequence_command = "alter sequence #p_sequence_name# increment by #p_increment# minvalue #p_min_value# maxvalue #p_max_value# restart with #p_curr_value";
+			v_drop_sequence_command = "drop sequence #p_sequence_name#";
+
 			v_update_rules = new System.Collections.Generic.List<string> ();
 			v_delete_rules = new System.Collections.Generic.List<string> ();
 
@@ -122,6 +135,11 @@ namespace OmniDatabase
 			v_has_functions = true;
             v_has_procedures = true;
 			v_has_sequences = true;
+
+			v_has_primary_keys = true;
+			v_has_foreign_keys = true;
+			v_has_uniques = true;
+			v_has_indexes = true;
 
 		}
 
@@ -596,7 +614,20 @@ namespace OmniDatabase
 		public override System.Data.DataTable QuerySequences(string p_sequence)
 		{
 
-			return null;
+			string v_filter = "";
+
+			if (p_sequence != null)
+				v_filter = "and lower(name) = '" + p_sequence.ToLower() + "' ";
+
+			return v_connection.Query(
+				"select lower(name) as sequence_name,                               " +
+				"       minimum_value,                                              " +
+				"       maximum_value,                                              " +
+				"       current_value,                                              " +
+				"       increment                                                   " +
+				"from sys.sequences                                                 " +
+				"where lower(schema_name(schema_id)) = '" + v_schema.ToLower() + "' " +
+				v_filter, "Sequences");
 
 		}
 

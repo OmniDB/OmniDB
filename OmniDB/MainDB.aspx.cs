@@ -1,5 +1,5 @@
-﻿/*
-Copyright 2016 The OmniDB Team
+/*
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -3535,17 +3535,9 @@ namespace OmniDB
 		}
 
 		/// <summary>
-		/// Saves alter table window changes.
+		/// Saves alter sequence window changes.
 		/// </summary>
 		/// <param name="p_mode">Mode.</param>
-		/// <param name="p_new_table_name">New table name.</param>
-		/// <param name="p_original_table_name">Original table name.</param>
-		/// <param name="p_data_columns">Columns data.</param>
-		/// <param name="p_row_columns_info">Columns info.</param>
-		/// <param name="p_data_constraints">Constraints data.</param>
-		/// <param name="p_row_constraints_info">Constraints info.</param>
-		/// <param name="p_data_indexes">Indexes data.</param>
-		/// <param name="p_row_indexes_info">Indexes info.</param>
 		[System.Web.Services.WebMethod]
 		public static AjaxReturn SaveAlterSequence(int p_database_index,
 												string p_mode,
@@ -3577,12 +3569,9 @@ namespace OmniDB
 				string v_original_sequence_name = "";
 
 				if (v_database.v_has_schema)
-				{
 					v_original_sequence_name = v_database.v_schema + "." + p_original_sequence_name;
-				}
-				else {
+				else
 					v_original_sequence_name = p_original_sequence_name;
-				}
 
 				string v_alter_command = v_database.v_alter_sequence_command;
 				v_alter_command = v_alter_command.Replace("#p_sequence_name#", v_original_sequence_name);
@@ -3602,7 +3591,6 @@ namespace OmniDB
 				}
 				catch (Spartacus.Database.Exception e)
 				{
-
 					v_alter_info_return.error = true;
 					v_alter_info_return.v_message = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
 				}
@@ -3612,8 +3600,6 @@ namespace OmniDB
 				//Renaming sequence
 				if (p_new_sequence_name != p_original_sequence_name)
 				{
-
-
 					string v_rename_command = v_database.v_rename_sequence_command.Replace("#p_sequence_name#", v_original_sequence_name).Replace("#p_new_sequence_name#", p_new_sequence_name);
 
 					CommandInfoReturn v_info_return = new CommandInfoReturn();

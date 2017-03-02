@@ -1,5 +1,5 @@
-﻿/*
-Copyright 2016 The OmniDB Team
+/*
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -252,12 +252,12 @@ namespace OmniDatabase
 		public bool v_has_sequences;
 
 		/// <summary>
-		/// ALTER TABLE command to create sequence.
+		/// ALTER command to create sequence.
 		/// </summary>
 		public string v_create_sequence_command;
 
 		/// <summary>
-		/// ALTER TABLE command to alter sequence.
+		/// ALTER command to alter sequence.
 		/// </summary>
 		public string v_alter_sequence_command;
 
@@ -267,9 +267,14 @@ namespace OmniDatabase
 		public bool v_can_rename_sequence;
 
 		/// <summary>
-		/// ALTER TABLE command to rename sequence.
+		/// ALTER command to rename sequence.
 		/// </summary>
 		public string v_rename_sequence_command;
+
+		/// <summary>
+		/// DROP command to drop sequence.
+		/// </summary>
+		public string v_drop_sequence_command;
 
 		/// <summary>
 		/// If technology supports altering sequence min value.
@@ -290,6 +295,11 @@ namespace OmniDatabase
 		/// If technology supports altering sequence min value.
 		/// </summary>
 		public bool v_can_alter_sequence_increment;
+
+		/// <summary>
+		/// If technology supports droping sequence.
+		/// </summary>
+		public bool v_can_drop_sequence;
 
 
 		/// <summary>
@@ -346,6 +356,9 @@ namespace OmniDatabase
                 case "mariadb":
                     v_database = new MariaDB(p_conn_id, p_server, p_port, p_service, p_user, p_password);
                     break;
+				case "filedb":
+					v_database = new FileDB(p_conn_id, p_service);
+				break;
     			default:
     				return null;
 			}

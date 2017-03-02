@@ -1,5 +1,5 @@
-﻿/*
-Copyright 2016 The OmniDB Team
+/*
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -22,25 +22,12 @@ namespace OmniDatabase
 		/// <summary>
 		/// Initializes a new instance of the <see cref="OmniDB.Database.Access"/> class.
 		/// </summary>
-		/// <param name="p_server">Connection address.</param>
-		/// <param name="p_port">Connection port.</param>
-		/// <param name="v_database">Database file.</param>
-		/// <param name="v_user">Database user.</param>
-		/// <param name="v_password">Database password.</param>
+		/// <param name="p_database">Database file.</param>
 		public Access (string p_conn_id, string p_database)
 			: base ("access",p_conn_id)
 		{
 
-			if (p_database.Contains("/")) {
-
-				string []v_strings = p_database.Split ('/');
-
-				v_service = v_strings [v_strings.Length - 1];
-
-			}
-			else
-				v_service = p_database;
-
+			v_service = p_database;
 
 			v_has_schema = false;
 			v_schema = "";
@@ -116,7 +103,15 @@ namespace OmniDatabase
 		/// </summary>
 		public override string PrintDatabaseInfo() {
 
-			return v_service;
+			if (this.v_service.Contains("/")) {
+
+				string []v_strings = this.v_service.Split ('/');
+
+				return v_strings [v_strings.Length - 1];
+
+			}
+			else
+				return this.v_service;
 
 		}
 

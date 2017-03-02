@@ -1,5 +1,5 @@
-﻿/*
-Copyright 2016 The OmniDB Team
+/*
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -31,15 +31,7 @@ namespace OmniDatabase
 			: base ("firebird",p_conn_id)
 		{
 
-			if (p_service.Contains("/")) {
-
-				string []v_strings = p_service.Split ('/');
-
-				v_service = v_strings [v_strings.Length - 1];
-
-			}
-			else
-				v_service = p_service;
+			v_service = p_service;
 
 			v_server = p_server;
 			v_port   = p_port;
@@ -84,6 +76,18 @@ namespace OmniDatabase
 			v_create_unique_index_command = "create unique index #p_index_name# on #p_table_name# (#p_columns#)";
 
 			v_drop_index_command = "drop index #p_index_name#";
+
+			v_can_rename_sequence = true;
+			v_can_drop_sequence = true;
+
+			v_can_alter_sequence_min_value = false;
+			v_can_alter_sequence_max_value = false;
+			v_can_alter_sequence_curr_value = true;
+			v_can_alter_sequence_increment = false;
+
+			v_create_sequence_command = "create generator #p_sequence_name#";
+			v_alter_sequence_command = "set generator #p_sequence_name# to #p_curr_value#";
+			v_drop_sequence_command = "drop generator #p_sequence_name#";
 
 			v_update_rules = new System.Collections.Generic.List<string> ();
 			v_delete_rules = new System.Collections.Generic.List<string> ();
@@ -133,7 +137,15 @@ namespace OmniDatabase
 		/// </summary>
 		public override string PrintDatabaseInfo() {
 
-			return v_user + "@" + v_service;
+			if (this.v_service.Contains("/")) {
+
+				string []v_strings = this.v_service.Split ('/');
+
+				return this.v_user + "@" + v_strings [v_strings.Length - 1];
+
+			}
+			else
+				return this.v_user + "@" + this.v_service;
 
 		}
 
@@ -570,8 +582,26 @@ namespace OmniDatabase
 		public override System.Data.DataTable QuerySequences(string p_sequence)
 		{
 
-			return null;
+			System.Data.DataTable v_table;
+			string v_filter = "";
 
+			if (p_sequence != null)
+				v_filter = "and lower(trim(rdb$generator_name)) = '" + p_sequence.ToLower() + "' ";
+
+			v_table = v_connection.Query(
+				"select lower(trim(rdb$generator_name)) as sequence_name, " +
+				"       0 as minimum_value,                               " +
+				"       2147483647 as maximum_value,                      " +
+				"       0 as current_value,                               " +
+				"       1 as increment                                    " +
+				"from rdb$generators                                      " +
+				"where rdb$system_flag = 0                                " +
+				v_filter, "Sequences");
+
+			for (int i = 0; i < v_table.Rows.Count; i++)
+				v_table.Rows[i]["current_value"] = v_connection.ExecuteScalar("select gen_id(" + v_table.Rows[i]["sequence_name"].ToString() + ", 0) as current_value from rdb$database");
+
+			return v_table;
 		}
 
 	}

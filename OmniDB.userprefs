@@ -1,5 +1,11 @@
 ﻿<Properties StartupConfiguration="{63F55D57-D1FF-43E5-929A-029E1DDEBC99}|">
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/MainDB.aspx.cs">
+    <Files>
+      <File FileName="OmniDatabase/FileDB.cs" Line="239" Column="25" />
+      <File FileName="OmniDatabase/SQLite.cs" Line="750" Column="4" />
+      <File FileName="OmniDB/MainDB.aspx.cs" Line="1514" Column="38" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

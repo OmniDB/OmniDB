@@ -1,5 +1,5 @@
-﻿/*
-Copyright 2016 The OmniDB Team
+/*
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -76,6 +76,19 @@ namespace OmniDatabase
 			v_create_unique_index_command = "create unique index #p_index_name# on #p_table_name# (#p_columns#)";
 
 			v_drop_index_command = "drop index #p_index_name#";
+
+			v_can_rename_sequence = true;
+			v_can_drop_sequence = true;
+
+			v_can_alter_sequence_min_value = true;
+			v_can_alter_sequence_max_value = true;
+			v_can_alter_sequence_curr_value = false;
+			v_can_alter_sequence_increment = true;
+
+			v_create_sequence_command = "create sequence #p_sequence_name# increment by #p_increment# minvalue #p_min_value# maxvalue #p_max_value# start with #p_curr_value#";
+			v_alter_sequence_command = "alter sequence #p_sequence_name# increment by #p_increment# minvalue #p_min_value# maxvalue #p_max_value#";
+			v_rename_sequence_command = "rename #p_sequence_name# to #p_new_sequence_name#";
+			v_drop_sequence_command = "drop sequence #p_sequence_name#";
 
 			v_update_rules = new System.Collections.Generic.List<string> ();
 			v_delete_rules = new System.Collections.Generic.List<string> ();
@@ -576,7 +589,20 @@ namespace OmniDatabase
 		public override System.Data.DataTable QuerySequences(string p_sequence)
 		{
 
-			return null;
+			string v_filter = "";
+
+			if (p_sequence != null)
+				v_filter = "and lower(sequence_name) = '" + p_sequence.ToLower() + "' ";
+
+			return v_connection.Query(
+				"select lower(sequence_name) as sequence_name,              " +
+				"       min_value,                                          " +
+				"       max_value,                                          " +
+				"       last_number as current_value,                       " +
+				"       increment_by                                        " +
+				"from information_schema.sequences                          " +
+				"where lower(sequence_owner) = '" + v_schema.ToLower() + "' " +
+				v_filter, "Sequences");
 
 		}
 

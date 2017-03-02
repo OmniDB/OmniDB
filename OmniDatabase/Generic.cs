@@ -301,6 +301,26 @@ namespace OmniDatabase
 		/// </summary>
 		public bool v_can_drop_sequence;
 
+		/// <summary>
+		/// If technology supports primary keys.
+		/// </summary>
+		public bool v_has_primary_keys;
+
+		/// <summary>
+		/// If technology supports foreign keys.
+		/// </summary>
+		public bool v_has_foreign_keys;
+
+		/// <summary>
+		/// If technology supports uniques.
+		/// </summary>
+		public bool v_has_uniques;
+
+		/// <summary>
+		/// If technology supports indexes.
+		/// </summary>
+		public bool v_has_indexes;
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="OmniDB.Database.Generic"/> class.

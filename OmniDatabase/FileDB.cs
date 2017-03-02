@@ -85,6 +85,11 @@ namespace OmniDatabase
 			v_has_procedures = false;
 			v_has_sequences = false;
 
+			v_has_primary_keys = false;
+			v_has_foreign_keys = false;
+			v_has_uniques = false;
+			v_has_indexes = false;
+
 		}
 
 		/// <summary>
@@ -233,23 +238,15 @@ namespace OmniDatabase
 				v_table_columns.Columns.Add ("data_precision");
 				v_table_columns.Columns.Add ("data_scale");
 
-				com.healthmarketscience.jackcess.Database v_database = com.healthmarketscience.jackcess.DatabaseBuilder.open(new java.io.File(this.v_connection.v_service));
-				com.healthmarketscience.jackcess.Table v_table = v_database.getTable(p_table.Replace("[", "").Replace("]", ""));
-				java.util.List v_list = v_table.getColumns();
-				object[] v_obj = v_list.toArray();
-				foreach (object o in v_obj) {
+				string[] v_columns = this.v_connection.GetColumnNames("select * from " + p_table);
 
-					com.healthmarketscience.jackcess.Column c = (com.healthmarketscience.jackcess.Column) o;
-
+				foreach (string s in v_columns)
+				{
 					v_row = v_table_columns.NewRow();
-					v_row["column_name"] = c.getName();
-					v_row["data_type"] = c.getType().ToString();
+					v_row["column_name"] = s;
+					v_row["data_type"] = "varchar";
 					v_row["nullable"] = "YES";
-					v_row["data_length"] = c.getLength().ToString();
-					v_row["data_precision"] = c.getPrecision().ToString();
-					v_row["data_scale"] = c.getScale().ToString();
 					v_table_columns.Rows.Add(v_row);
-
 				}
 
 				return v_table_columns;

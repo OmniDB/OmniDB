@@ -111,6 +111,11 @@ namespace OmniDatabase
             v_has_procedures = true;
 			v_has_sequences = false;
 
+			v_has_primary_keys = true;
+			v_has_foreign_keys = true;
+			v_has_uniques = true;
+			v_has_indexes = true;
+
 		}
 
 		/// <summary>

@@ -130,6 +130,11 @@ namespace OmniDatabase
             v_has_procedures = false;
 			v_has_sequences = true;
 
+			v_has_primary_keys = true;
+			v_has_foreign_keys = true;
+			v_has_uniques = true;
+			v_has_indexes = true;
+
 		}
 
 		/// <summary>
@@ -584,7 +589,7 @@ namespace OmniDatabase
 				v_filter, "Sequences");
 
 			for (int i = 0; i < v_table.Rows.Count; i++)
-				v_table.Rows[i]["current_value"] = v_connection.ExecuteScalar("select last_value from " + v_table.Rows[i]["sequence_name"].ToString());
+				v_table.Rows[i]["current_value"] = v_connection.ExecuteScalar("select last_value from " + this.v_schema + "." + v_table.Rows[i]["sequence_name"].ToString());
 
 			return v_table;
 		}

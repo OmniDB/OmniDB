@@ -1520,9 +1520,12 @@ namespace OmniDB
 			else
 				v_sequence_name = p_sequence;
 
+			string v_drop_sequence_command = v_database.v_drop_sequence_command;
+			v_drop_sequence_command = v_drop_sequence_command.Replace("#p_sequence_name#", v_sequence_name);
+
 			try
 			{
-				v_session.Execute(v_database, "drop sequence " + v_sequence_name, false, true);
+				v_session.Execute(v_database, v_drop_sequence_command, false, true);
 			}
 			catch (Spartacus.Database.Exception e)
 			{
@@ -1671,43 +1674,46 @@ namespace OmniDB
 
 				}
 			
-				if (v_pk.Rows.Count > 0)
-					v_ini_orderby = "order by ";
+				if (v_pk != null) {
+					
+					if (v_pk.Rows.Count > 0)
+						v_ini_orderby = "order by ";
 
-				v_first = true;
+					v_first = true;
 
-				int v_index = 0;
-				foreach (ColumnInfo v_column in v_col_list) {
+					int v_index = 0;
+					foreach (ColumnInfo v_column in v_col_list) {
 
-					foreach (System.Data.DataRow v_pk_col in v_pk.Rows) {
-						if (v_pk_col ["column_name"].ToString ().ToLower() == v_column.v_column.ToLower()) {
+						foreach (System.Data.DataRow v_pk_col in v_pk.Rows) {
+							if (v_pk_col ["column_name"].ToString ().ToLower() == v_column.v_column.ToLower()) {
 
-							v_column.v_is_pk = true;
+								v_column.v_is_pk = true;
 
-							if (!v_first)
-								v_ini_orderby += ", ";
+								if (!v_first)
+									v_ini_orderby += ", ";
 
-							v_first = false;
+								v_first = false;
 
-							v_ini_orderby += "t." + v_pk_col ["column_name"].ToString ();
+								v_ini_orderby += "t." + v_pk_col ["column_name"].ToString ();
 
-							PrimaryKeyInfo v_pk_info = new PrimaryKeyInfo();
+								PrimaryKeyInfo v_pk_info = new PrimaryKeyInfo();
 
-							v_pk_info.v_column = v_pk_col ["column_name"].ToString ();
-							v_pk_info.v_index = v_index;
-							v_pk_info.v_class = v_column.v_class;
-							v_pk_info.v_compareformat = v_column.v_compareformat;
+								v_pk_info.v_column = v_pk_col ["column_name"].ToString ();
+								v_pk_info.v_index = v_index;
+								v_pk_info.v_class = v_column.v_class;
+								v_pk_info.v_compareformat = v_column.v_compareformat;
 
-							v_pk_list.Add (v_pk_info);
-							break;
+								v_pk_list.Add (v_pk_info);
+								break;
+							}
+
 						}
+
+						v_index++;
 
 					}
 
-					v_index++;
-
 				}
-
 
 			}
 			catch (Spartacus.Database.Exception e)
@@ -1961,7 +1967,7 @@ namespace OmniDB
 					//Table Primary Keys
 					System.Data.DataTable v_pk_table = v_database.QueryTablesPrimaryKeys("", p_table);
 
-					if (v_pk_table.Rows.Count>0) {
+					if (v_pk_table != null && v_pk_table.Rows.Count>0) {
 
 						v_table_ref_columns.Add(new System.Collections.Generic.List<string>());
 
@@ -2002,7 +2008,7 @@ namespace OmniDB
 					//Table Foreign Keys
 					System.Data.DataTable v_fks_table = v_database.QueryTablesForeignKeys(p_table);
 
-					if (v_fks_table.Rows.Count>0) {
+					if (v_fks_table != null && v_fks_table.Rows.Count>0) {
 						
 						string v_column_list = "";
 						string v_referenced_column_list = "";
@@ -2088,7 +2094,7 @@ namespace OmniDB
 					//Table Uniques
 					System.Data.DataTable v_uniques_table = v_database.QueryTablesUniques("",p_table);
 
-					if (v_uniques_table.Rows.Count>0) {
+					if (v_uniques_table != null && v_uniques_table.Rows.Count>0) {
 
 						string v_column_list = "";
 						string v_constraint_name = v_uniques_table.Rows[0]["constraint_name"].ToString();
@@ -2155,7 +2161,7 @@ namespace OmniDB
 					//Table Indexes
 					System.Data.DataTable v_indexes_table = v_database.QueryTablesIndexes(p_table);
 
-					if (v_indexes_table.Rows.Count>0) {
+					if (v_indexes_table != null && v_indexes_table.Rows.Count>0) {
 
 						string v_column_list = "";
 						string v_index_name = v_indexes_table.Rows[0]["index_name"].ToString();

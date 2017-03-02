@@ -1,25 +1,10 @@
 ﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="monodevelop" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="OmniDB/js/ChatClient.js">
-    <Files>
-      <File FileName="OmniDB/js/ChatClient.js" Line="144" Column="3" />
-      <File FileName="OmniDB/ChatServer.cs" Line="242" Column="57" />
-      <File FileName="OmniDB/css/style.css" Line="772" Column="2" />
-    </Files>
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="OmniDB" expanded="True">
-            <Node name="OmniDB" expanded="True">
-              <Node name="css" expanded="True">
-                <Node name="themes" expanded="True" />
-              </Node>
-              <Node name="js" expanded="True">
-                <Node name="ChatClient.js" selected="True" />
-              </Node>
-              <Node name="CompareDB.aspx" expanded="True" />
-            </Node>
-          </Node>
+          <Node />
         </State>
       </Pad>
     </Pads>

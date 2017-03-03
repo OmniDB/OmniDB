@@ -1,11 +1,20 @@
-﻿/// <summary>
+﻿/*
+Copyright 2015-2017 The OmniDB Team
+This file is part of OmniDB.
+OmniDB is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
+*/
+
+/// <summary>
 /// Transaction codes of client requests.
 /// </summary>
 var v_chatRequestCodes = {
 	Login: '0',
 	GetOldMessages: '1',
-	ViewMessage: '2',
-	SendMessage: '3'
+	SendMessage: '2',
+	Writing: '3',
+	NotWriting: '4'
 }
 
 /// <summary>
@@ -14,13 +23,45 @@ var v_chatRequestCodes = {
 var v_chatResponseCodes = {
 	OldMessages: '0',
 	NewMessage: '1',
-	UserList: '2'
+	UserList: '2',
+	UserWriting: '3',
+	UserNotWriting: '4'
 }
+
+/// <summary>
+/// Global Variable to say if user is or is not writing a message
+/// </summary>
+var v_wasWriting = false;
+
+/// <summary>
+/// Global Variable to say how many old messages the user has requested to the chat server
+/// </summary>
+var v_oldMessagesRequested = 0;
+
+/// <summary>
+/// Global Variable to say if it's the first time the chat receive old messages
+/// </summary>
+var v_firstOldMessages = true;
 
 /// <summary>
 /// The variable that will receive the WebSocket object.
 /// </summary>
 var v_chatWebSocket;
+
+/// <summary>
+/// Stops blinking effect of new message notification.
+/// </summary>
+function stopMessageNotification() {
+	if(typeof messageNotification != 'undefined' && messageNotification != null) {
+		clearInterval(messageNotification);
+
+		var v_chatHeader = document.getElementById('div_chat_header');
+
+		if(v_chatHeader.classList.contains('div_chat_header_blink')) {
+			v_chatHeader.classList.remove('div_chat_header_blink');
+		}
+	}
+}
 
 /// <summary>
 /// Sends a message from an user to chat server.
@@ -42,7 +83,7 @@ function buildUserList(p_userList) {
 	var v_userList = p_userList;
 	for(var i = 0; i < v_userList.length; i++) {
 		var v_userDiv = document.createElement('div');
-		v_userDiv.id = v_userList[i].v_user_id;
+		v_userDiv.id = 'chat_user_' + v_userList[i].v_user_id;
 		v_userDiv.classList.add('div_user');
 
 		var v_userStatusDiv = document.createElement('div');
@@ -73,13 +114,18 @@ function buildUserList(p_userList) {
 	}
 }
 
-
 /// <summary>
 /// Function called when a chat client receives a user message.
 /// </summary>
 /// <param name="p_message">The message itself.</param>
 function NewMessage(p_message) {
 	var v_chatContent = document.getElementById('div_chat_content');
+
+	var v_scrollAtBottom = false;
+
+	if((v_chatContent.scrollTop + v_chatContent.offsetHeight) == v_chatContent.scrollHeight) {
+		v_scrollAtBottom = true;
+	}
 
 	var v_messageDiv = document.createElement('div');
 	v_messageDiv.classList.add('div_message');
@@ -111,25 +157,90 @@ function NewMessage(p_message) {
 	v_messageDiv.appendChild(v_messageText);
 
 	v_chatContent.appendChild(v_messageDiv);
-	v_chatContent.scrollTop = v_chatContent.scrollHeight;
+
+	if(v_scrollAtBottom) {
+		v_chatContent.scrollTop = v_chatContent.scrollHeight - v_chatContent.offsetHeight;
+	}
 
 	var v_chatDetails = document.getElementById('div_chat_details');
-	if(v_chatDetails.style.height == '0px') {
+
+	if(((v_chatDetails.style.height == '0px') || (!v_scrollAtBottom)) && (!(v_user_name == p_message.v_user_name))) {
 		var v_chatHeader = document.getElementById('div_chat_header');
+
+		stopMessageNotification();
+
 		messageNotification = setInterval(
 			function() {
-				if(v_chatHeader.style.backgroundColor == 'rgb(74, 104, 150)') {
-					v_chatHeader.style.backgroundColor = 'rgb(255, 147, 15)';
+				if(v_chatHeader.classList.contains('div_chat_header_blink')) {
+					v_chatHeader.classList.remove('div_chat_header_blink');
 				}
 				else {
-					v_chatHeader.style.backgroundColor = 'rgb(74, 104, 150)';
+					v_chatHeader.classList.add('div_chat_header_blink');
 				}
 			},
 			400
 		);
 	}
 
-	sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.ViewMessage, p_message, false);
+	if(v_browserTabActive) {
+		document.title = 'OmniDB';
+	}
+	else {
+		document.title = 'OmniDB (!)';
+	}
+}
+
+/// <summary>
+/// Function called when a chat client receives a list of old messages.
+/// </summary>
+/// <param name="p_messageList">The message list.</param>
+function OldMessages(p_messageList) {
+	if(p_messageList.length > 0) {
+		var v_lastUser = '';
+
+		var v_fakeDiv = document.createElement('div');
+
+		for(var i = 0; i < p_messageList.length; i++) {
+			var v_messageDiv = document.createElement('div');
+			v_messageDiv.classList.add('div_message');
+
+			if(v_lastUser != p_messageList[i].v_user_name) {
+				var v_messageUser = document.createElement('div');
+				v_messageUser.classList.add('div_message_user');
+				v_messageUser.innerHTML = p_messageList[i].v_user_name;
+				v_messageDiv.appendChild(v_messageUser);
+
+				var v_messageTime = document.createElement('div');
+				v_messageTime.classList.add('div_message_time');
+				v_messageTime.innerHTML = '(' + p_messageList[i].v_timestamp.substring(11, 16) + ') ';
+				v_messageDiv.appendChild(v_messageTime);
+
+				v_lastUser = p_messageList[i].v_user_name;
+			}
+
+			var v_messageText = document.createElement('div');
+			v_messageText.classList.add('div_message_text');
+			v_messageText.innerHTML = p_messageList[i].v_text;
+			v_messageDiv.appendChild(v_messageText);
+
+			v_fakeDiv.appendChild(v_messageDiv);
+		}
+
+		var v_chatContent = document.getElementById('div_chat_content');
+		var v_messageList = v_fakeDiv.childNodes;
+
+		for(var i = v_messageList.length - 1; i >= 0; i--) {
+			v_chatContent.insertBefore(v_messageList[i], v_chatContent.firstChild);
+		}
+
+		if(v_firstOldMessages) {
+			v_chatContent.scrollTop = v_chatContent.scrollHeight - v_chatContent.offsetHeight;
+
+			v_firstOldMessages = false;
+		}
+
+		v_fakeDiv = null;
+	}
 }
 
 /// <summary>
@@ -153,9 +264,7 @@ function clickChatHeader() {
 		v_chatDetails.style.height = '315px';
 		document.getElementById('div_chat_header').style.backgroundColor = 'rgb(74, 104, 150)';
 
-		if(typeof messageNotification != 'undefined' && messageNotification != null) {
-			clearInterval(messageNotification);
-		}
+		stopMessageNotification();
 	}
 	else {
 		v_chatDetails.style.height = '0px';
@@ -179,6 +288,23 @@ function clickChatHeader() {
 }
 
 /// <summary>
+/// Function called when a user scrolls the div that contains chat messages
+/// </summary>
+/// <param name="p_event">The javascript scroll event object.</param>
+function scrollChatContent(p_event) {
+	var v_chatContent = document.getElementById('div_chat_content');
+
+	if(v_chatContent.scrollTop == 0) {
+		sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.GetOldMessages, v_oldMessagesRequested, false);
+		v_oldMessagesRequested += 20;
+		v_chatContent.scrollTop = 1;
+	}
+	else if(v_chatContent.scrollTop == (v_chatContent.scrollHeight - v_chatContent.offsetHeight)){
+		stopMessageNotification();
+	}
+}
+
+/// <summary>
 /// Starts chat server
 /// </summary>
 /// <param name="p_port">Port where chat will listen for connections.</param>
@@ -188,7 +314,8 @@ function startChatWebSocket(p_port) {
 		p_port,
 		function(p_event) {//Open
 			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Login, v_user_id, false);
-			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.GetOldMessages, v_user_id, false);
+			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.GetOldMessages, v_oldMessagesRequested, false);
+			v_oldMessagesRequested += 20;
 		},
 		function(p_event) {//Message
 			var v_message = p_event;
@@ -200,9 +327,7 @@ function startChatWebSocket(p_port) {
 
 			switch(v_message.v_code) {
 				case parseInt(v_chatResponseCodes.OldMessages): {
-					for(var i = 0; i < v_message.v_data.length; i++) {
-						NewMessage(v_message.v_data[i]);
-					}
+					OldMessages(v_message.v_data);
 
 					break;
 				}
@@ -212,6 +337,40 @@ function startChatWebSocket(p_port) {
 				}
 				case parseInt(v_chatResponseCodes.UserList): {
 					buildUserList(v_message.v_data);
+
+					break;
+				}
+				case parseInt(v_chatResponseCodes.UserWriting): {
+					var v_userDiv = document.getElementById('chat_user_' + v_message.v_data);
+
+					if(typeof v_userDiv != 'undefined' && v_userDiv != null && v_userDiv.childNodes.length > 0) {
+						var v_lastChild = v_userDiv.childNodes[v_userDiv.childNodes.length -1];
+
+						if(!v_lastChild.classList.contains('div_user_writing')) {
+							var v_img = document.createElement('img');
+							v_img.src = 'images/icons/bubble_64.png';
+							v_img.style.width = '15px';
+
+							var v_div = document.createElement('div');
+							v_div.classList.add('div_user_writing');
+							v_div.appendChild(v_img);
+
+							v_userDiv.appendChild(v_div);
+						}
+					}
+
+					break;
+				}
+				case parseInt(v_chatResponseCodes.UserNotWriting): {
+					var v_userDiv = document.getElementById('chat_user_' + v_message.v_data);
+
+					if(typeof v_userDiv != 'undefined' && v_userDiv != null && v_userDiv.childNodes.length > 0) {
+						var v_lastChild = v_userDiv.childNodes[v_userDiv.childNodes.length -1];
+
+						if(v_lastChild.classList.contains('div_user_writing')) {
+							v_userDiv.removeChild(v_lastChild);
+						}
+					}
 
 					break;
 				}
@@ -236,5 +395,52 @@ function startChatWebSocket(p_port) {
 			event.preventDefault();
 			event.stopPropagation();
 		}
+	}
+
+	v_textarea.onkeyup = function(event) {
+		if(this.value.length > 0 && !v_wasWriting) {
+			v_wasWriting = true;
+			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Writing, '', false);
+		}
+		else if(this.value.length == 0 && v_wasWriting) {
+			v_wasWriting = false;
+			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.NotWriting, '', false);
+		}
+	}
+
+	document.getElementById('div_chat_header').onclick = function(e) {
+		clickChatHeader();
+	}
+
+	document.getElementById('button_chat_send_message').onclick = function(e) {
+		sendMessage();
+
+		//In order to remove "Writing" icon when sending messages by button click
+		var v_keyboardEvent = new KeyboardEvent(
+			'keyup',
+			{
+				bubbles : true,
+				cancelable : true,
+				shiftKey : false,
+				ctrlKey: false,
+				altKey: false,
+				metaKey: false
+			}
+		);
+
+		delete v_keyboardEvent.keyCode;
+		Object.defineProperty(
+			v_keyboardEvent,
+			'keyCode',
+			{'value' : 13}
+		);
+
+		v_textarea.dispatchEvent(v_keyboardEvent);
+
+		v_textarea.focus();
+	}
+
+	document.getElementById('div_chat_content').onscroll = function(e) {
+		scrollChatContent(e);
 	}
 }

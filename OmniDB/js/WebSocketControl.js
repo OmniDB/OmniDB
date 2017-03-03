@@ -87,6 +87,7 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 /// <param name="p_messageCode">Transaction code that identify the operation.</param>
 /// <param name="p_messageData">A object that will be send to the server.</param>
 /// <param name="p_error">If it's an error message.</param>
+/// <param name="p_context">The message context object. Anything that would be used when client receives a response message related to this request.</param>
 function sendWebSocketMessage(p_connection, p_messageCode, p_messageData, p_error, p_context) {
 	waitForSocketConnection(
 		p_connection,

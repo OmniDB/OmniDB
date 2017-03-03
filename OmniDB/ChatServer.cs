@@ -1,4 +1,12 @@
-﻿using System;
+﻿/*
+Copyright 2015-2017 The OmniDB Team
+This file is part of OmniDB.
+OmniDB is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using SuperSocket.Common;
@@ -29,8 +37,9 @@ namespace OmniDB
 		{
 			Login,
 			GetOldMessages,
-			ViewMessage,
-			SendMessage
+			SendMessage,
+			Writing,
+			NotWriting
 		}
 
 		//Message codes send to clients in response
@@ -38,7 +47,9 @@ namespace OmniDB
 		{
 			OldMessages,
 			NewMessage,
-			UserList
+			UserList,
+			UserWriting,
+			UserNotWriting
 		}
 
 		public ChatServer(int p_port, ref Dictionary<string, Session> p_httpSessions)
@@ -221,13 +232,14 @@ namespace OmniDB
 							"inner join users use " +
 							"           on mes.user_id = use.user_id " +
 							"where meu.user_id = " + v_httpSession.v_user_id + " " +
-							"  and meu.meu_bo_viewed = 'N';";
+							"order by meu.mes_in_code desc " +
+							"limit 20 offset " + v_request.v_data;
 
 						System.Data.DataTable v_table = v_database.v_connection.Query(v_sql, "chat_messages");
 
 						if (v_table != null && v_table.Rows.Count > 0)
 						{
-							for (int i = 0; i < v_table.Rows.Count; i++)
+							for (int i = v_table.Rows.Count - 1; i >= 0 ; i--)
 							{
 								ChatMessage v_message = new ChatMessage();
 								v_message.v_message_id = int.Parse(v_table.Rows[i]["mes_in_code"].ToString());
@@ -252,32 +264,6 @@ namespace OmniDB
 					v_response.v_data = v_messageList;
 					SendToClient(p_webSocketSession, v_response);
 					
-					return;
-				}
-				case (int)request.ViewMessage:
-				{
-					OmniDatabase.Generic v_database = v_httpSession.v_omnidb_database;
-					ChatMessage v_message = JsonConvert.DeserializeObject<ChatMessage>(v_request.v_data.ToString());
-
-					try
-					{
-						string v_sql =
-							"update messages_users " +
-							"set meu_bo_viewed = 'Y' " +
-							"where user_id = " + v_httpSession.v_user_id + " " +
-							"  and mes_in_code = " + v_message.v_message_id;
-
-						v_database.v_connection.Execute(v_sql);
-					}
-					catch(Spartacus.Database.Exception e)
-					{
-						v_response.v_error = true;
-						v_response.v_data = e.v_message.Replace("<", "&lt;").Replace(">", "&gt;").Replace(System.Environment.NewLine, "<br/>");
-						SendToClient(p_webSocketSession, v_response);
-
-						return;
-					}
-
 					return;
 				}
 				case (int)request.SendMessage:
@@ -307,14 +293,11 @@ namespace OmniDB
 						v_sql =
 							"insert into messages_users (" +
 							"    mes_in_code, " +
-							"    meu_bo_viewed, " +
 							"    user_id " +
 							")" +
 							"select " + v_messsageCode + ", " +
-							"    'N', " +
 							"    use.user_id " +
-							"from users use ";// +
-							//"where use.user_id <> " + v_httpSession.v_user_id + ";";
+							"from users use ";
 
 						v_database.v_connection.Execute(v_sql);
 
@@ -340,6 +323,22 @@ namespace OmniDB
 
 					v_response.v_code = (int)response.NewMessage;
 					v_response.v_data = v_message;
+					SendToAllClients(v_response);
+
+					return;
+				}
+				case (int)request.Writing:
+				{
+					v_response.v_code = (int)response.UserWriting;
+					v_response.v_data = v_httpSession.v_user_id;
+					SendToAllClients(v_response);
+
+					return;
+				}
+				case (int)request.NotWriting:
+				{
+					v_response.v_code = (int)response.UserNotWriting;
+					v_response.v_data = v_httpSession.v_user_id;
 					SendToAllClients(v_response);
 
 					return;

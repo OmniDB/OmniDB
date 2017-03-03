@@ -10,10 +10,20 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
+var v_browserTabActive = true;
+
 /// <summary>
 /// Startup function.
 /// </summary>
 $(function () {
+	$(window).focus(function() {
+	    v_browserTabActive = true;
+	    document.title = 'OmniDB';
+	});
+
+	$(window).blur(function() {
+	    v_browserTabActive = false;
+	});
 
 	var v_fileref = document.createElement("link");
     v_fileref.setAttribute("rel", "stylesheet");

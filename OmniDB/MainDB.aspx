@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" Inherits="OmniDB.MainDB" %>
+<%@ Page Language="C#" Inherits="OmniDB.MainDB" %>
 <!DOCTYPE html>
 <html style="height: 100%;">
 <head runat="server">
@@ -19,7 +19,7 @@
 	<script type="text/javascript" src="js/jquery.dd.min.js?v1.6.2"                                    ></script>
 	<script type="text/javascript" src="js/handsontable.full.js?v1.6.2"                                ></script>
     <script type="text/javascript" src="lib/cytoscape/cytoscape.min.js?v1.6.2"                         ></script>
-    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-spread/1.0.9/cytoscape-spread.js?v1.6.2"></script>
+    <script type="text/javascript" src="lib/cytoscape/cytoscape-spread.js?v1.6.2"                      ></script>
     <script type="text/javascript" src="lib/chart/chart.min.js?v1.6.2"                                 ></script>
     <script type="text/javascript" src="js/Tree.js?v1.6.2"                                             ></script>
     <script type="text/javascript" src="js/NotificationControl.js?v1.6.2"                              ></script>
@@ -396,10 +396,12 @@
                 		<img src="images/sqlite_medium.png" title="SQLite"/>
                 		<img src="images/access_medium.png" title="Microsoft Access"/>
                 		<img src="images/mariadb_medium.png" title="MariaDB"/>
+						<img src="images/filedb_medium.png" title="Spartacus FileDB"/>
                 	</div>
                 	<div style="margin: 20px;">Rafael Thofehrn Castro<br/><b>Creator</b></div>
                 	<div style="margin: 20px;">William Ivanski<br/><b>Collaborator</b></div>
                 	<div style="margin: 20px;">Luis Felipe Thofehrn Castro<br/><b>Collaborator</b></div>
+					<div style="margin: 20px;">Israel Barth Rubio<br/><b>Collaborator</b></div>
                 	<div style="margin: 20px;"><a href="http://www.omnidb.com.br">www.omnidb.com.br</a></div>
                 </div>
             </div>

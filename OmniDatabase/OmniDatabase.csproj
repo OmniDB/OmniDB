@@ -60,6 +60,7 @@
     <Compile Include="Access.cs" />
     <Compile Include="SqlCe.cs" />
     <Compile Include="MariaDB.cs" />
+    <Compile Include="FileDB.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

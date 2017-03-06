@@ -1,5 +1,5 @@
-﻿/*
-Copyright 2016 The OmniDB Team
+/*
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -81,6 +81,7 @@ namespace OmniDatabase
 			v_drop_index_command = "drop index #p_schema_name#.#p_index_name#";
 
 			v_can_rename_sequence = true;
+			v_can_drop_sequence = true;
 
 			v_can_alter_sequence_min_value = true;
 			v_can_alter_sequence_max_value = true;
@@ -90,6 +91,7 @@ namespace OmniDatabase
 			v_create_sequence_command = "create sequence #p_sequence_name# increment #p_increment# minvalue #p_min_value# maxvalue #p_max_value# start #p_curr_value#";
 			v_alter_sequence_command = "alter sequence #p_sequence_name# increment #p_increment# minvalue #p_min_value# maxvalue #p_max_value# restart #p_curr_value#";
 			v_rename_sequence_command = "alter sequence #p_sequence_name# rename to #p_new_sequence_name#";
+			v_drop_sequence_command = "drop sequence #p_sequence_name#";
 
 			v_update_rules = new System.Collections.Generic.List<string> ();
 			v_delete_rules = new System.Collections.Generic.List<string> ();
@@ -127,6 +129,11 @@ namespace OmniDatabase
 			v_has_functions = true;
             v_has_procedures = false;
 			v_has_sequences = true;
+
+			v_has_primary_keys = true;
+			v_has_foreign_keys = true;
+			v_has_uniques = true;
+			v_has_indexes = true;
 
 		}
 
@@ -562,23 +569,29 @@ namespace OmniDatabase
 		/// <summary>
 		/// Get a datatable with sequences.
 		/// </summary>
-		public override System.Data.DataTable QuerySequences(string p_sequence) {
+		public override System.Data.DataTable QuerySequences(string p_sequence)
+		{
 
+			System.Data.DataTable v_table;
 			string v_filter = "";
 
 			if (p_sequence != null)
 				v_filter = "and lower(sequence_name) = '" + p_sequence.ToLower() + "' ";
 
-			return v_connection.Query(
+			v_table = v_connection.Query(
 				"select lower(sequence_name) as sequence_name,               " +
 				"       minimum_value,                                       " +
 				"       maximum_value,                                       " +
-				"       start_value as current_value,                        " +
+				"       0 as current_value,                                  " +
 				"       increment                                            " +
 				"from information_schema.sequences                           " +
 				"where lower(sequence_schema) = '" + v_schema.ToLower() + "' " +
 				v_filter, "Sequences");
 
+			for (int i = 0; i < v_table.Rows.Count; i++)
+				v_table.Rows[i]["current_value"] = v_connection.ExecuteScalar("select last_value from " + this.v_schema + "." + v_table.Rows[i]["sequence_name"].ToString());
+
+			return v_table;
 		}
 
 	}

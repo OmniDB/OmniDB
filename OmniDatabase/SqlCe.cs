@@ -1,5 +1,5 @@
-﻿/*
-Copyright 2016 The OmniDB Team
+/*
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -27,15 +27,7 @@ namespace OmniDatabase
             : base ("sqlce", p_conn_id)
         {
             
-            if (p_service.Contains("/")) {
-
-                string []v_strings = p_service.Split ('/');
-
-                v_service = v_strings [v_strings.Length - 1];
-
-            }
-            else
-                v_service = p_service;
+            v_service = p_service;
             
             v_has_schema = false;
             v_has_update_rule = true;
@@ -111,7 +103,12 @@ namespace OmniDatabase
 
 			v_has_functions = false;
             v_has_procedures = false;
-			v_has_sequences = true;
+			v_has_sequences = false;
+
+			v_has_primary_keys = true;
+			v_has_foreign_keys = true;
+			v_has_uniques = true;
+			v_has_indexes = true;
 
         }
 
@@ -129,7 +126,15 @@ namespace OmniDatabase
         /// </summary>
         public override string PrintDatabaseInfo() {
 
-            return v_service;
+			if (this.v_service.Contains("/")) {
+
+				string []v_strings = this.v_service.Split ('/');
+
+				return v_strings [v_strings.Length - 1];
+
+			}
+			else
+				return this.v_service;
 
         }
 

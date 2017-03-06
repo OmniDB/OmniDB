@@ -1,5 +1,5 @@
-﻿/*
-Copyright 2016 The OmniDB Team
+/*
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -34,6 +34,17 @@ namespace OmniDB
 		public bool v_has_functions;
         public bool v_has_procedures;
 		public bool v_has_sequences;
+	}
+
+	/// <summary>
+	/// Table return information.
+	/// </summary>
+	public class TableReturn {
+		public string v_name;
+		public bool v_has_primary_keys;
+		public bool v_has_foreign_keys;
+		public bool v_has_uniques;
+		public bool v_has_indexes;
 	}
 
 	/// <summary>
@@ -135,14 +146,24 @@ namespace OmniDB
 
 			OmniDatabase.Generic v_database = v_session.v_databases[p_database_index];
 
-			System.Collections.Generic.List<string> v_list_tables = new System.Collections.Generic.List<string>();
+			System.Collections.Generic.List<TableReturn> v_list_tables = new System.Collections.Generic.List<TableReturn>();
 
 			try
 			{
 				System.Data.DataTable v_tables = v_database.QueryTables(false);
 
 				foreach (System.Data.DataRow v_table in v_tables.Rows)
-					v_list_tables.Add(v_table["table_name"].ToString());
+				{
+					TableReturn v_obj = new TableReturn();
+
+					v_obj.v_name = v_table["table_name"].ToString();
+					v_obj.v_has_primary_keys = v_database.v_has_primary_keys;
+					v_obj.v_has_foreign_keys = v_database.v_has_foreign_keys;
+					v_obj.v_has_uniques = v_database.v_has_uniques;
+					v_obj.v_has_indexes = v_database.v_has_indexes;
+
+					v_list_tables.Add(v_obj);
+				}
 
 			}
 			catch (Spartacus.Database.Exception e)

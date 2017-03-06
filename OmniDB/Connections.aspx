@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" Inherits="OmniDB.Connections" %>
+<%@ Page Language="C#" Inherits="OmniDB.Connections" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -180,10 +180,12 @@
                 		<img src="images/sqlite_medium.png" title="SQLite"/>
                 		<img src="images/access_medium.png" title="Microsoft Access"/>
                 		<img src="images/mariadb_medium.png" title="MariaDB"/>
+						<img src="images/filedb_medium.png" title="Spartacus FileDB"/>
                 	</div>
                 	<div style="margin: 20px;">Rafael Thofehrn Castro<br/><b>Creator</b></div>
                 	<div style="margin: 20px;">William Ivanski<br/><b>Collaborator</b></div>
                 	<div style="margin: 20px;">Luis Felipe Thofehrn Castro<br/><b>Collaborator</b></div>
+					<div style="margin: 20px;">Israel Barth Rubio<br/><b>Collaborator</b></div>
                 	<div style="margin: 20px;"><a href="http://www.omnidb.com.br">www.omnidb.com.br</a></div>
                 </div>
             </div>

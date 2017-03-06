@@ -1,5 +1,5 @@
-﻿/*
-Copyright 2016 The OmniDB Team
+/*
+Copyright 2015-2017 The OmniDB Team
 
 This file is part of OmniDB.
 
@@ -110,6 +110,11 @@ namespace OmniDatabase
             v_has_functions = true;
             v_has_procedures = true;
 			v_has_sequences = false;
+
+			v_has_primary_keys = true;
+			v_has_foreign_keys = true;
+			v_has_uniques = true;
+			v_has_indexes = true;
 
         }
 

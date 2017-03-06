@@ -746,6 +746,23 @@ a.modal-closer:hover {
    user-select: text;
 }
 
+.div_message_image {
+	margin-left: 10px;
+	margin-right: 5px;
+	width: 100%;
+	height: 150px;
+	border: 1px solid transparent;
+	border-radius: 5px;
+	box-sizing: border-box;
+	cursor: pointer;
+	background-repeat: no-repeat;
+}
+
+.div_message_image:hover {
+	opacity: 0.1;
+	border: 1px solid white;
+}
+
 .div_user {
 	width: 100%;
 	height: 20px;
@@ -785,4 +802,37 @@ a.modal-closer:hover {
 
 .div_chat_header_blink {
 	background-color: rgb(255, 147, 15) !important;
+}
+
+.div_show_img {
+	width: 100%;
+	height: 100%;
+	padding: 2.5%;
+	cursor: pointer;
+	background-color: rgba(0, 0, 0, 0.8);
+	overflow: hidden;
+	z-index: 1000000;
+	position: absolute;
+	top: 0;
+	left: 0;
+	box-sizing: border-box;
+}
+
+.div_container_img {
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	position: relative;
+	cursor: pointer;
+}
+
+.img_show_img {
+	cursor: pointer;
+	overflow: hidden;
+	position: absolute;
+	margin: auto;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }

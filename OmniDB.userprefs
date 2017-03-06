@@ -4,7 +4,14 @@
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node />
+          <Node name="OmniDB" expanded="True">
+            <Node name="OmniDB" expanded="True">
+              <Node name="css" expanded="True" />
+              <Node name="js" expanded="True">
+                <Node name="NotificationControl.js" selected="True" />
+              </Node>
+            </Node>
+          </Node>
         </State>
       </Pad>
     </Pads>

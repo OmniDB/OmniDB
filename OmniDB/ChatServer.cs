@@ -78,7 +78,7 @@ namespace OmniDB
 					Port = this.v_port,
 					MaxRequestLength = 804857600,
 					SyncSend = false,
-					Mode = SocketMode.Tcp
+					Mode = SocketMode.Tcp//,
 					//ReceiveBufferSize = 9999999,
 					//SendBufferSize = 9999999
 				}

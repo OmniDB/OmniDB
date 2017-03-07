@@ -385,6 +385,96 @@ function scrollChatContent() {
 }
 
 /// <summary>
+/// Textarea keydown event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function textareaKeyDown(p_event) {
+	if(p_event.keyCode == 13) {//Enter
+		sendText();
+		p_event.preventDefault();
+		p_event.stopPropagation();
+	}
+}
+
+/// <summary>
+/// Textarea keyup event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function textareaKeyUp(p_event) {
+	if(this.value.length > 0 && !v_wasWriting) {
+		v_wasWriting = true;
+		sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Writing, '', false);
+	}
+	else if(this.value.length == 0 && v_wasWriting) {
+		v_wasWriting = false;
+		sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.NotWriting, '', false);
+	}
+}
+
+/// <summary>
+/// Textarea paste event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function textareaPaste(p_event) {
+	var v_items = (p_event.clipboardData || p_event.originalEvent.clipboardData).items;
+
+	for(v_index in v_items) {
+		var v_item = v_items[v_index];
+		if(v_item.kind === 'file') {
+			var v_blob = v_item.getAsFile();
+
+			var v_reader = new FileReader();
+
+			v_reader.onload = function(p_event) {
+				var v_dataInfo = p_event.target.result.split(';')[0];
+
+				if(v_dataInfo != null && (v_dataInfo.indexOf('image') != -1)) {
+					p_event.preventDefault();
+					p_event.stopPropagation();
+					sendImage(p_event.target.result);
+				}
+			}
+
+			v_reader.readAsDataURL(v_blob);
+		}
+	}
+}
+
+/// <summary>
+/// Button send message click event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function clickSendMessage(p_event) {
+	sendText();
+
+	var v_textarea = document.getElementById('textarea_chat_message');
+
+	//In order to remove "Writing" icon when sending messages by button click
+	var v_keyboardEvent = new KeyboardEvent(
+		'keyup',
+		{
+			bubbles : true,
+			cancelable : true,
+			shiftKey : false,
+			ctrlKey: false,
+			altKey: false,
+			metaKey: false
+		}
+	);
+
+	delete v_keyboardEvent.keyCode;
+	Object.defineProperty(
+		v_keyboardEvent,
+		'keyCode',
+		{'value' : 13}
+	);
+
+	v_textarea.dispatchEvent(v_keyboardEvent);
+
+	v_textarea.focus();
+}
+
+/// <summary>
 /// Starts chat server
 /// </summary>
 /// <param name="p_port">Port where chat will listen for connections.</param>
@@ -445,7 +535,7 @@ function startChatWebSocket(p_port) {
 					var v_userDiv = document.getElementById('chat_user_' + v_message.v_data);
 
 					if(typeof v_userDiv != 'undefined' && v_userDiv != null && v_userDiv.childNodes.length > 0) {
-						var v_lastChild = v_userDiv.childNodes[v_userDiv.childNodes.length -1];
+						var v_lastChild = v_userDiv.childNodes[v_userDiv.childNodes.length - 1];
 
 						if(v_lastChild.classList.contains('div_user_writing')) {
 							v_userDiv.removeChild(v_lastChild);
@@ -460,111 +550,32 @@ function startChatWebSocket(p_port) {
 			}
 		},
 		function(p_event) {//Close
-			showError('The connection with chat server was closed.<br>WebSocket error code: ' + p_event.code + '.');
+			//showError('The connection with chat server was closed.<br>WebSocket error code: ' + p_event.code + '.');
+			startChatWebSocket(p_port);
 		},
 		function(p_event) {//Error
-			showError('An error has occurred during the communication with the chat server.');
+			//showError('An error has occurred during the communication with the chat server.');
 		}
 	);
 
 	var v_textarea = document.getElementById('textarea_chat_message');
 	v_textarea.value = '';
 
-	v_textarea.addEventListener(
-		'keydown',
-		function(p_event) {
-			if(p_event.keyCode == 13) {//Enter
-				sendText();
-				p_event.preventDefault();
-				p_event.stopPropagation();
-			}
-		}
-	);
+	v_textarea.removeEventListener('keydown', textareaKeyDown);
+	v_textarea.addEventListener('keydown', textareaKeyDown);
 
-	v_textarea.addEventListener(
-		'keyup',
-		function(p_event) {
-			if(this.value.length > 0 && !v_wasWriting) {
-				v_wasWriting = true;
-				sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Writing, '', false);
-			}
-			else if(this.value.length == 0 && v_wasWriting) {
-				v_wasWriting = false;
-				sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.NotWriting, '', false);
-			}
-		}
-	);
+	v_textarea.removeEventListener('keyup', textareaKeyUp);
+	v_textarea.addEventListener('keyup', textareaKeyUp);
 
-	v_textarea.addEventListener(
-		'paste',
-		function(p_event) {
-			var v_items = (p_event.clipboardData || p_event.originalEvent.clipboardData).items;
+	v_textarea.removeEventListener('paste', textareaPaste);
+	v_textarea.addEventListener('paste', textareaPaste);
 
-			for(v_index in v_items) {
-				var v_item = v_items[v_index];
-				if(v_item.kind === 'file') {
-					var v_blob = v_item.getAsFile();
+	document.getElementById('div_chat_header').removeEventListener('click', clickChatHeader);
+	document.getElementById('div_chat_header').addEventListener('click', clickChatHeader);
 
-					var v_reader = new FileReader();
+	document.getElementById('button_chat_send_message').removeEventListener('click', clickSendMessage);
+	document.getElementById('button_chat_send_message').addEventListener('click', clickSendMessage);
 
-					v_reader.onload = function(p_event) {
-						var v_dataInfo = p_event.target.result.split(';')[0];
-
-						if(v_dataInfo != null && (v_dataInfo.indexOf('image') != -1)) {
-							p_event.preventDefault();
-							p_event.stopPropagation();
-							sendImage(p_event.target.result);
-						}
-					}
-
-					v_reader.readAsDataURL(v_blob);
-				}
-			}
-		}
-	);
-
-	document.getElementById('div_chat_header').addEventListener(
-		'click',
-		function(p_event) {
-			clickChatHeader();
-		}
-	);
-
-	document.getElementById('button_chat_send_message').addEventListener(
-		'click',
-		function(p_event) {
-			sendText();
-
-			//In order to remove "Writing" icon when sending messages by button click
-			var v_keyboardEvent = new KeyboardEvent(
-				'keyup',
-				{
-					bubbles : true,
-					cancelable : true,
-					shiftKey : false,
-					ctrlKey: false,
-					altKey: false,
-					metaKey: false
-				}
-			);
-
-			delete v_keyboardEvent.keyCode;
-			Object.defineProperty(
-				v_keyboardEvent,
-				'keyCode',
-				{'value' : 13}
-			);
-
-			v_textarea.dispatchEvent(v_keyboardEvent);
-
-			v_textarea.focus();
-		}
-	);
-
-	document.getElementById('div_chat_content').addEventListener(
-		'scroll',
-		function(p_event) {
-			scrollChatContent();
-		}
-	);
+	document.getElementById('div_chat_content').removeEventListener('scroll', scrollChatContent);
+	document.getElementById('div_chat_content').addEventListener('scroll', scrollChatContent);
 }

@@ -1,21 +1,6 @@
 ﻿<Properties StartupItem="OmniDB/OmniDB.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="monodevelop" />
-  <MonoDevelop.Ide.Workbench>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State name="__root__">
-          <Node name="OmniDB" expanded="True">
-            <Node name="OmniDB" expanded="True">
-              <Node name="css" expanded="True" />
-              <Node name="js" expanded="True">
-                <Node name="NotificationControl.js" selected="True" />
-              </Node>
-            </Node>
-          </Node>
-        </State>
-      </Pad>
-    </Pads>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

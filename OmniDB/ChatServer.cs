@@ -37,9 +37,10 @@ namespace OmniDB
 		{
 			Login,
 			GetOldMessages,
-			SendMessage,
+			SendText,
 			Writing,
-			NotWriting
+			NotWriting,
+			SendImage
 		}
 
 		//Message codes send to clients in response
@@ -77,7 +78,7 @@ namespace OmniDB
 					Port = this.v_port,
 					MaxRequestLength = 804857600,
 					SyncSend = false,
-					Mode = SocketMode.Tcp
+					Mode = SocketMode.Tcp//,
 					//ReceiveBufferSize = 9999999,
 					//SendBufferSize = 9999999
 				}
@@ -225,7 +226,8 @@ namespace OmniDB
 							"select mes.mes_in_code, " +
 							"       use.user_name, " +
 							"       mes.mes_st_text, " +
-							"       mes.mes_dt_timestamp " +
+							"       mes.mes_dt_timestamp, " +
+							"       mes.mes_bo_image " +
 							"from messages mes " +
 							"inner join messages_users meu " +
 							"           on mes.mes_in_code = meu.mes_in_code " +
@@ -246,6 +248,7 @@ namespace OmniDB
 								v_message.v_user_name = v_table.Rows[i]["user_name"].ToString();
 								v_message.v_text = v_table.Rows[i]["mes_st_text"].ToString();
 								v_message.v_timestamp = v_table.Rows[i]["mes_dt_timestamp"].ToString();
+								v_message.v_image = int.Parse(v_table.Rows[i]["mes_bo_image"].ToString());
 
 								v_messageList.Add(v_message);
 							}
@@ -266,7 +269,7 @@ namespace OmniDB
 					
 					return;
 				}
-				case (int)request.SendMessage:
+				case (int)request.SendText:
 				{
 					OmniDatabase.Generic v_database = v_httpSession.v_omnidb_database;
 					string v_text = (string)v_request.v_data;
@@ -279,11 +282,13 @@ namespace OmniDB
 							"insert into messages (" +
 							"    mes_st_text, " +
 							"    mes_dt_timestamp, " +
-							"    user_id " +
+							"    user_id, " +
+							"    mes_bo_image " +
 							") values ( " +
 							"  '" + v_text + "', " +
 							"    datetime('now', 'localtime'), " +
-							"  " + v_httpSession.v_user_id +
+							"  " + v_httpSession.v_user_id + ", " +
+							"    0 " + 
 							");" +
 							"select max(mes_in_code) " +
 							"from messages;";
@@ -311,6 +316,7 @@ namespace OmniDB
 						v_message.v_user_name = v_httpSession.v_user_name;
 						v_message.v_text = v_text;
 						v_message.v_timestamp = v_database.v_connection.ExecuteScalar(v_sql);
+						v_message.v_image = 0;
 					}
 					catch(Spartacus.Database.Exception e)
 					{
@@ -343,11 +349,67 @@ namespace OmniDB
 
 					return;
 				}
-				default:
+				case (int)request.SendImage:
 				{
-					v_response.v_error = true;
-					v_response.v_data = "Unrecognized request code.";
-					SendToClient(p_webSocketSession, v_response);
+					OmniDatabase.Generic v_database = v_httpSession.v_omnidb_database;
+					string v_url = (string)v_request.v_data;
+
+					ChatMessage v_message;
+
+					try 
+					{
+						string v_sql = 
+							"insert into messages (" +
+							"    mes_st_text, " +
+							"    mes_dt_timestamp, " +
+							"    user_id, " +
+							"    mes_bo_image " +
+							") values ( " +
+							"  '" + v_url + "', " +
+							"    datetime('now', 'localtime'), " +
+							"  " + v_httpSession.v_user_id + ", " +
+							"    1 " + 
+							");" +
+							"select max(mes_in_code) " +
+							"from messages;";
+
+						int v_messsageCode = int.Parse(v_database.v_connection.ExecuteScalar(v_sql));
+
+						v_sql =
+							"insert into messages_users (" +
+							"    mes_in_code, " +
+							"    user_id " +
+							")" +
+							"select " + v_messsageCode + ", " +
+							"    use.user_id " +
+							"from users use ";
+
+						v_database.v_connection.Execute(v_sql);
+
+						v_sql = 
+							"select mes_dt_timestamp " +
+							"from messages " +
+							"where mes_in_code = " + v_messsageCode;
+
+						v_message = new ChatMessage();
+						v_message.v_message_id = v_messsageCode;
+						v_message.v_user_name = v_httpSession.v_user_name;
+						v_message.v_text = v_url;
+						v_message.v_timestamp = v_database.v_connection.ExecuteScalar(v_sql);
+						v_message.v_image = 1;
+					}
+					catch(Spartacus.Database.Exception e)
+					{
+						v_response.v_error = true;
+						v_response.v_data = e.v_message.Replace("<","&lt;").Replace(">","&gt;").Replace(System.Environment.NewLine, "<br/>");
+						SendToClient(p_webSocketSession, v_response);
+
+						return;
+					}
+
+					v_response.v_code = (int)response.NewMessage;
+					v_response.v_data = v_message;
+					SendToAllClients(v_response);
 
 					return;
 				}
@@ -515,6 +577,7 @@ namespace OmniDB
 		public string v_user_name;
 		public string v_text;
 		public string v_timestamp;
+		public int v_image;
 	}
 
 	/// <summary>

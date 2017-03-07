@@ -12,9 +12,10 @@ You should have received a copy of the GNU General Public License along with Omn
 var v_chatRequestCodes = {
 	Login: '0',
 	GetOldMessages: '1',
-	SendMessage: '2',
+	sendText: '2',
 	Writing: '3',
-	NotWriting: '4'
+	NotWriting: '4',
+	SendImage: '5'
 }
 
 /// <summary>
@@ -64,12 +65,20 @@ function stopMessageNotification() {
 }
 
 /// <summary>
-/// Sends a message from an user to chat server.
+/// Sends a text message from an user to chat server.
 /// </summary>
-function sendMessage() {
+function sendText() {
 	var v_textarea = document.getElementById('textarea_chat_message');
-	sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.SendMessage, v_textarea.value, false);
+	sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.sendText, v_textarea.value, false);
 	v_textarea.value = '';
+}
+
+/// <summary>
+/// Sends a image message from an user to chat server.
+/// </summary>
+/// <param name="p_url">The image url.</param>
+function sendImage(p_url) {
+	sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.SendImage, p_url, false);
 }
 
 /// <summary>
@@ -151,10 +160,46 @@ function NewMessage(p_message) {
 		v_messageDiv.appendChild(v_messageTime);
 	}
 
-	var v_messageText = document.createElement('div');
-	v_messageText.classList.add('div_message_text');
-	v_messageText.innerHTML = p_message.v_text;
-	v_messageDiv.appendChild(v_messageText);
+	if(p_message.v_image) {
+		var v_messageImage = document.createElement('div');
+		v_messageImage.classList.add('div_message_image');
+		v_messageImage.style.backgroundImage = 'url(' + p_message.v_text + ')';
+		v_messageImage.setAttribute('src', p_message.v_text);
+
+		v_messageImage.addEventListener(
+			'click',
+			function(p_event) {
+				var v_divShowImage = document.createElement('div');
+				v_divShowImage.classList.add('div_show_img');
+
+				v_divShowImage.addEventListener(
+					'click',
+					function(p_event) {
+						this.parentElement.removeChild(this);
+					}
+				);
+
+				var v_divContainerImg = document.createElement('div');
+				v_divContainerImg.classList.add('div_container_img');
+
+				var v_imgShowImage = document.createElement('img');
+				v_imgShowImage.classList.add('img_show_img');
+				v_imgShowImage.src = this.getAttribute('src');
+
+				v_divContainerImg.appendChild(v_imgShowImage);
+				v_divShowImage.appendChild(v_divContainerImg);
+				document.body.appendChild(v_divShowImage);
+			}
+		);
+
+		v_messageDiv.appendChild(v_messageImage);
+	}
+	else {
+		var v_messageText = document.createElement('div');
+		v_messageText.classList.add('div_message_text');
+		v_messageText.innerHTML = p_message.v_text;
+		v_messageDiv.appendChild(v_messageText);
+	}
 
 	v_chatContent.appendChild(v_messageDiv);
 
@@ -218,10 +263,46 @@ function OldMessages(p_messageList) {
 				v_lastUser = p_messageList[i].v_user_name;
 			}
 
-			var v_messageText = document.createElement('div');
-			v_messageText.classList.add('div_message_text');
-			v_messageText.innerHTML = p_messageList[i].v_text;
-			v_messageDiv.appendChild(v_messageText);
+			if(p_messageList[i].v_image) {
+				var v_messageImage = document.createElement('div');
+				v_messageImage.classList.add('div_message_image');
+				v_messageImage.style.backgroundImage = 'url(' + p_messageList[i].v_text + ')';
+				v_messageImage.setAttribute('src', p_messageList[i].v_text);
+
+				v_messageImage.addEventListener(
+					'click',
+					function(p_event) {
+						var v_divShowImage = document.createElement('div');
+						v_divShowImage.classList.add('div_show_img');
+
+						v_divShowImage.addEventListener(
+							'click',
+							function(p_event) {
+								this.parentElement.removeChild(this);
+							}
+						);
+
+						var v_divContainerImg = document.createElement('div');
+						v_divContainerImg.classList.add('div_container_img');
+
+						var v_imgShowImage = document.createElement('img');
+						v_imgShowImage.classList.add('img_show_img');
+						v_imgShowImage.src = this.getAttribute('src');
+
+						v_divContainerImg.appendChild(v_imgShowImage);
+						v_divShowImage.appendChild(v_divContainerImg);
+						document.body.appendChild(v_divShowImage);
+					}
+				);
+
+				v_messageDiv.appendChild(v_messageImage);
+			}
+			else {
+				var v_messageText = document.createElement('div');
+				v_messageText.classList.add('div_message_text');
+				v_messageText.innerHTML = p_messageList[i].v_text;
+				v_messageDiv.appendChild(v_messageText);
+			}
 
 			v_fakeDiv.appendChild(v_messageDiv);
 		}
@@ -290,8 +371,7 @@ function clickChatHeader() {
 /// <summary>
 /// Function called when a user scrolls the div that contains chat messages
 /// </summary>
-/// <param name="p_event">The javascript scroll event object.</param>
-function scrollChatContent(p_event) {
+function scrollChatContent() {
 	var v_chatContent = document.getElementById('div_chat_content');
 
 	if(v_chatContent.scrollTop == 0) {
@@ -302,6 +382,96 @@ function scrollChatContent(p_event) {
 	else if(v_chatContent.scrollTop == (v_chatContent.scrollHeight - v_chatContent.offsetHeight)){
 		stopMessageNotification();
 	}
+}
+
+/// <summary>
+/// Textarea keydown event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function textareaKeyDown(p_event) {
+	if(p_event.keyCode == 13) {//Enter
+		sendText();
+		p_event.preventDefault();
+		p_event.stopPropagation();
+	}
+}
+
+/// <summary>
+/// Textarea keyup event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function textareaKeyUp(p_event) {
+	if(this.value.length > 0 && !v_wasWriting) {
+		v_wasWriting = true;
+		sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Writing, '', false);
+	}
+	else if(this.value.length == 0 && v_wasWriting) {
+		v_wasWriting = false;
+		sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.NotWriting, '', false);
+	}
+}
+
+/// <summary>
+/// Textarea paste event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function textareaPaste(p_event) {
+	var v_items = (p_event.clipboardData || p_event.originalEvent.clipboardData).items;
+
+	for(v_index in v_items) {
+		var v_item = v_items[v_index];
+		if(v_item.kind === 'file') {
+			var v_blob = v_item.getAsFile();
+
+			var v_reader = new FileReader();
+
+			v_reader.onload = function(p_event) {
+				var v_dataInfo = p_event.target.result.split(';')[0];
+
+				if(v_dataInfo != null && (v_dataInfo.indexOf('image') != -1)) {
+					p_event.preventDefault();
+					p_event.stopPropagation();
+					sendImage(p_event.target.result);
+				}
+			}
+
+			v_reader.readAsDataURL(v_blob);
+		}
+	}
+}
+
+/// <summary>
+/// Button send message click event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function clickSendMessage(p_event) {
+	sendText();
+
+	var v_textarea = document.getElementById('textarea_chat_message');
+
+	//In order to remove "Writing" icon when sending messages by button click
+	var v_keyboardEvent = new KeyboardEvent(
+		'keyup',
+		{
+			bubbles : true,
+			cancelable : true,
+			shiftKey : false,
+			ctrlKey: false,
+			altKey: false,
+			metaKey: false
+		}
+	);
+
+	delete v_keyboardEvent.keyCode;
+	Object.defineProperty(
+		v_keyboardEvent,
+		'keyCode',
+		{'value' : 13}
+	);
+
+	v_textarea.dispatchEvent(v_keyboardEvent);
+
+	v_textarea.focus();
 }
 
 /// <summary>
@@ -365,7 +535,7 @@ function startChatWebSocket(p_port) {
 					var v_userDiv = document.getElementById('chat_user_' + v_message.v_data);
 
 					if(typeof v_userDiv != 'undefined' && v_userDiv != null && v_userDiv.childNodes.length > 0) {
-						var v_lastChild = v_userDiv.childNodes[v_userDiv.childNodes.length -1];
+						var v_lastChild = v_userDiv.childNodes[v_userDiv.childNodes.length - 1];
 
 						if(v_lastChild.classList.contains('div_user_writing')) {
 							v_userDiv.removeChild(v_lastChild);
@@ -380,67 +550,32 @@ function startChatWebSocket(p_port) {
 			}
 		},
 		function(p_event) {//Close
-			showError('The connection with chat server was closed.<br>WebSocket error code: ' + p_event.code + '.');
+			//showError('The connection with chat server was closed.<br>WebSocket error code: ' + p_event.code + '.');
+			startChatWebSocket(p_port);
 		},
 		function(p_event) {//Error
-			showError('An error has occurred during the communication with the chat server.');
+			//showError('An error has occurred during the communication with the chat server.');
 		}
 	);
 
 	var v_textarea = document.getElementById('textarea_chat_message');
 	v_textarea.value = '';
-	v_textarea.onkeydown = function(event) {
-		if(event.keyCode == 13) {//Enter
-			sendMessage();
-			event.preventDefault();
-			event.stopPropagation();
-		}
-	}
 
-	v_textarea.onkeyup = function(event) {
-		if(this.value.length > 0 && !v_wasWriting) {
-			v_wasWriting = true;
-			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.Writing, '', false);
-		}
-		else if(this.value.length == 0 && v_wasWriting) {
-			v_wasWriting = false;
-			sendWebSocketMessage(v_chatWebSocket, v_chatRequestCodes.NotWriting, '', false);
-		}
-	}
+	v_textarea.removeEventListener('keydown', textareaKeyDown);
+	v_textarea.addEventListener('keydown', textareaKeyDown);
 
-	document.getElementById('div_chat_header').onclick = function(e) {
-		clickChatHeader();
-	}
+	v_textarea.removeEventListener('keyup', textareaKeyUp);
+	v_textarea.addEventListener('keyup', textareaKeyUp);
 
-	document.getElementById('button_chat_send_message').onclick = function(e) {
-		sendMessage();
+	v_textarea.removeEventListener('paste', textareaPaste);
+	v_textarea.addEventListener('paste', textareaPaste);
 
-		//In order to remove "Writing" icon when sending messages by button click
-		var v_keyboardEvent = new KeyboardEvent(
-			'keyup',
-			{
-				bubbles : true,
-				cancelable : true,
-				shiftKey : false,
-				ctrlKey: false,
-				altKey: false,
-				metaKey: false
-			}
-		);
+	document.getElementById('div_chat_header').removeEventListener('click', clickChatHeader);
+	document.getElementById('div_chat_header').addEventListener('click', clickChatHeader);
 
-		delete v_keyboardEvent.keyCode;
-		Object.defineProperty(
-			v_keyboardEvent,
-			'keyCode',
-			{'value' : 13}
-		);
+	document.getElementById('button_chat_send_message').removeEventListener('click', clickSendMessage);
+	document.getElementById('button_chat_send_message').addEventListener('click', clickSendMessage);
 
-		v_textarea.dispatchEvent(v_keyboardEvent);
-
-		v_textarea.focus();
-	}
-
-	document.getElementById('div_chat_content').onscroll = function(e) {
-		scrollChatContent(e);
-	}
+	document.getElementById('div_chat_content').removeEventListener('scroll', scrollChatContent);
+	document.getElementById('div_chat_content').addEventListener('scroll', scrollChatContent);
 }

@@ -82,7 +82,7 @@ namespace OmniDB
 					v_pwd = v_cryptor.Decrypt (v_encrypted_pwd);
 
 					if (v_pwd == p_pwd) {
-						Session v_session = new Session("-1", p_username, v_omnidb_database, "", "", "", "");
+						Session v_session = new Session("-1", p_username, v_omnidb_database, "", "", "", "", 0);
 						v_session.v_omnidb_version = System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Version"].ToString ();
 						System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = v_session;
 						v_return.v_data = true;
@@ -109,7 +109,8 @@ namespace OmniDB
 																	   "       t.theme_id,             " +
 						                                               "       t.theme_name,           " +
 																	   "       t.theme_type,           " +
-						                                               "       u.editor_font_size      " +
+						                                               "       u.editor_font_size,     " +
+																	   "       (case when u.chat_enabled is null then 1 else u.chat_enabled end) as chat_enabled " +
 						                                               "from users u,                  " +
 																	   "     themes t                  " +
 																	   " where u.theme_id = t.theme_id " +
@@ -127,7 +128,8 @@ namespace OmniDB
 						// If password is correct, set user as logged in, instantiate Session and return true.
 						if (v_pwd == p_pwd) {
 
-							Session v_session = new Session (v_user_data.Rows [0] ["user_id"].ToString (), p_username, v_omnidb_database, v_user_data.Rows[0]["theme_name"].ToString(), v_user_data.Rows[0]["theme_type"].ToString(), v_user_data.Rows[0]["theme_id"].ToString(), v_user_data.Rows [0] ["editor_font_size"].ToString ());
+							Console.WriteLine(int.Parse(v_user_data.Rows[0]["chat_enabled"].ToString()));
+							Session v_session = new Session (v_user_data.Rows [0] ["user_id"].ToString (), p_username, v_omnidb_database, v_user_data.Rows[0]["theme_name"].ToString(), v_user_data.Rows[0]["theme_type"].ToString(), v_user_data.Rows[0]["theme_id"].ToString(), v_user_data.Rows [0] ["editor_font_size"].ToString (), int.Parse(v_user_data.Rows[0]["chat_enabled"].ToString()));
 							v_session.v_omnidb_version = System.Web.Configuration.WebConfigurationManager.AppSettings ["OmniDB.Version"].ToString ();
 							System.Web.HttpContext.Current.Session ["OMNIDB_SESSION"] = v_session;
 

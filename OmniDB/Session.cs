@@ -76,6 +76,10 @@ namespace OmniDB
 		/// </summary>
 		public string v_current_os;
 
+		/// <summary>
+		/// If Omnichat is enabled.
+		/// </summary>
+		public int v_enable_omnichat;
 
 
 		/// <summary>
@@ -84,7 +88,7 @@ namespace OmniDB
 		/// <param name="p_user_id">User ID.</param>
 		/// <param name="p_user_name">Username.</param>
 		/// <param name="p_database">Database that manages the application.</param>
-		public Session (string p_user_id, string p_user_name, OmniDatabase.Generic p_database, string p_editor_theme, string p_theme_type, string p_theme_id, string p_editor_font_size)
+		public Session (string p_user_id, string p_user_name, OmniDatabase.Generic p_database, string p_editor_theme, string p_theme_type, string p_theme_id, string p_editor_font_size, int p_enable_chat)
 		{
 			
 			v_omnidb_database  = p_database;
@@ -96,6 +100,7 @@ namespace OmniDB
 			v_editor_theme     = p_editor_theme;
 			v_theme_type       = p_theme_type;
 			v_editor_font_size = p_editor_font_size;
+			v_enable_omnichat  = p_enable_chat;
 
 			if (Environment.OSVersion.ToString ().ToLower ().Contains ("unix"))
 				v_current_os = "unix";

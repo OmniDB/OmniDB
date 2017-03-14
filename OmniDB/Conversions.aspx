@@ -34,6 +34,7 @@
 		var	v_theme_id = "<%= v_session.v_theme_id %>";
 		var v_editor_font_size = "<%= v_session.v_editor_font_size %>";
 		var v_user_id = "<%= v_session.v_user_id %>";
+		var v_enable_omnichat = parseInt("<%= v_session.v_enable_omnichat %>");
 
     </script>
 </head>
@@ -183,22 +184,23 @@
 
 	  				</div>
 	  				<div id="div_config_tabs_tab2">
-
 	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
-		                <div style="text-align: center;">
-		                <div style="margin-bottom: 10px;">New Password</div>
-		                <input id="txt_new_pwd" type="password" style="width: 200px; margin-bottom: 20px;">
+		                	<div style="text-align: center;">
+		                		<div style="margin-bottom: 10px;">New Password</div>
+		                		<input id="txt_new_pwd" type="password" style="width: 200px; margin-bottom: 20px;">
+		                	</div>
+		                	<div style="text-align: center;">
+		                		<div style="margin-bottom: 10px;">Confirm New Password</div>
+		                		<input id="txt_confirm_new_pwd" type="password" style="width: 200px; margin-bottom: 20px;">
+		                	</div>
+		                	<div style="text-align: center;">
+		                		<div style="margin-bottom: 10px;">Enable OmniChat</div>
+		                		<input id="chk_enable_chat" type="checkbox" style="width: 200px; margin-bottom: 20px;">
+		                	</div>
+		                	<div style="text-align: center;">
+			                	<button onclick="saveConfigUser();">Save Changes</button>
+		                	</div>
 		                </div>
-		                <div style="text-align: center;">
-		                <div style="margin-bottom: 10px;">Confirm New Password</div>
-		                <input id="txt_confirm_new_pwd" type="password" style="width: 200px; margin-bottom: 20px;">
-		                </div>
-		                <div style="text-align: center;">
-		                	<button class="bt_blue" onclick="saveConfigUser();">Save Changes</button>
-		                </div>
-		                </div>
-
-
 	  				</div>
   				</div>
 

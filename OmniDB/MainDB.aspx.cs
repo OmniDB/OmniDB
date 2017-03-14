@@ -344,7 +344,7 @@ namespace OmniDB
 		/// <param name="p_theme">Theme name.</param>
 		/// <param name="p_pwd">New password.</param>
 		[System.Web.Services.WebMethod]
-		public static AjaxReturn SaveConfigUser(string p_font_size, string p_theme, string p_pwd)
+		public static AjaxReturn SaveConfigUser(string p_font_size, string p_theme, string p_pwd, int p_chat_enabled)
 		{
 			AjaxReturn v_return = new AjaxReturn();
 
@@ -360,6 +360,7 @@ namespace OmniDB
 
 			v_session.v_theme_id = p_theme;
 			v_session.v_editor_font_size = p_font_size;
+			v_session.v_enable_omnichat = p_chat_enabled;
 
 			string v_enc_pwd = v_cryptor.Encrypt (p_pwd);
 
@@ -370,12 +371,14 @@ namespace OmniDB
 				v_update_command = "update users                            " +
 					"set theme_id = " + p_theme + ",               " +
 					"    editor_font_size = '" + p_font_size + "', " +
-					"    password = '" + v_enc_pwd + "'            " +
+					"    password = '" + v_enc_pwd + "',           " +
+					"    chat_enabled = " + p_chat_enabled + "     " +
 					"where user_id = " + v_session.v_user_id;
 			else
 				v_update_command = "update users                           " +
-					"set theme_id = " + p_theme + ",              " +
-					"    editor_font_size = '" + p_font_size + "' " +
+					"set theme_id = " + p_theme + ",               " +
+					"    editor_font_size = '" + p_font_size + "', " +
+					"    chat_enabled = " + p_chat_enabled + "     " +
 					"where user_id = " + v_session.v_user_id;
 
 			try {

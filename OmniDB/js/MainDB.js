@@ -47,7 +47,13 @@ $(function () {
 	getDatabaseList();
 
 	//WebSockets
-	startChatWebSocket(2011);
+	if(v_enable_omnichat) {
+		startChatWebSocket(2011);
+	}
+	else {
+		document.getElementById('div_chat').style.display = 'none';
+	}
+
 	startQueryWebSocket(2012);
 });
 

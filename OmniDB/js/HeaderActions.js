@@ -29,6 +29,8 @@ function showConfigUser() {
 	document.getElementById('txt_confirm_new_pwd').value = '';
 	document.getElementById('txt_new_pwd').value = '';
 
+	document.getElementById('chk_enable_chat').checked = ((v_enable_omnichat == 1) ? true : false);
+
 	$('#div_config_user').show();
 
 }
@@ -71,10 +73,12 @@ function saveConfigUser() {
 	var v_confirm_pwd = document.getElementById('txt_confirm_new_pwd');
 	var v_pwd = document.getElementById('txt_new_pwd');
 
+	v_enable_omnichat = ((document.getElementById('chk_enable_chat').checked == true) ? 1 : 0);
+
 	if ((v_confirm_pwd.value!='' || v_pwd.value!='') && (v_pwd.value!=v_confirm_pwd.value))
 		showAlert('New Password and Confirm New Password fields do not match.');
 	else {
-		var input = JSON.stringify({"p_font_size" : v_editor_font_size, "p_theme" : v_theme_id, "p_pwd" : v_pwd.value});
+		var input = JSON.stringify({"p_font_size" : v_editor_font_size, "p_theme" : v_theme_id, "p_pwd" : v_pwd.value, "p_chat_enabled": v_enable_omnichat});
 
 		execAjax('MainDB.aspx/SaveConfigUser',
 				input,

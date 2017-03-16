@@ -645,11 +645,11 @@ a.modal-closer:hover {
     font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;
     margin: 0px;
     padding: 0px;
-	height: 35px;
+	height: 25px;
 	width: 100%;
 	text-align: center;
 	box-sizing: border-box;
-	line-height: 35px;
+	line-height: 25px;
 	color: white;
     border-top-right-radius: 3px;
     border-top-left-radius: 3px;

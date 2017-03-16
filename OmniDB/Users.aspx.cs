@@ -84,7 +84,7 @@ namespace OmniDB
 
 			v_session.v_omnidb_database.v_connection.Execute ("insert into users values ( " +
 				v_connections.Rows [0] ["next_id"].ToString () + "," +
-				"'user" + v_connections.Rows [0] ["next_id"].ToString () + "','',1,'14')");
+				"'user" + v_connections.Rows [0] ["next_id"].ToString () + "','',1,'14',1)");
 
 			return v_return;
 

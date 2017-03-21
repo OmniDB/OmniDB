@@ -965,6 +965,31 @@ function drawGraph(p_graph_type) {
 }
 
 /// <summary>
+/// Download a html file containing a graph.
+/// </summary>
+/// <param name="p_graph_type">Graph Type.</param>
+function getGraphPackage(p_graph_type) {
+
+    var v_graph_type = p_graph_type;
+
+	execAjax('MainDB.aspx/GetGraphPackage',
+			 JSON.stringify({p_database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex, p_graph_type: v_graph_type}),
+			 function(p_return) {
+
+				var iframe = document.createElement('iframe');
+				iframe.style.display = 'none';
+				iframe.setAttribute("src", 'DownloadFile.aspx');
+				document.body.appendChild(iframe);
+
+				setTimeout(function(){ iframe.parentElement.removeChild(iframe); }, 3000);
+
+			 }
+			 ,null
+			 ,'box');
+
+}
+
+/// <summary>
 /// Hides statistics.
 /// </summary>
 function hideStatistics() {

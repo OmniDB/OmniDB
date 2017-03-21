@@ -55,6 +55,38 @@ function getTree(p_div) {
 							}
 						},
 						{
+							text : 'Download Graph',
+							icon: 'images/graph.png',
+							action : function(node) {
+
+							},
+							submenu: {
+								elements : [
+									{
+										text : 'Simple Graph',
+										icon: 'images/graph.png',
+										action : function(node) {
+											getGraphPackage(0);
+										}
+									},
+									{
+										text : 'Detailed Graph',
+										icon: 'images/graph.png',
+										action : function(node) {
+											getGraphPackage(1);
+										}
+									},
+									{
+										text : 'Complete Graph',
+										icon: 'images/graph.png',
+										action : function(node) {
+											getGraphPackage(2);
+										}
+									}
+								]
+							}
+						},
+						{
 							text : 'Get Statistics',
 							icon: 'images/bar_chart.png',
 							action : function(node) {

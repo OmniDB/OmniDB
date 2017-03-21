@@ -1030,6 +1030,45 @@ namespace OmniDB
 		}
 
 		/// <summary>
+		/// Builds a html file of a graph.
+		/// </summary>
+		[System.Web.Services.WebMethod]
+		public static AjaxReturn GetGraphPackage(int p_database_index, int p_graph_type)
+		{
+			AjaxReturn v_return, v_graph;
+
+			if (p_graph_type == 0)
+				v_graph = DrawGraphSimple(p_database_index);
+			else if (p_graph_type == 1)
+				v_graph = DrawGraph(p_database_index);
+			else
+				v_graph = DrawGraphComplete(p_database_index);
+
+			Spartacus.Utils.Cryptor v_cryptor = new Spartacus.Utils.Cryptor("spartacus");
+
+			string v_filename = v_cryptor.Encrypt("page").Replace("/", "").Replace("=", "").Replace("+", "") + ".html";
+
+			string v_output = System.IO.File.ReadAllText("graph_template.html");
+
+			using (System.IO.StreamWriter v_sw = System.IO.File.CreateText("exported_files/" + v_filename))
+			{
+
+				v_output = v_output.Replace("#p_graph_type#", p_graph_type.ToString());
+				v_sw.WriteLine(v_output.Replace("#p_data#", Newtonsoft.Json.JsonConvert.SerializeObject(v_graph.v_data)));
+
+			}
+
+			System.Web.HttpContext.Current.Session ["OMNIDB_EXPORTED_FILE"] = v_filename;
+			System.Web.HttpContext.Current.Session ["OMNIDB_EXPORTED_TYPE"] = "html";
+			System.Web.HttpContext.Current.Session ["OMNIDB_EXPORTED_NAME"] = "graph";
+
+			v_return = new AjaxReturn();
+			v_return.v_data = v_filename;
+
+			return v_return;
+		}
+
+		/// <summary>
 		/// Builds a bar chart with information about tables and number of records.
 		/// </summary>
 		[System.Web.Services.WebMethod]

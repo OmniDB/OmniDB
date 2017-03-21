@@ -453,6 +453,7 @@
     <Content Include="lib\cytoscape\cytoscape.min.js" />
     <Content Include="lib\cytoscape\cytoscape-spread.js" />
     <Content Include="images\filedb_medium.png" />
+    <Content Include="graph_template.html" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">

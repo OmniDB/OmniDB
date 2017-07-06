@@ -24,8 +24,8 @@ The source code for the ASP.NET version is in the branch **csharp**.
 
 Technologies:
 
-- Python - Django
-- HTML + CSS + JavaScript
+- Python (3.5+)
+- Django
 
 Supported Platforms:
 

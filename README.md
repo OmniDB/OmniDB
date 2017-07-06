@@ -8,6 +8,7 @@ The source code for the ASP.NET/C\# version is in the branch **csharp**. The nex
 
 Besides being written in Python, initial version of `OmniDB 2.0` contains the following main differences from the C\# version:
 
+- Support to HTTPS;
 - It allows query execution in background and cancellation through the use of *websockets*;
 - Initially, only an improved support of PostgreSQL is implemented. More RDBMS support coming soon;
 - There is a new `Snippet` feature.

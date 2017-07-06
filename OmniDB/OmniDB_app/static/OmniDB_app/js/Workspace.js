@@ -41,8 +41,8 @@ $(function () {
 	$(v_tab.elementLi).qtip({
 	    content: { text: 'Create your connection tab here' },
 			position: {
-	        my: 'center left',
-	        at: 'center right'
+	        my: 'top left',
+	        at: 'bottom right'
 	    },
 			style: { classes: 'qtip-bootstrap' },
 	    show: { ready: true },

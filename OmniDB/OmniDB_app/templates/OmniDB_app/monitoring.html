@@ -1,0 +1,98 @@
+{% extends 'OmniDB_app/base.html' %}
+{% block include_css %}
+  <link rel="stylesheet" href="/static/OmniDB_app/css/flatpickr.min.css" />
+{% endblock %}
+
+{% block content %}
+	<div style='margin-left:20px; margin-top: 20px; display:inline-block;'>
+		<button onclick="newNode()">New Node</button>
+    <button onclick="listNodes()">Refresh</button>
+	</div>
+	<div id='div_save_nodes' style='visibility: hidden; display:inline-block;'>
+		<button onclick="saveNodes()">Save Data</button>
+	</div>
+	<div id='div_node_list' style='width: 80%; margin:20px;'></div>
+
+  <div id="div_alerts" style="display:none;">
+        <div class="modal_background_dark">
+            <div id="div_alerts_box" class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
+                <a class="modal-closer" onclick="$('#div_alerts').hide()">x</a>
+
+                <div style='margin-left:20px; margin-top: 20px; display:inline-block;'>
+              		<button onclick="newAlert()">New Alert</button>
+                  <button onclick="listAlerts()">Refresh</button>
+              	</div>
+              	<div id='div_save_alerts' style='visibility: hidden; display:inline-block;'>
+              		<button onclick="saveAlerts()">Save Data</button>
+              	</div>
+              	<div id='div_alert_list' style='width: 80%; overflow: auto; margin:20px;'></div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="div_alert_data" style="display:none;">
+        <div class="modal_background_dark">
+            <div id="div_alert_data_box" class ="white_box" style="width: 80%; height: 80%; left: 10%; top: 10%;">
+                <a class="modal-closer" onclick="$('#div_alert_data').hide()">x</a>
+
+                <div style='margin-left:20px; margin-top: 20px; display:inline-block;'>
+                  <button onclick="listAlertData()">Refresh</button>
+                  <h2 style="display: inline-block; margin-left: 10px;" id="alert_title"></h2>
+                </div>
+                <div id='div_alert_data_list' style='width: 90%; overflow: auto; margin:20px;'></div>
+
+            </div>
+        </div>
+    </div>
+    <div id="div_chart" style="display:none;">
+        <div class="modal_background_dark">
+            <div class ="white_box" style="width: 80%; height: 80%; left: 10%; top: 10%;">
+                <a class="modal-closer" onclick="$('#div_chart').hide()">x</a>
+                  <div style='position: relative; margin-left:20px; margin-top: 20px;'>
+                    <input type="text" placeholder="Start Date" id="chart_start_date"/>
+                    <input type="text" placeholder="End Date" id="chart_end_date"/>
+                    <button onclick="refreshAlertChart()">Refresh</button>
+
+                  </div>
+                  <div id="div_chart_container" style="width: 100%;">
+                    <canvas id="stat_chart"></canvas>
+                  </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="div_edit_content" style="display: none;">
+        <div class="modal_background_dark">
+            <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
+                <a class="modal-closer" onclick="hideEditContent()">x</a>
+
+                <div style="height: 90%; padding: 30px;">
+	                <div id="txt_edit_content" style="width: 100%; height: 100%; font-size: 12px; border: 1px solid rgb(195, 195, 195);">
+	                </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block include %}
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js"></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js"></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js"></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/Monitoring.js"></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Chart.min.js"></script>
+  <script src="/static/OmniDB_app/js/flatpickr.min.js"></script>
+	<script type="text/javascript">
+
+	//Global variables
+	var v_nodes_data;
+  var v_alerts_data;
+  var v_curr_alert_data;
+  var v_chart_data;
+  var v_canEditContent;
+  var v_editContentObject;
+
+	</script>
+{% endblock %}

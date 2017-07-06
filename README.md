@@ -1,6 +1,12 @@
 [![Join the chat at https://gitter.im/OmniDB/Lobby](https://img.shields.io/badge/GITTER-JOIN%20CHAT-brightgreen.svg)](https://gitter.im/OmniDB/Lobby)
 
-# Introduction
+# 0- OmniDB 2.0
+
+OmniDB was completely rewritten to python using the Django framework.
+
+The source code for the ASP.NET version is in the branch **csharp**.
+
+# 1- Introduction
 
 **OmniDB** is a web tool that simplifies database management focusing on interactivity, designed to be powerful and lightweight. Check-out some characteristics:
 
@@ -14,12 +20,11 @@
 - **Beautiful SQL Editor**: You can choose between many available color themes
 - **Tabbed SQL Editor**: Easily add, rename or delete editor tabs
 
-![](http://www.omnidb.com.br/images_article/topo.png)
+![](http://162.243.1.11/images/screenshots/screen00.png)
 
 Technologies:
 
-- ASP.NET
-- C#
+- Python - Django
 - HTML + CSS + JavaScript
 
 Supported Platforms:
@@ -30,18 +35,17 @@ Supported Platforms:
 
 Supported DBMS:
 
-- MySQL
-- Oracle
-- PostgreSQL
-- Firebird
-- SQLite
-- Microsoft SQL Server
-- Microsoft Access
-- Microsoft SQL Compact (Windows only)
+- [X] PostgreSQL
+- [ ] MySQL
+- [ ] Oracle
+- [ ] Firebird
+- [ ] SQLite
+- [ ] Microsoft SQL Server
+- [ ] IBM DB2
 
-# Database Schema Management
+# 2- Database Schema Management
 
-OmniDB is designed for easy database management. Here are some features:
+OmniDB is designed for easy database management. Here are some features:
 
 - Tree view showing database structure
   - Included structures:
@@ -49,7 +53,7 @@ OmniDB is designed for easy database management. Here are some features:
     - Key Constraints: primary, foreign and unique
     - Index (unique and non-unique)
 
-![](http://www.omnidb.com.br/images_article/image_6_01.png)
+![](http://162.243.1.11/images/screenshots/treeview.png)
 
 - Powerful table creation
   - Editing capabilities:
@@ -59,13 +63,12 @@ OmniDB is designed for easy database management. Here are some features:
     - Foreign keys with either table and reference columns, including updating rules and removal as well
     - Indexes
 
-![](http://www.omnidb.com.br/images_article/image_5_05.png)
-![](http://www.omnidb.com.br/images_article/image_5_06.png)
+![](http://162.243.1.11/images/screenshots/screen05.png)
 
 - Table editing: Edit table structure according to DBMS limitations
 - Data management: Add, edit and remove records
 
-![](http://www.omnidb.com.br/images_article/image_7_04.png)
+![](http://162.243.1.11/images/screenshots/screen07.png)
 
 - SQL Editing
   - Customizable Features:
@@ -73,34 +76,20 @@ OmniDB is designed for easy database management. Here are some features:
     - SQL code completion for table columns and subquery
     - Multiple themes to be selected
 
-![](http://www.omnidb.com.br/images_article/image_8_02.png)
+![](http://162.243.1.11/images/screenshots/screen06.png)
 
 - Other features:
   - Querying organized in tables
   - DDL commands execution
   - Multiple sequenced command execution (scripts)
-  - Bar charts demonstrating registry numbers contained in the denser tables (limited to 100)
   - Graphs displaying tables and their relations
-  - Graphs displaying tables, relations and color scale based on record density
 
-![](http://www.omnidb.com.br/images_article/image_9_06.png)
+![](http://162.243.1.11/images/screenshots/screen02.png)
 
   - Graphs displaying complete ER diagram
 
-![](http://www.omnidb.com.br/images_article/image_9_09.png)
+![](http://162.243.1.11/images/screenshots/screen01.png)
 
-# Database Schema Conversion
+# 3- Database Schema Conversion
 
-Since version 1.3, OmniDB is able to convert one schema to another, regardless of the DBMS. It is very useful to convert databases, from any supported DBMS to any supported DBMS.
-
-Here are the structures supported by OmniDB database conversion:
-
-- Tables
-- Primary Keys
-- Foreign Keys
-- Uniques
-- Indexes
-- Table data
-
-![](http://www.omnidb.com.br/images_article/image_10_03.png)
-![](http://www.omnidb.com.br/images_article/image_10_06.png)
+This feature is being implemented in the Python version.

@@ -1,0 +1,224 @@
+{% extends 'OmniDB_app/base.html' %}
+{% block content %}
+	<div class="conn_tabs">
+		<div id="conn_tabs" style='margin-left: 5px; margin-right: 5px;'>
+			<ul>
+			</ul>
+		</div>
+	</div>
+
+	<div id="div_graph" style="display:none;">
+        <div class="modal_background_dark">
+            <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
+                <a class="modal-closer" onclick="modalGraph('hide')">x</a>
+
+                <div id="div_legend">
+                <ul style="padding-left: 10px; padding-right: 10px; color: black;">
+                <li class="li_legend"><div class="div_legend_color" style=" background-color: red;"></div><p id="p_legend_5" class="p_legend_label">Vermelho</p></li>
+                <li class="li_legend"><div class="div_legend_color" style=" background-color: orange;"></div><p id="p_legend_4" class="p_legend_label">Vermelho</p></li>
+                <li class="li_legend"><div class="div_legend_color" style=" background-color: yellow;"></div><p id="p_legend_3" class="p_legend_label">Vermelho</p></li>
+                <li class="li_legend"><div class="div_legend_color" style=" background-color: lightgreen;"></div><p id="p_legend_2" class="p_legend_label">Vermelho</p></li>
+                <li class="li_legend"><div class="div_legend_color" style=" background-color: cyan;"></div><p id="p_legend_1" class="p_legend_label">Vermelho</p></li>
+                <li class="li_legend"><div class="div_legend_color" style=" background-color: #6E6EFD;"></div><p id="p_legend_0" class="p_legend_label">Vermelho</p></li>
+                </ul>
+
+                </div>
+
+                <div id="visualization" style="height:100%; width:100%; background-color: white;">
+
+                	<div id="div_graph_content" style="height:100%; width:100%; z-index: 999"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="div_alter_table" style="display:none;">
+        <div class="modal_background_dark">
+            <div class ="white_box" style="width<script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js"></script>: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
+                <a class="modal-closer" onclick="hideAlterTable()">x</a>
+                <span style="margin-left: 10px;">Table Name: </span><input type="text" id="txt_tableNameAlterTable" onchange='changeTableName()' style="margin: 10px;"/>
+                <button id="bt_saveAlterTable" onclick="saveAlterTable()" style="visibility: hidden;">Save Changes</button>
+                <div id="alter_tabs" style='margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
+	                <ul>
+	                <li id="alter_tabs_tab1">Columns</li>
+	                <li id="alter_tabs_tab2">Constraints</li>
+	                <li id="alter_tabs_tab3">Indexes</li>
+	  				</ul>
+	  				<div id="div_alter_tabs_tab1">
+	  					<div style="padding: 20px;">
+		                	<div id='div_alter_table_data' style='width: 100%; height: 400px; overflow: auto;'></div>
+		                </div>
+	  				</div>
+	  				<div id="div_alter_tabs_tab2">
+
+	  					<button id="bt_newConstraintAlterTable" onclick="newConstraintAlterTable()" style="margin-left: 20px; margin-top: 20px;">New Constraint</button>
+	  					<div style="padding: 20px;">
+	  						<div id='div_alter_constraint_data' style='width: 100%; height: 400px; overflow: auto;'></div>
+	  					</div>
+	  				</div>
+	  				<div id="div_alter_tabs_tab3">
+
+	  					<button id="bt_newIndexAlterTable" onclick="newIndexAlterTable()" style="margin-left: 20px; margin-top: 20px;">New Index</button>
+	  					<div style="padding: 20px;">
+	  						<div id='div_alter_index_data' style='width: 100%; height: 400px; overflow: auto;'></div>
+	  					</div>
+	  				</div>
+  				</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="div_edit_data" style="display:none;">
+        <div class="modal_background_dark">
+            <div class ="white_box" style="width: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
+                <a class="modal-closer" onclick="hideAlterData()">x</a>
+                <div id='div_edit_data_select' style='margin: 10px; font-size: 14px;'></div>
+                <div id='txt_filter_data' style=' margin-left: 10px; margin-right: 10px; height: 100px;border: 1px solid #c3c3c3;'></div>
+                <button title='Run (CTRL + Q)' style='margin-top: 10px; margin-bottom: 10px; margin-left: 10px; margin-right: 5px; display: inline-block;' onclick='queryEditData()'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>
+                <select id="sel_filtered_data" onchange='queryEditData()'>
+                	<option value="10" >10 rows</option>
+                	<option value="100">100 rows</option>
+                	<option value="1000">1000 rows</option>
+                </select>
+                <div id='div_edit_data_query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>
+                <button id="bt_saveEditData" onclick="saveEditData()" style="visibility: hidden; margin-left: 5px;">Save Changes</button>
+                <div style="padding: 10px;">
+                	<div id='div_edit_data_data' style='width: 100%; height: 400px; overflow: auto;'></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="div_column_selection" style="display: none;">
+        <div class="modal_background_dark">
+            <div class ="white_box" style="width: 40%; height: 40%; left: 30%; top: 30%;">
+                <a class="modal-closer" onclick="hideColumnSelection()">x</a>
+
+                <div style="margin: 30px; position: absolute; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
+
+                <select id="sel_columns_left" ondblclick="addColumnToList()" style="width: 200px; height: 100%" size="10">
+                	<option value="1">Column 1</option>
+                	<option value="1">Column 2</option>
+                	<option value="1">Column 3</option>
+                	<option value="1">Column 4</option>
+                </select>
+
+                <div style="display: inline-block; vertical-align: top; width: 80px; position: absolute; left: 50%; margin-left: -40px;">
+
+                	<div><button onclick="addColumnToList()"   style="width: 100%; margin-bottom: 10px;">Add</button></div>
+                	<div><button onclick="remColumnFromList()" style="width: 100%;">Remove</button></div>
+
+                </div>
+
+                <select id="sel_columns_right" ondblclick="remColumnFromList()" style="width: 200px; height: 100%; position: absolute; right: 0px;" size="10">
+                	<option value="1">Column 5</option>
+                	<option value="1">Column 6</option>
+                	<option value="1">Column 7</option>
+                	<option value="1">Column 8</option>
+                </select>
+
+							</div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <div id="div_find_replace" style="display: none;">
+        <div class="modal_background_dark" style="z-index: 2000">
+            <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
+                <a class="modal-closer" onclick="hideFindReplace()">x</a>
+
+                <div id="find_replace" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
+	                <ul>
+	                <li id="find_replace_tab1">Find & Replace</li>
+	  				</ul>
+	  				<div id="div_find_replace_tab1">
+
+	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
+		                <div style="text-align: center;">
+		                <div style="margin-bottom: 10px;">Text</div>
+		                <input id="txt_replacement_text" type="text" style="width: 200px; margin-bottom: 20px;">
+		                </div>
+		                <div style="text-align: center;">
+		                <div style="margin-bottom: 10px;">Replacement</div>
+		                <input id="txt_replacement_text_new" type="text" style="width: 200px; margin-bottom: 20px;">
+		                </div>
+		                <div style="text-align: center;">
+		                	<button onclick="replaceText();">Replace</button>
+		                </div>
+		                </div>
+
+
+	  				</div>
+  				</div>
+
+
+            </div>
+        </div>
+    </div>
+
+		<div id="div_commands_log" style="display: none;">
+        <div class="modal_background_dark">
+            <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
+                <a class="modal-closer" onclick="hideCommandsLog()">x</a>
+
+                <div style="height: 100%;">
+	                <div id="div_commands_log_list" style="margin: 20px; height: 90%; overflow: scroll;">
+	                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--
+		<div id="div_chat">
+  	<div id="div_chat_header" class="div_chat_header_default">
+  		OmniChat
+  	</div>
+  	<div id="div_chat_details">
+  		<div id="div_chat_left_panel">
+  		</div>
+  		<div id="div_chat_right_panel">
+		  	<div id="div_chat_content">
+		  	</div>
+		  	<div id="div_chat_footer">
+		  		<textarea id="textarea_chat_message">
+		  		</textarea>
+		  		<button id="button_chat_send_message">
+		  			Send
+		  		</button>
+		  	</div>
+		</div>
+	</div>
+  </div>
+-->
+{% endblock %}
+{% block include_css %}
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/aimaraJS/css/Aimara.css"/>
+{% endblock %}
+{% block include %}
+<script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape.min.js"                         ></script>
+<script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js"                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/lib/chart/chart.min.js"                                 ></script>
+<script type="text/javascript" src="/static/OmniDB_app/lib/aimaraJS/lib/Aimara.js"                             ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/ChatClient.js"                                       ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/QueryClient.js"                                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Query.js"                                            ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Workspace.js"													               ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/EditData.js"													               ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/AlterTable.js"												               ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/CreateTabFunctions.js"                               ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Tree.js"                                             ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreeSnippets.js"                                     ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreePostgresql.js"                                   ></script>
+<script>
+	var v_query_port = {{ query_port }};
+	var v_is_secure = {{ is_secure }};
+	var v_keybind_object = { v_execute: '{{ execute }}',
+               v_execute_mac: '{{ execute_mac }}',
+               v_replace: '{{ replace }}',
+               v_replace_mac: '{{ replace_mac }}' };
+</script>
+{% endblock %}

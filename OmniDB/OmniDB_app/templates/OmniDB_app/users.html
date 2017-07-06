@@ -1,0 +1,19 @@
+{% extends 'OmniDB_app/base.html' %}
+{% block content %}
+	<div style='margin-left:20px; margin-top: 20px; display:inline-block;'>
+		<button onclick="newUser()">New User</button>
+	</div>
+	<div id='div_save' style='visibility: hidden; display:inline-block;'>
+		<button onclick="saveUsers()">Save Data</button>
+	</div>
+	<div id='div_user_list' style='width: 80%; margin:20px;'></div>
+{% endblock %}
+{% block include %}
+	<script type="text/javascript" src="/static/OmniDB_app/js/Users.js"></script>
+	<script type="text/javascript">
+
+	//Global variables
+	var v_users_data;
+
+	</script>
+{% endblock %}

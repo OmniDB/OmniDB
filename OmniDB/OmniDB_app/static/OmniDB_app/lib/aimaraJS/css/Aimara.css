@@ -1,0 +1,190 @@
+ul.tree, ul.tree ul {
+	list-style-type: none;
+	background: url(vline.png) repeat-y;
+	margin: 0;
+	padding: 0;
+	padding-left: 7px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	cursor: default;
+}
+
+li.last {
+	background-image: 'url("css/lastnode.png")';
+	background-repeat: no-repeat;
+}
+
+ul.tree ul {
+	padding-left: 7px;
+}
+
+ul.tree li {
+	margin: 0;
+	padding: 0 12px;
+	line-height: 20px;
+	background: url(node.png) no-repeat;
+	white-space: nowrap;
+}
+
+ul.tree li.last {
+	background: #fff url(lastnode.png) no-repeat;
+}
+
+img.exp_col {
+	margin-top: 4px;
+	margin-left: -20px;
+	vertical-align: sub;
+}
+
+img.exp_col_empty {
+	margin-top: 4px;
+	margin-left: -20px;
+	vertical-align: sub;
+	width: 16px;
+}
+
+.icon_tree {
+  margin-left: 3px;
+	margin-right: 3px;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-repeat: no-repeat;
+	vertical-align: middle;
+
+}
+
+a.node {
+	padding: 2px;
+}
+
+span.node a {
+}
+
+span.node {
+	position: relative;
+	margin-left: 2px;
+	padding-right: 3px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	border: 1px solid rgba(255, 255, 255, 0);
+}
+
+span.node:hover {
+	margin-left: 2px;
+	background-color: #DCEDFF;
+	border-radius: 2px;
+}
+
+span.node_selected {
+	position: relative;
+	margin-left: 2px;
+	padding-right: 3px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	background-color: #d3deff;
+	border: 1px solid #7c90f1;
+	border-radius: 4px;
+}
+
+span.node_selected a {
+}
+
+.aimara_menu,.aimara_sub-menu {
+  margin: 0;
+  padding: 0;
+	font: 10px Verdana, sans-serif;
+}
+
+.aimara_menu,
+.aimara_sub-menu {
+  list-style: none;
+  background: #000;
+	z-index: 1000;
+}
+.aimara_sub-menu {
+  background: #F1F1F1;
+}
+.aimara_menu a {
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px;
+}
+
+.aimara_menu span {
+  position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+.aimara_menu div {
+  position: absolute;
+	right: 4px;
+	top: 0px;
+	padding: 8px;
+}
+
+.aimara_menu .menu_img {
+	vertical-align: middle;
+}
+
+.aimara_menu img {
+  text-decoration: none;
+  display: inline-block;
+	vertical-align: sub;
+  padding-left: 5px;
+}
+.aimara_menu li {
+  position: relative;
+}
+
+.aimara_menu li:hover {
+  background: #d3deff;
+	cursor: pointer;
+}
+
+.aimara_sub-menu li:hover {
+  background: #d3deff;
+}
+.aimara_menu li:hover > .aimara_sub-menu {
+  display: block;
+}
+
+.aimara_menu {
+	width: 150px;
+	position: absolute;
+	background: #F1F1F1;
+	-webkit-user-select: none; /* Chrome/Safari */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	cursor: default;
+	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
+  border: 1px solid #A0A0A0;
+  border-radius: 2px;
+	z-index: 1000;
+}
+
+
+.aimara_sub-menu {
+	display: none;
+	position: absolute;
+	min-width: 150px;
+	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
+    border: 1px solid #A0A0A0;
+    border-radius: 2px;
+    margin-top: -1px;
+}
+
+.aimara_menu .aimara_sub-menu {
+  top: 0;
+  left: 100%;
+}
+
+.div_close_cm {
+	width: 100%;
+	height: 100%;
+	z-index: 900;
+	top: 0px;
+    position: absolute;
+}

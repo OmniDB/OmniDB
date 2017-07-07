@@ -50,14 +50,14 @@ $(function () {
 	})
 
 	getDatabaseList();
-/*
+
 	//WebSockets
-	startChatWebSocket(2011, v_enable_omnichat);
+	startChatWebSocket(v_chat_port, v_enable_omnichat);
 
 	if(!v_enable_omnichat) {
 		document.getElementById('div_chat').style.display = 'none';
 	}
-*/
+
 	startQueryWebSocket(v_query_port);
 });
 

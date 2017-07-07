@@ -51,6 +51,7 @@ def index(request):
         'omnidb_version': settings.OMNIDB_VERSION,
         'menu_item': 'workspace',
         'query_port': settings.WS_QUERY_PORT,
+        'chat_port' : settings.WS_CHAT_PORT,
         'is_secure' : v_is_secure,
         'execute': settings.BINDKEY_EXECUTE,
         'execute_mac': settings.BINDKEY_EXECUTE_MAC,

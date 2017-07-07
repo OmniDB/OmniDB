@@ -172,7 +172,7 @@
             </div>
         </div>
     </div>
-<!--
+
 		<div id="div_chat">
   	<div id="div_chat_header" class="div_chat_header_default">
   		OmniChat
@@ -193,7 +193,7 @@
 		</div>
 	</div>
   </div>
--->
+
 {% endblock %}
 {% block include_css %}
 	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/aimaraJS/css/Aimara.css"/>
@@ -215,6 +215,7 @@
 <script type="text/javascript" src="/static/OmniDB_app/js/TreePostgresql.js"                                   ></script>
 <script>
 	var v_query_port = {{ query_port }};
+	var v_chat_port = {{ chat_port }};
 	var v_is_secure = {{ is_secure }};
 	var v_keybind_object = { v_execute: '{{ execute }}',
                v_execute_mac: '{{ execute_mac }}',

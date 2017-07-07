@@ -2,9 +2,16 @@
 
 # 0- OmniDB 2.0
 
-OmniDB was completely rewritten to python using the Django framework.
+OmniDB was completely rewritten to Python using the Django framework. Starting from version `2.0`, **OmniDB Python version** will receive new features and will be actively maintained.
 
-The source code for the ASP.NET version is in the branch **csharp**.
+The source code for the ASP.NET/C\# version is in the branch **csharp**. The next release of OmniDB C\# version is `1.7`, and it will only receive bug fixes.
+
+Besides being written in Python, initial version of `OmniDB 2.0` contains the following main differences from the C\# version:
+
+- Support to HTTPS;
+- It allows query execution in background and cancellation through the use of *websockets*;
+- Initially, only an improved support of PostgreSQL is implemented. More RDBMS support coming soon;
+- There is a new `Snippet` feature.
 
 # 1- Introduction
 
@@ -24,8 +31,8 @@ The source code for the ASP.NET version is in the branch **csharp**.
 
 Technologies:
 
-- Python - Django
-- HTML + CSS + JavaScript
+- Python (3.5+)
+- Django
 
 Supported Platforms:
 

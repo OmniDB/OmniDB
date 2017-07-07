@@ -25,7 +25,7 @@ SECRET_KEY = 'ijbq-+%n_(_^ct+qnqp%ir8fzu3n#q^i71j4&y#-6#qe(dx!h3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','cloud.omnidb.org','192.168.100.10']
+ALLOWED_HOSTS = ['localhost','127.0.0.1']
 
 
 # Application definition

@@ -9,8 +9,9 @@ import Spartacus.Database, Spartacus.Utils
 import OmniDatabase
 
 from enum import IntEnum
-
 from .ws_core import omnidb_sessions
+from . import settings
+
 omnidb_ws_sessions = dict([])
 
 class ChatUser:
@@ -319,7 +320,17 @@ def start_wsserver_thread():
 def start_wsserver():
     application = tornado.web.Application([
         (r'/ws', WSHandler),
+        (r'/wss',WSHandler),
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./resources"}),
     ])
-    application.listen(2011)
+
+    if settings.IS_SSL:
+        ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        ssl_ctx.load_cert_chain(settings.SSL_CERTIFICATE,
+                               settings.SSL_KEY)
+        server = tornado.httpserver.HTTPServer(application, ssl_options=ssl_ctx)
+    else:
+        server = tornado.httpserver.HTTPServer(application)
+
+    server.listen(settings.WS_CHAT_PORT)
     #tornado.ioloop.IOLoop.instance().start()

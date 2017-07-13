@@ -23,4 +23,4 @@ application = get_wsgi_application()
 ws_core.start_wsserver_thread()
 
 #Websocket Chat
-#ws_chat.start_wsserver_thread()
+ws_chat.start_wsserver_thread()

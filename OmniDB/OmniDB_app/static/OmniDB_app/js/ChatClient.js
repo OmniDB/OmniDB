@@ -446,6 +446,58 @@ function textareaPaste(p_event) {
 }
 
 /// <summary>
+/// Chat drag enter event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function chatDragEnter(p_event) {
+	p_event.preventDefault();
+	p_event.stopPropagation();
+}
+
+/// <summary>
+/// Chat drag leave event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function chatDragLeave(p_event) {
+	p_event.preventDefault();
+	p_event.stopPropagation();
+}
+
+/// <summary>
+/// Chat drag over event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function chatDragOver(p_event) {
+	p_event.preventDefault();
+	p_event.stopPropagation();
+}
+
+/// <summary>
+/// Chat drop event listener
+/// </summary>
+/// <param name="p_event">The event object.</param>
+function chatDrop(p_event) {
+	p_event.preventDefault();
+	p_event.stopPropagation();
+
+	for(var i = 0; i < p_event.dataTransfer.files.length; i++) {
+		var v_blob = p_event.dataTransfer.files[i];
+
+		var v_reader = new FileReader();
+
+		v_reader.onload = function(p_event) {
+			var v_dataInfo = p_event.target.result.split(';')[0];
+
+			if(v_dataInfo != null && (v_dataInfo.indexOf('image') != -1)) {
+				sendImage(p_event.target.result);
+			}
+		}
+
+		v_reader.readAsDataURL(v_blob);
+	}
+}
+
+/// <summary>
 /// Button send message click event listener
 /// </summary>
 /// <param name="p_event">The event object.</param>
@@ -495,7 +547,7 @@ function startChatWebSocket(p_port, p_chatEnabled) {
 		},
 		function(p_event) {//Message
 			var v_message = p_event;
-			console.log(v_message);
+
 			if(v_message.v_error) {
 				showError('An error message has been received from the server:  <br>' + v_message.v_data);
 				return;
@@ -560,14 +612,14 @@ function startChatWebSocket(p_port, p_chatEnabled) {
 			}
 		},
 		function(p_event) {//Close
-			console.log(p_event);
+			//console.log(p_event);
 			//showError('The connection with chat server was closed.<br>WebSocket error code: ' + p_event.code + '.');
 			if(p_event.code != 1000) {//1000: normal closing
 				startChatWebSocket(p_port, p_chatEnabled);
 			}
 		},
 		function(p_event) {//Error
-			console.log(p_event);
+			//console.log(p_event);
 			//showError('An error has occurred during the communication with the chat server.');
 			startChatWebSocket(p_port, p_chatEnabled);
 		}
@@ -586,6 +638,20 @@ function startChatWebSocket(p_port, p_chatEnabled) {
 
 	v_textarea.removeEventListener('paste', textareaPaste);
 	v_textarea.addEventListener('paste', textareaPaste);
+
+	var v_chatDiv = document.getElementById('div_chat');
+
+	v_chatDiv.removeEventListener('dragenter', chatDragEnter);
+	v_chatDiv.addEventListener('dragenter', chatDragEnter);
+
+	v_chatDiv.removeEventListener('dragleave', chatDragLeave);
+	v_chatDiv.addEventListener('dragleave', chatDragLeave);
+
+	v_chatDiv.removeEventListener('dragover', chatDragOver);
+	v_chatDiv.addEventListener('dragover', chatDragOver);
+
+	v_chatDiv.removeEventListener('drop', chatDrop);
+	v_chatDiv.addEventListener('drop', chatDrop);
 
 	document.getElementById('div_chat_header').removeEventListener('click', clickChatHeader);
 	document.getElementById('div_chat_header').addEventListener('click', clickChatHeader);

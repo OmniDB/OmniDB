@@ -130,6 +130,7 @@ BINDKEY_EXECUTE_MAC = 'ctrl+q'
 BINDKEY_REPLACE     = 'ctrl+g'
 BINDKEY_REPLACE_MAC = 'ctrl+g'
 WS_QUERY_PORT       = 15000
+WS_CHAT_PORT        = 15001
 IS_SSL              = False
 SSL_CERTIFICATE     = ""
 SSL_KEY             = ""

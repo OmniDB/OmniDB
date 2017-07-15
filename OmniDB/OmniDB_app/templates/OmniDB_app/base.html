@@ -87,7 +87,7 @@
 		                	<option value="14">(Light) Textmate</option>
 		                	<option value="15">(Light) Tomorrow</option>
 		                	<option value="16">(Light) XCode</option>
-							<option value="17">(Dark) OmniDB Dark</option>
+							        <option value="17">(Dark) OmniDB Dark</option>
 		                	<option value="18">(Dark) Ambiance</option>
 		                	<option value="19">(Dark) Chaos</option>
 		                	<option value="20">(Dark) Clouds Midnight</option>
@@ -168,7 +168,12 @@
             <div class ="white_box" style="width: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
                 <a class="modal-closer" onclick="hideCommandList()">x</a>
              	<div style='margin-left:20px; margin-top: 20px; display:inline-block;'>
-			      <button onclick="deleteCommandList()">Clear list</button>
+            <button onclick="commandHistoryFirstPage()">First</button>
+            <button onclick="commandHistoryPreviousPage()">Previous</button>
+            <span id="cl_curr_page"></span> / <span id="cl_num_pages"></span>
+            <button onclick="commandHistoryNextPage()">Next</button>
+            <button onclick="commandHistoryLastPage()">Last</button>
+            <button onclick="deleteCommandList()" class="bt_red">Clear list</button>
 			    </div>
                 <div style="padding: 10px;">
                 	<div id='div_command_list_data' style='width: 100%; height: 600px; overflow: auto;'></div>
@@ -193,13 +198,13 @@
 
 
   <div id="div_error" style="display:none;">
-        <div class="modal_background_dark" style="z-index: 2000">
-            <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%; z-index: 2000;">
-                <a class="modal-closer" onclick="hideError()">x</a>
-                <div id="div_error_msg" style="height:100%; width:100%; margin-top:20px; text-align: center;"></div>
-            </div>
-        </div>
-    </div>
+      <div class="modal_background_dark" style="z-index: 2000">
+          <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%; z-index: 2000;">
+              <a class="modal-closer" onclick="hideError()">x</a>
+              <div id="div_error_msg" class="error_text" style="height:100%; width:100%; margin-top:20px; text-align: center;"></div>
+          </div>
+      </div>
+  </div>
 
   <div id="div_alert" style="display:none;">
       <div class="modal_background_dark">
@@ -209,21 +214,40 @@
       </div>
   </div>
 
+  <div id="div_password_prompt" style="display: none;">
+      <div class="modal_background_dark" style="z-index: 2000">
+          <div class ="white_box" style="width: 50%; left: 25%; top: 20%; z-index: 2000; text-align: center;">
+              <a id="bt2_password_prompt_cancel" class="modal-closer">x</a>
+              <h2>Password Expired</h2>
+              <img src="/static/OmniDB_app/images/keys.png"/>
+              <div id="div_password_prompt_msg" class="error_text" style="margin:20px 0px 20px 0px; padding: 0px 20px 0px 20px; max-height: 50px; overflow-y: auto;"></div>
+              <div>
+                <input id="txt_password_prompt" type="password" placeholder="Password" style="margin-bottom:20px; text-align: center;"/>
+              </div>
+              <div style="margin-bottom: 20px;">
+                <button id="bt_password_prompt_ok">Ok</button>
+                <button id="bt1_password_prompt_cancel">Cancel</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
   <div class="div_loading"></div>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js"  ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery.qtip.min.js"></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery.qtip.min.js"        ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js"          ></script>
   <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js"               ></script>
   <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js"          ></script>
   <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js"></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js"     ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js"  ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js"></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js"        ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js"   ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js"         ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js"    ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js"            ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js"       ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js"              ></script>
 
   <script type="text/javascript">
 

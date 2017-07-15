@@ -11,12 +11,17 @@ import Spartacus.Database, Spartacus.Utils
 import OmniDatabase
 
 from enum import IntEnum
+from datetime import datetime
 import sys
 
 from . import settings
 
-#global list of sessions
-omnidb_sessions = dict([])
+from django.contrib.sessions.backends.db import SessionStore
+
+import logging
+logger = logging.getLogger('OmniDB_app.QueryServer')
+
+#list of ws sessions
 omnidb_ws_sessions = dict([])
 
 class StoppableThread(threading.Thread):
@@ -41,14 +46,8 @@ class response(IntEnum):
   QueryEditDataResult = 2
   SaveEditDataResult = 3
   SessionMissing = 4
-
-def check_session_object(p_key):
-    #Checking session
-    try:
-        v_session = omnidb_sessions[p_key]
-        return True
-    except Exception as exc:
-        return False
+  PasswordRequired = 5
+  QueryAck = 6
 
 class WSHandler(tornado.websocket.WebSocketHandler):
   def open(self):
@@ -70,52 +69,97 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     #Login request
     if v_code == request.Login:
         self.v_user_key = v_data
-        if check_session_object(self.v_user_key):
+
+        try:
+            v_session = SessionStore(session_key=v_data)['omnidb_session']
+
             v_response['v_code'] = response.LoginResult
             self.v_list_threads = dict([])
             omnidb_ws_sessions[self.v_user_key] = self
             self.write_message(json.dumps(v_response))
-        else:
+        except Exception:
             v_response['v_code'] = response.SessionMissing
             self.write_message(json.dumps(v_response))
-    #Query request
-    elif v_code == request.Query:
-        if check_session_object(self.v_user_key):
-            v_data['v_context_code'] = v_context_code
-            t = StoppableThread(thread_query,v_data,self)
-            self.v_list_threads[v_context_code] =  { 'thread': t }
-            #t.setDaemon(True)
-            t.start()
+    else:
+        #Cancel thread
+        if v_code == request.CancelThread:
+            try:
+                thread_data = self.v_list_threads[v_data]
+                if thread_data:
+
+                    thread_data['thread'].stop()
+                    thread_data['omnidatabase'].v_connection.Cancel()
+            except Exception as exc:
+                None;
+
         else:
-            v_response['v_code'] = response.SessionMissing
-            self.write_message(json.dumps(v_response))
-    #Query edit data
-    elif v_code == request.QueryEditData:
-        if check_session_object(self.v_user_key):
-            v_data['v_context_code'] = v_context_code
-            t = StoppableThread(thread_query_edit_data,v_data,self)
-            self.v_list_threads[v_context_code] =  { 'thread': t }
-            #t.setDaemon(True)
-            t.start()
-        else:
-            v_response['v_code'] = response.SessionMissing
-            self.write_message(json.dumps(v_response))
-    #Save edit data
-    elif v_code == request.SaveEditData:
-        if check_session_object(self.v_user_key):
-            v_data['v_context_code'] = v_context_code
-            t = StoppableThread(thread_save_edit_data,v_data,self)
-            self.v_list_threads[v_context_code] =  { 'thread': t }
-            #t.setDaemon(True)
-            t.start()
-        else:
-            v_response['v_code'] = response.SessionMissing
-            self.write_message(json.dumps(v_response))
-    #Cancel thread
-    elif v_code == request.CancelThread:
-        thread_data = self.v_list_threads[v_data]
-        if thread_data:
-            thread_data['thread'].stop()
+
+            try:
+                #Getting refreshed session
+                s = SessionStore(session_key=self.v_user_key)
+                v_session = s['omnidb_session']
+                self.v_session = v_session
+
+                #Check database prompt timeout
+                if v_session.DatabaseReachPasswordTimeout(v_data['v_db_index']):
+                    v_response['v_code'] = response.PasswordRequired
+                    self.write_message(json.dumps(v_response))
+                    return
+
+                v_database = v_session.v_databases[v_data['v_db_index']]['database']
+                v_database_new = OmniDatabase.Generic.InstantiateDatabase(
+                    v_database.v_db_type,
+                    v_database.v_server,
+                    v_database.v_port,
+                    v_database.v_service,
+                    v_database.v_user,
+                    v_database.v_connection.v_password,
+                    v_database.v_conn_id,
+                    v_database.v_alias
+                )
+
+                v_data['v_context_code'] = v_context_code
+                v_data['v_database'] = v_database_new
+
+                #Query request
+                if v_code == request.Query:
+
+                    t = StoppableThread(thread_query,v_data,self)
+                    self.v_list_threads[v_context_code] =  { 'thread': t,
+                                                             'omnidatabase': v_database_new,
+                                                             'database_index': v_data['v_db_index'] }
+                    #t.setDaemon(True)
+                    t.start()
+
+                    #Send Ack Message
+                    v_response['v_code'] = response.QueryAck
+                    self.write_message(json.dumps(v_response))
+
+                #Query edit data
+                elif v_code == request.QueryEditData:
+                    t = StoppableThread(thread_query_edit_data,v_data,self)
+                    self.v_list_threads[v_context_code] =  { 'thread': t,
+                                                             'omnidatabase': v_database_new,
+                                                             'database_index': v_data['v_db_index'] }
+                    #t.setDaemon(True)
+                    t.start()
+
+                    #Send Ack Message
+                    v_response['v_code'] = response.QueryAck
+                    self.write_message(json.dumps(v_response))
+
+                #Save edit data
+                elif v_code == request.SaveEditData:
+                    t = StoppableThread(thread_save_edit_data,v_data,self)
+                    self.v_list_threads[v_context_code] =  { 'thread': t,
+                                                             'omnidatabase': v_database_new,
+                                                             'database_index': v_data['v_db_index'] }
+                    #t.setDaemon(True)
+                    t.start()
+
+            except Exception:
+                v_response['v_code'] = response.SessionMissing
+                self.write_message(json.dumps(v_response))
 
   def on_close(self):
     omnidb_ws_sessions.pop(self.v_user_key,None)
@@ -147,10 +191,53 @@ def start_wsserver():
     server.listen(settings.WS_QUERY_PORT)
     tornado.ioloop.IOLoop.instance().start()
 
+def LogHistory(p_omnidb_database,
+               p_user_id,
+               p_sql,
+               p_start,
+               p_end,
+               p_mode,
+               p_status):
+
+    duration = ''
+    time_diff = p_end - p_start
+    if time_diff.days==0 and time_diff.seconds==0:
+        duration = str(time_diff.microseconds/1000000) + ' seconds'
+    else:
+        days, seconds = time_diff.days, time_diff.seconds
+        hours = days * 24 + seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+        duration = '{0}:{1}:{2}'.format("%02d" % (hours,),"%02d" % (minutes,),"%02d" % (seconds,))
+
+    p_omnidb_database.v_connection.Execute('''
+        insert into command_list values (
+        {0},
+        (select coalesce(max(cl_in_codigo), 0) + 1 from command_list),
+        '{1}',
+        '{2}',
+        '{3}',
+        '{4}',
+        '{5}',
+        '{6}')
+    '''.format(p_user_id,
+               p_sql.replace("'","''"),
+               p_start.strftime('%Y-%m-%d %H:%M:%S.%f'),
+               p_end.strftime('%Y-%m-%d %H:%M:%S.%f'),
+               p_mode,
+               p_status,
+               duration))
+
 def thread_query(self,args,ws_object):
     v_database_index = args['v_db_index']
     v_sql            = args['v_sql_cmd']
     v_select_value   = args['v_cmd_type']
+
+    #Removing last character if it is a semi-colon
+    if v_sql[-1:]==';':
+        v_sql = v_sql[:-1]
+
+    logger.info('QUERY!')
 
     v_response = {
         'v_code': response.QueryResult,
@@ -159,28 +246,49 @@ def thread_query(self,args,ws_object):
         'v_data': 1
     }
 
-    v_session = omnidb_sessions[ws_object.v_user_key]
-    v_database2 = v_session.v_databases[v_database_index]
-    v_database = OmniDatabase.Generic.InstantiateDatabase(
-        v_database2.v_db_type,
-        v_database2.v_server,
-        v_database2.v_port,
-        v_database2.v_service,
-        v_database2.v_user,
-        v_database2.v_connection.v_password,
-        v_database2.v_conn_id,
-        v_database2.v_alias
+    v_session = ws_object.v_session
+    v_database = args['v_database']
+    v_omnidb_database = OmniDatabase.Generic.InstantiateDatabase(
+        'sqlite',
+        '',
+        '',
+        settings.OMNIDB_DATABASE,
+        '',
+        '',
+        '0',
+        ''
     )
 
+    #log_start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+    log_start_time = datetime.now()
+    log_status = 'success'
+    log_mode = ''
+
+    #execute
     if v_select_value == '-2':
+        log_mode = 'Execute'
         try:
-            v_session.Execute(v_database, v_sql, True)
-            #v_database.v_connection.Execute(v_sql)
+            v_database.v_connection.Execute(v_sql)
         except Exception as exc:
+            log_status = 'error'
             v_response['v_data'] = str(exc)
             v_response['v_error'] = True
 
+        if not self.cancel:
+            ws_object.write_message(json.dumps(v_response))
+
+        #Log to history
+        LogHistory(v_omnidb_database,
+                            v_session.v_user_id,
+                            v_sql,
+                            log_start_time,
+                            datetime.now(),
+                            log_mode,
+                            log_status)
+
+    #script
     elif v_select_value == '-3':
+        log_mode = 'Script'
         v_commands = v_sql.split (';')
 
         v_return_html = ""
@@ -198,10 +306,10 @@ def thread_query(self,args,ws_object):
 
             if v_command:
                 try:
-                    v_session.Execute(v_database, v_command, True)
-                    #v_database.v_connection.Execute(v_command)
+                    v_database.v_connection.Execute(v_command)
                     v_num_success_commands = v_num_success_commands + 1
                 except Exception as exc:
+                    log_status = 'error'
                     v_num_error_commands = v_num_error_commands + 1
                     v_return_html += "<b>Command:</b> " + v_command + "<br/><br/><b>Message:</b> " + str(exc) + "<br/><br/>"
 
@@ -213,14 +321,26 @@ def thread_query(self,args,ws_object):
 
         v_database.v_connection.Close ()
 
+        if not self.cancel:
+            ws_object.write_message(json.dumps(v_response))
+
+        #Log to history
+        LogHistory(v_omnidb_database,
+                v_session.v_user_id,
+                v_sql,
+                log_start_time,
+                datetime.now(),
+                log_mode,
+                log_status)
+
     else:
         try:
             if v_select_value == '-1':
-                v_data1 = v_session.Query(v_database, v_sql, True);
-                #v_data1 = v_database.v_connection.Query(v_sql,True)
+                log_mode = 'Query all rows'
+                v_data1 = v_database.v_connection.Query(v_sql,True)
             else:
-                v_data1 = v_session.QueryDataLimited(v_database, v_sql, v_select_value, True);
-                #v_data1 = v_database.QueryDataLimited(v_sql, v_select_value)
+                log_mode = 'Query {0} rows'.format(v_select_value)
+                v_data1 = v_database.QueryDataLimited(v_sql, v_select_value)
 
             v_response['v_data'] = {
                 'v_col_names' : v_data1.Columns,
@@ -228,11 +348,23 @@ def thread_query(self,args,ws_object):
                 'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows))
             }
         except Exception as exc:
+            log_status = 'error'
             v_response['v_data'] = str(exc)
             v_response['v_error'] = True
 
-    if not self.cancel:
-        ws_object.write_message(json.dumps(v_response))
+        if not self.cancel:
+            ws_object.write_message(json.dumps(v_response))
+
+        #Log to history
+        LogHistory(v_omnidb_database,
+                v_session.v_user_id,
+                v_sql,
+                log_start_time,
+                datetime.now(),
+                log_mode,
+                log_status)
+
+
 
 def thread_query_edit_data(self,args,ws_object):
     v_database_index = args['v_db_index']
@@ -254,18 +386,8 @@ def thread_query_edit_data(self,args,ws_object):
         }
     }
 
-    v_session = omnidb_sessions[ws_object.v_user_key]
-    v_database2 = v_session.v_databases[v_database_index]
-    v_database = OmniDatabase.Generic.InstantiateDatabase(
-        v_database2.v_db_type,
-        v_database2.v_server,
-        v_database2.v_port,
-        v_database2.v_service,
-        v_database2.v_user,
-        v_database2.v_connection.v_password,
-        v_database2.v_conn_id,
-        v_database2.v_alias
-    )
+    v_session = ws_object.v_session
+    v_database = args['v_database']
 
     try:
         if v_database.v_has_schema:
@@ -324,18 +446,8 @@ def thread_save_edit_data(self,args,ws_object):
         'v_data': []
     }
 
-    v_session = omnidb_sessions[ws_object.v_user_key]
-    v_database2 = v_session.v_databases[v_database_index]
-    v_database = OmniDatabase.Generic.InstantiateDatabase(
-        v_database2.v_db_type,
-        v_database2.v_server,
-        v_database2.v_port,
-        v_database2.v_service,
-        v_database2.v_user,
-        v_database2.v_connection.v_password,
-        v_database2.v_conn_id,
-        v_database2.v_alias
-    )
+    v_session = ws_object.v_session
+    v_database = args['v_database']
 
     if v_database.v_has_schema:
         v_table_name = v_schema + '.' + v_table

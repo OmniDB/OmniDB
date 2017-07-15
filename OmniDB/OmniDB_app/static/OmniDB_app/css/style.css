@@ -293,8 +293,7 @@ input {
 
 }
 
-#div_error {
-	border: 1px solid rgb(178,178,178);
+.error_text {
 	font-family: monospace;
 	font-weight: 500;
 	color: red;
@@ -878,6 +877,7 @@ table {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 150px;
+  vertical-align: middle;
 }
 .handsontable table td {
   position: relative;

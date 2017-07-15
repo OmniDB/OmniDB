@@ -12,8 +12,6 @@ urlpatterns = [
     #CONNECTIONS
     url(r'^connections/', views.connections.index, name='connections'),
     url(r'^get_connections/$', views.connections.get_connections, name='get_connections'),
-    url(r'^new_connection/$', views.connections.new_connection, name='new_connection'),
-    url(r'^remove_connection/$', views.connections.remove_connection, name='remove_connection'),
     url(r'^save_connections/$', views.connections.save_connections, name='save_connections'),
     url(r'^test_connection/$', views.connections.test_connection, name='test_connection'),
 
@@ -44,6 +42,7 @@ urlpatterns = [
     url(r'^workspace/', views.workspace.index, name='workspace'),
     url(r'^save_config_user/', views.workspace.save_config_user, name='save_config_user'),
     url(r'^get_database_list/', views.workspace.get_database_list, name='get_database_list'),
+    url(r'^renew_password/', views.workspace.renew_password, name='renew_password'),
     url(r'^draw_graph/', views.workspace.draw_graph, name='draw_graph'),
     url(r'^alter_table_data/', views.workspace.alter_table_data, name='alter_table_data'),
     url(r'^save_alter_table/', views.workspace.save_alter_table, name='save_alter_table'),

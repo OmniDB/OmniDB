@@ -13,8 +13,10 @@ sys.path.append("OmniDB_app/include")
 import Spartacus.Database, Spartacus.Utils
 import OmniDatabase
 from Session import Session
-from OmniDB import ws_core
 from OmniDB import settings
+
+import logging
+logger = logging.getLogger(__name__)
 
 def index(request):
     context = {
@@ -30,12 +32,7 @@ def logout(request):
         request.session ["omnidb_alert_message"] = "Session object was already destroyed."
         return redirect('login')
 
-    v_session = request.session.get('omnidb_session')
-
-    #removing from session list
-    ws_core.omnidb_sessions.pop(v_session.v_user_key,None)
-
-    request.session['omnidb_session'] = None
+    request.session['omnidb_user_key'] = None
 
     return redirect('login')
 
@@ -53,9 +50,8 @@ def check_session_message(request):
     return JsonResponse(v_return)
 
 def sign_in(request):
-
     v_return = {}
-    v_return['v_data'] = False
+    v_return['v_data'] = -1
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
@@ -74,7 +70,8 @@ def sign_in(request):
         '',
         '',
         '0',
-        ''
+        '',
+        True
     )
 
     table = database.v_connection.Query('''
@@ -97,6 +94,9 @@ def sign_in(request):
         cryptor = request.session.get('cryptor')
         pwd_decrypted = cryptor.Decrypt(table.Rows[0]['password'])
         if pwd_decrypted == pwd:
+
+            logger.info('User: {0} successfully logged in.'.format(username))
+
             v_session = Session(
                 table.Rows[0]["user_id"],
                 username,
@@ -108,10 +108,14 @@ def sign_in(request):
                 int(table.Rows[0]["chat_enabled"]),
                 int(table.Rows[0]["super_user"]),
                 cryptor,
-                table.Rows[0]["user_key"]
+                request.session.session_key
             )
+            
+            v_session.RefreshDatabaseList()
             request.session['omnidb_session'] = v_session
-            v_return['v_data'] = True
-            ws_core.omnidb_sessions[v_session.v_user_key] = v_session
+            #request.session['omnidb_user_key'] = table.Rows[0]["user_key"]
+            #sessions.omnidb_sessions[v_session.v_user_key] = v_session
+            v_return['v_data'] = len(v_session.v_databases)
+            #ws_core.omnidb_sessions[v_session.v_user_key] = v_session
 
     return JsonResponse(v_return)

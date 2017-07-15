@@ -25,7 +25,7 @@ SECRET_KEY = 'ijbq-+%n_(_^ct+qnqp%ir8fzu3n#q^i71j4&y#-6#qe(dx!h3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1']
+ALLOWED_HOSTS = ['localhost','127.0.0.1', '192.168.100.10']
 
 
 # Application definition
@@ -70,7 +70,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'OmniDB.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
@@ -78,6 +77,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #'NAME': ':memory:',
     }
 }
 
@@ -122,6 +122,47 @@ STATIC_URL = '/static/'
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
+#OMNIDB LOGGING
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%m/%d/%Y %H:%M:%S"
+        },
+    },
+    'handlers': {
+        'logfile': {
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': "omnidb.log",
+            'formatter': 'standard',
+        },
+        'logfile_error': {
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': "omnidb.log",
+            'formatter': 'standard',
+            'level':'INFO',
+        },
+        'console':{
+            'class':'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers':['logfile_error','console'],
+            'propagate': False,
+        },
+        'OmniDB_app': {
+            'handlers': ['logfile'],
+            'propagate': False,
+            'level':'INFO',
+        },
+    }
+}
+
 #OMNIDB PARAMETERS
 OMNIDB_DATABASE     = 'omnidb.db'
 OMNIDB_VERSION      = 'OmniDB 2.0'
@@ -133,3 +174,4 @@ WS_QUERY_PORT       = 15000
 IS_SSL              = False
 SSL_CERTIFICATE     = ""
 SSL_KEY             = ""
+CH_CMDS_PER_PAGE    = 20

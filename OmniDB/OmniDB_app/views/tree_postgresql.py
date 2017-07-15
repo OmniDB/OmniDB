@@ -8,7 +8,9 @@ import sys
 sys.path.append("OmniDB_app/include")
 
 import Spartacus.Database, Spartacus.Utils
+from OmniDB import sessions
 from Session import Session
+from datetime import datetime
 
 def get_tree_info(request):
 
@@ -19,8 +21,8 @@ def get_tree_info(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -28,7 +30,7 @@ def get_tree_info(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
 
     v_return['v_data'] = {
         'v_mode': 'database',
@@ -70,8 +72,8 @@ def get_tables(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -80,7 +82,14 @@ def get_tables(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_tables = []
 
     try:
@@ -112,8 +121,8 @@ def get_views(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -122,7 +131,14 @@ def get_views(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_tables = []
 
     try:
@@ -150,8 +166,8 @@ def get_schemas(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -159,7 +175,14 @@ def get_schemas(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_schemas = []
 
     try:
@@ -170,7 +193,7 @@ def get_schemas(request):
             }
             v_list_schemas.append(v_schema_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -187,8 +210,8 @@ def get_databases(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -196,7 +219,14 @@ def get_databases(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_databases = []
 
     try:
@@ -224,8 +254,8 @@ def get_tablespaces(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -233,7 +263,14 @@ def get_tablespaces(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_tablespaces = []
 
     try:
@@ -261,8 +298,8 @@ def get_roles(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -270,7 +307,14 @@ def get_roles(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_roles = []
 
     try:
@@ -299,8 +343,8 @@ def get_columns(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -310,7 +354,14 @@ def get_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_columns = []
 
     try:
@@ -341,8 +392,8 @@ def get_views_columns(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -352,7 +403,14 @@ def get_views_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_columns = []
 
     try:
@@ -382,8 +440,8 @@ def get_pk(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -393,7 +451,14 @@ def get_pk(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_pk = []
 
     try:
@@ -421,8 +486,8 @@ def get_fks(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -432,7 +497,14 @@ def get_fks(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_fk = []
 
     try:
@@ -464,8 +536,8 @@ def get_uniques(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -475,7 +547,14 @@ def get_uniques(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_unique = []
 
     try:
@@ -503,8 +582,8 @@ def get_indexes(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -514,7 +593,14 @@ def get_indexes(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_index = []
 
     try:
@@ -543,8 +629,8 @@ def get_functions(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -553,7 +639,14 @@ def get_functions(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_functions = []
 
     try:
@@ -582,8 +675,8 @@ def get_function_fields(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -593,7 +686,14 @@ def get_function_fields(request):
     v_function = json_object['p_function']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_fields = []
 
     try:
@@ -622,8 +722,8 @@ def get_function_definition(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -632,7 +732,13 @@ def get_function_definition(request):
     v_database_index = json_object['p_database_index']
     v_function = json_object['p_function']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     try:
         v_return['v_data'] = v_database.GetFunctionDefinition(v_function)
@@ -652,8 +758,8 @@ def get_sequences(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -662,7 +768,14 @@ def get_sequences(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_list_sequences = []
 
     try:
@@ -687,8 +800,8 @@ def get_view_definition(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -698,7 +811,13 @@ def get_view_definition(request):
     v_view = json_object['p_view']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     try:
         v_return['v_data'] = v_database.QueryViewDefinition(v_view, v_schema)

@@ -10,7 +10,8 @@ class Login(TestCase):
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert True == data['v_data']
-        assert 'admin' == c.session['omnidb_session'].v_user_name
+        session = c.session
+        assert 'admin' == session['omnidb_session'].v_user_name
 
     def test_sign_in_nok(self):
         c = Client()

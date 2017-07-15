@@ -8,7 +8,6 @@ import sys
 sys.path.append("OmniDB_app/include")
 
 import Spartacus.Database, Spartacus.Utils
-from OmniDB import sessions
 from Session import Session
 from datetime import datetime
 

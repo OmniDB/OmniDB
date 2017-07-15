@@ -188,8 +188,6 @@ function saveConnections(p_index) {
 
 	var input = JSON.stringify({"p_data_list": v_data_list, "p_conn_id_list": v_conn_id_list});
 
-	console.log(input)
-
 	execAjax('/save_connections/',
 			input,
 			function() {

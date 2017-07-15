@@ -9,7 +9,6 @@ sys.path.append("OmniDB_app/include")
 
 import Spartacus.Database, Spartacus.Utils
 from Session import Session
-from OmniDB import sessions
 
 def get_node_children(request):
 

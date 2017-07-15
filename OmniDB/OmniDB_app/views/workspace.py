@@ -25,10 +25,6 @@ def index(request):
 
     v_session = request.session.get('omnidb_session')
 
-    #print(request.session.session_key)
-    #s = SessionStore(session_key=request.session.session_key)
-    #print(s['omnidb_user_key'])
-
     if len(v_session.v_databases)==0:
         request.session ["omnidb_alert_message"] = "Create at least one connection."
         return redirect('connections')

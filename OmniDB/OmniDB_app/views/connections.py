@@ -120,7 +120,6 @@ def save_connections(request):
         v_session.v_omnidb_database.v_connection.Open();
         v_session.v_omnidb_database.v_connection.Execute('BEGIN');
         for r in v_data_list:
-            print(r)
             if v_conn_id_list[v_index]['mode'] == 1:
                 v_session.v_omnidb_database.v_connection.Execute('''
                     update connections

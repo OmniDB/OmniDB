@@ -12,7 +12,7 @@ sys.path.append("OmniDB_app/include")
 import Spartacus.Database, Spartacus.Utils
 import OmniDatabase
 from Session import Session
-from OmniDB import ws_core, settings, sessions
+from OmniDB import settings
 
 
 def index(request):
@@ -97,8 +97,6 @@ def new_user(request):
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
-
-    print(v_session.v_omnidb_database.v_connection.v_foreignkeys)
 
     try:
         v_session.v_omnidb_database.v_connection.Execute('''

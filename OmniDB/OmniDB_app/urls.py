@@ -35,7 +35,6 @@ urlpatterns = [
     url(r'^save_alerts/$', views.monitoring.save_alerts, name='save_alerts'),
     url(r'^get_alert_data_list/$', views.monitoring.get_alert_data_list, name='get_alert_data_list'),
     url(r'^view_alert_chart/$', views.monitoring.view_alert_chart, name='view_alert_chart'),
-
     url(r'^receive_alert_data/', views.monitoring.receive_alert_data, name='receive_alert_data'),
 
     #WORKSPACE

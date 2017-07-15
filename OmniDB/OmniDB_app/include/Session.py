@@ -59,7 +59,6 @@ class Session(object):
                 return True
             #Reached half way to timeout, update prompt_timeout
             if datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,300):
-                print("HALFWAY, UPDATING")
                 s = SessionStore(session_key=self.v_user_key)
                 s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
                 s.save()

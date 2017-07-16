@@ -3,7 +3,7 @@
 In order to execute automated tests with PostgreSQL, you need:
 
 - Install PostgreSQL somewhere
-- Change database connection parameters in tests.conf
+- Change database connection parameters in test_postgresql.py/PostgreSQL/setUpClass method
 - Restore OmniDB_app/tests/database/dellstore2-normal-1.0.sql inside an empty
   database
     - psql -d omnidb_tests -U omnidb -f dellstore2-normal-1.0.sql

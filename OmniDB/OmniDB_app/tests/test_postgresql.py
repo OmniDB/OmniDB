@@ -10,6 +10,25 @@ import OmniDatabase
 class PostgreSQL(TestCase):
 
     @classmethod
+    def setUpClass(self):
+        super(PostgreSQL, self).setUpClass()
+        self.host = '127.0.0.1'
+        self.port = '5432'
+        self.service = 'omnidb_tests'
+        self.role = 'omnidb'
+        self.password = 'omnidb'
+        self.database = OmniDatabase.Generic.InstantiateDatabase(
+            'postgresql',
+            self.host,
+            self.port,
+            self.service,
+            self.role,
+            0,
+            'OmniDB Tests'
+        )
+        self.database.v_connection.v_password = self.password
+
+    @classmethod
     def lists_equal(self, p_list_a, p_list_b):
         equal = True
         equal = len(p_list_a) == len(p_list_b)
@@ -29,18 +48,8 @@ class PostgreSQL(TestCase):
         assert 0 <= data['v_data']
         session = c.session
         assert 'admin' == session['omnidb_session'].v_user_name
-        database = OmniDatabase.Generic.InstantiateDatabase(
-            'postgresql',
-            '127.0.0.1',
-            '5432',
-            'omnidb_tests',
-            'omnidb',
-            0,
-            'OmniDB Tests'
-        )
-        database.v_connection.v_password = 'omnidb'
         session['omnidb_session'].v_databases = [{
-            'database': database,
+            'database': self.database,
             'prompt_password': False,
             'prompt_timeout': datetime.now() + timedelta(0,60000)
         }]
@@ -515,12 +524,33 @@ SELECT ...
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
+    def test_get_sequences_postgresql_session(self):
+        c = self.setup_session()
+        response = c.post('/get_sequences_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal(data['v_data'], [
+            'categories_category_seq',
+            'customers_customerid_seq',
+            'orders_orderid_seq',
+            'products_prod_id_seq'
+        ])
+
     def test_get_views_postgresql_nosession(self):
         c = Client()
         response = c.post('/get_views_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
+
+    def test_get_views_postgresql_session(self):
+        c = self.setup_session()
+        self.database.v_connection.Execute('create or replace view vw_omnidb_test as select c.customerid, c.firstname, c.lastname, sum(o.totalamount) as totalamount from customers c inner join orders o on o.customerid = c.customerid group by c.customerid, c.firstname, c.lastname')
+        response = c.post('/get_views_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a['v_name'] for a in data['v_data']], ['vw_omnidb_test'])
+        self.database.v_connection.Execute('drop view vw_omnidb_test')
 
     def test_get_views_columns_postgresql_nosession(self):
         c = Client()
@@ -529,12 +559,40 @@ SELECT ...
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
+    def test_get_views_columns_postgresql_session(self):
+        c = self.setup_session()
+        self.database.v_connection.Execute('create or replace view vw_omnidb_test as select c.customerid, c.firstname, c.lastname, sum(o.totalamount) as totalamount from customers c inner join orders o on o.customerid = c.customerid group by c.customerid, c.firstname, c.lastname')
+        response = c.post('/get_views_columns_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "vw_omnidb_test"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a['v_column_name'] for a in data['v_data']], [
+            'customerid',
+            'firstname',
+            'lastname',
+            'totalamount'
+        ])
+        self.database.v_connection.Execute('drop view vw_omnidb_test')
+
     def test_get_view_definition_postgresql_nosession(self):
         c = Client()
         response = c.post('/get_view_definition_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
+
+    def test_get_view_definition_postgresql_session(self):
+        c = self.setup_session()
+        response = c.post('/get_view_definition_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_view": "vw_omnidb_test"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert '''CREATE OR REPLACE VIEW public.vw_omnidb_test AS
+ SELECT c.customerid,
+    c.firstname,
+    c.lastname,
+    sum(o.totalamount) AS totalamount
+   FROM (customers c
+     JOIN orders o ON ((o.customerid = c.customerid)))
+  GROUP BY c.customerid, c.firstname, c.lastname''' in data['v_data']
 
     def test_get_databases_postgresql_nosession(self):
         c = Client()
@@ -543,6 +601,13 @@ SELECT ...
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
+    def test_get_databases_postgresql_session(self):
+        c = self.setup_session()
+        response = c.post('/get_databases_postgresql/', {'data': '{"p_database_index": 0}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.service in [a['v_name'] for a in data['v_data']]
+
     def test_get_tablespaces_postgresql_nosession(self):
         c = Client()
         response = c.post('/get_tablespaces_postgresql/')
@@ -550,9 +615,23 @@ SELECT ...
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
+    def test_get_tablespaces_postgresql_session(self):
+        c = self.setup_session()
+        response = c.post('/get_tablespaces_postgresql/', {'data': '{"p_database_index": 0}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 'pg_default' in [a['v_name'] for a in data['v_data']]
+
     def test_get_roles_postgresql_nosession(self):
         c = Client()
         response = c.post('/get_roles_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
+
+    def test_get_roles_postgresql_session(self):
+        c = self.setup_session()
+        response = c.post('/get_roles_postgresql/', {'data': '{"p_database_index": 0}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.role in [a['v_name'] for a in data['v_data']]

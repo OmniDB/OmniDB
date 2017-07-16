@@ -83,7 +83,7 @@ class Login(StaticLiveServerTestCase):
 
     def test_firstlogin_ok(self):
         self.base.action_login('admin', 'admin')
-        assert '/connections/' in self.driver.current_url
+        assert '/workspace/' in self.driver.current_url
 
     def test_firstlogin_nok(self):
         self.base.action_login('admin', 'ad', False)
@@ -105,8 +105,8 @@ class Users(StaticLiveServerTestCase):
 
     def test_create_superuser(self):
         self.base.action_login('admin', 'admin')
-        self.base.action_create_user('test', 'test', True)
+        self.base.action_create_user('supertest', 'test', True)
 
     def test_create_normaluser(self):
         self.base.action_login('admin', 'admin')
-        self.base.action_create_user('test', 'test', False)
+        self.base.action_create_user('normaltest', 'test', False)

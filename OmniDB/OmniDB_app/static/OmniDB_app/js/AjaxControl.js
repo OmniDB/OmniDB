@@ -83,12 +83,12 @@ function execAjax(p_url,p_data,p_successFunc,p_errorFunc,p_notifMode,p_loading) 
 
         	if (p_return.v_error) {
 
-						if (p_errorFunc) {
+        		if (p_return.v_error_id==1)
+        			showAlert('Session object was destroyed, click <a href="Login.aspx">here</a> to be redirected to login screen or finish what you were doing and reload the page.');
+						else if (p_errorFunc) {
 							p_errorFunc(p_return);
 						}
-        		else if (p_return.v_error_id==1)
-        			showAlert('Session object was destroyed, click <a href="Login.aspx">here</a> to be redirected to login screen or finish what you were doing and reload the page.');
-        		else
+						else
         			showError(p_return.v_data);
 
        		}
@@ -99,8 +99,10 @@ function execAjax(p_url,p_data,p_successFunc,p_errorFunc,p_notifMode,p_loading) 
         },
         error: function(msg) {
 
+					showAlert('Request error.')
+
         	if (p_loading==null || p_loading==true)
-				endLoading();
+						endLoading();
 
         	if (msg.readyState==0)
         		reportOffline();

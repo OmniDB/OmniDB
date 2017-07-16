@@ -36,6 +36,11 @@ function startEditData(p_table,p_schema) {
 			input,
 			function(p_return) {
 
+				if (p_schema)
+					v_connTabControl.tag.createEditDataTab(p_schema + '.' + p_table);
+				else
+					v_connTabControl.tag.createEditDataTab(p_table);
+
 				var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 				if (v_currTabTag.editDataObject!=null)
@@ -57,7 +62,20 @@ function startEditData(p_table,p_schema) {
 
 				queryEditData();
 
-			});
+			},
+			function(p_return) {
+				if (p_return.v_data.password_timeout) {
+					showPasswordPrompt(
+						v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+						function() {
+							startEditData(p_table,p_schema);
+						},
+						null
+					);
+				}
+			},
+			'box',
+			true);
 
 }
 
@@ -91,10 +109,27 @@ function deleteRowEditData() {
 
 }
 
-function cancelEditData() {
+function cancelEditData(p_tab_tag) {
 
-	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+	var v_tab_tag;
+	if (p_tab_tag)
+		v_tab_tag = p_tab_tag;
+	else
+		v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
 	sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CancelThread, v_tab_tag.context.v_context_code, false);
+
+	cancelEditDataTab();
+
+}
+
+function cancelEditDataTab(p_tab_tag) {
+
+	var v_tab_tag;
+	if (p_tab_tag)
+		v_tab_tag = p_tab_tag;
+	else
+		v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	//Displays canceled if is querying data (not saving)
 	if (v_tab_tag.state == v_editDataState.Querying)
@@ -105,6 +140,10 @@ function cancelEditData() {
 	v_tab_tag.tab_check_span.style.display = 'none';
 	v_tab_tag.tab_close_span.style.display = '';
 	v_tab_tag.bt_cancel.style.display = 'none';
+
+	removeContext(v_queryWebSocket,v_tab_tag.context.v_context_code);
+
+	SetAcked(v_tab_tag.context);
 
 }
 
@@ -141,7 +180,8 @@ function queryEditData() {
 
 		var v_context = {
 			tab_tag: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag,
-			start_time: new Date().getTime()
+			start_time: new Date().getTime(),
+			database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex
 		}
 		v_context.tab_tag.context = v_context;
 
@@ -153,6 +193,13 @@ function queryEditData() {
 		v_context.tab_tag.query_info.innerHTML = '';
 
 		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.QueryEditData, v_message_data, false, v_context);
+
+		setTimeout(function() {
+			if (!v_context.acked) {
+				cancelEditDataTab(v_context.tab_tag);
+				showAlert('No response from query server.');
+			}
+		},10000);
 
 	}
 

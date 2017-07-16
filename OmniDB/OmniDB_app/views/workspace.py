@@ -3,6 +3,8 @@ from django.template import loader
 from django.http import JsonResponse
 from django.core import serializers
 from django.shortcuts import redirect
+from datetime import datetime
+from math import ceil
 import json
 
 import sys
@@ -10,8 +12,10 @@ sys.path.append("OmniDB_app/include")
 
 import Spartacus.Database, Spartacus.Utils
 import OmniDatabase
-from OmniDB import ws_core, settings
+from OmniDB import settings
 from Session import Session
+
+from django.contrib.sessions.backends.db import SessionStore
 
 def index(request):
     #Invalid session
@@ -20,22 +24,6 @@ def index(request):
         return redirect('login')
 
     v_session = request.session.get('omnidb_session')
-
-    #session not in session list
-    try:
-        ws_core.omnidb_sessions[v_session.v_user_key]
-    except Exception as exc:
-        #check if user still exists in the database, if not, redirect to login
-        v_user = v_session.v_omnidb_database.v_connection.Query('''
-            select user_id
-            from users
-            where user_id = {0} and user_key = '{1}'
-        '''.format(v_session.v_user_id,v_session.v_user_key))
-        if len(v_user.Rows)==0:
-            request.session ["omnidb_alert_message"] = "User was removed."
-            return redirect('login')
-        else:
-            ws_core.omnidb_sessions[v_session.v_user_key] = v_session
 
     if len(v_session.v_databases)==0:
         request.session ["omnidb_alert_message"] = "Create at least one connection."
@@ -70,8 +58,8 @@ def save_config_user(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -141,8 +129,8 @@ def get_database_list(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -153,7 +141,8 @@ def get_database_list(request):
 
     #Connection list
     v_index = 0
-    for v_database in v_session.v_databases:
+    for v_database_object in v_session.v_databases:
+        v_database = v_database_object['database']
         v_database_data = {
             'v_db_type': v_database.v_db_type,
             'v_alias': v_database.v_alias,
@@ -176,6 +165,40 @@ def get_database_list(request):
 
     return JsonResponse(v_return)
 
+def renew_password(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_password = json_object['p_password']
+
+    v_database_object = v_session.v_databases[v_database_index]
+    v_database_object['database'].v_connection.v_password = v_password
+
+    v_test = v_database_object['database'].TestConnection()
+
+    if v_test=='Connection successful.':
+        v_database_object['prompt_timeout'] = datetime.now()
+    else:
+        v_return['v_error'] = True
+        v_return['v_data'] = v_test
+
+    request.session['omnidb_session'] = v_session
+
+    return JsonResponse(v_return)
+
 def draw_graph(request):
 
     v_return = {}
@@ -185,8 +208,8 @@ def draw_graph(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -196,7 +219,13 @@ def draw_graph(request):
     v_complete = json_object['p_complete']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     v_nodes = []
     v_edges = []
@@ -308,8 +337,8 @@ def alter_table_data(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -319,7 +348,13 @@ def alter_table_data(request):
     v_table_name     = json_object['p_table']
     v_schema_name    = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     #Retrieving data types
     v_data_types_table = v_session.v_omnidb_database.v_connection.Query('''
@@ -672,8 +707,8 @@ def save_alter_table(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -691,7 +726,7 @@ def save_alter_table(request):
     p_data_indexes = json_object['p_data_indexes']
     p_row_indexes_info = json_object['p_row_indexes_info']
 
-    v_database = v_session.v_databases[p_database_index]
+    v_database = v_session.v_databases[p_database_index]['database']
 
     v_return['v_data'] = {
         'v_columns_simple_commands_return': [],
@@ -736,7 +771,7 @@ def save_alter_table(request):
                 }
 
                 try:
-                    v_session.Execute(v_database, v_command, False)
+                    v_database.v_connection.Execute(v_command)
                     v_info_return['v_message'] = "Success."
                 except Exception as exc:
                     v_info_return['v_message'] = str(exc)
@@ -759,7 +794,7 @@ def save_alter_table(request):
                 }
 
                 try:
-                    v_session.Execute(v_database, v_command, False)
+                    v_database.v_connection.Execute(v_command)
                     v_info_return['v_message'] = "Success."
                 except Exception as exc:
                     v_info_return['v_message'] = str(exc)
@@ -797,7 +832,7 @@ def save_alter_table(request):
                     v_info_return1['v_command'] = v_command
 
                     try:
-                        v_session.Execute(v_database, v_command, False)
+                        v_database.v_connection.Execute(v_command)
                     except Exception as exc:
                         v_info_return1['v_message'] = str(exc)
                         v_info_return1['error'] = True
@@ -830,7 +865,7 @@ def save_alter_table(request):
                     v_info_return1['v_command'] = v_command
 
                     try:
-                        v_session.Execute(v_database, v_command, False)
+                        v_database.v_connection.Execute(v_command)
                     except Exception as exc:
                         v_info_return1['v_message'] = str(exc)
                         v_info_return1['error'] = True
@@ -861,7 +896,7 @@ def save_alter_table(request):
                     v_info_return1['v_command'] = v_command
 
                     try:
-                        v_session.Execute(v_database, v_command, False)
+                        v_database.v_connection.Execute(v_command)
                     except Exception as exc:
                         v_info_return1['v_message'] = str(exc)
                         v_info_return1['error'] = True
@@ -895,7 +930,7 @@ def save_alter_table(request):
                     }
 
                     try:
-                        v_session.Execute(v_database, v_command, False)
+                        v_database.v_connection.Execute(v_command)
                     except Exception as exc:
                         v_info_return['v_message'] = str(exc)
                         v_info_return['error'] = True
@@ -922,7 +957,7 @@ def save_alter_table(request):
                     }
 
                     try:
-                        v_session.Execute(v_database, v_command, False)
+                        v_database.v_connection.Execute(v_command)
                     except Exception as exc:
                         v_info_return['v_message'] = str(exc)
                         v_info_return['error'] = True
@@ -946,7 +981,7 @@ def save_alter_table(request):
                     }
 
                     try:
-                        v_session.Execute(v_database, v_command, False)
+                        v_database.v_connection.Execute(v_command)
                     except Exception as exc:
                         v_info_return['v_message'] = str(exc)
                         v_info_return['error'] = True
@@ -972,7 +1007,7 @@ def save_alter_table(request):
                     }
 
                     try:
-                        v_session.Execute(v_database, v_command, False)
+                        v_database.v_connection.Execute(v_command)
                     except Exception as exc:
                         v_info_return['v_message'] = str(exc)
                         v_info_return['error'] = True
@@ -995,7 +1030,7 @@ def save_alter_table(request):
                     }
 
                     try:
-                        v_session.Execute(v_database, v_command, False)
+                        v_database.v_connection.Execute(v_command)
                     except Exception as exc:
                         v_info_return['v_message'] = str(exc)
                         v_info_return['error'] = True
@@ -1018,7 +1053,7 @@ def save_alter_table(request):
                     }
 
                     try:
-                        v_session.Execute(v_database, v_command, False)
+                        v_database.v_connection.Execute(v_command)
                     except Exception as exc:
                         v_info_return['v_message'] = str(exc)
                         v_info_return['error'] = True
@@ -1055,7 +1090,7 @@ def save_alter_table(request):
                 }
 
                 try:
-                    v_session.Execute(v_database, v_command, False)
+                    v_database.v_connection.Execute(v_command)
                 except Exception as exc:
                     v_info_return['v_message'] = str(exc)
                     v_info_return['error'] = True
@@ -1079,7 +1114,7 @@ def save_alter_table(request):
                 }
 
                 try:
-                    v_session.Execute(v_database, v_command, False)
+                    v_database.v_connection.Execute(v_command)
                 except Exception as exc:
                     v_info_return['v_message'] = str(exc)
                     v_info_return['error'] = True
@@ -1103,7 +1138,7 @@ def save_alter_table(request):
             }
 
             try:
-                v_session.Execute(v_database, v_command, False)
+                v_database.v_connection.Execute(v_command)
             except Exception as exc:
                 v_info_return['v_message'] = str(exc)
                 v_info_return['error'] = True
@@ -1186,7 +1221,7 @@ def save_alter_table(request):
         }
 
         try:
-            v_session.Execute(v_database, v_command, False)
+            v_database.v_connection.Execute(v_command)
         except Exception as exc:
             v_info_return['v_message'] = str(exc)
             v_info_return['error'] = True
@@ -1205,8 +1240,8 @@ def start_edit_data(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -1216,7 +1251,13 @@ def start_edit_data(request):
     v_table          = json_object['p_table']
     v_schema         = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     v_return['v_data'] = {
         'v_pk' : [],
@@ -1371,8 +1412,8 @@ def get_completions(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -1383,7 +1424,7 @@ def get_completions(request):
     p_sql = json_object['p_sql']
     p_prefix_pos = json_object['p_prefix_pos']
 
-    v_database = v_session.v_databases[p_database_index]
+    v_database = v_session.v_databases[p_database_index]['database']
 
     v_list = []
 
@@ -1465,8 +1506,8 @@ def get_completions_table(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -1476,7 +1517,7 @@ def get_completions_table(request):
     p_table = json_object['p_table']
     p_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[p_database_index]
+    v_database = v_session.v_databases[p_database_index]['database']
 
     if v_database.v_has_schema:
         v_table_name = p_schema + "." + p_table
@@ -1516,15 +1557,35 @@ def get_command_list(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_current_page = json_object['p_current_page']
 
     v_session = request.session.get('omnidb_session')
 
 
     try:
-        v_commands = v_session.v_omnidb_database.v_connection.Query ("select cl_st_data,cl_st_command from command_list where user_id = " + str(v_session.v_user_id) + " order by cl_in_codigo desc",True)
+        v_count = v_session.v_omnidb_database.v_connection.ExecuteScalar ('''
+            select count(*)
+            from command_list
+            where user_id = {0}
+        '''.format(str(v_session.v_user_id)))
+
+        v_commands = v_session.v_omnidb_database.v_connection.Query ('''
+            select cl_st_start,
+                   cl_st_end,
+                   cl_st_duration,
+                   cl_st_mode,
+                   cl_st_status,
+                   cl_st_command
+            from command_list
+            where user_id = {0}
+            order by cl_in_codigo desc
+            limit {1},{2}
+        '''.format(str(v_session.v_user_id),str((v_current_page-1)*settings.CH_CMDS_PER_PAGE),settings.CH_CMDS_PER_PAGE),True)
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -1534,11 +1595,24 @@ def get_command_list(request):
 
     for v_command in v_commands.Rows:
         v_command_data_list = []
-        v_command_data_list.append(v_command["cl_st_data"])
+        v_command_data_list.append(v_command["cl_st_start"])
+        v_command_data_list.append(v_command["cl_st_end"])
+        v_command_data_list.append(v_command["cl_st_duration"])
+        v_command_data_list.append(v_command["cl_st_mode"])
+        if v_command["cl_st_status"]=='success':
+            v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_F.png"/>')
+        else:
+            v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_X.png"/>')
         v_command_data_list.append(v_command["cl_st_command"])
         v_command_list.append(v_command_data_list)
 
-    v_return['v_data'] = v_command_list
+    v_page = ceil(v_count/settings.CH_CMDS_PER_PAGE)
+    if v_page==0:
+        v_page=1
+
+    v_return['v_data'] = { 'command_list': v_command_list,
+                           'pages': v_page
+                         }
 
     return JsonResponse(v_return)
 
@@ -1551,8 +1625,8 @@ def clear_command_list(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')

@@ -43,6 +43,8 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 
 			return function(e) {
 
+				var v_context_code = null;
+
 				var v_message = JSON.parse(e.data);
 				var v_context = null;
 
@@ -52,15 +54,13 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 
 						if (v_connection.contextList[i].code == v_message.v_context_code) {
 							v_context = v_connection.contextList[i].context;
-							v_connection.contextList.splice(i,1);
+							v_context_code = v_connection.contextList[i].code;
 							break;
 						}
-
 					}
-
 				}
 
-				p_onMessage(v_message,v_context);
+				p_onMessage(v_message,v_context, v_context_code);
 
 			}
 		})();
@@ -78,6 +78,15 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 	v_connection.contextCode = 1;
 
 	return v_connection;
+}
+
+function removeContext(p_connection, p_context_code) {
+	for (var i=0; i<p_connection.contextList.length; i++) {
+		if (p_connection.contextList[i].code == p_context_code) {
+			p_connection.contextList.splice(i,1);
+			break;
+		}
+	}
 }
 
 /// <summary>

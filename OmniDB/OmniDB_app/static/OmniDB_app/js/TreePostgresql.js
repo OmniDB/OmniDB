@@ -281,10 +281,7 @@ function getTreePostgresql(p_div) {
 							text : 'New Table',
 							icon: '/static/OmniDB_app/images/new_table.png',
 							action : function(node) {
-								//v_firstModeTable = 'new';
-								//startAlterTable('new',null);
-								v_connTabControl.tag.createAlterTableTab("New Table");
-								startAlterTable('new', null, node.parent.text);
+								startAlterTable(true,'new', null, node.parent.text);
 							}
 						}
 					]
@@ -396,10 +393,7 @@ function getTreePostgresql(p_div) {
 										text : 'Edit Data',
 										icon: '/static/OmniDB_app/images/edit_data.png',
 										action : function(node) {
-
-											v_connTabControl.tag.createEditDataTab(node.parent.parent.text + '.' + node.text);
 											startEditData(node.text,node.parent.parent.text);
-
 										}
 									},
 									{
@@ -446,10 +440,7 @@ function getTreePostgresql(p_div) {
 										text : 'Alter Table',
 										icon: '/static/OmniDB_app/images/table_edit.png',
 										action : function(node) {
-											//v_firstModeTable = 'alter';
-											//startAlterTable('alter',node.text);
-											v_connTabControl.tag.createAlterTableTab(node.parent.parent.text + '.' + node.text);
-											startAlterTable('alter', node.text, node.parent.parent.text);
+											startAlterTable(true,'alter', node.text, node.parent.parent.text);
 										}
 									},
 									{
@@ -734,10 +725,7 @@ function getDatabasesPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -772,10 +760,7 @@ function getTablespacesPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -789,7 +774,6 @@ function getRolesPostgresql(node) {
 
 	node.removeChildNodes();
 	node.createChildNode('',false,'/static/OmniDB_app/images/spin.svg',null,null);
-
 
 	execAjax('/get_roles_postgresql/',
 			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
@@ -810,10 +794,7 @@ function getRolesPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -850,10 +831,7 @@ function getTablesPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -899,10 +877,7 @@ function getSchemasPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -937,10 +912,7 @@ function getSequencesPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -974,10 +946,7 @@ function getViewsPostgresql(node) {
 		        }
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -1033,13 +1002,9 @@ function getColumnsPostgresql(node) {
 		        	v_node.createChildNode('',false,'/static/OmniDB_app/images/spin.svg',null,null);
 		        }
 
-
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -1077,10 +1042,7 @@ function getPKPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -1132,10 +1094,7 @@ function getUniquesPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -1187,10 +1146,7 @@ function getIndexesPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -1246,10 +1202,7 @@ function getFKsPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 		false);
@@ -1282,7 +1235,9 @@ function getViewsColumnsPostgresql(node) {
 		        }
 
 			},
-			null,
+			function(p_return) {
+				nodeOpenError(p_return, node);
+			},
 			'box',
 			false);
 }
@@ -1318,10 +1273,7 @@ function getFunctionsPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -1363,10 +1315,7 @@ function getFunctionFieldsPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			false);
@@ -1402,10 +1351,7 @@ function getFunctionDefinitionPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			true);
@@ -1442,12 +1388,30 @@ function getViewDefinitionPostgresql(node) {
 
 			},
 			function(p_return) {
-				if (node.childNodes.length > 0)
-					node.removeChildNodes();
-
-				v_node = node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+				nodeOpenError(p_return, node);
 			},
 			'box',
 			true);
+
+}
+
+function nodeOpenError(p_return, p_node) {
+
+	if (p_return.v_data.password_timeout) {
+		p_node.collapseNode();
+		showPasswordPrompt(
+			v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+			function() {
+				p_node.expandNode();
+			},
+			null
+		);
+	}
+	else {
+		if (p_node.childNodes.length > 0)
+			p_node.removeChildNodes();
+
+		v_node = p_node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
+	}
 
 }

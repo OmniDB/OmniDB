@@ -10,7 +10,7 @@ import OmniDatabase
 
 from enum import IntEnum
 
-from .ws_core import omnidb_sessions
+omnidb_sessions = dict([])
 omnidb_ws_sessions = dict([])
 
 class ChatUser:

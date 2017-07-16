@@ -31,11 +31,15 @@ var v_queryResponseCodes = {
 	QueryResult: 1,
 	QueryEditDataResult: 2,
 	SaveEditDataResult: 3,
-	SessionMissing: 4
+	SessionMissing: 4,
+	PasswordRequired: 5,
+	QueryAck: 6,
+	MessageException: 7
 }
 
 /// <summary>
 /// The variable that will receive the WebSocket object.
+
 /// </summary>
 var v_queryWebSocket;
 
@@ -58,7 +62,7 @@ function startQueryWebSocket(p_port) {
 		function(p_event) {//Open
 			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Login, v_user_key, false);
 		},
-		function(p_message, p_context) {//Message
+		function(p_message, p_context, p_context_code) {//Message
 			var v_message = p_message;
 
 			switch(v_message.v_code) {
@@ -66,16 +70,43 @@ function startQueryWebSocket(p_port) {
 					showAlert('Session not found please reload the page.');
 					break;
 				}
+				case parseInt(v_queryResponseCodes.MessageException): {
+					showError(p_message.v_data);
+					break;
+				}
+				case parseInt(v_queryResponseCodes.PasswordRequired): {
+					if (p_context) {
+						SetAcked(p_context);
+						QueryPasswordRequired(p_context);
+						break;
+					}
+				}
+				case parseInt(v_queryResponseCodes.QueryAck): {
+					if (p_context) {
+						SetAcked(p_context);
+						break;
+					}
+				}
 				case parseInt(v_queryResponseCodes.QueryResult): {
-					querySQLReturn(v_message,p_context);
+					if (p_context) {
+						SetAcked(p_context);
+						querySQLReturn(v_message,p_context);
+						//Remove context
+						removeContext(v_queryWebSocket,p_context_code);
+					}
 					break;
 				}
 				case parseInt(v_queryResponseCodes.QueryEditDataResult): {
-					queryEditDataReturn(v_message,p_context);
+					if (p_context) {
+						SetAcked(p_context);
+						queryEditDataReturn(v_message,p_context);
+					}
 					break;
 				}
 				case parseInt(v_queryResponseCodes.SaveEditDataResult): {
-					saveEditDataReturn(v_message,p_context);
+					if (p_context) {
+						saveEditDataReturn(v_message,p_context);
+					}
 					break;
 				}
 				default: {
@@ -83,13 +114,45 @@ function startQueryWebSocket(p_port) {
 				}
 			}
 		},
-		function(p_event) {//Close
+		function(p_event) {//Close
 			//showError('The connection with query server was closed.<br>WebSocket error code: ' + p_event.code + '.<br>Reconnected.');
 			startQueryWebSocket(p_port);
 		},
 		function(p_event) {//Error
-			showError('An error has occurred during the communication with the query server.');
+			//showError('An error has occurred during the communication with the query server.');
 		}
 	);
 
+}
+
+function SetAcked(p_context) {
+	if (p_context)
+		p_context.acked = true;
+}
+
+function QueryPasswordRequired(p_context) {
+	if (p_context.tab_tag.mode=='query') {
+		showPasswordPrompt(
+			p_context.database_index,
+			function() {
+				cancelSQLTab();
+				querySQL();
+			},
+			function() {
+				cancelSQLTab();
+			}
+		);
+	}
+	else if (p_context.tab_tag.mode=='edit') {
+		showPasswordPrompt(
+			p_context.database_index,
+			function() {
+				cancelEditDataTab();
+				queryEditData();
+			},
+			function() {
+				cancelEditDataTab();
+			}
+		);
+	}
 }

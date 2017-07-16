@@ -19,8 +19,8 @@ def get_node_children(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -82,8 +82,8 @@ def get_snippet_text(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -113,8 +113,8 @@ def new_node_snippet(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -156,8 +156,8 @@ def delete_node_snippet(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -199,8 +199,8 @@ def save_snippet_text(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -245,8 +245,8 @@ def rename_node_snippet(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')

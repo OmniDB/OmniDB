@@ -141,35 +141,6 @@ function testConnection(p_index) {
 }
 
 /// <summary>
-/// Removes specific connection.
-/// </summary>
-/// <param name="p_id">Connection ID.</param>
-function removeConnection(p_id) {
-
-	showConfirm('Are you sure you want to remove this connection?',
-	            function() {
-
-					if (v_connections_data.v_cellChanges.length>0)
-						showConfirm2('There are changes on the connections list, would you like to save them?',
-						            function() {
-
-						            	saveConnections();
-						            	removeConnectionConfirm(p_id);
-
-						            },
-						            function() {
-
-						            	removeConnectionConfirm(p_id);
-
-						            });
-	              else
-	              	removeConnectionConfirm(p_id);
-
-	            });
-
-}
-
-/// <summary>
 /// Saves all changes in the connections list.
 /// </summary>
 function saveConnections(p_index) {
@@ -194,7 +165,8 @@ function saveConnections(p_index) {
 
 				document.getElementById('div_save').style.visibility = 'hidden';
 				listConnections();
-				testConnectionConfirm(p_index);
+				if (p_index)
+					testConnectionConfirm(p_index);
 
 			},
 			null,
@@ -295,19 +267,21 @@ function listConnections() {
 															},
 															cells: function (row, col, prop) {
 
-																var cellProperties = {};
-																if (v_connections_data.v_conn_ids[row].mode==2)
-																	cellProperties.renderer = greenHtmlRenderer;
-																else if (v_connections_data.v_conn_ids[row].mode==-1)
-																	cellProperties.renderer = redHtmlRenderer;
-																else if (v_connections_data.v_conn_ids[row].mode==1)
-																	cellProperties.renderer = yellowHtmlRenderer;
-																else if (row % 2 == 0)
-																	cellProperties.renderer = blueHtmlRenderer;
-																else
-																	cellProperties.renderer =whiteHtmlRenderer;
+																if (v_connections_data.v_conn_ids.length!=0) {
+																	var cellProperties = {};
+																	if (v_connections_data.v_conn_ids[row].mode==2)
+																		cellProperties.renderer = greenHtmlRenderer;
+																	else if (v_connections_data.v_conn_ids[row].mode==-1)
+																		cellProperties.renderer = redHtmlRenderer;
+																	else if (v_connections_data.v_conn_ids[row].mode==1)
+																		cellProperties.renderer = yellowHtmlRenderer;
+																	else if (row % 2 == 0)
+																		cellProperties.renderer = blueHtmlRenderer;
+																	else
+																		cellProperties.renderer =whiteHtmlRenderer;
 
-																return cellProperties;
+																	return cellProperties;
+																}
 
 															}
 														});

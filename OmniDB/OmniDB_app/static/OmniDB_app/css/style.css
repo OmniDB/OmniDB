@@ -309,6 +309,10 @@ input {
 	font-weight: 500;
 }
 
+.query_result {
+  user-select: initial;
+}
+
 textarea {
 	resize : none;
 	outline: none;

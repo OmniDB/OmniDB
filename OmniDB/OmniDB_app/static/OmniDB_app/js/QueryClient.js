@@ -33,7 +33,8 @@ var v_queryResponseCodes = {
 	SaveEditDataResult: 3,
 	SessionMissing: 4,
 	PasswordRequired: 5,
-	QueryAck: 6
+	QueryAck: 6,
+	MessageException: 7
 }
 
 /// <summary>
@@ -67,6 +68,10 @@ function startQueryWebSocket(p_port) {
 			switch(v_message.v_code) {
 				case parseInt(v_queryResponseCodes.SessionMissing): {
 					showAlert('Session not found please reload the page.');
+					break;
+				}
+				case parseInt(v_queryResponseCodes.MessageException): {
+					showError(p_message.v_data);
 					break;
 				}
 				case parseInt(v_queryResponseCodes.PasswordRequired): {

@@ -134,16 +134,20 @@ LOGGING = {
         },
     },
     'handlers': {
-        'logfile': {
+        'logfile_omnidb': {
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': "omnidb.log",
+            'filename': "log/omnidb.log",
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
             'formatter': 'standard',
         },
-        'logfile_error': {
+        'logfile_django': {
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': "omnidb.log",
+            'filename': "log/omnidb.log",
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
             'formatter': 'standard',
-            'level':'INFO',
+            'level':'ERROR',
         },
         'console':{
             'class':'logging.StreamHandler',
@@ -152,11 +156,11 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers':['logfile_error','console'],
+            'handlers':['logfile_django','console'],
             'propagate': False,
         },
         'OmniDB_app': {
-            'handlers': ['logfile'],
+            'handlers': ['logfile_omnidb'],
             'propagate': False,
             'level':'INFO',
         },

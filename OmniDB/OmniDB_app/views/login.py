@@ -32,6 +32,10 @@ def logout(request):
         request.session ["omnidb_alert_message"] = "Session object was already destroyed."
         return redirect('login')
 
+    v_session = request.session.get('omnidb_session')
+
+    logger.info('User "{0}" logged out.'.format(v_session.v_user_name))
+
     request.session['omnidb_user_key'] = None
 
     return redirect('login')
@@ -54,9 +58,6 @@ def sign_in(request):
     v_return['v_data'] = -1
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    if not request.session.get('cryptor'):
-        request.session['cryptor'] = Spartacus.Utils.Cryptor("omnidb")
 
     json_object = json.loads(request.POST.get('data', None))
     username = json_object['p_username']
@@ -91,11 +92,15 @@ def sign_in(request):
     '''.format(username))
 
     if len(table.Rows) > 0:
-        cryptor = request.session.get('cryptor')
+        cryptor = Spartacus.Utils.Cryptor("omnidb")
+
         pwd_decrypted = cryptor.Decrypt(table.Rows[0]['password'])
         if pwd_decrypted == pwd:
 
-            logger.info('User: {0} successfully logged in.'.format(username))
+            #creating session key to use it
+            request.session.save()
+
+            logger.info('User "{0}" logged in.'.format(username))
 
             v_session = Session(
                 table.Rows[0]["user_id"],
@@ -110,12 +115,13 @@ def sign_in(request):
                 cryptor,
                 request.session.session_key
             )
-            
+
             v_session.RefreshDatabaseList()
             request.session['omnidb_session'] = v_session
-            #request.session['omnidb_user_key'] = table.Rows[0]["user_key"]
-            #sessions.omnidb_sessions[v_session.v_user_key] = v_session
+
+            if not request.session.get('cryptor'):
+                request.session['cryptor'] = cryptor
+
             v_return['v_data'] = len(v_session.v_databases)
-            #ws_core.omnidb_sessions[v_session.v_user_key] = v_session
 
     return JsonResponse(v_return)

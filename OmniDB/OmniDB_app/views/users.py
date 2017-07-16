@@ -144,9 +144,6 @@ def remove_user(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    #removing from session list
-    sessions.omnidb_sessions.pop(v_user_key,None)
-
     return JsonResponse(v_return)
 
 def save_users(request):

@@ -1606,8 +1606,12 @@ def get_command_list(request):
         v_command_data_list.append(v_command["cl_st_command"])
         v_command_list.append(v_command_data_list)
 
+    v_page = ceil(v_count/settings.CH_CMDS_PER_PAGE)
+    if v_page==0:
+        v_page=1
+
     v_return['v_data'] = { 'command_list': v_command_list,
-                           'pages': ceil(v_count/settings.CH_CMDS_PER_PAGE)
+                           'pages': v_page
                          }
 
     return JsonResponse(v_return)

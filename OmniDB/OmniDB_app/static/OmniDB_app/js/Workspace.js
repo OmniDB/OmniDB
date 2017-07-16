@@ -472,48 +472,18 @@ function drawGraph(p_all, p_schema) {
 					});
 
 			},
-			null,
+			function(p_return) {
+				if (p_return.v_data.password_timeout) {
+					showPasswordPrompt(
+						v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+						function() {
+							drawGraph(p_all, p_schema);
+						},
+						null
+					);
+				}
+			},
 			'box');
-}
-
-/// <summary>
-/// Queries and displays query results.
-/// </summary>
-function exportData() {
-
-	var v_sql_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
-	var v_sel_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_export_type.value;
-
-	if (v_sql_value=='') {
-		showAlert('Please provide a string.');
-	}
-	else {
-
-		showConfirm('Are you sure you want to export data from the result of this query?',
-				function() {
-
-					var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value, "p_tab_name" : v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_title_span.innerHTML});
-
-					var start_time = new Date().getTime();
-
-					execAjax('MainDB.aspx/ExportData',
-							input,
-							function(p_return) {
-
-								var iframe = document.createElement('iframe');
-								iframe.style.display = 'none';
-								iframe.setAttribute("src", "DownloadFile.aspx");
-								document.body.appendChild(iframe);
-								setTimeout(function(){ iframe.parentElement.removeChild(iframe); }, 5000);
-
-							},
-							null,
-							'box');
-
-				});
-
-	}
-
 }
 
 /// <summary>

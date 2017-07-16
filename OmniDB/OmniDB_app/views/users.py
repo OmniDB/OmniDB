@@ -12,7 +12,7 @@ sys.path.append("OmniDB_app/include")
 import Spartacus.Database, Spartacus.Utils
 import OmniDatabase
 from Session import Session
-from OmniDB import ws_core, settings
+from OmniDB import settings
 
 
 def index(request):
@@ -22,8 +22,10 @@ def index(request):
         request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
         return redirect('login')
 
+    v_session = request.session.get('omnidb_session')
+
     context = {
-        'session' : request.session.get('omnidb_session'),
+        'session' : v_session,
         'menu_item': 'users',
         'omnidb_version': settings.OMNIDB_VERSION,
     }
@@ -40,8 +42,8 @@ def get_users(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -90,8 +92,8 @@ def new_user(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -117,8 +119,8 @@ def remove_user(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
@@ -142,9 +144,6 @@ def remove_user(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    #removing from session list
-    ws_core.omnidb_sessions.pop(v_user_key,None)
-
     return JsonResponse(v_return)
 
 def save_users(request):
@@ -156,8 +155,8 @@ def save_users(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')

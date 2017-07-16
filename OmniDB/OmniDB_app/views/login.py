@@ -13,8 +13,10 @@ sys.path.append("OmniDB_app/include")
 import Spartacus.Database, Spartacus.Utils
 import OmniDatabase
 from Session import Session
-from OmniDB import ws_core
 from OmniDB import settings
+
+import logging
+logger = logging.getLogger(__name__)
 
 def index(request):
     context = {
@@ -32,10 +34,9 @@ def logout(request):
 
     v_session = request.session.get('omnidb_session')
 
-    #removing from session list
-    ws_core.omnidb_sessions.pop(v_session.v_user_key,None)
+    logger.info('User "{0}" logged out.'.format(v_session.v_user_name))
 
-    request.session['omnidb_session'] = None
+    request.session['omnidb_user_key'] = None
 
     return redirect('login')
 
@@ -53,14 +54,10 @@ def check_session_message(request):
     return JsonResponse(v_return)
 
 def sign_in(request):
-
     v_return = {}
-    v_return['v_data'] = False
+    v_return['v_data'] = -1
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    if not request.session.get('cryptor'):
-        request.session['cryptor'] = Spartacus.Utils.Cryptor("omnidb")
 
     json_object = json.loads(request.POST.get('data', None))
     username = json_object['p_username']
@@ -74,7 +71,8 @@ def sign_in(request):
         '',
         '',
         '0',
-        ''
+        '',
+        True
     )
 
     table = database.v_connection.Query('''
@@ -94,9 +92,16 @@ def sign_in(request):
     '''.format(username))
 
     if len(table.Rows) > 0:
-        cryptor = request.session.get('cryptor')
+        cryptor = Spartacus.Utils.Cryptor("omnidb")
+
         pwd_decrypted = cryptor.Decrypt(table.Rows[0]['password'])
         if pwd_decrypted == pwd:
+
+            #creating session key to use it
+            request.session.save()
+
+            logger.info('User "{0}" logged in.'.format(username))
+
             v_session = Session(
                 table.Rows[0]["user_id"],
                 username,
@@ -108,10 +113,15 @@ def sign_in(request):
                 int(table.Rows[0]["chat_enabled"]),
                 int(table.Rows[0]["super_user"]),
                 cryptor,
-                table.Rows[0]["user_key"]
+                request.session.session_key
             )
+
+            v_session.RefreshDatabaseList()
             request.session['omnidb_session'] = v_session
-            v_return['v_data'] = True
-            ws_core.omnidb_sessions[v_session.v_user_key] = v_session
+
+            if not request.session.get('cryptor'):
+                request.session['cryptor'] = cryptor
+
+            v_return['v_data'] = len(v_session.v_databases)
 
     return JsonResponse(v_return)

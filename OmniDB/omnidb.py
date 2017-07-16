@@ -85,6 +85,9 @@ def vacuum():
         print('Vacuuming OmniDB database...')
         database.v_connection.Execute('vacuum')
         print ('Done.')
+        print('Vacuuming Sessions database...')
+        database_sessions.v_connection.Execute('vacuum')
+        print ('Done.')
     except Exception as exc:
         print('Error:')
         print(exc)

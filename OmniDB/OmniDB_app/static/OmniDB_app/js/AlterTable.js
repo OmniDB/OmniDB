@@ -16,19 +16,30 @@ You should have received a copy of the GNU General Public License along with Omn
 /// <param name="p_mode">Alter or new table.</param>
 /// <param name="p_table">Table name.</param>
 /// <param name="p_schema">Schema name.</param>
-function startAlterTable(p_mode, p_table, p_schema) {
-
-	var v_curr_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-	v_curr_tab_tag.tabControl.selectTabIndex(0);
-
-	v_curr_tab_tag.txtTableName.value = p_table;
-	//document.getElementById('txt_tableNameAlterTable').style.backgroundColor = 'white';
+function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 
 	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": p_table, "p_schema": p_schema});
 
 	execAjax('/alter_table_data/',
 				input,
 				function(p_return) {
+
+					if (p_create_tab) {
+						if (p_mode=='new')
+							v_connTabControl.tag.createAlterTableTab("New Table");
+						else {
+							if (p_schema)
+								v_connTabControl.tag.createAlterTableTab(p_schema + '.' + p_table);
+							else
+								v_connTabControl.tag.createAlterTableTab(p_table);
+						}
+					}
+
+					var v_curr_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+					v_curr_tab_tag.tabControl.selectTabIndex(0);
+
+					v_curr_tab_tag.txtTableName.value = p_table;
+
 
 					if (!p_return.v_data.v_can_add_constraint && p_mode=='alter')
 						$(v_curr_tab_tag.btNewConstraint).hide();
@@ -502,7 +513,17 @@ function startAlterTable(p_mode, p_table, p_schema) {
 
 
 				},
-				null,
+				function(p_return) {
+					if (p_return.v_data.password_timeout) {
+						showPasswordPrompt(
+							v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+							function() {
+								startAlterTable(p_create_tab, p_mode, p_table, p_schema);
+							},
+							null
+						);
+					}
+				},
 				'box');
 
 }
@@ -603,7 +624,7 @@ function saveAlterTable() {
 				if (p_return.v_data.v_create_table_command!=null) {
 
 					if (!p_return.v_data.v_create_table_command.error) {
-						startAlterTable('alter', v_new_table_name, v_schema_name);
+						startAlterTable(false, 'alter', v_new_table_name, v_schema_name);
 						v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_title_span.innerHTML = ' ' + v_schema_name + '.' + v_new_table_name;
 					}
 					else {

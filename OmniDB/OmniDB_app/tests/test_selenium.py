@@ -6,7 +6,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# Get geckodriver from https://github.com/mozilla/geckodriver/releases and put in your $PATH
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 class Base:

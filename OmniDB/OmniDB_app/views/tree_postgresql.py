@@ -700,7 +700,7 @@ def get_function_fields(request):
         for v_field in v_fields.Rows:
             v_field_data = {
                 'v_name': v_field['name'],
-                'v_id': v_field['type']
+                'v_type': v_field['type']
             }
             v_list_fields.append(v_field_data)
     except Exception as exc:

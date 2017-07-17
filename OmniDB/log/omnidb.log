@@ -250,3 +250,207 @@ django.template.exceptions.TemplateSyntaxError: Empty variable tag on line 223
 [07/17/2017 03:54:49] INFO [OmniDB_app.views.login:37] User "admin" logged out.
 [07/17/2017 03:54:52] INFO [OmniDB_app.views.login:103] User "admin" logged in.
 [07/17/2017 04:00:32] INFO [OmniDB_app.views.login:37] User "admin" logged out.
+[07/17/2017 16:17:27] ERROR [django.request:135] Internal Server Error: /sign_in/
+Traceback (most recent call last):
+  File "/home/israel/.local/lib/python3.5/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/israel/.local/lib/python3.5/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/israel/.local/lib/python3.5/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/login.py", line 75, in sign_in
+    True
+TypeError: InstantiateDatabase() takes from 6 to 8 positional arguments but 9 were given
+[07/17/2017 16:17:27] ERROR [django.server:124] "POST /sign_in/ HTTP/1.1" 500 18175
+[07/17/2017 16:17:32] ERROR [django.request:135] Internal Server Error: /sign_in/
+Traceback (most recent call last):
+  File "/home/israel/.local/lib/python3.5/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/israel/.local/lib/python3.5/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/israel/.local/lib/python3.5/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/login.py", line 75, in sign_in
+    True
+TypeError: InstantiateDatabase() takes from 6 to 8 positional arguments but 9 were given
+[07/17/2017 16:17:32] ERROR [django.server:124] "POST /sign_in/ HTTP/1.1" 500 18175
+[07/17/2017 16:18:42] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/17/2017 16:29:06] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:29:06.521611,
+END: 2017-07-17 16:29:06.807973,
+DURATION: 0.286362 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas tar
+[07/17/2017 16:29:59] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:29:59.370302,
+END: 2017-07-17 16:29:59.401491,
+DURATION: 0.031189 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.projetos
+[07/17/2017 16:30:05] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:30:05.097193,
+END: 2017-07-17 16:30:05.125340,
+DURATION: 0.028147 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 16:30:08] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:30:07.923475,
+END: 2017-07-17 16:30:08.210504,
+DURATION: 0.287029 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 16:32:42] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:32:42.804487,
+END: 2017-07-17 16:32:42.834036,
+DURATION: 0.029549 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 16:32:46] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:32:46.459636,
+END: 2017-07-17 16:32:46.737928,
+DURATION: 0.278292 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 16:33:09] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:33:08.972723,
+END: 2017-07-17 16:33:09.256339,
+DURATION: 0.283616 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 16:34:05] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:34:04.831230,
+END: 2017-07-17 16:34:05.142921,
+DURATION: 0.311691 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas 
+[07/17/2017 16:35:54] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:35:54.293302,
+END: 2017-07-17 16:35:54.576784,
+DURATION: 0.283482 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 16:36:45] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:36:44.841366,
+END: 2017-07-17 16:36:45.124432,
+DURATION: 0.283066 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 16:37:30] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:37:30.343773,
+END: 2017-07-17 16:37:30.631311,
+DURATION: 0.287538 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 16:56:58] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 16:56:57.974580,
+END: 2017-07-17 16:56:58.258569,
+DURATION: 0.283989 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 17:00:56] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 17:00:56.408658,
+END: 2017-07-17 17:00:56.694938,
+DURATION: 0.28628 seconds,
+MODE: Query all rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 18:59:48] INFO [OmniDB_app.views.login:37] User "admin" logged out.
+[07/17/2017 18:59:58] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/17/2017 19:00:03] INFO [OmniDB_app.views.login:37] User "admin" logged out.
+[07/17/2017 20:57:16] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/17/2017 21:02:07] ERROR [django.request:135] Internal Server Error: /get_tables_postgresql/
+Traceback (most recent call last):
+  File "/home/israel/.local/lib/python3.5/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/israel/.local/lib/python3.5/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/israel/.local/lib/python3.5/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/tree_postgresql.py", line 84, in get_tables
+    v_database = v_session.v_databases[v_database_index]['database']
+IndexError: list index out of range
+[07/17/2017 21:02:07] ERROR [django.server:124] "POST /get_tables_postgresql/ HTTP/1.1" 500 18363
+[07/17/2017 21:02:56] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 21:02:56.501205,
+END: 2017-07-17 21:02:56.531970,
+DURATION: 0.030765 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: -- Querying Data
+select t.*
+from psproj.anexos t
+[07/17/2017 21:02:59] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 21:02:59.299089,
+END: 2017-07-17 21:02:59.327420,
+DURATION: 0.028331 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: -- Querying Data
+select t.*
+from psproj.anexos t
+[07/17/2017 21:13:08] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 21:13:08.076010,
+END: 2017-07-17 21:13:08.106742,
+DURATION: 0.030732 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: -- Querying Data
+select t.*
+from public.omnidb_mig_commands t
+[07/17/2017 21:13:46] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 21:13:46.362163,
+END: 2017-07-17 21:13:46.390127,
+DURATION: 0.027964 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: -- Counting Records
+select count(*) as count
+from public.omnidb_mig_commands t
+[07/17/2017 21:19:51] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 21:19:51.470710,
+END: 2017-07-17 21:19:51.506386,
+DURATION: 0.035676 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 21:25:49] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-17 21:25:49.229766,
+END: 2017-07-17 21:25:49.263740,
+DURATION: 0.033974 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/17/2017 21:25:59] INFO [OmniDB_app.views.login:37] User "admin" logged out.
+[07/17/2017 21:26:02] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/17/2017 21:26:09] INFO [OmniDB_app.views.login:37] User "admin" logged out.

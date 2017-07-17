@@ -49,6 +49,88 @@ $(function () {
 	    hide: { event: 'click' }
 	})
 
+	//Prevent "cannot edit" bug in ace editor
+	$(document).on('mouseenter', '.ace_editor', function(p_event) {
+		var v_textarea = this.querySelector('.ace_text-input');
+
+		if(v_textarea != null) {
+			v_textarea.blur();
+			v_textarea.focus();
+		}
+	});
+
+	//Improve mouse wheel scrolling in grid div
+
+	//Some keyboard shortcuts
+	document.body.addEventListener(
+		'keydown',
+		function(p_event) {
+			var v_tabControl = null;
+			
+			if((p_event.ctrlKey || p_event.metaKey) && p_event.shiftKey) {
+				v_tabControl = v_connTabControl.selectedTab.tag.tabControl;
+			}
+			else if(p_event.ctrlKey || p_event.metaKey) {
+				v_tabControl = v_connTabControl;
+			}
+
+			if(v_tabControl != null) {
+				switch(p_event.keyCode) {
+					case 37: {//left arrow
+						p_event.preventDefault();
+
+						var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
+
+						switch(v_actualIndex) {
+							case 0: {
+								v_tabControl.tabList[v_tabControl.tabList.length - 2].elementLi.click();//avoid triggering click on '+' tab
+								break;
+							}
+							default: {
+								v_tabControl.tabList[v_actualIndex - 1].elementLi.click();
+								break;
+							}
+						}
+
+						break;
+					}
+					case 39: {//right arrow
+						p_event.preventDefault();
+
+						var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
+
+						switch(v_actualIndex) {
+							case (v_tabControl.tabList.length - 2): {//avoid triggering click on '+' tab
+								v_tabControl.tabList[0].elementLi.click();
+								break;
+							}
+							default: {
+								v_tabControl.tabList[v_actualIndex + 1].elementLi.click();
+								break;
+							}
+						}
+
+						break;
+					}
+					case 46: {//delete
+						p_event.preventDefault();
+
+						if(v_tabControl.tabList.indexOf(v_tabControl.selectedTab) != 0) {//not snippet tab
+							v_tabControl.selectedTab.removeTab();
+						}
+
+						break;
+					}
+					case 107: {//add
+						p_event.preventDefault();
+
+						v_tabControl.tabList[v_tabControl.tabList.length - 1].elementLi.click();
+					}
+				}
+			}
+		}
+	)
+
 	getDatabaseList();
 /*
 	//WebSockets

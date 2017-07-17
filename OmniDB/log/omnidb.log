@@ -1,1 +1,252 @@
 
+[07/17/2017 02:50:05] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/17/2017 02:50:05] ERROR [django.request:135] Internal Server Error: /get_database_list/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/workspace.py", line 155, in get_database_list
+    v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_index,v_database.PrintDatabaseDetails(),v_alias,v_database.PrintDatabaseInfo())
+  File "/usr/local/lib/python3.5/dist-packages/OmniDatabase/__init__.py", line 171, in PrintDatabaseInfo
+    return self.v_user + "@" + self.v_service + " - " + self.v_schema
+TypeError: Can't convert 'int' object to str implicitly
+[07/17/2017 02:50:05] ERROR [django.server:124] "POST /get_database_list/ HTTP/1.1" 500 17848
+[07/17/2017 02:50:18] ERROR [django.request:135] Internal Server Error: /get_database_list/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/workspace.py", line 155, in get_database_list
+    v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_index,v_database.PrintDatabaseDetails(),v_alias,v_database.PrintDatabaseInfo())
+  File "/usr/local/lib/python3.5/dist-packages/OmniDatabase/__init__.py", line 171, in PrintDatabaseInfo
+    return self.v_user + "@" + self.v_service + " - " + self.v_schema
+TypeError: Can't convert 'int' object to str implicitly
+[07/17/2017 02:50:18] ERROR [django.server:124] "POST /get_database_list/ HTTP/1.1" 500 17848
+[07/17/2017 02:50:33] ERROR [django.request:135] Internal Server Error: /get_database_list/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/workspace.py", line 155, in get_database_list
+    v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_index,v_database.PrintDatabaseDetails(),v_alias,v_database.PrintDatabaseInfo())
+  File "/usr/local/lib/python3.5/dist-packages/OmniDatabase/__init__.py", line 171, in PrintDatabaseInfo
+    return self.v_user + "@" + self.v_service + " - " + self.v_schema
+TypeError: Can't convert 'int' object to str implicitly
+[07/17/2017 02:50:33] ERROR [django.server:124] "POST /get_database_list/ HTTP/1.1" 500 17848
+[07/17/2017 02:51:48] ERROR [django.request:135] Internal Server Error: /get_database_list/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/workspace.py", line 155, in get_database_list
+    v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_index,v_database.PrintDatabaseDetails(),v_alias,v_database.PrintDatabaseInfo())
+  File "/usr/local/lib/python3.5/dist-packages/OmniDatabase/__init__.py", line 171, in PrintDatabaseInfo
+    return self.v_user + "@" + self.v_service + " - " + self.v_schema
+TypeError: Can't convert 'int' object to str implicitly
+[07/17/2017 02:51:48] ERROR [django.server:124] "POST /get_database_list/ HTTP/1.1" 500 17848
+[07/17/2017 02:56:04] ERROR [django.request:135] Internal Server Error: /get_database_list/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/workspace.py", line 155, in get_database_list
+    v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_index,v_database.PrintDatabaseDetails(),v_alias,v_database.PrintDatabaseInfo())
+  File "/usr/local/lib/python3.5/dist-packages/OmniDatabase/__init__.py", line 171, in PrintDatabaseInfo
+    return self.v_user + "@" + self.v_service + " - " + self.v_schema
+TypeError: Can't convert 'int' object to str implicitly
+[07/17/2017 02:56:04] ERROR [django.server:124] "POST /get_database_list/ HTTP/1.1" 500 17848
+[07/17/2017 02:56:44] ERROR [django.request:135] Internal Server Error: /get_database_list/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/workspace.py", line 155, in get_database_list
+    v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_index,v_database.PrintDatabaseDetails(),v_alias,v_database.PrintDatabaseInfo())
+  File "/usr/local/lib/python3.5/dist-packages/OmniDatabase/__init__.py", line 171, in PrintDatabaseInfo
+    return self.v_user + "@" + self.v_service + " - " + self.v_schema
+TypeError: Can't convert 'int' object to str implicitly
+[07/17/2017 02:56:44] ERROR [django.server:124] "POST /get_database_list/ HTTP/1.1" 500 17848
+[07/17/2017 03:08:11] INFO [OmniDB_app.views.login:37] User "admin" logged out.
+[07/17/2017 03:08:15] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/17/2017 03:29:00] ERROR [django.request:135] Internal Server Error: /workspace/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/workspace.py", line 49, in index
+    template = loader.get_template('OmniDB_app/workspace.html')
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader.py", line 21, in get_template
+    return engine.get_template(template_name)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/backends/django.py", line 39, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/engine.py", line 162, in get_template
+    template, origin = self.find_template(template_name)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/engine.py", line 136, in find_template
+    name, template_dirs=dirs, skip=skip,
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loaders/base.py", line 44, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 191, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 230, in compile_nodelist
+    return parser.parse()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 513, in parse
+    compiled_result = compile_func(self, token)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader_tags.py", line 312, in do_extends
+    nodelist = parser.parse()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 513, in parse
+    compiled_result = compile_func(self, token)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader_tags.py", line 255, in do_block
+    nodelist = parser.parse(('endblock',))
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 482, in parse
+    raise self.error(token, 'Empty variable tag on line %d' % token.lineno)
+django.template.exceptions.TemplateSyntaxError: Empty variable tag on line 223
+[07/17/2017 03:29:00] ERROR [django.server:124] "GET /workspace/ HTTP/1.1" 500 155592
+[07/17/2017 03:29:06] ERROR [django.request:135] Internal Server Error: /workspace/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/workspace.py", line 49, in index
+    template = loader.get_template('OmniDB_app/workspace.html')
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader.py", line 21, in get_template
+    return engine.get_template(template_name)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/backends/django.py", line 39, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/engine.py", line 162, in get_template
+    template, origin = self.find_template(template_name)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/engine.py", line 136, in find_template
+    name, template_dirs=dirs, skip=skip,
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loaders/base.py", line 44, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 191, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 230, in compile_nodelist
+    return parser.parse()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 513, in parse
+    compiled_result = compile_func(self, token)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader_tags.py", line 312, in do_extends
+    nodelist = parser.parse()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 513, in parse
+    compiled_result = compile_func(self, token)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader_tags.py", line 255, in do_block
+    nodelist = parser.parse(('endblock',))
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 482, in parse
+    raise self.error(token, 'Empty variable tag on line %d' % token.lineno)
+django.template.exceptions.TemplateSyntaxError: Empty variable tag on line 223
+[07/17/2017 03:29:07] ERROR [django.server:124] "GET /workspace/ HTTP/1.1" 500 155592
+[07/17/2017 03:29:19] ERROR [django.request:135] Internal Server Error: /workspace/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/workspace.py", line 49, in index
+    template = loader.get_template('OmniDB_app/workspace.html')
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader.py", line 21, in get_template
+    return engine.get_template(template_name)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/backends/django.py", line 39, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/engine.py", line 162, in get_template
+    template, origin = self.find_template(template_name)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/engine.py", line 136, in find_template
+    name, template_dirs=dirs, skip=skip,
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loaders/base.py", line 44, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 191, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 230, in compile_nodelist
+    return parser.parse()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 513, in parse
+    compiled_result = compile_func(self, token)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader_tags.py", line 312, in do_extends
+    nodelist = parser.parse()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 513, in parse
+    compiled_result = compile_func(self, token)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader_tags.py", line 255, in do_block
+    nodelist = parser.parse(('endblock',))
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 482, in parse
+    raise self.error(token, 'Empty variable tag on line %d' % token.lineno)
+django.template.exceptions.TemplateSyntaxError: Empty variable tag on line 223
+[07/17/2017 03:29:19] ERROR [django.server:124] "GET /workspace/ HTTP/1.1" 500 155592
+[07/17/2017 03:29:28] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/17/2017 03:29:28] ERROR [django.request:135] Internal Server Error: /workspace/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/local/lib/python3.5/dist-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/israel/Repositórios/OmniDB/OmniDB/OmniDB_app/views/workspace.py", line 49, in index
+    template = loader.get_template('OmniDB_app/workspace.html')
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader.py", line 21, in get_template
+    return engine.get_template(template_name)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/backends/django.py", line 39, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/engine.py", line 162, in get_template
+    template, origin = self.find_template(template_name)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/engine.py", line 136, in find_template
+    name, template_dirs=dirs, skip=skip,
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loaders/base.py", line 44, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 191, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 230, in compile_nodelist
+    return parser.parse()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 513, in parse
+    compiled_result = compile_func(self, token)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader_tags.py", line 312, in do_extends
+    nodelist = parser.parse()
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 515, in parse
+    raise self.error(token, e)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 513, in parse
+    compiled_result = compile_func(self, token)
+  File "/usr/local/lib/python3.5/dist-packages/django/template/loader_tags.py", line 255, in do_block
+    nodelist = parser.parse(('endblock',))
+  File "/usr/local/lib/python3.5/dist-packages/django/template/base.py", line 482, in parse
+    raise self.error(token, 'Empty variable tag on line %d' % token.lineno)
+django.template.exceptions.TemplateSyntaxError: Empty variable tag on line 223
+[07/17/2017 03:29:29] ERROR [django.server:124] "GET /workspace/ HTTP/1.1" 500 155445
+[07/17/2017 03:54:49] INFO [OmniDB_app.views.login:37] User "admin" logged out.
+[07/17/2017 03:54:52] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/17/2017 04:00:32] INFO [OmniDB_app.views.login:37] User "admin" logged out.

@@ -16,6 +16,7 @@ from OmniDB import settings
 from Session import Session
 
 from django.contrib.sessions.backends.db import SessionStore
+import sqlparse
 
 def index(request):
     #Invalid session
@@ -1402,7 +1403,6 @@ def is_reference(p_sql, p_prefix, p_occurence_index,p_cursor_index):
 
     return False
 
-#TODO
 def get_completions(request):
 
     v_return = {}
@@ -1423,6 +1423,12 @@ def get_completions(request):
     p_prefix = json_object['p_prefix']
     p_sql = json_object['p_sql']
     p_prefix_pos = json_object['p_prefix_pos']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(p_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     v_database = v_session.v_databases[p_database_index]['database']
 
@@ -1496,7 +1502,6 @@ def get_completions(request):
 
     return JsonResponse(v_return)
 
-#TODO
 def get_completions_table(request):
 
     v_return = {}
@@ -1516,6 +1521,12 @@ def get_completions_table(request):
     p_database_index = json_object['p_database_index']
     p_table = json_object['p_table']
     p_schema = json_object['p_schema']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(p_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     v_database = v_session.v_databases[p_database_index]['database']
 
@@ -1634,6 +1645,36 @@ def clear_command_list(request):
 
     try:
         v_session.v_omnidb_database.v_connection.Execute ("delete from command_list where user_id={0}".format(v_session.v_user_id))
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def indent_sql(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_sql = json_object['p_sql']
+
+    v_session = request.session.get('omnidb_session')
+
+    v_return['v_data'] = v_sql
+
+
+    try:
+        v_return['v_data'] = sqlparse.format(v_sql, reindent=True)
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True

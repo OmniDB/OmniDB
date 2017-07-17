@@ -339,6 +339,32 @@ function closeGraphTab(p_tab) {
 }
 
 /// <summary>
+/// Indent SQL.
+/// </summary>
+function indentSQL() {
+
+	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+	var v_sql_value = v_tab_tag.editor.getValue();
+
+	if (v_sql_value.trim()=='') {
+		showAlert('Please provide a string.');
+	}
+	else {
+		execAjax('/indent_sql/',
+				JSON.stringify({"p_sql": v_sql_value}),
+				function(p_return) {
+
+					v_tab_tag.editor.setValue(p_return.v_data);
+					v_tab_tag.editor.clearSelection();
+					v_tab_tag.editor.gotoLine(0, 0, true);
+
+				},
+				null,
+				'box');
+	}
+}
+
+/// <summary>
 /// Draws graph.
 /// </summary>
 function drawGraph(p_all, p_schema) {

@@ -6,6 +6,7 @@ import tornado.web
 import tornado.websocket
 import tornado.template
 import tornado.httpserver
+from tornado import gen
 import ssl,os
 
 import Spartacus.Database, Spartacus.Utils
@@ -51,7 +52,6 @@ class response(IntEnum):
 class WSHandler(tornado.websocket.WebSocketHandler):
   def open(self):
     None
-
   def on_message(self, message):
     v_response = {
         'v_code': 0,
@@ -178,24 +178,31 @@ def start_wsserver_thread():
     t.setDaemon(True)
     t.start()
 
-
 def start_wsserver():
-    application = tornado.web.Application([
-      (r'/ws', WSHandler),
-      (r'/wss',WSHandler),
-      (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./resources"}),
-    ])
+    logger.info('''*** Starting Query WS Server ***''')
+    try:
+        application = tornado.web.Application([
+          (r'/ws', WSHandler),
+          (r'/wss',WSHandler),
+          (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./resources"}),
+        ])
 
-    if settings.IS_SSL:
-        ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        ssl_ctx.load_cert_chain(settings.SSL_CERTIFICATE,
-                               settings.SSL_KEY)
-        server = tornado.httpserver.HTTPServer(application, ssl_options=ssl_ctx)
-    else:
-        server = tornado.httpserver.HTTPServer(application)
+        if settings.IS_SSL:
+            ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_ctx.load_cert_chain(settings.SSL_CERTIFICATE,
+                                   settings.SSL_KEY)
+            server = tornado.httpserver.HTTPServer(application, ssl_options=ssl_ctx)
+        else:
+            server = tornado.httpserver.HTTPServer(application)
 
-    server.listen(settings.WS_QUERY_PORT)
-    tornado.ioloop.IOLoop.instance().start()
+        server.listen(settings.WS_QUERY_PORT)
+        tornado.ioloop.IOLoop.instance().start()
+
+    except Exception as exc:
+        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+
+def send_response_thread_safe(ws_object,message):
+    ws_object.write_message(message)
 
 def LogHistory(p_omnidb_database,
                p_user_id,
@@ -298,7 +305,7 @@ def thread_query(self,args,ws_object):
                 v_response['v_error'] = True
 
             if not self.cancel:
-                ws_object.write_message(json.dumps(v_response))
+                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
             #Log to history
             LogHistory(v_omnidb_database,
@@ -346,7 +353,7 @@ def thread_query(self,args,ws_object):
             v_database.v_connection.Close ()
 
             if not self.cancel:
-                ws_object.write_message(json.dumps(v_response))
+                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
             #Log to history
             LogHistory(v_omnidb_database,
@@ -378,7 +385,7 @@ def thread_query(self,args,ws_object):
                 v_response['v_error'] = True
 
             if not self.cancel:
-                ws_object.write_message(json.dumps(v_response))
+                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
             #Log to history
             LogHistory(v_omnidb_database,
@@ -394,9 +401,7 @@ def thread_query(self,args,ws_object):
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         if not self.cancel:
-            ws_object.write_message(json.dumps(v_response))
-
-
+            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
 def thread_query_edit_data(self,args,ws_object):
     v_response = {
@@ -461,7 +466,7 @@ def thread_query_edit_data(self,args,ws_object):
             v_response['v_error'] = True
 
         if not self.cancel:
-            ws_object.write_message(json.dumps(v_response))
+            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_error'] = True
@@ -651,7 +656,7 @@ def thread_save_edit_data(self,args,ws_object):
             i = i + 1
 
         if not self.cancel:
-            ws_object.write_message(json.dumps(v_response))
+            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_error'] = True

@@ -149,18 +149,23 @@ LOGGING = {
             'formatter': 'standard',
             'level':'ERROR',
         },
-        'console':{
+        'console_django':{
             'class':'logging.StreamHandler',
             'formatter': 'standard'
+        },
+        'console_omnidb_app':{
+            'class':'logging.StreamHandler',
+            'formatter': 'standard',
+            'level':'ERROR',
         },
     },
     'loggers': {
         'django': {
-            'handlers':['logfile_django','console'],
+            'handlers':['logfile_django','console_django'],
             'propagate': False,
         },
         'OmniDB_app': {
-            'handlers': ['logfile_omnidb'],
+            'handlers': ['logfile_omnidb','console_omnidb_app'],
             'propagate': False,
             'level':'INFO',
         },

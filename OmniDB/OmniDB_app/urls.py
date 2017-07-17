@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^get_completions_table/', views.workspace.get_completions_table, name='get_completions_table'),
     url(r'^get_command_list/', views.workspace.get_command_list, name='get_command_list'),
     url(r'^clear_command_list/', views.workspace.clear_command_list, name='clear_command_list'),
+    url(r'^indent_sql/', views.workspace.indent_sql, name='indent_sql'),
 
     #TREE_SNIPPETS
     url(r'^get_node_children/', views.tree_snippets.get_node_children, name='get_node_children'),

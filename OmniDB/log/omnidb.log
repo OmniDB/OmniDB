@@ -454,3 +454,38 @@ COMMAND: select * from psproj.tarefas
 [07/17/2017 21:25:59] INFO [OmniDB_app.views.login:37] User "admin" logged out.
 [07/17/2017 21:26:02] INFO [OmniDB_app.views.login:103] User "admin" logged in.
 [07/17/2017 21:26:09] INFO [OmniDB_app.views.login:37] User "admin" logged out.
+[07/18/2017 17:20:02] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/18/2017 17:31:45] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-18 17:31:45.685294,
+END: 2017-07-18 17:31:45.724660,
+DURATION: 0.039366 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/18/2017 17:43:53] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-18 17:43:53.154422,
+END: 2017-07-18 17:43:53.195111,
+DURATION: 0.040689 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/18/2017 17:44:04] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-18 17:44:04.660142,
+END: 2017-07-18 17:44:04.690940,
+DURATION: 0.030798 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/18/2017 17:46:33] INFO [OmniDB_app.QueryServer:234] *** SQL Command ***
+USER: admin,
+START: 2017-07-18 17:46:33.562599,
+END: 2017-07-18 17:46:33.595335,
+DURATION: 0.032736 seconds,
+MODE: Query 10 rows,
+STATUS: success,
+COMMAND: select * from psproj.tarefas
+[07/18/2017 17:56:06] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/18/2017 21:15:23] INFO [OmniDB_app.views.login:103] User "admin" logged in.

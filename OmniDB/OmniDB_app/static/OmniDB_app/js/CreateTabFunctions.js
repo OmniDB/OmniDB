@@ -160,6 +160,12 @@ function initCreateTabFunctions() {
 
 		v_editor.commands.bindKey("ctrl-space", null);
 
+    //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+    v_editor.commands.bindKey("Cmd-,", null)
+    v_editor.commands.bindKey("Ctrl-,", null)
+    v_editor.commands.bindKey("Cmd-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Delete", null)
+
 		v_txt_snippet.onclick = function() {
 
 			v_editor.focus();
@@ -281,6 +287,12 @@ function initCreateTabFunctions() {
 		v_editor.setFontSize(Number(v_editor_font_size));
 
 		v_editor.commands.bindKey("ctrl-space", null);
+
+    //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+    v_editor.commands.bindKey("Cmd-,", null)
+    v_editor.commands.bindKey("Ctrl-,", null)
+    v_editor.commands.bindKey("Cmd-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Delete", null)
 
 		document.getElementById('txt_query_' + v_tab.id).onclick = function() {
 
@@ -425,6 +437,12 @@ function initCreateTabFunctions() {
     v_editor.setFontSize(Number(v_editor_font_size));
 
     v_editor.commands.bindKey("ctrl-space", null);
+
+    //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+    v_editor.commands.bindKey("Cmd-,", null)
+    v_editor.commands.bindKey("Ctrl-,", null)
+    v_editor.commands.bindKey("Cmd-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Delete", null)
 
     document.getElementById('txt_filter_data_' + v_tab.id).onclick = function() {
 

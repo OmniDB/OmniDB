@@ -49,6 +49,145 @@ $(function () {
 	    hide: { event: 'click' }
 	})
 
+	//Prevent "cannot edit" bug in ace editor
+	$(document).on(
+		'mouseenter',
+		'.ace_editor',
+		function(p_event) {
+			var v_textarea = this.querySelector('.ace_text-input');
+
+			if(v_textarea != null) {
+				v_textarea.blur();
+				v_textarea.focus();
+			}
+		}
+	);
+
+	//Improve mouse wheel scrolling in grid div. Whitout this, it scrolls just 1 pixel at a time
+	$(document).on(
+		'wheel',
+		'.ht_master > .wtHolder',
+		function(p_event) {
+			if(p_event.originalEvent.deltaY > 0) {
+				this.scrollTop += 19;
+			}
+			else {
+				this.scrollTop -= 19;
+			}
+		}
+	)
+
+	var v_keyBoardShortCuts = function(p_event) {
+		var v_tabControl = null;
+
+		if((p_event.ctrlKey || p_event.metaKey) && p_event.shiftKey) {
+			v_tabControl = v_connTabControl.selectedTab.tag.tabControl;
+		}
+		else if(p_event.ctrlKey || p_event.metaKey) {
+			v_tabControl = v_connTabControl;
+		}
+
+		if(v_tabControl != null) {
+			switch(p_event.keyCode) {
+				case 37: {//left arrow
+					p_event.preventDefault();
+					p_event.stopPropagation();
+
+					var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
+
+					switch(v_actualIndex) {
+						case 0: {
+							v_tabControl.tabList[v_tabControl.tabList.length - 2].elementLi.click();//avoid triggering click on '+' tab
+							break;
+						}
+						default: {
+							v_tabControl.tabList[v_actualIndex - 1].elementLi.click();
+							break;
+						}
+					}
+
+					break;
+				}
+				case 39: {//right arrow
+					p_event.preventDefault();
+					p_event.stopPropagation();
+
+					var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
+
+					switch(v_actualIndex) {
+						case (v_tabControl.tabList.length - 2): {//avoid triggering click on '+' tab
+							v_tabControl.tabList[0].elementLi.click();
+							break;
+						}
+						default: {
+							v_tabControl.tabList[v_actualIndex + 1].elementLi.click();
+							break;
+						}
+					}
+
+					break;
+				}
+				case 46: {//delete
+					p_event.preventDefault();
+					p_event.stopPropagation();
+
+					if(v_tabControl.id == 'conn_tabs') {
+						if(v_tabControl.tabList.indexOf(v_tabControl.selectedTab) != 0 && v_tabControl.tabList.length > 2) {//not snippet tab and cannot delete '+' tab
+							v_tabControl.selectedTab.removeTab();
+						}
+					}
+					else {
+						if(v_tabControl.tabList.length > 1) {//cannot delete '+' tab
+							v_tabControl.selectedTab.removeTab();
+						}
+					}
+
+					break;
+				}
+				case 45: {//insert
+					p_event.preventDefault();
+					p_event.stopPropagation();
+
+					v_tabControl.tabList[v_tabControl.tabList.length - 1].elementLi.click();
+
+					break;
+				}
+				case 69: {// 'e'
+					p_event.preventDefault();
+					p_event.stopPropagation();
+
+					if(v_tabControl.selectedTab.tag.bt_start != null) {
+						v_tabControl.selectedTab.tag.bt_start.click();
+					}
+
+					break;
+				}
+				case 83: {// 's'
+					p_event.preventDefault();
+					p_event.stopPropagation();
+
+					if(v_tabControl.selectedTab.tag.bt_save != null) {
+						v_tabControl.selectedTab.tag.bt_save.click();
+					}
+					else if(v_tabControl.selectedTab.tag.btSave != null) {
+						v_tabControl.selectedTab.tag.btSave.click();
+					}
+					else if(v_tabControl.selectedTab.tag.button_save != null) {
+						v_tabControl.selectedTab.tag.button_save.click();
+					}
+
+					break;
+				}
+			}
+		}
+	}
+
+	//Some keyboard shortcuts
+	document.body.addEventListener(
+		'keydown',
+		v_keyBoardShortCuts
+	)
+
 	getDatabaseList();
 /*
 	//WebSockets
@@ -184,9 +323,24 @@ function removeTab(p_tab) {
 }
 
 /// <summary>
+/// Redefines vertical resize line position.
+/// </summary>
+function verticalLinePosition(p_event) {
+	document.getElementById('vertical-resize-line').style.top = p_event.pageY;
+}
+
+/// <summary>
 /// Resize SQL editor and result div.
 /// </summary>
 function resizeVertical(event) {
+	var v_verticalLine = document.createElement('div');
+	v_verticalLine.id = 'vertical-resize-line';
+	document.body.appendChild(v_verticalLine);
+
+	document.body.addEventListener(
+		'mousemove',
+		verticalLinePosition
+	)
 
 	v_start_height = event.screenY;
 	document.body.addEventListener("mouseup", resizeVerticalEnd);
@@ -199,6 +353,12 @@ function resizeVertical(event) {
 function resizeVerticalEnd(event) {
 
 	document.body.removeEventListener("mouseup", resizeVerticalEnd);
+	document.getElementById('vertical-resize-line').remove();
+
+	document.body.removeEventListener(
+		'mousemove',
+		verticalLinePosition
+	)
 
 	var v_height_diff = event.screenY - v_start_height;
 
@@ -267,9 +427,24 @@ function minimizeEditor() {
 }
 
 /// <summary>
+/// Redefines horizontal resize line position.
+/// </summary>
+function horizontalLinePosition(p_event) {
+	document.getElementById('horizontal-resize-line').style.left = p_event.pageX;
+}
+
+/// <summary>
 /// Resize Tab.
 /// </summary>
 function resizeHorizontal(event) {
+	var v_horizontalLine = document.createElement('div');
+	v_horizontalLine.id = 'horizontal-resize-line';
+	document.body.appendChild(v_horizontalLine);
+
+	document.body.addEventListener(
+		'mousemove',
+		horizontalLinePosition
+	)
 
 	document.body.addEventListener("mouseup", resizeHorizontalEnd);
 	v_start_width = event.screenX;
@@ -280,6 +455,12 @@ function resizeHorizontal(event) {
 /// </summary>
 function resizeHorizontalEnd(event) {
 	document.body.removeEventListener("mouseup", resizeHorizontalEnd);
+	document.getElementById('horizontal-resize-line').remove();
+
+	document.body.removeEventListener(
+		'mousemove',
+		horizontalLinePosition
+	)
 
 	var v_width_diff = event.screenX - v_start_width;
 

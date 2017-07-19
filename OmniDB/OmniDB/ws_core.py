@@ -8,8 +8,10 @@ import tornado.template
 import tornado.httpserver
 import ssl,os
 
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 from enum import IntEnum
 from datetime import datetime

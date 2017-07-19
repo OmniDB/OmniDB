@@ -4,8 +4,10 @@ from django.http import JsonResponse
 import json
 from datetime import datetime, timedelta
 
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 class PostgreSQL(TestCase):
 

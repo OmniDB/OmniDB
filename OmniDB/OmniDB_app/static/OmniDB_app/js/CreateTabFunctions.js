@@ -170,6 +170,7 @@ function initCreateTabFunctions() {
 			tab_id: v_tab.id,
 			mode: 'snippet',
 			editor: v_editor,
+      editorDiv: v_txt_snippet,
 			editorDivId: 'txt_snippet_' + v_tab.id,
 			query_info: document.getElementById('div_query_info_' + v_tab.id),
 			div_result: document.getElementById('div_result_' + v_tab.id),
@@ -178,6 +179,7 @@ function initCreateTabFunctions() {
 			tab_title_span : v_tab_title_span,
 			tab_close_span : v_tab_close_span,
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
+      bt_save: document.getElementById('bt_save_' + v_tab.id),
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
 			snippetTab: v_connTabControl.selectedTab,
       snippetObject: null
@@ -219,6 +221,7 @@ function initCreateTabFunctions() {
 			tab_title_span : v_tab_title_span,
 			tab_close_span : v_tab_close_span,
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
+      bt_save: document.getElementById('bt_save_' + v_tab.id),
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
       network: null
 		};
@@ -374,6 +377,7 @@ function initCreateTabFunctions() {
 			tab_close_span : v_tab_close_span,
 			tab_check_span : v_tab_check_span,
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
+      bt_save: document.getElementById('bt_save_' + v_tab.id),
       bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
 			state : 0,
       context: null,
@@ -532,6 +536,7 @@ function initCreateTabFunctions() {
       button_save: document.getElementById('bt_saveEditData_' + v_tab.id),
       sel_export_type : document.getElementById('sel_export_type_' + v_tab.id),
       bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
+      bt_save: document.getElementById('bt_save_' + v_tab.id),
       tab_title_span : v_tab_title_span,
       tab_loading_span : v_tab_loading_span,
       tab_close_span : v_tab_close_span,

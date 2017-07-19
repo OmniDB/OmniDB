@@ -77,13 +77,6 @@ $(function () {
 		}
 	)
 
-	//Remove shortcuts from ace in order to avoid conflict
-	ace.commands.bindKey("Cmd-,", null)
-	ace.commands.bindKey("Ctrl-,", null)
-	ace.commands.bindKey("Cmd-Delete", null)
-	ace.commands.bindKey("Ctrl-Delete", null)
-
-
 	var v_keyBoardShortCuts = function(p_event) {
 		var v_tabControl = null;
 

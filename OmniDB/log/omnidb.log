@@ -489,3 +489,4 @@ STATUS: success,
 COMMAND: select * from psproj.tarefas
 [07/18/2017 17:56:06] INFO [OmniDB_app.views.login:103] User "admin" logged in.
 [07/18/2017 21:15:23] INFO [OmniDB_app.views.login:103] User "admin" logged in.
+[07/19/2017 14:18:05] INFO [OmniDB_app.views.login:103] User "admin" logged in.

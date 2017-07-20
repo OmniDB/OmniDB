@@ -7,4 +7,5 @@ local_settings.py
 media
 *.python-version
 *omnidb.db
-
+log/omnidb.log
+*.vagrant

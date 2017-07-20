@@ -9,8 +9,10 @@ import tornado.httpserver
 from tornado import gen
 import ssl,os
 
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 from enum import IntEnum
 from datetime import datetime
@@ -179,6 +181,7 @@ def start_wsserver_thread():
     t.start()
 
 def start_wsserver():
+    logger.info('''*** Starting OmniDB ***''')
     logger.info('''*** Starting Query WS Server ***''')
     try:
         application = tornado.web.Application([

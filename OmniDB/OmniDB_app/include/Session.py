@@ -1,8 +1,11 @@
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
 import uuid
 from datetime import datetime,timedelta
 from django.contrib.sessions.backends.db import SessionStore
+from OmniDB import settings
 
 '''
 ------------------------------------------------------------------------
@@ -55,10 +58,10 @@ class Session(object):
             return False;
         else:
             #Reached timeout, must request password
-            if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,600):
+            if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_TOTAL):
                 return True
             #Reached half way to timeout, update prompt_timeout
-            if datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,300):
+            if datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_REFRESH):
                 s = SessionStore(session_key=self.v_user_key)
                 s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
                 s.save()

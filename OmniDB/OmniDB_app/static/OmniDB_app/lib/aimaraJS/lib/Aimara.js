@@ -172,8 +172,14 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				v_tree.toggleNode(p_node);
 			};
 
-			v_span.onclick = function() {
+			v_span.onclick = function(e) {
 				v_tree.selectNode(p_node);
+
+				if (e.ctrlKey) {
+					if (p_node.contextMenu!=null) {
+						v_tree.nodeContextMenu(e,p_node);
+					}
+				}
 			};
 
 			v_span.oncontextmenu = function(e) {
@@ -359,7 +365,6 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		// p_event: Event triggered when right clicking;
 		// p_node: Reference to the node;
 		nodeContextMenu: function(p_event,p_node) {
-			if (p_event.button==2) {
 				if (p_node.contextMenu!=undefined) {
 
 					var v_tree = this;
@@ -441,7 +446,6 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 					this.contextMenuDiv = v_div;
 
-				}
 			}
 		},
 		///// Recursive function called when rendering context menu submenus. This function should no be called directly

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import sys, uuid
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB import settings
 
 database = OmniDatabase.Generic.InstantiateDatabase(
@@ -34,7 +36,7 @@ def clean_sessions():
 def create_superuser(p_user,p_pwd):
     try:
         print('Creating superuser...')
-        v_cryptor = Spartacus.Utils.Cryptor("omnidb")
+        v_cryptor = Utils.Cryptor("omnidb")
         database.v_connection.Execute('''
             insert into users values (
             (select coalesce(max(user_id), 0) + 1 from users),'{0}','{1}',1,'14',1,1,'{2}')

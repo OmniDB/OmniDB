@@ -165,8 +165,9 @@ function saveConnections(p_index) {
 
 				document.getElementById('div_save').style.visibility = 'hidden';
 				listConnections();
-				if (p_index)
+				if (p_index!=null) {
 					testConnectionConfirm(p_index);
+				}
 
 			},
 			null,

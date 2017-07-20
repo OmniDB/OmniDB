@@ -1,6 +1,6 @@
 [![Join the chat at https://gitter.im/OmniDB/Lobby](https://img.shields.io/badge/GITTER-JOIN%20CHAT-brightgreen.svg)](https://gitter.im/OmniDB/Lobby)
 
-# 0- OmniDB 2.0
+# OmniDB 2.0.1
 
 OmniDB was completely rewritten to Python using the Django framework. Starting from version `2.0`, **OmniDB Python version** will receive new features and will be actively maintained.
 
@@ -13,7 +13,43 @@ Besides being written in Python, initial version of `OmniDB 2.0` contains the fo
 - Initially, only an improved support of PostgreSQL is implemented. More RDBMS support coming soon;
 - There is a new `Snippet` feature.
 
-# 1- Introduction
+# 1- Installation
+
+## 1.1- Requirements
+
+### 1.1.1- On Debian >= 9 without `pip`
+
+```
+sudo apt install python3-django python3-psycopg2 python3-tornado python3-sqlparse
+```
+
+### 1.1.2- On Debian >= 9 with `pip`
+
+```
+sudo apt install python3-pip
+pip install pip --upgrade
+pip install -r requirements.txt
+```
+
+### 1.1.3- On Debian/Ubuntu using `PyEnv`
+
+```
+sudo apt install git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils
+
+git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+source ~/.bashrc
+
+pyenv install 3.5.2
+pyenv local 3.5.2
+
+pip install pip --upgrade
+pip install -r requirements.txt
+```
+
+# 2- Introduction
 
 **OmniDB** is a web tool that simplifies database management focusing on interactivity, designed to be powerful and lightweight. Check-out some characteristics:
 
@@ -50,7 +86,7 @@ Supported DBMS:
 - [ ] Microsoft SQL Server
 - [ ] IBM DB2
 
-# 2- Database Schema Management
+# 3- Database Schema Management
 
 OmniDB is designed for easy database management. Here are some features:
 
@@ -97,6 +133,6 @@ OmniDB is designed for easy database management. Here are some features:
 
 ![](http://162.243.1.11/images/screenshots/screen01.png)
 
-# 3- Database Schema Conversion
+# 4- Database Schema Conversion
 
 This feature is being implemented in the Python version.

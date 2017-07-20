@@ -81,14 +81,14 @@ $(function () {
 		var v_tabControl = null;
 
 		if((p_event.ctrlKey || p_event.metaKey) && p_event.shiftKey) {
-			v_tabControl = v_connTabControl.selectedTab.tag.tabControl;
+			v_tabControl = v_connTabControl;
 		}
 		else if(p_event.ctrlKey || p_event.metaKey) {
-			v_tabControl = v_connTabControl;
+			v_tabControl = v_connTabControl.selectedTab.tag.tabControl;
 		}
 		if(v_tabControl != null) {
 			switch(p_event.keyCode) {
-				case 37: {//left arrow
+				case 188: {//'<'
 					p_event.preventDefault();
 					p_event.stopPropagation();
 
@@ -107,7 +107,7 @@ $(function () {
 
 					break;
 				}
-				case 39: {//right arrow
+				case 190: {//'>'
 					p_event.preventDefault();
 					p_event.stopPropagation();
 
@@ -132,12 +132,12 @@ $(function () {
 
 					if(v_tabControl.id == 'conn_tabs') {
 						if(v_tabControl.tabList.indexOf(v_tabControl.selectedTab) != 0 && v_tabControl.tabList.length > 2) {//not snippet tab and cannot delete '+' tab
-							v_tabControl.selectedTab.removeTab();
+							v_tabControl.selectedTab.elementClose.click();
 						}
 					}
 					else {
 						if(v_tabControl.tabList.length > 1) {//cannot delete '+' tab
-							v_tabControl.selectedTab.removeTab();
+							v_tabControl.selectedTab.elementClose.click();
 						}
 					}
 
@@ -328,48 +328,78 @@ function verticalLinePosition(p_event) {
 	document.getElementById('vertical-resize-line').style.top = p_event.pageY;
 }
 
-
-
-
-
-
-
-function resizedw(){
-	// Haven't resized in 100ms!
-	console.log('done!');
-	refreshHeights();
+function resizeWindow(){
+	refreshHeights(true);
 }
 
-var doit;
+var resizeTimeout;
 $(window).resize(function() {
-	clearTimeout(doit);
-	doit = setTimeout(resizedw, 200);
+	clearTimeout(resizeTimeout);
+	resizeTimeout = setTimeout(resizeWindow, 200);
 });
 
-
-
-function refreshHeights() {
-
-	//Adjusting tree height
+function refreshTreeHeight() {
 	var v_tree = v_connTabControl.selectedTab.tag.divTree;
 
 	var v_height  = window.innerHeight - $(v_tree).offset().top - 12;
 	v_tree.style.height = v_height + "px";
+}
 
-	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-	//console.log(v_tab_tag)
+function refreshHeights(p_all) {
 
-	//Snippet tab, adjust editor only
-	if (v_tab_tag.mode=='snippet') {
-		v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 62 + 'px';
-		v_tab_tag.editor.resize();
-	}
-	else if (v_tab_tag.mode=='query') {
-		v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
-		if (v_tab_tag.ht!=null)
-			v_tab_tag.ht.render();
+	//Adjusting tree height
+	if (p_all) {
+		refreshTreeHeight();
 	}
 
+	//If inner tab exists
+	if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag) {
+		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+		//Snippet tab, adjust editor only
+		if (v_tab_tag.mode=='snippet') {
+			v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 62 + 'px';
+			v_tab_tag.editor.resize();
+		}
+		else if (v_tab_tag.mode=='query') {
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
+			if (v_tab_tag.ht!=null)
+				v_tab_tag.ht.render();
+		}
+		else if (v_tab_tag.mode=='graph') {
+			v_tab_tag.graph_div.style.height = window.innerHeight - $(v_tab_tag.graph_div).offset().top - 20 + "px";
+
+		}
+		else if (v_tab_tag.mode=='edit') {
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
+			if (v_tab_tag.editDataObject.ht!=null) {
+				v_tab_tag.editDataObject.ht.render();
+			}
+		}
+		else if (v_tab_tag.mode=='alter') {
+			if (v_tab_tag.alterTableObject.window=='columns') {
+				var v_height = window.innerHeight - $(v_tab_tag.htDivColumns).offset().top - 59;
+				v_tab_tag.htDivColumns.style.height = v_height + 'px';
+				if (v_tab_tag.alterTableObject.htColumns!=null) {
+					v_tab_tag.alterTableObject.htColumns.render();
+				}
+			}
+			else if (v_tab_tag.alterTableObject.window=='constraints') {
+				var v_height = window.innerHeight - $(v_tab_tag.htDivConstraints).offset().top - 59;
+				v_tab_tag.htDivConstraints.style.height = v_height + 'px';
+				if (v_tab_tag.alterTableObject.htConstraints!=null) {
+					v_tab_tag.alterTableObject.htConstraints.render();
+				}
+			}
+			else {
+				var v_height = window.innerHeight - $(v_tab_tag.htDivIndexes).offset().top - 59;
+				v_tab_tag.htDivIndexes.style.height = v_height + 'px';
+				if (v_tab_tag.alterTableObject.htIndexes!=null) {
+					v_tab_tag.alterTableObject.htIndexes.render();
+				}
+			}
+		}
+	}
 
 }
 

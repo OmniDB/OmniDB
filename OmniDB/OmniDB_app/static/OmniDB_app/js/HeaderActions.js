@@ -332,6 +332,12 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 	else
 		v_editor.setReadOnly(true);
 
+	//Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+	v_editor.commands.bindKey("Cmd-,", null)
+	v_editor.commands.bindKey("Ctrl-,", null)
+	v_editor.commands.bindKey("Cmd-Delete", null)
+	v_editor.commands.bindKey("Ctrl-Delete", null)
+
 	v_editContentObject = new Object();
 	v_editContentObject.editor = v_editor;
 	v_editContentObject.row = p_row;

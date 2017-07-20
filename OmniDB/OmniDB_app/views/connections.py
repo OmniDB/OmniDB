@@ -6,11 +6,12 @@ from django.shortcuts import redirect
 import json
 
 import sys
-sys.path.append("OmniDB_app/include")
 
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
-from Session import Session
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
+from OmniDB_app.include.Session import Session
 from OmniDB import settings
 from datetime import datetime
 

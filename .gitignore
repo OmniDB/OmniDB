@@ -7,7 +7,5 @@ local_settings.py
 media
 *.python-version
 *omnidb.db
-
-setup_sync.sh
-sync.sh
 log/omnidb.log
+*.vagrant

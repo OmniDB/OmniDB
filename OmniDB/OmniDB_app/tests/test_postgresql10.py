@@ -4,8 +4,8 @@ from django.http import JsonResponse
 import json
 from datetime import datetime, timedelta
 
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 class PostgreSQL(TestCase):
 
@@ -13,7 +13,7 @@ class PostgreSQL(TestCase):
     def setUpClass(self):
         super(PostgreSQL, self).setUpClass()
         self.host = '127.0.0.1'
-        self.port = '5432'
+        self.port = '5410'
         self.service = 'omnidb_tests'
         self.role = 'omnidb'
         self.password = 'omnidb'
@@ -28,6 +28,22 @@ class PostgreSQL(TestCase):
         )
         self.database.v_connection.v_password = self.password
 
+        self.cn = Client()
+
+        self.cs = Client()
+        response = self.cs.post('/sign_in/', {'data': '{"p_username": "admin", "p_pwd": "admin"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 0 <= data['v_data']
+        session = self.cs.session
+        assert 'admin' == session['omnidb_session'].v_user_name
+        session['omnidb_session'].v_databases = [{
+            'database': self.database,
+            'prompt_password': False,
+            'prompt_timeout': datetime.now() + timedelta(0,60000)
+        }]
+        session.save()
+
     @classmethod
     def lists_equal(self, p_list_a, p_list_b):
         equal = True
@@ -39,40 +55,20 @@ class PostgreSQL(TestCase):
             k = k + 1
         return equal
 
-    @classmethod
-    def setup_session(self):
-        c = Client()
-        response = c.post('/sign_in/', {'data': '{"p_username": "admin", "p_pwd": "admin"}'})
-        assert 200 == response.status_code
-        data = json.loads(response.content.decode())
-        assert 0 <= data['v_data']
-        session = c.session
-        assert 'admin' == session['omnidb_session'].v_user_name
-        session['omnidb_session'].v_databases = [{
-            'database': self.database,
-            'prompt_password': False,
-            'prompt_timeout': datetime.now() + timedelta(0,60000)
-        }]
-        session.save()
-        return c
-
     def test_get_tree_info_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_tree_info_postgresql/')
+        response = self.cn.post('/get_tree_info_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_tree_info_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 'database' == data['v_data']['v_mode']
 
     def test_template_create_tablespace(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE TABLESPACE name
@@ -82,8 +78,7 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['create_tablespace']
 
     def test_template_alter_tablespace(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''ALTER TABLESPACE #tablespace_name#
@@ -98,15 +93,13 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['alter_tablespace']
 
     def test_template_drop_tablespace(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 'DROP TABLESPACE #tablespace_name#' == data['v_data']['v_database_return']['drop_tablespace']
 
     def test_template_create_role(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE ROLE name
@@ -129,8 +122,7 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['create_role']
 
     def test_template_alter_role(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''ALTER ROLE #role_name#
@@ -152,15 +144,13 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['alter_role']
 
     def test_template_drop_role(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 'DROP ROLE #role_name#' == data['v_data']['v_database_return']['drop_role']
 
     def test_template_create_database(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE DATABASE name
@@ -174,8 +164,7 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['create_database']
 
     def test_template_alter_database(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''ALTER DATABASE #database_name#
@@ -192,15 +181,13 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['alter_database']
 
     def test_template_drop_database(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 'DROP DATABASE #database_name#' == data['v_data']['v_database_return']['drop_database']
 
     def test_template_create_schema(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE SCHEMA schema_name
@@ -208,8 +195,7 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['create_schema']
 
     def test_template_alter_schema(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''ALTER SCHEMA #schema_name#
@@ -218,8 +204,7 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['alter_schema']
 
     def test_template_drop_schema(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''DROP SCHEMA #schema_name#
@@ -227,8 +212,7 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['drop_schema']
 
     def test_template_drop_table(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''DROP TABLE #table_name#
@@ -236,8 +220,7 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['drop_table']
 
     def test_template_create_sequence(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE SEQUENCE #schema_name#.name
@@ -251,8 +234,7 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['create_sequence']
 
     def test_template_alter_sequence(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''ALTER SEQUENCE #sequence_name#
@@ -272,8 +254,7 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['alter_sequence']
 
     def test_template_drop_sequence(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''DROP SEQUENCE #sequence_name#
@@ -281,8 +262,7 @@ LOCATION 'directory'
 ''' == data['v_data']['v_database_return']['drop_sequence']
 
     def test_template_create_function(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE OR REPLACE FUNCTION #schema_name#.name
@@ -308,8 +288,7 @@ $function$
 ''' == data['v_data']['v_database_return']['create_function']
 
     def test_template_drop_function(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''DROP FUNCTION #function_name#
@@ -317,8 +296,7 @@ $function$
 ''' == data['v_data']['v_database_return']['drop_function']
 
     def test_template_create_view(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE OR REPLACE VIEW #schema_name#.name AS
@@ -326,8 +304,7 @@ SELECT ...
 ''' == data['v_data']['v_database_return']['create_view']
 
     def test_template_drop_view(self):
-        c = self.setup_session()
-        response = c.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''DROP VIEW #view_name#
@@ -335,15 +312,13 @@ SELECT ...
 ''' == data['v_data']['v_database_return']['drop_view']
 
     def test_get_tables_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_tables_postgresql/')
+        response = self.cn.post('/get_tables_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_tables_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_tables_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
+        response = self.cs.post('/get_tables_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a['v_name'] for a in data['v_data']], [
@@ -358,15 +333,13 @@ SELECT ...
         ])
 
     def test_get_schemas_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_schemas_postgresql/')
+        response = self.cn.post('/get_schemas_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_schemas_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_schemas_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_schemas_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a['v_name'] for a in data['v_data']], [
@@ -376,15 +349,13 @@ SELECT ...
         ])
 
     def test_get_columns_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_columns_postgresql/')
+        response = self.cn.post('/get_columns_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_columns_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_columns_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
+        response = self.cs.post('/get_columns_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a['v_column_name'] for a in data['v_data']], [
@@ -397,85 +368,73 @@ SELECT ...
         ])
 
     def test_get_pk_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_pk_postgresql/')
+        response = self.cn.post('/get_pk_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_pk_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_pk_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
+        response = self.cs.post('/get_pk_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a[0] for a in data['v_data']], ['orders_pkey'])
 
     def test_get_fks_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_fks_postgresql/')
+        response = self.cn.post('/get_fks_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_fks_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_fks_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
+        response = self.cs.post('/get_fks_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a[0] for a in data['v_data']], ['fk_customerid'])
 
     def test_get_uniques_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_uniques_postgresql/')
+        response = self.cn.post('/get_uniques_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_uniques_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_uniques_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
+        response = self.cs.post('/get_uniques_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a[0] for a in data['v_data']], [])
 
     def test_get_indexes_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_indexes_postgresql/')
+        response = self.cn.post('/get_indexes_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_indexes_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_indexes_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
+        response = self.cs.post('/get_indexes_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a[0] for a in data['v_data']], ['ix_order_custid', 'orders_pkey'])
 
     def test_get_functions_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_functions_postgresql/')
+        response = self.cn.post('/get_functions_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_functions_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_functions_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
+        response = self.cs.post('/get_functions_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a['v_name'] for a in data['v_data']], ['new_customer'])
 
     def test_get_function_fields_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_function_fields_postgresql/')
+        response = self.cn.post('/get_function_fields_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_function_fields_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_function_fields_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_function": "new_customer(character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, integer, character varying, character varying, integer, character varying, character varying, character varying, character varying, integer, integer, character varying)"}'})
+        response = self.cs.post('/get_function_fields_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_function": "new_customer(character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, integer, character varying, character varying, integer, character varying, character varying, character varying, character varying, integer, integer, character varying)"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a['v_name'] for a in data['v_data']], [
@@ -502,15 +461,13 @@ SELECT ...
         ])
 
     def test_get_function_definition_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_function_definition_postgresql/')
+        response = self.cn.post('/get_function_definition_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_function_definition_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_function_definition_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_function": "new_customer(character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, integer, character varying, character varying, integer, character varying, character varying, character varying, character varying, integer, integer, character varying)"}'})
+        response = self.cs.post('/get_function_definition_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_function": "new_customer(character varying, character varying, character varying, character varying, character varying, character varying, integer, character varying, integer, character varying, character varying, integer, character varying, character varying, character varying, character varying, integer, integer, character varying)"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE OR REPLACE FUNCTION public.new_customer(firstname_in character varying, lastname_in character varying, address1_in character varying, address2_in character varying, city_in character varying, state_in character varying, zip_in integer, country_in character varying, region_in integer, email_in character varying, phone_in character varying, creditcardtype_in integer, creditcard_in character varying, creditcardexpiration_in character varying, username_in character varying, password_in character varying, age_in integer, income_in integer, gender_in character varying, OUT customerid_out integer)
@@ -518,15 +475,13 @@ SELECT ...
  LANGUAGE plpgsql''' in data['v_data']
 
     def test_get_sequences_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_sequences_postgresql/')
+        response = self.cn.post('/get_sequences_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_sequences_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_sequences_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
+        response = self.cs.post('/get_sequences_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal(data['v_data'], [
@@ -537,32 +492,28 @@ SELECT ...
         ])
 
     def test_get_views_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_views_postgresql/')
+        response = self.cn.post('/get_views_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_views_postgresql_session(self):
-        c = self.setup_session()
         self.database.v_connection.Execute('create or replace view vw_omnidb_test as select c.customerid, c.firstname, c.lastname, sum(o.totalamount) as totalamount from customers c inner join orders o on o.customerid = c.customerid group by c.customerid, c.firstname, c.lastname')
-        response = c.post('/get_views_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
+        response = self.cs.post('/get_views_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a['v_name'] for a in data['v_data']], ['vw_omnidb_test'])
         self.database.v_connection.Execute('drop view vw_omnidb_test')
 
     def test_get_views_columns_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_views_columns_postgresql/')
+        response = self.cn.post('/get_views_columns_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_views_columns_postgresql_session(self):
-        c = self.setup_session()
         self.database.v_connection.Execute('create or replace view vw_omnidb_test as select c.customerid, c.firstname, c.lastname, sum(o.totalamount) as totalamount from customers c inner join orders o on o.customerid = c.customerid group by c.customerid, c.firstname, c.lastname')
-        response = c.post('/get_views_columns_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "vw_omnidb_test"}'})
+        response = self.cs.post('/get_views_columns_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "vw_omnidb_test"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a['v_column_name'] for a in data['v_data']], [
@@ -574,15 +525,14 @@ SELECT ...
         self.database.v_connection.Execute('drop view vw_omnidb_test')
 
     def test_get_view_definition_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_view_definition_postgresql/')
+        response = self.cn.post('/get_view_definition_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_view_definition_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_view_definition_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_view": "vw_omnidb_test"}'})
+        self.database.v_connection.Execute('create or replace view vw_omnidb_test as select c.customerid, c.firstname, c.lastname, sum(o.totalamount) as totalamount from customers c inner join orders o on o.customerid = c.customerid group by c.customerid, c.firstname, c.lastname')
+        response = self.cs.post('/get_view_definition_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_view": "vw_omnidb_test"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE OR REPLACE VIEW public.vw_omnidb_test AS
@@ -593,45 +543,40 @@ SELECT ...
    FROM (customers c
      JOIN orders o ON ((o.customerid = c.customerid)))
   GROUP BY c.customerid, c.firstname, c.lastname''' in data['v_data']
+        self.database.v_connection.Execute('drop view vw_omnidb_test')
 
     def test_get_databases_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_databases_postgresql/')
+        response = self.cn.post('/get_databases_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_databases_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_databases_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_databases_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.service in [a['v_name'] for a in data['v_data']]
 
     def test_get_tablespaces_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_tablespaces_postgresql/')
+        response = self.cn.post('/get_tablespaces_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_tablespaces_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_tablespaces_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_tablespaces_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 'pg_default' in [a['v_name'] for a in data['v_data']]
 
     def test_get_roles_postgresql_nosession(self):
-        c = Client()
-        response = c.post('/get_roles_postgresql/')
+        response = self.cn.post('/get_roles_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
     def test_get_roles_postgresql_session(self):
-        c = self.setup_session()
-        response = c.post('/get_roles_postgresql/', {'data': '{"p_database_index": 0}'})
+        response = self.cs.post('/get_roles_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.role in [a['v_name'] for a in data['v_data']]

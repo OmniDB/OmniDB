@@ -8,11 +8,12 @@ from OmniDB import settings
 import json
 
 import sys
-sys.path.append("OmniDB_app/include")
 
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
-from Session import Session
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
+from OmniDB_app.include.Session import Session
 from OmniDB import settings
 
 import logging
@@ -92,7 +93,7 @@ def sign_in(request):
     '''.format(username))
 
     if len(table.Rows) > 0:
-        cryptor = Spartacus.Utils.Cryptor("omnidb")
+        cryptor = Utils.Cryptor("omnidb")
 
         pwd_decrypted = cryptor.Decrypt(table.Rows[0]['password'])
         if pwd_decrypted == pwd:

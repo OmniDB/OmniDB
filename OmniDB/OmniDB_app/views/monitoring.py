@@ -12,10 +12,12 @@ import datetime
 
 import sys
 
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB import monitoring_core,settings
-from Session import Session
+from OmniDB_app.include.Session import Session
 
 def index(request):
 

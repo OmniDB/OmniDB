@@ -530,6 +530,12 @@ function viewLog(p_conv) {
 
 				v_editor.setReadOnly(true);
 
+				//Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+				v_editor.commands.bindKey("Cmd-,", null)
+				v_editor.commands.bindKey("Ctrl-,", null)
+				v_editor.commands.bindKey("Cmd-Delete", null)
+				v_editor.commands.bindKey("Ctrl-Delete", null)
+
 				v_logObject = new Object();
 				v_logObject.editor = v_editor;
 

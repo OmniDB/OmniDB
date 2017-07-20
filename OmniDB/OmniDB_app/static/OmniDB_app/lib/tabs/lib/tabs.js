@@ -70,6 +70,10 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 			this.selectedLi = this.tabList[p_index].elementLi;
 			this.selectedDiv = this.tabList[p_index].elementDiv;
 
+			if(this.tabList[p_index].selectFunction != null) {
+				this.tabList[p_index].selectFunction();
+			}
+
 		},
 		selectTab : function(p_tab) {
 
@@ -94,6 +98,10 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 				this.selectedLi = p_tab.elementLi;
 				this.selectedDiv = p_tab.elementDiv;
+
+				if(p_tab.selectFunction != null) {
+					p_tab.selectFunction();
+				}
 			}
 
 		},
@@ -141,7 +149,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 			p_tab.text = p_name;
 
 		},
-		createTab : function(p_name,p_close,p_clickFunction,p_dblClickFunction,p_contextMenu, p_deleteFunction, p_isDraggable) {
+		createTab : function(p_name,p_close,p_clickFunction,p_dblClickFunction,p_contextMenu, p_deleteFunction, p_isDraggable, p_selectFunction) {
 
 			var v_control = this;
 			var v_index = this.tabCounter;
@@ -160,6 +168,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 				dblClickFunction : p_dblClickFunction,
 				deleteFunction: p_deleteFunction,
 				contextMenu : p_contextMenu,
+				selectFunction: p_selectFunction,
 				removeTab: function() { v_control.removeTab(this); },
 				renameTab: function(p_name) { v_control.renameTab(this,p_name); },
 				disableClose: function() { v_control.disableClose(this) },

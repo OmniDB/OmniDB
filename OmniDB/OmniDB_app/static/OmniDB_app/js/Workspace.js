@@ -81,15 +81,15 @@ $(function () {
 		var v_tabControl = null;
 
 		if((p_event.ctrlKey || p_event.metaKey) && p_event.shiftKey) {
-			v_tabControl = v_connTabControl.selectedTab.tag.tabControl;
+			v_tabControl = v_connTabControl;
 		}
 		else if(p_event.ctrlKey || p_event.metaKey) {
-			v_tabControl = v_connTabControl;
+			v_tabControl = v_connTabControl.selectedTab.tag.tabControl;
 		}
 
 		if(v_tabControl != null) {
 			switch(p_event.keyCode) {
-				case 37: {//left arrow
+				case 188: {//'<'
 					p_event.preventDefault();
 					p_event.stopPropagation();
 
@@ -108,7 +108,7 @@ $(function () {
 
 					break;
 				}
-				case 39: {//right arrow
+				case 190: {//'>'
 					p_event.preventDefault();
 					p_event.stopPropagation();
 
@@ -133,12 +133,12 @@ $(function () {
 
 					if(v_tabControl.id == 'conn_tabs') {
 						if(v_tabControl.tabList.indexOf(v_tabControl.selectedTab) != 0 && v_tabControl.tabList.length > 2) {//not snippet tab and cannot delete '+' tab
-							v_tabControl.selectedTab.removeTab();
+							v_tabControl.selectedTab.elementClose.click();
 						}
 					}
 					else {
 						if(v_tabControl.tabList.length > 1) {//cannot delete '+' tab
-							v_tabControl.selectedTab.removeTab();
+							v_tabControl.selectedTab.elementClose.click();
 						}
 					}
 

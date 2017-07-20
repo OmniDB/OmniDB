@@ -15,7 +15,20 @@ function initCreateTabFunctions() {
   var v_createConnTabFunction = function() {
 
   	v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
-  	var v_tab = v_connTabControl.createTab('<img src="/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[0].v_alias,true,null,null,null,null,true);
+  	var v_tab = v_connTabControl.createTab(
+        '<img src="/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[0].v_alias,
+        true,
+        null,
+        null,
+        null,
+        null,
+        true,
+        function() {
+            if(this.tag != null && this.tag.tabControl != null && this.tag.tabControl.selectedTab.tag.editor != null) {
+                this.tag.tabControl.selectedTab.tag.editor.focus();
+            }
+        }
+    );
 
   	v_connTabControl.selectTab(v_tab);
 
@@ -72,7 +85,20 @@ function initCreateTabFunctions() {
 
   var v_createSnippetTabFunction = function() {
 
-  	var v_tab = v_connTabControl.createTab('<img src="/static/OmniDB_app/images/snippet_medium.png"/> Snippets',false,null,null,null,null,true);
+  	var v_tab = v_connTabControl.createTab(
+        '<img src="/static/OmniDB_app/images/snippet_medium.png"/> Snippets',
+        false,
+        null,
+        null,
+        null,
+        null,
+        true,
+        function() {
+            if(this.tag != null && this.tag.tabControl != null && this.tag.tabControl.selectedTab.tag.editor != null) {
+                this.tag.tabControl.selectedTab.tag.editor.focus();
+            }
+        }
+    );
 
   	v_connTabControl.selectTab(v_tab);
 
@@ -128,7 +154,20 @@ function initCreateTabFunctions() {
 			v_name = p_snippet;
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
-		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('<span id="tab_title">' + v_name + '</span><span id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',false,null,null,null,null,true);
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+            '<span id="tab_title">' + v_name + '</span><span id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+            false,
+            null,
+            null,
+            null,
+            null,
+            true,
+            function() {
+                if(this.tag != null && this.tag.editor != null) {
+                    this.tag.editor.focus();
+                }
+            }
+        );
 		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
 
 		//Adding unique names to spans
@@ -159,6 +198,12 @@ function initCreateTabFunctions() {
 		v_editor.setFontSize(Number(v_editor_font_size));
 
 		v_editor.commands.bindKey("ctrl-space", null);
+
+    //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+    v_editor.commands.bindKey("Cmd-,", null)
+    v_editor.commands.bindKey("Ctrl-,", null)
+    v_editor.commands.bindKey("Cmd-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Delete", null)
 
 		v_txt_snippet.onclick = function() {
 
@@ -238,7 +283,20 @@ function initCreateTabFunctions() {
 			v_name = p_table;
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
-		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('<span id="tab_title">' + v_name + '</span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',false,null,renameTab,null,null,true);
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+            '<span id="tab_title">' + v_name + '</span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+            false,
+            null,
+            renameTab,
+            null,
+            null,
+            true,
+            function() {
+                if(this.tag != null && this.tag.editor != null) {
+                    this.tag.editor.focus();
+                }
+            }
+        );
 		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
 
 		//Adding unique names to spans
@@ -281,6 +339,12 @@ function initCreateTabFunctions() {
 		v_editor.setFontSize(Number(v_editor_font_size));
 
 		v_editor.commands.bindKey("ctrl-space", null);
+
+    //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+    v_editor.commands.bindKey("Cmd-,", null)
+    v_editor.commands.bindKey("Ctrl-,", null)
+    v_editor.commands.bindKey("Cmd-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Delete", null)
 
 		document.getElementById('txt_query_' + v_tab.id).onclick = function() {
 
@@ -382,7 +446,20 @@ function initCreateTabFunctions() {
   var v_createEditDataTabFunction = function(p_table) {
 
     v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
-    var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('<img src="/static/OmniDB_app/images/edit_data.png"/><span id="tab_title"> ' + p_table + '</span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',false,null,null,null,removeTab,true);
+    var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+        '<img src="/static/OmniDB_app/images/edit_data.png"/><span id="tab_title"> ' + p_table + '</span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+        false,
+        null,
+        null,
+        null,
+        removeTab,
+        true,
+        function() {
+            if(this.tag != null && this.tag.editor != null) {
+                this.tag.editor.focus();
+            }
+        }
+    );
 
     //Adding unique names to spans
     var v_tab_title_span = document.getElementById('tab_title');
@@ -425,6 +502,12 @@ function initCreateTabFunctions() {
     v_editor.setFontSize(Number(v_editor_font_size));
 
     v_editor.commands.bindKey("ctrl-space", null);
+
+    //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+    v_editor.commands.bindKey("Cmd-,", null)
+    v_editor.commands.bindKey("Ctrl-,", null)
+    v_editor.commands.bindKey("Cmd-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Delete", null)
 
     document.getElementById('txt_filter_data_' + v_tab.id).onclick = function() {
 
@@ -541,7 +624,20 @@ function initCreateTabFunctions() {
 	var v_createAlterTableTabFunction = function(p_table) {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
-		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('<img src="/static/OmniDB_app/images/table_edit.png"/><span id="tab_title"> ' + p_table + '</span><span id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',false,null,null,null,removeTab,true);
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+            '<img src="/static/OmniDB_app/images/table_edit.png"/><span id="tab_title"> ' + p_table + '</span><span id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+            false,
+            null,
+            null,
+            null,
+            removeTab,
+            true,
+            function() {
+                if(this.tag != null && this.tag.editor != null) {
+                    this.tag.editor.focus();
+                }
+            }
+        );
 		var v_tab_title_span = document.getElementById('tab_title');
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
 		var v_tab_close_span = document.getElementById('tab_close');

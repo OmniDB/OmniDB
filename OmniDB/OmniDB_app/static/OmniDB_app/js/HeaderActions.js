@@ -139,8 +139,48 @@ function deleteCommandList() {
 /// </summary>
 function showCommandList() {
 
+	v_commandListObject = new Object();
+	v_commandListObject.current_page = 1;
+
+	refreshCommandList();
+
+}
+
+function commandHistoryNextPage() {
+	if (v_commandListObject.current_page < v_commandListObject.pages) {
+		v_commandListObject.current_page += 1;
+		refreshCommandList();
+	}
+}
+
+function commandHistoryPreviousPage() {
+	if (v_commandListObject.current_page > 1) {
+		v_commandListObject.current_page -= 1;
+		refreshCommandList();
+	}
+}
+
+function commandHistoryFirstPage() {
+	if (v_commandListObject.current_page != 1) {
+		v_commandListObject.current_page = 1;
+		refreshCommandList();
+	}
+}
+
+function commandHistoryLastPage() {
+	if (v_commandListObject.current_page != v_commandListObject.pages) {
+		v_commandListObject.current_page = v_commandListObject.pages;
+		refreshCommandList();
+	}
+}
+
+/// <summary>
+/// Retrieves and displays command history.
+/// </summary>
+function refreshCommandList() {
+
 	execAjax('/get_command_list/',
-			JSON.stringify({}),
+			JSON.stringify({'p_current_page': v_commandListObject.current_page}),
 			function(p_return) {
 
 				$('#div_command_list').show();
@@ -148,12 +188,40 @@ function showCommandList() {
 				var v_height  = window.innerHeight - $('#div_command_list_data').offset().top - 60;
 				document.getElementById('div_command_list_data').style.height = v_height + "px";
 
+				v_commandListObject.pages = p_return.v_data.pages;
+				document.getElementById('cl_num_pages').innerHTML = p_return.v_data.pages;
+				document.getElementById('cl_curr_page').innerHTML = v_commandListObject.current_page;
+
 				var columnProperties = [];
 
 				var col = new Object();
-				col.title =  'Date';
+				col.title =  'Start';
 				col.readOnly = true;
-				col.width = 200;
+				col.width = 180;
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'End';
+				col.readOnly = true;
+				col.width = 180;
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Duration';
+				col.readOnly = true;
+				col.width = 150;
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Mode';
+				col.readOnly = true;
+				col.width = 100;
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Status';
+				col.readOnly = true;
+				col.width = 50;
 				columnProperties.push(col);
 
 				var col = new Object();
@@ -167,12 +235,10 @@ function showCommandList() {
 				if (v_div_result.innerHTML!='')
 					v_commandListObject.ht.destroy();
 
-				v_commandListObject = new Object();
-
 				var container = v_div_result;
 				v_commandListObject.ht = new Handsontable(container,
 														{
-															data: p_return.v_data,
+															data: p_return.v_data.command_list,
 															columns : columnProperties,
 															colHeaders : true,
 															rowHeaders : true,
@@ -195,9 +261,9 @@ function showCommandList() {
 
 															    var cellProperties = {};
 															    if (row % 2 == 0)
-																		cellProperties.renderer = blueRenderer;
+																		cellProperties.renderer = blueHtmlRenderer;
 																	else
-																		cellProperties.renderer = whiteRenderer;
+																		cellProperties.renderer = whiteHtmlRenderer;
 															    return cellProperties;
 
 															}
@@ -265,6 +331,12 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 		v_editor.setReadOnly(false);
 	else
 		v_editor.setReadOnly(true);
+
+	//Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+	v_editor.commands.bindKey("Cmd-,", null)
+	v_editor.commands.bindKey("Ctrl-,", null)
+	v_editor.commands.bindKey("Cmd-Delete", null)
+	v_editor.commands.bindKey("Ctrl-Delete", null)
 
 	v_editContentObject = new Object();
 	v_editContentObject.editor = v_editor;

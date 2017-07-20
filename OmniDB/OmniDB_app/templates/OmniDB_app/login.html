@@ -31,8 +31,11 @@
 				JSON.stringify({"p_username": v_user_name, "p_pwd": v_pwd}),
 				function(p_return) {
 
-					if (p_return.v_data==true) {
-						window.open("../connections",'_self');
+					if (p_return.v_data!=-1) {
+						if (p_return.v_data==0)
+							window.open("../connections",'_self');
+						else
+							window.open("../workspace",'_self');
 					}
 					else
 						showAlert('Invalid username or password.');

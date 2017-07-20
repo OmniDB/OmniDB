@@ -19,10 +19,33 @@ var v_queryState = {
 	Ready: 2
 }
 
-function cancelSQL() {
+//Adding padLeft function to Number
+Number.prototype.padLeft = function(base,chr){
+    var  len = (String(base || 10).length - String(this).length)+1;
+    return len > 0? new Array(len).join(chr || '0')+this : this;
+}
+
+function cancelSQL(p_tab_tag) {
+
+	var v_tab_tag;
+	if (p_tab_tag)
+		v_tab_tag = p_tab_tag;
+	else
+		v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 	sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CancelThread, v_tab_tag.context.v_context_code, false);
+
+	cancelSQLTab();
+}
+
+function cancelSQLTab(p_tab_tag) {
+
+	var v_tab_tag;
+	if (p_tab_tag)
+		v_tab_tag = p_tab_tag;
+	else
+		v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	v_tab_tag.state = v_queryState.Idle;
 	v_tab_tag.tab_loading_span.style.display = 'none';
@@ -30,6 +53,10 @@ function cancelSQL() {
 	v_tab_tag.tab_close_span.style.display = '';
 	v_tab_tag.bt_cancel.style.display = 'none';
 	v_tab_tag.div_result.innerHTML = 'Canceled.';
+
+	removeContext(v_queryWebSocket,v_tab_tag.context.v_context_code);
+
+	SetAcked(v_tab_tag.context);
 
 }
 
@@ -61,11 +88,19 @@ function querySQL() {
 		}
 		else {
 
-			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state = 1;
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state = v_queryState.Executing;
 
 			var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value});
 
 			var start_time = new Date().getTime();
+
+			var d = new Date,
+	    dformat = [(d.getMonth()+1).padLeft(),
+	               d.getDate().padLeft(),
+	               d.getFullYear()].join('/') +' ' +
+	              [d.getHours().padLeft(),
+	               d.getMinutes().padLeft(),
+	               d.getSeconds().padLeft()].join(':');
 
 			v_tab_tag.tab_loading_span.style.display = '';
 			v_tab_tag.tab_close_span.style.display = 'none';
@@ -74,7 +109,10 @@ function querySQL() {
 			var v_context = {
 				tab_tag: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag,
 				start_time: new Date().getTime(),
-				sel_value: v_sel_value
+				start_datetime: dformat,
+				sel_value: v_sel_value,
+				database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+				acked: false
 			}
 			v_context.tab_tag.context = v_context;
 
@@ -83,10 +121,18 @@ function querySQL() {
 				v_context.tab_tag.ht = null;
 			}
 
-			v_context.tab_tag.div_result.innerHTML = 'Running...';
+			v_context.tab_tag.div_result.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
 			v_context.tab_tag.query_info.innerHTML = '';
 
 			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Query, v_message_data, false, v_context);
+
+			setTimeout(function() {
+				if (!v_context.acked) {
+					cancelSQLTab(v_context.tab_tag);
+					showAlert('No response from query server.');
+				}
+			},20000);
+
 		}
 	}
 }
@@ -119,6 +165,18 @@ function querySQLReturn(p_data,p_context) {
 	}
 }
 
+function get_duration(p_seconds) {
+
+	if (p_seconds < 1) {
+		return p_seconds + ' seconds'
+	}
+	else {
+		var date = new Date(null);
+		date.setSeconds(p_seconds);
+		return date.toISOString().substr(11, 8);
+	}
+}
+
 function querySQLReturnRender(p_message,p_context) {
 	p_context.tab_tag.state = v_queryState.Idle;
 	p_context.tab_tag.context = null;
@@ -138,21 +196,23 @@ function querySQLReturnRender(p_message,p_context) {
 
 	var request_time = p_context.duration;
 
+	var v_duration = get_duration(request_time/1000);
+
 	if (p_message.v_error) {
 
 		v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data + '</div>';
-		v_query_info.innerHTML = "Response time: " + request_time/1000 + " seconds";
+		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + v_duration;
 
 	}
 	else {
 
 		if (p_context.sel_value==-2) {
-			v_query_info.innerHTML = "Response time: " + request_time/1000 + " seconds";
+			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + v_duration;
 			v_div_result.innerHTML = '';
 		}
 		else if (p_context.sel_value==-3) {
 
-			v_query_info.innerHTML = "Response time: " + request_time/1000 + " seconds";
+			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + v_duration;
 
 			v_div_result.innerHTML = '<div class="query_info">' + v_data + '</div>';
 
@@ -161,7 +221,7 @@ function querySQLReturnRender(p_message,p_context) {
 
 			window.scrollTo(0,0);
 
-			v_query_info.innerHTML = v_data.v_query_info + "<br/>Response time: " + request_time/1000 + " seconds";
+			v_query_info.innerHTML = v_data.v_query_info + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + v_duration;
 
 			var columnProperties = [];
 

@@ -1,7 +1,11 @@
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
 import uuid
-from datetime import datetime
+from datetime import datetime,timedelta
+from django.contrib.sessions.backends.db import SessionStore
+from OmniDB import settings
 
 '''
 ------------------------------------------------------------------------
@@ -38,11 +42,31 @@ class Session(object):
         self.RefreshDatabaseList()
 
     def AddDatabase(self,
-                    p_database):
+                    p_database,
+                    p_prompt_password):
         if len(self.v_databases)==0:
             self.v_database_index = 0
 
-        self.v_databases.append(p_database)
+        self.v_databases.append({
+                                'database': p_database,
+                                'prompt_password': p_prompt_password,
+                                'prompt_timeout': None
+                                })
+
+    def DatabaseReachPasswordTimeout(self,p_database_index):
+        if not self.v_databases[p_database_index]['prompt_password']:
+            return False;
+        else:
+            #Reached timeout, must request password
+            if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_TOTAL):
+                return True
+            #Reached half way to timeout, update prompt_timeout
+            if datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_REFRESH):
+                s = SessionStore(session_key=self.v_user_key)
+                s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
+                s.save()
+
+            return False
 
     def GetSelectedDatabase(self):
         return self.v_databases(self.v_database_index)
@@ -75,10 +99,6 @@ class Session(object):
             except Exception as exc:
                 v_user = r["user"]
             try:
-                v_password = self.v_cryptor.Decrypt(r["password"])
-            except Exception as exc:
-                v_password = r["password"]
-            try:
                 v_alias = self.v_cryptor.Decrypt(r["alias"])
             except Exception as exc:
                 v_alias = r["alias"]
@@ -89,31 +109,21 @@ class Session(object):
 				v_port,
 				v_service,
 				v_user,
-                v_password,
+                '',
                 r["conn_id"],
                 v_alias
             )
-            self.AddDatabase(database)
 
-    def LogHistory(self,
-                   p_sql):
-
-        self.v_omnidb_database.v_connection.Execute('''
-            insert into command_list values (
-            {0},
-            (select coalesce(max(cl_in_codigo), 0) + 1 from command_list),
-            '{1}',
-            '{2}')
-        '''.format(self.v_user_id,p_sql.replace("'","''"),datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            if 1==0:
+                self.AddDatabase(database,False)
+            else:
+                self.AddDatabase(database,True)
 
     def Execute(self,
                 p_database,
                 p_sql,
                 p_loghistory):
         v_table = p_database.v_connection.Execute(p_sql)
-
-        if p_loghistory:
-            self.LogHistory(p_sql)
 
         return v_table
 
@@ -123,9 +133,6 @@ class Session(object):
                 p_loghistory):
         v_table = p_database.v_connection.Query(p_sql,True)
 
-        if p_loghistory:
-            self.LogHistory(p_sql)
-
         return v_table
 
     def QueryDataLimited(self,
@@ -134,8 +141,5 @@ class Session(object):
                 p_count,
                 p_loghistory):
         v_table = p_database.QueryDataLimited(p_sql, p_count)
-
-        if p_loghistory:
-            self.LogHistory(p_sql)
 
         return v_table

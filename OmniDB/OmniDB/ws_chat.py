@@ -5,12 +5,14 @@ import tornado.web
 import tornado.websocket
 import tornado.template
 
-import Spartacus.Database, Spartacus.Utils
-import OmniDatabase
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 from enum import IntEnum
 
-from .ws_core import omnidb_sessions
+omnidb_sessions = dict([])
 omnidb_ws_sessions = dict([])
 
 class ChatUser:
@@ -158,7 +160,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             v_message = ChatMessage()
 
             try:
-                v_database = Spartacus.Database.SQLite(v_session.v_omnidb_database.v_connection.v_service)
+                v_database = Database.SQLite(v_session.v_omnidb_database.v_connection.v_service)
                 v_database.Open()
 
                 v_sql = '''
@@ -243,7 +245,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             v_message = ChatMessage()
 
             try:
-                v_database = Spartacus.Database.SQLite(v_session.v_omnidb_database.v_connection.v_service)
+                v_database = Database.SQLite(v_session.v_omnidb_database.v_connection.v_service)
                 v_database.Open()
 
                 v_sql = '''

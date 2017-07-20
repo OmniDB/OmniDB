@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License along with Omn
 $(function() {
 
 	listConnections();
+	checkSessionMessage();
 
 
 });
@@ -37,47 +38,44 @@ function newConnectionConfirm() {
 
 }
 
+function dropConnection() {
+
+	var v_data = v_connections_data.ht.getData();
+	var v_row = v_connections_data.ht.getSelected()[0];
+
+	//New connection, just remove from grid
+	if (v_connections_data.v_conn_ids[v_row].mode==2) {
+
+		v_connections_data.v_conn_ids.splice(v_row,1);
+		v_data.splice(v_row,1);
+
+		v_connections_data.ht.loadData(v_data);
+
+	}
+	else {
+
+		var v_mode = v_connections_data.v_conn_ids[v_row].mode;
+		v_connections_data.v_conn_ids[v_row].mode = v_connections_data.v_conn_ids[v_row].old_mode;
+		v_connections_data.v_conn_ids[v_row].old_mode = v_mode;
+
+		v_connections_data.ht.loadData(v_data);
+
+	}
+
+	document.getElementById('div_save').style.visibility = 'visible';
+}
+
 /// <summary>
 /// Displays question to create new connection.
 /// </summary>
 function newConnection() {
 
-	if (v_connections_data.v_cellChanges.length>0)
-		showConfirm2('There are changes on the connections list, would you like to save them?',
-					function() {
+	var v_data = v_connections_data.ht.getData();
+	v_data.push(['postgresql','','','','','','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
+	v_connections_data.v_conn_ids.push({'id': -1, 'mode': 2, 'old_mode': 2 })
+	v_connections_data.ht.loadData(v_data);
 
-						saveConnections();
-						newConnectionConfirm();
-
-					},
-					function() {
-
-						newConnectionConfirm();
-
-					});
-	else
-		newConnectionConfirm();
-
-}
-
-/// <summary>
-/// Removes connection.
-/// </summary>
-/// <param name="p_id">Connection ID.</param>
-function removeConnectionConfirm(p_id) {
-
-	var input = JSON.stringify({"p_id": p_id});
-
-	execAjax('/remove_connection/',
-			input,
-			function(p_return) {
-
-				document.getElementById('div_save').style.visibility = 'hidden';
-				listConnections();
-
-			},
-			null,
-			'box');
+	document.getElementById('div_save').style.visibility = 'visible';
 
 }
 
@@ -99,8 +97,19 @@ function testConnectionConfirm(p_index) {
 					showError(p_return.v_data);
 
 			},
-			null,
-			'box');
+			function(p_return) {
+				if (p_return.v_data.password_timeout) {
+					showPasswordPrompt(
+						p_index,
+						function() {
+							testConnectionConfirm(p_index);
+						},
+						null
+					);
+				}
+			},
+			'box',
+			true);
 
 }
 
@@ -110,12 +119,20 @@ function testConnectionConfirm(p_index) {
 /// <param name="p_index">Connection index in the connection list.</param>
 function testConnection(p_index) {
 
-	if (v_connections_data.v_cellChanges.length>0)
+	var v_has_changes = false
+
+	for (var i=0; i < v_connections_data.v_conn_ids.length; i++) {
+		if (v_connections_data.v_conn_ids[i].mode!=0) {
+			v_has_changes = true;
+			break;
+		}
+	}
+
+	if (v_has_changes)
 		showConfirm('There are changes on the connections list, would you like to save them?',
 					function() {
 
-						saveConnections();
-						testConnectionConfirm(p_index);
+						saveConnections(p_index);
 
 					});
 	  else
@@ -124,65 +141,33 @@ function testConnection(p_index) {
 }
 
 /// <summary>
-/// Removes specific connection.
-/// </summary>
-/// <param name="p_id">Connection ID.</param>
-function removeConnection(p_id) {
-
-	showConfirm('Are you sure you want to remove this connection?',
-	            function() {
-
-					if (v_connections_data.v_cellChanges.length>0)
-						showConfirm2('There are changes on the connections list, would you like to save them?',
-						            function() {
-
-						            	saveConnections();
-						            	removeConnectionConfirm(p_id);
-
-						            },
-						            function() {
-
-						            	removeConnectionConfirm(p_id);
-
-						            });
-	              else
-	              	removeConnectionConfirm(p_id);
-
-	            });
-
-}
-
-/// <summary>
 /// Saves all changes in the connections list.
 /// </summary>
-function saveConnections() {
+function saveConnections(p_index) {
 
-	if (v_connections_data.v_cellChanges.length==0)
-			return;
-
-	var v_unique_rows_changed = [];
-	var v_data_changed = [];
+	var v_data_list = [];
 	var v_conn_id_list = [];
 
-	$.each(v_connections_data.v_cellChanges, function(i, el){
-	    if($.inArray(el['rowIndex'], v_unique_rows_changed) === -1) v_unique_rows_changed.push(el['rowIndex']);
-	});
+	for (var i=0; i < v_connections_data.v_conn_ids.length; i++) {
+		if (v_connections_data.v_conn_ids[i].mode!=0) {
+			v_conn_id_list.push(v_connections_data.v_conn_ids[i])
+			var v_temp_row = v_connections_data.ht.getDataAtRow(i)
+			v_data_list.push([v_temp_row[0],v_temp_row[1],v_temp_row[2],v_temp_row[3],v_temp_row[4],v_temp_row[5]])
+		}
+	}
 
-	$.each(v_unique_rows_changed, function(i, el){
-	    v_data_changed[i] = v_connections_data.ht.getDataAtRow(el);
-	    v_conn_id_list[i] = v_connections_data.v_conn_ids[el];
-	});
 
-
-	var input = JSON.stringify({"p_data": v_data_changed, "p_conn_id_list": v_conn_id_list});
+	var input = JSON.stringify({"p_data_list": v_data_list, "p_conn_id_list": v_conn_id_list});
 
 	execAjax('/save_connections/',
 			input,
 			function() {
 
-				v_connections_data.v_cellChanges = [];
 				document.getElementById('div_save').style.visibility = 'hidden';
 				listConnections();
+				if (p_index!=null) {
+					testConnectionConfirm(p_index);
+				}
 
 			},
 			null,
@@ -198,8 +183,6 @@ function listConnections() {
 	execAjax('/get_connections/',
 			JSON.stringify({}),
 			function(p_return) {
-
-				checkSessionMessage();
 
 				window.scrollTo(0,0);
 
@@ -228,12 +211,6 @@ function listConnections() {
 				columnProperties.push(col);
 
 				var col = new Object();
-				col.title =  'Password';
-				col.type = 'password';
-				col.hashLength = 10;
-				columnProperties.push(col);
-
-				var col = new Object();
 				col.title =  'Alias';
 				columnProperties.push(col);
 
@@ -251,7 +228,6 @@ function listConnections() {
 
 				v_connections_data = new Object();
 				v_connections_data.v_conn_ids = p_return.v_data.v_conn_ids;
-				v_connections_data.v_cellChanges = [];
 
 				var container = v_div_result;
 				v_connections_data.ht = new Handsontable(container,
@@ -260,7 +236,6 @@ function listConnections() {
 															columns : columnProperties,
 															colHeaders : true,
 															manualColumnResize: true,
-															maxRows: p_return.v_data.v_data.length,
 															beforeChange: function (changes, source) {
 
 																if (!changes)
@@ -278,37 +253,36 @@ function listConnections() {
 																        'columnIndex': columnIndex
 																    };
 
-																    if(oldValue != newValue) {
+																    if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2) {
 
-															        	v_connections_data.v_cellChanges.push(cellChange);
+																				if (v_connections_data.v_conn_ids[rowIndex].mode!=-1)
+																					v_connections_data.v_conn_ids[rowIndex].mode = 1;
+																				else
+																					v_connections_data.v_conn_ids[rowIndex].old_mode = 1;
+
 																        document.getElementById('div_save').style.visibility = 'visible';
 
 																    }
 																});
 
 															},
-															afterRender: function () {
-
-																$.each(v_connections_data.v_cellChanges, function (index, element) {
-														    		var cellChange = element;
-																    var rowIndex = cellChange['rowIndex'];
-																    var columnIndex = cellChange['columnIndex'];
-																    var cell = v_connections_data.ht.getCell(rowIndex, columnIndex);
-																    var foreColor = '#000';
-																    var backgroundColor = 'rgb(255, 251, 215)';
-																    //cell.style.color = foreColor;
-																    //cell.style.background = backgroundColor;
-																    cell.className = 'cellEdit';
-																});
-
-															},
 															cells: function (row, col, prop) {
 
-																var cellProperties = {};
-																if (row % 2 == 0)
-																	cellProperties.renderer = blueHtmlRenderer;
+																if (v_connections_data.v_conn_ids.length!=0) {
+																	var cellProperties = {};
+																	if (v_connections_data.v_conn_ids[row].mode==2)
+																		cellProperties.renderer = greenHtmlRenderer;
+																	else if (v_connections_data.v_conn_ids[row].mode==-1)
+																		cellProperties.renderer = redHtmlRenderer;
+																	else if (v_connections_data.v_conn_ids[row].mode==1)
+																		cellProperties.renderer = yellowHtmlRenderer;
+																	else if (row % 2 == 0)
+																		cellProperties.renderer = blueHtmlRenderer;
+																	else
+																		cellProperties.renderer =whiteHtmlRenderer;
 
-																return cellProperties;
+																	return cellProperties;
+																}
 
 															}
 														});

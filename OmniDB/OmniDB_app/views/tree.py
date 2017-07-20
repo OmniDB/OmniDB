@@ -5,10 +5,11 @@ from django.core import serializers
 import json
 
 import sys
-sys.path.append("OmniDB_app/include")
 
-import Spartacus.Database, Spartacus.Utils
-from Session import Session
+import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
+from OmniDB_app.include.Session import Session
 
 def get_tree_info(request):
 

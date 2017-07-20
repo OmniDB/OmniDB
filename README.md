@@ -17,21 +17,15 @@ Besides being written in Python, initial version of `OmniDB 2.0` contains the fo
 
 ## 1.1- Requirements
 
-### 1.1.1- On Debian >= 9 without `pip`
-
-```
-sudo apt install python3-django python3-psycopg2 python3-tornado python3-sqlparse
-```
-
-### 1.1.2- On Debian >= 9 with `pip`
+### 1.1.1- On Debian >= 9 with `pip`
 
 ```
 sudo apt install python3-pip
-pip install pip --upgrade
-pip install -r requirements.txt
+pip3 install pip --upgrade
+pip3 install -r requirements.txt
 ```
 
-### 1.1.3- On Debian/Ubuntu using `PyEnv`
+### 1.1.2- On Debian/Ubuntu using `PyEnv`
 
 ```
 sudo apt install git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils
@@ -48,6 +42,15 @@ pyenv local 3.5.2
 pip install pip --upgrade
 pip install -r requirements.txt
 ```
+
+## 1.2- OmniDB
+
+Download or clone OmniDB repo and extract it somewhere. To start Django server, enter into `OmniDB-master/OmniDB` folder and type:
+
+```
+python3 manage.py runserver
+```
+
 
 # 2- Introduction
 

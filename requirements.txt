@@ -1,3 +1,6 @@
 Django>=1.10
 tornado>=4.5.1
 sqlparse>=0.2.3
+pyscrypt
+pyaes
+PrettyTable

@@ -131,7 +131,7 @@ function querySQL() {
 					cancelSQLTab(v_context.tab_tag);
 					showAlert('No response from query server.');
 				}
-			},10000);
+			},20000);
 
 		}
 	}

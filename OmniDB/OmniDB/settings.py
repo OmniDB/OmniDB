@@ -149,18 +149,23 @@ LOGGING = {
             'formatter': 'standard',
             'level':'ERROR',
         },
-        'console':{
+        'console_django':{
             'class':'logging.StreamHandler',
             'formatter': 'standard'
+        },
+        'console_omnidb_app':{
+            'class':'logging.StreamHandler',
+            'formatter': 'standard',
+            'level':'ERROR',
         },
     },
     'loggers': {
         'django': {
-            'handlers':['logfile_django','console'],
+            'handlers':['logfile_django','console_django'],
             'propagate': False,
         },
         'OmniDB_app': {
-            'handlers': ['logfile_omnidb'],
+            'handlers': ['logfile_omnidb','console_omnidb_app'],
             'propagate': False,
             'level':'INFO',
         },
@@ -169,7 +174,7 @@ LOGGING = {
 
 #OMNIDB PARAMETERS
 OMNIDB_DATABASE     = 'omnidb.db'
-OMNIDB_VERSION      = 'OmniDB 2.0'
+OMNIDB_VERSION      = 'OmniDB 2.0.1'
 BINDKEY_EXECUTE     = 'alt+q'
 BINDKEY_EXECUTE_MAC = 'ctrl+q'
 BINDKEY_REPLACE     = 'ctrl+g'
@@ -179,3 +184,5 @@ IS_SSL              = False
 SSL_CERTIFICATE     = ""
 SSL_KEY             = ""
 CH_CMDS_PER_PAGE    = 20
+PWD_TIMEOUT_TOTAL   = 600
+PWD_TIMEOUT_REFRESH = 300

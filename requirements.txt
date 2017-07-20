@@ -1,3 +1,5 @@
 Django>=1.10
 tornado>=4.5.1
+OmniDatabase[postgresql]==0.24
+Spartacus[postgresql]==0.25
 sqlparse>=0.2.3

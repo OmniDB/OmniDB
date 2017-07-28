@@ -6,6 +6,8 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB import settings
 
+import optparse
+
 database = OmniDatabase.Generic.InstantiateDatabase(
     'sqlite','','',settings.OMNIDB_DATABASE,'','','0',''
 )
@@ -20,18 +22,6 @@ def print_help():
     print('- clean command_history')
     print('- clean all')
     print('- vacuum')
-
-def clean_sessions():
-    try:
-        print('Cleaning sessions...')
-        database_sessions.v_connection.Execute('''
-            delete
-            from django_session
-        ''')
-        print ('Done.')
-    except Exception as exc:
-        print('Error:')
-        print(exc)
 
 def create_superuser(p_user,p_pwd):
     try:
@@ -70,12 +60,12 @@ def clean_users():
         print('Error:')
         print(exc)
 
-def clean_command_history():
+def clean_sessions():
     try:
-        print('Cleaning command history...')
-        database.v_connection.Execute('''
+        print('Cleaning sessions...')
+        database_sessions.v_connection.Execute('''
             delete
-            from command_list
+            from django_session
         ''')
         print ('Done.')
     except Exception as exc:
@@ -96,32 +86,37 @@ def vacuum():
 
 
 if __name__ == "__main__":
-    if len(sys.argv)==1:
-        print_help()
-    elif sys.argv[1]=='create_superuser':
-        if len(sys.argv)!=4:
-            print('Wrong number of arguments:')
-            print('createsuperuser USERNAME PASSWORD')
-        else:
-            create_superuser(sys.argv[2],sys.argv[3])
-    elif sys.argv[1]=='clean':
-        if len(sys.argv)!=3:
-            print('Wrong number of arguments:')
-            print('clean sessions')
-            print('clean command_history')
-            print('clean all')
-        else:
-            if sys.argv[2]=='sessions':
-                clean_sessions()
-            elif sys.argv[2]=='command_history':
-                clean_command_history()
-            elif sys.argv[2]=='all':
-                clean_all()
-            else:
-                print('Command not found.')
-                print_help()
-    elif sys.argv[1]=='vacuum':
+
+    parser = optparse.OptionParser(version=settings.OMNIDB_VERSION)
+    parser.add_option("-c", "--createsuperuser", dest="createsuperuser",
+                      nargs=2,metavar="username password",
+                      help="create super user: -c username password")
+    parser.add_option("-a", "--vacuum", dest="vacuum",
+                      default=False, action="store_true",
+                      help="databases maintenance")
+    parser.add_option("-r", "--resetdatabase", dest="reset",
+                      default=False,action="store_true",
+                      help="reset databases")
+    (options, args) = parser.parse_args()
+
+    if len(sys.argv[1:])==0:
+        parser.print_help()
+        sys.exit(0)
+
+    if options.reset:
+        print('*** ATENTION *** ALL USERS DATA WILL BE LOST')
+        try:
+            value = input('Would you like to continue? (y/n) ')
+            if value.lower()=='y':
+                clean_users();
+                clean_sessions();
+                vacuum();
+        except Exception as exc:
+            print('Error:')
+            print(exc)
+
+    if options.vacuum:
         vacuum()
-    else:
-            print('Command not found.')
-            print_help()
+
+    if options.createsuperuser:
+        create_superuser(options.createsuperuser[0],options.createsuperuser[1])

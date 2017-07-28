@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ijbq-+%n_(_^ct+qnqp%ir8fzu3n#q^i71j4&y#-6#qe(dx!h3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1', '192.168.100.10']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -119,6 +120,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "OmniDB_app/static")
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
@@ -136,14 +138,14 @@ LOGGING = {
     'handlers': {
         'logfile_omnidb': {
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': "log/omnidb.log",
+            'filename': os.path.join(BASE_DIR, 'log/omnidb.log'),
             'maxBytes': 1024*1024*5, # 5 MB
             'backupCount': 5,
             'formatter': 'standard',
         },
         'logfile_django': {
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': "log/omnidb.log",
+            'filename': os.path.join(BASE_DIR, 'log/omnidb.log'),
             'maxBytes': 1024*1024*5, # 5 MB
             'backupCount': 5,
             'formatter': 'standard',
@@ -169,17 +171,23 @@ LOGGING = {
             'propagate': False,
             'level':'INFO',
         },
+        'cherrypy.error': {
+            'handlers': ['logfile_django','console_omnidb_app'],
+            'level': 'INFO',
+            'propagate': False
+        },
     }
 }
 
 #OMNIDB PARAMETERS
-OMNIDB_DATABASE     = 'omnidb.db'
+OMNIDB_DATABASE     = os.path.join(BASE_DIR, 'omnidb.db')
 OMNIDB_VERSION      = 'OmniDB 2.0.1'
 BINDKEY_EXECUTE     = 'alt+q'
 BINDKEY_EXECUTE_MAC = 'ctrl+q'
 BINDKEY_REPLACE     = 'ctrl+g'
 BINDKEY_REPLACE_MAC = 'ctrl+g'
-WS_QUERY_PORT       = 15000
+OMNIDB_DEFAULT_PORT = 8000
+WS_QUERY_PORT       = 25482
 IS_SSL              = False
 SSL_CERTIFICATE     = ""
 SSL_KEY             = ""

@@ -1,5 +1,7 @@
 from django.conf.urls import url
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     #LOGIN
@@ -95,4 +97,4 @@ urlpatterns = [
     url(r'^get_databases_postgresql/', views.tree_postgresql.get_databases, name='get_databases_postgresql'),
     url(r'^get_tablespaces_postgresql/', views.tree_postgresql.get_tablespaces, name='get_tablespaces_postgresql'),
     url(r'^get_roles_postgresql/', views.tree_postgresql.get_roles, name='get_roles_postgresql'),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

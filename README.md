@@ -49,6 +49,22 @@ pip install pip --upgrade
 pip install -r requirements.txt
 ```
 
+### 1.1.4- Deployment
+
+```
+$ su
+
+# apt install zip python3-pip libgconf-2-4
+# pip3 install pip --upgrade
+# pip3 install -r requirements.txt
+# pip3 install -r extra_requirements_for_deploy.txt
+# exit
+
+$ git clone https://github.com/OmniDB/OmniDB
+$ cd OmniDB/OmniDB
+$ ./deploy.sh
+```
+
 # 2- Introduction
 
 **OmniDB** is a web tool that simplifies database management focusing on interactivity, designed to be powerful and lightweight. Check-out some characteristics:

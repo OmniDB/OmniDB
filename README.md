@@ -54,7 +54,7 @@ pip install -r requirements.txt
 ```
 $ su
 
-# apt install zip python3-pip libgconf-2-4
+# apt install python3-pip libgconf-2-4
 # pip3 install pip --upgrade
 # pip3 install -r requirements.txt
 # pip3 install -r extra_requirements_for_deploy.txt
@@ -62,7 +62,8 @@ $ su
 
 $ git clone https://github.com/OmniDB/OmniDB
 $ cd OmniDB/OmniDB
-$ ./deploy.sh
+$ ./deploy32.sh # for 32 bits
+$ ./deploy64.sh # for 64 bits
 ```
 
 # 2- Introduction

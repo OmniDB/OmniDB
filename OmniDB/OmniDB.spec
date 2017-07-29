@@ -10,7 +10,7 @@ data_files = [
   ('OmniDB_app/templates','OmniDB_app/templates')
 ]
 
-a = Analysis(['omnidb-client.py'],
+a = Analysis(['omnidb-app.py'],
              binaries=[],
              datas=data_files,
              hiddenimports=[],
@@ -25,7 +25,7 @@ pyz_a = PYZ(a.pure, a.zipped_data,
 exe_a = EXE(pyz_a,
           a.scripts,
           exclude_binaries=True,
-          name='omnidb-client',
+          name='omnidb-app',
           debug=False,
           strip=False,
           upx=True,
@@ -36,7 +36,7 @@ coll_a = COLLECT(exe_a,
                a.datas,
                strip=False,
                upx=True,
-               name='omnidb-client')
+               name='omnidb-app')
 
 b = Analysis(['omnidb-server.py'],
              binaries=[],
@@ -93,3 +93,4 @@ coll_c = COLLECT(exe_c,
               strip=False,
               upx=True,
               name='omnidb-config')
+

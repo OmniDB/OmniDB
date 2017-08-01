@@ -744,6 +744,7 @@ class PostgreSQL(Generic):
                 self.Close()
     def Execute(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open(True)
                 v_keep = False

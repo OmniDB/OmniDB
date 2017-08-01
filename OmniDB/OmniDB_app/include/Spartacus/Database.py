@@ -261,6 +261,7 @@ class SQLite(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def Query(self, p_sql, p_alltypesstr=False):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -294,6 +295,7 @@ class SQLite(Generic):
                 self.Close()
     def Execute(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -311,6 +313,7 @@ class SQLite(Generic):
                 self.Close()
     def ExecuteScalar(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -360,6 +363,7 @@ class SQLite(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def GetFields(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -710,6 +714,7 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def Query(self, p_sql, p_alltypesstr=False):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -739,6 +744,7 @@ class PostgreSQL(Generic):
                 self.Close()
     def Execute(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open(True)
                 v_keep = False
@@ -756,6 +762,7 @@ class PostgreSQL(Generic):
                 self.Close()
     def ExecuteScalar(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -805,6 +812,7 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def GetFields(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -929,6 +937,7 @@ class MySQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def Query(self, p_sql, p_alltypesstr=False):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -958,6 +967,7 @@ class MySQL(Generic):
                 self.Close()
     def Execute(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -975,6 +985,7 @@ class MySQL(Generic):
                 self.Close()
     def ExecuteScalar(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1024,6 +1035,7 @@ class MySQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def GetFields(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1148,6 +1160,7 @@ class MariaDB(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def Query(self, p_sql, p_alltypesstr=False):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1177,6 +1190,7 @@ class MariaDB(Generic):
                 self.Close()
     def Execute(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1194,6 +1208,7 @@ class MariaDB(Generic):
                 self.Close()
     def ExecuteScalar(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1243,6 +1258,7 @@ class MariaDB(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def GetFields(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1366,6 +1382,7 @@ class Firebird(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def Query(self, p_sql, p_alltypesstr=False):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1399,6 +1416,7 @@ class Firebird(Generic):
                 self.Close()
     def Execute(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1416,6 +1434,7 @@ class Firebird(Generic):
                 self.Close()
     def ExecuteScalar(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1465,6 +1484,7 @@ class Firebird(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def GetFields(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1595,6 +1615,7 @@ class Oracle(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def Query(self, p_sql, p_alltypesstr=False):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1628,6 +1649,7 @@ class Oracle(Generic):
                 self.Close()
     def Execute(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1645,6 +1667,7 @@ class Oracle(Generic):
                 self.Close()
     def ExecuteScalar(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1694,6 +1717,7 @@ class Oracle(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def GetFields(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1824,6 +1848,7 @@ class MSSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def Query(self, p_sql, p_alltypesstr=False):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1857,6 +1882,7 @@ class MSSQL(Generic):
                 self.Close()
     def Execute(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1874,6 +1900,7 @@ class MSSQL(Generic):
                 self.Close()
     def ExecuteScalar(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -1923,6 +1950,7 @@ class MSSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def GetFields(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -2056,6 +2084,7 @@ class IBMDB2(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def Query(self, p_sql, p_alltypesstr=False):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -2089,6 +2118,7 @@ class IBMDB2(Generic):
                 self.Close()
     def Execute(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -2106,6 +2136,7 @@ class IBMDB2(Generic):
                 self.Close()
     def ExecuteScalar(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False
@@ -2155,6 +2186,7 @@ class IBMDB2(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def GetFields(self, p_sql):
         try:
+            v_keep = None
             if self.v_con is None:
                 self.Open()
                 v_keep = False

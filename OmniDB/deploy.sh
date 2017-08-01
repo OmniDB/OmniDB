@@ -132,10 +132,10 @@ cd ..
 dpkg -b omnidb-app_$VERSION-$ARCH
 echo "Done"
 
-echo "Generating rpm packages..."
-alien -r omnidb-server_$VERSION-$ARCH.deb
-alien -r omnidb-app_$VERSION-$ARCH.deb
-echo "Done"
+#echo "Generating rpm packages..."
+#alien -r omnidb-server_$VERSION-$ARCH.deb
+#alien -r omnidb-app_$VERSION-$ARCH.deb
+#echo "Done"
 
 echo -n "Cleaning... "
 rm -rf omnidb-server_$VERSION-$ARCH

@@ -57,15 +57,15 @@ $ cd OmniDB
 
 $ su
 
-# apt install python3-pip libgconf-2-4
+# apt install python3-pip libgconf-2-4 alien
 # pip3 install pip --upgrade
 # pip3 install -r requirements.txt
 # pip3 install -r extra_requirements_for_deploy.txt
 # exit
 
 $ cd OmniDB
-$ ./deploy32.sh # for 32 bits, need to be on a 32 bits machine
-$ ./deploy64.sh # for 64 bits, need to be on a 64 bits machine
+$ ./deploy.sh i386     # for 32 bits, need to be on a 32 bits machine
+$ ./deploy.sh x86_64   # for 64 bits, need to be on a 64 bits machine
 ```
 
 # 2- Introduction

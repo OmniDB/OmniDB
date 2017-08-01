@@ -15,14 +15,6 @@ database_sessions = OmniDatabase.Generic.InstantiateDatabase(
     'sqlite','','','db.sqlite3','','','0',''
 )
 
-def print_help():
-    print('OmniDB console:')
-    print('- create_superuser USERNAME PASSWORD')
-    print('- clean sessions')
-    print('- clean command_history')
-    print('- clean all')
-    print('- vacuum')
-
 def create_superuser(p_user,p_pwd):
     try:
         print('Creating superuser...')

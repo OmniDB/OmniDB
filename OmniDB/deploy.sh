@@ -1,6 +1,6 @@
 VERSION=2.0.2
 
-# x86_64 or i386
+# amd64 or i386
 ARCH=$1
 
 echo -n "Cleaning... "
@@ -28,10 +28,29 @@ cp -r "/usr/local/lib/python$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1)
 echo "Done."
 
 echo -n "Copying libgconf... "
-cp /usr/lib/$ARCH-linux-gnu/libgconf-2.so.4 packages/omnidb-app/libgconf-2.so.4
+if [ $ARCH == "amd64" ]
+then
+	cp /usr/lib/x86_64-linux-gnu/libgconf-2.so.4 packages/omnidb-app/libgconf-2.so.4
+	cp /usr/lib/x86_64-linux-gnu/libgconf-2.so.4 packages/omnidb-app/cefpython3/libgconf-2.so.4
+else
+	cp /usr/lib/i386-linux-gnu/libgconf-2.so.4 packages/omnidb-app/libgconf-2.so.4
+	cp /usr/lib/i386-linux-gnu/libgconf-2.so.4 packages/omnidb-app/cefpython3/libgconf-2.so.4
+fi
 chmod 755 packages/omnidb-app/libgconf-2.so.4
-cp /usr/lib/$ARCH-linux-gnu/libgconf-2.so.4 packages/omnidb-app/cefpython3/libgconf-2.so.4
 chmod 755 packages/omnidb-app/cefpython3/libgconf-2.so.4
+echo "Done."
+
+echo -n "Copying libxcb... "
+if [ $ARCH == "amd64" ]
+then
+	cp /usr/lib/x86_64-linux-gnu/libxcb.so.1 packages/omnidb-app/libxcb.so.1
+	cp /usr/lib/x86_64-linux-gnu/libxcb.so.1 packages/omnidb-app/cefpython3/libxcb.so.1
+else
+	cp /usr/lib/i386-linux-gnu/libxcb.so.1 packages/omnidb-app/libxcb.so.1
+	cp /usr/lib/i386-linux-gnu/libxcb.so.1 packages/omnidb-app/cefpython3/libxcb.so.1
+fi
+chmod 755 packages/omnidb-app/libxcb.so.1
+chmod 755 packages/omnidb-app/cefpython3/libxcb.so.1
 echo "Done."
 
 echo -n "Renaming bundles... "
@@ -39,7 +58,7 @@ mv packages/omnidb-server packages/omnidb-server_$VERSION-$ARCH
 mv packages/omnidb-app packages/omnidb-app_$VERSION-$ARCH
 echo "Done."
 
-echo "Generating zip packages... "
+echo "Generating tar.gz packages... "
 cd packages
 tar -czvf omnidb-server_$VERSION-$ARCH.tar.gz omnidb-server_$VERSION-$ARCH
 tar -czvf omnidb-app_$VERSION-$ARCH.tar.gz omnidb-app_$VERSION-$ARCH

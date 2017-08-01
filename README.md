@@ -65,7 +65,7 @@ $ su
 
 $ cd OmniDB
 $ ./deploy.sh i386     # for 32 bits, need to be on a 32 bits machine
-$ ./deploy.sh x86_64   # for 64 bits, need to be on a 64 bits machine
+$ ./deploy.sh amd64   # for 64 bits, need to be on a 64 bits machine
 ```
 
 # 2- Introduction

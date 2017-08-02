@@ -73,6 +73,9 @@ function startEditData(p_table,p_schema) {
 						null
 					);
 				}
+				else {
+					showError(p_return.v_data)
+				}
 			},
 			'box',
 			true);

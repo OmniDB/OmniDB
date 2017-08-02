@@ -1282,7 +1282,7 @@ def start_edit_data(request):
         else:
             v_table_name = v_table
         v_columns = v_database.QueryTablesFields(v_table,False,v_schema)
-        v_data1 = v_database.QueryDataLimited('select * from ' + v_table_name, '0')
+        v_data1 = v_database.QueryDataLimited('select * from ' + v_table_name, 0)
         v_query_column_classes = ''
         v_first = True
 

@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ijbq-+%n_(_^ct+qnqp%ir8fzu3n#q^i71j4&y#-6#qe(dx!h3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -192,5 +192,5 @@ IS_SSL              = False
 SSL_CERTIFICATE     = ""
 SSL_KEY             = ""
 CH_CMDS_PER_PAGE    = 20
-PWD_TIMEOUT_TOTAL   = 600
+PWD_TIMEOUT_TOTAL   = 1800
 PWD_TIMEOUT_REFRESH = 300

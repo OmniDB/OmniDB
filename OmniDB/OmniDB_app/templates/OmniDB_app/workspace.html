@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <div id="div_alter_table" style="display:none;">
+    <div id="div_alter_table" style="display:none;">request.session['selected_connection']
         <div class="modal_background_dark">
             <div class ="white_box" style="width<script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js"></script>: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
                 <a class="modal-closer" onclick="hideAlterTable()">x</a>
@@ -216,6 +216,7 @@
 <script>
 	var v_query_port = {{ query_port }};
 	var v_is_secure = {{ is_secure }};
+	var v_selected_connection = {{ selected_connection }}
 	var v_keybind_object = { v_execute: '{{ execute }}',
                v_execute_mac: '{{ execute_mac }}',
                v_replace: '{{ replace }}',

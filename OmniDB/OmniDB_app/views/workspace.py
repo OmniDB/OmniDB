@@ -36,6 +36,12 @@ def index(request):
     else:
         v_is_secure = 'false'
 
+    if request.session.get('selected_connection'):
+        v_connection = request.session.get('selected_connection')
+        request.session['selected_connection'] = None
+    else:
+        v_connection = 0
+
     context = {
         'session' : v_session,
         'omnidb_version': settings.OMNIDB_VERSION,
@@ -45,7 +51,8 @@ def index(request):
         'execute': settings.BINDKEY_EXECUTE,
         'execute_mac': settings.BINDKEY_EXECUTE_MAC,
         'replace': settings.BINDKEY_REPLACE,
-        'replace_mac': settings.BINDKEY_REPLACE_MAC
+        'replace_mac': settings.BINDKEY_REPLACE_MAC,
+        'selected_connection': v_connection
     }
 
     template = loader.get_template('OmniDB_app/workspace.html')

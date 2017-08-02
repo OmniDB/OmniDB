@@ -11,16 +11,6 @@ You should have received a copy of the GNU General Public License along with Omn
 */
 
 /// <summary>
-/// Startup function.
-/// </summary>
-$(function() {
-
-	listUsers();
-	checkSessionMessage();
-
-});
-
-/// <summary>
 /// Creates new user.
 /// </summary>
 function newUserConfirm() {
@@ -40,7 +30,7 @@ function newUserConfirm() {
 /// </summary>
 function newUser() {
 
-	if (v_users_data.v_cellChanges.length>0)
+	if (v_usersObject.v_cellChanges.length>0)
 		showConfirm2('There are changes on the users list, would you like to save them?',
 					function() {
 
@@ -86,7 +76,7 @@ function removeUser(p_id) {
 	showConfirm('Are you sure you want to remove this user?',
 	            function() {
 
-					if (v_users_data.v_cellChanges.length>0)
+					if (v_usersObject.v_cellChanges.length>0)
 					showConfirm2('There are changes on the users list, would you like to save them?',
 					            function() {
 
@@ -111,20 +101,20 @@ function removeUser(p_id) {
 /// </summary>
 function saveUsers() {
 
-	if (v_users_data.v_cellChanges.length==0)
+	if (v_usersObject.v_cellChanges.length==0)
 			return;
 
 	var v_unique_rows_changed = [];
 	var v_data_changed = [];
 	var v_user_id_list = [];
 
-	$.each(v_users_data.v_cellChanges, function(i, el){
+	$.each(v_usersObject.v_cellChanges, function(i, el){
 	    if($.inArray(el['rowIndex'], v_unique_rows_changed) === -1) v_unique_rows_changed.push(el['rowIndex']);
 	});
 
 	$.each(v_unique_rows_changed, function(i, el){
-	    v_data_changed[i] = v_users_data.ht.getDataAtRow(el);
-	    v_user_id_list[i] = v_users_data.v_user_ids[el];
+	    v_data_changed[i] = v_usersObject.ht.getDataAtRow(el);
+	    v_user_id_list[i] = v_usersObject.v_user_ids[el];
 	});
 
 	var input = JSON.stringify({"p_data": v_data_changed, "p_user_id_list": v_user_id_list});
@@ -133,13 +123,26 @@ function saveUsers() {
 			input,
 			function() {
 
-				v_users_data.v_cellChanges = [];
+				v_usersObject.v_cellChanges = [];
 				document.getElementById('div_save').style.visibility = 'hidden';
 				listUsers();
 
 			},
 			null,
 			'box');
+
+}
+
+/// <summary>
+/// Hides users window.
+/// </summary>
+function hideUsers() {
+
+	$('#div_users').hide();
+
+	v_usersObject.ht.destroy();
+
+	document.getElementById('div_user_list').innerHTML = '';
 
 }
 
@@ -151,6 +154,8 @@ function listUsers() {
 	execAjax('/get_users/',
 			JSON.stringify({}),
 			function(p_return) {
+
+				$('#div_users').show();
 
 				window.scrollTo(0,0);
 
@@ -182,14 +187,14 @@ function listUsers() {
 				var v_div_result = document.getElementById('div_user_list');
 
 				if (v_div_result.innerHTML!='')
-					v_users_data.ht.destroy();
+					v_usersObject.ht.destroy();
 
-				v_users_data = new Object();
-				v_users_data.v_user_ids = p_return.v_data.v_user_ids;
-				v_users_data.v_cellChanges = [];
+				v_usersObject = new Object();
+				v_usersObject.v_user_ids = p_return.v_data.v_user_ids;
+				v_usersObject.v_cellChanges = [];
 
 				var container = v_div_result;
-				v_users_data.ht = new Handsontable(container,
+				v_usersObject.ht = new Handsontable(container,
 													{
 														data: p_return.v_data.v_data,
 														columns : columnProperties,
@@ -214,7 +219,7 @@ function listUsers() {
 														        };
 														        if(oldValue != newValue){
 
-														        	v_users_data.v_cellChanges.push(cellChange);
+														        	v_usersObject.v_cellChanges.push(cellChange);
 
 														            document.getElementById('div_save').style.visibility = 'visible';
 
@@ -224,11 +229,11 @@ function listUsers() {
 														},
 														afterRender: function () {
 
-														    $.each(v_users_data.v_cellChanges, function (index, element) {
+														    $.each(v_usersObject.v_cellChanges, function (index, element) {
 														        var cellChange = element;
 														        var rowIndex = cellChange['rowIndex'];
 														        var columnIndex = cellChange['columnIndex'];
-														        var cell = v_users_data.ht.getCell(rowIndex, columnIndex);
+														        var cell = v_usersObject.ht.getCell(rowIndex, columnIndex);
 														        var foreColor = '#000';
 														        var backgroundColor = 'rgb(255, 251, 215)';
 														        cell.style.color = foreColor;

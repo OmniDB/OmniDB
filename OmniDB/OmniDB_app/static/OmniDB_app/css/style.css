@@ -302,6 +302,7 @@ input {
    -webkit-user-select: text;
    -o-user-select: text;
    user-select: text;
+   white-space: pre;
 }
 
 #div_query_info {

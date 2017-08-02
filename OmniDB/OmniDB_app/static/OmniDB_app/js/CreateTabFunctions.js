@@ -12,7 +12,7 @@ You should have received a copy of the GNU General Public License along with Omn
 
 function initCreateTabFunctions() {
 
-  var v_createConnTabFunction = function() {
+  var v_createConnTabFunction = function(p_index) {
 
   	v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
   	var v_tab = v_connTabControl.createTab(
@@ -76,11 +76,16 @@ function initCreateTabFunctions() {
 
   	v_connTabControl.tag.createQueryTab();
 
+    var v_index = 0;
+    if (p_index)
+      v_index = p_index;
+
   	var v_div_select_db = document.getElementById(v_tab.id + '_div_select_db');
   	v_div_select_db.innerHTML = v_connTabControl.tag.selectHTML;
+    v_div_select_db.childNodes[0].childNodes[v_index].selected=true
   	$(v_div_select_db.childNodes[0]).msDropDown();
 
-  	changeDatabase(0)
+  	changeDatabase(v_index)
 
   	v_connTabControl.createTab('+',false,v_createConnTabFunction);
 
@@ -362,7 +367,7 @@ function initCreateTabFunctions() {
 					 "<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
 					 "<button class='bt_export' title='Export Data' style='display: none; margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><img src='/static/OmniDB_app/images/table_export.png' style='vertical-align: middle;'/></button>" +
 					 "<select id='sel_export_type_" + v_tab.id + "' style='display: none; float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='DBF' >DBF</option></select>" +
-					 "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: hidden;'></div>";
+					 "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>";
 
 		var v_div = document.getElementById('div_' + v_tab.id);
 		v_div.innerHTML = v_html;

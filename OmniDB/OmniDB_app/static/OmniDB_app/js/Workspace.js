@@ -38,16 +38,7 @@ $(function () {
 
 	var v_tab = v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
 
-	$(v_tab.elementLi).qtip({
-	    content: { text: 'Create your connection tab here' },
-			position: {
-	        my: 'top left',
-	        at: 'bottom right'
-	    },
-			style: { classes: 'qtip-bootstrap' },
-	    show: { ready: true },
-	    hide: { event: 'click' }
-	})
+	getDatabaseList();
 
 	//Prevent "cannot edit" bug in ace editor
 	$(document).on(
@@ -186,8 +177,6 @@ $(function () {
 		'keydown',
 		v_keyBoardShortCuts
 	)
-
-	getDatabaseList();
 /*
 	//WebSockets
 	startChatWebSocket(2011, v_enable_omnichat);
@@ -212,6 +201,8 @@ function getDatabaseList() {
 
 				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
 				v_connTabControl.tag.connections = p_return.v_data.v_connections;
+				console.log(v_selected_connection)
+				v_connTabControl.tag.createConnTab(v_selected_connection);
 
 			},
 			null,

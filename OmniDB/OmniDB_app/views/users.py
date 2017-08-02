@@ -15,25 +15,6 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB_app.include.Session import Session
 from OmniDB import settings
 
-
-def index(request):
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
-        return redirect('login')
-
-    v_session = request.session.get('omnidb_session')
-
-    context = {
-        'session' : v_session,
-        'menu_item': 'users',
-        'omnidb_version': settings.OMNIDB_VERSION,
-    }
-
-    template = loader.get_template('OmniDB_app/users.html')
-    return HttpResponse(template.render(context, request))
-
 def get_users(request):
 
     v_return = {}
@@ -50,6 +31,10 @@ def get_users(request):
     v_session = request.session.get('omnidb_session')
     v_cryptor = request.session.get('cryptor')
 
+    if v_session.v_super_user != 1:
+        v_return['v_data'] = 'You must be superuser to manage users.'
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
     try:
         v_users = v_session.v_omnidb_database.v_connection.Query('''
             select *
@@ -99,6 +84,11 @@ def new_user(request):
 
     v_session = request.session.get('omnidb_session')
 
+    if v_session.v_super_user != 1:
+        v_return['v_data'] = 'You must be superuser to manage users.'
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     try:
         v_session.v_omnidb_database.v_connection.Execute('''
             insert into users values (
@@ -125,6 +115,11 @@ def remove_user(request):
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
+
+    if v_session.v_super_user != 1:
+        v_return['v_data'] = 'You must be superuser to manage users.'
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     json_object = json.loads(request.POST.get('data', None))
     v_id = json_object['p_id']
@@ -162,6 +157,11 @@ def save_users(request):
 
     v_session = request.session.get('omnidb_session')
     v_cryptor = request.session.get('cryptor')
+
+    if v_session.v_super_user != 1:
+        v_return['v_data'] = 'You must be superuser to manage users.'
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     json_object = json.loads(request.POST.get('data', None))
     v_data = json_object['p_data']

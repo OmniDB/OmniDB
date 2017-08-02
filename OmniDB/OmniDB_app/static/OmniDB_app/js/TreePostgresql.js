@@ -620,7 +620,7 @@ function getTreePostgresql(p_div) {
 		}
 
 		var node1 = tree.createNode(p_return.v_data.v_database_return.v_database,true,'/static/OmniDB_app/images/db.png',null,null,null);
-        var node_databases = tree.createNode('Databases',false,'/static/OmniDB_app/images/circle_blue.png',null,{ type:'database_list', num_databases : 0 },'cm_databases');
+        var node_databases = tree.createNode('Databases',false,'/static/OmniDB_app/images/db.png',null,{ type:'database_list', num_databases : 0 },'cm_databases');
         node_databases.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
         var node_tablespaces = tree.createNode('Tablespaces',false,'/static/OmniDB_app/images/circle_blue.png',null,{ type:'tablespace_list', num_tablespaces : 0 },'cm_tablespaces');
         node_tablespaces.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
@@ -719,7 +719,7 @@ function getDatabasesPostgresql(node) {
 
 				for (i=0; i<p_return.v_data.length; i++) {
 
-        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'/static/OmniDB_app/images/circle_blue.png',{ type:'database' },'cm_db');
+        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'/static/OmniDB_app/images/db.png',{ type:'database' },'cm_db');
 
         }
 

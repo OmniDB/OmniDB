@@ -16,9 +16,9 @@ urlpatterns = [
     url(r'^get_connections/$', views.connections.get_connections, name='get_connections'),
     url(r'^save_connections/$', views.connections.save_connections, name='save_connections'),
     url(r'^test_connection/$', views.connections.test_connection, name='test_connection'),
+    url(r'^select_connection/$', views.connections.select_connection, name='select_connection'),
 
     #USERS
-    url(r'^users/', views.users.index, name='users'),
     url(r'^get_users/$', views.users.get_users, name='get_users'),
     url(r'^new_user/$', views.users.new_user, name='new_user'),
     url(r'^remove_user/$', views.users.remove_user, name='remove_user'),

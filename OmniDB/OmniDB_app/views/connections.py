@@ -80,7 +80,9 @@ def get_connections(request):
         v_connection_data_list.append(v_connection.v_service)
         v_connection_data_list.append(v_connection.v_user)
         v_connection_data_list.append(v_connection.v_alias)
-        v_connection_data_list.append('''<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConnection()'/><img src='/static/OmniDB_app/images/test.png' class='img_ht' onclick='testConnection({0})'/>'''.format(v_index))
+        v_connection_data_list.append('''<img title="Remove Connection" src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConnection()'/>
+        <img title="Test Connection" src='/static/OmniDB_app/images/test.png' class='img_ht' onclick='testConnection({0})'/>
+        <img title="Select Connection" src='/static/OmniDB_app/images/select.png' class='img_ht' onclick='selectConnection({0})'/>'''.format(v_index))
 
         v_index = v_index+1
         v_connection_list.append(v_connection_data_list)
@@ -191,5 +193,27 @@ def test_connection(request):
         v_session.v_databases[int(p_index)]['prompt_timeout'] = datetime.now()
 
     v_return['v_data'] = v_session.v_databases [int(p_index)]['database'].TestConnection()
+
+    return JsonResponse(v_return)
+
+def select_connection(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    p_index = json_object['p_index']
+
+    request.session['selected_connection'] = p_index
 
     return JsonResponse(v_return)

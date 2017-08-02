@@ -200,8 +200,12 @@ function querySQLReturnRender(p_message,p_context) {
 
 	if (p_message.v_error) {
 
-		v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data + '</div>';
+		v_div_result.innerHTML = '<div class="error_text">' + p_message.v_data.message + '</div>';
 		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + v_duration;
+		if (p_message.v_data.position!=null) {
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(p_message.v_data.position.row,p_message.v_data.position.col)
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.textInput.focus()
+		}
 
 	}
 	else {

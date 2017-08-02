@@ -199,6 +199,19 @@ class PostgreSQL:
 
         return v_return
 
+    def GetErrorPosition(self, p_error_message):
+        vector = str(p_error_message).split('\n')
+        v_return = None
+
+        #has line
+        if vector[1][0:4]=='LINE':
+            print('*********** DEBUG: ' + vector[1].split(':')[0].split(' ')[1])
+            v_return = {
+                'row': vector[1].split(':')[0].split(' ')[1],
+                'col': vector[2].index('^') - len(vector[1].split(':')[0])-2
+            }
+        return v_return
+
     def QueryRoles(self):
 
         return self.v_connection.Query('''

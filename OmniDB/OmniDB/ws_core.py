@@ -378,7 +378,7 @@ def thread_query(self,args,ws_object):
                     v_data1 = v_database.v_connection.Query(v_sql,True)
                 else:
                     log_mode = 'Query {0} rows'.format(v_select_value)
-                    v_data1 = v_database.QueryDataLimited(v_sql, v_select_value)
+                    v_data1 = v_database.QueryDataLimited(v_sql, int(v_select_value))
 
                 v_response['v_data'] = {
                     'v_col_names' : v_data1.Columns,
@@ -387,7 +387,6 @@ def thread_query(self,args,ws_object):
                 }
             except Exception as exc:
                 log_status = 'error'
-                print(str(exc))
                 v_response['v_data'] = {
                     'position': v_database.GetErrorPosition(str(exc)),
                     'message' : str(exc).replace('\n','<br>')

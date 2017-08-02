@@ -201,7 +201,6 @@ function getDatabaseList() {
 
 				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
 				v_connTabControl.tag.connections = p_return.v_data.v_connections;
-				console.log(v_selected_connection)
 				v_connTabControl.tag.createConnTab(v_selected_connection);
 
 			},

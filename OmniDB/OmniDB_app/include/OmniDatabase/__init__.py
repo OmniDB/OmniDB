@@ -204,8 +204,7 @@ class PostgreSQL:
         v_return = None
 
         #has line
-        if vector[1][0:4]=='LINE':
-            print('*********** DEBUG: ' + vector[1].split(':')[0].split(' ')[1])
+        if len(vector) > 1 and vector[1][0:4]=='LINE':
             v_return = {
                 'row': vector[1].split(':')[0].split(' ')[1],
                 'col': vector[2].index('^') - len(vector[1].split(':')[0])-2
@@ -262,7 +261,7 @@ class PostgreSQL:
             select nspname as schema_name
             from pg_catalog.pg_namespace
             where nspname in ('public', 'pg_catalog', 'information_schema')
-            order by nspname desc
+            order by nspname asc
             ) x
             union all
             select schema_name,
@@ -272,7 +271,7 @@ class PostgreSQL:
             from pg_catalog.pg_namespace
             where nspname not in ('public', 'pg_catalog', 'information_schema', 'pg_toast')
               and nspname not like 'pg%%temp%%'
-            order by nspname desc
+            order by nspname asc
             ) x
             ) y
             order by sort
@@ -491,16 +490,13 @@ class PostgreSQL:
 
     def QueryDataLimited(self, p_query, p_count=-1):
 
-        v_filter = ''
-
         if p_count != -1:
-            v_filter = " limit  " + p_count
-
-        return self.v_connection.Query('''
-            select *
-            from ( {0} ) t
-            {1}
-        '''.format(p_query,v_filter), True)
+            self.v_connection.Open()
+            v_data = self.v_connection.QueryBlock(p_query, p_count, True)
+            self.v_connection.Close()
+            return v_data
+        else:
+            return self.v_connection.Query(p_query, True)
 
     def QueryTableRecords(self, p_column_list, p_table, p_filter, p_count=-1):
 
@@ -1258,16 +1254,12 @@ class SQLite:
 
     def QueryDataLimited(self, p_query, p_count=-1):
 
-        v_filter = ''
-
         if p_count != -1:
-            v_filter = " limit  " + p_count
-
-        return self.v_connection.Query('''
-            SELECT *
-            from ( {0} ) t
-            {1}
-        '''.format(p_query,v_filter), True)
+            self.v_connection.Open()
+            v_data = self.v_connection.QueryBlock(p_query, p_count, True)
+            self.v_connection.Close()
+        else:
+            return self.v_connection.Query(p_query, True)
 
     def QueryTableRecords(self, p_column_list, p_table, p_filter, p_count=-1):
 

@@ -261,7 +261,7 @@ class PostgreSQL:
             select nspname as schema_name
             from pg_catalog.pg_namespace
             where nspname in ('public', 'pg_catalog', 'information_schema')
-            order by nspname asc
+            order by nspname desc
             ) x
             union all
             select schema_name,

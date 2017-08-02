@@ -16,8 +16,8 @@ echo "Done."
 echo -n "Organizing bundles..."
 rm -rf build
 mkdir packages
-cp dist/omnidb-config/omnidb-config dist/omnidb-server/
-cp dist/omnidb-config/omnidb-config dist/omnidb-app/
+cp dist/omnidb-config/omnidb-config dist/omnidb-server/omnidb-config-server
+cp dist/omnidb-config/omnidb-config dist/omnidb-app/omnidb-config-app
 mv dist/omnidb-server packages
 mv dist/omnidb-app packages
 rm -rf dist
@@ -75,6 +75,7 @@ mv ../omnidb-server opt/
 mkdir -p usr/bin
 cd usr/bin
 ln -s /opt/omnidb-server/omnidb-server .
+ln -s /opt/omnidb-server/omnidb-config-server .
 cd ../..
 mkdir DEBIAN
 cat > DEBIAN/control <<EOF
@@ -101,6 +102,7 @@ mv ../omnidb-app opt/
 mkdir -p usr/bin
 cd usr/bin
 ln -s /opt/omnidb-app/omnidb-app .
+ln -s /opt/omnidb-app/omnidb-config-app .
 cd ../..
 mkdir -p usr/share
 cp -r ../../icons usr/share/

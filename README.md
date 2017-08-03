@@ -1,6 +1,6 @@
 [![Join the chat at https://gitter.im/OmniDB/Lobby](https://img.shields.io/badge/GITTER-JOIN%20CHAT-brightgreen.svg)](https://gitter.im/OmniDB/Lobby)
 
-# OmniDB 2.0.1
+# OmniDB 2.0.2
 
 OmniDB was completely rewritten to Python using the Django framework. Starting from version `2.0`, **OmniDB Python version** will receive new features and will be actively maintained.
 
@@ -17,21 +17,15 @@ Besides being written in Python, initial version of `OmniDB 2.0` contains the fo
 
 ## 1.1- Requirements
 
-### 1.1.1- On Debian >= 9 without `pip`
-
-```
-sudo apt install python3-django python3-psycopg2 python3-tornado python3-sqlparse
-```
-
-### 1.1.2- On Debian >= 9 with `pip`
+### 1.1.1- On Debian >= 9 with `pip`
 
 ```
 sudo apt install python3-pip
-pip install pip --upgrade
-pip install -r requirements.txt
+pip3 install pip --upgrade
+pip3 install -r requirements.txt
 ```
 
-### 1.1.3- On Debian/Ubuntu using `PyEnv`
+### 1.1.2- On Debian/Ubuntu using `PyEnv`
 
 ```
 sudo apt install git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils

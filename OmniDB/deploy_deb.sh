@@ -24,7 +24,8 @@ rm -rf dist
 echo "Done."
 
 echo -n "Copying cefpython files... "
-cp -r "/usr/local/lib/python$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1).$(python3 --version | cut -d' ' -f2 | cut -d'.' -f2)/dist-packages/cefpython3" packages/omnidb-app/
+#cp -r "/usr/local/lib/python$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1).$(python3 --version | cut -d' ' -f2 | cut -d'.' -f2)/dist-packages/cefpython3" packages/omnidb-app/
+cp -r "$HOME/.pyenv/versions/3.5.2/lib/python3.5/site-packages/cefpython3" packages/omnidb-app
 echo "Done."
 
 echo -n "Copying libgconf... "
@@ -65,8 +66,6 @@ fi
 chmod 755 packages/omnidb-app/libXss.so.1
 chmod 755 packages/omnidb-app/cefpython3/libXss.so.1
 echo "Done."
-
-python3 copydeps.py
 
 echo -n "Renaming bundles... "
 mv packages/omnidb-server packages/omnidb-server_$VERSION-$ARCH
@@ -148,11 +147,6 @@ EOF
 cd ..
 dpkg -b omnidb-app_$VERSION-$ARCH
 echo "Done"
-
-#echo "Generating rpm packages..."
-#alien -r omnidb-server_$VERSION-$ARCH.deb
-#alien -r omnidb-app_$VERSION-$ARCH.deb
-#echo "Done"
 
 echo -n "Cleaning... "
 rm -rf omnidb-server_$VERSION-$ARCH

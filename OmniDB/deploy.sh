@@ -53,6 +53,21 @@ chmod 755 packages/omnidb-app/libxcb.so.1
 chmod 755 packages/omnidb-app/cefpython3/libxcb.so.1
 echo "Done."
 
+echo -n "Copying libXss... "
+if [ $ARCH == "amd64" ]
+then
+	cp /usr/lib/x86_64-linux-gnu/libXss.so.1 packages/omnidb-app/libXss.so.1
+	cp /usr/lib/x86_64-linux-gnu/libXss.so.1 packages/omnidb-app/cefpython3/libXss.so.1
+else
+	cp /usr/lib/i386-linux-gnu/libXss.so.1 packages/omnidb-app/libXss.so.1
+	cp /usr/lib/i386-linux-gnu/libXss.so.1 packages/omnidb-app/cefpython3/libXss.so.1
+fi
+chmod 755 packages/omnidb-app/libXss.so.1
+chmod 755 packages/omnidb-app/cefpython3/libXss.so.1
+echo "Done."
+
+python3 copydeps.py
+
 echo -n "Renaming bundles... "
 mv packages/omnidb-server packages/omnidb-server_$VERSION-$ARCH
 mv packages/omnidb-app packages/omnidb-app_$VERSION-$ARCH

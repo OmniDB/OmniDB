@@ -66,6 +66,8 @@ chmod 755 packages/omnidb-app/libXss.so.1
 chmod 755 packages/omnidb-app/cefpython3/libXss.so.1
 echo "Done."
 
+python3 copydeps.py
+
 echo -n "Renaming bundles... "
 mv packages/omnidb-server packages/omnidb-server_$VERSION-$ARCH
 mv packages/omnidb-app packages/omnidb-app_$VERSION-$ARCH

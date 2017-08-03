@@ -5,12 +5,13 @@ def call(command):
 		command,
 		shell=True,
 		stdout=subprocess.PIPE,
-		stderr=subprocess.PIPE
+		#stderr=subprocess.PIPE
 	)
-	if p.stderr:
-		raise Exception(p.stderr)
-	else:
-		return p.stdout.decode('utf-8').split('\n')[:-1]
+	#if p.stderr:
+	#	raise Exception(p.stderr)
+	#else:
+	#	return p.stdout.decode('utf-8').split('\n')[:-1]
+	return p.stdout.decode('utf-8').split('\n')[:-1]
 
 pwd = call('pwd')
 
@@ -27,7 +28,8 @@ for lib in libs:
 			if 'not found' in tmp[1]:
 				servererrors[lib] = tmp[0]
 			else:
-				serverdeps[tmp[0]] = tmp[1].split(' ')[0]
+				if len(tmp[1].split(' ')[0].strip()) > 0:
+					serverdeps[tmp[0]] = tmp[1].split(' ')[0]
 for key, value in serverdeps.items():
 	call('cp -f {0} {1}/packages/omnidb-server/{2}'.format(value, pwd[0], key))
 print('Done')
@@ -45,7 +47,8 @@ for lib in libs:
 			if 'not found' in tmp[1]:
 				apperrors[lib] = tmp[0]
 			else:
-				appdeps[tmp[0]] = tmp[1].split(' ')[0]
+				if len(tmp[1].split(' ')[0].strip()) > 0:
+					appdeps[tmp[0]] = tmp[1].split(' ')[0]
 for key, value in appdeps.items():
 	call('cp -f {0} {1}/packages/omnidb-app/{2}'.format(value, pwd[0], key))
 print('Done')

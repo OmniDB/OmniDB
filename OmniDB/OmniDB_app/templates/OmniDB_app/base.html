@@ -1,8 +1,7 @@
-{% load static %}
 <html>
 <head>
   <title>OmniDB</title>
-  <link rel="shortcut icon" type="image/x-icon" href="{% static 'OmniDB_app/images/favicon.ico' %}" />
+  <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico" />
 
 	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css"            />
 	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css"/>
@@ -20,9 +19,6 @@
 		<div class="header_menu">
 			<img src="/static/OmniDB_app/images/omnidb.png" />
 			<ul>
-				{% if session.v_super_user == 1 %}
-					<li><a id="menu_users" href="../users">Users</a></li>
-				{% endif %}
         <li><a id="menu_connections" href="../connections">Connections</a></li>
 				<li><a id="menu_workspace" href="../workspace">Workspace</a></li>
         <!--<li><a id="menu_monitoring" href="../monitoring">Monitoring</a></li>-->
@@ -30,10 +26,13 @@
 			</ul>
 			<div style="position: absolute; right: 0px; top: 0px;">
 				<ul>
-					<li style="color: #F1F7FF;">{{ session.v_user_name }}</li>
-					<li style="padding-left: 10px; padding-right: 10px;"><img title="User settings" style="vertical-align: middle; cursor: pointer;" onclick="showConfigUser();" src="/static/OmniDB_app/images/gear.png"/></li>
-          <li style="padding-right: 10px; color: #F1F7FF;"><img title="SQL History" style="vertical-align: middle; cursor: pointer;" onclick="showCommandList();" src="/static/OmniDB_app/images/command_list.png"/></li>
-					<li style="padding-right: 10px; color: #F1F7FF;"><img title="About" style="vertical-align: middle; cursor: pointer;" onclick="showAbout();" src="/static/OmniDB_app/images/about.png"/></li>
+					<li style="color: #F1F7FF; padding-right: 10px;">{{ session.v_user_name }}</li>
+          {% if session.v_super_user == 1 %}
+  					<li style="padding-right: 10px;"><img title="Manage users" style="vertical-align: middle; cursor: pointer;" onclick="listUsers();" src="/static/OmniDB_app/images/users.png"/></li>
+  				{% endif %}
+					<li style="padding-right: 10px;"><img title="User settings" style="vertical-align: middle; cursor: pointer;" onclick="showConfigUser();" src="/static/OmniDB_app/images/gear.png"/></li>
+          <li style="padding-right: 10px;"><img title="SQL History" style="vertical-align: middle; cursor: pointer;" onclick="showCommandList();" src="/static/OmniDB_app/images/command_list.png"/></li>
+					<li style="padding-right: 10px;"><img title="About" style="vertical-align: middle; cursor: pointer;" onclick="showAbout();" src="/static/OmniDB_app/images/about.png"/></li>
           <li><a href="../logout">Logout</a></li>
 				</ul>
 			</div>
@@ -129,7 +128,7 @@
 		                	<div style="text-align: center; display: none;">
 		                		<div style="margin-bottom: 10px;">Enable OmniChat</div>
 		                		<input id="chk_enable_chat" type="checkbox" style="width: 200px; margin-bottom: 20px;">
-		                	</div>
+		                	</div>manage
 		                	<div style="text-align: center;">
 			                	<button onclick="saveConfigUser();">Save Changes</button>
 		                	</div>
@@ -171,7 +170,7 @@
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
                 <a class="modal-closer" onclick="hideCommandList()">x</a>
-             	<div style='margin-left:20px; margin-top: 20px; display:inline-block;'>
+             	<div style='margin-left:10px; margin-top: 10px; display:inline-block;'>
             <button onclick="commandHistoryFirstPage()">First</button>
             <button onclick="commandHistoryPreviousPage()">Previous</button>
             <span id="cl_curr_page"></span> / <span id="cl_num_pages"></span>
@@ -182,6 +181,24 @@
                 <div style="padding: 10px;">
                 	<div id='div_command_list_data' style='width: 100%; height: 600px; overflow: auto;'></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="div_users" style="display:none;">
+        <div class="modal_background_dark">
+            <div class ="white_box" style="width: 50%; left: 25%; top: 20%; font-size: 11px; font-family: sans-serif;">
+              <a class="modal-closer" onclick="hideUsers()">x</a>
+              <div style='margin-left:10px; margin-top: 10px; display:inline-block;'>
+            		<button onclick="newUser()">New User</button>
+            	</div>
+              <div id='div_save' style='visibility: hidden; display:inline-block;'>
+            		<button onclick="saveUsers()">Save Data</button>
+            	</div>
+              <div style="padding: 10px;">
+              	<div id='div_user_list' style='width: 100%; height: 200px; overflow: auto;'></div>
+              </div>
             </div>
         </div>
     </div>
@@ -252,6 +269,7 @@
   <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js"              ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js"          ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js"                  ></script>
 
   <script type="text/javascript">
 
@@ -272,6 +290,7 @@
   var network;
   var v_connTabControl;
   var v_commandListObject;
+  var v_usersObject;
   var v_editDataObject;
   var v_canEditContent;
   var v_editContentObject;

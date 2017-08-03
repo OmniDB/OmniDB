@@ -304,7 +304,10 @@ def thread_query(self,args,ws_object):
                 v_database.v_connection.Execute(v_sql)
             except Exception as exc:
                 log_status = 'error'
-                v_response['v_data'] = str(exc)
+                v_response['v_data'] = {
+                    'position': v_database.GetErrorPosition(str(exc)),
+                    'message' : str(exc).replace('\n','<br>')
+                }
                 v_response['v_error'] = True
 
             if not self.cancel:
@@ -345,7 +348,7 @@ def thread_query(self,args,ws_object):
                     except Exception as exc:
                         log_status = 'error'
                         v_num_error_commands = v_num_error_commands + 1
-                        v_return_html += "<b>Command:</b> " + v_command + "<br/><br/><b>Message:</b> " + str(exc) + "<br/><br/>"
+                        v_return_html += "<b>Command:</b> " + v_command + "<br/><br/><b>Message:</b><br><br><div class='error_text'>" + str(exc).replace('\n','<br>') + "</div><br/><br/>"
 
             v_response['v_data'] = "<b>Successful commands:</b> " + str(v_num_success_commands) + "<br/>"
             v_response['v_data'] += "<b>Errors: </b> " + str(v_num_error_commands) + "<br/><br/>"
@@ -375,7 +378,7 @@ def thread_query(self,args,ws_object):
                     v_data1 = v_database.v_connection.Query(v_sql,True)
                 else:
                     log_mode = 'Query {0} rows'.format(v_select_value)
-                    v_data1 = v_database.QueryDataLimited(v_sql, v_select_value)
+                    v_data1 = v_database.QueryDataLimited(v_sql, int(v_select_value))
 
                 v_response['v_data'] = {
                     'v_col_names' : v_data1.Columns,
@@ -384,7 +387,10 @@ def thread_query(self,args,ws_object):
                 }
             except Exception as exc:
                 log_status = 'error'
-                v_response['v_data'] = str(exc)
+                v_response['v_data'] = {
+                    'position': v_database.GetErrorPosition(str(exc)),
+                    'message' : str(exc).replace('\n','<br>')
+                }
                 v_response['v_error'] = True
 
             if not self.cancel:

@@ -1,5 +1,7 @@
 from django.conf.urls import url
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     #LOGIN
@@ -14,9 +16,9 @@ urlpatterns = [
     url(r'^get_connections/$', views.connections.get_connections, name='get_connections'),
     url(r'^save_connections/$', views.connections.save_connections, name='save_connections'),
     url(r'^test_connection/$', views.connections.test_connection, name='test_connection'),
+    url(r'^select_connection/$', views.connections.select_connection, name='select_connection'),
 
     #USERS
-    url(r'^users/', views.users.index, name='users'),
     url(r'^get_users/$', views.users.get_users, name='get_users'),
     url(r'^new_user/$', views.users.new_user, name='new_user'),
     url(r'^remove_user/$', views.users.remove_user, name='remove_user'),
@@ -95,4 +97,4 @@ urlpatterns = [
     url(r'^get_databases_postgresql/', views.tree_postgresql.get_databases, name='get_databases_postgresql'),
     url(r'^get_tablespaces_postgresql/', views.tree_postgresql.get_tablespaces, name='get_tablespaces_postgresql'),
     url(r'^get_roles_postgresql/', views.tree_postgresql.get_roles, name='get_roles_postgresql'),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1,6 +1,6 @@
 [![Join the chat at https://gitter.im/OmniDB/Lobby](https://img.shields.io/badge/GITTER-JOIN%20CHAT-brightgreen.svg)](https://gitter.im/OmniDB/Lobby)
 
-# OmniDB 2.0.1
+# OmniDB 2.0.2
 
 OmniDB was completely rewritten to Python using the Django framework. Starting from version `2.0`, **OmniDB Python version** will receive new features and will be actively maintained.
 
@@ -43,14 +43,24 @@ pip install pip --upgrade
 pip install -r requirements.txt
 ```
 
-## 1.2- OmniDB
-
-Download or clone OmniDB repo and extract it somewhere. To start Django server, enter into `OmniDB-master/OmniDB` folder and type:
+### 1.1.4- Deployment
 
 ```
-python3 manage.py runserver
-```
+$ git clone https://github.com/OmniDB/OmniDB
+$ cd OmniDB
 
+$ su
+
+# apt install python3-pip libgconf-2-4 alien
+# pip3 install pip --upgrade
+# pip3 install -r requirements.txt
+# pip3 install -r extra_requirements_for_deploy.txt
+# exit
+
+$ cd OmniDB
+$ ./deploy.sh i386     # for 32 bits, need to be on a 32 bits machine
+$ ./deploy.sh amd64   # for 64 bits, need to be on a 64 bits machine
+```
 
 # 2- Introduction
 

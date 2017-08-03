@@ -141,6 +141,25 @@ function testConnection(p_index) {
 }
 
 /// <summary>
+/// Go to workspace with selected connection.
+/// </summary>
+function selectConnection(p_index) {
+
+	var input = JSON.stringify({"p_index": p_index});
+
+	execAjax('/select_connection/',
+			input,
+			function(p_return) {
+
+				window.open("../workspace","_self")
+
+			},
+			null,
+			'box');
+
+}
+
+/// <summary>
 /// Saves all changes in the connections list.
 /// </summary>
 function saveConnections(p_index) {
@@ -211,13 +230,14 @@ function listConnections() {
 				columnProperties.push(col);
 
 				var col = new Object();
-				col.title =  'Alias';
+				col.title =  'Title';
 				columnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Actions';
 				col.renderer = 'html';
 				col.readOnly = true;
+				col.width = '80'
 				columnProperties.push(col);
 
 				var v_div_result = document.getElementById('div_conn_list');

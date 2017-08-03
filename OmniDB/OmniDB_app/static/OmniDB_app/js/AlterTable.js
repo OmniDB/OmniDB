@@ -270,7 +270,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
      	 			var col = new Object();
       				col.title =  'Referenced Columns';
       				col.width = '140px';
-      				col.type = 'autocomplete';
+      				//col.type = 'autocomplete';
      	 			columnProperties.push(col);
 
      	 			var col = new Object();
@@ -330,7 +330,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 	                            if(oldValue != newValue){
 
 	                            	if (columnIndex == 3) {
-	                            		getReferenceColumnsList(rowIndex,newValue);
+	                            		//getReferenceColumnsList(rowIndex,newValue);
 	                            	}
 
 	                            	v_curr_tab_tag.btSave.style.visibility = 'visible';
@@ -462,7 +462,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 	                            if(oldValue != newValue){
 
 	                            	if (columnIndex == 3) {
-	                            		getReferenceColumnsList(rowIndex,newValue);
+	                            		//getReferenceColumnsList(rowIndex,newValue);
 	                            	}
 
 	                            	v_curr_tab_tag.btSave.style.visibility = 'visible';

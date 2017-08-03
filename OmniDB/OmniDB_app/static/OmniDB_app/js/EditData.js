@@ -73,6 +73,9 @@ function startEditData(p_table,p_schema) {
 						null
 					);
 				}
+				else {
+					showError(p_return.v_data)
+				}
 			},
 			'box',
 			true);
@@ -261,7 +264,7 @@ function queryEditDataReturnRender(p_message,p_context) {
 
 	if (p_message.v_error) {
 
-		v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data + '</div>';
+		v_div_result.innerHTML = '<div class="error_text">' + p_message.v_data + '</div>';
 		v_query_info.innerHTML = "Response time: " + request_time/1000 + " seconds";
 
 	}
@@ -371,7 +374,6 @@ function queryEditDataReturnRender(p_message,p_context) {
 						v_currTabTag.button_save.style.visibility = 'visible';
 
 												}
-
 												if(oldValue != newValue && v_currTabTag.editDataObject.infoRows[rowIndex].mode!=2){
 
 													var v_found = false;
@@ -562,7 +564,7 @@ function saveEditDataReturnRender(p_message,p_context) {
 
 				v_has_error = true;
 
-				v_commands_log += '<b>Command:</b> ' + v_data[i].command + '<br/><br/><b>Message:</b> ' + v_data[i].v_message + '<br/><br/>';
+				v_commands_log += '<b>Command:</b> ' + v_data[i].command + '<br/><br/><b>Message:</b><br><br><div class="error_text">' + v_data[i].v_message + '</div><br/><br/>';
 
 				v_currTabTag.button_save.style.visibility = 'visible';
 			}
@@ -592,7 +594,7 @@ function saveEditDataReturnRender(p_message,p_context) {
 
 				v_has_error = true;
 
-				v_commands_log += '<b>Command:</b> ' + v_data[i].command + '<br/><br/><b>Message:</b> ' + v_data[i].v_message  + '<br/><br/>';
+				v_commands_log += '<b>Command:</b> ' + v_data[i].command + '<br/><br/><b>Message:</b><br><br><div class="error_text">' + v_data[i].v_message  + '</div><br/><br/>';
 
 				v_currTabTag.button_save.style.visibility = 'visible';
 			}
@@ -622,7 +624,7 @@ function saveEditDataReturnRender(p_message,p_context) {
 
 				v_has_error = true;
 
-				v_commands_log += '<b>Command:</b> ' + v_data[i].command + '<br/><br/><b>Message:</b> ' + v_data[i].v_message  + '<br/><br/>';
+				v_commands_log += '<b>Command:</b> ' + v_data[i].command + '<br/><br/><b>Message:</b><br><br><div class="error_text">' + v_data[i].v_message  + '</div><br/><br/>';
 
 				v_currTabTag.button_save.style.visibility = 'visible';
 			}

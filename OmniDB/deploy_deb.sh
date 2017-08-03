@@ -67,8 +67,6 @@ chmod 755 packages/omnidb-app/libXss.so.1
 chmod 755 packages/omnidb-app/cefpython3/libXss.so.1
 echo "Done."
 
-python copydeps.py
-
 echo -n "Renaming bundles... "
 mv packages/omnidb-server packages/omnidb-server_$VERSION-$ARCH
 mv packages/omnidb-app packages/omnidb-app_$VERSION-$ARCH
@@ -149,11 +147,6 @@ EOF
 cd ..
 dpkg -b omnidb-app_$VERSION-$ARCH
 echo "Done"
-
-#echo "Generating rpm packages..."
-#alien -r omnidb-server_$VERSION-$ARCH.deb
-#alien -r omnidb-app_$VERSION-$ARCH.deb
-#echo "Done"
 
 echo -n "Cleaning... "
 rm -rf omnidb-server_$VERSION-$ARCH

@@ -44,6 +44,7 @@ def index(request):
 
     context = {
         'session' : v_session,
+        'desktop_mode': settings.DESKTOP_MODE,
         'omnidb_version': settings.OMNIDB_VERSION,
         'menu_item': 'workspace',
         'query_port': settings.WS_QUERY_PORT,

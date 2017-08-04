@@ -53,7 +53,7 @@ server_port=None
 def init_browser():
     sys.excepthook = cef.ExceptHook  # To shutdown all CEF processes on error
     cef.Initialize()
-    cef.CreateBrowserSync(url="http://localhost:{0}".format(str(server_port)),window_title="OmniDB")
+    cef.CreateBrowserSync(url="http://localhost:{0}?user=admin&pwd=admin".format(str(server_port)),window_title="OmniDB")
     cef.MessageLoop()
     cef.Shutdown()
     cherrypy.engine.exit()

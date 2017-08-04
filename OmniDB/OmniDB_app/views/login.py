@@ -23,6 +23,17 @@ def index(request):
     context = {
     }
 
+    user = request.GET.get('user', '')
+    pwd = request.GET.get('pwd', '')
+
+    if user and pwd:
+        num_connections = sign_in_automatic(request,user,pwd)
+
+        if num_connections == 0:
+            return redirect('connections')
+        elif num_connections > 0:
+            return redirect('workspace')
+
     template = loader.get_template('OmniDB_app/login.html')
     return HttpResponse(template.render(context, request))
 
@@ -53,6 +64,71 @@ def check_session_message(request):
         request.session['omnidb_alert_message'] = ''
 
     return JsonResponse(v_return)
+
+def sign_in_automatic(request, username, pwd):
+    database = OmniDatabase.Generic.InstantiateDatabase(
+        'sqlite',
+        '',
+        '',
+        settings.OMNIDB_DATABASE,
+        '',
+        '',
+        '0',
+        '',
+        True
+    )
+
+    table = database.v_connection.Query('''
+        select u.user_id,
+               u.password,
+               t.theme_id,
+               t.theme_name,
+               t.theme_type,
+               u.editor_font_size,
+               (case when u.chat_enabled is null then 1 else u.chat_enabled end) as chat_enabled,
+               (case when u.super_user is null then 0 else u.super_user end) as super_user,
+               u.user_key
+        from users u,
+             themes t
+         where u.theme_id = t.theme_id
+        and u.user_name = '{0}'
+    '''.format(username))
+
+    if len(table.Rows) > 0:
+        cryptor = Utils.Cryptor("omnidb")
+
+        pwd_decrypted = cryptor.Decrypt(table.Rows[0]['password'])
+        if pwd_decrypted == pwd:
+
+            #creating session key to use it
+            request.session.save()
+
+            logger.info('User "{0}" logged in.'.format(username))
+
+            v_session = Session(
+                table.Rows[0]["user_id"],
+                username,
+                database,
+                table.Rows[0]["theme_name"],
+                table.Rows[0]["theme_type"],
+                table.Rows[0]["theme_id"],
+                table.Rows[0]["editor_font_size"],
+                int(table.Rows[0]["chat_enabled"]),
+                int(table.Rows[0]["super_user"]),
+                cryptor,
+                request.session.session_key
+            )
+
+            v_session.RefreshDatabaseList()
+            request.session['omnidb_session'] = v_session
+
+            if not request.session.get('cryptor'):
+                request.session['cryptor'] = cryptor
+
+            return len(v_session.v_databases)
+
+        return -1
+
 
 def sign_in(request):
     v_return = {}

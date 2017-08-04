@@ -29,6 +29,7 @@ def index(request):
     context = {
         'session' : request.session.get('omnidb_session'),
         'menu_item': 'monitoring',
+        'desktop_mode': settings.DESKTOP_MODE,
         'omnidb_version': settings.OMNIDB_VERSION,
     }
 

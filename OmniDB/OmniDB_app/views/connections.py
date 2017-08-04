@@ -27,6 +27,7 @@ def index(request):
     context = {
         'session' : v_session,
         'menu_item': 'connections',
+        'desktop_mode': settings.DESKTOP_MODE,
         'omnidb_version': settings.OMNIDB_VERSION
     }
 

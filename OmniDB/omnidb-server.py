@@ -28,7 +28,7 @@ import django.contrib.auth.middleware
 import django.contrib.sessions.middleware
 import django.contrib.sessions.serializers
 import django.template.loaders
-import django.contrib.auth.context_processors25480
+import django.contrib.auth.context_processors
 import django.contrib.messages.context_processors
 import psycopg2
 

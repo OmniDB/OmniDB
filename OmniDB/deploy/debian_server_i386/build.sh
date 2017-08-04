@@ -3,7 +3,7 @@
 VERSION=2.0.2
 ARCH=debian-i386
 
-cd ~/OmniDB/
+cd ~/OmniDB/OmniDB
 
 echo -n "Cleaning... "
 rm -rf build
@@ -51,7 +51,7 @@ Package: omnidb-server
 Version: $VERSION
 Section: base
 Priority: optional
-Architecture: amd64
+Architecture: i386
 Installed-Size: $(du -s)
 Maintainer: The OmniDB Team
 Homepage: http://omnidb.org

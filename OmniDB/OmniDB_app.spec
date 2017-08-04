@@ -38,34 +38,6 @@ coll_a = COLLECT(exe_a,
                upx=True,
                name='omnidb-app')
 
-b = Analysis(['omnidb-server.py'],
-             binaries=[],
-             datas=data_files,
-             hiddenimports=[],
-             hookspath=[],
-             runtime_hooks=[],
-             excludes=[],
-             win_no_prefer_redirects=False,
-             win_private_assemblies=False,
-             cipher=block_cipher)
-pyz_b = PYZ(b.pure, b.zipped_data,
-             cipher=block_cipher)
-exe_b = EXE(pyz_a,
-          b.scripts,
-          exclude_binaries=True,
-          name='omnidb-server',
-          debug=False,
-          strip=False,
-          upx=True,
-          console=True )
-coll_b = COLLECT(exe_b,
-               b.binaries,
-               b.zipfiles,
-               b.datas,
-               strip=False,
-               upx=True,
-               name='omnidb-server')
-
 c = Analysis(['omnidb-config.py'],
             binaries=[],
             datas=[],
@@ -93,4 +65,3 @@ coll_c = COLLECT(exe_c,
               strip=False,
               upx=True,
               name='omnidb-config')
-

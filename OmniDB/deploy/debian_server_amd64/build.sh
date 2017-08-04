@@ -3,7 +3,7 @@
 VERSION=2.0.2
 ARCH=debian-amd64
 
-cd ~/OmniDB/
+cd ~/OmniDB/OmniDB
 
 echo -n "Cleaning... "
 rm -rf build

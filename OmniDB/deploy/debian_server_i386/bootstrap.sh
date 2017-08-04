@@ -16,7 +16,7 @@ echo "Done"
 
 echo "Installing Python $PYTHON_VERSION..."
 env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install $PYTHON_VERSION
-pyenv local $PYTHON_VERSION
+pyenv global $PYTHON_VERSION
 echo "Done"
 
 echo "Cloning OmniDB repo..."
@@ -29,10 +29,10 @@ echo "Done"
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install -r ~/OmniDB/requirements.txt
-pip install -r ~/OmniDB/deploy/requirements_for_deploy_server.txt
+pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/deploy/debian_server_i386/
+cd ~/OmniDB/OmniDB/deploy/debian_server_i386/
 ./build.sh
 echo "Done"

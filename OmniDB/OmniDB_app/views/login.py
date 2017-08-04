@@ -127,7 +127,7 @@ def sign_in_automatic(request, username, pwd):
 
             return len(v_session.v_databases)
 
-        return -1
+    return -1
 
 
 def sign_in(request):

@@ -58,7 +58,8 @@ exe_b = EXE(pyz_a,
           debug=False,
           strip=False,
           upx=True,
-          console=True )
+          console=True,
+          icon='icons/win-icon.ico' )
 coll_b = COLLECT(exe_b,
                b.binaries,
                b.zipfiles,
@@ -86,7 +87,8 @@ exe_c = EXE(pyz_c,
          debug=False,
          strip=False,
          upx=True,
-         console=True )
+         console=True,
+         icon='icons/win-icon.ico' )
 coll_c = COLLECT(exe_c,
               c.binaries,
               c.zipfiles,

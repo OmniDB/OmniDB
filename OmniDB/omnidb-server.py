@@ -28,7 +28,7 @@ import django.contrib.auth.middleware
 import django.contrib.sessions.middleware
 import django.contrib.sessions.serializers
 import django.template.loaders
-import django.contrib.auth.context_processors
+import django.contrib.auth.context_processors25480
 import django.contrib.messages.context_processors
 import psycopg2
 
@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
     parser = optparse.OptionParser(version=OmniDB.settings.OMNIDB_VERSION)
     parser.add_option("-p", "--port", dest="port",
-                      default=OmniDB.settings.OMNIDB_DEFAULT_PORT, type=int,
+                      default=OmniDB.settings.OMNIDB_DEFAULT_SERVER_PORT, type=int,
                       help="listening port")
     (options, args) = parser.parse_args()
 

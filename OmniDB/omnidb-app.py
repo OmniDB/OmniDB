@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     parser = optparse.OptionParser(version=OmniDB.settings.OMNIDB_VERSION)
     parser.add_option("-p", "--port", dest="port",
-                      default=OmniDB.settings.OMNIDB_DEFAULT_PORT, type=int,
+                      default=OmniDB.settings.OMNIDB_DEFAULT_APP_PORT, type=int,
                       help="listening port")
     (options, args) = parser.parse_args()
 

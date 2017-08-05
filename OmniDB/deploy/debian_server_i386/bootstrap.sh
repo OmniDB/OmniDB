@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash
 
 PYTHON_VERSION=3.5.2
 

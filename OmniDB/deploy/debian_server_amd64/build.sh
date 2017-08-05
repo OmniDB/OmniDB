@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash
 
 VERSION=2.0.2
 ARCH=debian-amd64

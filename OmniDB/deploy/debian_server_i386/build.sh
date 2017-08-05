@@ -33,7 +33,6 @@ tar -czvf omnidb-server_$VERSION-$ARCH.tar.gz omnidb-server_$VERSION-$ARCH
 echo "Done"
 
 echo "Generating deb packages... "
-cd packages
 mv omnidb-server_$VERSION-$ARCH omnidb-server
 mkdir -p omnidb-server_$VERSION-$ARCH
 cd omnidb-server_$VERSION-$ARCH

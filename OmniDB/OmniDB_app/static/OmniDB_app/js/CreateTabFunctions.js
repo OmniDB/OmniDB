@@ -12,7 +12,7 @@ You should have received a copy of the GNU General Public License along with Omn
 
 function initCreateTabFunctions() {
 
-  var v_createConnTabFunction = function(p_index) {
+  var v_createConnTabFunction = function(p_index, p_notDefaultOpening) {
 
   	v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
   	var v_tab = v_connTabControl.createTab(
@@ -21,7 +21,15 @@ function initCreateTabFunctions() {
         null,
         null,
         null,
-        null,
+        function(p_tab) {
+            execAjax('/remove_parent_tab/',
+                JSON.stringify({"p_tab_id": p_tab.tag.tabId}),
+                null,
+                null,
+                'box',
+                false
+            );
+        },
         true,
         function() {
           if(this.tag != null) {
@@ -74,8 +82,6 @@ function initCreateTabFunctions() {
 
   	v_tab.tag = v_tag;
 
-  	v_connTabControl.tag.createQueryTab();
-
     var v_index = 0;
     if (p_index)
       v_index = p_index;
@@ -87,12 +93,23 @@ function initCreateTabFunctions() {
 
   	changeDatabase(v_index)
 
-  	v_connTabControl.createTab('+',false,v_createConnTabFunction);
-
     setTimeout(function() {
       refreshTreeHeight();
     },10);
 
+    if(!p_notDefaultOpening) {
+        execAjax('/create_parent_tab/',
+            JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_tab_sequence": v_connTabControl.tabList.indexOf(v_connTabControl.selectedTab), "p_mode": v_connTabControl.selectedTab.tag.mode}),
+            function(p_return) {
+                v_connTabControl.selectedTab.tag.tabId = p_return.v_data;
+                v_connTabControl.tag.createQueryTab();
+              	v_connTabControl.createTab('+',false,v_createConnTabFunction);
+            },
+            null,
+            'box',
+            false
+        );
+    }
   }
 
   var v_createSnippetTabFunction = function() {
@@ -263,7 +280,7 @@ function initCreateTabFunctions() {
 
 	};
 
-  var v_createGraphTabFunction = function(p_name) {
+  var v_createGraphTabFunction = function(p_name, p_notDefaultOpening) {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
@@ -272,7 +289,15 @@ function initCreateTabFunctions() {
       null,
       null,
       null,
-      null,
+      function(p_tab) {
+          execAjax('/remove_child_tab/',
+              JSON.stringify({"p_tab_id": p_tab.tag.tabId}),
+              null,
+              null,
+              'box',
+              false
+          );
+      },
       true,
       function() {
         if(this.tag != null) {
@@ -302,22 +327,39 @@ function initCreateTabFunctions() {
 			tab_title_span : v_tab_title_span,
 			tab_close_span : v_tab_close_span,
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
-      bt_save: document.getElementById('bt_save_' + v_tab.id),
+            bt_save: document.getElementById('bt_save_' + v_tab.id),
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
-      network: null
+            network: null
 		};
 
 		v_tab.tag = v_tag;
 
 		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
 
-    setTimeout(function() {
-      refreshHeights();
-    },10);
+        setTimeout(function() {
+          refreshHeights();
+        },10);
 
+        if(!p_notDefaultOpening) {
+            execAjax('/create_child_tab/',
+                JSON.stringify({
+                    "p_parent_tab_id": v_connTabControl.selectedTab.tag.tabId,
+                    "p_tab_sequence": v_connTabControl.selectedTab.tag.tabControl.tabList.indexOf(v_connTabControl.selectedTab.tag.tabControl.selectedTab),
+                    "p_mode": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode,
+                    "p_content": '',
+                    "p_params": p_name || ''
+                }),
+                function(p_return) {
+                    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId = p_return.v_data;
+                },
+                null,
+                'box',
+                false
+            );
+        }
 	};
 
-  var v_createQueryTabFunction = function(p_table) {
+  var v_createQueryTabFunction = function(p_table, p_notDefaultOpening) {
 
 		var v_name = 'Query';
 		if (p_table)
@@ -330,7 +372,15 @@ function initCreateTabFunctions() {
             null,
             renameTab,
             null,
-            null,
+            function(p_tab) {
+                execAjax('/remove_child_tab/',
+                    JSON.stringify({"p_tab_id": p_tab.tag.tabId}),
+                    null,
+                    null,
+                    'box',
+                    false
+                );
+            },
             true,
             function() {
               if(this.tag != null) {
@@ -386,11 +436,11 @@ function initCreateTabFunctions() {
 
 		v_editor.commands.bindKey("ctrl-space", null);
 
-    //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
-    v_editor.commands.bindKey("Cmd-,", null)
-    v_editor.commands.bindKey("Ctrl-,", null)
-    v_editor.commands.bindKey("Cmd-Delete", null)
-    v_editor.commands.bindKey("Ctrl-Delete", null)
+        //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+        v_editor.commands.bindKey("Cmd-,", null)
+        v_editor.commands.bindKey("Ctrl-,", null)
+        v_editor.commands.bindKey("Cmd-Delete", null)
+        v_editor.commands.bindKey("Ctrl-Delete", null)
 
 		document.getElementById('txt_query_' + v_tab.id).onclick = function() {
 
@@ -485,26 +535,69 @@ function initCreateTabFunctions() {
 			tab_close_span : v_tab_close_span,
 			tab_check_span : v_tab_check_span,
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
-      bt_save: document.getElementById('bt_save_' + v_tab.id),
-      bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
+            bt_save: document.getElementById('bt_save_' + v_tab.id),
+            bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
 			state : 0,
-      context: null,
+            context: null,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
 			connTab: v_connTabControl.selectedTab
 		};
 
 		v_tab.tag = v_tag;
 
-
 		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
 
-    setTimeout(function() {
-      refreshHeights();
-    },10);
+        setTimeout(function() {
+          refreshHeights();
+        },10);
 
+        v_editor.on(
+            'focus',
+            function(p_editor, p_event) {
+                p_editor.oldValue = p_editor.getValue();
+            }.bind(v_editor, v_editor)
+        )
+
+        v_editor.on(
+            'blur',
+            function(p_editor, p_event) {
+                var v_newValue = p_editor.getValue();
+
+                if(v_newValue != p_editor.oldValue) {
+                    execAjax('/update_child_tab/',
+                        JSON.stringify({
+                            "p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+                            "p_content": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue()
+                        }),
+                        null,
+                        null,
+                        'box',
+                        false
+                    );
+                }
+            }.bind(v_editor, v_editor)
+        )
+
+        if(!p_notDefaultOpening) {
+            execAjax('/create_child_tab/',
+                JSON.stringify({
+                    "p_parent_tab_id": v_connTabControl.selectedTab.tag.tabId,
+                    "p_tab_sequence": v_connTabControl.selectedTab.tag.tabControl.tabList.indexOf(v_connTabControl.selectedTab.tag.tabControl.selectedTab),
+                    "p_mode": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode,
+                    "p_content": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue(),
+                    "p_params": p_table || ''
+                }),
+                function(p_return) {
+                    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId = p_return.v_data;
+                },
+                null,
+                'box',
+                false
+            );
+        }
 	};
 
-  var v_createEditDataTabFunction = function(p_table) {
+  var v_createEditDataTabFunction = function(p_table, p_notDefaultOpening) {
 
     v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
     var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
@@ -513,7 +606,15 @@ function initCreateTabFunctions() {
         null,
         null,
         null,
-        removeTab,
+        function(p_tab) {
+            execAjax('/remove_child_tab/',
+                JSON.stringify({"p_tab_id": p_tab.tag.tabId}),
+                null,
+                null,
+                'box',
+                false
+            );
+        },
         true,
         function() {
           if(this.tag != null) {
@@ -609,7 +710,7 @@ function initCreateTabFunctions() {
     v_editor.commands.addCommand(command);
 
     var qtags = {
-      getCompletions: function(editor, session, pos, prefix, callback) {
+        getCompletions: function(editor, session, pos, prefix, callback) {
 
         if (v_completer_ready) {
 
@@ -671,6 +772,7 @@ function initCreateTabFunctions() {
       sel_export_type : document.getElementById('sel_export_type_' + v_tab.id),
       bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
       bt_save: document.getElementById('bt_save_' + v_tab.id),
+      table: p_table,
       tab_title_span : v_tab_title_span,
       tab_loading_span : v_tab_loading_span,
       tab_close_span : v_tab_close_span,
@@ -689,10 +791,53 @@ function initCreateTabFunctions() {
       refreshHeights();
     },10);
 
+    v_editor.on(
+        'focus',
+        function(p_editor, p_event) {
+            p_editor.oldValue = p_editor.getValue();
+        }.bind(v_editor, v_editor)
+    )
+
+    v_editor.on(
+        'blur',
+        function(p_editor, p_event) {
+            var v_newValue = p_editor.getValue();
+
+            if(v_newValue != p_editor.oldValue) {
+                execAjax('/update_child_tab/',
+                    JSON.stringify({
+                        "p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+                        "p_content": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue()
+                    }),
+                    null,
+                    null,
+                    'box',
+                    false
+                );
+            }
+        }.bind(v_editor, v_editor)
+    )
+
+    if(!p_notDefaultOpening) {
+        execAjax('/create_child_tab/',
+            JSON.stringify({
+                "p_parent_tab_id": v_connTabControl.selectedTab.tag.tabId,
+                "p_tab_sequence": v_connTabControl.selectedTab.tag.tabControl.tabList.indexOf(v_connTabControl.selectedTab.tag.tabControl.selectedTab),
+                "p_mode": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode,
+                "p_content": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue(),
+                "p_params": p_table || ''
+            }),
+            function(p_return) {
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId = p_return.v_data;
+            },
+            null,
+            'box',
+            false
+        );
+    }
   };
 
-	var v_createAlterTableTabFunction = function(p_table) {
-
+	var v_createAlterTableTabFunction = function(p_table, p_notDefaultOpening) {
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
             '<img src="/static/OmniDB_app/images/table_edit.png"/><span id="tab_title"> ' + p_table + '</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
@@ -700,7 +845,15 @@ function initCreateTabFunctions() {
             null,
             null,
             null,
-            removeTab,
+            function(p_tab) {
+                execAjax('/remove_child_tab/',
+                    JSON.stringify({"p_tab_id": p_tab.tag.tabId}),
+                    null,
+                    null,
+                    'box',
+                    false
+                );
+            },
             true,
             function() {
               if(this.tag != null) {
@@ -771,14 +924,14 @@ function initCreateTabFunctions() {
 
 			v_curr_tabs.selectTabIndex(0);
 			v_tag.alterTableObject.window = 'columns';
-      refreshHeights();
+            refreshHeights();
 		}
 
 		v_curr_tabs.tabList[1].elementLi.onclick = function() {
 
 			v_curr_tabs.selectTabIndex(1);
 			v_tag.alterTableObject.window = 'constraints';
-      refreshHeights();
+            refreshHeights();
 		}
 
 		v_curr_tabs.tabList[2].elementLi.onclick = function() {
@@ -788,7 +941,7 @@ function initCreateTabFunctions() {
 			else {
 				v_curr_tabs.selectTabIndex(2);
 				v_tag.alterTableObject.window = 'indexes';
-        refreshHeights();
+                refreshHeights();
 			}
 
 		}
@@ -799,22 +952,40 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
 
-    setTimeout(function() {
-      refreshHeights();
-    },10);
+        setTimeout(function() {
+          refreshHeights();
+        },10);
+
+        if(!p_notDefaultOpening) {
+            execAjax('/create_child_tab/',
+                JSON.stringify({
+                    "p_parent_tab_id": v_connTabControl.selectedTab.tag.tabId,
+                    "p_tab_sequence": v_connTabControl.selectedTab.tag.tabControl.tabList.indexOf(v_connTabControl.selectedTab.tag.tabControl.selectedTab),
+                    "p_mode": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode,
+                    "p_content": '',
+                    "p_params": p_table || ''
+                }),
+                function(p_return) {
+                    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId = p_return.v_data;
+                },
+                null,
+                'box',
+                false
+            );
+        }
 
 	};
 
-  //Functions to create tabs globally
-  v_connTabControl.tag.createConnTab = v_createConnTabFunction;
-  v_connTabControl.tag.createSnippetTab = v_createSnippetTabFunction;
+    //Functions to create tabs globally
+    v_connTabControl.tag.createConnTab = v_createConnTabFunction;
+    v_connTabControl.tag.createSnippetTab = v_createSnippetTabFunction;
 
-  //Functions to create tabs inside snippet tab
-  v_connTabControl.tag.createSnippetTextTab = v_createSnippetTextTabFunction;
+    //Functions to create tabs inside snippet tab
+    v_connTabControl.tag.createSnippetTextTab = v_createSnippetTextTabFunction;
 
-  //Functions to create tabs inside a connection tab
+    //Functions to create tabs inside a connection tab
 	v_connTabControl.tag.createQueryTab = v_createQueryTabFunction;
 	v_connTabControl.tag.createEditDataTab = v_createEditDataTabFunction;
 	v_connTabControl.tag.createAlterTableTab = v_createAlterTableTabFunction;
-  v_connTabControl.tag.createGraphTab = v_createGraphTabFunction;
+    v_connTabControl.tag.createGraphTab = v_createGraphTabFunction;
 }

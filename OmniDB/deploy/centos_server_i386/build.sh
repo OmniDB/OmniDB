@@ -30,7 +30,6 @@ echo "Done."
 echo "Generating tar.gz packages... "
 cd deploy/packages
 tar -czvf omnidb-server_$VERSION-$ARCH.tar.gz omnidb-server_$VERSION-$ARCH
-cd ..
 echo "Done"
 
 echo -n "Cleaning... "

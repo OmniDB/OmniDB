@@ -689,15 +689,34 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception("PostgreSQL is not supported. Please install it with 'pip install Spartacus[postgresql]'.")
     def Open(self, p_autocommit=False):
         try:
-            self.v_con = psycopg2.connect(
-                'host={0} port={1} dbname={2} user={3} password={4}'.format(
-                    self.v_host,
-                    self.v_port,
-                    self.v_service,
-                    self.v_user,
-                    self.v_password
-                ),
-                cursor_factory=psycopg2.extras.DictCursor)
+            if self.v_host is None or self.v_host = '':
+                if self.v_password is None or self.v_password = '':
+                    self.v_con = psycopg2.connect(
+                        'port={1} dbname={2} user={3}'.format(
+                            self.v_port,
+                            self.v_service,
+                            self.v_user,
+                        ),
+                        cursor_factory=psycopg2.extras.DictCursor)
+                else:
+                    self.v_con = psycopg2.connect(
+                        'port={1} dbname={2} user={3} password={4}'.format(
+                            self.v_port,
+                            self.v_service,
+                            self.v_user,
+                            self.v_password
+                        ),
+                        cursor_factory=psycopg2.extras.DictCursor)
+            else:
+                self.v_con = psycopg2.connect(
+                    'host={0} port={1} dbname={2} user={3} password={4}'.format(
+                        self.v_host,
+                        self.v_port,
+                        self.v_service,
+                        self.v_user,
+                        self.v_password
+                    ),
+                    cursor_factory=psycopg2.extras.DictCursor)
             self.v_con.autocommit = p_autocommit
             self.v_cur = self.v_con.cursor()
             self.v_start = True
@@ -706,6 +725,12 @@ class PostgreSQL(Generic):
             self.v_types = dict([(r['oid'], r['typname']) for r in self.v_cur.fetchall()])
             if not p_autocommit:
                 self.v_con.commit()
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
         except Spartacus.Database.Exception as exc:
             raise exc
         except psycopg2.Error as exc:

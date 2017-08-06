@@ -30,11 +30,11 @@ echo "Done."
 echo -n "Copying libgconf... "
 if [ $ARCH == "centos-amd64" ]
 then
-	cp /usr/lib/x86_64-linux-gnu/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
-	cp /usr/lib/x86_64-linux-gnu/libgconf-2.so.4 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
+	cp /usr/lib64/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
+	cp /usr/lib64/libgconf-2.so.4 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
 else
-	cp /usr/lib/i386-linux-gnu/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
-	cp /usr/lib/i386-linux-gnu/libgconf-2.so.4 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
+	cp /usr/lib/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
+	cp /usr/lib/libgconf-2.so.4 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
 fi
 chmod 755 deploy/packages/omnidb-app/libgconf-2.so.4
 chmod 755 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
@@ -43,11 +43,11 @@ echo "Done."
 echo -n "Copying libxcb... "
 if [ $ARCH == "centos-amd64" ]
 then
-	cp /usr/lib/x86_64-linux-gnu/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
-	cp /usr/lib/x86_64-linux-gnu/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
+	cp /usr/lib64/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
+	cp /usr/lib64/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
 else
-	cp /usr/lib/i386-linux-gnu/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
-	cp /usr/lib/i386-linux-gnu/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
+	cp /usr/lib/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
+	cp /usr/lib/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
 fi
 chmod 755 deploy/packages/omnidb-app/libxcb.so.1
 chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
@@ -56,11 +56,11 @@ echo "Done."
 echo -n "Copying libXss... "
 if [ $ARCH == "centos-amd64" ]
 then
-	cp /usr/lib/x86_64-linux-gnu/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
-	cp /usr/lib/x86_64-linux-gnu/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
+	cp /usr/lib64/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
+	cp /usr/lib64/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
 else
-	cp /usr/lib/i386-linux-gnu/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
-	cp /usr/lib/i386-linux-gnu/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
+	cp /usr/lib/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
+	cp /usr/lib/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
 fi
 chmod 755 deploy/packages/omnidb-app/libXss.so.1
 chmod 755 deploy/packages/omnidb-app/cefpython3/libXss.so.1

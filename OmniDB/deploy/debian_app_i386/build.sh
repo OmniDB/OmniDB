@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=2.0.3
-ARCH=debian-amd64
+ARCH=debian-i386
 
 cd ~/OmniDB/OmniDB
 
@@ -106,7 +106,7 @@ Package: omnidb-app
 Version: $VERSION
 Section: base
 Priority: optional
-Architecture: amd64
+Architecture: i386
 Installed-Size: $(du -s)
 Maintainer: The OmniDB Team
 Homepage: http://omnidb.org

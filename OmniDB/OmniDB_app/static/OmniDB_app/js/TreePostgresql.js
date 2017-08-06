@@ -381,6 +381,7 @@ function getTreePostgresql(p_div) {
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value = 10;
 
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue('-- Querying Data\nselect t.*\nfrom ' + v_table_name + ' t');
+
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
 											renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,node.text);
 

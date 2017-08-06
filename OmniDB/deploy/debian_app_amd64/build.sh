@@ -72,6 +72,7 @@ echo "Done."
 
 echo "Generating tar.gz packages... "
 cd deploy/packages
+chown -R vagrant:vagrant omnidb-app_$VERSION-$ARCH
 tar -czvf omnidb-app_$VERSION-$ARCH.tar.gz omnidb-app_$VERSION-$ARCH
 echo "Done"
 
@@ -113,11 +114,12 @@ Description: OmniDB is a web tool that simplifies database management focusing o
  OmniDB is supported by 2ndQuadrant (http://www.2ndquadrant.com)
 EOF
 cd ..
+chown -R vagrant:vagrant omnidb-app_$VERSION-$ARCH
 dpkg -b omnidb-app_$VERSION-$ARCH
 echo "Done"
 
 echo -n "Cleaning... "
-rm -rf omnidb-server_$VERSION-$ARCH
+rm -rf omnidb-app_$VERSION-$ARCH
 echo "Done"
 
 cd ../..

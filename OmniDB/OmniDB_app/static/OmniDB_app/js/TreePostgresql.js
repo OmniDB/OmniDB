@@ -11,7 +11,20 @@ You should have received a copy of the GNU General Public License along with Omn
 */
 
 function tabSQLTemplate(p_tab_name,p_template) {
-	v_connTabControl.tag.createQueryTab(p_tab_name);
+	var v_callback = function() {
+		execAjax('/update_child_tab/',
+			JSON.stringify({
+				"p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+				"p_content": p_template
+			}),
+			null,
+			null,
+			'box',
+			false
+		);
+	};
+
+	v_connTabControl.tag.createQueryTab(p_tab_name, false, v_callback);
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_template);
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
@@ -317,6 +330,7 @@ function getTreePostgresql(p_div) {
 							action : function(node) {
 								if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
 									v_connTabControl.tag.createQueryTab(node.text);
+
 								getFunctionDefinitionPostgresql(node);
 							}
 						},
@@ -375,8 +389,34 @@ function getTreePostgresql(p_div) {
 											else
 												v_table_name = node.text;
 
-											if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query')
-												v_connTabControl.tag.createQueryTab(node.text);
+											if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query') {
+												var v_callback = function() {
+													execAjax('/update_child_tab/',
+								                        JSON.stringify({
+								                            "p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+								                            "p_content": '-- Querying Data\nselect t.*\nfrom ' + v_table_name + ' t'
+								                        }),
+								                        null,
+								                        null,
+								                        'box',
+								                        false
+								                    );
+												};
+
+												v_connTabControl.tag.createQueryTab(node.text, false, v_callback);
+											}
+											else {
+												execAjax('/update_child_tab/',
+							                        JSON.stringify({
+							                            "p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+							                            "p_content": '-- Querying Data\nselect t.*\nfrom ' + v_table_name + ' t'
+							                        }),
+							                        null,
+							                        null,
+							                        'box',
+							                        false
+							                    );
+											}
 
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value = 10;
 
@@ -408,8 +448,34 @@ function getTreePostgresql(p_div) {
 											else
 												v_table_name = node.text;
 
-											if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query')
-												v_connTabControl.tag.createQueryTab(node.text);
+											if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query') {
+												var v_callback = function() {
+													execAjax('/update_child_tab/',
+								                        JSON.stringify({
+								                            "p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+								                            "p_content": "-- Counting Records\nselect count(*) as count\nfrom " + v_table_name + " t"
+								                        }),
+								                        null,
+								                        null,
+								                        'box',
+								                        false
+								                    );
+												};
+
+												v_connTabControl.tag.createQueryTab(node.text, false, v_callback);
+											}
+											else {
+												execAjax('/update_child_tab/',
+													JSON.stringify({
+														"p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+														"p_content": "-- Counting Records\nselect count(*) as count\nfrom " + v_table_name + " t"
+													}),
+													null,
+													null,
+													'box',
+													false
+												);
+											}
 
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue("-- Counting Records\nselect count(*) as count\nfrom " + v_table_name + " t");
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
@@ -422,7 +488,20 @@ function getTreePostgresql(p_div) {
 										text : 'Delete Records',
 										icon: '/static/OmniDB_app/images/tab_close.png',
 										action : function(node) {
-											v_connTabControl.tag.createQueryTab('Delete Records');
+											var v_callback = function() {
+												execAjax('/update_child_tab/',
+													JSON.stringify({
+														"p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+														"p_content": "-- Counting Records\nselect count(*) as count\nfrom " + v_table_name + " t"
+													}),
+													null,
+													null,
+													'box',
+													false
+												);
+											};
+
+											v_connTabControl.tag.createQueryTab('Delete Records', false, v_callback);
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue('DELETE FROM ' + node.text);
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
 											v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
@@ -545,8 +624,36 @@ function getTreePostgresql(p_div) {
                                 else
                                     v_table_name = node.text;
 
-                                if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query')
-                                    v_connTabControl.tag.createQueryTab(node.text);
+                                if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query') {
+									var v_callback = function() {
+										execAjax('/update_child_tab/',
+											JSON.stringify({
+												"p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+												"p_content": '-- Querying Data\nselect t.*\nfrom ' + v_table_name + ' t'
+											}),
+											null,
+											null,
+											'box',
+											false
+										);
+									};
+
+                                    v_connTabControl.tag.createQueryTab(node.text, false, v_callback);
+								}
+								else {
+									var v_callback = function() {
+										execAjax('/update_child_tab/',
+											JSON.stringify({
+												"p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+												"p_content": '-- Querying Data\nselect t.*\nfrom ' + v_table_name + ' t'
+											}),
+											null,
+											null,
+											'box',
+											false
+										);
+									};
+								}
 
                                 v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value = 10;
 
@@ -1333,6 +1440,18 @@ function getFunctionDefinitionPostgresql(node) {
 			function(p_return) {
 
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
+
+				execAjax('/update_child_tab/',
+					JSON.stringify({
+						"p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+						"p_content": p_return.v_data
+					}),
+					null,
+					null,
+					'box',
+					false
+				);
+
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
 				//v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
@@ -1368,6 +1487,17 @@ function getViewDefinitionPostgresql(node) {
 	execAjax('/get_view_definition_postgresql/',
 			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_view": node.text, "p_schema": node.parent.parent.text}),
 			function(p_return) {
+
+				execAjax('/update_child_tab/',
+					JSON.stringify({
+						"p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
+						"p_content": p_return.v_data
+					}),
+					null,
+					null,
+					'box',
+					false
+				);
 
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();

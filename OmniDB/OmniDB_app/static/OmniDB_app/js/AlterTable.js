@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License along with Omn
 /// <param name="p_mode">Alter or new table.</param>
 /// <param name="p_table">Table name.</param>
 /// <param name="p_schema">Schema name.</param>
-function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
+function startAlterTable(p_create_tab, p_mode, p_table, p_schema, p_notDefaultOpening, p_callback) {
 
 	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": p_table, "p_schema": p_schema});
 
@@ -26,12 +26,12 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 
 					if (p_create_tab) {
 						if (p_mode=='new')
-							v_connTabControl.tag.createAlterTableTab("New Table");
+							v_connTabControl.tag.createAlterTableTab("New Table", p_notDefaultOpening, p_callback);
 						else {
 							if (p_schema)
-								v_connTabControl.tag.createAlterTableTab(p_schema + '.' + p_table);
+								v_connTabControl.tag.createAlterTableTab(p_schema + '.' + p_table, p_notDefaultOpening, p_callback);
 							else
-								v_connTabControl.tag.createAlterTableTab(p_table);
+								v_connTabControl.tag.createAlterTableTab(p_table, p_notDefaultOpening, p_callback);
 						}
 					}
 

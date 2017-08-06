@@ -359,7 +359,7 @@ function initCreateTabFunctions() {
         }
 	};
 
-  var v_createQueryTabFunction = function(p_table, p_notDefaultOpening) {
+  var v_createQueryTabFunction = function(p_table, p_notDefaultOpening, p_callback) {
 
 		var v_name = 'Query';
 		if (p_table)
@@ -589,11 +589,20 @@ function initCreateTabFunctions() {
                 }),
                 function(p_return) {
                     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId = p_return.v_data;
+
+                    if(p_callback != null) {
+                        p_callback();
+                    }
                 },
                 null,
                 'box',
                 false
             );
+        }
+        else {
+            if(p_callback != null) {
+                p_callback();
+            }
         }
 	};
 

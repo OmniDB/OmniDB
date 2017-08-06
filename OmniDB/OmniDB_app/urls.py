@@ -58,6 +58,7 @@ urlpatterns = [
     url(r'^create_child_tab/', views.workspace.create_child_tab, name='create_child_tab'),
     url(r'^remove_child_tab/', views.workspace.remove_child_tab, name='remove_child_tab'),
     url(r'^update_child_tab/', views.workspace.update_child_tab, name='update_child_tab'),
+    url(r'^get_tab_list/', views.workspace.get_tab_list, name='get_tab_list'),
 
     #TREE_SNIPPETS
     url(r'^get_node_children/', views.tree_snippets.get_node_children, name='get_node_children'),

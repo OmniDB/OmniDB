@@ -1870,6 +1870,8 @@ def remove_child_tab(request):
             where id = {0}
         '''.format(v_tab_id)
 
+        print(v_sql)
+
         v_database.Execute(v_sql)
 
         v_database.Close()
@@ -1909,6 +1911,52 @@ def update_child_tab(request):
         '''.format(v_content, v_tab_id)
 
         v_database.Execute(v_sql)
+
+        v_database.Close()
+    except Database.Exception as exc:
+        v_return['v_error'] = True
+        v_return['v_data'] = str(exc)
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def get_tab_list(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    try:
+        v_database = Database.SQLite(v_session.v_omnidb_database.v_connection.v_service)
+        v_database.Open()
+
+        v_sql = '''
+            select cht.parent_id,
+                   pat.conn_id,
+                   pat.sequence as parent_sequence,
+                   cht.id,
+                   cht.mode,
+                   cht.content,
+                   cht.params,
+                   cht.sequence as child_sequence
+            from parent_tabs pat
+            inner join child_tabs cht
+                       on pat.id = cht.parent_id
+            where pat.user_id = {0}
+            order by pat.sequence, cht.sequence
+        '''.format(v_session.v_user_id)
+
+        v_table = v_database.Query(v_sql, True)
+
+        v_return['v_data'] = v_table.Rows
 
         v_database.Close()
     except Database.Exception as exc:

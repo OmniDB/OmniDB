@@ -689,8 +689,8 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception("PostgreSQL is not supported. Please install it with 'pip install Spartacus[postgresql]'.")
     def Open(self, p_autocommit=False):
         try:
-            if self.v_host is None or self.v_host = '':
-                if self.v_password is None or self.v_password = '':
+            if self.v_host is None or self.v_host == '':
+                if self.v_password is None or self.v_password == '':
                     self.v_con = psycopg2.connect(
                         'port={1} dbname={2} user={3}'.format(
                             self.v_port,

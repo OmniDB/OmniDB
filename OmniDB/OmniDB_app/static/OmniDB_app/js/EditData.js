@@ -26,7 +26,7 @@ var v_editDataState = {
 /// </summary>
 /// <param name="p_table">Table name.</param>
 /// <param name="p_schema">Schema name.</param>
-function startEditData(p_table,p_schema, p_notDefaultOpening, p_callback) {
+function startEditData(p_table,p_schema) {
 
 	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
 															"p_table" : p_table,
@@ -36,23 +36,10 @@ function startEditData(p_table,p_schema, p_notDefaultOpening, p_callback) {
 			input,
 			function(p_return) {
 
-				var v_callback = function() {
-					execAjax('/update_child_tab/',
-						JSON.stringify({
-							"p_tab_id": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabId,
-							"p_content": p_return.v_data.v_ini_orderby
-						}),
-						null,
-						null,
-						'box',
-						false
-					);
-				};
-
 				if (p_schema)
-					v_connTabControl.tag.createEditDataTab(p_schema + '.' + p_table, p_notDefaultOpening, p_callback);
+					v_connTabControl.tag.createEditDataTab(p_schema + '.' + p_table);
 				else
-					v_connTabControl.tag.createEditDataTab(p_table, p_notDefaultOpening, p_callback);
+					v_connTabControl.tag.createEditDataTab(p_table);
 
 				var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 

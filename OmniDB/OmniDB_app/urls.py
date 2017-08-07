@@ -53,12 +53,6 @@ urlpatterns = [
     url(r'^get_command_list/', views.workspace.get_command_list, name='get_command_list'),
     url(r'^clear_command_list/', views.workspace.clear_command_list, name='clear_command_list'),
     url(r'^indent_sql/', views.workspace.indent_sql, name='indent_sql'),
-    url(r'^create_parent_tab/', views.workspace.create_parent_tab, name='create_parent_tab'),
-    url(r'^remove_parent_tab/', views.workspace.remove_parent_tab, name='remove_parent_tab'),
-    url(r'^create_child_tab/', views.workspace.create_child_tab, name='create_child_tab'),
-    url(r'^remove_child_tab/', views.workspace.remove_child_tab, name='remove_child_tab'),
-    url(r'^update_child_tab/', views.workspace.update_child_tab, name='update_child_tab'),
-    url(r'^get_tab_list/', views.workspace.get_tab_list, name='get_tab_list'),
 
     #TREE_SNIPPETS
     url(r'^get_node_children/', views.tree_snippets.get_node_children, name='get_node_children'),

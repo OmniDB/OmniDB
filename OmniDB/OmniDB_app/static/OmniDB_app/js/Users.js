@@ -59,7 +59,7 @@ function removeUserConfirm(p_id) {
 	execAjax('/remove_user/',
 			input,
 			function(p_return) {
-				document.getElementById('div_save').style.visibility = 'hidden';
+				document.getElementById('div_save_users').style.visibility = 'hidden';
 				listUsers();
 			},
 			null,
@@ -124,7 +124,7 @@ function saveUsers() {
 			function() {
 
 				v_usersObject.v_cellChanges = [];
-				document.getElementById('div_save').style.visibility = 'hidden';
+				document.getElementById('div_save_users').style.visibility = 'hidden';
 				listUsers();
 
 			},
@@ -221,7 +221,7 @@ function listUsers() {
 
 														        	v_usersObject.v_cellChanges.push(cellChange);
 
-														            document.getElementById('div_save').style.visibility = 'visible';
+														            document.getElementById('div_save_users').style.visibility = 'visible';
 
 														        }
 														    });

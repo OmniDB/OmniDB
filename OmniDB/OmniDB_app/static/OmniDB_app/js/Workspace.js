@@ -186,69 +186,6 @@ $(function () {
 	}
 */
 	startQueryWebSocket(v_query_port);
-
-	//Recover last opened tabs
-	execAjax('/get_tab_list/',
-		null,
-		function(p_return) {
-			console.log(p_return.v_data);
-
-			for(var i = 0; i < p_return.v_data.length; i++) {
-				if(v_connTabControl.tabList[p_return.v_data[i].parent_sequence] == null) {
-					v_connTabControl.tag.createConnTab(p_return.v_data[i].conn_id - 1);
-
-					v_connTabControl.tabList[p_return.v_data[i].parent_sequence].tag.id = p_return.v_data[i].parent_id;
-				}
-
-				switch(p_return.v_data[i].mode) {
-					case 'query': {
-						var v_callback = function() {
-							v_connTabControl.tabList[p_return.v_data[i].parent_sequence].tag.tabControl.tabList[p_return.v_data[i].child_sequence].tag.id = p_return.v_data[i].id;
-							v_connTabControl.tabList[p_return.v_data[i].parent_sequence].tag.tabControl.tabList[p_return.v_data[i].child_sequence].tag.editor.setValue(p_return.v_data[i].content);
-						};
-
-						var v_name = 'Query'
-
-						if(p_return.v_data[i].params != '') {
-							v_name = p_return.v_data[i].params;
-						}
-
-						v_connTabControl.tag.createQueryTab(v_name, true, v_callback);
-
-						break;
-					}
-					case 'edit': {
-						var v_callback = function() {
-							v_connTabControl.tabList[p_return.v_data[i].parent_sequence].tag.tabControl.tabList[p_return.v_data[i].child_sequence].tag.id = p_return.v_data[i].id;
-							v_connTabControl.tabList[p_return.v_data[i].parent_sequence].tag.tabControl.tabList[p_return.v_data[i].child_sequence].tag.editor.setValue(p_return.v_data[i].content);
-						};
-
-						startEditData(p_return.v_data[i].params.split('.')[1], p_return.v_data[i].params.split('.')[0], true, v_callback);
-
-						break;
-					}
-					case 'alter': {
-						var v_callback = function() {
-							v_connTabControl.tabList[p_return.v_data[i].parent_sequence].tag.tabControl.tabList[p_return.v_data[i].child_sequence].tag.id = p_return.v_data[i].id;
-						};
-
-						var v_mode = '';
-
-						if(p_return.v_data[i].params.indexOf('New Table') != -1) {
-							v_mode = 'new';
-						}
-
-						startAlterTable(true, v_mode, p_return.v_data[i].params.split('.')[1], p_return.v_data[i].params.split('.')[0], true, v_callback);
-
-						break;
-					}
-				}
-			}
-		},
-		null,
-		'box',
-		false
-	);
 });
 
 /// <summary>
@@ -264,7 +201,7 @@ function getDatabaseList() {
 
 				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
 				v_connTabControl.tag.connections = p_return.v_data.v_connections;
-				//v_connTabControl.tag.createConnTab(v_selected_connection);
+				v_connTabControl.tag.createConnTab(v_selected_connection);
 
 			},
 			null,

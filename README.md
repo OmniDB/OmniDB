@@ -44,30 +44,38 @@ pip install -r requirements.txt
 ```
 
 ## 1.1.3- Running OmniDB
- 
+
 Download or clone OmniDB repo and extract it somewhere. To start Django server, enter into `OmniDB-master/OmniDB` folder and type:
- 
+
  ```
  python3 manage.py runserver
  ```
 
 ### 1.1.4- Deployment
 
+#### 1.1.4.1- Debian >= 8
+
 ```
-$ git clone https://github.com/OmniDB/OmniDB
-$ cd OmniDB
+sudo apt install git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils libgconf-2-4
 
-$ su
+git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+source ~/.bashrc
 
-# apt install python3-pip libgconf-2-4 alien
-# pip3 install pip --upgrade
-# pip3 install -r requirements.txt
-# pip3 install -r extra_requirements_for_deploy.txt
-# exit
+env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.5.2
+pyenv local 3.5.2
+pip install pip --upgrade
 
-$ cd OmniDB
-$ ./deploy.sh i386     # for 32 bits, need to be on a 32 bits machine
-$ ./deploy.sh amd64   # for 64 bits, need to be on a 64 bits machine
+git clone https://github.com/OmniDB/OmniDB ~/OmniDB
+
+pip install -r ~/OmniDB/requirements.txt
+pip install -r ~/OmniDB/deploy/requirements_for_deploy_server.txt
+
+cd OmniDB
+./deploy_deb.sh i386    # for 32 bits, need to be on a 32 bits machine
+./deploy_deb.sh amd64   # for 64 bits, need to be on a 64 bits machine
 ```
 
 # 2- Introduction

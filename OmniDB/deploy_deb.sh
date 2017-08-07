@@ -24,7 +24,8 @@ rm -rf dist
 echo "Done."
 
 echo -n "Copying cefpython files... "
-cp -r "/usr/local/lib/python$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1).$(python3 --version | cut -d' ' -f2 | cut -d'.' -f2)/dist-packages/cefpython3" packages/omnidb-app/
+#cp -r "/usr/local/lib/python$(python3 --version | cut -d' ' -f2 | cut -d'.' -f1).$(python3 --version | cut -d' ' -f2 | cut -d'.' -f2)/dist-packages/cefpython3" packages/omnidb-app/
+cp -r "$HOME/.pyenv/versions/3.5.2/lib/python3.5/site-packages/cefpython3" packages/omnidb-app
 echo "Done."
 
 echo -n "Copying libgconf... "
@@ -51,6 +52,19 @@ else
 fi
 chmod 755 packages/omnidb-app/libxcb.so.1
 chmod 755 packages/omnidb-app/cefpython3/libxcb.so.1
+echo "Done."
+
+echo -n "Copying libXss... "
+if [ $ARCH == "amd64" ]
+then
+	cp /usr/lib/x86_64-linux-gnu/libXss.so.1 packages/omnidb-app/libXss.so.1
+	cp /usr/lib/x86_64-linux-gnu/libXss.so.1 packages/omnidb-app/cefpython3/libXss.so.1
+else
+	cp /usr/lib/i386-linux-gnu/libXss.so.1 packages/omnidb-app/libXss.so.1
+	cp /usr/lib/i386-linux-gnu/libXss.so.1 packages/omnidb-app/cefpython3/libXss.so.1
+fi
+chmod 755 packages/omnidb-app/libXss.so.1
+chmod 755 packages/omnidb-app/cefpython3/libXss.so.1
 echo "Done."
 
 echo -n "Renaming bundles... "
@@ -133,11 +147,6 @@ EOF
 cd ..
 dpkg -b omnidb-app_$VERSION-$ARCH
 echo "Done"
-
-#echo "Generating rpm packages..."
-#alien -r omnidb-server_$VERSION-$ARCH.deb
-#alien -r omnidb-app_$VERSION-$ARCH.deb
-#echo "Done"
 
 echo -n "Cleaning... "
 rm -rf omnidb-server_$VERSION-$ARCH

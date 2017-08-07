@@ -123,7 +123,7 @@ function querySQL() {
 
 			v_context.tab_tag.div_result.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
 			v_context.tab_tag.query_info.innerHTML = '';
-
+			
 			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Query, v_message_data, false, v_context);
 
 			setTimeout(function() {

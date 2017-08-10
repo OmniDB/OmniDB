@@ -1,6 +1,6 @@
-#!/bin/sh -e
+#!/bin/bash
 
-VERSION=2.0.2
+VERSION=2.0.3
 ARCH=debian-amd64
 
 cd ~/OmniDB/OmniDB
@@ -30,11 +30,9 @@ echo "Done."
 echo "Generating tar.gz packages... "
 cd deploy/packages
 tar -czvf omnidb-server_$VERSION-$ARCH.tar.gz omnidb-server_$VERSION-$ARCH
-cd ..
 echo "Done"
 
 echo "Generating deb packages... "
-cd packages
 mv omnidb-server_$VERSION-$ARCH omnidb-server
 mkdir -p omnidb-server_$VERSION-$ARCH
 cd omnidb-server_$VERSION-$ARCH

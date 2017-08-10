@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.0.2
+VERSION=2.0.3
 ARCH=centos-i386
 
 cd ~/OmniDB/OmniDB
@@ -30,7 +30,6 @@ echo "Done."
 echo "Generating tar.gz packages... "
 cd deploy/packages
 tar -czvf omnidb-server_$VERSION-$ARCH.tar.gz omnidb-server_$VERSION-$ARCH
-cd ..
 echo "Done"
 
 echo -n "Cleaning... "

@@ -94,7 +94,14 @@ function testConnectionConfirm(p_index) {
 				if (p_return.v_data=="Connection successful.")
 					showAlert(p_return.v_data);
 				else
-					showError(p_return.v_data);
+					showPasswordPrompt(
+						p_index,
+						function() {
+							testConnectionConfirm(p_index);
+						},
+						null,
+						p_return.v_data
+					);
 
 			},
 			function(p_return) {

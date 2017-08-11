@@ -195,4 +195,4 @@ SSL_KEY                    = ""
 CH_CMDS_PER_PAGE           = 20
 PWD_TIMEOUT_TOTAL          = 1800
 PWD_TIMEOUT_REFRESH        = 300
-DESKTOP_MODE               = True
+DESKTOP_MODE               = False

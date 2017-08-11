@@ -7,6 +7,7 @@ data_files = [
   ('db.sqlite3','.'),
   ('log','log'),
   ('OmniDB_app/static','OmniDB_app/static'),
+  ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates')
 ]
 

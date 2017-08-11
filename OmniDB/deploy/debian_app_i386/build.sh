@@ -16,7 +16,7 @@ sed -i -e 's/DESKTOP_MODE               = False/DESKTOP_MODE               = Tru
 echo "Done."
 
 echo "Generating bundles... "
-pyinstaller OmniDB.spec
+pyinstaller OmniDB-lin.spec
 echo "Done."
 
 echo -n "Organizing bundles..."

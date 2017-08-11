@@ -10,7 +10,7 @@ rm -rf packages
 echo "Done."
 
 echo "Generating bundles... "
-pyinstaller OmniDB.spec
+pyinstaller OmniDB-linux.spec
 echo "Done."
 
 echo -n "Organizing bundles..."
@@ -155,4 +155,3 @@ echo "Done"
 
 cd ..
 echo "All Linux packages for OmniDB version $VERSION architecture $ARCH were successfully created."
-

@@ -650,7 +650,7 @@ function getTreePostgresql(p_div) {
         node_databases.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
         var node_tablespaces = tree.createNode('Tablespaces',false,'/static/OmniDB_app/images/circle_blue.png',node_server,{ type:'tablespace_list', num_tablespaces:0 },'cm_tablespaces');
         node_tablespaces.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
-        var node_roles = tree.createNode('Roles',false,'/static/OmniDB_app/images/circle_blue.png',node_server,{ type:'role_list', num_roles:0 },'cm_roles');
+        var node_roles = tree.createNode('Roles',false,'/static/OmniDB_app/images/users.png',node_server,{ type:'role_list', num_roles:0 },'cm_roles');
         node_roles.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
         node_schemas = tree.createNode('Schemas',false,'/static/OmniDB_app/images/schemas.png',node_connection,{ type:'schema_list', num_schemas:0 },'cm_schemas');
         node_schemas.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
@@ -811,7 +811,7 @@ function getRolesPostgresql(node) {
 
 				for (i=0; i<p_return.v_data.length; i++) {
 
-        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'/static/OmniDB_app/images/circle_blue.png',{ type:'tablespace' },'cm_role');
+        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'/static/OmniDB_app/images/users.png',{ type:'tablespace' },'cm_role');
 
         }
 
@@ -894,7 +894,7 @@ function getSchemasPostgresql(node) {
               var node_sequences = v_node.createChildNode('Sequences',false,'/static/OmniDB_app/images/sequence_list.png',{ type:'sequence_list', schema: p_return.v_data[i].v_name, num_sequences : 0 },'cm_sequences');
       				node_sequences.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
 
-              var node_views = v_node.createChildNode('Views',false,'/static/OmniDB_app/images/circle_blue.png',{ type:'view_list', schema: p_return.v_data[i].v_name, num_views : 0 },'cm_views');
+              var node_views = v_node.createChildNode('Views',false,'/static/OmniDB_app/images/view_multiple.png',{ type:'view_list', schema: p_return.v_data[i].v_name, num_views : 0 },'cm_views');
       				node_views.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
 		        }
 
@@ -964,7 +964,7 @@ function getViewsPostgresql(node) {
 
 				for (i=0; i<p_return.v_data.length; i++) {
 
-		        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'/static/OmniDB_app/images/table.png',{ type:'view'},'cm_view');
+		        	v_node = node.createChildNode(p_return.v_data[i].v_name,false,'/static/OmniDB_app/images/view.png',{ type:'view'},'cm_view');
                     v_node.createChildNode('',false,'/static/OmniDB_app/images/spin.svg',{ type:'view_field'},null);
 		        }
 			},

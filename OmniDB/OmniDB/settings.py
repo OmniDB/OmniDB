@@ -180,17 +180,19 @@ LOGGING = {
 }
 
 #OMNIDB PARAMETERS
-OMNIDB_DATABASE     = os.path.join(BASE_DIR, 'omnidb.db')
-OMNIDB_VERSION      = 'OmniDB 2.0.3'
-BINDKEY_EXECUTE     = 'alt+q'
-BINDKEY_EXECUTE_MAC = 'ctrl+q'
-BINDKEY_REPLACE     = 'ctrl+g'
-BINDKEY_REPLACE_MAC = 'ctrl+g'
-OMNIDB_DEFAULT_PORT = 8000
-WS_QUERY_PORT       = 25482
-IS_SSL              = False
-SSL_CERTIFICATE     = ""
-SSL_KEY             = ""
-CH_CMDS_PER_PAGE    = 20
-PWD_TIMEOUT_TOTAL   = 1800
-PWD_TIMEOUT_REFRESH = 300
+OMNIDB_DATABASE            = os.path.join(BASE_DIR, 'omnidb.db')
+OMNIDB_VERSION             = 'OmniDB 2.0.3'
+BINDKEY_EXECUTE            = 'alt+q'
+BINDKEY_EXECUTE_MAC        = 'ctrl+q'
+BINDKEY_REPLACE            = 'ctrl+g'
+BINDKEY_REPLACE_MAC        = 'ctrl+g'
+OMNIDB_DEFAULT_SERVER_PORT = 8000
+OMNIDB_DEFAULT_APP_PORT    = 25480
+WS_QUERY_PORT              = 25482
+IS_SSL                     = False
+SSL_CERTIFICATE            = ""
+SSL_KEY                    = ""
+CH_CMDS_PER_PAGE           = 20
+PWD_TIMEOUT_TOTAL          = 1800
+PWD_TIMEOUT_REFRESH        = 300
+DESKTOP_MODE               = False

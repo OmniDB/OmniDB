@@ -80,7 +80,8 @@ class PostgreSQL:
         self.v_port = p_port
         self.v_service = p_service
         self.v_user = p_user
-        self.v_connection = Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password)
+        self.v_schema = 'public'
+        self.v_connection = Spartacus.Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password)
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -90,61 +91,39 @@ class PostgreSQL:
         self.v_has_foreign_keys = True
         self.v_has_uniques = True
         self.v_has_indexes = True
+        self.v_has_checks = True
+        self.v_has_rules = True
+        self.v_has_triggers = True
+        self.v_has_triggers = True
+
         self.v_has_update_rule = True
-
-        self.v_default_string = "text"
-
         self.v_can_rename_table = True
         self.v_rename_table_command = "alter table #p_table_name# rename to #p_new_table_name#"
-
         self.v_create_pk_command = "constraint #p_constraint_name# primary key (#p_columns#)"
         self.v_create_fk_command = "constraint #p_constraint_name# foreign key (#p_columns#) references #p_r_table_name# (#p_r_columns#) #p_delete_update_rules#"
         self.v_create_unique_command = "constraint #p_constraint_name# unique (#p_columns#)"
-
         self.v_can_alter_type = True
         self.v_alter_type_command = "alter table #p_table_name# alter #p_column_name# type #p_new_data_type#"
-
         self.v_can_alter_nullable = True
         self.v_set_nullable_command = "alter table #p_table_name# alter #p_column_name# drop not null"
         self.v_drop_nullable_command = "alter table #p_table_name# alter #p_column_name# set not null"
-
         self.v_can_rename_column = True
         self.v_rename_column_command = "alter table #p_table_name# rename #p_column_name# to #p_new_column_name#"
-
         self.v_can_add_column = True
         self.v_add_column_command = "alter table #p_table_name# add column #p_column_name# #p_data_type# #p_nullable#"
-
         self.v_can_drop_column = True
         self.v_drop_column_command = "alter table #p_table_name# drop #p_column_name#"
-
         self.v_can_add_constraint = True
         self.v_add_pk_command = "alter table #p_table_name# add constraint #p_constraint_name# primary key (#p_columns#)"
         self.v_add_fk_command = "alter table #p_table_name# add constraint #p_constraint_name# foreign key (#p_columns#) references #p_r_table_name# (#p_r_columns#) #p_delete_update_rules#"
         self.v_add_unique_command = "alter table #p_table_name# add constraint #p_constraint_name# unique (#p_columns#)"
-
         self.v_can_drop_constraint = True
         self.v_drop_pk_command = "alter table #p_table_name# drop constraint #p_constraint_name#"
         self.v_drop_fk_command = "alter table #p_table_name# drop constraint #p_constraint_name#"
         self.v_drop_unique_command = "alter table #p_table_name# drop constraint #p_constraint_name#"
-
         self.v_create_index_command = "create index #p_index_name# on #p_table_name# (#p_columns#)";
         self.v_create_unique_index_command = "create unique index #p_index_name# on #p_table_name# (#p_columns#)"
-
         self.v_drop_index_command = "drop index #p_schema_name#.#p_index_name#"
-
-        self.v_can_rename_sequence = True
-        self.v_can_drop_sequence = True
-
-        self.v_can_alter_sequence_min_value = True
-        self.v_can_alter_sequence_max_value = True
-        self.v_can_alter_sequence_curr_value = True
-        self.v_can_alter_sequence_increment = True
-
-        self.v_create_sequence_command = "create sequence #p_sequence_name# increment #p_increment# minvalue #p_min_value# maxvalue #p_max_value# start #p_curr_value#"
-        self.v_alter_sequence_command = "alter sequence #p_sequence_name# increment #p_increment# minvalue #p_min_value# maxvalue #p_max_value# restart #p_curr_value#"
-        self.v_rename_sequence_command = "alter sequence #p_sequence_name# rename to #p_new_sequence_name#"
-        self.v_drop_sequence_command = "drop sequence #p_sequence_name#"
-
         self.v_update_rules = [
             "NO ACTION",
 			"RESTRICT",
@@ -160,10 +139,11 @@ class PostgreSQL:
 			"CASCADE"
         ]
 
-        self.v_schema = 'public'
-
     def GetName(self):
         return self.v_service
+
+    def GetVersion(self):
+        return 'PostgreSQL ' + self.v_connection.ExecuteScalar('show server_version')
 
     def PrintDatabaseInfo(self):
         return self.v_user + "@" + self.v_service
@@ -172,47 +152,26 @@ class PostgreSQL:
         return self.v_server + ":" + self.v_port
 
     def HandleUpdateDeleteRules(self, p_update_rule, p_delete_rule):
-
         v_rules = ''
-
         if p_update_rule.strip() != "":
             v_rules += " on update " + p_update_rule + " "
         if p_delete_rule.strip() != "":
             v_rules += " on delete " + p_delete_rule + " "
-
         return v_rules
 
     def TestConnection(self):
-
         v_return = ''
-
         try:
             self.v_connection.Open()
-
             v_schema = self.QuerySchemas()
             if len(v_schema.Rows) > 0:
                 v_return = 'Connection successful.'
-
             self.v_connection.Close()
         except Exception as exc:
             v_return = str(exc)
-
-        return v_return
-
-    def GetErrorPosition(self, p_error_message):
-        vector = str(p_error_message).split('\n')
-        v_return = None
-
-        #has line
-        if len(vector) > 1 and vector[1][0:4]=='LINE':
-            v_return = {
-                'row': vector[1].split(':')[0].split(' ')[1],
-                'col': vector[2].index('^') - len(vector[1].split(':')[0])-2
-            }
         return v_return
 
     def QueryRoles(self):
-
         return self.v_connection.Query('''
             select rolname as role_name
             from pg_roles
@@ -220,7 +179,6 @@ class PostgreSQL:
         ''', True)
 
     def QueryTablespaces(self):
-
         return self.v_connection.Query('''
             select spcname as tablespace_name
             from pg_tablespace
@@ -228,7 +186,6 @@ class PostgreSQL:
         ''', True)
 
     def QueryDatabases(self):
-
         return self.v_connection.Query('''
             select database_name
             from (
@@ -250,8 +207,14 @@ class PostgreSQL:
             order by sort
         ''', True)
 
-    def QuerySchemas(self):
+    def QueryExtensions(self):
+        return self.v_connection.Query('''
+            select extname as extension_name
+            from pg_extension
+            order by extname
+        ''', True)
 
+    def QuerySchemas(self):
         return self.v_connection.Query('''
             select schema_name
             from (
@@ -271,16 +234,14 @@ class PostgreSQL:
             from pg_catalog.pg_namespace
             where nspname not in ('public', 'pg_catalog', 'information_schema', 'pg_toast')
               and nspname not like 'pg%%temp%%'
-            order by nspname asc
+            order by nspname desc
             ) x
             ) y
             order by sort
         ''', True)
 
     def QueryTables(self, p_all_schemas=False, p_schema=None):
-
         v_filter = ''
-
         if not p_all_schemas:
             if p_schema:
                 v_filter = "and lower(table_schema) = '{0}' ".format(str.lower(p_schema))
@@ -288,10 +249,9 @@ class PostgreSQL:
                 v_filter = "and lower(table_schema) = '{0}' ".format(str.lower(self.v_schema))
         else:
             v_filter = "and lower(table_schema) not in ('information_schema','pg_catalog') "
-
         return self.v_connection.Query('''
-            select lower(table_name) as table_name,
-                   lower(table_schema) as table_schema
+            select table_name as table_name,
+                   table_schema as table_schema
             from information_schema.tables
             where table_type = 'BASE TABLE'
             {0}
@@ -300,9 +260,7 @@ class PostgreSQL:
         '''.format(v_filter), True)
 
     def QueryTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
-
         v_filter = ''
-
         if not p_all_schemas:
             if p_table and p_schema:
                 v_filter = "and lower(t.table_schema) = '{0}' and lower(c.table_name) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
@@ -317,11 +275,10 @@ class PostgreSQL:
                 v_filter = "and lower(t.table_schema) not in ('information_schema','pg_catalog') and lower(c.table_name) = {0}".format(str.lower(p_table))
             else:
                 v_filter = "and lower(t.table_schema) not in ('information_schema','pg_catalog') "
-
         return self.v_connection.Query('''
-            select lower(c.table_name) as table_name,
-                   lower(c.column_name) as column_name,
-                   lower(c.data_type) as data_type,
+            select c.table_name as table_name,
+                   c.column_name as column_name,
+                   c.data_type as data_type,
                    c.is_nullable as nullable,
                    c.character_maximum_length as data_length,
                    c.numeric_precision as data_precision,
@@ -334,9 +291,7 @@ class PostgreSQL:
         '''.format(v_filter), True)
 
     def QueryTablesForeignKeys(self, p_table=None, p_all_schemas=False, p_schema=None):
-
         v_filter = ''
-
         if not p_all_schemas:
             if p_table and p_schema:
                 v_filter = "and lower(rc.constraint_schema) = '{0}' and lower(kcu1.table_name) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
@@ -351,18 +306,17 @@ class PostgreSQL:
                 v_filter = "and lower(rc.constraint_schema) not in ('information_schema','pg_catalog') and lower(kcu1.table_name) = {0}".format(str.lower(p_table))
             else:
                 v_filter = "and lower(rc.constraint_schema) not in ('information_schema','pg_catalog') "
-
         return self.v_connection.Query('''
             select *
             from (select distinct
-                         lower(kcu1.constraint_name) as constraint_name,
-                         lower(kcu1.table_name) as table_name,
-                         lower(kcu1.column_name) as column_name,
-                         lower(kcu2.constraint_name) as r_constraint_name,
-                         lower(kcu2.table_name) as r_table_name,
-                         lower(kcu2.column_name) as r_column_name,
-                         lower(kcu1.constraint_schema) as table_schema,
-                         lower(kcu2.constraint_schema) as r_table_schema,
+                         kcu1.constraint_name as constraint_name,
+                         kcu1.table_name as table_name,
+                         kcu1.column_name as column_name,
+                         kcu2.constraint_name as r_constraint_name,
+                         kcu2.table_name as r_table_name,
+                         kcu2.column_name as r_column_name,
+                         kcu1.constraint_schema as table_schema,
+                         kcu2.constraint_schema as r_table_schema,
                          kcu1.ordinal_position,
                          rc.update_rule as update_rule,
                          rc.delete_rule as delete_rule
@@ -385,9 +339,7 @@ class PostgreSQL:
         '''.format(v_filter), True)
 
     def QueryTablesPrimaryKeys(self, p_table=None, p_all_schemas=False, p_schema=None):
-
         v_filter = ''
-
         if not p_all_schemas:
             if p_table and p_schema:
                 v_filter = "and lower(tc.table_schema) = '{0}' and lower(tc.table_name) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
@@ -402,12 +354,11 @@ class PostgreSQL:
                 v_filter = "and lower(tc.table_schema) not in ('information_schema','pg_catalog') and lower(tc.table_name) = {0}".format(str.lower(p_table))
             else:
                 v_filter = "and lower(tc.table_schema) not in ('information_schema','pg_catalog') "
-
         return self.v_connection.Query('''
-            select lower(tc.constraint_name) as constraint_name,
-                   lower(kc.column_name) as column_name,
-                   lower(tc.table_name) as table_name,
-                   lower(tc.table_schema) as table_schema
+            select tc.constraint_name as constraint_name,
+                   kc.column_name as column_name,
+                   tc.table_name as table_name,
+                   tc.table_schema as table_schema
             from information_schema.table_constraints tc
             join information_schema.key_column_usage kc
             on kc.table_name = tc.table_name
@@ -421,9 +372,7 @@ class PostgreSQL:
         '''.format(v_filter), True)
 
     def QueryTablesUniques(self, p_table=None, p_all_schemas=False, p_schema=None):
-
         v_filter = ''
-
         if not p_all_schemas:
             if p_table and p_schema:
                 v_filter = "and lower(tc.table_schema) = '{0}' and lower(tc.table_name) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
@@ -438,12 +387,11 @@ class PostgreSQL:
                 v_filter = "and lower(tc.table_schema) not in ('information_schema','pg_catalog') and lower(tc.table_name) = {0}".format(str.lower(p_table))
             else:
                 v_filter = "and lower(tc.table_schema) not in ('information_schema','pg_catalog') "
-
         return self.v_connection.Query('''
-            select lower(tc.constraint_name) as constraint_name,
-                   lower(kc.column_name) as column_name,
-                   lower(tc.table_name) as table_name,
-                   lower(tc.table_schema) as table_schema
+            select tc.constraint_name as constraint_name,
+                   kc.column_name as column_name,
+                   tc.table_name as table_name,
+                   tc.table_schema as table_schema
             from information_schema.table_constraints tc
             join information_schema.key_column_usage kc
             on kc.table_name = tc.table_name
@@ -457,9 +405,7 @@ class PostgreSQL:
         '''.format(v_filter), True)
 
     def QueryTablesIndexes(self, p_table=None, p_all_schemas=False, p_schema=None):
-
         v_filter = ''
-
         if not p_all_schemas:
             if p_table and p_schema:
                 v_filter = "and lower(t.schemaname) = '{0}' and lower(t.tablename) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
@@ -474,13 +420,12 @@ class PostgreSQL:
                 v_filter = "and lower(t.schemaname) not in ('information_schema','pg_catalog') and lower(t.tablename) = {0}".format(str.lower(p_table))
             else:
                 v_filter = "and lower(t.schemaname) not in ('information_schema','pg_catalog') "
-
         return self.v_connection.Query('''
-            select lower(t.tablename) as table_name,
-                   lower(t.indexname) as index_name,
+            select t.tablename as table_name,
+                   t.indexname as index_name,
                    unnest(string_to_array(replace(substr(t.indexdef, strpos(t.indexdef, '(')+1, strpos(t.indexdef, ')')-strpos(t.indexdef, '(')-1), ' ', ''),',')) as column_name,
                    (case when strpos(t.indexdef, 'UNIQUE') > 0 then 'Unique' else 'Non Unique' end) as uniqueness,
-                   lower(t.schemaname) as schema_name
+                   t.schemaname as schema_name
             from pg_indexes t
             where 1 = 1
             {0}
@@ -488,8 +433,67 @@ class PostgreSQL:
                      t.indexname
         '''.format(v_filter), True)
 
-    def QueryDataLimited(self, p_query, p_count=-1):
+    def QueryTablesChecks(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and lower(n.nspname) = '{0}' and ltrim(lower(c.conrelid::regclass), lower(n.nspname) || '.') = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+            elif p_table:
+                v_filter = "and lower(n.nspname) = '{0}' and ltrim(lower(c.conrelid::regclass), lower(n.nspname) || '.') = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+            elif p_schema:
+                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
+            else:
+                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
+        else:
+            if p_table:
+                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') and ltrim(lower(c.conrelid::regclass), lower(n.nspname) || '.') = {0}".format(str.lower(p_table))
+            else:
+                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select n.nspname as schema_name,
+                   ltrim(c.conrelid::regclass, n.nspname || '.') as table_name,
+                   conname as constraint_name,
+                   consrc as constraint_source
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            where 1 = 1
+            {0}
+            order by 1, 2, 3
+        '''.format(v_filter), True)
 
+    def QueryTablesPartitions(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and lower(np.nspname) = '{0}' and lower(cp.relname) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+            elif p_table:
+                v_filter = "and lower(np.nspname) = '{0}' and lower(cp.relname) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+            elif p_schema:
+                v_filter = "and lower(np.nspname) = '{0}' ".format(str.lower(p_schema))
+            else:
+                v_filter = "and lower(np.nspname) = '{0}' ".format(str.lower(self.v_schema))
+        else:
+            if p_table:
+                v_filter = "and lower(np.nspname) not in ('information_schema','pg_catalog') and lower(cp.relname) = {0}".format(str.lower(p_table))
+            else:
+                v_filter = "and lower(np.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select np.nspname as parent_schema,
+                   cp.relname as parent_table,
+                   nc.nspname as child_schema,
+                   cc.relname as child_table
+            from pg_inherits i
+            inner join pg_class cp on cp.oid = i.inhparent
+            inner join pg_namespace np on np.oid = cp.relnamespace
+            inner join pg_class cc on cc.oid = i.inhrelid
+            inner join pg_namespace nc on nc.oid = cc.relnamespace
+            where 1 = 1
+            {0}
+            order by 1, 2, 3, 4
+        '''.format(v_filter))
+
+    def QueryDataLimited(self, p_query, p_count=-1):
         if p_count != -1:
             self.v_connection.Open()
             v_data = self.v_connection.QueryBlock(p_query, p_count, True)
@@ -499,11 +503,9 @@ class PostgreSQL:
             return self.v_connection.Query(p_query, True)
 
     def QueryTableRecords(self, p_column_list, p_table, p_filter, p_count=-1):
-
         v_limit = ''
         if p_count != -1:
             v_limit = ' limit ' + p_count
-
         return self.v_connection.Query('''
             select {0}
             from {1} t
@@ -518,9 +520,7 @@ class PostgreSQL:
         )
 
     def QueryFunctions(self, p_all_schemas=False, p_schema=None):
-
         v_filter = ''
-
         if not p_all_schemas:
             if p_schema:
                 v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
@@ -528,21 +528,19 @@ class PostgreSQL:
                 v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
         else:
             v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
-
         return self.v_connection.Query('''
             select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as id,
                    p.proname as name,
-                   lower(n.nspname) as schema_name
+                   n.nspname as schema_name
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
-            where 1 = 1
+            where format_type(p.prorettype, null) <> 'trigger'
             {0}
             order by 1
         '''.format(v_filter), True)
 
     def QueryFunctionFields(self, p_function, p_schema):
-
         if p_schema:
             return self.v_connection.Query('''
                 select y.type::character varying as type,
@@ -591,22 +589,34 @@ class PostgreSQL:
             '''.format(self.v_schema.lower(), p_function), True)
 
     def GetFunctionDefinition(self, p_function):
-
         return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_function))
 
-    def QueryProcedures(self, p_all_schemas=False, p_schema=None):
-        return None
+    def QueryTriggerFunctions(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
+            else:
+                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
+        else:
+            v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                   p.proname as name,
+                   n.nspname as schema_name
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            where format_type(p.prorettype, null) = 'trigger'
+            {0}
+            order by 1
+        '''.format(v_filter), True)
 
-    def QueryProcedureFields(self, p_procedure, p_schema):
-        return None
-
-    def QueryProcedureDefinition(self, p_procedure):
-        return None
+    def GetTriggerFunctionDefinition(self, p_function):
+        return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_function))
 
     def QuerySequences(self, p_all_schemas=False, p_schema=None):
-
         v_filter = ''
-
         if not p_all_schemas:
             if p_schema:
                 v_filter = "and lower(sequence_schema) = '{0}' ".format(str.lower(p_schema))
@@ -614,31 +624,26 @@ class PostgreSQL:
                 v_filter = "and lower(sequence_schema) = '{0}' ".format(str.lower(self.v_schema))
         else:
             v_filter = "and lower(sequence_schema) not in ('information_schema','pg_catalog') "
-
         v_table = self.v_connection.Query('''
-            select lower(sequence_name) as sequence_name,
+            select sequence_name as sequence_name,
                    minimum_value,
                    maximum_value,
                    0 as current_value,
                    increment,
-                   lower(sequence_schema) as sequence_schema
+                   sequence_schema as sequence_schema
             from information_schema.sequences
             where 1 = 1
             {0}
             order by 1
         '''.format(v_filter), True)
-
         for i in range(0, len(v_table.Rows)):
             v_table.Rows[i]['current_value'] = self.v_connection.ExecuteScalar(
                 "select last_value from {0}.{1}".format(v_table.Rows[i]['sequence_schema'], v_table.Rows[i]['sequence_name'])
             )
-
         return v_table
 
     def QueryViews(self, p_all_schemas=False, p_schema=None):
-
         v_filter = ''
-
         if not p_all_schemas:
             if p_schema:
                 v_filter = "and lower(table_schema) = '{0}' ".format(str.lower(p_schema))
@@ -646,10 +651,9 @@ class PostgreSQL:
                 v_filter = "and lower(table_schema) = '{0}' ".format(str.lower(self.v_schema))
         else:
             v_filter = "and lower(table_schema) not in ('information_schema','pg_catalog') "
-
         return self.v_connection.Query('''
-            select lower(table_name) as table_name,
-                   lower(table_schema) as table_schema
+            select table_name as table_name,
+                   table_schema as table_schema
             from information_schema.views
             where 1 = 1
             {0}
@@ -657,9 +661,7 @@ class PostgreSQL:
         '''.format(v_filter), True)
 
     def QueryViewFields(self, p_table=None, p_all_schemas=False, p_schema=None):
-
         v_filter = ''
-
         if not p_all_schemas:
             if p_table and p_schema:
                 v_filter = "and lower(t.table_schema) = '{0}' and lower(c.table_name) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
@@ -674,11 +676,10 @@ class PostgreSQL:
                 v_filter = "and lower(t.table_schema) not in ('information_schema','pg_catalog') and lower(c.table_name) = {0}".format(str.lower(p_table))
             else:
                 v_filter = "and lower(t.table_schema) not in ('information_schema','pg_catalog') "
-
         return self.v_connection.Query('''
-            select lower(c.table_name) as table_name,
-                   lower(c.column_name) as column_name,
-                   lower(c.data_type) as data_type,
+            select c.table_name as table_name,
+                   c.column_name as column_name,
+                   c.data_type as data_type,
                    c.is_nullable as nullable,
                    c.character_maximum_length as data_length,
                    c.numeric_precision as data_precision,
@@ -690,8 +691,7 @@ class PostgreSQL:
             order by c.table_name, c.ordinal_position
         '''.format(v_filter), True)
 
-    def QueryViewDefinition(self, p_view, p_schema):
-
+    def GetViewDefinition(self, p_view, p_schema):
         return '''CREATE OR REPLACE VIEW {0}.{1} AS
 {2}
 '''.format(p_schema, p_view,
@@ -703,8 +703,111 @@ class PostgreSQL:
             '''.format(p_schema, p_view)
     ))
 
-    def TemplateCreateRole(self):
+    def QueryRules(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and lower(schema_name) = '{0}' and lower(tablename) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+            elif p_table:
+                v_filter = "and lower(schema_name) = '{0}' and lower(tablename) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+            elif p_schema:
+                v_filter = "and lower(schema_name) = '{0}' ".format(str.lower(p_schema))
+            else:
+                v_filter = "and lower(schema_name) = '{0}' ".format(str.lower(self.v_schema))
+        else:
+            if p_table:
+                v_filter = "and lower(schema_name) not in ('information_schema','pg_catalog') and lower(tablename) = {0}".format(str.lower(p_table))
+            else:
+                v_filter = "and lower(schema_name) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select schema_name as table_schema,
+                   tablename as table_name,
+                   rulename as rule_name
+            from pg_rules
+            where 1 = 1
+            {0}
+            order by 1, 2, 3
+        '''.format(v_filter), True)
 
+    def GetRuleDefinition(self, p_rule, p_table, p_schema):
+        return self.v_connection.ExecuteScalar('''
+            select definition
+            from pg_rules
+            where table_schema = '{0}'
+              and table_name = '{1}'
+              and rulename = '{2}'
+        '''.format(p_schema, p_table, p_rule))
+
+    def QueryTriggers(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and lower(n.nspname) = '{0}' and lower(c.relname) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+            elif p_table:
+                v_filter = "and lower(n.nspname) = '{0}' and lower(c.relname) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+            elif p_schema:
+                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
+            else:
+                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
+        else:
+            if p_table:
+                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') and lower(c.relname) = {0}".format(str.lower(p_table))
+            else:
+                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select n.nspname as schema_name,
+                   c.relname as table_name,
+                   t.tgname as trigger_name,
+                   t.tgenabled as trigger_enabled,
+                   np.nspname || '.' || p.proname as trigger_funtion_name,
+                   np.nspname || '.' || p.proname || '()' as trigger_function_id
+            from pg_trigger t
+            inner join pg_class c
+            on c.oid = t.tgrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_proc p
+            on p.oid = t.tgfoid
+            inner join pg_namespace np
+            on np.oid = p.pronamespace
+            where not t.tgisinternal
+            {0}
+            order by 1, 2, 3
+        '''.format(v_filter), True)
+
+    def GetTriggerDefinition(self, p_trigger, p_table, p_schema):
+        return self.v_connection.ExecuteScalar('''
+            select 'CREATE TRIGGER ' || x.trigger_name || chr(10) ||
+                   '  ' || x.action_timing || ' ' || x.event_manipulation || chr(10) ||
+                   '  ON {0}.{1}' || chr(10) ||
+                   '  FOR EACH ' || x.action_orientation || chr(10) ||
+                   (case when length(coalesce(x.action_condition, '')) > 0 then '  WHEN ( ' || x.action_condition || ') ' || chr(10) else '' end) ||
+                   '  ' || x.action_statement as definition
+            from (
+            select distinct t.trigger_name,
+                   t.action_timing,
+                   e.event as event_manipulation,
+                   t.action_orientation,
+                   t.action_condition,
+                   t.action_statement
+            from information_schema.triggers t
+            inner join (
+            select array_to_string(array(
+            select event_manipulation::text
+            from information_schema.triggers
+            where event_object_schema = '{0}'
+              and event_object_table = '{1}'
+              and trigger_name = '{2}'
+            ), ' OR ') as event
+            ) e
+            on 1 = 1
+            where t.event_object_schema = '{0}'
+              and t.event_object_table = '{1}'
+              and t.trigger_name = '{2}'
+            ) x
+        ''''.format(p_schema, p_table, p_trigger))
+
+    def TemplateCreateRole(self):
         return Template('''CREATE ROLE name
 --[ ENCRYPTED | UNENCRYPTED ] PASSWORD 'password'
 --SUPERUSER | NOSUPERUSER
@@ -725,7 +828,6 @@ class PostgreSQL:
 ''')
 
     def TemplateAlterRole(self):
-
         return Template('''ALTER ROLE #role_name#
 --SUPERUSER | NOSUPERUSER
 --CREATEDB | NOCREATEDB
@@ -745,11 +847,9 @@ class PostgreSQL:
 ''')
 
     def TemplateDropRole(self):
-
         return Template('DROP ROLE #role_name#')
 
     def TemplateCreateTablespace(self):
-
         return Template('''CREATE TABLESPACE name
 LOCATION 'directory'
 --OWNER new_owner | CURRENT_USER | SESSION_USER
@@ -757,7 +857,6 @@ LOCATION 'directory'
 ''')
 
     def TemplateAlterTablespace(self):
-
         return Template('''ALTER TABLESPACE #tablespace_name#
 --RENAME TO new_name
 --OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
@@ -770,11 +869,9 @@ LOCATION 'directory'
 ''')
 
     def TemplateDropTablespace(self):
-
         return Template('DROP TABLESPACE #tablespace_name#')
 
     def TemplateCreateDatabase(self):
-
         return Template('''CREATE DATABASE name
 --OWNER user_name
 --TEMPLATE template
@@ -786,7 +883,6 @@ LOCATION 'directory'
 ''')
 
     def TemplateAlterDatabase(self):
-
         return Template('''ALTER DATABASE #database_name#
 --ALLOW_CONNECTIONS allowconn
 --CONNECTION LIMIT connlimit
@@ -801,30 +897,45 @@ LOCATION 'directory'
 ''')
 
     def TemplateDropDatabase(self):
-
         return Template('DROP DATABASE #database_name#')
 
-    def TemplateCreateSchema(self):
+    def TemplateCreateExtension(self):
+        return Template('''CREATE EXTENSION name
+--SCHEMA schema_name
+--VERSION VERSION
+--FROM old_version
+''')
 
+    def TemplateAlterExtension(self):
+        return Template('''ALTER EXTENSION extension_name
+--UPDATE [ TO new_version ]
+--SET SCHEMA new_schema
+--ADD member_object
+--DROP member_object
+''')
+
+    def TemplateDropExtension(self):
+        return Template('''DROP EXTENSION #extension_name#
+--CASCADE
+''')
+
+    def TemplateCreateSchema(self):
         return Template('''CREATE SCHEMA schema_name
 --AUTHORIZATION [ GROUP ] user_name | CURRENT_USER | SESSION_USER
 ''')
 
     def TemplateAlterSchema(self):
-
         return Template('''ALTER SCHEMA #schema_name#
 --RENAME TO new_name
 --OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
 ''')
 
     def TemplateDropSchema(self):
-
         return Template('''DROP SCHEMA #schema_name#
 --CASCADE
 ''')
 
     def TemplateCreateSequence(self):
-
         return Template('''CREATE SEQUENCE #schema_name#.name
 --INCREMENT BY increment
 --MINVALUE minvalue | NO MINVALUE
@@ -836,7 +947,6 @@ LOCATION 'directory'
 ''')
 
     def TemplateAlterSequence(self):
-
         return Template('''ALTER SEQUENCE #sequence_name#
 --INCREMENT BY increment
 --MINVALUE minvalue | NO MINVALUE
@@ -854,13 +964,11 @@ LOCATION 'directory'
 ''')
 
     def TemplateDropSequence(self):
-
         return Template('''DROP SEQUENCE #sequence_name#
 -- CASCADE
 ''')
 
     def TemplateCreateFunction(self):
-
         return Template('''CREATE OR REPLACE FUNCTION #schema_name#.name
 --(
 --    [ argmode ] [ argname ] argtype [ { DEFAULT | = } default_expr ]
@@ -884,19 +992,37 @@ $function$
 ''')
 
     def TemplateDropFunction(self):
+        return Template('''DROP FUNCTION #function_name#
+--CASCADE
+''')
 
+    def TemplateCreateTriggerFunction(self):
+        return Template('''CREATE OR REPLACE FUNCTION #schema_name#.name()
+RETURNS trigger
+LANGUAGE plpgsql
+--IMMUTABLE | STABLE | VOLATILE
+--COST execution_cost
+AS
+$function$
+--DECLARE
+-- variables
+BEGIN
+-- definition
+END;
+$function$
+''')
+
+    def TemplateDropTriggerFunction(self):
         return Template('''DROP FUNCTION #function_name#
 --CASCADE
 ''')
 
     def TemplateCreateView(self):
-
         return Template('''CREATE OR REPLACE VIEW #schema_name#.name AS
 SELECT ...
 ''')
 
     def TemplateDropView(self):
-
         return Template('''DROP VIEW #view_name#
 --CASCADE
 ''')
@@ -908,19 +1034,132 @@ SELECT ...
         pass
 
     def TemplateDropTable(self):
-
         return Template('''DROP TABLE #table_name#
--- CASCADE
+--CASCADE
+''')
+
+    def TemplateCreatePrimaryKey(self):
+        return Template('''ALTER TABLE #table_name#
+ADD CONSTRAINT name
+PRIMARY KEY ( column_name [, ... ] )
+--WITH ( storage_parameter [= value] [, ... ] )
+--WITH OIDS
+--WITHOUT OIDS
+--USING INDEX TABLESPACE tablespace_name
+''')
+
+    def TemplateDropPrimaryKey(self):
+        return Template('''ALTER TABLE #table_name#
+DROP CONSTRAINT #constraint_name#
+--CASCADE
+''')
+
+    def TemplateCreateForeignKey(self):
+        return Template('''ALTER TABLE #table_name#
+ADD CONSTRAINT name
+FOREIGN KEY ( column_name [, ... ] )
+REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+--MATCH { FULL | PARTIAL | SIMPLE }
+--ON DELETE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT }
+--ON UPDATE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT }
+--NOT VALID
+''')
+
+    def TemplateDropForeignKey(self):
+        return Template('''ALTER TABLE #table_name#
+DROP CONSTRAINT #constraint_name#
+--CASCADE
 ''')
 
     def TemplateCreateIndex(self):
-        pass
+        return Template('''CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ] name
+ON #table_name#
+--USING method
+( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] )
+--WITH ( storage_parameter = value [, ... ] )
+--WHERE predicate
+''')
 
     def TemplateAlterIndex(self):
-        pass
+        return Template('''ALTER INDEX #index_name#
+--RENAME to new_name
+--SET TABLESPACE tablespace_name
+--SET ( storage_parameter = value [, ... ] )
+--RESET ( storage_parameter [, ... ] )
+''')
 
     def TemplateDropIndex(self):
-        pass
+        return Template('''DROP INDEX [ CONCURRENTLY ] #index_name#
+--CASCADE
+''')
+
+    def TemplateCreateCheck(self):
+        return Template('''ALTER TABLE #table_name#
+ADD CONSTRAINT name
+CHECK ( expression )
+''')
+
+    def TemplateDropCheck(self):
+        return Template('''ALTER TABLE #table_name#
+DROP CONSTRAINT #constraint_name#
+--CASCADE
+''')
+
+    def TemplateCreateRule(self):
+        return Template('''CREATE OR REPLACE name
+AS ON { SELECT | INSERT | UPDATE | DELETE }
+TO #table_name#
+--WHERE condition
+--DO ALSO { NOTHING | command | ( command ; command ... ) }
+--DO INSTEAD { NOTHING | command | ( command ; command ... ) }
+''')
+
+    def TemplateAlterRule(self):
+        return Template('ALTER RULE #rule_name# ON #table_name# RENAME TO new_name')
+
+    def TemplateDropRule(self):
+        return Template('''DROP RULE #rule_name# ON #table_name#
+--CASCADE
+''')
+
+    def TemplateCreateTrigger(self):
+        return Template('''CREATE TRIGGER name
+--BEFORE { INSERT [ OR ] | UPDATE [ OF column_name [, ... ] ] [ OR ] | DELETE [ OR ] | TRUNCATE }
+--AFTER { INSERT [ OR ] | UPDATE [ OF column_name [, ... ] ] [ OR ] | DELETE [ OR ] | TRUNCATE }
+ON #table_name#
+--FROM referenced_table_name
+--NOT DEFERRABLE | [ DEFERRABLE ] { INITIALLY IMMEDIATE | INITIALLY DEFERRED }
+--FOR EACH ROW
+--FOR EACH STATEMENT
+--WHEN ( condition )
+--EXECUTE PROCEDURE function_name ( arguments )
+''')
+
+    def TemplateAlterTrigger(self):
+        return Template('ALTER TRIGGER #trigger_name# ON #table_name# RENAME TO new_name')
+
+    def TemplateEnableTrigger(self):
+        return Template('ALTER TABLE #table_name# ENABLE TRIGGER #trigger_name#')
+
+    def TemplateDisableTrigger(self):
+        return Template('ALTER TABLE #table_name# DISABLE TRIGGER #trigger_name#')
+
+    def TemplateDropTrigger(self):
+        return Template('''DROP RULE #trigger_name# ON #table_name#
+--CASCADE
+''')
+
+    def TemplateCreatePartition(self):
+        return Template('''CREATE TABLE name (
+    CHECK ( condition )
+) INHERITS #table_name#
+''')
+
+    def TemplateNoInheritPartition(self):
+        return Template('ALTER TABLE #partition_name# NO INHERIT #table_name#')
+
+    def TemplateDropPartition(self):
+        return Template('DROP TABLE #partition_name#')
 
 '''
 ------------------------------------------------------------------------
@@ -936,7 +1175,8 @@ class SQLite:
         self.v_port = ''
         self.v_service = p_service
         self.v_user = ''
-        self.v_connection = Database.SQLite(p_service, p_foreignkeys)
+        self.v_schema = ''
+        self.v_connection = Spartacus.Database.SQLite(p_service, p_foreignkeys)
 
         self.v_has_schema = False
         self.v_has_functions = False
@@ -946,33 +1186,28 @@ class SQLite:
         self.v_has_foreign_keys = True
         self.v_has_uniques = True
         self.v_has_indexes = True
+        self.v_has_checks = True
+        self.v_has_rules = True
+        self.v_has_triggers = True
+        self.v_has_triggers = True
+
         self.v_has_update_rule = True
-
-        self.v_default_string = "text"
-
         self.v_can_rename_table = True
         self.v_rename_table_command = "alter table #p_table_name# rename to #p_new_table_name#"
-
         self.v_create_pk_command = "constraint #p_constraint_name# primary key (#p_columns#)"
         self.v_create_fk_command = "constraint #p_constraint_name# foreign key (#p_columns#) references #p_r_table_name# (#p_r_columns#) #p_delete_update_rules#"
         self.v_create_unique_command = "constraint #p_constraint_name# unique (#p_columns#)"
-
         self.v_can_alter_type = False
         self.v_can_alter_nullable = False
         self.v_can_rename_column = False
-
         self.v_can_add_column = True
         self.v_add_column_command = "alter table #p_table_name# add column #p_column_name# #p_data_type# #p_nullable#"
-
         self.v_can_drop_column = False
         self.v_can_add_constraint = False
         self.v_can_drop_constraint = False
-
         self.v_create_index_command = "create index #p_index_name# on #p_table_name# (#p_columns#)";
         self.v_create_unique_index_command = "create unique index #p_index_name# on #p_table_name# (#p_columns#)"
-
         self.v_drop_index_command = "drop index #p_index_name#"
-
         self.v_update_rules = [
             "NO ACTION",
 			"RESTRICT",
@@ -988,8 +1223,6 @@ class SQLite:
 			"CASCADE"
         ]
 
-        self.v_schema = ''
-
     def GetName(self):
         return self.v_service
 
@@ -1004,20 +1237,15 @@ class SQLite:
         return 'Local File'
 
     def HandleUpdateDeleteRules(self, p_update_rule, p_delete_rule):
-
         v_rules = ''
-
         if p_update_rule.strip() != "":
             v_rules += " on update " + p_update_rule + " "
         if p_delete_rule.strip() != "":
             v_rules += " on delete " + p_delete_rule + " "
-
         return v_rules
 
     def TestConnection(self):
-
         v_return = ''
-
         try:
             if os.path.isfile(self.v_service):
                 v_return = 'Connection successful.'
@@ -1025,23 +1253,9 @@ class SQLite:
                 v_return = 'File does not exist, if you try to manage this connection a database file will be created.'
         except Exception as exc:
             v_return = str(exc)
-
         return v_return
 
-    def QueryRoles(self):
-        return None
-
-    def QueryTablespaces(self):
-        return None
-
-    def QueryDatabases(self):
-        return None
-
-    def QuerySchemas(self):
-        return None
-
     def QueryTables(self):
-
         return self.v_connection.Query('''
             select name as table_name
 		    from sqlite_master
@@ -1049,8 +1263,7 @@ class SQLite:
         ''', True)
 
     def QueryTablesFields(self, p_table=None):
-
-        v_table_columns_all = Database.DataTable()
+        v_table_columns_all = Spartacus.Database.DataTable()
         v_table_columns_all.Columns = [
             'column_name',
             'data_type',
@@ -1060,18 +1273,15 @@ class SQLite:
             'data_scale',
             'table_name'
         ]
-
         if p_table:
-            v_tables = Database.DataTable()
+            v_tables = Spartacus.Database.DataTable()
             v_tables.Columns.append('table_name')
             v_tables.Rows.append(OrderedDict(zip(v_tables.Columns, [p_table])))
         else:
             v_tables = self.QueryTables()
-
         for v_table in v_tables.Rows:
             v_table_columns_tmp = self.v_connection.Query("pragma table_info('{0}')".format(v_table['table_name']), True)
-
-            v_table_columns = Database.DataTable()
+            v_table_columns = Spartacus.Database.DataTable()
             v_table_columns.Columns = [
                 'column_name',
                 'data_type',
@@ -1081,7 +1291,6 @@ class SQLite:
                 'data_scale',
                 'table_name'
             ]
-
             for r in v_table_columns_tmp.Rows:
                 v_row = []
                 v_row.append(r['name'])
@@ -1112,14 +1321,11 @@ class SQLite:
                 v_row.append(v_data_scale)
                 v_row.append(v_table['table_name'])
                 v_table_columns.Rows.append(OrderedDict(zip(v_table_columns.Columns, v_row)))
-
             v_table_columns_all.Merge(v_table_columns)
-
         return v_table_columns_all
 
     def QueryTablesForeignKeys(self, p_table=None):
-
-        v_fks_all = Database.DataTable()
+        v_fks_all = Spartacus.Database.DataTable()
         v_fks_all.Columns = [
             'r_table_name',
             'table_name',
@@ -1131,18 +1337,15 @@ class SQLite:
             'table_schema',
             'r_table_schema'
         ]
-
         if p_table:
-            v_tables = Database.DataTable()
+            v_tables = Spartacus.Database.DataTable()
             v_tables.Columns.append('table_name')
             v_tables.Rows.append(OrderedDict(zip(v_tables.Columns, [p_table])))
         else:
             v_tables = self.QueryTables()
-
         for v_table in v_tables.Rows:
             v_fks_tmp = self.v_connection.Query("pragma foreign_key_list('{0}')".format(v_table['table_name']), True)
-
-            v_fks = Database.DataTable()
+            v_fks = Spartacus.Database.DataTable()
             v_fks.Columns = [
                 'r_table_name',
                 'table_name',
@@ -1154,7 +1357,6 @@ class SQLite:
                 'table_schema',
                 'r_table_schema'
             ]
-
             for r in v_fks_tmp.Rows:
                 v_row = []
                 v_row.append(r['table'])
@@ -1167,37 +1369,30 @@ class SQLite:
                 v_row.append('')
                 v_row.append('')
                 v_fks.Rows.append(OrderedDict(zip(v_fks.Columns, v_row)))
-
             v_fks_all.Merge(v_fks)
-
         return v_fks_all
 
     def QueryTablesPrimaryKeys(self, p_table=None):
-
-        v_pks_all = Database.DataTable()
+        v_pks_all = Spartacus.Database.DataTable()
         v_pks_all.Columns = [
             'constraint_name',
             'column_name',
             'table_name'
         ]
-
         if p_table:
-            v_tables = Database.DataTable()
+            v_tables = Spartacus.Database.DataTable()
             v_tables.Columns.append('table_name')
             v_tables.Rows.append(OrderedDict(zip(v_tables.Columns, [p_table])))
         else:
             v_tables = self.QueryTables()
-
         for v_table in v_tables.Rows:
             v_pks_tmp = self.v_connection.Query("pragma table_info('{0}')".format(v_table['table_name']), True)
-
-            v_pks = Database.DataTable()
+            v_pks = Spartacus.Database.DataTable()
             v_pks.Columns = [
                 'constraint_name',
                 'column_name',
                 'table_name'
             ]
-
             for r in v_pks_tmp.Rows:
                 if r['pk'] != 0:
                     v_row = []
@@ -1205,21 +1400,17 @@ class SQLite:
                     v_row.append(r['name'])
                     v_row.append(v_table['table_name'])
                     v_pks.Rows.append(OrderedDict(zip(v_pks.Columns, v_row)))
-
             v_pks_all.Merge(v_pks)
-
         return v_pks_all
 
     # DOING
     def QueryTablesUniques(self, p_table=None):
-
-        v_uniques_all = Database.DataTable()
+        v_uniques_all = Spartacus.Database.DataTable()
         v_uniques_all.Columns = [
             'constraint_name',
             'column_name',
             'table_name'
         ]
-
         if p_table:
             v_tables = self.v_connection.Query('''
                 select name,
@@ -1235,38 +1426,30 @@ class SQLite:
                 from sqlite_master
                 where type = 'table'
             ''', True)
-
         v_regex = re.compile(r"\s+")
-
         for v_table in v_tables.Rows:
             v_sql = v_table['sql'].lower().strip()
-
             if 'unique' in v_sql:
                 v_index = v_sql.find('(') + 1
                 v_filtered_sql = v_sql[v_index : ]
-
                 v_formatted = v_regex.sub(' ', v_filtered_sql)
 
-
     def QueryTablesIndexes(self, p_table=None):
-
         pass
 
     def QueryDataLimited(self, p_query, p_count=-1):
-
         if p_count != -1:
             self.v_connection.Open()
             v_data = self.v_connection.QueryBlock(p_query, p_count, True)
             self.v_connection.Close()
+            return v_data
         else:
             return self.v_connection.Query(p_query, True)
 
     def QueryTableRecords(self, p_column_list, p_table, p_filter, p_count=-1):
-
         v_limit = ''
         if p_count != -1:
             v_limit = ' limit ' + p_count
-
         return self.v_connection.Query('''
             select {0}
             from {1} t
@@ -1280,90 +1463,6 @@ class SQLite:
             ), True
         )
 
-    def QueryFunctions(self):
-        return None
-
-    def QueryFunctionFields(self, p_function=None):
-        return None
-
-    def GetFunctionDefinition(self, p_function=None):
-        return None
-
-    def QueryProcedures(self):
-        return None
-
-    def QueryProcedureFields(self, p_procedure=None):
-        return None
-
-    def QueryProcedureDefinition(self, p_procedure=None):
-        return None
-
-    def QuerySequences(self, p_sequence=None):
-        return None
-
-    def QueryViews(self, p_all_schemas=False, p_schema=None):
-        return None
-
-    def QueryViewFields(self, p_view, p_schema):
-        return None
-
-    def QueryViewDefinition(self, p_view):
-        return None
-
-    def TemplateCreateRole(self):
-        return None
-
-    def TemplateDropRole(self):
-        return None
-
-    def TemplateCreateTablespace(self):
-        return None
-
-    def TemplateAlterTablespace(self):
-        return None
-
-    def TemplateDropTablespace(self):
-        return None
-
-    def TemplateCreateDatabase(self):
-        return None
-
-    def TemplateAlterDatabase(self):
-        return None
-
-    def TemplateDropDatabase(self):
-        return None
-
-    def TemplateCreateSchema(self):
-        return None
-
-    def TemplateAlterSchema(self):
-        return None
-
-    def TemplateDropSchema(self):
-        return None
-
-    def TemplateCreateSequence(self):
-        return None
-
-    def TemplateAlterSequence(self):
-        return None
-
-    def TemplateDropSequence(self):
-        return None
-
-    def TemplateCreateFunction(self):
-        return None
-
-    def TemplateDropFunction(self):
-        return None
-
-    def TemplateCreateView(self):
-        return None
-
-    def TemplateDropView(self):
-        return None
-
     def TemplateCreateTable(self):
         pass
 
@@ -1371,7 +1470,6 @@ class SQLite:
         pass
 
     def TemplateDropTable(self):
-
         return Template('DROP TABLE #table_name#')
 
     def TemplateCreateIndex(self):

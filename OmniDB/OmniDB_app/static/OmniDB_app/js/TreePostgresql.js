@@ -591,45 +591,68 @@ function getTreePostgresql(p_div) {
 			};
 		var tree = createTree(p_div,'#fcfdfd',context_menu);
 		tree.tag = {
-            create_tablespace: p_return.v_data.v_database_return.create_tablespace,
-            alter_tablespace: p_return.v_data.v_database_return.alter_tablespace,
-            drop_tablespace: p_return.v_data.v_database_return.drop_tablespace,
             create_role: p_return.v_data.v_database_return.create_role,
             alter_role: p_return.v_data.v_database_return.alter_role,
             drop_role: p_return.v_data.v_database_return.drop_role,
+            create_tablespace: p_return.v_data.v_database_return.create_tablespace,
+            alter_tablespace: p_return.v_data.v_database_return.alter_tablespace,
+            drop_tablespace: p_return.v_data.v_database_return.drop_tablespace,
             create_database: p_return.v_data.v_database_return.create_database,
             alter_database: p_return.v_data.v_database_return.alter_database,
             drop_database: p_return.v_data.v_database_return.drop_database,
+            create_extension: p_return.v_data.v_database_return.create_extension,
+            alter_extension: p_return.v_data.v_database_return.alter_extension,
+            drop_extension: p_return.v_data.v_database_return.drop_extension,
             create_schema: p_return.v_data.v_database_return.create_schema,
             alter_schema: p_return.v_data.v_database_return.alter_schema,
             drop_schema: p_return.v_data.v_database_return.drop_schema,
-            //create_table
-            //alter_table
-            drop_table: p_return.v_data.v_database_return.drop_table,
             create_sequence: p_return.v_data.v_database_return.create_sequence,
             alter_sequence: p_return.v_data.v_database_return.alter_sequence,
             drop_sequence: p_return.v_data.v_database_return.drop_sequence,
             create_function: p_return.v_data.v_database_return.create_function,
             drop_function: p_return.v_data.v_database_return.drop_function,
+            create_triggerfunction: p_return.v_data.v_database_return.create_triggerfunction,
+            drop_triggerfunction: p_return.v_data.v_database_return.drop_triggerfunction,
             create_view: p_return.v_data.v_database_return.create_view,
-            drop_view: p_return.v_data.v_database_return.drop_view
+            drop_view: p_return.v_data.v_database_return.drop_view,
+            //create_table
+            //alter_table
+            drop_table: p_return.v_data.v_database_return.drop_table,
+            create_primarykey: p_return.v_data.v_database_return.create_primarykey,
+            drop_primarykey: p_return.v_data.v_database_return.drop_primarykey,
+            create_foreignkey: p_return.v_data.v_database_return.create_foreignkey,
+            drop_foreignkey: p_return.v_data.v_database_return.drop_foreignkey,
+            create_index: p_return.v_data.v_database_return.create_index,
+            alter_index: p_return.v_data.v_database_return.alter_index,
+            drop_index: p_return.v_data.v_database_return.drop_index,
+            create_check: p_return.v_data.v_database_return.create_check,
+            drop_check: p_return.v_data.v_database_return.drop_check,
+            create_rule: p_return.v_data.v_database_return.create_rule,
+            alter_rule: p_return.v_data.v_database_return.alter_rule,
+            drop_rule: p_return.v_data.v_database_return.drop_rule,
+            create_trigger: p_return.v_data.v_database_return.create_trigger,
+            alter_trigger: p_return.v_data.v_database_return.alter_trigger,
+            enable_trigger: p_return.v_data.v_database_return.enable_trigger,
+            disable_trigger: p_return.v_data.v_database_return.disable_trigger,
+            drop_trigger: p_return.v_data.v_database_return.drop_trigger,
+            create_partition: p_return.v_data.v_database_return.create_partition,
+            noinherit_partition: p_return.v_data.v_database_return.noinherit_partition,
+            drop_partition: p_return.v_data.v_database_return.drop_partition
 		}
 
 		tree.nodeAfterOpenEvent = function(node) {
 			refreshTreePostgresql(node);
 		}
 
-		var node1 = tree.createNode(p_return.v_data.v_database_return.v_database,true,'/static/OmniDB_app/images/db.png',null,null,null);
-        var node_databases = tree.createNode('Databases',false,'/static/OmniDB_app/images/db.png',null,{ type:'database_list', num_databases : 0 },'cm_databases');
+        var node_server = tree.createNode(p_return.v_data.v_database_return.version,true,'/static/OmniDB_app/images/circle_blue.png',null,null,null)
+        var node_connection = tree.createNode(p_return.v_data.v_database_return.v_database,true,'/static/OmniDB_app/images/db.png',node_server,null,null);
+        var node_databases = tree.createNode('Databases',false,'/static/OmniDB_app/images/db.png',node_server,{ type:'database_list', num_databases:0 },'cm_databases');
         node_databases.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
-        var node_tablespaces = tree.createNode('Tablespaces',false,'/static/OmniDB_app/images/circle_blue.png',null,{ type:'tablespace_list', num_tablespaces : 0 },'cm_tablespaces');
+        var node_tablespaces = tree.createNode('Tablespaces',false,'/static/OmniDB_app/images/circle_blue.png',node_server,{ type:'tablespace_list', num_tablespaces:0 },'cm_tablespaces');
         node_tablespaces.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
-        var node_roles = tree.createNode('Roles',false,'/static/OmniDB_app/images/circle_blue.png',null,{ type:'role_list', num_roles : 0 },'cm_roles');
+        var node_roles = tree.createNode('Roles',false,'/static/OmniDB_app/images/circle_blue.png',node_server,{ type:'role_list', num_roles:0 },'cm_roles');
         node_roles.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
-
-		var node2 = node1;
-
-		node_schemas = tree.createNode('Schemas',false,'/static/OmniDB_app/images/schemas.png',node1,{ type:'schema_list', num_schemas : 0 },'cm_schemas');
+        node_schemas = tree.createNode('Schemas',false,'/static/OmniDB_app/images/schemas.png',node_connection,{ type:'schema_list', num_schemas:0 },'cm_schemas');
         node_schemas.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
 
 		tree.drawTree();

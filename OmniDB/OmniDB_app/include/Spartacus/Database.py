@@ -679,7 +679,10 @@ class PostgreSQL(Generic):
     def __init__(self, p_host, p_port, p_service, p_user, p_password):
         if 'PostgreSQL' in v_supported_rdbms:
             self.v_host = p_host
-            self.v_port = p_port
+            if p_port is None or p_port == '':
+                self.v_port = '5432'
+            else:
+                self.v_port = p_port
             self.v_service = p_service
             self.v_user = p_user
             self.v_password = p_password
@@ -692,7 +695,7 @@ class PostgreSQL(Generic):
             if self.v_host is None or self.v_host == '':
                 if self.v_password is None or self.v_password == '':
                     self.v_con = psycopg2.connect(
-                        'port={1} dbname={2} user={3}'.format(
+                        'port={0} dbname={1} user={2}'.format(
                             self.v_port,
                             self.v_service,
                             self.v_user,
@@ -700,7 +703,7 @@ class PostgreSQL(Generic):
                         cursor_factory=psycopg2.extras.DictCursor)
                 else:
                     self.v_con = psycopg2.connect(
-                        'port={1} dbname={2} user={3} password={4}'.format(
+                        'port={0} dbname={1} user={2} password={3}'.format(
                             self.v_port,
                             self.v_service,
                             self.v_user,

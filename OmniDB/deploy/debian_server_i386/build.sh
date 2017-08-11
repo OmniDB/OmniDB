@@ -12,7 +12,7 @@ rm -rf deploy/packages
 echo "Done."
 
 echo "Generating bundles... "
-pyinstaller OmniDB.spec
+pyinstaller OmniDB-lin.spec
 echo "Done."
 
 echo -n "Organizing bundles..."

@@ -11,6 +11,10 @@ rm -rf dist
 rm -rf deploy/packages
 echo "Done."
 
+echo -n "Switching to Desktop Mode... "
+sed -i -e 's/DESKTOP_MODE               = False/DESKTOP_MODE               = True/g' OmniDB/settings.py
+echo "Done."
+
 echo "Generating bundles... "
 pyinstaller OmniDB.spec
 echo "Done."

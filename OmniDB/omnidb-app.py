@@ -50,8 +50,6 @@ import random
 
 logger = logging.getLogger('OmniDB_app.Init')
 
-server_port=None
-
 def check_port(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -61,7 +59,7 @@ def check_port(port):
     s.close()
     return True
 
-def init_browser():
+def init_browser(server_port):
     sys.excepthook = cef.ExceptHook  # To shutdown all CEF processes on error
     cef.Initialize()
     cef.CreateBrowserSync(url="http://localhost:{0}?user=admin&pwd=admin".format(str(server_port)),window_title="OmniDB")
@@ -81,7 +79,7 @@ class DjangoApplication(object):
         }
         cherrypy.tree.mount(None, url, {'/': config})
 
-    def run(self):
+    def run(self,server_port):
         #cherrypy.engine.unsubscribe('graceful', cherrypy.log.reopen_files)
 
         logging.config.dictConfig(OmniDB.settings.LOGGING)
@@ -119,7 +117,7 @@ class DjangoApplication(object):
             logger.info("Starting server {0} at http://localhost:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
             cherrypy.engine.start()
 
-            init_browser()
+            init_browser(port)
             cherrypy.engine.block()
         else:
             print('Tried 20 different ports without success, closing...')
@@ -164,8 +162,7 @@ if __name__ == "__main__":
 
         #Websocket Core
         ws_core.start_wsserver_thread()
-        server_port = options.port
-        DjangoApplication().run()
+        DjangoApplication().run(options.port)
     else:
         print('Tried 20 different ports without success, closing...')
         logger.info('Tried 20 different ports without success, closing...')

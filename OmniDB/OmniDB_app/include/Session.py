@@ -59,7 +59,18 @@ class Session(object):
         else:
             #Reached timeout, must request password
             if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_TOTAL):
-                return True
+                #Try passwordless connection
+                self.v_databases[p_database_index]['database'].v_connection.v_password = ''
+                v_test = self.v_databases[p_database_index]['database'].TestConnection()
+
+                if v_test=='Connection successful.':
+                    s = SessionStore(session_key=self.v_user_key)
+                    s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
+                    s['omnidb_session'].v_databases[p_database_index]['database'].v_connection.v_password = ''
+                    s.save()
+                    return False
+                else:
+                    return True
             #Reached half way to timeout, update prompt_timeout
             if datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_REFRESH):
                 s = SessionStore(session_key=self.v_user_key)

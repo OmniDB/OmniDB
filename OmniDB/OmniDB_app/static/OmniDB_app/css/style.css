@@ -117,7 +117,7 @@ input {
     font-size: 1.1em;
     text-align: left;
     padding-top: 5px;
-    padding-bottom: 4px;
+    padding-bottom: 4px;
     background-color: #C2E069;
     color: #406215;
 }
@@ -393,9 +393,11 @@ body.loading .div_loading {
 }
 
 .header_menu li {
-	margin: 0;
-	height: 25px;
-	display: table-cell;
+  margin: 0;
+  height: 25px;
+  display: table-cell;
+  line-height: 25px;
+  vertical-align: middle;
 }
 
 .header_menu a{

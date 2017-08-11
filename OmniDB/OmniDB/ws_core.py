@@ -181,8 +181,8 @@ def start_wsserver_thread():
     t.start()
 
 def start_wsserver():
-    logger.info('''*** Starting OmniDB ***''')
-    logger.info('''*** Starting Query WS Server ***''')
+    #logger.info('''*** Starting OmniDB ***''')
+    #logger.info('''*** Starting Query WS Server ***''')
     try:
         application = tornado.web.Application([
           (r'/ws', WSHandler),
@@ -205,7 +205,10 @@ def start_wsserver():
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
 def send_response_thread_safe(ws_object,message):
-    ws_object.write_message(message)
+    try:
+        ws_object.write_message(message)
+    except Exception as exc:
+        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
 def LogHistory(p_omnidb_database,
                p_user_id,

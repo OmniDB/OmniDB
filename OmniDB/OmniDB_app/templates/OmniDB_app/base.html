@@ -26,14 +26,18 @@
 			</ul>
 			<div style="position: absolute; right: 0px; top: 0px;">
 				<ul>
-					<li style="color: #F1F7FF; padding-right: 10px;">{{ session.v_user_name }}</li>
-          {% if session.v_super_user == 1 %}
-  					<li style="padding-right: 10px;"><img title="Manage users" style="vertical-align: middle; cursor: pointer;" onclick="listUsers();" src="/static/OmniDB_app/images/users.png"/></li>
-  				{% endif %}
+          {% if not desktop_mode %}
+  					<li style="color: #F1F7FF; padding-right: 10px;">{{ session.v_user_name }}</li>
+            {% if session.v_super_user == 1 %}
+    					<li style="padding-right: 10px;"><img title="Manage users" style="vertical-align: middle; cursor: pointer;" onclick="listUsers();" src="/static/OmniDB_app/images/users.png"/></li>
+    				{% endif %}
+          {% endif %}
 					<li style="padding-right: 10px;"><img title="User settings" style="vertical-align: middle; cursor: pointer;" onclick="showConfigUser();" src="/static/OmniDB_app/images/gear.png"/></li>
           <li style="padding-right: 10px;"><img title="SQL History" style="vertical-align: middle; cursor: pointer;" onclick="showCommandList();" src="/static/OmniDB_app/images/command_list.png"/></li>
 					<li style="padding-right: 10px;"><img title="About" style="vertical-align: middle; cursor: pointer;" onclick="showAbout();" src="/static/OmniDB_app/images/about.png"/></li>
+          {% if not desktop_mode %}
           <li><a href="../logout">Logout</a></li>
+          {% endif %}
 				</ul>
 			</div>
 		</div>
@@ -50,7 +54,9 @@
 	            <div id="config_tabs" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
 	                <ul>
 	                <li id="config_tabs_tab1">Editor</li>
-	                <li id="config_tabs_tab2">User</li>
+                  {% if not desktop_mode %}
+	                 <li id="config_tabs_tab2">User</li>
+                  {% endif %}
 	  				</ul>
 	  				<div id="div_config_tabs_tab1">
 
@@ -108,14 +114,18 @@
 		                	<option value="36">(Dark) Vibrant Ink</option>
 		                </select>
 		                </div>
-		                  <div style="text-align: center;">
-		                	<button onclick="saveConfigUser();">Save Changes</button>
-		                </div>
+                    <div style="text-align: center;">
+                      <button onclick="saveConfigUser();">Save Changes</button>
+                    </div>
 		                </div>
 
 
 	  				</div>
+            {% if not desktop_mode %}
 	  				<div id="div_config_tabs_tab2">
+            {% else %}
+            <div id="div_config_tabs_tab2" style="display: none;">
+            {% endif %}
 	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
 		                	<div style="text-align: center;">
 		                		<div style="margin-bottom: 10px;">New Password</div>
@@ -128,7 +138,7 @@
 		                	<div style="text-align: center; display: none;">
 		                		<div style="margin-bottom: 10px;">Enable OmniChat</div>
 		                		<input id="chk_enable_chat" type="checkbox" style="width: 200px; margin-bottom: 20px;">
-		                	</div>manage
+		                	</div>
 		                	<div style="text-align: center;">
 			                	<button onclick="saveConfigUser();">Save Changes</button>
 		                	</div>

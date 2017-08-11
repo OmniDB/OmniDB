@@ -43,9 +43,21 @@ import time
 
 from django.contrib.sessions.backends.db import SessionStore
 
-logger = logging.getLogger()
+import socket
+import random
+
+logger = logging.getLogger('OmniDB_app.Init')
 
 server_port=None
+
+def check_port(port):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind(("127.0.0.1", port))
+    except socket.error as e:
+        return False
+    s.close()
+    return True
 
 class DjangoApplication(object):
     HOST = "0.0.0.0"
@@ -60,42 +72,92 @@ class DjangoApplication(object):
         cherrypy.tree.mount(None, url, {'/': config})
 
     def run(self):
-
-        cherrypy.config.update({
-            'server.socket_host': self.HOST,
-            'server.socket_port': server_port,
-            'engine.autoreload_on': False,
-            'log.screen': False,
-            'log.access_file': '',
-            'log.error_file': ''
-        })
         #cherrypy.engine.unsubscribe('graceful', cherrypy.log.reopen_files)
+
         logging.config.dictConfig(OmniDB.settings.LOGGING)
-        cherrypy.log.error_log.propagate = False
+        #cherrypy.log.error_log.propagate = False
         cherrypy.log.access_log.propagate = False
         self.mount_static(OmniDB.settings.STATIC_URL, OmniDB.settings.STATIC_ROOT)
 
         cherrypy.tree.graft(WSGIHandler())
-        print ("Starting {0} at http://localhost:{1}".format(OmniDB.settings.OMNIDB_VERSION,str(server_port)))
-        cherrypy.engine.start()
 
-        print ("Open OmniDB in your favorite browser")
-        print ("Press Ctrl+C to exit")
-        cherrypy.engine.block()
+        port = server_port
+        num_attempts = 0
+
+        print('''Starting OmniDB server...''')
+        logger.info('''Starting OmniDB server...''')
+        print('''Checking port availability...''')
+        logger.info('''Checking port availability...''')
+
+        while not check_port(port) or num_attempts >= 20:
+            print("Port {0} is busy, trying another port...".format(port))
+            logger.info("Port {0} is busy, trying another port...".format(port))
+            port = random.randint(1025,32676)
+            num_attempts = num_attempts + 1
+
+        if num_attempts < 20:
+            cherrypy.config.update({
+                'server.socket_host': self.HOST,
+                'server.socket_port': port,
+                'engine.autoreload_on': False,
+                'log.screen': False,
+                'log.access_file': '',
+                'log.error_file': ''
+            })
+
+            print ("Starting server {0} at http://localhost:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
+            logger.info("Starting server {0} at http://localhost:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
+            cherrypy.engine.start()
+
+            print ("Open OmniDB in your favorite browser")
+            print ("Press Ctrl+C to exit")
+
+            cherrypy.engine.block()
+        else:
+            print('Tried 20 different ports without success, closing...')
+            logger.info('Tried 20 different ports without success, closing...')
 
 if __name__ == "__main__":
     #default port
 
     parser = optparse.OptionParser(version=OmniDB.settings.OMNIDB_VERSION)
     parser.add_option("-p", "--port", dest="port",
-                      default=OmniDB.settings.OMNIDB_DEFAULT_PORT, type=int,
+                      default=OmniDB.settings.OMNIDB_DEFAULT_SERVER_PORT, type=int,
                       help="listening port")
+
+    parser.add_option("-w", "--wsport", dest="wsport",
+                      default=OmniDB.settings.WS_QUERY_PORT, type=int,
+                      help="websocket port")
     (options, args) = parser.parse_args()
 
-    #Removing Expired Sessions
-    SessionStore.clear_expired()
+    #Choosing empty port
+    port = options.wsport
+    num_attempts = 0
 
-    #Websocket Core
-    ws_core.start_wsserver_thread()
-    server_port = options.port
-    DjangoApplication().run()
+    print('''Starting OmniDB websocket...''')
+    logger.info('''Starting OmniDB websocket...''')
+    print('''Checking port availability...''')
+    logger.info('''Checking port availability...''')
+
+    while not check_port(port) or num_attempts >= 20:
+        print("Port {0} is busy, trying another port...".format(port))
+        logger.info("Port {0} is busy, trying another port...".format(port))
+        port = random.randint(1025,32676)
+        num_attempts = num_attempts + 1
+
+    if num_attempts < 20:
+        OmniDB.settings.WS_QUERY_PORT = port
+
+        print ("Starting websocket server at port {0}.".format(str(port)))
+        logger.info("Starting websocket server at port {0}.".format(str(port)))
+
+        #Removing Expired Sessions
+        SessionStore.clear_expired()
+
+        #Websocket Core
+        ws_core.start_wsserver_thread()
+        server_port = options.port
+        DjangoApplication().run()
+    else:
+        print('Tried 20 different ports without success, closing...')
+        logger.info('Tried 20 different ports without success, closing...')

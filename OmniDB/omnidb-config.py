@@ -33,9 +33,10 @@ def clean_all():
     try:
         value = input('Would you like to continue? (y/n) ')
         if value.lower()=='y':
-            clean_users();
-            clean_sessions();
-            vacuum();
+            clean_users()
+            clean_sessions()
+            vacuum()
+            create_superuser('admin','admin')
     except Exception as exc:
         print('Error:')
         print(exc)
@@ -100,9 +101,10 @@ if __name__ == "__main__":
         try:
             value = input('Would you like to continue? (y/n) ')
             if value.lower()=='y':
-                clean_users();
-                clean_sessions();
-                vacuum();
+                clean_users()
+                clean_sessions()
+                vacuum()
+                create_superuser('admin','admin')
         except Exception as exc:
             print('Error:')
             print(exc)

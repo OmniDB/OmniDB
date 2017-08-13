@@ -805,7 +805,7 @@ class PostgreSQL:
               and t.event_object_table = '{1}'
               and t.trigger_name = '{2}'
             ) x
-        ''''.format(p_schema, p_table, p_trigger))
+        '''.format(p_schema, p_table, p_trigger))
 
     def TemplateCreateRole(self):
         return Template('''CREATE ROLE name

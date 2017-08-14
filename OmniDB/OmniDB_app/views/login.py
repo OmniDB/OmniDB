@@ -29,10 +29,13 @@ def index(request):
     if user and pwd:
         num_connections = sign_in_automatic(request,user,pwd)
 
+        '''
         if num_connections == 0:
             return redirect('connections')
         elif num_connections > 0:
             return redirect('workspace')
+        '''
+        return redirect('connections')
 
     template = loader.get_template('OmniDB_app/login.html')
     return HttpResponse(template.render(context, request))

@@ -215,6 +215,16 @@ def select_connection(request):
     json_object = json.loads(request.POST.get('data', None))
     p_index = json_object['p_index']
 
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(int(p_index)):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+    else:
+        v_session.v_databases[int(p_index)]['prompt_timeout'] = datetime.now()
+
+    v_return['v_data'] = v_session.v_databases [int(p_index)]['database'].TestConnection()
+
     request.session['selected_connection'] = p_index
 
     return JsonResponse(v_return)

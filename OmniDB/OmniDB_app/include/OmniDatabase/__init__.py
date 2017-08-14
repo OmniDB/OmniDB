@@ -94,7 +94,7 @@ class PostgreSQL:
         self.v_has_checks = True
         self.v_has_rules = True
         self.v_has_triggers = True
-        self.v_has_triggers = True
+        self.v_has_partitions = True
 
         self.v_has_update_rule = True
         self.v_can_rename_table = True
@@ -437,30 +437,136 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(n.nspname) = '{0}' and ltrim(lower(c.conrelid::regclass), lower(n.nspname) || '.') = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and lower(n.nspname) = '{0}' and ltrim(lower(t.relname), lower(n.nspname) || '.') = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
             elif p_table:
-                v_filter = "and lower(n.nspname) = '{0}' and ltrim(lower(c.conrelid::regclass), lower(n.nspname) || '.') = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and lower(n.nspname) = '{0}' and ltrim(lower(t.relname), lower(n.nspname) || '.') = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
             elif p_schema:
                 v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
             else:
                 v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
         else:
             if p_table:
-                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') and ltrim(lower(c.conrelid::regclass), lower(n.nspname) || '.') = {0}".format(str.lower(p_table))
+                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') and ltrim(lower(t.relname), lower(n.nspname) || '.') = {0}".format(str.lower(p_table))
             else:
                 v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
             select n.nspname as schema_name,
-                   ltrim(c.conrelid::regclass, n.nspname || '.') as table_name,
-                   conname as constraint_name,
-                   consrc as constraint_source
-            from pg_proc p
+                   ltrim(t.relname, n.nspname || '.') as table_name,
+                   c.conname as constraint_name,
+                   c.consrc as constraint_source
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
             join pg_namespace n
-            on p.pronamespace = n.oid
+            on t.relnamespace = n.oid
+            where contype = 'c'
+            {0}
+            order by 1, 2, 3
+        '''.format(v_filter), True)
+
+    def QueryTablesRules(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and lower(schemaname) = '{0}' and lower(tablename) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+            elif p_table:
+                v_filter = "and lower(schemaname) = '{0}' and lower(tablename) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+            elif p_schema:
+                v_filter = "and lower(schemaname) = '{0}' ".format(str.lower(p_schema))
+            else:
+                v_filter = "and lower(schemaname) = '{0}' ".format(str.lower(self.v_schema))
+        else:
+            if p_table:
+                v_filter = "and lower(schemaname) not in ('information_schema','pg_catalog') and lower(tablename) = {0}".format(str.lower(p_table))
+            else:
+                v_filter = "and lower(schemaname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select schemaname as table_schema,
+                   tablename as table_name,
+                   rulename as rule_name
+            from pg_rules
             where 1 = 1
             {0}
             order by 1, 2, 3
         '''.format(v_filter), True)
+
+    def GetRuleDefinition(self, p_rule, p_table, p_schema):
+        return self.v_connection.ExecuteScalar('''
+            select definition
+            from pg_rules
+            where table_schema = '{0}'
+              and table_name = '{1}'
+              and rulename = '{2}'
+        '''.format(p_schema, p_table, p_rule))
+
+    def QueryTablesTriggers(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and lower(n.nspname) = '{0}' and lower(c.relname) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+            elif p_table:
+                v_filter = "and lower(n.nspname) = '{0}' and lower(c.relname) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+            elif p_schema:
+                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
+            else:
+                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
+        else:
+            if p_table:
+                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') and lower(c.relname) = {0}".format(str.lower(p_table))
+            else:
+                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select n.nspname as schema_name,
+                   c.relname as table_name,
+                   t.tgname as trigger_name,
+                   t.tgenabled as trigger_enabled,
+                   np.nspname || '.' || p.proname as trigger_funtion_name,
+                   np.nspname || '.' || p.proname || '()' as trigger_function_id
+            from pg_trigger t
+            inner join pg_class c
+            on c.oid = t.tgrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_proc p
+            on p.oid = t.tgfoid
+            inner join pg_namespace np
+            on np.oid = p.pronamespace
+            where not t.tgisinternal
+            {0}
+            order by 1, 2, 3
+        '''.format(v_filter), True)
+
+    def GetTriggerDefinition(self, p_trigger, p_table, p_schema):
+        return self.v_connection.ExecuteScalar('''
+            select 'CREATE TRIGGER ' || x.trigger_name || chr(10) ||
+                   '  ' || x.action_timing || ' ' || x.event_manipulation || chr(10) ||
+                   '  ON {0}.{1}' || chr(10) ||
+                   '  FOR EACH ' || x.action_orientation || chr(10) ||
+                   (case when length(coalesce(x.action_condition, '')) > 0 then '  WHEN ( ' || x.action_condition || ') ' || chr(10) else '' end) ||
+                   '  ' || x.action_statement as definition
+            from (
+            select distinct t.trigger_name,
+                   t.action_timing,
+                   e.event as event_manipulation,
+                   t.action_orientation,
+                   t.action_condition,
+                   t.action_statement
+            from information_schema.triggers t
+            inner join (
+            select array_to_string(array(
+            select event_manipulation::text
+            from information_schema.triggers
+            where event_object_schema = '{0}'
+              and event_object_table = '{1}'
+              and trigger_name = '{2}'
+            ), ' OR ') as event
+            ) e
+            on 1 = 1
+            where t.event_object_schema = '{0}'
+              and t.event_object_table = '{1}'
+              and t.trigger_name = '{2}'
+            ) x
+        '''.format(p_schema, p_table, p_trigger))
 
     def QueryTablesPartitions(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
@@ -703,110 +809,6 @@ class PostgreSQL:
             '''.format(p_schema, p_view)
     ))
 
-    def QueryRules(self, p_table=None, p_all_schemas=False, p_schema=None):
-        v_filter = ''
-        if not p_all_schemas:
-            if p_table and p_schema:
-                v_filter = "and lower(schema_name) = '{0}' and lower(tablename) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
-            elif p_table:
-                v_filter = "and lower(schema_name) = '{0}' and lower(tablename) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
-            elif p_schema:
-                v_filter = "and lower(schema_name) = '{0}' ".format(str.lower(p_schema))
-            else:
-                v_filter = "and lower(schema_name) = '{0}' ".format(str.lower(self.v_schema))
-        else:
-            if p_table:
-                v_filter = "and lower(schema_name) not in ('information_schema','pg_catalog') and lower(tablename) = {0}".format(str.lower(p_table))
-            else:
-                v_filter = "and lower(schema_name) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select schema_name as table_schema,
-                   tablename as table_name,
-                   rulename as rule_name
-            from pg_rules
-            where 1 = 1
-            {0}
-            order by 1, 2, 3
-        '''.format(v_filter), True)
-
-    def GetRuleDefinition(self, p_rule, p_table, p_schema):
-        return self.v_connection.ExecuteScalar('''
-            select definition
-            from pg_rules
-            where table_schema = '{0}'
-              and table_name = '{1}'
-              and rulename = '{2}'
-        '''.format(p_schema, p_table, p_rule))
-
-    def QueryTriggers(self, p_table=None, p_all_schemas=False, p_schema=None):
-        v_filter = ''
-        if not p_all_schemas:
-            if p_table and p_schema:
-                v_filter = "and lower(n.nspname) = '{0}' and lower(c.relname) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
-            elif p_table:
-                v_filter = "and lower(n.nspname) = '{0}' and lower(c.relname) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
-            elif p_schema:
-                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
-            else:
-                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
-        else:
-            if p_table:
-                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') and lower(c.relname) = {0}".format(str.lower(p_table))
-            else:
-                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select n.nspname as schema_name,
-                   c.relname as table_name,
-                   t.tgname as trigger_name,
-                   t.tgenabled as trigger_enabled,
-                   np.nspname || '.' || p.proname as trigger_funtion_name,
-                   np.nspname || '.' || p.proname || '()' as trigger_function_id
-            from pg_trigger t
-            inner join pg_class c
-            on c.oid = t.tgrelid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            inner join pg_proc p
-            on p.oid = t.tgfoid
-            inner join pg_namespace np
-            on np.oid = p.pronamespace
-            where not t.tgisinternal
-            {0}
-            order by 1, 2, 3
-        '''.format(v_filter), True)
-
-    def GetTriggerDefinition(self, p_trigger, p_table, p_schema):
-        return self.v_connection.ExecuteScalar('''
-            select 'CREATE TRIGGER ' || x.trigger_name || chr(10) ||
-                   '  ' || x.action_timing || ' ' || x.event_manipulation || chr(10) ||
-                   '  ON {0}.{1}' || chr(10) ||
-                   '  FOR EACH ' || x.action_orientation || chr(10) ||
-                   (case when length(coalesce(x.action_condition, '')) > 0 then '  WHEN ( ' || x.action_condition || ') ' || chr(10) else '' end) ||
-                   '  ' || x.action_statement as definition
-            from (
-            select distinct t.trigger_name,
-                   t.action_timing,
-                   e.event as event_manipulation,
-                   t.action_orientation,
-                   t.action_condition,
-                   t.action_statement
-            from information_schema.triggers t
-            inner join (
-            select array_to_string(array(
-            select event_manipulation::text
-            from information_schema.triggers
-            where event_object_schema = '{0}'
-              and event_object_table = '{1}'
-              and trigger_name = '{2}'
-            ), ' OR ') as event
-            ) e
-            on 1 = 1
-            where t.event_object_schema = '{0}'
-              and t.event_object_table = '{1}'
-              and t.trigger_name = '{2}'
-            ) x
-        '''.format(p_schema, p_table, p_trigger))
-
     def TemplateCreateRole(self):
         return Template('''CREATE ROLE name
 --[ ENCRYPTED | UNENCRYPTED ] PASSWORD 'password'
@@ -1038,6 +1040,35 @@ SELECT ...
 --CASCADE
 ''')
 
+    def TemplateCreateColumn(self):
+        return Template('''ALTER TABLE #table_name#
+ADD COLUMN name data_type
+--COLLATE collation
+--column_constraint [ ... ] ]
+''')
+
+    def TemplateAlterColumn(self):
+        return Template('''ALTER TABLE #table_name#
+--ALTER COLUMN #column_name#
+--RENAME COLUMN #column_name# TO new_column
+--TYPE data_type [ COLLATE collation ] [ USING expression ]
+--SET DEFAULT expression
+--DROP DEFAULT
+--SET NOT NULL
+--DROP NOT NULL
+--SET STATISTICS integer
+--SET ( attribute_option = value [, ... ] )
+--RESET ( attribute_option [, ... ] )
+--SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+'''
+)
+
+    def TemplateDropColumn(self):
+        return Template('''ALTER TABLE #table_name#
+DROP COLUMN #column_name#
+--CASCADE
+''')
+
     def TemplateCreatePrimaryKey(self):
         return Template('''ALTER TABLE #table_name#
 ADD CONSTRAINT name
@@ -1049,6 +1080,22 @@ PRIMARY KEY ( column_name [, ... ] )
 ''')
 
     def TemplateDropPrimaryKey(self):
+        return Template('''ALTER TABLE #table_name#
+DROP CONSTRAINT #constraint_name#
+--CASCADE
+''')
+
+    def TemplateCreateUnique(self):
+        return Template('''ALTER TABLE #table_name#
+ADD CONSTRAINT name
+UNIQUE ( column_name [, ... ] )
+--WITH ( storage_parameter [= value] [, ... ] )
+--WITH OIDS
+--WITHOUT OIDS
+--USING INDEX TABLESPACE tablespace_name
+''')
+
+    def TemplateDropUnique(self):
         return Template('''ALTER TABLE #table_name#
 DROP CONSTRAINT #constraint_name#
 --CASCADE
@@ -1106,7 +1153,7 @@ DROP CONSTRAINT #constraint_name#
 ''')
 
     def TemplateCreateRule(self):
-        return Template('''CREATE OR REPLACE name
+        return Template('''CREATE RULE name
 AS ON { SELECT | INSERT | UPDATE | DELETE }
 TO #table_name#
 --WHERE condition

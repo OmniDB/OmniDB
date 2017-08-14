@@ -154,15 +154,36 @@ function selectConnection(p_index) {
 
 	var input = JSON.stringify({"p_index": p_index});
 
-	execAjax('/select_connection/',
+    execAjax('/select_connection/',
 			input,
 			function(p_return) {
 
-				window.open("../workspace","_self")
+				if (p_return.v_data=="Connection successful.")
+					window.open("../workspace","_self")
+				else
+					showPasswordPrompt(
+						p_index,
+						function() {
+							selectConnection(p_index);
+						},
+						null,
+						p_return.v_data
+					);
 
 			},
-			null,
-			'box');
+			function(p_return) {
+				if (p_return.v_data.password_timeout) {
+					showPasswordPrompt(
+						p_index,
+						function() {
+							selectConnection(p_index);
+						},
+						null
+					);
+				}
+			},
+			'box',
+			true);
 
 }
 

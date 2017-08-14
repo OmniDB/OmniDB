@@ -32,6 +32,12 @@ def get_tree_info(request):
 
     v_database = v_session.v_databases[v_database_index]['database']
 
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
     v_return['v_data'] = {
         'v_mode': 'database',
         'v_database_return': {
@@ -64,8 +70,13 @@ def get_tree_info(request):
             #create_table
             #alter_table
             'drop_table': v_database.TemplateDropTable().v_text,
+            'create_column': v_database.TemplateCreateColumn().v_text,
+            'alter_column': v_database.TemplateAlterColumn().v_text,
+            'drop_column': v_database.TemplateDropColumn().v_text,
             'create_primarykey': v_database.TemplateCreatePrimaryKey().v_text,
             'drop_primarykey': v_database.TemplateDropPrimaryKey().v_text,
+            'create_unique': v_database.TemplateCreateUnique().v_text,
+            'drop_unique': v_database.TemplateDropUnique().v_text,
             'create_foreignkey': v_database.TemplateCreateForeignKey().v_text,
             'drop_foreignkey': v_database.TemplateDropForeignKey().v_text,
             'create_index': v_database.TemplateCreateIndex().v_text,
@@ -222,11 +233,11 @@ def get_pk(request):
     v_list_pk = []
 
     try:
-        v_tables = v_database.QueryTablesPrimaryKeys(v_table,False,v_schema)
-        for v_table in v_tables.Rows:
+        v_pks = v_database.QueryTablesPrimaryKeys(v_table,False,v_schema)
+        for v_pk in v_pks.Rows:
             v_pk_data = []
-            v_pk_data.append(v_table['constraint_name'])
-            v_pk_data.append(v_table['column_name'])
+            v_pk_data.append(v_pk['constraint_name'])
+            v_pk_data.append(v_pk['column_name'])
             v_list_pk.append(v_pk_data)
     except Exception as exc:
         v_return['v_data'] = str(exc)
@@ -268,15 +279,15 @@ def get_fks(request):
     v_list_fk = []
 
     try:
-        v_tables = v_database.QueryTablesForeignKeys(v_table, False, v_schema)
-        for v_table in v_tables.Rows:
+        v_fks = v_database.QueryTablesForeignKeys(v_table, False, v_schema)
+        for v_fk in v_fks.Rows:
             v_fk_data = []
-            v_fk_data.append(v_table['constraint_name'])
-            v_fk_data.append(v_table['column_name'])
-            v_fk_data.append(v_table['r_table_name'])
-            v_fk_data.append(v_table['r_column_name'])
-            v_fk_data.append(v_table['delete_rule'])
-            v_fk_data.append(v_table['update_rule'])
+            v_fk_data.append(v_fk['constraint_name'])
+            v_fk_data.append(v_fk['column_name'])
+            v_fk_data.append(v_fk['r_table_name'])
+            v_fk_data.append(v_fk['r_column_name'])
+            v_fk_data.append(v_fk['delete_rule'])
+            v_fk_data.append(v_fk['update_rule'])
             v_list_fk.append(v_fk_data)
     except Exception as exc:
         v_return['v_data'] = str(exc)
@@ -315,21 +326,21 @@ def get_uniques(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_list_unique = []
+    v_list_uniques = []
 
     try:
-        v_tables = v_database.QueryTablesUniques(v_table,False,v_schema)
-        for v_table in v_tables.Rows:
+        v_uniques = v_database.QueryTablesUniques(v_table,False,v_schema)
+        for v_unique in v_uniques.Rows:
             v_unique_data = []
-            v_unique_data.append(v_table['constraint_name'])
-            v_unique_data.append(v_table['column_name'])
-            v_list_unique.append(v_unique_data)
+            v_unique_data.append(v_unique['constraint_name'])
+            v_unique_data.append(v_unique['column_name'])
+            v_list_uniques.append(v_unique_data)
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_return['v_data'] = v_list_unique
+    v_return['v_data'] = v_list_uniques
 
     return JsonResponse(v_return)
 
@@ -361,22 +372,206 @@ def get_indexes(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_list_index = []
+    v_list_indexes = []
 
     try:
-        v_tables = v_database.QueryTablesIndexes(v_table, False, v_schema)
-        for v_table in v_tables.Rows:
+        v_indexes = v_database.QueryTablesIndexes(v_table, False, v_schema)
+        for v_index in v_indexes.Rows:
             v_index_data = []
-            v_index_data.append(v_table['index_name'])
-            v_index_data.append(v_table['uniqueness'])
-            v_index_data.append(v_table['column_name'])
-            v_list_index.append(v_index_data)
+            v_index_data.append(v_index['index_name'])
+            v_index_data.append(v_index['uniqueness'])
+            v_index_data.append(v_index['column_name'])
+            v_list_indexes.append(v_index_data)
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_return['v_data'] = v_list_index
+    v_return['v_data'] = v_list_indexes
+
+    return JsonResponse(v_return)
+
+def get_checks(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_checks = []
+
+    try:
+        v_checks = v_database.QueryTablesChecks(v_table,False,v_schema)
+        for v_check in v_checks.Rows:
+            v_check_data = []
+            v_check_data.append(v_check['constraint_name'])
+            v_check_data.append(v_check['constraint_source'])
+            v_list_checks.append(v_check_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_checks
+
+    return JsonResponse(v_return)
+
+def get_rules(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_rules = []
+
+    try:
+        v_rules = v_database.QueryTablesRules(v_table,False,v_schema)
+        for v_rule in v_rules.Rows:
+            v_rule_data = []
+            v_rule_data.append(v_rule['constraint_name'])
+            v_list_rules.append(v_rule_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_rules
+
+    return JsonResponse(v_return)
+
+def get_triggers(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_triggers = []
+
+    try:
+        v_triggers = v_database.QueryTablesTriggers(v_table,False,v_schema)
+        for v_trigger in v_triggers.Rows:
+            v_trigger_data = []
+            v_trigger_data.append(v_trigger['trigger_name'])
+            v_trigger_data.append(v_trigger['trigger_enabled'])
+            v_trigger_data.append(v_trigger['trigger_function_name'])
+            v_trigger_data.append(v_trigger['trigger_function_id'])
+            v_list_triggers.append(v_trigger_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_triggers
+
+    return JsonResponse(v_return)
+
+def get_partitions(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_partitions = []
+
+    try:
+        v_partitions = v_database.QueryTablesPartitions(v_table,False,v_schema)
+        for v_partition in v_partitions.Rows:
+            v_partition_data = []
+            v_partition_data.append(v_partition['child_schema'] + '.' + v_partition['child_table'])
+            v_list_partitions.append(v_partition_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_partitions
 
     return JsonResponse(v_return)
 
@@ -815,6 +1010,88 @@ def get_function_definition(request):
 
     return JsonResponse(v_return)
 
+def get_triggerfunctions(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_functions = []
+
+    try:
+        v_functions = v_database.QueryTriggerFunctions(False,v_schema)
+        for v_function in v_functions.Rows:
+            v_function_data = {
+                'v_name': v_function['name'],
+                'v_id': v_function['id']
+            }
+            v_list_functions.append(v_function_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_functions
+
+    return JsonResponse(v_return)
+
+def get_triggerfunction_definition(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_function = json_object['p_function']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    if v_session.DatabaseReachPasswordTimeout(v_database_index):
+        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    try:
+        v_return['v_data'] = v_database.GetTriggerFunctionDefinition(v_function)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
 def get_sequences(request):
 
     v_return = {}
@@ -847,7 +1124,14 @@ def get_sequences(request):
     try:
         v_sequences = v_database.QuerySequences(False,v_schema)
         for v_sequence in v_sequences.Rows:
-            v_list_sequences.append(v_sequence['sequence_name'])
+            v_sequence_data = {
+                'v_sequence_name': v_sequence['sequence_name'],
+                'v_minimum_value': v_sequence['minimum_value'],
+                'v_maximum_value': v_sequence['maximum_value'],
+                'v_current_value': v_sequence['current_value'],
+                'v_increment': v_sequence['increment']
+            }
+            v_list_sequences.append(v_sequence_data)
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True

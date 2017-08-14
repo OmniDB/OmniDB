@@ -909,7 +909,7 @@ LOCATION 'directory'
 ''')
 
     def TemplateAlterExtension(self):
-        return Template('''ALTER EXTENSION extension_name
+        return Template('''ALTER EXTENSION #extension_name#
 --UPDATE [ TO new_version ]
 --SET SCHEMA new_schema
 --ADD member_object

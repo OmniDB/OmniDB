@@ -562,14 +562,14 @@ function getTreePostgresql(p_div) {
 				text : 'Alter Index',
 				icon: '/static/OmniDB_app/images/text_edit.png',
 				action : function(node) {
-					tabSQLTemplate('Alter Index', node.tree.tag.alter_index.replace('#index_name#', node.parent.parent.text + '.' + node.text));
+					tabSQLTemplate('Alter Index', node.tree.tag.alter_index.replace('#index_name#', node.parent.parent.text + '.' + node.text.replace(' (Unique)', '').replace(' (Non Unique)', '')));
 				}
 			},
 			{
 				text : 'Drop Index',
 											icon: '/static/OmniDB_app/images/tab_close.png',
 											action : function(node) {
-									tabSQLTemplate('Drop Index', node.tree.tag.drop_index.replace('#index_name#', node.parent.parent.text + '.' + node.text));
+									tabSQLTemplate('Drop Index', node.tree.tag.drop_index.replace('#index_name#', node.parent.parent.text + '.' + node.text.replace(' (Unique)', '').replace(' (Non Unique)', '')));
 											}
 			}
 		]

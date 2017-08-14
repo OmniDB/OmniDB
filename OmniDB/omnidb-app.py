@@ -68,7 +68,7 @@ def init_browser(server_port):
     cherrypy.engine.exit()
 
 class DjangoApplication(object):
-    HOST = "0.0.0.0"
+    HOST = "127.0.0.1"
 
     def mount_static(self, url, root):
         config = {

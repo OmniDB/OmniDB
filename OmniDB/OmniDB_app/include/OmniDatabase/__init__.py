@@ -246,7 +246,7 @@ class PostgreSQL:
             from pg_catalog.pg_namespace
             where nspname not in ('public', 'pg_catalog', 'information_schema', 'pg_toast')
               and nspname not like 'pg%%temp%%'
-            order by nspname desc
+            order by nspname
             ) x
             ) y
             order by sort
@@ -532,7 +532,7 @@ class PostgreSQL:
                    c.relname as table_name,
                    t.tgname as trigger_name,
                    t.tgenabled as trigger_enabled,
-                   np.nspname || '.' || p.proname as trigger_funtion_name,
+                   np.nspname || '.' || p.proname as trigger_function_name,
                    np.nspname || '.' || p.proname || '()' as trigger_function_id
             from pg_trigger t
             inner join pg_class c

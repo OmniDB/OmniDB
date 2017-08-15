@@ -63,7 +63,7 @@ then
 	cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
 	cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
 	chmod 755 deploy/packages/omnidb-app/libXss.so.1
-	chmod 755 deploy/packages/omnidb-app/cefpython3/libXtst.so.1
+	chmod 755 deploy/packages/omnidb-app/cefpython3/libXss.so.1
 fi
 echo "Done."
 

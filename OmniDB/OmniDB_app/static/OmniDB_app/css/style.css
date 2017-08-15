@@ -842,20 +842,20 @@ a.modal-closer:hover {
 	width: 100%;
 	height: 100%;
 	padding: 2.5%;
-	cursor: pointer;
+	cursor: pointer;
 	background-color: rgba(0, 0, 0, 0.8);
 	overflow: hidden;
 	z-index: 1000000;
 	position: absolute;
 	top: 0;
-	left: 0;
+	left: 0;
 	box-sizing: border-box;
 }
 
 .div_container_img {
 	width: 100%;
 	height: 100%;
-	overflow: auto;
+	overflow: auto;
 	position: relative;
 	cursor: pointer;
 }
@@ -893,6 +893,7 @@ table {
 .handsontable td .htAutocompleteArrow {
   /**/position: absolute;
   /**/right: 0px;
+  top: 0px;
   display: inline;
   padding: 0px 2px;
   float: none;

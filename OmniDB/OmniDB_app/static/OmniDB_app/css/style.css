@@ -855,7 +855,7 @@ a.modal-closer:hover {
 .div_container_img {
 	width: 100%;
 	height: 100%;
-	overflow: auto;
+  overflow: auto;
 	position: relative;
 	cursor: pointer;
 }

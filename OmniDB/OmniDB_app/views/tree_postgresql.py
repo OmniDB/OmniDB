@@ -697,7 +697,7 @@ def get_view_definition(request):
         return JsonResponse(v_return)
 
     try:
-        v_return['v_data'] = v_database.QueryViewDefinition(v_view, v_schema)
+        v_return['v_data'] = v_database.GetViewDefinition(v_view, v_schema)
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True

@@ -3,7 +3,7 @@
 PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
-yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel
+yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build
 echo "Done"
 
 echo "Installing pyenv..."

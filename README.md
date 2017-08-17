@@ -1,6 +1,6 @@
 [![Join the chat at https://gitter.im/OmniDB/Lobby](https://img.shields.io/badge/GITTER-JOIN%20CHAT-brightgreen.svg)](https://gitter.im/OmniDB/Lobby)
 
-# OmniDB 2.0.2
+# OmniDB 2.0.3
 
 OmniDB was completely rewritten to Python using the Django framework. Starting from version `2.0`, **OmniDB Python version** will receive new features and will be actively maintained.
 
@@ -161,7 +161,3 @@ OmniDB is designed for easy database management. Here are some features:
   - Graphs displaying complete ER diagram
 
 ![](http://162.243.1.11/images/screenshots/screen01.png)
-
-# 4- Database Schema Conversion
-
-This feature is being implemented in the Python version.

@@ -37,6 +37,43 @@ function tabSQLTemplate(p_tab_name,p_template) {
 function getTreePostgresql(p_div) {
 
 	var context_menu = {
+        'cm_server' : {
+    		elements : [
+    			{
+    				text : 'Refresh',
+    				icon: '/static/OmniDB_app/images/refresh.png',
+    				action : function(node) {
+    					if (node.childNodes==0)
+    						refreshTreePostgresql(node);
+    					else {
+    						node.collapseNode();
+    						node.expandNode();
+    					}
+    				}
+    			},
+    			{
+    				text : 'Doc: PostgreSQL',
+    				icon: '/static/OmniDB_app/images/globe.png',
+    				action : function(node) {
+    					v_connTabControl.tag.createWebsiteTab('Documentation: PostgreSQL', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/');
+    				}
+    			},
+                {
+    				text : 'Doc: SQL Language',
+    				icon: '/static/OmniDB_app/images/globe.png',
+    				action : function(node) {
+    					v_connTabControl.tag.createWebsiteTab('Documentation: SQL Language', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/sql.html');
+    				}
+    			},
+                {
+    				text : 'Doc: SQL Commands',
+    				icon: '/static/OmniDB_app/images/globe.png',
+    				action : function(node) {
+    					v_connTabControl.tag.createWebsiteTab('Documentation: SQL Commands', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/sql-commands.html');
+    				}
+    			}
+    		]
+    	},
 	'cm_databases' : {
 		elements : [
 			{
@@ -57,7 +94,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Database',node.tree.tag.create_database);
 				}
-			}
+			},
+            {
+                text : 'Doc: Databases',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Databases', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/managing-databases.html');
+                }
+            }
 		]
 	},
 	'cm_database' : {
@@ -98,7 +142,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Tablespace',node.tree.tag.create_tablespace);
 				}
-			}
+			},
+            {
+                text : 'Doc: Tablespaces',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Tablespaces', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/manage-ag-tablespaces.html');
+                }
+            }
 		]
 	},
 					'cm_tablespace' : {
@@ -139,7 +190,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Role',node.tree.tag.create_role);
 				}
-			}
+			},
+            {
+                text : 'Doc: Roles',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Roles', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/user-manag.html');
+                }
+            }
 		]
 	},
 	'cm_role' : {
@@ -180,7 +238,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Extension',node.tree.tag.create_extension);
 				}
-			}
+			},
+            {
+                text : 'Doc: Extensions',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Extensions', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/extend-extensions.html');
+                }
+            }
 		]
 	},
 	'cm_extension' : {
@@ -201,7 +266,37 @@ function getTreePostgresql(p_div) {
 			}
 		]
 	},
-	'cm_schema' : {
+	'cm_schemas' : {
+		elements : [
+			{
+				text : 'Refresh',
+				icon: '/static/OmniDB_app/images/refresh.png',
+				action : function(node) {
+					if (node.childNodes==0)
+						refreshTreePostgresql(node);
+					else {
+						node.collapseNode();
+						node.expandNode();
+					}
+				}
+			},
+			{
+				text : 'Create Schema',
+				icon: '/static/OmniDB_app/images/text_edit.png',
+				action : function(node) {
+					tabSQLTemplate('Create Schema',node.tree.tag.create_schema);
+				}
+			},
+            {
+                text : 'Doc: Schemas',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Schemas', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/ddl-schemas.html');
+                }
+            }
+		]
+	},
+    'cm_schema' : {
 		elements : [
 			{
 				text : 'Render Graph',
@@ -246,29 +341,6 @@ function getTreePostgresql(p_div) {
 			}
 		]
 	},
-	'cm_schemas' : {
-		elements : [
-			{
-				text : 'Refresh',
-				icon: '/static/OmniDB_app/images/refresh.png',
-				action : function(node) {
-					if (node.childNodes==0)
-						refreshTreePostgresql(node);
-					else {
-						node.collapseNode();
-						node.expandNode();
-					}
-				}
-			},
-			{
-				text : 'Create Schema',
-				icon: '/static/OmniDB_app/images/text_edit.png',
-				action : function(node) {
-					tabSQLTemplate('Create Schema',node.tree.tag.create_schema);
-				}
-			}
-		]
-	},
 	'cm_tables' : {
 		elements : [
 			{
@@ -289,7 +361,28 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					startAlterTable(true,'new', null, node.parent.text);
 				}
-			}
+			},
+            {
+                text : 'Doc: Basics',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Table Basics', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/ddl-basics.html');
+                }
+            },
+            {
+                text : 'Doc: Constraints',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Table Constraints', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/ddl-constraints.html');
+                }
+            },
+            {
+                text : 'Doc: Modifying',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Modifying Tables', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/ddl-alter.html');
+                }
+            }
 		]
 	},
 					'cm_table' : {
@@ -553,7 +646,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Index', node.tree.tag.create_index.replace('#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
 				}
-			}
+			},
+            {
+                text : 'Doc: Indexes',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Indexes', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/indexes.html');
+                }
+            }
 		]
 					},
 					'cm_index' : {
@@ -628,7 +728,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Rule', node.tree.tag.create_rule.replace('#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
 				}
-			}
+			},
+            {
+                text : 'Doc: Rules',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Rules', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/rules.html');
+                }
+            }
 		]
 					},
 					'cm_rule' : {
@@ -661,7 +768,7 @@ function getTreePostgresql(p_div) {
 						node.collapseNode();
 						node.expandNode();
 					}
-				}
+				},
 			},
 									{
 				text : 'Create Trigger',
@@ -669,7 +776,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Trigger', node.tree.tag.create_trigger.replace('#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
 				}
-			}
+			},
+            {
+                text : 'Doc: Triggers',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Triggers', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/trigger-definition.html');
+                }
+            }
 		]
 					},
 					'cm_trigger' : {
@@ -724,7 +838,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Partition', node.tree.tag.create_partition.replace('#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
 				}
-			}
+			},
+            {
+                text : 'Doc: Partitions',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Partitions', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/ddl-partitioning.html');
+                }
+            }
 		]
 					},
 					'cm_partition' : {
@@ -765,7 +886,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Function', node.tree.tag.create_function.replace('#schema_name#', node.parent.text));
 				}
-			}
+			},
+            {
+                text : 'Doc: Functions',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Functions', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/sql-createfunction.html');
+                }
+            }
 		]
 	},
 	'cm_function' : {
@@ -820,7 +948,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Trigger Function', node.tree.tag.create_triggerfunction.replace('#schema_name#', node.parent.text));
 				}
-			}
+			},
+            {
+                text : 'Doc: Trigger Functions',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Trigger Functions', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/plpgsql-trigger.html');
+                }
+            }
 		]
 	},
 	'cm_triggerfunction' : {
@@ -875,7 +1010,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create Sequence', node.tree.tag.create_sequence.replace('#schema_name#', node.parent.text));
 				}
-			}
+			},
+            {
+                text : 'Doc: Sequences',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Sequences', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/sql-createsequence.html');
+                }
+            }
 		]
 	},
 	'cm_sequence' : {
@@ -916,7 +1058,14 @@ function getTreePostgresql(p_div) {
 				action : function(node) {
 					tabSQLTemplate('Create View', node.tree.tag.create_view.replace('#schema_name#', node.parent.text));
 				}
-			}
+			},
+            {
+                text : 'Doc: Views',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action : function(node) {
+                    v_connTabControl.tag.createWebsiteTab('Documentation: Views', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/sql-createview.html');
+                }
+            }
 		]
 	},
 	'cm_view' : {
@@ -991,30 +1140,7 @@ function getTreePostgresql(p_div) {
 				}
 			}
 		]
-	},
-	'cm_server' : {
-		elements : [
-			{
-				text : 'Refresh',
-				icon: '/static/OmniDB_app/images/refresh.png',
-				action : function(node) {
-					if (node.childNodes==0)
-						refreshTreePostgresql(node);
-					else {
-						node.collapseNode();
-						node.expandNode();
-					}
-				}
-			},
-			{
-				text : 'Documentation',
-				icon: '/static/OmniDB_app/images/globe.png',
-				action : function(node) {
-					v_connTabControl.tag.createWebsiteTab('Documentation','https://www.postgresql.org/docs/10/static/');
-				}
-			}
-		]
-	},
+	}
 };
 var tree = createTree(p_div,'#fcfdfd',context_menu);
 
@@ -1123,6 +1249,7 @@ function getTreeDetails(node) {
 					node.removeChildNodes();
 
 				node.tree.tag = {
+                    version: p_return.v_data.v_database_return.version,
 		            create_role: p_return.v_data.v_database_return.create_role,
 		            alter_role: p_return.v_data.v_database_return.alter_role,
 		            drop_role: p_return.v_data.v_database_return.drop_role,
@@ -1552,15 +1679,15 @@ function getColumnsPostgresql(node) {
 		        	v_node.createChildNode('',false,'/static/OmniDB_app/images/spin.svg',null,null);
 		        }
 
-		        if (node.tag.has_indexes)
+		        if (node.tag.has_checks)
 		        {
-		        	v_node = node.createChildNode('Indexes',false,'/static/OmniDB_app/images/index.png',{ type:'indexes'},'cm_indexes');
+		        	v_node = node.createChildNode('Checks',false,'/static/OmniDB_app/images/check.png',{ type:'check_list'},'cm_checks');
 		        	v_node.createChildNode('',false,'/static/OmniDB_app/images/spin.svg',null,null);
 		        }
 
-                if (node.tag.has_checks)
+                if (node.tag.has_indexes)
 		        {
-		        	v_node = node.createChildNode('Checks',false,'/static/OmniDB_app/images/check.png',{ type:'check_list'},'cm_checks');
+		        	v_node = node.createChildNode('Indexes',false,'/static/OmniDB_app/images/index.png',{ type:'indexes'},'cm_indexes');
 		        	v_node.createChildNode('',false,'/static/OmniDB_app/images/spin.svg',null,null);
 		        }
 
@@ -2234,4 +2361,10 @@ function nodeOpenError(p_return, p_node) {
 		v_node = p_node.createChildNode('Error',false,'/static/OmniDB_app/images/tab_close.png',{ type:'error' },null);
 	}
 
+}
+
+function getMajorVersion(p_version) {
+    var tmp = p_version.replace('PostgreSQL ', '').replace('beta', '.').split('.')
+    tmp.pop()
+    return tmp.join('.')
 }

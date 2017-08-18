@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.0.3
+VERSION=2.0.4
 ARCH=centos-amd64
 
 cd ~/OmniDB/OmniDB
@@ -89,8 +89,99 @@ cd deploy/packages
 tar -czvf omnidb-app_$VERSION-$ARCH.tar.gz omnidb-app_$VERSION-$ARCH
 echo "Done"
 
+echo "Generating rpm packages..."
+mkdir omnidb-app
+cd omnidb-app
+mkdir -p BUILD RPMS SOURCES SPECS
+cp ../omnidb-app_$VERSION-$ARCH.tar.gz SOURCES/
+cp -r ../../icons SOURCES/
+cat > SOURCES/omnidb-app.desktop <<EOF
+[Desktop Entry]
+Name=OmniDB
+Comment=OmniDB
+Exec="/opt/omnidb-app/omnidb-app"
+Terminal=false
+Type=Application
+Icon=omnidb
+Categories=Development;
+EOF
+
+cat > SPECS/omnidb-app.spec <<EOF
+%global _enable_debug_package 0
+%global debug_package %{nil}
+%global __os_install_post /usr/lib/rpm/brp-compress %{nil}
+
+%define _unpackaged_files_terminate_build 0
+%define _topdir /home/omnidb/OmniDB/OmniDB/deploy/packages/omnidb-app
+%define _datadir /usr/share
+%define _bindir /usr/bin
+%define name omnidb-app
+%define version $VERSION
+%define arch $ARCH
+%define longname %{name}_%{version}-%{arch}
+%define configname omnidb-config-app
+%define buildroot %{_topdir}/%{longname}-root
+
+BuildRoot: %{buildroot}
+BuildArch: x86_64
+Summary: Application to manage multiple databases
+License: MIT
+Name: %{name}
+Version: %{version}
+Release: 0
+Source: %{longname}.tar.gz
+Prefix: /opt
+Group: Development/Tools
+Vendor: The OmniDB Team
+AutoReqProv: no
+
+%description
+OmniDB is a web tool that simplifies database management focusing on interactivity, designed to be powerful and lightweight. OmniDB is supported by 2ndQuadrant (https://www.2ndquadrant.com)
+
+%prep
+%setup -n %{longname}
+
+%build
+
+%install
+mkdir -p %{buildroot}/opt/%{name}
+chmod 777 %{buildroot}/opt/%{name}
+cp -r ./* %{buildroot}/opt/%{name}
+mkdir -p %{buildroot}/%{_datadir}/applications
+cp -r ../../SOURCES/icons %{buildroot}/%{_datadir}/
+desktop-file-install --dir=%{buildroot}/%{_datadir}/applications ../../SOURCES/%{name}.desktop
+mkdir -p %{buildroot}/%{_bindir}
+ln -s /opt/%{name}/%{name} %{buildroot}/%{_bindir}/%{name}
+ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
+
+%post
+update-desktop-database
+
+%files
+%defattr(0777,root,root,0777)
+/opt/%{name}
+/opt/%{name}/*
+%{_datadir}/icons/hicolor/128x128/apps/omnidb.png
+%{_datadir}/icons/hicolor/16x16/apps/omnidb.png
+%{_datadir}/icons/hicolor/24x24/apps/omnidb.png
+%{_datadir}/icons/hicolor/256x256/apps/omnidb.png
+%{_datadir}/icons/hicolor/32x32/apps/omnidb.png
+%{_datadir}/icons/hicolor/48x48/apps/omnidb.png
+%{_datadir}/icons/hicolor/512x512/apps/omnidb.png
+%{_datadir}/icons/hicolor/64x64/apps/omnidb.png
+%{_datadir}/icons/hicolor/96x96/apps/omnidb.png
+%{_datadir}/applications/%{name}.desktop
+%{_bindir}/%{name}
+%{_bindir}/%{configname}
+EOF
+
+rpmbuild -v -bb --clean SPECS/omnidb-app.spec
+cp RPMS/x86_64/omnidb-app-$VERSION-0.x86_64.rpm ../
+cd ..
+echo "Done"
+
 echo -n "Cleaning... "
-rm -rf omnidb-app_$VERSION-$ARCH
+rm -rf omnidb-app_$VERSION-$ARCH omnidb-app
 echo "Done"
 
 cd ../..

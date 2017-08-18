@@ -683,7 +683,7 @@ class PostgreSQL(Generic):
                 self.v_port = '5432'
             else:
                 self.v_port = p_port
-            if p_service is None or p_service = '':
+            if p_service is None or p_service == '':
                 self.v_service = 'postgres'
             else:
                 self.v_service = p_service

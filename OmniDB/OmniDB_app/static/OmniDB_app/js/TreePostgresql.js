@@ -2200,7 +2200,8 @@ function nodeOpenError(p_return, p_node) {
 			function() {
 				p_node.expandNode();
 			},
-			null
+			null,
+			p_return.v_data.message
 		);
 	}
 	else {

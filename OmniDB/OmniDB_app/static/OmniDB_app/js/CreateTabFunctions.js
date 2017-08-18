@@ -372,10 +372,6 @@ function initCreateTabFunctions() {
 		var v_div = document.getElementById('div_' + v_tab.id);
 		v_div.innerHTML = v_html;
 
-		var v_height  = window.innerHeight - $('#div_result_' + v_tab.id).offset().top - 20;
-
-		document.getElementById('div_result_' + v_tab.id).style.height = v_height + "px";
-
 		var langTools = ace.require("ace/ext/language_tools");
 		var v_editor = ace.edit('txt_query_' + v_tab.id);
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
@@ -457,7 +453,8 @@ function initCreateTabFunctions() {
                       },
                       function() {
                         v_editor.focus();
-                      }
+                      },
+          						p_return.v_data.message
                     );
                   }
                 },
@@ -642,7 +639,8 @@ function initCreateTabFunctions() {
                       },
                       function() {
                         v_editor.focus();
-                      }
+                      },
+          						p_return.v_data.message
                     );
                   }
                 },

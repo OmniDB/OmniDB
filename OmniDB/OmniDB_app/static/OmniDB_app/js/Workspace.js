@@ -753,7 +753,8 @@ function drawGraph(p_all, p_schema) {
 						function() {
 							drawGraph(p_all, p_schema);
 						},
-						null
+						null,
+						p_return.v_data.message
 					);
 				}
 			},

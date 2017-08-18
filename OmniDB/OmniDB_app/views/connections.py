@@ -186,8 +186,9 @@ def test_connection(request):
     p_index = json_object['p_index']
 
     #Check database prompt timeout
-    if v_session.DatabaseReachPasswordTimeout(int(p_index)):
-        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(p_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
         v_return['v_error'] = True
         return JsonResponse(v_return)
     else:
@@ -216,8 +217,9 @@ def select_connection(request):
     p_index = json_object['p_index']
 
     #Check database prompt timeout
-    if v_session.DatabaseReachPasswordTimeout(int(p_index)):
-        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(p_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
         v_return['v_error'] = True
         return JsonResponse(v_return)
     else:

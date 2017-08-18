@@ -232,8 +232,9 @@ def draw_graph(request):
     v_database = v_session.v_databases[v_database_index]['database']
 
     #Check database prompt timeout
-    if v_session.DatabaseReachPasswordTimeout(v_database_index):
-        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -361,8 +362,9 @@ def alter_table_data(request):
     v_database = v_session.v_databases[v_database_index]['database']
 
     #Check database prompt timeout
-    if v_session.DatabaseReachPasswordTimeout(v_database_index):
-        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1264,8 +1266,9 @@ def start_edit_data(request):
     v_database = v_session.v_databases[v_database_index]['database']
 
     #Check database prompt timeout
-    if v_session.DatabaseReachPasswordTimeout(v_database_index):
-        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1434,8 +1437,9 @@ def get_completions(request):
     p_prefix_pos = json_object['p_prefix_pos']
 
     #Check database prompt timeout
-    if v_session.DatabaseReachPasswordTimeout(p_database_index):
-        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(p_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1532,8 +1536,9 @@ def get_completions_table(request):
     p_schema = json_object['p_schema']
 
     #Check database prompt timeout
-    if v_session.DatabaseReachPasswordTimeout(p_database_index):
-        v_return['v_data'] = {'password_timeout': True, 'message': '' }
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(p_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 

@@ -70,7 +70,8 @@ function startEditData(p_table,p_schema) {
 						function() {
 							startEditData(p_table,p_schema);
 						},
-						null
+						null,
+						p_return.v_data.message
 					);
 				}
 				else {

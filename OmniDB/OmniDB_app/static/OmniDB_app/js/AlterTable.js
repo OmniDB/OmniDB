@@ -520,7 +520,8 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 							function() {
 								startAlterTable(p_create_tab, p_mode, p_table, p_schema);
 							},
-							null
+							null,
+							p_return.v_data.message
 						);
 					}
 				},

@@ -55,7 +55,7 @@ class Session(object):
 
     def DatabaseReachPasswordTimeout(self,p_database_index):
         if not self.v_databases[p_database_index]['prompt_password']:
-            return False;
+            return { 'timeout': False, 'message': ''}
         else:
             #Reached timeout, must request password
             if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_TOTAL):
@@ -68,16 +68,16 @@ class Session(object):
                     s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
                     s['omnidb_session'].v_databases[p_database_index]['database'].v_connection.v_password = ''
                     s.save()
-                    return False
+                    return { 'timeout': False, 'message': ''}
                 else:
-                    return True
+                    return { 'timeout': True, 'message': v_test}
             #Reached half way to timeout, update prompt_timeout
             if datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_REFRESH):
                 s = SessionStore(session_key=self.v_user_key)
                 s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
                 s.save()
 
-            return False
+            return { 'timeout': False, 'message': ''}
 
     def GetSelectedDatabase(self):
         return self.v_databases(self.v_database_index)

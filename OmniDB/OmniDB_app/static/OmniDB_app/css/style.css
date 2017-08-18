@@ -898,3 +898,7 @@ table {
   padding: 0px 2px;
   float: none;
 }
+
+iframe {
+  border: 0px;
+}

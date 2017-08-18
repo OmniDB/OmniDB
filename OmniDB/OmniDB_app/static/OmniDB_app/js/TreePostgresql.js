@@ -992,6 +992,29 @@ function getTreePostgresql(p_div) {
 			}
 		]
 	},
+	'cm_server' : {
+		elements : [
+			{
+				text : 'Refresh',
+				icon: '/static/OmniDB_app/images/refresh.png',
+				action : function(node) {
+					if (node.childNodes==0)
+						refreshTreePostgresql(node);
+					else {
+						node.collapseNode();
+						node.expandNode();
+					}
+				}
+			},
+			{
+				text : 'Documentation',
+				icon: '/static/OmniDB_app/images/globe.png',
+				action : function(node) {
+					v_connTabControl.tag.createWebsiteTab('Documentation','https://www.postgresql.org/docs/10/static/');
+				}
+			}
+		]
+	},
 };
 var tree = createTree(p_div,'#fcfdfd',context_menu);
 
@@ -999,7 +1022,7 @@ var tree = createTree(p_div,'#fcfdfd',context_menu);
 	  refreshTreePostgresql(node);
 	}
 
-	var node_server = tree.createNode('PostgreSQL',false,'/static/OmniDB_app/images/postgresql_medium.png',null,{ type:'server' },'cm_refresh');
+	var node_server = tree.createNode('PostgreSQL',false,'/static/OmniDB_app/images/postgresql_medium.png',null,{ type:'server' },'cm_server');
 	node_server.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
 	tree.drawTree();
 

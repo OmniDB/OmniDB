@@ -360,6 +360,10 @@ function refreshHeights(p_all) {
 			v_tab_tag.graph_div.style.height = window.innerHeight - $(v_tab_tag.graph_div).offset().top - 20 + "px";
 
 		}
+		else if (v_tab_tag.mode=='website') {
+			v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 20 + "px";
+
+		}
 		else if (v_tab_tag.mode=='edit') {
 			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
 			if (v_tab_tag.editDataObject.ht!=null) {

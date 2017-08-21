@@ -76,9 +76,17 @@ class PostgreSQL:
         self.v_alias = p_alias
         self.v_db_type = 'postgresql'
         self.v_conn_id = p_conn_id
+
+        if p_port is None or p_port == '':
+            self.v_port = '5432'
+        else:
+            self.v_port = p_port
+        if p_service is None or p_service == '':
+            self.v_service = 'postgres'
+        else:
+            self.v_service = p_service
+
         self.v_server = p_server
-        self.v_port = p_port
-        self.v_service = p_service
         self.v_user = p_user
         self.v_schema = 'public'
         self.v_connection = Spartacus.Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password)

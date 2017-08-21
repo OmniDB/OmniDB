@@ -148,7 +148,6 @@ function querySQLReturn(p_data,p_context) {
 
 	//If query wasn't canceled already
 	if (p_context.tab_tag.state!=v_queryState.Idle) {
-		p_context.duration = new Date().getTime() - p_context.start_time;
 
 		if (p_context.tab_tag.tab_id == p_context.tab_tag.tabControl.selectedTab.id && p_context.tab_tag.connTab.id == p_context.tab_tag.connTab.tag.connTabControl.selectedTab.id) {
 			querySQLReturnRender(p_data,p_context);
@@ -165,24 +164,10 @@ function querySQLReturn(p_data,p_context) {
 	}
 }
 
-function get_duration(p_seconds) {
-
-	if (p_seconds < 1) {
-		return p_seconds + ' seconds'
-	}
-	else {
-		var date = new Date(null);
-		date.setSeconds(p_seconds);
-		return date.toISOString().substr(11, 8);
-	}
-}
-
 function querySQLReturnRender(p_message,p_context) {
 	p_context.tab_tag.state = v_queryState.Idle;
 	p_context.tab_tag.context = null;
 	p_context.tab_tag.data = null;
-
-	var v_data = p_message.v_data;
 
 	var v_div_result = p_context.tab_tag.div_result;
 	var v_query_info = p_context.tab_tag.query_info;
@@ -194,14 +179,10 @@ function querySQLReturnRender(p_message,p_context) {
 
 	v_div_result.innerHTML = '';
 
-	var request_time = p_context.duration;
-
-	var v_duration = get_duration(request_time/1000);
-
 	if (p_message.v_error) {
 
 		v_div_result.innerHTML = '<div class="error_text">' + p_message.v_data.message + '</div>';
-		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + v_duration;
+		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 		if (p_message.v_data.position!=null) {
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(p_message.v_data.position.row,p_message.v_data.position.col)
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.textInput.focus()
@@ -211,21 +192,23 @@ function querySQLReturnRender(p_message,p_context) {
 	else {
 
 		if (p_context.sel_value==-2) {
-			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + v_duration;
+			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 			v_div_result.innerHTML = '';
 		}
 		else if (p_context.sel_value==-3) {
 
-			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + v_duration;
+			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 
-			v_div_result.innerHTML = '<div class="query_info">' + v_data + '</div>';
+			v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data.v_data + '</div>';
 
 		}
 		else {
 
+			var v_data = p_message.v_data;
+
 			window.scrollTo(0,0);
 
-			v_query_info.innerHTML = v_data.v_query_info + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + v_duration;
+			v_query_info.innerHTML = v_data.v_query_info + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 
 			var columnProperties = [];
 

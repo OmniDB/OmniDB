@@ -319,7 +319,97 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-      '<img src="/static/OmniDB_app/images/globe.png"/><span id="tab_title"> ' + p_name + '</span><span id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+      '<img src="/static/OmniDB_app/images/globe.png"/><span id="tab_title"> ' + p_name + '</span>',
+      true,
+      null,
+      null,
+      null,
+      null,
+      true,
+      function() {
+        if(this.tag != null) {
+          refreshHeights();
+        }
+      });
+		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+
+		//Adding unique names to spans
+		var v_tab_title_span = document.getElementById('tab_title');
+		v_tab_title_span.id = 'tab_title_' + v_tab.id;
+
+		var v_html = "<iframe id='website_" + v_tab.id + "' src='" + p_site + "' style=' width: 100%; height: 200px;'></iframe>";
+
+    var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+		var v_tag = {
+			tab_id: v_tab.id,
+			mode: 'website',
+			iframe: document.getElementById('website_' + v_tab.id),
+			tab_title_span : v_tab_title_span,
+			tabControl: v_connTabControl.selectedTab.tag.tabControl,
+		};
+
+		v_tab.tag = v_tag;
+
+		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+
+    setTimeout(function() {
+      refreshHeights();
+    },10);
+
+	};
+
+  var v_createWebsiteOuterTabFunction = function(p_name, p_site) {
+
+		v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
+		var v_tab = v_connTabControl.createTab(
+      '<img src="/static/OmniDB_app/images/globe.png"/><span id="tab_title"> ' + p_name + '</span>',
+      true,
+      null,
+      null,
+      null,
+      null,
+      true,
+      function() {
+        if(this.tag != null) {
+          refreshHeights();
+        }
+      });
+		v_connTabControl.selectTab(v_tab);
+
+		//Adding unique names to spans
+		var v_tab_title_span = document.getElementById('tab_title');
+		v_tab_title_span.id = 'tab_title_' + v_tab.id;
+
+		var v_html = "<iframe id='website_" + v_tab.id + "' src='" + p_site + "' style=' width: 100%; height: 200px;'></iframe>";
+
+    var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+		var v_tag = {
+			tab_id: v_tab.id,
+			mode: 'website_outer',
+			iframe: document.getElementById('website_' + v_tab.id),
+			tab_title_span : v_tab_title_span,
+			tabControl: v_connTabControl,
+		};
+
+		v_tab.tag = v_tag;
+
+		v_connTabControl.createTab('+',false,v_createConnTabFunction);
+
+    setTimeout(function() {
+      refreshHeights();
+    },10);
+
+	};
+
+  var v_createMonitoringTabFunction = function(p_name, p_query, p_actions) {
+
+		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+      '<img src="/static/OmniDB_app/images/monitoring.png"/><span id="tab_title"> ' + p_name + '</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
       false,
       null,
       null,
@@ -336,24 +426,38 @@ function initCreateTabFunctions() {
 		//Adding unique names to spans
 		var v_tab_title_span = document.getElementById('tab_title');
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
-		var v_tab_close_span = document.getElementById('tab_close');
+    var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
 		v_tab_close_span.onclick = function() {
-			closeGraphTab(v_tab);
+			removeTab(v_tab);
 		};
 
-		var v_html = "<iframe id='website_" + v_tab.id + "' src='" + p_site + "' style=' width: 100%; height: 200px;'></iframe>";
+    var v_html = "<button id='bt_refresh_" + v_tab.id + "' class='bt_execute' title='Refresh' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;'>Refresh</button>" +
+					 "<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
+					 "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>";
 
     var v_div = document.getElementById('div_' + v_tab.id);
 		v_div.innerHTML = v_html;
 
+    var v_bt_refresh = document.getElementById('bt_refresh_' + v_tab.id);
+
 		var v_tag = {
 			tab_id: v_tab.id,
-			mode: 'website',
-			iframe: document.getElementById('website_' + v_tab.id),
+			mode: 'monitoring',
 			tab_title_span : v_tab_title_span,
-			tab_close_span : v_tab_close_span,
+      tab_close_span : v_tab_close_span,
+      query_info: document.getElementById('div_query_info_' + v_tab.id),
+			div_result: document.getElementById('div_result_' + v_tab.id),
+      bt_refresh: v_bt_refresh,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
+      ht: null,
+      query: p_query,
+      actions: p_actions
+		};
+
+    //Adding action to button
+    v_bt_refresh.onclick = function() {
+			refreshMonitoring(v_tag);
 		};
 
 		v_tab.tag = v_tag;
@@ -362,6 +466,7 @@ function initCreateTabFunctions() {
 
     setTimeout(function() {
       refreshHeights();
+      refreshMonitoring(v_tag);
     },10);
 
 	};
@@ -865,4 +970,6 @@ function initCreateTabFunctions() {
 	v_connTabControl.tag.createAlterTableTab = v_createAlterTableTabFunction;
   v_connTabControl.tag.createGraphTab = v_createGraphTabFunction;
   v_connTabControl.tag.createWebsiteTab = v_createWebsiteTabFunction;
+  v_connTabControl.tag.createWebsiteOuterTab = v_createWebsiteOuterTabFunction;
+  v_connTabControl.tag.createMonitoringTab = v_createMonitoringTabFunction;
 }

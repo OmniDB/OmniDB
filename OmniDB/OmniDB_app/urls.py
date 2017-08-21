@@ -53,6 +53,7 @@ urlpatterns = [
     url(r'^get_command_list/', views.workspace.get_command_list, name='get_command_list'),
     url(r'^clear_command_list/', views.workspace.clear_command_list, name='clear_command_list'),
     url(r'^indent_sql/', views.workspace.indent_sql, name='indent_sql'),
+    url(r'^refresh_monitoring/', views.workspace.refresh_monitoring, name='refresh_monitoring'),
 
     #TREE_SNIPPETS
     url(r'^get_node_children/', views.tree_snippets.get_node_children, name='get_node_children'),
@@ -104,5 +105,6 @@ urlpatterns = [
     url(r'^get_tablespaces_postgresql/', views.tree_postgresql.get_tablespaces, name='get_tablespaces_postgresql'),
     url(r'^get_roles_postgresql/', views.tree_postgresql.get_roles, name='get_roles_postgresql'),
     url(r'^get_extensions_postgresql/', views.tree_postgresql.get_extensions, name='get_extensions_postgresql'),
+    url(r'^kill_backend_postgres/', views.tree_postgresql.kill_backend_postgres, name='kill_backend_postgres'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

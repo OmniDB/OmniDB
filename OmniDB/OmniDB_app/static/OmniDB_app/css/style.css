@@ -902,3 +902,8 @@ table {
 iframe {
   border: 0px;
 }
+
+#div_about a {
+  cursor: pointer;
+  text-decoration: underline;
+}

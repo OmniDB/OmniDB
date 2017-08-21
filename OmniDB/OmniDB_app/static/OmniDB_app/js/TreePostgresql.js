@@ -893,7 +893,7 @@ function getTreePostgresql(p_div) {
 				text : 'Edit Function',
 				icon: '/static/OmniDB_app/images/text_edit.png',
 				action : function(node) {
-					if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
+					if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query')
 						v_connTabControl.tag.createQueryTab(node.text);
 					getFunctionDefinitionPostgresql(node);
 				}
@@ -955,7 +955,7 @@ function getTreePostgresql(p_div) {
 				text : 'Edit Trigger Function',
 				icon: '/static/OmniDB_app/images/text_edit.png',
 				action : function(node) {
-					if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
+					if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query')
 						v_connTabControl.tag.createQueryTab(node.text);
 					getTriggerFunctionDefinitionPostgresql(node);
 				}
@@ -1090,7 +1090,7 @@ function getTreePostgresql(p_div) {
 				text : 'Edit View',
 				icon: '/static/OmniDB_app/images/text_edit.png',
 				action : function(node) {
-					if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
+					if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode!='query')
 						v_connTabControl.tag.createQueryTab(node.text);
 					getViewDefinitionPostgresql(node);
 				}

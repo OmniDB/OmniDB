@@ -181,7 +181,7 @@ LOGGING = {
 
 #OMNIDB PARAMETERS
 OMNIDB_DATABASE            = os.path.join(BASE_DIR, 'omnidb.db')
-OMNIDB_VERSION             = 'OmniDB 2.0.3'
+OMNIDB_VERSION             = 'OmniDB 2.0.4'
 BINDKEY_EXECUTE            = 'alt+q'
 BINDKEY_EXECUTE_MAC        = 'ctrl+q'
 BINDKEY_REPLACE            = 'ctrl+g'
@@ -195,4 +195,4 @@ SSL_KEY                    = ""
 CH_CMDS_PER_PAGE           = 20
 PWD_TIMEOUT_TOTAL          = 1800
 PWD_TIMEOUT_REFRESH        = 300
-DESKTOP_MODE               = False
+DESKTOP_MODE               = True

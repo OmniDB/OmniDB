@@ -307,7 +307,10 @@ function initCreateTabFunctions() {
 
 		v_tab.tag = v_tag;
 
-		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+		var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    v_add_tab.tag = {
+      mode: 'add'
+    }
 
     setTimeout(function() {
       refreshHeights();
@@ -352,7 +355,10 @@ function initCreateTabFunctions() {
 
 		v_tab.tag = v_tag;
 
-		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    v_add_tab.tag = {
+      mode: 'add'
+    }
 
     setTimeout(function() {
       refreshHeights();
@@ -462,7 +468,10 @@ function initCreateTabFunctions() {
 
 		v_tab.tag = v_tag;
 
-		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    v_add_tab.tag = {
+      mode: 'add'
+    }
 
     setTimeout(function() {
       refreshHeights();
@@ -646,8 +655,10 @@ function initCreateTabFunctions() {
 
 		v_tab.tag = v_tag;
 
-
-		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    v_add_tab.tag = {
+      mode: 'add'
+    }
 
     setTimeout(function() {
       refreshHeights();
@@ -835,7 +846,10 @@ function initCreateTabFunctions() {
 
     v_tab.tag = v_tag;
 
-    v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    v_add_tab.tag = {
+      mode: 'add'
+    }
 
     setTimeout(function() {
       refreshHeights();
@@ -949,7 +963,10 @@ function initCreateTabFunctions() {
 
 		v_tab.tag = v_tag;
 
-		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    v_add_tab.tag = {
+      mode: 'add'
+    }
 
     setTimeout(function() {
       refreshHeights();

@@ -114,7 +114,7 @@ function startQueryWebSocket(p_port) {
 				}
 			}
 		},
-		function(p_event) {//Close
+		function(p_event) {//Close
 			//showError('The connection with query server was closed.<br>WebSocket error code: ' + p_event.code + '.<br>Reconnected.');
 			startQueryWebSocket(p_port);
 		},

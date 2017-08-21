@@ -613,10 +613,17 @@ class PostgreSQL:
 
     def QueryDataLimited(self, p_query, p_count=-1):
         if p_count != -1:
-            self.v_connection.Open()
-            v_data = self.v_connection.QueryBlock(p_query, p_count, True)
-            self.v_connection.Close()
-            return v_data
+            try:
+                self.v_connection.Open()
+                v_data = self.v_connection.QueryBlock(p_query, p_count, True)
+                self.v_connection.Close()
+                return v_data
+            except Spartacus.Database.Exception as exc:
+                try:
+                    self.v_connection.Cancel()
+                except:
+                    pass
+                raise exc
         else:
             return self.v_connection.Query(p_query, True)
 

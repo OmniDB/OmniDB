@@ -50,27 +50,6 @@ function getTreePostgresql(p_div) {
     						node.expandNode();
     					}
     				}
-    			},
-    			{
-    				text : 'Doc: PostgreSQL',
-    				icon: '/static/OmniDB_app/images/globe.png',
-    				action : function(node) {
-    					v_connTabControl.tag.createWebsiteTab('Documentation: PostgreSQL', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/');
-    				}
-    			},
-                {
-    				text : 'Doc: SQL Language',
-    				icon: '/static/OmniDB_app/images/globe.png',
-    				action : function(node) {
-    					v_connTabControl.tag.createWebsiteTab('Documentation: SQL Language', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/sql.html');
-    				}
-    			},
-                {
-    				text : 'Doc: SQL Commands',
-    				icon: '/static/OmniDB_app/images/globe.png',
-    				action : function(node) {
-    					v_connTabControl.tag.createWebsiteTab('Documentation: SQL Commands', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/sql-commands.html');
-    				}
     			}
     		]
     	},
@@ -1140,6 +1119,36 @@ function getTreePostgresql(p_div) {
 				}
 			}
 		]
+	},
+	'cm_main_database' : {
+		elements : [
+			{
+				text : 'Monitoring',
+				icon: '/static/OmniDB_app/images/monitoring.png',
+				action : function(node) {
+				},
+				submenu: {
+					elements : [
+						{
+							text : 'Backends',
+							icon: '/static/OmniDB_app/images/monitoring.png',
+							action : function(node) {
+								v_connTabControl.tag.createMonitoringTab(
+									'Backends',
+								  'select * from pg_stat_activity',
+									[
+										{
+											icon: '/static/OmniDB_app/images/tab_close.png',
+											title: 'Terminate',
+											action: 'postgresqlTerminateBackend'
+										}
+									]);
+							}
+						}
+					]
+				}
+			}
+		]
 	}
 };
 var tree = createTree(p_div,'#fcfdfd',context_menu);
@@ -1245,6 +1254,34 @@ function getTreeDetails(node) {
 			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex}),
 			function(p_return) {
 
+				node.tree.contextMenu.cm_server.elements.push(
+					{
+						text : 'Doc: PostgreSQL',
+						icon: '/static/OmniDB_app/images/globe.png',
+						action : function(node) {
+							v_connTabControl.tag.createWebsiteTab('Documentation: PostgreSQL', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/');
+						}
+					}
+				);
+				node.tree.contextMenu.cm_server.elements.push(
+					{
+						text : 'Doc: SQL Language',
+						icon: '/static/OmniDB_app/images/globe.png',
+						action : function(node) {
+							v_connTabControl.tag.createWebsiteTab('Documentation: SQL Language', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/sql.html');
+						}
+					}
+				);
+				node.tree.contextMenu.cm_server.elements.push(
+					{
+						text : 'Doc: SQL Commands',
+						icon: '/static/OmniDB_app/images/globe.png',
+						action : function(node) {
+							v_connTabControl.tag.createWebsiteTab('Documentation: SQL Commands', 'https://www.postgresql.org/docs/' + getMajorVersion(node.tree.tag.version) + '/static/sql-commands.html');
+						}
+					}
+				);
+
 				if (node.childNodes.length > 0)
 					node.removeChildNodes();
 
@@ -1306,8 +1343,7 @@ function getTreeDetails(node) {
 
 				node.setText(p_return.v_data.v_database_return.version);
 
-    //var node_server = tree.createNode(p_return.v_data.v_database_return.version,true,'/static/OmniDB_app/images/postgresql_medium.png',null,{ type:'server' },null)
-    var node_connection = node.createChildNode(p_return.v_data.v_database_return.v_database,true,'/static/OmniDB_app/images/db.png',null,null);
+    var node_connection = node.createChildNode(p_return.v_data.v_database_return.v_database,true,'/static/OmniDB_app/images/db.png',null,'cm_main_database');
     var node_databases = node.createChildNode('Databases',false,'/static/OmniDB_app/images/db.png',{ type:'database_list', num_databases:0 },'cm_databases');
     node_databases.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
     var node_tablespaces = node.createChildNode('Tablespaces',false,'/static/OmniDB_app/images/folder.png',{ type:'tablespace_list', num_tablespaces:0 },'cm_tablespaces');
@@ -2367,4 +2403,46 @@ function getMajorVersion(p_version) {
     var tmp = p_version.replace('PostgreSQL ', '').replace('beta', '.').split('.')
     tmp.pop()
     return tmp.join('.')
+}
+
+function postgresqlTerminateBackendConfirm(p_pid) {
+	execAjax('/kill_backend_postgres/',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+											"p_pid": p_pid}),
+			function(p_return) {
+
+				refreshMonitoring();
+
+			},
+			function(p_return) {
+				if (p_return.v_data.password_timeout) {
+					showPasswordPrompt(
+						v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+						function() {
+							postgresqlTerminateBackendConfirm(p_pid);
+						},
+						null,
+						p_return.v_data.message
+					);
+				}
+				else {
+					showError(p_return.v_data);
+				}
+			},
+			'box',
+			true);
+
+}
+
+function postgresqlTerminateBackend(p_row) {
+
+	var v_pid = p_row[2];
+
+	showConfirm('Are you sure you want to terminate backend ' + v_pid +'?',
+				function() {
+
+					postgresqlTerminateBackendConfirm(v_pid);
+
+				});
+
 }

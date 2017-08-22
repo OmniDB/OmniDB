@@ -23,7 +23,7 @@ support coming soon;
 
 ## 1.1- Installation packages
 
-Just go to [omnidb.org](omnidb.org), download the appropriate file for your
+Just go to [https://omnidb.org](omnidb.org), download the appropriate file for your
 operating system and architecture and install it.
 
 ## 1.2- From source

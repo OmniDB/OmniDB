@@ -44,7 +44,7 @@ cat > SPECS/omnidb-server.spec <<EOF
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 %define _unpackaged_files_terminate_build 0
-%define _topdir /home/omnidb/OmniDB/OmniDB/deploy/packages/omnidb-server
+%define _topdir /root/OmniDB/OmniDB/deploy/packages/omnidb-server
 %define _bindir /usr/bin
 %define name omnidb-server
 %define version $VERSION

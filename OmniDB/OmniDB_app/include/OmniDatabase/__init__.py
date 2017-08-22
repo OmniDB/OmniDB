@@ -76,9 +76,17 @@ class PostgreSQL:
         self.v_alias = p_alias
         self.v_db_type = 'postgresql'
         self.v_conn_id = p_conn_id
+
+        if p_port is None or p_port == '':
+            self.v_port = '5432'
+        else:
+            self.v_port = p_port
+        if p_service is None or p_service == '':
+            self.v_service = 'postgres'
+        else:
+            self.v_service = p_service
+
         self.v_server = p_server
-        self.v_port = p_port
-        self.v_service = p_service
         self.v_user = p_user
         self.v_schema = 'public'
         self.v_connection = Spartacus.Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password)
@@ -613,10 +621,17 @@ class PostgreSQL:
 
     def QueryDataLimited(self, p_query, p_count=-1):
         if p_count != -1:
-            self.v_connection.Open()
-            v_data = self.v_connection.QueryBlock(p_query, p_count, True)
-            self.v_connection.Close()
-            return v_data
+            try:
+                self.v_connection.Open()
+                v_data = self.v_connection.QueryBlock(p_query, p_count, True)
+                self.v_connection.Close()
+                return v_data
+            except Spartacus.Database.Exception as exc:
+                try:
+                    self.v_connection.Cancel()
+                except:
+                    pass
+                raise exc
         else:
             return self.v_connection.Query(p_query, True)
 

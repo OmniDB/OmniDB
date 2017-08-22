@@ -63,6 +63,17 @@ function hideAbout() {
 }
 
 /// <summary>
+/// Shows website in outer tab.
+/// </summary>
+function showWebsite(p_name, p_url) {
+
+	if (v_connTabControl)
+		hideAbout();
+		v_connTabControl.tag.createWebsiteOuterTab(p_name,p_url);
+
+}
+
+/// <summary>
 /// Hides user config window.
 /// </summary>
 function hideConfigUser() {

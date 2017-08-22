@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 VERSION=2.0.4
-ARCH=centos-amd64
+ARCH=fedora-amd64
 
 cd ~/OmniDB/OmniDB
 
@@ -32,7 +32,7 @@ cp -r "$HOME/.pyenv/versions/3.5.2/lib/python3.5/site-packages/cefpython3" deplo
 echo "Done."
 
 echo -n "Copying libgconf... "
-if [ $ARCH == "centos-amd64" ]
+if [ $ARCH == "fedora-amd64" ]
 then
 	cp /usr/lib64/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
 	cp /usr/lib64/libgconf-2.so.4 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
@@ -45,20 +45,30 @@ chmod 755 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
 echo "Done."
 
 echo -n "Copying libxcb... "
-if [ $ARCH == "centos-amd64" ]
+if [ $ARCH == "fedora-amd64" ]
 then
 	cp /usr/lib64/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
 	cp /usr/lib64/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
+    cp /usr/lib64/libxcb-dri3.so.0 deploy/packages/omnidb-app/libxcb-dri3.so.0
+    cp /usr/lib64/libxcb-dri3.so.0 deploy/packages/omnidb-app/cefpython3/libxcb-dri3.so.0
+    cp /usr/lib64/libxcb-shm.so.0 deploy/packages/omnidb-app/libxcb-shm.so.0
+    cp /usr/lib64/libxcb-shm.so.0 deploy/packages/omnidb-app/cefpython3/libxcb-shm.so.0
 else
 	cp /usr/lib/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
 	cp /usr/lib/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
+    cp /usr/lib/libxcb-dri3.so.0 deploy/packages/omnidb-app/libxcb-dri3.so.0
+    cp /usr/lib/libxcb-dri3.so.0 deploy/packages/omnidb-app/cefpython3/libxcb-dri3.so.0
 fi
 chmod 755 deploy/packages/omnidb-app/libxcb.so.1
 chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
+chmod 755 deploy/packages/omnidb-app/libxcb-dri3.so.0
+chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb-dri3.so.0
+chmod 755 deploy/packages/omnidb-app/libxcb-shm.so.0
+chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb-shm.so.0
 echo "Done."
 
 echo -n "Copying libXss... "
-if [ $ARCH == "centos-amd64" ]
+if [ $ARCH == "fedora-amd64" ]
 then
 	cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
 	cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
@@ -68,7 +78,7 @@ fi
 echo "Done."
 
 echo -n "Copying libXtst... "
-if [ $ARCH == "centos-amd64" ]
+if [ $ARCH == "fedora-amd64" ]
 then
         cp /usr/lib64/libXtst.so.6 deploy/packages/omnidb-app/libXtst.so.6
         cp /usr/lib64/libXtst.so.6 deploy/packages/omnidb-app/cefpython3/libXtst.so.6

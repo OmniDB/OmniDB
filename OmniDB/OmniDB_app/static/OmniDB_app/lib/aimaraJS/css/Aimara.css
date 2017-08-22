@@ -162,7 +162,7 @@ span.node_selected a {
 	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
   border: 1px solid #A0A0A0;
   border-radius: 2px;
-	z-index: 1000;
+	z-index: 999999;
 }
 
 
@@ -171,9 +171,10 @@ span.node_selected a {
 	position: absolute;
 	min-width: 150px;
 	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
-    border: 1px solid #A0A0A0;
-    border-radius: 2px;
-    margin-top: -1px;
+  border: 1px solid #A0A0A0;
+  border-radius: 2px;
+  margin-top: -1px;
+	z-index: 999999;
 }
 
 .aimara_menu .aimara_sub-menu {

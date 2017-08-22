@@ -111,7 +111,8 @@ function testConnectionConfirm(p_index) {
 						function() {
 							testConnectionConfirm(p_index);
 						},
-						null
+						null,
+						p_return.v_data.message
 					);
 				}
 			},
@@ -178,7 +179,8 @@ function selectConnection(p_index) {
 						function() {
 							selectConnection(p_index);
 						},
-						null
+						null,
+						p_return.v_data.message
 					);
 				}
 			},
@@ -250,7 +252,7 @@ function listConnections() {
 				columnProperties.push(col);
 
 				var col = new Object();
-				col.title =  'Service';
+				col.title =  'Database';
 				columnProperties.push(col);
 
 				var col = new Object();
@@ -284,6 +286,9 @@ function listConnections() {
 															columns : columnProperties,
 															colHeaders : true,
 															manualColumnResize: true,
+															minSpareCols :0,
+															minSpareRows :0,
+															fillHandle:false,
 															beforeChange: function (changes, source) {
 
 																if (!changes)

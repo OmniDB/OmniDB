@@ -269,20 +269,23 @@ class SQLite(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             v_table = DataTable()
-            for c in self.v_cur.description:
-                v_table.Columns.append(c[0])
-            v_row = self.v_cur.fetchone()
-            while v_row is not None:
-                if p_alltypesstr:
-                    v_rowtmp = list(v_row)
-                    for j in range(0, len(v_table.Columns)):
-                        if v_rowtmp[j] != None:
-                            v_rowtmp[j] = str(v_rowtmp[j])
-                        else:
-                            v_rowtmp[j] = ''
-                    v_row = tuple(v_rowtmp)
-                v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+            if self.v_cur.description:
+                for c in self.v_cur.description:
+                    v_table.Columns.append(c[0])
                 v_row = self.v_cur.fetchone()
+                while v_row is not None:
+                    if p_alltypesstr:
+                        v_rowtmp = list(v_row)
+                        for j in range(0, len(v_table.Columns)):
+                            if v_rowtmp[j] != None:
+                                v_rowtmp[j] = str(v_rowtmp[j])
+                            else:
+                                v_rowtmp[j] = ''
+                        v_row = tuple(v_rowtmp)
+                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                    v_row = self.v_cur.fetchone()
+            else:
+                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -400,22 +403,25 @@ class SQLite(Generic):
                 if self.v_start:
                     self.v_cur.execute(p_sql)
                 v_table = DataTable()
-                for c in self.v_cur.description:
-                    v_table.Columns.append(c[0])
-                v_row = self.v_cur.fetchone()
-                k = 0
-                while v_row is not None and k < p_blocksize:
-                    if p_alltypesstr:
-                        v_rowtmp = list(v_row)
-                        for j in range(0, len(v_table.Columns)):
-                            if v_rowtmp[j] != None:
-                                v_rowtmp[j] = str(v_rowtmp[j])
-                            else:
-                                v_rowtmp[j] = ''
-                        v_row = tuple(v_rowtmp)
-                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                if self.v_cur.description:
+                    for c in self.v_cur.description:
+                        v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = k + 1
+                    k = 0
+                    while v_row is not None and k < p_blocksize:
+                        if p_alltypesstr:
+                            v_rowtmp = list(v_row)
+                            for j in range(0, len(v_table.Columns)):
+                                if v_rowtmp[j] != None:
+                                    v_rowtmp[j] = str(v_rowtmp[j])
+                                else:
+                                    v_rowtmp[j] = ''
+                            v_row = tuple(v_rowtmp)
+                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                        v_row = self.v_cur.fetchone()
+                        k = k + 1
+                else:
+                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -499,20 +505,23 @@ class Memory(Generic):
             else:
                 self.v_cur.execute(p_sql)
                 v_table = DataTable()
-                for c in self.v_cur.description:
-                    v_table.Columns.append(c[0])
-                v_row = self.v_cur.fetchone()
-                while v_row is not None:
-                    if p_alltypesstr:
-                        v_rowtmp = list(v_row)
-                        for j in range(0, len(v_table.Columns)):
-                            if v_rowtmp[j] != None:
-                                v_rowtmp[j] = str(v_rowtmp[j])
-                            else:
-                                v_rowtmp[j] = ''
-                        v_row = tuple(v_rowtmp)
-                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                if self.v_cur.description:
+                    for c in self.v_cur.description:
+                        v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
+                    while v_row is not None:
+                        if p_alltypesstr:
+                            v_rowtmp = list(v_row)
+                            for j in range(0, len(v_table.Columns)):
+                                if v_rowtmp[j] != None:
+                                    v_rowtmp[j] = str(v_rowtmp[j])
+                                else:
+                                    v_rowtmp[j] = ''
+                            v_row = tuple(v_rowtmp)
+                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                        v_row = self.v_cur.fetchone()
+                else:
+                    v_table.Columns.append('x')
                 return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -609,22 +618,25 @@ class Memory(Generic):
                 if self.v_start:
                     self.v_cur.execute(p_sql)
                 v_table = DataTable()
-                for c in self.v_cur.description:
-                    v_table.Columns.append(c[0])
-                v_row = self.v_cur.fetchone()
-                k = 0
-                while v_row is not None and k < p_blocksize:
-                    if p_alltypesstr:
-                        v_rowtmp = list(v_row)
-                        for j in range(0, len(v_table.Columns)):
-                            if v_rowtmp[j] != None:
-                                v_rowtmp[j] = str(v_rowtmp[j])
-                            else:
-                                v_rowtmp[j] = ''
-                        v_row = tuple(v_rowtmp)
-                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                if self.v_cur.description:
+                    for c in self.v_cur.description:
+                        v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = k + 1
+                    k = 0
+                    while v_row is not None and k < p_blocksize:
+                        if p_alltypesstr:
+                            v_rowtmp = list(v_row)
+                            for j in range(0, len(v_table.Columns)):
+                                if v_rowtmp[j] != None:
+                                    v_rowtmp[j] = str(v_rowtmp[j])
+                                else:
+                                    v_rowtmp[j] = ''
+                            v_row = tuple(v_rowtmp)
+                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                        v_row = self.v_cur.fetchone()
+                        k = k + 1
+                else:
+                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -680,10 +692,13 @@ class PostgreSQL(Generic):
         if 'PostgreSQL' in v_supported_rdbms:
             self.v_host = p_host
             if p_port is None or p_port == '':
-                self.v_port = '5432'
+                self.v_port = 5432
             else:
                 self.v_port = p_port
-            self.v_service = p_service
+            if p_service is None or p_service == '':
+                self.v_service = 'postgres'
+            else:
+                self.v_service = p_service
             self.v_user = p_user
             self.v_password = p_password
             self.v_con = None
@@ -698,7 +713,7 @@ class PostgreSQL(Generic):
                         'port={0} dbname={1} user={2}'.format(
                             self.v_port,
                             self.v_service,
-                            self.v_user,
+                            self.v_user
                         ),
                         cursor_factory=psycopg2.extras.DictCursor)
                 else:
@@ -734,12 +749,6 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-        except Spartacus.Database.Exception as exc:
-            raise exc
-        except psycopg2.Error as exc:
-            raise Spartacus.Database.Exception(str(exc))
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
     def Query(self, p_sql, p_alltypesstr=False):
         try:
             v_keep = None
@@ -750,16 +759,19 @@ class PostgreSQL(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             v_table = DataTable()
-            for c in self.v_cur.description:
-                v_table.Columns.append(c[0])
-            v_table.Rows = self.v_cur.fetchall()
-            if p_alltypesstr:
-                for i in range(0, len(v_table.Rows)):
-                    for j in range(0, len(v_table.Columns)):
-                        if v_table.Rows[i][j] != None:
-                            v_table.Rows[i][j] = str(v_table.Rows[i][j])
-                        else:
-                            v_table.Rows[i][j] = ''
+            if self.v_cur.description:
+                for c in self.v_cur.description:
+                    v_table.Columns.append(c[0])
+                v_table.Rows = self.v_cur.fetchall()
+                if p_alltypesstr:
+                    for i in range(0, len(v_table.Rows)):
+                        for j in range(0, len(v_table.Columns)):
+                            if v_table.Rows[i][j] != None:
+                                v_table.Rows[i][j] = str(v_table.Rows[i][j])
+                            else:
+                                v_table.Rows[i][j] = ''
+            else:
+                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -877,16 +889,19 @@ class PostgreSQL(Generic):
                 if self.v_start:
                     self.v_cur.execute(p_sql)
                 v_table = DataTable()
-                for c in self.v_cur.description:
-                    v_table.Columns.append(c[0])
-                v_table.Rows = self.v_cur.fetchmany(p_blocksize)
-                if p_alltypesstr:
-                    for i in range(0, len(v_table.Rows)):
-                        for j in range(0, len(v_table.Columns)):
-                            if v_table.Rows[i][j] != None:
-                                v_table.Rows[i][j] = str(v_table.Rows[i][j])
-                            else:
-                                v_table.Rows[i][j] = ''
+                if self.v_cur.description:
+                    for c in self.v_cur.description:
+                        v_table.Columns.append(c[0])
+                    v_table.Rows = self.v_cur.fetchmany(p_blocksize)
+                    if p_alltypesstr:
+                        for i in range(0, len(v_table.Rows)):
+                            for j in range(0, len(v_table.Columns)):
+                                if v_table.Rows[i][j] != None:
+                                    v_table.Rows[i][j] = str(v_table.Rows[i][j])
+                                else:
+                                    v_table.Rows[i][j] = ''
+                else:
+                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -973,16 +988,19 @@ class MySQL(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             v_table = DataTable()
-            for c in self.v_cur.description:
-                v_table.Columns.append(c[0])
-            v_table.Rows = self.v_cur.fetchall()
-            if p_alltypesstr:
-                for i in range(0, len(v_table.Rows)):
-                    for j in range(0, len(v_table.Columns)):
-                        if v_table.Rows[i][j] != None:
-                            v_table.Rows[i][j] = str(v_table.Rows[i][j])
-                        else:
-                            v_table.Rows[i][j] = ''
+            if self.v_cur.description:
+                for c in self.v_cur.description:
+                    v_table.Columns.append(c[0])
+                v_table.Rows = self.v_cur.fetchall()
+                if p_alltypesstr:
+                    for i in range(0, len(v_table.Rows)):
+                        for j in range(0, len(v_table.Columns)):
+                            if v_table.Rows[i][j] != None:
+                                v_table.Rows[i][j] = str(v_table.Rows[i][j])
+                            else:
+                                v_table.Rows[i][j] = ''
+            else:
+                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -1100,16 +1118,19 @@ class MySQL(Generic):
                 if self.v_start:
                     self.v_cur.execute(p_sql)
                 v_table = DataTable()
-                for c in self.v_cur.description:
-                    v_table.Columns.append(c[0])
-                v_table.Rows = self.v_cur.fetchmany(p_blocksize)
-                if p_alltypesstr:
-                    for i in range(0, len(v_table.Rows)):
-                        for j in range(0, len(v_table.Columns)):
-                            if v_table.Rows[i][j] != None:
-                                v_table.Rows[i][j] = str(v_table.Rows[i][j])
-                            else:
-                                v_table.Rows[i][j] = ''
+                if self.v_cur.description:
+                    for c in self.v_cur.description:
+                        v_table.Columns.append(c[0])
+                    v_table.Rows = self.v_cur.fetchmany(p_blocksize)
+                    if p_alltypesstr:
+                        for i in range(0, len(v_table.Rows)):
+                            for j in range(0, len(v_table.Columns)):
+                                if v_table.Rows[i][j] != None:
+                                    v_table.Rows[i][j] = str(v_table.Rows[i][j])
+                                else:
+                                    v_table.Rows[i][j] = ''
+                else:
+                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -1196,16 +1217,19 @@ class MariaDB(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             v_table = DataTable()
-            for c in self.v_cur.description:
-                v_table.Columns.append(c[0])
-            v_table.Rows = self.v_cur.fetchall()
-            if p_alltypesstr:
-                for i in range(0, len(v_table.Rows)):
-                    for j in range(0, len(v_table.Columns)):
-                        if v_table.Rows[i][j] != None:
-                            v_table.Rows[i][j] = str(v_table.Rows[i][j])
-                        else:
-                            v_table.Rows[i][j] = ''
+            if self.v_cur.description:
+                for c in self.v_cur.description:
+                    v_table.Columns.append(c[0])
+                v_table.Rows = self.v_cur.fetchall()
+                if p_alltypesstr:
+                    for i in range(0, len(v_table.Rows)):
+                        for j in range(0, len(v_table.Columns)):
+                            if v_table.Rows[i][j] != None:
+                                v_table.Rows[i][j] = str(v_table.Rows[i][j])
+                            else:
+                                v_table.Rows[i][j] = ''
+            else:
+                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -1323,16 +1347,19 @@ class MariaDB(Generic):
                 if self.v_start:
                     self.v_cur.execute(p_sql)
                 v_table = DataTable()
-                for c in self.v_cur.description:
-                    v_table.Columns.append(c[0])
-                v_table.Rows = self.v_cur.fetchmany(p_blocksize)
-                if p_alltypesstr:
-                    for i in range(0, len(v_table.Rows)):
-                        for j in range(0, len(v_table.Columns)):
-                            if v_table.Rows[i][j] != None:
-                                v_table.Rows[i][j] = str(v_table.Rows[i][j])
-                            else:
-                                v_table.Rows[i][j] = ''
+                if self.v_cur.description:
+                    for c in self.v_cur.description:
+                        v_table.Columns.append(c[0])
+                    v_table.Rows = self.v_cur.fetchmany(p_blocksize)
+                    if p_alltypesstr:
+                        for i in range(0, len(v_table.Rows)):
+                            for j in range(0, len(v_table.Columns)):
+                                if v_table.Rows[i][j] != None:
+                                    v_table.Rows[i][j] = str(v_table.Rows[i][j])
+                                else:
+                                    v_table.Rows[i][j] = ''
+                else:
+                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -1418,20 +1445,23 @@ class Firebird(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             v_table = DataTable()
-            for c in self.v_cur.description:
-                v_table.Columns.append(c[0])
-            v_row = self.v_cur.fetchone()
-            while v_row is not None:
-                if p_alltypesstr:
-                    v_rowtmp = list(v_row)
-                    for j in range(0, len(v_table.Columns)):
-                        if v_rowtmp[j] != None:
-                            v_rowtmp[j] = str(v_rowtmp[j])
-                        else:
-                            v_rowtmp[j] = ''
-                    v_row = tuple(v_rowtmp)
-                v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+            if self.v_cur.description:
+                for c in self.v_cur.description:
+                    v_table.Columns.append(c[0])
                 v_row = self.v_cur.fetchone()
+                while v_row is not None:
+                    if p_alltypesstr:
+                        v_rowtmp = list(v_row)
+                        for j in range(0, len(v_table.Columns)):
+                            if v_rowtmp[j] != None:
+                                v_rowtmp[j] = str(v_rowtmp[j])
+                            else:
+                                v_rowtmp[j] = ''
+                        v_row = tuple(v_rowtmp)
+                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                    v_row = self.v_cur.fetchone()
+            else:
+                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -1549,22 +1579,25 @@ class Firebird(Generic):
                 if self.v_start:
                     self.v_cur.execute(p_sql)
                 v_table = DataTable()
-                for c in self.v_cur.description:
-                    v_table.Columns.append(c[0])
-                v_row = self.v_cur.fetchone()
-                k = 0
-                while v_row is not None and k < p_blocksize:
-                    if p_alltypesstr:
-                        v_rowtmp = list(v_row)
-                        for j in range(0, len(v_table.Columns)):
-                            if v_rowtmp[j] != None:
-                                v_rowtmp[j] = str(v_rowtmp[j])
-                            else:
-                                v_rowtmp[j] = ''
-                        v_row = tuple(v_rowtmp)
-                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                if self.v_cur.description:
+                    for c in self.v_cur.description:
+                        v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = k + 1
+                    k = 0
+                    while v_row is not None and k < p_blocksize:
+                        if p_alltypesstr:
+                            v_rowtmp = list(v_row)
+                            for j in range(0, len(v_table.Columns)):
+                                if v_rowtmp[j] != None:
+                                    v_rowtmp[j] = str(v_rowtmp[j])
+                                else:
+                                    v_rowtmp[j] = ''
+                            v_row = tuple(v_rowtmp)
+                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                        v_row = self.v_cur.fetchone()
+                        k = k + 1
+                else:
+                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -1651,20 +1684,23 @@ class Oracle(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             v_table = DataTable()
-            for c in self.v_cur.description:
-                v_table.Columns.append(c[0])
-            v_row = self.v_cur.fetchone()
-            while v_row is not None:
-                if p_alltypesstr:
-                    v_rowtmp = list(v_row)
-                    for j in range(0, len(v_table.Columns)):
-                        if v_rowtmp[j] != None:
-                            v_rowtmp[j] = str(v_rowtmp[j])
-                        else:
-                            v_rowtmp[j] = ''
-                    v_row = tuple(v_rowtmp)
-                v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+            if self.v_cur.description:
+                for c in self.v_cur.description:
+                    v_table.Columns.append(c[0])
                 v_row = self.v_cur.fetchone()
+                while v_row is not None:
+                    if p_alltypesstr:
+                        v_rowtmp = list(v_row)
+                        for j in range(0, len(v_table.Columns)):
+                            if v_rowtmp[j] != None:
+                                v_rowtmp[j] = str(v_rowtmp[j])
+                            else:
+                                v_rowtmp[j] = ''
+                        v_row = tuple(v_rowtmp)
+                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                    v_row = self.v_cur.fetchone()
+            else:
+                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -1782,22 +1818,25 @@ class Oracle(Generic):
                 if self.v_start:
                     self.v_cur.execute(p_sql)
                 v_table = DataTable()
-                for c in self.v_cur.description:
-                    v_table.Columns.append(c[0])
-                v_row = self.v_cur.fetchone()
-                k = 0
-                while v_row is not None and k < p_blocksize:
-                    if p_alltypesstr:
-                        v_rowtmp = list(v_row)
-                        for j in range(0, len(v_table.Columns)):
-                            if v_rowtmp[j] != None:
-                                v_rowtmp[j] = str(v_rowtmp[j])
-                            else:
-                                v_rowtmp[j] = ''
-                        v_row = tuple(v_rowtmp)
-                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                if self.v_cur.description:
+                    for c in self.v_cur.description:
+                        v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = k + 1
+                    k = 0
+                    while v_row is not None and k < p_blocksize:
+                        if p_alltypesstr:
+                            v_rowtmp = list(v_row)
+                            for j in range(0, len(v_table.Columns)):
+                                if v_rowtmp[j] != None:
+                                    v_rowtmp[j] = str(v_rowtmp[j])
+                                else:
+                                    v_rowtmp[j] = ''
+                            v_row = tuple(v_rowtmp)
+                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                        v_row = self.v_cur.fetchone()
+                        k = k + 1
+                else:
+                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -1884,20 +1923,23 @@ class MSSQL(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             v_table = DataTable()
-            for c in self.v_cur.description:
-                v_table.Columns.append(c[0])
-            v_row = self.v_cur.fetchone()
-            while v_row is not None:
-                if p_alltypesstr:
-                    v_rowtmp = list(v_row)
-                    for j in range(0, len(v_table.Columns)):
-                        if v_rowtmp[j] != None:
-                            v_rowtmp[j] = str(v_rowtmp[j])
-                        else:
-                            v_rowtmp[j] = ''
-                    v_row = tuple(v_rowtmp)
-                v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+            if self.v_cur.description:
+                for c in self.v_cur.description:
+                    v_table.Columns.append(c[0])
                 v_row = self.v_cur.fetchone()
+                while v_row is not None:
+                    if p_alltypesstr:
+                        v_rowtmp = list(v_row)
+                        for j in range(0, len(v_table.Columns)):
+                            if v_rowtmp[j] != None:
+                                v_rowtmp[j] = str(v_rowtmp[j])
+                            else:
+                                v_rowtmp[j] = ''
+                        v_row = tuple(v_rowtmp)
+                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                    v_row = self.v_cur.fetchone()
+            else:
+                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -2015,22 +2057,25 @@ class MSSQL(Generic):
                 if self.v_start:
                     self.v_cur.execute(p_sql)
                 v_table = DataTable()
-                for c in self.v_cur.description:
-                    v_table.Columns.append(c[0])
-                v_row = self.v_cur.fetchone()
-                k = 0
-                while v_row is not None and k < p_blocksize:
-                    if p_alltypesstr:
-                        v_rowtmp = list(v_row)
-                        for j in range(0, len(v_table.Columns)):
-                            if v_rowtmp[j] != None:
-                                v_rowtmp[j] = str(v_rowtmp[j])
-                            else:
-                                v_rowtmp[j] = ''
-                        v_row = tuple(v_rowtmp)
-                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                if self.v_cur.description:
+                    for c in self.v_cur.description:
+                        v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = k + 1
+                    k = 0
+                    while v_row is not None and k < p_blocksize:
+                        if p_alltypesstr:
+                            v_rowtmp = list(v_row)
+                            for j in range(0, len(v_table.Columns)):
+                                if v_rowtmp[j] != None:
+                                    v_rowtmp[j] = str(v_rowtmp[j])
+                                else:
+                                    v_rowtmp[j] = ''
+                            v_row = tuple(v_rowtmp)
+                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                        v_row = self.v_cur.fetchone()
+                        k = k + 1
+                else:
+                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -2120,20 +2165,23 @@ class IBMDB2(Generic):
                 v_keep = True
             self.v_cur.execute(p_sql)
             v_table = DataTable()
-            for c in self.v_cur.description:
-                v_table.Columns.append(c[0])
-            v_row = self.v_cur.fetchone()
-            while v_row is not None:
-                if p_alltypesstr:
-                    v_rowtmp = list(v_row)
-                    for j in range(0, len(v_table.Columns)):
-                        if v_rowtmp[j] != None:
-                            v_rowtmp[j] = str(v_rowtmp[j])
-                        else:
-                            v_rowtmp[j] = ''
-                    v_row = tuple(v_rowtmp)
-                v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+            if self.v_cur.description:
+                for c in self.v_cur.description:
+                    v_table.Columns.append(c[0])
                 v_row = self.v_cur.fetchone()
+                while v_row is not None:
+                    if p_alltypesstr:
+                        v_rowtmp = list(v_row)
+                        for j in range(0, len(v_table.Columns)):
+                            if v_rowtmp[j] != None:
+                                v_rowtmp[j] = str(v_rowtmp[j])
+                            else:
+                                v_rowtmp[j] = ''
+                        v_row = tuple(v_rowtmp)
+                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                    v_row = self.v_cur.fetchone()
+            else:
+                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -2251,22 +2299,25 @@ class IBMDB2(Generic):
                 if self.v_start:
                     self.v_cur.execute(p_sql)
                 v_table = DataTable()
-                for c in self.v_cur.description:
-                    v_table.Columns.append(c[0])
-                v_row = self.v_cur.fetchone()
-                k = 0
-                while v_row is not None and k < p_blocksize:
-                    if p_alltypesstr:
-                        v_rowtmp = list(v_row)
-                        for j in range(0, len(v_table.Columns)):
-                            if v_rowtmp[j] != None:
-                                v_rowtmp[j] = str(v_rowtmp[j])
-                            else:
-                                v_rowtmp[j] = ''
-                        v_row = tuple(v_rowtmp)
-                    v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                if self.v_cur.description:
+                    for c in self.v_cur.description:
+                        v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = k + 1
+                    k = 0
+                    while v_row is not None and k < p_blocksize:
+                        if p_alltypesstr:
+                            v_rowtmp = list(v_row)
+                            for j in range(0, len(v_table.Columns)):
+                                if v_rowtmp[j] != None:
+                                    v_rowtmp[j] = str(v_rowtmp[j])
+                                else:
+                                    v_rowtmp[j] = ''
+                            v_row = tuple(v_rowtmp)
+                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                        v_row = self.v_cur.fetchone()
+                        k = k + 1
+                else:
+                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table

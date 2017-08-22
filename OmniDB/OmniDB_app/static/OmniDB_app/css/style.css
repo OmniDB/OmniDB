@@ -50,7 +50,7 @@ input {
     border: solid #d5d5d5 1px;
     padding: 8px;
     background-color: white;
-}
+}
 
 
 #div_form img {
@@ -117,7 +117,7 @@ input {
     font-size: 1.1em;
     text-align: left;
     padding-top: 5px;
-    padding-bottom: 4px;
+    padding-bottom: 4px;
     background-color: #C2E069;
     color: #406215;
 }
@@ -897,4 +897,13 @@ table {
   display: inline;
   padding: 0px 2px;
   float: none;
+}
+
+iframe {
+  border: 0px;
+}
+
+#div_about a {
+  cursor: pointer;
+  text-decoration: underline;
 }

@@ -1,23 +1,34 @@
 [![Join the chat at https://gitter.im/OmniDB/Lobby](https://img.shields.io/badge/GITTER-JOIN%20CHAT-brightgreen.svg)](https://gitter.im/OmniDB/Lobby)
 
-# OmniDB 2.0.3
+# OmniDB 2.0.4
 
-OmniDB was completely rewritten to Python using the Django framework. Starting from version `2.0`, **OmniDB Python version** will receive new features and will be actively maintained.
+OmniDB was completely rewritten to Python using the Django framework. Starting
+from version `2.0`, **OmniDB Python version** will receive new features and will
+be actively maintained.
 
-The source code for the ASP.NET/C\# version is in the branch **csharp**. The next release of OmniDB C\# version is `1.7`, and it will only receive bug fixes.
+The source code for the ASP.NET/C\# version is in the branch **csharp**. The
+next release of OmniDB C\# version is `1.7`, and it will only receive bug fixes.
 
-Besides being written in Python, initial version of `OmniDB 2.0` contains the following main differences from the C\# version:
+Besides being written in Python, initial version of `OmniDB 2.0` contains the
+following main differences from the C\# version:
 
 - Support to HTTPS;
-- It allows query execution in background and cancellation through the use of *websockets*;
-- Initially, only an improved support of PostgreSQL is implemented. More RDBMS support coming soon;
+- It allows query execution in background and cancellation through the use of
+*websockets*;
+- Initially, only an improved support of PostgreSQL is implemented. More RDBMS
+support coming soon;
 - There is a new `Snippet` feature.
 
 # 1- Installation
 
-## 1.1- Requirements
+## 1.1- Installation packages
 
-### 1.1.1- On Debian >= 9 with `pip`
+Just go to [omnidb.org](omnidb.org), download the appropriate file for your
+operating system and architecture and install it.
+
+## 1.2- From source
+
+### 1.2.1- On Debian >= 9 with `pip`
 
 ```
 sudo apt install python3-pip
@@ -25,7 +36,7 @@ pip3 install pip --upgrade
 pip3 install -r requirements.txt
 ```
 
-### 1.1.2- On Debian/Ubuntu using `PyEnv`
+### 1.2.2- On Debian/Ubuntu using `PyEnv`
 
 ```
 sudo apt install git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils
@@ -43,39 +54,12 @@ pip install pip --upgrade
 pip install -r requirements.txt
 ```
 
-## 1.1.3- Running OmniDB
+## 1.3- Running OmniDB
 
-Download or clone OmniDB repo and extract it somewhere. To start Django server, enter into `OmniDB-master/OmniDB` folder and type:
-
- ```
- python3 manage.py runserver
- ```
-
-### 1.1.4- Deployment
-
-#### 1.1.4.1- Debian >= 8
+Download or clone OmniDB repo and extract it somewhere. To start Django server, enter into `OmniDB/OmniDB` folder and type:
 
 ```
-sudo apt install git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils libgconf-2-4
-
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-source ~/.bashrc
-
-env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.5.2
-pyenv local 3.5.2
-pip install pip --upgrade
-
-git clone https://github.com/OmniDB/OmniDB ~/OmniDB
-
-pip install -r ~/OmniDB/requirements.txt
-pip install -r ~/OmniDB/deploy/requirements_for_deploy_server.txt
-
-cd OmniDB
-./deploy_deb.sh i386    # for 32 bits, need to be on a 32 bits machine
-./deploy_deb.sh amd64   # for 64 bits, need to be on a 64 bits machine
+python3 manage.py runserver
 ```
 
 # 2- Introduction

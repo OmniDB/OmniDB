@@ -103,7 +103,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     self.v_session = v_session
 
                     #Check database prompt timeout
-                    if v_session.DatabaseReachPasswordTimeout(v_data['v_db_index']):
+                    v_timeout = v_session.DatabaseReachPasswordTimeout(v_data['v_db_index'])
+                    if v_timeout['timeout']:
                         v_response['v_code'] = response.PasswordRequired
                         self.write_message(json.dumps(v_response))
                         return
@@ -210,26 +211,31 @@ def send_response_thread_safe(ws_object,message):
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
+def GetDuration(p_start, p_end):
+    duration = ''
+    time_diff = p_end - p_start
+    if time_diff.days==0 and time_diff.seconds==0:
+        duration = str(time_diff.microseconds/1000000) + ' seconds'
+    else:
+        days, seconds = time_diff.days, time_diff.seconds
+        hours = days * 24 + seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+        duration = '{0}:{1}:{2}'.format("%02d" % (hours,),"%02d" % (minutes,),"%02d" % (seconds,))
+
+    return duration
+
 def LogHistory(p_omnidb_database,
                p_user_id,
                p_user_name,
                p_sql,
                p_start,
                p_end,
+               p_duration,
                p_mode,
                p_status):
 
     try:
-        duration = ''
-        time_diff = p_end - p_start
-        if time_diff.days==0 and time_diff.seconds==0:
-            duration = str(time_diff.microseconds/1000000) + ' seconds'
-        else:
-            days, seconds = time_diff.days, time_diff.seconds
-            hours = days * 24 + seconds // 3600
-            minutes = (seconds % 3600) // 60
-            seconds = seconds % 60
-            duration = '{0}:{1}:{2}'.format("%02d" % (hours,),"%02d" % (minutes,),"%02d" % (seconds,))
 
         logger.info('''*** SQL Command ***
 USER: {0},
@@ -241,7 +247,7 @@ STATUS: {5},
 COMMAND: {6}'''.format(p_user_name,
            p_start.strftime('%Y-%m-%d %H:%M:%S.%f'),
            p_end.strftime('%Y-%m-%d %H:%M:%S.%f'),
-           duration,
+           p_duration,
            p_mode,
            p_status,
            p_sql.replace("'","''")))
@@ -262,7 +268,7 @@ COMMAND: {6}'''.format(p_user_name,
                    p_end.strftime('%Y-%m-%d %H:%M:%S.%f'),
                    p_mode,
                    p_status,
-                   duration))
+                   p_duration))
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
@@ -305,11 +311,19 @@ def thread_query(self,args,ws_object):
             log_mode = 'Execute'
             try:
                 v_database.v_connection.Execute(v_sql)
+                log_end_time = datetime.now()
+                v_duration = GetDuration(log_start_time,log_end_time)
+                v_response['v_data'] = {
+                    'v_duration': v_duration
+                }
             except Exception as exc:
+                log_end_time = datetime.now()
+                v_duration = GetDuration(log_start_time,log_end_time)
                 log_status = 'error'
                 v_response['v_data'] = {
                     'position': v_database.GetErrorPosition(str(exc)),
-                    'message' : str(exc).replace('\n','<br>')
+                    'message' : str(exc).replace('\n','<br>'),
+                    'v_duration': v_duration
                 }
                 v_response['v_error'] = True
 
@@ -322,7 +336,8 @@ def thread_query(self,args,ws_object):
                                 v_session.v_user_name,
                                 v_sql,
                                 log_start_time,
-                                datetime.now(),
+                                log_end_time,
+                                v_duration,
                                 log_mode,
                                 log_status)
 
@@ -353,11 +368,19 @@ def thread_query(self,args,ws_object):
                         v_num_error_commands = v_num_error_commands + 1
                         v_return_html += "<b>Command:</b> " + v_command + "<br/><br/><b>Message:</b><br><br><div class='error_text'>" + str(exc).replace('\n','<br>') + "</div><br/><br/>"
 
-            v_response['v_data'] = "<b>Successful commands:</b> " + str(v_num_success_commands) + "<br/>"
-            v_response['v_data'] += "<b>Errors: </b> " + str(v_num_error_commands) + "<br/><br/>"
+            log_end_time = datetime.now()
+            v_duration = GetDuration(log_start_time,log_end_time)
+
+            v_response['v_data'] = {
+                'v_duration': v_duration,
+                'v_data': ''
+            }
+
+            v_response['v_data']['v_data'] = "<b>Successful commands:</b> " + str(v_num_success_commands) + "<br/>"
+            v_response['v_data']['v_data'] += "<b>Errors: </b> " + str(v_num_error_commands) + "<br/><br/>"
 
             if v_num_error_commands > 0:
-                v_response['v_data'] += "<b>Errors details:</b><br/><br/>" + v_return_html;
+                v_response['v_data']['v_data'] += "<b>Errors details:</b><br/><br/>" + v_return_html;
 
             v_database.v_connection.Close ()
 
@@ -370,7 +393,8 @@ def thread_query(self,args,ws_object):
                     v_session.v_user_name,
                     v_sql,
                     log_start_time,
-                    datetime.now(),
+                    log_end_time,
+                    v_duration,
                     log_mode,
                     log_status)
 
@@ -383,16 +407,23 @@ def thread_query(self,args,ws_object):
                     log_mode = 'Query {0} rows'.format(v_select_value)
                     v_data1 = v_database.QueryDataLimited(v_sql, int(v_select_value))
 
+                log_end_time = datetime.now()
+                v_duration = GetDuration(log_start_time,log_end_time)
+
                 v_response['v_data'] = {
                     'v_col_names' : v_data1.Columns,
                     'v_data' : v_data1.Rows,
-                    'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows))
+                    'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
+                    'v_duration': v_duration
                 }
             except Exception as exc:
+                log_end_time = datetime.now()
+                v_duration = GetDuration(log_start_time,log_end_time)
                 log_status = 'error'
                 v_response['v_data'] = {
                     'position': v_database.GetErrorPosition(str(exc)),
-                    'message' : str(exc).replace('\n','<br>')
+                    'message' : str(exc).replace('\n','<br>'),
+                    'v_duration': v_duration
                 }
                 v_response['v_error'] = True
 
@@ -405,7 +436,8 @@ def thread_query(self,args,ws_object):
                     v_session.v_user_name,
                     v_sql,
                     log_start_time,
-                    datetime.now(),
+                    log_end_time,
+                    v_duration,
                     log_mode,
                     log_status)
     except Exception as exc:

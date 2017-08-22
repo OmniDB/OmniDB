@@ -331,8 +331,10 @@ $(window).resize(function() {
 function refreshTreeHeight() {
 	var v_tree = v_connTabControl.selectedTab.tag.divTree;
 
-	var v_height  = window.innerHeight - $(v_tree).offset().top - 12;
-	v_tree.style.height = v_height + "px";
+	if (v_tree) {
+		var v_height  = window.innerHeight - $(v_tree).offset().top - 12;
+		v_tree.style.height = v_height + "px";
+	}
 }
 
 function refreshHeights(p_all) {
@@ -356,9 +358,20 @@ function refreshHeights(p_all) {
 			if (v_tab_tag.ht!=null)
 				v_tab_tag.ht.render();
 		}
+		else if (v_tab_tag.mode=='monitoring') {
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
+			if (v_tab_tag.ht!=null)
+				v_tab_tag.ht.render();
+		}
 		else if (v_tab_tag.mode=='graph') {
 			v_tab_tag.graph_div.style.height = window.innerHeight - $(v_tab_tag.graph_div).offset().top - 20 + "px";
 
+		}
+		else if (v_tab_tag.mode=='website') {
+			v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 20 + "px";
+		}
+		else if (v_tab_tag.mode=='website_outer') {
+			v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 12 + "px";
 		}
 		else if (v_tab_tag.mode=='edit') {
 			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
@@ -504,9 +517,17 @@ function horizontalLinePosition(p_event) {
 /// Resize Tab.
 /// </summary>
 function resizeHorizontal(event) {
+	var v_horizontalLineBase = document.createElement('div');
+	v_horizontalLineBase.id = 'horizontal-resize-line-base';
+	v_horizontalLineBase.style.position = 'absolute';
+	v_horizontalLineBase.style.width = '100%';
+	v_horizontalLineBase.style.height = '100%';
+	v_horizontalLineBase.style.left = '0';
+	v_horizontalLineBase.style.top = '0';
 	var v_horizontalLine = document.createElement('div');
 	v_horizontalLine.id = 'horizontal-resize-line';
-	document.body.appendChild(v_horizontalLine);
+	document.body.appendChild(v_horizontalLineBase);
+	v_horizontalLineBase.appendChild(v_horizontalLine)
 
 	document.body.addEventListener(
 		'mousemove',
@@ -522,7 +543,7 @@ function resizeHorizontal(event) {
 /// </summary>
 function resizeHorizontalEnd(event) {
 	document.body.removeEventListener("mouseup", resizeHorizontalEnd);
-	document.getElementById('horizontal-resize-line').remove();
+	document.getElementById('horizontal-resize-line-base').remove();
 
 	document.body.removeEventListener(
 		'mousemove',
@@ -539,8 +560,6 @@ function resizeHorizontalEnd(event) {
 	v_left_div.style.width = parseInt(v_left_div.style.width, 10) + v_width_diff + '%';
 	v_right_div.style.width = parseInt(v_right_div.style.width, 10) - v_width_diff + '%';
 
-
-
 	if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query') {
 		v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.resize();
 		if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht!=null) {
@@ -555,7 +574,12 @@ function resizeHorizontalEnd(event) {
 	else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='snippet') {
 		v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.resize();
 	}
-	else {
+	else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='monitoring') {
+		if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht!=null) {
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.render();
+		}
+	}
+	else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='alter') {
         v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.render();
 	}
 
@@ -753,7 +777,8 @@ function drawGraph(p_all, p_schema) {
 						function() {
 							drawGraph(p_all, p_schema);
 						},
-						null
+						null,
+						p_return.v_data.message
 					);
 				}
 			},
@@ -767,4 +792,116 @@ function hideCommandsLog() {
 
 	$('#div_commands_log').hide();
 
+}
+
+/// <summary>
+/// Refreshes monitoring tab.
+/// </summary>
+function refreshMonitoring(p_tab_tag) {
+
+	if (!p_tab_tag)
+		var p_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	execAjax('/refresh_monitoring/',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+											"p_query": p_tab_tag.query}),
+			function(p_return) {
+
+				var v_data = p_return.v_data;
+
+				if (p_tab_tag.ht!=null) {
+					p_tab_tag.ht.destroy();
+					p_tab_tag.ht = null;
+				}
+
+				p_tab_tag.query_info.innerHTML = v_data.v_query_info;
+
+				var columnProperties = [];
+
+				var v_fixedColumnsLeft = 0;
+
+				if (p_tab_tag.actions!=null) {
+					v_fixedColumnsLeft = 1;
+					for (var i=0; i<v_data.v_data.length; i++) {
+						var v_actions_html = '';
+						for (var j=0; j<p_tab_tag.actions.length; j++) {
+							v_actions_html += '<img class="img_ht" title="' + p_tab_tag.actions[j].title + '" src="' + p_tab_tag.actions[j].icon + '" onclick="monitoringAction(' + i + ',&apos;' + p_tab_tag.actions[j].action + '&apos;)">';
+						}
+						v_data.v_data[i].unshift(v_actions_html);
+					}
+
+					var col = new Object();
+			    col.readOnly = true;
+			    col.title =  'Actions';
+					col.renderer = 'html';
+					columnProperties.push(col);
+
+				}
+
+
+				for (var i = 0; i < v_data.v_col_names.length; i++) {
+			    var col = new Object();
+			    col.readOnly = true;
+			    col.title =  v_data.v_col_names[i];
+					columnProperties.push(col);
+				}
+
+				p_tab_tag.ht = new Handsontable(p_tab_tag.div_result,
+				{
+					data: v_data.v_data,
+					columns : columnProperties,
+					colHeaders : true,
+					rowHeaders : true,
+					fixedColumnsLeft: v_fixedColumnsLeft,
+					copyRowsLimit : 1000000000,
+					copyColsLimit : 1000000000,
+					manualColumnResize: true,
+					contextMenu: {
+						callback: function (key, options) {
+							if (key === 'view_data') {
+							  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+							}
+						},
+						items: {
+							"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+						}
+				    },
+			        cells: function (row, col, prop) {
+					    var cellProperties = {};
+					    if (row % 2 == 0)
+							cellProperties.renderer = blueHtmlRenderer;
+						else
+							cellProperties.renderer = whiteHtmlRenderer;
+					    return cellProperties;
+					}
+				});
+
+			},
+			function(p_return) {
+				if (p_return.v_data.password_timeout) {
+					showPasswordPrompt(
+						v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+						function() {
+							refreshMonitoring(p_tab_tag);
+						},
+						null,
+						p_return.v_data.message
+					);
+				}
+				else {
+					showError(p_return.v_data);
+				}
+			},
+			'box',
+			true);
+
+}
+
+function monitoringAction(p_row_index, p_function) {
+	var v_fn = window[p_function];
+	var v_row_data = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.getDataAtRow(p_row_index);
+	v_row_data.shift();
+	if(typeof v_fn === 'function') {
+		v_fn(v_row_data);
+	}
 }

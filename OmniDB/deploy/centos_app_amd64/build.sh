@@ -176,7 +176,7 @@ update-desktop-database
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-app.spec
-cp RPMS/x86_64/omnidb-app-$VERSION-0.x86_64.rpm ../
+cp RPMS/x86_64/omnidb-app-$VERSION-0.x86_64.rpm ../omnidb-app_$VERSION-$ARCH.rpm
 cd ..
 echo "Done"
 

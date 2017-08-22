@@ -49,12 +49,22 @@ if [ $ARCH == "fedora-amd64" ]
 then
 	cp /usr/lib64/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
 	cp /usr/lib64/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
+    cp /usr/lib64/libxcb-dri3.so.0 deploy/packages/omnidb-app/libxcb-dri3.so.0
+    cp /usr/lib64/libxcb-dri3.so.0 deploy/packages/omnidb-app/cefpython3/libxcb-dri3.so.0
+    cp /usr/lib64/libxcb-shm.so.0 deploy/packages/omnidb-app/libxcb-shm.so.0
+    cp /usr/lib64/libxcb-shm.so.0 deploy/packages/omnidb-app/cefpython3/libxcb-shm.so.0
 else
 	cp /usr/lib/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
 	cp /usr/lib/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
+    cp /usr/lib/libxcb-dri3.so.0 deploy/packages/omnidb-app/libxcb-dri3.so.0
+    cp /usr/lib/libxcb-dri3.so.0 deploy/packages/omnidb-app/cefpython3/libxcb-dri3.so.0
 fi
 chmod 755 deploy/packages/omnidb-app/libxcb.so.1
 chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
+chmod 755 deploy/packages/omnidb-app/libxcb-dri3.so.0
+chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb-dri3.so.0
+chmod 755 deploy/packages/omnidb-app/libxcb-shm.so.0
+chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb-shm.so.0
 echo "Done."
 
 echo -n "Copying libXss... "
@@ -176,7 +186,7 @@ update-desktop-database
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-app.spec
-cp RPMS/x86_64/omnidb-app-$VERSION-0.x86_64.rpm ../
+cp RPMS/x86_64/omnidb-app-$VERSION-0.x86_64.rpm ../omnidb-app_$VERSION-$ARCH.rpm
 cd ..
 echo "Done"
 

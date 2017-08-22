@@ -91,7 +91,7 @@ ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-server.spec
-cp RPMS/i686/omnidb-server-$VERSION-0.i686.rpm ..
+cp RPMS/i686/omnidb-server-$VERSION-0.i686.rpm ../omnidb-server_$VERSION-$ARCH.rpm
 cd ..
 echo "Done"
 

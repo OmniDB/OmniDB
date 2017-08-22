@@ -409,7 +409,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 						var v_li = createSimpleElement('li',null,null);
 
 						var v_span = createSimpleElement('span',null,null);
-						v_span.onclick = function () {
+						v_span.onmousedown = function () {
 							if (v_tree.contextMenuDiv!=null)
 								v_tree.contextMenuDiv.style.display = 'none';
 							v_closediv.parentNode.removeChild(v_closediv);
@@ -461,7 +461,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				var v_li = createSimpleElement('li',null,null);
 
 				var v_span = createSimpleElement('span',null,null);
-				v_span.onclick = function () {
+				v_span.onmousedown = function () {
 					if (v_tree.contextMenuDiv!=null)
 						v_tree.contextMenuDiv.style.display = 'none';
 					p_closediv.parentNode.removeChild(p_closediv);

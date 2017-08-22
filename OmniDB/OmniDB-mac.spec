@@ -98,5 +98,5 @@ coll_c = COLLECT(exe_c,
 
 app = BUNDLE(exe_a,
             name='OmniDB.app',
-            icon='icons/mac-icon.icns',
+            icon='deploy/mac-icon.icns',
             bundle_identifier=None)

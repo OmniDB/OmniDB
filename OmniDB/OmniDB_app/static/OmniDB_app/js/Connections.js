@@ -286,6 +286,9 @@ function listConnections() {
 															columns : columnProperties,
 															colHeaders : true,
 															manualColumnResize: true,
+															minSpareCols :0,
+															minSpareRows :0,
+															fillHandle:false,
 															beforeChange: function (changes, source) {
 
 																if (!changes)

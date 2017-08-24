@@ -153,18 +153,21 @@ class PostgreSQL:
     def GetVersion(self):
         return 'PostgreSQL ' + self.v_connection.ExecuteScalar('show server_version')
 
+    def GetUserSuper(self):
+        return self.v_connection.ExecuteScalar("select rolsuper from pg_roles where rolname = '{0}'".format(self.v_user))
+
     def PrintDatabaseInfo(self):
-        return self.v_user + "@" + self.v_service
+        return self.v_user + '@' + self.v_service
 
     def PrintDatabaseDetails(self):
-        return self.v_server + ":" + self.v_port
+        return self.v_server + ':' + self.v_port
 
     def HandleUpdateDeleteRules(self, p_update_rule, p_delete_rule):
         v_rules = ''
-        if p_update_rule.strip() != "":
-            v_rules += " on update " + p_update_rule + " "
-        if p_delete_rule.strip() != "":
-            v_rules += " on delete " + p_delete_rule + " "
+        if p_update_rule.strip() != '':
+            v_rules += ' on update ' + p_update_rule + ' '
+        if p_delete_rule.strip() != '':
+            v_rules += ' on delete ' + p_delete_rule + ' '
         return v_rules
 
     def TestConnection(self):
@@ -182,8 +185,6 @@ class PostgreSQL:
     def GetErrorPosition(self, p_error_message):
         vector = str(p_error_message).split('\n')
         v_return = None
-
-        #has line
         if len(vector) > 1 and vector[1][0:4]=='LINE':
             v_return = {
                 'row': vector[1].split(':')[0].split(' ')[1],
@@ -836,6 +837,39 @@ class PostgreSQL:
             '''.format(p_schema, p_view)
     ))
 
+    def QueryPhysicalReplicationSlots(self):
+        return self.v_connection.Query('''
+            select slot_name
+            from pg_replication_slots
+            where slot_type = 'physical'
+            order by 1
+        ''', True)
+
+    def QueryLogicalReplicationSlots(self):
+        return self.v_connection.Query('''
+            select slot_name
+            from pg_replication_slots
+            where slot_type = 'logical'
+            order by 1
+        ''', True)
+
+    def QueryPublications(self):
+        return self.v_connection.Query('''
+            select pubname
+            from pg_publication
+            order by 1
+        ''', True)
+
+    def QuerySubscriptions(self):
+        return self.v_connection.Query('''
+            select s.subname
+            from pg_subscription s
+            inner join pg_database d
+            on d.oid = s.subdbid
+            where d.datname = '{0}'
+            order by 1
+        '''.format(self.v_service), True)
+
     def TemplateCreateRole(self):
         return Template('''CREATE ROLE name
 --[ ENCRYPTED | UNENCRYPTED ] PASSWORD 'password'
@@ -1234,6 +1268,75 @@ ON #table_name#
 
     def TemplateDropPartition(self):
         return Template('DROP TABLE #partition_name#')
+
+    def TemplateCreatePhysicalReplicationSlot(self):
+        return Template('''SELECT * FROM pg_create_physical_replication_slot('slot_name')''')
+
+    def TemplateDropPhysicalReplicationSlot(self):
+        return Template('''SELECT pg_drop_replication_slot('#slot_name#')''')
+
+    def TemplateCreateLogicalReplicationSlot(self):
+        return Template('''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'pgoutput')''')
+
+    def TemplateDropLogicalReplicationSlot(self):
+        return Template('''SELECT pg_drop_replication_slot('#slot_name#')''')
+
+    def TemplateCreatePublication(self):
+        return Template('''CREATE PUBLICATION name
+--FOR TABLE [ ONLY ] table_name [ * ] [, ...]
+--FOR ALL TABLES
+--WITH ( publish = 'insert, update, delete' )
+''')
+
+    def TemplateAlterPublication(self):
+        return Template('''ALTER PUBLICATION #pub_name#
+--ADD TABLE [ ONLY ] table_name [ * ] [, ...]
+--SET TABLE [ ONLY ] table_name [ * ] [, ...]
+--DROP TABLE [ ONLY ] table_name [ * ] [, ...]
+--SET ( publish = 'insert, update, delete' )
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--RENAME TO new_name
+''')
+
+    def TemplateDropPublication(self):
+        return Template('''DROP PUBLICATION #pub_name#
+--CASCADE
+''')
+
+    def TemplateCreateSubscription(self):
+        return Template('''CREATE SUBSCRIPTION name
+CONNECTION 'conninfo'
+PUBLICATION pub_name [, ...]
+--WITH (
+--copy_data = { true | false }
+--create_slot = { true | false }
+--enabled = { true | false }
+--slot_name = 'name'
+--synchronous_commit = { on | remote_apply | remote_write | local | off }
+--connect = { true | false }
+--)
+''')
+
+    def TemplateAlterSubscription(self):
+        return Template('''ALTER SUBSCRIPTION #sub_name#
+--CONNECTION 'conninfo'
+--SET PUBLICATION pub_name [, ...] [ WITH ( refresh = { true | false } ) ]
+--REFRESH PUBLICATION [ WITH ( copy_data = { true | false } ) ]
+--ENABLE
+--DISABLE
+--SET (
+--slot_name = 'name'
+--synchronous_commit = { on | remote_apply | remote_write | local | off }
+--)
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--RENAME TO new_name
+''')
+
+    def TemplateDropSubscription(self):
+        return Template('''DROP SUBSCRIPTION #sub_name#
+--CASCADE
+''')
+
 
 '''
 ------------------------------------------------------------------------

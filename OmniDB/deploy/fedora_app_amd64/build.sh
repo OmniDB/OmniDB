@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.0.4
+VERSION=2.0.5
 ARCH=fedora-amd64
 
 cd ~/OmniDB/OmniDB
@@ -74,6 +74,16 @@ then
 	cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
 	chmod 755 deploy/packages/omnidb-app/libXss.so.1
 	chmod 755 deploy/packages/omnidb-app/cefpython3/libXss.so.1
+fi
+echo "Done."
+
+echo -n "Copying libnss... "
+if [ $ARCH == "fedora-amd64" ]
+then
+	cp deploy/lib/libnss.so deploy/packages/omnidb-app/libnss.so.3
+	cp deploy/lib/libnss.so.1 deploy/packages/omnidb-app/cefpython3/libnss.so.3
+	chmod 755 deploy/packages/omnidb-app/libnss.so.3
+	chmod 755 deploy/packages/omnidb-app/cefpython3/libnss.so.3
 fi
 echo "Done."
 

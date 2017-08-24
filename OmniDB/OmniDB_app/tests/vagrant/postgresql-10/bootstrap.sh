@@ -66,7 +66,7 @@ fi
 apt-get update
 apt-get -y upgrade
 
-apt-get -y install postgresql-10 postgresql-client-10 postgresql-common=184.pgdg+1 postgresql-client-common=184.pgdg+1 libpq5=10~beta3~20170717.1024-1~549.git2f7f45a.pgdg+1
+apt-get -y install postgresql-10 postgresql-client-10 postgresql-common=184.pgdg+1 postgresql-client-common=184.pgdg+1 libpq5=10~beta4~20170823.2224-1~626.gitd51b087.pgdg+1
 
 PG_CONF="/etc/postgresql/$PG_VERSION/main/postgresql.conf"
 PG_HBA="/etc/postgresql/$PG_VERSION/main/pg_hba.conf"

@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.0.4
+VERSION=2.0.5
 ARCH=centos-amd64
 
 cd ~/OmniDB/OmniDB
@@ -57,16 +57,6 @@ chmod 755 deploy/packages/omnidb-app/libxcb.so.1
 chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
 echo "Done."
 
-echo -n "Copying libXss... "
-if [ $ARCH == "centos-amd64" ]
-then
-	cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
-	cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
-	chmod 755 deploy/packages/omnidb-app/libXss.so.1
-	chmod 755 deploy/packages/omnidb-app/cefpython3/libXss.so.1
-fi
-echo "Done."
-
 echo -n "Copying libXtst... "
 if [ $ARCH == "centos-amd64" ]
 then
@@ -78,6 +68,20 @@ else
 fi
 chmod 755 deploy/packages/omnidb-app/libXtst.so.6
 chmod 755 deploy/packages/omnidb-app/cefpython3/libXtst.so.6
+echo "Done."
+
+echo -n "Copying libXss... "
+cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
+cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
+chmod 755 deploy/packages/omnidb-app/libXss.so.1
+chmod 755 deploy/packages/omnidb-app/cefpython3/libXss.so.1
+echo "Done."
+
+echo -n "Copying libnss3... "
+cp deploy/lib/libnss3.so deploy/packages/omnidb-app/libnss3.so
+cp deploy/lib/libnss3.so deploy/packages/omnidb-app/cefpython3/libnss3.so
+chmod 755 deploy/packages/omnidb-app/libnss3.so
+chmod 755 deploy/packages/omnidb-app/cefpython3/libnss3.so
 echo "Done."
 
 echo -n "Renaming bundles... "

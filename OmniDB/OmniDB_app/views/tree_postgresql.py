@@ -44,6 +44,7 @@ def get_tree_info(request):
         'v_database_return': {
             'v_database': v_database.GetName(),
             'version': v_database.GetVersion(),
+            'superuser': v_database.GetUserSuper(),
             'create_role': v_database.TemplateCreateRole().v_text,
             'alter_role': v_database.TemplateAlterRole().v_text,
             'drop_role': v_database.TemplateDropRole().v_text,
@@ -95,7 +96,17 @@ def get_tree_info(request):
             'drop_trigger': v_database.TemplateDisableTrigger().v_text,
             'create_partition': v_database.TemplateCreatePartition().v_text,
             'noinherit_partition': v_database.TemplateNoInheritPartition().v_text,
-            'drop_partition': v_database.TemplateDropPartition().v_text
+            'drop_partition': v_database.TemplateDropPartition().v_text,
+            'create_physicalreplicationslot': v_database.TemplateCreatePhysicalReplicationSlot().v_text,
+            'drop_physicalreplicationslot': v_database.TemplateDropPhysicalReplicationSlot().v_text,
+            'create_logicalreplicationslot': v_database.TemplateCreateLogicalReplicationSlot().v_text,
+            'drop_logicalreplicationslot': v_database.TemplateDropLogicalReplicationSlot().v_text,
+            'create_publication': v_database.TemplateCreatePublication().v_text,
+            'alter_publication': v_database.TemplateAlterPublication().v_text,
+            'drop_publication': v_database.TemplateDropPublication().v_text,
+            'create_subscription': v_database.TemplateCreateSubscription().v_text,
+            'alter_subscription': v_database.TemplateAlterSubscription().v_text,
+            'drop_subscription': v_database.TemplateDropSubscription().v_text,
         }
     }
 
@@ -1207,6 +1218,186 @@ def get_extensions(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_extensions
+
+    return JsonResponse(v_return)
+
+def get_physicalreplicationslots(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_repslots = []
+
+    try:
+        v_repslots = v_database.QueryPhysicalReplicationSlots()
+        for v_repslot in v_repslots.Rows:
+            v_repslot_data = {
+                'v_name': v_repslot['slot_name']
+            }
+            v_list_repslots.append(v_repslot_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_repslots
+
+    return JsonResponse(v_return)
+
+def get_logicalreplicationslots(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_repslots = []
+
+    try:
+        v_repslots = v_database.QueryLogicalReplicationSlots()
+        for v_repslot in v_repslots.Rows:
+            v_repslot_data = {
+                'v_name': v_repslot['slot_name']
+            }
+            v_list_repslots.append(v_repslot_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_repslots
+
+    return JsonResponse(v_return)
+
+def get_publications(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_pubs = []
+
+    try:
+        v_pubs = v_database.QueryPublications()
+        for v_pub in v_pubs.Rows:
+            v_pub_data = {
+                'v_name': v_pub['pubname']
+            }
+            v_list_pubs.append(v_pub_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_pubs
+
+    return JsonResponse(v_return)
+
+def get_subscriptions(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_subs = []
+
+    try:
+        v_subs = v_database.QuerySubscriptions()
+        for v_sub in v_subs.Rows:
+            v_sub_data = {
+                'v_name': v_sub['subname']
+            }
+            v_list_subs.append(v_sub_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_subs
 
     return JsonResponse(v_return)
 

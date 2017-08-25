@@ -182,7 +182,7 @@ Generic
 '''
 class Generic(ABC):
     @abstractmethod
-    def Open(self, p_autocommit=False):
+    def Open(self, p_autocommit=True):
         pass
     @abstractmethod
     def Query(self, p_sql, p_alltypesstr=False):
@@ -247,7 +247,7 @@ class SQLite(Generic):
             self.v_timeout = p_timeout
         else:
             raise Spartacus.Database.Exception("SQLite is not supported. Please install it.")
-    def Open(self, p_autocommit=False):
+    def Open(self, p_autocommit=True):
         try:
             self.v_con = sqlite3.connect(self.v_service, self.v_timeout)
             #self.v_con.row_factory = sqlite3.Row
@@ -486,7 +486,7 @@ class Memory(Generic):
             self.v_timeout = p_timeout
         else:
             raise Spartacus.Database.Exception("SQLite is not supported. Please install it.")
-    def Open(self, p_autocommit=False):
+    def Open(self, p_autocommit=True):
         try:
             self.v_con = sqlite3.connect(self.v_service, self.v_timeout)
             #self.v_con.row_factory = sqlite3.Row
@@ -705,7 +705,7 @@ class PostgreSQL(Generic):
             self.v_cur = None
         else:
             raise Spartacus.Database.Exception("PostgreSQL is not supported. Please install it with 'pip install Spartacus[postgresql]'.")
-    def Open(self, p_autocommit=False):
+    def Open(self, p_autocommit=True):
         try:
             if self.v_host is None or self.v_host == '':
                 if self.v_password is None or self.v_password == '':
@@ -786,7 +786,7 @@ class PostgreSQL(Generic):
         try:
             v_keep = None
             if self.v_con is None:
-                self.Open(True)
+                self.Open()
                 v_keep = False
             else:
                 v_keep = True
@@ -963,7 +963,7 @@ class MySQL(Generic):
             self.v_cur = None
         else:
             raise Spartacus.Database.Exception("MySQL is not supported. Please install it with 'pip install Spartacus[mysql]'.")
-    def Open(self, p_autocommit=False):
+    def Open(self, p_autocommit=True):
         try:
             self.v_con = pymysql.connect(
                 host=self.v_host,
@@ -1192,7 +1192,7 @@ class MariaDB(Generic):
             self.v_cur = None
         else:
             raise Spartacus.Database.Exception("MariaDB is not supported. Please install it with 'pip install Spartacus[mariadb]'.")
-    def Open(self, p_autocommit=False):
+    def Open(self, p_autocommit=True):
         try:
             self.v_con = pymysql.connect(
                 host=self.v_host,
@@ -1421,7 +1421,7 @@ class Firebird(Generic):
             self.v_cur = None
         else:
             raise Spartacus.Database.Exception("Firebird is not supported. Please install it with 'pip install Spartacus[firebird]'.")
-    def Open(self, p_autocommit=False):
+    def Open(self, p_autocommit=True):
         try:
             self.v_con = fdb.connect(
                 host=self.v_host,
@@ -1659,7 +1659,7 @@ class Oracle(Generic):
             self.v_cur = None
         else:
             raise Spartacus.Database.Exception("Oracle is not supported. Please install it with 'pip install Spartacus[oracle]'.")
-    def Open(self, p_autocommit=False):
+    def Open(self, p_autocommit=True):
         try:
             self.v_con = cx_Oracle.connect('{0}/{1}@{2}:{3}/{4}'.format(
                 self.v_user,
@@ -1898,7 +1898,7 @@ class MSSQL(Generic):
             self.v_cur = None
         else:
             raise Spartacus.Database.Exception("MSSQL is not supported. Please install it with 'pip install Spartacus[mssql]'.")
-    def Open(self, p_autocommit=False):
+    def Open(self, p_autocommit=True):
         try:
             self.v_con = pymssql.connect(
                 host=self.v_host,
@@ -2137,7 +2137,7 @@ class IBMDB2(Generic):
             self.v_cur = None
         else:
             raise Spartacus.Database.Exception("IBM DB2 is not supported. Please install it with 'pip install Spartacus[ibmdb2]'.")
-    def Open(self, p_autocommit=False):
+    def Open(self, p_autocommit=True):
         try:
             c = ibm_db.connect('DATABASE={0};HOSTNAME={1};PORT={2};PROTOCOL=TCPIP;UID={3};PWD={4}'.format(
                 self.v_service,

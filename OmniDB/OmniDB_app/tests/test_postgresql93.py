@@ -218,7 +218,7 @@ LOCATION 'directory'
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''DROP TABLE #table_name#
--- CASCADE
+--CASCADE
 ''' == data['v_data']['v_database_return']['drop_table']
 
     def test_template_create_sequence(self):
@@ -260,7 +260,7 @@ LOCATION 'directory'
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''DROP SEQUENCE #sequence_name#
--- CASCADE
+--CASCADE
 ''' == data['v_data']['v_database_return']['drop_sequence']
 
     def test_template_create_function(self):
@@ -486,7 +486,7 @@ SELECT ...
         response = self.cs.post('/get_sequences_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
-        assert self.lists_equal(data['v_data'], [
+        assert self.lists_equal([a['v_sequence_name'] for a in data['v_data']], [
             'categories_category_seq',
             'customers_customerid_seq',
             'orders_orderid_seq',

@@ -1028,7 +1028,7 @@ LOCATION 'directory'
 
     def TemplateDropSequence(self):
         return Template('''DROP SEQUENCE #sequence_name#
--- CASCADE
+--CASCADE
 ''')
 
     def TemplateCreateFunction(self):

@@ -620,11 +620,11 @@ class PostgreSQL:
             order by 1, 2, 3, 4
         '''.format(v_filter))
 
-    def QueryDataLimited(self, p_query, p_count=-1):
+    def QueryDataLimited(self, p_query, p_count=-1, p_alltypesstr=True):
         if p_count != -1:
             try:
                 self.v_connection.Open()
-                v_data = self.v_connection.QueryBlock(p_query, p_count, True)
+                v_data = self.v_connection.QueryBlock(p_query, p_count, p_alltypesstr)
                 self.v_connection.Close()
                 return v_data
             except Spartacus.Database.Exception as exc:
@@ -634,7 +634,7 @@ class PostgreSQL:
                     pass
                 raise exc
         else:
-            return self.v_connection.Query(p_query, True)
+            return self.v_connection.Query(p_query, p_alltypesstr)
 
     def QueryTableRecords(self, p_column_list, p_table, p_filter, p_count=-1):
         v_limit = ''
@@ -1614,14 +1614,14 @@ class SQLite:
     def QueryTablesIndexes(self, p_table=None):
         pass
 
-    def QueryDataLimited(self, p_query, p_count=-1):
+    def QueryDataLimited(self, p_query, p_count=-1, p_alltypesstr=True):
         if p_count != -1:
             self.v_connection.Open()
-            v_data = self.v_connection.QueryBlock(p_query, p_count, True)
+            v_data = self.v_connection.QueryBlock(p_query, p_count, p_alltypesstr)
             self.v_connection.Close()
             return v_data
         else:
-            return self.v_connection.Query(p_query, True)
+            return self.v_connection.Query(p_query, p_alltypesstr)
 
     def QueryTableRecords(self, p_column_list, p_table, p_filter, p_count=-1):
         v_limit = ''

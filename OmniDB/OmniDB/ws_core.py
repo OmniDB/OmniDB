@@ -25,6 +25,9 @@ from django.contrib.sessions.backends.db import SessionStore
 import logging
 logger = logging.getLogger('OmniDB_app.QueryServer')
 
+def ToString(o):
+    return o.__str__()
+
 class StoppableThread(threading.Thread):
     def __init__(self,p1,p2,p3):
         super(StoppableThread, self).__init__(target=p1, args=(self,p2,p3,))
@@ -402,10 +405,10 @@ def thread_query(self,args,ws_object):
             try:
                 if v_select_value == '-1':
                     log_mode = 'Query all rows'
-                    v_data1 = v_database.v_connection.Query(v_sql,True)
+                    v_data1 = v_database.v_connection.Query(v_sql, False)
                 else:
                     log_mode = 'Query {0} rows'.format(v_select_value)
-                    v_data1 = v_database.QueryDataLimited(v_sql, int(v_select_value))
+                    v_data1 = v_database.QueryDataLimited(v_sql, int(v_select_value), p_alltypesstr=False)
 
                 log_end_time = datetime.now()
                 v_duration = GetDuration(log_start_time,log_end_time)
@@ -428,7 +431,7 @@ def thread_query(self,args,ws_object):
                 v_response['v_error'] = True
 
             if not self.cancel:
-                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response, default=ToString))
 
             #Log to history
             LogHistory(v_omnidb_database,

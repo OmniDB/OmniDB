@@ -577,8 +577,8 @@ function initCreateTabFunctions() {
 			      win: v_keybind_object.v_replace
 			    },
 			exec: function(){
-				v_copyPasteObject.v_tabControl.selectTabIndex(0);
 				showFindReplace(v_editor);
+                v_copyPasteObject.v_tabControl.selectTabIndex(0);
 			}
 		}
 
@@ -763,8 +763,8 @@ function initCreateTabFunctions() {
             win: v_keybind_object.v_replace
           },
       exec: function(){
-        v_copyPasteObject.v_tabControl.selectTabIndex(0);
         showFindReplace(v_editor);
+        v_copyPasteObject.v_tabControl.selectTabIndex(0);
       }
     }
 

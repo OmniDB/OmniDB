@@ -825,12 +825,50 @@ function viewAlertChart(p_alert_id,p_alert_name) {
 }
 
 function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
+	var v_html =
+		'<div style="height: 90%; margin-right: 20px;">' +
+		'	<div id="txt_edit_content" style="width: 100%; height: 100%; font-size: 12px; border: 1px solid rgb(195, 195, 195);">' +
+		'	</div>' +
+		'</div>';
 
-	if (v_editContentObject!=null)
-		if (v_editContentObject.editor!=null) {
+	var v_popUp = v_popUpControl.getPopUpById('edit_cell_data');
+
+	if(v_popUp != null) {
+		v_popUp.turnActive();
+		v_popUp.setContent(v_html);
+	}
+	else {
+		var v_config = {
+			width: window.innerWidth * 0.9 + 'px',
+			height: window.innerHeight * 0.9 + 'px',
+			resizable: true,
+			draggable: true,
+			top: window.innerHeight * 0.05 + 'px',
+			left: window.innerWidth * 0.05 + 'px',
+			forceClose: true
+		};
+
+		var v_callbacks = {
+			beforeClose: function(p_popUp) {
+				v_editContentObject.editor.setValue('');
+			}
+		};
+
+		v_popUp = v_popUpControl.addPopUp(
+			'edit_cell_data',
+			'Content',
+			v_html,
+			v_config,
+			null
+		);
+	}
+
+	if(v_editContentObject != null) {
+		if(v_editContentObject.editor != null) {
 			 v_editContentObject.editor.destroy();
 			 document.getElementById('txt_edit_content').innerHTML = '';
 		}
+	}
 
 	var langTools = ace.require("ace/ext/language_tools");
 	var v_editor = ace.edit('txt_edit_content');
@@ -844,6 +882,20 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 	document.getElementById('txt_edit_content').onclick = function() {
   		v_editor.focus();
     };
+
+    var command = {
+		name: "replace",
+		bindKey: {
+		      mac: v_keybind_object.v_replace_mac,
+		      win: v_keybind_object.v_replace
+		    },
+		exec: function(){
+			showFindReplace(v_editor);
+			v_copyPasteObject.v_tabControl.selectTabIndex(0);
+		}
+	}
+
+	v_editor.commands.addCommand(command);
 
 	if (p_content!=null)
 		v_editor.setValue(p_content);
@@ -868,18 +920,5 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 	v_editContentObject.row = p_row;
 	v_editContentObject.col = p_col;
 	v_editContentObject.ht = p_ht;
-
-	$('#div_edit_content').show();
-
-}
-
-/// <summary>
-/// Hides edit cell window.
-/// </summary>
-function hideEditContent() {
-
-	$('#div_edit_content').hide();
-
-	v_editContentObject.editor.setValue('');
 
 }

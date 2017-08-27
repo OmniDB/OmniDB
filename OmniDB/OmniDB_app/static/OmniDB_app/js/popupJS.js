@@ -300,9 +300,9 @@ function createPopUpControl(p_id, p_startZIndex) {
 							'</div>' +
 							'<br />' +
 							'<div>' +
-							'    <button id="button_close_yes_' + this.id + '">Sim</button>' +
-							'    <button id="button_close_no_' + this.id + '">Não</button>' +
-							'    <button id="button_close_cancel_' + this.id + '">Cancelar</button>' +
+							'    <button id="button_close_yes_' + this.id + '">Yes</button>' +
+							'    <button id="button_close_no_' + this.id + '">No</button>' +
+							'    <button id="button_close_cancel_' + this.id + '">Cancel</button>' +
 							'</div>';
 
 						//If the popup to be closed is minimized, maximize it
@@ -350,7 +350,7 @@ function createPopUpControl(p_id, p_startZIndex) {
 
 						var v_closePopUp = this.parent.addPopUp(
 							'close_' + this.id,
-							'Atenção!',
+							'Attention!',
 							v_html,
 							v_config,
 							v_callbacks
@@ -1226,8 +1226,8 @@ function createPopUpControl(p_id, p_startZIndex) {
 				'</div>' +
 				'<br />' +
 				'<div style="text-align: center;">' +
-				'    <button id="button_close_all_' + this.id + '_yes">Sim</button>' +
-				'    <button id="button_close_all_' + this.id + '_no">Não</button>' +
+				'    <button id="button_close_all_' + this.id + '_yes">Yes</button>' +
+				'    <button id="button_close_all_' + this.id + '_no">No</button>' +
 				'</div>';
 
 			var v_config = {
@@ -1244,7 +1244,7 @@ function createPopUpControl(p_id, p_startZIndex) {
 
 			var v_closePopUp = this.addPopUp(
 				'close_all_' + this.id,
-				'Atenção!',
+				'Attention!',
 				v_html,
 				v_config,
 				v_callbacks

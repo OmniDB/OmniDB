@@ -137,122 +137,156 @@ function saveUsers() {
 /// Hides users window.
 /// </summary>
 function hideUsers() {
+	var v_popUp = v_popUpControl.getPopUpById('list_users');
 
-	$('#div_users').hide();
+	if(v_popUp != null) {
+		v_popUp.close(true);
+	}
 
 	v_usersObject.ht.destroy();
-
-	document.getElementById('div_user_list').innerHTML = '';
-
 }
 
 /// <summary>
 /// Retrieving and displaying users.
 /// </summary>
 function listUsers() {
+	execAjax(
+		'/get_users/',
+		JSON.stringify({}),
+		function(p_return) {
+			var v_html =
+				'<div style="margin-left:10px; margin-top: 10px; display:inline-block;">' +
+				'	<button onclick="newUser()">New User</button>' +
+				'</div>' +
+				'<div id="div_save_users" style="visibility: hidden; display:inline-block;">' +
+				'	<button onclick="saveUsers()">Save Data</button>' +
+				'</div>' +
+				'<div style="padding: 10px;">' +
+				'	<div id="div_user_list" style="width: 100%; height: 200px; overflow: auto;"></div>' +
+				'</div>';
 
-	execAjax('/get_users/',
-			JSON.stringify({}),
-			function(p_return) {
+			var v_popUp = v_popUpControl.getPopUpById('list_users');
 
-				$('#div_users').show();
+			if(v_popUp != null) {
+				v_popUp.turnActive();
+				v_popUp.setContent(v_html);
+			}
+			else {
+				var v_config = {
+					width: '700px',
+					height: '300px',
+					resizable: true,
+					draggable: true,
+					top: (window.innerHeight - 300) / 2 + 'px',
+					left: (window.innerWidth - 700) / 2 + 'px',
+					forceClose: true
+				};
 
-				window.scrollTo(0,0);
+				v_popUp = v_popUpControl.addPopUp(
+					'list_users',
+					'OmniDB Users',
+					v_html,
+					v_config,
+					null
+				);
+			}
 
-				var columnProperties = [];
+			window.scrollTo(0,0);
 
-				var col = new Object();
-				col.title =  'Username';
-				columnProperties.push(col);
+			var columnProperties = [];
 
-				var col = new Object();
-				col.title =  'Password';
-				col.type = 'password';
-				col.hashLength = 10;
-				columnProperties.push(col);
+			var col = new Object();
+			col.title =  'Username';
+			columnProperties.push(col);
 
-				var col = new Object();
-				col.title =  'Super User';
-				col.type = 'checkbox';
-				col.checkedTemplate = 1;
-        col.uncheckedTemplate = 0;
-				columnProperties.push(col);
+			var col = new Object();
+			col.title =  'Password';
+			col.type = 'password';
+			col.hashLength = 10;
+			columnProperties.push(col);
 
-				var col = new Object();
-				col.title =  'Actions';
-				col.renderer = 'html';
-				col.readOnly = true;
-				columnProperties.push(col);
+			var col = new Object();
+			col.title =  'Super User';
+			col.type = 'checkbox';
+			col.checkedTemplate = 1;
+    		col.uncheckedTemplate = 0;
+			columnProperties.push(col);
 
-				var v_div_result = document.getElementById('div_user_list');
+			var col = new Object();
+			col.title =  'Actions';
+			col.renderer = 'html';
+			col.readOnly = true;
+			columnProperties.push(col);
 
-				if (v_div_result.innerHTML!='')
-					v_usersObject.ht.destroy();
+			var v_div_result = document.getElementById('div_user_list');
 
-				v_usersObject = new Object();
-				v_usersObject.v_user_ids = p_return.v_data.v_user_ids;
-				v_usersObject.v_cellChanges = [];
+			if (v_div_result.innerHTML!='')
+				v_usersObject.ht.destroy();
 
-				var container = v_div_result;
-				v_usersObject.ht = new Handsontable(container,
-													{
-														data: p_return.v_data.v_data,
-														columns : columnProperties,
-														colHeaders : true,
-														manualColumnResize: true,
-														maxRows: p_return.v_data.v_data.length,
-														beforeChange: function (changes, source) {
+			v_usersObject = new Object();
+			v_usersObject.v_user_ids = p_return.v_data.v_user_ids;
+			v_usersObject.v_cellChanges = [];
 
-														    if (!changes)
-														        return;
+			var container = v_div_result;
+			v_usersObject.ht = new Handsontable(container,
+												{
+													data: p_return.v_data.v_data,
+													columns : columnProperties,
+													colHeaders : true,
+													manualColumnResize: true,
+													maxRows: p_return.v_data.v_data.length,
+													beforeChange: function (changes, source) {
 
-														    $.each(changes, function (index, element) {
-														        var change = element;
-														        var rowIndex = change[0];
-														        var columnIndex = change[1];
-														        var oldValue = change[2];
-														        var newValue = change[3];
+													    if (!changes)
+													        return;
 
-														        var cellChange = {
-														            'rowIndex': rowIndex,
-														            'columnIndex': columnIndex
-														        };
-														        if(oldValue != newValue){
+													    $.each(changes, function (index, element) {
+													        var change = element;
+													        var rowIndex = change[0];
+													        var columnIndex = change[1];
+													        var oldValue = change[2];
+													        var newValue = change[3];
 
-														        	v_usersObject.v_cellChanges.push(cellChange);
+													        var cellChange = {
+													            'rowIndex': rowIndex,
+													            'columnIndex': columnIndex
+													        };
+													        if(oldValue != newValue){
 
-														            document.getElementById('div_save_users').style.visibility = 'visible';
+													        	v_usersObject.v_cellChanges.push(cellChange);
 
-														        }
-														    });
+													            document.getElementById('div_save_users').style.visibility = 'visible';
 
-														},
-														afterRender: function () {
+													        }
+													    });
 
-														    $.each(v_usersObject.v_cellChanges, function (index, element) {
-														        var cellChange = element;
-														        var rowIndex = cellChange['rowIndex'];
-														        var columnIndex = cellChange['columnIndex'];
-														        var cell = v_usersObject.ht.getCell(rowIndex, columnIndex);
-														        var foreColor = '#000';
-														        var backgroundColor = 'rgb(255, 251, 215)';
-														        cell.style.color = foreColor;
-														        cell.style.background = backgroundColor;
-														    });
+													},
+													afterRender: function () {
 
-														},
-														cells: function (row, col, prop) {
+													    $.each(v_usersObject.v_cellChanges, function (index, element) {
+													        var cellChange = element;
+													        var rowIndex = cellChange['rowIndex'];
+													        var columnIndex = cellChange['columnIndex'];
+													        var cell = v_usersObject.ht.getCell(rowIndex, columnIndex);
+													        var foreColor = '#000';
+													        var backgroundColor = 'rgb(255, 251, 215)';
+													        cell.style.color = foreColor;
+													        cell.style.background = backgroundColor;
+													    });
 
-														    var cellProperties = {};
-														    if (row % 2 == 0)
-																cellProperties.renderer = blueHtmlRenderer;
-														    return cellProperties;
+													},
+													cells: function (row, col, prop) {
 
-														}
+													    var cellProperties = {};
+													    if (row % 2 == 0)
+															cellProperties.renderer = blueHtmlRenderer;
+													    return cellProperties;
 
-													});
-				},
-				null,
-				'box');
+													}
 
+												});
+		},
+		null,
+		'box'
+	);
 }

@@ -14,7 +14,8 @@ You should have received a copy of the GNU General Public License along with Omn
 /// Startup function.
 /// </summary>
 $(function() {
-
+	v_popUpControl = createPopUpControl('omnidb', 1000000);
+	
 	listConnections();
 	checkSessionMessage();
 

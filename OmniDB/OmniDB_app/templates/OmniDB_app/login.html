@@ -5,17 +5,20 @@
 	<link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico" />
 
 	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/popupJS.css"                />
 
 	<script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js"   ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js" ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js"         ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js"    ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/popupJS.js"                ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-ui.min.js"          ></script>
 	<script type="text/javascript">
 
 		$(function () {
+			v_popUpControl = createPopUpControl('omnidb', 1000000);
 
 			checkSessionMessage();
-
 		});
 
 		function signIn() {
@@ -64,25 +67,8 @@
 	</table>
 </div>
 
-<div id="div_error" style="display:none;">
-		<div class="modal_background_dark">
-				<div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
-						<a class="bt_close" onclick="hideError()">x</a>
-						<div id="div_error_msg" style="height:100%; width:100%; margin-top:20px; text-align: center;"></div>
-				</div>
-		</div>
+<div class="div_loading">
 </div>
-
-<div id="div_alert" style="display:none;">
-		<div class="modal_background_dark">
-				<div class ="white_box" style="width: 30%; height: 20%; left: 35%; top: 40%;">
-						<div id="div_alert_content" style="height:100%; width:100%;"></div>
-				</div>
-		</div>
-</div>
-
-	<div class="div_loading">
-	</div>
 
 </body>
 </html>

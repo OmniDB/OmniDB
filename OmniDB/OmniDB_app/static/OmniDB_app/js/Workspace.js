@@ -16,6 +16,8 @@ var v_browserTabActive = true;
 /// Startup function.
 /// </summary>
 $(function () {
+	v_popUpControl = createPopUpControl('omnidb', 1000000);
+
 	$(window).focus(function() {
 	    v_browserTabActive = true;
 	    document.title = 'OmniDB';
@@ -27,8 +29,7 @@ $(function () {
 
 	v_copyPasteObject = new Object();
 
-	v_copyPasteObject.v_tabControl = createTabControl('find_replace',0,null);
-	v_copyPasteObject.v_tabControl.selectTabIndex(0);
+	v_copyPasteObject.v_tabControl = null;
 
 	v_connTabControl = createTabControl('conn_tabs',0,null);
 
@@ -231,14 +232,61 @@ function changeDatabase(p_value) {
 /// Opens copy & paste window.
 /// </summary>
 function showFindReplace(p_editor) {
+	var v_html =
+		'<div id="find_replace" style="margin-right: 20px;">' +
+		'	<ul>' +
+		'		<li id="find_replace_tab1">Find & Replace</li>' +
+		'	</ul>' +
+		'	<div id="div_find_replace_tab1">' +
+		'		<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">' +
+		'			<div style="text-align: center;">' +
+		'				<div style="margin-bottom: 10px;">Text</div>' +
+		'				<input id="txt_replacement_text" type="text" style="width: 200px;">' +
+		'			</div>' +
+		'		</div>' +
+		'		<div style="text-align: center;">' +
+		'			<div style="margin-bottom: 10px;">Replacement</div>' +
+		'			<input id="txt_replacement_text_new" type="text" style="width: 200px; margin-bottom: 20px;">' +
+		'		</div>' +
+		'		<div style="text-align: center;">' +
+		'			<button onclick="replaceText();">Replace</button>' +
+		'		</div>' +
+		'	</div>' +
+		'</div>';
+
+	var v_popUp = v_popUpControl.getPopUpById('find_replace');
+
+	if(v_popUp != null) {
+		v_popUp.turnActive();
+		v_popUp.setContent(v_html);
+	}
+	else {
+		var v_config = {
+			width: '650px',
+			height: '340px',
+			resizable: true,
+			draggable: true,
+			top: (window.innerHeight - 340) / 2 + 'px',
+			left: (window.innerWidth - 650) / 2 + 'px',
+			forceClose: true
+		};
+
+		v_popUp = v_popUpControl.addPopUp(
+			'find_replace',
+			'Find & Replace',
+			v_html,
+			v_config,
+			null
+		);
+	}
+
+	v_copyPasteObject.v_tabControl = createTabControl('find_replace',0,null);
+	v_copyPasteObject.v_tabControl.selectTabIndex(0);
 
 	v_copyPasteObject.v_editor = p_editor;
 
-	$('#div_find_replace').show();
-
 	document.getElementById('txt_replacement_text').value = '';
 	document.getElementById('txt_replacement_text_new').value = '';
-
 }
 
 /// <summary>
@@ -260,9 +308,11 @@ function replaceText() {
 /// Opens copy & paste window.
 /// </summary>
 function hideFindReplace() {
+	var v_popUp = v_popUpControl.getPopUpById('find_replace');
 
-	$('#div_find_replace').hide();
-
+	if(v_popUp != null) {
+		v_popUp.close(true);
+	}
 }
 
 /// <summary>

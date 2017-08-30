@@ -407,19 +407,32 @@ class SQLite(Generic):
                     for c in self.v_cur.description:
                         v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = 0
-                    while v_row is not None and k < p_blocksize:
-                        if p_alltypesstr:
-                            v_rowtmp = list(v_row)
-                            for j in range(0, len(v_table.Columns)):
-                                if v_rowtmp[j] != None:
-                                    v_rowtmp[j] = str(v_rowtmp[j])
-                                else:
-                                    v_rowtmp[j] = ''
-                            v_row = tuple(v_rowtmp)
-                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
-                        v_row = self.v_cur.fetchone()
-                        k = k + 1
+                    if p_blocksize > 0:
+                        k = 0
+                        while v_row is not None and k < p_blocksize:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
+                            k = k + 1
+                    else:
+                        while v_row is not None:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
                 else:
                     v_table.Columns.append('x')
                 if self.v_start:
@@ -622,19 +635,32 @@ class Memory(Generic):
                     for c in self.v_cur.description:
                         v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = 0
-                    while v_row is not None and k < p_blocksize:
-                        if p_alltypesstr:
-                            v_rowtmp = list(v_row)
-                            for j in range(0, len(v_table.Columns)):
-                                if v_rowtmp[j] != None:
-                                    v_rowtmp[j] = str(v_rowtmp[j])
-                                else:
-                                    v_rowtmp[j] = ''
-                            v_row = tuple(v_rowtmp)
-                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
-                        v_row = self.v_cur.fetchone()
-                        k = k + 1
+                    if p_blocksize > 0:
+                        k = 0
+                        while v_row is not None and k < p_blocksize:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
+                            k = k + 1
+                    else:
+                        while v_row is not None:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
                 else:
                     v_table.Columns.append('x')
                 if self.v_start:
@@ -892,7 +918,10 @@ class PostgreSQL(Generic):
                 if self.v_cur.description:
                     for c in self.v_cur.description:
                         v_table.Columns.append(c[0])
-                    v_table.Rows = self.v_cur.fetchmany(p_blocksize)
+                    if p_blocksize > 0:
+                        v_table.Rows = self.v_cur.fetchmany(p_blocksize)
+                    else:
+                        v_table.Rows = self.v_cur.fetchall()
                     if p_alltypesstr:
                         for i in range(0, len(v_table.Rows)):
                             for j in range(0, len(v_table.Columns)):
@@ -1121,7 +1150,10 @@ class MySQL(Generic):
                 if self.v_cur.description:
                     for c in self.v_cur.description:
                         v_table.Columns.append(c[0])
-                    v_table.Rows = self.v_cur.fetchmany(p_blocksize)
+                    if p_blocksize > 0:
+                        v_table.Rows = self.v_cur.fetchmany(p_blocksize)
+                    else:
+                        v_table.Rows = self.v_cur.fetchall()
                     if p_alltypesstr:
                         for i in range(0, len(v_table.Rows)):
                             for j in range(0, len(v_table.Columns)):
@@ -1350,7 +1382,10 @@ class MariaDB(Generic):
                 if self.v_cur.description:
                     for c in self.v_cur.description:
                         v_table.Columns.append(c[0])
-                    v_table.Rows = self.v_cur.fetchmany(p_blocksize)
+                    if p_blocksize > 0:
+                        v_table.Rows = self.v_cur.fetchmany(p_blocksize)
+                    else:
+                        v_table.Rows = self.v_cur.fetchall()
                     if p_alltypesstr:
                         for i in range(0, len(v_table.Rows)):
                             for j in range(0, len(v_table.Columns)):
@@ -1583,19 +1618,32 @@ class Firebird(Generic):
                     for c in self.v_cur.description:
                         v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = 0
-                    while v_row is not None and k < p_blocksize:
-                        if p_alltypesstr:
-                            v_rowtmp = list(v_row)
-                            for j in range(0, len(v_table.Columns)):
-                                if v_rowtmp[j] != None:
-                                    v_rowtmp[j] = str(v_rowtmp[j])
-                                else:
-                                    v_rowtmp[j] = ''
-                            v_row = tuple(v_rowtmp)
-                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
-                        v_row = self.v_cur.fetchone()
-                        k = k + 1
+                    if p_blocksize > 0:
+                        k = 0
+                        while v_row is not None and k < p_blocksize:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
+                            k = k + 1
+                    else:
+                        while v_row is not None:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
                 else:
                     v_table.Columns.append('x')
                 if self.v_start:
@@ -1822,19 +1870,32 @@ class Oracle(Generic):
                     for c in self.v_cur.description:
                         v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = 0
-                    while v_row is not None and k < p_blocksize:
-                        if p_alltypesstr:
-                            v_rowtmp = list(v_row)
-                            for j in range(0, len(v_table.Columns)):
-                                if v_rowtmp[j] != None:
-                                    v_rowtmp[j] = str(v_rowtmp[j])
-                                else:
-                                    v_rowtmp[j] = ''
-                            v_row = tuple(v_rowtmp)
-                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
-                        v_row = self.v_cur.fetchone()
-                        k = k + 1
+                    if p_blocksize > 0:
+                        k = 0
+                        while v_row is not None and k < p_blocksize:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
+                            k = k + 1
+                    else:
+                        while v_row is not None:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
                 else:
                     v_table.Columns.append('x')
                 if self.v_start:
@@ -2061,19 +2122,32 @@ class MSSQL(Generic):
                     for c in self.v_cur.description:
                         v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = 0
-                    while v_row is not None and k < p_blocksize:
-                        if p_alltypesstr:
-                            v_rowtmp = list(v_row)
-                            for j in range(0, len(v_table.Columns)):
-                                if v_rowtmp[j] != None:
-                                    v_rowtmp[j] = str(v_rowtmp[j])
-                                else:
-                                    v_rowtmp[j] = ''
-                            v_row = tuple(v_rowtmp)
-                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
-                        v_row = self.v_cur.fetchone()
-                        k = k + 1
+                    if p_blocksize > 0:
+                        k = 0
+                        while v_row is not None and k < p_blocksize:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
+                            k = k + 1
+                    else:
+                        while v_row is not None:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
                 else:
                     v_table.Columns.append('x')
                 if self.v_start:
@@ -2303,19 +2377,32 @@ class IBMDB2(Generic):
                     for c in self.v_cur.description:
                         v_table.Columns.append(c[0])
                     v_row = self.v_cur.fetchone()
-                    k = 0
-                    while v_row is not None and k < p_blocksize:
-                        if p_alltypesstr:
-                            v_rowtmp = list(v_row)
-                            for j in range(0, len(v_table.Columns)):
-                                if v_rowtmp[j] != None:
-                                    v_rowtmp[j] = str(v_rowtmp[j])
-                                else:
-                                    v_rowtmp[j] = ''
-                            v_row = tuple(v_rowtmp)
-                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
-                        v_row = self.v_cur.fetchone()
-                        k = k + 1
+                    if p_blocksize > 0:
+                        k = 0
+                        while v_row is not None and k < p_blocksize:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
+                            k = k + 1
+                    else:
+                        while v_row is not None:
+                            if p_alltypesstr:
+                                v_rowtmp = list(v_row)
+                                for j in range(0, len(v_table.Columns)):
+                                    if v_rowtmp[j] != None:
+                                        v_rowtmp[j] = str(v_rowtmp[j])
+                                    else:
+                                        v_rowtmp[j] = ''
+                                v_row = tuple(v_rowtmp)
+                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
+                            v_row = self.v_cur.fetchone()
                 else:
                     v_table.Columns.append('x')
                 if self.v_start:

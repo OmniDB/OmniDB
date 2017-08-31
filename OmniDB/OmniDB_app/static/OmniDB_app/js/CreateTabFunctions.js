@@ -523,9 +523,11 @@ function initCreateTabFunctions() {
 		var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
 
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
-					 "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='querySQL();'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
+					 "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='querySQL(0);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
            "<button id='bt_indent_" + v_tab.id + "' class='bt_execute' title='Indent SQL' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='indentSQL();'><img src='/static/OmniDB_app/images/indent.png' style='vertical-align: middle;'/></button>" +
-					 "<select id='sel_filtered_data_" + v_tab.id + "'><option value='-3' >Script</option><option value='-2' >Execute</option><option selected='selected' value='10' >Query 10 rows</option><option value='100'>Query 100 rows</option><option value='1000'>Query 1000 rows</option><option value='-1'>Query All rows</option></select>" +
+					 "<select id='sel_filtered_data_" + v_tab.id + "'><option value='0' >Script</option><option selected='selected' value='1' >Query</option></select>" +
+           "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none;' onclick='querySQL(1);'>Fetch more</button>" +
+           "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none;' onclick='querySQL(2);'>Fetch all</button>" +
            "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none;' onclick='cancelSQL();'>Cancel</button>" +
 					 "<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
 					 "<button class='bt_export' title='Export Data' style='display: none; margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><img src='/static/OmniDB_app/images/table_export.png' style='vertical-align: middle;'/></button>" +
@@ -564,7 +566,7 @@ function initCreateTabFunctions() {
 			      win: v_keybind_object.v_execute
 			    },
 			exec: function(){
-			querySQL();
+			querySQL(0);
 			}
 		}
 
@@ -645,12 +647,16 @@ function initCreateTabFunctions() {
 			tab_close_span : v_tab_close_span,
 			tab_check_span : v_tab_check_span,
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
+      bt_fetch_more: document.getElementById('bt_fetch_more_' + v_tab.id),
+      bt_fetch_all: document.getElementById('bt_fetch_all_' + v_tab.id),
+      bt_start: document.getElementById('bt_start_' + v_tab.id),
       bt_save: document.getElementById('bt_save_' + v_tab.id),
       bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
 			state : 0,
       context: null,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
-			connTab: v_connTabControl.selectedTab
+			connTab: v_connTabControl.selectedTab,
+      tabId: v_connTabControl.selectedTab.tag.tabControl.tabCounter
 		};
 
 		v_tab.tag = v_tag;
@@ -841,7 +847,8 @@ function initCreateTabFunctions() {
       state: 0,
       context: null,
       tabControl: v_connTabControl.selectedTab.tag.tabControl,
-      connTab: v_connTabControl.selectedTab
+      connTab: v_connTabControl.selectedTab,
+      tabId: v_connTabControl.selectedTab.tag.tabControl.tabCounter
     };
 
     v_tab.tag = v_tag;

@@ -77,7 +77,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             try:
                 v_session = SessionStore(session_key=v_data)['omnidb_session']
                 v_response['v_code'] = response.LoginResult
-                self.v_list_threads = dict([])
+                self.v_list_tab_objects = dict([])
                 self.write_message(json.dumps(v_response))
             except Exception:
                 v_response['v_code'] = response.SessionMissing
@@ -86,7 +86,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             #Cancel thread
             if v_code == request.CancelThread:
                 try:
-                    thread_data = self.v_list_threads[v_data]
+                    thread_data = self.v_list_tab_objects[v_data]
                     if thread_data:
 
                         thread_data['thread'].stop()
@@ -109,28 +109,51 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                         self.write_message(json.dumps(v_response))
                         return
 
-                    v_database = v_session.v_databases[v_data['v_db_index']]['database']
-                    v_database_new = OmniDatabase.Generic.InstantiateDatabase(
-                        v_database.v_db_type,
-                        v_database.v_server,
-                        v_database.v_port,
-                        v_database.v_service,
-                        v_database.v_user,
-                        v_database.v_connection.v_password,
-                        v_database.v_conn_id,
-                        v_database.v_alias
-                    )
+                    #create tab object if it doesn't exist
+                    try:
+                        tab_object = self.v_list_tab_objects[v_data['v_tab_id']]
+                    except Exception as exc:
+                        v_database = v_session.v_databases[v_data['v_db_index']]['database']
+                        v_database_new = OmniDatabase.Generic.InstantiateDatabase(
+                            v_database.v_db_type,
+                            v_database.v_server,
+                            v_database.v_port,
+                            v_database.v_service,
+                            v_database.v_user,
+                            v_database.v_connection.v_password,
+                            v_database.v_conn_id,
+                            v_database.v_alias
+                        )
+                        tab_object =  { 'thread': None,
+                                     'omnidatabase': v_database_new,
+                                     'database_index': -1 }
+                        self.v_list_tab_objects[v_data['v_tab_id']] = tab_object
+                        None;
+
+                    #create database object
+                    if tab_object['database_index']!=v_data['v_db_index']:
+                        v_database = v_session.v_databases[v_data['v_db_index']]['database']
+                        v_database_new = OmniDatabase.Generic.InstantiateDatabase(
+                            v_database.v_db_type,
+                            v_database.v_server,
+                            v_database.v_port,
+                            v_database.v_service,
+                            v_database.v_user,
+                            v_database.v_connection.v_password,
+                            v_database.v_conn_id,
+                            v_database.v_alias
+                        )
+                        tab_object['omnidatabase'] = v_database_new
+                        tab_object['database_index'] = v_data['v_db_index']
 
                     v_data['v_context_code'] = v_context_code
-                    v_data['v_database'] = v_database_new
+                    v_data['v_database'] = tab_object['omnidatabase']
 
                     #Query request
                     if v_code == request.Query:
 
                         t = StoppableThread(thread_query,v_data,self)
-                        self.v_list_threads[v_context_code] =  { 'thread': t,
-                                                                 'omnidatabase': v_database_new,
-                                                                 'database_index': v_data['v_db_index'] }
+                        tab_object['thread'] = t
                         #t.setDaemon(True)
                         t.start()
 
@@ -141,9 +164,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     #Query edit data
                     elif v_code == request.QueryEditData:
                         t = StoppableThread(thread_query_edit_data,v_data,self)
-                        self.v_list_threads[v_context_code] =  { 'thread': t,
-                                                                 'omnidatabase': v_database_new,
-                                                                 'database_index': v_data['v_db_index'] }
+                        tab_object['thread'] = t
                         #t.setDaemon(True)
                         t.start()
 
@@ -154,9 +175,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     #Save edit data
                     elif v_code == request.SaveEditData:
                         t = StoppableThread(thread_save_edit_data,v_data,self)
-                        self.v_list_threads[v_context_code] =  { 'thread': t,
-                                                                 'omnidatabase': v_database_new,
-                                                                 'database_index': v_data['v_db_index'] }
+                        tab_object['thread'] = t
                         #t.setDaemon(True)
                         t.start()
 
@@ -284,6 +303,8 @@ def thread_query(self,args,ws_object):
         v_database_index = args['v_db_index']
         v_sql            = args['v_sql_cmd']
         v_select_value   = args['v_cmd_type']
+        v_tab_id         = args['v_tab_id']
+        v_mode           = args['v_mode']
 
         #Removing last character if it is a semi-colon
         if v_sql[-1:]==';':
@@ -306,43 +327,8 @@ def thread_query(self,args,ws_object):
         log_status = 'success'
         log_mode = ''
 
-        #execute
-        if v_select_value == '-2':
-            log_mode = 'Execute'
-            try:
-                v_database.v_connection.Execute(v_sql)
-                log_end_time = datetime.now()
-                v_duration = GetDuration(log_start_time,log_end_time)
-                v_response['v_data'] = {
-                    'v_duration': v_duration
-                }
-            except Exception as exc:
-                log_end_time = datetime.now()
-                v_duration = GetDuration(log_start_time,log_end_time)
-                log_status = 'error'
-                v_response['v_data'] = {
-                    'position': v_database.GetErrorPosition(str(exc)),
-                    'message' : str(exc).replace('\n','<br>'),
-                    'v_duration': v_duration
-                }
-                v_response['v_error'] = True
-
-            if not self.cancel:
-                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
-
-            #Log to history
-            LogHistory(v_omnidb_database,
-                                v_session.v_user_id,
-                                v_session.v_user_name,
-                                v_sql,
-                                log_start_time,
-                                log_end_time,
-                                v_duration,
-                                log_mode,
-                                log_status)
-
         #script
-        elif v_select_value == '-3':
+        if v_select_value == '0':
             log_mode = 'Script'
             v_commands = v_sql.split (';')
 
@@ -356,7 +342,6 @@ def thread_query(self,args,ws_object):
             for v_command in v_commands:
 
                 if (self.cancel):
-                    ws_object.v_list_threads.pop(args['v_context_code'],None)
                     return
 
                 if v_command:
@@ -400,12 +385,23 @@ def thread_query(self,args,ws_object):
 
         else:
             try:
-                if v_select_value == '-1':
-                    log_mode = 'Query all rows'
-                    v_data1 = v_database.v_connection.Query(v_sql,True)
-                else:
-                    log_mode = 'Query {0} rows'.format(v_select_value)
-                    v_data1 = v_database.QueryDataLimited(v_sql, int(v_select_value))
+                #if v_select_value == '-1':
+                #    log_mode = 'Query all rows'
+                #    v_data1 = v_database.v_connection.Query(v_sql,True)
+                #else:
+                #    log_mode = 'Query {0} rows'.format(v_select_value)
+                #    v_data1 = v_database.QueryDataLimited(v_sql, int(v_select_value))
+
+                if v_mode==0:
+                    v_database.v_connection.Open()
+
+                if v_mode==0 or v_mode==1:
+                    v_data1 = v_database.v_connection.QueryBlock(v_sql,10, True)
+                elif v_mode==2:
+                    v_data1 = v_database.v_connection.QueryBlock(v_sql,-1, True)
+
+                if v_mode==2 or len(v_data1.Rows)<10:
+                    v_database.v_connection.Close()
 
                 log_end_time = datetime.now()
                 v_duration = GetDuration(log_start_time,log_end_time)
@@ -461,12 +457,13 @@ def thread_query_edit_data(self,args,ws_object):
 
     try:
         v_database_index = args['v_db_index']
-        v_table = args['v_table']
-        v_schema = args['v_schema']
-        v_filter = args['v_filter']
-        v_count = args['v_count']
-        v_pk_list = args['v_pk_list']
-        v_columns = args['v_columns']
+        v_table          = args['v_table']
+        v_schema         = args['v_schema']
+        v_filter         = args['v_filter']
+        v_count          = args['v_count']
+        v_pk_list        = args['v_pk_list']
+        v_columns        = args['v_columns']
+        v_tab_id         = args['v_tab_id']
 
         v_session = ws_object.v_session
         v_database = args['v_database']
@@ -528,12 +525,13 @@ def thread_save_edit_data(self,args,ws_object):
 
     try:
         v_database_index = args['v_db_index']
-        v_table = args['v_table']
-        v_schema = args['v_schema']
-        v_data_rows = args['v_data_rows']
-        v_rows_info = args['v_rows_info']
-        v_pk_info = args['v_pk_info']
-        v_columns = args['v_columns']
+        v_table          = args['v_table']
+        v_schema         = args['v_schema']
+        v_data_rows      = args['v_data_rows']
+        v_rows_info      = args['v_rows_info']
+        v_pk_info        = args['v_pk_info']
+        v_columns        = args['v_columns']
+        v_tab_id         = args['v_tab_id']
 
         v_session = ws_object.v_session
         v_database = args['v_database']
@@ -547,7 +545,6 @@ def thread_save_edit_data(self,args,ws_object):
         for v_row_info in v_rows_info:
 
             if (self.cancel):
-                ws_object.v_list_threads.pop(args['v_context_code'],None)
                 return
 
             v_command = ''

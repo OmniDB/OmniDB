@@ -34,7 +34,7 @@ function cancelSQL(p_tab_tag) {
 		v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-	sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CancelThread, v_tab_tag.context.v_context_code, false);
+	sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CancelThread, v_tab_tag.tab_id, false);
 
 	cancelSQLTab();
 }
@@ -46,6 +46,8 @@ function cancelSQLTab(p_tab_tag) {
 		v_tab_tag = p_tab_tag;
 	else
 		v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setReadOnly(false);
 
 	v_tab_tag.state = v_queryState.Idle;
 	v_tab_tag.tab_loading_span.style.display = 'none';
@@ -60,7 +62,7 @@ function cancelSQLTab(p_tab_tag) {
 
 }
 
-function querySQL() {
+function querySQL(p_mode) {
 
 	var v_state = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state;
 
@@ -79,14 +81,17 @@ function querySQL() {
 		var v_message_data = {
 			v_sql_cmd : v_sql_value,
 			v_cmd_type: v_sel_value,
-			v_db_index: v_db_index
-
+			v_db_index: v_db_index,
+			v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
+			v_mode: p_mode
 		}
 
 		if (v_sql_value.trim()=='') {
 			showAlert('Please provide a string.');
 		}
 		else {
+
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setReadOnly(true);
 
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state = v_queryState.Executing;
 
@@ -105,6 +110,8 @@ function querySQL() {
 			v_tab_tag.tab_loading_span.style.display = '';
 			v_tab_tag.tab_close_span.style.display = 'none';
 			v_tab_tag.bt_cancel.style.display = '';
+			v_tab_tag.bt_fetch_more.style.display = 'none';
+			v_tab_tag.bt_fetch_all.style.display = 'none';
 
 			var v_context = {
 				tab_tag: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag,
@@ -112,16 +119,19 @@ function querySQL() {
 				start_datetime: dformat,
 				sel_value: v_sel_value,
 				database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+				mode: p_mode,
 				acked: false
 			}
 			v_context.tab_tag.context = v_context;
 
-			if (v_context.tab_tag.ht!=null) {
-				v_context.tab_tag.ht.destroy();
-				v_context.tab_tag.ht = null;
-			}
+			if (p_mode==0) {
+				if (v_context.tab_tag.ht!=null) {
+					v_context.tab_tag.ht.destroy();
+					v_context.tab_tag.ht = null;
+				}
 
-			v_context.tab_tag.div_result.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
+				v_context.tab_tag.div_result.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
+			}
 			v_context.tab_tag.query_info.innerHTML = '';
 
 			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Query, v_message_data, false, v_context);
@@ -169,15 +179,10 @@ function querySQLReturnRender(p_message,p_context) {
 	p_context.tab_tag.context = null;
 	p_context.tab_tag.data = null;
 
+	p_context.tab_tag.editor.setReadOnly(false);
+
 	var v_div_result = p_context.tab_tag.div_result;
 	var v_query_info = p_context.tab_tag.query_info;
-
-	if (p_context.tab_tag.ht!=null) {
-		p_context.tab_tag.ht.destroy();
-		p_context.tab_tag.ht = null;
-	}
-
-	v_div_result.innerHTML = '';
 
 	if (p_message.v_error) {
 
@@ -191,67 +196,99 @@ function querySQLReturnRender(p_message,p_context) {
 	}
 	else {
 
-		if (p_context.sel_value==-2) {
-			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-			v_div_result.innerHTML = '';
-		}
-		else if (p_context.sel_value==-3) {
+		//Script
+		if (p_context.sel_value==0) {
 
 			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 
 			v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data.v_data + '</div>';
 
 		}
+		//Query
 		else {
 
 			var v_data = p_message.v_data;
 
-			window.scrollTo(0,0);
-
-			v_query_info.innerHTML = v_data.v_query_info + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-
-			var columnProperties = [];
-
-			for (var i = 0; i < v_data.v_col_names.length; i++) {
-			    var col = new Object();
-
-			    col.readOnly = true;
-
-			    col.title =  v_data.v_col_names[i];
-
-				columnProperties.push(col);
-
+			//Show fetch buttons if data has 10 rows
+			if (v_data.v_data.length>=10 && p_context.mode!=2) {
+				p_context.tab_tag.bt_fetch_more.style.display = '';
+				p_context.tab_tag.bt_fetch_all.style.display = '';
+			}
+			else {
+				p_context.tab_tag.bt_fetch_more.style.display = 'none';
+				p_context.tab_tag.bt_fetch_all.style.display = 'none';
 			}
 
-			var container = v_div_result;
-			p_context.tab_tag.ht = new Handsontable(container,
-			{
-				data: v_data.v_data,
-				columns : columnProperties,
-				colHeaders : true,
-				rowHeaders : true,
-				copyRowsLimit : 1000000000,
-				copyColsLimit : 1000000000,
-				manualColumnResize: true,
-				contextMenu: {
-					callback: function (key, options) {
-						if (key === 'view_data') {
-						  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
-						}
-					},
-					items: {
-						"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
-					}
-			    },
-		        cells: function (row, col, prop) {
-				    var cellProperties = {};
-				    if (row % 2 == 0)
-						cellProperties.renderer = blueRenderer;
-					else
-						cellProperties.renderer = whiteRenderer;
-				    return cellProperties;
+			if (p_context.mode==0) {
+
+				v_div_result.innerHTML = '';
+
+				window.scrollTo(0,0);
+
+				if (v_data.v_data.length==0 && v_data.v_col_names.length==0) {
+					v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+					v_div_result.innerHTML = '<div class="query_info">Done.</div>';
 				}
-			});
+				else {
+
+					v_query_info.innerHTML = "Number of records: " + v_data.v_data.length + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+
+					var columnProperties = [];
+
+					for (var i = 0; i < v_data.v_col_names.length; i++) {
+					    var col = new Object();
+
+					    col.readOnly = true;
+
+					    col.title =  v_data.v_col_names[i];
+
+						columnProperties.push(col);
+
+					}
+
+					var container = v_div_result;
+					p_context.tab_tag.ht = new Handsontable(container,
+					{
+						data: v_data.v_data,
+						columns : columnProperties,
+						colHeaders : true,
+						rowHeaders : true,
+						copyRowsLimit : 1000000000,
+						copyColsLimit : 1000000000,
+						manualColumnResize: true,
+						contextMenu: {
+							callback: function (key, options) {
+								if (key === 'view_data') {
+								  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+								}
+							},
+							items: {
+								"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+							}
+					    },
+				        cells: function (row, col, prop) {
+						    var cellProperties = {};
+						    if (row % 2 == 0)
+								cellProperties.renderer = blueRenderer;
+							else
+								cellProperties.renderer = whiteRenderer;
+						    return cellProperties;
+						}
+					});
+
+				}
+
+			}
+			//Adding fetched data
+			else {
+				v_new_data = p_context.tab_tag.ht.getSourceData();
+				v_query_info.innerHTML = "Number of records: " + (v_new_data.length+v_data.v_data.length) + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+				for (var i = 0; i < v_data.v_data.length; i ++) {
+            v_new_data.push(v_data.v_data[i]);
+        }
+				p_context.tab_tag.ht.loadData(v_new_data);
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.childNodes[0].childNodes[0].scrollTop = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.childNodes[0].childNodes[0].scrollHeight;
+			}
 
 		}
 

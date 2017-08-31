@@ -18,7 +18,7 @@ function tabSQLTemplate(p_tab_name, p_template) {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(
         0, 0, true);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
-        .value = -2;
+        .value = 1;
 
     var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
         content: {
@@ -426,7 +426,7 @@ function getTreePostgresql(p_div) {
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
                                 .tag.sel_filtered_data.value =
-                                10;
+                                1;
 
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
@@ -444,7 +444,7 @@ function getTreePostgresql(p_div) {
 
                             //minimizeEditor();
 
-                            querySQL();
+                            querySQL(0);
                         }
                     }, {
                         text: 'Edit Data',
@@ -488,7 +488,7 @@ function getTreePostgresql(p_div) {
                                 .tag.tabControl.selectedTab,
                                 node.text);
 
-                            querySQL();
+                            querySQL(0);
                         }
                     }, {
                         text: 'Delete Records',
@@ -510,8 +510,7 @@ function getTreePostgresql(p_div) {
                                     0, true);
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
-                                .tag.sel_filtered_data.value = -
-                                2;
+                                .tag.sel_filtered_data.value = 1;
                         }
                     }]
                 }
@@ -1237,7 +1236,7 @@ function getTreePostgresql(p_div) {
 
                     v_connTabControl.selectedTab.tag.tabControl
                         .selectedTab.tag.sel_filtered_data.value =
-                        10;
+                        1;
 
                     v_connTabControl.selectedTab.tag.tabControl
                         .selectedTab.tag.editor.setValue(
@@ -1251,7 +1250,7 @@ function getTreePostgresql(p_div) {
 
                     //minimizeEditor();
 
-                    querySQL();
+                    querySQL(0);
                 }
             }, {
                 text: 'Edit View',
@@ -2928,7 +2927,7 @@ function getFunctionDefinitionPostgresql(node) {
             renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
                 node.text);
             v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
-                .value = -2;
+                .value = 1;
 
             var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
                 .tag.div_result;
@@ -3021,7 +3020,7 @@ function getTriggerFunctionDefinitionPostgresql(node) {
             renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
                 node.text);
             v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
-                .value = -2;
+                .value = 1;
 
             var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
                 .tag.div_result;
@@ -3071,7 +3070,7 @@ function getViewDefinitionPostgresql(node) {
             renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
                 node.text);
             v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
-                .value = -2;
+                .value = 1;
 
             var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
                 .tag.div_result;

@@ -121,7 +121,7 @@ function cancelEditData(p_tab_tag) {
 	else
 		v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CancelThread, v_tab_tag.context.v_context_code, false);
+	sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CancelThread, v_tab_tag.tab_id, false);
 
 	cancelEditDataTab();
 
@@ -173,7 +173,8 @@ function queryEditData() {
 			v_filter : v_currTabTag.editDataObject.editor.getValue(),
 			v_count: v_currTabTag.sel_filtered_data.value,
 			v_pk_list: v_currTabTag.editDataObject.pk,
-			v_columns: v_currTabTag.editDataObject.columns
+			v_columns: v_currTabTag.editDataObject.columns,
+			v_tab_id: v_currTabTag.tab_id
 		}
 
 		var start_time = new Date().getTime();
@@ -488,7 +489,8 @@ function saveEditData() {
 			v_data_rows : v_changedRowsData,
 			v_rows_info: v_changedRowsInfo,
 			v_pk_info: v_currTabTag.editDataObject.pk,
-			v_columns: v_currTabTag.editDataObject.columns
+			v_columns: v_currTabTag.editDataObject.columns,
+			v_tab_id: v_currTabTag.tab_id
 		}
 
 		v_currTabTag.tab_loading_span.style.display = '';

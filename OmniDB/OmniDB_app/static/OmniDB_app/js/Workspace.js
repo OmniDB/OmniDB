@@ -301,12 +301,16 @@ function removeTab(p_tab) {
                 function() {
                 	p_tab.removeTab();
                 	if (p_tab.tag.ht!=null) {
-						p_tab.tag.ht.destroy();
-						p_tab.tag.div_result.innerHTML = '';
-					}
+										p_tab.tag.ht.destroy();
+										p_tab.tag.div_result.innerHTML = '';
+									}
 
-					if (p_tab.tag.editor!=null)
-						p_tab.tag.editor.destroy();
+									if (p_tab.tag.editor!=null)
+										p_tab.tag.editor.destroy();
+
+									if (p_tab.tag.mode='query') {
+										console.log('closing query tab')
+									}
                 });
 
 }

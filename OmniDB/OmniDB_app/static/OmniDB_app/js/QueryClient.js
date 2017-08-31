@@ -100,12 +100,14 @@ function startQueryWebSocket(p_port) {
 					if (p_context) {
 						SetAcked(p_context);
 						queryEditDataReturn(v_message,p_context);
+						removeContext(v_queryWebSocket,p_context_code);
 					}
 					break;
 				}
 				case parseInt(v_queryResponseCodes.SaveEditDataResult): {
 					if (p_context) {
 						saveEditDataReturn(v_message,p_context);
+						removeContext(v_queryWebSocket,p_context_code);
 					}
 					break;
 				}

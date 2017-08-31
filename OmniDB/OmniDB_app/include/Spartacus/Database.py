@@ -284,8 +284,6 @@ class SQLite(Generic):
                         v_row = tuple(v_rowtmp)
                     v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                     v_row = self.v_cur.fetchone()
-            else:
-                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -433,8 +431,6 @@ class SQLite(Generic):
                                 v_row = tuple(v_rowtmp)
                             v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                             v_row = self.v_cur.fetchone()
-                else:
-                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -533,8 +529,6 @@ class Memory(Generic):
                             v_row = tuple(v_rowtmp)
                         v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                         v_row = self.v_cur.fetchone()
-                else:
-                    v_table.Columns.append('x')
                 return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -661,8 +655,6 @@ class Memory(Generic):
                                 v_row = tuple(v_rowtmp)
                             v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                             v_row = self.v_cur.fetchone()
-                else:
-                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -796,8 +788,6 @@ class PostgreSQL(Generic):
                                 v_table.Rows[i][j] = str(v_table.Rows[i][j])
                             else:
                                 v_table.Rows[i][j] = ''
-            else:
-                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -929,8 +919,6 @@ class PostgreSQL(Generic):
                                     v_table.Rows[i][j] = str(v_table.Rows[i][j])
                                 else:
                                     v_table.Rows[i][j] = ''
-                else:
-                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -1028,8 +1016,6 @@ class MySQL(Generic):
                                 v_table.Rows[i][j] = str(v_table.Rows[i][j])
                             else:
                                 v_table.Rows[i][j] = ''
-            else:
-                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -1161,8 +1147,6 @@ class MySQL(Generic):
                                     v_table.Rows[i][j] = str(v_table.Rows[i][j])
                                 else:
                                     v_table.Rows[i][j] = ''
-                else:
-                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -1260,8 +1244,6 @@ class MariaDB(Generic):
                                 v_table.Rows[i][j] = str(v_table.Rows[i][j])
                             else:
                                 v_table.Rows[i][j] = ''
-            else:
-                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -1393,8 +1375,6 @@ class MariaDB(Generic):
                                     v_table.Rows[i][j] = str(v_table.Rows[i][j])
                                 else:
                                     v_table.Rows[i][j] = ''
-                else:
-                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -1495,8 +1475,6 @@ class Firebird(Generic):
                         v_row = tuple(v_rowtmp)
                     v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                     v_row = self.v_cur.fetchone()
-            else:
-                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -1644,8 +1622,6 @@ class Firebird(Generic):
                                 v_row = tuple(v_rowtmp)
                             v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                             v_row = self.v_cur.fetchone()
-                else:
-                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -1747,8 +1723,6 @@ class Oracle(Generic):
                         v_row = tuple(v_rowtmp)
                     v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                     v_row = self.v_cur.fetchone()
-            else:
-                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -1896,8 +1870,6 @@ class Oracle(Generic):
                                 v_row = tuple(v_rowtmp)
                             v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                             v_row = self.v_cur.fetchone()
-                else:
-                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -1999,8 +1971,6 @@ class MSSQL(Generic):
                         v_row = tuple(v_rowtmp)
                     v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                     v_row = self.v_cur.fetchone()
-            else:
-                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -2148,8 +2118,6 @@ class MSSQL(Generic):
                                 v_row = tuple(v_rowtmp)
                             v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                             v_row = self.v_cur.fetchone()
-                else:
-                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table
@@ -2254,8 +2222,6 @@ class IBMDB2(Generic):
                         v_row = tuple(v_rowtmp)
                     v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                     v_row = self.v_cur.fetchone()
-            else:
-                v_table.Columns.append('x')
             return v_table
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -2403,8 +2369,6 @@ class IBMDB2(Generic):
                                 v_row = tuple(v_rowtmp)
                             v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_row)))
                             v_row = self.v_cur.fetchone()
-                else:
-                    v_table.Columns.append('x')
                 if self.v_start:
                     self.v_start = False
                 return v_table

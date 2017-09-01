@@ -104,6 +104,8 @@ def get_tree_info(request):
             'create_publication': v_database.TemplateCreatePublication().v_text,
             'alter_publication': v_database.TemplateAlterPublication().v_text,
             'drop_publication': v_database.TemplateDropPublication().v_text,
+            'add_pubtable': v_database.TemplateAddPublicationTable().v_text,
+            'drop_pubtable': v_database.TemplateDropPublicationTable().v_text,
             'create_subscription': v_database.TemplateCreateSubscription().v_text,
             'alter_subscription': v_database.TemplateAlterSubscription().v_text,
             'drop_subscription': v_database.TemplateDropSubscription().v_text,
@@ -1344,7 +1346,11 @@ def get_publications(request):
         v_pubs = v_database.QueryPublications()
         for v_pub in v_pubs.Rows:
             v_pub_data = {
-                'v_name': v_pub['pubname']
+                'v_name': v_pub['pubname'],
+                'v_alltables': v_pub['puballtables'],
+                'v_insert': v_pub['pubinsert'],
+                'v_update': v_pub['pubupdate'],
+                'v_delete': v_pub['pubdelete']
             }
             v_list_pubs.append(v_pub_data)
     except Exception as exc:
@@ -1353,6 +1359,52 @@ def get_publications(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_pubs
+
+    return JsonResponse(v_return)
+
+def get_publication_tables(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+    v_pub = json_object['p_pub']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QueryPublicationTables(v_pub)
+        for v_table in v_tables.Rows:
+            v_table_data = {
+                'v_name': v_table['table_name']
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
 
     return JsonResponse(v_return)
 
@@ -1389,7 +1441,10 @@ def get_subscriptions(request):
         v_subs = v_database.QuerySubscriptions()
         for v_sub in v_subs.Rows:
             v_sub_data = {
-                'v_name': v_sub['subname']
+                'v_name': v_sub['subname'],
+                'v_enabled': v_sub['subenabled'],
+                'v_conninfo': v_sub['subconninfo'],
+                'v_publications': v_sub['subpublications']
             }
             v_list_subs.append(v_sub_data)
     except Exception as exc:
@@ -1398,6 +1453,52 @@ def get_subscriptions(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_subs
+
+    return JsonResponse(v_return)
+
+def get_subscription_tables(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+    v_sub = json_object['p_sub']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QuerySubscriptionTables(v_sub)
+        for v_table in v_tables.Rows:
+            v_table_data = {
+                'v_name': v_table['table_name']
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
 
     return JsonResponse(v_return)
 

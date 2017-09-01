@@ -656,7 +656,7 @@ function initCreateTabFunctions() {
       context: null,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
 			connTab: v_connTabControl.selectedTab,
-      tabId: v_connTabControl.selectedTab.tag.tabControl.tabCounter
+      currDatabaseIndex: null
 		};
 
 		v_tab.tag = v_tag;

@@ -109,6 +109,8 @@ urlpatterns = [
     url(r'^get_logicalreplicationslots_postgresql/', views.tree_postgresql.get_logicalreplicationslots, name='get_logicalreplicationslots_postgresql'),
     url(r'^get_publications_postgresql/', views.tree_postgresql.get_publications, name='get_publications_postgresql'),
     url(r'^get_subscriptions_postgresql/', views.tree_postgresql.get_subscriptions, name='get_subscriptions_postgresql'),
+    url(r'^get_publication_tables_postgresql/', views.tree_postgresql.get_publication_tables, name='get_publication_tables_postgresql'),
+    url(r'^get_subscription_tables_postgresql/', views.tree_postgresql.get_subscription_tables, name='get_subscription_tables_postgresql'),
     url(r'^kill_backend_postgres/', views.tree_postgresql.kill_backend_postgres, name='kill_backend_postgres'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

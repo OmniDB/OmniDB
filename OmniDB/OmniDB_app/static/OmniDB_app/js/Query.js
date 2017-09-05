@@ -78,18 +78,24 @@ function querySQL(p_mode) {
 		var v_tab_loading_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_loading_span;
 		var v_tab_close_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_close_span;
 
-		var v_message_data = {
-			v_sql_cmd : v_sql_value,
-			v_cmd_type: v_sel_value,
-			v_db_index: v_db_index,
-			v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
-			v_mode: p_mode
-		}
-
 		if (v_sql_value.trim()=='') {
 			showAlert('Please provide a string.');
 		}
 		else {
+
+			//Change to run mode if database index changed
+			if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currDatabaseIndex==null || v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currDatabaseIndex!=v_connTabControl.selectedTab.tag.selectedDatabaseIndex) {
+				p_mode = 0;
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currDatabaseIndex = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
+			}
+
+			var v_message_data = {
+				v_sql_cmd : v_sql_value,
+				v_cmd_type: v_sel_value,
+				v_db_index: v_db_index,
+				v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
+				v_mode: p_mode
+			}
 
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setReadOnly(true);
 
@@ -209,8 +215,8 @@ function querySQLReturnRender(p_message,p_context) {
 
 			var v_data = p_message.v_data;
 
-			//Show fetch buttons if data has 10 rows
-			if (v_data.v_data.length>=10 && p_context.mode!=2) {
+			//Show fetch buttons if data has 50 rows
+			if (v_data.v_data.length>=50 && p_context.mode!=2) {
 				p_context.tab_tag.bt_fetch_more.style.display = '';
 				p_context.tab_tag.bt_fetch_all.style.display = '';
 			}

@@ -152,9 +152,9 @@ function initCreateTabFunctions() {
       mode: 'snippets'
   	};
 
-    getTreeSnippets(v_tag.divTree.id);
+    v_tab.tag = v_tag;
 
-  	v_tab.tag = v_tag;
+    getTreeSnippets(v_tag.divTree.id);
 
     v_connTabControl.tag.createSnippetTextTab('Welcome');
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue('Welcome to OmniDB!');
@@ -595,12 +595,17 @@ function initCreateTabFunctions() {
 
             v_completer_ready = false;
             setTimeout(function(){ v_completer_ready = true; }, 1000);
+            //return [];
 
             if (prefix!='') {
+
+            addLoadingCursor();
 
             execAjax('/get_completions/',
                 JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
                 function(p_return) {
+
+                  removeLoadingCursor();
 
                   if (p_return.v_data.length==0)
                     editor.insert('.');
@@ -622,10 +627,16 @@ function initCreateTabFunctions() {
           						p_return.v_data.message
                     );
                   }
+                  else {
+                    removeLoadingCursor();
+                    editor.insert('.');
+                  }
                 },
                 'box',
                 false);
           }
+          else
+            editor.insert('.');
         }
       }
 		}
@@ -656,7 +667,7 @@ function initCreateTabFunctions() {
       context: null,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
 			connTab: v_connTabControl.selectedTab,
-      tabId: v_connTabControl.selectedTab.tag.tabControl.tabCounter
+      currDatabaseIndex: null
 		};
 
 		v_tab.tag = v_tag;

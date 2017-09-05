@@ -147,9 +147,6 @@ span.node_selected a {
 .aimara_sub-menu li:hover {
   background: #d3deff;
 }
-.aimara_menu li:hover > .aimara_sub-menu {
-  display: block;
-}
 
 .aimara_menu {
 	width: 150px;

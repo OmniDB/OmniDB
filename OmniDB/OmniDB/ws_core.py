@@ -73,7 +73,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         #Login request
         if v_code == request.Login:
             self.v_user_key = v_data
-
             try:
                 v_session = SessionStore(session_key=v_data)['omnidb_session']
                 v_response['v_code'] = response.LoginResult
@@ -234,7 +233,7 @@ def GetDuration(p_start, p_end):
     duration = ''
     time_diff = p_end - p_start
     if time_diff.days==0 and time_diff.seconds==0:
-        duration = str(time_diff.microseconds/1000000) + ' seconds'
+        duration = str(time_diff.microseconds/1000) + ' ms'
     else:
         days, seconds = time_diff.days, time_diff.seconds
         hours = days * 24 + seconds // 3600
@@ -337,9 +336,9 @@ def thread_query(self,args,ws_object):
             v_num_success_commands = 0
             v_num_error_commands = 0
 
-            v_database.v_connection.Open()
-
             for v_command in v_commands:
+
+                v_database.v_connection.Open()
 
                 if (self.cancel):
                     return
@@ -352,6 +351,8 @@ def thread_query(self,args,ws_object):
                         log_status = 'error'
                         v_num_error_commands = v_num_error_commands + 1
                         v_return_html += "<b>Command:</b> " + v_command + "<br/><br/><b>Message:</b><br><br><div class='error_text'>" + str(exc).replace('\n','<br>') + "</div><br/><br/>"
+
+                v_database.v_connection.Close ()
 
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
@@ -366,8 +367,6 @@ def thread_query(self,args,ws_object):
 
             if v_num_error_commands > 0:
                 v_response['v_data']['v_data'] += "<b>Errors details:</b><br/><br/>" + v_return_html;
-
-            v_database.v_connection.Close ()
 
             if not self.cancel:
                 tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
@@ -396,11 +395,11 @@ def thread_query(self,args,ws_object):
                     v_database.v_connection.Open()
 
                 if v_mode==0 or v_mode==1:
-                    v_data1 = v_database.v_connection.QueryBlock(v_sql,10, True)
+                    v_data1 = v_database.v_connection.QueryBlock(v_sql,50, True)
                 elif v_mode==2:
                     v_data1 = v_database.v_connection.QueryBlock(v_sql,-1, True)
 
-                if v_mode==2 or len(v_data1.Rows)<10:
+                if v_mode==2 or len(v_data1.Rows)<50:
                     v_database.v_connection.Close()
 
                 log_end_time = datetime.now()
@@ -413,6 +412,7 @@ def thread_query(self,args,ws_object):
                     'v_duration': v_duration
                 }
             except Exception as exc:
+                v_database.v_connection.Close()
                 log_end_time = datetime.now()
                 v_duration = GetDuration(log_start_time,log_end_time)
                 log_status = 'error'

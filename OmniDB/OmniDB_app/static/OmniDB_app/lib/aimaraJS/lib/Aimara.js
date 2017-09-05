@@ -380,17 +380,23 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 						v_div = this.contextMenuDiv;
 
 					var v_closediv = createSimpleElement('div',null,'div_close_cm');
-					v_closediv.onclick = function() {
-						if (v_tree.contextMenuDiv!=null)
-							v_tree.contextMenuDiv.style.display = 'none';
-							this.parentNode.removeChild(this);
+					v_closediv.onmousedown = function() {
+						if (v_tree.contextMenuDiv!=null) {
+							//v_tree.contextMenuDiv.style.display = 'none';
+							v_tree.contextMenuDiv.parentNode.removeChild(v_tree.contextMenuDiv);
+							v_tree.contextMenuDiv = null;
+						}
+						this.parentNode.removeChild(this);
 					};
 					v_closediv.oncontextmenu = function(e) {
 						e.preventDefault();
 						e.stopPropagation();
-						if (v_tree.contextMenuDiv!=null)
-							v_tree.contextMenuDiv.style.display = 'none';
-							this.parentNode.removeChild(this);
+						if (v_tree.contextMenuDiv!=null) {
+							//v_tree.contextMenuDiv.style.display = 'none';
+							v_tree.contextMenuDiv.parentNode.removeChild(v_tree.contextMenuDiv);
+							v_tree.contextMenuDiv = null;
+						}
+						this.parentNode.removeChild(this);
 					};
 					document.body.appendChild(v_closediv);
 
@@ -407,11 +413,15 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 					for (var i=0; i<v_menu.elements.length; i++) (function(i){
 
 						var v_li = createSimpleElement('li',null,null);
+						v_li.aimara_level = 0;
 
 						var v_span = createSimpleElement('span',null,null);
 						v_span.onmousedown = function () {
-							if (v_tree.contextMenuDiv!=null)
-								v_tree.contextMenuDiv.style.display = 'none';
+							if (v_tree.contextMenuDiv!=null) {
+								//v_tree.contextMenuDiv.style.display = 'none';
+								v_tree.contextMenuDiv.parentNode.removeChild(v_tree.contextMenuDiv);
+								v_tree.contextMenuDiv = null;
+							}
 							v_closediv.parentNode.removeChild(v_closediv);
 
 							if (v_menu.elements[i].action!=null)
@@ -420,6 +430,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 						var v_a = createSimpleElement('a',null,null);
 						var v_ul = createSimpleElement('ul',null,'aimara_sub-menu');
+						v_ul.aimara_level = 0;
 
 						v_a.appendChild(document.createTextNode(v_menu.elements[i].text));
 
@@ -435,11 +446,21 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 						v_div.appendChild(v_li);
 
 						if (v_menu.elements[i].submenu!=undefined) {
+
+							v_li.onmouseenter = function() {
+								var v_submenus = document.getElementsByClassName("aimara_sub-menu");
+								for (var k=0; k<v_submenus.length;k++) {
+									if (v_submenus[k].aimara_level>=this.aimara_level)
+										v_submenus[k].style.display = 'none';
+								}
+								v_ul.style.display = 'block';
+							}
+
 							v_li.appendChild(v_ul);
 							var v_span_more = createSimpleElement('div',null,null);
 							v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
 							v_li.appendChild(v_span_more);
-							v_tree.contextMenuLi(v_menu.elements[i].submenu,v_ul,p_node,v_closediv);
+							v_tree.contextMenuLi(v_menu.elements[i].submenu,v_ul,p_node,v_closediv, 1);
 						}
 
 					})(i);
@@ -452,18 +473,22 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		// p_submenu: Reference to the submenu object;
 		// p_ul: Reference to the UL tag;
 		// p_node: Reference to the node;
-		contextMenuLi : function(p_submenu,p_ul,p_node,p_closediv) {
+		contextMenuLi : function(p_submenu,p_ul,p_node,p_closediv, p_level) {
 
 			var v_tree = this;
 
 			for (var i=0; i<p_submenu.elements.length; i++) (function(i){
 
 				var v_li = createSimpleElement('li',null,null);
+				v_li.aimara_level = p_level;
 
 				var v_span = createSimpleElement('span',null,null);
 				v_span.onmousedown = function () {
-					if (v_tree.contextMenuDiv!=null)
-						v_tree.contextMenuDiv.style.display = 'none';
+					if (v_tree.contextMenuDiv!=null) {
+						//v_tree.contextMenuDiv.style.display = 'none';
+						v_tree.contextMenuDiv.parentNode.removeChild(v_tree.contextMenuDiv);
+						v_tree.contextMenuDiv = null;
+					}
 					p_closediv.parentNode.removeChild(p_closediv);
 
 					if (p_submenu.elements[i].action!=null)
@@ -472,6 +497,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 				var v_a = createSimpleElement('a',null,null);
 				var v_ul = createSimpleElement('ul',null,'aimara_sub-menu');
+				v_ul.aimara_level = p_level;
 
 				v_a.appendChild(document.createTextNode(p_submenu.elements[i].text));
 
@@ -486,12 +512,22 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 				p_ul.appendChild(v_li);
 
-				if (p_submenu.elements[i].p_submenu!=undefined) {
+				if (p_submenu.elements[i].submenu!=undefined) {
+
+					v_li.onmouseenter = function() {
+						var v_submenus = document.getElementsByClassName("aimara_sub-menu");
+						for (var k=0; k<v_submenus.length;k++) {
+							if (v_submenus[k].aimara_level>=this.aimara_level)
+								v_submenus[k].style.display = 'none';
+						}
+						v_ul.style.display = 'block';
+					}
+
 					v_li.appendChild(v_ul);
 					var v_span_more = createSimpleElement('div',null,null);
 					v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
 					v_li.appendChild(v_span_more);
-					v_tree.contextMenuLi(p_submenu.elements[i].p_submenu,v_ul,p_node,p_closediv);
+					v_tree.contextMenuLi(p_submenu.elements[i].submenu,v_ul,p_node,p_closediv, p_level+1);
 				}
 
 			})(i);

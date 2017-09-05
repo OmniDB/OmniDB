@@ -309,7 +309,7 @@ function removeTab(p_tab) {
 										p_tab.tag.editor.destroy();
 
 									if (p_tab.tag.mode='query') {
-										console.log('closing query tab')
+										//console.log('closing query tab')
 									}
                 });
 
@@ -908,4 +908,12 @@ function monitoringAction(p_row_index, p_function) {
 	if(typeof v_fn === 'function') {
 		v_fn(v_row_data);
 	}
+}
+
+function addLoadingCursor() {
+	document.body.classList.add("cursor_loading");
+}
+
+function removeLoadingCursor() {
+	document.body.classList.remove("cursor_loading");
 }

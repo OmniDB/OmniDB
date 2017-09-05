@@ -26,6 +26,14 @@ body {
 	user-select: none;
 }
 
+.cursor_loading {
+  cursor: wait !important;
+}
+
+.cursor_loading .ace_scroller {
+  cursor: wait !important;
+}
+
 #div_form {
 	position: absolute;
     width: 100%;

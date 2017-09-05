@@ -1404,6 +1404,38 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
+        'cm_pubtables': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Add Table',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Add Table', node.tree.tag.add_pubtable
+                        .replace('#pub_name#', node.parent.text));
+                }
+            }]
+        },
+        'cm_pubtable': {
+            elements: [{
+                text: 'Drop Table',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Table', node.tree.tag.drop_pubtable
+                        .replace('#pub_name#', node.parent.parent.text)
+                        .replace('#table_name#', node.text));
+                }
+            }]
+        },
         'cm_subscriptions': {
             elements: [{
                 text: 'Refresh',
@@ -1543,6 +1575,10 @@ function refreshTreePostgresql(node) {
         getPublicationsPostgresql(node);
     } else if (node.tag.type == 'subscription_list') {
         getSubscriptionsPostgresql(node);
+    } else if (node.tag.type == 'publication_table_list') {
+        getPublicationTablesPostgresql(node);
+    } else if (node.tag.type == 'subscription_table_list') {
+        getSubscriptionTablesPostgresql(node);
     }
 }
 
@@ -1695,6 +1731,8 @@ function getTreeDetails(node) {
                 create_publication: p_return.v_data.v_database_return.create_publication,
                 alter_publication: p_return.v_data.v_database_return.alter_publication,
                 drop_publication: p_return.v_data.v_database_return.drop_publication,
+                add_pubtable: p_return.v_data.v_database_return.add_pubtable,
+                drop_pubtable: p_return.v_data.v_database_return.drop_pubtable,
                 create_subscription: p_return.v_data.v_database_return.create_subscription,
                 alter_subscription: p_return.v_data.v_database_return.alter_subscription,
                 drop_subscription: p_return.v_data.v_database_return.drop_subscription
@@ -3205,6 +3243,67 @@ function getPublicationsPostgresql(node) {
                     false, '/static/OmniDB_app/images/publication.png', {
                         type: 'publication'
                     }, 'cm_publication');
+                v_node.createChildNode('All Tables: ' + p_return.v_data[i].v_alltables,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('Insert: ' + p_return.v_data[i].v_insert,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('Update: ' + p_return.v_data[i].v_update,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('Delete: ' + p_return.v_data[i].v_delete,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                if (p_return.v_data[i].v_alltables == 'False') {
+                    v_tables = v_node.createChildNode('Tables',
+                        false, '/static/OmniDB_app/images/table_multiple.png', {
+                            type: 'publication_table_list'
+                        }, 'cm_pubtables');
+                    v_tables.createChildNode('', true,
+                        '/static/OmniDB_app/images/spin.svg', null, null);
+                }
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving Publication Tables.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPublicationTablesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_publication_tables_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_pub": node.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Tables (' + p_return.v_data.length + ')');
+
+            node.tag.num_tables = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/table.png', {
+                        type: 'pubtable'
+                    }, 'cm_pubtable');
 
             }
 
@@ -3245,6 +3344,69 @@ function getSubscriptionsPostgresql(node) {
                     false, '/static/OmniDB_app/images/subscription.png', {
                         type: 'subscription'
                     }, 'cm_subscription');
+                v_node.createChildNode('Enabled: ' + p_return.v_data[i].v_enabled,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('ConnInfo: ' + p_return.v_data[i].v_conninfo,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_publications = v_node.createChildNode('Referenced Publications',
+                    false, '/static/OmniDB_app/images/publication.png', {
+                        type: 'subpubs'
+                    }, null);
+                tmp = p_return.v_data[i].v_publications.split(',')
+                for (j = 0; j < tmp.length; j++) {
+                    v_publications.createChildNode(tmp[j],
+                        false, '/static/OmniDB_app/images/publication.png', {
+                            type: 'subpub'
+                        }, null);
+                }
+                v_tables = v_node.createChildNode('Tables',
+                    false, '/static/OmniDB_app/images/table_multiple.png', {
+                        type: 'subscription_table_list'
+                    }, null);
+                v_tables.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving Subscription Tables.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getSubscriptionTablesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_subscription_tables_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_sub": node.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Tables (' + p_return.v_data.length + ')');
+
+            node.tag.num_tables = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/table.png', {
+                        type: 'subtable'
+                    }, null);
 
             }
 

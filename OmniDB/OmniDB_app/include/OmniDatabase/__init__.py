@@ -855,20 +855,52 @@ class PostgreSQL:
 
     def QueryPublications(self):
         return self.v_connection.Query('''
-            select pubname
+            select pubname,
+                   puballtables,
+                   pubinsert,
+                   pubupdate,
+                   pubdelete
             from pg_publication
             order by 1
         ''', True)
 
+    def QueryPublicationTables(self, p_pub):
+        return self.v_connection.Query('''
+            select schemaname || '.' || tablename as table_name
+            from pg_publication_tables
+            where pubname = '{0}'
+            order by 1
+        '''.format(p_pub), True)
+
     def QuerySubscriptions(self):
         return self.v_connection.Query('''
-            select s.subname
+            select s.subname,
+                   s.subenabled,
+                   s.subconninfo,
+                   array_to_string(s.subpublications, ',') as subpublications
             from pg_subscription s
             inner join pg_database d
             on d.oid = s.subdbid
             where d.datname = '{0}'
             order by 1
         '''.format(self.v_service), True)
+
+    def QuerySubscriptionTables(self, p_sub):
+        return self.v_connection.Query('''
+            select n.nspname || '.' || c.relname as table_name
+            from pg_subscription s
+            inner join pg_database d
+            on d.oid = s.subdbid
+            inner join pg_subscription_rel r
+            on r.srsubid = s.oid
+            inner join pg_class c
+            on c.oid = r.srrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where d.datname = '{0}'
+              and s.subname = '{1}'
+            order by 1
+        '''.format(self.v_service, p_sub), True)
 
     def TemplateCreateRole(self):
         return Template('''CREATE ROLE name
@@ -1302,6 +1334,12 @@ ON #table_name#
         return Template('''DROP PUBLICATION #pub_name#
 --CASCADE
 ''')
+
+    def TemplateAddPublicationTable(self):
+        return Template('ALTER PUBLICATION #pub_name# ADD TABLE table_name')
+
+    def TemplateDropPublicationTable(self):
+        return Template('ALTER PUBLICATION #pub_name# DROP TABLE #table_name#')
 
     def TemplateCreateSubscription(self):
         return Template('''CREATE SUBSCRIPTION name

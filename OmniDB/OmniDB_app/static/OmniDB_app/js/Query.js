@@ -215,8 +215,8 @@ function querySQLReturnRender(p_message,p_context) {
 
 			var v_data = p_message.v_data;
 
-			//Show fetch buttons if data has 10 rows
-			if (v_data.v_data.length>=10 && p_context.mode!=2) {
+			//Show fetch buttons if data has 50 rows
+			if (v_data.v_data.length>=50 && p_context.mode!=2) {
 				p_context.tab_tag.bt_fetch_more.style.display = '';
 				p_context.tab_tag.bt_fetch_all.style.display = '';
 			}

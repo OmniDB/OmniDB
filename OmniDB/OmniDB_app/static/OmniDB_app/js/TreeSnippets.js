@@ -130,6 +130,7 @@ function getTreeSnippets(p_div) {
   node1.createChildNode('',true,'/static/OmniDB_app/images/spin.svg',null,null);
 
   tree.drawTree();
+  v_connTabControl.selectedTab.tag.tree = tree;
 
 }
 
@@ -225,8 +226,15 @@ function saveSnippetTextConfirm(p_save_object) {
                      "p_name": p_save_object.v_name,
                      "p_text": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue()}),
      function(p_return) {
-        //if (p_save_object.v_id==null)
-        //refreshTreeSnippets(p_node);
+        if (p_save_object.v_id==null) {
+          var node = v_connTabControl.selectedTab.tag.tree.childNodes[0];
+          if (node.childNodes==0)
+            refreshTreeSnippets(node);
+          else {
+            node.collapseNode();
+            node.expandNode();
+          }
+        }
         showAlert('Snippet saved.')
      },
      null,

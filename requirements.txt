@@ -5,3 +5,4 @@ psycopg2
 pyscrypt
 pyaes
 PrettyTable
+openpyxl

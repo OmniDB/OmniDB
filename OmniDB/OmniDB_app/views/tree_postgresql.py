@@ -109,6 +109,21 @@ def get_tree_info(request):
             'create_subscription': v_database.TemplateCreateSubscription().v_text,
             'alter_subscription': v_database.TemplateAlterSubscription().v_text,
             'drop_subscription': v_database.TemplateDropSubscription().v_text,
+            'bdr_version': v_database.GetBDRVersion(),
+            'bdr_create_group': v_database.TemplateBDRCreateGroup().v_text,
+            'bdr_join_group': v_database.TemplateBDRJoinGroup().v_text,
+            'bdr_join_wait': v_database.TemplateBDRJoinWait().v_text,
+            'bdr_pause': v_database.TemplateBDRPause().v_text,
+            'bdr_resume': v_database.TemplateBDRResume().v_text,
+            'bdr_replicate_ddl_command': v_database.TemplateBDRReplicateDDLCommand().v_text,
+            'bdr_part_node': v_database.TemplateBDRPartNode().v_text,
+            'bdr_insert_repset': v_database.TemplateBDRInsertReplicationSet().v_text,
+            'bdr_update_repset': v_database.TemplateBDRUpdateReplicationSet().v_text,
+            'bdr_delete_repset': v_database.TemplateBDRDeleteReplicationSet().v_text,
+            # only in BDR >= 1
+            'bdr_terminate_apply': v_database.TemplateBDRTerminateApplyWorkers().v_text,
+            'bdr_terminate_walsender': v_database.TemplateBDRTerminateWalsenderWorkers().v_text,
+            'bdr_remove': v_database.TemplateBDRRemove().v_text
         }
     }
 
@@ -1499,6 +1514,147 @@ def get_subscription_tables(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_tables
+
+    return JsonResponse(v_return)
+
+def get_bdr_properties(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_bdr = []
+
+    try:
+        v_bdrs = v_database.QueryBDRProperties()
+        for v_bdr in v_bdrs.Rows:
+            v_bdr_data = {
+                'v_version': v_bdr['version'],
+                'v_active': v_bdr['active'],
+                'v_node_name': v_bdr['node_name'],
+                'v_paused': v_bdr['paused']
+            }
+            v_list_bdr.append(v_bdr_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_bdr
+
+    return JsonResponse(v_return)
+
+def get_bdr_nodes(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_nodes = []
+
+    try:
+        v_nodes = v_database.QueryBDRNodes()
+        for v_node in v_nodes.Rows:
+            v_node_data = {
+                'v_name': v_node['node_name']
+            }
+            v_list_nodes.append(v_node_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_nodes
+
+    return JsonResponse(v_return)
+
+def get_bdr_replicationsets(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_repsets = []
+
+    try:
+        v_repsets = v_database.QueryBDRReplicationSets()
+        for v_repset in v_repsets.Rows:
+            v_repset_data = {
+                'v_name': v_repset['set_name'],
+                'v_inserts': v_repset['replicate_inserts'],
+                'v_updates': v_repset['replicate_updates'],
+                'v_deletes': v_repset['replicate_deletes'],
+            }
+            v_list_repsets.append(v_repset_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_repsets
 
     return JsonResponse(v_return)
 

@@ -1375,6 +1375,127 @@ PUBLICATION pub_name [, ...]
 --CASCADE
 ''')
 
+    def GetBDRVersion(self):
+        return self.v_connection.ExecuteScalar('''
+            select extversion
+            from pg_extension
+            where extname = 'bdr'
+        ''')
+
+    def GetBDRNodeName(self):
+        return self.v_connection.ExecuteScalar('select bdr.bdr_get_local_node_name()')
+
+    def QueryBDRProperties(self):
+        try:
+            v_tmp = self.v_connection.ExecuteScalar('select bdr.bdr_is_active_in_db()')
+            v_test = True
+        except Spartacus.Database.Exception as exc:
+            v_test = False
+        if v_test:
+            return self.v_connection.Query('''
+                select bdr.bdr_version() as version,
+                       bdr.bdr_is_active_in_db() as active,
+                       coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
+                       bdr.bdr_apply_is_paused() as paused
+            ''')
+        else:
+            return self.v_connection.Query('''
+                select bdr.bdr_version() as version,
+                       (coalesce(bdr.bdr_get_local_node_name(), 'Not set') != 'Not set') as active,
+                       coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
+                       bdr.bdr_apply_is_paused() as paused
+            ''')
+
+    def QueryBDRNodes(self):
+        return self.v_connection.Query('''
+            select node_name
+            from bdr.bdr_nodes
+            order by 1
+        ''')
+
+    def QueryBDRReplicationSets(self):
+        return self.v_connection.Query('''
+            select set_name,
+                   replicate_inserts,
+                   replicate_updates,
+                   replicate_deletes
+            from bdr.bdr_replication_set_config
+            order by 1
+        ''')
+
+    def QueryBDRConflictHandlers(self):
+        pass
+
+    def TemplateBDRCreateGroup(self):
+        return Template('''select bdr.bdr_group_create(
+local_node_name := 'node_name'
+, node_external_dsn := 'host={0} port={1} dbname={2}'
+, node_local_dsn := 'dbname={2}'
+--, apply_delay := NULL
+--, replication_sets := ARRAY['default']
+)
+'''.format(self.v_server, self.v_port, self.v_service))
+
+    def TemplateBDRJoinGroup(self):
+        return Template('''select bdr.bdr_group_join(
+local_node_name := 'node_name'
+, node_external_dsn := 'host={0} port={1} dbname={2}'
+, join_using_dsn := 'host= port= dbname='
+, node_local_dsn := 'dbname={2}'
+--, apply_delay := NULL
+--, replication_sets := ARRAY['default']
+)
+'''.format(self.v_server, self.v_port, self.v_service))
+
+    def TemplateBDRJoinWait(self):
+        return Template('select bdr.bdr_node_join_wait_for_ready()')
+
+    def TemplateBDRPause(self):
+        return Template('select bdr.bdr_apply_pause()')
+
+    def TemplateBDRResume(self):
+        return Template('select bdr.bdr_apply_resume()')
+
+    def TemplateBDRReplicateDDLCommand(self):
+        return Template("select bdr.bdr_replicate_ddl_command('DDL command here...')")
+
+    def TemplateBDRPartNode(self):
+        return Template("select bdr.bdr_part_by_node_names('{#node_name#}')")
+
+    def TemplateBDRInsertReplicationSet(self):
+        return Template('''INSERT INTO bdr.bdr_replication_set_config (set_name, replicate_inserts, replicate_updates, replicate_deletes)
+VALUES ('set_name', 't', 't', 't')
+''')
+
+    def TemplateBDRUpdateReplicationSet(self):
+        return Template('''UPDATE bdr.bdr_replication_set_config SET
+--replicate_inserts = { 't' | 'f' }
+--, replicate_updates = { 't' | 'f' }
+--, replicate_deletes = { 't' | 'f' }
+WHERE set_name = #set_name#
+''')
+
+    def TemplateBDRDeleteReplicationSet(self):
+        return Template('''DELETE
+FROM bdr.bdr_replication_set_config
+WHERE set_name = #set_name#
+''')
+
+    # only in BDR >= 1
+
+    def TemplateBDRTerminateApplyWorkers(self):
+        return Template("select bdr.terminate_apply_workers('{#node_name#}')")
+
+    def TemplateBDRTerminateWalsenderWorkers(self):
+        return Template("select bdr.terminate_walsender_workers('{#node_name#}')")
+
+    def TemplateBDRRemove(self):
+        return Template('''select bdr.remove_bdr_from_local_node(
+force := False
+, convert_global_sequences := True
+)
+''')
+
 
 '''
 ------------------------------------------------------------------------

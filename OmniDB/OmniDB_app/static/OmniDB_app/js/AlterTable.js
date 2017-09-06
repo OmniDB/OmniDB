@@ -148,6 +148,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 						rowHeaders : true,
 						manualColumnResize: true,
 						minSpareRows: 1,
+						fillHandle:false,
 						beforeChange: function (changes, source) {
 
 	                        if (!changes) {
@@ -303,6 +304,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 	                }
 
 	                v_curr_tab_tag.alterTableObject.infoRowsConstraints = v_infoRowsConstraints;
+									 v_curr_tab_tag.alterTableObject.data = p_return.v_data.v_data_constraints;
 	                v_curr_tab_tag.alterTableObject.canAlterConstraints = false;
 
 
@@ -315,6 +317,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 						columns : columnProperties,
 						colHeaders : true,
 						manualColumnResize: true,
+						fillHandle:false,
 						beforeChange: function (changes, source) {
 
 	                        if (!changes) {
@@ -344,7 +347,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 
 						    if (v_curr_tab_tag.alterTableObject.infoRowsConstraints[row]!=null) {
 
-					    		var v_constraint_type = p_return.v_data.v_data_constraints[row][1];
+					    		var v_constraint_type = v_curr_tab_tag.alterTableObject.data[row][1];
 
 						    	if (col==7 || (!v_curr_tab_tag.alterTableObject.hasUpdateRule && col==6)) {
 						    		cellProperties.renderer = grayHtmlRenderer;
@@ -380,7 +383,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 						    		cellProperties.readOnly = true;
 
 	    						if (col==4) {
-							    	if (p_return.v_data.v_data_constraints[row][1]=='Foreign Key') {
+							    	if (v_constraint_type=='Foreign Key') {
 
 							    		cellProperties.type='dropdown';
 							    		//cellProperties.source = v_curr_tab_tag.alterTableObject.fkRefColumns[row];
@@ -447,6 +450,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 						columns : columnProperties,
 						colHeaders : true,
 						manualColumnResize: true,
+						fillHandle:false,
 						beforeChange: function (changes, source) {
 
 	                        if (!changes) {
@@ -1055,6 +1059,7 @@ function newConstraintAlterTable() {
 
 	v_data.push(['','',"<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> ",'','','','','<img src="/static/OmniDB_app/images/tab_close.png" onclick="dropConstraintAlterTable()"/>']);
 
+	v_currTabTag.alterTableObject.data = v_data;
 	v_currTabTag.alterTableObject.htConstraints.loadData(v_data);
 
 	v_currTabTag.btSave.style.visibility = 'visible';

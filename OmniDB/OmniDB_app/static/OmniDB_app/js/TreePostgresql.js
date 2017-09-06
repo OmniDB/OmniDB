@@ -3799,12 +3799,14 @@ function nodeOpenError(p_return, p_node) {
             p_return.v_data.message
         );
     } else {
+
         if (p_node.childNodes.length > 0)
             p_node.removeChildNodes();
 
-        v_node = p_node.createChildNode('Error', false,
+        v_node = p_node.createChildNode('Error - <a class="a_link" onclick="showError(&quot;' + p_return.v_data.replace('\n','<br/>') + '&quot;)">View Detail</a>', false,
             '/static/OmniDB_app/images/tab_close.png', {
-                type: 'error'
+                type: 'error',
+                message: p_return.v_data
             }, null);
     }
 

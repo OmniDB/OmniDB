@@ -112,8 +112,10 @@ urlpatterns = [
     url(r'^get_publication_tables_postgresql/', views.tree_postgresql.get_publication_tables, name='get_publication_tables_postgresql'),
     url(r'^get_subscription_tables_postgresql/', views.tree_postgresql.get_subscription_tables, name='get_subscription_tables_postgresql'),
     url(r'^kill_backend_postgres/', views.tree_postgresql.kill_backend_postgres, name='kill_backend_postgres'),
-    url(r'^get_bdr_properties_postgresql/', views.tree_postgresql.get_bdr_properties, name='get_bdr_properties_postgres'),
-    url(r'^get_bdr_nodes_postgresql/', views.tree_postgresql.get_bdr_nodes, name='get_bdr_nodes_postgres'),
-    url(r'^get_bdr_replicationsets_postgresql/', views.tree_postgresql.get_bdr_replicationsets, name='get_bdr_replicationsets_postgres'),
+    url(r'^get_bdr_properties_postgresql/', views.tree_postgresql.get_bdr_properties, name='get_bdr_properties_postgresql'),
+    url(r'^get_bdr_nodes_postgresql/', views.tree_postgresql.get_bdr_nodes, name='get_bdr_nodes_postgresql'),
+    url(r'^get_bdr_replicationsets_postgresql/', views.tree_postgresql.get_bdr_replicationsets, name='get_bdr_replicationsets_postgresql'),
+    url(r'^get_bdr_table_replicationsets_postgresql/', views.tree_postgresql.get_bdr_table_replicationsets, name='get_bdr_table_replicationsets_postgresql'),
+    url(r'^get_bdr_table_conflicthandlers_postgresql/', views.tree_postgresql.get_bdr_table_conflicthandlers, name='get_bdr_table_conflicthandlers_postgresql'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

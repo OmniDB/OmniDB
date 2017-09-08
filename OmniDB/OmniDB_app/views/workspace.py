@@ -1327,7 +1327,7 @@ def start_edit_data(request):
         for v_column in v_data1.Columns:
             v_col = {}
             for v_column_class in v_column_classes.Rows:
-                if v_column.lower() == v_column_class['column'].lower():
+                if v_column == v_column_class['column'].replace('"',''):
                     v_col['v_class'] = v_column_class['cat_st_class']
                     v_col['v_type'] = v_column_class['dt_type']
                     v_col['v_column'] = v_column_class['column']

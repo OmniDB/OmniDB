@@ -1286,7 +1286,118 @@ function getTreePostgresql(p_div) {
                 text: 'Drop View',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                    tabSQLTemplate('Drop View', node.tree.tag.drop_view
+                    tabSQLTemplate('Drop View', node.tree.tag.drop_mview
+                        .replace('#view_name#', node.parent
+                            .parent.text + '.' + node.text)
+                    );
+                }
+            }]
+        },
+        'cm_mviews': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Mat. View',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Materialized View', node.tree.tag
+                        .create_mview.replace(
+                            '#schema_name#', node.parent.text
+                        ));
+                }
+            }, {
+                text: 'Doc: Mat. Views',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Materialized Views',
+                        'https://www.postgresql.org/docs/' +
+                        getMajorVersion(node.tree.tag.version) +
+                        '/static/sql-creatematerializedview.html');
+                }
+            }]
+        },
+        'cm_mview': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Query Data',
+                icon: '/static/OmniDB_app/images/query.png',
+                action: function(node) {
+
+                    var v_table_name = '';
+                    if (node.parent.parent.parent.parent !=
+                        null)
+                        v_table_name = node.parent.parent.text +
+                        '.' + node.text;
+                    else
+                        v_table_name = node.text;
+
+                    if (v_connTabControl.selectedTab.tag.tabControl
+                        .selectedTab.tag.mode != 'query')
+                        v_connTabControl.tag.createQueryTab(
+                            node.text);
+
+                    v_connTabControl.selectedTab.tag.tabControl
+                        .selectedTab.tag.sel_filtered_data.value =
+                        1;
+
+                    v_connTabControl.selectedTab.tag.tabControl
+                        .selectedTab.tag.editor.setValue(
+                            '-- Querying Data\nselect t.*\nfrom ' +
+                            v_table_name + ' t');
+                    v_connTabControl.selectedTab.tag.tabControl
+                        .selectedTab.tag.editor.clearSelection();
+                    renameTabConfirm(v_connTabControl.selectedTab
+                        .tag.tabControl.selectedTab, node.text
+                    );
+
+                    //minimizeEditor();
+
+                    querySQL(0);
+                }
+            }, {
+                text: 'Edit Mat. View',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    if (v_connTabControl.selectedTab.tag.tabControl
+                        .selectedTab.tag.mode != 'query')
+                        v_connTabControl.tag.createQueryTab(
+                            node.text);
+                    getMaterializedViewDefinitionPostgresql(node);
+                }
+            }, {
+                text: 'Refresh Mat. View',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Refresh Materialized View', node.tree.tag.refresh_mview
+                        .replace('#view_name#', node.parent
+                            .parent.text + '.' + node.text)
+                    );
+                }
+            }, {
+                text: 'Drop Mat. View',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Materialized View', node.tree.tag.drop_mview
                         .replace('#view_name#', node.parent
                             .parent.text + '.' + node.text)
                     );
@@ -1691,6 +1802,10 @@ function refreshTreePostgresql(node) {
         getViewsPostgresql(node);
     } else if (node.tag.type == 'view') {
         getViewsColumnsPostgresql(node);
+    } else if (node.tag.type == 'mview_list') {
+        getMaterializedViewsPostgresql(node);
+    } else if (node.tag.type == 'mview') {
+        getMaterializedViewsColumnsPostgresql(node);
     } else if (node.tag.type == 'indexes') {
         getIndexesPostgresql(node);
     } else if (node.tag.type == 'function_list') {
@@ -1869,6 +1984,9 @@ function getTreeDetails(node) {
                     .drop_triggerfunction,
                 create_view: p_return.v_data.v_database_return.create_view,
                 drop_view: p_return.v_data.v_database_return.drop_view,
+                create_mview: p_return.v_data.v_database_return.create_mview,
+                refresh_mview: p_return.v_data.v_database_return.refresh_mview,
+                drop_mview: p_return.v_data.v_database_return.drop_mview,
                 //create_table
                 //alter_table
                 drop_table: p_return.v_data.v_database_return.drop_table,
@@ -2315,6 +2433,15 @@ function getSchemasPostgresql(node) {
                 node_views.createChildNode('', true,
                     '/static/OmniDB_app/images/spin.svg', null, null);
 
+                var node_views = v_node.createChildNode('Materialized Views', false,
+                    '/static/OmniDB_app/images/view_multiple.png', {
+                        type: 'mview_list',
+                        schema: p_return.v_data[i].v_name,
+                        num_views: 0
+                    }, 'cm_mviews');
+                node_views.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+
                 var node_functions = v_node.createChildNode('Functions',
                     false, '/static/OmniDB_app/images/gear2.png', {
                         type: 'function_list',
@@ -2440,6 +2567,231 @@ function getViewsPostgresql(node) {
         },
         'box',
         false);
+}
+
+/// <summary>
+/// Retrieving View Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getViewsColumnsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_views_columns_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_table": node.text,
+            "p_schema": node.parent.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_column_name,
+                    false, '/static/OmniDB_app/images/add.png', {
+                        type: 'table_field'
+                    }, null);
+                v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving view definition.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getViewDefinitionPostgresql(node) {
+
+    execAjax('/get_view_definition_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_view": node.text,
+            "p_schema": node.parent.parent.text
+        }),
+        function(p_return) {
+
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .setValue(p_return.v_data);
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .clearSelection();
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .gotoLine(0, 0, true);
+            //v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+            renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
+                node.text);
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
+                .value = 1;
+
+            var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
+                .tag.div_result;
+
+            if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                .ht != null) {
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                    .ht.destroy();
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                    .ht = null;
+            }
+
+            v_div_result.innerHTML = '';
+
+            maximizeEditor();
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        true);
+
+}
+
+/// <summary>
+/// Retrieving materialized views.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getMaterializedViewsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_mviews_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_schema": node.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Materialized Views (' + p_return.v_data.length + ')');
+
+            node.tag.num_tables = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/view.png', {
+                        type: 'mview'
+                    }, 'cm_mview');
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', {
+                        type: 'mview_field'
+                    }, null);
+            }
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving Materialized View Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getMaterializedViewsColumnsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_mviews_columns_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_table": node.text,
+            "p_schema": node.parent.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_column_name,
+                    false, '/static/OmniDB_app/images/add.png', {
+                        type: 'table_field'
+                    }, null);
+                v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving materialized view definition.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getMaterializedViewDefinitionPostgresql(node) {
+
+    execAjax('/get_mview_definition_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_view": node.text,
+            "p_schema": node.parent.parent.text
+        }),
+        function(p_return) {
+
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .setValue(p_return.v_data);
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .clearSelection();
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .gotoLine(0, 0, true);
+            //v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+            renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
+                node.text);
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
+                .value = 1;
+
+            var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
+                .tag.div_result;
+
+            if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                .ht != null) {
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                    .ht.destroy();
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                    .ht = null;
+            }
+
+            v_div_result.innerHTML = '';
+
+            maximizeEditor();
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        true);
+
 }
 
 /// <summary>
@@ -3027,47 +3379,6 @@ function getPartitionsPostgresql(node) {
 }
 
 /// <summary>
-/// Retrieving View Columns.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getViewsColumnsPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
-        null);
-
-    execAjax('/get_views_columns_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_table": node.text,
-            "p_schema": node.parent.parent.text
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                v_node = node.createChildNode(p_return.v_data[i].v_column_name,
-                    false, '/static/OmniDB_app/images/add.png', {
-                        type: 'table_field'
-                    }, null);
-                v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
-                    false, '/static/OmniDB_app/images/bullet_red.png',
-                    null, null);
-
-            }
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
 /// Retrieving functions.
 /// </summary>
 /// <param name="node">Node object.</param>
@@ -3269,56 +3580,6 @@ function getTriggerFunctionDefinitionPostgresql(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_function": node.tag.id
-        }),
-        function(p_return) {
-
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
-                .setValue(p_return.v_data);
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
-                .clearSelection();
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
-                .gotoLine(0, 0, true);
-            //v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
-            renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
-                node.text);
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
-                .value = 1;
-
-            var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
-                .tag.div_result;
-
-            if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
-                .ht != null) {
-                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
-                    .ht.destroy();
-                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
-                    .ht = null;
-            }
-
-            v_div_result.innerHTML = '';
-
-            maximizeEditor();
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        true);
-
-}
-
-/// <summary>
-/// Retrieving view definition.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getViewDefinitionPostgresql(node) {
-
-    execAjax('/get_view_definition_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_view": node.text,
-            "p_schema": node.parent.parent.text
         }),
         function(p_return) {
 

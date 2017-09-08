@@ -840,6 +840,76 @@ class PostgreSQL:
             '''.format(p_schema, p_view)
     ))
 
+    def QueryMaterializedViews(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(t.relname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select quote_ident(t.relname) as table_name,
+                   quote_ident(n.nspname) as schema_name
+            from pg_class t
+            inner join pg_namespace n
+            on n.oid = t.relnamespace
+            where t.relkind = 'm'
+            {0}
+            order by 2, 1
+        '''.format(v_filter), True)
+
+    def QueryMaterializedViewFields(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select quote_ident(c.relname) as table_name,
+                   quote_ident(a.attname) as column_name,
+                   t.typname as data_type,
+                   not t.typnotnull as nullable,
+                   t.typlen as data_length,
+                   null as data_precision,
+                   null as data_scale
+            from pg_attribute a
+            inner join pg_class c
+            on c.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_type t
+            on t.oid = a.atttypid
+            where a.attnum > 0
+              and not a.attisdropped
+              and c.relkind = 'm'
+              {0}
+            order by quote_ident(c.relname),
+                     a.attnum
+        '''.format(v_filter), True)
+
+    def GetMaterializedViewDefinition(self, p_view, p_schema):
+        return '''DROP MATERIALIZED VIEW {0}.{1};
+
+CREATE MATERIALIZED VIEW {0}.{1} AS
+{2}
+'''.format(p_schema, p_view,
+        self.v_connection.ExecuteScalar('''
+                select pg_get_viewdef('{0}.{1}'::regclass)
+            '''.format(p_schema, p_view)
+    ))
+
     def QueryPhysicalReplicationSlots(self):
         return self.v_connection.Query('''
             select quote_ident(slot_name) as slot_name
@@ -884,7 +954,7 @@ class PostgreSQL:
             from pg_subscription s
             inner join pg_database d
             on d.oid = s.subdbid
-            where quote_ident(d.datname) = '{0}'
+            where d.datname = '{0}'
             order by 1
         '''.format(self.v_service), True)
 
@@ -900,7 +970,7 @@ class PostgreSQL:
             on c.oid = r.srrelid
             inner join pg_namespace n
             on n.oid = c.relnamespace
-            where quote_ident(d.datname) = '{0}'
+            where d.datname = '{0}'
               and quote_ident(s.subname) = '{1}'
             order by 1
         '''.format(self.v_service, p_sub), True)
@@ -1122,6 +1192,22 @@ SELECT ...
 
     def TemplateDropView(self):
         return Template('''DROP VIEW #view_name#
+--CASCADE
+''')
+
+    def TemplateCreateMaterializedView(self):
+        return Template('''CREATE MATERIALIZED VIEW #schema_name#.name AS
+SELECT ...
+-- WITH NO DATA
+''')
+
+    def TemplateRefreshMaterializedView(self):
+        return Template('''REFRESH MATERIALIZED VIEW #view_name# AS
+-- WITH NO DATA
+''')
+
+    def TemplateDropMaterializedView(self):
+        return Template('''DROP MATERIALIZED VIEW #view_name#
 --CASCADE
 ''')
 

@@ -739,7 +739,7 @@ class PostgreSQL(Generic):
             if self.v_host is None or self.v_host == '':
                 if self.v_password is None or self.v_password == '':
                     self.v_con = psycopg2.connect(
-                        'port={0} dbname={1} user={2}'.format(
+                        "port={0} dbname='{1}' user='{2}'".format(
                             self.v_port,
                             self.v_service,
                             self.v_user
@@ -747,7 +747,7 @@ class PostgreSQL(Generic):
                         cursor_factory=psycopg2.extras.DictCursor)
                 else:
                     self.v_con = psycopg2.connect(
-                        'port={0} dbname={1} user={2} password={3}'.format(
+                        "port={0} dbname='{1}' user='{2}' password='{3}'".format(
                             self.v_port,
                             self.v_service,
                             self.v_user,
@@ -756,7 +756,7 @@ class PostgreSQL(Generic):
                         cursor_factory=psycopg2.extras.DictCursor)
             else:
                 self.v_con = psycopg2.connect(
-                    'host={0} port={1} dbname={2} user={3} password={4}'.format(
+                    "host='{0}' port={1} dbname='{2}' user='{3}' password='{4}'".format(
                         self.v_host,
                         self.v_port,
                         self.v_service,

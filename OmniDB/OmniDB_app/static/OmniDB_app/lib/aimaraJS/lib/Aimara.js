@@ -202,7 +202,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				if (p_node.color!=null)
 					v_a.style.color = p_node.color;
 
-				v_a.innerHTML=p_node.text;
+				v_a.innerHTML=p_node.text.replace(/"/g, '');
 				v_span.appendChild(v_a);
 				v_li.appendChild(v_exp_col);
 				v_li.appendChild(v_span);

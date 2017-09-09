@@ -2,7 +2,7 @@
 
 block_cipher = None
 
-data_files = [
+data_files_app = [
   ('omnidb.db','.'),
   ('db.sqlite3','.'),
   ('log','log'),
@@ -10,10 +10,18 @@ data_files = [
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates')
 ]
+data_files_server = [
+  ('omnidb.db','.'),
+  ('db.sqlite3','.'),
+  ('omnidb.conf','.'),
+  ('log','log'),
+  ('OmniDB_app/static','OmniDB_app/static'),
+  ('OmniDB_app/include','OmniDB_app/include'),
+  ('OmniDB_app/templates','OmniDB_app/templates')
 
 a = Analysis(['omnidb-app.py'],
              binaries=[],
-             datas=data_files,
+             datas=data_files_app,
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -42,7 +50,7 @@ coll_a = COLLECT(exe_a,
 
 b = Analysis(['omnidb-server.py'],
              binaries=[],
-             datas=data_files,
+             datas=data_files_server,
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],

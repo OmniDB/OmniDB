@@ -194,14 +194,14 @@ class PostgreSQL:
 
     def QueryRoles(self):
         return self.v_connection.Query('''
-            select rolname as role_name
+            select quote_ident(rolname) as role_name
             from pg_roles
             order by rolname
         ''', True)
 
     def QueryTablespaces(self):
         return self.v_connection.Query('''
-            select spcname as tablespace_name
+            select quote_ident(spcname) as tablespace_name
             from pg_tablespace
             order by spcname
         ''', True)
@@ -210,7 +210,7 @@ class PostgreSQL:
         return self.v_connection.Query('''
             select database_name
             from (
-            select datname as database_name,
+            select quote_ident(datname) as database_name,
                    1 as sort
             from pg_database
             where datname = 'postgres'
@@ -218,7 +218,7 @@ class PostgreSQL:
             select database_name,
                    1 + row_number() over() as sort
             from (
-            select datname as database_name
+            select quote_ident(datname) as database_name
             from pg_database
             where not datistemplate
               and datname <> 'postgres'
@@ -230,7 +230,7 @@ class PostgreSQL:
 
     def QueryExtensions(self):
         return self.v_connection.Query('''
-            select extname as extension_name
+            select quote_ident(extname) as extension_name
             from pg_extension
             order by extname
         ''', True)
@@ -242,7 +242,7 @@ class PostgreSQL:
             select schema_name,
                    row_number() over() as sort
             from (
-            select nspname as schema_name
+            select quote_ident(nspname) as schema_name
             from pg_catalog.pg_namespace
             where nspname in ('public', 'pg_catalog', 'information_schema')
             order by nspname desc
@@ -251,7 +251,7 @@ class PostgreSQL:
             select schema_name,
                    3 + row_number() over() as sort
             from (
-            select nspname as schema_name
+            select quote_ident(nspname) as schema_name
             from pg_catalog.pg_namespace
             where nspname not in ('public', 'pg_catalog', 'information_schema', 'pg_toast')
               and nspname not like 'pg%%temp%%'
@@ -265,40 +265,39 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_schema:
-                v_filter = "and lower(table_schema) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(table_schema) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(table_schema) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(table_schema) = '{0}' ".format(self.v_schema)
         else:
-            v_filter = "and lower(table_schema) not in ('information_schema','pg_catalog') "
+            v_filter = "and quote_ident(table_schema) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select table_name as table_name,
-                   table_schema as table_schema
+            select quote_ident(table_name) as table_name,
+                   quote_ident(table_schema) as table_schema
             from information_schema.tables
             where table_type = 'BASE TABLE'
             {0}
-            order by table_schema,
-                     table_name
+            order by 2, 1
         '''.format(v_filter), True)
 
     def QueryTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(t.table_schema) = '{0}' and lower(c.table_name) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and quote_ident(t.table_schema) = '{0}' and quote_ident(c.table_name) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and lower(t.table_schema) = '{0}' and lower(c.table_name) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and quote_ident(t.table_schema) = '{0}' and quote_ident(c.table_name) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and lower(t.table_schema) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(t.table_schema) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and lower(t.table_schema) not in ('information_schema','pg_catalog') and lower(c.table_name) = {0}".format(str.lower(p_table))
+                v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') and quote_ident(c.table_name) = {0}".format(p_table)
             else:
-                v_filter = "and lower(t.table_schema) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select c.table_name as table_name,
-                   c.column_name as column_name,
+            select quote_ident(c.table_name) as table_name,
+                   quote_ident(c.column_name) as column_name,
                    c.data_type as data_type,
                    c.is_nullable as nullable,
                    c.character_maximum_length as data_length,
@@ -308,36 +307,36 @@ class PostgreSQL:
             join information_schema.tables t on (c.table_name = t.table_name and c.table_schema = t.table_schema)
             where t.table_type = 'BASE TABLE'
             {0}
-            order by c.table_name, c.ordinal_position
+            order by quote_ident(c.table_name), c.ordinal_position
         '''.format(v_filter), True)
 
     def QueryTablesForeignKeys(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(rc.constraint_schema) = '{0}' and lower(kcu1.table_name) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' and quote_ident(kcu1.table_name) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and lower(rc.constraint_schema) = '{0}' and lower(kcu1.table_name) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' and quote_ident(kcu1.table_name) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and lower(rc.constraint_schema) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(rc.constraint_schema) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and lower(rc.constraint_schema) not in ('information_schema','pg_catalog') and lower(kcu1.table_name) = {0}".format(str.lower(p_table))
+                v_filter = "and quote_ident(rc.constraint_schema) not in ('information_schema','pg_catalog') and quote_ident(kcu1.table_name) = {0}".format(p_table)
             else:
-                v_filter = "and lower(rc.constraint_schema) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(rc.constraint_schema) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
             select *
             from (select distinct
-                         kcu1.constraint_name as constraint_name,
-                         kcu1.table_name as table_name,
-                         kcu1.column_name as column_name,
-                         kcu2.constraint_name as r_constraint_name,
-                         kcu2.table_name as r_table_name,
-                         kcu2.column_name as r_column_name,
-                         kcu1.constraint_schema as table_schema,
-                         kcu2.constraint_schema as r_table_schema,
+                         quote_ident(kcu1.constraint_name) as constraint_name,
+                         quote_ident(kcu1.table_name) as table_name,
+                         quote_ident(kcu1.column_name) as column_name,
+                         quote_ident(kcu2.constraint_name) as r_constraint_name,
+                         quote_ident(kcu2.table_name) as r_table_name,
+                         quote_ident(kcu2.column_name) as r_column_name,
+                         quote_ident(kcu1.constraint_schema) as table_schema,
+                         quote_ident(kcu2.constraint_schema) as r_table_schema,
                          kcu1.ordinal_position,
                          rc.update_rule as update_rule,
                          rc.delete_rule as delete_rule
@@ -354,8 +353,8 @@ class PostgreSQL:
             where 1 = 1
             {0}
             ) t
-            order by constraint_name,
-                     table_name,
+            order by quote_ident(constraint_name),
+                     quote_ident(table_name),
                      ordinal_position
         '''.format(v_filter), True)
 
@@ -363,23 +362,23 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(tc.table_schema) = '{0}' and lower(tc.table_name) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and lower(tc.table_schema) = '{0}' and lower(tc.table_name) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and lower(tc.table_schema) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(tc.table_schema) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and lower(tc.table_schema) not in ('information_schema','pg_catalog') and lower(tc.table_name) = {0}".format(str.lower(p_table))
+                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') and quote_ident(tc.table_name) = {0}".format(p_table)
             else:
-                v_filter = "and lower(tc.table_schema) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select tc.constraint_name as constraint_name,
-                   kc.column_name as column_name,
-                   tc.table_name as table_name,
-                   tc.table_schema as table_schema
+            select quote_ident(tc.constraint_name) as constraint_name,
+                   quote_ident(kc.column_name) as column_name,
+                   quote_ident(tc.table_name) as table_name,
+                   quote_ident(tc.table_schema) as table_schema
             from information_schema.table_constraints tc
             join information_schema.key_column_usage kc
             on kc.table_name = tc.table_name
@@ -387,8 +386,8 @@ class PostgreSQL:
             and kc.constraint_name = tc.constraint_name
             where tc.constraint_type = 'PRIMARY KEY'
             {0}
-            order by tc.constraint_name,
-                     tc.table_name,
+            order by quote_ident(tc.constraint_name),
+                     quote_ident(tc.table_name),
                      kc.ordinal_position
         '''.format(v_filter), True)
 
@@ -396,23 +395,23 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(tc.table_schema) = '{0}' and lower(tc.table_name) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and lower(tc.table_schema) = '{0}' and lower(tc.table_name) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and lower(tc.table_schema) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(tc.table_schema) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and lower(tc.table_schema) not in ('information_schema','pg_catalog') and lower(tc.table_name) = {0}".format(str.lower(p_table))
+                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') and quote_ident(tc.table_name) = {0}".format(p_table)
             else:
-                v_filter = "and lower(tc.table_schema) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select tc.constraint_name as constraint_name,
-                   kc.column_name as column_name,
-                   tc.table_name as table_name,
-                   tc.table_schema as table_schema
+            select quote_ident(tc.constraint_name) as constraint_name,
+                   quote_ident(kc.column_name) as column_name,
+                   quote_ident(tc.table_name) as table_name,
+                   quote_ident(tc.table_schema) as table_schema
             from information_schema.table_constraints tc
             join information_schema.key_column_usage kc
             on kc.table_name = tc.table_name
@@ -420,8 +419,8 @@ class PostgreSQL:
             and kc.constraint_name = tc.constraint_name
             where tc.constraint_type = 'UNIQUE'
             {0}
-            order by tc.constraint_name,
-                     tc.table_name,
+            order by quote_ident(tc.constraint_name),
+                     quote_ident(tc.table_name),
                      kc.ordinal_position
         '''.format(v_filter), True)
 
@@ -429,51 +428,51 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(t.schemaname) = '{0}' and lower(t.tablename) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and lower(t.schemaname) = '{0}' and lower(t.tablename) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and lower(t.schemaname) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(t.schemaname) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and lower(t.schemaname) not in ('information_schema','pg_catalog') and lower(t.tablename) = {0}".format(str.lower(p_table))
+                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') and quote_ident(t.tablename) = {0}".format(p_table)
             else:
-                v_filter = "and lower(t.schemaname) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select t.tablename as table_name,
-                   t.indexname as index_name,
+            select quote_ident(t.tablename) as table_name,
+                   quote_ident(t.indexname) as index_name,
                    unnest(string_to_array(replace(substr(t.indexdef, strpos(t.indexdef, '(')+1, strpos(t.indexdef, ')')-strpos(t.indexdef, '(')-1), ' ', ''),',')) as column_name,
                    (case when strpos(t.indexdef, 'UNIQUE') > 0 then 'Unique' else 'Non Unique' end) as uniqueness,
-                   t.schemaname as schema_name
+                   quote_ident(t.schemaname) as schema_name
             from pg_indexes t
             where 1 = 1
             {0}
-            order by t.tablename,
-                     t.indexname
+            order by quote_ident(t.tablename),
+                     quote_ident(t.indexname)
         '''.format(v_filter), True)
 
     def QueryTablesChecks(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(n.nspname) = '{0}' and ltrim(lower(t.relname), lower(n.nspname) || '.') = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and quote_ident(n.nspname) = '{0}' and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and lower(n.nspname) = '{0}' and ltrim(lower(t.relname), lower(n.nspname) || '.') = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and quote_ident(n.nspname) = '{0}' and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') and ltrim(lower(t.relname), lower(n.nspname) || '.') = {0}".format(str.lower(p_table))
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = {0}".format(p_table)
             else:
-                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select n.nspname as schema_name,
-                   ltrim(t.relname, n.nspname || '.') as table_name,
-                   c.conname as constraint_name,
+            select quote_ident(n.nspname) as schema_name,
+                   ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') as table_name,
+                   quote_ident(c.conname) as constraint_name,
                    c.consrc as constraint_source
             from pg_constraint c
             join pg_class t
@@ -489,22 +488,22 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(schemaname) = '{0}' and lower(tablename) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and quote_ident(schemaname) = '{0}' and quote_ident(tablename) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and lower(schemaname) = '{0}' and lower(tablename) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and quote_ident(schemaname) = '{0}' and quote_ident(tablename) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and lower(schemaname) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(schemaname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(schemaname) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(schemaname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and lower(schemaname) not in ('information_schema','pg_catalog') and lower(tablename) = {0}".format(str.lower(p_table))
+                v_filter = "and quote_ident(schemaname) not in ('information_schema','pg_catalog') and quote_ident(tablename) = {0}".format(p_table)
             else:
-                v_filter = "and lower(schemaname) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(schemaname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select schemaname as table_schema,
-                   tablename as table_name,
-                   rulename as rule_name
+            select quote_ident(schemaname) as table_schema,
+                   quote_ident(tablename) as table_name,
+                   quote_ident(rulename) as rule_name
             from pg_rules
             where 1 = 1
             {0}
@@ -515,34 +514,34 @@ class PostgreSQL:
         return self.v_connection.ExecuteScalar('''
             select definition
             from pg_rules
-            where table_schema = '{0}'
-              and table_name = '{1}'
-              and rulename = '{2}'
+            where quote_ident(table_schema) = '{0}'
+              and quote_ident(table_name) = '{1}'
+              and quote_ident(rulename) = '{2}'
         '''.format(p_schema, p_table, p_rule))
 
     def QueryTablesTriggers(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(n.nspname) = '{0}' and lower(c.relname) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and lower(n.nspname) = '{0}' and lower(c.relname) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') and lower(c.relname) = {0}".format(str.lower(p_table))
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
             else:
-                v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select n.nspname as schema_name,
-                   c.relname as table_name,
-                   t.tgname as trigger_name,
+            select quote_ident(n.nspname as schema_name,
+                   quote_ident(c.relname as table_name,
+                   quote_ident(t.tgname as trigger_name,
                    t.tgenabled as trigger_enabled,
-                   np.nspname || '.' || p.proname as trigger_function_name,
-                   np.nspname || '.' || p.proname || '()' as trigger_function_id
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function_name,
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()' as trigger_function_id
             from pg_trigger t
             inner join pg_class c
             on c.oid = t.tgrelid
@@ -566,7 +565,7 @@ class PostgreSQL:
                    (case when length(coalesce(x.action_condition, '')) > 0 then '  WHEN ( ' || x.action_condition || ') ' || chr(10) else '' end) ||
                    '  ' || x.action_statement as definition
             from (
-            select distinct t.trigger_name,
+            select distinct quote_ident(t.trigger_name),
                    t.action_timing,
                    e.event as event_manipulation,
                    t.action_orientation,
@@ -583,9 +582,9 @@ class PostgreSQL:
             ), ' OR ') as event
             ) e
             on 1 = 1
-            where t.event_object_schema = '{0}'
-              and t.event_object_table = '{1}'
-              and t.trigger_name = '{2}'
+            where quote_ident(t.event_object_schema) = '{0}'
+              and quote_ident(t.event_object_table) = '{1}'
+              and quote_ident(t.trigger_name) = '{2}'
             ) x
         '''.format(p_schema, p_table, p_trigger))
 
@@ -593,23 +592,23 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(np.nspname) = '{0}' and lower(cp.relname) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and quote_ident(np.nspname) = '{0}' and quote_ident(cp.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and lower(np.nspname) = '{0}' and lower(cp.relname) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and quote_ident(np.nspname) = '{0}' and quote_ident(cp.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and lower(np.nspname) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(np.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(np.nspname) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(np.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and lower(np.nspname) not in ('information_schema','pg_catalog') and lower(cp.relname) = {0}".format(str.lower(p_table))
+                v_filter = "and quote_ident(np.nspname) not in ('information_schema','pg_catalog') and quote_ident(cp.relname) = {0}".format(p_table)
             else:
-                v_filter = "and lower(np.nspname) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(np.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select np.nspname as parent_schema,
-                   cp.relname as parent_table,
-                   nc.nspname as child_schema,
-                   cc.relname as child_table
+            select quote_ident(np.nspname) as parent_schema,
+                   quote_ident(cp.relname) as parent_table,
+                   quote_ident(nc.nspname) as child_schema,
+                   quote_ident(cc.relname) as child_table
             from pg_inherits i
             inner join pg_class cp on cp.oid = i.inhparent
             inner join pg_namespace np on np.oid = cp.relnamespace
@@ -657,15 +656,15 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_schema:
-                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
-            v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as id,
-                   p.proname as name,
-                   n.nspname as schema_name
+            select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                   quote_ident(p.proname) as name,
+                   quote_ident(n.nspname) as schema_name
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
@@ -678,10 +677,11 @@ class PostgreSQL:
         if p_schema:
             return self.v_connection.Query('''
                 select y.type::character varying as type,
-                       y.name
+                       quote_ident(y.name) as name,
+                       1 as seq
                 from (
                     select 'O' as type,
-                           'return ' || format_type(p.prorettype, null) as name
+                           'returns ' || format_type(p.prorettype, null) as name
                     from pg_proc p,
                          pg_namespace n
                     where p.pronamespace = n.oid
@@ -690,21 +690,23 @@ class PostgreSQL:
                 ) y
                 union all
                 select x.type::character varying as type,
-                       trim(x.name) as name
+                       trim(x.name) as name,
+                       row_number() over() + 1 as seq
                 from (
                     select 'I' as type,
                     unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
                 ) x
                 where length(trim(x.name)) > 0
-                order by 1 desc, 2 asc
+                order by 3
             '''.format(p_schema, p_function), True)
         else:
             return self.v_connection.Query('''
                 select y.type::character varying as type,
-                       y.name
+                       quote_ident(y.name) as name,
+                       1 as seq
                 from (
                     select 'O' as type,
-                           'return ' || format_type(p.prorettype, null) as name
+                           'returns ' || format_type(p.prorettype, null) as name
                     from pg_proc p,
                          pg_namespace n
                     where p.pronamespace = n.oid
@@ -713,14 +715,15 @@ class PostgreSQL:
                 ) y
                 union all
                 select x.type::character varying as type,
-                       trim(x.name) as name
+                       trim(x.name) as name,
+                       row_number() over() + 1 as seq
                 from (
                     select 'I' as type,
                     unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
                 ) x
                 where length(trim(x.name)) > 0
-                order by 1 desc, 2 asc
-            '''.format(self.v_schema.lower(), p_function), True)
+                order by 3
+            '''.format(self.v_schema, p_function), True)
 
     def GetFunctionDefinition(self, p_function):
         return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_function))
@@ -729,15 +732,15 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_schema:
-                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(n.nspname) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
-            v_filter = "and lower(n.nspname) not in ('information_schema','pg_catalog') "
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as id,
-                   p.proname as name,
-                   n.nspname as schema_name
+            select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                   quote_ident(p.proname) as name,
+                   quote_ident(n.nspname) as schema_name
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
@@ -753,13 +756,13 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_schema:
-                v_filter = "and lower(sequence_schema) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(sequence_schema) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(sequence_schema) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(sequence_schema) = '{0}' ".format(self.v_schema)
         else:
-            v_filter = "and lower(sequence_schema) not in ('information_schema','pg_catalog') "
+            v_filter = "and quote_ident(sequence_schema) not in ('information_schema','pg_catalog') "
         v_table = self.v_connection.Query('''
-            select sequence_name as sequence_name,
+            select quote_ident(sequence_name) as sequence_name,
                    minimum_value,
                    maximum_value,
                    0 as current_value,
@@ -780,39 +783,39 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_schema:
-                v_filter = "and lower(table_schema) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(table_schema) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(table_schema) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(table_schema) = '{0}' ".format(self.v_schema)
         else:
-            v_filter = "and lower(table_schema) not in ('information_schema','pg_catalog') "
+            v_filter = "and quote_ident(table_schema) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select table_name as table_name,
-                   table_schema as table_schema
+            select quote_ident(table_name) as table_name,
+                   quote_ident(table_schema) as table_schema
             from information_schema.views
             where 1 = 1
             {0}
-            order by table_schema, table_name
+            order by 2, 1
         '''.format(v_filter), True)
 
     def QueryViewFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and lower(t.table_schema) = '{0}' and lower(c.table_name) = '{1}' ".format(str.lower(p_schema), str.lower(p_table))
+                v_filter = "and quote_ident(t.table_schema) = '{0}' and quote_ident(c.table_name) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and lower(t.table_schema) = '{0}' and lower(c.table_name) = '{1}' ".format(str.lower(self.v_schema), str.lower(p_table))
+                v_filter = "and quote_ident(t.table_schema) = '{0}' and quote_ident(c.table_name) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and lower(t.table_schema) = '{0}' ".format(str.lower(p_schema))
+                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and lower(t.table_schema) = '{0}' ".format(str.lower(self.v_schema))
+                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and lower(t.table_schema) not in ('information_schema','pg_catalog') and lower(c.table_name) = {0}".format(str.lower(p_table))
+                v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') and quote_ident(c.table_name) = {0}".format(p_table)
             else:
-                v_filter = "and lower(t.table_schema) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select c.table_name as table_name,
-                   c.column_name as column_name,
+            select quote_ident(c.table_name) as table_name,
+                   quote_ident(c.column_name) as column_name,
                    c.data_type as data_type,
                    c.is_nullable as nullable,
                    c.character_maximum_length as data_length,
@@ -822,7 +825,7 @@ class PostgreSQL:
             join information_schema.views t on (c.table_name = t.table_name and c.table_schema = t.table_schema)
             where 1 = 1
             {0}
-            order by c.table_name, c.ordinal_position
+            order by quote_ident(c.table_name), c.ordinal_position
         '''.format(v_filter), True)
 
     def GetViewDefinition(self, p_view, p_schema):
@@ -832,14 +835,84 @@ class PostgreSQL:
         self.v_connection.ExecuteScalar('''
                 select view_definition
                 from information_schema.views
-                where table_schema = '{0}'
-                  and table_name = '{1}'
+                where quote_ident(table_schema) = '{0}'
+                  and quote_ident(table_name) = '{1}'
+            '''.format(p_schema, p_view)
+    ))
+
+    def QueryMaterializedViews(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(t.relname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select quote_ident(t.relname) as table_name,
+                   quote_ident(n.nspname) as schema_name
+            from pg_class t
+            inner join pg_namespace n
+            on n.oid = t.relnamespace
+            where t.relkind = 'm'
+            {0}
+            order by 2, 1
+        '''.format(v_filter), True)
+
+    def QueryMaterializedViewFields(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select quote_ident(c.relname) as table_name,
+                   quote_ident(a.attname) as column_name,
+                   t.typname as data_type,
+                   not t.typnotnull as nullable,
+                   t.typlen as data_length,
+                   null as data_precision,
+                   null as data_scale
+            from pg_attribute a
+            inner join pg_class c
+            on c.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_type t
+            on t.oid = a.atttypid
+            where a.attnum > 0
+              and not a.attisdropped
+              and c.relkind = 'm'
+              {0}
+            order by quote_ident(c.relname),
+                     a.attnum
+        '''.format(v_filter), True)
+
+    def GetMaterializedViewDefinition(self, p_view, p_schema):
+        return '''DROP MATERIALIZED VIEW {0}.{1};
+
+CREATE MATERIALIZED VIEW {0}.{1} AS
+{2}
+'''.format(p_schema, p_view,
+        self.v_connection.ExecuteScalar('''
+                select pg_get_viewdef('{0}.{1}'::regclass)
             '''.format(p_schema, p_view)
     ))
 
     def QueryPhysicalReplicationSlots(self):
         return self.v_connection.Query('''
-            select slot_name
+            select quote_ident(slot_name) as slot_name
             from pg_replication_slots
             where slot_type = 'physical'
             order by 1
@@ -847,7 +920,7 @@ class PostgreSQL:
 
     def QueryLogicalReplicationSlots(self):
         return self.v_connection.Query('''
-            select slot_name
+            select quote_ident(slot_name) as slot_name
             from pg_replication_slots
             where slot_type = 'logical'
             order by 1
@@ -855,7 +928,7 @@ class PostgreSQL:
 
     def QueryPublications(self):
         return self.v_connection.Query('''
-            select pubname,
+            select quote_ident(pubname) as pubname,
                    puballtables,
                    pubinsert,
                    pubupdate,
@@ -866,15 +939,15 @@ class PostgreSQL:
 
     def QueryPublicationTables(self, p_pub):
         return self.v_connection.Query('''
-            select schemaname || '.' || tablename as table_name
+            select quote_ident(schemaname) || '.' || quote_ident(tablename) as table_name
             from pg_publication_tables
-            where pubname = '{0}'
+            where quote_ident(pubname) = '{0}'
             order by 1
         '''.format(p_pub), True)
 
     def QuerySubscriptions(self):
         return self.v_connection.Query('''
-            select s.subname,
+            select quote_ident(s.subname) as subname,
                    s.subenabled,
                    s.subconninfo,
                    array_to_string(s.subpublications, ',') as subpublications
@@ -887,7 +960,7 @@ class PostgreSQL:
 
     def QuerySubscriptionTables(self, p_sub):
         return self.v_connection.Query('''
-            select n.nspname || '.' || c.relname as table_name
+            select quote_ident(n.nspname) || '.' || quote_ident(c.relname) as table_name
             from pg_subscription s
             inner join pg_database d
             on d.oid = s.subdbid
@@ -898,7 +971,7 @@ class PostgreSQL:
             inner join pg_namespace n
             on n.oid = c.relnamespace
             where d.datname = '{0}'
-              and s.subname = '{1}'
+              and quote_ident(s.subname) = '{1}'
             order by 1
         '''.format(self.v_service, p_sub), True)
 
@@ -1122,6 +1195,22 @@ SELECT ...
 --CASCADE
 ''')
 
+    def TemplateCreateMaterializedView(self):
+        return Template('''CREATE MATERIALIZED VIEW #schema_name#.name AS
+SELECT ...
+-- WITH NO DATA
+''')
+
+    def TemplateRefreshMaterializedView(self):
+        return Template('''REFRESH MATERIALIZED VIEW #view_name# AS
+-- WITH NO DATA
+''')
+
+    def TemplateDropMaterializedView(self):
+        return Template('''DROP MATERIALIZED VIEW #view_name#
+--CASCADE
+''')
+
     def TemplateCreateTable(self):
         pass
 
@@ -1301,6 +1390,22 @@ ON #table_name#
     def TemplateDropPartition(self):
         return Template('DROP TABLE #partition_name#')
 
+    def TemplateVacuum(self):
+        return Template('''VACUUM
+--FULL
+--FREEZE
+--ANALYZE
+''')
+
+    def TemplateVacuumTable(self):
+        return Template('''VACUUM
+--FULL
+--FREEZE
+--ANALYZE
+#table_name#
+--(column_name, [, ...])
+''')
+
     def TemplateCreatePhysicalReplicationSlot(self):
         return Template('''SELECT * FROM pg_create_physical_replication_slot('slot_name')''')
 
@@ -1347,11 +1452,11 @@ CONNECTION 'conninfo'
 PUBLICATION pub_name [, ...]
 --WITH (
 --copy_data = { true | false }
---create_slot = { true | false }
---enabled = { true | false }
---slot_name = 'name'
---synchronous_commit = { on | remote_apply | remote_write | local | off }
---connect = { true | false }
+--, create_slot = { true | false }
+--, enabled = { true | false }
+--, slot_name = 'name'
+--, synchronous_commit = { on | remote_apply | remote_write | local | off }
+--, connect = { true | false }
 --)
 ''')
 
@@ -1364,7 +1469,7 @@ PUBLICATION pub_name [, ...]
 --DISABLE
 --SET (
 --slot_name = 'name'
---synchronous_commit = { on | remote_apply | remote_write | local | off }
+--, synchronous_commit = { on | remote_apply | remote_write | local | off }
 --)
 --OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
 --RENAME TO new_name
@@ -1408,14 +1513,14 @@ PUBLICATION pub_name [, ...]
 
     def QueryBDRNodes(self):
         return self.v_connection.Query('''
-            select node_name
+            select quote_ident(node_name) as node_name
             from bdr.bdr_nodes
             order by 1
         ''')
 
     def QueryBDRReplicationSets(self):
         return self.v_connection.Query('''
-            select set_name,
+            select quote_ident(set_name) as set_name,
                    replicate_inserts,
                    replicate_updates,
                    replicate_deletes
@@ -1423,8 +1528,22 @@ PUBLICATION pub_name [, ...]
             order by 1
         ''')
 
-    def QueryBDRConflictHandlers(self):
-        pass
+    def QueryBDRTableReplicationSets(self, p_table):
+        return self.v_connection.Query("select unnest(bdr.table_get_replication_sets('{0}')) as set_name".format(p_table))
+
+    def QueryBDRTableConflictHandlers(self, p_table, p_schema):
+        return self.v_connection.Query('''
+            select quote_ident(t.ch_name) as ch_name,
+                   t.ch_type::text as ch_type,
+                   t.ch_fun::text as ch_fun
+            from bdr.bdr_conflict_handlers t
+            inner join pg_class c
+            on c.oid = t.ch_reloid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where n.nspname = '{0}'
+              and c.relname = '{1}'
+        '''.format(p_schema, p_table))
 
     def TemplateBDRCreateGroup(self):
         return Template('''select bdr.bdr_group_create(
@@ -1472,14 +1591,50 @@ VALUES ('set_name', 't', 't', 't')
 --replicate_inserts = { 't' | 'f' }
 --, replicate_updates = { 't' | 'f' }
 --, replicate_deletes = { 't' | 'f' }
-WHERE set_name = #set_name#
+WHERE set_name = '#set_name#'
 ''')
 
     def TemplateBDRDeleteReplicationSet(self):
         return Template('''DELETE
 FROM bdr.bdr_replication_set_config
-WHERE set_name = #set_name#
+WHERE set_name = '#set_name#'
 ''')
+
+    def TemplateBDRSetTableReplicationSets(self):
+        return Template("select bdr.table_set_replication_sets('#table_name#', '{repset1,repset2,...}')")
+
+    def TemplateBDRCreateConflictHandler(self):
+        return Template('''CREATE OR REPLACE FUNCTION #table_name#_fnc_conflict_handler (
+  row1 #table_name#,
+  row2 #table_name#,
+  table_name text,
+  table_regclass regclass,
+  conflict_type bdr.bdr_conflict_type, /* [insert_insert | insert_update | update_update | update_delete | delete_delete | unhandled_tx_abort] */
+  OUT row_out #table_name#,
+  OUT handler_action bdr.bdr_conflict_handler_action) /* [IGNORE | ROW | SKIP] */
+  RETURNS record AS
+$BODY$
+BEGIN
+  raise warning 'conflict detected for #table_name#, old_row: %, incoming_row: %', row1, row2;
+  -- sample code to choose the output row or to merge values
+  row_out := row1;
+  handler_action := 'ROW';
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+-- after writing the handler procedure we also need to register it as an handler
+select *
+from bdr.bdr_create_conflict_handler(
+  ch_rel := '#table_name#',
+  ch_name := '#table_name#_conflict_handler',
+  ch_proc := '#table_name#_fnc_conflict_handler(#table_name#, #table_name#, text, regclass, bdr.bdr_conflict_type)',
+  ch_type := 'insert_insert' /* [insert_insert | insert_update | update_update | update_delete | delete_delete | unhandled_tx_abort] */
+)
+''')
+
+    def TemplateBDRDropConflictHandler(self):
+        return Template("select bdr.bdr_drop_conflict_handler('#table_name#', '#ch_name#')")
 
     # only in BDR >= 1
 

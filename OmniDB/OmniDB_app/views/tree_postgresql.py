@@ -69,6 +69,9 @@ def get_tree_info(request):
             'drop_triggerfunction': v_database.TemplateDropTriggerFunction().v_text,
             'create_view': v_database.TemplateCreateView().v_text,
             'drop_view': v_database.TemplateDropView().v_text,
+            'create_mview': v_database.TemplateCreateMaterializedView().v_text,
+            'refresh_mview': v_database.TemplateRefreshMaterializedView().v_text,
+            'drop_mview': v_database.TemplateDropMaterializedView().v_text,
             #create_table
             #alter_table
             'drop_table': v_database.TemplateDropTable().v_text,
@@ -97,6 +100,8 @@ def get_tree_info(request):
             'create_partition': v_database.TemplateCreatePartition().v_text,
             'noinherit_partition': v_database.TemplateNoInheritPartition().v_text,
             'drop_partition': v_database.TemplateDropPartition().v_text,
+            'vacuum': v_database.TemplateVacuum().v_text,
+            'vacuum_table': v_database.TemplateVacuumTable().v_text,
             'create_physicalreplicationslot': v_database.TemplateCreatePhysicalReplicationSlot().v_text,
             'drop_physicalreplicationslot': v_database.TemplateDropPhysicalReplicationSlot().v_text,
             'create_logicalreplicationslot': v_database.TemplateCreateLogicalReplicationSlot().v_text,
@@ -120,6 +125,9 @@ def get_tree_info(request):
             'bdr_insert_repset': v_database.TemplateBDRInsertReplicationSet().v_text,
             'bdr_update_repset': v_database.TemplateBDRUpdateReplicationSet().v_text,
             'bdr_delete_repset': v_database.TemplateBDRDeleteReplicationSet().v_text,
+            'bdr_set_repsets': v_database.TemplateBDRSetTableReplicationSets().v_text,
+            'bdr_create_confhand': v_database.TemplateBDRCreateConflictHandler().v_text,
+            'bdr_drop_confhand': v_database.TemplateBDRDropConflictHandler().v_text,
             # only in BDR >= 1
             'bdr_terminate_apply': v_database.TemplateBDRTerminateApplyWorkers().v_text,
             'bdr_terminate_walsender': v_database.TemplateBDRTerminateWalsenderWorkers().v_text,
@@ -740,6 +748,139 @@ def get_view_definition(request):
 
     try:
         v_return['v_data'] = v_database.GetViewDefinition(v_view, v_schema)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def get_mviews(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QueryMaterializedViews(False,v_schema)
+        for v_table in v_tables.Rows:
+            v_table_data = {
+                'v_name': v_table['table_name'],
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
+
+    return JsonResponse(v_return)
+
+def get_mviews_columns(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_columns = []
+
+    try:
+        v_columns = v_database.QueryMaterializedViewFields(v_table,False,v_schema)
+        for v_column in v_columns.Rows:
+            v_column_data = {
+                'v_column_name': v_column['column_name'],
+                'v_data_type': v_column['data_type'],
+                'v_data_length': v_column['data_length'],
+            }
+            v_list_columns.append(v_column_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_columns
+
+    return JsonResponse(v_return)
+
+def get_mview_definition(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_view = json_object['p_view']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    try:
+        v_return['v_data'] = v_database.GetMaterializedViewDefinition(v_view, v_schema)
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -1655,6 +1796,102 @@ def get_bdr_replicationsets(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_repsets
+
+    return JsonResponse(v_return)
+
+def get_bdr_table_replicationsets(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+    v_schema = json_object['p_schema']
+    v_table = json_object['p_table']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_repsets = []
+
+    try:
+        v_repsets = v_database.QueryBDRTableReplicationSets(v_schema + '.' + v_table)
+        for v_repset in v_repsets.Rows:
+            v_repset_data = {
+                'v_name': v_repset['set_name']
+            }
+            v_list_repsets.append(v_repset_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_repsets
+
+    return JsonResponse(v_return)
+
+def get_bdr_table_conflicthandlers(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+    v_schema = json_object['p_schema']
+    v_table = json_object['p_table']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_chs = []
+
+    try:
+        v_chs = v_database.QueryBDRTableConflictHandlers(v_table, v_schema)
+        for v_ch in v_chs.Rows:
+            v_ch_data = {
+                'v_name': v_ch['ch_name'],
+                'v_type': v_ch['ch_type'],
+                'v_function': v_ch['ch_fun']
+            }
+            v_list_chs.append(v_ch_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_chs
 
     return JsonResponse(v_return)
 

@@ -138,7 +138,7 @@ function QueryPasswordRequired(p_context) {
 			p_context.database_index,
 			function() {
 				cancelSQLTab();
-				querySQL();
+				querySQL(p_context.mode);
 			},
 			function() {
 				cancelSQLTab();

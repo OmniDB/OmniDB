@@ -46,9 +46,9 @@ from django.contrib.sessions.backends.db import SessionStore
 import socket
 import random
 
-logger = logging.getLogger('OmniDB_app.Init')
+import configparser
 
-server_port=None
+logger = logging.getLogger('OmniDB_app.Init')
 
 def check_port(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,7 +60,6 @@ def check_port(port):
     return True
 
 class DjangoApplication(object):
-    HOST = "0.0.0.0"
 
     def mount_static(self, url, root):
         config = {
@@ -71,7 +70,7 @@ class DjangoApplication(object):
         }
         cherrypy.tree.mount(None, url, {'/': config})
 
-    def run(self):
+    def run(self,parameters):
         #cherrypy.engine.unsubscribe('graceful', cherrypy.log.reopen_files)
 
         logging.config.dictConfig(OmniDB.settings.LOGGING)
@@ -81,7 +80,7 @@ class DjangoApplication(object):
 
         cherrypy.tree.graft(WSGIHandler())
 
-        port = server_port
+        port = parameters['listening_port']
         num_attempts = 0
 
         print('''Starting OmniDB server...''')
@@ -96,17 +95,25 @@ class DjangoApplication(object):
             num_attempts = num_attempts + 1
 
         if num_attempts < 20:
-            cherrypy.config.update({
-                'server.socket_host': self.HOST,
+
+            v_cherrypy_config = {
+                'server.socket_host': parameters['listening_address'],
                 'server.socket_port': port,
                 'engine.autoreload_on': False,
                 'log.screen': False,
                 'log.access_file': '',
                 'log.error_file': ''
-            })
+            }
 
-            print ("Starting server {0} at http://localhost:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
-            logger.info("Starting server {0} at http://localhost:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
+            if parameters['is_ssl']:
+                v_cherrypy_config['server.ssl_module'] = 'builtin'
+                v_cherrypy_config['server.ssl_certificate'] = parameters['ssl_certificate_file']
+                v_cherrypy_config['server.ssl_private_key'] = parameters['ssl_key_file']
+
+            cherrypy.config.update(v_cherrypy_config)
+
+            print ("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)))
+            logger.info("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)))
             cherrypy.engine.start()
 
             print ("Open OmniDB in your favorite browser")
@@ -118,15 +125,42 @@ class DjangoApplication(object):
             logger.info('Tried 20 different ports without success, closing...')
 
 if __name__ == "__main__":
-    #default port
+
+    #Parsing config file
+    Config = configparser.ConfigParser()
+    Config.read("omnidb.conf")
+    try:
+        listening_address = Config.get('webserver', 'listening_address')
+    except:
+        listening_address = '0.0.0.0'
+    try:
+        listening_port = Config.getint('webserver', 'listening_port')
+    except:
+        listening_port = OmniDB.settings.OMNIDB_DEFAULT_SERVER_PORT
+    try:
+        ws_port = Config.getint('webserver', 'websocket_port')
+    except:
+        ws_port = OmniDB.settings.WS_QUERY_PORT
+    try:
+        is_ssl = Config.getboolean('webserver', 'is_ssl')
+    except:
+        is_ssl = False
+    try:
+        ssl_certificate_file = Config.get('webserver', 'ssl_certificate_file')
+    except:
+        ssl_certificate_file = ''
+    try:
+        ssl_key_file = Config.get('webserver', 'ssl_key_file')
+    except:
+        ssl_key_file = ''
 
     parser = optparse.OptionParser(version=OmniDB.settings.OMNIDB_VERSION)
     parser.add_option("-p", "--port", dest="port",
-                      default=OmniDB.settings.OMNIDB_DEFAULT_SERVER_PORT, type=int,
+                      default=listening_port, type=int,
                       help="listening port")
 
     parser.add_option("-w", "--wsport", dest="wsport",
-                      default=OmniDB.settings.WS_QUERY_PORT, type=int,
+                      default=ws_port, type=int,
                       help="websocket port")
     (options, args) = parser.parse_args()
 
@@ -146,7 +180,10 @@ if __name__ == "__main__":
         num_attempts = num_attempts + 1
 
     if num_attempts < 20:
-        OmniDB.settings.WS_QUERY_PORT = port
+        OmniDB.settings.WS_QUERY_PORT   = port
+        OmniDB.settings.IS_SSL          = is_ssl
+        OmniDB.settings.SSL_CERTIFICATE = ssl_certificate_file
+        OmniDB.settings.SSL_KEY         = ssl_key_file
 
         print ("Starting websocket server at port {0}.".format(str(port)))
         logger.info("Starting websocket server at port {0}.".format(str(port)))
@@ -156,8 +193,15 @@ if __name__ == "__main__":
 
         #Websocket Core
         ws_core.start_wsserver_thread()
-        server_port = options.port
-        DjangoApplication().run()
+        DjangoApplication().run(
+            {
+                'listening_address'   : listening_address,
+                'listening_port'      : options.port,
+                'is_ssl'              : is_ssl,
+                'ssl_certificate_file': ssl_certificate_file,
+                'ssl_key_file'        : ssl_key_file
+            }
+        )
     else:
         print('Tried 20 different ports without success, closing...')
         logger.info('Tried 20 different ports without success, closing...')

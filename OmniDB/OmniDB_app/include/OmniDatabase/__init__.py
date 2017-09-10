@@ -1198,12 +1198,13 @@ SELECT ...
     def TemplateCreateMaterializedView(self):
         return Template('''CREATE MATERIALIZED VIEW #schema_name#.name AS
 SELECT ...
--- WITH NO DATA
+--WITH NO DATA
 ''')
 
     def TemplateRefreshMaterializedView(self):
-        return Template('''REFRESH MATERIALIZED VIEW #view_name# AS
--- WITH NO DATA
+        return Template('''REFRESH MATERIALIZED VIEW #view_name#
+--CONCURRENTLY
+--WITH NO DATA
 ''')
 
     def TemplateDropMaterializedView(self):

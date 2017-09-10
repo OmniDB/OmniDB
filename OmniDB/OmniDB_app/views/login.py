@@ -52,6 +52,7 @@ def logout(request):
     logger.info('User "{0}" logged out.'.format(v_session.v_user_name))
 
     request.session['omnidb_user_key'] = None
+    request.session['omnidb_session'] = None
 
     return redirect('login')
 

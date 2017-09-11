@@ -1488,11 +1488,19 @@ def get_completions(request):
 
 
     else:
-        while index > 0 and p_sql [index - 1] != ' ' and p_sql [index - 1] != ',':
+        v_quoted = False
+        if p_sql [index - 1]=='"':
+            v_quoted = True
+        while index > 0 and (p_sql [index - 1] != ' ' or v_quoted) and (p_sql [index - 1] != ',' or v_quoted):
             index = index - 1
+            if p_sql [index - 2] == '"':
+                if v_quoted:
+                    v_quoted = False
+                else:
+                    v_quoted = True
+
         v_first_pos = index
         v_table = p_sql[v_first_pos:v_last_pos]
-
     try:
     	v_data1 = v_database.v_connection.GetFields ("select x.* from " + v_table + " x where 1 = 0")
     except Exception as exc:

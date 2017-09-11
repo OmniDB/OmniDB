@@ -162,6 +162,10 @@ if __name__ == "__main__":
     parser.add_option("-w", "--wsport", dest="wsport",
                       default=ws_port, type=int,
                       help="websocket port")
+
+    parser.add_option("-H", "--host", dest="host",
+                      default=listening_address, type=str,
+                      help="listening address")
     (options, args) = parser.parse_args()
 
     #Choosing empty port
@@ -195,7 +199,7 @@ if __name__ == "__main__":
         ws_core.start_wsserver_thread()
         DjangoApplication().run(
             {
-                'listening_address'   : listening_address,
+                'listening_address'   : options.host,
                 'listening_port'      : options.port,
                 'is_ssl'              : is_ssl,
                 'ssl_certificate_file': ssl_certificate_file,

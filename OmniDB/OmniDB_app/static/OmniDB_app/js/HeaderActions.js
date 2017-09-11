@@ -63,6 +63,34 @@ function hideAbout() {
 }
 
 /// <summary>
+/// Go to connections.
+/// </summary>
+function goToConnections() {
+
+	showConfirm('You will lose existing changes. Would you like to continue?',
+		function() {
+
+			window.open("../connections","_self");
+
+		});
+
+}
+
+/// <summary>
+/// Go to workspace.
+/// </summary>
+function goToWorkspace() {
+
+	showConfirm('You will lose existing changes. Would you like to continue?',
+		function() {
+
+			window.open("../workspace","_self");
+
+		});
+
+}
+
+/// <summary>
 /// Shows website in outer tab.
 /// </summary>
 function showWebsite(p_name, p_url) {

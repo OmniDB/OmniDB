@@ -181,7 +181,7 @@ LOGGING = {
 
 #OMNIDB PARAMETERS
 OMNIDB_DATABASE            = os.path.join(BASE_DIR, 'omnidb.db')
-OMNIDB_VERSION             = 'OmniDB 2.0.5'
+OMNIDB_VERSION             = 'OmniDB 2.1.0'
 BINDKEY_EXECUTE            = 'alt+q'
 BINDKEY_EXECUTE_MAC        = 'ctrl+q'
 BINDKEY_REPLACE            = 'ctrl+g'

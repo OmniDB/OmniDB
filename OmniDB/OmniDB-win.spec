@@ -18,6 +18,7 @@ data_files_server = [
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates')
+  ]
 
 a = Analysis(['omnidb-app.py'],
              binaries=[],

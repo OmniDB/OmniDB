@@ -57,13 +57,6 @@ chmod 755 deploy/packages/omnidb-app/libxcb.so.1
 chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
 echo "Done."
 
-echo -n "Copying libXss... "
-cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
-cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
-chmod 755 deploy/packages/omnidb-app/libXss.so.1
-chmod 755 deploy/packages/omnidb-app/cefpython3/libXss.so.1
-echo "Done."
-
 echo -n "Renaming bundles... "
 mv deploy/packages/omnidb-app deploy/packages/omnidb-app_$VERSION-$ARCH
 echo "Done."

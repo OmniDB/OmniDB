@@ -65,8 +65,14 @@ chmod 755 deploy/packages/omnidb-app/cefpython3/libXss.so.1
 echo "Done."
 
 echo -n "Copying libnss3... "
-cp deploy/lib/libnss3.so deploy/packages/omnidb-app/libnss3.so
-cp deploy/lib/libnss3.so deploy/packages/omnidb-app/cefpython3/libnss3.so
+if [ $ARCH == "debian-amd64" ]
+then
+	cp /usr/lib/x86_64-linux-gnu/libnss3.so deploy/packages/omnidb-app/libnss3.so
+	cp /usr/lib/x86_64-linux-gnu/libnss3.so deploy/packages/omnidb-app/cefpython3/libnss3.so
+else
+	cp /usr/lib/i386-linux-gnu/libnss3.so deploy/packages/omnidb-app/libnss3.so
+	cp /usr/lib/i386-linux-gnu/libnss3.so deploy/packages/omnidb-app/cefpython3/libnss3.so
+fi
 chmod 755 deploy/packages/omnidb-app/libnss3.so
 chmod 755 deploy/packages/omnidb-app/cefpython3/libnss3.so
 echo "Done."

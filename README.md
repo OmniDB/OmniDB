@@ -2,6 +2,16 @@
 
 # OmniDB 2.1.0
 
+## Release Notes
+
+- Support to PostgreSQL 10 logical replication
+- Support to Postgres-BDR
+- Support to Materialized Views
+- Simplified query modes
+- Bug fixes
+
+# Introduction
+
 OmniDB was completely rewritten to Python using the Django framework. Starting
 from version `2.0`, **OmniDB Python version** will receive new features and will
 be actively maintained.

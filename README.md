@@ -8,6 +8,7 @@
 - Support to Postgres-BDR
 - Support to Materialized Views
 - Simplified query modes
+- Support to HTTPS in OmniDB-Server
 - Bug fixes
 
 # Introduction

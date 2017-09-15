@@ -1,0 +1,8 @@
+version: '3'
+services:
+  omnidb:
+    build: .
+    image: omnidb
+    restart: always
+    ports:
+      - "8000:8000"

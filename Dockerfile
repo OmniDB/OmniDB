@@ -1,5 +1,4 @@
 FROM python:3.5
-# -alpine
 
 # Environment stuff
 ENV OMNIDB_HOME /app
@@ -18,4 +17,4 @@ RUN pip3 install pip --upgrade && \
 # Start server
 EXPOSE $OMNIDB_PORT
 ENTRYPOINT ["python3"]
-CMD ["manage.py", "runserver"]
+CMD ["manage.py", "runserver", "0.0.0.0:8000"]

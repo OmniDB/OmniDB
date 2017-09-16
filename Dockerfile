@@ -16,5 +16,4 @@ RUN pip3 install pip --upgrade && \
     
 # Start server
 EXPOSE $OMNIDB_PORT
-ENTRYPOINT ["python3"]
-CMD ["manage.py", "runserver", "0.0.0.0:8000"]
+CMD [ "sh", "-c", "python3 manage.py runserver 0.0.0.0:$OMNIDB_PORT" ]

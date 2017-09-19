@@ -47,6 +47,17 @@ class DataTable(object):
                 raise Spartacus.Database.Exception('Can not add row to a table with different columns.')
         else:
             raise Spartacus.Database.Exception('Can not add row to a table with no columns.')
+    def Select(self, p_key, p_value):
+        try:
+            v_table = Spartacus.Database.DataTable()
+            for c in self.Columns:
+                v_table.Columns.append(c)
+            for r in self.Rows:
+                if r[p_key] == p_value:
+                    v_table.Rows.append(r)
+            return v_table
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def Merge(self, p_datatable):
         if len(self.Columns) > 0 and len(p_datatable.Columns) > 0:
             if self.Columns == p_datatable.Columns:
@@ -208,7 +219,16 @@ class Generic(ABC):
     def Close(self):
         pass
     @abstractmethod
+    def Cancel(self):
+        pass
+    @abstractmethod
     def GetFields(self, p_sql):
+        pass
+    @abstractmethod
+    def GetNotices(self):
+        pass
+    @abstractmethod
+    def ClearNotices(self):
         pass
     @abstractmethod
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
@@ -228,12 +248,13 @@ class Generic(ABC):
             k = 0
             v_mog = []
             while k < len(p_row):
-                if type(p_row[k]) == type(None):
+                v_value = p_row[p_fields[k].v_name]
+                if type(v_value) == type(None):
                     v_mog.append('null')
-                elif type(p_row[k]) == type(str()) or type(p_row[k]) == datetime.datetime:
-                    v_mog.append(p_fields[k].v_mask.replace('#', "'{0}'".format(p_row[k])))
+                elif type(v_value) == type(str()) or type(v_value) == datetime.datetime:
+                    v_mog.append(p_fields[k].v_mask.replace('#', "'{0}'".format(v_value)))
                 else:
-                    v_mog.append(p_fields[k].v_mask.replace('#', "{0}".format(p_row[k])))
+                    v_mog.append(p_fields[k].v_mask.replace('#', "{0}".format(v_value)))
                 k = k + 1
             return '(' + ','.join(v_mog) + ')'
         else:
@@ -404,6 +425,10 @@ class SQLite(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -628,6 +653,10 @@ class Memory(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -908,6 +937,30 @@ class PostgreSQL(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                return self.v_con.notices
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+    def ClearNotices(self):
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                del self.v_con.notices[:]
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1136,6 +1189,10 @@ class MySQL(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1364,6 +1421,10 @@ class MariaDB(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1595,6 +1656,10 @@ class Firebird(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1843,6 +1908,10 @@ class Oracle(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -2091,6 +2160,10 @@ class MSSQL(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -2342,6 +2415,10 @@ class IBMDB2(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:

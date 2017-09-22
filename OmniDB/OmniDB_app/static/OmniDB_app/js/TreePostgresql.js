@@ -427,11 +427,8 @@ function getTreePostgresql(p_div) {
                             else
                                 v_table_name = node.text;
 
-                            if (v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.mode != 'query')
-                                v_connTabControl.tag.createQueryTab(
-                                    node.text);
+                            v_connTabControl.tag.createQueryTab(
+                                node.text);
 
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
@@ -478,11 +475,8 @@ function getTreePostgresql(p_div) {
                             else
                                 v_table_name = node.text;
 
-                            if (v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.mode != 'query')
-                                v_connTabControl.tag.createQueryTab(
-                                    node.text);
+                            v_connTabControl.tag.createQueryTab(
+                                node.text);
 
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
@@ -757,7 +751,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Index', node.tree.tag
                         .alter_index.replace('#index_name#',
-                            node.parent.parent.text + '.' +
+                            node.parent.parent.parent.parent.text + '.' +
                             node.text.replace(' (Unique)',
                                 '').replace(' (Non Unique)',
                                 '')));
@@ -767,7 +761,7 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Index', node.tree.tag.drop_index
-                        .replace('#index_name#', node.parent
+                        .replace('#index_name#', node.parent.parent.parent
                             .parent.text + '.' + node.text.replace(
                                 ' (Unique)', '').replace(
                                 ' (Non Unique)', '')));
@@ -1054,10 +1048,8 @@ function getTreePostgresql(p_div) {
                 text: 'Edit Function',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    if (v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.mode != 'query')
-                        v_connTabControl.tag.createQueryTab(
-                            node.text);
+                    v_connTabControl.tag.createQueryTab(
+                        node.text);
                     getFunctionDefinitionPostgresql(node);
                 }
             }, {
@@ -1120,10 +1112,8 @@ function getTreePostgresql(p_div) {
                 text: 'Edit Trigger Function',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    if (v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.mode != 'query')
-                        v_connTabControl.tag.createQueryTab(
-                            node.text);
+                    v_connTabControl.tag.createQueryTab(
+                        node.text);
                     getTriggerFunctionDefinitionPostgresql(node);
                 }
             }, {
@@ -1249,10 +1239,8 @@ function getTreePostgresql(p_div) {
                     else
                         v_table_name = node.text;
 
-                    if (v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.mode != 'query')
-                        v_connTabControl.tag.createQueryTab(
-                            node.text);
+                    v_connTabControl.tag.createQueryTab(
+                        node.text);
 
                     v_connTabControl.selectedTab.tag.tabControl
                         .selectedTab.tag.sel_filtered_data.value =
@@ -1276,17 +1264,15 @@ function getTreePostgresql(p_div) {
                 text: 'Edit View',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    if (v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.mode != 'query')
-                        v_connTabControl.tag.createQueryTab(
-                            node.text);
+                    v_connTabControl.tag.createQueryTab(
+                        node.text);
                     getViewDefinitionPostgresql(node);
                 }
             }, {
                 text: 'Drop View',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                    tabSQLTemplate('Drop View', node.tree.tag.drop_mview
+                    tabSQLTemplate('Drop View', node.tree.tag.drop_view
                         .replace('#view_name#', node.parent
                             .parent.text + '.' + node.text)
                     );
@@ -1351,10 +1337,8 @@ function getTreePostgresql(p_div) {
                     else
                         v_table_name = node.text;
 
-                    if (v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.mode != 'query')
-                        v_connTabControl.tag.createQueryTab(
-                            node.text);
+                    v_connTabControl.tag.createQueryTab(
+                        node.text);
 
                     v_connTabControl.selectedTab.tag.tabControl
                         .selectedTab.tag.sel_filtered_data.value =
@@ -1378,10 +1362,8 @@ function getTreePostgresql(p_div) {
                 text: 'Edit Mat. View',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    if (v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.mode != 'query')
-                        v_connTabControl.tag.createQueryTab(
-                            node.text);
+                    v_connTabControl.tag.createQueryTab(
+                        node.text);
                     getMaterializedViewDefinitionPostgresql(node);
                 }
             }, {

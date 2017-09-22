@@ -99,7 +99,7 @@ def sign_in_automatic(request, username, pwd):
     '''.format(username))
 
     if len(table.Rows) > 0:
-        cryptor = Utils.Cryptor("omnidb")
+        cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
 
         pwd_decrypted = cryptor.Decrypt(table.Rows[0]['password'])
         if pwd_decrypted == pwd:
@@ -173,7 +173,7 @@ def sign_in(request):
     '''.format(username))
 
     if len(table.Rows) > 0:
-        cryptor = Utils.Cryptor("omnidb")
+        cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
 
         pwd_decrypted = cryptor.Decrypt(table.Rows[0]['password'])
         if pwd_decrypted == pwd:

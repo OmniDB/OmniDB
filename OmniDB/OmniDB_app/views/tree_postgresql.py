@@ -96,7 +96,7 @@ def get_tree_info(request):
             'alter_trigger': v_database.TemplateAlterTrigger().v_text,
             'enable_trigger': v_database.TemplateEnableTrigger().v_text,
             'disable_trigger': v_database.TemplateDisableTrigger().v_text,
-            'drop_trigger': v_database.TemplateDisableTrigger().v_text,
+            'drop_trigger': v_database.TemplateDropTrigger().v_text,
             'create_partition': v_database.TemplateCreatePartition().v_text,
             'noinherit_partition': v_database.TemplateNoInheritPartition().v_text,
             'drop_partition': v_database.TemplateDropPartition().v_text,

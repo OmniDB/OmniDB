@@ -1375,7 +1375,7 @@ ON #table_name#
         return Template('ALTER TABLE #table_name# DISABLE TRIGGER #trigger_name#')
 
     def TemplateDropTrigger(self):
-        return Template('''DROP RULE #trigger_name# ON #table_name#
+        return Template('''DROP TRIGGER #trigger_name# ON #table_name#
 --CASCADE
 ''')
 

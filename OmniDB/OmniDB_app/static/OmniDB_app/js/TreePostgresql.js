@@ -514,7 +514,8 @@ function getTreePostgresql(p_div) {
                                     0, true);
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
-                                .tag.sel_filtered_data.value = 1;
+                                .tag.sel_filtered_data.value =
+                                1;
                         }
                     }]
                 }
@@ -526,11 +527,14 @@ function getTreePostgresql(p_div) {
                         text: 'Vacuum Table',
                         icon: '/static/OmniDB_app/images/vacuum.png',
                         action: function(node) {
-                            tabSQLTemplate('Vacuum Table',
+                            tabSQLTemplate(
+                                'Vacuum Table',
                                 node.tree.tag.vacuum_table
                                 .replace(
                                     '#table_name#',
-                                    node.parent.parent.text + '.' + node.text));
+                                    node.parent.parent
+                                    .text + '.' +
+                                    node.text));
                         }
                     }, {
                         text: 'Alter Table',
@@ -549,7 +553,9 @@ function getTreePostgresql(p_div) {
                                 node.tree.tag.drop_table
                                 .replace(
                                     '#table_name#',
-                                    node.parent.parent.text + '.' + node.text));
+                                    node.parent.parent
+                                    .text + '.' +
+                                    node.text));
                         }
                     }]
                 }
@@ -751,7 +757,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Index', node.tree.tag
                         .alter_index.replace('#index_name#',
-                            node.parent.parent.parent.parent.text + '.' +
+                            node.parent.parent.parent.parent
+                            .text + '.' +
                             node.text.replace(' (Unique)',
                                 '').replace(' (Non Unique)',
                                 '')));
@@ -761,7 +768,8 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Index', node.tree.tag.drop_index
-                        .replace('#index_name#', node.parent.parent.parent
+                        .replace('#index_name#', node.parent
+                            .parent.parent
                             .parent.text + '.' + node.text.replace(
                                 ' (Unique)', '').replace(
                                 ' (Non Unique)', '')));
@@ -1295,7 +1303,8 @@ function getTreePostgresql(p_div) {
                 text: 'Create Mat. View',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Create Materialized View', node.tree.tag
+                    tabSQLTemplate('Create Materialized View',
+                        node.tree.tag
                         .create_mview.replace(
                             '#schema_name#', node.parent.text
                         ));
@@ -1308,7 +1317,8 @@ function getTreePostgresql(p_div) {
                         'Documentation: Materialized Views',
                         'https://www.postgresql.org/docs/' +
                         getMajorVersion(node.tree.tag.version) +
-                        '/static/sql-creatematerializedview.html');
+                        '/static/sql-creatematerializedview.html'
+                    );
                 }
             }]
         },
@@ -1364,13 +1374,15 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createQueryTab(
                         node.text);
-                    getMaterializedViewDefinitionPostgresql(node);
+                    getMaterializedViewDefinitionPostgresql(
+                        node);
                 }
             }, {
                 text: 'Refresh Mat. View',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Refresh Materialized View', node.tree.tag.refresh_mview
+                    tabSQLTemplate('Refresh Materialized View',
+                        node.tree.tag.refresh_mview
                         .replace('#view_name#', node.parent
                             .parent.text + '.' + node.text)
                     );
@@ -1379,7 +1391,8 @@ function getTreePostgresql(p_div) {
                 text: 'Drop Mat. View',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                    tabSQLTemplate('Drop Materialized View', node.tree.tag.drop_mview
+                    tabSQLTemplate('Drop Materialized View',
+                        node.tree.tag.drop_mview
                         .replace('#view_name#', node.parent
                             .parent.text + '.' + node.text)
                     );
@@ -1402,7 +1415,9 @@ function getTreePostgresql(p_div) {
                 text: 'Create Slot',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Create Physical Replication Slot', node.tree.tag
+                    tabSQLTemplate(
+                        'Create Physical Replication Slot',
+                        node.tree.tag
                         .create_physicalreplicationslot);
                 }
             }, {
@@ -1413,7 +1428,8 @@ function getTreePostgresql(p_div) {
                         'Documentation: Physical Replication Slots',
                         'https://www.postgresql.org/docs/' +
                         getMajorVersion(node.tree.tag.version) +
-                        '/static/warm-standby.html#streaming-replication-slots');
+                        '/static/warm-standby.html#streaming-replication-slots'
+                    );
                 }
             }]
         },
@@ -1422,9 +1438,11 @@ function getTreePostgresql(p_div) {
                 text: 'Drop Slot',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                    tabSQLTemplate('Drop Physical Replication Slot', node.tree.tag
-                    .drop_physicalreplicationslot.replace(
-                        '#slot_name#', node.text));
+                    tabSQLTemplate(
+                        'Drop Physical Replication Slot',
+                        node.tree.tag
+                        .drop_physicalreplicationslot.replace(
+                            '#slot_name#', node.text));
                 }
             }]
         },
@@ -1444,7 +1462,9 @@ function getTreePostgresql(p_div) {
                 text: 'Create Slot',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Create Logical Replication Slot', node.tree.tag
+                    tabSQLTemplate(
+                        'Create Logical Replication Slot',
+                        node.tree.tag
                         .create_logicalreplicationslot);
                 }
             }, {
@@ -1455,7 +1475,8 @@ function getTreePostgresql(p_div) {
                         'Documentation: Logical Replication Slots',
                         'https://www.postgresql.org/docs/' +
                         getMajorVersion(node.tree.tag.version) +
-                        '/static/logicaldecoding-explanation.html#logicaldecoding-replication-slots');
+                        '/static/logicaldecoding-explanation.html#logicaldecoding-replication-slots'
+                    );
                 }
             }]
         },
@@ -1464,9 +1485,11 @@ function getTreePostgresql(p_div) {
                 text: 'Drop Slot',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                    tabSQLTemplate('Drop Logical Replication Slot', node.tree.tag
-                    .drop_logicalreplicationslot.replace(
-                        '#slot_name#', node.text));
+                    tabSQLTemplate(
+                        'Drop Logical Replication Slot',
+                        node.tree.tag
+                        .drop_logicalreplicationslot.replace(
+                            '#slot_name#', node.text));
                 }
             }]
         },
@@ -1486,7 +1509,8 @@ function getTreePostgresql(p_div) {
                 text: 'Create Publication',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Create Publication', node.tree.tag.create_publication);
+                    tabSQLTemplate('Create Publication', node.tree
+                        .tag.create_publication);
                 }
             }, {
                 text: 'Doc: Publications',
@@ -1496,7 +1520,8 @@ function getTreePostgresql(p_div) {
                         'Documentation: Publications',
                         'https://www.postgresql.org/docs/' +
                         getMajorVersion(node.tree.tag.version) +
-                        '/static/logical-replication-publication.html');
+                        '/static/logical-replication-publication.html'
+                    );
                 }
             }]
         },
@@ -1505,14 +1530,16 @@ function getTreePostgresql(p_div) {
                 text: 'Alter Publication',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Alter Publication', node.tree.tag.alter_publication
+                    tabSQLTemplate('Alter Publication', node.tree
+                        .tag.alter_publication
                         .replace('#pub_name#', node.text));
                 }
             }, {
                 text: 'Drop Publication',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                    tabSQLTemplate('Drop Publication', node.tree.tag.drop_publication
+                    tabSQLTemplate('Drop Publication', node.tree
+                        .tag.drop_publication
                         .replace('#pub_name#', node.text));
                 }
             }]
@@ -1534,7 +1561,8 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
                     tabSQLTemplate('Add Table', node.tree.tag.add_pubtable
-                        .replace('#pub_name#', node.parent.text));
+                        .replace('#pub_name#', node.parent.text)
+                    );
                 }
             }]
         },
@@ -1544,8 +1572,10 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Table', node.tree.tag.drop_pubtable
-                        .replace('#pub_name#', node.parent.parent.text)
-                        .replace('#table_name#', node.text));
+                        .replace('#pub_name#', node.parent.parent
+                            .text)
+                        .replace('#table_name#', node.text)
+                    );
                 }
             }]
         },
@@ -1565,7 +1595,8 @@ function getTreePostgresql(p_div) {
                 text: 'Create Subscription',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Create Subscription', node.tree.tag.create_subscription);
+                    tabSQLTemplate('Create Subscription', node.tree
+                        .tag.create_subscription);
                 }
             }, {
                 text: 'Doc: Subscriptions',
@@ -1575,7 +1606,8 @@ function getTreePostgresql(p_div) {
                         'Documentation: Subscriptions',
                         'https://www.postgresql.org/docs/' +
                         getMajorVersion(node.tree.tag.version) +
-                        '/static/logical-replication-subscription.html');
+                        '/static/logical-replication-subscription.html'
+                    );
                 }
             }]
         },
@@ -1584,14 +1616,16 @@ function getTreePostgresql(p_div) {
                 text: 'Alter Subscription',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Alter Subscription', node.tree.tag.alter_subscription
+                    tabSQLTemplate('Alter Subscription', node.tree
+                        .tag.alter_subscription
                         .replace('#sub_name#', node.text));
                 }
             }, {
                 text: 'Drop Subscription',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                    tabSQLTemplate('Drop Subscription', node.tree.tag.drop_subscription
+                    tabSQLTemplate('Drop Subscription', node.tree
+                        .tag.drop_subscription
                         .replace('#sub_name#', node.text));
                 }
             }]
@@ -1654,7 +1688,8 @@ function getTreePostgresql(p_div) {
                 text: 'Insert Replication Set',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Insert Replication Set', node.tree.tag.bdr_insert_repset);
+                    tabSQLTemplate('Insert Replication Set',
+                        node.tree.tag.bdr_insert_repset);
                 }
             }]
         },
@@ -1663,14 +1698,16 @@ function getTreePostgresql(p_div) {
                 text: 'Update Rep. Set',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Update Replication Set', node.tree.tag.bdr_update_repset
+                    tabSQLTemplate('Update Replication Set',
+                        node.tree.tag.bdr_update_repset
                         .replace('#set_name#', node.text));
                 }
             }, {
                 text: 'Delete Replication Set',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                    tabSQLTemplate('Delete Replication Set', node.tree.tag.bdr_delete_repset
+                    tabSQLTemplate('Delete Replication Set',
+                        node.tree.tag.bdr_delete_repset
                         .replace('#set_name#', node.text));
                 }
             }]
@@ -1691,8 +1728,11 @@ function getTreePostgresql(p_div) {
                 text: 'Set Replication Sets',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Set Replication Sets', node.tree.tag.bdr_set_repsets
-                        .replace('#table_name#', node.parent.parent.parent.parent.text + '.' + node.parent.parent.text));
+                    tabSQLTemplate('Set Replication Sets', node
+                        .tree.tag.bdr_set_repsets
+                        .replace('#table_name#', node.parent
+                            .parent.parent.parent.text +
+                            '.' + node.parent.parent.text));
                 }
             }]
         },
@@ -1712,8 +1752,11 @@ function getTreePostgresql(p_div) {
                 text: 'Create Conf. Handler',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Create Conflict Handler', node.tree.tag.bdr_create_confhand
-                        .replace(/#table_name#/g, node.parent.parent.parent.parent.text + '.' + node.parent.parent.text));
+                    tabSQLTemplate('Create Conflict Handler',
+                        node.tree.tag.bdr_create_confhand
+                        .replace(/#table_name#/g, node.parent
+                            .parent.parent.parent.text +
+                            '.' + node.parent.parent.text));
                 }
             }]
         },
@@ -1722,8 +1765,12 @@ function getTreePostgresql(p_div) {
                 text: 'Drop Conf. Handler',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Drop Conflict Handler', node.tree.tag.bdr_drop_confhand
-                        .replace('#table_name#', node.parent.parent.parent.parent.parent.text + '.' + node.parent.parent.parent.text)
+                    tabSQLTemplate('Drop Conflict Handler',
+                        node.tree.tag.bdr_drop_confhand
+                        .replace('#table_name#', node.parent
+                            .parent.parent.parent.parent.text +
+                            '.' + node.parent.parent.parent
+                            .text)
                         .replace('#ch_name#', node.text));
                 }
             }]
@@ -1816,8 +1863,6 @@ function refreshTreePostgresql(node) {
         getPartitionsPostgresql(node);
     } else if (node.tag.type == 'server') {
         getTreeDetails(node);
-    } else if (node.tag.type == 'connection') {
-        getTreeDetails(node);
     } else if (node.tag.type == 'physicalreplicationslot_list') {
         getPhysicalReplicationSlotsPostgresql(node);
     } else if (node.tag.type == 'logicalreplicationslot_list') {
@@ -1840,6 +1885,16 @@ function refreshTreePostgresql(node) {
         getBDRTableReplicationSetsPostgresql(node);
     } else if (node.tag.type == 'bdr_table_confhand_list') {
         getBDRTableConflictHandlersPostgresql(node);
+    } else if (node.tag.type == 'xl_node_list') {
+        getXLNodesPostgresql(node);
+    } else if (node.tag.type == 'xl_group_list') {
+        getXLGroupsPostgresql(node);
+    } else if (node.tag.type == 'xl_group') {
+        getXLGroupNodesPostgresql(node);
+    } else if (node.tag.type == 'xl_table') {
+        getXLTablePropertiesPostgresql(node);
+    } else if (node.tag.type == 'xl_table_node_list') {
+        getXLTableNodesPostgresql(node);
     }
 }
 
@@ -1889,13 +1944,14 @@ function getTreeDetails(node) {
                                     action: 'postgresqlTerminateBackend'
                                 }]);
                         }
-                    },{
+                    }, {
                         text: 'Replication',
                         icon: '/static/OmniDB_app/images/monitoring.png',
                         action: function(node) {
                             v_connTabControl.tag.createMonitoringTab(
                                 'Replication',
-                                'select * from pg_stat_replication', null);
+                                'select * from pg_stat_replication',
+                                null);
                         }
                     }]
                 }
@@ -2039,8 +2095,9 @@ function getTreeDetails(node) {
             node.setText(p_return.v_data.v_database_return.version);
 
             var node_connection = node.createChildNode(p_return.v_data.v_database_return
-                .v_database, true, '/static/OmniDB_app/images/db.png',
-                { type: 'connection' }, 'cm_connection');
+                .v_database, true, '/static/OmniDB_app/images/db.png', {
+                    type: 'connection'
+                }, 'cm_connection');
             var node_databases = node.createChildNode('Databases', false,
                 '/static/OmniDB_app/images/db.png', {
                     type: 'database_list',
@@ -2128,6 +2185,25 @@ function getTreeDetails(node) {
                         type: 'bdr',
                     }, 'cm_bdr');
                 node_bdr.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+            }
+            if (node.tree.tag.version.indexOf('XL') !== -1) {
+                var node_xl = node.createChildNode('Postgres-XL', false,
+                    '/static/OmniDB_app/images/xl.png', {
+                        type: 'xl',
+                    }, 'cm_xl');
+                var node_xl_nodes = node_xl.createChildNode('Nodes', false,
+                    '/static/OmniDB_app/images/xlnode.png', {
+                        type: 'xl_node_list',
+                    }, 'cm_xlnodes');
+                node_xl_nodes.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+                var node_xl_groups = node_xl.createChildNode('Groups',
+                    false,
+                    '/static/OmniDB_app/images/xlgroup.png', {
+                        type: 'xl_group_list',
+                    }, 'cm_xlgroups');
+                node_xl_groups.createChildNode('', true,
                     '/static/OmniDB_app/images/spin.svg', null, null);
             }
 
@@ -2415,7 +2491,8 @@ function getSchemasPostgresql(node) {
                 node_views.createChildNode('', true,
                     '/static/OmniDB_app/images/spin.svg', null, null);
 
-                var node_views = v_node.createChildNode('Materialized Views', false,
+                var node_views = v_node.createChildNode(
+                    'Materialized Views', false,
                     '/static/OmniDB_app/images/view_multiple.png', {
                         type: 'mview_list',
                         schema: p_return.v_data[i].v_name,
@@ -2662,7 +2739,8 @@ function getMaterializedViewsPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            node.setText('Materialized Views (' + p_return.v_data.length + ')');
+            node.setText('Materialized Views (' + p_return.v_data.length +
+                ')');
 
             node.tag.num_tables = p_return.v_data.length;
 
@@ -2906,6 +2984,15 @@ function getColumnsPostgresql(node) {
                         type: 'bdr_table_confhand_list',
                     }, 'cm_bdr_table_confhands');
                 node_bdr_confhands.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+            }
+
+            if (node.tree.tag.version.indexOf('XL') !== -1) {
+                var node_xl = node.createChildNode('Postgres-XL', false,
+                    '/static/OmniDB_app/images/xl.png', {
+                        type: 'xl_table',
+                    }, null);
+                node_xl.createChildNode('', true,
                     '/static/OmniDB_app/images/spin.svg', null, null);
             }
 
@@ -3620,7 +3707,8 @@ function getPhysicalReplicationSlotsPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            node.setText('Physical Replication Slots (' + p_return.v_data.length + ')');
+            node.setText('Physical Replication Slots (' + p_return.v_data.length +
+                ')');
 
             node.tag.num_repslots = p_return.v_data.length;
 
@@ -3660,7 +3748,8 @@ function getLogicalReplicationSlotsPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            node.setText('Logical Replication Slots (' + p_return.v_data.length + ')');
+            node.setText('Logical Replication Slots (' + p_return.v_data.length +
+                ')');
 
             node.tag.num_repslots = p_return.v_data.length;
 
@@ -3724,11 +3813,13 @@ function getPublicationsPostgresql(node) {
                     null, null);
                 if (p_return.v_data[i].v_alltables == 'False') {
                     v_tables = v_node.createChildNode('Tables',
-                        false, '/static/OmniDB_app/images/table_multiple.png', {
+                        false,
+                        '/static/OmniDB_app/images/table_multiple.png', {
                             type: 'publication_table_list'
                         }, 'cm_pubtables');
                     v_tables.createChildNode('', true,
-                        '/static/OmniDB_app/images/spin.svg', null, null);
+                        '/static/OmniDB_app/images/spin.svg', null,
+                        null);
                 }
 
             }
@@ -3817,19 +3908,22 @@ function getSubscriptionsPostgresql(node) {
                 v_node.createChildNode('ConnInfo: ' + p_return.v_data[i].v_conninfo,
                     false, '/static/OmniDB_app/images/bullet_red.png',
                     null, null);
-                v_publications = v_node.createChildNode('Referenced Publications',
+                v_publications = v_node.createChildNode(
+                    'Referenced Publications',
                     false, '/static/OmniDB_app/images/publication.png', {
                         type: 'subpubs'
                     }, null);
                 tmp = p_return.v_data[i].v_publications.split(',')
                 for (j = 0; j < tmp.length; j++) {
                     v_publications.createChildNode(tmp[j],
-                        false, '/static/OmniDB_app/images/publication.png', {
+                        false,
+                        '/static/OmniDB_app/images/publication.png', {
                             type: 'subpub'
                         }, null);
                 }
                 v_tables = v_node.createChildNode('Tables',
-                    false, '/static/OmniDB_app/images/table_multiple.png', {
+                    false,
+                    '/static/OmniDB_app/images/table_multiple.png', {
                         type: 'subscription_table_list'
                     }, null);
                 v_tables.createChildNode('', true,
@@ -3924,7 +4018,8 @@ function getBDRPropertiesPostgresql(node) {
                     text: 'Create Group',
                     icon: '/static/OmniDB_app/images/text_edit.png',
                     action: function(node) {
-                        tabSQLTemplate('Create Group', node.tree.tag
+                        tabSQLTemplate('Create Group', node.tree
+                            .tag
                             .bdr_create_group);
                     }
                 });
@@ -3940,7 +4035,8 @@ function getBDRPropertiesPostgresql(node) {
                     text: 'Join Group Wait',
                     icon: '/static/OmniDB_app/images/text_edit.png',
                     action: function(node) {
-                        tabSQLTemplate('Join Group Wait', node.tree.tag
+                        tabSQLTemplate('Join Group Wait', node.tree
+                            .tag
                             .bdr_join_wait);
                     }
                 });
@@ -3950,18 +4046,20 @@ function getBDRPropertiesPostgresql(node) {
                     action: function(node) {
                         v_connTabControl.tag.createWebsiteTab(
                             'Documentation: BDR',
-                            'http://bdr-project.org/docs/1.0/index.html');
+                            'http://bdr-project.org/docs/1.0/index.html'
+                        );
                     }
                 });
 
             } else {
 
-                if (! p_return.v_data[0].v_paused) {
+                if (!p_return.v_data[0].v_paused) {
                     node.tree.contextMenu.cm_bdr.elements.push({
                         text: 'Pause Apply',
                         icon: '/static/OmniDB_app/images/text_edit.png',
                         action: function(node) {
-                            tabSQLTemplate('Pause Apply', node.tree.tag.bdr_pause);
+                            tabSQLTemplate('Pause Apply', node.tree
+                                .tag.bdr_pause);
                         }
                     });
                 } else {
@@ -3969,7 +4067,8 @@ function getBDRPropertiesPostgresql(node) {
                         text: 'Resume Apply',
                         icon: '/static/OmniDB_app/images/text_edit.png',
                         action: function(node) {
-                            tabSQLTemplate('Resume Apply', node.tree.tag.bdr_resume);
+                            tabSQLTemplate('Resume Apply', node
+                                .tree.tag.bdr_resume);
                         }
                     });
                 }
@@ -3977,7 +4076,8 @@ function getBDRPropertiesPostgresql(node) {
                     text: 'Replicate DDL',
                     icon: '/static/OmniDB_app/images/text_edit.png',
                     action: function(node) {
-                        tabSQLTemplate('Replicate DDL Command', node.tree.tag
+                        tabSQLTemplate('Replicate DDL Command',
+                            node.tree.tag
                             .bdr_replicate_ddl_command);
                     }
                 });
@@ -3988,7 +4088,8 @@ function getBDRPropertiesPostgresql(node) {
                         text: 'Remove BDR',
                         icon: '/static/OmniDB_app/images/text_edit.png',
                         action: function(node) {
-                            tabSQLTemplate('Remove BDR', node.tree.tag
+                            tabSQLTemplate('Remove BDR', node.tree
+                                .tag
                                 .bdr_remove);
                         }
                     });
@@ -4000,7 +4101,8 @@ function getBDRPropertiesPostgresql(node) {
                     action: function(node) {
                         v_connTabControl.tag.createWebsiteTab(
                             'Documentation: BDR',
-                            'http://bdr-project.org/docs/1.0/index.html');
+                            'http://bdr-project.org/docs/1.0/index.html'
+                        );
                     }
                 });
 
@@ -4090,8 +4192,10 @@ function getBDRNodesPostgresql(node) {
                     text: 'Part Node',
                     icon: '/static/OmniDB_app/images/tab_close.png',
                     action: function(node) {
-                        tabSQLTemplate('Part Node', node.tree.tag.bdr_part_node
-                            .replace('#node_name#', v_node.text));
+                        tabSQLTemplate('Part Node', node.tree.tag
+                            .bdr_part_node
+                            .replace('#node_name#', v_node.text)
+                        );
                     }
                 });
                 if (getBDRMajorVersion(node.tree.tag.bdr_version) != '0') {
@@ -4100,18 +4204,23 @@ function getBDRNodesPostgresql(node) {
                         text: 'Terminate Apply',
                         icon: '/static/OmniDB_app/images/text_edit.png',
                         action: function(node) {
-                            tabSQLTemplate('Terminate Apply', node.tree.tag
+                            tabSQLTemplate('Terminate Apply',
+                                node.tree.tag
                                 .bdr_terminate_apply
-                                .replace('#node_name#', v_node.text));
+                                .replace('#node_name#',
+                                    v_node.text));
                         }
                     });
                     v_node.tree.contextMenu.cm_bdrnode.elements.push({
                         text: 'Terminate WAL Sender',
                         icon: '/static/OmniDB_app/images/text_edit.png',
                         action: function(node) {
-                            tabSQLTemplate('Terminate WAL Sender', node.tree.tag
+                            tabSQLTemplate(
+                                'Terminate WAL Sender',
+                                node.tree.tag
                                 .bdr_terminate_walsender
-                                .replace('#node_name#', v_node.text));
+                                .replace('#node_name#',
+                                    v_node.text));
                         }
                     });
                 }
@@ -4145,14 +4254,16 @@ function getBDRReplicationSetsPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            node.setText('Replication Sets (' + p_return.v_data.length + ')');
+            node.setText('Replication Sets (' + p_return.v_data.length +
+                ')');
 
             node.tag.num_repsets = p_return.v_data.length;
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/replication_set.png', {
+                    false,
+                    '/static/OmniDB_app/images/replication_set.png', {
                         type: 'bdr_repset'
                     }, 'cm_bdrrepset');
                 v_node.createChildNode('Inserts: ' + p_return.v_data[0]
@@ -4199,7 +4310,8 @@ function getBDRTableReplicationSetsPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            node.setText('Replication Sets (' + p_return.v_data.length + ')');
+            node.setText('Replication Sets (' + p_return.v_data.length +
+                ')');
 
             node.tag.num_repsets = p_return.v_data.length;
 
@@ -4241,13 +4353,15 @@ function getBDRTableConflictHandlersPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            node.setText('Conflict Handlers (' + p_return.v_data.length + ')');
+            node.setText('Conflict Handlers (' + p_return.v_data.length +
+                ')');
 
             node.tag.num_chs = p_return.v_data.length;
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
-                v_node = node.createChildNode(p_return.v_data[i].v_name, false,
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false,
                     '/static/OmniDB_app/images/conflict_handler.png', {
                         type: 'bdr_table_confhand'
                     }, 'cm_bdr_table_confhand');
@@ -4259,6 +4373,232 @@ function getBDRTableConflictHandlersPostgresql(node) {
                     .v_function, false,
                     '/static/OmniDB_app/images/bullet_red.png', null,
                     null);
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving XL Nodes.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getXLNodesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_xl_nodes_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Nodes (' + p_return.v_data.length + ')');
+
+            node.tag.num_nodes = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/xlnode.png', {
+                        type: 'xlnode'
+                    }, 'cm_xlnode');
+                v_node.createChildNode('Type: ' + p_return.v_data[i]
+                    .v_type, false,
+                    '/static/OmniDB_app/images/bullet_red.png', null,
+                    null);
+                v_node.createChildNode('Host: ' + p_return.v_data[i]
+                    .v_host, false,
+                    '/static/OmniDB_app/images/bullet_red.png', null,
+                    null);
+                v_node.createChildNode('Port: ' + p_return.v_data[i]
+                    .v_port, false,
+                    '/static/OmniDB_app/images/bullet_red.png', null,
+                    null);
+                v_node.createChildNode('Primary: ' + p_return.v_data[i]
+                    .v_primary, false,
+                    '/static/OmniDB_app/images/bullet_red.png', null,
+                    null);
+                v_node.createChildNode('Preferred: ' + p_return.v_data[i]
+                    .v_preferred, false,
+                    '/static/OmniDB_app/images/bullet_red.png', null,
+                    null);
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving XL Groups.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getXLGroupsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_xl_groups_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Groups (' + p_return.v_data.length + ')');
+
+            node.tag.num_groups = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/xlgroup.png', {
+                        type: 'xl_group'
+                    }, 'cm_xlgroup');
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', null,
+                    null);
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving XL Group Nodes.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getXLGroupNodesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_xl_group_nodes_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_group": node.text,
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText(node.text + ' (' + p_return.v_data.length + ' nodes)');
+
+            node.tag.num_nodes = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/xlnode.png', null, null);
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving XL Table Properties.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getXLTablePropertiesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_xl_table_properties_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_table": node.parent.text,
+            "p_schema": node.parent.parent.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.createChildNode('Distributed by: ' + p_return.v_data[0]
+                .v_distributed_by, false,
+                '/static/OmniDB_app/images/bullet_red.png', null,
+                null);
+            node.createChildNode('Located in all nodes: ' + p_return.v_data[0]
+                .v_all_nodes, false,
+                '/static/OmniDB_app/images/bullet_red.png', null,
+                null);
+            v_node = node.createChildNode('Located in nodes', false,
+                '/static/OmniDB_app/images/xlnode.png', {
+                    type: 'xl_table_node_list'
+                }, 'cm_xl_table_nodes');
+            v_node.createChildNode('', false,
+                '/static/OmniDB_app/images/spin.svg', null, null);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving XL Table Nodes.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getXLTableNodesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_xl_table_nodes_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_table": node.parent.parent.text,
+            "p_schema": node.parent.parent.parent.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText(node.text + ' (' + p_return.v_data.length + ')');
+
+            node.tag.num_nodes = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/xlnode.png', null,
+                    'cm_xl_table_node');
 
             }
 
@@ -4287,7 +4627,10 @@ function nodeOpenError(p_return, p_node) {
         if (p_node.childNodes.length > 0)
             p_node.removeChildNodes();
 
-        v_node = p_node.createChildNode("Error - <a class='a_link' onclick='showError(&quot;" + p_return.v_data.replace(/\n/g, "<br/>").replace(/"/g,'') + "&quot;)'>View Detail</a>", false,
+        v_node = p_node.createChildNode(
+            "Error - <a class='a_link' onclick='showError(&quot;" +
+            p_return.v_data.replace(/\n/g, "<br/>").replace(/"/g, '') +
+            "&quot;)'>View Detail</a>", false,
             '/static/OmniDB_app/images/tab_close.png', {
                 type: 'error',
                 message: p_return.v_data

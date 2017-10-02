@@ -1808,6 +1808,15 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Clean Connection',
                         node.tree.tag.xl_clean_connection);
                 }
+            }, {
+                text: 'Doc: Postgres-XL',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Postgres-XL',
+                        'https://www.postgres-xl.org/documentation/'
+                    );
+                }
             }]
         },
         'cm_xlnodes': {

@@ -120,5 +120,10 @@ urlpatterns = [
     url(r'^get_bdr_replicationsets_postgresql/', views.tree_postgresql.get_bdr_replicationsets, name='get_bdr_replicationsets_postgresql'),
     url(r'^get_bdr_table_replicationsets_postgresql/', views.tree_postgresql.get_bdr_table_replicationsets, name='get_bdr_table_replicationsets_postgresql'),
     url(r'^get_bdr_table_conflicthandlers_postgresql/', views.tree_postgresql.get_bdr_table_conflicthandlers, name='get_bdr_table_conflicthandlers_postgresql'),
+    url(r'^get_xl_nodes_postgresql/', views.tree_postgresql.get_xl_nodes, name='get_xl_nodes_postgresql'),
+    url(r'^get_xl_groups_postgresql/', views.tree_postgresql.get_xl_groups, name='get_xl_groups_postgresql'),
+    url(r'^get_xl_group_nodes_postgresql/', views.tree_postgresql.get_xl_group_nodes, name='get_xl_group_nodes_postgresql'),
+    url(r'^get_xl_table_properties_postgresql/', views.tree_postgresql.get_xl_table_properties, name='get_xl_table_properties_postgresql'),
+    url(r'^get_xl_table_nodes_postgresql/', views.tree_postgresql.get_xl_table_nodes, name='get_xl_table_nodes_postgresql'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1796,8 +1796,8 @@ force := False
 ''')
 
     def TemplateXLCreateGroup(self):
-        v_text = '''This command needs to be executed in all nodes.
-Please adjust the parameters in all commands below.
+        v_text = '''-- This command needs to be executed in all nodes.
+-- Please adjust the parameters in all commands below.
 
 '''
         v_table = self.QueryXLNodes()
@@ -1808,18 +1808,25 @@ Please adjust the parameters in all commands below.
         return Template(v_text)
 
     def TemplateXLDropGroup(self):
-        return Template('DROP NODE GROUP #group_name#')
-
-    def TemplateXLCreateNode(self):
-        v_text = '''This command needs to be executed in all nodes.
-Please adjust the parameters in all commands below.
+        v_text = '''-- This command needs to be executed in all nodes.
 
 '''
         v_table = self.QueryXLNodes()
         for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON {0} '
-CREATE NODE name WITH (
-TYPE = { coordinator | datanode },
+            v_text = v_text + '''EXECUTE DIRECT ON {0} 'DROP NODE GROUP #group_name#'
+
+'''.format(r['node_name'])
+        return Template(v_text)
+
+    def TemplateXLCreateNode(self):
+        v_text = '''-- This command needs to be executed in all nodes.
+-- Please adjust the parameters in all commands below.
+
+'''
+        v_table = self.QueryXLNodes()
+        for r in v_table.Rows:
+            v_text = v_text + '''EXECUTE DIRECT ON {0} 'CREATE NODE name WITH (
+TYPE = {{ coordinator | datanode }},
 HOST = hostname,
 PORT = portnum
 --, PRIMARY
@@ -1830,15 +1837,14 @@ PORT = portnum
         return Template(v_text)
 
     def TemplateXLAlterNode(self):
-        v_text = '''This command needs to be executed in all nodes.
-Please adjust the parameters in all commands below.
+        v_text = '''-- This command needs to be executed in all nodes.
+-- Please adjust the parameters in all commands below.
 
 '''
         v_table = self.QueryXLNodes()
         for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON {0} '
-ALTER NODE name WITH (
-TYPE = { coordinator | datanode },
+            v_text = v_text + '''EXECUTE DIRECT ON {0} 'ALTER NODE #node_name# WITH (
+TYPE = {{ coordinator | datanode }},
 HOST = hostname,
 PORT = portnum
 --, PRIMARY
@@ -1850,11 +1856,39 @@ PORT = portnum
 
     def TemplateXLExecuteDirect(self):
         return Template('''EXECUTE DIRECT ON #node_name#
---'query'
+'SELECT ...'
 ''')
 
     def TemplateXLDropNode(self):
-        return Template('DROP NODE #node_name#')
+        v_text = '''-- This command needs to be executed in all nodes.
+
+'''
+        v_table = self.QueryXLNodes()
+        for r in v_table.Rows:
+            v_text = v_text + '''EXECUTE DIRECT ON {0} 'DROP NODE #node_name#'
+
+'''.format(r['node_name'])
+        return Template(v_text)
+
+    def TemplateXLAlterTableDistribution(self):
+        return Template('''ALTER TABLE #table_name# DISTRIBUTE BY
+--REPLICATION
+--ROUNDROBIN
+--HASH ( column_name )
+--MODULO ( column_name )
+''')
+
+    def TemplateXLAlterTableLocation(self):
+        return Template('''ALTER TABLE #table_name#
+TO NODE ( nodename [, ... ] )
+--TO GROUP ( groupname [, ... ] )
+''')
+
+    def TemplateXLALterTableAddNode(self):
+        return Template('ALTER TABLE #table_name# ADD NODE (node_name)')
+
+    def TemplateXLAlterTableDeleteNode(self):
+        return Template('ALTER TABLE #table_name# DELETE NODE (#node_name#)')
 
 
 '''

@@ -1763,7 +1763,7 @@ function getTreePostgresql(p_div) {
         'cm_bdr_table_confhand': {
             elements: [{
                 text: 'Drop Conf. Handler',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Conflict Handler',
                         node.tree.tag.bdr_drop_confhand
@@ -1772,6 +1772,224 @@ function getTreePostgresql(p_div) {
                             '.' + node.parent.parent.parent
                             .text)
                         .replace('#ch_name#', node.text));
+                }
+            }]
+        },
+        'cm_xl': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Pause Cluster',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Pause Cluster',
+                        node.tree.tag.xl_pause_cluster);
+                }
+            }, {
+                text: 'Unpause Cluster',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Unpause Cluster',
+                        node.tree.tag.xl_unpause_cluster);
+                }
+            }, {
+                text: 'Clean Connection',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Clean Connection',
+                        node.tree.tag.xl_clean_connection);
+                }
+            }]
+        },
+        'cm_xlnodes': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Node',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Node',
+                        node.tree.tag.xl_create_node);
+                }
+            }]
+        },
+        'cm_xlnode': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Execute Direct',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Execute Direct',
+                        node.tree.tag.xl_execute_direct
+                        .replace('#node_name#', node.text));
+                }
+            }, {
+                text: 'Alter Node',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter Node',
+                        node.tree.tag.xl_alter_node
+                        .replace('#node_name#', node.text));
+                }
+            }, {
+                text: 'Drop Node',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Node',
+                        node.tree.tag.xl_drop_node
+                        .replace('#node_name#', node.text));
+                }
+            }]
+        },
+        'cm_xlgroups': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Group',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Group',
+                        node.tree.tag.xl_create_group);
+                }
+            }]
+        },
+        'cm_xlgroup': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Drop Group',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Group',
+                        node.tree.tag.xl_drop_group
+                        .replace('#group_name#', node.text));
+                }
+            }]
+        },
+        'cm_xl_table': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Alter Distribution',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter Table Distribution',
+                        node.tree.tag.xl_altertable_distribution
+                        .replace('#table_name#',
+                        node.parent.parent.parent.text + '.' + node.parent.text));
+                }
+            }, {
+                text: 'Alter Location',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter Table Distribution',
+                        node.tree.tag.xl_altertable_location
+                        .replace('#table_name#',
+                        node.parent.parent.parent.text + '.' + node.parent.text));
+                }
+            }]
+        },
+        'cm_xl_table_nodes': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Add Node',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter Table Add Node',
+                        node.tree.tag.xl_altertable_addnode
+                        .replace('#table_name#',
+                        node.parent.parent.parent.parent.text + '.' +
+                        node.parent.parent.text));
+                }
+            }]
+        },
+        'cm_xl_table_node': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Delete Node',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter Table Delete Node',
+                        node.tree.tag.xl_altertable_deletenode
+                        .replace('#table_name#',
+                        node.parent.parent.parent.parent.parent.text + '.' +
+                        node.parent.parent.parent.text)
+                        .replace('#node_name#', node.text));
                 }
             }]
         },
@@ -2089,7 +2307,24 @@ function getTreeDetails(node) {
                 bdr_terminate_apply: p_return.v_data.v_database_return.bdr_terminate_apply,
                 bdr_terminate_walsender: p_return.v_data.v_database_return
                     .bdr_terminate_walsender,
-                bdr_remove: p_return.v_data.v_database_return.bdr_remove
+                bdr_remove: p_return.v_data.v_database_return.bdr_remove,
+                xl_pause_cluster: p_return.v_data.v_database_return.xl_pause_cluster,
+                xl_unpause_cluster: p_return.v_data.v_database_return.xl_unpause_cluster,
+                xl_clean_connection: p_return.v_data.v_database_return.xl_clean_connection,
+                xl_create_group: p_return.v_data.v_database_return.xl_create_group,
+                xl_drop_group: p_return.v_data.v_database_return.xl_drop_group,
+                xl_create_node: p_return.v_data.v_database_return.xl_create_node,
+                xl_alter_node: p_return.v_data.v_database_return.xl_alter_node,
+                xl_drop_node: p_return.v_data.v_database_return.xl_drop_node,
+                xl_execute_direct: p_return.v_data.v_database_return.xl_execute_direct,
+                xl_altertable_distribution: p_return.v_data.v_database_return
+                    .xl_altertable_distribution,
+                xl_altertable_location: p_return.v_data.v_database_return
+                    .xl_altertable_location,
+                xl_altertable_addnode: p_return.v_data.v_database_return
+                    .xl_altertable_addnode,
+                xl_altertable_deletenode: p_return.v_data.v_database_return
+                    .xl_altertable_deletenode
             }
 
             node.setText(p_return.v_data.v_database_return.version);
@@ -2991,7 +3226,7 @@ function getColumnsPostgresql(node) {
                 var node_xl = node.createChildNode('Postgres-XL', false,
                     '/static/OmniDB_app/images/xl.png', {
                         type: 'xl_table',
-                    }, null);
+                    }, 'cm_xl_table');
                 node_xl.createChildNode('', true,
                     '/static/OmniDB_app/images/spin.svg', null, null);
             }

@@ -131,7 +131,20 @@ def get_tree_info(request):
             # only in BDR >= 1
             'bdr_terminate_apply': v_database.TemplateBDRTerminateApplyWorkers().v_text,
             'bdr_terminate_walsender': v_database.TemplateBDRTerminateWalsenderWorkers().v_text,
-            'bdr_remove': v_database.TemplateBDRRemove().v_text
+            'bdr_remove': v_database.TemplateBDRRemove().v_text,
+            'xl_pause_cluster': v_database.TemplateXLPauseCluster().v_text,
+            'xl_unpause_cluster': v_database.TemplateXLUnpauseCluster().v_text,
+            'xl_clean_connection': v_database.TemplateXLCleanConnection().v_text,
+            'xl_create_group': v_database.TemplateXLCreateGroup().v_text,
+            'xl_drop_group': v_database.TemplateXLDropGroup().v_text,
+            'xl_create_node': v_database.TemplateXLCreateNode().v_text,
+            'xl_alter_node': v_database.TemplateXLAlterNode().v_text,
+            'xl_drop_node': v_database.TemplateXLDropNode().v_text,
+            'xl_execute_direct': v_database.TemplateXLExecuteDirect().v_text,
+            'xl_altertable_distribution': v_database.TemplateXLAlterTableDistribution().v_text,
+            'xl_altertable_location': v_database.TemplateXLAlterTableLocation().v_text,
+            'xl_altertable_addnode': v_database.TemplateXLALterTableAddNode().v_text,
+            'xl_altertable_deletenode': v_database.TemplateXLAlterTableDeleteNode().v_text
         }
     }
 

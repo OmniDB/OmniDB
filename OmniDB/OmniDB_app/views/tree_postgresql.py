@@ -535,6 +535,7 @@ def get_excludes(request):
         for v_exclude in v_excludes.Rows:
             v_exclude_data = []
             v_exclude_data.append(v_exclude['constraint_name'])
+            v_exclude_data.append(v_exclude['attributes'])
             v_exclude_data.append(v_exclude['operations'])
             v_list_excludes.append(v_exclude_data)
     except Exception as exc:

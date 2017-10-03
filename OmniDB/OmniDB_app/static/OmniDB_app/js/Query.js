@@ -229,12 +229,10 @@ function querySQLReturnRender(p_message,p_context) {
 
 				var v_data = p_message.v_data;
 
-				if (v_data.v_notices.length>0) {
-					p_context.tab_tag.div_count_notices.innerHTML = v_data.v_notices.length;
+				if (v_data.v_notices_length>0) {
+					p_context.tab_tag.div_count_notices.innerHTML = v_data.v_notices_length;
 					p_context.tab_tag.div_count_notices.style.display = 'inline-block';
-					for (var i=0; i < v_data.v_notices.length; i++) {
-						p_context.tab_tag.div_notices.innerHTML += v_data.v_notices[i].replace(/\n/g, "<br/>");
-					}
+					p_context.tab_tag.div_notices.innerHTML = v_data.v_notices;
 				}
 
 				//Show fetch buttons if data has 50 rows

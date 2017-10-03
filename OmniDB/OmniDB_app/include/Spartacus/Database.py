@@ -156,6 +156,12 @@ class DataTransferReturn(object):
         self.v_numrecords = 0
         self.v_log = None
 
+class DataList(object):
+    def __init__(self):
+        self.v_list = []
+    def append(self, p_item):
+        self.v_list.append(p_item)
+
 v_supported_rdbms = []
 try:
     import sqlite3
@@ -812,6 +818,7 @@ class PostgreSQL(Generic):
             self.v_types = dict([(r['oid'], r['typname']) for r in self.v_cur.fetchall()])
             if not p_autocommit:
                 self.v_con.commit()
+            self.v_con.notices = DataList()
         except Spartacus.Database.Exception as exc:
             raise exc
         except psycopg2.Error as exc:
@@ -972,7 +979,7 @@ class PostgreSQL(Generic):
             if self.v_con is None:
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
             else:
-                return self.v_con.notices
+                return self.v_con.notices.v_list
         except Spartacus.Database.Exception as exc:
             raise exc
         except psycopg2.Error as exc:
@@ -984,7 +991,7 @@ class PostgreSQL(Generic):
             if self.v_con is None:
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
             else:
-                del self.v_con.notices[:]
+                del self.v_con.notices.v_list[:]
         except Spartacus.Database.Exception as exc:
             raise exc
         except psycopg2.Error as exc:

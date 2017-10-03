@@ -9,6 +9,9 @@
   <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.1.0"    />
   <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/jquery.qtip.min.css?v2.1.0"  />
 
+  <link rel="stylesheet" href="/static/OmniDB_app/css/explain/bootstrap.css">
+  <link rel="stylesheet" href="/static/OmniDB_app/css/explain/main.css">
+
   {% block include_css %}
   {% endblock %}
 
@@ -19,10 +22,8 @@
 		<div class="header_menu">
 			<img src="/static/OmniDB_app/images/omnidb.png" />
 			<ul>
-        <li><a id="menu_connections" href="../connections">Connections</a></li>
-				<li><a id="menu_workspace" href="../workspace">Workspace</a></li>
-        <!--<li><a id="menu_monitoring" href="../monitoring">Monitoring</a></li>-->
-				<!--<li><a id="menu_conversions" href="Conversions.aspx">Convert</a></li>-->
+        {% block header_menu %}
+        {% endblock %}
 			</ul>
 			<div style="position: absolute; right: 0px; top: 0px;">
 				<ul>
@@ -263,6 +264,11 @@
   </div>
 
   <div class="div_loading"></div>
+
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.1.0"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.1.0"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.1.0"             ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.1.0"         ></script>
 
   <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.1.0"      ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/jquery.qtip.min.js?v2.1.0"        ></script>

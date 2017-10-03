@@ -1,4 +1,7 @@
 {% extends 'OmniDB_app/base.html' %}
+{% block header_menu %}
+<li><a id="menu_workspace" href="../workspace">Workspace</a></li>
+{% endblock %}
 {% block content %}
 	<div style='margin-left:20px; margin-top: 20px; display:inline-block;'>
 		<button onclick="newConnection()">New Connection</button>

@@ -397,6 +397,10 @@ def thread_query(self,args,ws_object):
                     v_data1 = v_database.v_connection.QueryBlock(v_sql,-1, True)
 
                 v_notices = v_database.v_connection.GetNotices()
+                v_notices_text = ''
+                if len(v_notices) > 0:
+                    for v_notice in v_notices:
+                        v_notices_text += v_notice.replace('\n','<br/>')
 
                 if v_mode==2 or v_all_data or len(v_data1.Rows)<50:
                     try:
@@ -412,7 +416,8 @@ def thread_query(self,args,ws_object):
                     'v_data' : v_data1.Rows,
                     'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
                     'v_duration': v_duration,
-                    'v_notices': v_notices
+                    'v_notices': v_notices_text,
+                    'v_notices_length': len(v_notices)
                 }
             except Exception as exc:
                 try:

@@ -536,9 +536,9 @@ class PostgreSQL:
             else:
                 v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select quote_ident(n.nspname as schema_name,
-                   quote_ident(c.relname as table_name,
-                   quote_ident(t.tgname as trigger_name,
+            select quote_ident(n.nspname) as schema_name,
+                   quote_ident(c.relname) as table_name,
+                   quote_ident(t.tgname) as trigger_name,
                    t.tgenabled as trigger_enabled,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function_name,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()' as trigger_function_id

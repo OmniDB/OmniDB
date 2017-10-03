@@ -304,6 +304,7 @@ def thread_query(self,args,ws_object):
         v_select_value   = args['v_cmd_type']
         v_tab_id         = args['v_tab_id']
         v_mode           = args['v_mode']
+        v_all_data       = args['v_all_data']
 
         #Removing last character if it is a semi-colon
         if v_sql[-1:]==';':
@@ -343,7 +344,7 @@ def thread_query(self,args,ws_object):
                 if (self.cancel):
                     return
 
-                if v_command:
+                if v_command and v_command.strip() != '':
                     try:
                         v_database.v_connection.Execute(v_command)
                         v_num_success_commands = v_num_success_commands + 1
@@ -352,7 +353,10 @@ def thread_query(self,args,ws_object):
                         v_num_error_commands = v_num_error_commands + 1
                         v_return_html += "<b>Command:</b> " + v_command + "<br/><br/><b>Message:</b><br><br><div class='error_text'>" + str(exc).replace('\n','<br>') + "</div><br/><br/>"
 
-                v_database.v_connection.Close ()
+                try:
+                    v_database.v_connection.Close()
+                except:
+                    pass
 
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
@@ -384,23 +388,21 @@ def thread_query(self,args,ws_object):
 
         else:
             try:
-                #if v_select_value == '-1':
-                #    log_mode = 'Query all rows'
-                #    v_data1 = v_database.v_connection.Query(v_sql,True)
-                #else:
-                #    log_mode = 'Query {0} rows'.format(v_select_value)
-                #    v_data1 = v_database.QueryDataLimited(v_sql, int(v_select_value))
-
                 if v_mode==0:
                     v_database.v_connection.Open()
 
-                if v_mode==0 or v_mode==1:
+                if (v_mode==0 or v_mode==1) and not v_all_data:
                     v_data1 = v_database.v_connection.QueryBlock(v_sql,50, True)
-                elif v_mode==2:
+                elif v_mode==2 or v_all_data:
                     v_data1 = v_database.v_connection.QueryBlock(v_sql,-1, True)
 
-                if v_mode==2 or len(v_data1.Rows)<50:
-                    v_database.v_connection.Close()
+                v_notices = v_database.v_connection.GetNotices()
+
+                if v_mode==2 or v_all_data or len(v_data1.Rows)<50:
+                    try:
+                        v_database.v_connection.Close()
+                    except:
+                        pass
 
                 log_end_time = datetime.now()
                 v_duration = GetDuration(log_start_time,log_end_time)
@@ -409,10 +411,14 @@ def thread_query(self,args,ws_object):
                     'v_col_names' : v_data1.Columns,
                     'v_data' : v_data1.Rows,
                     'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
-                    'v_duration': v_duration
+                    'v_duration': v_duration,
+                    'v_notices': v_notices
                 }
             except Exception as exc:
-                v_database.v_connection.Close()
+                try:
+                    v_database.v_connection.Close()
+                except:
+                    pass
                 log_end_time = datetime.now()
                 v_duration = GetDuration(log_start_time,log_end_time)
                 log_status = 'error'

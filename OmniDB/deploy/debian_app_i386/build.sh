@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2.0.5
+VERSION=2.1.0
 ARCH=debian-i386
 
 cd ~/OmniDB/OmniDB
@@ -55,20 +55,6 @@ else
 fi
 chmod 755 deploy/packages/omnidb-app/libxcb.so.1
 chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
-echo "Done."
-
-echo -n "Copying libXss... "
-cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
-cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/cefpython3/libXss.so.1
-chmod 755 deploy/packages/omnidb-app/libXss.so.1
-chmod 755 deploy/packages/omnidb-app/cefpython3/libXss.so.1
-echo "Done."
-
-echo -n "Copying libnss3... "
-cp deploy/lib/libnss3.so deploy/packages/omnidb-app/libnss3.so
-cp deploy/lib/libnss3.so deploy/packages/omnidb-app/cefpython3/libnss3.so
-chmod 755 deploy/packages/omnidb-app/libnss3.so
-chmod 755 deploy/packages/omnidb-app/cefpython3/libnss3.so
 echo "Done."
 
 echo -n "Renaming bundles... "

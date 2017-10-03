@@ -77,7 +77,6 @@ urlpatterns = [
     url(r'^get_procedures/', views.tree.get_procedures, name='get_procedures'),
     url(r'^get_procedure_fields/', views.tree.get_procedure_fields, name='get_procedure_fields'),
     url(r'^get_procedure_definition/', views.tree.get_procedure_definition, name='get_procedure_definition'),
-    url(r'^get_sequences/', views.tree.get_sequences, name='get_sequences'),
 
     #TREE_POSTGRESQL
     url(r'^get_tree_info_postgresql/', views.tree_postgresql.get_tree_info, name='get_tree_info'),
@@ -120,5 +119,6 @@ urlpatterns = [
     url(r'^get_bdr_replicationsets_postgresql/', views.tree_postgresql.get_bdr_replicationsets, name='get_bdr_replicationsets_postgresql'),
     url(r'^get_bdr_table_replicationsets_postgresql/', views.tree_postgresql.get_bdr_table_replicationsets, name='get_bdr_table_replicationsets_postgresql'),
     url(r'^get_bdr_table_conflicthandlers_postgresql/', views.tree_postgresql.get_bdr_table_conflicthandlers, name='get_bdr_table_conflicthandlers_postgresql'),
+    url(r'^get_explain/', views.tree_postgresql.get_explain, name='get_explain'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

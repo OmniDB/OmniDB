@@ -4305,7 +4305,7 @@ function nodeOpenError(p_return, p_node) {
         if (p_node.childNodes.length > 0)
             p_node.removeChildNodes();
 
-        v_node = p_node.createChildNode("Error - <a class='a_link' onclick='showError(&quot;" + p_return.v_data.replace("\n","<br/>").replace('"','') + "&quot;)'>View Detail</a>", false,
+        v_node = p_node.createChildNode("Error - <a class='a_link' onclick='showError(&quot;" + p_return.v_data.replace(/\n/g, "<br/>").replace(/"/g,'') + "&quot;)'>View Detail</a>", false,
             '/static/OmniDB_app/images/tab_close.png', {
                 type: 'error',
                 message: p_return.v_data
@@ -4366,4 +4366,53 @@ function postgresqlTerminateBackend(p_row) {
 
         });
 
+}
+
+function getExplain(p_mode) {
+
+  var v_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
+
+  if (v_query.trim()=='') {
+    showAlert('Please provide a string.');
+  }
+  else {
+    if (p_mode==0)
+      v_query = 'explain ' + v_query;
+    else if (p_mode==1)
+      v_query = 'explain analyze ' + v_query;
+
+    querySQL(0,true, v_query, getExplainReturn);
+  }
+}
+
+function getExplainReturn(p_data) {
+
+  v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectExplainTabFunc();
+
+  if (p_data.v_error) {
+    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain.innerHTML = '<div class="error_text">' + p_data.v_data.message + '</div>';
+  }
+  else {
+    var v_explain_text = '';
+    for (var i=0; i<p_data.v_data.v_data.length; i++)
+      v_explain_text += p_data.v_data.v_data[i] + '\n';
+
+    var resultset = [];
+    v_explain_text.split(/\n/).forEach(function(item){
+        item = item.replace(/^"(.*)"$/, '$1'); // remove quotes
+        item = item.replace(/^'(.*)'$/, '$1'); // remove single quotes
+        if (item.match(/^-*$/)){return;} // skip line with dashes (supposedly header separator)
+        if (item.match(/^\s*QUERY PLAN\s*$/)){return;} // skip header
+        resultset.push([item]);
+    });
+
+    if (resultset.length > 0){
+      var planNodes = PGPlanNodes(resultset.slice());
+      var mountNode = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain;
+      var pgplan = React.createElement(PGPlan, {nodes: planNodes}, null);
+      ReactDOM.render(pgplan, mountNode);
+    }
+  }
+
+  refreshHeights();
 }

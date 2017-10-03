@@ -88,6 +88,7 @@ urlpatterns = [
     url(r'^get_uniques_postgresql/', views.tree_postgresql.get_uniques, name='get_uniques'),
     url(r'^get_indexes_postgresql/', views.tree_postgresql.get_indexes, name='get_indexes'),
     url(r'^get_checks_postgresql/', views.tree_postgresql.get_checks, name='get_checks'),
+    url(r'^get_excludes_postgresql/', views.tree_postgresql.get_excludes, name='get_excludes'),
     url(r'^get_rules_postgresql/', views.tree_postgresql.get_rules, name='get_rules'),
     url(r'^get_triggers_postgresql/', views.tree_postgresql.get_triggers, name='get_triggers'),
     url(r'^get_partitions_postgresql/', views.tree_postgresql.get_partitions, name='get_partitions'),

@@ -63,7 +63,7 @@ class Cryptor(object):
             raise Spartacus.Utils.Exception(str(exc))
 
 class DataFileReader(object):
-    def __init__(self, p_filename, p_fieldnames=None, p_encoding='uft-8'):
+    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8'):
         v_tmp = p_filename.split('.')
         if len(v_tmp) > 1:
             self.v_extension = v_tmp[-1].lower()
@@ -73,12 +73,13 @@ class DataFileReader(object):
         self.v_file = None
         self.v_header = p_fieldnames
         self.v_encoding = p_encoding
+        self.v_open = False
     def Open(self):
         try:
             if not os.path.isfile(self.v_filename):
                 raise Spartacus.Utils.Exception('File {0} does not exist or is not a file.'.format(self.v_filename))
             if self.v_extension == 'csv':
-                self.v_file = open(self.v_filename, self.v_encoding)
+                self.v_file = open(self.v_filename, encoding=self.v_encoding)
                 v_sample = self.v_file.read(1024)
                 self.v_file.seek(0)
                 v_sniffer = csv.Sniffer()
@@ -86,8 +87,10 @@ class DataFileReader(object):
                     raise Spartacus.Utils.Exception('CSV file {0} does not have a header.'.format(self.v_filename))
                 v_dialect = v_sniffer.sniff(v_sample)
                 self.v_object = csv.DictReader(self.v_file, self.v_header, None, None, v_dialect)
+                self.v_open = True
             elif self.v_extension == 'xlsx':
-                self.v_object = openpyxl.load_workbook(self.v_filename)
+                self.v_object = openpyxl.load_workbook(self.v_filename, read_only=True)
+                self.v_open = True
             else:
                 raise Spartacus.Utils.Exception('File extension "{0}" not supported.'.format(self.v_extension))
         except Spartacus.Utils.Exception as exc:
@@ -96,6 +99,8 @@ class DataFileReader(object):
             raise Spartacus.Utils.Exception(str(exc))
     def Read(self, p_blocksize=None, p_sheetname=None):
         try:
+            if not self.v_open:
+                raise Spartacus.Utils.Exception('You need to call Open() first.')
             if self.v_extension == 'csv':
                 v_table = Spartacus.Database.DataTable()
                 v_first = True
@@ -120,22 +125,29 @@ class DataFileReader(object):
             else:
                 if p_sheetname:
                     v_worksheet = self.v_object[p_sheetname]
-                    v_table = Spartacus.Database.DataTable(v_sheetname)
+                    v_table = Spartacus.Database.DataTable(p_sheetname)
                 else:
                     v_worksheet = self.v_object.active
                     v_table = Spartacus.Database.DataTable()
+                v_worksheet.max_row = v_worksheet.max_column = None
                 v_first = True
                 x = 0
-                for v_row in tuple(v_worksheet.rows):
+                for v_row in v_worksheet.rows:
                     if v_first:
                         if self.v_header:
                             v_table.Columns = self.v_header
                         else:
-                            for i in range(0, len(tuple(v_worksheet.columns))):
-                                v_table.Columns.append(v_row[i].value)
+                            v_table.Columns = [a.value for a in v_row]
                         v_first = False
                     else:
-                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, [a.value for a in v_row])))
+                        v_tmp = [a.value for a in v_row]
+                        if len(v_tmp) < len(v_table.Columns):
+                            for i in range(0, len(v_table.Columns) - len(v_tmp)):
+                                v_tmp.append(None)
+                        elif len(v_tmp) > len(v_table.Columns):
+                            for i in range(0, len(v_tmp) - len(v_table.Columns)):
+                                v_tmp.pop()
+                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_tmp)))
                         x = x + 1
                         if x == p_blocksize:
                             yield v_table
@@ -159,7 +171,7 @@ class DataFileReader(object):
             raise Spartacus.Utils.Exception(str(exc))
 
 class DataFileWriter(object):
-    def __init__(self, p_filename, p_fieldnames=None):
+    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8'):
         v_tmp = p_filename.split('.')
         if len(v_tmp) > 1:
             self.v_extension = v_tmp[-1].lower()
@@ -168,15 +180,19 @@ class DataFileWriter(object):
         self.v_filename = p_filename
         self.v_file = None
         self.v_header = p_fieldnames
+        self.v_encoding = p_encoding
         self.v_currentrow = 1
+        self.v_open = False
     def Open(self):
         try:
             if self.v_extension == 'csv':
-                self.v_file = open(self.v_filename, 'w')
+                self.v_file = open(self.v_filename, 'w', encoding=self.v_encoding)
                 self.v_object = csv.DictWriter(v_file, fieldnames=self.v_header)
                 self.v_object.writeheader()
+                self.v_open = True
             elif self.v_extension == 'xlsx':
-                self.v_object = openpyxl.Workbook()
+                self.v_object = openpyxl.Workbook(write_only=True)
+                self.v_open = True
             else:
                 raise Spartacus.Utils.Exception('File extension "{0}" not supported.'.format(self.v_extension))
         except Spartacus.Utils.Exception as exc:
@@ -185,21 +201,26 @@ class DataFileWriter(object):
             raise Spartacus.Utils.Exception(str(exc))
     def Write(self, p_datatable, p_sheetname=None):
         try:
+            if not self.v_open:
+                raise Spartacus.Utils.Exception('You need to call Open() first.')
             if self.v_extension == 'csv':
                 for v_row in p_datatable.Rows:
                     self.v_object.writerow(dict(v_row))
             else:
-                if p_sheetname:
-                    v_worksheet = self.v_object.create_sheet(p_sheetname)
+                if self.v_currentrow == 1:
+                    if p_sheetname:
+                        v_worksheet = self.v_object.create_sheet(p_sheetname)
+                    else:
+                        v_worksheet = self.v_object.create_sheet()
+                    v_worksheet.append(p_datatable.Columns)
+                    self.v_currentrow = self.v_currentrow + 1
                 else:
                     v_worksheet = self.v_object.active
-                if self.v_currentrow == 1:
-                    for c in range(0, len(p_datatable.Columns)):
-                        v_worksheet['{0}1'.format(self.__colstr__(c+1))] = p_datatable.Columns[c]
-                    self.v_currentrow = self.v_currentrow + 1
                 for r in range(0, len(p_datatable.Rows)):
+                    v_row = []
                     for c in range(0, len(p_datatable.Columns)):
-                        v_worksheet['{0}{1}'.format(self.__colstr__(c+1), r+self.v_currentrow)] = p_datatable.Rows[r][p_datatable.Columns[c]]
+                        v_row.append(p_datatable.Rows[r][p_datatable.Columns[c]])
+                    v_worksheet.append(v_row)
                 self.v_currentrow = self.v_currentrow + len(p_datatable.Rows)
         except Spartacus.Utils.Exception as exc:
             raise exc
@@ -207,6 +228,8 @@ class DataFileWriter(object):
             raise Spartacus.Utils.Exception(str(exc))
     def Flush(self):
         try:
+            if not self.v_open:
+                raise Spartacus.Utils.Exception('You need to call Open() first.')
             if self.v_extension == 'csv':
                 self.v_file.close()
             else:
@@ -215,12 +238,3 @@ class DataFileWriter(object):
             raise exc
         except Exception as exc:
             raise Spartacus.Utils.Exception(str(exc))
-    def __colstr__(self, p_index):
-        v_div = p_index
-        v_text = ''
-        v_tmp = 0
-        while v_div > 0:
-            v_mod = (v_div - 1) % 26
-            v_text = chr(65 + v_mod) + v_text
-            v_div = int((v_div - v_mod) / 26)
-        return v_text

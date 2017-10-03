@@ -1861,6 +1861,14 @@ function getTreePostgresql(p_div) {
                         .replace('#node_name#', node.text));
                 }
             }, {
+                text: 'Pool Reload',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Pool Reload',
+                        node.tree.tag.xl_pool_reload
+                        .replace('#node_name#', node.text));
+                }
+            }, {
                 text: 'Alter Node',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
@@ -2326,6 +2334,7 @@ function getTreeDetails(node) {
                 xl_alter_node: p_return.v_data.v_database_return.xl_alter_node,
                 xl_drop_node: p_return.v_data.v_database_return.xl_drop_node,
                 xl_execute_direct: p_return.v_data.v_database_return.xl_execute_direct,
+                xl_pool_reload: p_return.v_data.v_database_return.xl_pool_reload,
                 xl_altertable_distribution: p_return.v_data.v_database_return
                     .xl_altertable_distribution,
                 xl_altertable_location: p_return.v_data.v_database_return

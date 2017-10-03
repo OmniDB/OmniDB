@@ -1802,7 +1802,7 @@ force := False
 '''
         v_table = self.QueryXLNodes()
         for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON {0} 'CREATE NODE GROUP name WITH ( nodename [, ... ] )'
+            v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE GROUP name WITH ( nodename [, ... ] )'
 
 '''.format(r['node_name'])
         return Template(v_text)
@@ -1813,7 +1813,7 @@ force := False
 '''
         v_table = self.QueryXLNodes()
         for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON {0} 'DROP NODE GROUP #group_name#'
+            v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE GROUP #group_name#'
 
 '''.format(r['node_name'])
         return Template(v_text)
@@ -1825,7 +1825,7 @@ force := False
 '''
         v_table = self.QueryXLNodes()
         for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON {0} 'CREATE NODE name WITH (
+            v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE name WITH (
 TYPE = {{ coordinator | datanode }},
 HOST = hostname,
 PORT = portnum
@@ -1843,7 +1843,7 @@ PORT = portnum
 '''
         v_table = self.QueryXLNodes()
         for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON {0} 'ALTER NODE #node_name# WITH (
+            v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'ALTER NODE #node_name# WITH (
 TYPE = {{ coordinator | datanode }},
 HOST = hostname,
 PORT = portnum
@@ -1855,9 +1855,12 @@ PORT = portnum
         return Template(v_text)
 
     def TemplateXLExecuteDirect(self):
-        return Template('''EXECUTE DIRECT ON #node_name#
+        return Template('''EXECUTE DIRECT ON (#node_name#)
 'SELECT ...'
 ''')
+
+    def TemplateXLPoolReload(self):
+        return Template('EXECUTE DIRECT ON (#node_name#) \'SELECT pgxc_pool_reload()\'')
 
     def TemplateXLDropNode(self):
         v_text = '''-- This command needs to be executed in all nodes.
@@ -1865,7 +1868,7 @@ PORT = portnum
 '''
         v_table = self.QueryXLNodes()
         for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON {0} 'DROP NODE #node_name#'
+            v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE #node_name#'
 
 '''.format(r['node_name'])
         return Template(v_text)

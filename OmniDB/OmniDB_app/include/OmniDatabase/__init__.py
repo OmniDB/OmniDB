@@ -1365,6 +1365,20 @@ ON #table_name#
 --EXECUTE PROCEDURE function_name ( arguments )
 ''')
 
+    def TemplateCreateViewTrigger(self):
+        return Template('''CREATE TRIGGER name
+--BEFORE { INSERT [ OR ] | UPDATE [ OF column_name [, ... ] ] [ OR ] | DELETE }
+--AFTER { INSERT [ OR ] | UPDATE [ OF column_name [, ... ] ] [ OR ] | DELETE }
+--INSTEAD OF { INSERT [ OR ] | UPDATE [ OF column_name [, ... ] ] [ OR ] | DELETE }
+ON #table_name#
+--FROM referenced_table_name
+--NOT DEFERRABLE | [ DEFERRABLE ] { INITIALLY IMMEDIATE | INITIALLY DEFERRED }
+--FOR EACH ROW
+--FOR EACH STATEMENT
+--WHEN ( condition )
+--EXECUTE PROCEDURE function_name ( arguments )
+''')
+
     def TemplateAlterTrigger(self):
         return Template('ALTER TRIGGER #trigger_name# ON #table_name# RENAME TO new_name')
 
@@ -1796,36 +1810,43 @@ force := False
 ''')
 
     def TemplateXLCreateGroup(self):
-        v_text = '''-- This command needs to be executed in all nodes.
+        if 'XL' in self.GetVersion():
+            v_text = '''-- This command needs to be executed in all nodes.
 -- Please adjust the parameters in all commands below.
 
 '''
-        v_table = self.QueryXLNodes()
-        for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE GROUP name WITH ( nodename [, ... ] )'
+            v_table = self.QueryXLNodes()
+            for r in v_table.Rows:
+                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE GROUP name WITH ( nodename [, ... ] )'
 
 '''.format(r['node_name'])
+        else:
+            v_text = ''
         return Template(v_text)
 
     def TemplateXLDropGroup(self):
-        v_text = '''-- This command needs to be executed in all nodes.
+        if 'XL' in self.GetVersion():
+            v_text = '''-- This command needs to be executed in all nodes.
 
 '''
-        v_table = self.QueryXLNodes()
-        for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE GROUP #group_name#'
+            v_table = self.QueryXLNodes()
+            for r in v_table.Rows:
+                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE GROUP #group_name#'
 
 '''.format(r['node_name'])
+        else:
+            v_text = ''
         return Template(v_text)
 
     def TemplateXLCreateNode(self):
-        v_text = '''-- This command needs to be executed in all nodes.
+        if 'XL' in self.GetVersion():
+            v_text = '''-- This command needs to be executed in all nodes.
 -- Please adjust the parameters in all commands below.
 
 '''
-        v_table = self.QueryXLNodes()
-        for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE name WITH (
+            v_table = self.QueryXLNodes()
+            for r in v_table.Rows:
+                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE name WITH (
 TYPE = {{ coordinator | datanode }},
 HOST = hostname,
 PORT = portnum
@@ -1834,16 +1855,19 @@ PORT = portnum
 )'
 
 '''.format(r['node_name'])
+        else:
+            v_text = ''
         return Template(v_text)
 
     def TemplateXLAlterNode(self):
-        v_text = '''-- This command needs to be executed in all nodes.
+        if 'XL' in self.GetVersion():
+            v_text = '''-- This command needs to be executed in all nodes.
 -- Please adjust the parameters in all commands below.
 
 '''
-        v_table = self.QueryXLNodes()
-        for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'ALTER NODE #node_name# WITH (
+            v_table = self.QueryXLNodes()
+            for r in v_table.Rows:
+                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'ALTER NODE #node_name# WITH (
 TYPE = {{ coordinator | datanode }},
 HOST = hostname,
 PORT = portnum
@@ -1852,6 +1876,8 @@ PORT = portnum
 )'
 
 '''.format(r['node_name'])
+        else:
+            v_text = ''
         return Template(v_text)
 
     def TemplateXLExecuteDirect(self):
@@ -1863,14 +1889,17 @@ PORT = portnum
         return Template('EXECUTE DIRECT ON (#node_name#) \'SELECT pgxc_pool_reload()\'')
 
     def TemplateXLDropNode(self):
-        v_text = '''-- This command needs to be executed in all nodes.
+        if 'XL' in self.GetVersion():
+            v_text = '''-- This command needs to be executed in all nodes.
 
 '''
-        v_table = self.QueryXLNodes()
-        for r in v_table.Rows:
-            v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE #node_name#'
+            v_table = self.QueryXLNodes()
+            for r in v_table.Rows:
+                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE #node_name#'
 
 '''.format(r['node_name'])
+        else:
+            v_text = ''
         return Template(v_text)
 
     def TemplateXLAlterTableDistribution(self):

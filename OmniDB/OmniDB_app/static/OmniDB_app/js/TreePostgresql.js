@@ -3686,7 +3686,10 @@ function getExcludesPostgresql(node) {
                         false, '/static/OmniDB_app/images/exclude.png', {
                             type: 'exclude'
                         }, 'cm_exclude');
-                    v_node.createChildNode('Operator: ' + p_return.v_data[i][1],
+                    v_node.createChildNode('Attributes: ' + p_return.v_data[i][1],
+                        false, '/static/OmniDB_app/images/bullet_red.png',
+                        null, null);
+                    v_node.createChildNode('Operators: ' + p_return.v_data[i][2],
                         false, '/static/OmniDB_app/images/bullet_red.png',
                         null, null);
 

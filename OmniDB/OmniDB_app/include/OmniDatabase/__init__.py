@@ -502,7 +502,7 @@ class PostgreSQL:
             else:
                 v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            create or replace function pg_temp.fnc_omnidb_exclude(text, text, text)
+            create or replace function pg_temp.fnc_omnidb_exclude_ops(text, text, text)
             returns text as $$
             select array_to_string(array(
             select oprname
@@ -525,14 +525,45 @@ class PostgreSQL:
             ) t
             ), ',')
             $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_exclude_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
             select quote_ident(n.nspname) as schema_name,
                    ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') as table_name,
                    quote_ident(c.conname) as constraint_name,
-                   pg_temp.fnc_omnidb_exclude(
+                   pg_temp.fnc_omnidb_exclude_ops(
                        quote_ident(n.nspname),
                        ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.'),
                        quote_ident(c.conname)
-                   ) as operations
+                   ) as operations,
+                   pg_temp.fnc_omnidb_exclude_attrs(
+                       quote_ident(n.nspname),
+                       ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.'),
+                       quote_ident(c.conname)
+                   ) as attributes
             from pg_constraint c
             join pg_class t
             on t.oid = c.conrelid

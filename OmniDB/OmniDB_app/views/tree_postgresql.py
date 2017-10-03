@@ -141,6 +141,7 @@ def get_tree_info(request):
             'xl_alter_node': v_database.TemplateXLAlterNode().v_text,
             'xl_drop_node': v_database.TemplateXLDropNode().v_text,
             'xl_execute_direct': v_database.TemplateXLExecuteDirect().v_text,
+            'xl_pool_reload': v_database.TemplateXLPoolReload().v_text,
             'xl_altertable_distribution': v_database.TemplateXLAlterTableDistribution().v_text,
             'xl_altertable_location': v_database.TemplateXLAlterTableLocation().v_text,
             'xl_altertable_addnode': v_database.TemplateXLALterTableAddNode().v_text,

@@ -904,6 +904,40 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
+        'cm_view_triggers': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                },
+            }, {
+                text: 'Create Trigger',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Trigger', node.tree.tag
+                        .create_view_trigger.replace(
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
+                }
+            }, {
+                text: 'Doc: Triggers',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Triggers',
+                        'https://www.postgresql.org/docs/' +
+                        getMajorVersion(node.tree.tag.version) +
+                        '/static/trigger-definition.html');
+                }
+            }]
+        },
         'cm_trigger': {
             elements: [{
                 text: 'Alter Trigger',
@@ -2281,6 +2315,7 @@ function getTreeDetails(node) {
                 alter_rule: p_return.v_data.v_database_return.alter_rule,
                 drop_rule: p_return.v_data.v_database_return.drop_rule,
                 create_trigger: p_return.v_data.v_database_return.create_trigger,
+                create_view_trigger: p_return.v_data.v_database_return.create_view_trigger,
                 alter_trigger: p_return.v_data.v_database_return.alter_trigger,
                 enable_trigger: p_return.v_data.v_database_return.enable_trigger,
                 disable_trigger: p_return.v_data.v_database_return.disable_trigger,
@@ -2866,7 +2901,8 @@ function getViewsPostgresql(node) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/view.png', {
-                        type: 'view'
+                        type: 'view',
+                        has_triggers: p_return.v_data[i].v_has_triggers
                     }, 'cm_view');
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
@@ -2902,9 +2938,12 @@ function getViewsColumnsPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
+            v_list = node.createChildNode('Columns (' + p_return.v_data.length +
+                ')', false, '/static/OmniDB_app/images/add.png', null, null);
+
             for (i = 0; i < p_return.v_data.length; i++) {
 
-                v_node = node.createChildNode(p_return.v_data[i].v_column_name,
+                v_node = v_list.createChildNode(p_return.v_data[i].v_column_name,
                     false, '/static/OmniDB_app/images/add.png', {
                         type: 'table_field'
                     }, null);
@@ -2912,6 +2951,15 @@ function getViewsColumnsPostgresql(node) {
                     false, '/static/OmniDB_app/images/bullet_red.png',
                     null, null);
 
+            }
+
+            if (node.tag.has_triggers) {
+                v_node = node.createChildNode('Triggers', false,
+                    '/static/OmniDB_app/images/trigger.png', {
+                        type: 'trigger_list'
+                    }, 'cm_view_triggers');
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
             }
 
         },

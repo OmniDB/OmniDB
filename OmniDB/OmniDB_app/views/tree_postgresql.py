@@ -93,6 +93,7 @@ def get_tree_info(request):
             'alter_rule': v_database.TemplateAlterRule().v_text,
             'drop_rule': v_database.TemplateDropRule().v_text,
             'create_trigger': v_database.TemplateCreateTrigger().v_text,
+            'create_view_trigger': v_database.TemplateCreateViewTrigger().v_text,
             'alter_trigger': v_database.TemplateAlterTrigger().v_text,
             'enable_trigger': v_database.TemplateEnableTrigger().v_text,
             'disable_trigger': v_database.TemplateDisableTrigger().v_text,
@@ -671,6 +672,7 @@ def get_views(request):
         for v_table in v_tables.Rows:
             v_table_data = {
                 'v_name': v_table['table_name'],
+                'v_has_triggers': v_database.v_has_triggers,
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:

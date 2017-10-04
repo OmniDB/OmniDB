@@ -243,6 +243,9 @@ class Generic(ABC):
     def ClearNotices(self):
         pass
     @abstractmethod
+    def GetStatus(self):
+        pass
+    @abstractmethod
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         pass
     @abstractmethod
@@ -442,6 +445,8 @@ class SQLite(Generic):
         return []
     def ClearNotices(self):
         pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -674,6 +679,8 @@ class Memory(Generic):
         return []
     def ClearNotices(self):
         pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -998,6 +1005,18 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetStatus(self):
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                return self.v_cur.statusmessage
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1234,6 +1253,8 @@ class MySQL(Generic):
         return []
     def ClearNotices(self):
         pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1470,6 +1491,8 @@ class MariaDB(Generic):
         return []
     def ClearNotices(self):
         pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1709,6 +1732,8 @@ class Firebird(Generic):
         return []
     def ClearNotices(self):
         pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1965,6 +1990,8 @@ class Oracle(Generic):
         return []
     def ClearNotices(self):
         pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -2221,6 +2248,8 @@ class MSSQL(Generic):
         return []
     def ClearNotices(self):
         pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -2480,6 +2509,8 @@ class IBMDB2(Generic):
         return []
     def ClearNotices(self):
         pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:

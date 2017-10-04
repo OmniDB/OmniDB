@@ -8,6 +8,7 @@
 - Support to Postgres-BDR
 - Support to Materialized Views
 - Simplified query modes
+- Support to HTTPS in OmniDB-Server
 - Bug fixes
 
 # Introduction
@@ -86,7 +87,7 @@ python3 manage.py runserver
 - **Beautiful SQL Editor**: You can choose between many available color themes
 - **Tabbed SQL Editor**: Easily add, rename or delete editor tabs
 
-![](http://162.243.1.11/images/screenshots/screen00.png)
+![](https://omnidb.org/images/screenshots/screen00.png)
 
 Technologies:
 
@@ -119,7 +120,7 @@ OmniDB is designed for easy database management. Here are some features:
     - Key Constraints: primary, foreign and unique
     - Index (unique and non-unique)
 
-![](http://162.243.1.11/images/screenshots/treeview.png)
+![](https://omnidb.org/images/screenshots/treeview.png)
 
 - Powerful table creation
   - Editing capabilities:
@@ -129,7 +130,7 @@ OmniDB is designed for easy database management. Here are some features:
     - Foreign keys with either table and reference columns, including updating rules and removal as well
     - Indexes
 
-![](http://162.243.1.11/images/screenshots/screen05.png)
+![](https://omnidb.org/images/screenshots/screen05.png)
 
 - Table editing: Edit table structure according to DBMS limitations
 - Data management: Add, edit and remove records
@@ -142,7 +143,7 @@ OmniDB is designed for easy database management. Here are some features:
     - SQL code completion for table columns and subquery
     - Multiple themes to be selected
 
-![](http://162.243.1.11/images/screenshots/screen06.png)
+![](https://omnidb.org/images/screenshots/screen06.png)
 
 - Other features:
   - Querying organized in tables
@@ -150,8 +151,8 @@ OmniDB is designed for easy database management. Here are some features:
   - Multiple sequenced command execution (scripts)
   - Graphs displaying tables and their relations
 
-![](http://162.243.1.11/images/screenshots/screen02.png)
+![](https://omnidb.org/images/screenshots/screen02.png)
 
   - Graphs displaying complete ER diagram
 
-![](http://162.243.1.11/images/screenshots/screen01.png)
+![](https://omnidb.org/images/screenshots/screen01.png)

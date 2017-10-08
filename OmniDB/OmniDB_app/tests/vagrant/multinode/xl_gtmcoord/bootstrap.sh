@@ -89,6 +89,8 @@ echo "log_directory = 'pg_log'" >> "$PG_CONF"
 echo "max_connections = 100" >> "$PG_CONF"
 echo "hot_standby = off" >> "$PG_CONF"
 echo "pooler_port = 40100" >> "$PG_CONF"
+echo "gtm_host = 'localhost'" >> "$PG_CONF"
+echo "gtm_port = 6666"" >> "$PG_CONF"
 
 # XL specific authentication
 echo "local   all           postgres                          trust" >> "$PG_HBA"

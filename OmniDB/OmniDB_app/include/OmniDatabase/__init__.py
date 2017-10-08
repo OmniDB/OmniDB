@@ -1501,7 +1501,7 @@ ON #table_name#
     def TemplateCreatePartition(self):
         return Template('''CREATE TABLE name (
     CHECK ( condition )
-) INHERITS #table_name#
+) INHERITS (#table_name#)
 ''')
 
     def TemplateNoInheritPartition(self):

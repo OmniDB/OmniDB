@@ -100,6 +100,7 @@ class PostgreSQL:
         self.v_has_uniques = True
         self.v_has_indexes = True
         self.v_has_checks = True
+        self.v_has_excludes = True
         self.v_has_rules = True
         self.v_has_triggers = True
         self.v_has_partitions = True
@@ -480,6 +481,95 @@ class PostgreSQL:
             join pg_namespace n
             on t.relnamespace = n.oid
             where contype = 'c'
+            {0}
+            order by 1, 2, 3
+        '''.format(v_filter), True)
+
+    def QueryTablesExcludes(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(n.nspname) = '{0}' and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_exclude_ops(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select oprname
+            from (
+            select o.oprname
+            from (
+            select unnest(c.conexclop) as conexclop
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_operator o
+            on o.oid = x.conexclop
+            ) t
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_exclude_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            select quote_ident(n.nspname) as schema_name,
+                   ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') as table_name,
+                   quote_ident(c.conname) as constraint_name,
+                   pg_temp.fnc_omnidb_exclude_ops(
+                       quote_ident(n.nspname),
+                       ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.'),
+                       quote_ident(c.conname)
+                   ) as operations,
+                   pg_temp.fnc_omnidb_exclude_attrs(
+                       quote_ident(n.nspname),
+                       ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.'),
+                       quote_ident(c.conname)
+                   ) as attributes
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
             {0}
             order by 1, 2, 3
         '''.format(v_filter), True)
@@ -1335,6 +1425,21 @@ DROP CONSTRAINT #constraint_name#
 --CASCADE
 ''')
 
+    def TemplateCreateExclude(self):
+        return Template('''ALTER TABLE #table_name#
+ADD CONSTRAINT name
+--USING index_method
+EXCLUDE ( exclude_element WITH operator [, ... ] )
+--index_parameters
+--WHERE ( predicate )
+''')
+
+    def TemplateDropExclude(self):
+        return Template('''ALTER TABLE #table_name#
+DROP CONSTRAINT #constraint_name#
+--CASCADE
+''')
+
     def TemplateCreateRule(self):
         return Template('''CREATE RULE name
 AS ON { SELECT | INSERT | UPDATE | DELETE }
@@ -1948,10 +2053,11 @@ class SQLite:
         self.v_has_foreign_keys = True
         self.v_has_uniques = True
         self.v_has_indexes = True
-        self.v_has_checks = True
-        self.v_has_rules = True
-        self.v_has_triggers = True
-        self.v_has_triggers = True
+        self.v_has_checks = False
+        self.v_has_excludes = False
+        self.v_has_rules = False
+        self.v_has_triggers = False
+        self.v_has_partitions = True
 
         self.v_has_update_rule = True
         self.v_can_rename_table = True

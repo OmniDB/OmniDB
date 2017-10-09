@@ -504,7 +504,7 @@ function getTreePostgresql(p_div) {
                                 .tag.tabControl.selectedTab
                                 .tag.editor.setValue(
                                     'DELETE FROM ' +
-                                    node.text);
+                                    node.parent.parent.text + '.' + node.text);
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
                                 .tag.editor.clearSelection();
@@ -806,6 +806,44 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Check', node.tree.tag.drop_check
+                        .replace('#table_name#', node.parent
+                            .parent.parent.parent.text +
+                            '.' + node.parent.parent.text).replace(
+                            '#constraint_name#', node.text)
+                    );
+                }
+            }]
+        },
+        'cm_excludes': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Exclude',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Exclude', node.tree.tag
+                        .create_exclude.replace(
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
+                }
+            }]
+        },
+        'cm_exclude': {
+            elements: [{
+                text: 'Drop Exclude',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Exclude', node.tree.tag.drop_exclude
                         .replace('#table_name#', node.parent
                             .parent.parent.parent.text +
                             '.' + node.parent.parent.text).replace(
@@ -2122,6 +2160,8 @@ function refreshTreePostgresql(node) {
         getExtensionsPostgresql(node);
     } else if (node.tag.type == 'check_list') {
         getChecksPostgresql(node);
+    } else if (node.tag.type == 'exclude_list') {
+        getExcludesPostgresql(node);
     } else if (node.tag.type == 'rule_list') {
         getRulesPostgresql(node);
     } else if (node.tag.type == 'trigger_list') {
@@ -2311,6 +2351,8 @@ function getTreeDetails(node) {
                 drop_index: p_return.v_data.v_database_return.drop_index,
                 create_check: p_return.v_data.v_database_return.create_check,
                 drop_check: p_return.v_data.v_database_return.drop_check,
+                create_exclude: p_return.v_data.v_database_return.create_exclude,
+                drop_exclude: p_return.v_data.v_database_return.drop_exclude,
                 create_rule: p_return.v_data.v_database_return.create_rule,
                 alter_rule: p_return.v_data.v_database_return.alter_rule,
                 drop_rule: p_return.v_data.v_database_return.drop_rule,
@@ -2701,6 +2743,7 @@ function getTablesPostgresql(node) {
                         has_uniques: p_return.v_data[i].v_has_uniques,
                         has_indexes: p_return.v_data[i].v_has_indexes,
                         has_checks: p_return.v_data[i].v_has_checks,
+                        has_excludes: p_return.v_data[i].v_has_excludes,
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         has_partitions: p_return.v_data[i].v_has_partitions
@@ -3232,6 +3275,15 @@ function getColumnsPostgresql(node) {
                     '/static/OmniDB_app/images/spin.svg', null, null);
             }
 
+            if (node.tag.has_excludes) {
+                v_node = node.createChildNode('Excludes', false,
+                    '/static/OmniDB_app/images/exclude.png', {
+                        type: 'exclude_list'
+                    }, 'cm_excludes');
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+            }
+
             if (node.tag.has_indexes) {
                 v_node = node.createChildNode('Indexes', false,
                     '/static/OmniDB_app/images/index.png', {
@@ -3588,6 +3640,58 @@ function getChecksPostgresql(node) {
                     v_node.createChildNode(p_return.v_data[i][1], false,
                         '/static/OmniDB_app/images/text_edit.png', null,
                         null);
+
+                }
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving Excludes.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getExcludesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_excludes_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_table": node.parent.text,
+            "p_schema": node.parent.parent.parent.text
+        }),
+        function(p_return) {
+
+            node.setText('Excludes (' + p_return.v_data.length + ')');
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            var v_node;
+
+            if (p_return.v_data.length > 0) {
+
+                for (i = 0; i < p_return.v_data.length; i++) {
+
+                    v_node = node.createChildNode(p_return.v_data[i][0],
+                        false, '/static/OmniDB_app/images/exclude.png', {
+                            type: 'exclude'
+                        }, 'cm_exclude');
+                    v_node.createChildNode('Attributes: ' + p_return.v_data[i][1],
+                        false, '/static/OmniDB_app/images/bullet_red.png',
+                        null, null);
+                    v_node.createChildNode('Operators: ' + p_return.v_data[i][2],
+                        false, '/static/OmniDB_app/images/bullet_red.png',
+                        null, null);
 
                 }
 

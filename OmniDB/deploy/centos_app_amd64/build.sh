@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.1.0
+VERSION=2.2.0
 ARCH=centos-amd64
 
 cd ~/OmniDB/OmniDB

@@ -504,7 +504,8 @@ function getTreePostgresql(p_div) {
                                 .tag.tabControl.selectedTab
                                 .tag.editor.setValue(
                                     'DELETE FROM ' +
-                                    node.parent.parent.text + '.' + node.text);
+                                    node.parent.parent.text +
+                                    '.' + node.text);
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
                                 .tag.editor.clearSelection();
@@ -843,7 +844,8 @@ function getTreePostgresql(p_div) {
                 text: 'Drop Exclude',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                    tabSQLTemplate('Drop Exclude', node.tree.tag.drop_exclude
+                    tabSQLTemplate('Drop Exclude', node.tree.tag
+                        .drop_exclude
                         .replace('#table_name#', node.parent
                             .parent.parent.parent.text +
                             '.' + node.parent.parent.text).replace(
@@ -1702,6 +1704,319 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
+        'cm_pglogical': {
+            elements: [{
+                text: 'Doc: pglogical',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: pglogical',
+                        'https://www.2ndquadrant.com/en/resources/pglogical/pglogical-docs/'
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_nodes': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Node',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Node',
+                        node.tree.tag.pglogical_create_node
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_node': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Add Interface',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Add Node Interface',
+                        node.tree.tag.pglogical_add_interface
+                        .replace('#node_name#', node.text.replace(
+                            ' (local)', '')));
+                }
+            }, {
+                text: 'Drop Node',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Node',
+                        node.tree.tag.pglogical_drop_node
+                        .replace('#node_name#', node.text.replace(
+                            ' (local)', '')));
+                }
+            }]
+        },
+        'cm_pglogical_interface': {
+            elements: [{
+                text: 'Drop Interface',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Node Interface',
+                        node.tree.tag.pglogical_drop_interface
+                        .replace('#node_name#', node.parent
+                            .text.replace(' (local)', ''))
+                        .replace('#interface_name#', node.text)
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_repsets': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Replication Set',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Replication Set',
+                        node.tree.tag.pglogical_create_repset
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_repset': {
+            elements: [{
+                text: 'Alter Replication Set',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter Replication Set',
+                        node.tree.tag.pglogical_alter_repset
+                        .replace('#repset_name#', node.text)
+                    );
+                }
+            }, {
+                text: 'Drop Replication Set',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Replication Set',
+                        node.tree.tag.pglogical_drop_repset
+                        .replace('#repset_name#', node.text)
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_repset_tables': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Add Table',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Add Table',
+                        node.tree.tag.pglogical_repset_add_table
+                        .replace('#repset_name#', node.parent
+                            .text)
+                    );
+                }
+            }, {
+                text: 'Add All Tables',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Add All Tables',
+                        node.tree.tag.pglogical_repset_add_all_tables
+                        .replace('#repset_name#', node.parent
+                            .text)
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_repset_table': {
+            elements: [{
+                text: 'Remove Table',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Remove Table',
+                        node.tree.tag.pglogical_repset_remove_table
+                        .replace('#repset_name#', node.parent
+                            .parent.text)
+                        .replace('#table_name#', node.text)
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_repset_seqs': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Add Sequence',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Add Sequence',
+                        node.tree.tag.pglogical_repset_add_seq
+                        .replace('#repset_name#', node.parent
+                            .text)
+                    );
+                }
+            }, {
+                text: 'Add All Sequences',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Add All Sequences',
+                        node.tree.tag.pglogical_repset_add_all_seqs
+                        .replace('#repset_name#', node.parent
+                            .text)
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_repset_seq': {
+            elements: [{
+                text: 'Remove Sequence',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Remove Sequence',
+                        node.tree.tag.pglogical_repset_remove_seq
+                        .replace('#repset_name#', node.parent
+                            .parent.text)
+                        .replace('#sequence_name#', node.text)
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_subscriptions': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Subscription',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Subscription',
+                        node.tree.tag.pglogical_create_sub
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_subscription': {
+            elements: [{
+                text: 'Enable Subscription',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Enable Subscription',
+                        node.tree.tag.pglogical_enable_sub
+                        .replace('#sub_name#', node.text));
+                }
+            }, {
+                text: 'Disable Subscription',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Disable Subscription',
+                        node.tree.tag.pglogical_disable_sub
+                        .replace('#sub_name#', node.text));
+                }
+            }, {
+                text: 'Sync Subscription',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Synchronize Subscription',
+                        node.tree.tag.pglogical_sync_sub
+                        .replace('#sub_name#', node.text));
+                }
+            }, {
+                text: 'Drop Subscription',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Subscription',
+                        node.tree.tag.pglogical_drop_sub
+                        .replace('#sub_name#', node.text));
+                }
+            }]
+        },
+        'cm_pglogical_subscription_repsets': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Add Replication Set',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Add Replication Set', node.tree
+                        .tag.pglogical_sub_add_repset
+                        .replace('#sub_name#', node.parent.text)
+                    );
+                }
+            }]
+        },
+        'cm_pglogical_subscription_repset': {
+            elements: [{
+                text: 'Remove Replication Set',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Remove Replication Set',
+                        node.tree.tag.pglogical_sub_remove_repset
+                        .replace('#sub_name#', node.parent.parent
+                            .text)
+                        .replace('#set_name#', node.text)
+                    );
+                }
+            }]
+        },
         'cm_bdr': {
             elements: [{
                 text: 'Refresh',
@@ -1997,7 +2312,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Group',
                         node.tree.tag.xl_drop_group
-                        .replace('#group_name#', node.text));
+                        .replace('#group_name#', node.text)
+                    );
                 }
             }]
         },
@@ -2020,7 +2336,8 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Alter Table Distribution',
                         node.tree.tag.xl_altertable_distribution
                         .replace('#table_name#',
-                        node.parent.parent.parent.text + '.' + node.parent.text));
+                            node.parent.parent.parent.text +
+                            '.' + node.parent.text));
                 }
             }, {
                 text: 'Alter Location',
@@ -2029,7 +2346,8 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Alter Table Distribution',
                         node.tree.tag.xl_altertable_location
                         .replace('#table_name#',
-                        node.parent.parent.parent.text + '.' + node.parent.text));
+                            node.parent.parent.parent.text +
+                            '.' + node.parent.text));
                 }
             }]
         },
@@ -2052,8 +2370,9 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Alter Table Add Node',
                         node.tree.tag.xl_altertable_addnode
                         .replace('#table_name#',
-                        node.parent.parent.parent.parent.text + '.' +
-                        node.parent.parent.text));
+                            node.parent.parent.parent.parent
+                            .text + '.' +
+                            node.parent.parent.text));
                 }
             }]
         },
@@ -2076,8 +2395,9 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Alter Table Delete Node',
                         node.tree.tag.xl_altertable_deletenode
                         .replace('#table_name#',
-                        node.parent.parent.parent.parent.parent.text + '.' +
-                        node.parent.parent.parent.text)
+                            node.parent.parent.parent.parent
+                            .parent.text + '.' +
+                            node.parent.parent.parent.text)
                         .replace('#node_name#', node.text));
                 }
             }]
@@ -2184,6 +2504,20 @@ function refreshTreePostgresql(node) {
         getPublicationTablesPostgresql(node);
     } else if (node.tag.type == 'subscription_table_list') {
         getSubscriptionTablesPostgresql(node);
+    } else if (node.tag.type == 'pglogical_node_list') {
+        getPglogicalNodesPostgresql(node);
+    } else if (node.tag.type == 'pglogical_node') {
+        getPglogicalInterfacesPostgresql(node);
+    } else if (node.tag.type == 'pglogical_repset_list') {
+        getPglogicalReplicationSetsPostgresql(node);
+    } else if (node.tag.type == 'pglogical_repset_table_list') {
+        getPglogicalReplicationSetTablesPostgresql(node);
+    } else if (node.tag.type == 'pglogical_repset_seq_list') {
+        getPglogicalReplicationSetSequencesPostgresql(node);
+    } else if (node.tag.type == 'pglogical_subscription_list') {
+        getPglogicalSubscriptionsPostgresql(node);
+    } else if (node.tag.type == 'pglogical_subscription_repset_list') {
+        getPglogicalSubscriptionReplicationSetsPostgresql(node);
     } else if (node.tag.type == 'bdr') {
         getBDRPropertiesPostgresql(node);
     } else if (node.tag.type == 'bdr_node_list') {
@@ -2383,6 +2717,46 @@ function getTreeDetails(node) {
                 create_subscription: p_return.v_data.v_database_return.create_subscription,
                 alter_subscription: p_return.v_data.v_database_return.alter_subscription,
                 drop_subscription: p_return.v_data.v_database_return.drop_subscription,
+                pglogical_version: p_return.v_data.v_database_return.pglogical_version,
+                pglogical_create_node: p_return.v_data.v_database_return
+                    .pglogical_create_node,
+                pglogical_drop_node: p_return.v_data.v_database_return.pglogical_drop_node,
+                pglogical_add_interface: p_return.v_data.v_database_return
+                    .pglogical_add_interface,
+                pglogical_drop_interface: p_return.v_data.v_database_return
+                    .pglogical_drop_interface,
+                pglogical_create_repset: p_return.v_data.v_database_return
+                    .pglogical_create_repset,
+                pglogical_alter_repset: p_return.v_data.v_database_return
+                    .pglogical_alter_repset,
+                pglogical_drop_repset: p_return.v_data.v_database_return
+                    .pglogical_drop_repset,
+                pglogical_repset_add_table: p_return.v_data.v_database_return
+                    .pglogical_repset_add_table,
+                pglogical_repset_add_all_tables: p_return.v_data.v_database_return
+                    .pglogical_repset_add_all_tables,
+                pglogical_repset_remove_table: p_return.v_data.v_database_return
+                    .pglogical_repset_remove_table,
+                pglogical_repset_add_seq: p_return.v_data.v_database_return
+                    .pglogical_repset_add_seq,
+                pglogical_repset_add_all_seqs: p_return.v_data.v_database_return
+                    .pglogical_repset_add_all_seqs,
+                pglogical_repset_remove_seq: p_return.v_data.v_database_return
+                    .pglogical_repset_remove_seq,
+                pglogical_create_sub: p_return.v_data.v_database_return
+                    .pglogical_create_sub,
+                pglogical_enable_sub: p_return.v_data.v_database_return
+                    .pglogical_enable_sub,
+                pglogical_disable_sub: p_return.v_data.v_database_return
+                    .pglogical_disable_sub,
+                pglogical_sync_sub: p_return.v_data.v_database_return
+                    .pglogical_sync_sub,
+                pglogical_drop_sub: p_return.v_data.v_database_return
+                    .pglogical_drop_sub,
+                pglogical_sub_add_repset: p_return.v_data.v_database_return
+                    .pglogical_sub_add_repset,
+                pglogical_sub_remove_repset: p_return.v_data.v_database_return
+                    .pglogical_sub_remove_repset,
                 bdr_version: p_return.v_data.v_database_return.bdr_version,
                 bdr_create_group: p_return.v_data.v_database_return.bdr_create_group,
                 bdr_join_group: p_return.v_data.v_database_return.bdr_join_group,
@@ -2505,6 +2879,34 @@ function getTreeDetails(node) {
                         type: 'subscription_list',
                         num_subs: 0
                     }, 'cm_subscriptions');
+                node_subscriptions.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+            }
+            if (node.tree.tag.pglogical_version != null) {
+                var node_pglogical = node_connection.createChildNode(
+                    'pglogical', false,
+                    '/static/OmniDB_app/images/replication.png', {
+                        type: 'pglogical',
+                    }, 'cm_pglogical');
+                var node_nodes = node_pglogical.createChildNode(
+                    'Nodes', false,
+                    '/static/OmniDB_app/images/node.png', {
+                        type: 'pglogical_node_list'
+                    }, 'cm_pglogical_nodes');
+                node_nodes.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+                var node_repsets = node_pglogical.createChildNode(
+                    'Replication Sets', false,
+                    '/static/OmniDB_app/images/replication_set.png', {
+                        type: 'pglogical_repset_list'
+                    }, 'cm_pglogical_repsets');
+                node_repsets.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+                var node_subscriptions = node_pglogical.createChildNode(
+                    'Subscriptions', false,
+                    '/static/OmniDB_app/images/subscription.png', {
+                        type: 'pglogical_subscription_list'
+                    }, 'cm_pglogical_subscriptions');
                 node_subscriptions.createChildNode('', true,
                     '/static/OmniDB_app/images/spin.svg', null, null);
             }
@@ -2982,7 +3384,8 @@ function getViewsColumnsPostgresql(node) {
                 node.removeChildNodes();
 
             v_list = node.createChildNode('Columns (' + p_return.v_data.length +
-                ')', false, '/static/OmniDB_app/images/add.png', null, null);
+                ')', false, '/static/OmniDB_app/images/add.png', null,
+                null);
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
@@ -3686,11 +4089,15 @@ function getExcludesPostgresql(node) {
                         false, '/static/OmniDB_app/images/exclude.png', {
                             type: 'exclude'
                         }, 'cm_exclude');
-                    v_node.createChildNode('Attributes: ' + p_return.v_data[i][1],
-                        false, '/static/OmniDB_app/images/bullet_red.png',
+                    v_node.createChildNode('Attributes: ' + p_return.v_data[
+                            i][1],
+                        false,
+                        '/static/OmniDB_app/images/bullet_red.png',
                         null, null);
-                    v_node.createChildNode('Operators: ' + p_return.v_data[i][2],
-                        false, '/static/OmniDB_app/images/bullet_red.png',
+                    v_node.createChildNode('Operators: ' + p_return.v_data[
+                            i][2],
+                        false,
+                        '/static/OmniDB_app/images/bullet_red.png',
                         null, null);
 
                 }
@@ -4385,6 +4792,341 @@ function getSubscriptionTablesPostgresql(node) {
 }
 
 /// <summary>
+/// Retrieving pglogical Nodes.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPglogicalNodesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_pglogical_nodes_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Nodes (' + p_return.v_data.length + ')');
+
+            node.tag.num_nodes = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/node.png', {
+                        type: 'pglogical_node'
+                    }, 'cm_pglogical_node');
+                v_node.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving pglogical Interfaces.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPglogicalInterfacesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_pglogical_interfaces_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_node": node.text.replace(' (local)', '')
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/plug.png', {
+                        type: 'pglogical_interface'
+                    }, 'cm_pglogical_interface');
+                v_node.createChildNode(p_return.v_data[i].v_dsn, true,
+                    '/static/OmniDB_app/images/bullet_red.png', null,
+                    null);
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving pglogical Replication Sets.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPglogicalReplicationSetsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_pglogical_replicationsets_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Replication Sets (' + p_return.v_data.length +
+                ')');
+
+            node.tag.num_repsets = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false,
+                    '/static/OmniDB_app/images/replication_set.png', {
+                        type: 'pglogical_repset'
+                    }, 'cm_pglogical_repset');
+                v_node.createChildNode('Insert: ' + p_return.v_data[i].v_insert,
+                    true, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('Update: ' + p_return.v_data[i].v_update,
+                    true, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('Delete: ' + p_return.v_data[i].v_delete,
+                    true, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('Truncate: ' + p_return.v_data[i].v_truncate,
+                    true, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_tables = v_node.createChildNode('Tables',
+                    false,
+                    '/static/OmniDB_app/images/table_multiple.png', {
+                        type: 'pglogical_repset_table_list'
+                    }, 'cm_pglogical_repset_tables');
+                v_tables.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+                v_seqs = v_node.createChildNode('Sequences',
+                    false,
+                    '/static/OmniDB_app/images/sequence_list.png', {
+                        type: 'pglogical_repset_seq_list'
+                    }, 'cm_pglogical_repset_seqs');
+                v_seqs.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving pglogical Replication Set Tables.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPglogicalReplicationSetTablesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_pglogical_repset_tables_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_repset": node.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Tables (' + p_return.v_data.length + ')');
+
+            node.tag.num_tables = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/table.png', {
+                        type: 'pglogical_repset_table'
+                    }, 'cm_pglogical_repset_table');
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving pglogical Replication Set Sequences.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPglogicalReplicationSetSequencesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_pglogical_repset_seqs_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_repset": node.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Sequences (' + p_return.v_data.length + ')');
+
+            node.tag.num_seqs = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false,
+                    '/static/OmniDB_app/images/sequence_list.png', {
+                        type: 'pglogical_repset_seq'
+                    }, 'cm_pglogical_repset_seq');
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving pglogical Subscriptions.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPglogicalSubscriptionsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_pglogical_subscriptions_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Subscriptions (' + p_return.v_data.length + ')');
+
+            node.tag.num_subs = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/subscription.png', {
+                        type: 'pglogical_subscription'
+                    }, 'cm_pglogical_subscription');
+                v_node.createChildNode('Status: ' + p_return.v_data[i].v_status,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('Provider: ' + p_return.v_data[i].v_origin,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('Enabled: ' + p_return.v_data[i].v_enabled,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('Apply Delay: ' + p_return.v_data[i]
+                    .v_delay,
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_repsets = v_node.createChildNode('Replication Sets',
+                    false,
+                    '/static/OmniDB_app/images/replication_set.png', {
+                        type: 'pglogical_subscription_repset_list'
+                    }, 'cm_pglogical_subscription_repsets');
+                v_repsets.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving pglogical Subscription Replication Sets.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPglogicalSubscriptionReplicationSetsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_pglogical_subscription_repsets_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_sub": node.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Replication Sets (' + p_return.v_data.length +
+                ')');
+
+            node.tag.num_repsets = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false,
+                    '/static/OmniDB_app/images/replication_set.png', {
+                        type: 'pglogical_subscription_repset'
+                    }, 'cm_pglogical_subscription_repset');
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
 /// Retrieving BDR Properties.
 /// </summary>
 /// <param name="node">Node object.</param>
@@ -4912,14 +5654,16 @@ function getXLGroupNodesPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            node.setText(node.text + ' (' + p_return.v_data.length + ' nodes)');
+            node.setText(node.text + ' (' + p_return.v_data.length +
+                ' nodes)');
 
             node.tag.num_nodes = p_return.v_data.length;
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/xlnode.png', null, null);
+                    false, '/static/OmniDB_app/images/xlnode.png', null,
+                    null);
 
             }
 
@@ -4952,20 +5696,31 @@ function getXLTablePropertiesPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            node.createChildNode('Distributed by: ' + p_return.v_data[0]
-                .v_distributed_by, false,
-                '/static/OmniDB_app/images/bullet_red.png', null,
-                null);
-            node.createChildNode('Located in all nodes: ' + p_return.v_data[0]
-                .v_all_nodes, false,
-                '/static/OmniDB_app/images/bullet_red.png', null,
-                null);
-            v_node = node.createChildNode('Located in nodes', false,
-                '/static/OmniDB_app/images/xlnode.png', {
-                    type: 'xl_table_node_list'
-                }, 'cm_xl_table_nodes');
-            v_node.createChildNode('', false,
-                '/static/OmniDB_app/images/spin.svg', null, null);
+            if (p_return.v_data.length > 0) {
+
+                node.createChildNode('Distributed by: ' + p_return.v_data[0]
+                    .v_distributed_by, false,
+                    '/static/OmniDB_app/images/bullet_red.png', null,
+                    null);
+                node.createChildNode('Located in all nodes: ' + p_return.v_data[
+                        0]
+                    .v_all_nodes, false,
+                    '/static/OmniDB_app/images/bullet_red.png', null,
+                    null);
+                v_node = node.createChildNode('Located in nodes', false,
+                    '/static/OmniDB_app/images/xlnode.png', {
+                        type: 'xl_table_node_list'
+                    }, 'cm_xl_table_nodes');
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+
+            } else {
+
+                node.createChildNode('Exists only in coordinator',
+                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+
+            }
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -4995,7 +5750,8 @@ function getXLTableNodesPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            node.setText(node.text + ' (' + p_return.v_data.length + ')');
+            node.setText('Located in nodes (' + p_return.v_data.length +
+                ')');
 
             node.tag.num_nodes = p_return.v_data.length;
 
@@ -5045,7 +5801,8 @@ function nodeOpenError(p_return, p_node) {
 }
 
 function getMajorVersion(p_version) {
-    var tmp = p_version.replace('PostgreSQL ', '').replace('beta', '.').split(
+    var v_version = p_version.split(' (')[0]
+    var tmp = v_version.replace('PostgreSQL ', '').replace('beta', '.').split(
         '.')
     tmp.pop()
     return tmp.join('.')
@@ -5100,49 +5857,57 @@ function postgresqlTerminateBackend(p_row) {
 
 function getExplain(p_mode) {
 
-  var v_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
+    var v_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+        .getValue();
 
-  if (v_query.trim()=='') {
-    showAlert('Please provide a string.');
-  }
-  else {
-    if (p_mode==0)
-      v_query = 'explain ' + v_query;
-    else if (p_mode==1)
-      v_query = 'explain analyze ' + v_query;
+    if (v_query.trim() == '') {
+        showAlert('Please provide a string.');
+    } else {
+        if (p_mode == 0)
+            v_query = 'explain ' + v_query;
+        else if (p_mode == 1)
+            v_query = 'explain analyze ' + v_query;
 
-    querySQL(0,true, v_query, getExplainReturn);
-  }
+        querySQL(0, true, v_query, getExplainReturn);
+    }
 }
 
 function getExplainReturn(p_data) {
 
-  v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectExplainTabFunc();
+    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectExplainTabFunc();
 
-  if (p_data.v_error) {
-    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain.innerHTML = '<div class="error_text">' + p_data.v_data.message + '</div>';
-  }
-  else {
-    var v_explain_text = '';
-    for (var i=0; i<p_data.v_data.v_data.length; i++)
-      v_explain_text += p_data.v_data.v_data[i] + '\n';
+    if (p_data.v_error) {
+        v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain
+            .innerHTML = '<div class="error_text">' + p_data.v_data.message +
+            '</div>';
+    } else {
+        var v_explain_text = '';
+        for (var i = 0; i < p_data.v_data.v_data.length; i++)
+            v_explain_text += p_data.v_data.v_data[i] + '\n';
 
-    var resultset = [];
-    v_explain_text.split(/\n/).forEach(function(item){
-        item = item.replace(/^"(.*)"$/, '$1'); // remove quotes
-        item = item.replace(/^'(.*)'$/, '$1'); // remove single quotes
-        if (item.match(/^-*$/)){return;} // skip line with dashes (supposedly header separator)
-        if (item.match(/^\s*QUERY PLAN\s*$/)){return;} // skip header
-        resultset.push([item]);
-    });
+        var resultset = [];
+        v_explain_text.split(/\n/).forEach(function(item) {
+            item = item.replace(/^"(.*)"$/, '$1'); // remove quotes
+            item = item.replace(/^'(.*)'$/, '$1'); // remove single quotes
+            if (item.match(/^-*$/)) {
+                return;
+            } // skip line with dashes (supposedly header separator)
+            if (item.match(/^\s*QUERY PLAN\s*$/)) {
+                return;
+            } // skip header
+            resultset.push([item]);
+        });
 
-    if (resultset.length > 0){
-      var planNodes = PGPlanNodes(resultset.slice());
-      var mountNode = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain;
-      var pgplan = React.createElement(PGPlan, {nodes: planNodes}, null);
-      ReactDOM.render(pgplan, mountNode);
+        if (resultset.length > 0) {
+            var planNodes = PGPlanNodes(resultset.slice());
+            var mountNode = v_connTabControl.selectedTab.tag.tabControl.selectedTab
+                .tag.div_explain;
+            var pgplan = React.createElement(PGPlan, {
+                nodes: planNodes
+            }, null);
+            ReactDOM.render(pgplan, mountNode);
+        }
     }
-  }
 
-  refreshHeights();
+    refreshHeights();
 }

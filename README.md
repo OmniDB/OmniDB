@@ -135,7 +135,7 @@ OmniDB is designed for easy database management. Here are some features:
 - Table editing: Edit table structure according to DBMS limitations
 - Data management: Add, edit and remove records
 
-![](http://162.243.1.11/images/screenshots/screen07.png)
+![](https://omnidb.org/images/screenshots/screen07.png)
 
 - SQL Editing
   - Customizable Features:

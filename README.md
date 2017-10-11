@@ -1,5 +1,3 @@
-[![Join the chat at https://gitter.im/OmniDB/Lobby](https://img.shields.io/badge/GITTER-JOIN%20CHAT-brightgreen.svg)](https://gitter.im/OmniDB/Lobby)
-
 # OmniDB 2.2.0
 
 ## Release Notes
@@ -136,7 +134,7 @@ OmniDB is designed for easy database management. Here are some features:
 - Table editing: Edit table structure according to DBMS limitations
 - Data management: Add, edit and remove records
 
-![](http://162.243.1.11/images/screenshots/screen07.png)
+![](https://omnidb.org/images/screenshots/screen07.png)
 
 - SQL Editing
   - Customizable Features:

@@ -54,7 +54,7 @@ function cancelSQLTab(p_tab_tag) {
 	v_tab_tag.tab_check_span.style.display = 'none';
 	v_tab_tag.tab_close_span.style.display = '';
 	v_tab_tag.bt_cancel.style.display = 'none';
-	v_tab_tag.div_result.innerHTML = 'Canceled.';
+	v_tab_tag.query_info.innerHTML = 'Canceled.';
 
 	removeContext(v_queryWebSocket,v_tab_tag.context.v_context_code);
 
@@ -62,7 +62,10 @@ function cancelSQLTab(p_tab_tag) {
 
 }
 
-function querySQL(p_mode) {
+function querySQL(p_mode,
+									p_all_data = false,
+									p_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue(),
+									p_callback = null) {
 
 	var v_state = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state;
 
@@ -72,7 +75,7 @@ function querySQL(p_mode) {
 	else {
 
 		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-		var v_sql_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
+		var v_sql_value = p_query;
 		var v_sel_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value;
 		var v_db_index  = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
 		var v_tab_loading_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_loading_span;
@@ -94,7 +97,8 @@ function querySQL(p_mode) {
 				v_cmd_type: v_sel_value,
 				v_db_index: v_db_index,
 				v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
-				v_mode: p_mode
+				v_mode: p_mode,
+				v_all_data: p_all_data
 			}
 
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setReadOnly(true);
@@ -118,6 +122,7 @@ function querySQL(p_mode) {
 			v_tab_tag.bt_cancel.style.display = '';
 			v_tab_tag.bt_fetch_more.style.display = 'none';
 			v_tab_tag.bt_fetch_all.style.display = 'none';
+			v_tab_tag.div_notices.innerHTML = '';
 
 			var v_context = {
 				tab_tag: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag,
@@ -126,19 +131,20 @@ function querySQL(p_mode) {
 				sel_value: v_sel_value,
 				database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
 				mode: p_mode,
+				callback: p_callback,
 				acked: false
 			}
 			v_context.tab_tag.context = v_context;
 
-			if (p_mode==0) {
+			if (p_mode==0 && p_callback==null) {
 				if (v_context.tab_tag.ht!=null) {
 					v_context.tab_tag.ht.destroy();
 					v_context.tab_tag.ht = null;
 				}
 
-				v_context.tab_tag.div_result.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
+				v_context.tab_tag.div_result.innerHTML = '';
 			}
-			v_context.tab_tag.query_info.innerHTML = '';
+			v_context.tab_tag.query_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
 
 			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Query, v_message_data, false, v_context);
 
@@ -190,114 +196,130 @@ function querySQLReturnRender(p_message,p_context) {
 	var v_div_result = p_context.tab_tag.div_result;
 	var v_query_info = p_context.tab_tag.query_info;
 
-	if (p_message.v_error) {
-
-		v_div_result.innerHTML = '<div class="error_text">' + p_message.v_data.message + '</div>';
+	if (p_context.callback!=null) {
 		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-		if (p_message.v_data.position!=null) {
-			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(p_message.v_data.position.row,p_message.v_data.position.col)
-			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.textInput.focus()
-		}
-
+		p_context.callback(p_message);
 	}
 	else {
+		p_context.tab_tag.selectDataTabFunc();
+		p_context.tab_tag.div_count_notices.style.display = 'none';
 
-		//Script
-		if (p_context.sel_value==0) {
+		if (p_message.v_error) {
 
+			v_div_result.innerHTML = '<div class="error_text">' + p_message.v_data.message + '</div>';
 			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-
-			v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data.v_data + '</div>';
+			if (p_message.v_data.position!=null) {
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(p_message.v_data.position.row,p_message.v_data.position.col)
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.textInput.focus()
+			}
 
 		}
-		//Query
 		else {
 
-			var v_data = p_message.v_data;
+			//Script
+			if (p_context.sel_value==0) {
 
-			//Show fetch buttons if data has 50 rows
-			if (v_data.v_data.length>=50 && p_context.mode!=2) {
-				p_context.tab_tag.bt_fetch_more.style.display = '';
-				p_context.tab_tag.bt_fetch_all.style.display = '';
+				v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+
+				v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data.v_data + '</div>';
+
 			}
+			//Query
 			else {
-				p_context.tab_tag.bt_fetch_more.style.display = 'none';
-				p_context.tab_tag.bt_fetch_all.style.display = 'none';
-			}
 
-			if (p_context.mode==0) {
+				var v_data = p_message.v_data;
 
-				v_div_result.innerHTML = '';
+				if (v_data.v_notices_length>0) {
+					p_context.tab_tag.div_count_notices.innerHTML = v_data.v_notices_length;
+					p_context.tab_tag.div_count_notices.style.display = 'inline-block';
+					p_context.tab_tag.div_notices.innerHTML = v_data.v_notices;
+				}
 
-				window.scrollTo(0,0);
-
-				if (v_data.v_data.length==0 && v_data.v_col_names.length==0) {
-					v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-					v_div_result.innerHTML = '<div class="query_info">Done.</div>';
+				//Show fetch buttons if data has 50 rows
+				if (v_data.v_data.length>=50 && p_context.mode!=2) {
+					p_context.tab_tag.bt_fetch_more.style.display = '';
+					p_context.tab_tag.bt_fetch_all.style.display = '';
 				}
 				else {
+					p_context.tab_tag.bt_fetch_more.style.display = 'none';
+					p_context.tab_tag.bt_fetch_all.style.display = 'none';
+				}
 
-					v_query_info.innerHTML = "Number of records: " + v_data.v_data.length + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+				if (p_context.mode==0) {
 
-					var columnProperties = [];
+					v_div_result.innerHTML = '';
 
-					for (var i = 0; i < v_data.v_col_names.length; i++) {
-					    var col = new Object();
+					window.scrollTo(0,0);
 
-					    col.readOnly = true;
+					if (v_data.v_data.length==0 && v_data.v_col_names.length==0) {
+						v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+						v_div_result.innerHTML = '<div class="query_info">Done.</div>';
+					}
+					else {
 
-					    col.title =  v_data.v_col_names[i];
+						v_query_info.innerHTML = "Number of records: " + v_data.v_data.length + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 
-						columnProperties.push(col);
+						var columnProperties = [];
+
+						for (var i = 0; i < v_data.v_col_names.length; i++) {
+						    var col = new Object();
+
+						    col.readOnly = true;
+
+						    col.title =  v_data.v_col_names[i];
+
+							columnProperties.push(col);
+
+						}
+
+						var container = v_div_result;
+						p_context.tab_tag.ht = new Handsontable(container,
+						{
+							data: v_data.v_data,
+							columns : columnProperties,
+							colHeaders : true,
+							rowHeaders : true,
+							copyRowsLimit : 1000000000,
+							copyColsLimit : 1000000000,
+							manualColumnResize: true,
+							fillHandle:false,
+							contextMenu: {
+								callback: function (key, options) {
+									if (key === 'view_data') {
+									  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+									}
+								},
+								items: {
+									"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+								}
+						    },
+					        cells: function (row, col, prop) {
+							    var cellProperties = {};
+							    if (row % 2 == 0)
+									cellProperties.renderer = blueRenderer;
+								else
+									cellProperties.renderer = whiteRenderer;
+							    return cellProperties;
+							}
+						});
 
 					}
 
-					var container = v_div_result;
-					p_context.tab_tag.ht = new Handsontable(container,
-					{
-						data: v_data.v_data,
-						columns : columnProperties,
-						colHeaders : true,
-						rowHeaders : true,
-						copyRowsLimit : 1000000000,
-						copyColsLimit : 1000000000,
-						manualColumnResize: true,
-						contextMenu: {
-							callback: function (key, options) {
-								if (key === 'view_data') {
-								  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
-								}
-							},
-							items: {
-								"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
-							}
-					    },
-				        cells: function (row, col, prop) {
-						    var cellProperties = {};
-						    if (row % 2 == 0)
-								cellProperties.renderer = blueRenderer;
-							else
-								cellProperties.renderer = whiteRenderer;
-						    return cellProperties;
-						}
-					});
-
+				}
+				//Adding fetched data
+				else {
+					v_new_data = p_context.tab_tag.ht.getSourceData();
+					v_query_info.innerHTML = "Number of records: " + (v_new_data.length+v_data.v_data.length) + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+					for (var i = 0; i < v_data.v_data.length; i ++) {
+	            v_new_data.push(v_data.v_data[i]);
+	        }
+					p_context.tab_tag.ht.loadData(v_new_data);
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.childNodes[0].childNodes[0].scrollTop = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.childNodes[0].childNodes[0].scrollHeight;
 				}
 
 			}
-			//Adding fetched data
-			else {
-				v_new_data = p_context.tab_tag.ht.getSourceData();
-				v_query_info.innerHTML = "Number of records: " + (v_new_data.length+v_data.v_data.length) + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-				for (var i = 0; i < v_data.v_data.length; i ++) {
-            v_new_data.push(v_data.v_data[i]);
-        }
-				p_context.tab_tag.ht.loadData(v_new_data);
-				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.childNodes[0].childNodes[0].scrollTop = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.childNodes[0].childNodes[0].scrollHeight;
-			}
 
 		}
-
 	}
 
 	p_context.tab_tag.tab_loading_span.style.display = 'none';

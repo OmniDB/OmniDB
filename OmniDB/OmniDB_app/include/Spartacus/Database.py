@@ -47,6 +47,17 @@ class DataTable(object):
                 raise Spartacus.Database.Exception('Can not add row to a table with different columns.')
         else:
             raise Spartacus.Database.Exception('Can not add row to a table with no columns.')
+    def Select(self, p_key, p_value):
+        try:
+            v_table = Spartacus.Database.DataTable()
+            for c in self.Columns:
+                v_table.Columns.append(c)
+            for r in self.Rows:
+                if r[p_key] == p_value:
+                    v_table.Rows.append(r)
+            return v_table
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def Merge(self, p_datatable):
         if len(self.Columns) > 0 and len(p_datatable.Columns) > 0:
             if self.Columns == p_datatable.Columns:
@@ -145,6 +156,12 @@ class DataTransferReturn(object):
         self.v_numrecords = 0
         self.v_log = None
 
+class DataList(object):
+    def __init__(self):
+        self.v_list = []
+    def append(self, p_item):
+        self.v_list.append(p_item)
+
 v_supported_rdbms = []
 try:
     import sqlite3
@@ -208,13 +225,28 @@ class Generic(ABC):
     def Close(self):
         pass
     @abstractmethod
+    def Cancel(self):
+        pass
+    @abstractmethod
+    def GetPID(self):
+        pass
+    @abstractmethod
+    def Terminate(self, p_pid):
+        pass
+    @abstractmethod
     def GetFields(self, p_sql):
         pass
     @abstractmethod
-    def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
+    def GetNotices(self):
         pass
     @abstractmethod
-    def Mogrify(self, p_row):
+    def ClearNotices(self):
+        pass
+    @abstractmethod
+    def GetStatus(self):
+        pass
+    @abstractmethod
+    def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         pass
     @abstractmethod
     def InsertBlock(self, p_block, p_tablename, p_fields=None):
@@ -228,12 +260,13 @@ class Generic(ABC):
             k = 0
             v_mog = []
             while k < len(p_row):
-                if type(p_row[k]) == type(None):
+                v_value = p_row[p_fields[k].v_name]
+                if type(v_value) == type(None):
                     v_mog.append('null')
-                elif type(p_row[k]) == type(str()) or type(p_row[k]) == datetime.datetime:
-                    v_mog.append(p_fields[k].v_mask.replace('#', "'{0}'".format(p_row[k])))
+                elif type(v_value) == type(str()) or type(v_value) == datetime.datetime:
+                    v_mog.append(p_fields[k].v_mask.replace('#', "'{0}'".format(v_value)))
                 else:
-                    v_mog.append(p_fields[k].v_mask.replace('#', "{0}".format(p_row[k])))
+                    v_mog.append(p_fields[k].v_mask.replace('#', "{0}".format(v_value)))
                 k = k + 1
             return '(' + ','.join(v_mog) + ')'
         else:
@@ -373,6 +406,10 @@ class SQLite(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetPID(self):
+        return None
+    def Terminate(self, p_pid):
+        pass
     def GetFields(self, p_sql):
         try:
             v_keep = None
@@ -404,6 +441,12 @@ class SQLite(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -603,6 +646,10 @@ class Memory(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetPID(self):
+        return None
+    def Terminate(self, p_pid):
+        pass
     def GetFields(self, p_sql):
         try:
             if self.v_con is None:
@@ -628,6 +675,12 @@ class Memory(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -772,6 +825,7 @@ class PostgreSQL(Generic):
             self.v_types = dict([(r['oid'], r['typname']) for r in self.v_cur.fetchall()])
             if not p_autocommit:
                 self.v_con.commit()
+            self.v_con.notices = DataList()
         except Spartacus.Database.Exception as exc:
             raise exc
         except psycopg2.Error as exc:
@@ -877,6 +931,25 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetPID(self):
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                return self.v_con.get_backend_pid()
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+    def Terminate(self, p_pid):
+        try:
+            self.Execute('select pg_terminate_backend({0})'.format(p_pid))
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def GetFields(self, p_sql):
         try:
             v_keep = None
@@ -908,6 +981,42 @@ class PostgreSQL(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                return self.v_con.notices.v_list
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+    def ClearNotices(self):
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                del self.v_con.notices.v_list[:]
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+    def GetStatus(self):
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                return self.v_cur.statusmessage
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1105,6 +1214,10 @@ class MySQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetPID(self):
+        return None
+    def Terminate(self, p_pid):
+        pass
     def GetFields(self, p_sql):
         try:
             v_keep = None
@@ -1136,6 +1249,12 @@ class MySQL(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1333,6 +1452,10 @@ class MariaDB(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetPID(self):
+        return None
+    def Terminate(self, p_pid):
+        pass
     def GetFields(self, p_sql):
         try:
             v_keep = None
@@ -1364,6 +1487,12 @@ class MariaDB(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1564,6 +1693,10 @@ class Firebird(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetPID(self):
+        return None
+    def Terminate(self, p_pid):
+        pass
     def GetFields(self, p_sql):
         try:
             v_keep = None
@@ -1595,6 +1728,12 @@ class Firebird(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -1812,6 +1951,10 @@ class Oracle(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetPID(self):
+        return None
+    def Terminate(self, p_pid):
+        pass
     def GetFields(self, p_sql):
         try:
             v_keep = None
@@ -1843,6 +1986,12 @@ class Oracle(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -2060,6 +2209,10 @@ class MSSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetPID(self):
+        return None
+    def Terminate(self, p_pid):
+        pass
     def GetFields(self, p_sql):
         try:
             v_keep = None
@@ -2091,6 +2244,12 @@ class MSSQL(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:
@@ -2311,6 +2470,10 @@ class IBMDB2(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetPID(self):
+        return None
+    def Terminate(self, p_pid):
+        pass
     def GetFields(self, p_sql):
         try:
             v_keep = None
@@ -2342,6 +2505,12 @@ class IBMDB2(Generic):
         finally:
             if not v_keep:
                 self.Close()
+    def GetNotices(self):
+        return []
+    def ClearNotices(self):
+        pass
+    def GetStatus(self):
+        return None
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
         try:
             if self.v_con is None:

@@ -915,3 +915,15 @@ iframe {
   cursor: pointer;
   text-decoration: underline;
 }
+
+.count_notices {
+  padding: 0px 5px;
+  display: inline-block;
+  height: 12px;
+  line-height: 12px;
+  -moz-border-radius: 10px;
+  border-radius: 6px;
+  background-color: #0daf0b;
+  color: white;
+  text-align: center;
+}

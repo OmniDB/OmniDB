@@ -1,14 +1,13 @@
-[![Join the chat at https://gitter.im/OmniDB/Lobby](https://img.shields.io/badge/GITTER-JOIN%20CHAT-brightgreen.svg)](https://gitter.im/OmniDB/Lobby)
-
-# OmniDB 2.1.0
+# OmniDB 2.2.0
 
 ## Release Notes
 
-- Support to PostgreSQL 10 logical replication
-- Support to Postgres-BDR
-- Support to Materialized Views
-- Simplified query modes
-- Support to HTTPS in OmniDB-Server
+- Support to Postgres-XL
+- Support to pglogical
+- Visualization of Explain Plan
+- Visualization of query notices
+- Support to exclude constraints
+- Support to triggers for views
 - Bug fixes
 
 # Introduction

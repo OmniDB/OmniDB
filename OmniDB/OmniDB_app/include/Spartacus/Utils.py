@@ -62,118 +62,179 @@ class Cryptor(object):
         except Exception as exc:
             raise Spartacus.Utils.Exception(str(exc))
 
-class DataFile(object):
-    def __init__(self):
-        self.v_set = []
-    def Load(self, p_filename, p_fieldnames=None):
+class DataFileReader(object):
+    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8'):
+        v_tmp = p_filename.split('.')
+        if len(v_tmp) > 1:
+            self.v_extension = v_tmp[-1].lower()
+        else:
+            self.v_extension = 'csv'
+        self.v_filename = p_filename
+        self.v_file = None
+        self.v_header = p_fieldnames
+        self.v_encoding = p_encoding
+        self.v_open = False
+    def Open(self):
         try:
-            if not os.path.isfile(p_filename):
-                raise Spartacus.Utils.Exception('File {0} does not exist or is not a file.'.format(p_filename))
-            v_tmp = p_filename.split('.')
-            if len(v_tmp) > 1:
-                v_filename = ['.'.join(v_tmp[:-1]), v_tmp[-1].lower()]
+            if not os.path.isfile(self.v_filename):
+                raise Spartacus.Utils.Exception('File {0} does not exist or is not a file.'.format(self.v_filename))
+            if self.v_extension == 'csv':
+                self.v_file = open(self.v_filename, encoding=self.v_encoding)
+                v_sample = self.v_file.read(1024)
+                self.v_file.seek(0)
+                v_sniffer = csv.Sniffer()
+                if not v_sniffer.has_header(v_sample):
+                    raise Spartacus.Utils.Exception('CSV file {0} does not have a header.'.format(self.v_filename))
+                v_dialect = v_sniffer.sniff(v_sample)
+                self.v_object = csv.DictReader(self.v_file, self.v_header, None, None, v_dialect)
+                self.v_open = True
+            elif self.v_extension == 'xlsx':
+                self.v_object = openpyxl.load_workbook(self.v_filename, read_only=True)
+                self.v_open = True
             else:
-                v_filename = [v_tmp[0], 'csv']
-            if v_filename[1] == 'csv':
-                with open(p_filename) as v_file:
-                    v_sample = v_file.read(1024)
-                    v_file.seek(0)
-                    v_sniffer = csv.Sniffer()
-                    if not v_sniffer.has_header(v_sample):
-                        raise Spartacus.Utils.Exception('CSV file {0} does not have a header.'.format(p_filename))
-                    v_dialect = v_sniffer.sniff(v_sample)
-                    v_reader = csv.DictReader(v_file, p_fieldnames, None, None, v_dialect)
-                    v_table = Spartacus.Database.DataTable(v_filename[0])
-                    v_first = True
-                    for v_row in v_reader:
-                        if v_first:
-                            if p_fieldnames:
-                                v_table.Columns = p_fieldnames
-                            else:
-                                for k in v_row.keys():
-                                    v_table.Columns.append(k)
-                            v_first = False
-                        v_table.Rows.append(v_row)
-                    self.v_set.append(v_table)
-            elif v_filename[1] == 'xlsx':
-                v_file = openpyxl.load_workbook(p_filename)
-                for v_sheetname in v_file.get_sheet_names():
-                    v_worksheet = v_file[v_sheetname]
-                    v_table = Spartacus.Database.DataTable(v_sheetname)
-                    v_first = True
-                    for v_row in tuple(v_worksheet.rows):
-                        if v_first:
-                            if p_fieldnames:
-                                v_table.Columns = p_fieldnames
-                            else:
-                                for i in range(0, len(tuple(v_worksheet.columns))):
-                                    v_table.Columns.append(v_row[i].value)
-                            v_first = False
-                        else:
-                            v_table.Rows.append(OrderedDict(zip(v_table.Columns, [a.value for a in v_row])))
-                    self.v_set.append(v_table)
-            else:
-                raise Spartacus.Utils.Exception('File extension "{0}" not supported.'.format(v_filename[1]))
+                raise Spartacus.Utils.Exception('File extension "{0}" not supported.'.format(self.v_extension))
         except Spartacus.Utils.Exception as exc:
             raise exc
         except Exception as exc:
             raise Spartacus.Utils.Exception(str(exc))
-    def Save(self, p_filename, p_datatable=None):
+    def Read(self, p_blocksize=None, p_sheetname=None):
         try:
-            if p_datatable:
-                v_localset = [p_datatable]
-            else:
-                v_localset = self.v_set
-            v_tmp = p_filename.split('.')
-            if len(v_tmp) > 1:
-                v_filename = ['.'.join(v_tmp[:-1]), v_tmp[-1].lower()]
-            else:
-                v_filename = [v_tmp[0], 'csv']
-            if v_filename[1] == 'csv':
-                k = 0
-                for v_table in v_localset:
-                    if len(v_localset) > 1:
-                        v_tmp = '{0}_{1}.csv'.format(v_filename[0], str(k).zfill(len(str(len(v_localset)))))
-                    else:
-                        v_tmp = p_filename
-                    with open(v_tmp, 'w') as v_file:
-                        v_writer = csv.DictWriter(v_file, fieldnames=v_table.Columns)
-                        v_writer.writeheader()
-                        for v_row in v_table.Rows:
-                            v_writer.writerow(dict(v_row))
-                    k = k + 1
-            elif v_filename[1] == 'xlsx':
-                v_file = openpyxl.Workbook()
-                k = 0
-                for v_table in v_localset:
-                    if k == 0:
-                        v_worksheet = v_file.active
-                        if v_table.Name:
-                            v_worksheet.title = v_table.Name
-                    else:
-                        if v_table.Name:
-                            v_worksheet = v_file.create_sheet(v_table.Name)
+            if not self.v_open:
+                raise Spartacus.Utils.Exception('You need to call Open() first.')
+            if self.v_extension == 'csv':
+                v_table = Spartacus.Database.DataTable()
+                v_first = True
+                x = 0
+                for v_row in self.v_object:
+                    if v_first:
+                        if self.v_header:
+                            v_table.Columns = self.v_header
                         else:
-                            v_worksheet = v_file.create_sheet('Sheet{0}'.format(k))
-                    for c in range(0, len(v_table.Columns)):
-                        v_worksheet['{0}1'.format(self.__colstr__(c+1))] = v_table.Columns[c]
-                    for r in range(0, len(v_table.Rows)):
-                        for c in range(0, len(v_table.Columns)):
-                            v_worksheet['{0}{1}'.format(self.__colstr__(c+1), r+2)] = v_table.Rows[r][v_table.Columns[c]]
-                    k = k + 1
-                v_file.save(p_filename)
+                            for k in v_row.keys():
+                                v_table.Columns.append(k)
+                        v_first = False
+                    v_table.Rows.append(v_row)
+                    x = x + 1
+                    if x == p_blocksize:
+                        yield v_table
+                        x = 0
+                        v_table.Rows = []
+                self.v_file.close()
+                if len(v_table.Rows) > 0:
+                    yield v_table
             else:
-                raise Spartacus.Utils.Exception('File extension "{0}" not supported.'.format(v_filename[1]))
+                if p_sheetname:
+                    v_worksheet = self.v_object[p_sheetname]
+                    v_table = Spartacus.Database.DataTable(p_sheetname)
+                else:
+                    v_worksheet = self.v_object.active
+                    v_table = Spartacus.Database.DataTable()
+                v_worksheet.max_row = v_worksheet.max_column = None
+                v_first = True
+                x = 0
+                for v_row in v_worksheet.rows:
+                    if v_first:
+                        if self.v_header:
+                            v_table.Columns = self.v_header
+                        else:
+                            v_table.Columns = [a.value for a in v_row]
+                        v_first = False
+                    else:
+                        v_tmp = [a.value for a in v_row]
+                        if len(v_tmp) < len(v_table.Columns):
+                            for i in range(0, len(v_table.Columns) - len(v_tmp)):
+                                v_tmp.append(None)
+                        elif len(v_tmp) > len(v_table.Columns):
+                            for i in range(0, len(v_tmp) - len(v_table.Columns)):
+                                v_tmp.pop()
+                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_tmp)))
+                        x = x + 1
+                        if x == p_blocksize:
+                            yield v_table
+                            x = 0
+                            v_table.Rows = []
+                if len(v_table.Rows) > 0:
+                    yield v_table
         except Spartacus.Utils.Exception as exc:
             raise exc
         except Exception as exc:
             raise Spartacus.Utils.Exception(str(exc))
-    def __colstr__(self, p_index):
-        v_div = p_index
-        v_text = ''
-        v_tmp = 0
-        while v_div > 0:
-            v_mod = (v_div - 1) % 26
-            v_text = chr(65 + v_mod) + v_text
-            v_div = int((v_div - v_mod) / 26)
-        return v_text
+    def Sheets(self):
+        try:
+            if self.v_extension == 'xlsx' and self.v_object:
+                return self.v_object.get_sheet_names()
+            else:
+                return []
+        except Spartacus.Utils.Exception as exc:
+            raise exc
+        except Exception as exc:
+            raise Spartacus.Utils.Exception(str(exc))
+
+class DataFileWriter(object):
+    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8'):
+        v_tmp = p_filename.split('.')
+        if len(v_tmp) > 1:
+            self.v_extension = v_tmp[-1].lower()
+        else:
+            self.v_extension = 'csv'
+        self.v_filename = p_filename
+        self.v_file = None
+        self.v_header = p_fieldnames
+        self.v_encoding = p_encoding
+        self.v_currentrow = 1
+        self.v_open = False
+    def Open(self):
+        try:
+            if self.v_extension == 'csv':
+                self.v_file = open(self.v_filename, 'w', encoding=self.v_encoding)
+                self.v_object = csv.DictWriter(v_file, fieldnames=self.v_header)
+                self.v_object.writeheader()
+                self.v_open = True
+            elif self.v_extension == 'xlsx':
+                self.v_object = openpyxl.Workbook(write_only=True)
+                self.v_open = True
+            else:
+                raise Spartacus.Utils.Exception('File extension "{0}" not supported.'.format(self.v_extension))
+        except Spartacus.Utils.Exception as exc:
+            raise exc
+        except Exception as exc:
+            raise Spartacus.Utils.Exception(str(exc))
+    def Write(self, p_datatable, p_sheetname=None):
+        try:
+            if not self.v_open:
+                raise Spartacus.Utils.Exception('You need to call Open() first.')
+            if self.v_extension == 'csv':
+                for v_row in p_datatable.Rows:
+                    self.v_object.writerow(dict(v_row))
+            else:
+                if self.v_currentrow == 1:
+                    if p_sheetname:
+                        v_worksheet = self.v_object.create_sheet(p_sheetname)
+                    else:
+                        v_worksheet = self.v_object.create_sheet()
+                    v_worksheet.append(p_datatable.Columns)
+                    self.v_currentrow = self.v_currentrow + 1
+                else:
+                    v_worksheet = self.v_object.active
+                for r in range(0, len(p_datatable.Rows)):
+                    v_row = []
+                    for c in range(0, len(p_datatable.Columns)):
+                        v_row.append(p_datatable.Rows[r][p_datatable.Columns[c]])
+                    v_worksheet.append(v_row)
+                self.v_currentrow = self.v_currentrow + len(p_datatable.Rows)
+        except Spartacus.Utils.Exception as exc:
+            raise exc
+        except Exception as exc:
+            raise Spartacus.Utils.Exception(str(exc))
+    def Flush(self):
+        try:
+            if not self.v_open:
+                raise Spartacus.Utils.Exception('You need to call Open() first.')
+            if self.v_extension == 'csv':
+                self.v_file.close()
+            else:
+                self.v_object.save(self.v_filename)
+        except Spartacus.Utils.Exception as exc:
+            raise exc
+        except Exception as exc:
+            raise Spartacus.Utils.Exception(str(exc))

@@ -100,6 +100,7 @@ class PostgreSQL:
         self.v_has_uniques = True
         self.v_has_indexes = True
         self.v_has_checks = True
+        self.v_has_excludes = True
         self.v_has_rules = True
         self.v_has_triggers = True
         self.v_has_partitions = True
@@ -484,6 +485,95 @@ class PostgreSQL:
             order by 1, 2, 3
         '''.format(v_filter), True)
 
+    def QueryTablesExcludes(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(n.nspname) = '{0}' and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_exclude_ops(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select oprname
+            from (
+            select o.oprname
+            from (
+            select unnest(c.conexclop) as conexclop
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_operator o
+            on o.oid = x.conexclop
+            ) t
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_exclude_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            select quote_ident(n.nspname) as schema_name,
+                   ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') as table_name,
+                   quote_ident(c.conname) as constraint_name,
+                   pg_temp.fnc_omnidb_exclude_ops(
+                       quote_ident(n.nspname),
+                       ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.'),
+                       quote_ident(c.conname)
+                   ) as operations,
+                   pg_temp.fnc_omnidb_exclude_attrs(
+                       quote_ident(n.nspname),
+                       ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.'),
+                       quote_ident(c.conname)
+                   ) as attributes
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+            {0}
+            order by 1, 2, 3
+        '''.format(v_filter), True)
+
     def QueryTablesRules(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -536,9 +626,9 @@ class PostgreSQL:
             else:
                 v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select quote_ident(n.nspname as schema_name,
-                   quote_ident(c.relname as table_name,
-                   quote_ident(t.tgname as trigger_name,
+            select quote_ident(n.nspname) as schema_name,
+                   quote_ident(c.relname) as table_name,
+                   quote_ident(t.tgname) as trigger_name,
                    t.tgenabled as trigger_enabled,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function_name,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()' as trigger_function_id
@@ -1335,6 +1425,21 @@ DROP CONSTRAINT #constraint_name#
 --CASCADE
 ''')
 
+    def TemplateCreateExclude(self):
+        return Template('''ALTER TABLE #table_name#
+ADD CONSTRAINT name
+--USING index_method
+EXCLUDE ( exclude_element WITH operator [, ... ] )
+--index_parameters
+--WHERE ( predicate )
+''')
+
+    def TemplateDropExclude(self):
+        return Template('''ALTER TABLE #table_name#
+DROP CONSTRAINT #constraint_name#
+--CASCADE
+''')
+
     def TemplateCreateRule(self):
         return Template('''CREATE RULE name
 AS ON { SELECT | INSERT | UPDATE | DELETE }
@@ -1365,6 +1470,20 @@ ON #table_name#
 --EXECUTE PROCEDURE function_name ( arguments )
 ''')
 
+    def TemplateCreateViewTrigger(self):
+        return Template('''CREATE TRIGGER name
+--BEFORE { INSERT [ OR ] | UPDATE [ OF column_name [, ... ] ] [ OR ] | DELETE }
+--AFTER { INSERT [ OR ] | UPDATE [ OF column_name [, ... ] ] [ OR ] | DELETE }
+--INSTEAD OF { INSERT [ OR ] | UPDATE [ OF column_name [, ... ] ] [ OR ] | DELETE }
+ON #table_name#
+--FROM referenced_table_name
+--NOT DEFERRABLE | [ DEFERRABLE ] { INITIALLY IMMEDIATE | INITIALLY DEFERRED }
+--FOR EACH ROW
+--FOR EACH STATEMENT
+--WHEN ( condition )
+--EXECUTE PROCEDURE function_name ( arguments )
+''')
+
     def TemplateAlterTrigger(self):
         return Template('ALTER TRIGGER #trigger_name# ON #table_name# RENAME TO new_name')
 
@@ -1375,14 +1494,14 @@ ON #table_name#
         return Template('ALTER TABLE #table_name# DISABLE TRIGGER #trigger_name#')
 
     def TemplateDropTrigger(self):
-        return Template('''DROP RULE #trigger_name# ON #table_name#
+        return Template('''DROP TRIGGER #trigger_name# ON #table_name#
 --CASCADE
 ''')
 
     def TemplateCreatePartition(self):
         return Template('''CREATE TABLE name (
     CHECK ( condition )
-) INHERITS #table_name#
+) INHERITS (#table_name#)
 ''')
 
     def TemplateNoInheritPartition(self):
@@ -1481,6 +1600,232 @@ PUBLICATION pub_name [, ...]
 --CASCADE
 ''')
 
+    def GetPglogicalVersion(self):
+        return self.v_connection.ExecuteScalar('''
+            select extversion
+            from pg_extension
+            where extname = 'pglogical'
+        ''')
+
+    def QueryPglogicalNodes(self):
+        return self.v_connection.Query('''
+            select quote_ident(n.node_name) || (case when l.node_id is not null then ' (local)' else '' end) as node_name
+            from pglogical.node n
+            left join pglogical.local_node l
+            on l.node_id = n.node_id
+            order by 1
+        ''')
+
+    def QueryPglogicalNodeInterfaces(self, p_node):
+        return self.v_connection.Query('''
+            select i.if_name,
+                   i.if_dsn
+            from pglogical.node_interface i
+            inner join pglogical.node n
+            on n.node_id = i.if_nodeid
+            where n.node_name = '{0}'
+        '''.format(p_node))
+
+    def QueryPglogicalReplicationSets(self):
+        return self.v_connection.Query('''
+            select quote_ident(set_name) as set_name,
+                   replicate_insert,
+                   replicate_update,
+                   replicate_delete,
+                   replicate_truncate
+            from pglogical.replication_set
+            order by 1
+        ''')
+
+    def QueryPglogicalReplicationSetTables(self, p_repset):
+        return self.v_connection.Query('''
+            select quote_ident(n.nspname) || '.' || quote_ident(c.relname) as table_name
+            from pglogical.replication_set_table t
+            inner join pglogical.replication_set r
+            on r.set_id = t.set_id
+            inner join pg_class c
+            on c.oid = t.set_reloid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where quote_ident(r.set_name) = '{0}'
+            order by 1
+        '''.format(p_repset))
+
+    def QueryPglogicalReplicationSetSequences(self, p_repset):
+        return self.v_connection.Query('''
+            select quote_ident(n.nspname) || '.' || quote_ident(c.relname) as sequence_name
+            from pglogical.replication_set_seq t
+            inner join pglogical.replication_set r
+            on r.set_id = t.set_id
+            inner join pg_class c
+            on c.oid = t.set_seqoid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where quote_ident(r.set_name) = '{0}'
+            order by 1
+        '''.format(p_repset))
+
+    def QueryPglogicalSubscriptions(self):
+        return self.v_connection.Query('''
+            select quote_ident(s.sub_name) as sub_name,
+                   (select status from pglogical.show_subscription_status(s.sub_name)) as sub_status,
+                   quote_ident(n.node_name) as sub_origin,
+                   s.sub_enabled,
+                   s.sub_apply_delay::text as sub_apply_delay
+            from pglogical.subscription s
+            inner join pglogical.node n
+            on n.node_id = s.sub_origin
+            order by 1
+        ''')
+
+    def QueryPglogicalSubscriptionReplicationSets(self, p_subscription):
+        return self.v_connection.Query('''
+            select quote_ident(unnest(s.sub_replication_sets)) as set_name
+            from pglogical.subscription s
+            inner join pglogical.node n
+            on n.node_id = s.sub_origin
+            where quote_ident(s.sub_name) = '{0}'
+        '''.format(p_subscription))
+
+    def TemplatePglogicalCreateNode(self):
+        return Template('''select pglogical.create_node(
+node_name := 'node_name',
+dsn := 'host={0} port={1} dbname={2} user={3} password=password'
+)
+'''.format(self.v_server, self.v_port, self.v_service, self.v_user))
+
+    def TemplatePglogicalDropNode(self):
+        return Template('''select pglogical.drop_node(
+node_name := '#node_name#',
+ifexists := true
+)''')
+
+    def TemplatePglogicalNodeAddInterface(self):
+        return Template('''select pglogical.alter_node_add_interface(
+node_name := '#node_name#',
+interface_name := 'name',
+dsn := 'host= port= dbname= user= password='
+)''')
+
+    def TemplatePglogicalNodeDropInterface(self):
+        return Template('''select pglogical.alter_node_drop_interface(
+node_name := '#node_name#',
+interface_name := '#interface_name#'
+)''')
+
+    def TemplatePglogicalCreateReplicationSet(self):
+        return Template('''select pglogical.create_replication_set(
+set_name := 'name',
+replicate_insert := true,
+replicate_update := true,
+replicate_delete := true,
+replicate_truncate := true
+)''')
+
+    def TemplatePglogicalAlterReplicationSet(self):
+        return Template('''select pglogical.alter_replication_set(
+set_name := '#repset_name#',
+replicate_insert := true,
+replicate_update := true,
+replicate_delete := true,
+replicate_truncate := true
+)''')
+
+    def TemplatePglogicalDropReplicationSet(self):
+        return Template('''select pglogical.drop_replication_set(
+set_name := '#repset_name#',
+ifexists := true
+)''')
+
+    def TemplatePglogicalReplicationSetAddTable(self):
+        return Template('''select pglogical.replication_set_add_table(
+set_name := '#repset_name#',
+relation := 'schema.table'::regclass,
+synchronize_data := true,
+columns := null,
+row_filter := null
+)''')
+
+    def TemplatePglogicalReplicationSetAddAllTables(self):
+        return Template('''select pglogical.replication_set_add_all_tables(
+set_name := '#repset_name#',
+schema_names := ARRAY['public'],
+synchronize_data := true
+)''')
+
+    def TemplatePglogicalReplicationSetRemoveTable(self):
+        return Template('''select pglogical.replication_set_remove_table(
+set_name := '#repset_name#',
+relation := '#table_name#'::regclass
+)''')
+
+    def TemplatePglogicalReplicationSetAddSequence(self):
+        return Template('''select pglogical.replication_set_add_sequence(
+set_name := '#repset_name#',
+relation := 'schema.sequence'::regclass,
+synchronize_data := true
+)''')
+
+    def TemplatePglogicalReplicationSetAddAllSequences(self):
+        return Template('''select pglogical.replication_set_add_all_sequences(
+set_name := '#repset_name#',
+schema_names := ARRAY['public'],
+synchronize_data := true
+)''')
+
+    def TemplatePglogicalReplicationSetRemoveSequence(self):
+        return Template('''select pglogical.replication_set_remove_sequence(
+set_name := '#repset_name#',
+relation := '#sequence_name#'::regclass
+)''')
+
+    def TemplatePglogicalCreateSubscription(self):
+        return Template('''select pglogical.create_subscription(
+subscription_name := 'sub_name',
+provider_dsn := 'host= port= dbname= user= password=',
+replication_sets := array['default','default_insert_only','ddl_sql'],
+synchronize_structure := true,
+synchronize_data := true,
+forward_origins := array['all'],
+apply_delay := '0 seconds'::interval
+)''')
+
+    def TemplatePglogicalEnableSubscription(self):
+        return Template('''select pglogical.alter_subscription_enable(
+subscription_name := '#sub_name#',
+immediate := true
+)''')
+
+    def TemplatePglogicalDisableSubscription(self):
+        return Template('''select pglogical.alter_subscription_disable(
+subscription_name := '#sub_name#',
+immediate := true
+)''')
+
+    def TemplatePglogicalSynchronizeSubscription(self):
+        return Template('''select pglogical.alter_subscription_synchronize(
+subscription_name := '#sub_name#',
+truncate := true
+)''')
+
+    def TemplatePglogicalDropSubscription(self):
+        return Template('''select pglogical.drop_subscription(
+subscription_name := '#sub_name#',
+ifexists := true
+)''')
+
+    def TemplatePglogicalSubscriptionAddReplicationSet(self):
+        return Template('''select pglogical.alter_subscription_add_replication_set(
+subscription_name := '#sub_name#',
+replication_set := 'set_name'
+)''')
+
+    def TemplatePglogicalSubscriptionRemoveReplicationSet(self):
+        return Template('''select pglogical.alter_subscription_remove_replication_set(
+subscription_name := '#sub_name#',
+replication_set := '#set_name#'
+)''')
+
     def GetBDRVersion(self):
         return self.v_connection.ExecuteScalar('''
             select extversion
@@ -1516,6 +1861,7 @@ PUBLICATION pub_name [, ...]
         return self.v_connection.Query('''
             select quote_ident(node_name) as node_name
             from bdr.bdr_nodes
+            where node_status <> 'k'
             order by 1
         ''')
 
@@ -1652,6 +1998,262 @@ force := False
 )
 ''')
 
+    def QueryXLNodes(self):
+        return self.v_connection.Query('''
+            select quote_ident(node_name) as node_name,
+                   (case node_type
+                      when 'C' then 'coordinator'
+                      when 'D' then 'datanode'
+                    end) as node_type,
+                   node_host,
+                   node_port,
+                   nodeis_primary,
+                   nodeis_preferred
+            from pgxc_node
+            order by 1
+        ''')
+
+    def QueryXLGroups(self):
+        return self.v_connection.Query('''
+            select quote_ident(group_name) as group_name
+            from pgxc_group
+            order by 1
+        ''')
+
+    def QueryXLGroupNodes(self, p_group):
+        return self.v_connection.Query('''
+            select quote_ident(n.node_name) as node_name
+            from (
+            select unnest(group_members) as group_member
+            from pgxc_group
+            where group_name = '{0}'
+            ) g
+            inner join pgxc_node n
+            on n.oid = g.group_member
+            order by 1
+        '''.format(p_group))
+
+    def QueryTablesXLProperties(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select quote_ident(n.nspname) as schema_name,
+                   quote_ident(c.relname) as table_name,
+                   (case x.pclocatortype
+                      when 'R' then 'replication'
+                      when 'N' then 'roundrobin'
+                      when 'H' then 'hash (' || a.attname || ')'
+                      when 'M' then 'modulo (' || a.attname || ')'
+                    end) as distributed_by,
+                   (t.num_nodes = d.num_nodes) as all_nodes
+            from pgxc_class x
+            inner join pg_class c
+            on c.oid = x.pcrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            left join pg_attribute a
+            on a.attrelid = c.oid
+            and a.attnum = x.pcattnum
+            inner join (
+            select t.pcrelid,
+                   count(*) as num_nodes
+            from (
+            select pcrelid,
+                   unnest(nodeoids) as nodeoid
+            from pgxc_class
+            ) t
+            group by t.pcrelid
+            ) t
+            on t.pcrelid = c.oid
+            inner join (
+            select count(*) as num_nodes
+            from pgxc_node
+            where node_type = 'D'
+            ) d
+            on 1=1
+            where 1=1
+            {0}
+        '''.format(v_filter), True)
+
+    def QueryTablesXLNodes(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(t.schema_name) = '{0}' and quote_ident(t.table_name) = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(t.schema_name) = '{0}' and quote_ident(t.table_name) = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(t.schema_name) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(t.schema_name) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(t.schema_name) not in ('information_schema','pg_catalog') and quote_ident(t.table_name) = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(t.schema_name) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select quote_ident(t.schema_name) as schema_name,
+                   quote_ident(t.table_name) as table_name,
+                   quote_ident(n.node_name) as node_name
+            from (
+            select n.nspname as schema_name,
+                   c.relname as table_name,
+                   unnest(nodeoids) as nodeoid
+            from pgxc_class x
+            inner join pg_class c
+            on c.oid = x.pcrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            ) t
+            inner join pgxc_node n
+            on n.oid = t.nodeoid
+            where 1=1
+            {0}
+            order by 1, 2, 3
+        '''.format(v_filter), True)
+
+    def TemplateXLPauseCluster(self):
+        return Template('PAUSE CLUSTER')
+
+    def TemplateXLUnpauseCluster(self):
+        return Template('UNPAUSE CLUSTER')
+
+    def TemplateXLCleanConnection(self):
+        return Template('''CLEAN CONNECTION TO
+--COORDINATOR ( nodename [, ... ] )
+--NODE ( nodename [, ... ] )
+--ALL
+--ALL FORCE
+--FOR DATABASE database_name
+--TO USER role_name
+''')
+
+    def TemplateXLCreateGroup(self):
+        if 'XL' in self.GetVersion():
+            v_text = '''-- This command needs to be executed in all nodes.
+-- Please adjust the parameters in all commands below.
+
+'''
+            v_table = self.QueryXLNodes()
+            for r in v_table.Rows:
+                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE GROUP name WITH ( nodename [, ... ] )'
+
+'''.format(r['node_name'])
+        else:
+            v_text = ''
+        return Template(v_text)
+
+    def TemplateXLDropGroup(self):
+        if 'XL' in self.GetVersion():
+            v_text = '''-- This command needs to be executed in all nodes.
+
+'''
+            v_table = self.QueryXLNodes()
+            for r in v_table.Rows:
+                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE GROUP #group_name#'
+
+'''.format(r['node_name'])
+        else:
+            v_text = ''
+        return Template(v_text)
+
+    def TemplateXLCreateNode(self):
+        if 'XL' in self.GetVersion():
+            v_text = '''-- This command needs to be executed in all nodes.
+-- Please adjust the parameters in all commands below.
+
+'''
+            v_table = self.QueryXLNodes()
+            for r in v_table.Rows:
+                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE name WITH (
+TYPE = {{ coordinator | datanode }},
+HOST = hostname,
+PORT = portnum
+--, PRIMARY
+--, PREFERRED
+)'
+
+'''.format(r['node_name'])
+        else:
+            v_text = ''
+        return Template(v_text)
+
+    def TemplateXLAlterNode(self):
+        if 'XL' in self.GetVersion():
+            v_text = '''-- This command needs to be executed in all nodes.
+-- Please adjust the parameters in all commands below.
+
+'''
+            v_table = self.QueryXLNodes()
+            for r in v_table.Rows:
+                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'ALTER NODE #node_name# WITH (
+TYPE = {{ coordinator | datanode }},
+HOST = hostname,
+PORT = portnum
+--, PRIMARY
+--, PREFERRED
+)'
+
+'''.format(r['node_name'])
+        else:
+            v_text = ''
+        return Template(v_text)
+
+    def TemplateXLExecuteDirect(self):
+        return Template('''EXECUTE DIRECT ON (#node_name#)
+'SELECT ...'
+''')
+
+    def TemplateXLPoolReload(self):
+        return Template('EXECUTE DIRECT ON (#node_name#) \'SELECT pgxc_pool_reload()\'')
+
+    def TemplateXLDropNode(self):
+        if 'XL' in self.GetVersion():
+            v_text = '''-- This command needs to be executed in all nodes.
+
+'''
+            v_table = self.QueryXLNodes()
+            for r in v_table.Rows:
+                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE #node_name#'
+
+'''.format(r['node_name'])
+        else:
+            v_text = ''
+        return Template(v_text)
+
+    def TemplateXLAlterTableDistribution(self):
+        return Template('''ALTER TABLE #table_name# DISTRIBUTE BY
+--REPLICATION
+--ROUNDROBIN
+--HASH ( column_name )
+--MODULO ( column_name )
+''')
+
+    def TemplateXLAlterTableLocation(self):
+        return Template('''ALTER TABLE #table_name#
+TO NODE ( nodename [, ... ] )
+--TO GROUP ( groupname [, ... ] )
+''')
+
+    def TemplateXLALterTableAddNode(self):
+        return Template('ALTER TABLE #table_name# ADD NODE (node_name)')
+
+    def TemplateXLAlterTableDeleteNode(self):
+        return Template('ALTER TABLE #table_name# DELETE NODE (#node_name#)')
+
 
 '''
 ------------------------------------------------------------------------
@@ -1678,10 +2280,11 @@ class SQLite:
         self.v_has_foreign_keys = True
         self.v_has_uniques = True
         self.v_has_indexes = True
-        self.v_has_checks = True
-        self.v_has_rules = True
-        self.v_has_triggers = True
-        self.v_has_triggers = True
+        self.v_has_checks = False
+        self.v_has_excludes = False
+        self.v_has_rules = False
+        self.v_has_triggers = False
+        self.v_has_partitions = True
 
         self.v_has_update_rule = True
         self.v_can_rename_table = True

@@ -89,14 +89,17 @@ def get_tree_info(request):
             'drop_index': v_database.TemplateDropIndex().v_text,
             'create_check': v_database.TemplateCreateCheck().v_text,
             'drop_check': v_database.TemplateDropCheck().v_text,
+            'create_exclude': v_database.TemplateCreateExclude().v_text,
+            'drop_exclude': v_database.TemplateDropExclude().v_text,
             'create_rule': v_database.TemplateCreateRule().v_text,
             'alter_rule': v_database.TemplateAlterRule().v_text,
             'drop_rule': v_database.TemplateDropRule().v_text,
             'create_trigger': v_database.TemplateCreateTrigger().v_text,
+            'create_view_trigger': v_database.TemplateCreateViewTrigger().v_text,
             'alter_trigger': v_database.TemplateAlterTrigger().v_text,
             'enable_trigger': v_database.TemplateEnableTrigger().v_text,
             'disable_trigger': v_database.TemplateDisableTrigger().v_text,
-            'drop_trigger': v_database.TemplateDisableTrigger().v_text,
+            'drop_trigger': v_database.TemplateDropTrigger().v_text,
             'create_partition': v_database.TemplateCreatePartition().v_text,
             'noinherit_partition': v_database.TemplateNoInheritPartition().v_text,
             'drop_partition': v_database.TemplateDropPartition().v_text,
@@ -114,6 +117,27 @@ def get_tree_info(request):
             'create_subscription': v_database.TemplateCreateSubscription().v_text,
             'alter_subscription': v_database.TemplateAlterSubscription().v_text,
             'drop_subscription': v_database.TemplateDropSubscription().v_text,
+            'pglogical_version': v_database.GetPglogicalVersion(),
+            'pglogical_create_node': v_database.TemplatePglogicalCreateNode().v_text,
+            'pglogical_drop_node': v_database.TemplatePglogicalDropNode().v_text,
+            'pglogical_add_interface': v_database.TemplatePglogicalNodeAddInterface().v_text,
+            'pglogical_drop_interface': v_database.TemplatePglogicalNodeDropInterface().v_text,
+            'pglogical_create_repset': v_database.TemplatePglogicalCreateReplicationSet().v_text,
+            'pglogical_alter_repset': v_database.TemplatePglogicalAlterReplicationSet().v_text,
+            'pglogical_drop_repset': v_database.TemplatePglogicalDropReplicationSet().v_text,
+            'pglogical_repset_add_table': v_database.TemplatePglogicalReplicationSetAddTable().v_text,
+            'pglogical_repset_add_all_tables': v_database.TemplatePglogicalReplicationSetAddAllTables().v_text,
+            'pglogical_repset_remove_table': v_database.TemplatePglogicalReplicationSetRemoveTable().v_text,
+            'pglogical_repset_add_seq': v_database.TemplatePglogicalReplicationSetAddSequence().v_text,
+            'pglogical_repset_add_all_seqs': v_database.TemplatePglogicalReplicationSetAddAllSequences().v_text,
+            'pglogical_repset_remove_seq': v_database.TemplatePglogicalReplicationSetRemoveSequence().v_text,
+            'pglogical_create_sub': v_database.TemplatePglogicalCreateSubscription().v_text,
+            'pglogical_enable_sub': v_database.TemplatePglogicalEnableSubscription().v_text,
+            'pglogical_disable_sub': v_database.TemplatePglogicalDisableSubscription().v_text,
+            'pglogical_sync_sub': v_database.TemplatePglogicalSynchronizeSubscription().v_text,
+            'pglogical_drop_sub': v_database.TemplatePglogicalDropSubscription().v_text,
+            'pglogical_sub_add_repset': v_database.TemplatePglogicalSubscriptionAddReplicationSet().v_text,
+            'pglogical_sub_remove_repset': v_database.TemplatePglogicalSubscriptionRemoveReplicationSet().v_text,
             'bdr_version': v_database.GetBDRVersion(),
             'bdr_create_group': v_database.TemplateBDRCreateGroup().v_text,
             'bdr_join_group': v_database.TemplateBDRJoinGroup().v_text,
@@ -131,7 +155,21 @@ def get_tree_info(request):
             # only in BDR >= 1
             'bdr_terminate_apply': v_database.TemplateBDRTerminateApplyWorkers().v_text,
             'bdr_terminate_walsender': v_database.TemplateBDRTerminateWalsenderWorkers().v_text,
-            'bdr_remove': v_database.TemplateBDRRemove().v_text
+            'bdr_remove': v_database.TemplateBDRRemove().v_text,
+            'xl_pause_cluster': v_database.TemplateXLPauseCluster().v_text,
+            'xl_unpause_cluster': v_database.TemplateXLUnpauseCluster().v_text,
+            'xl_clean_connection': v_database.TemplateXLCleanConnection().v_text,
+            'xl_create_group': v_database.TemplateXLCreateGroup().v_text,
+            'xl_drop_group': v_database.TemplateXLDropGroup().v_text,
+            'xl_create_node': v_database.TemplateXLCreateNode().v_text,
+            'xl_alter_node': v_database.TemplateXLAlterNode().v_text,
+            'xl_drop_node': v_database.TemplateXLDropNode().v_text,
+            'xl_execute_direct': v_database.TemplateXLExecuteDirect().v_text,
+            'xl_pool_reload': v_database.TemplateXLPoolReload().v_text,
+            'xl_altertable_distribution': v_database.TemplateXLAlterTableDistribution().v_text,
+            'xl_altertable_location': v_database.TemplateXLAlterTableLocation().v_text,
+            'xl_altertable_addnode': v_database.TemplateXLALterTableAddNode().v_text,
+            'xl_altertable_deletenode': v_database.TemplateXLAlterTableDeleteNode().v_text
         }
     }
 
@@ -177,6 +215,7 @@ def get_tables(request):
                 'v_has_uniques': v_database.v_has_uniques,
                 'v_has_indexes': v_database.v_has_indexes,
                 'v_has_checks': v_database.v_has_checks,
+                'v_has_excludes': v_database.v_has_excludes,
                 'v_has_rules': v_database.v_has_rules,
                 'v_has_triggers': v_database.v_has_triggers,
                 'v_has_partitions': v_database.v_has_partitions
@@ -481,6 +520,54 @@ def get_checks(request):
 
     return JsonResponse(v_return)
 
+def get_excludes(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_excludes = []
+
+    try:
+        v_excludes = v_database.QueryTablesExcludes(v_table,False,v_schema)
+        for v_exclude in v_excludes.Rows:
+            v_exclude_data = []
+            v_exclude_data.append(v_exclude['constraint_name'])
+            v_exclude_data.append(v_exclude['attributes'])
+            v_exclude_data.append(v_exclude['operations'])
+            v_list_excludes.append(v_exclude_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_excludes
+
+    return JsonResponse(v_return)
+
 def get_rules(request):
 
     v_return = {}
@@ -657,6 +744,7 @@ def get_views(request):
         for v_table in v_tables.Rows:
             v_table_data = {
                 'v_name': v_table['table_name'],
+                'v_has_triggers': v_database.v_has_triggers,
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -1658,6 +1746,334 @@ def get_subscription_tables(request):
 
     return JsonResponse(v_return)
 
+def get_pglogical_nodes(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_nodes = []
+
+    try:
+        v_nodes = v_database.QueryPglogicalNodes()
+        for v_node in v_nodes.Rows:
+            v_node_data = {
+                'v_name': v_node['node_name']
+            }
+            v_list_nodes.append(v_node_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_nodes
+
+    return JsonResponse(v_return)
+
+def get_pglogical_interfaces(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_node = json_object['p_node']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_ifaces = []
+
+    try:
+        v_ifaces = v_database.QueryPglogicalNodeInterfaces(v_node)
+        for v_iface in v_ifaces.Rows:
+            v_iface_data = {
+                'v_name': v_iface['if_name'],
+                'v_dsn': v_iface['if_dsn']
+            }
+            v_list_ifaces.append(v_iface_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_ifaces
+
+    return JsonResponse(v_return)
+
+def get_pglogical_replicationsets(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_repsets = []
+
+    try:
+        v_repsets = v_database.QueryPglogicalReplicationSets()
+        for v_repset in v_repsets.Rows:
+            v_repset_data = {
+                'v_name': v_repset['set_name'],
+                'v_insert': v_repset['replicate_insert'],
+                'v_update': v_repset['replicate_update'],
+                'v_delete': v_repset['replicate_delete'],
+                'v_truncate': v_repset['replicate_truncate']
+            }
+            v_list_repsets.append(v_repset_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_repsets
+
+    return JsonResponse(v_return)
+
+def get_pglogical_repset_tables(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+    v_repset = json_object['p_repset']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QueryPglogicalReplicationSetTables(v_repset)
+        for v_table in v_tables.Rows:
+            v_table_data = {
+                'v_name': v_table['table_name']
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
+
+    return JsonResponse(v_return)
+
+def get_pglogical_repset_seqs(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+    v_repset = json_object['p_repset']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_seqs = []
+
+    try:
+        v_seqs = v_database.QueryPglogicalReplicationSetSequences(v_repset)
+        for v_seq in v_seqs.Rows:
+            v_seq_data = {
+                'v_name': v_seq['sequence_name']
+            }
+            v_list_seqs.append(v_seq_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_seqs
+
+    return JsonResponse(v_return)
+
+def get_pglogical_subscriptions(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_subs = []
+
+    try:
+        v_subs = v_database.QueryPglogicalSubscriptions()
+        for v_sub in v_subs.Rows:
+            v_sub_data = {
+                'v_name': v_sub['sub_name'],
+                'v_status': v_sub['sub_status'],
+                'v_origin': v_sub['sub_origin'],
+                'v_enabled': v_sub['sub_enabled'],
+                'v_delay': v_sub['sub_apply_delay']
+            }
+            v_list_subs.append(v_sub_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_subs
+
+    return JsonResponse(v_return)
+
+def get_pglogical_subscription_repsets(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+    v_sub = json_object['p_sub']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_repsets = []
+
+    try:
+        v_repsets = v_database.QueryPglogicalSubscriptionReplicationSets(v_sub)
+        for v_repset in v_repsets.Rows:
+            v_repset_data = {
+                'v_name': v_repset['set_name']
+            }
+            v_list_repsets.append(v_repset_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_repsets
+
+    return JsonResponse(v_return)
+
 def get_bdr_properties(request):
 
     v_return = {}
@@ -1892,6 +2308,242 @@ def get_bdr_table_conflicthandlers(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_chs
+
+    return JsonResponse(v_return)
+
+def get_xl_nodes(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_nodes = []
+
+    try:
+        v_nodes = v_database.QueryXLNodes()
+        for v_node in v_nodes.Rows:
+            v_node_data = {
+                'v_name': v_node['node_name'],
+                'v_type': v_node['node_type'],
+                'v_host': v_node['node_host'],
+                'v_port': v_node['node_port'],
+                'v_primary': v_node['nodeis_primary'],
+                'v_preferred': v_node['nodeis_preferred'],
+            }
+            v_list_nodes.append(v_node_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_nodes
+
+    return JsonResponse(v_return)
+
+def get_xl_groups(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_groups = []
+
+    try:
+        v_groups = v_database.QueryXLGroups()
+        for v_group in v_groups.Rows:
+            v_group_data = {
+                'v_name': v_group['group_name']
+            }
+            v_list_groups.append(v_group_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_groups
+
+    return JsonResponse(v_return)
+
+def get_xl_group_nodes(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_group = json_object['p_group']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_nodes = []
+
+    try:
+        v_nodes = v_database.QueryXLGroupNodes(v_group)
+        for v_node in v_nodes.Rows:
+            v_node_data = {
+                'v_name': v_node['node_name']
+            }
+            v_list_nodes.append(v_node_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_nodes
+
+    return JsonResponse(v_return)
+
+def get_xl_table_properties(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_schema = json_object['p_schema']
+    v_table = json_object['p_table']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_props = []
+
+    try:
+        v_props = v_database.QueryTablesXLProperties(v_table, False, v_schema)
+        for v_prop in v_props.Rows:
+            v_prop_data = {
+                'v_distributed_by': v_prop['distributed_by'],
+                'v_all_nodes': v_prop['all_nodes']
+            }
+            v_list_props.append(v_prop_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_props
+
+    return JsonResponse(v_return)
+
+def get_xl_table_nodes(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_schema = json_object['p_schema']
+    v_table = json_object['p_table']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_nodes = []
+
+    try:
+        v_nodes = v_database.QueryTablesXLNodes(v_table, False, v_schema)
+        for v_node in v_nodes.Rows:
+            v_node_data = {
+                'v_name': v_node['node_name']
+            }
+            v_list_nodes.append(v_node_data)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_nodes
 
     return JsonResponse(v_return)
 

@@ -927,3 +927,9 @@ iframe {
   color: white;
   text-align: center;
 }
+
+.editorMarker {
+  position:absolute;
+  background:rgba(100,200,100,0.5);
+  z-index:20
+}

@@ -370,6 +370,16 @@ function refreshHeights(p_all) {
 				v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 29 + 'px';
 			}
 		}
+		else if (v_tab_tag.mode=='debug') {
+			if (v_tab_tag.currDebugTab=='variable') {
+				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+				if (v_tab_tag.ht!=null)
+					v_tab_tag.ht.render();
+			}
+			else if (v_tab_tag.currDebugTab=='message') {
+				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+			}
+		}
 		else if (v_tab_tag.mode=='monitoring') {
 			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
 			if (v_tab_tag.ht!=null)
@@ -486,7 +496,18 @@ function resizeVerticalEnd(event) {
 			v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 29 + 'px';
 		}
 	}
-	else {
+	else if (v_tab_tag.mode=='debug') {
+		v_tab_tag.editor.resize();
+		if (v_tab_tag.currDebugTab=='variable') {
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+			if (v_tab_tag.ht!=null)
+				v_tab_tag.ht.render();
+		}
+		else if (v_tab_tag.currDebugTab=='message') {
+			v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+		}
+	}
+	else if (v_tab_tag.mode=='edit') {
 		if (v_tab_tag.editDataObject.ht!=null) {
 			v_tab_tag.editDataObject.ht.render();
 		}
@@ -588,6 +609,13 @@ function resizeHorizontalEnd(event) {
 	if (v_tab_tag.mode=='query') {
 		v_tab_tag.editor.resize();
 		if (v_tab_tag.currQueryTab=='data') {
+			if (v_tab_tag.ht!=null)
+				v_tab_tag.ht.render();
+		}
+	}
+	if (v_tab_tag.mode=='debug') {
+		v_tab_tag.editor.resize();
+		if (v_tab_tag.currDebugTab=='variable') {
 			if (v_tab_tag.ht!=null)
 				v_tab_tag.ht.render();
 		}

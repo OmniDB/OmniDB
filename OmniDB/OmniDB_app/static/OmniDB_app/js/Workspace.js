@@ -372,9 +372,19 @@ function refreshHeights(p_all) {
 		}
 		else if (v_tab_tag.mode=='debug') {
 			if (v_tab_tag.currDebugTab=='variable') {
+				v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - 29 + 'px';
+				if (v_tab_tag.htVariable!=null)
+					v_tab_tag.htVariable.render();
+			}
+			else if (v_tab_tag.currDebugTab=='parameter') {
+				v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - 29 + 'px';
+				if (v_tab_tag.htParameter!=null)
+					v_tab_tag.htParameter.render();
+			}
+			else if (v_tab_tag.currDebugTab=='result') {
 				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
-				if (v_tab_tag.ht!=null)
-					v_tab_tag.ht.render();
+				if (v_tab_tag.htResult!=null)
+					v_tab_tag.htResult.render();
 			}
 			else if (v_tab_tag.currDebugTab=='message') {
 				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
@@ -499,9 +509,19 @@ function resizeVerticalEnd(event) {
 	else if (v_tab_tag.mode=='debug') {
 		v_tab_tag.editor.resize();
 		if (v_tab_tag.currDebugTab=='variable') {
+			v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - 29 + 'px';
+			if (v_tab_tag.htVariable!=null)
+				v_tab_tag.htVariable.render();
+		}
+		if (v_tab_tag.currDebugTab=='parameter') {
+			v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - 29 + 'px';
+			if (v_tab_tag.htParameter!=null)
+				v_tab_tag.htParameter.render();
+		}
+		if (v_tab_tag.currDebugTab=='result') {
 			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
-			if (v_tab_tag.ht!=null)
-				v_tab_tag.ht.render();
+			if (v_tab_tag.htResult!=null)
+				v_tab_tag.htResult.render();
 		}
 		else if (v_tab_tag.currDebugTab=='message') {
 			v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
@@ -513,6 +533,7 @@ function resizeVerticalEnd(event) {
 		}
 	}
 }
+
 
 /// <summary>
 /// Maximize SQL Editor.
@@ -615,9 +636,17 @@ function resizeHorizontalEnd(event) {
 	}
 	if (v_tab_tag.mode=='debug') {
 		v_tab_tag.editor.resize();
-		if (v_tab_tag.currDebugTab=='variable') {
-			if (v_tab_tag.ht!=null)
-				v_tab_tag.ht.render();
+		if (v_tab_tag.currDebugTab=='parameter') {
+			if (v_tab_tag.htParameter!=null)
+				v_tab_tag.htParameter.render();
+		}
+		else if (v_tab_tag.currDebugTab=='variable') {
+			if (v_tab_tag.htVariable!=null)
+				v_tab_tag.htVariable.render();
+		}
+		else if (v_tab_tag.currDebugTab=='result') {
+			if (v_tab_tag.htResult!=null)
+				v_tab_tag.htResult.render();
 		}
 	}
 	else if (v_tab_tag.mode=='edit') {

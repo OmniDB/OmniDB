@@ -1150,7 +1150,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createDebuggerTab(
                         node.text);
                     getDebugFunctionDefinitionPostgresql(node);
-                    startDebugging(node);
+                    setupDebug(node);
                 }
             }]
         },

@@ -522,19 +522,19 @@ function initCreateTabFunctions() {
 		var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
 
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
-					 "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='querySQL(0);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
-           "<button id='bt_indent_" + v_tab.id + "' class='bt_execute' title='Indent SQL' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='indentSQL();'><img src='/static/OmniDB_app/images/indent.png' style='vertical-align: middle;'/></button>" +
-					 "<select id='sel_filtered_data_" + v_tab.id + "' style='display: none;'><option value='0' >Script</option><option selected='selected' value='1' >Query</option></select>" +
-           "<button onclick='getExplain(0)' title='Explain' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;'><img src='/static/OmniDB_app/images/explain.png' style='vertical-align: middle;'/></button>" +
-           "<button onclick='getExplain(1)' title='Explain Analyze' style='margin-bottom: 5px; display: inline-block; vertical-align: middle;'><img src='/static/OmniDB_app/images/analyze.png' style='vertical-align: middle;'/></button>" +
-           "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='querySQL(1);'>Fetch more</button>" +
-           "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='querySQL(2);'>Fetch all</button>" +
-           "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='cancelSQL();'>Cancel</button>" +
-					 "<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
-					 "<button class='bt_export' title='Export Data' style='display: none; margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><img src='/static/OmniDB_app/images/table_export.png' style='vertical-align: middle;'/></button>" +
-					 "<select id='sel_export_type_" + v_tab.id + "' style='display: none; float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='DBF' >DBF</option></select>" +
-           "        <div id='query_result_tabs_" + v_tab.id + "'>" +
-           "            <ul>" +
+					"<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='querySQL(0);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_indent_" + v_tab.id + "' class='bt_execute' title='Indent SQL' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='indentSQL();'><img src='/static/OmniDB_app/images/indent.png' style='vertical-align: middle;'/></button>" +
+					"<select id='sel_filtered_data_" + v_tab.id + "' style='display: none;'><option value='0' >Script</option><option selected='selected' value='1' >Query</option></select>" +
+          "<button onclick='getExplain(0)' title='Explain' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;'><img src='/static/OmniDB_app/images/explain.png' style='vertical-align: middle;'/></button>" +
+          "<button onclick='getExplain(1)' title='Explain Analyze' style='margin-bottom: 5px; display: inline-block; vertical-align: middle;'><img src='/static/OmniDB_app/images/analyze.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='querySQL(1);'>Fetch more</button>" +
+          "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='querySQL(2);'>Fetch all</button>" +
+          "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='cancelSQL();'>Cancel</button>" +
+					"<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
+					"<button class='bt_export' title='Export Data' style='display: none; margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><img src='/static/OmniDB_app/images/table_export.png' style='vertical-align: middle;'/></button>" +
+					"<select id='sel_export_type_" + v_tab.id + "' style='display: none; float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='DBF' >DBF</option></select>" +
+          "        <div id='query_result_tabs_" + v_tab.id + "'>" +
+          "            <ul>" +
           "            <li id='query_result_tabs_" + v_tab.id + "_tab1'>Data</li>" +
           "            <li id='query_result_tabs_" + v_tab.id + "_tab2'>Messages <div id='query_result_tabs_count_notices_" + v_tab.id + "' class='count_notices' style='display: none;'></div></li>" +
           "            <li id='query_result_tabs_" + v_tab.id + "_tab3'>Explain</li>" +
@@ -1044,6 +1044,149 @@ function initCreateTabFunctions() {
 
 	};
 
+  var v_createDebuggerTabFunction = function(p_function) {
+
+		var v_name = ' Debugger: ' + p_function;
+
+		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+            '<img src="/static/OmniDB_app/images/debug.png"/><span id="tab_title">' + v_name + '</span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+            false,
+            null,
+            renameTab,
+            null,
+            null,
+            true,
+            function() {
+              if(this.tag != null) {
+                refreshHeights();
+              }
+              if(this.tag != null && this.tag.editor != null) {
+                  this.tag.editor.focus();
+              }
+            }
+        );
+		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+
+		//Adding unique names to spans
+		var v_tab_title_span = document.getElementById('tab_title');
+		v_tab_title_span.id = 'tab_title_' + v_tab.id;
+		var v_tab_loading_span = document.getElementById('tab_loading');
+		v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
+		var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function() {
+			removeTab(v_tab);
+		};
+		var v_tab_check_span = document.getElementById('tab_check');
+		v_tab_check_span.id = 'tab_check_' + v_tab.id;
+
+		var v_html = "<div id='txt_func_body_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
+
+					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+					"<button id='bt_step_" + v_tab.id + "' class='bt_execute' title='Step' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='stepDebug();'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
+					"<div id='div_debug_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
+          "        <div id='debug_result_tabs_" + v_tab.id + "'>" +
+          "            <ul>" +
+          "            <li id='debug_result_tabs_" + v_tab.id + "_tab1'>Variables</li>" +
+          "            <li id='debug_result_tabs_" + v_tab.id + "_tab2'>Messages <div id='debug_result_tabs_count_notices_" + v_tab.id + "' class='count_notices' style='display: none;'></div></li>" +
+          "			</ul>" +
+          "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab1'>" +
+          "<div id='div_variables_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
+          "			</div>" +
+          "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab2'>" +
+          "<div id='div_notices_" + v_tab.id + "' style='width: 100%; line-height: 16px; user-select: initial;'></div>" +
+          "			</div></div>";
+
+		var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+    var v_curr_tabs = createTabControl('debug_result_tabs_' + v_tab.id,0,null);
+
+		var langTools = ace.require("ace/ext/language_tools");
+		var v_editor = ace.edit('txt_func_body_' + v_tab.id);
+		v_editor.setTheme("ace/theme/" + v_editor_theme);
+		v_editor.session.setMode("ace/mode/sql");
+		v_editor.commands.bindKey(".", "startAutocomplete");
+
+		v_editor.setFontSize(Number(v_editor_font_size));
+
+		v_editor.commands.bindKey("ctrl-space", null);
+
+    //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+    v_editor.commands.bindKey("Cmd-,", null)
+    v_editor.commands.bindKey("Ctrl-,", null)
+    v_editor.commands.bindKey("Cmd-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Delete", null)
+    v_editor.setReadOnly(true);
+
+		document.getElementById('txt_func_body_' + v_tab.id).onclick = function() {
+
+			v_editor.focus();
+
+		};
+
+		var v_tag = {
+			tab_id: v_tab.id,
+			mode: 'debug',
+			editor: v_editor,
+			editorDivId: 'txt_func_body_' + v_tab.id,
+			debug_info: document.getElementById('div_debug_info_' + v_tab.id),
+			div_result: document.getElementById('div_variables_' + v_tab.id),
+      div_notices: document.getElementById('div_notices_' + v_tab.id),
+      div_count_notices: document.getElementById('debug_result_tabs_count_notices_' + v_tab.id),
+			tab_title_span : v_tab_title_span,
+			tab_loading_span : v_tab_loading_span,
+			tab_close_span : v_tab_close_span,
+			tab_check_span : v_tab_check_span,
+			bt_start: document.getElementById('bt_step_' + v_tab.id),
+			state : 0,
+      context: null,
+			tabControl: v_connTabControl.selectedTab.tag.tabControl,
+      queryTabControl: v_curr_tabs,
+      currDebugTab: null,
+			connTab: v_connTabControl.selectedTab,
+      currDatabaseIndex: null,
+      markerId: null,
+      ht: null
+		};
+
+		v_tab.tag = v_tag;
+
+    var v_selectVariableTabFunc = function() {
+			v_curr_tabs.selectTabIndex(0);
+      v_tag.currDebugTab = 'variable';
+      refreshHeights();
+		}
+
+    var v_selectMessageTabFunc = function() {
+
+			v_curr_tabs.selectTabIndex(1);
+      v_tag.currDebugTab = 'message';
+			v_tag.div_count_notices.style.display = 'none';
+      refreshHeights();
+		}
+
+
+    v_tag.selectVariableTabFunc = v_selectVariableTabFunc;
+    v_tag.selectMessageTabFunc = v_selectMessageTabFunc;
+
+    v_curr_tabs.tabList[0].elementLi.onclick = v_selectVariableTabFunc;
+		v_curr_tabs.tabList[1].elementLi.onclick = v_selectMessageTabFunc;
+
+		v_selectVariableTabFunc();
+
+    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    v_add_tab.tag = {
+      mode: 'add'
+    }
+
+    setTimeout(function() {
+      refreshHeights();
+    },10);
+
+	};
+
   //Functions to create tabs globally
   v_connTabControl.tag.createConnTab = v_createConnTabFunction;
   v_connTabControl.tag.createSnippetTab = v_createSnippetTabFunction;
@@ -1059,4 +1202,5 @@ function initCreateTabFunctions() {
   v_connTabControl.tag.createWebsiteTab = v_createWebsiteTabFunction;
   v_connTabControl.tag.createWebsiteOuterTab = v_createWebsiteOuterTabFunction;
   v_connTabControl.tag.createMonitoringTab = v_createMonitoringTabFunction;
+  v_connTabControl.tag.createDebuggerTab = v_createDebuggerTabFunction;
 }

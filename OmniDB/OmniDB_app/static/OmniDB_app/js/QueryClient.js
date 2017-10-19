@@ -20,7 +20,8 @@ var v_queryRequestCodes = {
 	Script: 3,
 	QueryEditData: 4,
 	SaveEditData: 5,
-	CancelThread: 6
+	CancelThread: 6,
+	Debug: 7
 }
 
 /// <summary>
@@ -34,7 +35,8 @@ var v_queryResponseCodes = {
 	SessionMissing: 4,
 	PasswordRequired: 5,
 	QueryAck: 6,
-	MessageException: 7
+	MessageException: 7,
+	DebugResponse: 8
 }
 
 /// <summary>
@@ -108,6 +110,14 @@ function startQueryWebSocket(p_port) {
 					if (p_context) {
 						saveEditDataReturn(v_message,p_context);
 						removeContext(v_queryWebSocket,p_context_code);
+					}
+					break;
+				}
+				case parseInt(v_queryResponseCodes.DebugResponse): {
+					if (p_context) {
+						debugResponse(p_message, p_context);
+						if (p_message.v_data.v_remove_context)
+							removeContext(v_queryWebSocket,p_context_code);
 					}
 					break;
 				}

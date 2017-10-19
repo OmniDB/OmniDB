@@ -1,0 +1,32 @@
+sudo apt install postgresql-server-dev-9.6
+
+./compile.sh
+
+sudo cp omnidb_plugin.so /usr/lib/postgresql/9.6/lib/
+
+nano /etc/postgresql/9.6/main/postgresql.conf
+    shared_preload_libraries = 'omnidb_plugin'
+
+
+create schema omnidb;
+
+create table omnidb.contexts
+(
+  pid integer not null primary key,
+  function text,
+  hook text,
+  lineno integer,
+  stmttype text
+);
+
+create table omnidb.variables
+(
+  pid integer not null,
+  name text,
+  attribute text,
+  vartype text,
+  value text
+);
+
+alter table omnidb.variables add constraint omnidb_variables_contexts_fk
+foreign key (pid) references omnidb.contexts (pid);

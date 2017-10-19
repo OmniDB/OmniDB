@@ -805,7 +805,6 @@ def thread_debug_run_func(self,args,ws_object):
                 'v_error_msg': str(exc)
             }
 
-        print('FUNCTION FINISHED')
         v_database_debug.v_connection.Close()
         v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
         v_database_control.v_connection.Close()
@@ -831,7 +830,6 @@ def thread_debug(self,args,ws_object):
     }
 
     try:
-        #print(args)
         v_state = args['v_state']
         v_tab_id = args['v_tab_id']
         v_tab_object = args['v_tab_object']
@@ -883,7 +881,6 @@ def thread_debug(self,args,ws_object):
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
         elif v_state == debugState.Step:
-            print('step')
             v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0}; select pg_advisory_lock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
 
             #acquired the lock, get variables and lineno

@@ -3,7 +3,6 @@
  **********************************************************************/
 
 #include <stdio.h>
-#include <time.h>
 #include "postgres.h"
 #if PG_VERSION_NUM >= 90300
 #include "access/htup_details.h"
@@ -43,7 +42,6 @@ PGconn *plugin_conn;
 bool plugin_active = false;
 unsigned int plugin_depth = 0;
 unsigned int plugin_step;
-clock_t plugin_stmtstart;
 
 /**********************************************************************
  * Function definitions
@@ -292,7 +290,9 @@ static void profiler_stmt_beg( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
         sprintf(lock, "select pg_advisory_lock(%i) from omnidb.contexts where pid = %i", MyProcPid, MyProcPid);
         PQexec(plugin_conn, lock);
 
-        plugin_stmtstart = clock();
+        char insert_statistics[1024];
+        sprintf(insert_statistics, "INSERT INTO omnidb.statistics (pid, lineno, step, tstart, tend) VALUES (%i, %i, %i, now(), NULL)", MyProcPid, stmt->lineno, plugin_step);
+        PQexec(plugin_conn, insert_statistics);
     }
 }
 
@@ -308,9 +308,9 @@ static void profiler_stmt_end( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
 
     if (plugin_active && !plugin_depth)
     {
-        char insert_statistics[1024];
-        sprintf(insert_statistics, "INSERT INTO omnidb.statistics (pid, lineno, step, msec) VALUES (%i, %i, %i, %f)", MyProcPid, stmt->lineno + 3, plugin_step, ((double)clock() - plugin_stmtstart) / CLOCKS_PER_SEC * 1000);
-        PQexec(plugin_conn, insert_statistics);
+        char update_statistics[1024];
+        sprintf(update_statistics, "UPDATE omnidb.statistics SET tend = now() WHERE pid = %i AND lineno = %i AND step = %i", MyProcPid, stmt->lineno, plugin_step);
+        PQexec(plugin_conn, update_statistics);
 
         plugin_step++;
     }

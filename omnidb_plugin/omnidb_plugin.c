@@ -3,6 +3,7 @@
  **********************************************************************/
 
 #include <stdio.h>
+#include <time.h>
 #include "postgres.h"
 #if PG_VERSION_NUM >= 90300
 #include "access/htup_details.h"
@@ -40,6 +41,9 @@ static char *get_text_val(PLpgSQL_var *var, char **name, char **type);
 static PLpgSQL_plugin plugin_funcs = { profiler_init, profiler_func_beg, profiler_func_end, profiler_stmt_beg, profiler_stmt_end };
 PGconn *plugin_conn;
 bool plugin_active = false;
+unsigned int plugin_depth = 0;
+unsigned int plugin_step;
+clock_t plugin_stmtstart;
 
 /**********************************************************************
  * Function definitions
@@ -89,37 +93,53 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 	   elog(LOG, "omnidb, BEGIN, %s, %i", findProcName(func->fn_oid), MyProcPid);
     #endif
 
-    PGconn *conn = PQconnectdb("user=postgres dbname=postgres");
-    if (PQstatus(conn) != CONNECTION_BAD)
+    if (!plugin_active)
     {
-        char query[256];
-        sprintf(query, "SELECT datname FROM pg_database WHERE oid = %i", MyDatabaseId);
-        PGresult *res = PQexec(conn, query);
-        if (PQresultStatus(res) == PGRES_TUPLES_OK)
+        PGconn *conn = PQconnectdb("user=postgres dbname=postgres");
+        if (PQstatus(conn) != CONNECTION_BAD)
         {
-            char conninfo[256];
-            sprintf(conninfo, "user=postgres dbname=%s", PQgetvalue(res, 0, 0));
-            plugin_conn = PQconnectdb(conninfo);
-            if (PQstatus(plugin_conn) != CONNECTION_BAD)
+            char query[256];
+            sprintf(query, "SELECT datname FROM pg_database WHERE oid = %i", MyDatabaseId);
+            PGresult *res = PQexec(conn, query);
+            if (PQresultStatus(res) == PGRES_TUPLES_OK)
             {
-                PQclear(res);
-                PQfinish(conn);
-
-                #ifdef DEBUG
-                    elog(LOG, "omnidb: Connected to (%s)", conninfo);
-                #endif
-
-                char select_context[1024];
-                sprintf(select_context, "SELECT pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
-                PGresult *res = PQexec(plugin_conn, select_context);
-                if (PQresultStatus(res) == PGRES_TUPLES_OK)
+                char conninfo[256];
+                sprintf(conninfo, "user=postgres dbname=%s", PQgetvalue(res, 0, 0));
+                plugin_conn = PQconnectdb(conninfo);
+                if (PQstatus(plugin_conn) != CONNECTION_BAD)
                 {
-                    if (PQntuples(res) == 1)
+                    PQclear(res);
+                    PQfinish(conn);
+
+                    #ifdef DEBUG
+                        elog(LOG, "omnidb: Connected to (%s)", conninfo);
+                    #endif
+
+                    char select_context[1024];
+                    sprintf(select_context, "SELECT pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
+                    PGresult *res = PQexec(plugin_conn, select_context);
+                    if (PQresultStatus(res) == PGRES_TUPLES_OK)
                     {
-                        char update_context[1024];
-                        sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'func_beg', stmttype = 'BEGIN', lineno = NULL where pid = %i", findProcName(func->fn_oid), MyProcPid);
-                        PQexec(plugin_conn, update_context);
-                        plugin_active = true;
+                        if (PQntuples(res) == 1)
+                        {
+                            char update_context[1024];
+                            sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'func_beg', stmttype = 'BEGIN', lineno = NULL where pid = %i", findProcName(func->fn_oid), MyProcPid);
+                            PQexec(plugin_conn, update_context);
+
+                            #ifdef DEBUG
+                                elog(LOG, "omnidb: Debugger active for PID %i", MyProcPid);
+                            #endif
+
+                            plugin_active = true;
+                            plugin_step = 0;
+                        }
+                        else
+                        {
+                            plugin_active = false;
+                            #ifdef DEBUG
+                                elog(LOG, "omnidb: Debugger not active for PID %i", MyProcPid);
+                            #endif
+                        }
                     }
                     else
                     {
@@ -132,22 +152,23 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
                 else
                 {
                     plugin_active = false;
-                    #ifdef DEBUG
-                        elog(LOG, "omnidb: Debugger not active for PID %i", MyProcPid);
-                    #endif
+                    elog(ERROR, "omnidb: Connection to database failed: %s", PQerrorMessage(plugin_conn));
                 }
             }
-            else
-            {
-                plugin_active = false;
-                elog(ERROR, "omnidb: Connection to database failed: %s", PQerrorMessage(plugin_conn));
-            }
+        }
+        else
+        {
+            plugin_active = false;
+            elog(ERROR, "omnidb: Connection to maintenance database failed: %s", PQerrorMessage(conn));
         }
     }
     else
     {
-        plugin_active = false;
-        elog(ERROR, "omnidb: Connection to maintenance database failed: %s", PQerrorMessage(conn));
+        #ifdef DEBUG
+            elog(LOG, "omnidb: Debugger not active for subcall depth %i for PID %i", plugin_depth, MyProcPid);
+        #endif
+
+        plugin_depth++;
     }
 }
 
@@ -157,17 +178,22 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 
 static void profiler_func_end( PLpgSQL_execstate * estate, PLpgSQL_function * func )
 {
-    if (plugin_active)
-    {
-        #ifdef DEBUG
-    	   elog(LOG, "omnidb, END, %s, %i", findProcName(func->fn_oid), MyProcPid);
-        #endif
+    #ifdef DEBUG
+       elog(LOG, "omnidb, END, %s, %i", findProcName(func->fn_oid), MyProcPid);
+    #endif
 
+    if (plugin_active && !plugin_depth)
+    {
         char unlock[256];
         sprintf(unlock, "select pg_advisory_unlock(%i) from omnidb.contexts where pid = %i", MyProcPid, MyProcPid);
         PQexec(plugin_conn, unlock);
 
         PQfinish(plugin_conn);
+    }
+    else
+    {
+        if (plugin_active && plugin_depth > 0)
+            plugin_depth--;
     }
 }
 
@@ -177,12 +203,12 @@ static void profiler_func_end( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 
 static void profiler_stmt_beg( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
 {
-    if (plugin_active)
-    {
-        #ifdef DEBUG
-            elog(LOG, "omnidb, STMT START, line %d, type %s, %s, %i", stmt->lineno, decode_stmt_type(stmt->cmd_type), findProcName(estate->func->fn_oid), MyProcPid);
-        #endif
+    #ifdef DEBUG
+        elog(LOG, "omnidb, STMT START, line %d, type %s, %s, %i", stmt->lineno, decode_stmt_type(stmt->cmd_type), findProcName(estate->func->fn_oid), MyProcPid);
+    #endif
 
+    if (plugin_active && !plugin_depth)
+    {
         char delete_variables[1024];
         sprintf(delete_variables, "DELETE FROM omnidb.variables WHERE pid = %i", MyProcPid);
         PQexec(plugin_conn, delete_variables);
@@ -266,6 +292,7 @@ static void profiler_stmt_beg( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
         sprintf(lock, "select pg_advisory_lock(%i) from omnidb.contexts where pid = %i", MyProcPid, MyProcPid);
         PQexec(plugin_conn, lock);
 
+        plugin_stmtstart = clock();
     }
 }
 
@@ -275,11 +302,17 @@ static void profiler_stmt_beg( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
 
 static void profiler_stmt_end( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
 {
-    if (plugin_active)
+    #ifdef DEBUG
+        elog(LOG, "omnidb, STMT END, line %d, type %s, %s, %i", stmt->lineno, decode_stmt_type(stmt->cmd_type), findProcName(estate->func->fn_oid), MyProcPid);
+    #endif
+
+    if (plugin_active && !plugin_depth)
     {
-        #ifdef DEBUG
-            elog(LOG, "omnidb, STMT END, line %d, type %s, %s, %i", stmt->lineno, decode_stmt_type(stmt->cmd_type), findProcName(estate->func->fn_oid), MyProcPid);
-        #endif
+        char insert_statistics[1024];
+        sprintf(insert_statistics, "INSERT INTO omnidb.statistics (pid, lineno, step, msec) VALUES (%i, %i, %i, %f)", MyProcPid, stmt->lineno + 3, plugin_step, ((double)clock() - plugin_stmtstart) / CLOCKS_PER_SEC * 1000);
+        PQexec(plugin_conn, insert_statistics);
+
+        plugin_step++;
     }
 }
 

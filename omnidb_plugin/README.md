@@ -29,4 +29,15 @@ create table omnidb.variables
 );
 
 alter table omnidb.variables add constraint omnidb_variables_contexts_fk
-foreign key (pid) references omnidb.contexts (pid);
+foreign key (pid) references omnidb.contexts (pid) on delete cascade;
+
+create table omnidb.statistics
+(
+  pid integer not null,
+  lineno integer,
+  step integer,
+  msec numeric
+);
+
+alter table omnidb.statistics add constraint omnidb_statistics_contexts_fk
+foreign key (pid) references omnidb.contexts (pid) on delete cascade;

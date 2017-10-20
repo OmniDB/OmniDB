@@ -1084,8 +1084,9 @@ function initCreateTabFunctions() {
 		var v_html = "<div id='txt_func_body_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
 
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
-          "<button id='bt_step_" + v_tab.id + "' class='bt_execute' title='Start' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='startDebug();'><img src='/static/OmniDB_app/images/trigger.png' style='vertical-align: middle;'/></button>" +
-					"<button id='bt_step_" + v_tab.id + "' class='bt_execute' title='Step' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='stepDebug();'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Start' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='startDebug();'><img src='/static/OmniDB_app/images/trigger.png' style='vertical-align: middle;'/></button>" +
+					"<button id='bt_step_over_" + v_tab.id + "' class='bt_execute' title='Step Over' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(0);'><img src='/static/OmniDB_app/images/step_over.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_step_out_" + v_tab.id + "' class='bt_execute' title='Step Out' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(1);'><img src='/static/OmniDB_app/images/step_out.png' style='vertical-align: middle;'/></button>" +
 					"<div id='div_debug_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
           "        <div id='debug_result_tabs_" + v_tab.id + "'>" +
           "            <ul>" +
@@ -1093,6 +1094,7 @@ function initCreateTabFunctions() {
           "            <li id='debug_result_tabs_" + v_tab.id + "_tab2'>Variables</li>" +
           "            <li id='debug_result_tabs_" + v_tab.id + "_tab3'>Result</li>" +
           "            <li id='debug_result_tabs_" + v_tab.id + "_tab4'>Messages <div id='debug_result_tabs_count_notices_" + v_tab.id + "' class='count_notices' style='display: none;'></div></li>" +
+          "            <li id='debug_result_tabs_" + v_tab.id + "_tab5'>Statistics</li>" +
           "			</ul>" +
           "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab1'>" +
           "<div id='div_parameters_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
@@ -1104,7 +1106,10 @@ function initCreateTabFunctions() {
           "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
           "			</div>" +
           "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab4'>" +
-          "<div id='div_notices_" + v_tab.id + "' style='width: 100%; line-height: 16px; user-select: initial;'></div>" +
+          "<div id='div_notices_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
+          "			</div>" +
+          "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab5'>" +
+          "<div id='div_statistics_" + v_tab.id + "' style='width: 100%; overflow: auto;'></div>" +
           "			</div></div>";
 
 		var v_div = document.getElementById('div_' + v_tab.id);
@@ -1145,12 +1150,15 @@ function initCreateTabFunctions() {
       div_variable: document.getElementById('div_variables_' + v_tab.id),
 			div_result: document.getElementById('div_result_' + v_tab.id),
       div_notices: document.getElementById('div_notices_' + v_tab.id),
+      div_statistics: document.getElementById('div_statistics_' + v_tab.id),
       div_count_notices: document.getElementById('debug_result_tabs_count_notices_' + v_tab.id),
 			tab_title_span : v_tab_title_span,
 			tab_loading_span : v_tab_loading_span,
 			tab_close_span : v_tab_close_span,
 			tab_check_span : v_tab_check_span,
-			bt_start: document.getElementById('bt_step_' + v_tab.id),
+			bt_start: document.getElementById('bt_start_' + v_tab.id),
+      bt_step_over: document.getElementById('bt_step_over_' + v_tab.id),
+      bt_step_out: document.getElementById('bt_step_out_' + v_tab.id),
 			state : 0,
       context: null,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
@@ -1161,7 +1169,9 @@ function initCreateTabFunctions() {
       markerId: null,
       htParameter: null,
       htVariable: null,
-      htResult: null
+      htResult: null,
+      chart: null,
+      breakPoint: null
 		};
 
 		v_tab.tag = v_tag;
@@ -1192,15 +1202,23 @@ function initCreateTabFunctions() {
       refreshHeights();
 		}
 
+    var v_selectStatisticsTabFunc = function() {
+			v_curr_tabs.selectTabIndex(4);
+      v_tag.currDebugTab = 'statistics';
+      refreshHeights();
+		}
+
     v_tag.selectParameterTabFunc = v_selectParameterTabFunc;
     v_tag.selectVariableTabFunc = v_selectVariableTabFunc;
     v_tag.selectResultTabFunc = v_selectResultTabFunc;
     v_tag.selectMessageTabFunc = v_selectMessageTabFunc;
+    v_tag.selectStatisticsTabFunc = v_selectStatisticsTabFunc;
 
     v_curr_tabs.tabList[0].elementLi.onclick = v_selectParameterTabFunc;
     v_curr_tabs.tabList[1].elementLi.onclick = v_selectVariableTabFunc;
     v_curr_tabs.tabList[2].elementLi.onclick = v_selectResultTabFunc;
 		v_curr_tabs.tabList[3].elementLi.onclick = v_selectMessageTabFunc;
+    v_curr_tabs.tabList[4].elementLi.onclick = v_selectStatisticsTabFunc;
 
 		v_selectParameterTabFunc();
 

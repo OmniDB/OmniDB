@@ -389,6 +389,11 @@ function refreshHeights(p_all) {
 			else if (v_tab_tag.currDebugTab=='message') {
 				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
 			}
+			else if (v_tab_tag.currDebugTab=='statistics') {
+				v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - 29 + 'px';
+				if (v_tab_tag.chart!=null)
+					v_tab_tag.chart.update();
+			}
 		}
 		else if (v_tab_tag.mode=='monitoring') {
 			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
@@ -526,6 +531,11 @@ function resizeVerticalEnd(event) {
 		else if (v_tab_tag.currDebugTab=='message') {
 			v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
 		}
+		else if (v_tab_tag.currDebugTab=='statistics') {
+			v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - 29 + 'px';
+			if (v_tab_tag.chart!=null)
+				v_tab_tag.chart.update();
+		}
 	}
 	else if (v_tab_tag.mode=='edit') {
 		if (v_tab_tag.editDataObject.ht!=null) {
@@ -647,6 +657,10 @@ function resizeHorizontalEnd(event) {
 		else if (v_tab_tag.currDebugTab=='result') {
 			if (v_tab_tag.htResult!=null)
 				v_tab_tag.htResult.render();
+		}
+		else if (v_tab_tag.currDebugTab=='statistics') {
+			if (v_tab_tag.chart!=null)
+				v_tab_tag.chart.update();
 		}
 	}
 	else if (v_tab_tag.mode=='edit') {

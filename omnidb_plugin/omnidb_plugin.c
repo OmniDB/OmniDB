@@ -3,6 +3,8 @@
  **********************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "postgres.h"
 #if PG_VERSION_NUM >= 90300
 #include "access/htup_details.h"
@@ -42,6 +44,7 @@ PGconn *plugin_conn;
 bool plugin_active = false;
 unsigned int plugin_depth = 0;
 unsigned int plugin_step;
+int plugin_breakpoint;
 
 /**********************************************************************
  * Function definitions
@@ -114,7 +117,7 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
                     #endif
 
                     char select_context[1024];
-                    sprintf(select_context, "SELECT pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
+                    sprintf(select_context, "SELECT breakpoint, pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
                     PGresult *res = PQexec(plugin_conn, select_context);
                     if (PQresultStatus(res) == PGRES_TUPLES_OK)
                     {
@@ -130,6 +133,7 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 
                             plugin_active = true;
                             plugin_step = 0;
+                            plugin_breakpoint = atoi(PQgetvalue(res, 0, 0));
                         }
                         else
                         {
@@ -207,88 +211,91 @@ static void profiler_stmt_beg( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
 
     if (plugin_active && !plugin_depth)
     {
-        char delete_variables[1024];
-        sprintf(delete_variables, "DELETE FROM omnidb.variables WHERE pid = %i", MyProcPid);
-        PQexec(plugin_conn, delete_variables);
-
-        int i;
-        for( i = 0; i < estate->ndatums; i++ )
+        if (plugin_breakpoint == 0 || plugin_breakpoint == stmt->lineno)
         {
-            switch( estate->datums[i]->dtype )
+            char delete_variables[1024];
+            sprintf(delete_variables, "DELETE FROM omnidb.variables WHERE pid = %i", MyProcPid);
+            PQexec(plugin_conn, delete_variables);
+
+            int i;
+            for( i = 0; i < estate->ndatums; i++ )
             {
-                case PLPGSQL_DTYPE_VAR:
-    			{
-    				PLpgSQL_var * var = (PLpgSQL_var *) estate->datums[i];
-    				char        * val;
-    				char		* name = var->refname;
-                    char        * typeName;
+                switch( estate->datums[i]->dtype )
+                {
+                    case PLPGSQL_DTYPE_VAR:
+        			{
+        				PLpgSQL_var * var = (PLpgSQL_var *) estate->datums[i];
+        				char        * val;
+        				char		* name = var->refname;
+                        char        * typeName;
 
-                    typeName = var->datatype ? var->datatype->typname : "InvalidType";
+                        typeName = var->datatype ? var->datatype->typname : "InvalidType";
 
-    				if( var_is_null((PLpgSQL_datum *)var ))
-    					val = "NULL";
-    				else
-    					val = get_text_val( var, NULL, NULL );
+        				if( var_is_null((PLpgSQL_datum *)var ))
+        					val = "NULL";
+        				else
+        					val = get_text_val( var, NULL, NULL );
 
-                    #ifdef DEBUG
-                        elog(LOG, "omnidb, VAR, (%s %s %s)", name, typeName, val);
-                    #endif
+                        #ifdef DEBUG
+                            elog(LOG, "omnidb, VAR, (%s %s %s)", name, typeName, val);
+                        #endif
 
-                    char insert_variable[1024];
-                    sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', NULL, '%s', '%s')", MyProcPid, name, typeName, val);
-                    PQexec(plugin_conn, insert_variable);
+                        char insert_variable[1024];
+                        sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', NULL, '%s', '%s')", MyProcPid, name, typeName, val);
+                        PQexec(plugin_conn, insert_variable);
 
-    				break;
-    			}
-                case PLPGSQL_DTYPE_REC:
-    			{
-    				PLpgSQL_rec * rec = (PLpgSQL_rec *) estate->datums[i];
-    				int		      att;
-    				char        * typeName;
-                    char        * val;
+        				break;
+        			}
+                    case PLPGSQL_DTYPE_REC:
+        			{
+        				PLpgSQL_rec * rec = (PLpgSQL_rec *) estate->datums[i];
+        				int		      att;
+        				char        * typeName;
+                        char        * val;
 
-    				if (rec->tupdesc != NULL)
-    				{
-    					for( att = 0; att < rec->tupdesc->natts; ++att )
-    					{
-    						typeName = SPI_gettype( rec->tupdesc, att + 1 );
+        				if (rec->tupdesc != NULL)
+        				{
+        					for( att = 0; att < rec->tupdesc->natts; ++att )
+        					{
+        						typeName = SPI_gettype( rec->tupdesc, att + 1 );
 
-                            val = SPI_getvalue( rec->tup, rec->tupdesc, att + 1 );
-                            if (!val)
-                                val = "NULL";
+                                val = SPI_getvalue( rec->tup, rec->tupdesc, att + 1 );
+                                if (!val)
+                                    val = "NULL";
 
-                            #ifdef DEBUG
-                                elog(LOG, "omnidb, REC, (%s.%s %s %s)",
-    								      rec->refname,
-                                          NameStr( rec->tupdesc->attrs[att]->attname ),
-    								      typeName,
-                                          val );
-                            #endif
+                                #ifdef DEBUG
+                                    elog(LOG, "omnidb, REC, (%s.%s %s %s)",
+        								      rec->refname,
+                                              NameStr( rec->tupdesc->attrs[att]->attname ),
+        								      typeName,
+                                              val );
+                                #endif
 
-                            char insert_variable[1024];
-                            sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', '%s', '%s', '%s')", MyProcPid, rec->refname, NameStr( rec->tupdesc->attrs[att]->attname ), typeName, val);
-                            PQexec(plugin_conn, insert_variable);
+                                char insert_variable[1024];
+                                sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', '%s', '%s', '%s')", MyProcPid, rec->refname, NameStr( rec->tupdesc->attrs[att]->attname ), typeName, val);
+                                PQexec(plugin_conn, insert_variable);
 
-    						if( typeName )
-    							pfree( typeName );
-    					}
-    				}
-    				break;
-    			}
+        						if( typeName )
+        							pfree( typeName );
+        					}
+        				}
+        				break;
+        			}
+                }
             }
+
+            char update_context[1024];
+            sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'stmt_beg', stmttype = '%s', lineno = %d where pid = %i", findProcName(estate->func->fn_oid), decode_stmt_type(stmt->cmd_type), stmt->lineno, MyProcPid);
+            PQexec(plugin_conn, update_context);
+
+            char unlock[256];
+            sprintf(unlock, "select pg_advisory_unlock(%i) from omnidb.contexts where pid = %i", MyProcPid, MyProcPid);
+            PQexec(plugin_conn, unlock);
+
+            char lock[256];
+            sprintf(lock, "select pg_advisory_lock(%i) from omnidb.contexts where pid = %i", MyProcPid, MyProcPid);
+            PQexec(plugin_conn, lock);
         }
-
-        char update_context[1024];
-        sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'stmt_beg', stmttype = '%s', lineno = %d where pid = %i", findProcName(estate->func->fn_oid), decode_stmt_type(stmt->cmd_type), stmt->lineno, MyProcPid);
-        PQexec(plugin_conn, update_context);
-
-        char unlock[256];
-        sprintf(unlock, "select pg_advisory_unlock(%i) from omnidb.contexts where pid = %i", MyProcPid, MyProcPid);
-        PQexec(plugin_conn, unlock);
-
-        char lock[256];
-        sprintf(lock, "select pg_advisory_lock(%i) from omnidb.contexts where pid = %i", MyProcPid, MyProcPid);
-        PQexec(plugin_conn, lock);
 
         char insert_statistics[1024];
         sprintf(insert_statistics, "INSERT INTO omnidb.statistics (pid, lineno, step, tstart, tend) VALUES (%i, %i, %i, now(), NULL)", MyProcPid, stmt->lineno, plugin_step);

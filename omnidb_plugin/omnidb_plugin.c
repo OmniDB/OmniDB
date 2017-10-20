@@ -33,6 +33,7 @@ char *decode_stmt_type(int typ);
 static bool var_is_argument(PLpgSQL_execstate *estate, int i, char **p_argname);
 static bool var_is_null(PLpgSQL_datum *datum);
 static char *get_text_val(PLpgSQL_var *var, char **name, char **type);
+static void update_variables( PLpgSQL_execstate * estate );
 
 
 /**********************************************************************
@@ -175,6 +176,8 @@ static void profiler_func_end( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 
     if (plugin_active && !plugin_depth)
     {
+        update_variables(estate);
+
         char unlock[256];
         sprintf(unlock, "select pg_advisory_unlock(%i) from omnidb.contexts where pid = %i", MyProcPid, MyProcPid);
         PQexec(plugin_conn, unlock);
@@ -210,76 +213,7 @@ static void profiler_stmt_beg( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
 
         if (plugin_breakpoint == 0 || plugin_breakpoint == stmt->lineno)
         {
-            char delete_variables[1024];
-            sprintf(delete_variables, "DELETE FROM omnidb.variables WHERE pid = %i", MyProcPid);
-            PQexec(plugin_conn, delete_variables);
-
-            int i;
-            for( i = 0; i < estate->ndatums; i++ )
-            {
-                switch( estate->datums[i]->dtype )
-                {
-                    case PLPGSQL_DTYPE_VAR:
-        			{
-        				PLpgSQL_var * var = (PLpgSQL_var *) estate->datums[i];
-        				char        * val;
-        				char		* name = var->refname;
-                        char        * typeName;
-
-                        typeName = var->datatype ? var->datatype->typname : "InvalidType";
-
-        				if( var_is_null((PLpgSQL_datum *)var ))
-        					val = "NULL";
-        				else
-        					val = get_text_val( var, NULL, NULL );
-
-                        #ifdef DEBUG
-                            elog(LOG, "omnidb, VAR, (%s %s %s)", name, typeName, val);
-                        #endif
-
-                        char insert_variable[1024];
-                        sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', NULL, '%s', '%s')", MyProcPid, name, typeName, val);
-                        PQexec(plugin_conn, insert_variable);
-
-        				break;
-        			}
-                    case PLPGSQL_DTYPE_REC:
-        			{
-        				PLpgSQL_rec * rec = (PLpgSQL_rec *) estate->datums[i];
-        				int		      att;
-        				char        * typeName;
-                        char        * val;
-
-        				if (rec->tupdesc != NULL)
-        				{
-        					for( att = 0; att < rec->tupdesc->natts; ++att )
-        					{
-        						typeName = SPI_gettype( rec->tupdesc, att + 1 );
-
-                                val = SPI_getvalue( rec->tup, rec->tupdesc, att + 1 );
-                                if (!val)
-                                    val = "NULL";
-
-                                #ifdef DEBUG
-                                    elog(LOG, "omnidb, REC, (%s.%s %s %s)",
-        								      rec->refname,
-                                              NameStr( rec->tupdesc->attrs[att]->attname ),
-        								      typeName,
-                                              val );
-                                #endif
-
-                                char insert_variable[1024];
-                                sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', '%s', '%s', '%s')", MyProcPid, rec->refname, NameStr( rec->tupdesc->attrs[att]->attname ), typeName, val);
-                                PQexec(plugin_conn, insert_variable);
-
-        						if( typeName )
-        							pfree( typeName );
-        					}
-        				}
-        				break;
-        			}
-                }
-            }
+            update_variables(estate);
 
             char update_context[1024];
             sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'stmt_beg', stmttype = '%s', lineno = %d where pid = %i", findProcName(estate->func->fn_oid), decode_stmt_type(stmt->cmd_type), stmt->lineno, MyProcPid);
@@ -504,4 +438,82 @@ static char *get_text_val(PLpgSQL_var *var, char **name, char **type)
 		*type = var->datatype->typname;
 
 	return( text_value );
+}
+
+/* -------------------------------------------------------------------
+ * update_variables()
+ * ------------------------------------------------------------------*/
+
+static void update_variables( PLpgSQL_execstate * estate )
+{
+    char delete_variables[1024];
+    sprintf(delete_variables, "DELETE FROM omnidb.variables WHERE pid = %i", MyProcPid);
+    PQexec(plugin_conn, delete_variables);
+
+    int i;
+    for( i = 0; i < estate->ndatums; i++ )
+    {
+        switch( estate->datums[i]->dtype )
+        {
+            case PLPGSQL_DTYPE_VAR:
+            {
+                PLpgSQL_var * var = (PLpgSQL_var *) estate->datums[i];
+                char        * val;
+                char		* name = var->refname;
+                char        * typeName;
+
+                typeName = var->datatype ? var->datatype->typname : "InvalidType";
+
+                if( var_is_null((PLpgSQL_datum *)var ))
+                    val = "NULL";
+                else
+                    val = get_text_val( var, NULL, NULL );
+
+                #ifdef DEBUG
+                    elog(LOG, "omnidb, VAR, (%s %s %s)", name, typeName, val);
+                #endif
+
+                char insert_variable[1024];
+                sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', NULL, '%s', '%s')", MyProcPid, name, typeName, val);
+                PQexec(plugin_conn, insert_variable);
+
+                break;
+            }
+            case PLPGSQL_DTYPE_REC:
+            {
+                PLpgSQL_rec * rec = (PLpgSQL_rec *) estate->datums[i];
+                int		      att;
+                char        * typeName;
+                char        * val;
+
+                if (rec->tupdesc != NULL)
+                {
+                    for( att = 0; att < rec->tupdesc->natts; ++att )
+                    {
+                        typeName = SPI_gettype( rec->tupdesc, att + 1 );
+
+                        val = SPI_getvalue( rec->tup, rec->tupdesc, att + 1 );
+                        if (!val)
+                            val = "NULL";
+
+                        #ifdef DEBUG
+                            elog(LOG, "omnidb, REC, (%s.%s %s %s)",
+                                      rec->refname,
+                                      NameStr( rec->tupdesc->attrs[att]->attname ),
+                                      typeName,
+                                      val );
+                        #endif
+
+                        char insert_variable[1024];
+                        sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', '%s', '%s', '%s')", MyProcPid, rec->refname, NameStr( rec->tupdesc->attrs[att]->attname ), typeName, val);
+                        PQexec(plugin_conn, insert_variable);
+
+                        if( typeName )
+                            pfree( typeName );
+                    }
+                }
+                break;
+            }
+        }
+    }
 }

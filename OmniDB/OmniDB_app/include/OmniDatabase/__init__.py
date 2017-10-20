@@ -713,7 +713,7 @@ class PostgreSQL:
         if p_count != -1:
             try:
                 self.v_connection.Open()
-                v_data = self.v_connection.QueryBlock(p_query, p_count, True)
+                v_data = self.v_connection.QueryBlock(p_query + ' limit {0}'.format(p_count), p_count, True)
                 self.v_connection.Close()
                 return v_data
             except Spartacus.Database.Exception as exc:

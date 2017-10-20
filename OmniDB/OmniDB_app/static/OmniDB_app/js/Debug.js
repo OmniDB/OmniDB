@@ -249,7 +249,7 @@ function stepDebug(p_mode) {
 				//no breakpoint go to the end of the function
 				v_next_breakpoint = -1;
 			else
-				v_next_breakpoint = v_tab_tag.breakPoint-2;
+				v_next_breakpoint = v_tab_tag.breakPoint+1;
 		}
 
     var v_message_data = {
@@ -306,10 +306,10 @@ function debugResponse(p_message, p_context) {
 
   var Range = ace.require('ace/range').Range;
   if (p_message.v_data.v_lineno) {
-		p_context.tab_tag.editor.scrollToLine(p_message.v_data.v_lineno+2, true, true, function () {});
+		p_context.tab_tag.editor.scrollToLine(p_message.v_data.v_lineno, true, true, function () {});
     if (p_context.tab_tag.markerId)
       p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
-    p_context.tab_tag.markerId = p_context.tab_tag.editor.session.addMarker(new Range(p_message.v_data.v_lineno+2,0,p_message.v_data.v_lineno+2,200),"editorMarker","fullLine");
+    p_context.tab_tag.markerId = p_context.tab_tag.editor.session.addMarker(new Range(p_message.v_data.v_lineno-1,0,p_message.v_data.v_lineno-1,200),"editorMarker","fullLine");
   }
 
   if (p_message.v_data.v_variables) {
@@ -362,7 +362,7 @@ function debugResponse(p_message, p_context) {
 			var v_chart_data = [];
 			var v_chart_labels = [];
 			for (var i=0; i<p_message.v_data.v_result_statistics.length; i++) {
-				v_chart_labels.push(parseFloat(p_message.v_data.v_result_statistics[i][0])+3);
+				v_chart_labels.push(parseFloat(p_message.v_data.v_result_statistics[i][0]));
 				v_chart_data.push({meta: 'Duration', value: parseFloat(p_message.v_data.v_result_statistics[i][1]) });
 			}
 

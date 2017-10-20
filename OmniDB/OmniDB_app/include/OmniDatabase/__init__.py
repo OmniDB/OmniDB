@@ -818,6 +818,15 @@ class PostgreSQL:
     def GetFunctionDefinition(self, p_function):
         return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_function))
 
+    def GetFunctionDebug(self, p_function):
+        return self.v_connection.ExecuteScalar('''
+            select p.prosrc
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+        '''.format(p_function))
+
     def QueryTriggerFunctions(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:

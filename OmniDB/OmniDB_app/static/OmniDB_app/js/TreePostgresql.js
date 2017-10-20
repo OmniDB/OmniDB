@@ -1135,15 +1135,6 @@ function getTreePostgresql(p_div) {
                     getFunctionDefinitionPostgresql(node);
                 }
             }, {
-                text: 'Drop Function',
-                icon: '/static/OmniDB_app/images/tab_close.png',
-                action: function(node) {
-                    tabSQLTemplate('Drop Function', node.tree.tag
-                        .drop_function.replace(
-                            '#function_name#', node.tag.id)
-                    );
-                }
-            }, {
                 text: 'Debug Function',
                 icon: '/static/OmniDB_app/images/debug.png',
                 action: function(node) {
@@ -1151,6 +1142,15 @@ function getTreePostgresql(p_div) {
                         node.text);
                     getDebugFunctionDefinitionPostgresql(node);
                     setupDebug(node);
+                }
+            }, {
+                text: 'Drop Function',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Function', node.tree.tag
+                        .drop_function.replace(
+                            '#function_name#', node.tag.id)
+                    );
                 }
             }]
         },
@@ -3983,7 +3983,7 @@ function getFKsPostgresql(node) {
                         false,
                         '/static/OmniDB_app/images/silver_key.png', {
                             type: 'foreign_key'
-                        }, 'cm_fks');
+                        }, 'cm_fk');
                     v_node.createChildNode('Referenced Table: ' + p_return.v_data[
                             i][2], false,
                         '/static/OmniDB_app/images/table.png', null,
@@ -4373,7 +4373,7 @@ function getFunctionFieldsPostgresql(node) {
 /// <param name="node">Node object.</param>
 function getDebugFunctionDefinitionPostgresql(node) {
 
-    execAjax('/get_function_definition_postgresql/',
+    execAjax('/get_function_debug_postgresql/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_function": node.tag.id

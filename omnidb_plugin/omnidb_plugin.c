@@ -117,31 +117,20 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
                     #endif
 
                     char select_context[1024];
-                    sprintf(select_context, "SELECT breakpoint, pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
+                    sprintf(select_context, "SELECT pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
                     PGresult *res = PQexec(plugin_conn, select_context);
-                    if (PQresultStatus(res) == PGRES_TUPLES_OK)
+                    if (PQresultStatus(res) == PGRES_TUPLES_OK && PQntuples(res) == 1)
                     {
-                        if (PQntuples(res) == 1)
-                        {
-                            char update_context[1024];
-                            sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'func_beg', stmttype = 'BEGIN', lineno = NULL where pid = %i", findProcName(func->fn_oid), MyProcPid);
-                            PQexec(plugin_conn, update_context);
+                        char update_context[1024];
+                        sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'func_beg', stmttype = 'BEGIN', lineno = NULL where pid = %i", findProcName(func->fn_oid), MyProcPid);
+                        PQexec(plugin_conn, update_context);
 
-                            #ifdef DEBUG
-                                elog(LOG, "omnidb: Debugger active for PID %i", MyProcPid);
-                            #endif
+                        #ifdef DEBUG
+                            elog(LOG, "omnidb: Debugger active for PID %i", MyProcPid);
+                        #endif
 
-                            plugin_active = true;
-                            plugin_step = 0;
-                            plugin_breakpoint = atoi(PQgetvalue(res, 0, 0));
-                        }
-                        else
-                        {
-                            plugin_active = false;
-                            #ifdef DEBUG
-                                elog(LOG, "omnidb: Debugger not active for PID %i", MyProcPid);
-                            #endif
-                        }
+                        plugin_active = true;
+                        plugin_step = 0;
                     }
                     else
                     {
@@ -211,6 +200,14 @@ static void profiler_stmt_beg( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
 
     if (plugin_active && !plugin_depth)
     {
+        char select_breakpoint[1024];
+        sprintf(select_breakpoint, "SELECT breakpoint FROM omnidb.contexts WHERE pid = %i", MyProcPid);
+        PGresult *res = PQexec(plugin_conn, select_breakpoint);
+        if (PQresultStatus(res) == PGRES_TUPLES_OK && PQntuples(res) == 1)
+            plugin_breakpoint = atoi(PQgetvalue(res, 0, 0));
+        else
+            plugin_breakpoint = 0;
+
         if (plugin_breakpoint == 0 || plugin_breakpoint == stmt->lineno)
         {
             char delete_variables[1024];

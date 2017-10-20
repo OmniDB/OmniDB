@@ -17,7 +17,8 @@ create table omnidb.contexts
   hook text,
   lineno integer,
   stmttype text,
-  breakpoint integer not null
+  breakpoint integer not null,
+  finished boolean
 );
 
 create table omnidb.variables

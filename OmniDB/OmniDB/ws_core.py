@@ -790,6 +790,9 @@ def thread_debug_run_func(self,args,ws_object):
         try:
             v_func_return = v_database_debug.v_connection.Query('select {0}'.format(args['v_function']),True)
 
+            #retrieve variables
+            v_variables = v_database_control.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(v_tab_object['debug_pid']),True)
+
             #retrieve statistics
             v_statistics = v_database_debug.v_connection.Query('select lineno,trunc((extract("epoch" from tend)  - extract("epoch" from tstart))::numeric,4) as msec from omnidb.statistics where pid = {0} order by step'.format(v_tab_object['debug_pid']),True)
 
@@ -808,9 +811,20 @@ def thread_debug_run_func(self,args,ws_object):
                 'v_result_statistics': v_statistics.Rows,
                 'v_result_notices': v_notices_text,
                 'v_result_notices_length': len(v_notices),
+                'v_variables': v_variables.Rows,
                 'v_error': False
             }
+
+            v_database_debug.v_connection.Close()
+            v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
+            v_database_control.v_connection.Close()
+            #send debugger finished message
+            v_response['v_code'] = response.DebugResponse
+
+            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
         except Exception as exc:
+            v_response['v_code'] = response.DebugResponse
             v_response['v_data'] = {
                 'v_state': debugState.Finished,
                 'v_remove_context': True,
@@ -818,15 +832,7 @@ def thread_debug_run_func(self,args,ws_object):
                 'v_error_msg': str(exc)
             }
 
-        print('FUNCTION FINISHED')
-        v_database_debug.v_connection.Close()
-        v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
-        v_database_control.v_connection.Close()
-
-        #send debugger finished message
-        v_response['v_code'] = response.DebugResponse
-
-        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
@@ -869,7 +875,7 @@ def thread_debug(self,args,ws_object):
 
             pid = v_database_debug.v_connection.ExecuteScalar('select pg_backend_pid()')
 
-            v_database_debug.v_connection.Execute('insert into omnidb.contexts (pid, function, hook, lineno, stmttype, breakpoint) values ({0}, null, null, null, null, 0)'.format(pid))
+            v_database_debug.v_connection.Execute('insert into omnidb.contexts (pid, function, hook, lineno, stmttype, breakpoint, finished) values ({0}, null, null, null, null, 0, false)'.format(pid))
 
             #lock row for current pid
             v_database_control.v_connection.Execute('select pg_advisory_lock({0}) from omnidb.contexts where pid = {0}'.format(pid))
@@ -907,21 +913,25 @@ def thread_debug(self,args,ws_object):
             v_database_control.v_connection.Execute('update omnidb.contexts set breakpoint = {0} where pid = {1}'.format(args['v_next_breakpoint'],v_tab_object['debug_pid']))
 
             v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0}; select pg_advisory_lock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
-            print('step')
+
             #acquired the lock, get variables and lineno
             try:
                 v_variables = v_database_control.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(v_tab_object['debug_pid']),True)
-                v_lineno = v_database_control.v_connection.ExecuteScalar('select lineno from omnidb.contexts where pid = {0}'.format(v_tab_object['debug_pid']))
+                v_context_data = v_database_control.v_connection.Query('select lineno,finished from omnidb.contexts where pid = {0}'.format(v_tab_object['debug_pid']),True)
 
-                #send debugger ready message
-                v_response['v_code'] = response.DebugResponse
-                v_response['v_data'] = {
-                'v_state': debugState.Ready,
-                'v_variables': v_variables.Rows,
-                'v_lineno': v_lineno
-                }
-                print('end_step')
-                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                #not last statement
+                if (v_context_data.Rows[0][1]!='True'):
+                    v_response['v_code'] = response.DebugResponse
+                    v_response['v_data'] = {
+                    'v_state': debugState.Ready,
+                    'v_variables': v_variables.Rows,
+                    'v_lineno': v_context_data.Rows[0][0]
+                    }
+                    print('end_step')
+                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+
+
             except Exception:
                 #expected excetion in the last step
                 None

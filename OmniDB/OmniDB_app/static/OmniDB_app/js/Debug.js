@@ -28,12 +28,14 @@ function setupDebug(p_node) {
 	v_tab_tag.database_index = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
 	v_tab_tag.function = p_node.parent.parent.text + '.' + p_node.text;
 
+
 	//Customize editor to enable adding breakpoints
 	//Creating breakpoint options
 	$('#' + v_tab_tag.editorDivId).children('.ace_gutter').each(function () {
 	    var v_gutter = $(this);
 			v_gutter.css('cursor', 'pointer');
 			v_gutter.click(function() {
+				v_tab_tag.editor.session.selection.clearSelection();
 
 				var v_row = v_tab_tag.editor.getSelectionRange().start.row;
 				if (v_tab_tag.breakPoint == v_row)
@@ -319,6 +321,7 @@ function debugResponse(p_message, p_context) {
 
 	//Finished
   if (p_context.tab_tag.state==v_debugState.Finished) {
+
 		p_context.tab_tag.debug_info.innerHTML = 'Finished';
 
 		p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
@@ -361,7 +364,11 @@ function debugResponse(p_message, p_context) {
 			//building data object
 			var v_chart_data = [];
 			var v_chart_labels = [];
+			var v_max_value = 0;
 			for (var i=0; i<p_message.v_data.v_result_statistics.length; i++) {
+				var v_curr_val = parseFloat(p_message.v_data.v_result_statistics[i][1]);
+				if (v_curr_val > v_max_value)
+					v_max_value = v_curr_val;
 				v_chart_labels.push(parseFloat(p_message.v_data.v_result_statistics[i][0]));
 				v_chart_data.push({meta: 'Duration', value: parseFloat(p_message.v_data.v_result_statistics[i][1]) });
 			}
@@ -376,6 +383,7 @@ function debugResponse(p_message, p_context) {
 			}, {
 			  fullWidth: true,
 				lineSmooth: false,
+				high: v_max_value + 0.5,
 				width: v_width + 'px',
 				plugins: [
 			    ctPointLabels({

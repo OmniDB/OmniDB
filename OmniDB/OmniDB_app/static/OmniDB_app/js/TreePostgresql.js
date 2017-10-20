@@ -4373,7 +4373,7 @@ function getFunctionFieldsPostgresql(node) {
 /// <param name="node">Node object.</param>
 function getDebugFunctionDefinitionPostgresql(node) {
 
-    execAjax('/get_function_definition_postgresql/',
+    execAjax('/get_function_debug_postgresql/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_function": node.tag.id

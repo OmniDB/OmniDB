@@ -1085,8 +1085,8 @@ function initCreateTabFunctions() {
 
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
           "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Start' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='startDebug();'><img src='/static/OmniDB_app/images/trigger.png' style='vertical-align: middle;'/></button>" +
-					"<button id='bt_step_over_" + v_tab.id + "' class='bt_execute' title='Step Over' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(0);'><img src='/static/OmniDB_app/images/step_over.png' style='vertical-align: middle;'/></button>" +
-          "<button id='bt_step_out_" + v_tab.id + "' class='bt_execute' title='Step Out' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(1);'><img src='/static/OmniDB_app/images/step_out.png' style='vertical-align: middle;'/></button>" +
+					"<button id='bt_step_over_" + v_tab.id + "' class='bt_execute' title='Step Over (Next Statement)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(0);'><img src='/static/OmniDB_app/images/step_over.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_step_out_" + v_tab.id + "' class='bt_execute' title='Step Out (Next Breakpoint)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(1);'><img src='/static/OmniDB_app/images/step_out.png' style='vertical-align: middle;'/></button>" +
 					"<div id='div_debug_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
           "        <div id='debug_result_tabs_" + v_tab.id + "'>" +
           "            <ul>" +

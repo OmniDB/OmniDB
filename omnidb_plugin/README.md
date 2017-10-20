@@ -36,7 +36,8 @@ create table omnidb.statistics
   pid integer not null,
   lineno integer,
   step integer,
-  msec numeric
+  tstart timestamp without time zone,
+  tend timestamp without time zone
 );
 
 alter table omnidb.statistics add constraint omnidb_statistics_contexts_fk

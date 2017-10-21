@@ -1,46 +1,18 @@
+# Install headers for PostgreSQL
 sudo apt install postgresql-server-dev-9.6
 
+# Compile omnidb_plugin
 ./compile.sh
 
+# Copy to PostgreSQL $libdir
 sudo cp omnidb_plugin.so /usr/lib/postgresql/9.6/lib/
 
+# Set shared_preload_libraries
 nano /etc/postgresql/9.6/main/postgresql.conf
     shared_preload_libraries = 'omnidb_plugin'
 
+# Create omnidb schema in your database
+psql -d <database> -f debugger_schema.sql
 
-create schema omnidb;
-
-create table omnidb.contexts
-(
-  pid integer not null primary key,
-  function text,
-  hook text,
-  lineno integer,
-  stmttype text,
-  breakpoint integer not null,
-  finished boolean
-);
-
-create table omnidb.variables
-(
-  pid integer not null,
-  name text,
-  attribute text,
-  vartype text,
-  value text
-);
-
-alter table omnidb.variables add constraint omnidb_variables_contexts_fk
-foreign key (pid) references omnidb.contexts (pid) on delete cascade;
-
-create table omnidb.statistics
-(
-  pid integer not null,
-  lineno integer,
-  step integer,
-  tstart timestamp without time zone,
-  tend timestamp without time zone
-);
-
-alter table omnidb.statistics add constraint omnidb_statistics_contexts_fk
-foreign key (pid) references omnidb.contexts (pid) on delete cascade;
+# Create sample functions (optional)
+psql -d <database> -f debugger_schema.sql

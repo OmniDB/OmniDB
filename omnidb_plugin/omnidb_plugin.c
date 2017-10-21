@@ -178,6 +178,10 @@ static void profiler_func_end( PLpgSQL_execstate * estate, PLpgSQL_function * fu
     {
         update_variables(estate);
 
+				char update_context[1024];
+				sprintf(update_context, "UPDATE omnidb.contexts SET finished = true where pid = %i", MyProcPid);
+				PQexec(plugin_conn, update_context);
+
         char unlock[256];
         sprintf(unlock, "select pg_advisory_unlock(%i) from omnidb.contexts where pid = %i", MyProcPid, MyProcPid);
         PQexec(plugin_conn, unlock);

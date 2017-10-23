@@ -78,20 +78,20 @@ function showConfirm(p_info,p_funcYes)
 	var v_div_buttons = document.createElement('div');
 	v_div_buttons.className = 'div_alert_buttons';
 
-	var v_button = document.createElement('button');
-	v_button.innerHTML = 'Ok';
-	v_button.onclick = function() {
+	var v_button_ok = document.createElement('button');
+	v_button_ok.innerHTML = 'Ok';
+	v_button_ok.onclick = function() {
 		clickConfirmCancel();
 		p_funcYes();
 	};
-	v_div_buttons.appendChild(v_button);
+	v_div_buttons.appendChild(v_button_ok);
 
-	v_button = document.createElement('button');
-	v_button.innerHTML = 'Cancel';
-	v_button.onclick = function() {
+	var v_button_cancel = document.createElement('button');
+	v_button_cancel.innerHTML = 'Cancel';
+	v_button_cancel.onclick = function() {
 		clickConfirmCancel();
 	};
-	v_div_buttons.appendChild(v_button);
+	v_div_buttons.appendChild(v_button_cancel);
 
 	document.getElementById('div_alert_content').innerHTML = '';
 
@@ -100,7 +100,7 @@ function showConfirm(p_info,p_funcYes)
 
 	$('#div_alert').show();
 
-	v_button.focus();
+	v_button_ok.focus();
 
 }
 

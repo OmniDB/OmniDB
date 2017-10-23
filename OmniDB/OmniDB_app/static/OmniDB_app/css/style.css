@@ -933,3 +933,33 @@ iframe {
   background:rgba(100,200,100,0.5);
   z-index:20
 }
+
+.editorMarkerScale1 {
+  position:absolute;
+  background:rgba(124, 198, 251, 0.3);
+  z-index:20
+}
+
+.editorMarkerScale2 {
+  position:absolute;
+  background:rgba(155, 251, 124, 0.3);
+  z-index:20
+}
+
+.editorMarkerScale3 {
+  position:absolute;
+  background:rgba(251, 247, 124, 0.3);
+  z-index:20
+}
+
+.editorMarkerScale4 {
+  position:absolute;
+  background:rgba(251, 194, 124, 0.3);
+  z-index:20
+}
+
+.editorMarkerScale5 {
+  position:absolute;
+  background:rgba(251, 124, 124, 0.3);
+  z-index:20
+}

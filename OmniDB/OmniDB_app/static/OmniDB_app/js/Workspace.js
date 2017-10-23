@@ -299,7 +299,6 @@ function removeTab(p_tab) {
 
 	showConfirm('Are you sure you want to remove this tab?',
                 function() {
-                	p_tab.removeTab();
                 	if (p_tab.tag.ht!=null) {
 										p_tab.tag.ht.destroy();
 										p_tab.tag.div_result.innerHTML = '';
@@ -308,9 +307,12 @@ function removeTab(p_tab) {
 									if (p_tab.tag.editor!=null)
 										p_tab.tag.editor.destroy();
 
-									if (p_tab.tag.mode='query') {
+									if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit') {
+										var v_message_data = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id;
+										sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, v_message_data, false, null);
 										//console.log('closing query tab')
 									}
+									p_tab.removeTab();
                 });
 
 }
@@ -689,6 +691,8 @@ function checkTabStatus(v_tab) {
 		checkQueryStatus(v_tab.tag.tabControl.selectedTab);
 	else if (v_tab.tag.tabControl.selectedTab.tag.mode=='edit')
 		checkEditDataStatus(v_tab.tag.tabControl.selectedTab);
+	else if (v_tab.tag.tabControl.selectedTab.tag.mode=='debug')
+		checkDebugStatus(v_tab.tag.tabControl.selectedTab);
 
 }
 

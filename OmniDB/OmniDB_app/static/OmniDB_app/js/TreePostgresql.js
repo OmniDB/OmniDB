@@ -585,7 +585,7 @@ function getTreePostgresql(p_div) {
                             '#table_name#', node.parent.parent
                             .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
-                            '#column_name#', node.text));
+                            /#column_name#/g, node.text));
                 }
             }, {
                 text: 'Drop Column',
@@ -595,7 +595,7 @@ function getTreePostgresql(p_div) {
                         .drop_column.replace('#table_name#',
                             node.parent.parent.parent.parent
                             .text + '.' + node.parent.parent
-                            .text).replace('#column_name#',
+                            .text).replace(/#column_name#/g,
                             node.text));
                 }
             }]

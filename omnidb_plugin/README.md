@@ -1,5 +1,5 @@
 # Install headers for PostgreSQL
-sudo apt install postgresql-server-dev-9.6
+sudo apt install postgresql-server-dev-9.6 libpq-dev
 
 # Compile omnidb_plugin
 ./compile.sh

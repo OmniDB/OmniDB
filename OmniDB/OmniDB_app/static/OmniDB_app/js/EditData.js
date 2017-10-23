@@ -142,7 +142,7 @@ function cancelEditDataTab(p_tab_tag) {
 	v_tab_tag.state = v_editDataState.Idle;
 	v_tab_tag.tab_loading_span.style.display = 'none';
 	v_tab_tag.tab_check_span.style.display = 'none';
-	v_tab_tag.tab_close_span.style.display = '';
+	v_tab_tag.tab_stub_span.style.display = '';
 	v_tab_tag.bt_cancel.style.display = 'none';
 
 	removeContext(v_queryWebSocket,v_tab_tag.context.v_context_code);
@@ -180,7 +180,7 @@ function queryEditData() {
 		var start_time = new Date().getTime();
 
 		v_currTabTag.tab_loading_span.style.display = '';
-		v_currTabTag.tab_close_span.style.display = 'none';
+		v_currTabTag.tab_stub_span.style.display = 'none';
 		v_currTabTag.bt_cancel.style.display = '';
 
 		var v_context = {
@@ -450,7 +450,7 @@ function queryEditDataReturnRender(p_message,p_context) {
 
 	p_context.tab_tag.tab_loading_span.style.display = 'none';
 	p_context.tab_tag.tab_check_span.style.display = 'none';
-	p_context.tab_tag.tab_close_span.style.display = '';
+	p_context.tab_tag.tab_stub_span.style.display = '';
 	p_context.tab_tag.bt_cancel.style.display = 'none';
 
 }
@@ -494,7 +494,7 @@ function saveEditData() {
 		}
 
 		v_currTabTag.tab_loading_span.style.display = '';
-		v_currTabTag.tab_close_span.style.display = 'none';
+		v_currTabTag.tab_stub_span.style.display = 'none';
 		v_currTabTag.bt_cancel.style.display = '';
 
 		var v_context = {
@@ -646,7 +646,7 @@ v_currTabTag.bt_cancel.style.display = '';
 
 	p_context.tab_tag.tab_loading_span.style.display = 'none';
 	p_context.tab_tag.tab_check_span.style.display = 'none';
-	p_context.tab_tag.tab_close_span.style.display = '';
+	p_context.tab_tag.tab_stub_span.style.display = '';
 	p_context.tab_tag.bt_cancel.style.display = 'none';
 
 }

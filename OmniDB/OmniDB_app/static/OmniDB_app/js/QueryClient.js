@@ -21,7 +21,8 @@ var v_queryRequestCodes = {
 	QueryEditData: 4,
 	SaveEditData: 5,
 	CancelThread: 6,
-	Debug: 7
+	Debug: 7,
+	CloseTab: 8
 }
 
 /// <summary>

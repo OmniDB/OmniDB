@@ -18,7 +18,8 @@ var v_debugState = {
 	Starting: 1,
 	Ready: 2,
   Step: 3,
-  Finished: 4
+  Finished: 4,
+	Cancel: 5
 }
 
 function setupDebug(p_node) {
@@ -123,6 +124,8 @@ function setupDebug(p_node) {
 			    }
 			  });
 
+				v_tab_tag.debug_info.innerHTML = 'Adjust parameters and start';
+
 			},
 			function(p_return) {
 			},
@@ -174,7 +177,7 @@ function startDebug() {
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	if (v_tab_tag.state!=v_debugState.Initial && v_tab_tag.state!=v_debugState.Finished)
+	if (v_tab_tag.state!=v_debugState.Initial && v_tab_tag.state!=v_debugState.Finished && v_tab_tag.state!=v_debugState.Cancel)
 		showAlert('Not ready to start new debugging procedure.');
 	else {
 
@@ -210,9 +213,13 @@ function startDebug() {
 		v_tab_tag.bt_start.style.display = 'none';
 		v_tab_tag.bt_step_over.style.display = 'inline-block';
 		v_tab_tag.bt_step_out.style.display = 'inline-block';
+		v_tab_tag.bt_cancel.style.display = 'inline-block';
 		v_tab_tag.div_notices.innerHTML = '';
 		v_tab_tag.div_result.innerHTML = '';
 		v_tab_tag.div_count_notices.style.display = 'none';
+		v_tab_tag.tab_loading_span.style.display = '';
+		v_tab_tag.tab_check_span.style.display = 'none';
+		v_tab_tag.tab_stub_span.style.display = 'none';
 
 		if (v_tab_tag.htResult!=null) {
 			v_tab_tag.htResult.destroy();
@@ -225,6 +232,13 @@ function startDebug() {
 			v_tab_tag.chart = null;
 			v_tab_tag.div_statistics.innerHTML = '';
 		}
+
+		//Remove markers
+		for (var i=0; i<v_tab_tag.markerList.length; i++) {
+			v_tab_tag.editor.session.removeMarker(v_tab_tag.markerList[i]);
+		}
+		v_tab_tag.markerList = [];
+
 
 	  sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Debug, v_message_data, false, v_context);
 	}
@@ -245,10 +259,25 @@ function stepDebug(p_mode) {
   else if (v_state==v_debugState.Finished) {
     showAlert('Function already finished.');
   }
+	else if (v_state==v_debugState.Cancel) {
+    showAlert('Debugger is being canceled.');
+  }
   //Ready to step
   else {
     var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-		v_tab_tag.debug_info.innerHTML = 'Stepping...';
+
+		var d = new Date,
+		dformat = [(d.getMonth()+1).padLeft(),
+							 d.getDate().padLeft(),
+							 d.getFullYear()].join('/') +' ' +
+							[d.getHours().padLeft(),
+							 d.getMinutes().padLeft(),
+							 d.getSeconds().padLeft()].join(':');
+
+		v_tab_tag.debug_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Stepping...</b>';
+		v_tab_tag.tab_loading_span.style.display = '';
+		v_tab_tag.tab_check_span.style.display = 'none';
+		v_tab_tag.tab_stub_span.style.display = 'none';
     v_tab_tag.state = v_debugState.Step;
 
 		var v_next_breakpoint = 0;
@@ -306,141 +335,234 @@ function ctPointLabels(options) {
     }
 }
 
+function cancelDebug() {
+
+	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	if (v_tab_tag.state == v_debugState.Cancel) {
+		showAlert('Debugger is being canceled.')
+	}
+	else {
+		v_tab_tag.tab_check_span.style.display = 'none';
+		v_tab_tag.tab_stub_span.style.display = 'none';
+		v_tab_tag.tab_loading_span.style.display = '';
+
+		v_tab_tag.state = v_debugState.Cancel;
+
+		v_tab_tag.debug_info.innerHTML = '<b>Canceling...</b>';
+
+		var v_message_data = {
+			v_db_index: v_tab_tag.database_index,
+			v_state: v_debugState.Cancel,
+			v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id
+		}
+
+		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Debug, v_message_data, false, null);
+	}
+}
+
+function checkDebugStatus(p_tab) {
+	if (p_tab.tag.hasDataToRender) {
+		p_tab.tag.hasDataToRender = false;
+		debugResponseRender(p_tab.tag.data,p_tab.tag.context);
+	}
+}
+
 function debugResponse(p_message, p_context) {
+
+	p_context.tab_tag.tab_loading_span.style.display = 'none';
+
+	if (p_context.tab_tag.tab_id == p_context.tab_tag.tabControl.selectedTab.id && p_context.tab_tag.connTab.id == p_context.tab_tag.connTab.tag.connTabControl.selectedTab.id) {
+		debugResponseRender(p_message,p_context);
+	}
+	else {
+		p_context.tab_tag.tab_check_span.style.display = '';
+		p_context.tab_tag.hasDataToRender = true;
+		p_context.tab_tag.context = p_context;
+		p_context.tab_tag.data = p_message;
+	}
+
+}
+
+function debugResponseRender(p_message, p_context) {
   //console.log(p_message.v_data)
+
+	p_context.tab_tag.tab_stub_span.style.display = '';
+	p_context.tab_tag.tab_check_span.style.display = 'none';
 
 	if (p_context.tab_tag.state != v_debugState.Finished) {
 
   p_context.tab_tag.state = p_message.v_data.v_state;
 
-	if (p_context.tab_tag.state==v_debugState.Ready)
-		p_context.tab_tag.debug_info.innerHTML = 'Ready';
+	//Cancelled
+	if (p_context.tab_tag.state==v_debugState.Cancel) {
+		p_context.tab_tag.debug_info.innerHTML = '<b>Canceled.</b>';
 
-  var Range = ace.require('ace/range').Range;
-  if (p_message.v_data.v_lineno) {
-		p_context.tab_tag.editor.scrollToLine(p_message.v_data.v_lineno, true, true, function () {});
-    if (p_context.tab_tag.markerId)
-      p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
-    p_context.tab_tag.markerId = p_context.tab_tag.editor.session.addMarker(new Range(p_message.v_data.v_lineno-1,0,p_message.v_data.v_lineno-1,200),"editorMarker","fullLine");
-  }
+		//Update buttons
+		p_context.tab_tag.bt_start.style.display = 'inline-block';
+		p_context.tab_tag.bt_step_over.style.display = 'none';
+		p_context.tab_tag.bt_step_out.style.display = 'none';
+		p_context.tab_tag.bt_cancel.style.display = 'none';
 
-  if (p_message.v_data.v_variables) {
-		p_context.tab_tag.selectVariableTabFunc();
-    p_context.tab_tag.htVariable.loadData(p_message.v_data.v_variables);
-  }
-
-	//Finished
-  if (p_context.tab_tag.state==v_debugState.Finished) {
-
-			p_context.tab_tag.debug_info.innerHTML = 'Finished';
-
+		//Remove marker
+		if (p_context.tab_tag.markerId) {
 			p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
-			p_context.tab_tag.selectResultTabFunc();
-	    //showAlert('Function finished.');
-
-			if (p_message.v_data.v_error) {
-				p_context.tab_tag.div_result.innerHTML = '<div class="error_text">' + p_message.v_data.v_error_msg + '</div>';
-			}
-			else {
-				var columnProperties = [];
-				for (var i = 0; i < p_message.v_data.v_result_columns.length; i++) {
-						var col = new Object();
-						col.readOnly = true;
-						col.title =  p_message.v_data.v_result_columns[i];
-					columnProperties.push(col);
-				}
-
-				p_context.tab_tag.htResult = new Handsontable(p_context.tab_tag.div_result,
-				{
-					data: p_message.v_data.v_result_rows,
-					columns : columnProperties,
-					colHeaders : true,
-					rowHeaders : true,
-					copyRowsLimit : 1000000000,
-					copyColsLimit : 1000000000,
-					manualColumnResize: true,
-					fillHandle:false,
-							cells: function (row, col, prop) {
-							var cellProperties = {};
-							if (row % 2 == 0)
-							cellProperties.renderer = blueRenderer;
-						else
-							cellProperties.renderer = whiteRenderer;
-							return cellProperties;
-					}
-				});
-
-				//Chart
-				//building data object
-				var v_chart_data = [];
-				var v_chart_labels = [];
-				var v_max_value = 0;
-				for (var i=0; i<p_message.v_data.v_result_statistics.length; i++) {
-					var v_curr_val = parseFloat(p_message.v_data.v_result_statistics[i][1]);
-					if (v_curr_val > v_max_value)
-						v_max_value = v_curr_val;
-					v_chart_labels.push(parseFloat(p_message.v_data.v_result_statistics[i][0]));
-					v_chart_data.push({meta: 'Duration', value: parseFloat(p_message.v_data.v_result_statistics[i][1]) });
-				}
-
-				var v_width = 80*p_message.v_data.v_result_statistics.length;
-				v_width = Math.max(v_width,400)
-
-				p_context.tab_tag.chart = new Chartist.Line(p_context.tab_tag.div_statistics, {
-			  labels: v_chart_labels,
-			  series: [
-			    v_chart_data
-			  ]
-				}, {
-				  fullWidth: true,
-					lineSmooth: false,
-					high: v_max_value + 0.5,
-					width: v_width + 'px',
-					plugins: [
-				    ctPointLabels({
-				      textAnchor: 'middle'
-				    }),
-						Chartist.plugins.ctAxisTitle({
-				      axisX: {
-				        axisTitle: 'Line Number',
-				        axisClass: 'ct-axis-title',
-				        offset: {
-				          x: 0,
-				          y: 30
-				        },
-				        textAnchor: 'middle'
-				      },
-				      axisY: {
-				        axisTitle: 'Duration(s)',
-				        axisClass: 'ct-axis-title',
-				        offset: {
-				          x: 0,
-				          y: 0
-				        },
-				        textAnchor: 'middle',
-				        flipTitle: false
-				      }
-				    })
-				  ],
-				  chartPadding: {
-				    right: 40,
-						left: 40
-				  }
-				});
-			}
-
-			//notices
-			if (p_message.v_data.v_result_notices_length>0) {
-				p_context.tab_tag.div_count_notices.innerHTML = p_message.v_data.v_result_notices_length;
-				p_context.tab_tag.div_count_notices.style.display = 'inline-block';
-				p_context.tab_tag.div_notices.innerHTML = p_message.v_data.v_result_notices;
-			}
-
-			//Update buttons
-			p_context.tab_tag.bt_start.style.display = 'inline-block';
-			p_context.tab_tag.bt_step_over.style.display = 'none';
-			p_context.tab_tag.bt_step_out.style.display = 'none';
+			p_context.tab_tag.markerId = null;
 		}
 
+	}
+	else {
+
+		//Ready
+		if (p_context.tab_tag.state==v_debugState.Ready)
+			p_context.tab_tag.debug_info.innerHTML = '<b>Ready</b>';
+
+	  var Range = ace.require('ace/range').Range;
+	  if (p_message.v_data.v_lineno) {
+			p_context.tab_tag.editor.scrollToLine(p_message.v_data.v_lineno, true, true, function () {});
+	    if (p_context.tab_tag.markerId)
+	      p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
+	    p_context.tab_tag.markerId = p_context.tab_tag.editor.session.addMarker(new Range(p_message.v_data.v_lineno-1,0,p_message.v_data.v_lineno-1,200),"editorMarker","fullLine");
+	  }
+
+	  if (p_message.v_data.v_variables) {
+			p_context.tab_tag.selectVariableTabFunc();
+	    p_context.tab_tag.htVariable.loadData(p_message.v_data.v_variables);
+	  }
+
+		//Finished
+	  if (p_context.tab_tag.state==v_debugState.Finished) {
+
+				p_context.tab_tag.debug_info.innerHTML = '<b>Finished</b>';
+
+				p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
+
+				if (p_message.v_data.v_error) {
+					p_context.tab_tag.selectResultTabFunc();
+					p_context.tab_tag.div_result.innerHTML = '<div class="error_text">' + p_message.v_data.v_error_msg + '</div>';
+				}
+				else {
+					var columnProperties = [];
+					for (var i = 0; i < p_message.v_data.v_result_columns.length; i++) {
+							var col = new Object();
+							col.readOnly = true;
+							col.title =  p_message.v_data.v_result_columns[i];
+						columnProperties.push(col);
+					}
+
+					p_context.tab_tag.htResult = new Handsontable(p_context.tab_tag.div_result,
+					{
+						data: p_message.v_data.v_result_rows,
+						columns : columnProperties,
+						colHeaders : true,
+						rowHeaders : true,
+						copyRowsLimit : 1000000000,
+						copyColsLimit : 1000000000,
+						manualColumnResize: true,
+						fillHandle:false,
+								cells: function (row, col, prop) {
+								var cellProperties = {};
+								if (row % 2 == 0)
+								cellProperties.renderer = blueRenderer;
+							else
+								cellProperties.renderer = whiteRenderer;
+								return cellProperties;
+						}
+					});
+
+					//Chart
+					p_context.tab_tag.selectStatisticsTabFunc();
+					//building data object
+					var v_chart_data = [];
+					var v_chart_labels = [];
+					var v_max_value = 0;
+					for (var i=0; i<p_message.v_data.v_result_statistics.length; i++) {
+						var v_curr_val = parseFloat(p_message.v_data.v_result_statistics[i][1]);
+						if (v_curr_val > v_max_value)
+							v_max_value = v_curr_val;
+						v_chart_labels.push(parseFloat(p_message.v_data.v_result_statistics[i][0]));
+						v_chart_data.push({meta: 'Duration', value: parseFloat(p_message.v_data.v_result_statistics[i][1]) });
+					}
+
+					var v_width = 80*p_message.v_data.v_result_statistics.length;
+					v_width = Math.max(v_width,400)
+
+					p_context.tab_tag.chart = new Chartist.Line(p_context.tab_tag.div_statistics, {
+				  labels: v_chart_labels,
+				  series: [
+				    v_chart_data
+				  ]
+					}, {
+					  fullWidth: true,
+						lineSmooth: false,
+						high: v_max_value + 0.5,
+						width: v_width + 'px',
+						plugins: [
+					    ctPointLabels({
+					      textAnchor: 'middle'
+					    }),
+							Chartist.plugins.ctAxisTitle({
+					      axisX: {
+					        axisTitle: 'Line Number',
+					        axisClass: 'ct-axis-title',
+					        offset: {
+					          x: 0,
+					          y: 30
+					        },
+					        textAnchor: 'middle'
+					      },
+					      axisY: {
+					        axisTitle: 'Duration(s)',
+					        axisClass: 'ct-axis-title',
+					        offset: {
+					          x: 0,
+					          y: 0
+					        },
+					        textAnchor: 'middle',
+					        flipTitle: false
+					      }
+					    })
+					  ],
+					  chartPadding: {
+					    right: 40,
+							left: 40
+					  }
+					});
+
+					//Adding heat colors to function body
+					var v_increment = v_max_value/5;
+					var v_color_range = [0,v_increment, v_increment*2,v_increment*3,v_increment*4,v_max_value];
+					for (var i=0; i<p_message.v_data.v_result_statistics_summary.length; i++) {
+						var v_curr_val = parseFloat(p_message.v_data.v_result_statistics_summary[i][1]);
+						var v_scheme_index = 1;
+						if (v_curr_val >= v_color_range[0] && v_curr_val < v_color_range[1])
+							v_scheme_index = 1;
+						else if (v_curr_val >= v_color_range[1] && v_curr_val < v_color_range[2])
+							v_scheme_index = 2;
+						else if (v_curr_val >= v_color_range[2] && v_curr_val < v_color_range[3])
+							v_scheme_index = 3;
+						else if (v_curr_val >= v_color_range[3] && v_curr_val < v_color_range[4])
+							v_scheme_index = 4;
+						else
+							v_scheme_index = 5;
+						p_context.tab_tag.markerList.push(p_context.tab_tag.editor.session.addMarker(new Range(p_message.v_data.v_result_statistics_summary[i][0]-1,0,p_message.v_data.v_result_statistics_summary[i][0]-1,200),"editorMarkerScale" + v_scheme_index,"fullLine"));
+					}
+
+				}
+
+				//notices
+				if (p_message.v_data.v_result_notices_length>0) {
+					p_context.tab_tag.div_count_notices.innerHTML = p_message.v_data.v_result_notices_length;
+					p_context.tab_tag.div_count_notices.style.display = 'inline-block';
+					p_context.tab_tag.div_notices.innerHTML = p_message.v_data.v_result_notices;
+				}
+
+				//Update buttons
+				p_context.tab_tag.bt_start.style.display = 'inline-block';
+				p_context.tab_tag.bt_step_over.style.display = 'none';
+				p_context.tab_tag.bt_step_out.style.display = 'none';
+				p_context.tab_tag.bt_cancel.style.display = 'none';
+			}
+		}
 	}
 }

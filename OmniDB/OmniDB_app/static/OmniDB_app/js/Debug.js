@@ -213,6 +213,13 @@ function startDebug() {
 		v_tab_tag.div_notices.innerHTML = '';
 		v_tab_tag.div_result.innerHTML = '';
 		v_tab_tag.div_count_notices.style.display = 'none';
+
+		if (v_tab_tag.htResult!=null) {
+			v_tab_tag.htResult.destroy();
+			v_tab_tag.htResult = null;
+			v_tab_tag.div_result.innerHTML = '';
+		}
+
 		if (v_tab_tag.chart!=null) {
 			v_tab_tag.chart.detach();
 			v_tab_tag.chart = null;
@@ -301,6 +308,9 @@ function ctPointLabels(options) {
 
 function debugResponse(p_message, p_context) {
   //console.log(p_message.v_data)
+
+	if (p_context.tab_tag.state != v_debugState.Finished) {
+
   p_context.tab_tag.state = p_message.v_data.v_state;
 
 	if (p_context.tab_tag.state==v_debugState.Ready)
@@ -322,112 +332,115 @@ function debugResponse(p_message, p_context) {
 	//Finished
   if (p_context.tab_tag.state==v_debugState.Finished) {
 
-		p_context.tab_tag.debug_info.innerHTML = 'Finished';
+			p_context.tab_tag.debug_info.innerHTML = 'Finished';
 
-		p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
-		p_context.tab_tag.selectResultTabFunc();
-    //showAlert('Function finished.');
+			p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
+			p_context.tab_tag.selectResultTabFunc();
+	    //showAlert('Function finished.');
 
-		if (p_message.v_data.v_error) {
-			p_context.tab_tag.div_result.innerHTML = '<div class="error_text">' + p_message.v_data.v_error_msg + '</div>';
-		}
-		else {
-			var columnProperties = [];
-			for (var i = 0; i < p_message.v_data.v_result_columns.length; i++) {
-					var col = new Object();
-					col.readOnly = true;
-					col.title =  p_message.v_data.v_result_columns[i];
-				columnProperties.push(col);
+			if (p_message.v_data.v_error) {
+				p_context.tab_tag.div_result.innerHTML = '<div class="error_text">' + p_message.v_data.v_error_msg + '</div>';
 			}
-
-			p_context.tab_tag.htResult = new Handsontable(p_context.tab_tag.div_result,
-			{
-				data: p_message.v_data.v_result_rows,
-				columns : columnProperties,
-				colHeaders : true,
-				rowHeaders : true,
-				copyRowsLimit : 1000000000,
-				copyColsLimit : 1000000000,
-				manualColumnResize: true,
-				fillHandle:false,
-						cells: function (row, col, prop) {
-						var cellProperties = {};
-						if (row % 2 == 0)
-						cellProperties.renderer = blueRenderer;
-					else
-						cellProperties.renderer = whiteRenderer;
-						return cellProperties;
+			else {
+				var columnProperties = [];
+				for (var i = 0; i < p_message.v_data.v_result_columns.length; i++) {
+						var col = new Object();
+						col.readOnly = true;
+						col.title =  p_message.v_data.v_result_columns[i];
+					columnProperties.push(col);
 				}
-			});
 
-			//Chart
-			//building data object
-			var v_chart_data = [];
-			var v_chart_labels = [];
-			var v_max_value = 0;
-			for (var i=0; i<p_message.v_data.v_result_statistics.length; i++) {
-				var v_curr_val = parseFloat(p_message.v_data.v_result_statistics[i][1]);
-				if (v_curr_val > v_max_value)
-					v_max_value = v_curr_val;
-				v_chart_labels.push(parseFloat(p_message.v_data.v_result_statistics[i][0]));
-				v_chart_data.push({meta: 'Duration', value: parseFloat(p_message.v_data.v_result_statistics[i][1]) });
+				p_context.tab_tag.htResult = new Handsontable(p_context.tab_tag.div_result,
+				{
+					data: p_message.v_data.v_result_rows,
+					columns : columnProperties,
+					colHeaders : true,
+					rowHeaders : true,
+					copyRowsLimit : 1000000000,
+					copyColsLimit : 1000000000,
+					manualColumnResize: true,
+					fillHandle:false,
+							cells: function (row, col, prop) {
+							var cellProperties = {};
+							if (row % 2 == 0)
+							cellProperties.renderer = blueRenderer;
+						else
+							cellProperties.renderer = whiteRenderer;
+							return cellProperties;
+					}
+				});
+
+				//Chart
+				//building data object
+				var v_chart_data = [];
+				var v_chart_labels = [];
+				var v_max_value = 0;
+				for (var i=0; i<p_message.v_data.v_result_statistics.length; i++) {
+					var v_curr_val = parseFloat(p_message.v_data.v_result_statistics[i][1]);
+					if (v_curr_val > v_max_value)
+						v_max_value = v_curr_val;
+					v_chart_labels.push(parseFloat(p_message.v_data.v_result_statistics[i][0]));
+					v_chart_data.push({meta: 'Duration', value: parseFloat(p_message.v_data.v_result_statistics[i][1]) });
+				}
+
+				var v_width = 80*p_message.v_data.v_result_statistics.length;
+				v_width = Math.max(v_width,400)
+
+				p_context.tab_tag.chart = new Chartist.Line(p_context.tab_tag.div_statistics, {
+			  labels: v_chart_labels,
+			  series: [
+			    v_chart_data
+			  ]
+				}, {
+				  fullWidth: true,
+					lineSmooth: false,
+					high: v_max_value + 0.5,
+					width: v_width + 'px',
+					plugins: [
+				    ctPointLabels({
+				      textAnchor: 'middle'
+				    }),
+						Chartist.plugins.ctAxisTitle({
+				      axisX: {
+				        axisTitle: 'Line Number',
+				        axisClass: 'ct-axis-title',
+				        offset: {
+				          x: 0,
+				          y: 30
+				        },
+				        textAnchor: 'middle'
+				      },
+				      axisY: {
+				        axisTitle: 'Duration(s)',
+				        axisClass: 'ct-axis-title',
+				        offset: {
+				          x: 0,
+				          y: 0
+				        },
+				        textAnchor: 'middle',
+				        flipTitle: false
+				      }
+				    })
+				  ],
+				  chartPadding: {
+				    right: 40,
+						left: 40
+				  }
+				});
 			}
 
-			var v_width = 80*p_message.v_data.v_result_statistics.length;
+			//notices
+			if (p_message.v_data.v_result_notices_length>0) {
+				p_context.tab_tag.div_count_notices.innerHTML = p_message.v_data.v_result_notices_length;
+				p_context.tab_tag.div_count_notices.style.display = 'inline-block';
+				p_context.tab_tag.div_notices.innerHTML = p_message.v_data.v_result_notices;
+			}
 
-			p_context.tab_tag.chart = new Chartist.Line(p_context.tab_tag.div_statistics, {
-		  labels: v_chart_labels,
-		  series: [
-		    v_chart_data
-		  ]
-			}, {
-			  fullWidth: true,
-				lineSmooth: false,
-				high: v_max_value + 0.5,
-				width: v_width + 'px',
-				plugins: [
-			    ctPointLabels({
-			      textAnchor: 'middle'
-			    }),
-					Chartist.plugins.ctAxisTitle({
-			      axisX: {
-			        axisTitle: 'Line Number',
-			        axisClass: 'ct-axis-title',
-			        offset: {
-			          x: 0,
-			          y: 30
-			        },
-			        textAnchor: 'middle'
-			      },
-			      axisY: {
-			        axisTitle: 'Duration(s)',
-			        axisClass: 'ct-axis-title',
-			        offset: {
-			          x: 0,
-			          y: 0
-			        },
-			        textAnchor: 'middle',
-			        flipTitle: false
-			      }
-			    })
-			  ],
-			  chartPadding: {
-			    right: 40,
-					left: 40
-			  }
-			});
+			//Update buttons
+			p_context.tab_tag.bt_start.style.display = 'inline-block';
+			p_context.tab_tag.bt_step_over.style.display = 'none';
+			p_context.tab_tag.bt_step_out.style.display = 'none';
 		}
 
-		//notices
-		if (p_message.v_data.v_result_notices_length>0) {
-			p_context.tab_tag.div_count_notices.innerHTML = p_message.v_data.v_result_notices_length;
-			p_context.tab_tag.div_count_notices.style.display = 'inline-block';
-			p_context.tab_tag.div_notices.innerHTML = p_message.v_data.v_result_notices;
-		}
-
-		//Update buttons
-		p_context.tab_tag.bt_start.style.display = 'inline-block';
-		p_context.tab_tag.bt_step_over.style.display = 'none';
-		p_context.tab_tag.bt_step_out.style.display = 'none';
 	}
 }

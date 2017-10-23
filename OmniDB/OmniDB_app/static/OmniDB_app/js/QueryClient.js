@@ -36,7 +36,8 @@ var v_queryResponseCodes = {
 	PasswordRequired: 5,
 	QueryAck: 6,
 	MessageException: 7,
-	DebugResponse: 8
+	DebugResponse: 8,
+	RemoveContext: 9
 }
 
 /// <summary>
@@ -116,8 +117,15 @@ function startQueryWebSocket(p_port) {
 				case parseInt(v_queryResponseCodes.DebugResponse): {
 					if (p_context) {
 						debugResponse(p_message, p_context);
-						if (p_message.v_data.v_remove_context)
+						if (p_message.v_data.v_remove_context) {
 							removeContext(v_queryWebSocket,p_context_code);
+						}
+					}
+					break;
+				}
+				case parseInt(v_queryResponseCodes.RemoveContext): {
+					if (p_context) {
+						removeContext(v_queryWebSocket,p_context_code);
 					}
 					break;
 				}

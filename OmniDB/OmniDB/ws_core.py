@@ -52,6 +52,7 @@ class response(IntEnum):
   QueryAck            = 6
   MessageException    = 7
   DebugResponse       = 8
+  RemoveContext       = 9
 
 class debugState(IntEnum):
   Initial  = 0
@@ -786,15 +787,18 @@ def thread_debug_run_func(self,args,ws_object):
     v_database_control = v_tab_object['omnidatabase_control']
 
     try:
-        #run function it will lock until the function ends
         try:
-            v_func_return = v_database_debug.v_connection.Query('select {0}'.format(args['v_function']),True)
+            #enable debugger for current connection
+            v_database_debug.v_connection.Execute('select omnidb.omnidb_enable_debugger()')
+
+            #run function it will lock until the function ends
+            v_func_return = v_database_debug.v_connection.Query('select * from {0}'.format(args['v_function']),True)
 
             #retrieve variables
-            v_variables = v_database_control.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(v_tab_object['debug_pid']),True)
+            v_variables = v_database_debug.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(v_tab_object['debug_pid']),True)
 
             #retrieve statistics
-            v_statistics = v_database_debug.v_connection.Query('select lineno,trunc((extract("epoch" from tend)  - extract("epoch" from tstart))::numeric,4) as msec from omnidb.statistics where pid = {0} order by step'.format(v_tab_object['debug_pid']),True)
+            v_statistics = v_database_debug.v_connection.Query('select lineno,coalesce(trunc((extract("epoch" from tend)  - extract("epoch" from tstart))::numeric,4),0) as msec from omnidb.statistics where pid = {0} order by step'.format(v_tab_object['debug_pid']),True)
 
             #retrieve notices
             v_notices = v_database_debug.v_connection.GetNotices()
@@ -816,8 +820,7 @@ def thread_debug_run_func(self,args,ws_object):
             }
 
             v_database_debug.v_connection.Close()
-            v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
-            v_database_control.v_connection.Close()
+
             #send debugger finished message
             v_response['v_code'] = response.DebugResponse
 
@@ -831,6 +834,9 @@ def thread_debug_run_func(self,args,ws_object):
                 'v_error': True,
                 'v_error_msg': str(exc)
             }
+
+            v_database_debug.v_connection.Close()
+            v_database_control.v_connection.Close()
 
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
@@ -929,18 +935,30 @@ def thread_debug(self,args,ws_object):
                     }
                     print('end_step')
                     tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                else:
+                    print('last')
+                    v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
+                    v_database_control.v_connection.Close()
+                    v_response['v_code'] = response.RemoveContext
+                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
 
 
             except Exception:
                 #expected excetion in the last step
+                print('error')
                 None
 
 
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
-        v_response['v_error'] = True
-        v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
+        v_response['v_code'] = response.DebugResponse
+        v_response['v_data'] = {
+            'v_state': debugState.Finished,
+            'v_remove_context': True,
+            'v_error': True,
+            'v_error_msg': str(exc)
+        }
 
         try:
             v_database_debug.v_connection.Close()
@@ -948,5 +966,4 @@ def thread_debug(self,args,ws_object):
         except Exception:
             None
 
-        if not self.cancel:
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))

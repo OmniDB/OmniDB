@@ -1,4 +1,29 @@
 /**********************************************************************
+ MIT License
+
+ Portions Copyright (c) 2015-2017, The OmniDB Team
+ Portions Copyright (c) 2017, 2ndQuadrant Limited
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ **********************************************************************/
+
+/**********************************************************************
  * Headers
  **********************************************************************/
 
@@ -15,6 +40,8 @@
 #include "plpgsql.h"
 #include "miscadmin.h"
 #include "libpq-fe.h"
+#include "fmgr.h"
+#include "utils/builtins.h"
 
 PG_MODULE_MAGIC;
 
@@ -75,6 +102,20 @@ void load_plugin( PLpgSQL_plugin * hooks )
 }
 
 /* -------------------------------------------------------------------
+ * omnidb_enable_debugger()
+ * Function called by the debugger backend before calling the target
+ * function to enable the debugging procedure.
+ * ------------------------------------------------------------------*/
+
+PG_FUNCTION_INFO_V1(omnidb_enable_debugger);
+Datum
+omnidb_enable_debugger(PG_FUNCTION_ARGS)
+{
+    plugin_active = true;
+		PG_RETURN_VOID();
+}
+
+/* -------------------------------------------------------------------
  * profiler_init()
  * ------------------------------------------------------------------*/
 
@@ -95,7 +136,7 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 	   elog(LOG, "omnidb, BEGIN, %s, %i", findProcName(func->fn_oid), MyProcPid);
     #endif
 
-    if (!plugin_active)
+    if (plugin_active && !plugin_depth)
     {
         PGconn *conn = PQconnectdb("user=postgres dbname=postgres");
         if (PQstatus(conn) != CONNECTION_BAD)
@@ -157,7 +198,7 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
     else
     {
         #ifdef DEBUG
-            elog(LOG, "omnidb: Debugger not active for subcall depth %i for PID %i", plugin_depth, MyProcPid);
+            elog(LOG, "omnidb: Debugger not active for PID %i", MyProcPid);
         #endif
 
         plugin_depth++;

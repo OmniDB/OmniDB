@@ -487,7 +487,7 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-            '<span id="tab_title">' + v_name + '</span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+            '<span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 16px;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
             false,
             null,
             renameTab,
@@ -516,8 +516,10 @@ function initCreateTabFunctions() {
 		v_tab_close_span.onclick = function() {
 			removeTab(v_tab);
 		};
-		var v_tab_check_span = document.getElementById('tab_check');
+    var v_tab_check_span = document.getElementById('tab_check');
 		v_tab_check_span.id = 'tab_check_' + v_tab.id;
+    var v_tab_stub_span = document.getElementById('tab_stub');
+		v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
 		var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
 
@@ -677,6 +679,7 @@ function initCreateTabFunctions() {
 			tab_loading_span : v_tab_loading_span,
 			tab_close_span : v_tab_close_span,
 			tab_check_span : v_tab_check_span,
+      tab_stub_span : v_tab_stub_span,
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
       bt_fetch_more: document.getElementById('bt_fetch_more_' + v_tab.id),
       bt_fetch_all: document.getElementById('bt_fetch_all_' + v_tab.id),
@@ -739,7 +742,7 @@ function initCreateTabFunctions() {
 
     v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
     var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-        '<img src="/static/OmniDB_app/images/edit_data.png"/><span id="tab_title"> ' + p_table + '</span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+        '<img src="/static/OmniDB_app/images/edit_data.png"/><span id="tab_title"> ' + p_table + '</span><span id="tab_stub"><img style="width: 16px;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
         false,
         null,
         null,
@@ -769,6 +772,8 @@ function initCreateTabFunctions() {
     };
     var v_tab_check_span = document.getElementById('tab_check');
     v_tab_check_span.id = 'tab_check_' + v_tab.id;
+    var v_tab_stub_span = document.getElementById('tab_stub');
+    v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
     v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
 
@@ -907,6 +912,7 @@ function initCreateTabFunctions() {
       tab_loading_span : v_tab_loading_span,
       tab_close_span : v_tab_close_span,
       tab_check_span : v_tab_check_span,
+      tab_stub_span : v_tab_stub_span,
       state: 0,
       context: null,
       tabControl: v_connTabControl.selectedTab.tag.tabControl,
@@ -1050,7 +1056,7 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-            '<img src="/static/OmniDB_app/images/debug.png"/><span id="tab_title">' + v_name + '</span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+            '<img src="/static/OmniDB_app/images/debug.png"/><span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 16px;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
             false,
             null,
             renameTab,
@@ -1063,6 +1069,7 @@ function initCreateTabFunctions() {
               }
               if(this.tag != null && this.tag.editor != null) {
                   this.tag.editor.focus();
+                  checkDebugStatus(this);
               }
             }
         );
@@ -1076,17 +1083,25 @@ function initCreateTabFunctions() {
 		var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
 		v_tab_close_span.onclick = function() {
-			removeTab(v_tab);
+      showConfirm('Are you sure you want to remove this tab?',
+                    function() {
+                      var v_message_data = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id;
+                      sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, v_message_data, false, null);
+                      v_tab.removeTab();
+                    });
 		};
-		var v_tab_check_span = document.getElementById('tab_check');
+    var v_tab_check_span = document.getElementById('tab_check');
 		v_tab_check_span.id = 'tab_check_' + v_tab.id;
+    var v_tab_stub_span = document.getElementById('tab_stub');
+		v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
 		var v_html = "<div id='txt_func_body_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
 
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
           "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Start' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='startDebug();'><img src='/static/OmniDB_app/images/trigger.png' style='vertical-align: middle;'/></button>" +
 					"<button id='bt_step_over_" + v_tab.id + "' class='bt_execute' title='Step Over (Next Statement)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(0);'><img src='/static/OmniDB_app/images/step_over.png' style='vertical-align: middle;'/></button>" +
-          "<button id='bt_step_out_" + v_tab.id + "' class='bt_execute' title='Step Out (Next Breakpoint)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(1);'><img src='/static/OmniDB_app/images/step_out.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_step_out_" + v_tab.id + "' class='bt_execute' title='Resume (Next Breakpoint)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(1);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='cancelDebug();'>Cancel</button>" +
 					"<div id='div_debug_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
           "        <div id='debug_result_tabs_" + v_tab.id + "'>" +
           "            <ul>" +
@@ -1156,10 +1171,13 @@ function initCreateTabFunctions() {
 			tab_loading_span : v_tab_loading_span,
 			tab_close_span : v_tab_close_span,
 			tab_check_span : v_tab_check_span,
+      tab_stub_span : v_tab_stub_span,
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
       bt_step_over: document.getElementById('bt_step_over_' + v_tab.id),
       bt_step_out: document.getElementById('bt_step_out_' + v_tab.id),
+      bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
 			state : 0,
+      hasDataToRender: false,
       context: null,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
       queryTabControl: v_curr_tabs,
@@ -1167,6 +1185,7 @@ function initCreateTabFunctions() {
 			connTab: v_connTabControl.selectedTab,
       currDatabaseIndex: null,
       markerId: null,
+      markerList: [],
       htParameter: null,
       htVariable: null,
       htResult: null,

@@ -41,6 +41,7 @@ class request(IntEnum):
   SaveEditData   = 5
   CancelThread   = 6
   Debug          = 7
+  CloseTab       = 8
 
 class response(IntEnum):
   LoginResult         = 0
@@ -60,6 +61,43 @@ class debugState(IntEnum):
   Ready    = 2
   Step     = 3
   Finished = 4
+  Cancel   = 5
+
+def closeTabHandler(ws_object,p_tab_object_id):
+    try:
+        tab_object = ws_object.v_list_tab_objects[p_tab_object_id]
+        if tab_object['type'] == 'query':
+            try:
+                tab_object['omnidatabase'].v_connection.Cancel()
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase'].v_connection.Close()
+            except Exception:
+                None
+        elif tab_object['type'] == 'debug':
+            tab_object['cancelled'] = True
+            try:
+                tab_object['omnidatabase_control'].v_connection.Cancel()
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase_control'].v_connection.Terminate(tab_object['debug_pid'])
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase_control'].v_connection.Close()
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase_debug'].v_connection.Close()
+            except Exception:
+                None
+        del ws_object.v_list_tab_objects[p_tab_object_id]
+    except Exception as exc:
+        None
+
+
 
 class WSHandler(tornado.websocket.WebSocketHandler):
   def open(self):
@@ -79,7 +117,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         v_data = json_object['v_data']
 
         v_response['v_context_code'] = v_context_code
-
         #Login request
         if v_code == request.Login:
             self.v_user_key = v_data
@@ -102,6 +139,10 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                         thread_data['omnidatabase'].v_connection.Cancel()
                 except Exception as exc:
                     None;
+
+            #Close Tab
+            elif v_code == request.CloseTab:
+                closeTabHandler(self,v_data)
 
             else:
                 try:
@@ -136,7 +177,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                             )
                             tab_object =  { 'thread': None,
                                          'omnidatabase': v_database_new,
-                                         'database_index': -1 }
+                                         'database_index': -1,
+                                         'type': 'query' }
                             self.v_list_tab_objects[v_data['v_tab_id']] = tab_object
                             None;
 
@@ -218,7 +260,9 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                                          'omnidatabase_debug': v_database_debug,
                                          'omnidatabase_control': v_database_control,
                                          'debug_pid': -1,
-                                         'tab_id': v_data['v_tab_id'] }
+                                         'cancelled': False,
+                                         'tab_id': v_data['v_tab_id'],
+                                         'type': 'debug' }
                             self.v_list_tab_objects[v_data['v_tab_id']] = tab_object
                         #Existing debugger, get existing tab_object
                         else:
@@ -247,7 +291,9 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.write_message(json.dumps(v_response))
 
   def on_close(self):
-    None
+    for k in list(self.v_list_tab_objects.keys()):
+        closeTabHandler(self,k)
+
 
   def check_origin(self, origin):
     return True
@@ -787,18 +833,29 @@ def thread_debug_run_func(self,args,ws_object):
     v_database_control = v_tab_object['omnidatabase_control']
 
     try:
-        try:
-            #enable debugger for current connection
-            v_database_debug.v_connection.Execute('select omnidb.omnidb_enable_debugger()')
+        #enable debugger for current connection
+        v_database_debug.v_connection.Execute('select omnidb.omnidb_enable_debugger()')
 
-            #run function it will lock until the function ends
-            v_func_return = v_database_debug.v_connection.Query('select * from {0}'.format(args['v_function']),True)
+        #run function it will lock until the function ends
+        v_func_return = v_database_debug.v_connection.Query('select * from {0} limit 1000'.format(args['v_function']),True)
+
+        #Not cancelled, return all data
+        if not v_tab_object['cancelled']:
 
             #retrieve variables
             v_variables = v_database_debug.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(v_tab_object['debug_pid']),True)
 
             #retrieve statistics
             v_statistics = v_database_debug.v_connection.Query('select lineno,coalesce(trunc((extract("epoch" from tend)  - extract("epoch" from tstart))::numeric,4),0) as msec from omnidb.statistics where pid = {0} order by step'.format(v_tab_object['debug_pid']),True)
+
+            #retrieve statistics summary
+            v_statistics_summary = v_database_debug.v_connection.Query('''
+            select lineno, max(msec) as msec
+            from (select lineno,coalesce(trunc((extract("epoch" from tend)  - extract("epoch" from tstart))::numeric,4),0) as msec from omnidb.statistics where pid = {0}) t
+            group by lineno
+            order by lineno
+            '''.format(v_tab_object['debug_pid']),True)
+
 
             #retrieve notices
             v_notices = v_database_debug.v_connection.GetNotices()
@@ -813,6 +870,7 @@ def thread_debug_run_func(self,args,ws_object):
                 'v_result_rows': v_func_return.Rows,
                 'v_result_columns': v_func_return.Columns,
                 'v_result_statistics': v_statistics.Rows,
+                'v_result_statistics_summary': v_statistics_summary.Rows,
                 'v_result_notices': v_notices_text,
                 'v_result_notices_length': len(v_notices),
                 'v_variables': v_variables.Rows,
@@ -825,8 +883,18 @@ def thread_debug_run_func(self,args,ws_object):
             v_response['v_code'] = response.DebugResponse
 
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+        #Cancelled, return cancelled status
+        else:
+            v_response['v_data'] = {
+                'v_state': debugState.Cancel,
+                'v_remove_context': True,
+                'v_error': False
+            }
+            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
-        except Exception as exc:
+    except Exception as exc:
+        #Not cancelled
+        if not v_tab_object['cancelled']:
             v_response['v_code'] = response.DebugResponse
             v_response['v_data'] = {
                 'v_state': debugState.Finished,
@@ -839,20 +907,15 @@ def thread_debug_run_func(self,args,ws_object):
             v_database_control.v_connection.Close()
 
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
-
-    except Exception as exc:
-        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
-        v_response['v_error'] = True
-        v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
-
-        try:
-            v_database_debug.v_connection.Close()
-            v_database_control.v_connection.Close()
-        except Exception:
-            None
-
-        if not self.cancel:
+        else:
+            v_response['v_code'] = response.DebugResponse
+            v_response['v_data'] = {
+                'v_state': debugState.Cancel,
+                'v_remove_context': True,
+                'v_error': False
+            }
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
 
 def thread_debug(self,args,ws_object):
     v_response = {
@@ -868,7 +931,6 @@ def thread_debug(self,args,ws_object):
     v_database_control = v_tab_object['omnidatabase_control']
 
     try:
-        #print(args)
 
         if v_state == debugState.Starting:
 
@@ -898,30 +960,35 @@ def thread_debug(self,args,ws_object):
             ws_object.v_list_tab_objects[v_tab_id] = v_tab_object
 
             v_lineno = None
-            #wait for context to be ready or thread dies
+            #wait for context to be ready or thread ends
             while v_lineno == None and t.isAlive():
                 time.sleep(0.5)
                 v_lineno = v_database_control.v_connection.ExecuteScalar('select lineno from omnidb.contexts where pid = {0} and lineno is not null'.format(pid))
 
-            v_variables = v_database_control.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(pid),True)
+            # Function ended instantly
+            if not t.isAlive():
+                v_database_control.v_connection.Close()
 
-            v_response['v_code'] = response.DebugResponse
-            v_response['v_data'] = {
-            'v_state': debugState.Ready,
-            'v_remove_context': False,
-            'v_variables': v_variables.Rows,
-            'v_lineno': v_lineno
-            }
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            else:
+                v_variables = v_database_control.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(pid),True)
+
+                v_response['v_code'] = response.DebugResponse
+                v_response['v_data'] = {
+                'v_state': debugState.Ready,
+                'v_remove_context': False,
+                'v_variables': v_variables.Rows,
+                'v_lineno': v_lineno
+                }
+                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
         elif v_state == debugState.Step:
 
             v_database_control.v_connection.Execute('update omnidb.contexts set breakpoint = {0} where pid = {1}'.format(args['v_next_breakpoint'],v_tab_object['debug_pid']))
 
-            v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0}; select pg_advisory_lock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
-
-            #acquired the lock, get variables and lineno
             try:
+                v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0}; select pg_advisory_lock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
+
+                #acquired the lock, get variables and lineno
                 v_variables = v_database_control.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(v_tab_object['debug_pid']),True)
                 v_context_data = v_database_control.v_connection.Query('select lineno,finished from omnidb.contexts where pid = {0}'.format(v_tab_object['debug_pid']),True)
 
@@ -930,28 +997,30 @@ def thread_debug(self,args,ws_object):
                     v_response['v_code'] = response.DebugResponse
                     v_response['v_data'] = {
                     'v_state': debugState.Ready,
+                    'v_remove_context': True,
                     'v_variables': v_variables.Rows,
                     'v_lineno': v_context_data.Rows[0][0]
                     }
-                    print('end_step')
                     tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
                 else:
-                    print('last')
                     v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
                     v_database_control.v_connection.Close()
                     v_response['v_code'] = response.RemoveContext
                     tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
-
-
             except Exception:
-                #expected excetion in the last step
-                print('error')
-                None
+                v_response['v_code'] = response.RemoveContext
+                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+        #Cancelling debugger, the thread executing the function will return the cancel status
+        elif v_state == debugState.Cancel:
+            v_tab_object['cancelled'] = True
+            v_database_control.v_connection.Cancel()
+            v_database_control.v_connection.Terminate(v_tab_object['debug_pid'])
+            v_database_control.v_connection.Close()
 
 
     except Exception as exc:
-        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_code'] = response.DebugResponse
         v_response['v_data'] = {
             'v_state': debugState.Finished,

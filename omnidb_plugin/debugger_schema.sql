@@ -1,5 +1,9 @@
 CREATE SCHEMA omnidb;
 
+CREATE FUNCTION omnidb.omnidb_enable_debugger() RETURNS void
+AS '$libdir/omnidb_plugin'
+LANGUAGE C IMMUTABLE STRICT;
+
 CREATE TABLE omnidb.contexts
 (
   pid           INTEGER NOT NULL PRIMARY KEY,

@@ -163,7 +163,7 @@ $$ LANGUAGE plpgsql;
 
 -- DYNAMIC SQL
 CREATE OR REPLACE FUNCTION omnidb.function_10(i int)
-RETURNS foo AS $$
+RETURNS omnidb.foo AS $$
 DECLARE
     rec RECORD;
 BEGIN

@@ -834,7 +834,9 @@ def thread_debug_run_func(self,args,ws_object):
 
     try:
         #enable debugger for current connection
-        v_database_debug.v_connection.Execute('select omnidb.omnidb_enable_debugger({0})'.format(v_tab_object['debug_port']))
+        print(v_database_debug.v_connection.GetConnectionString())
+        print(v_database_debug.v_connection.GetConnectionString().replace("'", "''"))
+        v_database_debug.v_connection.Execute("select omnidb.omnidb_enable_debugger('{0}')".format(v_database_debug.v_connection.GetConnectionString().replace("'", "''")))
 
         #run function it will lock until the function ends
         v_func_return = v_database_debug.v_connection.Query('select * from {0} limit 1000'.format(args['v_function']),True)
@@ -946,9 +948,8 @@ def thread_debug(self,args,ws_object):
             #Cleaning contexts table
             v_database_debug.v_connection.Execute('delete from omnidb.contexts t where t.pid not in (select pid from pg_stat_activity where pid = t.pid)')
 
-            connections_details = v_database_debug.v_connection.Query('select pg_backend_pid(),inet_server_port()',True)
+            connections_details = v_database_debug.v_connection.Query('select pg_backend_pid()',True)
             pid = connections_details.Rows[0][0]
-            port = connections_details.Rows[0][1]
 
             v_database_debug.v_connection.Execute('insert into omnidb.contexts (pid, function, hook, lineno, stmttype, breakpoint, finished) values ({0}, null, null, null, null, 0, false)'.format(pid))
 
@@ -957,7 +958,6 @@ def thread_debug(self,args,ws_object):
 
             #updating pid and port in tab object
             v_tab_object['debug_pid'] = pid
-            v_tab_object['debug_port'] = port
 
             #Run thread that will execute the function
             t = StoppableThread(thread_debug_run_func,{ 'v_tab_object': v_tab_object, 'v_context_code': args['v_context_code'], 'v_function': args['v_function']},ws_object)

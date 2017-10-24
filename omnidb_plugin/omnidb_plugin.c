@@ -73,7 +73,7 @@ bool plugin_active = false;
 unsigned int plugin_depth = -1;
 unsigned int plugin_step;
 int plugin_breakpoint;
-int plugin_port;
+char plugin_conninfo[1024];
 
 /**********************************************************************
  * Function definitions
@@ -110,7 +110,8 @@ PG_FUNCTION_INFO_V1(omnidb_enable_debugger);
 Datum omnidb_enable_debugger(PG_FUNCTION_ARGS)
 {
     plugin_active = true;
-    plugin_port = PG_GETARG_INT32(0);
+    sprintf(plugin_conninfo, "%s", text_to_cstring(PG_GETARG_TEXT_P(0)));
+    elog(LOG, "omnidb, CONNINFO, (%s)", plugin_conninfo);
 	PG_RETURN_VOID();
 }
 
@@ -142,62 +143,42 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 		//First call
 		if (plugin_depth == 0)
         {
-            char conninfo[256];
-            sprintf(conninfo, "user=postgres dbname=postgres port=%i application_name=omnidb_plugin", plugin_port);
-            PGconn *conn = PQconnectdb(conninfo);
-            if (PQstatus(conn) != CONNECTION_BAD)
+            elog(LOG, "omnidb, CONNINFO, (%s)", plugin_conninfo);
+            plugin_conn = PQconnectdb(plugin_conninfo);
+            if (PQstatus(plugin_conn) != CONNECTION_BAD)
             {
-                char query[256];
-                sprintf(query, "SELECT datname FROM pg_database WHERE oid = %i", MyDatabaseId);
-                PGresult *res = PQexec(conn, query);
-                if (PQresultStatus(res) == PGRES_TUPLES_OK)
+                #ifdef DEBUG
+                    elog(LOG, "omnidb: Connected to (%s)", plugin_conninfo);
+                #endif
+
+                char select_context[256];
+                sprintf(select_context, "SELECT pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
+                PGresult *res = PQexec(plugin_conn, select_context);
+                if (PQresultStatus(res) == PGRES_TUPLES_OK && PQntuples(res) == 1)
                 {
-                    sprintf(conninfo, "user=postgres dbname=%s port=%i application_name=omnidb_plugin", PQgetvalue(res, 0, 0), plugin_port);
-                    plugin_conn = PQconnectdb(conninfo);
-                    if (PQstatus(plugin_conn) != CONNECTION_BAD)
-                    {
-                        PQclear(res);
-                        PQfinish(conn);
+                    char update_context[1024];
+                    sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'func_beg', stmttype = 'BEGIN', lineno = NULL where pid = %i", findProcName(func->fn_oid), MyProcPid);
+                    PQexec(plugin_conn, update_context);
 
-                        #ifdef DEBUG
-                            elog(LOG, "omnidb: Connected to (%s)", conninfo);
-                        #endif
+                    #ifdef DEBUG
+                        elog(LOG, "omnidb: Debugger active for PID %i", MyProcPid);
+                    #endif
 
-                        char select_context[256];
-                        sprintf(select_context, "SELECT pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
-                        PGresult *res = PQexec(plugin_conn, select_context);
-                        if (PQresultStatus(res) == PGRES_TUPLES_OK && PQntuples(res) == 1)
-                        {
-                            char update_context[1024];
-                            sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'func_beg', stmttype = 'BEGIN', lineno = NULL where pid = %i", findProcName(func->fn_oid), MyProcPid);
-                            PQexec(plugin_conn, update_context);
-
-                            #ifdef DEBUG
-                                elog(LOG, "omnidb: Debugger active for PID %i", MyProcPid);
-                            #endif
-
-                            plugin_active = true;
-                            plugin_step = 0;
-                        }
-                        else
-                        {
-                            plugin_active = false;
-                            #ifdef DEBUG
-                                elog(LOG, "omnidb: Debugger not active for PID %i", MyProcPid);
-                            #endif
-                        }
-                    }
-                    else
-                    {
-                        plugin_active = false;
-                        elog(ERROR, "omnidb: Connection to database failed: %s", PQerrorMessage(plugin_conn));
-                    }
+                    plugin_active = true;
+                    plugin_step = 0;
+                }
+                else
+                {
+                    plugin_active = false;
+                    #ifdef DEBUG
+                        elog(LOG, "omnidb: Debugger not active for PID %i", MyProcPid);
+                    #endif
                 }
             }
             else
             {
                 plugin_active = false;
-                elog(ERROR, "omnidb: Connection to maintenance database failed: %s", PQerrorMessage(conn));
+                elog(ERROR, "omnidb: Connection to database failed: %s", PQerrorMessage(plugin_conn));
             }
 		}
 		else

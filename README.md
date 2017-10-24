@@ -1,14 +1,10 @@
-# OmniDB 2.2.0
+# OmniDB 2.3.0
 
 ## Release Notes
 
-- Support to Postgres-XL
-- Support to pglogical
-- Visualization of Explain Plan
-- Visualization of query notices
-- Support to exclude constraints
-- Support to triggers for views
-- Bug fixes
+- Debugger for PL/pgSQL functions
+- When closing query tab or browser tab, all running queries are canceled
+- Minor bug fixes
 
 # Introduction
 

@@ -779,12 +779,15 @@ class PostgreSQL:
                       and n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' = '{1}'
                 ) y
                 union all
-                select x.type::character varying as type,
+                select (case trim(substring((trim(x.name) || ' ') from 1 for position(' ' in (trim(x.name) || ' '))))
+                          when 'OUT' then 'O'
+                          when 'INOUT' then 'X'
+                          else 'I'
+                        end) as type,
                        trim(x.name) as name,
                        row_number() over() + 1 as seq
                 from (
-                    select 'I' as type,
-                    unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
+                    select unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
                 ) x
                 where length(trim(x.name)) > 0
                 order by 3
@@ -804,12 +807,15 @@ class PostgreSQL:
                       and n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' = '{1}'
                 ) y
                 union all
-                select x.type::character varying as type,
+                select (case trim(substring((trim(x.name) || ' ') from 1 for position(' ' in (trim(x.name) || ' '))))
+                          when 'OUT' then 'O'
+                          when 'INOUT' then 'X'
+                          else 'I'
+                        end) as type,
                        trim(x.name) as name,
                        row_number() over() + 1 as seq
                 from (
-                    select 'I' as type,
-                    unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
+                    select unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
                 ) x
                 where length(trim(x.name)) > 0
                 order by 3

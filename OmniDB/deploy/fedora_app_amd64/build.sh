@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.2.0
+VERSION=2.3.0
 ARCH=fedora-amd64
 
 cd ~/OmniDB/OmniDB

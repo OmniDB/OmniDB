@@ -184,7 +184,7 @@ DECLARE
     tmp RECORD; result numeric;
 BEGIN
     result := 0.00;
-    FOR tmp IN SELECT * FROM foo LOOP
+    FOR tmp IN SELECT * FROM omnidb.foo LOOP
         result := result + tmp.x;
     END LOOP;
     RETURN result;

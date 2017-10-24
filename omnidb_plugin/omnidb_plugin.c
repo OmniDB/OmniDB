@@ -73,6 +73,7 @@ bool plugin_active = false;
 unsigned int plugin_depth = -1;
 unsigned int plugin_step;
 int plugin_breakpoint;
+int plugin_port;
 
 /**********************************************************************
  * Function definitions
@@ -109,6 +110,7 @@ PG_FUNCTION_INFO_V1(omnidb_enable_debugger);
 Datum omnidb_enable_debugger(PG_FUNCTION_ARGS)
 {
     plugin_active = true;
+    plugin_port = PG_GETARG_INT32(0);
 	PG_RETURN_VOID();
 }
 
@@ -140,7 +142,9 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 		//First call
 		if (plugin_depth == 0)
         {
-            PGconn *conn = PQconnectdb("user=postgres dbname=postgres");
+            char conninfo[256];
+            sprintf(conninfo, "user=postgres dbname=postgres port=%i application_name=omnidb_plugin", plugin_port);
+            PGconn *conn = PQconnectdb(conninfo);
             if (PQstatus(conn) != CONNECTION_BAD)
             {
                 char query[256];
@@ -148,8 +152,7 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
                 PGresult *res = PQexec(conn, query);
                 if (PQresultStatus(res) == PGRES_TUPLES_OK)
                 {
-                    char conninfo[256];
-                    sprintf(conninfo, "user=postgres dbname=%s", PQgetvalue(res, 0, 0));
+                    sprintf(conninfo, "user=postgres dbname=%s port=%i application_name=omnidb_plugin", PQgetvalue(res, 0, 0), plugin_port);
                     plugin_conn = PQconnectdb(conninfo);
                     if (PQstatus(plugin_conn) != CONNECTION_BAD)
                     {

@@ -834,7 +834,7 @@ def thread_debug_run_func(self,args,ws_object):
 
     try:
         #enable debugger for current connection
-        v_database_debug.v_connection.Execute('select omnidb.omnidb_enable_debugger()')
+        v_database_debug.v_connection.Execute('select omnidb.omnidb_enable_debugger({0})'.format(v_tab_object['debug_port']))
 
         #run function it will lock until the function ends
         v_func_return = v_database_debug.v_connection.Query('select * from {0} limit 1000'.format(args['v_function']),True)
@@ -902,9 +902,14 @@ def thread_debug_run_func(self,args,ws_object):
                 'v_error': True,
                 'v_error_msg': str(exc)
             }
-
-            v_database_debug.v_connection.Close()
-            v_database_control.v_connection.Close()
+            try:
+                v_database_debug.v_connection.Close()
+            except Exception:
+                None
+            try:
+                v_database_control.v_connection.Close()
+            except Exception:
+                None
 
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         else:
@@ -941,15 +946,18 @@ def thread_debug(self,args,ws_object):
             #Cleaning contexts table
             v_database_debug.v_connection.Execute('delete from omnidb.contexts t where t.pid not in (select pid from pg_stat_activity where pid = t.pid)')
 
-            pid = v_database_debug.v_connection.ExecuteScalar('select pg_backend_pid()')
+            connections_details = v_database_debug.v_connection.Query('select pg_backend_pid(),inet_server_port()',True)
+            pid = connections_details.Rows[0][0]
+            port = connections_details.Rows[0][1]
 
             v_database_debug.v_connection.Execute('insert into omnidb.contexts (pid, function, hook, lineno, stmttype, breakpoint, finished) values ({0}, null, null, null, null, 0, false)'.format(pid))
 
             #lock row for current pid
             v_database_control.v_connection.Execute('select pg_advisory_lock({0}) from omnidb.contexts where pid = {0}'.format(pid))
 
-            #updating pid in tab object
+            #updating pid and port in tab object
             v_tab_object['debug_pid'] = pid
+            v_tab_object['debug_port'] = port
 
             #Run thread that will execute the function
             t = StoppableThread(thread_debug_run_func,{ 'v_tab_object': v_tab_object, 'v_context_code': args['v_context_code'], 'v_function': args['v_function']},ws_object)

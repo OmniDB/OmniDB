@@ -89,7 +89,7 @@ function setupDebug(p_node) {
 
 				for (i = 0; i < p_return.v_data.length; i++) {
 
-						if (p_return.v_data[i].v_type == 'I')
+						if (p_return.v_data[i].v_type != 'O')
 							v_data.push([p_return.v_data[i].v_name,''])
 				}
 

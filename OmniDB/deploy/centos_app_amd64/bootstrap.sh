@@ -8,7 +8,7 @@ yum groupinstall -y "GNOME Desktop"
 echo "Done"
 
 echo "Installing pyenv..."
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+git clone --depth 1 https://github.com/pyenv/pyenv.git ~/.pyenv
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
 echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
 echo 'eval "$(pyenv init -)"' >> ~/.bashrc
@@ -22,9 +22,8 @@ echo "Done"
 
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
-git clone https://github.com/OmniDB/OmniDB ~/OmniDB
+git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 cd ~/OmniDB
-git checkout dev
 echo "Done"
 
 echo "Installing OmniDB dependencies..."

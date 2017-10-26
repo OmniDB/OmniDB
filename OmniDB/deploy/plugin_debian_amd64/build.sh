@@ -27,7 +27,7 @@ cp -r ~/OmniDB/omnidb_plugin deploy/packages/
 echo "Done."
 
 echo -n "Renaming bundle... "
-mv deploy/packages/omnidb-plugin deploy/packages/omnidb-plugin_$VERSION-$ARCH
+mv deploy/packages/omnidb_plugin deploy/packages/omnidb-plugin_$VERSION-$ARCH
 echo "Done."
 
 echo "Generating tar.gz package... "

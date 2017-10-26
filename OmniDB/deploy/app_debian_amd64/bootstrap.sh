@@ -1,10 +1,10 @@
-#!/bin/sh -e
+#!/bin/bash
 
 PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
-zypper install -y gcc gcc-c++ make patch libopenssl-devel readline-devel libbz2-devel rpm-build libgconfmm-2_6-1 desktop-file-utils
-zypper install -y gnome-shell
+apt-get update -y
+apt-get install -y git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils libgconf-2-4 gnome-core
 echo "Done"
 
 echo "Installing pyenv..."
@@ -33,6 +33,6 @@ pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/opensuse_app_amd64/
+cd ~/OmniDB/OmniDB/deploy/app_debian_amd64/
 ./build.sh
 echo "Done"

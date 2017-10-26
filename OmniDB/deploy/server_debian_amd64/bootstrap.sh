@@ -1,10 +1,10 @@
-#!/bin/sh -e
+#!/bin/bash
 
 PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
-yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build
-yum groupinstall -y "GNOME Desktop"
+apt-get update -y
+apt-get install -y git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils libgconf-2-4
 echo "Done"
 
 echo "Installing pyenv..."
@@ -29,10 +29,10 @@ echo "Done"
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install -r ~/OmniDB/requirements.txt
-pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt
+pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/centos_app_amd64/
+cd ~/OmniDB/OmniDB/deploy/server_debian_amd64/
 ./build.sh
 echo "Done"

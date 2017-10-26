@@ -4,6 +4,7 @@ PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
 yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build
+yum groupinstall -y gnome
 echo "Done"
 
 echo "Installing pyenv..."
@@ -28,10 +29,10 @@ echo "Done"
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install -r ~/OmniDB/requirements.txt
-pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt
+pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/centos_server_amd64/
+cd ~/OmniDB/OmniDB/deploy/app_fedora_amd64/
 ./build.sh
 echo "Done"

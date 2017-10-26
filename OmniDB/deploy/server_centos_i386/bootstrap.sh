@@ -32,6 +32,6 @@ pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/centos_server_i386/
+cd ~/OmniDB/OmniDB/deploy/server_centos_i386/
 ./build.sh
 echo "Done"

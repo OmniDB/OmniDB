@@ -102,6 +102,9 @@ Installed-Size: $(du -s)
 Maintainer: The OmniDB Team
 Homepage: http://omnidb.org
 Description: OmniDB is a web tool that simplifies database management focusing on interactivity, designed to be powerful and lightweight.
+ Server package includes web server and requires a web browser to be used. Ideal for network and server usage.
+ App package includes everything, even a simple web browser.
+ Plugin package includes a PostgreSQL plugin to enable PLpgSQL function debugger.
  OmniDB is supported by 2ndQuadrant (http://www.2ndquadrant.com)
 EOF
 cd ..

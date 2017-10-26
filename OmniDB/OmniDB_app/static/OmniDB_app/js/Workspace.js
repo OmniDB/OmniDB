@@ -201,7 +201,29 @@ function getDatabaseList() {
 
 				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
 				v_connTabControl.tag.connections = p_return.v_data.v_connections;
-				v_connTabControl.tag.createConnTab(v_selected_connection);
+
+				//Create existing tabs
+				var v_current_parent = null;
+				var v_has_old_tabs = false;
+				if (p_return.v_data.v_existing_tabs.length>0)
+					v_has_old_tabs = true;
+
+				for (var i=0; i < p_return.v_data.v_existing_tabs.length; i++) {
+					if (v_current_parent == null || v_current_parent != p_return.v_data.v_existing_tabs[i].index)
+						v_connTabControl.tag.createConnTab(p_return.v_data.v_existing_tabs[i].index,false);
+
+					v_current_parent = p_return.v_data.v_existing_tabs[i].index;
+					v_connTabControl.tag.createQueryTab('Query',p_return.v_data.v_existing_tabs[i].tab_db_id);
+			    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
+			        p_return.v_data.v_existing_tabs[i].snippet);
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
+			    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+				}
+
+				if (v_selected_connection!=-1)
+					v_connTabControl.tag.createConnTab(v_selected_connection);
+				else if (!v_has_old_tabs)
+					v_connTabControl.tag.createConnTab(0);
 
 			},
 			null,
@@ -218,7 +240,7 @@ function changeDatabase(p_value) {
 
 	v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
 
-	v_connTabControl.selectedTab.renameTab('<img src="/static/OmniDB_app/images/' + v_connTabControl.tag.connections[p_value].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[p_value].v_alias);
+	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_connTabControl.tag.connections[p_value].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[p_value].v_alias;
 
 	if (v_connTabControl.tag.connections[p_value].v_db_type=='postgresql')
 		getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
@@ -308,8 +330,11 @@ function removeTab(p_tab) {
 										p_tab.tag.editor.destroy();
 
 									if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit') {
-										var v_message_data = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id;
-										sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, v_message_data, false, null);
+										var v_message_data = { tab_id: p_tab.tag.tab_id, tab_db_id: null };
+										if (p_tab.tag.mode=='query')
+											v_message_data.tab_db_id = p_tab.tag.tab_db_id;
+
+										sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, [v_message_data], false, null);
 										//console.log('closing query tab')
 									}
 									p_tab.removeTab();
@@ -364,6 +389,8 @@ function refreshHeights(p_all) {
 				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
 				if (v_tab_tag.ht!=null)
 					v_tab_tag.ht.render();
+				if(v_tab_tag.editor != null)
+						v_tab_tag.editor.resize();
 			}
 			else if (v_tab_tag.currQueryTab=='message') {
 				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';

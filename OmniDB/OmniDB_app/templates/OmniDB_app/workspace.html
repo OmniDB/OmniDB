@@ -12,89 +12,6 @@
 		</div>
 	</div>
 
-	<div id="div_graph" style="display:none;">
-        <div class="modal_background_dark">
-            <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
-                <a class="modal-closer" onclick="modalGraph('hide')">x</a>
-
-                <div id="div_legend">
-                <ul style="padding-left: 10px; padding-right: 10px; color: black;">
-                <li class="li_legend"><div class="div_legend_color" style=" background-color: red;"></div><p id="p_legend_5" class="p_legend_label">Vermelho</p></li>
-                <li class="li_legend"><div class="div_legend_color" style=" background-color: orange;"></div><p id="p_legend_4" class="p_legend_label">Vermelho</p></li>
-                <li class="li_legend"><div class="div_legend_color" style=" background-color: yellow;"></div><p id="p_legend_3" class="p_legend_label">Vermelho</p></li>
-                <li class="li_legend"><div class="div_legend_color" style=" background-color: lightgreen;"></div><p id="p_legend_2" class="p_legend_label">Vermelho</p></li>
-                <li class="li_legend"><div class="div_legend_color" style=" background-color: cyan;"></div><p id="p_legend_1" class="p_legend_label">Vermelho</p></li>
-                <li class="li_legend"><div class="div_legend_color" style=" background-color: #6E6EFD;"></div><p id="p_legend_0" class="p_legend_label">Vermelho</p></li>
-                </ul>
-
-                </div>
-
-                <div id="visualization" style="height:100%; width:100%; background-color: white;">
-
-                	<div id="div_graph_content" style="height:100%; width:100%; z-index: 999"></div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="div_alter_table" style="display:none;">request.session['selected_connection']
-        <div class="modal_background_dark">
-            <div class ="white_box" style="width<script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js"></script>: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
-                <a class="modal-closer" onclick="hideAlterTable()">x</a>
-                <span style="margin-left: 10px;">Table Name: </span><input type="text" id="txt_tableNameAlterTable" onchange='changeTableName()' style="margin: 10px;"/>
-                <button id="bt_saveAlterTable" onclick="saveAlterTable()" style="visibility: hidden;">Save Changes</button>
-                <div id="alter_tabs" style='margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
-	                <ul>
-	                <li id="alter_tabs_tab1">Columns</li>
-	                <li id="alter_tabs_tab2">Constraints</li>
-	                <li id="alter_tabs_tab3">Indexes</li>
-	  				</ul>
-	  				<div id="div_alter_tabs_tab1">
-	  					<div style="padding: 20px;">
-		                	<div id='div_alter_table_data' style='width: 100%; height: 400px; overflow: auto;'></div>
-		                </div>
-	  				</div>
-	  				<div id="div_alter_tabs_tab2">
-
-	  					<button id="bt_newConstraintAlterTable" onclick="newConstraintAlterTable()" style="margin-left: 20px; margin-top: 20px;">New Constraint</button>
-	  					<div style="padding: 20px;">
-	  						<div id='div_alter_constraint_data' style='width: 100%; height: 400px; overflow: auto;'></div>
-	  					</div>
-	  				</div>
-	  				<div id="div_alter_tabs_tab3">
-
-	  					<button id="bt_newIndexAlterTable" onclick="newIndexAlterTable()" style="margin-left: 20px; margin-top: 20px;">New Index</button>
-	  					<div style="padding: 20px;">
-	  						<div id='div_alter_index_data' style='width: 100%; height: 400px; overflow: auto;'></div>
-	  					</div>
-	  				</div>
-  				</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="div_edit_data" style="display:none;">
-        <div class="modal_background_dark">
-            <div class ="white_box" style="width: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
-                <a class="modal-closer" onclick="hideAlterData()">x</a>
-                <div id='div_edit_data_select' style='margin: 10px; font-size: 14px;'></div>
-                <div id='txt_filter_data' style=' margin-left: 10px; margin-right: 10px; height: 100px;border: 1px solid #c3c3c3;'></div>
-                <button title='Run (CTRL + Q)' style='margin-top: 10px; margin-bottom: 10px; margin-left: 10px; margin-right: 5px; display: inline-block;' onclick='queryEditData()'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>
-                <select id="sel_filtered_data" onchange='queryEditData()'>
-                	<option value="10" >10 rows</option>
-                	<option value="100">100 rows</option>
-                	<option value="1000">1000 rows</option>
-                </select>
-                <div id='div_edit_data_query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>
-                <button id="bt_saveEditData" onclick="saveEditData()" style="visibility: hidden; margin-left: 5px;">Save Changes</button>
-                <div style="padding: 10px;">
-                	<div id='div_edit_data_data' style='width: 100%; height: 400px; overflow: auto;'></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="div_column_selection" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; height: 40%; left: 30%; top: 30%;">
@@ -122,11 +39,7 @@
                 	<option value="1">Column 7</option>
                 	<option value="1">Column 8</option>
                 </select>
-
 							</div>
-
-
-
             </div>
         </div>
     </div>

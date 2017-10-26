@@ -65,7 +65,8 @@ function cancelSQLTab(p_tab_tag) {
 function querySQL(p_mode,
 									p_all_data = false,
 									p_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue(),
-									p_callback = null) {
+									p_callback = null,
+									p_log_query = true) {
 
 	var v_state = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state;
 
@@ -97,8 +98,10 @@ function querySQL(p_mode,
 				v_cmd_type: v_sel_value,
 				v_db_index: v_db_index,
 				v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
+				v_tab_db_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_db_id,
 				v_mode: p_mode,
-				v_all_data: p_all_data
+				v_all_data: p_all_data,
+				v_log_query: p_log_query
 			}
 
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setReadOnly(true);
@@ -167,6 +170,11 @@ function checkQueryStatus(p_tab) {
 }
 
 function querySQLReturn(p_data,p_context) {
+
+	//Update tab_db_id if not null in response
+	if (p_data.v_data.v_inserted_id) {
+		p_context.tab_tag.tab_db_id = p_data.v_data.v_inserted_id;
+	}
 
 	//If query wasn't canceled already
 	if (p_context.tab_tag.state!=v_queryState.Idle) {

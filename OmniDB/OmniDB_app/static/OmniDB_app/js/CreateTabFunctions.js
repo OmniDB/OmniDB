@@ -12,12 +12,12 @@ You should have received a copy of the GNU General Public License along with Omn
 
 function initCreateTabFunctions() {
 
-  var v_createConnTabFunction = function(p_index) {
+  var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
 
   	v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
   	var v_tab = v_connTabControl.createTab(
-        '<img src="/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[0].v_alias,
-        true,
+        '<span id="tab_title"><img src="/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[0].v_alias + '</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+        false,
         null,
         null,
         null,
@@ -52,6 +52,31 @@ function initCreateTabFunctions() {
   	"</div>" +
   	"</div>";
 
+    var v_tab_title_span = document.getElementById('tab_title');
+    v_tab_title_span.id = 'tab_title_' + v_tab.id;
+    var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function() {
+      var v_this_tab = v_tab;
+      showConfirm('Are you sure you want to remove this tab?',
+                    function() {
+                      //Go through all child tabs and properly send close request for each
+                      var v_tabs_to_remove = [];
+                      for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
+                        var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
+                        if (v_tab.tag.mode=='query' || v_tab.tag.mode=='edit' || v_tab.tag.mode=='debug') {
+      										var v_message_data = { tab_id: v_tab.tag.tab_id, tab_db_id: null };
+      										if (v_tab.tag.mode=='query')
+      											v_message_data.tab_db_id = v_tab.tag.tab_db_id;
+                          v_tabs_to_remove.push(v_message_data);
+      									}
+                      }
+                      if (v_tabs_to_remove.length>0)
+                        sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, v_tabs_to_remove, false, null);
+                      v_this_tab.removeTab();
+                    });
+		};
+
   	var v_div = document.getElementById('div_' + v_tab.id);
   	v_div.innerHTML = v_html;
 
@@ -64,6 +89,7 @@ function initCreateTabFunctions() {
 
   	var v_tag = {
   		tabControl: v_currTabControl,
+      tabTitle: v_tab_title_span,
   		divTree: document.getElementById(v_tab.id + '_tree'),
   		divLeft: document.getElementById(v_tab.id + '_div_left'),
   		divRight: document.getElementById(v_tab.id + '_div_right'),
@@ -74,7 +100,8 @@ function initCreateTabFunctions() {
 
   	v_tab.tag = v_tag;
 
-  	v_connTabControl.tag.createQueryTab();
+    if (p_create_query_tab)
+  	 v_connTabControl.tag.createQueryTab();
 
     var v_index = 0;
     if (p_index)
@@ -479,7 +506,7 @@ function initCreateTabFunctions() {
 
 	};
 
-  var v_createQueryTabFunction = function(p_table) {
+  var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
 		var v_name = 'Query';
 		if (p_table)
@@ -663,6 +690,10 @@ function initCreateTabFunctions() {
 		langTools.setCompleters([qtags]);
 		v_editor.setOptions({enableBasicAutocompletion: true});
 
+    var v_tab_db_id = null;
+    if (p_tab_db_id)
+      v_tab_db_id = p_tab_db_id;
+
 		var v_tag = {
 			tab_id: v_tab.id,
 			mode: 'query',
@@ -692,7 +723,8 @@ function initCreateTabFunctions() {
       queryTabControl: v_curr_tabs,
       currQueryTab: null,
 			connTab: v_connTabControl.selectedTab,
-      currDatabaseIndex: null
+      currDatabaseIndex: null,
+      tab_db_id: v_tab_db_id
 		};
 
 		v_tab.tag = v_tag;
@@ -1085,7 +1117,7 @@ function initCreateTabFunctions() {
 		v_tab_close_span.onclick = function() {
       showConfirm('Are you sure you want to remove this tab?',
                     function() {
-                      var v_message_data = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id;
+                      var v_message_data = { tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id, tab_db_id: null };
                       sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, v_message_data, false, null);
                       v_tab.removeTab();
                     });

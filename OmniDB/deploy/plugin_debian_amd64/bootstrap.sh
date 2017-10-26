@@ -24,7 +24,7 @@ fi
 apt-get update
 apt-get -y upgrade
 
-apt-get -y install build-essential "postgresql-server-dev-$PG_VERSION" libpq-dev
+apt-get -y install build-essential git "postgresql-server-dev-$PG_VERSION" libpq-dev
 
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB

@@ -40,7 +40,7 @@ def index(request):
         v_connection = request.session.get('selected_connection')
         request.session['selected_connection'] = None
     else:
-        v_connection = 0
+        v_connection = -1
 
     context = {
         'session' : v_session,
@@ -167,10 +167,33 @@ def get_database_list(request):
 
     v_html = '<select style="width: 100%; font-weight: bold;" onchange="changeDatabase(this.value);">{0}</select>'.format(v_options)
 
+    #retrieving saved tabs
+    try:
+        v_existing_tabs = []
+        v_tabs = v_session.v_omnidb_database.v_connection.Query('''
+            select conn_id,snippet, tab_id
+            from tabs
+            where user_id = {0}
+            order by conn_id, tab_id
+        '''.format(v_session.v_user_id))
+        for v_tab in v_tabs.Rows:
+            #retrieving index from conn_id
+            v_index = 0
+            for v_database_object in v_session.v_databases:
+                if v_tab['conn_id'] == v_database_object['database'].v_conn_id:
+                    v_existing_tabs.append({'index': v_index, 'snippet': v_tab['snippet'], 'tab_db_id': v_tab['tab_id']})
+                    break
+                v_index = v_index + 1
+
+    except Exception as exc:
+        print(exc)
+        None
+
     v_return['v_data'] = {
         'v_select_html': v_html,
         'v_connections': v_databases,
-        'v_id': v_session.v_database_index
+        'v_id': v_session.v_database_index,
+        'v_existing_tabs': v_existing_tabs
     }
 
     return JsonResponse(v_return)

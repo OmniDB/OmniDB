@@ -530,6 +530,7 @@ function debugResponseRender(p_message, p_context) {
 					});
 
 					//Adding heat colors to function body
+					v_max_value = v_max_value + 0.5;
 					var v_increment = v_max_value/5;
 					var v_color_range = [0,v_increment, v_increment*2,v_increment*3,v_increment*4,v_max_value];
 					for (var i=0; i<p_message.v_data.v_result_statistics_summary.length; i++) {

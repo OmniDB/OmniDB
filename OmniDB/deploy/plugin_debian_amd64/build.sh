@@ -3,17 +3,40 @@
 VERSION=2.3.0
 ARCH=debian-amd64
 
-PG_VERSION=9.3
-
 cd ~/OmniDB/omnidb_plugin
 
 echo -n "Cleaning... "
-rm -f *.o *.so
+rm -f *.o
 echo "Done."
 
-echo "Compiling... "
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/$PG_VERSION/server
-gcc -fPIC -o omnidb_plugin.so omnidb_plugin.o -lpq -shared
+echo "Compiling for 9.3... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/9.3/server
+gcc -fPIC -o omnidb_plugin_93.so omnidb_plugin.o -lpq -shared
+echo "Done."
+
+echo "Compiling for 9.4... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/9.4/server
+gcc -fPIC -o omnidb_plugin_94.so omnidb_plugin.o -lpq -shared
+echo "Done."
+
+echo "Compiling for 9.5... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/9.5/server
+gcc -fPIC -o omnidb_plugin_95.so omnidb_plugin.o -lpq -shared
+echo "Done."
+
+echo "Compiling for 9.6... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/9.6/server
+gcc -fPIC -o omnidb_plugin_96.so omnidb_plugin.o -lpq -shared
+echo "Done."
+
+echo "Compiling for 9.6... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/10/server
+gcc -fPIC -o omnidb_plugin_10.so omnidb_plugin.o -lpq -shared
 echo "Done."
 
 echo -n "Cleaning... "

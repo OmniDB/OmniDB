@@ -1,7 +1,5 @@
 #!/bin/bash
 
-PG_VERSION=9.3
-
 PROVISIONED_ON=/etc/vm_provision_on_timestamp
 if [ -f "$PROVISIONED_ON" ]
 then
@@ -24,7 +22,7 @@ fi
 apt-get update
 apt-get -y upgrade
 
-apt-get -y install build-essential git "postgresql-server-dev-$PG_VERSION" libpq-dev
+apt-get -y install build-essential git postgresql-server-dev-9.3 postgresql-server-dev-9.4 postgresql-server-dev-9.5 postgresql-server-dev-9.6 postgresql-server-dev-10 libpq-dev
 
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB

@@ -23,8 +23,7 @@ echo "Done."
 echo -n "Organizing bundle..."
 cd ~/OmniDB/OmniDB
 mkdir deploy/packages
-cp ~/OmniDB/omnidb_plugin deploy/packages/
-rm -rf dist
+cp -r ~/OmniDB/omnidb_plugin deploy/packages/
 echo "Done."
 
 echo -n "Renaming bundle... "

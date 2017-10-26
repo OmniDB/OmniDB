@@ -158,6 +158,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 			var v_tab = {
 				id : p_div + '_tab' + v_index,
+				seq: v_index,
 				text: p_name,
 				selected : false,
 				elementLi : null,

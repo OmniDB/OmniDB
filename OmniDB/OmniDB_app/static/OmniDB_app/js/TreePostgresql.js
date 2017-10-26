@@ -5906,7 +5906,7 @@ function getExplain(p_mode) {
         else if (p_mode == 1)
             v_query = 'explain analyze ' + v_query;
 
-        querySQL(0, true, v_query, getExplainReturn);
+        querySQL(0, true, v_query, getExplainReturn,false);
     }
 }
 

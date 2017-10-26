@@ -1,18 +1,28 @@
-# Install headers for PostgreSQL
-sudo apt install postgresql-server-dev-9.6 libpq-dev
+# 1. If you installed omnidb-plugin DEB/RPM packages
 
-# Compile omnidb_plugin
+## 1.1. Set shared_preload_libraries
+nano /etc/postgresql/X.Y/main/postgresql.conf
+    shared_preload_libraries = '/opt/omnidb-plugin/omnidb_plugin_XY'
+
+# 2. If you are compiling from source
+
+## 2.1. Install headers for PostgreSQL
+sudo apt install postgresql-server-dev-X.Y libpq-dev
+
+## 2.2. Compile omnidb_plugin
 ./compile.sh
 
-# Copy to PostgreSQL $libdir
-sudo cp omnidb_plugin.so /usr/lib/postgresql/9.6/lib/
+## 2.3. Copy to PostgreSQL $libdir
+sudo cp omnidb_plugin.so /usr/lib/postgresql/X.Y/lib/
 
-# Set shared_preload_libraries
-nano /etc/postgresql/9.6/main/postgresql.conf
+## 2.4. Set shared_preload_libraries
+nano /etc/postgresql/X.Y/main/postgresql.conf
     shared_preload_libraries = 'omnidb_plugin'
 
-# Create omnidb schema in your database (should be done by a superuser)
+# 3. Post-installation steps
+
+## 3.1. Create omnidb schema in your database (should be done by a superuser)
 psql -d <database> -f debugger_schema.sql
 
-# Create sample functions (optional)
+## 3.2. Create sample functions (optional)
 psql -d <database> -f debugger_schema.sql

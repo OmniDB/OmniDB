@@ -1118,7 +1118,7 @@ function initCreateTabFunctions() {
       showConfirm('Are you sure you want to remove this tab?',
                     function() {
                       var v_message_data = { tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id, tab_db_id: null };
-                      sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, v_message_data, false, null);
+                      sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, [v_message_data], false, null);
                       v_tab.removeTab();
                     });
 		};

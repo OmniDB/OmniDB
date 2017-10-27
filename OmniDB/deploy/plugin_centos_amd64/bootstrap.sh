@@ -19,10 +19,10 @@ yum install -y gcc gcc-c++ make git patch rpm-build
 
 # Install PGDG repos
 rpm -ivh https://download.postgresql.org/pub/repos/yum/9.3/redhat/rhel-6-x86_64/pgdg-centos93-9.3-3.noarch.rpm
-rpm -ivh install https://download.postgresql.org/pub/repos/yum/9.4/redhat/rhel-6-x86_64/pgdg-centos94-9.4-3.noarch.rpm
-rpm -ivh install https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-6-x86_64/pgdg-centos95-9.5-3.noarch.rpm
-rpm -ivh install https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-6-x86_64/pgdg-centos96-9.6-3.noarch.rpm
-rpm -ivh install https://download.postgresql.org/pub/repos/yum/testing/10/redhat/rhel-6-x86_64/pgdg-centos10-10-2.noarch.rpm
+rpm -ivh https://download.postgresql.org/pub/repos/yum/9.4/redhat/rhel-6-x86_64/pgdg-centos94-9.4-3.noarch.rpm
+rpm -ivh https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-6-x86_64/pgdg-centos95-9.5-3.noarch.rpm
+rpm -ivh https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-6-x86_64/pgdg-centos96-9.6-3.noarch.rpm
+rpm -ivh https://download.postgresql.org/pub/repos/yum/testing/10/redhat/rhel-6-x86_64/pgdg-centos10-10-2.noarch.rpm
 
 # Update
 yum -y check-update
@@ -41,6 +41,6 @@ cd ~/OmniDB
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/plugin_debian_amd64/
+cd ~/OmniDB/OmniDB/deploy/plugin_centos_amd64/
 ./build.sh
 echo "Done"

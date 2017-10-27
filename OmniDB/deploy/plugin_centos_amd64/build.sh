@@ -11,31 +11,31 @@ echo "Done."
 
 echo "Compiling for 9.3... "
 rm -f *.o
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/pgsql
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/pgsql-9.3/include -I /usr/pgsql-9.3/include/server
 gcc -fPIC -o omnidb_plugin_93.so omnidb_plugin.o -lpq -shared
 echo "Done."
 
 echo "Compiling for 9.4... "
 rm -f *.o
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/pgsql
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/pgsql-9.4/include -I /usr/pgsql-9.4/include/server
 gcc -fPIC -o omnidb_plugin_94.so omnidb_plugin.o -lpq -shared
 echo "Done."
 
 echo "Compiling for 9.5... "
 rm -f *.o
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/pgsql
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/pgsql-9.5/include -I /usr/pgsql-9.5/include/server
 gcc -fPIC -o omnidb_plugin_95.so omnidb_plugin.o -lpq -shared
 echo "Done."
 
 echo "Compiling for 9.6... "
 rm -f *.o
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/pgsql
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/pgsql-9.6/include -I /usr/pgsql-9.6/include/server
 gcc -fPIC -o omnidb_plugin_96.so omnidb_plugin.o -lpq -shared
 echo "Done."
 
 echo "Compiling for 10... "
 rm -f *.o
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/pgsql
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I -I /usr/pgsql-10/include -I /usr/pgsql-10/include/server
 gcc -fPIC -o omnidb_plugin_10.so omnidb_plugin.o -lpq -shared
 echo "Done."
 

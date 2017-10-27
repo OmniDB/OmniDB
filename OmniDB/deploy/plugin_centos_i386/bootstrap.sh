@@ -37,6 +37,6 @@ cd ~/OmniDB
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/plugin_centos_amd64/
+cd ~/OmniDB/OmniDB/deploy/plugin_centos_i386/
 ./build.sh
 echo "Done"

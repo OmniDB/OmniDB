@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=2.3.0
-ARCH=centos-amd64
+ARCH=centos-i386
 
 cd ~/OmniDB/omnidb_plugin
 
@@ -25,18 +25,6 @@ echo "Compiling for 9.5... "
 rm -f *.o
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-9.5/lib -lpq -I /usr/pgsql-9.5/include -I /usr/pgsql-9.5/include/server
 gcc -fPIC -o omnidb_plugin_95.so omnidb_plugin.o -L /usr/pgsql-9.5/lib -lpq -shared
-echo "Done."
-
-echo "Compiling for 9.6... "
-rm -f *.o
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-9.6/lib -lpq -I /usr/pgsql-9.6/include -I /usr/pgsql-9.6/include/server
-gcc -fPIC -o omnidb_plugin_96.so omnidb_plugin.o -L /usr/pgsql-9.6/lib -lpq -shared
-echo "Done."
-
-echo "Compiling for 10... "
-rm -f *.o
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-10/lib -lpq -I /usr/pgsql-10/include -I /usr/pgsql-10/include/server
-gcc -fPIC -o omnidb_plugin_10.so omnidb_plugin.o -L /usr/pgsql-10/lib -lpq -shared
 echo "Done."
 
 echo -n "Cleaning... "
@@ -78,7 +66,7 @@ cat > SPECS/omnidb-plugin.spec <<EOF
 %define buildroot %{_topdir}/%{longname}-root
 
 BuildRoot: %{buildroot}
-BuildArch: x86_64
+BuildArch: i686
 Summary: PostgreSQL plugin to allow OmniDB to debug PLpgSQL functions
 License: MIT
 Name: %{name}
@@ -110,7 +98,7 @@ cp -r ./* %{buildroot}/opt/%{name}
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-plugin.spec
-cp RPMS/x86_64/omnidb-plugin-$VERSION-0.x86_64.rpm ../omnidb-plugin_$VERSION-$ARCH.rpm
+cp RPMS/i686/omnidb-plugin-$VERSION-0.i686.rpm ../omnidb-plugin_$VERSION-$ARCH.rpm
 cd ..
 echo "Done"
 

@@ -33,7 +33,7 @@ gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql 
 gcc -fPIC -o omnidb_plugin_96.so omnidb_plugin.o -lpq -shared
 echo "Done."
 
-echo "Compiling for 9.6... "
+echo "Compiling for 10... "
 rm -f *.o
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/10/server
 gcc -fPIC -o omnidb_plugin_10.so omnidb_plugin.o -lpq -shared

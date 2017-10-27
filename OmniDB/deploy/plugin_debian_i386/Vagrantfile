@@ -13,7 +13,7 @@ end
 Vagrant::Config.run do |config|
   config.vm.box = "bento/debian-7.11"
   config.vm.box_url = "https://app.vagrantup.com/bento/boxes/debian-7.11"
-  config.vm.host_name = "deployplugin64"
+  config.vm.host_name = "deployplugin32"
 
   config.vm.share_folder "bootstrap", "/mnt/bootstrap", ".", :create => true
   config.vm.provision :shell, :path => "bootstrap.sh"

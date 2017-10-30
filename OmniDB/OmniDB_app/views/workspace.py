@@ -1539,7 +1539,7 @@ def get_completions(request):
     v_score -= 100
 
     for v_type in v_data1:
-    	v_list.append ({'value': p_prefix + "." + v_type.v_name, 'score': v_score, 'meta': v_type.v_dbtype});
+    	v_list.append ({'value': p_prefix + "." + v_type.v_truename, 'score': v_score, 'meta': v_type.v_dbtype});
     	v_score -= 100;
 
     v_return['v_data'] = v_list
@@ -1597,7 +1597,7 @@ def get_completions_table(request):
     v_score -= 100
 
     for v_type in v_data1:
-    	v_list.append ({'value': "t." + v_type.v_name, 'score': v_score, 'meta': v_type.v_dbtype});
+    	v_list.append ({'value': "t." + v_type.v_truename, 'score': v_score, 'meta': v_type.v_dbtype});
     	v_score -= 100;
 
     v_return['v_data'] = v_list

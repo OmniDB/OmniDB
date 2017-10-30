@@ -147,6 +147,7 @@ class DataTable(object):
 class DataField(object):
     def __init__(self, p_name, p_type=None, p_dbtype=None, p_mask='#'):
         self.v_name = p_name
+        self.v_truename = p_name
         self.v_type = p_type
         self.v_dbtype = p_dbtype
         self.v_mask = p_mask
@@ -967,16 +968,32 @@ class PostgreSQL(Generic):
             v_fields = []
             self.v_cur.execute('select * from ( ' + p_sql + ' ) t limit 1')
             r = self.v_cur.fetchone()
+            v_sql = 'select '
+            v_first = True
             if r != None:
                 k = 0
                 for c in self.v_cur.description:
                     v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=self.v_types[c[1]]))
+                    if v_first:
+                        v_sql = v_sql + "quote_ident('{0}')".format(c[0])
+                        v_first = False
+                    else:
+                        v_sql = v_sql + ",quote_ident('{0}')".format(c[0])
                     k = k + 1
             else:
                 k = 0
                 for c in self.v_cur.description:
                     v_fields.append(DataField(c[0], p_type=type(None), p_dbtype=self.v_types[c[1]]))
+                    if v_first:
+                        v_sql = v_sql + "quote_ident('{0}')".format(c[0])
+                        v_first = False
+                    else:
+                        v_sql = v_sql + ",quote_ident('{0}')".format(c[0])
                     k = k + 1
+            self.v_cur.execute(v_sql)
+            r = self.v_cur.fetchone()
+            for k in range(0, len(self.v_cur.description)):
+                v_fields[k].v_truename = r[k]
             return v_fields
         except Spartacus.Database.Exception as exc:
             raise exc

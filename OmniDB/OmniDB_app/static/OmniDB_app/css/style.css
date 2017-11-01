@@ -911,7 +911,11 @@ iframe {
   border: 0px;
 }
 
-#div_about a, .a_link {
+#div_about a {
+  cursor: pointer;
+}
+
+.a_link {
   cursor: pointer;
   text-decoration: underline;
 }

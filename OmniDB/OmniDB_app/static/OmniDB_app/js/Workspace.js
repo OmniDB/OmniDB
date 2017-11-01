@@ -68,6 +68,16 @@ $(function () {
 		}
 	)
 
+	//Prevent dragging files to OmniDB's window
+	window.addEventListener("dragover",function(e){
+	  e = e || event;
+	  e.preventDefault();
+	},false);
+	window.addEventListener("drop",function(e){
+	  e = e || event;
+	  e.preventDefault();
+	},false);
+
 	var v_keyBoardShortCuts = function(p_event) {
 		var v_tabControl = null;
 

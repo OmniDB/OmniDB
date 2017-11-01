@@ -4,6 +4,10 @@
 <li><a id="menu_connections" href="../connections">Connections</a></li>
 {% endblock %}
 
+{% block header_actions %}
+<li style="padding-right: 10px;"><img title="SQL History" style="vertical-align: middle; cursor: pointer;" onclick="showCommandList();" src="/static/OmniDB_app/images/command_list.png"/></li>
+{% endblock %}
+
 {% block content %}
 	<div class="conn_tabs">
 		<div id="conn_tabs" style='margin-left: 5px; margin-right: 5px;'>
@@ -134,6 +138,7 @@
 <script type="text/javascript" src="/static/OmniDB_app/js/Tree.js?v2.3.0.1"                                             ></script>
 <script type="text/javascript" src="/static/OmniDB_app/js/TreeSnippets.js?v2.3.0.1"                                     ></script>
 <script type="text/javascript" src="/static/OmniDB_app/js/TreePostgresql.js?v2.3.0.1"                                   ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/CommandHistory.js?v2.3.0.1"                                   ></script>
 
 <script>
 	var v_query_port = {{ query_port }};

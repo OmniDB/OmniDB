@@ -429,6 +429,11 @@ function refreshHeights(p_all) {
 			if (v_tab_tag.ht!=null)
 				v_tab_tag.ht.render();
 		}
+		else if (v_tab_tag.mode=='query_history') {
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
+			if (v_tab_tag.ht!=null)
+				v_tab_tag.ht.render();
+		}
 		else if (v_tab_tag.mode=='graph') {
 			v_tab_tag.graph_div.style.height = window.innerHeight - $(v_tab_tag.graph_div).offset().top - 20 + "px";
 
@@ -700,7 +705,7 @@ function resizeHorizontalEnd(event) {
 	else if (v_tab_tag.mode=='snippet') {
 		v_tab_tag.editor.resize();
 	}
-	else if (v_tab_tag.mode=='monitoring') {
+	else if (v_tab_tag.mode=='monitoring' || v_tab_tag.mode=='query_history') {
 		if (v_tab_tag.ht!=null) {
 			v_tab_tag.ht.render();
 		}

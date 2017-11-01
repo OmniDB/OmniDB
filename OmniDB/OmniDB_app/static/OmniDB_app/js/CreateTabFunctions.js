@@ -506,6 +506,75 @@ function initCreateTabFunctions() {
 
 	};
 
+  var v_createQueryHistoryTabFunction = function() {
+
+		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+      '<img src="/static/OmniDB_app/images/command_list.png"/><span id="tab_title"> History</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+      false,
+      null,
+      null,
+      null,
+      null,
+      true,
+      function() {
+        if(this.tag != null) {
+          refreshHeights();
+        }
+      });
+		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+
+		//Adding unique names to spans
+		var v_tab_title_span = document.getElementById('tab_title');
+		v_tab_title_span.id = 'tab_title_' + v_tab.id;
+    var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function() {
+			removeTab(v_tab);
+		};
+
+    var v_html = "<button id='bt_first_" + v_tab.id + "' onclick='commandHistoryFirstPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='First'>First</button>" +
+           "<button id='bt_previous_" + v_tab.id + "' onclick='commandHistoryPreviousPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Previous'>Previous</button>" +
+           "<span id='cl_curr_page_" + v_tab.id + "'></span> / <span id='cl_num_pages_" + v_tab.id + "'></span>" +
+           "<button id='bt_next_" + v_tab.id + "' onclick='commandHistoryNextPage()' class='bt_execute' style='margin: 0 5px 5px 5px;' title='Next'>Next</button>" +
+           "<button id='bt_last_" + v_tab.id + "' onclick='commandHistoryLastPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Last'>Last</button>" +
+           "<button id='bt_refresh_" + v_tab.id + "' onclick='refreshCommandList()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Refresh'>Refresh</button>" +
+           "<button id='bt_clear_" + v_tab.id + "' onclick='deleteCommandList()' class='bt_execute bt_red' style='margin: 0 0px 5px 0px;' title='Clear List'>Clear List</button>" +
+					 "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>";
+
+    var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+    var v_bt_refresh = document.getElementById('bt_refresh_' + v_tab.id);
+
+		var v_tag = {
+			tab_id: v_tab.id,
+			mode: 'query_history',
+			tab_title_span : v_tab_title_span,
+      tab_close_span : v_tab_close_span,
+			div_result: document.getElementById('div_result_' + v_tab.id),
+      span_curr_page: document.getElementById('cl_curr_page_' + v_tab.id),
+      span_num_pages: document.getElementById('cl_num_pages_' + v_tab.id),
+			tabControl: v_connTabControl.selectedTab.tag.tabControl,
+      ht: null,
+      current_page: 1,
+      pages: null
+		};
+
+		v_tab.tag = v_tag;
+
+    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    v_add_tab.tag = {
+      mode: 'add'
+    }
+
+    setTimeout(function() {
+      refreshHeights();
+      refreshCommandList();
+    },10);
+
+	};
+
   var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
 		var v_name = 'Query';
@@ -1300,4 +1369,5 @@ function initCreateTabFunctions() {
   v_connTabControl.tag.createWebsiteOuterTab = v_createWebsiteOuterTabFunction;
   v_connTabControl.tag.createMonitoringTab = v_createMonitoringTabFunction;
   v_connTabControl.tag.createDebuggerTab = v_createDebuggerTabFunction;
+  v_connTabControl.tag.createQueryHistoryTab = v_createQueryHistoryTabFunction;
 }

@@ -4,11 +4,11 @@ PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
 apt-get update -y
-apt-get install -y git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils libgconf-2-4 gnome-core
+apt-get install -y git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils libgconf-2-4
 echo "Done"
 
 echo "Installing pyenv..."
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+git clone --depth 1 https://github.com/pyenv/pyenv.git ~/.pyenv
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
 echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
 echo 'eval "$(pyenv init -)"' >> ~/.bashrc
@@ -22,18 +22,17 @@ echo "Done"
 
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
-git clone https://github.com/OmniDB/OmniDB ~/OmniDB
+git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 cd ~/OmniDB
-git checkout dev
 echo "Done"
 
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install -r ~/OmniDB/requirements.txt
-pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt
+pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/debian_app_amd64/
+cd ~/OmniDB/OmniDB/deploy/server_debian_amd64/
 ./build.sh
 echo "Done"

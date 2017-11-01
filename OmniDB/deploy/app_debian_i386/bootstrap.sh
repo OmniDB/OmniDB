@@ -1,14 +1,14 @@
-#!/bin/sh -e
+#!/bin/bash
 
 PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
-yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build
-yum groupinstall -y gnome
+apt-get update -y
+apt-get install -y git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils libgconf-2-4 gnome-core
 echo "Done"
 
 echo "Installing pyenv..."
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+git clone --depth 1 https://github.com/pyenv/pyenv.git ~/.pyenv
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
 echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
 echo 'eval "$(pyenv init -)"' >> ~/.bashrc
@@ -22,9 +22,8 @@ echo "Done"
 
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
-git clone https://github.com/OmniDB/OmniDB ~/OmniDB
+git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 cd ~/OmniDB
-git checkout dev
 echo "Done"
 
 echo "Installing OmniDB dependencies..."
@@ -34,6 +33,6 @@ pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/fedora_app_amd64/
+cd ~/OmniDB/OmniDB/deploy/app_debian_i386/
 ./build.sh
 echo "Done"

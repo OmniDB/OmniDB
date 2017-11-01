@@ -4,11 +4,10 @@ PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
 yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build
-yum groupinstall -y "GNOME Desktop"
 echo "Done"
 
 echo "Installing pyenv..."
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+git clone --depth 1 https://github.com/pyenv/pyenv.git ~/.pyenv
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
 echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
 echo 'eval "$(pyenv init -)"' >> ~/.bashrc
@@ -22,18 +21,17 @@ echo "Done"
 
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
-git clone https://github.com/OmniDB/OmniDB ~/OmniDB
+git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 cd ~/OmniDB
-git checkout dev
 echo "Done"
 
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install -r ~/OmniDB/requirements.txt
-pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt
+pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/centos_app_amd64/
+cd ~/OmniDB/OmniDB/deploy/server_centos_i386/
 ./build.sh
 echo "Done"

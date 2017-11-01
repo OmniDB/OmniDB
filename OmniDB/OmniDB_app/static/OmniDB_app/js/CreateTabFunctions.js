@@ -710,7 +710,6 @@ function initCreateTabFunctions() {
 
             v_completer_ready = false;
             setTimeout(function(){ v_completer_ready = true; }, 1000);
-            //return [];
 
             if (prefix!='') {
 

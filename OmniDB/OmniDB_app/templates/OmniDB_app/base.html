@@ -34,7 +34,8 @@
     				{% endif %}
           {% endif %}
 					<li style="padding-right: 10px;"><img title="User settings" style="vertical-align: middle; cursor: pointer;" onclick="showConfigUser();" src="/static/OmniDB_app/images/gear.png"/></li>
-          <li style="padding-right: 10px;"><img title="SQL History" style="vertical-align: middle; cursor: pointer;" onclick="showCommandList();" src="/static/OmniDB_app/images/command_list.png"/></li>
+          {% block header_actions %}
+          {% endblock %}
 					<li style="padding-right: 10px;"><img title="About" style="vertical-align: middle; cursor: pointer;" onclick="showAbout();" src="/static/OmniDB_app/images/about.png"/></li>
           {% if not desktop_mode %}
           <li><a href="../logout">Logout</a></li>
@@ -177,25 +178,6 @@
         </div>
     </div>
 
-    <div id="div_command_list" style="display:none;">
-        <div class="modal_background_dark">
-            <div class ="white_box" style="width: 90%; left: 5%; top: 5%; font-size: 11px; font-family: sans-serif;">
-                <a class="modal-closer" onclick="hideCommandList()">x</a>
-             	<div style='margin-left:10px; margin-top: 10px; display:inline-block;'>
-            <button onclick="commandHistoryFirstPage()">First</button>
-            <button onclick="commandHistoryPreviousPage()">Previous</button>
-            <span id="cl_curr_page"></span> / <span id="cl_num_pages"></span>
-            <button onclick="commandHistoryNextPage()">Next</button>
-            <button onclick="commandHistoryLastPage()">Last</button>
-            <button onclick="deleteCommandList()" class="bt_red">Clear list</button>
-			    </div>
-                <div style="padding: 10px;">
-                	<div id='div_command_list_data' style='width: 100%; height: 600px; overflow: auto;'></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="div_users" style="display:none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 50%; left: 25%; top: 20%; font-size: 11px; font-family: sans-serif;">
@@ -304,7 +286,6 @@
   var ht;
   var network;
   var v_connTabControl;
-  var v_commandListObject;
   var v_usersObject;
   var v_editDataObject;
   var v_canEditContent;

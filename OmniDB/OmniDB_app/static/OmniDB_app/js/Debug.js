@@ -24,7 +24,6 @@ var v_debugState = {
 
 function setupDebug(p_node) {
 
-  //console.log(p_node);
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 	v_tab_tag.database_index = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
 	v_tab_tag.function = p_node.parent.parent.text + '.' + p_node.text;
@@ -385,7 +384,6 @@ function debugResponse(p_message, p_context) {
 }
 
 function debugResponseRender(p_message, p_context) {
-  //console.log(p_message.v_data)
 
 	p_context.tab_tag.tab_stub_span.style.display = '';
 	p_context.tab_tag.tab_check_span.style.display = 'none';

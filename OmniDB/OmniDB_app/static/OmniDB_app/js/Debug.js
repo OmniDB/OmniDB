@@ -433,11 +433,10 @@ function debugResponseRender(p_message, p_context) {
 		//Finished
 	  if (p_context.tab_tag.state==v_debugState.Finished) {
 
-				p_context.tab_tag.debug_info.innerHTML = '<b>Finished</b>';
-
 				p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
 
 				if (p_message.v_data.v_error) {
+					p_context.tab_tag.debug_info.innerHTML = '<b>Finished</b>';
 					p_context.tab_tag.selectResultTabFunc();
 					p_context.tab_tag.div_result.innerHTML = '<div class="error_text">' + p_message.v_data.v_error_msg + '</div>';
 				}
@@ -474,6 +473,7 @@ function debugResponseRender(p_message, p_context) {
 					p_context.tab_tag.selectStatisticsTabFunc();
 					//building data object
 					var v_chart_data = [];
+					var v_total_duration = 0.0;
 					var v_chart_labels = [];
 					var v_max_value = 0;
 					for (var i=0; i<p_message.v_data.v_result_statistics.length; i++) {
@@ -481,8 +481,11 @@ function debugResponseRender(p_message, p_context) {
 						if (v_curr_val > v_max_value)
 							v_max_value = v_curr_val;
 						v_chart_labels.push(parseFloat(p_message.v_data.v_result_statistics[i][0]));
-						v_chart_data.push({meta: 'Duration', value: parseFloat(p_message.v_data.v_result_statistics[i][1]) });
+						v_chart_data.push({meta: 'Duration', value: v_curr_val });
+						v_total_duration += v_curr_val;
 					}
+
+					p_context.tab_tag.debug_info.innerHTML = '<b>Finished</b> - <b>Total duration</b>: ' + (v_total_duration).toFixed(3) + ' s';
 
 					var v_width = 80*p_message.v_data.v_result_statistics.length;
 					v_width = Math.max(v_width,400)

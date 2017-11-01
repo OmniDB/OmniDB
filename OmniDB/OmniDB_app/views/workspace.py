@@ -1649,6 +1649,8 @@ def get_command_list(request):
 
     v_command_list = []
 
+    index = 0
+
     for v_command in v_commands.Rows:
         v_command_data_list = []
         v_command_data_list.append(v_command["cl_st_start"])
@@ -1656,11 +1658,13 @@ def get_command_list(request):
         v_command_data_list.append(v_command["cl_st_duration"])
         v_command_data_list.append(v_command["cl_st_mode"])
         if v_command["cl_st_status"]=='success':
-            v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_F.png"/>')
+            v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_F.png" title="Success"/>')
         else:
-            v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_X.png"/>')
+            v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_X.png" title="Error"/>')
         v_command_data_list.append(v_command["cl_st_command"])
+        v_command_data_list.append('<img src="/static/OmniDB_app/images/trigger.png" class="img_ht" title="Open command in new tab" onclick="commandHistoryOpenCmd({0})"/>'.format(index))
         v_command_list.append(v_command_data_list)
+        index = index + 1
 
     v_page = ceil(v_count/settings.CH_CMDS_PER_PAGE)
     if v_page==0:

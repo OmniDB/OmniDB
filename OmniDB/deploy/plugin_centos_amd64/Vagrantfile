@@ -13,7 +13,7 @@ end
 Vagrant::Config.run do |config|
   config.vm.box = "wholebits/centos6-64"
   config.vm.box_url = "https://app.vagrantup.com/wholebits/boxes/centos6-64"
-  config.vm.host_name = "pluginserver64"
+  config.vm.host_name = "deployplugin64"
 
   config.vm.share_folder "bootstrap", "/mnt/bootstrap", ".", :create => true
   config.vm.provision :shell, :path => "bootstrap.sh"

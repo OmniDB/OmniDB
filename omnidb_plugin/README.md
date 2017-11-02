@@ -19,7 +19,7 @@ sudo rpm -ivU omnidb-plugin_2.3.0-centos-amd64.rpm
 ## 1.2. Create a symlink
 
 ```bash
-# Find the PostgreSQL version and path for $libdir. For example:
+# Find the PostgreSQL version and path for $libdir and create a link to the specific library. For example:
 sudo ln -s /opt/omnidb-plugin/omnidb_plugin_96.so /usr/lib/postgresql/9.6/lib/omnidb_plugin.so
 ```
 

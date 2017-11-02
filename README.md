@@ -2,28 +2,18 @@
 
 ## Release Notes
 
-- Debugger for PL/pgSQL functions
-- When closing query tab or browser tab, all running queries are canceled
-- Minor bug fixes
-
-# Introduction
-
-OmniDB was completely rewritten to Python using the Django framework. Starting
-from version `2.0`, **OmniDB Python version** will receive new features and will
-be actively maintained.
-
-The source code for the ASP.NET/C\# version is in the branch **csharp**. The
-next release of OmniDB C\# version is `1.7`, and it will only receive bug fixes.
-
-Besides being written in Python, initial version of `OmniDB 2.0` contains the
-following main differences from the C\# version:
-
-- Support to HTTPS;
-- It allows query execution in background and cancellation through the use of
-*websockets*;
-- Initially, only an improved support of PostgreSQL is implemented. More RDBMS
-support coming soon;
-- There is a new `Snippet` feature.
+- Debugger for PL/pgSQL functions (requires a plugin, please see [installation instructions](https://github.com/OmniDB/OmniDB/blob/master/omnidb_plugin/README.md) and [how to use](https://blog.2ndquadrant.com/omnidb-debugger-for-plpgsql-functions/))
+- Automatic saving of query tabs (fixes #200)
+- Automatic closing of database connections
+- Other enhancements:
+  - Tabbed SQL History
+  - Packages for openSUSE
+- Bug fixes:
+  - #239: Unable to use some password
+  - #261: Click and drag image
+  - #278: EditData does not work when column has uppercase letters
+  - #279: Autocomplete in query and EditData does not work for columns with upper case
+  - Other minor bugs in treeview
 
 # 1- Installation
 
@@ -110,10 +100,6 @@ Supported DBMS:
 OmniDB is designed for easy database management. Here are some features:
 
 - Tree view showing database structure
-  - Included structures:
-    - Columns and Tables
-    - Key Constraints: primary, foreign and unique
-    - Index (unique and non-unique)
 
 ![](https://omnidb.org/images/screenshots/treeview.png)
 
@@ -133,17 +119,22 @@ OmniDB is designed for easy database management. Here are some features:
 ![](https://omnidb.org/images/screenshots/screen07.png)
 
 - SQL Editing
-  - Customizable Features:
-    - Syntax highlighting for SQL
-    - SQL code completion for table columns and subquery
-    - Multiple themes to be selected
+  - Syntax highlighting for SQL
+  - SQL code completion for table columns and subquery
+  - Multiple themes to be selected
 
 ![](https://omnidb.org/images/screenshots/screen06.png)
+
+- Support for external tools:
+  - [pglogical](https://www.2ndquadrant.com/en/resources/pglogical/)
+  - [Postgres-BDR](https://www.2ndquadrant.com/en/resources/bdr/)
+  - [Postgres-XL](https://www.2ndquadrant.com/en/resources/postgres-xl/)
+
 
 - Other features:
   - Querying organized in tables
   - DDL commands execution
-  - Multiple sequenced command execution (scripts)
+  - SQL history
   - Graphs displaying tables and their relations
 
 ![](https://omnidb.org/images/screenshots/screen02.png)
@@ -151,3 +142,11 @@ OmniDB is designed for easy database management. Here are some features:
   - Graphs displaying complete ER diagram
 
 ![](https://omnidb.org/images/screenshots/screen01.png)
+
+  - Visualization of explain plan
+
+![](https://omnidb.org/images/screenshots/execution_plan.png)
+
+  - PL/pgSQL function debugger (requires a plugin, please see [here](https://github.com/OmniDB/OmniDB/blob/master/omnidb_plugin/README.md))
+
+![](https://omnidb.org/images/screenshots/debugger.png)

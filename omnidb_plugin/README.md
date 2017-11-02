@@ -10,12 +10,12 @@ sudo systemctl restart postgresql
 
 ## 1.2. Post-installation steps
 
-## 1.2.1. Create omnidb schema in your database (should be done by a superuser)
+### 1.2.1. Create omnidb schema in your database (should be done by a superuser)
 ```bash
 psql -d <database> -f debugger_schema.sql
 ```
 
-## 1.2.2. Create sample functions (optional)
+### 1.2.2. Create sample functions (optional)
 ```bash
 psql -d <database> -f debugger_schema.sql
 ```
@@ -47,12 +47,12 @@ sudo systemctl restart postgresql
 
 ## 2.5. Post-installation steps
 
-## 2.5.1. Create omnidb_plugin extension (should be done by a superuser)
+### 2.5.1. Create omnidb_plugin extension (should be done by a superuser)
 ```bash
 psql -d <database> -c 'CREATE EXTENSION omnidb_plugin'
 ```
 
-## 2.2.2. Create sample functions (optional)
+### 2.2.2. Create sample functions (optional)
 ```bash
 psql -d <database> -f debugger_schema.sql
 ```

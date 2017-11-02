@@ -83,7 +83,7 @@ sudo systemctl restart postgresql
 psql -d <database> -c 'CREATE EXTENSION omnidb_plugin'
 ```
 
-## 2.2.2. Create sample functions (optional)
+### 2.2.2. Create sample functions (optional)
 
 ```bash
 psql -d <database> -f debugger_schema.sql

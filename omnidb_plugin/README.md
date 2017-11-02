@@ -40,7 +40,7 @@ sudo systemctl restart postgresql
 psql -d <database> -f debugger_schema.sql
 ```
 
-### 1.4.2. Grant privileges to your user (should be done by a superuser)
+### 1.4.2. Grant privileges to each user that will debug functions (should be done by a superuser)
 
 ```bash
 psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;
@@ -89,7 +89,7 @@ sudo systemctl restart postgresql
 psql -d <database> -c 'CREATE EXTENSION omnidb_plugin'
 ```
 
-### 2.5.2. Grant privileges to your user (should be done by a superuser)
+### 2.5.2. Grant privileges to each user that will debug functions (should be done by a superuser)
 
 ```bash
 psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;

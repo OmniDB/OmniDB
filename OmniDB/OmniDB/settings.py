@@ -14,7 +14,10 @@ import os
 import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOG_DIR = os.path.join(BASE_DIR, 'log')
+HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb')
 
 
 # Quick-start development settings - unsuitable for production
@@ -106,13 +109,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -138,14 +137,14 @@ LOGGING = {
     'handlers': {
         'logfile_omnidb': {
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'log/omnidb.log'),
+            'filename': os.path.join(LOG_DIR, 'omnidb.log'),
             'maxBytes': 1024*1024*5, # 5 MB
             'backupCount': 5,
             'formatter': 'standard',
         },
         'logfile_django': {
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'log/omnidb.log'),
+            'filename': os.path.join(LOG_DIR, 'omnidb.log'),
             'maxBytes': 1024*1024*5, # 5 MB
             'backupCount': 5,
             'formatter': 'standard',
@@ -180,8 +179,9 @@ LOGGING = {
 }
 
 #OMNIDB PARAMETERS
-OMNIDB_DATABASE            = os.path.join(BASE_DIR, 'omnidb.db')
-OMNIDB_VERSION             = 'OmniDB 2.3.0'
+OMNIDB_DATABASE            = os.path.join(HOME_DIR, 'omnidb.db')
+OMNIDB_VERSION             = 'OmniDB 2.4.0'
+OMNIDB_SHORT_VERSION       = '2.4.0'
 BINDKEY_EXECUTE            = 'alt+q'
 BINDKEY_EXECUTE_MAC        = 'ctrl+q'
 BINDKEY_REPLACE            = 'ctrl+g'

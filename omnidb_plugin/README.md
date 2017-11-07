@@ -10,10 +10,10 @@
 
 ```bash
 # For example, Debian-like 64 bits:
-sudo dpkg -i omnidb-plugin_2.3.0-debian-amd64.deb
+sudo dpkg -i omnidb-plugin_2.4.0-debian-amd64.deb
 
 # For example, for CentOS-like 64 bits:
-sudo rpm -ivU omnidb-plugin_2.3.0-centos-amd64.rpm
+sudo rpm -ivU omnidb-plugin_2.4.0-centos-amd64.rpm
 ```
 
 ## 1.2. Create a symlink

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2.3.0
+VERSION=2.4.0
 ARCH=debian-i386
 
 cd ~/OmniDB/OmniDB

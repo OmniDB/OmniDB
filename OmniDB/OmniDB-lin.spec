@@ -11,7 +11,6 @@ data_files_app = [
   ('OmniDB/migrations','OmniDB/migrations')
 ]
 data_files_server = [
-  ('omnidb.db','.'),
   ('db.sqlite3','.'),
   ('omnidb.conf','.'),
   ('log','log'),

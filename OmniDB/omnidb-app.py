@@ -32,7 +32,7 @@ import django.contrib.auth.context_processors
 import django.contrib.messages.context_processors
 import psycopg2
 
-import OmniDB_app.include.cherrypy as cherrypy
+import cherrypy
 from django.core.handlers.wsgi import WSGIHandler
 from OmniDB import home, ws_core
 

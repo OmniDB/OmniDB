@@ -3408,6 +3408,15 @@ function getViewsColumnsPostgresql(node) {
 
             }
 
+            if (node.tag.has_rules) {
+                v_node = node.createChildNode('Rules', false,
+                    '/static/OmniDB_app/images/rule.png', {
+                        type: 'rule_list'
+                    }, 'cm_rules');
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+            }
+
             if (node.tag.has_triggers) {
                 v_node = node.createChildNode('Triggers', false,
                     '/static/OmniDB_app/images/trigger.png', {

@@ -3,7 +3,6 @@
 block_cipher = None
 
 data_files = [
-  ('db.sqlite3','.'),
   ('log','log'),
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
@@ -52,7 +51,7 @@ b = Analysis(['omnidb-server.py'],
              cipher=block_cipher)
 pyz_b = PYZ(b.pure, b.zipped_data,
              cipher=block_cipher)
-exe_b = EXE(pyz_a,
+exe_b = EXE(pyz_b,
           b.scripts,
           exclude_binaries=True,
           name='omnidb-server',

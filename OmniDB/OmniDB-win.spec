@@ -3,7 +3,6 @@
 block_cipher = None
 
 data_files_app = [
-  ('db.sqlite3','.'),
   ('log','log'),
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
@@ -11,7 +10,6 @@ data_files_app = [
   ('OmniDB/migrations','OmniDB/migrations')
 ]
 data_files_server = [
-  ('db.sqlite3','.'),
   ('omnidb.conf','.'),
   ('log','log'),
   ('OmniDB_app/static','OmniDB_app/static'),
@@ -52,7 +50,7 @@ coll_a = COLLECT(exe_a,
 b = Analysis(['omnidb-server.py'],
              binaries=[],
              datas=data_files_server,
-             hiddenimports=[],
+             hiddenimports=['cheroot.ssl','cheroot.ssl.builtin'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
@@ -61,7 +59,7 @@ b = Analysis(['omnidb-server.py'],
              cipher=block_cipher)
 pyz_b = PYZ(b.pure, b.zipped_data,
              cipher=block_cipher)
-exe_b = EXE(pyz_a,
+exe_b = EXE(pyz_b,
           b.scripts,
           exclude_binaries=True,
           name='omnidb-server',

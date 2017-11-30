@@ -2,6 +2,7 @@
 
 {% block header_menu %}
 <li><a id="menu_connections" href="../connections">Connections</a></li>
+<li><a id="menu_connections" href="../monitoring">Monitoring</a></li>
 {% endblock %}
 
 {% block header_actions %}
@@ -124,6 +125,7 @@
 {% block include %}
 <script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape.min.js?v2.3.0"                         ></script>
 <script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js?v2.3.0"                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Chart.bundle.min.js?v2.3.0"                                 ></script>
 <script type="text/javascript" src="/static/OmniDB_app/js/chartist.min.js?v2.3.0"                                     ></script>
 <script type="text/javascript" src="/static/OmniDB_app/js/chartist-plugin-axistitle.min.js?v2.3.0"                    ></script>
 <script type="text/javascript" src="/static/OmniDB_app/lib/aimaraJS/lib/Aimara.js?v2.3.0"                             ></script>
@@ -137,8 +139,10 @@
 <script type="text/javascript" src="/static/OmniDB_app/js/CreateTabFunctions.js?v2.3.0"                               ></script>
 <script type="text/javascript" src="/static/OmniDB_app/js/Tree.js?v2.3.0"                                             ></script>
 <script type="text/javascript" src="/static/OmniDB_app/js/TreeSnippets.js?v2.3.0"                                     ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreeMonitor.js?v2.3.0"                                      ></script>
 <script type="text/javascript" src="/static/OmniDB_app/js/TreePostgresql.js?v2.3.0"                                   ></script>
 <script type="text/javascript" src="/static/OmniDB_app/js/CommandHistory.js?v2.3.0"                                   ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/MonitorDashboard.js?v2.3.0"                                 ></script>
 
 <script>
 	var v_query_port = {{ query_port }};

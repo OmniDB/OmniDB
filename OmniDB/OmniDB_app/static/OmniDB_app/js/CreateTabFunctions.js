@@ -194,6 +194,303 @@ function initCreateTabFunctions() {
 
   }
 
+  var v_createServerMonitoringTabFunction = function() {
+
+  	var v_tab = v_connTabControl.createTab(
+        '<img src="/static/OmniDB_app/images/monitoring.png"/> Monitoring',
+        false,
+        null,
+        null,
+        null,
+        null,
+        true,
+        function() {
+          if(this.tag != null) {
+            refreshHeights(true);
+          }
+        }
+    );
+
+  	v_connTabControl.selectTab(v_tab);
+
+  	var v_html = "<div id='" + v_tab.id + "_div_left' class='div_left' style='float:left; position: relative; width:15%; '>" +
+  	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
+  	"<div style='width: 97%;'><div id='" + v_tab.id + "_tree' style='margin-top: 10px; overflow: auto; font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;'></div>" +
+  	"</div>" +
+  	"<div id='html1'>" +
+  	"</div>" +
+  	"</div>" +
+  	"<div id='" + v_tab.id + "_div_right' class='div_right' style='float:left; width:85%;'>" +
+  	"<div id='" + v_tab.id + "_tabs'>" +
+  	"<ul>" +
+  	"</ul>" +
+  	"</div>" +
+  	"</div>";
+
+  	var v_div = document.getElementById('div_' + v_tab.id);
+  	v_div.innerHTML = v_html;
+
+  	var v_height  = window.innerHeight - $('#' + v_tab.id + '_tree').offset().top - 20;
+  	document.getElementById(v_tab.id + '_tree').style.height = v_height + "px";
+
+  	var v_currTabControl = createTabControl(v_tab.id + '_tabs',0,null);
+
+  	var v_tag = {
+  		tabControl: v_currTabControl,
+      tabControlDiv: document.getElementById(v_tab.id + '_tabs'),
+  		divTree: document.getElementById(v_tab.id + '_tree'),
+  		divLeft: document.getElementById(v_tab.id + '_div_left'),
+  		divRight: document.getElementById(v_tab.id + '_div_right'),
+  		connTabControl: v_connTabControl,
+      mode: 'monitor_all'
+  	};
+
+    v_tab.tag = v_tag;
+
+    getTreeMonitor(v_tag.divTree.id);
+
+    //v_connTabControl.tag.createNewMonitorNodeTab();
+
+    setTimeout(function() {
+      refreshTreeHeight();
+    },10);
+
+  }
+
+  var v_createNewMonitorNodeTabFunction = function(p_node) {
+
+		var v_name = 'New Node';
+		if (p_node)
+			v_name = p_node;
+
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+            '<span id="tab_title">' + v_name + '</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+            false,
+            null,
+            null,
+            null,
+            null,
+            true,
+            function() {
+              if(this.tag != null) {
+                refreshHeights();
+              }
+            }
+        );
+		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+
+		//Adding unique names to spans
+		var v_tab_title_span = document.getElementById('tab_title');
+		v_tab_title_span.id = 'tab_title_' + v_tab.id;
+		var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function() {
+			closeSnippetTab(v_tab);
+		};
+
+		var v_html = "<div style='height: 100%;'>" +
+    "<div>Node name: <input type='text' id='txt_snippet_" + v_tab.id + "' /></div>" +
+    "<div style='padding-right: 12px;'><div id='" + v_tab.id + "_div_select_db' style='width: 100%; display: inline-block;'></div>" +
+		"<button id='bt_save_" + v_tab.id + "' class='bt_execute' title='Save' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='saveSnippetText();'><img src='/static/OmniDB_app/images/save.png' style='vertical-align: middle;'/></button>" +
+    "</div>";
+		var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+    var v_div_select_db = document.getElementById(v_tab.id + '_div_select_db');
+  	v_div_select_db.innerHTML = v_connTabControl.tag.selectHTML;
+    //v_div_select_db.childNodes[0].childNodes[v_index].selected=true
+  	$(v_div_select_db.childNodes[0]).msDropDown();
+
+    var v_txt_snippet = document.getElementById('txt_snippet_' + v_tab.id);
+
+
+		var v_tag = {
+			tab_id: v_tab.id,
+			mode: 'monitor_node',
+			tab_title_span : v_tab_title_span,
+			tab_close_span : v_tab_close_span,
+      bt_save: document.getElementById('bt_save_' + v_tab.id),
+			tabControl: v_connTabControl.selectedTab.tag.tabControl,
+		};
+
+		v_tab.tag = v_tag;
+
+		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createNewMonitorNodeTab);
+
+    setTimeout(function() {
+      refreshHeights();
+    },10);
+
+	};
+
+  var v_createNewMonitorUnitTabFunction = function() {
+
+
+		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+            '<img src="/static/OmniDB_app/images/snippet_medium.png"/> <span id="tab_title">Monitor Unit</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+            false,
+            null,
+            null,
+            null,
+            null,
+            true,
+            function() {
+              if(this.tag != null) {
+                refreshHeights();
+              }
+              if(this.tag != null && this.tag.editor != null) {
+                  this.tag.editor.focus();
+              }
+            }
+        );
+		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+
+		//Adding unique names to spans
+		var v_tab_title_span = document.getElementById('tab_title');
+		v_tab_title_span.id = 'tab_title_' + v_tab.id;
+		var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function() {
+			removeTab(v_tab);
+		};
+
+		var v_html = "<div style='margin-top: 5px; margin-bottom: 5px;'>" +
+    "<span>Name: </span><input type='text' id='txt_unit_name_" + v_tab.id + "' />" +
+    "<span style='margin-left: 5px;'>Type: </span><select id='select_type_" + v_tab.id + "'><option value='chart_append'>Chart (Append)</option><option value='chart'>Chart (No Append)</option><option value='grid'>Grid</option></select>" +
+    "</div>" +
+    "<div style='margin-top: 5px; margin-bottom: 5px;'>" +
+    "<span>Template: </span><select id='select_template_" + v_tab.id + "' onchange='selectUnitTemplate(this.value)'><option value=-1>Select Template</option></select>" +
+    "</div>" +
+    "<div id='txt_script_" + v_tab.id + "' style=' width: 100%; height: 250px; border: 1px solid #c3c3c3;'></div>" +
+		"<button class='bt_execute' title='Test' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='testMonitorScript();'><img src='/static/OmniDB_app/images/trigger.png' style='vertical-align: middle;'/></button>" +
+    "<button class='bt_execute' title='Save' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='saveMonitorScript();'><img src='/static/OmniDB_app/images/save.png' style='vertical-align: middle;'/></button>" +
+    "<div class='dashboard_unit_test'><div id='div_result_" + v_tab.id + "' class='unit_grid'></div></div>";
+
+		var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+    var v_txt_script = document.getElementById('txt_script_' + v_tab.id);
+
+
+		var langTools = ace.require("ace/ext/language_tools");
+		var v_editor = ace.edit('txt_script_' + v_tab.id);
+		v_editor.setTheme("ace/theme/" + v_editor_theme);
+		v_editor.session.setMode("ace/mode/python");
+		v_editor.commands.bindKey(".", "startAutocomplete");
+
+		v_editor.setFontSize(Number(v_editor_font_size));
+
+		v_editor.commands.bindKey("ctrl-space", null);
+
+    //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+    v_editor.commands.bindKey("Cmd-,", null)
+    v_editor.commands.bindKey("Ctrl-,", null)
+    v_editor.commands.bindKey("Cmd-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Delete", null)
+
+		v_txt_script.onclick = function() {
+
+			v_editor.focus();
+
+		};
+
+		var v_tag = {
+			tab_id: v_tab.id,
+			mode: 'monitor_unit',
+			editor: v_editor,
+      editorDiv: v_txt_script,
+			editorDivId: 'txt_script_' + v_tab.id,
+			tab_title_span : v_tab_title_span,
+			tab_close_span : v_tab_close_span,
+      select_type: document.getElementById('select_type_' + v_tab.id),
+      select_template: document.getElementById('select_template_' + v_tab.id),
+      input_unit_name: document.getElementById('txt_unit_name_' + v_tab.id),
+      div_result: document.getElementById('div_result_' + v_tab.id),
+      bt_test: document.getElementById('bt_test_' + v_tab.id),
+			tabControl: v_connTabControl.selectedTab.tag.tabControl,
+      unit_id: null,
+      object: null
+		};
+
+		v_tab.tag = v_tag;
+
+		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+
+    setTimeout(function() {
+      refreshHeights();
+    },10);
+
+	};
+
+  var v_createMonitorDashboardTabFunction = function() {
+
+		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+      '<img src="/static/OmniDB_app/images/monitoring.png"/><span id="tab_title"> Monitoring</span>',
+      true,
+      null,
+      null,
+      null,
+      null,
+      true,
+      function() {
+        if(this.tag != null) {
+          refreshHeights();
+          if (this.tag.unit_list_grid!=null) {
+            showMonitorUnitList();
+          }
+        }
+      });
+		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+
+		//Adding unique names to spans
+		var v_tab_title_span = document.getElementById('tab_title');
+		v_tab_title_span.id = 'tab_title_' + v_tab.id;
+
+		var v_html = "<div>" +
+    "<button onclick='refreshMonitorDashboard()'>Refresh All</button>" +
+    "<span style='position: relative; margin-left: 5px;'><button onclick='showMonitorUnitList()'>Manage Units</button>" +
+    "<div id='unit_list_div_" + v_tab.id + "' class='dashboard_unit_list'><a class='modal-closer' onclick='closeMonitorUnitList()'>x</a>" +
+    "<button onclick='editMonitorUnit()'>New Unit</button>" +
+    "<div id='unit_list_grid_" + v_tab.id + "' class='unit_list_grid'></div>" +
+    "</div>" +
+    "</span>" +
+    "</div>" +
+    "<div id='dashboard_" + v_tab.id + "' class='dashboard_all'>" +
+    "</div>";
+
+    var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+    var v_txt_snippet = document.getElementById('txt_snippet_' + v_tab.id);
+
+		var v_tag = {
+			tab_id: v_tab.id,
+			mode: 'monitor_dashboard',
+			dashboard_div: document.getElementById('dashboard_' + v_tab.id),
+      unit_list_div: document.getElementById('unit_list_div_' + v_tab.id),
+      unit_list_grid_div: document.getElementById('unit_list_grid_' + v_tab.id),
+      unit_list_grid: null,
+      unit_list_id_list: [],
+			tab_title_span : v_tab_title_span,
+			tabControl: v_connTabControl.selectedTab.tag.tabControl,
+      units: []
+		};
+
+		v_tab.tag = v_tag;
+
+    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+    v_add_tab.tag = {
+      mode: 'add'
+    }
+
+    setTimeout(function() {
+      refreshHeights();
+    },10);
+
+	};
+
   var v_createSnippetTextTabFunction = function(p_snippet) {
 
 		var v_name = 'New Snippet';
@@ -475,7 +772,7 @@ function initCreateTabFunctions() {
 
 		var v_tag = {
 			tab_id: v_tab.id,
-			mode: 'monitoring',
+			mode: 'monitor_grid',
 			tab_title_span : v_tab_title_span,
       tab_close_span : v_tab_close_span,
       query_info: document.getElementById('div_query_info_' + v_tab.id),
@@ -1355,6 +1652,7 @@ function initCreateTabFunctions() {
   //Functions to create tabs globally
   v_connTabControl.tag.createConnTab = v_createConnTabFunction;
   v_connTabControl.tag.createSnippetTab = v_createSnippetTabFunction;
+  v_connTabControl.tag.createServerMonitoringTab = v_createServerMonitoringTabFunction;
 
   //Functions to create tabs inside snippet tab
   v_connTabControl.tag.createSnippetTextTab = v_createSnippetTextTabFunction;
@@ -1369,4 +1667,9 @@ function initCreateTabFunctions() {
   v_connTabControl.tag.createMonitoringTab = v_createMonitoringTabFunction;
   v_connTabControl.tag.createDebuggerTab = v_createDebuggerTabFunction;
   v_connTabControl.tag.createQueryHistoryTab = v_createQueryHistoryTabFunction;
+  v_connTabControl.tag.createNewMonitorUnitTab = v_createNewMonitorUnitTabFunction;
+  v_connTabControl.tag.createMonitorDashboardTab = v_createMonitorDashboardTabFunction;
+
+  //Functions to create tabs inside monitor tab
+  v_connTabControl.tag.createNewMonitorNodeTab = v_createNewMonitorNodeTabFunction;
 }

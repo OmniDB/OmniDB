@@ -2585,6 +2585,13 @@ function getTreeDetails(node) {
                 action: function(node) {},
                 submenu: {
                     elements: [{
+                        text: 'Dashboard',
+                        icon: '/static/OmniDB_app/images/monitoring.png',
+                        action: function(node) {
+                            v_connTabControl.tag.createMonitorDashboardTab();
+                            startMonitorDashboard();
+                        }
+                    }, {
                         text: 'Backends',
                         icon: '/static/OmniDB_app/images/monitoring.png',
                         action: function(node) {

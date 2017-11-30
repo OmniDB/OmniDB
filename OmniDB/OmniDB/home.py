@@ -21,7 +21,7 @@ def migrate(p_database, p_current_version):
         sql_file = migrations[p_current_version][1]
         try:
             with open(sql_file, 'r') as f:
-                for sql in f.read().split(';'):
+                for sql in f.read().split('--omnidb--'):
                     p_database.v_connection.Execute(sql)
             print('OmniDB successfully migrated user database from version {0} to version {1}'.format(p_current_version, next_version))
             return True

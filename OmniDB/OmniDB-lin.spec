@@ -3,21 +3,21 @@
 block_cipher = None
 
 data_files_app = [
-  ('omnidb.db','.'),
-  ('db.sqlite3','.'),
+  ('db.sqlite3','db.sqlite3'),
   ('log','log'),
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
-  ('OmniDB_app/templates','OmniDB_app/templates')
+  ('OmniDB_app/templates','OmniDB_app/templates'),
+  ('OmniDB/migrations','OmniDB/migrations')
 ]
 data_files_server = [
-  ('omnidb.db','.'),
-  ('db.sqlite3','.'),
-  ('omnidb.conf','.'),
+  ('db.sqlite3','db.sqlite3'),
+  ('omnidb.conf','omnidb.conf'),
   ('log','log'),
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
-  ('OmniDB_app/templates','OmniDB_app/templates')
+  ('OmniDB_app/templates','OmniDB_app/templates'),
+  ('OmniDB/migrations','OmniDB/migrations'),
 ]
 
 a = Analysis(['omnidb-app.py'],

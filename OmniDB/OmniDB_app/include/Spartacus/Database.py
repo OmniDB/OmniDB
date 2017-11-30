@@ -26,6 +26,7 @@ from collections import OrderedDict
 from abc import ABC, abstractmethod
 import datetime
 import prettytable
+import math
 
 import OmniDB_app.include.Spartacus as Spartacus
 
@@ -134,15 +135,67 @@ class DataTable(object):
                 raise Spartacus.Database.Exception('Can not compare tables with different columns.')
         else:
             raise Spartacus.Database.Exception('Can not compare tables with no columns.')
-    def Pretty(self):
-        v_pretty = prettytable.PrettyTable()
-        v_pretty._set_field_names(self.Columns)
-        for r in self.Rows:
-            v_row = []
+    def Pretty(self, p_transpose=False):
+        if p_transpose:
+            v_maxc = 0
             for c in self.Columns:
-                v_row.append(r[c])
-            v_pretty.add_row(v_row)
-        return v_pretty
+                if len(c) > v_maxc:
+                    v_maxc = len(c)
+            if v_maxc < (14 + len(str(len(self.Rows)))):
+                v_maxc = (14 + len(str(len(self.Rows))))
+            else:
+                v_maxc = v_maxc + 1
+            k = 0
+            s = 0
+            v_maxf = 0
+            for r in self.Rows:
+                for c in self.Columns:
+                    for v_snippet in str(r[c]).split('\n'):
+                        k = k + 1
+                        s = s + len(v_snippet)
+                        if len(str(r[c])) > v_maxf:
+                            v_maxf = len(v_snippet)
+            if v_maxf > 30:
+                v_maxf = int(s / k) + int((v_maxf - int(s / k)) / 2)
+            v_maxf = v_maxf + 10
+            v_string = ''
+            v_row = 1
+            for r in self.Rows:
+                v_aux = '-[ RECORD {0} ]'.format(v_row)
+                for k in range(len(v_aux), v_maxc):
+                    v_aux = v_aux + '-'
+                v_string = v_string + v_aux + '+'
+                for k in range(0, v_maxf):
+                    v_string = v_string + '-'
+                v_string = v_string + '\n'
+                for c in self.Columns:
+                    v_first = True
+                    for v_snippet in str(r[c]).split('\n'):
+                        n = math.ceil(len(v_snippet) / (v_maxf-2))
+                        j = 0
+                        for i in range(0, n):
+                            if v_first:
+                                x = c.ljust(v_maxc)
+                                v_first = False
+                            else:
+                                x = ' '.ljust(v_maxc)
+                            if i < n-1:
+                                y = ' ' + v_snippet[j:j+v_maxf-2] + '+'
+                                j = j + v_maxf-2
+                            else:
+                                y = ' ' + v_snippet[j:]
+                            v_string = v_string + '{0}|{1}\n'.format(x, y)
+                v_row = v_row + 1
+            return v_string
+        else:
+            v_pretty = prettytable.PrettyTable()
+            v_pretty._set_field_names(self.Columns)
+            for r in self.Rows:
+                v_row = []
+                for c in self.Columns:
+                    v_row.append(r[c])
+                v_pretty.add_row(v_row)
+            return v_pretty.get_string()
 
 class DataField(object):
     def __init__(self, p_name, p_type=None, p_dbtype=None, p_mask='#'):
@@ -173,6 +226,8 @@ except ImportError:
 try:
     import psycopg2
     from psycopg2 import extras
+    from pgspecial.main import PGSpecial
+    from pgspecial.namedqueries import NamedQueries
     v_supported_rdbms.append('PostgreSQL')
 except ImportError:
     pass
@@ -257,6 +312,9 @@ class Generic(ABC):
         pass
     @abstractmethod
     def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
+        pass
+    @abstractmethod
+    def Special(self, p_sql):
         pass
     @classmethod
     def Mogrify(self, p_row, p_fields):
@@ -535,6 +593,8 @@ class SQLite(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
         return v_return
+    def Special(self, p_sql):
+        return self.Query(p_sql).Pretty()
 
 '''
 ------------------------------------------------------------------------
@@ -771,6 +831,8 @@ class Memory(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
         return v_return
+    def Special(self, p_sql):
+        return self.Query(p_sql).Pretty()
 
 '''
 ------------------------------------------------------------------------
@@ -793,6 +855,32 @@ class PostgreSQL(Generic):
             self.v_password = p_password
             self.v_con = None
             self.v_cur = None
+            self.v_special = PGSpecial()
+            self.v_help = Spartacus.Database.DataTable()
+            self.v_help.Columns = ['Command', 'Syntax', 'Description']
+            self.v_help.AddRow(['\\?', '\\?', 'Show Commands.'])
+            self.v_help.AddRow(['\\h', '\\h', 'Show SQL syntax and help.'])
+            self.v_help.AddRow(['\\list', '\\list', 'List databases.'])
+            self.v_help.AddRow(['\\l', '\\l[+] [pattern]', 'List databases.'])
+            self.v_help.AddRow(['\\du', '\\du[+] [pattern]', 'List roles.'])
+            self.v_help.AddRow(['\\dx', '\\dx[+] [pattern]', 'List extensions.'])
+            self.v_help.AddRow(['\\db', '\\db[+] [pattern]', 'List tablespaces.'])
+            self.v_help.AddRow(['\\dn', '\\dn[+] [pattern]', 'List schemas.'])
+            self.v_help.AddRow(['\\dt', '\\dt[+] [pattern]', 'List tables.'])
+            self.v_help.AddRow(['\\dv', '\\dv[+] [pattern]', 'List views.'])
+            self.v_help.AddRow(['\\ds', '\\ds[+] [pattern]', 'List sequences.'])
+            self.v_help.AddRow(['\\d', '\\d[+] [pattern]', 'List or describe tables, views and sequences.'])
+            self.v_help.AddRow(['DESCRIBE', 'DESCRIBE [pattern]', 'Describe tables, views and sequences.'])
+            self.v_help.AddRow(['describe', 'DESCRIBE [pattern]', 'Describe tables, views and sequences.'])
+            self.v_help.AddRow(['\\di', '\\di[+] [pattern]', 'List indexes.'])
+            self.v_help.AddRow(['\\dm', '\\dm[+] [pattern]', 'List materialized views.'])
+            self.v_help.AddRow(['\\df', '\\df[+] [pattern]', 'List functions.'])
+            self.v_help.AddRow(['\\sf', '\\sf[+] FUNCNAME', "Show a function's definition."])
+            self.v_help.AddRow(['\\dT', '\\dT[+] [pattern]', 'List data types.'])
+            self.v_help.AddRow(['\\x', '\\x', 'Toggle expanded output.'])
+            self.v_help.AddRow(['\\timing', '\\timing', 'Toggle timing of commands.'])
+            self.v_expanded = False
+            self.v_timing = False
         else:
             raise Spartacus.Database.Exception("PostgreSQL is not supported. Please install it with 'pip install Spartacus[postgresql]'.")
     def GetConnectionString(self):
@@ -1105,6 +1193,79 @@ class PostgreSQL(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
         return v_return
+    def Special(self, p_sql):
+        try:
+            v_keep = None
+            if self.v_con is None:
+                self.Open()
+                v_keep = False
+            else:
+                v_keep = True
+            v_command = p_sql.lstrip().split(' ')[0].rstrip('+')
+            v_title = None
+            v_table = None
+            v_status = None
+            if v_command == '\\?':
+                v_table = self.v_help
+            else:
+                v_aux = self.v_help.Select('Command', v_command)
+                if len(v_aux.Rows) > 0:
+                    for r in self.v_special.execute(self.v_cur, p_sql):
+                        v_result = r
+                    if v_result[0]:
+                        v_title = v_result[0]
+                    if v_result[1]:
+                        v_table = DataTable()
+                        v_table.Columns = v_result[2]
+                        if isinstance(v_result[1], type(self.v_cur)):
+                            if v_result[1].description:
+                                v_table.Rows = v_result[1].fetchall()
+                        else:
+                            for r in v_result[1]:
+                                v_table.AddRow(r)
+                    if v_result[3]:
+                        v_status = v_result[3]
+                        if v_status.strip() == 'Expanded display is on.':
+                            self.v_expanded = True
+                        elif v_status.strip() == 'Expanded display is off.':
+                            self.v_expanded = False
+                        elif v_status.strip() == 'Timing is on.':
+                            self.v_timing = True
+                        elif v_status.strip() == 'Timing is off.':
+                            self.v_timing = False
+                else:
+                    if self.v_timing:
+                        v_timestart = datetime.datetime.now()
+                    v_table = self.Query(p_sql)
+                    v_status = self.GetStatus()
+                    if self.v_timing:
+                        v_status = v_status + '\nTime: {0}'.format(datetime.datetime.now() - v_timestart)
+            if v_title and v_table and len(v_table.Rows) > 0 and v_status:
+                return v_title + '\n' + v_table.Pretty(self.v_expanded) + '\n' + v_status
+            elif v_title and v_table and len(v_table.Rows) > 0:
+                return v_title + '\n' + v_table.Pretty(self.v_expanded)
+            elif v_title and v_status:
+                return v_title + '\n' + v_status
+            elif v_title:
+                return v_title
+            elif v_table and len(v_table.Rows) > 0 and v_status:
+                return v_table.Pretty(self.v_expanded) + '\n' + v_status
+            elif v_table and len(v_table.Rows) > 0:
+                return v_table.Pretty(self.v_expanded)
+            elif v_status:
+                return v_status
+            else:
+                return ''
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        finally:
+            if not v_keep:
+                self.Close()
+
 
 '''
 ------------------------------------------------------------------------
@@ -1345,6 +1506,8 @@ class MySQL(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
         return v_return
+    def Special(self, p_sql):
+        return self.Query(p_sql).Pretty()
 
 '''
 ------------------------------------------------------------------------
@@ -1585,6 +1748,8 @@ class MariaDB(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
         return v_return
+    def Special(self, p_sql):
+        return self.Query(p_sql).Pretty()
 
 '''
 ------------------------------------------------------------------------
@@ -1844,6 +2009,8 @@ class Firebird(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
         return v_return
+    def Special(self, p_sql):
+        return self.Query(p_sql).Pretty()
 
 '''
 ------------------------------------------------------------------------
@@ -2104,7 +2271,8 @@ class Oracle(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
         return v_return
-
+    def Special(self, p_sql):
+        return self.Query(p_sql).Pretty()
 '''
 ------------------------------------------------------------------------
 MSSQL
@@ -2364,6 +2532,8 @@ class MSSQL(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
         return v_return
+    def Special(self, p_sql):
+        return self.Query(p_sql).Pretty()
 
 '''
 ------------------------------------------------------------------------
@@ -2627,3 +2797,5 @@ class IBMDB2(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
         return v_return
+    def Special(self, p_sql):
+        return self.Query(p_sql).Pretty()

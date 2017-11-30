@@ -68,12 +68,12 @@ static void update_variables( PLpgSQL_execstate * estate );
  **********************************************************************/
 
 static PLpgSQL_plugin plugin_funcs = { profiler_init, profiler_func_beg, profiler_func_end, profiler_stmt_beg, profiler_stmt_end };
-PGconn *plugin_conn;
-bool plugin_active = false;
-unsigned int plugin_depth = -1;
-unsigned int plugin_step;
-int plugin_breakpoint;
-char plugin_conninfo[1024];
+PGconn *omnidb_plugin_conn;
+bool omnidb_plugin_active = false;
+unsigned int omnidb_plugin_depth = -1;
+unsigned int omnidb_plugin_step;
+int omnidb_plugin_breakpoint;
+char omnidb_plugin_conninfo[1024];
 
 /**********************************************************************
  * Function definitions
@@ -109,9 +109,9 @@ void load_plugin( PLpgSQL_plugin * hooks )
 PG_FUNCTION_INFO_V1(omnidb_enable_debugger);
 Datum omnidb_enable_debugger(PG_FUNCTION_ARGS)
 {
-    plugin_active = true;
-    sprintf(plugin_conninfo, "%s", text_to_cstring(PG_GETARG_TEXT_P(0)));
-    elog(LOG, "omnidb, CONNINFO, (%s)", plugin_conninfo);
+    omnidb_plugin_active = true;
+    sprintf(omnidb_plugin_conninfo, "%s", text_to_cstring(PG_GETARG_TEXT_P(0)));
+    elog(LOG, "omnidb, CONNINFO, (%s)", omnidb_plugin_conninfo);
 	PG_RETURN_VOID();
 }
 
@@ -136,40 +136,40 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 	   elog(LOG, "omnidb, BEGIN, %s, %i", findProcName(func->fn_oid), MyProcPid);
     #endif
 
-    if (plugin_active)
+    if (omnidb_plugin_active)
     {
-		plugin_depth++;
+		omnidb_plugin_depth++;
 
 		//First call
-		if (plugin_depth == 0)
+		if (omnidb_plugin_depth == 0)
         {
-            elog(LOG, "omnidb, CONNINFO, (%s)", plugin_conninfo);
-            plugin_conn = PQconnectdb(plugin_conninfo);
-            if (PQstatus(plugin_conn) != CONNECTION_BAD)
+            elog(LOG, "omnidb, CONNINFO, (%s)", omnidb_plugin_conninfo);
+            omnidb_plugin_conn = PQconnectdb(omnidb_plugin_conninfo);
+            if (PQstatus(omnidb_plugin_conn) != CONNECTION_BAD)
             {
                 #ifdef DEBUG
-                    elog(LOG, "omnidb: Connected to (%s)", plugin_conninfo);
+                    elog(LOG, "omnidb: Connected to (%s)", omnidb_plugin_conninfo);
                 #endif
 
                 char select_context[256];
                 sprintf(select_context, "SELECT pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
-                PGresult *res = PQexec(plugin_conn, select_context);
+                PGresult *res = PQexec(omnidb_plugin_conn, select_context);
                 if (PQresultStatus(res) == PGRES_TUPLES_OK && PQntuples(res) == 1)
                 {
                     char update_context[1024];
                     sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'func_beg', stmttype = 'BEGIN', lineno = NULL where pid = %i", findProcName(func->fn_oid), MyProcPid);
-                    PQexec(plugin_conn, update_context);
+                    PQexec(omnidb_plugin_conn, update_context);
 
                     #ifdef DEBUG
                         elog(LOG, "omnidb: Debugger active for PID %i", MyProcPid);
                     #endif
 
-                    plugin_active = true;
-                    plugin_step = 0;
+                    omnidb_plugin_active = true;
+                    omnidb_plugin_step = 0;
                 }
                 else
                 {
-                    plugin_active = false;
+                    omnidb_plugin_active = false;
                     #ifdef DEBUG
                         elog(LOG, "omnidb: Debugger not active for PID %i", MyProcPid);
                     #endif
@@ -177,8 +177,8 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
             }
             else
             {
-                plugin_active = false;
-                elog(ERROR, "omnidb: Connection to database failed: %s", PQerrorMessage(plugin_conn));
+                omnidb_plugin_active = false;
+                elog(ERROR, "omnidb: Connection to database failed: %s", PQerrorMessage(omnidb_plugin_conn));
             }
 		}
 		else
@@ -206,24 +206,24 @@ static void profiler_func_end( PLpgSQL_execstate * estate, PLpgSQL_function * fu
        elog(LOG, "omnidb, END, %s, %i", findProcName(func->fn_oid), MyProcPid);
     #endif
 
-    if (plugin_active && !plugin_depth)
+    if (omnidb_plugin_active && !omnidb_plugin_depth)
     {
         update_variables(estate);
 
 		char update_context[256];
 		sprintf(update_context, "UPDATE omnidb.contexts SET finished = true WHERE pid = %i", MyProcPid);
-		PQexec(plugin_conn, update_context);
+		PQexec(omnidb_plugin_conn, update_context);
 
         char unlock[256];
         sprintf(unlock, "SELECT pg_advisory_unlock(%i) FROM omnidb.contexts WHERE pid = %i", MyProcPid, MyProcPid);
-        PQexec(plugin_conn, unlock);
+        PQexec(omnidb_plugin_conn, unlock);
 
-        PQfinish(plugin_conn);
+        PQfinish(omnidb_plugin_conn);
     }
     else
     {
-        if (plugin_active && plugin_depth > 0)
-            plugin_depth--;
+        if (omnidb_plugin_active && omnidb_plugin_depth > 0)
+            omnidb_plugin_depth--;
     }
 }
 
@@ -237,36 +237,36 @@ static void profiler_stmt_beg( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
         elog(LOG, "omnidb, STMT START, line %d, type %s, %s, %i", stmt->lineno, decode_stmt_type(stmt->cmd_type), findProcName(estate->func->fn_oid), MyProcPid);
     #endif
 
-    if (plugin_active && !plugin_depth)
+    if (omnidb_plugin_active && !omnidb_plugin_depth)
     {
         char select_breakpoint[256];
         sprintf(select_breakpoint, "SELECT breakpoint FROM omnidb.contexts WHERE pid = %i", MyProcPid);
-        PGresult *res = PQexec(plugin_conn, select_breakpoint);
+        PGresult *res = PQexec(omnidb_plugin_conn, select_breakpoint);
         if (PQresultStatus(res) == PGRES_TUPLES_OK && PQntuples(res) == 1)
-            plugin_breakpoint = atoi(PQgetvalue(res, 0, 0));
+            omnidb_plugin_breakpoint = atoi(PQgetvalue(res, 0, 0));
         else
-            plugin_breakpoint = 0;
+            omnidb_plugin_breakpoint = 0;
 
-        if (plugin_breakpoint == 0 || plugin_breakpoint == stmt->lineno)
+        if (omnidb_plugin_breakpoint == 0 || omnidb_plugin_breakpoint == stmt->lineno)
         {
             update_variables(estate);
 
             char update_context[1024];
             sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'stmt_beg', stmttype = '%s', lineno = %d where pid = %i", findProcName(estate->func->fn_oid), decode_stmt_type(stmt->cmd_type), stmt->lineno, MyProcPid);
-            PQexec(plugin_conn, update_context);
+            PQexec(omnidb_plugin_conn, update_context);
 
             char unlock[256];
             sprintf(unlock, "SELECT pg_advisory_unlock(%i) FROM omnidb.contexts WHERE pid = %i", MyProcPid, MyProcPid);
-            PQexec(plugin_conn, unlock);
+            PQexec(omnidb_plugin_conn, unlock);
 
             char lock[256];
             sprintf(lock, "SELECT pg_advisory_lock(%i) FROM omnidb.contexts WHERE pid = %i", MyProcPid, MyProcPid);
-            PQexec(plugin_conn, lock);
+            PQexec(omnidb_plugin_conn, lock);
         }
 
         char insert_statistics[256];
-        sprintf(insert_statistics, "INSERT INTO omnidb.statistics (pid, lineno, step, tstart, tend) VALUES (%i, %i, %i, now(), NULL)", MyProcPid, stmt->lineno, plugin_step);
-        PQexec(plugin_conn, insert_statistics);
+        sprintf(insert_statistics, "INSERT INTO omnidb.statistics (pid, lineno, step, tstart, tend) VALUES (%i, %i, %i, now(), NULL)", MyProcPid, stmt->lineno, omnidb_plugin_step);
+        PQexec(omnidb_plugin_conn, insert_statistics);
     }
 }
 
@@ -280,13 +280,13 @@ static void profiler_stmt_end( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
         elog(LOG, "omnidb, STMT END, line %d, type %s, %s, %i", stmt->lineno, decode_stmt_type(stmt->cmd_type), findProcName(estate->func->fn_oid), MyProcPid);
     #endif
 
-    if (plugin_active && !plugin_depth)
+    if (omnidb_plugin_active && !omnidb_plugin_depth)
     {
         char update_statistics[256];
-        sprintf(update_statistics, "UPDATE omnidb.statistics SET tend = now() WHERE pid = %i AND lineno = %i AND step = %i", MyProcPid, stmt->lineno, plugin_step);
-        PQexec(plugin_conn, update_statistics);
+        sprintf(update_statistics, "UPDATE omnidb.statistics SET tend = now() WHERE pid = %i AND lineno = %i AND step = %i", MyProcPid, stmt->lineno, omnidb_plugin_step);
+        PQexec(omnidb_plugin_conn, update_statistics);
 
-        plugin_step++;
+        omnidb_plugin_step++;
     }
 }
 
@@ -481,7 +481,7 @@ static void update_variables( PLpgSQL_execstate * estate )
 {
     char delete_variables[256];
     sprintf(delete_variables, "DELETE FROM omnidb.variables WHERE pid = %i", MyProcPid);
-    PQexec(plugin_conn, delete_variables);
+    PQexec(omnidb_plugin_conn, delete_variables);
 
     int i;
     for( i = 0; i < estate->ndatums; i++ )
@@ -508,7 +508,7 @@ static void update_variables( PLpgSQL_execstate * estate )
 
                 char insert_variable[1024];
                 sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', NULL, '%s', '%s')", MyProcPid, name, typeName, val);
-                PQexec(plugin_conn, insert_variable);
+                PQexec(omnidb_plugin_conn, insert_variable);
 
                 break;
             }
@@ -539,7 +539,7 @@ static void update_variables( PLpgSQL_execstate * estate )
 
                         char insert_variable[1024];
                         sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', '%s', '%s', '%s')", MyProcPid, rec->refname, NameStr( rec->tupdesc->attrs[att]->attname ), typeName, val);
-                        PQexec(plugin_conn, insert_variable);
+                        PQexec(omnidb_plugin_conn, insert_variable);
 
                         if( typeName )
                             pfree( typeName );

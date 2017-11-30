@@ -227,6 +227,8 @@ def select_connection(request):
 
     v_return['v_data'] = v_session.v_databases [int(p_index)]['database'].TestConnection()
 
+    print(p_index)
+
     request.session['selected_connection'] = p_index
 
     return JsonResponse(v_return)

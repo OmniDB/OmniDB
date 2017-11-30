@@ -36,7 +36,7 @@ def index(request):
     else:
         v_is_secure = 'false'
 
-    if request.session.get('selected_connection'):
+    if request.session.get('selected_connection')!=None:
         v_connection = request.session.get('selected_connection')
         request.session['selected_connection'] = None
     else:

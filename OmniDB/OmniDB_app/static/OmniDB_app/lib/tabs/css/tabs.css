@@ -14,6 +14,7 @@
 	border-top-right-radius: 3px;
 	background-color: rgb(74, 104, 150);
 	color: #375A82;
+	min-height: 31px;
 }
 
 .tabs li {
@@ -43,7 +44,7 @@
 .tabs li img {
 	vertical-align: middle;
 	margin-left: 6px;
-	user-drag: none; 
+	user-drag: none;
 	user-select: none;
 	-moz-user-select: none;
 	-webkit-user-drag: none;

@@ -12,12 +12,27 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import sys
+import shutil
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOG_DIR = os.path.join(BASE_DIR, 'log')
-HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb')
+
+# OmniDB User Folder
+DESKTOP_MODE = False
+if DESKTOP_MODE:
+    HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-app')
+else:
+    HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-server')
+if not os.path.exists(HOME_DIR):
+    os.makedirs(HOME_DIR)
+LOG_DIR = HOME_DIR
+SESSION_DATABASE = os.path.join(HOME_DIR, 'db.sqlite3')
+if not os.path.exists(SESSION_DATABASE):
+    shutil.copyfile(os.path.join(BASE_DIR, 'db.sqlite3'), SESSION_DATABASE)
+CONFFILE = os.path.join(HOME_DIR, 'omnidb.conf')
+if not DESKTOP_MODE and not os.path.exists(CONFFILE):
+    shutil.copyfile(os.path.join(BASE_DIR, 'omnidb.conf'), CONFFILE)
+OMNIDB_DATABASE = os.path.join(HOME_DIR, 'omnidb.db')
 
 
 # Quick-start development settings - unsuitable for production
@@ -80,7 +95,7 @@ WSGI_APPLICATION = 'OmniDB.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(HOME_DIR, 'db.sqlite3'),
         #'NAME': ':memory:',
     }
 }
@@ -179,7 +194,6 @@ LOGGING = {
 }
 
 #OMNIDB PARAMETERS
-OMNIDB_DATABASE            = os.path.join(HOME_DIR, 'omnidb.db')
 OMNIDB_VERSION             = 'OmniDB 2.4.0'
 OMNIDB_SHORT_VERSION       = '2.4.0'
 BINDKEY_EXECUTE            = 'alt+q'
@@ -195,4 +209,3 @@ SSL_KEY                    = ""
 CH_CMDS_PER_PAGE           = 20
 PWD_TIMEOUT_TOTAL          = 1800
 PWD_TIMEOUT_REFRESH        = 300
-DESKTOP_MODE               = False

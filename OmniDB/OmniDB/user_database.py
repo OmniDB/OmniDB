@@ -33,8 +33,6 @@ def migrate(p_database, p_current_version):
         return False
 
 def work():
-    if not os.path.exists(settings.HOME_DIR):
-        os.makedirs(settings.HOME_DIR)
     database = OmniDatabase.Generic.InstantiateDatabase('sqlite','','',settings.OMNIDB_DATABASE,'','','0','')
     current_version = get_current_version(database)
     if current_version != settings.OMNIDB_SHORT_VERSION:

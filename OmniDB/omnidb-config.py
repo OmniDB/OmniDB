@@ -12,7 +12,7 @@ database = OmniDatabase.Generic.InstantiateDatabase(
     'sqlite','','',settings.OMNIDB_DATABASE,'','','0',''
 )
 database_sessions = OmniDatabase.Generic.InstantiateDatabase(
-    'sqlite','','','db.sqlite3','','','0',''
+    'sqlite','','',settings.SESSION_DATABASE,'','','0',''
 )
 
 def create_superuser(p_user, p_pwd):

@@ -362,7 +362,10 @@ function initCreateTabFunctions() {
     "<div style='margin-top: 5px; margin-bottom: 5px;'>" +
     "<span>Template: </span><select id='select_template_" + v_tab.id + "' onchange='selectUnitTemplate(this.value)'><option value=-1>Select Template</option></select>" +
     "</div>" +
-    "<div id='txt_script_" + v_tab.id + "' style=' width: 100%; height: 250px; border: 1px solid #c3c3c3;'></div>" +
+    "<div>" +
+    "<div style='width:50%; display: inline-block; box-sizing: border-box; padding-right: 5px;'><div style='margin-bottom: 5px;'>Data Script:</div><div id='txt_data_" + v_tab.id + "' style=' width: 100%; height: 250px; border: 1px solid #c3c3c3;'></div></div>" +
+    "<div style='width:50%; display: inline-block; box-sizing: border-box; padding-left: 5px;'><div style='margin-bottom: 5px;'>Chart Script:</div><div id='txt_script_" + v_tab.id + "' style=' width: 100%; height: 250px; border: 1px solid #c3c3c3;'></div></div>" +
+    "</div>" +
 		"<button class='bt_execute' title='Test' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='testMonitorScript();'><img src='/static/OmniDB_app/images/trigger.png' style='vertical-align: middle;'/></button>" +
     "<button class='bt_execute' title='Save' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='saveMonitorScript();'><img src='/static/OmniDB_app/images/save.png' style='vertical-align: middle;'/></button>" +
     "<div class='dashboard_unit_test'><div id='div_result_" + v_tab.id + "' class='unit_grid'></div></div>";
@@ -370,24 +373,31 @@ function initCreateTabFunctions() {
 		var v_div = document.getElementById('div_' + v_tab.id);
 		v_div.innerHTML = v_html;
 
+    var langTools = ace.require("ace/ext/language_tools");
+
     var v_txt_script = document.getElementById('txt_script_' + v_tab.id);
-
-
-		var langTools = ace.require("ace/ext/language_tools");
-		var v_editor = ace.edit('txt_script_' + v_tab.id);
+    var v_editor = ace.edit('txt_script_' + v_tab.id);
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/python");
 		v_editor.commands.bindKey(".", "startAutocomplete");
-
 		v_editor.setFontSize(Number(v_editor_font_size));
-
 		v_editor.commands.bindKey("ctrl-space", null);
-
-    //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
     v_editor.commands.bindKey("Cmd-,", null)
     v_editor.commands.bindKey("Ctrl-,", null)
     v_editor.commands.bindKey("Cmd-Delete", null)
     v_editor.commands.bindKey("Ctrl-Delete", null)
+
+    var v_txt_data = document.getElementById('txt_data_' + v_tab.id);
+    var v_editor_data = ace.edit('txt_data_' + v_tab.id);
+		v_editor_data.setTheme("ace/theme/" + v_editor_theme);
+		v_editor_data.session.setMode("ace/mode/python");
+		v_editor_data.commands.bindKey(".", "startAutocomplete");
+		v_editor_data.setFontSize(Number(v_editor_font_size));
+		v_editor_data.commands.bindKey("ctrl-space", null);
+    v_editor_data.commands.bindKey("Cmd-,", null)
+    v_editor_data.commands.bindKey("Ctrl-,", null)
+    v_editor_data.commands.bindKey("Cmd-Delete", null)
+    v_editor_data.commands.bindKey("Ctrl-Delete", null)
 
 		v_txt_script.onclick = function() {
 
@@ -399,7 +409,9 @@ function initCreateTabFunctions() {
 			tab_id: v_tab.id,
 			mode: 'monitor_unit',
 			editor: v_editor,
+      editor_data: v_editor_data,
       editorDiv: v_txt_script,
+      editorDataDiv: v_txt_data,
 			editorDivId: 'txt_script_' + v_tab.id,
 			tab_title_span : v_tab_title_span,
 			tab_close_span : v_tab_close_span,
@@ -427,8 +439,8 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-      '<img src="/static/OmniDB_app/images/monitoring.png"/><span id="tab_title"> Monitoring</span>',
-      true,
+      '<img src="/static/OmniDB_app/images/monitoring.png"/><span id="tab_title"> Monitoring</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+      false,
       null,
       null,
       null,
@@ -447,9 +459,14 @@ function initCreateTabFunctions() {
 		//Adding unique names to spans
 		var v_tab_title_span = document.getElementById('tab_title');
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
+    var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function() {
+			closeMonitorDashboardTab(v_tab);
+		};
 
 		var v_html = "<div>" +
-    "<button onclick='refreshMonitorDashboard()'>Refresh All</button>" +
+    "<button onclick='refreshMonitorDashboard(true)'>Refresh All</button>" +
     "<span style='position: relative; margin-left: 5px;'><button onclick='showMonitorUnitList()'>Manage Units</button>" +
     "<div id='unit_list_div_" + v_tab.id + "' class='dashboard_unit_list'><a class='modal-closer' onclick='closeMonitorUnitList()'>x</a>" +
     "<button onclick='editMonitorUnit()'>New Unit</button>" +
@@ -475,7 +492,9 @@ function initCreateTabFunctions() {
       unit_list_id_list: [],
 			tab_title_span : v_tab_title_span,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
-      units: []
+      units: [],
+      unit_sequence: 0,
+      tab_active: true
 		};
 
 		v_tab.tag = v_tag;

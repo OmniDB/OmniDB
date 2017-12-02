@@ -11,11 +11,16 @@ You should have received a copy of the GNU General Public License along with Omn
 */
 
 function closeMonitorUnit(p_div) {
-  for (var i=0; i<v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units.length; i++) {
-    var v_unit = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units[i];
+  var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+  for (var i=0; i<v_tab_tag.units.length; i++) {
+    var v_unit = v_tab_tag.units[i];
     if (v_unit.div == p_div) {
+
+      //Clear timeout
+      clearTimeout(v_unit.timeout_object);
+
       v_unit.div.parentElement.removeChild(v_unit.div);
-      v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units.splice(i,1);
+      v_tab_tag.units.splice(i,1);
       break;
     }
   }
@@ -23,6 +28,7 @@ function closeMonitorUnit(p_div) {
 
 function buildMonitorUnit(p_unit, p_first) {
   var v_dashboard_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.dashboard_div;
+  var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
   var v_return_unit = p_unit;
 
@@ -40,7 +46,7 @@ function buildMonitorUnit(p_unit, p_first) {
   var button_refresh = document.createElement('button');
   button_refresh.onclick = (function(div) {
     return function() {
-      refreshMonitorDashboard(div);
+      refreshMonitorDashboard(true,v_tab_tag,div);
     }
   })(div);
   button_refresh.innerHTML = '<img src="/static/OmniDB_app/images/refresh.png"/>';
@@ -74,6 +80,9 @@ function buildMonitorUnit(p_unit, p_first) {
   else
     v_dashboard_div.appendChild(div);
 
+  //Increment unit sequence
+  v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_sequence += 1;
+
   v_unit = {
     'type': '',
     'object': null,
@@ -83,7 +92,9 @@ function buildMonitorUnit(p_unit, p_first) {
     'div_details': details,
     'div_error': div_error,
     'div_content': div_content,
-    'error': false
+    'error': false,
+    'timeout_object': null,
+    'unit_sequence': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_sequence
   }
   v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units.push(v_unit);
 
@@ -94,6 +105,7 @@ function buildMonitorUnit(p_unit, p_first) {
 function startMonitorDashboard() {
 
   var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+  var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	execAjax('/get_monitor_units/',
 				input,
@@ -102,7 +114,7 @@ function startMonitorDashboard() {
           for (var i=0; i<p_return.v_data.length; i++) {
             buildMonitorUnit(p_return.v_data[i]);
           }
-          refreshMonitorDashboard();
+          refreshMonitorDashboard(true,v_tab_tag);
         },
         null,
         'box');
@@ -111,10 +123,11 @@ function startMonitorDashboard() {
 
 function includeMonitorUnit(p_id) {
   var v_grid = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_grid;
+  var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
   var v_row_data = v_grid.getDataAtRow(v_grid.getSelected()[0]);
 
   var div = buildMonitorUnit({'v_id': p_id, 'v_title': v_row_data[1]},true);
-  refreshMonitorDashboard(div);
+  refreshMonitorDashboard(true,v_tab_tag,div);
 }
 
 function deleteMonitorUnit(p_unit_id) {
@@ -177,9 +190,12 @@ function editMonitorUnit(p_unit_id) {
 
             v_tab_tag.input_unit_name.value = p_return.v_data.title;
             v_tab_tag.select_type.value = p_return.v_data.type;
-            v_tab_tag.editor.setValue(p_return.v_data.script);
+            v_tab_tag.editor.setValue(p_return.v_data.script_chart);
             v_tab_tag.editor.clearSelection();
             v_tab_tag.editor.gotoLine(0, 0, true);
+            v_tab_tag.editor_data.setValue(p_return.v_data.script_data);
+            v_tab_tag.editor_data.clearSelection();
+            v_tab_tag.editor_data.gotoLine(0, 0, true);
             v_tab_tag.unit_id = p_unit_id;
 
           },
@@ -203,7 +219,8 @@ function saveMonitorScript() {
                                 "p_unit_id": v_tab_tag.unit_id,
                                 "p_unit_name": v_tab_tag.input_unit_name.value,
                                 "p_unit_type": v_tab_tag.select_type.value,
-                                "p_unit_script": v_tab_tag.editor.getValue()});
+                                "p_unit_script_data": v_tab_tag.editor_data.getValue(),
+                                "p_unit_script_chart": v_tab_tag.editor.getValue()});
 
     execAjax('/save_monitor_unit/',
   				input,
@@ -235,9 +252,14 @@ function selectUnitTemplate(p_value) {
             v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.select_type.value = p_return.v_data.type;
 
             var v_editor = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor;
-            v_editor.setValue(p_return.v_data.script);
+            v_editor.setValue(p_return.v_data.script_chart);
             v_editor.clearSelection();
             v_editor.gotoLine(0, 0, true);
+
+            var v_editor_data = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor_data;
+            v_editor_data.setValue(p_return.v_data.script_data);
+            v_editor_data.clearSelection();
+            v_editor_data.gotoLine(0, 0, true);
 
           },
           null,
@@ -245,11 +267,13 @@ function selectUnitTemplate(p_value) {
   }
 }
 
-function testMonitorScript(p_create_tab, p_mode, p_table, p_schema) {
+function testMonitorScript() {
 
-  var v_script = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
+  var v_script_chart = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
+  var v_script_data = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor_data.getValue();
+  var v_type = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.select_type.value;
 
-	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_script": v_script});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_script_chart": v_script_chart, "p_script_data": v_script_data, "p_type": v_type});
 
 	execAjax('/test_monitor_script/',
 				input,
@@ -419,243 +443,281 @@ function showMonitorUnitList() {
 
 }
 
-function refreshMonitorDashboard(p_div) {
+function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
+
 
   var v_units = [];
+  var v_tab_tag = null;
+  if (p_tab_tag)
+    v_tab_tag = p_tab_tag;
+  else
+    v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-  for (var i=0; i<v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units.length; i++) {
-    if (!p_div) {
-      v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units[i].div_loading.style.display = 'block';
-      v_units.push({ 'id': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units[i].id, 'index': i })
+  if (v_tab_tag.units.length>0) {
+
+    for (var i=0; i<v_tab_tag.units.length; i++) {
+      var v_unit_rendered = 0
+      if (v_tab_tag.units[i].object!=null)
+        v_unit_rendered = 1
+
+      if (!p_div) {
+        if (p_loading)
+          v_tab_tag.units[i].div_loading.style.display = 'block';
+        v_units.push({ 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered })
+        clearTimeout(v_tab_tag.units[i].timeout_object);
+      }
+      else if (p_div == v_tab_tag.units[i].div) {
+        if (p_loading)
+          v_tab_tag.units[i].div_loading.style.display = 'block';
+        v_units.push({ 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered })
+        clearTimeout(v_tab_tag.units[i].timeout_object);
+        break;
+      }
     }
-    else if (p_div == v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units[i].div) {
-      v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units[i].div_loading.style.display = 'block';
-      v_units.push({ 'id': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units[i].id, 'index': i })
-      break;
-    }
-  }
 
-  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_ids": v_units});
+    var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_ids": v_units});
 
-	execAjax('/refresh_monitor_units/',
-				input,
-				function(p_return) {
+  	execAjax('/refresh_monitor_units/',
+  				input,
+  				function(p_return) {
 
-          for (var i=0; i<p_return.v_data.length; i++) {
+            for (var i=0; i<p_return.v_data.length; i++) {
 
-            var v_return_unit = p_return.v_data[i];
+              var v_return_unit = p_return.v_data[i];
 
-            var v_unit = null;
-
-            if (v_return_unit.v_index!=-1)
-              v_unit = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units[v_return_unit.v_index];
-
-            try {
-              // Chart unit
-              if (v_return_unit.v_type=='chart_append' || v_return_unit.v_type=='chart') {
-
-                v_unit.div_loading.style.display = 'none';
-
-                v_return_unit.type='chart';
-                v_unit.div_error.innerHTML = '';
-
-                if (v_return_unit.v_error) {
-
-                  v_unit.div_error.innerHTML = v_return_unit.v_message;
-                  v_unit.error = true;
-                  v_unit.object = null;
-                  v_unit.div_content.innerHTML = '';
-
+              var v_unit = null;
+              //find corresponding object
+              for (var i=0; i<v_tab_tag.units.length; i++) {
+                if (v_return_unit.v_sequence == v_tab_tag.units[i].unit_sequence) {
+                  v_unit = v_tab_tag.units[i];
+                  break;
                 }
-                // New chart
-                else if (v_unit.object==null) {
-                  v_unit.div_content.innerHTML = '';
+              }
 
-                  var canvas = document.createElement('canvas');
-                  v_unit.div_content.appendChild(canvas);
+              try {
+                // Chart unit
+                if (v_return_unit.v_type=='chart_append' || v_return_unit.v_type=='chart') {
 
-                  var ctx = canvas.getContext('2d');
-                  var v_chart = new Chart(ctx, v_return_unit.v_object);
+                  v_unit.div_loading.style.display = 'none';
 
-                  v_unit.object = v_chart;
+                  v_return_unit.type='chart';
+                  v_unit.div_error.innerHTML = '';
 
-                }
-                // Update existing chart
-                else {
-                  //Don't append, simply replace labels and datasets
-                  if (v_return_unit.v_type=='chart') {
-                    v_unit.object.data.labels = v_return_unit.v_object.data.labels;
-                    v_unit.object.data.datasets = v_return_unit.v_object.data.datasets;
-                    v_unit.object.update();
+                  if (v_return_unit.v_error) {
+
+                    v_unit.div_error.innerHTML = v_return_unit.v_message;
+                    v_unit.error = true;
+                    v_unit.object = null;
+                    v_unit.div_content.innerHTML = '';
+
                   }
+                  // New chart
+                  else if (v_unit.object==null) {
+                    v_unit.div_content.innerHTML = '';
 
+                    var canvas = document.createElement('canvas');
+                    v_unit.div_content.appendChild(canvas);
+
+                    var ctx = canvas.getContext('2d');
+                    var v_chart = new Chart(ctx, v_return_unit.v_object);
+
+                    v_unit.object = v_chart;
+
+                  }
+                  // Update existing chart
                   else {
-                    //adding new label in X axis
-                    v_unit.object.data.labels.push(v_return_unit.v_object.data.labels[0]);
-                    var v_shift = false;
-                    if (v_unit.object.data.labels.length > 20) {
-                      v_unit.object.data.labels.shift();
-                      v_shift = true;
+                    //Don't append, simply replace labels and datasets
+                    if (v_return_unit.v_type=='chart') {
+                      v_unit.object.data.labels = v_return_unit.v_object.labels;
+                      v_unit.object.data.datasets = v_return_unit.v_object.datasets;
+                      v_unit.object.update();
                     }
+                    // Append data
+                    else {
+                      //adding new label in X axis
+                      v_unit.object.data.labels.push(v_return_unit.v_object.labels[0]);
+                      var v_shift = false;
+                      if (v_unit.object.data.labels.length > 50) {
+                        v_unit.object.data.labels.shift();
+                        v_shift = true;
+                      }
 
-                    //foreach dataset in existing chart, find corresponding dataset in returning data
-                    for (var j=v_unit.object.data.datasets.length-1; j>=0; j--) {
-                      var dataset = v_unit.object.data.datasets[j];
-                      if (v_shift)
-                        dataset.data.shift();
-                      var v_found = false;
-                      for (var k=0; k<v_return_unit.v_object.data.datasets.length; k++) {
-                        var return_dataset = v_return_unit.v_object.data.datasets[k];
-                        //Dataset exists
-                        if (return_dataset.label == dataset.label) {
-                          v_found = true;
-                          break;
+                      //foreach dataset in existing chart, find corresponding dataset in returning data
+                      for (var j=v_unit.object.data.datasets.length-1; j>=0; j--) {
+                        var dataset = v_unit.object.data.datasets[j];
+                        if (v_shift)
+                          dataset.data.shift();
+                        var v_found = false;
+                        for (var k=0; k<v_return_unit.v_object.datasets.length; k++) {
+                          var return_dataset = v_return_unit.v_object.datasets[k];
+                          //Dataset exists
+                          if (return_dataset.label == dataset.label) {
+                            v_found = true;
+                            break;
+                          }
+                        };
+                        //dataset doesn't exist, remove it
+                        if (!v_found) {
+                          v_unit.object.data.datasets.splice(j,1);
                         }
                       };
-                      //dataset doesn't exist, remove it
-                      if (!v_found) {
-                        v_unit.object.data.datasets.splice(j,1);
-                      }
-                    };
 
-                    //foreach dataset in returning data, find corresponding dataset in existing chart
-                    for (var j=0; j<v_return_unit.v_object.data.datasets.length; j++) {
-                      var return_dataset = v_return_unit.v_object.data.datasets[j];
+                      //foreach dataset in returning data, find corresponding dataset in existing chart
+                      for (var j=0; j<v_return_unit.v_object.datasets.length; j++) {
+                        var return_dataset = v_return_unit.v_object.datasets[j];
 
-                      var v_found = false;
-                      for (var k=0; k<v_unit.object.data.datasets.length; k++) {
-                        var dataset = v_unit.object.data.datasets[k];
-                        //Dataset exists, update data
-                        if (return_dataset.label == dataset.label) {
-                          var new_dataset = dataset;
-                          new_dataset.data[new_dataset.data.length]=return_dataset.data[0];
-                          dataset = new_dataset;
+                        var v_found = false;
+                        for (var k=0; k<v_unit.object.data.datasets.length; k++) {
+                          var dataset = v_unit.object.data.datasets[k];
+                          //Dataset exists, update data
+                          if (return_dataset.label == dataset.label) {
+                            var new_dataset = dataset;
+                            new_dataset.data[new_dataset.data.length]=return_dataset.data[0];
+                            dataset = new_dataset;
 
-                          v_found = true;
-                          break;
+                            v_found = true;
+                            break;
+                          }
+                        };
+                        //dataset doesn't exist, create it
+                        if (!v_found) {
+                          //populate dataset with empty data prior to newest value
+                          for (var k=0; k<v_unit.object.data.labels.length-1; k++) {
+                            return_dataset.data.unshift('');
+                          }
+                          v_unit.object.data.datasets.push(return_dataset);
                         }
                       };
-                      //dataset doesn't exist, create it
-                      if (!v_found) {
-                        //populate dataset with empty data prior to newest value
-                        for (var k=0; k<v_unit.object.data.labels.length-1; k++) {
-                          return_dataset.data.unshift('');
-                        }
-                        v_unit.object.data.datasets.push(return_dataset);
-                      }
-                    };
 
-                    v_unit.object.update();
+                      v_unit.object.update();
+                    }
+                  }
+                }
+                // Grid unit
+                else if (v_return_unit.v_type=='grid') {
+
+                  v_unit.div_error.innerHTML = '';
+                  v_unit.div_details.innerHTML = '';
+
+                  v_unit.div_loading.style.display = 'none';
+
+                  v_return_unit.type='grid';
+
+                  if (v_return_unit.v_error) {
+
+                    v_unit.div_error.innerHTML = v_return_unit.v_message;
+                    v_unit.error = true;
+                    v_unit.object = null;
+                    v_unit.div_content.innerHTML = '';
+
+                  }
+                  // New grid
+                  else if (v_unit.object==null) {
+                    v_unit.div_content.classList.add('unit_grid');
+                    v_unit.div_content.innerHTML = '';
+
+                    var columnProperties = [];
+
+        						for (var j = 0; j < v_return_unit.v_object.columns.length; j++) {
+      						    var col = new Object();
+      						    col.readOnly = true;
+      						    col.title =  v_return_unit.v_object.columns[j];
+        							columnProperties.push(col);
+        						}
+
+                    v_unit.div_details.innerHTML = v_return_unit.v_object.data.length + ' rows';
+
+        						var v_grid = new Handsontable(v_unit.div_content,
+        						{
+        							data: v_return_unit.v_object.data,
+        							columns : columnProperties,
+        							colHeaders : true,
+        							rowHeaders : true,
+        							copyRowsLimit : 1000000000,
+        							copyColsLimit : 1000000000,
+        							manualColumnResize: true,
+        							fillHandle:false,
+        							contextMenu: {
+        								callback: function (key, options) {
+        									if (key === 'view_data') {
+        									  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+        									}
+        								},
+        								items: {
+        									"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+        								}
+        						    },
+        					        cells: function (row, col, prop) {
+        							    var cellProperties = {};
+        							    if (row % 2 == 0)
+        									cellProperties.renderer = blueRenderer;
+        								else
+        									cellProperties.renderer = whiteRenderer;
+        							    return cellProperties;
+        							}
+        						});
+
+                    v_unit.object = v_grid;
+                  }
+                  // Existing grid
+                  else {
+
+                    v_unit.div_details.innerHTML = v_return_unit.v_object.data.length + ' rows';
+
+                    v_unit.object.loadData(v_return_unit.v_object.data);
+
                   }
                 }
               }
-              // Grid unit
-              else if (v_return_unit.v_type=='grid') {
-
-                v_unit.div_error.innerHTML = '';
-                v_unit.div_details.innerHTML = '';
-
-                v_unit.div_loading.style.display = 'none';
-
-                v_return_unit.type='grid';
-
-                if (v_return_unit.v_error) {
-
-                  v_unit.div_error.innerHTML = v_return_unit.v_message;
-                  v_unit.error = true;
-                  v_unit.object = null;
-                  v_unit.div_content.innerHTML = '';
-
-                }
-                // New grid
-                else if (v_unit.object==null) {
-                  v_unit.div_content.classList.add('unit_grid');
-                  v_unit.div_content.innerHTML = '';
-
-                  var columnProperties = [];
-
-      						for (var j = 0; j < v_return_unit.v_object.columns.length; j++) {
-    						    var col = new Object();
-    						    col.readOnly = true;
-    						    col.title =  v_return_unit.v_object.columns[j];
-      							columnProperties.push(col);
-      						}
-
-                  v_unit.div_details.innerHTML = v_return_unit.v_object.data.length + ' rows';
-
-      						var v_grid = new Handsontable(v_unit.div_content,
-      						{
-      							data: v_return_unit.v_object.data,
-      							columns : columnProperties,
-      							colHeaders : true,
-      							rowHeaders : true,
-      							copyRowsLimit : 1000000000,
-      							copyColsLimit : 1000000000,
-      							manualColumnResize: true,
-      							fillHandle:false,
-      							contextMenu: {
-      								callback: function (key, options) {
-      									if (key === 'view_data') {
-      									  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
-      									}
-      								},
-      								items: {
-      									"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
-      								}
-      						    },
-      					        cells: function (row, col, prop) {
-      							    var cellProperties = {};
-      							    if (row % 2 == 0)
-      									cellProperties.renderer = blueRenderer;
-      								else
-      									cellProperties.renderer = whiteRenderer;
-      							    return cellProperties;
-      							}
-      						});
-
-                  v_unit.object = v_grid;
-                }
-                // Existing grid
-                else {
-
-                  v_unit.div_details.innerHTML = v_return_unit.v_object.data.length + ' rows';
-
-                  v_unit.object.loadData(v_return_unit.v_object.data);
-
-                }
+              catch(err) {
+                v_unit.div_error.innerHTML = err;
+                v_unit.error = true;
+                v_unit.object = null;
+                v_unit.div_content.innerHTML = '';
               }
-            }
-            catch(err) {
-              v_unit.div_error.innerHTML = err;
-              v_unit.error = true;
-              v_unit.object = null;
-              v_unit.div_content.innerHTML = '';
-            }
 
-            //Adding timeout to get data again
-            /*setTimeout(function() {
-              refreshMonitorDashboard(v_unit.div);
-            },5000);*/
+              //Adding timeout to get data again if tab is still active
+              if (v_tab_tag.tab_active) {
+                v_unit.timeout_object = setTimeout((function(p_div) {
+                  return function() {
+                    refreshMonitorDashboard(false,v_tab_tag,p_div);
+                  }
+                })(v_unit.div),5000);
+              }
 
-          }
-				},
-				function(p_return) {
-					if (p_return.v_data.password_timeout) {
-						showPasswordPrompt(
-							v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-							function() {
-								refreshMonitorDashboard();
-							},
-							null,
-							p_return.v_data.message
-						);
-					}
-          else {
-            showError(p_return.v_data)
-          }
-				},
-        null,
-				'box',
-        false);
+            }
+  				},
+  				function(p_return) {
+  					if (p_return.v_data.password_timeout) {
+  						showPasswordPrompt(
+  							v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+  							function() {
+  								refreshMonitorDashboard(true,v_tab_tag);
+  							},
+  							null,
+  							p_return.v_data.message
+  						);
+  					}
+            else {
+              showError(p_return.v_data)
+            }
+  				},
+          null,
+  				'box',
+          false);
+  }
+}
+
+/// <summary>
+/// Removes tab.
+/// </summary>
+/// <param name="p_tab">Tab object.</param>
+function closeMonitorDashboardTab(p_tab) {
+
+	showConfirm('Are you sure you want to close the dashboard?',
+                function() {
+                	p_tab.removeTab();
+                  p_tab.tag.tab_active = false;
+                });
 
 }

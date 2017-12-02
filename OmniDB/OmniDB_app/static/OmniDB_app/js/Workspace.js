@@ -402,8 +402,11 @@ function refreshHeights(p_all) {
 			v_tab_tag.editor.resize();
 		}
 		else if (v_tab_tag.mode=='monitor_unit') {
-			v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 324 + 'px';
+			var v_new_height = window.innerHeight - $(v_tab_tag.editorDataDiv).offset().top - 324 + 'px';
+			v_tab_tag.editorDiv.style.height = v_new_height;
+			v_tab_tag.editorDataDiv.style.height = v_new_height;
 			v_tab_tag.editor.resize();
+			v_tab_tag.editor_data.resize();
 		}
 		else if (v_tab_tag.mode=='query') {
 			if (v_tab_tag.currQueryTab=='data') {

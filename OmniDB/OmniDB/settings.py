@@ -17,7 +17,8 @@ import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_DIR = os.path.join(BASE_DIR, 'log')
-HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb')
+#HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb')
+HOME_DIR = BASE_DIR
 
 
 # Quick-start development settings - unsuitable for production

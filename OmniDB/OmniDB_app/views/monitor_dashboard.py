@@ -142,7 +142,10 @@ def get_monitor_unit_details(request):
     v_unit_id = json_object['p_unit_id']
 
     v_query = '''
-        select title,type,script
+        select title,
+               type,
+               coalesce(script_chart,'') as script_chart,
+               coalesce(script_data,'') as script_data
         from mon_units
         where unit_id = {0}
     '''.format(v_unit_id)
@@ -150,7 +153,7 @@ def get_monitor_unit_details(request):
 
     try:
         v_unit_details = v_session.v_omnidb_database.v_connection.Query(v_query).Rows[0]
-        v_return['v_data'] = { 'title': v_unit_details['title'], 'type': v_unit_details['type'], 'script': v_unit_details['script'] }
+        v_return['v_data'] = { 'title': v_unit_details['title'], 'type': v_unit_details['type'], 'script_chart': v_unit_details['script_chart'], 'script_data': v_unit_details['script_data'] }
 
     except Exception as exc:
         v_return['v_data'] = str(exc)
@@ -223,7 +226,7 @@ def get_monitor_unit_template(request):
     v_unit_id = json_object['p_unit_id']
 
     v_query = '''
-        select script, type
+        select coalesce(script_chart,'') as script_chart, coalesce(script_data,'') as script_data, type
         from mon_units where unit_id = '{0}'
     '''.format(v_unit_id)
 
@@ -258,7 +261,8 @@ def save_monitor_unit(request):
     v_unit_id = json_object['p_unit_id']
     v_unit_name = json_object['p_unit_name']
     v_unit_type = json_object['p_unit_type']
-    v_unit_script = json_object['p_unit_script']
+    v_unit_script_chart = json_object['p_unit_script_chart']
+    v_unit_script_data = json_object['p_unit_script_data']
     v_database_index = json_object['p_database_index']
 
     v_database = v_session.v_databases[v_database_index]['database']
@@ -269,8 +273,8 @@ def save_monitor_unit(request):
             v_session.v_omnidb_database.v_connection.Open()
             v_session.v_omnidb_database.v_connection.Execute('''
                 insert into mon_units values (
-                (select coalesce(max(unit_id), 0) + 1 from mon_units),'{0}','{1}','{2}','{3}',0,0,{4})
-            '''.format(v_database.v_db_type,v_unit_script.replace("'","''"),v_unit_type,v_unit_name,v_session.v_user_id))
+                (select coalesce(max(unit_id), 0) + 1 from mon_units),'{0}','{1}','{2}','{3}','{4}',0,{5})
+            '''.format(v_database.v_db_type,v_unit_script_chart.replace("'","''"),v_unit_script_data.replace("'","''"),v_unit_type,v_unit_name,v_session.v_user_id))
             v_inserted_id = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
             select coalesce(max(unit_id), 0) from mon_units
             ''')
@@ -281,11 +285,12 @@ def save_monitor_unit(request):
             v_session.v_omnidb_database.v_connection.Execute('''
                 update mon_units
                 set dbt_st_name = '{0}',
-                    script = '{1}',
-                    type = '{2}',
-                    title = '{3}'
-                where unit_id = {4}
-            '''.format(v_database.v_db_type,v_unit_script.replace("'", "''"),v_unit_type,v_unit_name,v_unit_id))
+                    script_chart = '{1}',
+                    script_data = '{2}',
+                    type = '{3}',
+                    title = '{4}'
+                where unit_id = {5}
+            '''.format(v_database.v_db_type,v_unit_script_chart.replace("'", "''"),v_unit_script_data.replace("'", "''"),v_unit_type,v_unit_name,v_unit_id))
 
 
     except Exception as exc:
@@ -348,10 +353,6 @@ def refresh_monitor_units(request):
 
     v_database = v_session.v_databases[v_database_index]['database']
 
-    v_query = '''
-        select unit_id, -1 as 'index', script, type, title, append
-        from mon_units where dbt_st_name = '{0}'
-    '''.format(v_database.v_db_type)
     if len(v_ids) > 0:
         v_first = True
         v_query = ''
@@ -360,9 +361,9 @@ def refresh_monitor_units(request):
                 v_query += ' union all '
             v_first = False
             v_query += '''
-                select unit_id, {0} as 'index', script, type, title, append
-                from mon_units where unit_id = '{1}'
-            '''.format(v_id['index'], v_id['id'])
+                select unit_id, {0} as 'sequence', {1} as rendered, script_chart, script_data, type, title
+                from mon_units where unit_id = '{2}'
+            '''.format(v_id['sequence'], v_id['rendered'], v_id['id'])
 
     v_return['v_data'] = []
 
@@ -370,32 +371,41 @@ def refresh_monitor_units(request):
         v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
         for v_unit in v_units.Rows:
 
-            output = ''
-
             try:
+                v_unit_data = {
+                    'v_id': v_unit['unit_id'],
+                    'v_sequence': v_unit['sequence'],
+                    'v_type': v_unit['type'],
+                    'v_title': v_unit['title'],
+                    'v_object': None,
+                    'v_error': False
+                }
+
                 loc = {"connection": v_database.v_connection}
-                
-                byte_code = compile_restricted(v_unit['script'], '<inline>', 'exec')
 
                 builtins = safe_builtins.copy()
                 builtins['_getiter_'] = iter
                 builtins['_getitem_'] = default_guarded_getitem
 
+                byte_code = compile_restricted(v_unit['script_data'], '<inline>', 'exec')
                 exec(byte_code, builtins, loc)
+                data = loc['result']
 
-                v_unit_data = {
-                    'v_id': v_unit['unit_id'],
-                    'v_index': v_unit['index'],
-                    'v_type': v_unit['type'],
-                    'v_title': v_unit['title'],
-                    'v_object': loc['result'],
-                    'v_error': False
-                }
+                if v_unit['type']  == 'grid' or v_unit['rendered'] == 1:
+                    v_unit_data['v_object'] = data
+                else:
+                    byte_code = compile_restricted(v_unit['script_chart'], '<inline>', 'exec')
+                    exec(byte_code, builtins, loc)
+                    result = loc['result']
+                    result['data'] = data
+                    v_unit_data['v_object'] = result
+
+
                 v_return['v_data'].append(v_unit_data)
             except Exception as exc:
                 v_unit_data = {
                     'v_id': v_unit['unit_id'],
-                    'v_index': v_unit['index'],
+                    'v_sequence': v_unit['sequence'],
                     'v_type': v_unit['type'],
                     'v_title': v_unit['title'],
                     'v_object': None,
@@ -430,7 +440,9 @@ def test_monitor_script(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
-    v_script = json_object['p_script']
+    v_script_chart = json_object['p_script_chart']
+    v_script_data = json_object['p_script_data']
+    v_type = json_object['p_type']
 
     v_database = v_session.v_databases[v_database_index]['database']
 
@@ -441,20 +453,31 @@ def test_monitor_script(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
+    v_return['v_data'] = {
+        'v_object': None,
+        'v_error': False
+    }
+
     try:
         loc = {"connection": v_database.v_connection}
-        byte_code = compile_restricted(v_script, '<inline>', 'exec')
 
         builtins = safe_builtins.copy()
         builtins['_getiter_'] = iter
         builtins['_getitem_'] = default_guarded_getitem
 
+        byte_code = compile_restricted(v_script_data, '<inline>', 'exec')
         exec(byte_code, builtins, loc)
-        v_unit_data = {
-            'v_object': loc['result'],
-            'v_error': False
-        }
-        v_return['v_data'] = v_unit_data
+        data = loc['result']
+
+        if v_type == 'grid':
+            v_return['v_data']['v_object'] = data
+        else:
+            byte_code = compile_restricted(v_script_chart, '<inline>', 'exec')
+            exec(byte_code, builtins, loc)
+            result = loc['result']
+            result['data'] = data
+            v_return['v_data']['v_object'] = result
+
     except Exception as exc:
         v_unit_data = {
             'v_object': None,

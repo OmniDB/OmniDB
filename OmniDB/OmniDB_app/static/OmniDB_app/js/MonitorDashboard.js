@@ -26,6 +26,37 @@ function closeMonitorUnit(p_div) {
   }
 }
 
+function pauseMonitorUnit(p_div) {
+  var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+  for (var i=0; i<v_tab_tag.units.length; i++) {
+    var v_unit = v_tab_tag.units[i];
+    if (v_unit.div == p_div) {
+      //Clear timeout
+      clearTimeout(v_unit.timeout_object);
+      v_unit.active = false;
+      v_unit.button_play.style.display = 'inline-block';
+      v_unit.button_pause.style.display = 'none';
+      break;
+    }
+  }
+}
+
+function playMonitorUnit(p_div) {
+  var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+  for (var i=0; i<v_tab_tag.units.length; i++) {
+    var v_unit = v_tab_tag.units[i];
+    if (v_unit.div == p_div) {
+      //Clear timeout
+      clearTimeout(v_unit.timeout_object);
+      v_unit.active = true;
+      v_unit.button_play.style.display = 'none';
+      v_unit.button_pause.style.display = 'inline-block';
+      refreshMonitorDashboard(true,v_tab_tag,v_unit.div);
+      break;
+    }
+  }
+}
+
 function buildMonitorUnit(p_unit, p_first) {
   var v_dashboard_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.dashboard_div;
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
@@ -42,6 +73,7 @@ function buildMonitorUnit(p_unit, p_first) {
   var div_header = document.createElement('div');
   var title = document.createElement('h3');
   title.classList.add('unit_header_element');
+  title.classList.add('dashboard_unit_title');
   title.innerHTML = v_return_unit.v_title;
   var button_refresh = document.createElement('button');
   button_refresh.onclick = (function(div) {
@@ -51,6 +83,43 @@ function buildMonitorUnit(p_unit, p_first) {
   })(div);
   button_refresh.innerHTML = '<img src="/static/OmniDB_app/images/refresh.png"/>';
   button_refresh.classList.add('unit_header_element');
+  button_refresh.title = 'Refresh';
+  var button_pause = document.createElement('button');
+  button_pause.onclick = (function(div) {
+    return function() {
+      pauseMonitorUnit(div);
+    }
+  })(div);
+  button_pause.innerHTML = '<img src="/static/OmniDB_app/images/pause.png"/>';
+  button_pause.classList.add('unit_header_element');
+  button_pause.title = 'Pause';
+  var button_play = document.createElement('button');
+  button_play.onclick = (function(div) {
+    return function() {
+      playMonitorUnit(div);
+    }
+  })(div);
+  button_play.innerHTML = '<img src="/static/OmniDB_app/images/play.png"/>';
+  button_play.classList.add('unit_header_element');
+  button_play.title = 'Play';
+  button_play.style.display = 'none';
+  var interval = document.createElement('input');
+  interval.value = v_return_unit.v_interval;
+  interval.classList.add('unit_header_element');
+  interval.style.width = '60px';
+  interval.onkeypress= function() {
+    return event.charCode >= 48 && event.charCode <= 57;
+  }
+  interval.onblur= function() {
+    var v_value = interval.value;
+    if (v_value == '' || v_value == '0') {
+      interval.value = 30;
+    }
+
+  }
+  var interval_text = document.createElement('span');
+  interval_text.classList.add('unit_header_element');
+  interval_text.innerHTML = 'seconds';
   var button_close = document.createElement('button');
   button_close.onclick = (function(div) {
     return function() {
@@ -69,6 +138,10 @@ function buildMonitorUnit(p_unit, p_first) {
 
   div_header.appendChild(title);
   div_header.appendChild(button_refresh);
+  div_header.appendChild(button_pause);
+  div_header.appendChild(button_play);
+  div_header.appendChild(interval);
+  div_header.appendChild(interval_text);
   div_header.appendChild(button_close);
   div_header.appendChild(details);
   div.appendChild(div_loading);
@@ -92,9 +165,13 @@ function buildMonitorUnit(p_unit, p_first) {
     'div_details': details,
     'div_error': div_error,
     'div_content': div_content,
+    'button_pause': button_pause,
+    'button_play': button_play,
+    'input_interval': interval,
     'error': false,
     'timeout_object': null,
-    'unit_sequence': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_sequence
+    'unit_sequence': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_sequence,
+    'active': true
   }
   v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.units.push(v_unit);
 
@@ -126,7 +203,7 @@ function includeMonitorUnit(p_id) {
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
   var v_row_data = v_grid.getDataAtRow(v_grid.getSelected()[0]);
 
-  var div = buildMonitorUnit({'v_id': p_id, 'v_title': v_row_data[1]},true);
+  var div = buildMonitorUnit({'v_id': p_id, 'v_title': v_row_data[1], 'v_interval': v_row_data[3]},true);
   refreshMonitorDashboard(true,v_tab_tag,div);
 }
 
@@ -189,6 +266,7 @@ function editMonitorUnit(p_unit_id) {
   				function(p_return) {
 
             v_tab_tag.input_unit_name.value = p_return.v_data.title;
+            v_tab_tag.input_interval.value = p_return.v_data.interval;
             v_tab_tag.select_type.value = p_return.v_data.type;
             v_tab_tag.editor.setValue(p_return.v_data.script_chart);
             v_tab_tag.editor.clearSelection();
@@ -219,6 +297,7 @@ function saveMonitorScript() {
                                 "p_unit_id": v_tab_tag.unit_id,
                                 "p_unit_name": v_tab_tag.input_unit_name.value,
                                 "p_unit_type": v_tab_tag.select_type.value,
+                                "p_unit_interval": v_tab_tag.input_interval.value,
                                 "p_unit_script_data": v_tab_tag.editor_data.getValue(),
                                 "p_unit_script_chart": v_tab_tag.editor.getValue()});
 
@@ -248,8 +327,8 @@ function selectUnitTemplate(p_value) {
   				function(p_return) {
 
             v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.innerHTML = '';
-
             v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.select_type.value = p_return.v_data.type;
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.input_interval.value = p_return.v_data.interval;
 
             var v_editor = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor;
             v_editor.setValue(p_return.v_data.script_chart);
@@ -400,6 +479,11 @@ function showMonitorUnitList() {
           col.title =  'Type';
           columnProperties.push(col);
 
+          var col = new Object();
+          col.readOnly = true;
+          col.title =  'Interval(s)';
+          columnProperties.push(col);
+
           v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_div.style.display = 'block';
 
           if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_grid)
@@ -545,8 +629,10 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                       //foreach dataset in existing chart, find corresponding dataset in returning data
                       for (var j=v_unit.object.data.datasets.length-1; j>=0; j--) {
                         var dataset = v_unit.object.data.datasets[j];
+                        dataset.data.push(null);
                         if (v_shift)
                           dataset.data.shift();
+                        /*
                         var v_found = false;
                         for (var k=0; k<v_return_unit.v_object.datasets.length; k++) {
                           var return_dataset = v_return_unit.v_object.datasets[k];
@@ -559,7 +645,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                         //dataset doesn't exist, remove it
                         if (!v_found) {
                           v_unit.object.data.datasets.splice(j,1);
-                        }
+                        }*/
                       };
 
                       //foreach dataset in returning data, find corresponding dataset in existing chart
@@ -572,7 +658,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                           //Dataset exists, update data
                           if (return_dataset.label == dataset.label) {
                             var new_dataset = dataset;
-                            new_dataset.data[new_dataset.data.length]=return_dataset.data[0];
+                            new_dataset.data[new_dataset.data.length-1]=return_dataset.data[0];
                             dataset = new_dataset;
 
                             v_found = true;
@@ -583,7 +669,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                         if (!v_found) {
                           //populate dataset with empty data prior to newest value
                           for (var k=0; k<v_unit.object.data.labels.length-1; k++) {
-                            return_dataset.data.unshift('');
+                            return_dataset.data.unshift(null);
                           }
                           v_unit.object.data.datasets.push(return_dataset);
                         }
@@ -677,12 +763,12 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
               }
 
               //Adding timeout to get data again if tab is still active
-              if (v_tab_tag.tab_active) {
+              if (v_tab_tag.tab_active && v_unit.active) {
                 v_unit.timeout_object = setTimeout((function(p_div) {
                   return function() {
                     refreshMonitorDashboard(false,v_tab_tag,p_div);
                   }
-                })(v_unit.div),5000);
+                })(v_unit.div),v_unit.input_interval.value*1000);
               }
 
             }

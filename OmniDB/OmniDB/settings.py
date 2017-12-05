@@ -34,6 +34,9 @@ if not DESKTOP_MODE and not os.path.exists(CONFFILE):
     shutil.copyfile(os.path.join(BASE_DIR, 'omnidb.conf'), CONFFILE)
 OMNIDB_DATABASE = os.path.join(HOME_DIR, 'omnidb.db')
 
+#DEVELOPMENT MODE, POINT TO BASE_DIR
+HOME_DIR = BASE_DIR
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/

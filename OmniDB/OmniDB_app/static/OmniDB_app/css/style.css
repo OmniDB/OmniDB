@@ -1010,7 +1010,7 @@ iframe {
   display: none;
   position: absolute;
   margin-top: 5px;
-  width: 350px;
+  width: 400px;
   height: 300px;
   padding: 5px 5px;
   border-radius: 3px;
@@ -1034,6 +1034,13 @@ iframe {
   margin-bottom: 20px;
 }
 
+.dashboard_unit_title {
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .unit_close_button {
   position: absolute;
   right: 5px;
@@ -1048,7 +1055,7 @@ iframe {
 
 .unit_list_grid {
   position: relative;
-  width: 350px;
+  width: 400px;
   height: 250px;
   overflow: auto;
   margin-top: 5px;

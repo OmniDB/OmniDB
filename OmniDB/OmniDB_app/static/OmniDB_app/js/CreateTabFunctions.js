@@ -358,6 +358,7 @@ function initCreateTabFunctions() {
 		var v_html = "<div style='margin-top: 5px; margin-bottom: 5px;'>" +
     "<span>Name: </span><input type='text' id='txt_unit_name_" + v_tab.id + "' />" +
     "<span style='margin-left: 5px;'>Type: </span><select id='select_type_" + v_tab.id + "'><option value='chart_append'>Chart (Append)</option><option value='chart'>Chart (No Append)</option><option value='grid'>Grid</option></select>" +
+    "<span style='margin-left: 5px;'>Refresh Interval: </span><input type='text' id='txt_interval_" + v_tab.id + "' style='width: 100px;' onkeypress='return event.charCode >= 48 && event.charCode <= 57'/> seconds" +
     "</div>" +
     "<div style='margin-top: 5px; margin-bottom: 5px;'>" +
     "<span>Template: </span><select id='select_template_" + v_tab.id + "' onchange='selectUnitTemplate(this.value)'><option value=-1>Select Template</option></select>" +
@@ -418,6 +419,7 @@ function initCreateTabFunctions() {
       select_type: document.getElementById('select_type_' + v_tab.id),
       select_template: document.getElementById('select_template_' + v_tab.id),
       input_unit_name: document.getElementById('txt_unit_name_' + v_tab.id),
+      input_interval: document.getElementById('txt_interval_' + v_tab.id),
       div_result: document.getElementById('div_result_' + v_tab.id),
       bt_test: document.getElementById('bt_test_' + v_tab.id),
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,

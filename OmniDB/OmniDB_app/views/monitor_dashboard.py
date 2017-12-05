@@ -11,6 +11,7 @@ from contextlib import redirect_stdout
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB_app.include.Session import Session
 from datetime import datetime
 
@@ -91,7 +92,8 @@ def get_monitor_unit_list(request):
           when 'chart_append' then 'Chart (Append)'
           when 'grid' then 'Grid'
         end type,
-        user_id
+        user_id,
+        interval
         from mon_units
         where dbt_st_name = '{0}'
         and (user_id is null or user_id = {1})
@@ -112,7 +114,7 @@ def get_monitor_unit_list(request):
                 v_actions += '''<img src="/static/OmniDB_app/images/text_edit.png" class="img_ht" onclick="editMonitorUnit({0})"/>
                 <img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="deleteMonitorUnit({0})"/>'''.format(v_unit['unit_id'])
 
-            v_data.append([v_actions,v_unit['title'],v_unit['type']])
+            v_data.append([v_actions,v_unit['title'],v_unit['type'],v_unit['interval']])
             v_id_list.append(v_unit['unit_id'])
         v_return['v_data'] = { 'id_list': v_id_list, 'data': v_data }
 
@@ -144,6 +146,7 @@ def get_monitor_unit_details(request):
     v_query = '''
         select title,
                type,
+               interval,
                coalesce(script_chart,'') as script_chart,
                coalesce(script_data,'') as script_data
         from mon_units
@@ -153,7 +156,7 @@ def get_monitor_unit_details(request):
 
     try:
         v_unit_details = v_session.v_omnidb_database.v_connection.Query(v_query).Rows[0]
-        v_return['v_data'] = { 'title': v_unit_details['title'], 'type': v_unit_details['type'], 'script_chart': v_unit_details['script_chart'], 'script_data': v_unit_details['script_data'] }
+        v_return['v_data'] = { 'title': v_unit_details['title'], 'type': v_unit_details['type'], 'interval': v_unit_details['interval'], 'script_chart': v_unit_details['script_chart'], 'script_data': v_unit_details['script_data'] }
 
     except Exception as exc:
         v_return['v_data'] = str(exc)
@@ -183,7 +186,7 @@ def get_monitor_units(request):
     v_database = v_session.v_databases[v_database_index]['database']
 
     v_query = '''
-        select unit_id, title
+        select unit_id, title, interval
         from mon_units where dbt_st_name = '{0}'
         and is_default = 1
     '''.format(v_database.v_db_type)
@@ -196,7 +199,8 @@ def get_monitor_units(request):
         for v_unit in v_units.Rows:
             v_unit_data = {
                 'v_id': v_unit['unit_id'],
-                'v_title': v_unit['title']
+                'v_title': v_unit['title'],
+                'v_interval': v_unit['interval']
             }
             v_return['v_data'].append(v_unit_data)
 
@@ -226,7 +230,7 @@ def get_monitor_unit_template(request):
     v_unit_id = json_object['p_unit_id']
 
     v_query = '''
-        select coalesce(script_chart,'') as script_chart, coalesce(script_data,'') as script_data, type
+        select coalesce(script_chart,'') as script_chart, coalesce(script_data,'') as script_data, type, interval
         from mon_units where unit_id = '{0}'
     '''.format(v_unit_id)
 
@@ -261,11 +265,15 @@ def save_monitor_unit(request):
     v_unit_id = json_object['p_unit_id']
     v_unit_name = json_object['p_unit_name']
     v_unit_type = json_object['p_unit_type']
+    v_unit_interval = json_object['p_unit_interval']
     v_unit_script_chart = json_object['p_unit_script_chart']
     v_unit_script_data = json_object['p_unit_script_data']
     v_database_index = json_object['p_database_index']
 
     v_database = v_session.v_databases[v_database_index]['database']
+
+    if v_unit_interval==None:
+        v_unit_interval = 30
 
     try:
         #new unit
@@ -273,8 +281,8 @@ def save_monitor_unit(request):
             v_session.v_omnidb_database.v_connection.Open()
             v_session.v_omnidb_database.v_connection.Execute('''
                 insert into mon_units values (
-                (select coalesce(max(unit_id), 0) + 1 from mon_units),'{0}','{1}','{2}','{3}','{4}',0,{5})
-            '''.format(v_database.v_db_type,v_unit_script_chart.replace("'","''"),v_unit_script_data.replace("'","''"),v_unit_type,v_unit_name,v_session.v_user_id))
+                (select coalesce(max(unit_id), 0) + 1 from mon_units),'{0}','{1}','{2}','{3}','{4}',0,{5},{6})
+            '''.format(v_database.v_db_type,v_unit_script_chart.replace("'","''"),v_unit_script_data.replace("'","''"),v_unit_type,v_unit_name,v_session.v_user_id,v_unit_interval))
             v_inserted_id = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
             select coalesce(max(unit_id), 0) from mon_units
             ''')
@@ -288,9 +296,10 @@ def save_monitor_unit(request):
                     script_chart = '{1}',
                     script_data = '{2}',
                     type = '{3}',
-                    title = '{4}'
-                where unit_id = {5}
-            '''.format(v_database.v_db_type,v_unit_script_chart.replace("'", "''"),v_unit_script_data.replace("'", "''"),v_unit_type,v_unit_name,v_unit_id))
+                    title = '{4}',
+                    interval = {5}
+                where unit_id = {6}
+            '''.format(v_database.v_db_type,v_unit_script_chart.replace("'", "''"),v_unit_script_data.replace("'", "''"),v_unit_type,v_unit_name,v_unit_interval,v_unit_id))
 
 
     except Exception as exc:
@@ -351,7 +360,17 @@ def refresh_monitor_units(request):
     v_database_index = json_object['p_database_index']
     v_ids = json_object['p_ids']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database_orig = v_session.v_databases[v_database_index]['database']
+    v_database = OmniDatabase.Generic.InstantiateDatabase(
+        v_database_orig.v_db_type,
+        v_database_orig.v_server,
+        v_database_orig.v_port,
+        v_database_orig.v_service,
+        v_database_orig.v_user,
+        v_database_orig.v_connection.v_password,
+        v_database_orig.v_conn_id,
+        v_database_orig.v_alias
+    )
 
     if len(v_ids) > 0:
         v_first = True
@@ -361,7 +380,7 @@ def refresh_monitor_units(request):
                 v_query += ' union all '
             v_first = False
             v_query += '''
-                select unit_id, {0} as 'sequence', {1} as rendered, script_chart, script_data, type, title
+                select unit_id, {0} as 'sequence', {1} as rendered, script_chart, script_data, type, title, interval
                 from mon_units where unit_id = '{2}'
             '''.format(v_id['sequence'], v_id['rendered'], v_id['id'])
 
@@ -377,6 +396,7 @@ def refresh_monitor_units(request):
                     'v_sequence': v_unit['sequence'],
                     'v_type': v_unit['type'],
                     'v_title': v_unit['title'],
+                    'v_interval': v_unit['interval'],
                     'v_object': None,
                     'v_error': False
                 }
@@ -408,6 +428,7 @@ def refresh_monitor_units(request):
                     'v_sequence': v_unit['sequence'],
                     'v_type': v_unit['type'],
                     'v_title': v_unit['title'],
+                    'v_interval': v_unit['interval'],
                     'v_object': None,
                     'v_error': True,
                     'v_message': str(exc)

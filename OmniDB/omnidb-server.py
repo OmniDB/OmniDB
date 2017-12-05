@@ -34,7 +34,7 @@ import psycopg2
 
 import cherrypy
 from django.core.handlers.wsgi import WSGIHandler
-from OmniDB import home, ws_core
+from OmniDB import user_database, ws_core
 
 import logging
 import logging.config
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     #Parsing config file
     Config = configparser.ConfigParser()
-    Config.read("omnidb.conf")
+    Config.read(OmniDB.settings.CONFFILE)
     try:
         listening_address = Config.get('webserver', 'listening_address')
     except:
@@ -195,8 +195,8 @@ if __name__ == "__main__":
         #Removing Expired Sessions
         SessionStore.clear_expired()
 
-        # Home folder and files
-        home.work()
+        # User Database
+        user_database.work()
 
         #Websocket Core
         ws_core.start_wsserver_thread()

@@ -21,7 +21,7 @@ def migrate(p_database, p_current_version):
         sql_file = migrations[p_current_version][1]
         try:
             with open(sql_file, 'r') as f:
-                for sql in f.read().split(';'):
+                for sql in f.read().split('--omnidb--'):
                     p_database.v_connection.Execute(sql)
             print('OmniDB successfully migrated user database from version {0} to version {1}'.format(p_current_version, next_version))
             return True
@@ -33,8 +33,6 @@ def migrate(p_database, p_current_version):
         return False
 
 def work():
-    if not os.path.exists(settings.HOME_DIR):
-        os.makedirs(settings.HOME_DIR)
     database = OmniDatabase.Generic.InstantiateDatabase('sqlite','','',settings.OMNIDB_DATABASE,'','','0','')
     current_version = get_current_version(database)
     if current_version != settings.OMNIDB_SHORT_VERSION:

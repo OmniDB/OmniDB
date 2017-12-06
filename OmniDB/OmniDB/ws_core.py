@@ -371,7 +371,6 @@ def LogHistory(p_omnidb_database,
                p_start,
                p_end,
                p_duration,
-               p_mode,
                p_status):
 
     try:
@@ -381,13 +380,11 @@ USER: {0},
 START: {1},
 END: {2},
 DURATION: {3},
-MODE: {4},
-STATUS: {5},
-COMMAND: {6}'''.format(p_user_name,
+STATUS: {4},
+COMMAND: {5}'''.format(p_user_name,
            p_start.strftime('%Y-%m-%d %H:%M:%S.%f'),
            p_end.strftime('%Y-%m-%d %H:%M:%S.%f'),
            p_duration,
-           p_mode,
            p_status,
            p_sql.replace("'","''")))
 
@@ -399,13 +396,11 @@ COMMAND: {6}'''.format(p_user_name,
             '{2}',
             '{3}',
             '{4}',
-            '{5}',
-            '{6}')
+            '{5}')
         '''.format(p_user_id,
                    p_sql.replace("'","''"),
                    p_start.strftime('%Y-%m-%d %H:%M:%S.%f'),
                    p_end.strftime('%Y-%m-%d %H:%M:%S.%f'),
-                   p_mode,
                    p_status,
                    p_duration))
     except Exception as exc:
@@ -448,7 +443,6 @@ def thread_query(self,args,ws_object):
 
         log_start_time = datetime.now()
         log_status = 'success'
-        log_mode = ''
 
         v_inserted_id = None
         try:
@@ -530,7 +524,6 @@ def thread_query(self,args,ws_object):
                     log_start_time,
                     log_end_time,
                     v_duration,
-                    log_mode,
                     log_status)
 
         #if mode=0 save tab

@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import sys
 import shutil
+import random
+import string
 
 # Development Mode
 DEV_MODE = True
@@ -44,7 +46,10 @@ OMNIDB_DATABASE = os.path.join(HOME_DIR, 'omnidb.db')
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ijbq-+%n_(_^ct+qnqp%ir8fzu3n#q^i71j4&y#-6#qe(dx!h3'
+if DEV_MODE:
+    SECRET_KEY = 'ijbq-+%n_(_^ct+qnqp%ir8fzu3n#q^i71j4&y#-6#qe(dx!h3'
+else:
+    SECRET_KEY = ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(50))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -199,8 +204,8 @@ LOGGING = {
 }
 
 #OMNIDB PARAMETERS
-OMNIDB_VERSION             = 'OmniDB 2.4.0'
-OMNIDB_SHORT_VERSION       = '2.4.0'
+OMNIDB_VERSION             = 'OmniDB 2.5.0'
+OMNIDB_SHORT_VERSION       = '2.5.0'
 BINDKEY_EXECUTE            = 'alt+q'
 BINDKEY_EXECUTE_MAC        = 'ctrl+q'
 BINDKEY_REPLACE            = 'ctrl+g'

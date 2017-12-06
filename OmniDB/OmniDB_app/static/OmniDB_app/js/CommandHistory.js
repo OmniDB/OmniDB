@@ -121,12 +121,6 @@ function refreshCommandList() {
 				columnProperties.push(col);
 
 				var col = new Object();
-				col.title =  'Mode';
-				col.readOnly = true;
-				col.width = 100;
-				columnProperties.push(col);
-
-				var col = new Object();
 				col.title =  'Status';
 				col.readOnly = true;
 				col.width = 50;

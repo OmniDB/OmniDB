@@ -63,6 +63,7 @@ function initCreateTabFunctions() {
                       //Go through all child tabs and properly send close request for each
                       var v_tabs_to_remove = [];
                       for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
+
                         var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
                         if (v_tab.tag.mode=='query' || v_tab.tag.mode=='edit' || v_tab.tag.mode=='debug') {
       										var v_message_data = { tab_id: v_tab.tag.tab_id, tab_db_id: null };
@@ -70,6 +71,10 @@ function initCreateTabFunctions() {
       											v_message_data.tab_db_id = v_tab.tag.tab_db_id;
                           v_tabs_to_remove.push(v_message_data);
       									}
+                        else if (v_tab.tag.mode=='monitor_dashboard') {
+                          v_tab.tag.tab_active = false;
+                          cancelMonitorUnits(v_tab.tag);
+                        }
                       }
                       if (v_tabs_to_remove.length>0)
                         sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, v_tabs_to_remove, false, null);
@@ -95,7 +100,8 @@ function initCreateTabFunctions() {
   		divRight: document.getElementById(v_tab.id + '_div_right'),
   		selectedDatabaseIndex: 0,
   		connTabControl: v_connTabControl,
-      mode: 'connection'
+      mode: 'connection',
+      firstTimeOpen: true
   	};
 
   	v_tab.tag = v_tag;

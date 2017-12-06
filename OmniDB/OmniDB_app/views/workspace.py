@@ -1634,7 +1634,6 @@ def get_command_list(request):
             select cl_st_start,
                    cl_st_end,
                    cl_st_duration,
-                   cl_st_mode,
                    cl_st_status,
                    cl_st_command
             from command_list
@@ -1656,7 +1655,6 @@ def get_command_list(request):
         v_command_data_list.append(v_command["cl_st_start"])
         v_command_data_list.append(v_command["cl_st_end"])
         v_command_data_list.append(v_command["cl_st_duration"])
-        v_command_data_list.append(v_command["cl_st_mode"])
         if v_command["cl_st_status"]=='success':
             v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_F.png" title="Success"/>')
         else:

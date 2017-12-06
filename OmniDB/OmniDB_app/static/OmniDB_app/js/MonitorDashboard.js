@@ -293,7 +293,7 @@ function saveMonitorScript() {
     showAlert('Please provide script for this monitor.');
   }
   else {
-    var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+    var input = JSON.stringify({"p_database_index": v_tab_tag.selectedDatabaseIndex,
                                 "p_unit_id": v_tab_tag.unit_id,
                                 "p_unit_name": v_tab_tag.input_unit_name.value,
                                 "p_unit_type": v_tab_tag.select_type.value,
@@ -559,7 +559,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
       }
     }
 
-    var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_ids": v_units});
+    var input = JSON.stringify({"p_database_index": v_tab_tag.connTabTag.selectedDatabaseIndex, "p_ids": v_units});
 
   	execAjax('/refresh_monitor_units/',
   				input,

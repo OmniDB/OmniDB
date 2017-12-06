@@ -289,9 +289,6 @@ function saveMonitorScript() {
   if (v_tab_tag.input_unit_name.value.trim()=='') {
     showAlert('Please provide name for this monitor.');
   }
-  else if (v_tab_tag.editor.getValue().trim()=='') {
-    showAlert('Please provide script for this monitor.');
-  }
   else {
     var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
                                 "p_unit_id": v_tab_tag.unit_id,
@@ -559,7 +556,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
       }
     }
 
-    var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_ids": v_units});
+    var input = JSON.stringify({"p_database_index": v_tab_tag.connTabTag.selectedDatabaseIndex, "p_ids": v_units});
 
   	execAjax('/refresh_monitor_units/',
   				input,

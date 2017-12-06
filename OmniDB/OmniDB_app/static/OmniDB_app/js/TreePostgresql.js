@@ -2955,6 +2955,12 @@ function getTreeDetails(node) {
                     '/static/OmniDB_app/images/spin.svg', null, null);
             }
 
+            if (v_connTabControl.selectedTab.tag.firstTimeOpen) {
+              v_connTabControl.selectedTab.tag.firstTimeOpen = false;
+              v_connTabControl.tag.createMonitorDashboardTab();
+              startMonitorDashboard();
+            }
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);

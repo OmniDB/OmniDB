@@ -14,12 +14,17 @@ import os
 import sys
 import shutil
 
+# Development Mode
+DEV_MODE = True
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # OmniDB User Folder
 DESKTOP_MODE = False
-if DESKTOP_MODE:
+if DEV_MODE:
+    HOME_DIR = BASE_DIR
+elif DESKTOP_MODE:
     HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-app')
 else:
     HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-server')
@@ -33,9 +38,6 @@ CONFFILE = os.path.join(HOME_DIR, 'omnidb.conf')
 if not DESKTOP_MODE and not os.path.exists(CONFFILE):
     shutil.copyfile(os.path.join(BASE_DIR, 'omnidb.conf'), CONFFILE)
 OMNIDB_DATABASE = os.path.join(HOME_DIR, 'omnidb.db')
-
-#DEVELOPMENT MODE, POINT TO BASE_DIR
-HOME_DIR = BASE_DIR
 
 
 # Quick-start development settings - unsuitable for production

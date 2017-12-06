@@ -488,15 +488,16 @@ function initCreateTabFunctions() {
 			tab_id: v_tab.id,
 			mode: 'monitor_dashboard',
 			dashboard_div: document.getElementById('dashboard_' + v_tab.id),
-      unit_list_div: document.getElementById('unit_list_div_' + v_tab.id),
-      unit_list_grid_div: document.getElementById('unit_list_grid_' + v_tab.id),
-      unit_list_grid: null,
-      unit_list_id_list: [],
-			tab_title_span : v_tab_title_span,
-			tabControl: v_connTabControl.selectedTab.tag.tabControl,
-      units: [],
-      unit_sequence: 0,
-      tab_active: true
+            unit_list_div: document.getElementById('unit_list_div_' + v_tab.id),
+            unit_list_grid_div: document.getElementById('unit_list_grid_' + v_tab.id),
+            unit_list_grid: null,
+            unit_list_id_list: [],
+    		tab_title_span : v_tab_title_span,
+    		tabControl: v_connTabControl.selectedTab.tag.tabControl,
+            units: [],
+            unit_sequence: 0,
+            tab_active: true,
+            connTabTag: v_connTabControl.selectedTab.tag
 		};
 
 		v_tab.tag = v_tag;

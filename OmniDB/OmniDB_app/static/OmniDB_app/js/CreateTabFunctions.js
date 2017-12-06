@@ -496,7 +496,8 @@ function initCreateTabFunctions() {
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
       units: [],
       unit_sequence: 0,
-      tab_active: true
+      tab_active: true,
+      connTabTag: v_connTabControl.selectedTab.tag
 		};
 
 		v_tab.tag = v_tag;

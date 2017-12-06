@@ -40,7 +40,7 @@ $(function () {
 
 	//Prevent "cannot edit" bug in ace editor
 	$(document).on(
-		'mouseenter',
+		'mousedown',
 		'.ace_editor',
 		function(p_event) {
 			var v_textarea = this.querySelector('.ace_text-input');

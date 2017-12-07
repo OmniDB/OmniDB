@@ -3,7 +3,7 @@
 block_cipher = None
 
 data_files = [
-  ('db.sqlite3','db.sqlite3'),
+  ('db.sqlite3','.'),
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates'),

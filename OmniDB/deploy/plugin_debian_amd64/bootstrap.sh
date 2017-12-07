@@ -27,7 +27,6 @@ apt-get -y install build-essential git postgresql-server-dev-9.3 postgresql-serv
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
 git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
-cd ~/OmniDB
 echo "Done"
 
 echo "Building..."

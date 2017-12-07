@@ -23,13 +23,6 @@ echo "Done"
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
 git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
-cd ~/OmniDB
-echo "Done"
-
-echo "Installing OmniDB dependencies..."
-pip install pip --upgrade
-pip install -r ~/OmniDB/requirements.txt
-pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt
 echo "Done"
 
 echo "Building..."

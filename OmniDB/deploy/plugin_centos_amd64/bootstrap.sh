@@ -37,7 +37,6 @@ yum -y install postgresql10 postgresql10-server postgresql10-libs postgresql10-c
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
 git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
-cd ~/OmniDB
 echo "Done"
 
 echo "Building..."

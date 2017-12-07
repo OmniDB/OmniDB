@@ -126,21 +126,52 @@ class DjangoApplication(object):
 
 if __name__ == "__main__":
 
+    parser = optparse.OptionParser(version=OmniDB.settings.OMNIDB_VERSION)
+    parser.add_option("-p", "--port", dest="port",
+                      default=None, type=int,
+                      help="listening port")
+
+    parser.add_option("-w", "--wsport", dest="wsport",
+                      default=None, type=int,
+                      help="websocket port")
+
+    parser.add_option("-H", "--host", dest="host",
+                      default=None, type=str,
+                      help="listening address")
+
+    parser.add_option("-c", "--configfile", dest="conf",
+                      default=OmniDB.settings.CONFFILE, type=str,
+                      help="listening address")
+
+    (options, args) = parser.parse_args()
+
     #Parsing config file
     Config = configparser.ConfigParser()
-    Config.read(OmniDB.settings.CONFFILE)
-    try:
-        listening_address = Config.get('webserver', 'listening_address')
-    except:
-        listening_address = '0.0.0.0'
-    try:
-        listening_port = Config.getint('webserver', 'listening_port')
-    except:
-        listening_port = OmniDB.settings.OMNIDB_DEFAULT_SERVER_PORT
-    try:
-        ws_port = Config.getint('webserver', 'websocket_port')
-    except:
-        ws_port = OmniDB.settings.WS_QUERY_PORT
+    Config.read(options.conf)
+    if not os.path.exists(options.conf):
+        print("Config file not found, using default settings.")
+
+    if options.host!=None:
+        listening_address = options.host
+    else:
+        try:
+            listening_address = Config.get('webserver', 'listening_address')
+        except:
+            listening_address = '0.0.0.0'
+    if options.port!=None:
+        listening_port = options.port
+    else:
+        try:
+            listening_port = Config.getint('webserver', 'listening_port')
+        except:
+            listening_port = OmniDB.settings.OMNIDB_DEFAULT_SERVER_PORT
+    if options.wsport!=None:
+        ws_port = options.wsport
+    else:
+        try:
+            ws_port = Config.getint('webserver', 'websocket_port')
+        except:
+            ws_port = OmniDB.settings.WS_QUERY_PORT
     try:
         is_ssl = Config.getboolean('webserver', 'is_ssl')
     except:
@@ -154,22 +185,8 @@ if __name__ == "__main__":
     except:
         ssl_key_file = ''
 
-    parser = optparse.OptionParser(version=OmniDB.settings.OMNIDB_VERSION)
-    parser.add_option("-p", "--port", dest="port",
-                      default=listening_port, type=int,
-                      help="listening port")
-
-    parser.add_option("-w", "--wsport", dest="wsport",
-                      default=ws_port, type=int,
-                      help="websocket port")
-
-    parser.add_option("-H", "--host", dest="host",
-                      default=listening_address, type=str,
-                      help="listening address")
-    (options, args) = parser.parse_args()
-
     #Choosing empty port
-    port = options.wsport
+    port = ws_port
     num_attempts = 0
 
     print('''Starting OmniDB websocket...''')
@@ -202,8 +219,8 @@ if __name__ == "__main__":
         ws_core.start_wsserver_thread()
         DjangoApplication().run(
             {
-                'listening_address'   : options.host,
-                'listening_port'      : options.port,
+                'listening_address'   : listening_address,
+                'listening_port'      : listening_port,
                 'is_ssl'              : is_ssl,
                 'ssl_certificate_file': ssl_certificate_file,
                 'ssl_key_file'        : ssl_key_file

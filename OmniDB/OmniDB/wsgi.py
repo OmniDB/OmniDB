@@ -8,13 +8,16 @@ https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 """
 
 import os
-from . import monitoring_core, ws_core, ws_chat
+from . import user_database, ws_core
 
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "OmniDB.settings")
 
 application = get_wsgi_application()
+
+# User Database
+user_database.work()
 
 #Monitoring Core
 #monitoring_core.start_monitoring_thread()

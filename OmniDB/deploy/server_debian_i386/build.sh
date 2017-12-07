@@ -1,7 +1,13 @@
 #!/bin/bash
 
-VERSION=2.3.0
+VERSION=2.4.0
 ARCH=debian-i386
+
+echo "Installing OmniDB dependencies..."
+pip install pip --upgrade
+pip install -r ~/OmniDB/requirements.txt --upgrade
+pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt --upgrade
+echo "Done"
 
 cd ~/OmniDB/OmniDB
 
@@ -10,6 +16,10 @@ rm -rf build
 rm -rf dist
 rm -rf deploy/packages
 echo "Done."
+
+echo -n "Replacing line-end char for SQLite backward compatibility..."
+sed -i -e 's/char(10)/x\x270a\x27/g' OmniDB/migrations/*.sql
+echo "Done"
 
 echo "Generating bundles... "
 pyinstaller OmniDB-lin.spec

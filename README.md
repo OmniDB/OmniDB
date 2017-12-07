@@ -1,19 +1,11 @@
-# OmniDB 2.3.0
+# OmniDB 2.4.0
 
 ## Release Notes
 
-- Debugger for PL/pgSQL functions (requires a plugin, please see [installation instructions](https://github.com/OmniDB/OmniDB/blob/master/omnidb_plugin/README.md) and [how to use](https://blog.2ndquadrant.com/omnidb-debugger-for-plpgsql-functions/))
-- Automatic saving of query tabs (fixes #200)
-- Automatic closing of database connections
-- Other enhancements:
-  - Tabbed SQL History
-  - Packages for openSUSE
+- Custom Monitoring Dashboard: User defined monitoring dashboard with charts and grids allowing the user to create custom monitors in a python sandbox
+- Persistent user data: OmniDB's database, config files and logs now persist through new release upgrades
 - Bug fixes:
-  - #239: Unable to use some password
-  - #261: Click and drag image
-  - #278: EditData does not work when column has uppercase letters
-  - #279: Autocomplete in query and EditData does not work for columns with upper case
-  - Other minor bugs in treeview
+  - Autocomplete box window doesn't hide on mouse move anymore
 
 # 1- Installation
 

@@ -6,3 +6,5 @@ pyscrypt
 pyaes
 PrettyTable
 openpyxl
+pgspecial
+RestrictedPython>=4.0b2

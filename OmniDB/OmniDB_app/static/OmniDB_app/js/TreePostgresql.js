@@ -2585,6 +2585,13 @@ function getTreeDetails(node) {
                 action: function(node) {},
                 submenu: {
                     elements: [{
+                        text: 'Dashboard',
+                        icon: '/static/OmniDB_app/images/monitoring.png',
+                        action: function(node) {
+                            v_connTabControl.tag.createMonitorDashboardTab();
+                            startMonitorDashboard();
+                        }
+                    }, {
                         text: 'Backends',
                         icon: '/static/OmniDB_app/images/monitoring.png',
                         action: function(node) {
@@ -2946,6 +2953,12 @@ function getTreeDetails(node) {
                     }, 'cm_xlgroups');
                 node_xl_groups.createChildNode('', true,
                     '/static/OmniDB_app/images/spin.svg', null, null);
+            }
+
+            if (v_connTabControl.selectedTab.tag.firstTimeOpen) {
+              v_connTabControl.selectedTab.tag.firstTimeOpen = false;
+              v_connTabControl.tag.createMonitorDashboardTab();
+              startMonitorDashboard();
             }
 
         },
@@ -3406,6 +3419,15 @@ function getViewsColumnsPostgresql(node) {
                     false, '/static/OmniDB_app/images/bullet_red.png',
                     null, null);
 
+            }
+
+            if (node.tag.has_rules) {
+                v_node = node.createChildNode('Rules', false,
+                    '/static/OmniDB_app/images/rule.png', {
+                        type: 'rule_list'
+                    }, 'cm_rules');
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
             }
 
             if (node.tag.has_triggers) {

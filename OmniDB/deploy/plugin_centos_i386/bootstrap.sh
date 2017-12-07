@@ -33,7 +33,6 @@ yum -y install postgresql95 postgresql95-server postgresql95-libs postgresql95-c
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
 git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
-cd ~/OmniDB
 echo "Done"
 
 echo "Building..."

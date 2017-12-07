@@ -34,7 +34,7 @@ import psycopg2
 
 import cherrypy
 from django.core.handlers.wsgi import WSGIHandler
-from OmniDB import ws_core
+from OmniDB import user_database, ws_core
 
 import logging
 import logging.config
@@ -159,6 +159,9 @@ if __name__ == "__main__":
 
         #Removing Expired Sessions
         SessionStore.clear_expired()
+
+        # User Database
+        user_database.work()
 
         #Websocket Core
         ws_core.start_wsserver_thread()

@@ -12,10 +12,10 @@ database = OmniDatabase.Generic.InstantiateDatabase(
     'sqlite','','',settings.OMNIDB_DATABASE,'','','0',''
 )
 database_sessions = OmniDatabase.Generic.InstantiateDatabase(
-    'sqlite','','','db.sqlite3','','','0',''
+    'sqlite','','',settings.SESSION_DATABASE,'','','0',''
 )
 
-def create_superuser(p_user,p_pwd):
+def create_superuser(p_user, p_pwd):
     try:
         print('Creating superuser...')
         v_cryptor = Utils.Cryptor("omnidb")
@@ -24,19 +24,6 @@ def create_superuser(p_user,p_pwd):
             (select coalesce(max(user_id), 0) + 1 from users),'{0}','{1}',1,'14',1,1,'{2}')
         '''.format(p_user,v_cryptor.Encrypt(p_pwd),str(uuid.uuid4())))
         print('Superuser created.')
-    except Exception as exc:
-        print('Error:')
-        print(exc)
-
-def clean_all():
-    print('*** ATENTION *** ALL USERS DATA WILL BE LOST')
-    try:
-        value = input('Would you like to continue? (y/n) ')
-        if value.lower()=='y':
-            clean_users()
-            clean_sessions()
-            vacuum()
-            create_superuser('admin','admin')
     except Exception as exc:
         print('Error:')
         print(exc)
@@ -89,7 +76,7 @@ if __name__ == "__main__":
                       help="databases maintenance")
     parser.add_option("-r", "--resetdatabase", dest="reset",
                       default=False,action="store_true",
-                      help="reset databases")
+                      help="reset user and Django databases")
     (options, args) = parser.parse_args()
 
     if len(sys.argv[1:])==0:
@@ -104,7 +91,7 @@ if __name__ == "__main__":
                 clean_users()
                 clean_sessions()
                 vacuum()
-                create_superuser('admin','admin')
+                create_superuser('admin', 'admin')
         except Exception as exc:
             print('Error:')
             print(exc)
@@ -113,4 +100,4 @@ if __name__ == "__main__":
         vacuum()
 
     if options.createsuperuser:
-        create_superuser(options.createsuperuser[0],options.createsuperuser[1])
+        create_superuser(options.createsuperuser[0], options.createsuperuser[1])

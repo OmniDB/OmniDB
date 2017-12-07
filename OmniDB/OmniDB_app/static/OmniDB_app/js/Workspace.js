@@ -36,13 +36,11 @@ $(function () {
 
 	v_connTabControl.tag.createSnippetTab();
 
-	var v_tab = v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
-
 	getDatabaseList();
 
 	//Prevent "cannot edit" bug in ace editor
 	$(document).on(
-		'mouseenter',
+		'mousedown',
 		'.ace_editor',
 		function(p_event) {
 			var v_textarea = this.querySelector('.ace_text-input');
@@ -211,6 +209,11 @@ function getDatabaseList() {
 
 				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
 				v_connTabControl.tag.connections = p_return.v_data.v_connections;
+
+				//v_connTabControl.tag.createServerMonitoringTab();
+
+				v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
+
 
 				//Create existing tabs
 				var v_current_parent = null;
@@ -385,14 +388,25 @@ function refreshHeights(p_all) {
 		refreshTreeHeight();
 	}
 
+	if (v_connTabControl.selectedTab.tag.mode=='monitor_all') {
+		v_connTabControl.selectedTab.tag.tabControlDiv.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.tabControlDiv).offset().top - 18 + 'px';
+	}
+
 	//If inner tab exists
-	if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag) {
+	if (v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
 		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 		//Snippet tab, adjust editor only
 		if (v_tab_tag.mode=='snippet') {
 			v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 62 + 'px';
 			v_tab_tag.editor.resize();
+		}
+		else if (v_tab_tag.mode=='monitor_unit') {
+			var v_new_height = window.innerHeight - $(v_tab_tag.editorDataDiv).offset().top - 324 + 'px';
+			v_tab_tag.editorDiv.style.height = v_new_height;
+			v_tab_tag.editorDataDiv.style.height = v_new_height;
+			v_tab_tag.editor.resize();
+			v_tab_tag.editor_data.resize();
 		}
 		else if (v_tab_tag.mode=='query') {
 			if (v_tab_tag.currQueryTab=='data') {
@@ -434,7 +448,7 @@ function refreshHeights(p_all) {
 					v_tab_tag.chart.update();
 			}
 		}
-		else if (v_tab_tag.mode=='monitoring') {
+		else if (v_tab_tag.mode=='monitor_grid') {
 			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
 			if (v_tab_tag.ht!=null)
 				v_tab_tag.ht.render();
@@ -459,6 +473,9 @@ function refreshHeights(p_all) {
 			if (v_tab_tag.editDataObject.ht!=null) {
 				v_tab_tag.editDataObject.ht.render();
 			}
+		}
+		else if (v_tab_tag.mode=='monitor_dashboard') {
+			v_tab_tag.dashboard_div.style.height = window.innerHeight - $(v_tab_tag.dashboard_div).offset().top - $(v_tab_tag.dashboard_div.parentElement).scrollTop() - 20 + "px";
 		}
 		else if (v_tab_tag.mode=='alter') {
 			if (v_tab_tag.alterTableObject.window=='columns') {
@@ -679,49 +696,53 @@ function resizeHorizontalEnd(event) {
 	v_left_div.style.width = parseInt(v_left_div.style.width, 10) + v_width_diff + '%';
 	v_right_div.style.width = parseInt(v_right_div.style.width, 10) - v_width_diff + '%';
 
-	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+	if (v_connTabControl.selectedTab.tag.tabControl.selectedTab!=null) {
 
-	if (v_tab_tag.mode=='query') {
-		v_tab_tag.editor.resize();
-		if (v_tab_tag.currQueryTab=='data') {
-			if (v_tab_tag.ht!=null)
+		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+		if (v_tab_tag.mode=='query') {
+			v_tab_tag.editor.resize();
+			if (v_tab_tag.currQueryTab=='data') {
+				if (v_tab_tag.ht!=null)
+					v_tab_tag.ht.render();
+			}
+		}
+		if (v_tab_tag.mode=='debug') {
+			v_tab_tag.editor.resize();
+			if (v_tab_tag.currDebugTab=='parameter') {
+				if (v_tab_tag.htParameter!=null)
+					v_tab_tag.htParameter.render();
+			}
+			else if (v_tab_tag.currDebugTab=='variable') {
+				if (v_tab_tag.htVariable!=null)
+					v_tab_tag.htVariable.render();
+			}
+			else if (v_tab_tag.currDebugTab=='result') {
+				if (v_tab_tag.htResult!=null)
+					v_tab_tag.htResult.render();
+			}
+			else if (v_tab_tag.currDebugTab=='statistics') {
+				if (v_tab_tag.chart!=null)
+					v_tab_tag.chart.update();
+			}
+		}
+		else if (v_tab_tag.mode=='edit') {
+			v_tab_tag.editor.resize();
+			if (v_tab_tag.editDataObject.ht!=null)
+				v_tab_tag.editDataObject.ht.render();
+		}
+		else if (v_tab_tag.mode=='snippet') {
+			v_tab_tag.editor.resize();
+		}
+		else if (v_tab_tag.mode=='monitor_grid' || v_tab_tag.mode=='query_history') {
+			if (v_tab_tag.ht!=null) {
 				v_tab_tag.ht.render();
+			}
 		}
-	}
-	if (v_tab_tag.mode=='debug') {
-		v_tab_tag.editor.resize();
-		if (v_tab_tag.currDebugTab=='parameter') {
-			if (v_tab_tag.htParameter!=null)
-				v_tab_tag.htParameter.render();
+		else if (v_tab_tag.mode=='alter') {
+	        v_tab_tag.tabControl.selectedTab.tag.ht.render();
 		}
-		else if (v_tab_tag.currDebugTab=='variable') {
-			if (v_tab_tag.htVariable!=null)
-				v_tab_tag.htVariable.render();
-		}
-		else if (v_tab_tag.currDebugTab=='result') {
-			if (v_tab_tag.htResult!=null)
-				v_tab_tag.htResult.render();
-		}
-		else if (v_tab_tag.currDebugTab=='statistics') {
-			if (v_tab_tag.chart!=null)
-				v_tab_tag.chart.update();
-		}
-	}
-	else if (v_tab_tag.mode=='edit') {
-		v_tab_tag.editor.resize();
-		if (v_tab_tag.editDataObject.ht!=null)
-			v_tab_tag.editDataObject.ht.render();
-	}
-	else if (v_tab_tag.mode=='snippet') {
-		v_tab_tag.editor.resize();
-	}
-	else if (v_tab_tag.mode=='monitoring' || v_tab_tag.mode=='query_history') {
-		if (v_tab_tag.ht!=null) {
-			v_tab_tag.ht.render();
-		}
-	}
-	else if (v_tab_tag.mode=='alter') {
-        v_tab_tag.tabControl.selectedTab.tag.ht.render();
+
 	}
 
 }

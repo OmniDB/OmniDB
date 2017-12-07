@@ -1,7 +1,13 @@
 #!/bin/bash
 
-VERSION=2.3.0
+VERSION=2.4.0
 ARCH=debian-i386
+
+echo "Installing OmniDB dependencies..."
+pip install pip --upgrade
+pip install -r ~/OmniDB/requirements.txt --upgrade
+pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt --upgrade
+echo "Done"
 
 cd ~/OmniDB/OmniDB
 
@@ -12,7 +18,7 @@ rm -rf deploy/packages
 echo "Done."
 
 echo -n "Switching to Desktop Mode... "
-sed -i -e 's/DESKTOP_MODE               = False/DESKTOP_MODE               = True/g' OmniDB/settings.py
+sed -i -e 's/DESKTOP_MODE = False/DESKTOP_MODE = True/g' OmniDB/settings.py
 echo "Done."
 
 echo "Generating bundles... "

@@ -134,4 +134,15 @@ urlpatterns = [
     url(r'^get_xl_table_properties_postgresql/', views.tree_postgresql.get_xl_table_properties, name='get_xl_table_properties_postgresql'),
     url(r'^get_xl_table_nodes_postgresql/', views.tree_postgresql.get_xl_table_nodes, name='get_xl_table_nodes_postgresql'),
 
+    #MONITORING SYSTEM
+    url(r'^get_monitor_nodes/', views.monitor_dashboard.get_monitor_nodes, name='get_monitor_nodes'),
+    url(r'^test_monitor_script/', views.monitor_dashboard.test_monitor_script, name='test_monitor_script'),
+    url(r'^get_monitor_unit_list/', views.monitor_dashboard.get_monitor_unit_list, name='get_monitor_unit_list'),
+    url(r'^get_monitor_unit_details/', views.monitor_dashboard.get_monitor_unit_details, name='get_monitor_unit_details'),
+    url(r'^get_monitor_units/', views.monitor_dashboard.get_monitor_units, name='get_monitor_units'),
+    url(r'^refresh_monitor_units/', views.monitor_dashboard.refresh_monitor_units, name='refresh_monitor_units'),
+    url(r'^get_monitor_unit_template/', views.monitor_dashboard.get_monitor_unit_template, name='get_monitor_unit_template'),
+    url(r'^save_monitor_unit/', views.monitor_dashboard.save_monitor_unit, name='save_monitor_unit'),
+    url(r'^delete_monitor_unit/', views.monitor_dashboard.delete_monitor_unit, name='delete_monitor_unit'),
+
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

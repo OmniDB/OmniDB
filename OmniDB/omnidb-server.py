@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
     parser.add_option("-c", "--configfile", dest="conf",
                       default=OmniDB.settings.CONFFILE, type=str,
-                      help="listening address")
+                      help="configuration file")
 
     (options, args) = parser.parse_args()
 

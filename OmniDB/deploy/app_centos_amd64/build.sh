@@ -3,6 +3,12 @@
 VERSION=2.4.0
 ARCH=centos-amd64
 
+echo "Installing OmniDB dependencies..."
+pip install pip --upgrade
+pip install -r ~/OmniDB/requirements.txt --upgrade
+pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt --upgrade
+echo "Done"
+
 cd ~/OmniDB/OmniDB
 
 echo -n "Cleaning... "

@@ -11,8 +11,8 @@ Vagrant.configure("2") do |config|
 end
 
 Vagrant::Config.run do |config|
-  config.vm.box = "wholebits/centos6-64"
-  config.vm.box_url = "https://app.vagrantup.com/wholebits/boxes/centos6-64"
+  config.vm.box = "centos/7"
+  config.vm.box_url = "https://app.vagrantup.com/centos/boxes/7"
   config.vm.host_name = "deployserver64"
 
   config.vm.share_folder "bootstrap", "/mnt/bootstrap", ".", :create => true

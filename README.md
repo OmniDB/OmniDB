@@ -150,3 +150,7 @@ OmniDB is designed for easy database management. Here are some features:
   - PL/pgSQL function debugger (requires a plugin, please see [here](https://github.com/OmniDB/OmniDB/blob/master/omnidb_plugin/README.md))
 
 ![](https://omnidb.org/images/screenshots/debugger.png)
+
+  - Monitoring dashboard
+
+![](https://omnidb.org/images/screenshots/monitoring_dashboard.png)

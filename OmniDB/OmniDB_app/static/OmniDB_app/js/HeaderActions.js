@@ -171,20 +171,6 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
   		v_editor.focus();
     };
 
-    var command = {
-		name: "replace",
-		bindKey: {
-		      mac: v_keybind_object.v_replace_mac,
-		      win: v_keybind_object.v_replace
-		    },
-		exec: function(){
-			v_copyPasteObject.v_tabControl.selectTabIndex(0);
-			showFindReplace(v_editor);
-		}
-	}
-
-	v_editor.commands.addCommand(command);
-
 	if (p_content!=null)
 		v_editor.setValue(p_content);
 	else

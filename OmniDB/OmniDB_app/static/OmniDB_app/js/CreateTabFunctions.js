@@ -1012,20 +1012,6 @@ function initCreateTabFunctions() {
 
 		v_editor.commands.addCommand(command);
 
-		var command = {
-			name: "replace",
-			bindKey: {
-			      mac: v_keybind_object.v_replace_mac,
-			      win: v_keybind_object.v_replace
-			    },
-			exec: function(){
-				v_copyPasteObject.v_tabControl.selectTabIndex(0);
-				showFindReplace(v_editor);
-			}
-		}
-
-		v_editor.commands.addCommand(command);
-
 		var qtags = {
 			getCompletions: function(editor, session, pos, prefix, callback) {
 
@@ -1250,20 +1236,6 @@ function initCreateTabFunctions() {
           },
       exec: function(){
       queryEditData();
-      }
-    }
-
-    v_editor.commands.addCommand(command);
-
-    var command = {
-      name: "replace",
-      bindKey: {
-            mac: v_keybind_object.v_replace_mac,
-            win: v_keybind_object.v_replace
-          },
-      exec: function(){
-        v_copyPasteObject.v_tabControl.selectTabIndex(0);
-        showFindReplace(v_editor);
       }
     }
 

@@ -48,6 +48,7 @@
         </div>
     </div>
 
+<!--
     <div id="div_find_replace" style="display: none;">
         <div class="modal_background_dark" style="z-index: 2000">
             <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
@@ -81,6 +82,7 @@
             </div>
         </div>
     </div>
+-->
 
 		<div id="div_commands_log" style="display: none;">
         <div class="modal_background_dark">
@@ -148,8 +150,6 @@
 	var v_is_secure = {{ is_secure }};
 	var v_selected_connection = {{ selected_connection }}
 	var v_keybind_object = { v_execute: '{{ execute }}',
-               v_execute_mac: '{{ execute_mac }}',
-               v_replace: '{{ replace }}',
-               v_replace_mac: '{{ replace_mac }}' };
+               v_execute_mac: '{{ execute_mac }}' };
 </script>
 {% endblock %}

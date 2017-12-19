@@ -51,8 +51,6 @@ def index(request):
         'is_secure' : v_is_secure,
         'execute': settings.BINDKEY_EXECUTE,
         'execute_mac': settings.BINDKEY_EXECUTE_MAC,
-        'replace': settings.BINDKEY_REPLACE,
-        'replace_mac': settings.BINDKEY_REPLACE_MAC,
         'selected_connection': v_connection
     }
 

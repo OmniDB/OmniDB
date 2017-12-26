@@ -2479,6 +2479,8 @@ function refreshTreePostgresql(node) {
         getFunctionFieldsPostgresql(node);
     } else if (node.tag.type == 'sequence_list') {
         getSequencesPostgresql(node);
+    } else if (node.tag.type == 'sequence') {
+        getSequenceValuesPostgresql(node);
     } else if (node.tag.type == 'database_list') {
         getDatabasesPostgresql(node);
     } else if (node.tag.type == 'tablespace_list') {
@@ -3314,19 +3316,54 @@ function getSequencesPostgresql(node) {
                     '/static/OmniDB_app/images/sequence_list.png', {
                         type: 'sequence'
                     }, 'cm_sequence');
-                v_node.createChildNode('Minimum Value: ' + p_return.v_data[
+                v_node.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving sequence values
+/// </summary>
+/// <param name="node">Node object.</param>
+function getSequenceValuesPostgresql(node) {
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_sequence_values_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_schema": node.parent.parent.text,
+            "p_sequence": node.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                node.createChildNode('Minimum Value: ' + p_return.v_data[
                         i].v_minimum_value, false,
                     '/static/OmniDB_app/images/bullet_red.png', null,
                     null);
-                v_node.createChildNode('Maximum Value: ' + p_return.v_data[
+                node.createChildNode('Maximum Value: ' + p_return.v_data[
                         i].v_maximum_value, false,
                     '/static/OmniDB_app/images/bullet_red.png', null,
                     null);
-                v_node.createChildNode('Current Value: ' + p_return.v_data[
+                node.createChildNode('Current Value: ' + p_return.v_data[
                         i].v_current_value, false,
                     '/static/OmniDB_app/images/bullet_red.png', null,
                     null);
-                v_node.createChildNode('Increment: ' + p_return.v_data[i].v_increment,
+                node.createChildNode('Increment: ' + p_return.v_data[i].v_increment,
                     false, '/static/OmniDB_app/images/bullet_red.png',
                     null, null);
 

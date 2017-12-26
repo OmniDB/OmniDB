@@ -867,17 +867,28 @@ class PostgreSQL:
         else:
             v_filter = "and quote_ident(sequence_schema) not in ('information_schema','pg_catalog') "
         v_table = self.v_connection.Query('''
-            select quote_ident(sequence_name) as sequence_name,
-                   minimum_value,
-                   maximum_value,
-                   0 as current_value,
-                   increment,
-                   sequence_schema as sequence_schema
+            select quote_ident(sequence_schema) as sequence_schema,
+                   quote_ident(sequence_name) as sequence_name
             from information_schema.sequences
             where 1 = 1
             {0}
             order by 1
         '''.format(v_filter), True)
+        return v_table
+
+    def QuerySequenceValues(self, p_sequence, p_schema):
+        v_table = self.v_connection.Query('''
+            select quote_ident(sequence_schema) as sequence_schema,
+                   quote_ident(sequence_name) as sequence_name,
+                   minimum_value,
+                   maximum_value,
+                   0 as current_value,
+                   increment
+            from information_schema.sequences
+            where quote_ident(sequence_schema) = '{0}'
+              and quote_ident(sequence_name) = '{1}'
+            order by 1
+        '''.format(p_schema, p_sequence), True)
         for i in range(0, len(v_table.Rows)):
             v_table.Rows[i]['current_value'] = self.v_connection.ExecuteScalar(
                 "select last_value from {0}.{1}".format(v_table.Rows[i]['sequence_schema'], v_table.Rows[i]['sequence_name'])

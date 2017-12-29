@@ -53,12 +53,6 @@ class Connections(TestCase):
 
 class Users(TestCase):
 
-    def test_users_nosession(self):
-        c = Client()
-        response = c.post('/users/', follow=True)
-        assert '/login/' == response.redirect_chain[0][0]
-        assert 302 == response.redirect_chain[0][1]
-
     def test_get_users_nosession(self):
         c = Client()
         response = c.post('/get_users/')

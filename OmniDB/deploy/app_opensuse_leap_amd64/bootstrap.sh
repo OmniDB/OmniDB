@@ -3,7 +3,7 @@
 PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
-zypper install -y gcc gcc-c++ make patch libopenssl-devel readline-devel libbz2-devel rpm-build libgconfmm-2_6-1 desktop-file-utils
+zypper install -y gcc gcc-c++ make patch libopenssl-devel readline-devel libbz2-devel rpm-build libgconfmm-2_6-1 desktop-file-utils sqlite3-devel
 zypper install -y gnome-shell
 echo "Done"
 
@@ -26,6 +26,6 @@ git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/app_opensuse_amd64/
+cd ~/OmniDB/OmniDB/deploy/app_opensuse_leap_amd64/
 ./build.sh
 echo "Done"

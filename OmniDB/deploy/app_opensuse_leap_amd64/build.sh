@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 VERSION=2.4.0
-ARCH=opensuse-amd64
+ARCH=opensuse-leap-amd64
 
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade

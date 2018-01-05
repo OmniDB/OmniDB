@@ -38,7 +38,7 @@ cp -r "$HOME/.pyenv/versions/3.5.2/lib/python3.5/site-packages/cefpython3" deplo
 echo "Done."
 
 echo -n "Copying libgconf... "
-if [ $ARCH == "opensuse-amd64" ]
+if [ $ARCH == "opensuse-tumbleweed-amd64" ]
 then
 	cp /usr/lib64/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
 	cp /usr/lib64/libgconf-2.so.4 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
@@ -51,7 +51,7 @@ chmod 755 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
 echo "Done."
 
 echo -n "Copying libxcb... "
-if [ $ARCH == "opensuse-amd64" ]
+if [ $ARCH == "opensuse-tumbleweed-amd64" ]
 then
 	cp /usr/lib64/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
 	cp /usr/lib64/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
@@ -88,7 +88,7 @@ chmod 755 deploy/packages/omnidb-app/cefpython3/libnss3.so
 echo "Done."
 
 echo -n "Copying libXtst... "
-if [ $ARCH == "opensuse-amd64" ]
+if [ $ARCH == "opensuse-tumbleweed-amd64" ]
 then
         cp /usr/lib64/libXtst.so.6 deploy/packages/omnidb-app/libXtst.so.6
         cp /usr/lib64/libXtst.so.6 deploy/packages/omnidb-app/cefpython3/libXtst.so.6

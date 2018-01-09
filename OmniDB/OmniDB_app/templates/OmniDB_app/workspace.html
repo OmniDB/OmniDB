@@ -48,40 +48,6 @@
         </div>
     </div>
 
-    <div id="div_find_replace" style="display: none;">
-        <div class="modal_background_dark" style="z-index: 2000">
-            <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
-                <a class="modal-closer" onclick="hideFindReplace()">x</a>
-
-                <div id="find_replace" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
-	                <ul>
-	                <li id="find_replace_tab1">Find & Replace</li>
-	  				</ul>
-	  				<div id="div_find_replace_tab1">
-
-	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
-		                <div style="text-align: center;">
-		                <div style="margin-bottom: 10px;">Text</div>
-		                <input id="txt_replacement_text" type="text" style="width: 200px; margin-bottom: 20px;">
-		                </div>
-		                <div style="text-align: center;">
-		                <div style="margin-bottom: 10px;">Replacement</div>
-		                <input id="txt_replacement_text_new" type="text" style="width: 200px; margin-bottom: 20px;">
-		                </div>
-		                <div style="text-align: center;">
-		                	<button onclick="replaceText();">Replace</button>
-		                </div>
-		                </div>
-
-
-	  				</div>
-  				</div>
-
-
-            </div>
-        </div>
-    </div>
-
 		<div id="div_commands_log" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
@@ -161,10 +127,10 @@
 	var v_query_port = {{ query_port }};
 	var v_is_secure = {{ is_secure }};
 	var v_keybind_object = { v_execute: '{{ execute }}',
-               v_execute_mac: '{{ execute_mac }}',
-               v_replace: '{{ replace }}',
-               v_replace_mac: '{{ replace_mac }}' };
+							 v_execute_mac: '{{ execute_mac }}',
+							 v_replace: '{{ replace }}',
+							 v_replace_mac: '{{ replace_mac }}' };
 							 //Global variables
-  var v_connections_data;
+	var v_connections_data;
 </script>
 {% endblock %}

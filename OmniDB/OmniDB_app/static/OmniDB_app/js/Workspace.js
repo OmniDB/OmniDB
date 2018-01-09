@@ -25,11 +25,6 @@ $(function () {
 	    v_browserTabActive = false;
 	});
 
-	v_copyPasteObject = new Object();
-
-	v_copyPasteObject.v_tabControl = createTabControl('find_replace',0,null);
-	v_copyPasteObject.v_tabControl.selectTabIndex(0);
-
 	v_connTabControl = createTabControl('conn_tabs',0,null);
 
 	initCreateTabFunctions();
@@ -272,44 +267,6 @@ function changeDatabase(p_value) {
 		getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
 	else
 		getTree(v_connTabControl.selectedTab.tag.divTree.id);
-
-}
-
-/// <summary>
-/// Opens copy & paste window.
-/// </summary>
-function showFindReplace(p_editor) {
-
-	v_copyPasteObject.v_editor = p_editor;
-
-	$('#div_find_replace').show();
-
-	document.getElementById('txt_replacement_text').value = '';
-	document.getElementById('txt_replacement_text_new').value = '';
-
-}
-
-/// <summary>
-/// Hides copy & paste window.
-/// </summary>
-function replaceText() {
-
-	var v_old_text = v_copyPasteObject.v_editor.getValue();
-
-	var v_new_text = v_old_text.split(document.getElementById('txt_replacement_text').value).join(document.getElementById('txt_replacement_text_new').value);
-
-	v_copyPasteObject.v_editor.setValue(v_new_text);
-
-	hideFindReplace();
-
-}
-
-/// <summary>
-/// Opens copy & paste window.
-/// </summary>
-function hideFindReplace() {
-
-	$('#div_find_replace').hide();
 
 }
 
@@ -1030,8 +987,9 @@ function refreshMonitoring(p_tab_tag) {
 					colHeaders : true,
 					rowHeaders : true,
 					fixedColumnsLeft: v_fixedColumnsLeft,
-					copyRowsLimit : 1000000000,
-					copyColsLimit : 1000000000,
+					//copyRowsLimit : 1000000000,
+					//copyColsLimit : 1000000000,
+                    copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
 					manualColumnResize: true,
 					contextMenu: {
 						callback: function (key, options) {

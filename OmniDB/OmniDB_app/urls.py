@@ -99,6 +99,7 @@ urlpatterns = [
     url(r'^get_triggerfunctions_postgresql/', views.tree_postgresql.get_triggerfunctions, name='get_triggerfunctions'),
     url(r'^get_triggerfunction_definition_postgresql/', views.tree_postgresql.get_triggerfunction_definition, name='get_triggerfunction_definition'),
     url(r'^get_sequences_postgresql/', views.tree_postgresql.get_sequences, name='get_sequences'),
+    url(r'^get_sequence_values_postgresql/', views.tree_postgresql.get_sequence_values, name='get_sequence_values'),
     url(r'^get_views_postgresql/', views.tree_postgresql.get_views, name='get_views'),
     url(r'^get_views_columns_postgresql/', views.tree_postgresql.get_views_columns, name='get_views_columns'),
     url(r'^get_view_definition_postgresql/', views.tree_postgresql.get_view_definition, name='get_view_definition'),

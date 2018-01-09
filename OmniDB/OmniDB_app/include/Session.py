@@ -36,7 +36,7 @@ class Session(object):
         self.v_super_user = p_super_user
         self.v_cryptor = p_cryptor
         self.v_database_index = -1
-        self.v_databases = []
+        self.v_databases = {}
         self.v_user_key = p_user_key
 
         self.RefreshDatabaseList()
@@ -47,11 +47,11 @@ class Session(object):
         if len(self.v_databases)==0:
             self.v_database_index = 0
 
-        self.v_databases.append({
+        self.v_databases[p_database.v_conn_id] = {
                                 'database': p_database,
                                 'prompt_password': p_prompt_password,
                                 'prompt_timeout': None
-                                })
+                                }
 
     def DatabaseReachPasswordTimeout(self,p_database_index):
         if not self.v_databases[p_database_index]['prompt_password']:
@@ -83,7 +83,7 @@ class Session(object):
         return self.v_databases(self.v_database_index)
 
     def RefreshDatabaseList(self):
-        self.v_databases = []
+        self.v_databases = {}
         table = self.v_omnidb_database.v_connection.Query('''
             select *
             from connections

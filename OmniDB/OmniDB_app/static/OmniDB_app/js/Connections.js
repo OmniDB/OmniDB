@@ -11,17 +11,6 @@ You should have received a copy of the GNU General Public License along with Omn
 */
 
 /// <summary>
-/// Startup function.
-/// </summary>
-$(function() {
-
-	listConnections();
-	checkSessionMessage();
-
-
-});
-
-/// <summary>
 /// Creates a new connection.
 /// </summary>
 function newConnectionConfirm() {
@@ -30,7 +19,7 @@ function newConnectionConfirm() {
 			JSON.stringify({}),
 			function(p_return) {
 
-				listConnections();
+				showConnectionList();
 
 			},
 			null,
@@ -140,7 +129,7 @@ function testConnection(p_index) {
 		showConfirm('There are changes on the connections list, would you like to save them?',
 					function() {
 
-						saveConnections(p_index);
+						saveConnections(function() { testConnectionConfirm(p_index); });
 
 					});
 	  else
@@ -153,6 +142,29 @@ function testConnection(p_index) {
 /// </summary>
 function selectConnection(p_index) {
 
+	var v_has_changes = false
+
+	for (var i=0; i < v_connections_data.v_conn_ids.length; i++) {
+		if (v_connections_data.v_conn_ids[i].mode!=0) {
+			v_has_changes = true;
+			break;
+		}
+	}
+
+	if (v_has_changes)
+		showConfirm('There are changes on the connections list, would you like to save them?',
+					function() {
+
+						saveConnections(function() { selectConnectionConfirm(p_index); });
+
+					});
+	  else
+	  	selectConnectionConfirm(p_index);
+
+}
+
+function selectConnectionConfirm(p_index) {
+
 	var input = JSON.stringify({"p_index": p_index});
 
     execAjax('/select_connection/',
@@ -160,7 +172,9 @@ function selectConnection(p_index) {
 			function(p_return) {
 
 				if (p_return.v_data=="Connection successful.")
-					window.open("../workspace","_self")
+
+					closeConnectionList(p_index);
+
 				else
 					showPasswordPrompt(
 						p_index,
@@ -192,7 +206,7 @@ function selectConnection(p_index) {
 /// <summary>
 /// Saves all changes in the connections list.
 /// </summary>
-function saveConnections(p_index) {
+function saveConnections(p_callback) {
 
 	var v_data_list = [];
 	var v_conn_id_list = [];
@@ -213,14 +227,195 @@ function saveConnections(p_index) {
 			function() {
 
 				document.getElementById('div_save').style.visibility = 'hidden';
-				listConnections();
-				if (p_index!=null) {
-					testConnectionConfirm(p_index);
-				}
+				showConnectionList();
+				if (p_callback)
+					p_callback();
 
 			},
 			null,
 			'box');
+
+}
+
+function showConnectionList() {
+
+  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+
+  document.getElementById('connection_list_div').style.display = 'block';
+
+	var v_conn_id_list = [];
+
+	for (var i=0; i < v_connTabControl.tabList.length; i++) {
+		var v_tab = v_connTabControl.tabList[i];
+		if (v_tab.tag && v_tab.tag.mode=='connection') {
+			v_conn_id_list.push(v_tab.tag.selectedDatabaseIndex);
+		}
+	}
+
+	var input = JSON.stringify({"p_conn_id_list": v_conn_id_list});
+
+	execAjax('/get_connections/',
+			input,
+			function(p_return) {
+
+				window.scrollTo(0,0);
+
+				var columnProperties = [];
+
+				var col = new Object();
+				col.title =  'Technology';
+				col.type = 'dropdown';
+				col.source = p_return.v_data.v_technologies;
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Server';
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Port';
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Database';
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'User';
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Title';
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Actions';
+				col.renderer = 'html';
+				col.readOnly = true;
+				col.width = '80'
+				columnProperties.push(col);
+
+				var v_div_result = document.getElementById('connection_list_div_grid');
+
+				if (v_div_result.innerHTML!='') {
+					v_connections_data.ht.destroy();
+				}
+
+				v_connections_data = new Object();
+				v_connections_data.v_conn_ids = p_return.v_data.v_conn_ids;
+
+				var container = v_div_result;
+				v_connections_data.ht = new Handsontable(container,
+														{
+															data: p_return.v_data.v_data,
+															columns : columnProperties,
+															colHeaders : true,
+															manualColumnResize: true,
+															minSpareCols :0,
+															minSpareRows :0,
+															fillHandle:false,
+															beforeChange: function (changes, source) {
+
+																if (!changes)
+																    return;
+
+																$.each(changes, function (index, element) {
+																    var change = element;
+																    var rowIndex = change[0];
+																    var columnIndex = change[1];
+																    var oldValue = change[2];
+																    var newValue = change[3];
+
+																    var cellChange = {
+																        'rowIndex': rowIndex,
+																        'columnIndex': columnIndex
+																    };
+
+																    if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2) {
+
+																				if (v_connections_data.v_conn_ids[rowIndex].mode!=-1)
+																					v_connections_data.v_conn_ids[rowIndex].mode = 1;
+																				else
+																					v_connections_data.v_conn_ids[rowIndex].old_mode = 1;
+
+																        document.getElementById('div_save').style.visibility = 'visible';
+
+																    }
+																});
+
+															},
+															cells: function (row, col, prop) {
+
+																if (v_connections_data.v_conn_ids.length!=0) {
+																	var cellProperties = {};
+
+																	var v_read_only = false;
+
+																	if (v_connections_data.v_conn_ids[row].locked) {
+																		cellProperties.renderer = grayHtmlRenderer;
+																		cellProperties.readOnly = true;
+																		v_read_only = true;
+																	}
+
+																	if (!v_read_only) {
+
+																		if (v_connections_data.v_conn_ids[row].mode==2)
+																			cellProperties.renderer = greenHtmlRenderer;
+																		else if (v_connections_data.v_conn_ids[row].mode==-1)
+																			cellProperties.renderer = redHtmlRenderer;
+																		else if (v_connections_data.v_conn_ids[row].mode==1)
+																			cellProperties.renderer = yellowHtmlRenderer;
+																		else if (row % 2 == 0)
+																			cellProperties.renderer = blueHtmlRenderer;
+																		else
+																			cellProperties.renderer =whiteHtmlRenderer;
+
+																	}
+
+																	return cellProperties;
+																}
+
+															}
+														});
+
+
+
+
+				},
+				null,
+				'box');
+
+}
+
+function showConnectionLocked() {
+	showAlert('This connection is locked because there are connection tabs using it, close the tabs first or change the selected connection in these tabs.')
+}
+
+function closeConnectionList(p_index) {
+  document.getElementById('connection_list_div_grid').innerHTML = '';
+  document.getElementById('connection_list_div').style.display = 'none';
+	document.getElementById('div_save').style.visibility = 'hidden';
+  v_connections_data.ht.destroy();
+  v_connections_data.ht = null;
+	getDatabaseList(false, function() { closeConnectionListFinish(p_index) });
+}
+
+function closeConnectionListFinish(p_index) {
+
+		for (var i=0; i < v_connTabControl.tabList.length; i++) {
+
+			var v_tab = v_connTabControl.tabList[i];
+			if (v_tab.tag && v_tab.tag.mode=='connection') {
+
+				v_tab.tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
+				v_tab.tag.divSelectDB.childNodes[0].value = v_tab.tag.selectedDatabaseIndex;
+				$(v_tab.tag.divSelectDB.childNodes[0]).msDropDown();
+
+			}
+		}
+
+		if (p_index)
+			v_connTabControl.tag.createConnTab(p_index);
 
 }
 

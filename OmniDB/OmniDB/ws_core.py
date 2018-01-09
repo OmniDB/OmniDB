@@ -308,8 +308,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.write_message(json.dumps(v_response))
 
   def on_close(self):
-    for k in list(self.v_list_tab_objects.keys()):
-        closeTabHandler(self,k)
+    try:
+        for k in list(self.v_list_tab_objects.keys()):
+            closeTabHandler(self,k)
+    except Exception:
+        None
 
 
   def check_origin(self, origin):
@@ -320,14 +323,25 @@ def start_wsserver_thread():
     t.setDaemon(True)
     t.start()
 
+#import os
+#os.environ.setdefault("DJANGO_SETTINGS_MODULE", "OmniDB.settings")
+#from tornado.options import options, define, parse_command_line
+#import django.conf
+#import django.contrib.auth
+#import django.core.handlers.wsgi
+#import django.db
+#import tornado.wsgi
+
 def start_wsserver():
     #logger.info('''*** Starting OmniDB ***''')
     #logger.info('''*** Starting Query WS Server ***''')
+    #wsgi_app = tornado.wsgi.WSGIContainer(
+    # django.core.handlers.wsgi.WSGIHandler())
     try:
         application = tornado.web.Application([
           (r'/ws', WSHandler),
           (r'/wss',WSHandler),
-          (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./resources"}),
+          #('.*', tornado.web.FallbackHandler, dict(fallback=wsgi_app)),
         ])
 
         if settings.IS_SSL:

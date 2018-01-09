@@ -922,7 +922,7 @@ iframe {
   border: 0px;
 }
 
-#div_about a {
+#div_about a, .header_menu a {
   cursor: pointer;
 }
 
@@ -1021,6 +1021,18 @@ iframe {
   box-shadow: 2px 2px 2px #cecece;
 }
 
+.connection_list {
+  position: absolute;
+  margin-top: 30px;
+  margin-left: 5px;
+  width: 600px;
+  height: 300px;
+  padding: 5px 5px;
+  border-radius: 3px;
+  background-color: #f9f9f9;
+  z-index: 1000;
+}
+
 .dashboard_unit button {
   padding: 0px 5px 0px 5px;
 }
@@ -1057,6 +1069,14 @@ iframe {
 .unit_list_grid {
   position: relative;
   width: 400px;
+  height: 250px;
+  overflow: auto;
+  margin-top: 5px;
+}
+
+.connection_grid {
+  position: relative;
+  width: 600px;
   height: 250px;
   overflow: auto;
   margin-top: 5px;

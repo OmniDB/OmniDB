@@ -211,26 +211,50 @@ function getDatabaseList(p_init, p_callback) {
 
 					v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
 
-					//Create existing tabs
-					var v_current_parent = null;
-					var v_has_old_tabs = false;
-					if (p_return.v_data.v_existing_tabs.length>0)
-						v_has_old_tabs = true;
+					if (v_connTabControl.tag.connections.length>0) {
 
-					for (var i=0; i < p_return.v_data.v_existing_tabs.length; i++) {
-						if (v_current_parent == null || v_current_parent != p_return.v_data.v_existing_tabs[i].index)
-							v_connTabControl.tag.createConnTab(p_return.v_data.v_existing_tabs[i].index,false);
+						//Create existing tabs
+						var v_current_parent = null;
+						var v_has_old_tabs = false;
+						if (p_return.v_data.v_existing_tabs.length>0)
+							v_has_old_tabs = true;
 
-						v_current_parent = p_return.v_data.v_existing_tabs[i].index;
-						v_connTabControl.tag.createQueryTab('Query',p_return.v_data.v_existing_tabs[i].tab_db_id);
-				    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
-				        p_return.v_data.v_existing_tabs[i].snippet);
-						v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
-				    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+						for (var i=0; i < p_return.v_data.v_existing_tabs.length; i++) {
+							if (v_current_parent == null || v_current_parent != p_return.v_data.v_existing_tabs[i].index)
+								v_connTabControl.tag.createConnTab(p_return.v_data.v_existing_tabs[i].index,false);
+
+							v_current_parent = p_return.v_data.v_existing_tabs[i].index;
+							v_connTabControl.tag.createQueryTab('Query',p_return.v_data.v_existing_tabs[i].tab_db_id);
+					    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
+					        p_return.v_data.v_existing_tabs[i].snippet);
+							v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
+					    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+						}
+
+						if (!v_has_old_tabs)
+							v_connTabControl.tag.createConnTab(v_connTabControl.tag.connections[0].v_conn_id);
+
 					}
-
-					if (!v_has_old_tabs)
-						v_connTabControl.tag.createConnTab(v_connTabControl.tag.connections[0].v_conn_id);
+					else {
+						var qtip = $('#menu_connections').qtip({
+				        content: {
+				            text: 'Create your first connection!'
+				        },
+				        position: {
+				            my: 'top left',
+				            at: 'bottom right'
+				        },
+				        style: {
+				            classes: 'qtip-bootstrap'
+				        },
+				        show: {
+				            ready: true
+				        }
+				    })
+				    window.setTimeout(function() {
+				        qtip.qtip('api').destroy();
+				    }, 4000);
+					}
 
 				}
 

@@ -3,7 +3,8 @@
 PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
-yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build
+zypper install -y gcc gcc-c++ make patch libopenssl-devel readline-devel libbz2-devel rpm-build libgconfmm-2_6-1 desktop-file-utils sqlite3-devel
+zypper install -y gnome-shell
 echo "Done"
 
 echo "Installing pyenv..."
@@ -25,6 +26,6 @@ git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/server_centos_i386/
+cd ~/OmniDB/OmniDB/deploy/app_opensuse_tumbleweed_amd64/
 ./build.sh
 echo "Done"

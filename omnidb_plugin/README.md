@@ -43,7 +43,7 @@ psql -d <database> -f debugger_schema.sql
 ### 1.4.2. Grant privileges to each user that will debug functions (should be done by a superuser)
 
 ```bash
-psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;
+psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;'
 ```
 
 ### 1.4.3. Create sample functions (optional)
@@ -92,7 +92,7 @@ psql -d <database> -c 'CREATE EXTENSION omnidb_plugin'
 ### 2.5.2. Grant privileges to each user that will debug functions (should be done by a superuser)
 
 ```bash
-psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;
+psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;'
 ```
 
 ### 2.5.3. Create sample functions (optional)

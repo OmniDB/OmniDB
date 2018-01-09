@@ -98,6 +98,7 @@ function initCreateTabFunctions() {
   		divTree: document.getElementById(v_tab.id + '_tree'),
   		divLeft: document.getElementById(v_tab.id + '_div_left'),
   		divRight: document.getElementById(v_tab.id + '_div_right'),
+      divSelectDB: document.getElementById(v_tab.id + '_div_select_db'),
   		selectedDatabaseIndex: 0,
   		connTabControl: v_connTabControl,
       mode: 'connection',
@@ -109,14 +110,13 @@ function initCreateTabFunctions() {
     if (p_create_query_tab)
   	 v_connTabControl.tag.createQueryTab();
 
-    var v_index = 0;
+    var v_index = v_connTabControl.tag.connections[0].v_conn_id;
     if (p_index)
       v_index = p_index;
 
-  	var v_div_select_db = document.getElementById(v_tab.id + '_div_select_db');
-  	v_div_select_db.innerHTML = v_connTabControl.tag.selectHTML;
-    v_div_select_db.childNodes[0].childNodes[v_index].selected=true
-  	$(v_div_select_db.childNodes[0]).msDropDown();
+  	v_tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
+    v_tag.divSelectDB.childNodes[0].value=v_index;
+  	$(v_tag.divSelectDB.childNodes[0]).msDropDown();
 
   	changeDatabase(v_index)
 

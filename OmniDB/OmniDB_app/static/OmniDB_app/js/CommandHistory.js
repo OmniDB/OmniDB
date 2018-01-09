@@ -72,7 +72,7 @@ function commandHistoryLastPage() {
 }
 
 function commandHistoryOpenCmd(p_index) {
-	var v_command = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.getDataAtRow(p_index)[5];
+	var v_command = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.getDataAtRow(p_index)[4];
 	v_connTabControl.tag.createQueryTab('Query');
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(v_command);
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();

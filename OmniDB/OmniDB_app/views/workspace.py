@@ -27,10 +27,6 @@ def index(request):
 
     v_session = request.session.get('omnidb_session')
 
-    if len(v_session.v_databases)==0:
-        request.session ["omnidb_alert_message"] = "Create at least one connection."
-        return redirect('connections')
-
     if settings.IS_SSL:
         v_is_secure = 'true'
     else:

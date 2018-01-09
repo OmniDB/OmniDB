@@ -36,12 +36,6 @@ def index(request):
     else:
         v_is_secure = 'false'
 
-    if request.session.get('selected_connection')!=None:
-        v_connection = request.session.get('selected_connection')
-        request.session['selected_connection'] = None
-    else:
-        v_connection = -1
-
     context = {
         'session' : v_session,
         'desktop_mode': settings.DESKTOP_MODE,
@@ -52,8 +46,7 @@ def index(request):
         'execute': settings.BINDKEY_EXECUTE,
         'execute_mac': settings.BINDKEY_EXECUTE_MAC,
         'replace': settings.BINDKEY_REPLACE,
-        'replace_mac': settings.BINDKEY_REPLACE_MAC,
-        'selected_connection': v_connection
+        'replace_mac': settings.BINDKEY_REPLACE_MAC
     }
 
     template = loader.get_template('OmniDB_app/workspace.html')
@@ -151,18 +144,19 @@ def get_database_list(request):
 
     #Connection list
     v_index = 0
-    for v_database_object in v_session.v_databases:
+    for key,v_database_object in v_session.v_databases.items():
         v_database = v_database_object['database']
         v_database_data = {
             'v_db_type': v_database.v_db_type,
             'v_alias': v_database.v_alias,
+            'v_conn_id': v_database.v_conn_id
         }
 
         v_databases.append(v_database_data)
 
         v_alias = '({0}) '.format(v_database.v_alias)
 
-        v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_index,v_database.PrintDatabaseDetails(),v_alias,v_database.PrintDatabaseInfo())
+        v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_database.PrintDatabaseDetails(),v_alias,v_database.PrintDatabaseInfo())
         v_index = v_index + 1
 
     v_html = '<select style="width: 100%; font-weight: bold;" onchange="changeDatabase(this.value);">{0}</select>'.format(v_options)
@@ -177,13 +171,7 @@ def get_database_list(request):
             order by conn_id, tab_id
         '''.format(v_session.v_user_id))
         for v_tab in v_tabs.Rows:
-            #retrieving index from conn_id
-            v_index = 0
-            for v_database_object in v_session.v_databases:
-                if v_tab['conn_id'] == v_database_object['database'].v_conn_id:
-                    v_existing_tabs.append({'index': v_index, 'snippet': v_tab['snippet'], 'tab_db_id': v_tab['tab_id']})
-                    break
-                v_index = v_index + 1
+            v_existing_tabs.append({'index': v_tab['conn_id'], 'snippet': v_tab['snippet'], 'tab_db_id': v_tab['tab_id']})
 
     except Exception as exc:
         print(exc)

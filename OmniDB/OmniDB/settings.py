@@ -17,7 +17,7 @@ import random
 import string
 
 # Development Mode
-DEV_MODE = False
+DEV_MODE = True
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -204,8 +204,8 @@ LOGGING = {
 }
 
 #OMNIDB PARAMETERS
-OMNIDB_VERSION             = 'OmniDB 2.4.0'
-OMNIDB_SHORT_VERSION       = '2.4.0'
+OMNIDB_VERSION             = 'OmniDB 2.4.1'
+OMNIDB_SHORT_VERSION       = '2.4.1'
 BINDKEY_EXECUTE            = 'alt+q'
 BINDKEY_EXECUTE_MAC        = 'ctrl+q'
 BINDKEY_REPLACE            = 'ctrl+g'

@@ -1018,7 +1018,7 @@ def get_schemas(request):
             }
             v_list_schemas.append(v_schema_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = str(exc)
         v_return['v_error'] = True
         return JsonResponse(v_return)
 

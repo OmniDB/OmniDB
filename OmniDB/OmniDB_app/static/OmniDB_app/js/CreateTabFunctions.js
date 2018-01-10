@@ -31,8 +31,6 @@ function initCreateTabFunctions() {
           true,
           function() {
             if(this.tag != null) {
-              console.log(this.tag);
-              //$(this.tag.divSelectDB.childNodes[0]).msDropDown();
               checkTabStatus(this);
               refreshHeights(true);
             }
@@ -991,11 +989,12 @@ function initCreateTabFunctions() {
 		var v_editor = ace.edit('txt_query_' + v_tab.id);
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/sql");
-		v_editor.commands.bindKey(".", "startAutocomplete");
+		v_editor.commands.bindKey("Ctrl-space", "startAutocomplete");
+    v_editor.commands.bindKey("Cmd+space", "startAutocomplete");
 
 		v_editor.setFontSize(Number(v_editor_font_size));
 
-		v_editor.commands.bindKey("ctrl-space", null);
+		//v_editor.commands.bindKey("ctrl-space", null);
 
     //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
     v_editor.commands.bindKey("Cmd-,", null)
@@ -1025,14 +1024,11 @@ function initCreateTabFunctions() {
 		var qtags = {
 			getCompletions: function(editor, session, pos, prefix, callback) {
 
-        if (v_completer_ready) {
+        if (v_completer_ready && prefix!='') {
 
             var wordlist = [];
 
             v_completer_ready = false;
-            setTimeout(function(){ v_completer_ready = true; }, 1000);
-
-            if (prefix!='') {
 
             addLoadingCursor();
 
@@ -1041,15 +1037,15 @@ function initCreateTabFunctions() {
                 function(p_return) {
 
                   removeLoadingCursor();
-
-                  if (p_return.v_data.length==0)
-                    editor.insert('.');
+                  v_completer_ready = true;
 
                   wordlist = p_return.v_data;
                   callback(null, wordlist);
 
                 },
                 function(p_return) {
+                  removeLoadingCursor();
+                  v_completer_ready = true;
                   if (p_return.v_data.password_timeout) {
                     showPasswordPrompt(
                       v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
@@ -1062,16 +1058,12 @@ function initCreateTabFunctions() {
           						p_return.v_data.message
                     );
                   }
-                  else {
-                    removeLoadingCursor();
-                    editor.insert('.');
-                  }
                 },
                 'box',
                 false);
-          }
-          else
-            editor.insert('.');
+        }
+        else {
+          callback(null, wordlist);
         }
       }
 		}
@@ -1219,11 +1211,10 @@ function initCreateTabFunctions() {
     var v_editor = ace.edit('txt_filter_data_' + v_tab.id);
     v_editor.setTheme("ace/theme/" + v_editor_theme);
     v_editor.session.setMode("ace/mode/sql");
-    v_editor.commands.bindKey(".", "startAutocomplete");
+    v_editor.commands.bindKey("Ctrl+space", "startAutocomplete");
+    v_editor.commands.bindKey("Cmd+space", "startAutocomplete");
 
     v_editor.setFontSize(Number(v_editor_font_size));
-
-    v_editor.commands.bindKey("ctrl-space", null);
 
     //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
     v_editor.commands.bindKey("Cmd-,", null)
@@ -1254,14 +1245,13 @@ function initCreateTabFunctions() {
     var qtags = {
       getCompletions: function(editor, session, pos, prefix, callback) {
 
-        if (v_completer_ready) {
+        if (v_completer_ready && prefix!='') {
 
             var wordlist = [];
 
             v_completer_ready = false;
-            setTimeout(function(){ v_completer_ready = true; }, 1000);
 
-            if (prefix!='') {
+            addLoadingCursor();
 
             execAjax('/get_completions_table/',
                 JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
@@ -1269,14 +1259,16 @@ function initCreateTabFunctions() {
                                 "p_schema": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editDataObject.schema}),
                 function(p_return) {
 
-                  if (p_return.v_data.length==0)
-                    editor.insert('.');
+                  removeLoadingCursor();
+                  v_completer_ready = true;
 
                   wordlist = p_return.v_data;
                   callback(null, wordlist);
 
                 },
                 function(p_return) {
+                  removeLoadingCursor();
+                  v_completer_ready = true;
                   if (p_return.v_data.password_timeout) {
                     showPasswordPrompt(
                       v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
@@ -1286,17 +1278,16 @@ function initCreateTabFunctions() {
                       function() {
                         v_editor.focus();
                       },
-          						p_return.v_data.message
+                      p_return.v_data.message
                     );
                   }
                 },
                 'box',
                 false);
-
-          }
-
         }
-
+        else {
+          callback(null, wordlist);
+        }
       }
     }
 

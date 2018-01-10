@@ -1516,7 +1516,7 @@ def get_completions(request):
 
     v_score = 100
 
-    v_list.append ({'value': p_prefix + ".", 'score': v_score, 'meta': ""})
+    #v_list.append ({'value': p_prefix + ".", 'score': v_score, 'meta': ""})
 
     v_score -= 100
 
@@ -1574,7 +1574,7 @@ def get_completions_table(request):
 
     v_score = 100
 
-    v_list.append ({'value': "t.", 'score': v_score, 'meta': ""})
+    #v_list.append ({'value': "t.", 'score': v_score, 'meta': ""})
 
     v_score -= 100
 

@@ -64,6 +64,10 @@ function newConnection() {
 	v_connections_data.v_conn_ids.push({'id': -1, 'mode': 2, 'old_mode': 2 })
 	v_connections_data.ht.loadData(v_data);
 
+	var v_div_result = document.getElementById('connection_list_div_grid');
+
+	v_div_result.childNodes[0].childNodes[0].scrollTop = v_div_result.childNodes[0].childNodes[0].scrollHeight;
+
 	document.getElementById('div_save').style.visibility = 'visible';
 
 }

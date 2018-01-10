@@ -989,8 +989,8 @@ function initCreateTabFunctions() {
 		var v_editor = ace.edit('txt_query_' + v_tab.id);
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/sql");
-		v_editor.commands.bindKey("Ctrl-space", "startAutocomplete");
-    v_editor.commands.bindKey("Cmd+space", "startAutocomplete");
+		v_editor.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
+    v_editor.commands.bindKey(v_keybind_object.v_autocomplete_mac, "startAutocomplete");
 
 		v_editor.setFontSize(Number(v_editor_font_size));
 
@@ -1211,8 +1211,8 @@ function initCreateTabFunctions() {
     var v_editor = ace.edit('txt_filter_data_' + v_tab.id);
     v_editor.setTheme("ace/theme/" + v_editor_theme);
     v_editor.session.setMode("ace/mode/sql");
-    v_editor.commands.bindKey("Ctrl+space", "startAutocomplete");
-    v_editor.commands.bindKey("Cmd+space", "startAutocomplete");
+    v_editor.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
+    v_editor.commands.bindKey(v_keybind_object.v_autocomplete_mac, "startAutocomplete");
 
     v_editor.setFontSize(Number(v_editor_font_size));
 

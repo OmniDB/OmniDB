@@ -31,6 +31,8 @@ function initCreateTabFunctions() {
           true,
           function() {
             if(this.tag != null) {
+              console.log(this.tag);
+              //$(this.tag.divSelectDB.childNodes[0]).msDropDown();
               checkTabStatus(this);
               refreshHeights(true);
             }

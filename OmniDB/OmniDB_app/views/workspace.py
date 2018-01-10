@@ -40,7 +40,9 @@ def index(request):
         'query_port': settings.WS_QUERY_PORT,
         'is_secure' : v_is_secure,
         'execute': settings.BINDKEY_EXECUTE,
-        'execute_mac': settings.BINDKEY_EXECUTE_MAC
+        'execute_mac': settings.BINDKEY_EXECUTE_MAC,
+        'autocomplete': settings.BINDKEY_AUTOCOMPLETE,
+        'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC
     }
 
     template = loader.get_template('OmniDB_app/workspace.html')

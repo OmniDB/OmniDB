@@ -227,6 +227,49 @@ function tabDataMining() {
         v_divOption.appendChild(v_spanOption);
     }
 
+    var v_categoriesButtonsContainer = document.createElement('div');
+    v_categoriesButtonsContainer.style.display = 'flex';
+    v_categoriesButtonsContainer.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_categoriesButtonsContainer);
+
+    var v_buttonSelectAllCategories = document.createElement('button');
+    v_buttonSelectAllCategories.style.margin = '10px';
+    v_buttonSelectAllCategories.innerHTML = 'Select All';
+
+    v_buttonSelectAllCategories.addEventListener(
+        'click',
+        function(p_event) {
+            var v_grandParent = this.parentElement.parentElement;
+
+            var v_categoryList = v_grandParent.querySelectorAll('.data-mining-input-option');
+
+            for(var i = 0; i < v_categoryList.length; i++) {
+                v_categoryList[i].checked = true;
+            }
+        }
+    );
+
+    v_categoriesButtonsContainer.appendChild(v_buttonSelectAllCategories);
+
+    var v_buttonUnselectAllCategories = document.createElement('button');
+    v_buttonUnselectAllCategories.style.margin = '10px';
+    v_buttonUnselectAllCategories.innerHTML = 'Unselect All';
+
+    v_buttonUnselectAllCategories.addEventListener(
+        'click',
+        function(p_event) {
+            var v_grandParent = this.parentElement.parentElement;
+
+            var v_categoryList = v_grandParent.querySelectorAll('.data-mining-input-option');
+
+            for(var i = 0; i < v_categoryList.length; i++) {
+                v_categoryList[i].checked = false;
+            }
+        }
+    );
+
+    v_categoriesButtonsContainer.appendChild(v_buttonUnselectAllCategories);
+
     var v_schemasHeader = document.createElement('h3');
     v_schemasHeader.innerHTML = 'Schemas Filter';
     v_schemasHeader.style.marginLeft = '10px';
@@ -291,6 +334,49 @@ function tabDataMining() {
         'box',
         false
     );
+
+    var v_schemasButtonsContainer = document.createElement('div');
+    v_schemasButtonsContainer.style.display = 'flex';
+    v_schemasButtonsContainer.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_schemasButtonsContainer);
+
+    var v_buttonSelectAllSchemas = document.createElement('button');
+    v_buttonSelectAllSchemas.style.margin = '10px';
+    v_buttonSelectAllSchemas.innerHTML = 'Select All';
+
+    v_buttonSelectAllSchemas.addEventListener(
+        'click',
+        function(p_event) {
+            var v_grandParent = this.parentElement.parentElement;
+
+            var v_schemaList = v_grandParent.querySelectorAll('.data-mining-input-schema');
+
+            for(var i = 0; i < v_schemaList.length; i++) {
+                v_schemaList[i].checked = true;
+            }
+        }
+    );
+
+    v_schemasButtonsContainer.appendChild(v_buttonSelectAllSchemas);
+
+    var v_buttonUnselectAllSchemas = document.createElement('button');
+    v_buttonUnselectAllSchemas.style.margin = '10px';
+    v_buttonUnselectAllSchemas.innerHTML = 'Unselect All';
+
+    v_buttonUnselectAllSchemas.addEventListener(
+        'click',
+        function(p_event) {
+            var v_grandParent = this.parentElement.parentElement;
+
+            var v_schemaList = v_grandParent.querySelectorAll('.data-mining-input-schema');
+
+            for(var i = 0; i < v_schemaList.length; i++) {
+                v_schemaList[i].checked = false;
+            }
+        }
+    );
+
+    v_schemasButtonsContainer.appendChild(v_buttonUnselectAllSchemas);
 
     var v_buttonStart = document.getElementById('bt_start_' + v_tab.id);
 

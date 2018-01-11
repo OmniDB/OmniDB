@@ -1091,6 +1091,356 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         '''.format(self.v_service, p_sub), True)
 
+    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList):
+        v_sql = '''
+            select x.*
+            from (
+                select null as category,
+                       null as schema_name,
+                       null as table_name,
+                       null as column_name,
+                       null as match_value
+
+                /*#START_FUNCTION NAME#
+                union
+
+                select 'Function Name' as category,
+                       n.nspname as schema_name,
+                       '' as table_name,
+                       '' as column_name,
+                       p.proname as match_value
+                from pg_proc p
+                inner join pg_namespace n
+                           on p.pronamespace = n.oid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and n.nspname not like 'pg%%temp%%'
+                  and format_type(p.prorettype, null) <> 'trigger'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and p.proname ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                #END_FUNCTION NAME#*/
+
+                /*#START_TABLE NAME#
+                union
+
+                select 'Table Name' as category,
+                       t.table_schema as schema_name,
+                       '' as table_name,
+                       '' as column_name,
+                       t.table_name as match_value
+                from information_schema.tables t
+                where t.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and t.table_schema not like 'pg%%temp%%'
+                  and t.table_type = 'BASE TABLE'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and t.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and t.table_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(t.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_TABLE NAME#*/
+
+                /*#START_VIEW NAME#
+                union
+
+                select 'View Name' as category,
+                       v.table_schema as schema_name,
+                       '' as table_name,
+                       '' as column_name,
+                       v.table_name as match_value
+                from information_schema.views v
+                where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and v.table_schema not like 'pg%%temp%%'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and v.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(v.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and v.table_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(v.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_VIEW NAME#*/
+
+                /*#START_MATERIALIZED VIEW NAME#
+                union
+
+                select 'Materialized View Name' as category,
+                       n.nspname as schema_name,
+                       '' as table_name,
+                       '' as column_name,
+                       c.relname as match_value
+                from pg_class c
+                inner join pg_namespace n
+                           on n.oid = c.relnamespace
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and n.nspname not like 'pg%%temp%%'
+                  and c.relkind = 'm'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and c.relname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.relname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and c.relname ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                #END_MATERIALIZED VIEW NAME#*/
+
+                /*#START_SEQUENCE NAME#
+                union
+
+                select 'Sequence Name' as category,
+                       s.sequence_schema as schema_name,
+                       '' as table_name,
+                       '' as column_name,
+                       s.sequence_name as match_value
+                from information_schema.sequences s
+                where s.sequence_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and s.sequence_schema not like 'pg%%temp%%'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and s.sequence_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(s.sequence_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and s.sequence_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(s.sequence_schema) in (#VALUE_BY_SCHEMA#)
+                #END_SEQUENCE NAME#*/
+
+                /*#START_SCHEMA NAME#
+                union
+
+                select 'Schema Name' as category,
+                       '' as schema_name,
+                       '' as table_name,
+                       '' as column_name,
+                       n.nspname as match_value
+                from pg_namespace n
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and n.nspname not like 'pg%%temp%%'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and n.nspname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(n.nspname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and n.nspname ~ '#VALUE_PATTERN_REGEX#'
+                #END_SCHEMA NAME#*/
+
+                /*#START_FUNCTION DEFINITION#
+                union
+
+                select 'Function Definition' as category,
+                       y.schema_name as schema_name,
+                       '' as table_name,
+                       '' as column_name,
+                       y.function_definition as match_value
+                from (
+                    select pg_get_functiondef(z.function_oid::regprocedure) as function_definition,
+                           *
+                    from (
+                        select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as function_oid,
+                               p.proname as function_name,
+                               n.nspname as schema_name
+                        from pg_proc p
+                        inner join pg_namespace n
+                                   on p.pronamespace = n.oid
+                        where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                          and n.nspname not like 'pg%%temp%%'
+                          and format_type(p.prorettype, null) <> 'trigger'
+                        --#FILTER_PATTERN_CASE_SENSITIVE#  and y.function_definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                        --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.function_definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                        --#FILTER_PATTERN_REGEX# and y.function_definition ~ '#VALUE_PATTERN_REGEX#'
+                        --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                    ) z
+                ) y
+                #END_FUNCTION DEFINITION#*/
+
+                /*#START_TRIGGER NAME#
+                union
+
+                select 'Trigger Name' as category,
+                       n.nspname as schema_name,
+                       '' as table_name,
+                       '' as column_name,
+                       p.proname as match_value
+                from pg_proc p
+                inner join pg_namespace n
+                           on p.pronamespace = n.oid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and n.nspname not like 'pg%%temp%%'
+                  and format_type(p.prorettype, null) = 'trigger'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and p.proname ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                #END_TRIGGER NAME#*/
+
+                /*#START_TRIGGER SOURCE#
+                union
+
+                select 'Trigger Source' as category,
+                       n.nspname as schema_name,
+                       '' as table_name,
+                       '' as column_name,
+                       p.prosrc as match_value
+                from pg_proc p
+                inner join pg_namespace n
+                           on p.pronamespace = n.oid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and n.nspname not like 'pg%%temp%%'
+                  and format_type(p.prorettype, null) = 'trigger'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and p.prosrc like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.prosrc) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and p.prosrc ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                #END_TRIGGER SOURCE#*/
+
+                /*#START_TABLE COLUMN NAME#
+                union
+
+                select 'Table Column Name' as category,
+                       c.table_schema as schema_name,
+                       c.table_name as table_name,
+                       '' as column_name,
+                       c.column_name as match_value
+                from information_schema.tables t
+                inner join information_schema.columns c
+                           on t.table_name = c.table_name and t.table_schema = c.table_schema
+                where c.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and c.table_schema not like 'pg%%temp%%'
+                  and t.table_type = 'BASE TABLE'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_TABLE COLUMN NAME#*/
+
+                /*#START_VIEW COLUMN NAME#
+                union
+
+                select 'View Column Name' as category,
+                       c.table_schema as schema_name,
+                       c.table_name as table_name,
+                       '' as column_name,
+                       c.column_name as match_value
+                from information_schema.views v
+                inner join information_schema.columns c
+                           on v.table_name = c.table_name and v.table_schema = c.table_schema
+                where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and v.table_schema not like 'pg%%temp%%'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_VIEW COLUMN NAME NAME#*/
+
+                /*#START_MATERIALIZED VIEW COLUMN NAME#
+                union
+
+                select 'Materialized View Column Name' as category,
+                       n.nspname as schema_name,
+                       c.relname as table_name,
+                       '' as column_name,
+                       a.attname as match_value
+                from pg_attribute a
+                inner join pg_class c
+                           on c.oid = a.attrelid
+                inner join pg_namespace n
+                           on n.oid = c.relnamespace
+                inner join pg_type t
+                           on t.oid = a.atttypid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and n.nspname not like 'pg%%temp%%'
+                  and a.attnum > 0
+                  and not a.attisdropped
+                  and c.relkind = 'm'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and a.attname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(a.attname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and a.attname ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                #END_MATERIALIZED VIEW COLUMN NAME#*/
+
+                /*#START_PK NAME#
+                union
+
+                select 'PK Name' as category,
+                       tc.table_schema as schema_name,
+                       tc.table_name as table_name,
+                       '' as column_name,
+                       tc.constraint_name as match_value
+                from information_schema.table_constraints tc
+                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and tc.table_schema not like 'pg%%temp%%'
+                  and tc.constraint_type = 'PRIMARY KEY'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_PK NAME#*/
+
+                /*#START_FK NAME#
+                union
+
+                select 'FK Name' as category,
+                       tc.table_schema as schema_name,
+                       tc.table_name as table_name,
+                       '' as column_name,
+                       tc.constraint_name as match_value
+                from information_schema.table_constraints tc
+                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and tc.table_schema not like 'pg%%temp%%'
+                  and tc.constraint_type = 'FOREIGN KEY'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_FK NAME#*/
+
+                /*#START_UNIQUE NAME#
+                union
+
+                select 'Unique Name' as category,
+                       tc.table_schema as schema_name,
+                       tc.table_name as table_name,
+                       '' as column_name,
+                       tc.constraint_name as match_value
+                from information_schema.table_constraints tc
+                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and tc.table_schema not like 'pg%%temp%%'
+                  and tc.constraint_type = 'UNIQUE'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_UNIQUE NAME#*/
+
+                /*#START_INDEX NAME#
+                union
+
+                select 'Index Name' as category,
+                       i.schemaname as schema_name,
+                       i.tablename as table_name,
+                       '' as column_name,
+                       i.indexname as match_value
+                from pg_indexes i
+                where i.schemaname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                  and i.schemaname not like 'pg%%temp%%'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and i.indexname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(i.indexname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and i.indexname ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(i.schemaname) in (#VALUE_BY_SCHEMA#)
+                #END_INDEX NAME#*/
+            ) x
+            where x.category is not null
+            order by x.category, x.schema_name, x.table_name, x.column_name, x.match_value
+        '''
+
+        if p_regex:
+            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        for v_category in p_categoryList:
+            v_sql = v_sql.replace('/*#START_{0}#'.format(v_category.upper()), '').replace('#END_{0}#*/'.format(v_category.upper()), '')
+
+        if len(p_schemaList) > 0:
+            v_inSchemas = ''
+
+            for v_schema in p_schemaList:
+                v_inSchemas += "'{0}', ".format(v_schema)
+
+            v_inSchemas = v_inSchemas[:-2]
+
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', v_inSchemas)
+
+        print(v_sql)
+
     def TemplateCreateRole(self):
         return Template('''CREATE ROLE name
 --[ ENCRYPTED | UNENCRYPTED ] PASSWORD 'password'

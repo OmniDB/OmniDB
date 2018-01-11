@@ -22,7 +22,8 @@ var v_queryRequestCodes = {
 	SaveEditData: 5,
 	CancelThread: 6,
 	Debug: 7,
-	CloseTab: 8
+	CloseTab: 8,
+	DataMining: 9
 }
 
 /// <summary>
@@ -38,7 +39,8 @@ var v_queryResponseCodes = {
 	QueryAck: 6,
 	MessageException: 7,
 	DebugResponse: 8,
-	RemoveContext: 9
+	RemoveContext: 9,
+	DataMiningResult: 10
 }
 
 /// <summary>
@@ -131,6 +133,15 @@ function startQueryWebSocket(p_port) {
 					break;
 				}
 				default: {
+					break;
+				}
+				case parseInt(v_queryResponseCodes.DataMiningResult): {
+					if (p_context) {
+						SetAcked(p_context);
+						querySQLReturn(v_message,p_context);
+						//Remove context
+						removeContext(v_queryWebSocket,p_context_code);
+					}
 					break;
 				}
 			}

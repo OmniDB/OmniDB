@@ -1439,7 +1439,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', v_inSchemas)
 
-        print(v_sql)
+        return v_sql
 
     def TemplateCreateRole(self):
         return Template('''CREATE ROLE name

@@ -98,13 +98,9 @@ function tabDataMining() {
         "        <div id='query_result_tabs_" + v_tab.id + "'>" +
         "            <ul>" +
         "            <li id='query_result_tabs_" + v_tab.id + "_tab1'>Data</li>" +
-        "            <li id='query_result_tabs_" + v_tab.id + "_tab2'>Messages <div id='query_result_tabs_count_notices_" + v_tab.id + "' class='count_notices' style='display: none;'></div></li>" +
         "			</ul>" +
         "			<div id='div_query_result_tabs_" + v_tab.id + "_tab1'>" +
         "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
-        "			</div>" +
-        "			<div id='div_query_result_tabs_" + v_tab.id + "_tab2'>" +
-        "<div id='div_notices_" + v_tab.id + "' style='width: 100%; line-height: 16px; user-select: initial;'></div>" +
         "			</div>";
 
     var v_div = document.getElementById('div_' + v_tab.id);
@@ -305,6 +301,8 @@ function tabDataMining() {
 
             var v_data = {
                 text: '',
+                regex: false,
+                caseSensitive: false,
                 categoryList: [],
                 schemaList: []
             };
@@ -318,6 +316,18 @@ function tabDataMining() {
             if(v_data.text == '') {
                 showAlert('Please, provide a string in order to search.');
                 return;
+            }
+
+            var v_inputCase = v_parent.querySelector('.data-mining-input-case');
+
+            if(v_inputCase != null) {
+                v_data.caseSensitive = v_inputCase.checked;
+            }
+
+            var v_inputRegex = v_parent.querySelector('.data-mining-input-regex');
+
+            if(v_inputRegex != null) {
+                v_data.regex = v_inputRegex.checked;
             }
 
             var v_categoryList = v_parent.querySelectorAll('.data-mining-input-option');
@@ -341,54 +351,11 @@ function tabDataMining() {
                 }
             }
 
-            console.log(v_data);
+            queryDataMining(v_data);
         }
     );
 
     var v_curr_tabs = createTabControl('query_result_tabs_' + v_tab.id, 0, null);
-
-    /*var qtags = {
-        getCompletions: function(editor, session, pos, prefix, callback) {
-            if (v_completer_ready && prefix != '') {
-                var wordlist = [];
-                v_completer_ready = false;
-                addLoadingCursor();
-
-                execAjax('/get_completions/',
-                    JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
-                    function(p_return) {
-                        removeLoadingCursor();
-                        v_completer_ready = true;
-
-                        wordlist = p_return.v_data;
-                        callback(null, wordlist);
-                    },
-                    function(p_return) {
-                        removeLoadingCursor();
-                        v_completer_ready = true;
-
-                        if(p_return.v_data.password_timeout) {
-                            showPasswordPrompt(
-                                v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-                                function() {
-                                    v_editor.focus();
-                                },
-                                function() {
-                                    v_editor.focus();
-                                },
-                                p_return.v_data.message
-                            );
-                        }
-                    },
-                    'box',
-                    false
-                );
-            }
-            else {
-                callback(null, wordlist);
-            }
-        }
-    }*/
 
     var v_tab_db_id = null;
 
@@ -435,10 +402,7 @@ function tabDataMining() {
     }
 
     v_tag.selectDataTabFunc    = v_selectDataTabFunc;
-    v_tag.selectMessageTabFunc = v_selectMessageTabFunc;
-
     v_curr_tabs.tabList[0].elementLi.onclick = v_selectDataTabFunc;
-    v_curr_tabs.tabList[1].elementLi.onclick = v_selectMessageTabFunc;
 
     v_selectDataTabFunc();
 

@@ -1112,7 +1112,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 from pg_proc p
                 inner join pg_namespace n
                            on p.pronamespace = n.oid
-                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and n.nspname not like 'pg%%temp%%'
                   and format_type(p.prorettype, null) <> 'trigger'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
@@ -1130,7 +1130,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                        '' as column_name,
                        t.table_name as match_value
                 from information_schema.tables t
-                where t.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where t.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and t.table_schema not like 'pg%%temp%%'
                   and t.table_type = 'BASE TABLE'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and t.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
@@ -1148,7 +1148,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                        '' as column_name,
                        v.table_name as match_value
                 from information_schema.views v
-                where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and v.table_schema not like 'pg%%temp%%'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and v.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
                 --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(v.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
@@ -1167,7 +1167,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 from pg_class c
                 inner join pg_namespace n
                            on n.oid = c.relnamespace
-                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and n.nspname not like 'pg%%temp%%'
                   and c.relkind = 'm'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and c.relname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
@@ -1185,7 +1185,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                        '' as column_name,
                        s.sequence_name as match_value
                 from information_schema.sequences s
-                where s.sequence_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where s.sequence_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and s.sequence_schema not like 'pg%%temp%%'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and s.sequence_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
                 --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(s.sequence_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
@@ -1202,7 +1202,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                        '' as column_name,
                        n.nspname as match_value
                 from pg_namespace n
-                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and n.nspname not like 'pg%%temp%%'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and n.nspname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
                 --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(n.nspname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
@@ -1227,15 +1227,16 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                         from pg_proc p
                         inner join pg_namespace n
                                    on p.pronamespace = n.oid
-                        where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                        where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                           and n.nspname not like 'pg%%temp%%'
                           and format_type(p.prorettype, null) <> 'trigger'
-                        --#FILTER_PATTERN_CASE_SENSITIVE#  and y.function_definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-                        --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.function_definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-                        --#FILTER_PATTERN_REGEX# and y.function_definition ~ '#VALUE_PATTERN_REGEX#'
                         --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
                     ) z
                 ) y
+                where 1 = 1
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and y.function_definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.function_definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and y.function_definition ~ '#VALUE_PATTERN_REGEX#'
                 #END_FUNCTION DEFINITION#*/
 
                 /*#START_TRIGGER NAME#
@@ -1249,7 +1250,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 from pg_proc p
                 inner join pg_namespace n
                            on p.pronamespace = n.oid
-                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and n.nspname not like 'pg%%temp%%'
                   and format_type(p.prorettype, null) = 'trigger'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
@@ -1269,7 +1270,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 from pg_proc p
                 inner join pg_namespace n
                            on p.pronamespace = n.oid
-                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and n.nspname not like 'pg%%temp%%'
                   and format_type(p.prorettype, null) = 'trigger'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and p.prosrc like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
@@ -1289,7 +1290,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 from information_schema.tables t
                 inner join information_schema.columns c
                            on t.table_name = c.table_name and t.table_schema = c.table_schema
-                where c.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where c.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and c.table_schema not like 'pg%%temp%%'
                   and t.table_type = 'BASE TABLE'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
@@ -1309,13 +1310,13 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 from information_schema.views v
                 inner join information_schema.columns c
                            on v.table_name = c.table_name and v.table_schema = c.table_schema
-                where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and v.table_schema not like 'pg%%temp%%'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
                 --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
                 --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
                 --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
-                #END_VIEW COLUMN NAME NAME#*/
+                #END_VIEW COLUMN NAME#*/
 
                 /*#START_MATERIALIZED VIEW COLUMN NAME#
                 union
@@ -1332,7 +1333,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                            on n.oid = c.relnamespace
                 inner join pg_type t
                            on t.oid = a.atttypid
-                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and n.nspname not like 'pg%%temp%%'
                   and a.attnum > 0
                   and not a.attisdropped
@@ -1352,7 +1353,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                        '' as column_name,
                        tc.constraint_name as match_value
                 from information_schema.table_constraints tc
-                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and tc.table_schema not like 'pg%%temp%%'
                   and tc.constraint_type = 'PRIMARY KEY'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
@@ -1370,7 +1371,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                        '' as column_name,
                        tc.constraint_name as match_value
                 from information_schema.table_constraints tc
-                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and tc.table_schema not like 'pg%%temp%%'
                   and tc.constraint_type = 'FOREIGN KEY'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
@@ -1388,7 +1389,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                        '' as column_name,
                        tc.constraint_name as match_value
                 from information_schema.table_constraints tc
-                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and tc.table_schema not like 'pg%%temp%%'
                   and tc.constraint_type = 'UNIQUE'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
@@ -1406,17 +1407,75 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                        '' as column_name,
                        i.indexname as match_value
                 from pg_indexes i
-                where i.schemaname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast', 'public')
+                where i.schemaname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and i.schemaname not like 'pg%%temp%%'
                 --#FILTER_PATTERN_CASE_SENSITIVE#  and i.indexname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
                 --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(i.indexname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
                 --#FILTER_PATTERN_REGEX# and i.indexname ~ '#VALUE_PATTERN_REGEX#'
                 --#FILTER_BY_SCHEMA#  and lower(i.schemaname) in (#VALUE_BY_SCHEMA#)
                 #END_INDEX NAME#*/
+
+                --#START_DATA##END_DATA#
             ) x
             where x.category is not null
             order by x.category, x.schema_name, x.table_name, x.column_name, x.match_value
         '''
+
+        v_inSchemas = ''
+
+        if len(p_schemaList) > 0:
+            for v_schema in p_schemaList:
+                v_inSchemas += "'{0}', ".format(v_schema)
+
+            v_inSchemas = v_inSchemas[:-2]
+
+        if 'Data' in p_categoryList and v_inSchemas != '':
+            v_columnsSql = '''
+                select c.table_schema as schema_name,
+                       c.table_name as table_name,
+                       c.column_name as column_name
+                from information_schema.tables t
+                inner join information_schema.columns c
+                           on t.table_name = c.table_name and t.table_schema = c.table_schema
+                where c.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and c.table_schema not like 'pg%%temp%%'
+                  and t.table_type = 'BASE TABLE'
+                  and c.table_schema in ({0})
+            '''.format(v_inSchemas)
+
+            v_columnsTable = self.v_connection.Query(v_columnsSql)
+
+            if len(v_columnsTable.Rows) > 0:
+                v_dataSql = ''
+
+                for v_columnRow in v_columnsTable.Rows:
+                    v_dataSql += '''
+
+                        union
+
+                        select 'Data' as category,
+                               '{0}' as schema_name,
+                               '{1}' as table_name,
+                               '{2}' as column_name,
+                               t.{2}::text as match_value
+                        from (
+                            select t.{2}
+                            from {0}.{1} t
+                            where 1 = 1
+                            --#FILTER_PATTERN_CASE_SENSITIVE#  and t.{2}::text like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.{2}::text) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                            --#FILTER_PATTERN_REGEX# and t.{2}::text ~ '#VALUE_PATTERN_REGEX#'
+                        ) t
+                    '''.format(
+                        v_columnRow['schema_name'],
+                        v_columnRow['table_name'],
+                        v_columnRow['column_name']
+                    )
+
+                v_sql = v_sql.replace('--#START_DATA##END_DATA#', v_dataSql)
+
+        if v_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', v_inSchemas)
 
         if p_regex:
             v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
@@ -1427,18 +1486,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
 
         for v_category in p_categoryList:
-            v_sql = v_sql.replace('/*#START_{0}#'.format(v_category.upper()), '').replace('#END_{0}#*/'.format(v_category.upper()), '')
+            if v_category != 'Data':
+                v_sql = v_sql.replace('/*#START_{0}#'.format(v_category.upper()), '').replace('#END_{0}#*/'.format(v_category.upper()), '')
 
-        if len(p_schemaList) > 0:
-            v_inSchemas = ''
-
-            for v_schema in p_schemaList:
-                v_inSchemas += "'{0}', ".format(v_schema)
-
-            v_inSchemas = v_inSchemas[:-2]
-
-            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', v_inSchemas)
-
+        print(v_sql)
         return v_sql
 
     def TemplateCreateRole(self):

@@ -308,7 +308,7 @@ function tabDataMining() {
 
             v_schemaList.sort(v_compare);
 
-            v_disconsiderSchemas = {'information_schema': 1, 'omnidb': 1, 'pg_catalog': 1, 'pg_toast': 1, 'public': 1}
+            v_disconsiderSchemas = {'information_schema': 1, 'omnidb': 1, 'pg_catalog': 1, 'pg_toast': 1}
 
             for(var i = 0; i < v_schemaList.length; i++) {
                 if(!(v_schemaList[i].v_name in v_disconsiderSchemas) && (v_schemaList[i].v_name.search(/pg.*temp.*/) == -1)) {
@@ -399,7 +399,7 @@ function tabDataMining() {
                 v_data.text = v_inputFilter.value;
             }
 
-            if(v_data.text == '') {
+            if(v_data.text.trim() == '') {
                 showAlert('Please, provide a string in order to search.');
                 return;
             }
@@ -437,7 +437,22 @@ function tabDataMining() {
                 }
             }
 
-            queryDataMining(v_data);
+            if(v_data.schemaList.length == 0) {
+                showAlert('Please, select at least one schema to search.');
+                return;
+            }
+
+            if(v_data.categoryList.indexOf('Data') != -1) {
+                showConfirm(
+                    'You have selected the category "Data". Please, be aware that it can consume a considerable amount of time and resources, depending on selected schemas size.',
+                    function(p_data) {
+                        queryDataMining(p_data);
+                    }.bind(null, v_data)
+                );
+            }
+            else {
+                queryDataMining(v_data);
+            }
         }
     );
 

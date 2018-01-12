@@ -209,8 +209,26 @@ function tabDataMining() {
         {'text': 'Trigger Source', 'value': 14},
         {'text': 'Unique Name', 'value': 15},
         {'text': 'View Column Name', 'value': 16},
-        {'text': 'View Name', 'value': 17}
+        {'text': 'View Name', 'value': 17},
+        {'text': 'Check Name', 'value': 18},
+        {'text': 'Rule Name', 'value': 19},
+        {'text': 'Rule Definition', 'value': 20},
+        {'text': 'Partition Name', 'value': 21},
     ];
+
+    var v_compare = function(a, b) {
+        if(a.text < b.text) {
+            return -1;
+        }
+        else if(a.text > b.text) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    v_optionList.sort(v_compare);
 
     for(var i = 0; i < v_optionList.length; i++) {
         var v_divOption = document.createElement('div');
@@ -328,8 +346,7 @@ function tabDataMining() {
             }
         }.bind(null, v_schemasContainerDiv),
         function(p_return) {
-            //TODO: tratar isso aqui
-            console.log(p_return);
+            showAlert(p_return.v_data);
         },
         'box',
         false
@@ -444,7 +461,7 @@ function tabDataMining() {
 
             if(v_data.categoryList.indexOf('Data') != -1) {
                 showConfirm(
-                    'You have selected the category "Data". Please, be aware that it can consume a considerable amount of time and resources, depending on selected schemas size.',
+                    'You have selected the category "Data". Please, be aware that it can consume a considerable amount of time and resources, depending on selected schemas size. Do you want to proceed?',
                     function(p_data) {
                         queryDataMining(p_data);
                     }.bind(null, v_data)

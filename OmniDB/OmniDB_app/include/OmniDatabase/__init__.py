@@ -1095,20 +1095,20 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
         v_sql = '''
             select x.*
             from (
-                select null as category,
-                       null as schema_name,
-                       null as table_name,
-                       null as column_name,
-                       null as match_value
+                select null::text as category,
+                       null::text as schema_name,
+                       null::text as table_name,
+                       null::text as column_name,
+                       null::text as match_value
 
                 /*#START_FUNCTION NAME#
                 union
 
-                select 'Function Name' as category,
-                       n.nspname as schema_name,
-                       '' as table_name,
-                       '' as column_name,
-                       p.proname as match_value
+                select 'Function Name'::text as category,
+                       n.nspname::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       p.proname::text as match_value
                 from pg_proc p
                 inner join pg_namespace n
                            on p.pronamespace = n.oid
@@ -1124,11 +1124,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_TABLE NAME#
                 union
 
-                select 'Table Name' as category,
-                       t.table_schema as schema_name,
-                       '' as table_name,
-                       '' as column_name,
-                       t.table_name as match_value
+                select 'Table Name'::text as category,
+                       t.table_schema::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       t.table_name::text as match_value
                 from information_schema.tables t
                 where t.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and t.table_schema not like 'pg%%temp%%'
@@ -1142,11 +1142,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_VIEW NAME#
                 union
 
-                select 'View Name' as category,
-                       v.table_schema as schema_name,
-                       '' as table_name,
-                       '' as column_name,
-                       v.table_name as match_value
+                select 'View Name'::text as category,
+                       v.table_schema::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       v.table_name::text as match_value
                 from information_schema.views v
                 where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and v.table_schema not like 'pg%%temp%%'
@@ -1159,11 +1159,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_MATERIALIZED VIEW NAME#
                 union
 
-                select 'Materialized View Name' as category,
-                       n.nspname as schema_name,
-                       '' as table_name,
-                       '' as column_name,
-                       c.relname as match_value
+                select 'Materialized View Name'::text as category,
+                       n.nspname::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       c.relname::text as match_value
                 from pg_class c
                 inner join pg_namespace n
                            on n.oid = c.relnamespace
@@ -1179,11 +1179,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_SEQUENCE NAME#
                 union
 
-                select 'Sequence Name' as category,
-                       s.sequence_schema as schema_name,
-                       '' as table_name,
-                       '' as column_name,
-                       s.sequence_name as match_value
+                select 'Sequence Name'::text as category,
+                       s.sequence_schema::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       s.sequence_name::text as match_value
                 from information_schema.sequences s
                 where s.sequence_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and s.sequence_schema not like 'pg%%temp%%'
@@ -1196,11 +1196,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_SCHEMA NAME#
                 union
 
-                select 'Schema Name' as category,
-                       '' as schema_name,
-                       '' as table_name,
-                       '' as column_name,
-                       n.nspname as match_value
+                select 'Schema Name'::text as category,
+                       ''::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       n.nspname::text as match_value
                 from pg_namespace n
                 where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and n.nspname not like 'pg%%temp%%'
@@ -1212,11 +1212,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_FUNCTION DEFINITION#
                 union
 
-                select 'Function Definition' as category,
-                       y.schema_name as schema_name,
-                       '' as table_name,
-                       '' as column_name,
-                       y.function_definition as match_value
+                select 'Function Definition'::text as category,
+                       y.schema_name::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       y.function_definition::text as match_value
                 from (
                     select pg_get_functiondef(z.function_oid::regprocedure) as function_definition,
                            *
@@ -1242,11 +1242,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_TRIGGER NAME#
                 union
 
-                select 'Trigger Name' as category,
-                       n.nspname as schema_name,
-                       '' as table_name,
-                       '' as column_name,
-                       p.proname as match_value
+                select 'Trigger Name'::text as category,
+                       n.nspname::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       p.proname::text as match_value
                 from pg_proc p
                 inner join pg_namespace n
                            on p.pronamespace = n.oid
@@ -1262,11 +1262,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_TRIGGER SOURCE#
                 union
 
-                select 'Trigger Source' as category,
-                       n.nspname as schema_name,
-                       '' as table_name,
-                       '' as column_name,
-                       p.prosrc as match_value
+                select 'Trigger Source'::text as category,
+                       n.nspname::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       p.prosrc::text as match_value
                 from pg_proc p
                 inner join pg_namespace n
                            on p.pronamespace = n.oid
@@ -1282,11 +1282,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_TABLE COLUMN NAME#
                 union
 
-                select 'Table Column Name' as category,
-                       c.table_schema as schema_name,
-                       c.table_name as table_name,
-                       '' as column_name,
-                       c.column_name as match_value
+                select 'Table Column Name'::text as category,
+                       c.table_schema::text as schema_name,
+                       c.table_name::text as table_name,
+                       ''::text as column_name,
+                       c.column_name::text as match_value
                 from information_schema.tables t
                 inner join information_schema.columns c
                            on t.table_name = c.table_name and t.table_schema = c.table_schema
@@ -1302,11 +1302,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_VIEW COLUMN NAME#
                 union
 
-                select 'View Column Name' as category,
-                       c.table_schema as schema_name,
-                       c.table_name as table_name,
-                       '' as column_name,
-                       c.column_name as match_value
+                select 'View Column Name'::text as category,
+                       c.table_schema::text as schema_name,
+                       c.table_name::text as table_name,
+                       ''::text as column_name,
+                       c.column_name::text as match_value
                 from information_schema.views v
                 inner join information_schema.columns c
                            on v.table_name = c.table_name and v.table_schema = c.table_schema
@@ -1321,11 +1321,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_MATERIALIZED VIEW COLUMN NAME#
                 union
 
-                select 'Materialized View Column Name' as category,
-                       n.nspname as schema_name,
-                       c.relname as table_name,
-                       '' as column_name,
-                       a.attname as match_value
+                select 'Materialized View Column Name'::text as category,
+                       n.nspname::text as schema_name,
+                       c.relname::text as table_name,
+                       ''::text as column_name,
+                       a.attname::text as match_value
                 from pg_attribute a
                 inner join pg_class c
                            on c.oid = a.attrelid
@@ -1347,11 +1347,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_PK NAME#
                 union
 
-                select 'PK Name' as category,
-                       tc.table_schema as schema_name,
-                       tc.table_name as table_name,
-                       '' as column_name,
-                       tc.constraint_name as match_value
+                select 'PK Name'::text as category,
+                       tc.table_schema::text as schema_name,
+                       tc.table_name::text as table_name,
+                       ''::text as column_name,
+                       tc.constraint_name::text as match_value
                 from information_schema.table_constraints tc
                 where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and tc.table_schema not like 'pg%%temp%%'
@@ -1365,11 +1365,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_FK NAME#
                 union
 
-                select 'FK Name' as category,
-                       tc.table_schema as schema_name,
-                       tc.table_name as table_name,
-                       '' as column_name,
-                       tc.constraint_name as match_value
+                select 'FK Name'::text as category,
+                       tc.table_schema::text as schema_name,
+                       tc.table_name::text as table_name,
+                       ''::text as column_name,
+                       tc.constraint_name::text as match_value
                 from information_schema.table_constraints tc
                 where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and tc.table_schema not like 'pg%%temp%%'
@@ -1383,11 +1383,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_UNIQUE NAME#
                 union
 
-                select 'Unique Name' as category,
-                       tc.table_schema as schema_name,
-                       tc.table_name as table_name,
-                       '' as column_name,
-                       tc.constraint_name as match_value
+                select 'Unique Name'::text as category,
+                       tc.table_schema::text as schema_name,
+                       tc.table_name::text as table_name,
+                       ''::text as column_name,
+                       tc.constraint_name::text as match_value
                 from information_schema.table_constraints tc
                 where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and tc.table_schema not like 'pg%%temp%%'
@@ -1401,11 +1401,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 /*#START_INDEX NAME#
                 union
 
-                select 'Index Name' as category,
-                       i.schemaname as schema_name,
-                       i.tablename as table_name,
-                       '' as column_name,
-                       i.indexname as match_value
+                select 'Index Name'::text as category,
+                       i.schemaname::text as schema_name,
+                       i.tablename::text as table_name,
+                       ''::text as column_name,
+                       i.indexname::text as match_value
                 from pg_indexes i
                 where i.schemaname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
                   and i.schemaname not like 'pg%%temp%%'
@@ -1414,6 +1414,82 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 --#FILTER_PATTERN_REGEX# and i.indexname ~ '#VALUE_PATTERN_REGEX#'
                 --#FILTER_BY_SCHEMA#  and lower(i.schemaname) in (#VALUE_BY_SCHEMA#)
                 #END_INDEX NAME#*/
+
+                /*#START_CHECK NAME#
+                union
+
+                select 'Check Name'::text as category,
+                       quote_ident(n.nspname)::text as schema_name,
+                       ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.')::text as table_name,
+                       ''::text as column_name,
+                       quote_ident(c.conname)::text as match_value
+                from pg_constraint c
+                inner join pg_class t
+                           on t.oid = c.conrelid
+                inner join pg_namespace n
+                           on t.relnamespace = n.oid
+                where contype = 'c'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(c.conname) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(c.conname)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and quote_ident(c.conname) ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(quote_ident(n.nspname)) in (#VALUE_BY_SCHEMA#)
+                #END_INDEX NAME#*/
+
+                /*#START_RULE NAME#
+                union
+
+                select 'Rule Name'::text as category,
+                       quote_ident(schemaname)::text as schema_name,
+                       quote_ident(tablename)::text as table_name,
+                       ''::text as column_name,
+                       quote_ident(rulename)::text as match_value
+                from pg_rules
+                where 1 = 1
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(rulename) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(rulename)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and quote_ident(rulename) ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(quote_ident(schemaname)) in (#VALUE_BY_SCHEMA#)
+                #END_RULE NAME#*/
+
+                /*#START_RULE DEFINITION#
+                union
+
+                select 'Rule Definition'::text as category,
+                       quote_ident(schemaname)::text as schema_name,
+                       quote_ident(tablename)::text as table_name,
+                       ''::text as column_name,
+                       definition::text as match_value
+                from pg_rules
+                where 1 = 1
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and definition ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(quote_ident(schemaname)) in (#VALUE_BY_SCHEMA#)
+                #END_RULE DEFINITION#*/
+
+                /*#START_PARTITION NAME#
+                union
+
+                select 'Partition Name'::text as category,
+                       quote_ident(np.nspname)::text as schema_name,
+                       quote_ident(cp.relname)::text as table_name,
+                       ''::text as column_name,
+                       quote_ident(cc.relname)::text as match_value
+                from pg_inherits i
+                inner join pg_class cp
+                           on cp.oid = i.inhparent
+                inner join pg_namespace np
+                           on np.oid = cp.relnamespace
+                inner join pg_class cc
+                           on cc.oid = i.inhrelid
+                inner join pg_namespace nc
+                           on nc.oid = cc.relnamespace
+                where 1 = 1
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(cc.relname) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(cc.relname)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and quote_ident(cc.relname) ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(quote_ident(np.nspname)) in (#VALUE_BY_SCHEMA#)
+                #END_PARTITION NAME#*/
 
                 --#START_DATA##END_DATA#
             ) x
@@ -1489,7 +1565,6 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             if v_category != 'Data':
                 v_sql = v_sql.replace('/*#START_{0}#'.format(v_category.upper()), '').replace('#END_{0}#*/'.format(v_category.upper()), '')
 
-        print(v_sql)
         return v_sql
 
     def TemplateCreateRole(self):

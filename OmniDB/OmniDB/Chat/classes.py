@@ -82,40 +82,6 @@ class Message:
         self.snippetMode = p_snippetMode
         self.rawContent = p_rawContent
 
-class Company:
-    """Represent a company from database.
-
-        Attributes:
-            code (int): the company code.
-            name (str): the company name.
-            nickname (str): the company nickname.
-    """
-
-    def __init__(self, p_code = 0, p_name = '', p_nickname = ''):
-        """Create a new pscore.websocketServer.chat.classes.Company instance.
-
-            Args:
-                p_code (int): the company code.
-                p_name (str): the company name.
-                p_nickname (str): the company nickname.
-
-            Raises:
-                pscore.websocketServer.chat.exception.Exception: custom exceptions occurred in this script.
-        """
-
-        if not isinstance(p_code, int):
-            raise pscore.websocketServer.chat.exception.Exception('Erro durante a instanciação da classe "pscore.websocketServer.chat.classes.Company": O parâmetro "p_code" deve ser do tipo "int".')
-
-        if not isinstance(p_name, str):
-            raise pscore.websocketServer.chat.exception.Exception('Erro durante a instanciação da classe "pscore.websocketServer.chat.classes.Company": O parâmetro "p_name" deve ser do tipo "str".')
-
-        if not isinstance(p_nickname, str):
-            raise pscore.websocketServer.chat.exception.Exception('Erro durante a instanciação da classe "pscore.websocketServer.chat.classes.Company": O parâmetro "p_nickname" deve ser do tipo "str".')
-
-        self.code = p_code
-        self.name = p_name
-        self.nickname = p_nickname
-
 class Status:
     """Represent a chat status from database.
 
@@ -151,18 +117,16 @@ class User:
             code (int): the user code.
             name (str): the user name.
             login (str): the user login.
-            company (pscore.websocketServer.chat.classes.Company): the user company.
             status (pscore.websocketServer.chat.classes.Status): the user chat status.
     """
 
-    def __init__(self, p_code = 0, p_name = '', p_login = '', p_company = None, p_status = None):
+    def __init__(self, p_code = 0, p_name = '', p_login = '', p_status = None):
         """Create a new pscore.websocketServer.chat.classes.Group instance.
 
             Args:
                 p_code (int): the user code.
                 p_name (str): the user name.
                 p_login (str): the user login.
-                p_company (pscore.websocketServer.chat.classes.Company): the user company.
                 p_status (pscore.websocketServer.chat.classes.Status): the user chat status.
 
             Raises:
@@ -178,16 +142,12 @@ class User:
         if not isinstance(p_login, str):
             raise pscore.websocketServer.chat.exception.Exception('Erro durante a instanciação da classe "pscore.websocketServer.chat.classes.User": O parâmetro "p_login" deve ser do tipo "str".')
 
-        if p_company is not None and not isinstance(p_company, Company):
-            raise pscore.websocketServer.chat.exception.Exception('Erro durante a instanciação da classe "pscore.websocketServer.chat.classes.User": O parâmetro "p_company" deve ser do tipo "pscore.websocketServer.chat.classes.Company".')
-
         if p_status is not None and not isinstance(p_status, Status):
             raise pscore.websocketServer.chat.exception.Exception('Erro durante a instanciação da classe "pscore.websocketServer.chat.classes.User": O parâmetro "p_status" deve ser do tipo "pscore.websocketServer.chat.classes.Status".')
 
         self.code = p_code
         self.name = p_name
         self.login = p_login
-        self.company = p_company
         self.status = p_status
 
 class Group:

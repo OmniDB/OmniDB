@@ -474,26 +474,26 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
                 from (
                     select y.*
                     from (
-                        select men.men_in_codigo,
-                               to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                               to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                        select mes.mes_in_code,
+                               to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                               to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                                use.use_in_code,
                                use.use_st_login,
-                               men.tim_in_codigo,
-                               coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                               coalesce(men.men_st_titulo, '') as men_st_titulo,
-                               coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                               mec.mec_bo_visualizada,
-                               coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                               coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                        from pscore.mensagens_canais mec
-                        inner join pscore.mensagens men
-                                   on mec.men_in_codigo = men.men_in_codigo
+                               mes.tym_in_codigo,
+                               coalesce(mes.mes_st_content, '') as mes_st_content,
+                               coalesce(mes.mes_st_title, '') as mes_st_title,
+                               coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                               mec.mec_bo_viewed,
+                               coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                               coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                        from messages_channels mec
+                        inner join messages mes
+                                   on mec.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on men.use_in_code = use.use_in_code
-                        where mec.can_in_codigo = {0}
+                                   on mes.use_in_code = use.use_in_code
+                        where mec.cha_in_code = {0}
                           and mec.use_in_code = {1}
-                        order by men.men_dt_criacao::timestamp without time zone desc
+                        order by mes.mes_dt_creation::timestamp without time zone desc
                         limit 40
                     ) y
 
@@ -501,37 +501,37 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
 
                     select y.*
                     from (
-                        select men.men_in_codigo,
-                               to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                               to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                        select mes.mes_in_code,
+                               to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                               to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                                use.use_in_code,
                                use.use_st_login,
-                               men.tim_in_codigo,
-                               coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                               coalesce(men.men_st_titulo, '') as men_st_titulo,
-                               coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                               mec.mec_bo_visualizada,
-                               coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                               coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                        from pscore.mensagens_canais mec
-                        inner join pscore.mensagens men
-                                   on mec.men_in_codigo = men.men_in_codigo
+                               mes.tym_in_codigo,
+                               coalesce(mes.mes_st_content, '') as mes_st_content,
+                               coalesce(mes.mes_st_title, '') as mes_st_title,
+                               coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                               mec.mec_bo_viewed,
+                               coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                               coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                        from messages_channels mec
+                        inner join messages mes
+                                   on mec.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on men.use_in_code = use.use_in_code
-                        where mec.can_in_codigo = {0}
+                                   on mes.use_in_code = use.use_in_code
+                        where mec.cha_in_code = {0}
                           and mec.use_in_code = {1}
-                          and men.men_dt_criacao >= (select min(m.men_dt_criacao)
-                                                     from pscore.mensagens_canais mc
-                                                     inner join pscore.mensagens m
-                                                                on mc.men_in_codigo = m.men_in_codigo
-                                                     where mc.can_in_codigo = {0}
+                          and mes.mes_dt_creation >= (select min(m.mes_dt_creation)
+                                                     from messages_channels mc
+                                                     inner join messages m
+                                                                on mc.mes_in_code = m.mes_in_code
+                                                     where mc.cha_in_code = {0}
                                                        and mc.use_in_code = {1}
-                                                       and mc.mec_bo_visualizada = False
+                                                       and mc.mec_bo_viewed = False
                                                     )
-                        order by men.men_dt_criacao::timestamp without time zone desc
+                        order by mes.mes_dt_creation::timestamp without time zone desc
                     ) y
                 ) x
-                order by x.men_dt_criacao::timestamp without time zone desc'''.format(
+                order by x.mes_dt_creation::timestamp without time zone desc'''.format(
                     v_channel.code,
                     p_userCode
                 )
@@ -540,17 +540,17 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
             for v_row2 in v_table2.Rows:
                 v_user = pscore.websocketServer.chat.classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
                 v_message = pscore.websocketServer.chat.classes.Message(
-                    int(v_row2['men_in_codigo']),
-                    v_row2['men_dt_criacao'],
-                    v_row2['men_dt_alteracao'],
+                    int(v_row2['mes_in_code']),
+                    v_row2['mes_dt_creation'],
+                    v_row2['mes_dt_update'],
                     v_user,
-                    int(v_row2['tim_in_codigo']),
-                    v_row2['men_st_conteudo'],
-                    v_row2['men_st_titulo'],
-                    v_row2['men_st_nomeanexo'],
-                    v_row2['mec_bo_visualizada'],
-                    v_row2['men_st_modosnippet'],
-                    v_row2['men_st_conteudooriginal']
+                    int(v_row2['tym_in_codigo']),
+                    v_row2['mes_st_content'],
+                    v_row2['mes_st_title'],
+                    v_row2['mes_st_attachmentname'],
+                    v_row2['mec_bo_viewed'],
+                    v_row2['mes_st_snippetmode'],
+                    v_row2['mes_st_originalcontent']
                 )
                 v_channel.messageList.append(v_message)
 
@@ -593,7 +593,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                 from pscore.sessoes ses
                 where ses.ses_uuid_key = '{0}';'''.format(p_webSocketSession.cookies['session_key'].value)
             )
-
+            #TODO verificar isso
             p_webSocketSession.cookies['user_id'] = v_userId
 
             v_userName = v_database.ExecuteScalar('''
@@ -659,16 +659,16 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
 
         #Get user group list
         v_table = v_database.Query('''
-            select gru.gru_in_codigo,
-                   usg.usg_bo_silenciado
-            from pscore.grupos gru
+            select gro.gro_in_code,
+                   usg.usg_bo_silenced
+            from groups gro
             inner join users_groups usg
-                       on gru.gru_in_codigo = usg.gro_in_code
+                       on gro.gro_in_code = usg.gro_in_code
             where usg.user_in_code = {0}'''.format(int(p_webSocketSession.cookies['user_id'].value))
         )
 
         for v_row in v_table.Rows:
-            v_group = pscore.websocketServer.chat.classes.Group(v_row['gru_in_codigo'], v_row['usg_bo_silenciado'], [], [])
+            v_group = pscore.websocketServer.chat.classes.Group(v_row['gro_in_code'], v_row['usg_bo_silenced'], [], [])
 
             v_table2 = v_database.Query('''
                 select use.use_in_code,
@@ -688,26 +688,26 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                 from (
                     select y.*
                     from (
-                        select men.men_in_codigo,
-                               to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                               to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                        select mes.mes_in_code,
+                               to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                               to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                                use.use_in_code,
                                use.use_st_login,
-                               men.tim_in_codigo,
-                               coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                               coalesce(men.men_st_titulo, '') as men_st_titulo,
-                               coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                               meg.meg_bo_visualizada,
-                               coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                               coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                        from pscore.mensagens_grupos meg
-                        inner join pscore.mensagens men
-                                   on meg.men_in_codigo = men.men_in_codigo
+                               mes.tym_in_codigo,
+                               coalesce(mes.mes_st_content, '') as mes_st_content,
+                               coalesce(mes.mes_st_title, '') as mes_st_title,
+                               coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                               meg.meg_bo_viewed,
+                               coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                               coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                        from messages_groups meg
+                        inner join messages mes
+                                   on meg.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on men.use_in_code = use.use_in_code
-                        where meg.gru_in_codigo = {0}
+                                   on mes.use_in_code = use.use_in_code
+                        where meg.gro_in_code = {0}
                           and meg.use_in_code = {1}
-                        order by men.men_dt_criacao::timestamp without time zone desc
+                        order by mes.mes_dt_creation::timestamp without time zone desc
                         limit 40
                     ) y
 
@@ -715,37 +715,37 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
 
                     select y.*
                     from (
-                        select men.men_in_codigo,
-                               to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                               to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                        select mes.mes_in_code,
+                               to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                               to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                                use.use_in_code,
                                use.use_st_login,
-                               men.tim_in_codigo,
-                               coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                               coalesce(men.men_st_titulo, '') as men_st_titulo,
-                               coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                               meg.meg_bo_visualizada,
-                               coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                               coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                        from pscore.mensagens_grupos meg
-                        inner join pscore.mensagens men
-                                   on meg.men_in_codigo = men.men_in_codigo
+                               mes.tym_in_codigo,
+                               coalesce(mes.mes_st_content, '') as mes_st_content,
+                               coalesce(mes.mes_st_title, '') as mes_st_title,
+                               coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                               meg.meg_bo_viewed,
+                               coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                               coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                        from messages_groups meg
+                        inner join messages mes
+                                   on meg.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on men.use_in_code = use.use_in_code
-                        where meg.gru_in_codigo = {0}
+                                   on mes.use_in_code = use.use_in_code
+                        where meg.gro_in_code = {0}
                           and meg.use_in_code = {1}
-                          and men.men_dt_criacao >= (select min(m.men_dt_criacao)
-                                                     from pscore.mensagens_grupos mg
-                                                     inner join pscore.mensagens m
-                                                                on mg.men_in_codigo = m.men_in_codigo
-                                                     where mg.gru_in_codigo = {0}
+                          and mes.mes_dt_creation >= (select min(m.mes_dt_creation)
+                                                     from messages_groups mg
+                                                     inner join messages m
+                                                                on mg.mes_in_code = m.mes_in_code
+                                                     where mg.gro_in_code = {0}
                                                        and mg.use_in_code = {1}
-                                                       and mg.meg_bo_visualizada = False
+                                                       and mg.meg_bo_viewed = False
                                                     )
-                        order by men.men_dt_criacao::timestamp without time zone desc
+                        order by mes.mes_dt_creation::timestamp without time zone desc
                     ) y
                 ) x
-                order by x.men_dt_criacao::timestamp without time zone desc'''.format(
+                order by x.mes_dt_creation::timestamp without time zone desc'''.format(
                     v_group.code,
                     int(p_webSocketSession.cookies['user_id'].value)
                 )
@@ -754,17 +754,17 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
             for v_row2 in v_table2.Rows:
                 v_user = pscore.websocketServer.chat.classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
                 v_message = pscore.websocketServer.chat.classes.Message(
-                    int(v_row2['men_in_codigo']),
-                    v_row2['men_dt_criacao'],
-                    v_row2['men_dt_alteracao'],
+                    int(v_row2['mes_in_code']),
+                    v_row2['mes_dt_creation'],
+                    v_row2['mes_dt_update'],
                     v_user,
-                    int(v_row2['tim_in_codigo']),
-                    v_row2['men_st_conteudo'],
-                    v_row2['men_st_titulo'],
-                    v_row2['men_st_nomeanexo'],
-                    v_row2['meg_bo_visualizada'],
-                    v_row2['men_st_modosnippet'],
-                    v_row2['men_st_conteudooriginal']
+                    int(v_row2['tym_in_codigo']),
+                    v_row2['mes_st_content'],
+                    v_row2['mes_st_title'],
+                    v_row2['mes_st_attachmentname'],
+                    v_row2['meg_bo_viewed'],
+                    v_row2['mes_st_snippetmode'],
+                    v_row2['mes_st_originalcontent']
                 )
                 v_group.messageList.append(v_message)
 
@@ -803,26 +803,26 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                 from (
                     select y.*
                     from (
-                        select men.men_in_codigo,
-                               to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                               to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                        select mes.mes_in_code,
+                               to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                               to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                                use.use_in_code,
                                use.use_st_login,
-                               men.tim_in_codigo,
-                               coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                               coalesce(men.men_st_titulo, '') as men_st_titulo,
-                               coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                               mec.mec_bo_visualizada,
-                               coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                               coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                        from pscore.mensagens_canais mec
-                        inner join pscore.mensagens men
-                                   on mec.men_in_codigo = men.men_in_codigo
+                               mes.tym_in_codigo,
+                               coalesce(mes.mes_st_content, '') as mes_st_content,
+                               coalesce(mes.mes_st_title, '') as mes_st_title,
+                               coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                               mec.mec_bo_viewed,
+                               coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                               coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                        from messages_channels mec
+                        inner join messages mes
+                                   on mec.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on men.use_in_code = use.use_in_code
-                        where mec.can_in_codigo = {0}
+                                   on mes.use_in_code = use.use_in_code
+                        where mec.cha_in_code = {0}
                           and mec.use_in_code = {1}
-                        order by men.men_dt_criacao::timestamp without time zone desc
+                        order by mes.mes_dt_creation::timestamp without time zone desc
                         limit 40
                     ) y
 
@@ -830,37 +830,37 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
 
                     select y.*
                     from (
-                        select men.men_in_codigo,
-                               to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                               to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                        select mes.mes_in_code,
+                               to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                               to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                                use.use_in_code,
                                use.use_st_login,
-                               men.tim_in_codigo,
-                               coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                               coalesce(men.men_st_titulo, '') as men_st_titulo,
-                               coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                               mec.mec_bo_visualizada,
-                               coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                               coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                        from pscore.mensagens_canais mec
-                        inner join pscore.mensagens men
-                                   on mec.men_in_codigo = men.men_in_codigo
+                               mes.tym_in_codigo,
+                               coalesce(mes.mes_st_content, '') as mes_st_content,
+                               coalesce(mes.mes_st_title, '') as mes_st_title,
+                               coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                               mec.mec_bo_viewed,
+                               coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                               coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                        from messages_channels mec
+                        inner join messages mes
+                                   on mec.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on men.use_in_code = use.use_in_code
-                        where mec.can_in_codigo = {0}
+                                   on mes.use_in_code = use.use_in_code
+                        where mec.cha_in_code = {0}
                           and mec.use_in_code = {1}
-                          and men.men_dt_criacao >= (select min(m.men_dt_criacao)
-                                                     from pscore.mensagens_canais mc
-                                                     inner join pscore.mensagens m
-                                                                on mc.men_in_codigo = m.men_in_codigo
-                                                     where mc.can_in_codigo = {0}
+                          and mes.mes_dt_creation >= (select min(m.mes_dt_creation)
+                                                     from messages_channels mc
+                                                     inner join messages m
+                                                                on mc.mes_in_code = m.mes_in_code
+                                                     where mc.cha_in_code = {0}
                                                        and mc.use_in_code = {1}
-                                                       and mc.mec_bo_visualizada = False
+                                                       and mc.mec_bo_viewed = False
                                                     )
-                        order by men.men_dt_criacao::timestamp without time zone desc
+                        order by mes.mes_dt_creation::timestamp without time zone desc
                     ) y
                 ) x
-                order by x.men_dt_criacao::timestamp without time zone desc'''.format(
+                order by x.mes_dt_creation::timestamp without time zone desc'''.format(
                     v_channel.code,
                     int(p_webSocketSession.cookies['user_id'].value)
                 )
@@ -869,17 +869,17 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
             for v_row2 in v_table2.Rows:
                 v_user = pscore.websocketServer.chat.classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
                 v_message = pscore.websocketServer.chat.classes.Message(
-                    int(v_row2['men_in_codigo']),
-                    v_row2['men_dt_criacao'],
-                    v_row2['men_dt_alteracao'],
+                    int(v_row2['mes_in_code']),
+                    v_row2['mes_dt_creation'],
+                    v_row2['mes_dt_update'],
                     v_user,
-                    int(v_row2['tim_in_codigo']),
-                    v_row2['men_st_conteudo'],
-                    v_row2['men_st_titulo'],
-                    v_row2['men_st_nomeanexo'],
-                    v_row2['mec_bo_visualizada'],
-                    v_row2['men_st_modosnippet'],
-                    v_row2['men_st_conteudooriginal']
+                    int(v_row2['tym_in_codigo']),
+                    v_row2['mes_st_content'],
+                    v_row2['mes_st_title'],
+                    v_row2['mes_st_attachmentname'],
+                    v_row2['mec_bo_viewed'],
+                    v_row2['mes_st_snippetmode'],
+                    v_row2['mes_st_originalcontent']
                 )
                 v_channel.messageList.append(v_message)
 
@@ -897,7 +897,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
               and use.perf_in_codigo <> 11
               and use.use_in_code in (select distinct usg.user_in_code
                                         from users_groups usg
-                                        where usg.gro_in_code in (select distinct ug.gru_in_codigo
+                                        where usg.gro_in_code in (select distinct ug.gro_in_code
                                                                     from users_groups ug
                                                                     where ug.use_in_code = {0}
                                                                    )
@@ -957,9 +957,9 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             ))
 
             v_messageType = int(v_database.ExecuteScalar('''
-                select men.tim_in_codigo
-                from pscore.mensagens men
-                where men.men_in_codigo = {0}'''.format(p_requestMessage['v_data']['forwardMessageCode'])
+                select mes.tym_in_codigo
+                from messages mes
+                where mes.mes_in_code = {0}'''.format(p_requestMessage['v_data']['forwardMessageCode'])
             ))
 
             if v_messageType == 2 or v_messageType == 4: #Pasted image or attachment
@@ -1298,37 +1298,37 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
 
         if v_messageCode != 0:
             v_table = v_database.Query('''
-                select men.men_in_codigo,
-                       to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                       to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                select mes.mes_in_code,
+                       to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                       to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                        use.use_in_code,
                        use.use_st_login,
-                       men.tim_in_codigo,
-                       coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                       coalesce(men.men_st_titulo, '') as men_st_titulo,
-                       coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                       coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                       coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                from pscore.mensagens men
+                       mes.tym_in_codigo,
+                       coalesce(mes.mes_st_content, '') as mes_st_content,
+                       coalesce(mes.mes_st_title, '') as mes_st_title,
+                       coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                       coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                       coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                from messages mes
                 inner join users use
-                           on men.use_in_code = use.use_in_code
-                where men.men_in_codigo = {0}'''.format(v_messageCode)
+                           on mes.use_in_code = use.use_in_code
+                where mes.mes_in_code = {0}'''.format(v_messageCode)
             )
 
             if len(v_table.Rows) > 0:
                 v_user = pscore.websocketServer.chat.classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
                 v_message = pscore.websocketServer.chat.classes.Message(
-                    int(v_table.Rows[0]['men_in_codigo']),
-                    v_table.Rows[0]['men_dt_criacao'],
-                    v_table.Rows[0]['men_dt_alteracao'],
+                    int(v_table.Rows[0]['mes_in_code']),
+                    v_table.Rows[0]['mes_dt_creation'],
+                    v_table.Rows[0]['mes_dt_update'],
                     v_user,
-                    int(v_table.Rows[0]['tim_in_codigo']),
-                    v_table.Rows[0]['men_st_conteudo'],
-                    v_table.Rows[0]['men_st_titulo'],
-                    v_table.Rows[0]['men_st_nomeanexo'],
+                    int(v_table.Rows[0]['tym_in_codigo']),
+                    v_table.Rows[0]['mes_st_content'],
+                    v_table.Rows[0]['mes_st_title'],
+                    v_table.Rows[0]['mes_st_attachmentname'],
                     False,
-                    v_table.Rows[0]['men_st_modosnippet'],
-                    v_table.Rows[0]['men_st_conteudooriginal']
+                    v_table.Rows[0]['mes_st_snippetmode'],
+                    v_table.Rows[0]['mes_st_originalcontent']
                 )
 
                 v_data = {
@@ -1384,26 +1384,26 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
 
         if p_requestMessage['v_data']['fromMessageCode'] is None:
             v_table = v_database.Query('''
-                select men.men_in_codigo,
-                       to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                       to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                select mes.mes_in_code,
+                       to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                       to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                        use.use_in_code,
                        use.use_st_login,
-                       men.tim_in_codigo,
-                       coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                       coalesce(men.men_st_titulo, '') as men_st_titulo,
-                       coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                       meg.meg_bo_visualizada,
-                       coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                       coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                from pscore.mensagens_grupos meg
-                inner join pscore.mensagens men
-                           on meg.men_in_codigo = men.men_in_codigo
+                       mes.tym_in_codigo,
+                       coalesce(mes.mes_st_content, '') as mes_st_content,
+                       coalesce(mes.mes_st_title, '') as mes_st_title,
+                       coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                       meg.meg_bo_viewed,
+                       coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                       coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                from messages_groups meg
+                inner join messages mes
+                           on meg.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on men.use_in_code = use.use_in_code
-                where meg.gru_in_codigo = {0}
+                           on mes.use_in_code = use.use_in_code
+                where meg.gro_in_code = {0}
                   and meg.use_in_code = {1}
-                order by men.men_dt_criacao::timestamp without time zone desc
+                order by mes.mes_dt_creation::timestamp without time zone desc
                 limit 20
                 offset {2}'''.format(
                     p_requestMessage['v_data']['groupCode'],
@@ -1413,29 +1413,29 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
             )
         else:
             v_table = v_database.Query('''
-                select men.men_in_codigo,
-                       to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                       to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                select mes.mes_in_code,
+                       to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                       to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                        use.use_in_code,
                        use.use_st_login,
-                       men.tim_in_codigo,
-                       coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                       coalesce(men.men_st_titulo, '') as men_st_titulo,
-                       coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                       meg.meg_bo_visualizada,
-                       coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                       coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                from pscore.mensagens_grupos meg
-                inner join pscore.mensagens men
-                           on meg.men_in_codigo = men.men_in_codigo
+                       mes.tym_in_codigo,
+                       coalesce(mes.mes_st_content, '') as mes_st_content,
+                       coalesce(mes.mes_st_title, '') as mes_st_title,
+                       coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                       meg.meg_bo_viewed,
+                       coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                       coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                from messages_groups meg
+                inner join messages mes
+                           on meg.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on men.use_in_code = use.use_in_code
-                where meg.gru_in_codigo = {0}
+                           on mes.use_in_code = use.use_in_code
+                where meg.gro_in_code = {0}
                   and meg.use_in_code = {1}
-                  and men.men_dt_criacao::timestamp without time zone >= (select m.men_dt_criacao
-                                                                          from pscore.mensagens m
-                                                                          where m.men_in_codigo = {3})
-                order by men.men_dt_criacao::timestamp without time zone desc
+                  and mes.mes_dt_creation::timestamp without time zone >= (select m.mes_dt_creation
+                                                                          from messages m
+                                                                          where m.mes_in_code = {3})
+                order by mes.mes_dt_creation::timestamp without time zone desc
                 offset {2}'''.format(
                     p_requestMessage['v_data']['groupCode'],
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -1448,17 +1448,17 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
             for v_row in v_table.Rows:
                 v_user = pscore.websocketServer.chat.classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
                 v_message = pscore.websocketServer.chat.classes.Message(
-                    int(v_row['men_in_codigo']),
-                    v_row['men_dt_criacao'],
-                    v_row['men_dt_alteracao'],
+                    int(v_row['mes_in_code']),
+                    v_row['mes_dt_creation'],
+                    v_row['mes_dt_update'],
                     v_user,
-                    int(v_row['tim_in_codigo']),
-                    v_row['men_st_conteudo'],
-                    v_row['men_st_titulo'],
-                    v_row['men_st_nomeanexo'],
-                    v_row['meg_bo_visualizada'],
-                    v_row['men_st_modosnippet'],
-                    v_row['men_st_conteudooriginal']
+                    int(v_row['tym_in_codigo']),
+                    v_row['mes_st_content'],
+                    v_row['mes_st_title'],
+                    v_row['mes_st_attachmentname'],
+                    v_row['meg_bo_viewed'],
+                    v_row['mes_st_snippetmode'],
+                    v_row['mes_st_originalcontent']
                 )
                 v_data['messageList'].append(v_message)
 
@@ -1877,9 +1877,9 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             ))
 
             v_messageType = int(v_database.ExecuteScalar('''
-                select men.tim_in_codigo
-                from pscore.mensagens men
-                where men.men_in_codigo = {0}'''.format(p_requestMessage['v_data']['forwardMessageCode'])
+                select mes.tym_in_codigo
+                from messages mes
+                where mes.mes_in_code = {0}'''.format(p_requestMessage['v_data']['forwardMessageCode'])
             ))
 
             if v_messageType == 2 or v_messageType == 4: #Pasted image or attachment
@@ -2218,37 +2218,37 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
 
         if v_messageCode != 0:
             v_table = v_database.Query('''
-                select men.men_in_codigo,
-                       to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                       to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                select mes.mes_in_code,
+                       to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                       to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                        use.use_in_code,
                        use.use_st_login,
-                       men.tim_in_codigo,
-                       coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                       coalesce(men.men_st_titulo, '') as men_st_titulo,
-                       coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                       coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                       coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                from pscore.mensagens men
+                       mes.tym_in_codigo,
+                       coalesce(mes.mes_st_content, '') as mes_st_content,
+                       coalesce(mes.mes_st_title, '') as mes_st_title,
+                       coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                       coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                       coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                from messages mes
                 inner join users use
-                           on men.use_in_code = use.use_in_code
-                where men.men_in_codigo = {0}'''.format(v_messageCode)
+                           on mes.use_in_code = use.use_in_code
+                where mes.mes_in_code = {0}'''.format(v_messageCode)
             )
 
             if len(v_table.Rows) > 0:
                 v_user = pscore.websocketServer.chat.classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
                 v_message = pscore.websocketServer.chat.classes.Message(
-                    int(v_table.Rows[0]['men_in_codigo']),
-                    v_table.Rows[0]['men_dt_criacao'],
-                    v_table.Rows[0]['men_dt_alteracao'],
+                    int(v_table.Rows[0]['mes_in_code']),
+                    v_table.Rows[0]['mes_dt_creation'],
+                    v_table.Rows[0]['mes_dt_update'],
                     v_user,
-                    int(v_table.Rows[0]['tim_in_codigo']),
-                    v_table.Rows[0]['men_st_conteudo'],
-                    v_table.Rows[0]['men_st_titulo'],
-                    v_table.Rows[0]['men_st_nomeanexo'],
+                    int(v_table.Rows[0]['tym_in_codigo']),
+                    v_table.Rows[0]['mes_st_content'],
+                    v_table.Rows[0]['mes_st_title'],
+                    v_table.Rows[0]['mes_st_attachmentname'],
                     False,
-                    v_table.Rows[0]['men_st_modosnippet'],
-                    v_table.Rows[0]['men_st_conteudooriginal']
+                    v_table.Rows[0]['mes_st_snippetmode'],
+                    v_table.Rows[0]['mes_st_originalcontent']
                 )
 
                 v_data = {
@@ -2304,26 +2304,26 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
 
         if p_requestMessage['v_data']['fromMessageCode'] is None:
             v_table = v_database.Query('''
-                select men.men_in_codigo,
-                       to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                       to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                select mes.mes_in_code,
+                       to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                       to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                        use.use_in_code,
                        use.use_st_login,
-                       men.tim_in_codigo,
-                       coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                       coalesce(men.men_st_titulo, '') as men_st_titulo,
-                       coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                       mec.mec_bo_visualizada,
-                       coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                       coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                from pscore.mensagens_canais mec
-                inner join pscore.mensagens men
-                           on mec.men_in_codigo = men.men_in_codigo
+                       mes.tym_in_codigo,
+                       coalesce(mes.mes_st_content, '') as mes_st_content,
+                       coalesce(mes.mes_st_title, '') as mes_st_title,
+                       coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                       mec.mec_bo_viewed,
+                       coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                       coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                from messages_channels mec
+                inner join messages mes
+                           on mec.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on men.use_in_code = use.use_in_code
-                where mec.can_in_codigo = {0}
+                           on mes.use_in_code = use.use_in_code
+                where mec.cha_in_code = {0}
                   and mec.use_in_code = {1}
-                order by men.men_dt_criacao::timestamp without time zone desc
+                order by mes.mes_dt_creation::timestamp without time zone desc
                 limit 20
                 offset {2}'''.format(
                     p_requestMessage['v_data']['channelCode'],
@@ -2333,29 +2333,29 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
             )
         else :
             v_table = v_database.Query('''
-                select men.men_in_codigo,
-                       to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                       to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                select mes.mes_in_code,
+                       to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                       to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                        use.use_in_code,
                        use.use_st_login,
-                       men.tim_in_codigo,
-                       coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                       coalesce(men.men_st_titulo, '') as men_st_titulo,
-                       coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                       mec.mec_bo_visualizada,
-                       coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                       coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                from pscore.mensagens_canais mec
-                inner join pscore.mensagens men
-                           on mec.men_in_codigo = men.men_in_codigo
+                       mes.tym_in_codigo,
+                       coalesce(mes.mes_st_content, '') as mes_st_content,
+                       coalesce(mes.mes_st_title, '') as mes_st_title,
+                       coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                       mec.mec_bo_viewed,
+                       coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                       coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                from messages_channels mec
+                inner join messages mes
+                           on mec.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on men.use_in_code = use.use_in_code
-                where mec.can_in_codigo = {0}
+                           on mes.use_in_code = use.use_in_code
+                where mec.cha_in_code = {0}
                   and mec.use_in_code = {1}
-                  and men.men_dt_criacao::timestamp without time zone >= (select m.men_dt_criacao
-                                                                          from pscore.mensagens m
-                                                                          where m.men_in_codigo = {3})
-                order by men.men_dt_criacao::timestamp without time zone desc
+                  and mes.mes_dt_creation::timestamp without time zone >= (select m.mes_dt_creation
+                                                                          from messages m
+                                                                          where m.mes_in_code = {3})
+                order by mes.mes_dt_creation::timestamp without time zone desc
                 offset {2}'''.format(
                     p_requestMessage['v_data']['channelCode'],
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -2368,17 +2368,17 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
             for v_row in v_table.Rows:
                 v_user = pscore.websocketServer.chat.classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
                 v_message = pscore.websocketServer.chat.classes.Message(
-                    int(v_row['men_in_codigo']),
-                    v_row['men_dt_criacao'],
-                    v_row['men_dt_alteracao'],
+                    int(v_row['mes_in_code']),
+                    v_row['mes_dt_creation'],
+                    v_row['mes_dt_update'],
                     v_user,
-                    int(v_row['tim_in_codigo']),
-                    v_row['men_st_conteudo'],
-                    v_row['men_st_titulo'],
-                    v_row['men_st_nomeanexo'],
-                    v_row['mec_bo_visualizada'],
-                    v_row['men_st_modosnippet'],
-                    v_row['men_st_conteudooriginal']
+                    int(v_row['tym_in_codigo']),
+                    v_row['mes_st_content'],
+                    v_row['mes_st_title'],
+                    v_row['mes_st_attachmentname'],
+                    v_row['mec_bo_viewed'],
+                    v_row['mes_st_snippetmode'],
+                    v_row['mes_st_originalcontent']
                 )
                 v_data['messageList'].append(v_message)
 
@@ -2999,51 +2999,51 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
             select *
             from (
                 select 2 as type,
-                       meg.gru_in_codigo as code,
-                       men.men_in_codigo,
-                       to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                       to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                       meg.gro_in_code as code,
+                       mes.mes_in_code,
+                       to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                       to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                        use.use_in_code,
                        use.use_st_login,
-                       men.tim_in_codigo,
-                       coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                       coalesce(men.men_st_titulo, '') as men_st_titulo,
-                       coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                       meg.meg_bo_visualizada as visualizada,
-                       coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                       regexp_replace(coalesce(men.men_st_conteudooriginal, ''), '#start_mentioned_message#.*#end_mentioned_message#', '') as men_st_conteudooriginal
-                from pscore.mensagens_grupos meg
-                inner join pscore.mensagens men
-                           on meg.men_in_codigo = men.men_in_codigo
+                       mes.tym_in_codigo,
+                       coalesce(mes.mes_st_content, '') as mes_st_content,
+                       coalesce(mes.mes_st_title, '') as mes_st_title,
+                       coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                       meg.meg_bo_viewed as visualizada,
+                       coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                       regexp_replace(coalesce(mes.mes_st_originalcontent, ''), '#start_mentioned_message#.*#end_mentioned_message#', '') as mes_st_originalcontent
+                from messages_groups meg
+                inner join messages mes
+                           on meg.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on men.use_in_code = use.use_in_code
+                           on mes.use_in_code = use.use_in_code
                 where meg.use_in_code = {0}
 
                 union
 
                 select 1 as type,
-                       mec.can_in_codigo as code,
-                       men.men_in_codigo,
-                       to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                       to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                       mec.cha_in_code as code,
+                       mes.mes_in_code,
+                       to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                       to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                        use.use_in_code,
                        use.use_st_login,
-                       men.tim_in_codigo,
-                       coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                       coalesce(men.men_st_titulo, '') as men_st_titulo,
-                       coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                       mec.mec_bo_visualizada as visualizada,
-                       coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                       regexp_replace(coalesce(men.men_st_conteudooriginal, ''), '#start_mentioned_message#.*#end_mentioned_message#', '') as men_st_conteudooriginal
-                from pscore.mensagens_canais mec
-                inner join pscore.mensagens men
-                           on mec.men_in_codigo = men.men_in_codigo
+                       mes.tym_in_codigo,
+                       coalesce(mes.mes_st_content, '') as mes_st_content,
+                       coalesce(mes.mes_st_title, '') as mes_st_title,
+                       coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                       mec.mec_bo_viewed as visualizada,
+                       coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                       regexp_replace(coalesce(mes.mes_st_originalcontent, ''), '#start_mentioned_message#.*#end_mentioned_message#', '') as mes_st_originalcontent
+                from messages_channels mec
+                inner join messages mes
+                           on mec.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on men.use_in_code = use.use_in_code
+                           on mes.use_in_code = use.use_in_code
                 where mec.use_in_code = {0}
             ) x
-            where x.men_st_conteudooriginal like '%{1}%'
-            order by x.men_dt_criacao::timestamp without time zone desc'''.format(
+            where x.mes_st_originalcontent like '%{1}%'
+            order by x.mes_dt_creation::timestamp without time zone desc'''.format(
                 int(p_webSocketSession.cookies['user_id'].value),
                 p_requestMessage['v_data']['textPattern'].replace("'", "''")
             )
@@ -3057,17 +3057,17 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
         for v_row in v_table.Rows:
             v_user = pscore.websocketServer.chat.classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
             v_message = pscore.websocketServer.chat.classes.Message(
-                int(v_row['men_in_codigo']),
-                v_row['men_dt_criacao'],
-                v_row['men_dt_alteracao'],
+                int(v_row['mes_in_code']),
+                v_row['mes_dt_creation'],
+                v_row['mes_dt_update'],
                 v_user,
-                int(v_row['tim_in_codigo']),
-                v_row['men_st_conteudo'],
-                v_row['men_st_titulo'],
-                v_row['men_st_nomeanexo'],
+                int(v_row['tym_in_codigo']),
+                v_row['mes_st_content'],
+                v_row['mes_st_title'],
+                v_row['mes_st_attachmentname'],
                 v_row['visualizada'],
-                v_row['men_st_modosnippet'],
-                v_row['men_st_conteudooriginal']
+                v_row['mes_st_snippetmode'],
+                v_row['mes_st_originalcontent']
             )
             v_data['messageList'].append({
                 'message': v_message,
@@ -3277,37 +3277,37 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
         if v_messageCode != 0:
             if p_requestMessage['v_data']['destinyType'] == 1: #Channel
                 v_table = v_database.Query('''
-                    select men.men_in_codigo,
-                           to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                           to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                    select mes.mes_in_code,
+                           to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                           to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                            use.use_in_code,
                            use.use_st_login,
-                           men.tim_in_codigo,
-                           coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                           coalesce(men.men_st_titulo, '') as men_st_titulo,
-                           coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                           coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                           coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                    from pscore.mensagens men
+                           mes.tym_in_codigo,
+                           coalesce(mes.mes_st_content, '') as mes_st_content,
+                           coalesce(mes.mes_st_title, '') as mes_st_title,
+                           coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                           coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                           coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                    from messages mes
                     inner join users use
-                               on men.use_in_code = use.use_in_code
-                    where men.men_in_codigo = {0}'''.format(v_messageCode)
+                               on mes.use_in_code = use.use_in_code
+                    where mes.mes_in_code = {0}'''.format(v_messageCode)
                 )
 
                 if len(v_table.Rows) > 0:
                     v_user = pscore.websocketServer.chat.classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
                     v_message = pscore.websocketServer.chat.classes.Message(
-                        int(v_table.Rows[0]['men_in_codigo']),
-                        v_table.Rows[0]['men_dt_criacao'],
-                        v_table.Rows[0]['men_dt_alteracao'],
+                        int(v_table.Rows[0]['mes_in_code']),
+                        v_table.Rows[0]['mes_dt_creation'],
+                        v_table.Rows[0]['mes_dt_update'],
                         v_user,
-                        int(v_table.Rows[0]['tim_in_codigo']),
-                        v_table.Rows[0]['men_st_conteudo'],
-                        v_table.Rows[0]['men_st_titulo'],
-                        v_table.Rows[0]['men_st_nomeanexo'],
+                        int(v_table.Rows[0]['tym_in_codigo']),
+                        v_table.Rows[0]['mes_st_content'],
+                        v_table.Rows[0]['mes_st_title'],
+                        v_table.Rows[0]['mes_st_attachmentname'],
                         False,
-                        v_table.Rows[0]['men_st_modosnippet'],
-                        v_table.Rows[0]['men_st_conteudooriginal']
+                        v_table.Rows[0]['mes_st_snippetmode'],
+                        v_table.Rows[0]['mes_st_originalcontent']
                     )
 
                     v_data = {
@@ -3324,37 +3324,37 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
 
             elif p_requestMessage['v_data']['destinyType'] == 2: #Group
                 v_table = v_database.Query('''
-                    select men.men_in_codigo,
-                           to_char(men.men_dt_criacao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_criacao,
-                           to_char(men.men_dt_alteracao, 'DD/MM/YYYY HH24:MI:SS') as men_dt_alteracao,
+                    select mes.mes_in_code,
+                           to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
+                           to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
                            use.use_in_code,
                            use.use_st_login,
-                           men.tim_in_codigo,
-                           coalesce(men.men_st_conteudo, '') as men_st_conteudo,
-                           coalesce(men.men_st_titulo, '') as men_st_titulo,
-                           coalesce(men.men_st_nomeanexo, '') as men_st_nomeanexo,
-                           coalesce(men.men_st_modosnippet, '') as men_st_modosnippet,
-                           coalesce(men.men_st_conteudooriginal, '') as men_st_conteudooriginal
-                    from pscore.mensagens men
+                           mes.tym_in_codigo,
+                           coalesce(mes.mes_st_content, '') as mes_st_content,
+                           coalesce(mes.mes_st_title, '') as mes_st_title,
+                           coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
+                           coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
+                           coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
+                    from messages mes
                     inner join users use
-                               on men.use_in_code = use.use_in_code
-                    where men.men_in_codigo = {0}'''.format(v_messageCode)
+                               on mes.use_in_code = use.use_in_code
+                    where mes.mes_in_code = {0}'''.format(v_messageCode)
                 )
 
                 if len(v_table.Rows) > 0:
                     v_user = pscore.websocketServer.chat.classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
                     v_message = pscore.websocketServer.chat.classes.Message(
-                        int(v_table.Rows[0]['men_in_codigo']),
-                        v_table.Rows[0]['men_dt_criacao'],
-                        v_table.Rows[0]['men_dt_alteracao'],
+                        int(v_table.Rows[0]['mes_in_code']),
+                        v_table.Rows[0]['mes_dt_creation'],
+                        v_table.Rows[0]['mes_dt_update'],
                         v_user,
-                        int(v_table.Rows[0]['tim_in_codigo']),
-                        v_table.Rows[0]['men_st_conteudo'],
-                        v_table.Rows[0]['men_st_titulo'],
-                        v_table.Rows[0]['men_st_nomeanexo'],
+                        int(v_table.Rows[0]['tym_in_codigo']),
+                        v_table.Rows[0]['mes_st_content'],
+                        v_table.Rows[0]['mes_st_title'],
+                        v_table.Rows[0]['mes_st_attachmentname'],
                         False,
-                        v_table.Rows[0]['men_st_modosnippet'],
-                        v_table.Rows[0]['men_st_conteudooriginal']
+                        v_table.Rows[0]['mes_st_snippetmode'],
+                        v_table.Rows[0]['mes_st_originalcontent']
                     )
 
                     v_data = {

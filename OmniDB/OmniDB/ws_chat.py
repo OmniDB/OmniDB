@@ -117,9 +117,16 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         finally:
             v_chatSessionsLock.release()
 
-    def on_message(self, message):
+    def on_message(self, p_requestMessage):
         """Method executed when a websocket connection sends a message.
         """
+
+        v_responseMessage = {
+            'v_code': 0,
+            'v_context_code': -1,
+            'v_error': False,
+            'v_data': ''
+        }
 
         try:
             #Loads message from json.
@@ -128,12 +135,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             v_contextCode = v_jsonObject['v_context_code']
             v_data = v_jsonObject['v_data']
 
-            v_responseMessage = {
-                'v_code': 0,
-                'v_context_code': v_contextCode,
-                'v_error': False,
-                'v_data': ''
-            }
+            v_responseMessage['v_context_code'] = v_contextCode
 
             #Check if a new connection.
             if v_code == request.Login.value:
@@ -203,8 +205,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 SendMessageAsBot(self, v_jsonObject, v_responseMessage)
         except Exception as exc:
             logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
-            p_responseMessage['v_error'] = True
-            p_responseMessage['v_data'] = 'An expeted error has occurred while dealing with your request. Please, contact system administrator.'
+            v_responseMessage['v_error'] = True
+            v_responseMessage['v_data'] = 'An expeted error has occurred while dealing with your request. Please, contact system administrator.'
             SendToClient(self, v_responseMessage, True)
             return
 
@@ -236,7 +238,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
             SendToAllClients(v_responseMessage)
 
-    def check_origin(self, origin):
+    def check_origin(self, p_origin):
         """Ignore origin problems.
         """
         return True
@@ -294,11 +296,11 @@ def GetUsersToSendMessageByGroupCode(p_webSocketSession, p_groupCode):
     v_userList = []
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_table = v_database.Query('''
-            select usg.user_in_code
+            select usg.use_in_code
             from users_groups usg
             where usg.gro_in_code = {0}'''.format(p_groupCode)
         )
@@ -309,7 +311,7 @@ def GetUsersToSendMessageByGroupCode(p_webSocketSession, p_groupCode):
         return None
 
     for v_row in v_table.Rows:
-        v_userList.append(v_row['user_in_code'])
+        v_userList.append(v_row['use_in_code'])
 
     return v_userList
 
@@ -328,14 +330,14 @@ def GetUsersLoginByGroupCode(p_webSocketSession, p_groupCode):
     v_userDict = {}
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_table = v_database.Query('''
-            select use.use_st_login
+            select use.user_name as use_st_login
             from users_groups usg
             inner join users use
-                       on usg.user_in_code = use.use_in_code
+                       on usg.use_in_code = use.user_id
             where usg.gro_in_code = {0}'''.format(p_groupCode)
         )
 
@@ -364,12 +366,12 @@ def GetUsersToSendMessageByChannelCode(p_webSocketSession, p_channelCode):
     v_userList = []
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_table = v_database.Query('''
-            select usc.user_in_code
-            from pscore.users_channels usc
+            select usc.use_in_code
+            from users_channels usc
             where usc.cha_in_code = {0}'''.format(p_channelCode)
         )
 
@@ -379,7 +381,7 @@ def GetUsersToSendMessageByChannelCode(p_webSocketSession, p_channelCode):
         return None
 
     for v_row in v_table.Rows:
-        v_userList.append(v_row['user_in_code'])
+        v_userList.append(v_row['use_in_code'])
 
     return v_userList
 
@@ -398,14 +400,14 @@ def GetUsersLoginByChannelCode(p_webSocketSession, p_channelCode):
     v_userDict = {}
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_table = v_database.Query('''
-            select use.use_st_login
-            from pscore.users_channels usc
+            select use.user_name as use_st_login
+            from users_channels usc
             inner join users use
-                       on usc.user_in_code = use.use_in_code
+                       on usc.use_in_code = use.user_id
             where usc.cha_in_code = {0}'''.format(p_channelCode)
         )
 
@@ -428,13 +430,13 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
             p_userCode (int): the user code.
 
         Returns:
-            a pscore.websocketServer.chat.classes.Channel instance or None.
+            a classes.Channel instance or None.
     """
 
     v_channel = None
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_table = v_database.Query('''
@@ -443,9 +445,9 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
                    cha.cha_bo_private,
                    usc.usc_bo_silenced
             from channels cha
-            inner join pscore.users_channels usc
+            inner join users_channels usc
                        on cha.cha_in_code = usc.cha_in_code
-            where usc.user_in_code = {0}
+            where usc.use_in_code = {0}
               and cha.cha_in_code = {1}'''.format(
                 p_userCode,
                 p_channelCode
@@ -455,19 +457,19 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
         if len(v_table.Rows) == 1:
             v_row = v_table.Rows[0]
 
-            v_channel = pscore.websocketServer.chat.classes.Channel(v_row['cha_in_code'], v_row['cha_st_name'], v_row['usc_bo_silenced'], [], [], v_row['cha_bo_private'])
+            v_channel = classes.Channel(v_row['cha_in_code'], v_row['cha_st_name'], v_row['usc_bo_silenced'], [], [], v_row['cha_bo_private'])
 
             v_table2 = v_database.Query('''
-                select use.use_in_code,
-                       use.use_st_login
-                from pscore.users_channels usc
+                select use.user_id as use_in_code,
+                       use.user_name as use_st_login
+                from users_channels usc
                 inner join users use
-                           on usc.user_in_code = use.use_in_code
+                           on usc.use_in_code = use.user_id
                 where usc.cha_in_code = {0}'''.format(v_channel.code)
             )
 
             for v_row2 in v_table2.Rows:
-                v_user = pscore.websocketServer.chat.classes.User(v_row2['use_in_code'], v_row2['use_st_login'], v_row2['use_st_login'], None)
+                v_user = classes.User(v_row2['use_in_code'], v_row2['use_st_login'], v_row2['use_st_login'], None)
                 v_channel.userList.append(v_user)
 
             v_table2 = v_database.Query('''
@@ -478,9 +480,9 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
                         select mes.mes_in_code,
                                to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                                to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                               use.use_in_code,
-                               use.use_st_login,
-                               mes.tym_in_codigo,
+                               use.user_id as use_in_code,
+                               use.user_name as use_st_login,
+                               mes.met_in_code,
                                coalesce(mes.mes_st_content, '') as mes_st_content,
                                coalesce(mes.mes_st_title, '') as mes_st_title,
                                coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -491,7 +493,7 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
                         inner join messages mes
                                    on mec.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on mes.use_in_code = use.use_in_code
+                                   on mes.use_in_code = use.user_id
                         where mec.cha_in_code = {0}
                           and mec.use_in_code = {1}
                         order by mes.mes_dt_creation::timestamp without time zone desc
@@ -505,9 +507,9 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
                         select mes.mes_in_code,
                                to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                                to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                               use.use_in_code,
-                               use.use_st_login,
-                               mes.tym_in_codigo,
+                               use.user_id as use_in_code,
+                               use.user_name as use_st_login,
+                               mes.met_in_code,
                                coalesce(mes.mes_st_content, '') as mes_st_content,
                                coalesce(mes.mes_st_title, '') as mes_st_title,
                                coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -518,7 +520,7 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
                         inner join messages mes
                                    on mec.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on mes.use_in_code = use.use_in_code
+                                   on mes.use_in_code = use.user_id
                         where mec.cha_in_code = {0}
                           and mec.use_in_code = {1}
                           and mes.mes_dt_creation >= (select min(m.mes_dt_creation)
@@ -539,13 +541,13 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
             )
 
             for v_row2 in v_table2.Rows:
-                v_user = pscore.websocketServer.chat.classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
-                v_message = pscore.websocketServer.chat.classes.Message(
+                v_user = classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
+                v_message = classes.Message(
                     int(v_row2['mes_in_code']),
                     v_row2['mes_dt_creation'],
                     v_row2['mes_dt_update'],
                     v_user,
-                    int(v_row2['tym_in_codigo']),
+                    int(v_row2['met_in_code']),
                     v_row2['mes_st_content'],
                     v_row2['mes_st_title'],
                     v_row2['mes_st_attachmentname'],
@@ -586,37 +588,19 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
 
     if 'user_id' not in p_webSocketSession.cookies:
         try:
-            v_database = p_websocketSession.session.v_omnidb_database.v_connection
+            v_database = p_webSocketSession.session.v_omnidb_database.v_connection
             v_database.Open()
 
-            v_userId = v_database.ExecuteScalar('''
-                select ses.use_in_code
-                from pscore.sessoes ses
-                where ses.ses_uuid_key = '{0}';'''.format(p_webSocketSession.cookies['session_key'].value)
-            )
-            #TODO verificar isso
+            v_userId = p_webSocketSession.session.v_user_id
             p_webSocketSession.cookies['user_id'] = v_userId
 
             v_userName = v_database.ExecuteScalar('''
-                select use.use_st_login
+                select use.user_name
                 from users use
-                where use.use_in_code = {0};'''.format(v_userId)
+                where use.user_id = {0};'''.format(v_userId)
             )
 
             p_webSocketSession.cookies['user_name'] = v_userName
-
-            v_sessionId = v_database.ExecuteScalar('''
-                select ses.ses_in_codigo
-                from pscore.sessoes ses
-                where ses.ses_uuid_key = '{0}';'''.format(p_webSocketSession.cookies['session_key'].value)
-            )
-
-            p_webSocketSession.cookies['user_session_id'] = v_sessionId
-
-            if v_table.Rows[0]['perf_bo_acesso_limitado'] == 'N':
-                p_webSocketSession.cookies['user_limited_access'] = 'false'
-            else:
-                p_webSocketSession.cookies['user_limited_access'] = 'true'
 
             v_database.Close()
         except Spartacus.Database.Exception as exc:
@@ -655,7 +639,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
         v_chatSessionsLock.release()
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         #Get user group list
@@ -665,23 +649,23 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
             from groups gro
             inner join users_groups usg
                        on gro.gro_in_code = usg.gro_in_code
-            where usg.user_in_code = {0}'''.format(int(p_webSocketSession.cookies['user_id'].value))
+            where usg.use_in_code = {0}'''.format(int(p_webSocketSession.cookies['user_id'].value))
         )
 
         for v_row in v_table.Rows:
-            v_group = pscore.websocketServer.chat.classes.Group(v_row['gro_in_code'], v_row['usg_bo_silenced'], [], [])
+            v_group = classes.Group(v_row['gro_in_code'], v_row['usg_bo_silenced'], [], [])
 
             v_table2 = v_database.Query('''
-                select use.use_in_code,
-                       use.use_st_login
+                select use.user_id as use_in_code,
+                       use.user_name as use_st_login
                 from users_groups usg
                 inner join users use
-                           on usg.user_in_code = use.use_in_code
+                           on usg.use_in_code = use.user_id
                 where usg.gro_in_code = {0}'''.format(v_group.code)
             )
 
             for v_row2 in v_table2.Rows:
-                v_user = pscore.websocketServer.chat.classes.User(v_row2['use_in_code'], v_row2['use_st_login'], v_row2['use_st_login'], None)
+                v_user = classes.User(v_row2['use_in_code'], v_row2['use_st_login'], v_row2['use_st_login'], None)
                 v_group.userList.append(v_user)
 
             v_table2 = v_database.Query('''
@@ -692,9 +676,9 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                         select mes.mes_in_code,
                                to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                                to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                               use.use_in_code,
-                               use.use_st_login,
-                               mes.tym_in_codigo,
+                               use.user_id as use_in_code,
+                               use.user_name as use_st_login,
+                               mes.met_in_code,
                                coalesce(mes.mes_st_content, '') as mes_st_content,
                                coalesce(mes.mes_st_title, '') as mes_st_title,
                                coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -705,7 +689,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                         inner join messages mes
                                    on meg.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on mes.use_in_code = use.use_in_code
+                                   on mes.use_in_code = use.user_id
                         where meg.gro_in_code = {0}
                           and meg.use_in_code = {1}
                         order by mes.mes_dt_creation::timestamp without time zone desc
@@ -719,9 +703,9 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                         select mes.mes_in_code,
                                to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                                to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                               use.use_in_code,
-                               use.use_st_login,
-                               mes.tym_in_codigo,
+                               use.user_id as use_in_code,
+                               use.user_name as use_st_login,
+                               mes.met_in_code,
                                coalesce(mes.mes_st_content, '') as mes_st_content,
                                coalesce(mes.mes_st_title, '') as mes_st_title,
                                coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -732,7 +716,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                         inner join messages mes
                                    on meg.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on mes.use_in_code = use.use_in_code
+                                   on mes.use_in_code = use.user_id
                         where meg.gro_in_code = {0}
                           and meg.use_in_code = {1}
                           and mes.mes_dt_creation >= (select min(m.mes_dt_creation)
@@ -753,13 +737,13 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
 
             for v_row2 in v_table2.Rows:
-                v_user = pscore.websocketServer.chat.classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
-                v_message = pscore.websocketServer.chat.classes.Message(
+                v_user = classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
+                v_message = classes.Message(
                     int(v_row2['mes_in_code']),
                     v_row2['mes_dt_creation'],
                     v_row2['mes_dt_update'],
                     v_user,
-                    int(v_row2['tym_in_codigo']),
+                    int(v_row2['met_in_code']),
                     v_row2['mes_st_content'],
                     v_row2['mes_st_title'],
                     v_row2['mes_st_attachmentname'],
@@ -778,25 +762,25 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                    cha.cha_bo_private,
                    usc.usc_bo_silenced
             from channels cha
-            inner join pscore.users_channels usc
+            inner join users_channels usc
                        on cha.cha_in_code = usc.cha_in_code
-            where usc.user_in_code = {0}'''.format(int(p_webSocketSession.cookies['user_id'].value))
+            where usc.use_in_code = {0}'''.format(int(p_webSocketSession.cookies['user_id'].value))
         )
 
         for v_row in v_table.Rows:
-            v_channel = pscore.websocketServer.chat.classes.Channel(v_row['cha_in_code'], v_row['cha_st_name'], v_row['usc_bo_silenced'], [], [], v_row['cha_bo_private'])
+            v_channel = classes.Channel(v_row['cha_in_code'], v_row['cha_st_name'], v_row['usc_bo_silenced'], [], [], v_row['cha_bo_private'])
 
             v_table2 = v_database.Query('''
-                select use.use_in_code,
-                       use.use_st_login
-                from pscore.users_channels usc
+                select use.user_id as use_in_code,
+                       use.user_name as use_st_login
+                from users_channels usc
                 inner join users use
-                           on usc.user_in_code = use.use_in_code
+                           on usc.use_in_code = use.user_id
                 where usc.cha_in_code = {0}'''.format(v_channel.code)
             )
 
             for v_row2 in v_table2.Rows:
-                v_user = pscore.websocketServer.chat.classes.User(v_row2['use_in_code'], v_row2['use_st_login'], v_row2['use_st_login'], None)
+                v_user = classes.User(v_row2['use_in_code'], v_row2['use_st_login'], v_row2['use_st_login'], None)
                 v_channel.userList.append(v_user)
 
             v_table2 = v_database.Query('''
@@ -807,9 +791,9 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                         select mes.mes_in_code,
                                to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                                to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                               use.use_in_code,
-                               use.use_st_login,
-                               mes.tym_in_codigo,
+                               use.user_id as use_in_code,
+                               use.user_name as use_st_login,
+                               mes.met_in_code,
                                coalesce(mes.mes_st_content, '') as mes_st_content,
                                coalesce(mes.mes_st_title, '') as mes_st_title,
                                coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -820,7 +804,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                         inner join messages mes
                                    on mec.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on mes.use_in_code = use.use_in_code
+                                   on mes.use_in_code = use.user_id
                         where mec.cha_in_code = {0}
                           and mec.use_in_code = {1}
                         order by mes.mes_dt_creation::timestamp without time zone desc
@@ -834,9 +818,9 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                         select mes.mes_in_code,
                                to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                                to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                               use.use_in_code,
-                               use.use_st_login,
-                               mes.tym_in_codigo,
+                               use.user_id as use_in_code,
+                               use.user_name as use_st_login,
+                               mes.met_in_code,
                                coalesce(mes.mes_st_content, '') as mes_st_content,
                                coalesce(mes.mes_st_title, '') as mes_st_title,
                                coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -847,7 +831,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                         inner join messages mes
                                    on mec.mes_in_code = mes.mes_in_code
                         inner join users use
-                                   on mes.use_in_code = use.use_in_code
+                                   on mes.use_in_code = use.user_id
                         where mec.cha_in_code = {0}
                           and mec.use_in_code = {1}
                           and mes.mes_dt_creation >= (select min(m.mes_dt_creation)
@@ -868,13 +852,13 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
 
             for v_row2 in v_table2.Rows:
-                v_user = pscore.websocketServer.chat.classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
-                v_message = pscore.websocketServer.chat.classes.Message(
+                v_user = classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
+                v_message = classes.Message(
                     int(v_row2['mes_in_code']),
                     v_row2['mes_dt_creation'],
                     v_row2['mes_dt_update'],
                     v_user,
-                    int(v_row2['tym_in_codigo']),
+                    int(v_row2['met_in_code']),
                     v_row2['mes_st_content'],
                     v_row2['mes_st_title'],
                     v_row2['mes_st_attachmentname'],
@@ -887,16 +871,15 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_data['channelList'].append(v_channel)
 
         v_table = v_database.Query('''
-            select use.use_in_code,
-                   use.use_st_login
-                   stc.stc_in_codigo,
-                   stc.stc_st_nome
+            select use.user_id as use_in_code,
+                   use.user_name as use_st_login,
+                   coalesce(stc.stc_in_code, 1) as stc_in_code,
+                   stc.stc_st_name
             from users use
-            inner join pscore.status_chat stc
-                       on coalesce(use.stc_in_codigo, 1) = stc.stc_in_codigo
-            where use.usu_bo_ativo = 'S'
-              and use.perf_in_codigo <> 11
-              and use.use_in_code in (select distinct usg.user_in_code
+            inner join status_chat stc
+                       on coalesce(use.stc_in_code, 1) = stc.stc_in_code
+            where coalesce(use.use_bo_bot, 0) = 0
+              and use.user_id in (select distinct usg.use_in_code
                                         from users_groups usg
                                         where usg.gro_in_code in (select distinct ug.gro_in_code
                                                                     from users_groups ug
@@ -907,14 +890,14 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
 
                                         select {0} as use_in_code
                                        )
-            order by use.use_st_login'''.format(
+            order by use.user_name'''.format(
                 int(p_webSocketSession.cookies['user_id'].value)
             )
         )
 
         for v_row in v_table.Rows:
-            v_status = pscore.websocketServer.chat.classes.Status(v_row['stc_in_codigo'], v_row['stc_st_nome'])
-            v_user = pscore.websocketServer.chat.classes.User(v_row['use_in_code'], v_row['use_st_login'], v_row['use_st_login'], v_status)
+            v_status = classes.Status(v_row['stc_in_code'], v_row['stc_st_name'])
+            v_user = classes.User(v_row['use_in_code'], v_row['use_st_login'], v_row['use_st_login'], v_status)
             v_data['userList'].append(v_user)
 
         v_database.Close()
@@ -941,7 +924,7 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
     v_messageCode = 0
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         if p_requestMessage['v_data']['messageType'] == 0: #Forward message
@@ -958,7 +941,7 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             ))
 
             v_messageType = int(v_database.ExecuteScalar('''
-                select mes.tym_in_codigo
+                select mes.met_in_code
                 from messages mes
                 where mes.mes_in_code = {0}'''.format(p_requestMessage['v_data']['forwardMessageCode'])
             ))
@@ -1302,9 +1285,9 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 select mes.mes_in_code,
                        to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                        to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                       use.use_in_code,
-                       use.use_st_login,
-                       mes.tym_in_codigo,
+                       use.user_id as use_in_code,
+                       use.user_name as use_st_login,
+                       mes.met_in_code,
                        coalesce(mes.mes_st_content, '') as mes_st_content,
                        coalesce(mes.mes_st_title, '') as mes_st_title,
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -1312,18 +1295,18 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                        coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
                 from messages mes
                 inner join users use
-                           on mes.use_in_code = use.use_in_code
+                           on mes.use_in_code = use.user_id
                 where mes.mes_in_code = {0}'''.format(v_messageCode)
             )
 
             if len(v_table.Rows) > 0:
-                v_user = pscore.websocketServer.chat.classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
-                v_message = pscore.websocketServer.chat.classes.Message(
+                v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
+                v_message = classes.Message(
                     int(v_table.Rows[0]['mes_in_code']),
                     v_table.Rows[0]['mes_dt_creation'],
                     v_table.Rows[0]['mes_dt_update'],
                     v_user,
-                    int(v_table.Rows[0]['tym_in_codigo']),
+                    int(v_table.Rows[0]['met_in_code']),
                     v_table.Rows[0]['mes_st_content'],
                     v_table.Rows[0]['mes_st_title'],
                     v_table.Rows[0]['mes_st_attachmentname'],
@@ -1372,7 +1355,7 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_data = {
@@ -1388,9 +1371,9 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
                 select mes.mes_in_code,
                        to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                        to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                       use.use_in_code,
-                       use.use_st_login,
-                       mes.tym_in_codigo,
+                       use.user_id as use_in_code,
+                       use.user_name as use_st_login,
+                       mes.met_in_code,
                        coalesce(mes.mes_st_content, '') as mes_st_content,
                        coalesce(mes.mes_st_title, '') as mes_st_title,
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -1401,7 +1384,7 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
                 inner join messages mes
                            on meg.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on mes.use_in_code = use.use_in_code
+                           on mes.use_in_code = use.user_id
                 where meg.gro_in_code = {0}
                   and meg.use_in_code = {1}
                 order by mes.mes_dt_creation::timestamp without time zone desc
@@ -1417,9 +1400,9 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
                 select mes.mes_in_code,
                        to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                        to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                       use.use_in_code,
-                       use.use_st_login,
-                       mes.tym_in_codigo,
+                       use.user_id as use_in_code,
+                       use.user_name as use_st_login,
+                       mes.met_in_code,
                        coalesce(mes.mes_st_content, '') as mes_st_content,
                        coalesce(mes.mes_st_title, '') as mes_st_title,
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -1430,7 +1413,7 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
                 inner join messages mes
                            on meg.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on mes.use_in_code = use.use_in_code
+                           on mes.use_in_code = use.user_id
                 where meg.gro_in_code = {0}
                   and meg.use_in_code = {1}
                   and mes.mes_dt_creation::timestamp without time zone >= (select m.mes_dt_creation
@@ -1447,13 +1430,13 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
 
         if v_table is not None:
             for v_row in v_table.Rows:
-                v_user = pscore.websocketServer.chat.classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
-                v_message = pscore.websocketServer.chat.classes.Message(
+                v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
+                v_message = classes.Message(
                     int(v_row['mes_in_code']),
                     v_row['mes_dt_creation'],
                     v_row['mes_dt_update'],
                     v_user,
-                    int(v_row['tym_in_codigo']),
+                    int(v_row['met_in_code']),
                     v_row['mes_st_content'],
                     v_row['mes_st_title'],
                     v_row['mes_st_attachmentname'],
@@ -1491,7 +1474,7 @@ def MarkGroupMessagesAsRead(p_webSocketSession, p_requestMessage, p_responseMess
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         for i in range(0, len(p_requestMessage['v_data']['messageCodeList'])):
@@ -1576,7 +1559,7 @@ def ChangeGroupSilenceSettings(p_webSocketSession, p_requestMessage, p_responseM
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_database.Execute('''
@@ -1618,7 +1601,7 @@ def RemoveGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_database.Execute('''
@@ -1655,7 +1638,7 @@ def UpdateGroupSnippetMessage(p_webSocketSession, p_requestMessage, p_responseMe
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_updatedAt = v_database.ExecuteScalar('''
@@ -1700,7 +1683,7 @@ def UpdateGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_content = p_requestMessage['v_data']['messageContent']
@@ -1861,7 +1844,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
     v_messageCode = 0
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         if p_requestMessage['v_data']['messageType'] == 0: #Forward message
@@ -1878,7 +1861,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             ))
 
             v_messageType = int(v_database.ExecuteScalar('''
-                select mes.tym_in_codigo
+                select mes.met_in_code
                 from messages mes
                 where mes.mes_in_code = {0}'''.format(p_requestMessage['v_data']['forwardMessageCode'])
             ))
@@ -2222,9 +2205,9 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 select mes.mes_in_code,
                        to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                        to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                       use.use_in_code,
-                       use.use_st_login,
-                       mes.tym_in_codigo,
+                       use.user_id as use_in_code,
+                       use.user_name as use_st_login,
+                       mes.met_in_code,
                        coalesce(mes.mes_st_content, '') as mes_st_content,
                        coalesce(mes.mes_st_title, '') as mes_st_title,
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -2232,18 +2215,18 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                        coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
                 from messages mes
                 inner join users use
-                           on mes.use_in_code = use.use_in_code
+                           on mes.use_in_code = use.user_id
                 where mes.mes_in_code = {0}'''.format(v_messageCode)
             )
 
             if len(v_table.Rows) > 0:
-                v_user = pscore.websocketServer.chat.classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
-                v_message = pscore.websocketServer.chat.classes.Message(
+                v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
+                v_message = classes.Message(
                     int(v_table.Rows[0]['mes_in_code']),
                     v_table.Rows[0]['mes_dt_creation'],
                     v_table.Rows[0]['mes_dt_update'],
                     v_user,
-                    int(v_table.Rows[0]['tym_in_codigo']),
+                    int(v_table.Rows[0]['met_in_code']),
                     v_table.Rows[0]['mes_st_content'],
                     v_table.Rows[0]['mes_st_title'],
                     v_table.Rows[0]['mes_st_attachmentname'],
@@ -2292,7 +2275,7 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_data = {
@@ -2308,9 +2291,9 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
                 select mes.mes_in_code,
                        to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                        to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                       use.use_in_code,
-                       use.use_st_login,
-                       mes.tym_in_codigo,
+                       use.user_id as use_in_code,
+                       use.user_name as use_st_login,
+                       mes.met_in_code,
                        coalesce(mes.mes_st_content, '') as mes_st_content,
                        coalesce(mes.mes_st_title, '') as mes_st_title,
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -2321,7 +2304,7 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
                 inner join messages mes
                            on mec.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on mes.use_in_code = use.use_in_code
+                           on mes.use_in_code = use.user_id
                 where mec.cha_in_code = {0}
                   and mec.use_in_code = {1}
                 order by mes.mes_dt_creation::timestamp without time zone desc
@@ -2337,9 +2320,9 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
                 select mes.mes_in_code,
                        to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                        to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                       use.use_in_code,
-                       use.use_st_login,
-                       mes.tym_in_codigo,
+                       use.user_id as use_in_code,
+                       use.user_name as use_st_login,
+                       mes.met_in_code,
                        coalesce(mes.mes_st_content, '') as mes_st_content,
                        coalesce(mes.mes_st_title, '') as mes_st_title,
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -2350,7 +2333,7 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
                 inner join messages mes
                            on mec.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on mes.use_in_code = use.use_in_code
+                           on mes.use_in_code = use.user_id
                 where mec.cha_in_code = {0}
                   and mec.use_in_code = {1}
                   and mes.mes_dt_creation::timestamp without time zone >= (select m.mes_dt_creation
@@ -2367,13 +2350,13 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
 
         if v_table is not None:
             for v_row in v_table.Rows:
-                v_user = pscore.websocketServer.chat.classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
-                v_message = pscore.websocketServer.chat.classes.Message(
+                v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
+                v_message = classes.Message(
                     int(v_row['mes_in_code']),
                     v_row['mes_dt_creation'],
                     v_row['mes_dt_update'],
                     v_user,
-                    int(v_row['tym_in_codigo']),
+                    int(v_row['met_in_code']),
                     v_row['mes_st_content'],
                     v_row['mes_st_title'],
                     v_row['mes_st_attachmentname'],
@@ -2411,7 +2394,7 @@ def MarkChannelMessagesAsRead(p_webSocketSession, p_requestMessage, p_responseMe
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         for i in range(0, len(p_requestMessage['v_data']['messageCodeList'])):
@@ -2468,7 +2451,7 @@ def ChangeChannelSilenceSettings(p_webSocketSession, p_requestMessage, p_respons
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_database.Execute('''
@@ -2510,7 +2493,7 @@ def RemoveChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_database.Execute('''
@@ -2547,7 +2530,7 @@ def UpdateChannelSnippetMessage(p_webSocketSession, p_requestMessage, p_response
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_updatedAt = v_database.ExecuteScalar('''
@@ -2592,7 +2575,7 @@ def UpdateChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_content = p_requestMessage['v_data']['messageContent']
@@ -2751,7 +2734,7 @@ def CreatePrivateChannel(p_webSocketSession, p_requestMessage, p_responseMessage
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_channelCode = v_database.ExecuteScalar('''
@@ -2802,7 +2785,7 @@ def RenamePrivateChannel(p_webSocketSession, p_requestMessage, p_responseMessage
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_database.Execute('''
@@ -2840,7 +2823,7 @@ def QuitPrivateChannel(p_webSocketSession, p_requestMessage, p_responseMessage):
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_userList = GetUsersToSendMessageByChannelCode(p_webSocketSession, p_requestMessage['v_data']['channelCode'])
@@ -2879,7 +2862,7 @@ def InvitePrivateChannelMembers(p_webSocketSession, p_requestMessage, p_response
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         for v_userCode in p_requestMessage['v_data']['userCodeList']:
@@ -2937,7 +2920,7 @@ def SetUserChatStatus(p_webSocketSession, p_requestMessage, p_responseMessage):
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_database.Execute('''
@@ -2951,14 +2934,14 @@ def SetUserChatStatus(p_webSocketSession, p_requestMessage, p_responseMessage):
         )
 
         v_statusName = v_database.ExecuteScalar('''
-            select stc.stc_st_nome
-            from pscore.status_chat stc
-            where stc.stc_in_codigo = {0}'''.format(
+            select stc.stc_st_name
+            from status_chat stc
+            where coalesce(stc.stc_in_code, 1) = {0}'''.format(
                 p_requestMessage['v_data']['userChatStatusCode']
             )
         )
 
-        v_status = pscore.websocketServer.chat.classes.Status(int(p_requestMessage['v_data']['userChatStatusCode']), v_statusName)
+        v_status = classes.Status(int(p_requestMessage['v_data']['userChatStatusCode']), v_statusName)
 
         p_responseMessage['v_code'] = response.UserChatStatus.value
 
@@ -2993,7 +2976,7 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_table = v_database.Query('''
@@ -3004,9 +2987,9 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                        mes.mes_in_code,
                        to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                        to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                       use.use_in_code,
-                       use.use_st_login,
-                       mes.tym_in_codigo,
+                       use.user_id as use_in_code,
+                       use.user_name as use_st_login,
+                       mes.met_in_code,
                        coalesce(mes.mes_st_content, '') as mes_st_content,
                        coalesce(mes.mes_st_title, '') as mes_st_title,
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -3017,7 +3000,7 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                 inner join messages mes
                            on meg.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on mes.use_in_code = use.use_in_code
+                           on mes.use_in_code = use.user_id
                 where meg.use_in_code = {0}
 
                 union
@@ -3027,9 +3010,9 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                        mes.mes_in_code,
                        to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                        to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                       use.use_in_code,
-                       use.use_st_login,
-                       mes.tym_in_codigo,
+                       use.user_id as use_in_code,
+                       use.user_name as use_st_login,
+                       mes.met_in_code,
                        coalesce(mes.mes_st_content, '') as mes_st_content,
                        coalesce(mes.mes_st_title, '') as mes_st_title,
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -3040,7 +3023,7 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                 inner join messages mes
                            on mec.mes_in_code = mes.mes_in_code
                 inner join users use
-                           on mes.use_in_code = use.use_in_code
+                           on mes.use_in_code = use.user_id
                 where mec.use_in_code = {0}
             ) x
             where x.mes_st_originalcontent like '%{1}%'
@@ -3056,13 +3039,13 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
         }
 
         for v_row in v_table.Rows:
-            v_user = pscore.websocketServer.chat.classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
-            v_message = pscore.websocketServer.chat.classes.Message(
+            v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
+            v_message = classes.Message(
                 int(v_row['mes_in_code']),
                 v_row['mes_dt_creation'],
                 v_row['mes_dt_update'],
                 v_user,
-                int(v_row['tym_in_codigo']),
+                int(v_row['met_in_code']),
                 v_row['mes_st_content'],
                 v_row['mes_st_title'],
                 v_row['mes_st_attachmentname'],
@@ -3104,7 +3087,7 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
     """
 
     try:
-        v_database = p_websocketSession.session.v_omnidb_database.v_connection
+        v_database = p_webSocketSession.session.v_omnidb_database.v_connection
         v_database.Open()
 
         v_profileCode = 0
@@ -3112,7 +3095,7 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
         v_profileCode = v_database.ExecuteScalar('''
             select use.perf_in_codigo
             from users use
-            where use.use_in_code = {0}'''.format(p_requestMessage['v_data']['botCode'])
+            where use.user_id = {0}'''.format(p_requestMessage['v_data']['botCode'])
         )
 
         if v_profileCode != 11: #Not a bot user
@@ -3281,9 +3264,9 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     select mes.mes_in_code,
                            to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                            to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                           use.use_in_code,
-                           use.use_st_login,
-                           mes.tym_in_codigo,
+                           use.user_id as use_in_code,
+                           use.user_name as use_st_login,
+                           mes.met_in_code,
                            coalesce(mes.mes_st_content, '') as mes_st_content,
                            coalesce(mes.mes_st_title, '') as mes_st_title,
                            coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -3291,18 +3274,18 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                            coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
                     from messages mes
                     inner join users use
-                               on mes.use_in_code = use.use_in_code
+                               on mes.use_in_code = use.user_id
                     where mes.mes_in_code = {0}'''.format(v_messageCode)
                 )
 
                 if len(v_table.Rows) > 0:
-                    v_user = pscore.websocketServer.chat.classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
-                    v_message = pscore.websocketServer.chat.classes.Message(
+                    v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
+                    v_message = classes.Message(
                         int(v_table.Rows[0]['mes_in_code']),
                         v_table.Rows[0]['mes_dt_creation'],
                         v_table.Rows[0]['mes_dt_update'],
                         v_user,
-                        int(v_table.Rows[0]['tym_in_codigo']),
+                        int(v_table.Rows[0]['met_in_code']),
                         v_table.Rows[0]['mes_st_content'],
                         v_table.Rows[0]['mes_st_title'],
                         v_table.Rows[0]['mes_st_attachmentname'],
@@ -3328,9 +3311,9 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     select mes.mes_in_code,
                            to_char(mes.mes_dt_creation, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_creation,
                            to_char(mes.mes_dt_update, 'DD/MM/YYYY HH24:MI:SS') as mes_dt_update,
-                           use.use_in_code,
-                           use.use_st_login,
-                           mes.tym_in_codigo,
+                           use.user_id as use_in_code,
+                           use.user_name as use_st_login,
+                           mes.met_in_code,
                            coalesce(mes.mes_st_content, '') as mes_st_content,
                            coalesce(mes.mes_st_title, '') as mes_st_title,
                            coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
@@ -3338,18 +3321,18 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                            coalesce(mes.mes_st_originalcontent, '') as mes_st_originalcontent
                     from messages mes
                     inner join users use
-                               on mes.use_in_code = use.use_in_code
+                               on mes.use_in_code = use.user_id
                     where mes.mes_in_code = {0}'''.format(v_messageCode)
                 )
 
                 if len(v_table.Rows) > 0:
-                    v_user = pscore.websocketServer.chat.classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
-                    v_message = pscore.websocketServer.chat.classes.Message(
+                    v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
+                    v_message = classes.Message(
                         int(v_table.Rows[0]['mes_in_code']),
                         v_table.Rows[0]['mes_dt_creation'],
                         v_table.Rows[0]['mes_dt_update'],
                         v_user,
-                        int(v_table.Rows[0]['tym_in_codigo']),
+                        int(v_table.Rows[0]['met_in_code']),
                         v_table.Rows[0]['mes_st_content'],
                         v_table.Rows[0]['mes_st_title'],
                         v_table.Rows[0]['mes_st_attachmentname'],
@@ -3403,6 +3386,6 @@ def start_wsserver():
             v_server = tornado.httpserver.HTTPServer(v_application)
 
         v_server.listen(settings.WS_CHAT_PORT)
-        tornado.ioloop.IOLoop.instance().start()
+        #tornado.ioloop.IOLoop.instance().start()
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))

@@ -254,8 +254,15 @@ function startChatWebSocket(p_port) {
         updateChatConnectionStatus('red', false);
     }
 
+    if(v_is_secure) {
+		v_address = 'wss://' + window.location.hostname;
+    }
+	else {
+		v_address = 'ws://' + window.location.hostname;
+    }
+
     v_chatWebSocket  = createWebSocket(
-        'wss://' + window.location.hostname,
+        v_address,
         p_port,
         function(p_event) {//Open
             chatLogin();
@@ -276,8 +283,7 @@ function startChatWebSocket(p_port) {
         },
         function(p_message, p_context) {//Message
             if(p_message.v_error) {
-                refreshNotifications(); //From notification client
-                alert('An error message was received from the server:  <br>' + p_message.v_data);
+                showError('An error message was received from the server:  <br>' + p_message.v_data);
                 return;
             }
 

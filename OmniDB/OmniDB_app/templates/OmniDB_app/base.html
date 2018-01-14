@@ -275,9 +275,11 @@
 	var	v_theme_id = {{ session.v_theme_id }};
 	var v_editor_font_size = {{ session.v_editor_font_size }};
 	var v_user_id = {{ session.v_user_id }};
-  var v_user_key = '{{ session.v_user_key }}';
-  var v_user_name = '{{ session.v_user_name }}';
+    var v_user_key = '{{ session.v_user_key }}';
+    var v_user_name = '{{ session.v_user_name }}';
 	var v_enable_omnichat = parseInt({{ session.v_enable_omnichat }});
+    var v_session_key = v_user_key;
+    var v_user_login = v_user_name;
 
   var v_menu_item = '{{ menu_item }}'
   $('#menu_' + v_menu_item).addClass('header_a_selected');

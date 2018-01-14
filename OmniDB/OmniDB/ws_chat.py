@@ -10,8 +10,8 @@ from tornado import gen
 import ssl,os
 
 import OmniDB_app.include.Spartacus as Spartacus
-import OmniDB_app.include.Spartacus.Database as Spartacus.Database
-import OmniDB_app.include.Spartacus.Utils as Spartacus.Utils
+import OmniDB_app.include.Spartacus.Database as Database
+import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 from enum import IntEnum
@@ -28,7 +28,8 @@ logger = logging.getLogger('OmniDB_app.ChatServer')
 import re
 import base64
 from enum import Enum
-import classes
+from .Chat import classes
+from .Chat import exception
 
 v_chatSessions = []
 v_chatSessionsLock = threading.RLock()
@@ -572,7 +573,7 @@ def LogException(p_webSocketSession, p_class, p_title, p_method, p_error):
             p_error (str): the error message to be displayed in the log.
     """
 
-    logger.error('''*** Exception in {0}.{1} - {2}:\n{3}\n'''.format(p_class, p_method, p_title, p_error)
+    logger.error('''*** Exception in {0}.{1} - {2}:\n{3}\n'''.format(p_class, p_method, p_title, p_error))
 
 def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
     """Handles login message requested by a client

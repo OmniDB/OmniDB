@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 
 import os
 from . import user_database, ws_core
+from Chat import ws_chat
 
 from django.core.wsgi import get_wsgi_application
 
@@ -26,4 +27,4 @@ user_database.work()
 ws_core.start_wsserver_thread()
 
 #Websocket Chat
-#ws_chat.start_wsserver_thread()
+ws_chat.start_wsserver_thread()

@@ -29,14 +29,11 @@ SOFTWARE.*/
 .popup-header {
 	width: 100%;
 	height: 30px;
-	border-bottom: 2px solid #1f74bb;
+	border-bottom: 2px solid #c3c3c3;
 	box-sizing: border-box;
 	overflow: hidden;
     font-family: lato-bold;
-    background: -webkit-linear-gradient(#65a7ef, #1b71b9);
-    background: -o-linear-gradient(#65a7ef, #1b71b9);
-    background: -moz-linear-gradient(#65a7ef, #1b71b9);
-    background: linear-gradient(#65a7ef, #1b71b9);
+    background: rgb(74, 104, 150);
     color: white;
 }
 
@@ -49,7 +46,7 @@ SOFTWARE.*/
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
-	width: calc(100% - 55px);
+	width: calc(100% - 107px);
 	display: inline-block;
 	padding-left: 50px;
 }

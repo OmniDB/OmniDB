@@ -718,7 +718,7 @@ function chatLoginResult(p_data) {
         '        </div>' +
         '        <div id="div_chat_channels">' +
         '            <div class="div_chat_left_header">' +
-        '                Canais' +
+        '                Channels' +
         '                <button id="button_create_private_channel" class="button_chat_left_header" title="Create a private channel">+</button>' +
         '                <div class="div_chat_left_header_filter_container">' +
         '                    <input type="text" id="input_channel_filter" class="form-control" title="Search by Channel name" placeholder="Type to filter..." />' +
@@ -729,7 +729,7 @@ function chatLoginResult(p_data) {
         '        </div>' +
         '        <div id="div_chat_groups">' +
         '            <div class="div_chat_left_header">' +
-        '                Contatos' +
+        '                Private Messages' +
         '                <div class="div_chat_left_header_filter_container">' +
         '                    <input type="text" id="input_group_filter" class="form-control" title="Search by user login" placeholder="Type to filter..." />' +
         '                </div>' +
@@ -775,7 +775,7 @@ function chatLoginResult(p_data) {
 
                 var v_contextMenuItem = document.createElement('div');
                 v_contextMenuItem.classList.add('context_menu_item');
-                v_contextMenuItem.innerHTML = 'Alterar status';
+                v_contextMenuItem.innerHTML = 'Change Status';
 
                 v_contextMenuItem.addEventListener(
                     'mouseenter',
@@ -807,7 +807,7 @@ function chatLoginResult(p_data) {
 
                 var v_subContextMenuItem = document.createElement('div');
                 v_subContextMenuItem.classList.add('context_menu_item');
-                v_subContextMenuItem.innerHTML = 'Nenhum';
+                v_subContextMenuItem.innerHTML = 'None';
                 v_subContextMenuItem.value = 1;
                 v_subContextMenu.appendChild(v_subContextMenuItem);
 
@@ -938,31 +938,64 @@ function chatLoginResult(p_data) {
         return null;
     };
 
-    var v_chatIcon = document.getElementById('chat_icon');
+    var v_headerMenu = document.querySelector('.header_menu > div > ul');
 
-    v_chatIcon.addEventListener(
-        'click',
-        function(p_chatPopUp, p_event) {
-            if(p_chatPopUp != null) {
-                if(this.src.indexOf('inactive.png') != -1) {
-                    this.src = '/static/OmniDB_app/images/icons/header_chat_icon_active.png';
-                    p_chatPopUp.show();
-                    document.getElementById('div_chat_right_left_content').scrollTop += 50; //scrollTop is adjusted to correctly display notifications while hidden
-                }
-                else {
-                    this.src = '/static/OmniDB_app/images/icons/header_chat_icon_inactive.png';
-                    p_chatPopUp.hide();
-                    document.getElementById('div_chat_right_left_content').scrollTop -= 50; //scrollTop is adjusted to correctly display notifications while hidden
-                }
+    if(v_headerMenu != null) {
+        if(document.getElementById('chat_icon') == null) {
+            var v_li = document.createElement('li');
+            v_li.style.paddingRight = '10px';
+            v_headerMenu.insertBefore(v_li, v_headerMenu.children[1]);
+
+            var v_chatIcon = document.createElement('img');
+            v_chatIcon.id = 'chat_icon';
+            v_chatIcon.style.height = '16px';
+            v_chatIcon.style.width = '16px';
+            v_chatIcon.title = 'Show / Hide Chat PopUp'
+            v_chatIcon.src = '/static/OmniDB_app/images/icons/header_chat_icon_inactive.png';
+
+            v_chatIcon.addEventListener(
+                'click',
+                function(p_chatPopUp, p_event) {
+                    if(p_chatPopUp != null) {
+                        if(this.src.indexOf('inactive.png') != -1) {
+                            this.src = '/static/OmniDB_app/images/icons/header_chat_icon_active.png';
+                            p_chatPopUp.show();
+
+                            var v_divLeftContent = document.getElementById('div_chat_right_left_content');
+
+                            if(v_divLeftContent != null) {
+                                v_divLeftContent.scrollTop += 50; //scrollTop is adjusted to correctly display notifications while hidden
+                            }
+                        }
+                        else {
+                            this.src = '/static/OmniDB_app/images/icons/header_chat_icon_inactive.png';
+                            p_chatPopUp.hide();
+
+                            var v_divLeftContent = document.getElementById('div_chat_right_left_content');
+
+                            if(v_divLeftContent != null) {
+                                v_divLeftContent.scrollTop -= 50; //scrollTop is adjusted to correctly display notifications while hidden
+                            }
+                        }
+                    }
+                }.bind(v_chatIcon, v_chatPopUp)
+            );
+
+            if(v_chatIcon.src.indexOf('inactive.png') != -1) {
+                v_chatPopUp.hide();
             }
-        }.bind(v_chatIcon, v_chatPopUp)
-    );
+            else {
+                v_chatPopUp.show();
+            }
 
-    if(v_chatIcon.src.indexOf('inactive.png') != -1) {
-        v_chatPopUp.hide();
-    }
-    else {
-        v_chatPopUp.show();
+            v_li.appendChild(v_chatIcon);
+
+            var v_chatSpan = document.createElement('span');
+            v_chatSpan.id = 'chat_status';
+            v_chatSpan.classList.add('badge');
+            v_chatSpan.innerHTML = '0';
+            v_li.appendChild(v_chatSpan);
+        }
     }
 
     v_chatPopUp.contentElement.classList.add('popup-prevent-container-drag');

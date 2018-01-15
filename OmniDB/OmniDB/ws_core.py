@@ -255,7 +255,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                             v_data['v_tab_object'] = tab_object
                             v_data['v_mode'] = 0
                             v_data['v_all_data'] = True
-                            v_data['v_sql_cmd'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'])
+                            v_data['v_sql_cmd'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'], v_data['summarizeResults'])
                             tab_object['sql_cmd'] = v_data['v_sql_cmd']
                             t = StoppableThread(thread_query,v_data,self)
                             tab_object['thread'] = t

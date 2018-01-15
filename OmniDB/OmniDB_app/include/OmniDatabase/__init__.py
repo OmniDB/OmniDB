@@ -1091,7 +1091,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         '''.format(self.v_service, p_sub), True)
 
-    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList):
+    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_summarizeResults):
         v_sql = '''
             select x.*
             from (
@@ -1564,6 +1564,19 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
         for v_category in p_categoryList:
             if v_category != 'Data':
                 v_sql = v_sql.replace('/*#START_{0}#'.format(v_category.upper()), '').replace('#END_{0}#*/'.format(v_category.upper()), '')
+
+        if p_summarizeResults:
+            v_sql = '''
+                select s.category,
+                       s.schema_name,
+                       s.table_name,
+                       s.column_name,
+                       count(*) as match_count
+                from (
+                    {0}
+                ) s
+                group by s.category, s.schema_name, s.table_name, s.column_name
+            '''.format(v_sql)
 
         return v_sql
 

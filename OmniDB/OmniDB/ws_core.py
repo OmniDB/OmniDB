@@ -175,6 +175,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     v_timeout = v_session.DatabaseReachPasswordTimeout(v_data['v_db_index'])
                     if v_timeout['timeout']:
                         v_response['v_code'] = response.PasswordRequired
+                        v_response['v_data'] = v_timeout['message']
                         self.write_message(json.dumps(v_response))
                         return
 

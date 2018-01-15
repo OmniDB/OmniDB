@@ -32,7 +32,6 @@ import django.contrib.auth.context_processors
 import django.contrib.messages.context_processors
 import psycopg2
 
-import cherrypy
 from django.core.handlers.wsgi import WSGIHandler
 from OmniDB import user_database, ws_core
 
@@ -48,6 +47,9 @@ from cefpython3 import cefpython as cef
 import socket
 import random
 
+import configparser
+import urllib.request
+
 logger = logging.getLogger('OmniDB_app.Init')
 
 def check_port(port):
@@ -59,103 +61,72 @@ def check_port(port):
     s.close()
     return True
 
+def check_page(port):
+    try:
+        code = urllib.request.urlopen("http://localhost:{0}".format(port)).getcode()
+        if code == 200:
+            return True
+        else:
+            return False
+    except Exception as exc:
+        return False
+
 def init_browser(server_port):
     sys.excepthook = cef.ExceptHook  # To shutdown all CEF processes on error
     cef.Initialize()
     cef.CreateBrowserSync(url="http://localhost:{0}?user=admin&pwd=admin".format(str(server_port)),window_title="OmniDB")
     cef.MessageLoop()
     cef.Shutdown()
-    cherrypy.engine.exit()
-
-class DjangoApplication(object):
-    HOST = "127.0.0.1"
-
-    def mount_static(self, url, root):
-        config = {
-            'tools.staticdir.on': True,
-            'tools.staticdir.dir': root,
-            'tools.expires.on': True,
-            'tools.expires.secs': 86400
-        }
-        cherrypy.tree.mount(None, url, {'/': config})
-
-    def run(self,server_port):
-        #cherrypy.engine.unsubscribe('graceful', cherrypy.log.reopen_files)
-
-        logging.config.dictConfig(OmniDB.settings.LOGGING)
-        #cherrypy.log.error_log.propagate = False
-        cherrypy.log.access_log.propagate = False
-        self.mount_static(OmniDB.settings.STATIC_URL, OmniDB.settings.STATIC_ROOT)
-
-        cherrypy.tree.graft(WSGIHandler())
-
-        port = server_port
-        num_attempts = 0
-
-        print('''Starting OmniDB server...''')
-        logger.info('''Starting OmniDB server...''')
-        print('''Checking port availability...''')
-        logger.info('''Checking port availability...''')
-
-        while not check_port(port) or num_attempts >= 20:
-            print("Port {0} is busy, trying another port...".format(port))
-            logger.info("Port {0} is busy, trying another port...".format(port))
-            port = random.randint(1025,32676)
-            num_attempts = num_attempts + 1
-
-        if num_attempts < 20:
-            cherrypy.config.update({
-                'server.socket_host': self.HOST,
-                'server.socket_port': port,
-                'engine.autoreload_on': False,
-                'log.screen': False,
-                'log.access_file': '',
-                'log.error_file': ''
-            })
-
-            print ("Starting server {0} at http://localhost:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
-            logger.info("Starting server {0} at http://localhost:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
-            cherrypy.engine.start()
-
-            init_browser(port)
-            cherrypy.engine.block()
-        else:
-            print('Tried 20 different ports without success, closing...')
-            logger.info('Tried 20 different ports without success, closing...')
 
 if __name__ == "__main__":
     #default port
 
     parser = optparse.OptionParser(version=OmniDB.settings.OMNIDB_VERSION)
     parser.add_option("-p", "--port", dest="port",
-                      default=OmniDB.settings.OMNIDB_DEFAULT_APP_PORT, type=int,
+                      default=None, type=int,
                       help="listening port")
 
-    parser.add_option("-w", "--wsport", dest="wsport",
-                      default=OmniDB.settings.WS_QUERY_PORT, type=int,
-                      help="websocket port")
+    parser.add_option("-c", "--configfile", dest="conf",
+                      default=OmniDB.settings.CONFFILE, type=str,
+                      help="configuration file")
+
     (options, args) = parser.parse_args()
 
-    #Choosing empty port
-    port = options.wsport
-    num_attempts = 0
+    #Parsing config file
+    Config = configparser.ConfigParser()
+    Config.read(options.conf)
+    if not os.path.exists(options.conf):
+        print("Config file not found, using default settings.")
 
-    print('''Starting OmniDB websocket...''')
-    logger.info('''Starting OmniDB websocket...''')
+    if options.port!=None:
+        listening_port = options.port
+    else:
+        try:
+            listening_port = Config.getint('webserver', 'listening_port')
+        except:
+            listening_port = OmniDB.settings.OMNIDB_DEFAULT_APP_PORT
+
+    #Choosing empty port
+    port = listening_port
+    num_attempts_port = 0
+
+    print('''Starting OmniDB server...''')
+    logger.info('''Starting OmniDB server...''')
     print('''Checking port availability...''')
     logger.info('''Checking port availability...''')
 
-    while not check_port(port) or num_attempts >= 20:
+    while not check_port(port) or num_attempts_port >= 20:
         print("Port {0} is busy, trying another port...".format(port))
         logger.info("Port {0} is busy, trying another port...".format(port))
         port = random.randint(1025,32676)
-        num_attempts = num_attempts + 1
+        num_attempts_port = num_attempts_port + 1
 
-    if num_attempts < 20:
-        OmniDB.settings.WS_QUERY_PORT = port
+    if num_attempts_port < 20:
+        OmniDB.settings.OMNIDB_PORT          = port
+        OmniDB.settings.TORNADO_SERVE_DJANGO = True
 
-        print ("Starting websocket server at port {0}.".format(str(port)))
-        logger.info("Starting websocket server at port {0}.".format(str(port)))
+        print ("Starting server at port {0}.".format(str(port)))
+        logger.info("Starting server at port {0}.".format(str(port)))
 
         #Removing Expired Sessions
         SessionStore.clear_expired()
@@ -165,7 +136,23 @@ if __name__ == "__main__":
 
         #Websocket Core
         ws_core.start_wsserver_thread()
-        DjangoApplication().run(options.port)
+
+        #Wait until webserver is ready to start browser
+        num_attempts_page = 0
+        webserver_working = False
+        time.sleep(0.5)
+
+        while not check_page(port) or num_attempts_page >= 20:
+            print("Webserver is not ready yet. Trying again...")
+            logger.info("Webserver is not ready yet. Trying again...")
+            time.sleep(0.5)
+
+        if num_attempts_page < 20:
+            init_browser(port)
+        else:
+            print('Checked 20 times and webserver is still not responding, closing...')
+            logger.info('Checked 20 times and webserver is still not responding, closing...')
+
     else:
         print('Tried 20 different ports without success, closing...')
         logger.info('Tried 20 different ports without success, closing...')

@@ -17,6 +17,10 @@ rm -rf dist
 rm -rf deploy/packages
 echo "Done."
 
+echo -n "Switching to Release Mode..."
+sed -i -e 's/DEV_MODE = True/DEV_MODE = False/g' OmniDB/settings.py
+echo "Done."
+
 echo -n "Replacing line-end char for SQLite backward compatibility..."
 sed -i -e 's/char(10)/x\x270a\x27/g' OmniDB/migrations/*.sql
 echo "Done"

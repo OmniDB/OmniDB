@@ -37,7 +37,7 @@ def index(request):
         'desktop_mode': settings.DESKTOP_MODE,
         'omnidb_version': settings.OMNIDB_VERSION,
         'menu_item': 'workspace',
-        'query_port': settings.WS_QUERY_PORT,
+        'query_port': settings.OMNIDB_PORT,
         'is_secure' : v_is_secure,
         'execute': settings.BINDKEY_EXECUTE,
         'execute_mac': settings.BINDKEY_EXECUTE_MAC,

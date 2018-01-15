@@ -81,7 +81,7 @@ function startQueryWebSocket(p_port) {
 				case parseInt(v_queryResponseCodes.PasswordRequired): {
 					if (p_context) {
 						SetAcked(p_context);
-						QueryPasswordRequired(p_context);
+						QueryPasswordRequired(p_context,v_message.v_data);
 						break;
 					}
 				}
@@ -151,7 +151,7 @@ function SetAcked(p_context) {
 		p_context.acked = true;
 }
 
-function QueryPasswordRequired(p_context) {
+function QueryPasswordRequired(p_context, p_message) {
 	if (p_context.tab_tag.mode=='query') {
 		showPasswordPrompt(
 			p_context.database_index,
@@ -161,7 +161,8 @@ function QueryPasswordRequired(p_context) {
 			},
 			function() {
 				cancelSQLTab();
-			}
+			},
+			p_message
 		);
 	}
 	else if (p_context.tab_tag.mode=='edit') {
@@ -173,7 +174,8 @@ function QueryPasswordRequired(p_context) {
 			},
 			function() {
 				cancelEditDataTab();
-			}
+			},
+			p_message
 		);
 	}
 }

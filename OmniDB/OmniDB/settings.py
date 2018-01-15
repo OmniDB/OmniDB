@@ -193,12 +193,7 @@ LOGGING = {
             'handlers': ['logfile_omnidb','console_omnidb_app'],
             'propagate': False,
             'level':'INFO',
-        },
-        'cherrypy.error': {
-            'handlers': ['logfile_django','console_omnidb_app'],
-            'level': 'INFO',
-            'propagate': False
-        },
+        }
     }
 }
 

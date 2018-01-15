@@ -30,7 +30,7 @@
     display: flex;
     flex-wrap: wrap;
     border-right: 1px solid rgba(0, 0, 0, 0.5);
-    background-color: rgba(231, 231, 231, 0.6);
+    background-color: rgb(246, 246, 246);
     flex: 0 0 200px;
 }
 
@@ -38,12 +38,11 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 51px;
+    height: 49px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
 }
 
 #div_chat_user_info_header {
-    width: 100%;
     font-family: lato-bold;
     font-size: 16px;
     text-align: left;
@@ -52,7 +51,6 @@
 }
 
 #div_chat_user_info_login {
-    width: 100%;
     padding-left: 15px;
     padding-bottom: 5px;
     cursor: pointer;
@@ -77,7 +75,6 @@
 }
 
 .div_chat_left_header {
-    width: 100%;
     font-family: lato-bold;
     font-size: 16px;
     text-align: left;
@@ -121,14 +118,11 @@
 }
 
 .div_chat_left_content_item:hover {
-    background-color: #e4e4e4;
+    background-color: rgb(74, 104, 150);
 }
 
 .div_chat_left_content_item_active {
-    background: -webkit-linear-gradient(#65a7ef, #1b71b9);
-    background: -o-linear-gradient(#65a7ef, #1b71b9);
-    background: -moz-linear-gradient(#65a7ef, #1b71b9);
-    background: linear-gradient(#65a7ef, #1b71b9);
+    background: rgb(74, 104, 150);
     color: white;
     font-family: lato-bold;
 }
@@ -289,7 +283,7 @@
 }
 
 .div_chat_right_left_footer_left_options_item:hover {
-    background-color: #4d83bd;
+    background-color: rgb(74, 104, 150);
     color: white;
     font-family: lato-bold;
 }
@@ -653,6 +647,7 @@ span.badge_hidden {
 }
 
 .context_menu {
+    font-size: 14px;
     position: absolute;
     z-index: 9999999;
     padding: 3px;
@@ -697,7 +692,7 @@ span.badge_hidden {
 }
 
 .context_menu_item_active {
-    background-color: #4d83bd;
+    background-color: rgb(74, 104, 150);
     color: white;
     font-family: lato-bold;
 }
@@ -736,7 +731,7 @@ span.badge_hidden {
 }
 
 .context_menu_item:hover {
-    background-color: #4d83bd;
+    background-color: rgb(74, 104, 150);
     color: white;
     font-family: lato-bold;
 }
@@ -769,6 +764,7 @@ span.badge_hidden {
 }
 
 .modal_content {
+    font-size: 16px;
     background-color: #fefefe;
     margin: auto;
     padding: 20px;
@@ -873,9 +869,11 @@ button:focus {
 }
 
 #chat_icon {
-    position: absolute;
+    /*position: absolute;
     top: -1px;
-    left: -10px;
+    left: -10px;*/
+    vertical-align: middle;
+    cursor: pointer;
 }
 
 #chat_status {
@@ -972,7 +970,7 @@ button:focus {
 }
 
 .notify_context_menu .context_menu_item_active:hover {
-    background-color: #4d83bd;
+    background-color: rgb(74, 104, 150);
     color: white;
     font-family: lato-bold;
 }

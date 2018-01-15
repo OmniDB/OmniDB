@@ -174,7 +174,7 @@ def get_tree_info(request):
             }
         }
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -227,7 +227,7 @@ def get_tables(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -277,7 +277,7 @@ def get_columns(request):
             }
             v_list_columns.append(v_column_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -324,7 +324,7 @@ def get_pk(request):
             v_pk_data.append(v_pk['column_name'])
             v_list_pk.append(v_pk_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -375,7 +375,7 @@ def get_fks(request):
             v_fk_data.append(v_fk['update_rule'])
             v_list_fk.append(v_fk_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -422,7 +422,7 @@ def get_uniques(request):
             v_unique_data.append(v_unique['column_name'])
             v_list_uniques.append(v_unique_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -470,7 +470,7 @@ def get_indexes(request):
             v_index_data.append(v_index['column_name'])
             v_list_indexes.append(v_index_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -517,7 +517,7 @@ def get_checks(request):
             v_check_data.append(v_check['constraint_source'])
             v_list_checks.append(v_check_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -565,7 +565,7 @@ def get_excludes(request):
             v_exclude_data.append(v_exclude['operations'])
             v_list_excludes.append(v_exclude_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -611,7 +611,7 @@ def get_rules(request):
             v_rule_data.append(v_rule['constraint_name'])
             v_list_rules.append(v_rule_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -660,7 +660,7 @@ def get_triggers(request):
             v_trigger_data.append(v_trigger['trigger_function_id'])
             v_list_triggers.append(v_trigger_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -706,7 +706,7 @@ def get_partitions(request):
             v_partition_data.append(v_partition['child_schema'] + '.' + v_partition['child_table'])
             v_list_partitions.append(v_partition_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -753,7 +753,7 @@ def get_views(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -802,7 +802,7 @@ def get_views_columns(request):
             }
             v_list_columns.append(v_column_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -842,7 +842,7 @@ def get_view_definition(request):
     try:
         v_return['v_data'] = v_database.GetViewDefinition(v_view, v_schema)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -886,7 +886,7 @@ def get_mviews(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -935,7 +935,7 @@ def get_mviews_columns(request):
             }
             v_list_columns.append(v_column_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -975,7 +975,7 @@ def get_mview_definition(request):
     try:
         v_return['v_data'] = v_database.GetMaterializedViewDefinition(v_view, v_schema)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1018,7 +1018,7 @@ def get_schemas(request):
             }
             v_list_schemas.append(v_schema_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1063,7 +1063,7 @@ def get_databases(request):
             }
             v_list_databases.append(v_database_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1108,7 +1108,7 @@ def get_tablespaces(request):
             }
             v_list_tablespaces.append(v_tablespace_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1153,7 +1153,7 @@ def get_roles(request):
             }
             v_list_roles.append(v_role_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1200,7 +1200,7 @@ def get_functions(request):
             }
             v_list_functions.append(v_function_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1248,7 +1248,7 @@ def get_function_fields(request):
             }
             v_list_fields.append(v_field_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1287,7 +1287,7 @@ def get_function_definition(request):
     try:
         v_return['v_data'] = v_database.GetFunctionDefinition(v_function)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1324,7 +1324,7 @@ def get_function_debug(request):
     try:
         v_return['v_data'] = v_database.GetFunctionDebug(v_function)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1369,7 +1369,7 @@ def get_triggerfunctions(request):
             }
             v_list_functions.append(v_function_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1408,7 +1408,7 @@ def get_triggerfunction_definition(request):
     try:
         v_return['v_data'] = v_database.GetTriggerFunctionDefinition(v_function)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1452,7 +1452,7 @@ def get_sequences(request):
             }
             v_list_sequences.append(v_sequence_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1502,7 +1502,7 @@ def get_sequence_values(request):
             }
             v_list_values.append(v_value_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1547,7 +1547,7 @@ def get_extensions(request):
             }
             v_list_extensions.append(v_extension_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1592,7 +1592,7 @@ def get_physicalreplicationslots(request):
             }
             v_list_repslots.append(v_repslot_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1637,7 +1637,7 @@ def get_logicalreplicationslots(request):
             }
             v_list_repslots.append(v_repslot_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1686,7 +1686,7 @@ def get_publications(request):
             }
             v_list_pubs.append(v_pub_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1732,7 +1732,7 @@ def get_publication_tables(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1780,7 +1780,7 @@ def get_subscriptions(request):
             }
             v_list_subs.append(v_sub_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1826,7 +1826,7 @@ def get_subscription_tables(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1871,7 +1871,7 @@ def get_pglogical_nodes(request):
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1918,7 +1918,7 @@ def get_pglogical_interfaces(request):
             }
             v_list_ifaces.append(v_iface_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1967,7 +1967,7 @@ def get_pglogical_replicationsets(request):
             }
             v_list_repsets.append(v_repset_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2013,7 +2013,7 @@ def get_pglogical_repset_tables(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2059,7 +2059,7 @@ def get_pglogical_repset_seqs(request):
             }
             v_list_seqs.append(v_seq_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2108,7 +2108,7 @@ def get_pglogical_subscriptions(request):
             }
             v_list_subs.append(v_sub_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2154,7 +2154,7 @@ def get_pglogical_subscription_repsets(request):
             }
             v_list_repsets.append(v_repset_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2202,7 +2202,7 @@ def get_bdr_properties(request):
             }
             v_list_bdr.append(v_bdr_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2247,7 +2247,7 @@ def get_bdr_nodes(request):
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2295,7 +2295,7 @@ def get_bdr_replicationsets(request):
             }
             v_list_repsets.append(v_repset_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2342,7 +2342,7 @@ def get_bdr_table_replicationsets(request):
             }
             v_list_repsets.append(v_repset_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2391,7 +2391,7 @@ def get_bdr_table_conflicthandlers(request):
             }
             v_list_chs.append(v_ch_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2441,7 +2441,7 @@ def get_xl_nodes(request):
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2486,7 +2486,7 @@ def get_xl_groups(request):
             }
             v_list_groups.append(v_group_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2532,7 +2532,7 @@ def get_xl_group_nodes(request):
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2580,7 +2580,7 @@ def get_xl_table_properties(request):
             }
             v_list_props.append(v_prop_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2627,7 +2627,7 @@ def get_xl_table_nodes(request):
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2666,7 +2666,7 @@ def kill_backend_postgres(request):
     try:
         v_data = v_database.v_connection.Execute('select pg_terminate_backend({0})'.format(v_pid))
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 

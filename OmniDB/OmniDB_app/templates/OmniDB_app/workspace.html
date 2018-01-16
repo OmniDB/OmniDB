@@ -1,7 +1,7 @@
 {% extends 'OmniDB_app/base.html' %}
 
 {% block header_menu %}
-<li><a id="menu_connections" href="../connections">Connections</a></li>
+<li><a id="menu_connections" onclick="showConnectionList()">Connections</a></li>
 {% endblock %}
 
 {% block header_actions %}
@@ -48,40 +48,6 @@
         </div>
     </div>
 
-    <div id="div_find_replace" style="display: none;">
-        <div class="modal_background_dark" style="z-index: 2000">
-            <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
-                <a class="modal-closer" onclick="hideFindReplace()">x</a>
-
-                <div id="find_replace" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
-	                <ul>
-	                <li id="find_replace_tab1">Find & Replace</li>
-	  				</ul>
-	  				<div id="div_find_replace_tab1">
-
-	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
-		                <div style="text-align: center;">
-		                <div style="margin-bottom: 10px;">Text</div>
-		                <input id="txt_replacement_text" type="text" style="width: 200px; margin-bottom: 20px;">
-		                </div>
-		                <div style="text-align: center;">
-		                <div style="margin-bottom: 10px;">Replacement</div>
-		                <input id="txt_replacement_text_new" type="text" style="width: 200px; margin-bottom: 20px;">
-		                </div>
-		                <div style="text-align: center;">
-		                	<button onclick="replaceText();">Replace</button>
-		                </div>
-		                </div>
-
-
-	  				</div>
-  				</div>
-
-
-            </div>
-        </div>
-    </div>
-
 		<div id="div_commands_log" style="display: none;">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
@@ -94,6 +60,19 @@
             </div>
         </div>
     </div>
+
+		<div class="modal_background_dark" id="connection_list_div" style="display: none;">
+			<div class='connection_list'><a class='modal-closer' onclick='closeConnectionList()'>x</a>
+				<div style='display:inline-block;'>
+					<button onclick="newConnection()">New Connection</button>
+				</div>
+				<div id='div_save' style='visibility: hidden; display:inline-block;'>
+					<button onclick="saveConnections()">Save Data</button>
+				</div>
+				<div id='connection_list_div_grid' class='connection_grid'></div>
+			</div>
+		</div>
+
 <!--
 		<div id="div_chat">
   	<div id="div_chat_header" class="div_chat_header_default">
@@ -118,38 +97,40 @@
 -->
 {% endblock %}
 {% block include_css %}
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/aimaraJS/css/Aimara.css?v2.4.0"    />
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/chartist.min.css?v2.4.0"           />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/aimaraJS/css/Aimara.css?v2.4.1"    />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/chartist.min.css?v2.4.1"           />
 {% endblock %}
 {% block include %}
-<script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape.min.js?v2.4.0"                         ></script>
-<script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js?v2.4.0"                      ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Chart.bundle.min.js?v2.4.0"                                 ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/chartist.min.js?v2.4.0"                                     ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/chartist-plugin-axistitle.min.js?v2.4.0"                    ></script>
-<script type="text/javascript" src="/static/OmniDB_app/lib/aimaraJS/lib/Aimara.js?v2.4.0"                             ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/ChatClient.js?v2.4.0"                                       ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/QueryClient.js?v2.4.0"                                      ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Query.js?v2.4.0"                                            ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Debug.js?v2.4.0"                                            ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Workspace.js?v2.4.0"													              ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/EditData.js?v2.4.0"													                ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/AlterTable.js?v2.4.0"												                ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/CreateTabFunctions.js?v2.4.0"                               ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Tree.js?v2.4.0"                                             ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/TreeSnippets.js?v2.4.0"                                     ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/TreeMonitor.js?v2.4.0"                                      ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/TreePostgresql.js?v2.4.0"                                   ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/CommandHistory.js?v2.4.0"                                   ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/MonitorDashboard.js?v2.4.0"                                 ></script>
+<script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape.min.js?v2.4.1"                         ></script>
+<script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js?v2.4.1"                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Chart.bundle.min.js?v2.4.1"                                 ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/chartist.min.js?v2.4.1"                                     ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/chartist-plugin-axistitle.min.js?v2.4.1"                    ></script>
+<script type="text/javascript" src="/static/OmniDB_app/lib/aimaraJS/lib/Aimara.js?v2.4.1"                             ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/ChatClient.js?v2.4.1"                                       ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/QueryClient.js?v2.4.1"                                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Query.js?v2.4.1"                                            ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Debug.js?v2.4.1"                                            ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Workspace.js?v2.4.1"													              ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/EditData.js?v2.4.1"													                ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/AlterTable.js?v2.4.1"												                ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/CreateTabFunctions.js?v2.4.1"                               ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Tree.js?v2.4.1"                                             ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreeSnippets.js?v2.4.1"                                     ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreeMonitor.js?v2.4.1"                                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreePostgresql.js?v2.4.1"                                   ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/CommandHistory.js?v2.4.1"                                   ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/MonitorDashboard.js?v2.4.1"                                 ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Connections.js?v2.4.1"                                      ></script>
 
 <script>
 	var v_query_port = {{ query_port }};
 	var v_is_secure = {{ is_secure }};
-	var v_selected_connection = {{ selected_connection }}
 	var v_keybind_object = { v_execute: '{{ execute }}',
-               v_execute_mac: '{{ execute_mac }}',
-               v_replace: '{{ replace }}',
-               v_replace_mac: '{{ replace_mac }}' };
+							 v_execute_mac: '{{ execute_mac }}',
+							 v_autocomplete: '{{ autocomplete }}',
+ 							 v_autocomplete_mac: '{{ autocomplete_mac }}' };
+							 //Global variables
+	var v_connections_data;
 </script>
 {% endblock %}

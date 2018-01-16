@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2.4.0
+VERSION=2.4.1
 ARCH=debian-i386
 
 echo "Installing OmniDB dependencies..."
@@ -15,6 +15,10 @@ echo -n "Cleaning... "
 rm -rf build
 rm -rf dist
 rm -rf deploy/packages
+echo "Done."
+
+echo -n "Switching to Release Mode..."
+sed -i -e 's/DEV_MODE = True/DEV_MODE = False/g' OmniDB/settings.py
 echo "Done."
 
 echo -n "Replacing line-end char for SQLite backward compatibility..."

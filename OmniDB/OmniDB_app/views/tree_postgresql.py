@@ -39,139 +39,144 @@ def get_tree_info(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_return['v_data'] = {
-        'v_mode': 'database',
-        'v_database_return': {
-            'v_database': v_database.GetName(),
-            'version': v_database.GetVersion(),
-            'superuser': v_database.GetUserSuper(),
-            'create_role': v_database.TemplateCreateRole().v_text,
-            'alter_role': v_database.TemplateAlterRole().v_text,
-            'drop_role': v_database.TemplateDropRole().v_text,
-            'create_tablespace': v_database.TemplateCreateTablespace().v_text,
-            'alter_tablespace': v_database.TemplateAlterTablespace().v_text,
-            'drop_tablespace': v_database.TemplateDropTablespace().v_text,
-            'create_database': v_database.TemplateCreateDatabase().v_text,
-            'alter_database': v_database.TemplateAlterDatabase().v_text,
-            'drop_database': v_database.TemplateDropDatabase().v_text,
-            'create_extension': v_database.TemplateCreateExtension().v_text,
-            'alter_extension': v_database.TemplateAlterExtension().v_text,
-            'drop_extension': v_database.TemplateDropExtension().v_text,
-            'create_schema': v_database.TemplateCreateSchema().v_text,
-            'alter_schema': v_database.TemplateAlterSchema().v_text,
-            'drop_schema': v_database.TemplateDropSchema().v_text,
-            'create_sequence': v_database.TemplateCreateSequence().v_text,
-            'alter_sequence': v_database.TemplateAlterSequence().v_text,
-            'drop_sequence': v_database.TemplateDropSequence().v_text,
-            'create_function': v_database.TemplateCreateFunction().v_text,
-            'drop_function': v_database.TemplateDropFunction().v_text,
-            'create_triggerfunction': v_database.TemplateCreateTriggerFunction().v_text,
-            'drop_triggerfunction': v_database.TemplateDropTriggerFunction().v_text,
-            'create_view': v_database.TemplateCreateView().v_text,
-            'drop_view': v_database.TemplateDropView().v_text,
-            'create_mview': v_database.TemplateCreateMaterializedView().v_text,
-            'refresh_mview': v_database.TemplateRefreshMaterializedView().v_text,
-            'drop_mview': v_database.TemplateDropMaterializedView().v_text,
-            #create_table
-            #alter_table
-            'drop_table': v_database.TemplateDropTable().v_text,
-            'create_column': v_database.TemplateCreateColumn().v_text,
-            'alter_column': v_database.TemplateAlterColumn().v_text,
-            'drop_column': v_database.TemplateDropColumn().v_text,
-            'create_primarykey': v_database.TemplateCreatePrimaryKey().v_text,
-            'drop_primarykey': v_database.TemplateDropPrimaryKey().v_text,
-            'create_unique': v_database.TemplateCreateUnique().v_text,
-            'drop_unique': v_database.TemplateDropUnique().v_text,
-            'create_foreignkey': v_database.TemplateCreateForeignKey().v_text,
-            'drop_foreignkey': v_database.TemplateDropForeignKey().v_text,
-            'create_index': v_database.TemplateCreateIndex().v_text,
-            'alter_index': v_database.TemplateAlterIndex().v_text,
-            'drop_index': v_database.TemplateDropIndex().v_text,
-            'create_check': v_database.TemplateCreateCheck().v_text,
-            'drop_check': v_database.TemplateDropCheck().v_text,
-            'create_exclude': v_database.TemplateCreateExclude().v_text,
-            'drop_exclude': v_database.TemplateDropExclude().v_text,
-            'create_rule': v_database.TemplateCreateRule().v_text,
-            'alter_rule': v_database.TemplateAlterRule().v_text,
-            'drop_rule': v_database.TemplateDropRule().v_text,
-            'create_trigger': v_database.TemplateCreateTrigger().v_text,
-            'create_view_trigger': v_database.TemplateCreateViewTrigger().v_text,
-            'alter_trigger': v_database.TemplateAlterTrigger().v_text,
-            'enable_trigger': v_database.TemplateEnableTrigger().v_text,
-            'disable_trigger': v_database.TemplateDisableTrigger().v_text,
-            'drop_trigger': v_database.TemplateDropTrigger().v_text,
-            'create_partition': v_database.TemplateCreatePartition().v_text,
-            'noinherit_partition': v_database.TemplateNoInheritPartition().v_text,
-            'drop_partition': v_database.TemplateDropPartition().v_text,
-            'vacuum': v_database.TemplateVacuum().v_text,
-            'vacuum_table': v_database.TemplateVacuumTable().v_text,
-            'create_physicalreplicationslot': v_database.TemplateCreatePhysicalReplicationSlot().v_text,
-            'drop_physicalreplicationslot': v_database.TemplateDropPhysicalReplicationSlot().v_text,
-            'create_logicalreplicationslot': v_database.TemplateCreateLogicalReplicationSlot().v_text,
-            'drop_logicalreplicationslot': v_database.TemplateDropLogicalReplicationSlot().v_text,
-            'create_publication': v_database.TemplateCreatePublication().v_text,
-            'alter_publication': v_database.TemplateAlterPublication().v_text,
-            'drop_publication': v_database.TemplateDropPublication().v_text,
-            'add_pubtable': v_database.TemplateAddPublicationTable().v_text,
-            'drop_pubtable': v_database.TemplateDropPublicationTable().v_text,
-            'create_subscription': v_database.TemplateCreateSubscription().v_text,
-            'alter_subscription': v_database.TemplateAlterSubscription().v_text,
-            'drop_subscription': v_database.TemplateDropSubscription().v_text,
-            'pglogical_version': v_database.GetPglogicalVersion(),
-            'pglogical_create_node': v_database.TemplatePglogicalCreateNode().v_text,
-            'pglogical_drop_node': v_database.TemplatePglogicalDropNode().v_text,
-            'pglogical_add_interface': v_database.TemplatePglogicalNodeAddInterface().v_text,
-            'pglogical_drop_interface': v_database.TemplatePglogicalNodeDropInterface().v_text,
-            'pglogical_create_repset': v_database.TemplatePglogicalCreateReplicationSet().v_text,
-            'pglogical_alter_repset': v_database.TemplatePglogicalAlterReplicationSet().v_text,
-            'pglogical_drop_repset': v_database.TemplatePglogicalDropReplicationSet().v_text,
-            'pglogical_repset_add_table': v_database.TemplatePglogicalReplicationSetAddTable().v_text,
-            'pglogical_repset_add_all_tables': v_database.TemplatePglogicalReplicationSetAddAllTables().v_text,
-            'pglogical_repset_remove_table': v_database.TemplatePglogicalReplicationSetRemoveTable().v_text,
-            'pglogical_repset_add_seq': v_database.TemplatePglogicalReplicationSetAddSequence().v_text,
-            'pglogical_repset_add_all_seqs': v_database.TemplatePglogicalReplicationSetAddAllSequences().v_text,
-            'pglogical_repset_remove_seq': v_database.TemplatePglogicalReplicationSetRemoveSequence().v_text,
-            'pglogical_create_sub': v_database.TemplatePglogicalCreateSubscription().v_text,
-            'pglogical_enable_sub': v_database.TemplatePglogicalEnableSubscription().v_text,
-            'pglogical_disable_sub': v_database.TemplatePglogicalDisableSubscription().v_text,
-            'pglogical_sync_sub': v_database.TemplatePglogicalSynchronizeSubscription().v_text,
-            'pglogical_drop_sub': v_database.TemplatePglogicalDropSubscription().v_text,
-            'pglogical_sub_add_repset': v_database.TemplatePglogicalSubscriptionAddReplicationSet().v_text,
-            'pglogical_sub_remove_repset': v_database.TemplatePglogicalSubscriptionRemoveReplicationSet().v_text,
-            'bdr_version': v_database.GetBDRVersion(),
-            'bdr_create_group': v_database.TemplateBDRCreateGroup().v_text,
-            'bdr_join_group': v_database.TemplateBDRJoinGroup().v_text,
-            'bdr_join_wait': v_database.TemplateBDRJoinWait().v_text,
-            'bdr_pause': v_database.TemplateBDRPause().v_text,
-            'bdr_resume': v_database.TemplateBDRResume().v_text,
-            'bdr_replicate_ddl_command': v_database.TemplateBDRReplicateDDLCommand().v_text,
-            'bdr_part_node': v_database.TemplateBDRPartNode().v_text,
-            'bdr_insert_repset': v_database.TemplateBDRInsertReplicationSet().v_text,
-            'bdr_update_repset': v_database.TemplateBDRUpdateReplicationSet().v_text,
-            'bdr_delete_repset': v_database.TemplateBDRDeleteReplicationSet().v_text,
-            'bdr_set_repsets': v_database.TemplateBDRSetTableReplicationSets().v_text,
-            'bdr_create_confhand': v_database.TemplateBDRCreateConflictHandler().v_text,
-            'bdr_drop_confhand': v_database.TemplateBDRDropConflictHandler().v_text,
-            # only in BDR >= 1
-            'bdr_terminate_apply': v_database.TemplateBDRTerminateApplyWorkers().v_text,
-            'bdr_terminate_walsender': v_database.TemplateBDRTerminateWalsenderWorkers().v_text,
-            'bdr_remove': v_database.TemplateBDRRemove().v_text,
-            'xl_pause_cluster': v_database.TemplateXLPauseCluster().v_text,
-            'xl_unpause_cluster': v_database.TemplateXLUnpauseCluster().v_text,
-            'xl_clean_connection': v_database.TemplateXLCleanConnection().v_text,
-            'xl_create_group': v_database.TemplateXLCreateGroup().v_text,
-            'xl_drop_group': v_database.TemplateXLDropGroup().v_text,
-            'xl_create_node': v_database.TemplateXLCreateNode().v_text,
-            'xl_alter_node': v_database.TemplateXLAlterNode().v_text,
-            'xl_drop_node': v_database.TemplateXLDropNode().v_text,
-            'xl_execute_direct': v_database.TemplateXLExecuteDirect().v_text,
-            'xl_pool_reload': v_database.TemplateXLPoolReload().v_text,
-            'xl_altertable_distribution': v_database.TemplateXLAlterTableDistribution().v_text,
-            'xl_altertable_location': v_database.TemplateXLAlterTableLocation().v_text,
-            'xl_altertable_addnode': v_database.TemplateXLALterTableAddNode().v_text,
-            'xl_altertable_deletenode': v_database.TemplateXLAlterTableDeleteNode().v_text
+    try:
+        v_return['v_data'] = {
+            'v_mode': 'database',
+            'v_database_return': {
+                'v_database': v_database.GetName(),
+                'version': v_database.GetVersion(),
+                'superuser': v_database.GetUserSuper(),
+                'create_role': v_database.TemplateCreateRole().v_text,
+                'alter_role': v_database.TemplateAlterRole().v_text,
+                'drop_role': v_database.TemplateDropRole().v_text,
+                'create_tablespace': v_database.TemplateCreateTablespace().v_text,
+                'alter_tablespace': v_database.TemplateAlterTablespace().v_text,
+                'drop_tablespace': v_database.TemplateDropTablespace().v_text,
+                'create_database': v_database.TemplateCreateDatabase().v_text,
+                'alter_database': v_database.TemplateAlterDatabase().v_text,
+                'drop_database': v_database.TemplateDropDatabase().v_text,
+                'create_extension': v_database.TemplateCreateExtension().v_text,
+                'alter_extension': v_database.TemplateAlterExtension().v_text,
+                'drop_extension': v_database.TemplateDropExtension().v_text,
+                'create_schema': v_database.TemplateCreateSchema().v_text,
+                'alter_schema': v_database.TemplateAlterSchema().v_text,
+                'drop_schema': v_database.TemplateDropSchema().v_text,
+                'create_sequence': v_database.TemplateCreateSequence().v_text,
+                'alter_sequence': v_database.TemplateAlterSequence().v_text,
+                'drop_sequence': v_database.TemplateDropSequence().v_text,
+                'create_function': v_database.TemplateCreateFunction().v_text,
+                'drop_function': v_database.TemplateDropFunction().v_text,
+                'create_triggerfunction': v_database.TemplateCreateTriggerFunction().v_text,
+                'drop_triggerfunction': v_database.TemplateDropTriggerFunction().v_text,
+                'create_view': v_database.TemplateCreateView().v_text,
+                'drop_view': v_database.TemplateDropView().v_text,
+                'create_mview': v_database.TemplateCreateMaterializedView().v_text,
+                'refresh_mview': v_database.TemplateRefreshMaterializedView().v_text,
+                'drop_mview': v_database.TemplateDropMaterializedView().v_text,
+                #create_table
+                #alter_table
+                'drop_table': v_database.TemplateDropTable().v_text,
+                'create_column': v_database.TemplateCreateColumn().v_text,
+                'alter_column': v_database.TemplateAlterColumn().v_text,
+                'drop_column': v_database.TemplateDropColumn().v_text,
+                'create_primarykey': v_database.TemplateCreatePrimaryKey().v_text,
+                'drop_primarykey': v_database.TemplateDropPrimaryKey().v_text,
+                'create_unique': v_database.TemplateCreateUnique().v_text,
+                'drop_unique': v_database.TemplateDropUnique().v_text,
+                'create_foreignkey': v_database.TemplateCreateForeignKey().v_text,
+                'drop_foreignkey': v_database.TemplateDropForeignKey().v_text,
+                'create_index': v_database.TemplateCreateIndex().v_text,
+                'alter_index': v_database.TemplateAlterIndex().v_text,
+                'drop_index': v_database.TemplateDropIndex().v_text,
+                'create_check': v_database.TemplateCreateCheck().v_text,
+                'drop_check': v_database.TemplateDropCheck().v_text,
+                'create_exclude': v_database.TemplateCreateExclude().v_text,
+                'drop_exclude': v_database.TemplateDropExclude().v_text,
+                'create_rule': v_database.TemplateCreateRule().v_text,
+                'alter_rule': v_database.TemplateAlterRule().v_text,
+                'drop_rule': v_database.TemplateDropRule().v_text,
+                'create_trigger': v_database.TemplateCreateTrigger().v_text,
+                'create_view_trigger': v_database.TemplateCreateViewTrigger().v_text,
+                'alter_trigger': v_database.TemplateAlterTrigger().v_text,
+                'enable_trigger': v_database.TemplateEnableTrigger().v_text,
+                'disable_trigger': v_database.TemplateDisableTrigger().v_text,
+                'drop_trigger': v_database.TemplateDropTrigger().v_text,
+                'create_partition': v_database.TemplateCreatePartition().v_text,
+                'noinherit_partition': v_database.TemplateNoInheritPartition().v_text,
+                'drop_partition': v_database.TemplateDropPartition().v_text,
+                'vacuum': v_database.TemplateVacuum().v_text,
+                'vacuum_table': v_database.TemplateVacuumTable().v_text,
+                'create_physicalreplicationslot': v_database.TemplateCreatePhysicalReplicationSlot().v_text,
+                'drop_physicalreplicationslot': v_database.TemplateDropPhysicalReplicationSlot().v_text,
+                'create_logicalreplicationslot': v_database.TemplateCreateLogicalReplicationSlot().v_text,
+                'drop_logicalreplicationslot': v_database.TemplateDropLogicalReplicationSlot().v_text,
+                'create_publication': v_database.TemplateCreatePublication().v_text,
+                'alter_publication': v_database.TemplateAlterPublication().v_text,
+                'drop_publication': v_database.TemplateDropPublication().v_text,
+                'add_pubtable': v_database.TemplateAddPublicationTable().v_text,
+                'drop_pubtable': v_database.TemplateDropPublicationTable().v_text,
+                'create_subscription': v_database.TemplateCreateSubscription().v_text,
+                'alter_subscription': v_database.TemplateAlterSubscription().v_text,
+                'drop_subscription': v_database.TemplateDropSubscription().v_text,
+                'pglogical_version': v_database.GetPglogicalVersion(),
+                'pglogical_create_node': v_database.TemplatePglogicalCreateNode().v_text,
+                'pglogical_drop_node': v_database.TemplatePglogicalDropNode().v_text,
+                'pglogical_add_interface': v_database.TemplatePglogicalNodeAddInterface().v_text,
+                'pglogical_drop_interface': v_database.TemplatePglogicalNodeDropInterface().v_text,
+                'pglogical_create_repset': v_database.TemplatePglogicalCreateReplicationSet().v_text,
+                'pglogical_alter_repset': v_database.TemplatePglogicalAlterReplicationSet().v_text,
+                'pglogical_drop_repset': v_database.TemplatePglogicalDropReplicationSet().v_text,
+                'pglogical_repset_add_table': v_database.TemplatePglogicalReplicationSetAddTable().v_text,
+                'pglogical_repset_add_all_tables': v_database.TemplatePglogicalReplicationSetAddAllTables().v_text,
+                'pglogical_repset_remove_table': v_database.TemplatePglogicalReplicationSetRemoveTable().v_text,
+                'pglogical_repset_add_seq': v_database.TemplatePglogicalReplicationSetAddSequence().v_text,
+                'pglogical_repset_add_all_seqs': v_database.TemplatePglogicalReplicationSetAddAllSequences().v_text,
+                'pglogical_repset_remove_seq': v_database.TemplatePglogicalReplicationSetRemoveSequence().v_text,
+                'pglogical_create_sub': v_database.TemplatePglogicalCreateSubscription().v_text,
+                'pglogical_enable_sub': v_database.TemplatePglogicalEnableSubscription().v_text,
+                'pglogical_disable_sub': v_database.TemplatePglogicalDisableSubscription().v_text,
+                'pglogical_sync_sub': v_database.TemplatePglogicalSynchronizeSubscription().v_text,
+                'pglogical_drop_sub': v_database.TemplatePglogicalDropSubscription().v_text,
+                'pglogical_sub_add_repset': v_database.TemplatePglogicalSubscriptionAddReplicationSet().v_text,
+                'pglogical_sub_remove_repset': v_database.TemplatePglogicalSubscriptionRemoveReplicationSet().v_text,
+                'bdr_version': v_database.GetBDRVersion(),
+                'bdr_create_group': v_database.TemplateBDRCreateGroup().v_text,
+                'bdr_join_group': v_database.TemplateBDRJoinGroup().v_text,
+                'bdr_join_wait': v_database.TemplateBDRJoinWait().v_text,
+                'bdr_pause': v_database.TemplateBDRPause().v_text,
+                'bdr_resume': v_database.TemplateBDRResume().v_text,
+                'bdr_replicate_ddl_command': v_database.TemplateBDRReplicateDDLCommand().v_text,
+                'bdr_part_node': v_database.TemplateBDRPartNode().v_text,
+                'bdr_insert_repset': v_database.TemplateBDRInsertReplicationSet().v_text,
+                'bdr_update_repset': v_database.TemplateBDRUpdateReplicationSet().v_text,
+                'bdr_delete_repset': v_database.TemplateBDRDeleteReplicationSet().v_text,
+                'bdr_set_repsets': v_database.TemplateBDRSetTableReplicationSets().v_text,
+                'bdr_create_confhand': v_database.TemplateBDRCreateConflictHandler().v_text,
+                'bdr_drop_confhand': v_database.TemplateBDRDropConflictHandler().v_text,
+                # only in BDR >= 1
+                'bdr_terminate_apply': v_database.TemplateBDRTerminateApplyWorkers().v_text,
+                'bdr_terminate_walsender': v_database.TemplateBDRTerminateWalsenderWorkers().v_text,
+                'bdr_remove': v_database.TemplateBDRRemove().v_text,
+                'xl_pause_cluster': v_database.TemplateXLPauseCluster().v_text,
+                'xl_unpause_cluster': v_database.TemplateXLUnpauseCluster().v_text,
+                'xl_clean_connection': v_database.TemplateXLCleanConnection().v_text,
+                'xl_create_group': v_database.TemplateXLCreateGroup().v_text,
+                'xl_drop_group': v_database.TemplateXLDropGroup().v_text,
+                'xl_create_node': v_database.TemplateXLCreateNode().v_text,
+                'xl_alter_node': v_database.TemplateXLAlterNode().v_text,
+                'xl_drop_node': v_database.TemplateXLDropNode().v_text,
+                'xl_execute_direct': v_database.TemplateXLExecuteDirect().v_text,
+                'xl_pool_reload': v_database.TemplateXLPoolReload().v_text,
+                'xl_altertable_distribution': v_database.TemplateXLAlterTableDistribution().v_text,
+                'xl_altertable_location': v_database.TemplateXLAlterTableLocation().v_text,
+                'xl_altertable_addnode': v_database.TemplateXLALterTableAddNode().v_text,
+                'xl_altertable_deletenode': v_database.TemplateXLAlterTableDeleteNode().v_text
+            }
         }
-    }
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     return JsonResponse(v_return)
 
@@ -222,7 +227,7 @@ def get_tables(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -272,7 +277,7 @@ def get_columns(request):
             }
             v_list_columns.append(v_column_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -319,7 +324,7 @@ def get_pk(request):
             v_pk_data.append(v_pk['column_name'])
             v_list_pk.append(v_pk_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -370,7 +375,7 @@ def get_fks(request):
             v_fk_data.append(v_fk['update_rule'])
             v_list_fk.append(v_fk_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -417,7 +422,7 @@ def get_uniques(request):
             v_unique_data.append(v_unique['column_name'])
             v_list_uniques.append(v_unique_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -465,7 +470,7 @@ def get_indexes(request):
             v_index_data.append(v_index['column_name'])
             v_list_indexes.append(v_index_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -512,7 +517,7 @@ def get_checks(request):
             v_check_data.append(v_check['constraint_source'])
             v_list_checks.append(v_check_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -560,7 +565,7 @@ def get_excludes(request):
             v_exclude_data.append(v_exclude['operations'])
             v_list_excludes.append(v_exclude_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -606,7 +611,7 @@ def get_rules(request):
             v_rule_data.append(v_rule['constraint_name'])
             v_list_rules.append(v_rule_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -655,7 +660,7 @@ def get_triggers(request):
             v_trigger_data.append(v_trigger['trigger_function_id'])
             v_list_triggers.append(v_trigger_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -701,7 +706,7 @@ def get_partitions(request):
             v_partition_data.append(v_partition['child_schema'] + '.' + v_partition['child_table'])
             v_list_partitions.append(v_partition_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -748,7 +753,7 @@ def get_views(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -797,7 +802,7 @@ def get_views_columns(request):
             }
             v_list_columns.append(v_column_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -837,7 +842,7 @@ def get_view_definition(request):
     try:
         v_return['v_data'] = v_database.GetViewDefinition(v_view, v_schema)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -881,7 +886,7 @@ def get_mviews(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -930,7 +935,7 @@ def get_mviews_columns(request):
             }
             v_list_columns.append(v_column_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -970,7 +975,7 @@ def get_mview_definition(request):
     try:
         v_return['v_data'] = v_database.GetMaterializedViewDefinition(v_view, v_schema)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1013,7 +1018,7 @@ def get_schemas(request):
             }
             v_list_schemas.append(v_schema_data)
     except Exception as exc:
-        v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1058,7 +1063,7 @@ def get_databases(request):
             }
             v_list_databases.append(v_database_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1103,7 +1108,7 @@ def get_tablespaces(request):
             }
             v_list_tablespaces.append(v_tablespace_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1148,7 +1153,7 @@ def get_roles(request):
             }
             v_list_roles.append(v_role_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1195,7 +1200,7 @@ def get_functions(request):
             }
             v_list_functions.append(v_function_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1243,7 +1248,7 @@ def get_function_fields(request):
             }
             v_list_fields.append(v_field_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1282,7 +1287,7 @@ def get_function_definition(request):
     try:
         v_return['v_data'] = v_database.GetFunctionDefinition(v_function)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1319,7 +1324,7 @@ def get_function_debug(request):
     try:
         v_return['v_data'] = v_database.GetFunctionDebug(v_function)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1364,7 +1369,7 @@ def get_triggerfunctions(request):
             }
             v_list_functions.append(v_function_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1403,7 +1408,7 @@ def get_triggerfunction_definition(request):
     try:
         v_return['v_data'] = v_database.GetTriggerFunctionDefinition(v_function)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1443,19 +1448,65 @@ def get_sequences(request):
         v_sequences = v_database.QuerySequences(False,v_schema)
         for v_sequence in v_sequences.Rows:
             v_sequence_data = {
-                'v_sequence_name': v_sequence['sequence_name'],
-                'v_minimum_value': v_sequence['minimum_value'],
-                'v_maximum_value': v_sequence['maximum_value'],
-                'v_current_value': v_sequence['current_value'],
-                'v_increment': v_sequence['increment']
+                'v_sequence_name': v_sequence['sequence_name']
             }
             v_list_sequences.append(v_sequence_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_sequences
+
+    return JsonResponse(v_return)
+
+def get_sequence_values(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_schema = json_object['p_schema']
+    v_sequence = json_object['p_sequence']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_values = []
+
+    try:
+        v_values = v_database.QuerySequenceValues(v_sequence, v_schema)
+        for v_value in v_values.Rows:
+            v_value_data = {
+                'v_minimum_value': v_value['minimum_value'],
+                'v_maximum_value': v_value['maximum_value'],
+                'v_current_value': v_value['current_value'],
+                'v_increment': v_value['increment']
+            }
+            v_list_values.append(v_value_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_values
 
     return JsonResponse(v_return)
 
@@ -1496,7 +1547,7 @@ def get_extensions(request):
             }
             v_list_extensions.append(v_extension_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1541,7 +1592,7 @@ def get_physicalreplicationslots(request):
             }
             v_list_repslots.append(v_repslot_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1586,7 +1637,7 @@ def get_logicalreplicationslots(request):
             }
             v_list_repslots.append(v_repslot_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1635,7 +1686,7 @@ def get_publications(request):
             }
             v_list_pubs.append(v_pub_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1681,7 +1732,7 @@ def get_publication_tables(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1729,7 +1780,7 @@ def get_subscriptions(request):
             }
             v_list_subs.append(v_sub_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1775,7 +1826,7 @@ def get_subscription_tables(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1820,7 +1871,7 @@ def get_pglogical_nodes(request):
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1867,7 +1918,7 @@ def get_pglogical_interfaces(request):
             }
             v_list_ifaces.append(v_iface_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1916,7 +1967,7 @@ def get_pglogical_replicationsets(request):
             }
             v_list_repsets.append(v_repset_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -1962,7 +2013,7 @@ def get_pglogical_repset_tables(request):
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2008,7 +2059,7 @@ def get_pglogical_repset_seqs(request):
             }
             v_list_seqs.append(v_seq_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2057,7 +2108,7 @@ def get_pglogical_subscriptions(request):
             }
             v_list_subs.append(v_sub_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2103,7 +2154,7 @@ def get_pglogical_subscription_repsets(request):
             }
             v_list_repsets.append(v_repset_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2151,7 +2202,7 @@ def get_bdr_properties(request):
             }
             v_list_bdr.append(v_bdr_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2196,7 +2247,7 @@ def get_bdr_nodes(request):
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2244,7 +2295,7 @@ def get_bdr_replicationsets(request):
             }
             v_list_repsets.append(v_repset_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2291,7 +2342,7 @@ def get_bdr_table_replicationsets(request):
             }
             v_list_repsets.append(v_repset_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2340,7 +2391,7 @@ def get_bdr_table_conflicthandlers(request):
             }
             v_list_chs.append(v_ch_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2390,7 +2441,7 @@ def get_xl_nodes(request):
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2435,7 +2486,7 @@ def get_xl_groups(request):
             }
             v_list_groups.append(v_group_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2481,7 +2532,7 @@ def get_xl_group_nodes(request):
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2529,7 +2580,7 @@ def get_xl_table_properties(request):
             }
             v_list_props.append(v_prop_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2576,7 +2627,7 @@ def get_xl_table_nodes(request):
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
@@ -2615,7 +2666,7 @@ def kill_backend_postgres(request):
     try:
         v_data = v_database.v_connection.Execute('select pg_terminate_backend({0})'.format(v_pid))
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 

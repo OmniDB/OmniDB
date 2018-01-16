@@ -35,7 +35,7 @@ def index(request):
         elif num_connections > 0:
             return redirect('workspace')
         '''
-        return redirect('connections')
+        return redirect('workspace')
 
     template = loader.get_template('OmniDB_app/login.html')
     return HttpResponse(template.render(context, request))

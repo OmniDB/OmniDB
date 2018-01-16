@@ -310,7 +310,7 @@ def save_monitor_unit(request):
 
 
     except Exception as exc:
-        v_return['v_data'] = str(exc)
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 

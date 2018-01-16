@@ -25,18 +25,13 @@ $(function () {
 	    v_browserTabActive = false;
 	});
 
-	v_copyPasteObject = new Object();
-
-	v_copyPasteObject.v_tabControl = createTabControl('find_replace',0,null);
-	v_copyPasteObject.v_tabControl.selectTabIndex(0);
-
 	v_connTabControl = createTabControl('conn_tabs',0,null);
 
 	initCreateTabFunctions();
 
 	v_connTabControl.tag.createSnippetTab();
 
-	getDatabaseList();
+	getDatabaseList(true);
 
 	//Prevent "cannot edit" bug in ace editor
 	$(document).on(
@@ -201,7 +196,7 @@ $(function () {
 /// </summary>
 /// <param name="p_sel_id">Selection tag ID.</param>
 /// <param name="p_filter">Filtering a specific database technology.</param>
-function getDatabaseList() {
+function getDatabaseList(p_init, p_callback) {
 
 	execAjax('/get_database_list/',
 			JSON.stringify({}),
@@ -212,31 +207,59 @@ function getDatabaseList() {
 
 				//v_connTabControl.tag.createServerMonitoringTab();
 
-				v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
+				if (p_init) {
 
+					v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
 
-				//Create existing tabs
-				var v_current_parent = null;
-				var v_has_old_tabs = false;
-				if (p_return.v_data.v_existing_tabs.length>0)
-					v_has_old_tabs = true;
+					if (v_connTabControl.tag.connections.length>0) {
 
-				for (var i=0; i < p_return.v_data.v_existing_tabs.length; i++) {
-					if (v_current_parent == null || v_current_parent != p_return.v_data.v_existing_tabs[i].index)
-						v_connTabControl.tag.createConnTab(p_return.v_data.v_existing_tabs[i].index,false);
+						//Create existing tabs
+						var v_current_parent = null;
+						var v_has_old_tabs = false;
+						if (p_return.v_data.v_existing_tabs.length>0)
+							v_has_old_tabs = true;
 
-					v_current_parent = p_return.v_data.v_existing_tabs[i].index;
-					v_connTabControl.tag.createQueryTab('Query',p_return.v_data.v_existing_tabs[i].tab_db_id);
-			    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
-			        p_return.v_data.v_existing_tabs[i].snippet);
-					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
-			    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+						for (var i=0; i < p_return.v_data.v_existing_tabs.length; i++) {
+							if (v_current_parent == null || v_current_parent != p_return.v_data.v_existing_tabs[i].index)
+								v_connTabControl.tag.createConnTab(p_return.v_data.v_existing_tabs[i].index,false);
+
+							v_current_parent = p_return.v_data.v_existing_tabs[i].index;
+							v_connTabControl.tag.createQueryTab('Query',p_return.v_data.v_existing_tabs[i].tab_db_id);
+					    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
+					        p_return.v_data.v_existing_tabs[i].snippet);
+							v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
+					    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+						}
+
+						if (!v_has_old_tabs)
+							v_connTabControl.tag.createConnTab(v_connTabControl.tag.connections[0].v_conn_id);
+
+					}
+					else {
+						var qtip = $('#menu_connections').qtip({
+				        content: {
+				            text: 'Create your first connection!'
+				        },
+				        position: {
+				            my: 'top left',
+				            at: 'bottom right'
+				        },
+				        style: {
+				            classes: 'qtip-bootstrap'
+				        },
+				        show: {
+				            ready: true
+				        }
+				    })
+				    window.setTimeout(function() {
+				        qtip.qtip('api').destroy();
+				    }, 4000);
+					}
+
 				}
 
-				if (v_selected_connection!=-1)
-					v_connTabControl.tag.createConnTab(v_selected_connection);
-				else if (!v_has_old_tabs)
-					v_connTabControl.tag.createConnTab(0);
+				if (p_callback)
+					p_callback();
 
 			},
 			null,
@@ -251,52 +274,23 @@ function getDatabaseList() {
 /// <param name="p_value">Database ID.</param>
 function changeDatabase(p_value) {
 
+	//finding connection object
+	var v_conn_object = null;
+	for (var i=0; i<v_connTabControl.tag.connections.length; i++) {
+		if (p_value==v_connTabControl.tag.connections[i].v_conn_id) {
+			v_conn_object = v_connTabControl.tag.connections[i];
+			break;
+		}
+	}
+
 	v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
 
-	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_connTabControl.tag.connections[p_value].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[p_value].v_alias;
+	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
 
-	if (v_connTabControl.tag.connections[p_value].v_db_type=='postgresql')
+	if (v_conn_object.v_db_type=='postgresql')
 		getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
 	else
 		getTree(v_connTabControl.selectedTab.tag.divTree.id);
-
-}
-
-/// <summary>
-/// Opens copy & paste window.
-/// </summary>
-function showFindReplace(p_editor) {
-
-	v_copyPasteObject.v_editor = p_editor;
-
-	$('#div_find_replace').show();
-
-	document.getElementById('txt_replacement_text').value = '';
-	document.getElementById('txt_replacement_text_new').value = '';
-
-}
-
-/// <summary>
-/// Hides copy & paste window.
-/// </summary>
-function replaceText() {
-
-	var v_old_text = v_copyPasteObject.v_editor.getValue();
-
-	var v_new_text = v_old_text.split(document.getElementById('txt_replacement_text').value).join(document.getElementById('txt_replacement_text_new').value);
-
-	v_copyPasteObject.v_editor.setValue(v_new_text);
-
-	hideFindReplace();
-
-}
-
-/// <summary>
-/// Opens copy & paste window.
-/// </summary>
-function hideFindReplace() {
-
-	$('#div_find_replace').hide();
 
 }
 
@@ -1017,8 +1011,9 @@ function refreshMonitoring(p_tab_tag) {
 					colHeaders : true,
 					rowHeaders : true,
 					fixedColumnsLeft: v_fixedColumnsLeft,
-					copyRowsLimit : 1000000000,
-					copyColsLimit : 1000000000,
+					//copyRowsLimit : 1000000000,
+					//copyColsLimit : 1000000000,
+                    copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
 					manualColumnResize: true,
 					contextMenu: {
 						callback: function (key, options) {

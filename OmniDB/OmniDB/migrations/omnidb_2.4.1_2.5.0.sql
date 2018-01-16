@@ -1,6 +1,6 @@
-DROP TABLE messages;
+DROP TABLE messages;--omnidb--
 
-DROP TABLE messages_users;
+DROP TABLE messages_users;--omnidb--
 
 CREATE TABLE channels (
     cha_in_code integer not null,
@@ -64,6 +64,10 @@ CREATE TABLE status_chat (
     stc_st_name text not null,
     constraint pk_status_chat primary key (stc_in_code)
 );--omnidb--
+INSERT INTO status_chat VALUES(1, 'None');--omnidb--
+INSERT INTO status_chat VALUES(2, 'In a Meeting');--omnidb--
+INSERT INTO status_chat VALUES(3, 'Remote Work');--omnidb--
+INSERT INTO status_chat VALUES(4, 'Busy');--omnidb--
 
 CREATE TABLE users_channels (
     use_in_code integer not null,

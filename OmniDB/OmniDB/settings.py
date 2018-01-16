@@ -37,10 +37,9 @@ SESSION_DATABASE = os.path.join(HOME_DIR, 'db.sqlite3')
 if not os.path.exists(SESSION_DATABASE):
     shutil.copyfile(os.path.join(BASE_DIR, 'db.sqlite3'), SESSION_DATABASE)
 CONFFILE = os.path.join(HOME_DIR, 'omnidb.conf')
-if not DESKTOP_MODE and not os.path.exists(CONFFILE):
+if not DEV_MODE and not os.path.exists(CONFFILE):
     shutil.copyfile(os.path.join(BASE_DIR, 'omnidb.conf'), CONFFILE)
 OMNIDB_DATABASE = os.path.join(HOME_DIR, 'omnidb.db')
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -194,12 +193,7 @@ LOGGING = {
             'handlers': ['logfile_omnidb','console_omnidb_app'],
             'propagate': False,
             'level':'INFO',
-        },
-        'cherrypy.error': {
-            'handlers': ['logfile_django','console_omnidb_app'],
-            'level': 'INFO',
-            'propagate': False
-        },
+        }
     }
 }
 
@@ -212,7 +206,7 @@ BINDKEY_AUTOCOMPLETE       = 'ctrl+space'
 BINDKEY_AUTOCOMPLETE_MAC   = 'cmd+space'
 OMNIDB_DEFAULT_SERVER_PORT = 8000
 OMNIDB_DEFAULT_APP_PORT    = 25480
-WS_QUERY_PORT              = 25482
+OMNIDB_PORT                = 25482
 WS_CHAT_PORT               = 25483
 IS_SSL                     = False
 SSL_CERTIFICATE            = ""

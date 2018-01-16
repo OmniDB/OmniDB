@@ -1812,6 +1812,17 @@ function getTreePostgresql(p_div) {
         },
         'cm_sequence': {
             elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        getSequenceValuesPostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
                 text: 'Alter Sequence',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {

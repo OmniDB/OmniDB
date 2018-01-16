@@ -25,6 +25,15 @@ from django.contrib.sessions.backends.db import SessionStore
 import logging
 logger = logging.getLogger('OmniDB_app.QueryServer')
 
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "OmniDB.settings")
+from tornado.options import options, define, parse_command_line
+import django.conf
+import django.contrib.auth
+import django.core.handlers.wsgi
+import django.db
+import tornado.wsgi
+
 class StoppableThread(threading.Thread):
     def __init__(self,p1,p2,p3):
         super(StoppableThread, self).__init__(target=p1, args=(self,p2,p3,))
@@ -168,6 +177,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     v_timeout = v_session.DatabaseReachPasswordTimeout(v_data['v_db_index'])
                     if v_timeout['timeout']:
                         v_response['v_code'] = response.PasswordRequired
+                        v_response['v_data'] = v_timeout['message']
                         self.write_message(json.dumps(v_response))
                         return
 
@@ -343,25 +353,16 @@ def start_wsserver_thread():
     t.setDaemon(True)
     t.start()
 
-#import os
-#os.environ.setdefault("DJANGO_SETTINGS_MODULE", "OmniDB.settings")
-#from tornado.options import options, define, parse_command_line
-#import django.conf
-#import django.contrib.auth
-#import django.core.handlers.wsgi
-#import django.db
-#import tornado.wsgi
-
 def start_wsserver():
-    #logger.info('''*** Starting OmniDB ***''')
-    #logger.info('''*** Starting Query WS Server ***''')
-    #wsgi_app = tornado.wsgi.WSGIContainer(
-    # django.core.handlers.wsgi.WSGIHandler())
+    logger.info('''*** Starting OmniDB ***''')
+
+    wsgi_app = tornado.wsgi.WSGIContainer(
+    django.core.handlers.wsgi.WSGIHandler())
     try:
         application = tornado.web.Application([
           (r'/ws', WSHandler),
           (r'/wss',WSHandler),
-          #('.*', tornado.web.FallbackHandler, dict(fallback=wsgi_app)),
+          ('.*', tornado.web.FallbackHandler, dict(fallback=wsgi_app)),
         ])
 
         if settings.IS_SSL:
@@ -372,7 +373,7 @@ def start_wsserver():
         else:
             server = tornado.httpserver.HTTPServer(application)
 
-        server.listen(settings.WS_QUERY_PORT)
+        server.listen(settings.OMNIDB_PORT)
         tornado.ioloop.IOLoop.instance().start()
 
     except Exception as exc:

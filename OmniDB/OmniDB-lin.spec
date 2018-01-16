@@ -4,6 +4,7 @@ block_cipher = None
 
 data_files_app = [
   ('db.sqlite3','.'),
+  ('omnidb.conf','.'),
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates'),

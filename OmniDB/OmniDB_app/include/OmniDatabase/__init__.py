@@ -1507,16 +1507,20 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         if 'Data' in p_categoryList and v_inSchemas != '':
             v_columnsSql = '''
-                select c.table_schema as schema_name,
-                       c.table_name as table_name,
-                       c.column_name as column_name
-                from information_schema.tables t
-                inner join information_schema.columns c
-                           on t.table_name = c.table_name and t.table_schema = c.table_schema
-                where c.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-                  and c.table_schema not like 'pg%%temp%%'
-                  and t.table_type = 'BASE TABLE'
-                  and c.table_schema in ({0})
+                select n.nspname as schema_name,
+                       c.relname as table_name,
+                       a.attname as column_name
+                from pg_namespace n
+                inner join pg_class c
+                           on n.oid = c.relnamespace
+                inner join pg_attribute a
+                           on c.oid = a.attrelid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and n.nspname not like 'pg%%temp%%'
+                  and c.relkind = 'r'
+                  and attnum > 0
+                  and not a.attisdropped
+                  and n.nspname in ({0})
             '''.format(v_inSchemas)
 
             v_columnsTable = self.v_connection.Query(v_columnsSql)

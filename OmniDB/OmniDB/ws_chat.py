@@ -929,16 +929,72 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
 
         if p_requestMessage['v_data']['messageType'] == 0: #Forward message
             v_messageCode = int(v_database.ExecuteScalar('''
-                select pscore.mensagensgrupos_fnc_encaminhar(
-                    {0},
-                    {1},
-                    {2}
-                )'''.format(
-                    p_requestMessage['v_data']['groupCode'],
-                    int(p_webSocketSession.cookies['user_id'].value),
-                    p_requestMessage['v_data']['forwardMessageCode']
-                )
+                select coalesce(max(mes.mes_in_code), 0) + 1
+                from messages mes'''
             ))
+
+            v_database.Execute('''
+                insert into messages (
+                    men_in_codigo,
+                    men_dt_criacao,
+                    men_dt_alteracao,
+                    usu_in_codigo,
+                    tim_in_codigo,
+                    men_st_conteudo,
+                    men_st_titulo,
+                    men_st_nomeanexo,
+                    men_st_caminhoanexo,
+                    men_st_modosnippet,
+                    men_st_conteudooriginal
+                )
+                (select {0} as men_in_codigo,
+                        strftime('%m/%d/%Y %H:%M:%S', date('now')) as men_dt_criacao,
+                        strftime('%m/%d/%Y %H:%M:%S', date('now')) as men_dt_alteracao,
+                        {1} as usu_in_codigo,
+                        men.tim_in_codigo as tim_in_codigo,
+                        men.men_st_conteudo as men_st_conteudo,
+                        men.men_st_titulo as men_st_titulo,
+                        men.men_st_nomeanexo as men_st_nomeanexo,
+                        men.men_st_caminhoanexo as men_st_caminhoanexo,
+                        men.men_st_modosnippet as men_st_modosnippet,
+                        men.men_st_conteudooriginal as men_st_conteudooriginal
+                 from pscore.mensagens men
+                 where men.men_in_codigo = {2}
+                );
+
+                insert into pscore.mensagens_grupos (
+                    men_in_codigo,
+                    gru_in_codigo,
+                    usu_in_codigo,
+                    meg_bo_visualizada
+                )
+                (select {0} as men_in_codigo,
+                        usg.gru_in_codigo as gru_in_codigo,
+                        usg.usu_in_codigo,
+                        False as meg_bo_visualizada
+                 from pscore.usuarios_grupos usg
+                 where usg.gru_in_codigo = {3}
+                   and usg.usu_in_codigo <> {1}
+                );
+
+                --Usuário que enviou já visualizou a mensagem, pois foi ele quem escreveu
+                insert into pscore.mensagens_grupos (
+                    men_in_codigo,
+                    gru_in_codigo,
+                    usu_in_codigo,
+                    meg_bo_visualizada
+                ) values (
+                    {0},
+                    {3},
+                    {1},
+                    True
+                );'''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    p_requestMessage['v_data']['forwardMessageCode'],
+                    p_requestMessage['v_data']['groupCode']
+                )
+            )
 
             v_messageType = int(v_database.ExecuteScalar('''
                 select mes.met_in_code
@@ -947,6 +1003,7 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             ))
 
             if v_messageType == 2 or v_messageType == 4: #Pasted image or attachment
+                #TODO: verify this
                 try:
                     syscall(
                         'cp {0}/{1} {2}/{3}'.format(
@@ -1062,18 +1119,71 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_content = re.sub("'", "''", v_content)
 
             v_messageCode = int(v_database.ExecuteScalar('''
-                select pscore.mensagensgrupos_fnc_adicionartextopuro(
+                select coalesce(max(mes.mes_in_code), 0) + 1
+                from messages mes'''
+            ))
+
+            v_database.Execute('''
+                insert into pscore.mensagens (
+                    men_in_codigo,
+                    men_dt_criacao,
+                    men_dt_alteracao,
+                    usu_in_codigo,
+                    tim_in_codigo,
+                    men_st_conteudo,
+                    men_st_titulo,
+                    men_st_nomeanexo,
+                    men_st_caminhoanexo,
+                    men_st_modosnippet,
+                    men_st_conteudooriginal
+                ) values (
                     {0},
+                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     {1},
-                    '{2}',
-                    '{3}'
-                )'''.format(
-                    p_requestMessage['v_data']['groupCode'],
+                    1, --Plain Text
+                    '{3}',
+                    null,
+                    null,
+                    null,
+                    null,
+                    '{4}'
+                );
+
+                insert into pscore.mensagens_grupos (
+                    men_in_codigo,
+                    gru_in_codigo,
+                    usu_in_codigo,
+                    meg_bo_visualizada
+                )
+                (select {0} as men_in_codigo,
+                        usg.gru_in_codigo as gru_in_codigo,
+                        usg.usu_in_codigo,
+                        False as meg_bo_visualizada
+                 from pscore.usuarios_grupos usg
+                 where usg.gru_in_codigo = {2}
+                   and usg.usu_in_codigo <> {1}
+                );
+
+                --Usuário que enviou já visualizou a mensagem, pois foi ele quem escreveu
+                insert into pscore.mensagens_grupos (
+                    men_in_codigo,
+                    gru_in_codigo,
+                    usu_in_codigo,
+                    meg_bo_visualizada
+                ) values (
+                    {0},
+                    {2},
+                    {1},
+                    True
+                );'''.format(
+                    v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
+                    p_requestMessage['v_data']['groupCode'],
                     v_content,
                     re.sub("'", "''", p_requestMessage['v_data']['messageRawContent'])
                 )
-            ))
+            )
         elif p_requestMessage['v_data']['messageType'] == 2: #Pasted Image
             v_title = re.sub("'", "''", p_requestMessage['v_data']['messageTitle'])
             v_attachmentName = re.sub("'", "''", p_requestMessage['v_data']['messageAttachmentName'])

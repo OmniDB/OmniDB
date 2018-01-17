@@ -1,3 +1,13 @@
+ALTER TABLE users
+ADD COLUMN stc_in_code integer;--omnidb--
+
+ALTER TABLE users
+ADD COLUMN use_bo_bot integer;--omnidb--
+
+UPDATE users
+SET stc_in_code = 1,
+    use_bo_bot = 0;--omnidb--
+
 DROP TABLE messages;--omnidb--
 
 DROP TABLE messages_users;--omnidb--
@@ -8,6 +18,7 @@ CREATE TABLE channels (
     cha_bo_private integer not null,
     constraint pk_channels primary key (cha_in_code)
 );--omnidb--
+INSERT INTO channels VALUES(1, 'General', 0);--omnidb--
 
 CREATE TABLE groups (
     gro_in_code integer not null,
@@ -18,7 +29,12 @@ CREATE TABLE messages_types (
     met_in_code integer not null,
     met_st_description text,
     constraint pk_messages_types primary key (met_in_code)
-);
+);--omnidb--
+INSERT INTO messages_types VALUES(1, 'Plain Text');--omnidb--
+INSERT INTO messages_types VALUES(1, 'Pasted Image');--omnidb--
+INSERT INTO messages_types VALUES(1, 'Snippet');--omnidb--
+INSERT INTO messages_types VALUES(1, 'Attachment');--omnidb--
+INSERT INTO messages_types VALUES(1, 'Mention');--omnidb--
 
 CREATE TABLE messages (
     mes_in_code integer not null,

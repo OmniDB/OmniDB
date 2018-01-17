@@ -392,7 +392,7 @@ CREATE TABLE users (user_id integer not null,
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)
 );--omnidb--
-INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'0c4a137f-9918-4c0b-af45-480deef6f760');--omnidb--
+INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'0c4a137f-9918-4c0b-af45-480deef6f760', 1, 0);--omnidb--
 
 CREATE TABLE snippets_nodes (
     sn_id integer not null,
@@ -534,6 +534,7 @@ CREATE TABLE channels (
     cha_bo_private integer not null,
     constraint pk_channels primary key (cha_in_code)
 );--omnidb--
+INSERT INTO channels VALUES(1, 'General', 0);--omnidb--
 
 CREATE TABLE groups (
     gro_in_code integer not null,
@@ -544,7 +545,12 @@ CREATE TABLE messages_types (
     met_in_code integer not null,
     met_st_description text,
     constraint pk_messages_types primary key (met_in_code)
-);
+);--omnidb--
+INSERT INTO messages_types VALUES(1, 'Plain Text');--omnidb--
+INSERT INTO messages_types VALUES(1, 'Pasted Image');--omnidb--
+INSERT INTO messages_types VALUES(1, 'Snippet');--omnidb--
+INSERT INTO messages_types VALUES(1, 'Attachment');--omnidb--
+INSERT INTO messages_types VALUES(1, 'Mention');--omnidb--
 
 CREATE TABLE messages (
     mes_in_code integer not null,

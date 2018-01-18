@@ -92,7 +92,11 @@ def new_user(request):
     try:
         v_session.v_omnidb_database.v_connection.Open()
 
-        v_userCode = v_session.v_omnidb_database.v_connection.ExecuteScalar('''select coalesce(max(user_id), 0) + 1 from users''')
+        v_userCode = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
+            select coalesce(max(user_id), 0) + 1
+            from users
+            '''
+        )
 
         v_session.v_omnidb_database.v_connection.Execute('''
             insert into users values (
@@ -109,7 +113,58 @@ def new_user(request):
         )
 
         for v_row in v_table.Rows:
-            v_groupCode = v_session.v_omnidb_database.v_connection.ExecuteScalar('''select coalesce(max(gro_in_code), 0) + 1 as gro_in_code from users''')
+            v_groupCode = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
+                select coalesce(max(gro_in_code), 0) + 1 as gro_in_code
+                from groups
+                '''
+            )
+
+            v_session.v_omnidb_database.v_connection.Execute('''
+                insert into groups (
+                    gro_in_code
+                ) values (
+                    {0}
+                )
+                '''.format(
+                    v_groupCode,
+                    v_userCode,
+                    v_row['use_in_code']
+                )
+            )
+
+            v_session.v_omnidb_database.v_connection.Execute('''
+                insert into users_groups (
+                    use_in_code,
+                    gro_in_code,
+                    usg_bo_silenced
+                ) values (
+                    {1},
+                    {0},
+                    0
+                )
+                '''.format(
+                    v_groupCode,
+                    v_userCode,
+                    v_row['use_in_code']
+                )
+            )
+
+            v_session.v_omnidb_database.v_connection.Execute('''
+                insert into users_groups (
+                    use_in_code,
+                    gro_in_code,
+                    usg_bo_silenced
+                ) values (
+                    {2},
+                    {0},
+                    0
+                )
+                '''.format(
+                    v_groupCode,
+                    v_userCode,
+                    v_row['use_in_code']
+                )
+            )
 
         v_session.v_omnidb_database.v_connection.Close()
     except Exception as exc:

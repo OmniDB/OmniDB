@@ -895,7 +895,7 @@ function chatLoginResult(p_data) {
             for(var i = 0; i < v_groupItems.length; i++) {
                 v_groupItems[i].classList.remove('div_chat_left_content_item_hidden');
 
-                if(v_groupItems[i].userName.indexOf(v_value) == -1 && v_groupItems[i].userLogin.indexOf(v_value) == -1 && v_groupItems[i].companyName.indexOf(v_value) == -1) {
+                if(v_groupItems[i].userName.indexOf(v_value) == -1 && v_groupItems[i].userLogin.indexOf(v_value) == -1) {
                     v_groupItems[i].classList.add('div_chat_left_content_item_hidden');
                 }
             }
@@ -6578,7 +6578,6 @@ function chatLoginResult(p_data) {
                 v_item.userCode = p_group.userList[j].code;
                 v_item.userName = p_group.userList[j].name.toLowerCase();
                 v_item.userLogin = p_group.userList[j].login.toLowerCase();
-                v_item.companyName = p_group.userList[j].company.nickname.toLowerCase();
 		        v_item.innerHTML = p_group.userList[j].login;
                 v_item.title = p_group.userList[j].name;
 		        v_item.classList.add('div_chat_left_content_item');

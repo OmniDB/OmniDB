@@ -103,6 +103,33 @@ CREATE TABLE users_groups (
     constraint users_groups_fk_1 foreign key (gro_in_code) references groups (gro_in_code)  on update CASCADE  on delete CASCADE
 );--omnidb--
 
+CREATE TABLE user_group_tmp (
+    group_id integer not null,
+    user_id_a integer not null,
+    user_id_b integer not null,
+    constraint pk_messages_groups primary key (group_id)
+);--omnidb--
+
+INSERT INTO user_group_tmp (user_id_a, user_id_b)
+SELECT a.user_id AS user_id_a,
+       b.user_id AS user_id_b
+FROM users a
+INNER JOIN users b ON 1 = 1
+WHERE b.user_id <> a.user_id;--omnidb--
+
+INSERT INTO groups (gro_in_code)
+SELECT group_id
+FROM user_group_tmp;--omnidb--
+
+INSERT INTO users_groups (use_in_code, gro_in_code, usg_bo_silenced)
+SELECT user_id_a, group_id, 0
+FROM user_group_tmp
+UNION ALL
+SELECT user_id_b, group_id, 0
+FROM user_group_tmp;--omnidb--
+
+DROP TABLE user_group_tmp;--omnidb--
+
 CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)

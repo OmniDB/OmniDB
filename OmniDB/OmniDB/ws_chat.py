@@ -529,7 +529,7 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
                                                                 on mc.mes_in_code = m.mes_in_code
                                                      where mc.cha_in_code = {0}
                                                        and mc.use_in_code = {1}
-                                                       and mc.mec_bo_viewed = False
+                                                       and mc.mec_bo_viewed = 0
                                                     )
                         order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
                     ) y
@@ -725,7 +725,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                                                                 on mg.mes_in_code = m.mes_in_code
                                                      where mg.gro_in_code = {0}
                                                        and mg.use_in_code = {1}
-                                                       and mg.meg_bo_viewed = False
+                                                       and mg.meg_bo_viewed = 0
                                                     )
                         order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
                     ) y
@@ -840,7 +840,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                                                                 on mc.mes_in_code = m.mes_in_code
                                                      where mc.cha_in_code = {0}
                                                        and mc.use_in_code = {1}
-                                                       and mc.mec_bo_viewed = False
+                                                       and mc.mec_bo_viewed = 0
                                                     )
                         order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
                     ) y
@@ -3101,7 +3101,7 @@ def MarkChannelMessagesAsRead(p_webSocketSession, p_requestMessage, p_responseMe
         for i in range(0, len(p_requestMessage['v_data']['messageCodeList'])):
             v_database.Execute('''
                 update messages_channels
-                set mec_bo_viewed = True
+                set mec_bo_viewed = 1
                 where cha_in_code = {0}
                   and use_in_code = {1}
                   and mes_in_code = {2}
@@ -3676,7 +3676,7 @@ def SetUserChatStatus(p_webSocketSession, p_requestMessage, p_responseMessage):
         v_database.Execute('''
             update users
             set stc_in_code = {1}
-            where use_in_code = {0}
+            where user_id = {0}
             '''.format(
                 p_webSocketSession.cookies['user_id'].value,
                 p_requestMessage['v_data']['userChatStatusCode']

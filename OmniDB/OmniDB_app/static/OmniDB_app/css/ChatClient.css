@@ -107,7 +107,6 @@
 
 .div_chat_left_content_item {
     flex-direction: column;
-    width: 100%;
     padding-left: 15px;
     padding-bottom: 5px;
     cursor: pointer;
@@ -212,7 +211,7 @@
     float: right;
     margin: 3px;
     width: 200px;
-    background: url('../theme/imgs/icons/utils_chat_search.png') no-repeat scroll 7px 7px;
+    background: url('/static/OmniDB_app/images/icons/utils_chat_search.png') no-repeat scroll 7px 7px;
     background-position: left center;
     padding-left: 30px;
 }
@@ -245,7 +244,6 @@
 }
 
 #div_chat_right_left_footer_left {
-    height: 100%;
     flex: 0 0 33px;
     position: relative;
 }
@@ -253,6 +251,7 @@
 .button_chat_right_footer_left {
     color: 2px solid rgba(0, 0, 0, 0.5);
     border-radius: 0px;
+    height: 32px;
 }
 
 .div_chat_right_left_footer_left_options {

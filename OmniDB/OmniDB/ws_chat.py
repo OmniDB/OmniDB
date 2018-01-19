@@ -960,8 +960,15 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                         mes.mes_st_originalcontent as mes_st_originalcontent
                  from messages mes
                  where mes.mes_in_code = {2}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    p_requestMessage['v_data']['forwardMessageCode']
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
                     gro_in_cde,
@@ -973,10 +980,17 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                         usg.use_in_code,
                         False as meg_bo_viewed
                  from users_groups usg
-                 where usg.gro_in_cde = {3}
+                 where usg.gro_in_cde = {2}
                    and usg.use_in_code <> {1}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    p_requestMessage['v_data']['groupCode']
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
@@ -985,13 +999,13 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     meg_bo_viewed
                 ) values (
                     {0},
-                    {3},
+                    {2},
                     {1},
                     True
-                );'''.format(
+                )
+                '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
-                    p_requestMessage['v_data']['forwardMessageCode'],
                     p_requestMessage['v_data']['groupCode']
                 )
             )
@@ -999,7 +1013,10 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_messageType = int(v_database.ExecuteScalar('''
                 select mes.met_in_code
                 from messages mes
-                where mes.mes_in_code = {0}'''.format(p_requestMessage['v_data']['forwardMessageCode'])
+                where mes.mes_in_code = {0}
+                '''.format(
+                    p_requestMessage['v_data']['forwardMessageCode']
+                )
             ))
 
             if v_messageType == 2 or v_messageType == 4: #Pasted image or attachment
@@ -1127,7 +1144,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
 
             v_messageCode = int(v_database.ExecuteScalar('''
                 select coalesce(max(mes.mes_in_code), 0) + 1
-                from messages mes'''
+                from messages mes
+                '''
             ))
 
             v_database.Execute('''
@@ -1149,14 +1167,22 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     {1},
                     1, --Plain Text
-                    '{3}',
+                    '{2}',
                     null,
                     null,
                     null,
                     null,
-                    '{4}'
-                );
+                    '{3}'
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    v_content,
+                    re.sub("'", "''", p_requestMessage['v_data']['messageRawContent'])
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
                     gro_in_cde,
@@ -1170,8 +1196,15 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_groups usg
                  where usg.gro_in_cde = {2}
                    and usg.use_in_code <> {1}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    p_requestMessage['v_data']['groupCode']
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
@@ -1183,12 +1216,11 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {2},
                     {1},
                     True
-                );'''.format(
+                )
+                '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
-                    p_requestMessage['v_data']['groupCode'],
-                    v_content,
-                    re.sub("'", "''", p_requestMessage['v_data']['messageRawContent'])
+                    p_requestMessage['v_data']['groupCode']
                 )
             )
         elif p_requestMessage['v_data']['messageType'] == 2: #Pasted Image
@@ -1222,13 +1254,22 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {1},
                     2, --Pasted Image
                     null,
-                    '{4}',
                     '{3}',
-                    '{5}',
+                    '{2}',
+                    '{4}',
                     null,
                     null
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    v_title,
+                    v_attachmentName,
+                    v_attachmentPath
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
                     gro_in_cde,
@@ -1242,8 +1283,15 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_groups usg
                  where usg.gro_in_cde = {2}
                    and usg.use_in_code <> {1}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    p_requestMessage['v_data']['groupCode']
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
@@ -1255,14 +1303,11 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {2},
                     {1},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
-                    p_requestMessage['v_data']['groupCode'],
-                    v_title,
-                    v_attachmentName,
-                    v_attachmentPath
+                    p_requestMessage['v_data']['groupCode']
                 )
             )
 
@@ -1309,14 +1354,23 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     {1},
                     3, --Snippet
-                    '{4}',
                     '{3}',
+                    '{2}',
                     null,
                     null,
-                    '{5}',
+                    '{4}',
                     null
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    v_title,
+                    v_content,
+                    v_snippetMode
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
                     gro_in_cde,
@@ -1330,8 +1384,15 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_groups usg
                  where usg.gro_in_cde = {2}
                    and usg.use_in_code <> {1}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    p_requestMessage['v_data']['groupCode']
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
@@ -1343,14 +1404,11 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {2},
                     {1},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
-                    p_requestMessage['v_data']['groupCode'],
-                    v_title,
-                    v_content,
-                    v_snippetMode
+                    p_requestMessage['v_data']['groupCode']
                 )
             )
         elif p_requestMessage['v_data']['messageType'] == 4: #Attachment
@@ -1384,13 +1442,22 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {1},
                     4, --Attachment
                     null,
+                    '{2}',
                     '{3}',
                     '{4}',
-                    '{5}',
                     null,
                     null
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    v_title,
+                    v_attachmentName,
+                    v_attachmentPath
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
                     gro_in_cde,
@@ -1404,8 +1471,15 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_groups usg
                  where usg.gro_in_cde = {2}
                    and usg.use_in_code <> {1}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    p_requestMessage['v_data']['groupCode']
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
@@ -1417,14 +1491,11 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {2},
                     {1},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
-                    p_requestMessage['v_data']['groupCode'],
-                    v_title,
-                    v_attachmentName,
-                    v_attachmentPath
+                    p_requestMessage['v_data']['groupCode']
                 )
             )
 
@@ -1574,14 +1645,22 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     {1},
                     5, --Mention
-                    '{3}',
+                    '{2}',
                     null,
                     null,
                     null,
                     null,
-                    '{4}'
-                );
+                    '{3}'
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    v_content,
+                    v_originalContent
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
                     gro_in_cde,
@@ -1595,8 +1674,15 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_groups usg
                  where usg.gro_in_cde = {2}
                    and usg.use_in_code <> {1}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    p_requestMessage['v_data']['groupCode']
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
@@ -1608,13 +1694,11 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {2},
                     {1},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
-                    p_requestMessage['v_data']['groupCode'],
-                    v_content,
-                    v_originalContent
+                    p_requestMessage['v_data']['groupCode']
                 )
             )
 
@@ -2233,7 +2317,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 (select {0} as mes_in_code,
                         strftime('%m/%d/%Y %H:%M:%S', date('now')) as mes_dt_creation,
                         strftime('%m/%d/%Y %H:%M:%S', date('now')) as mes_dt_update,
-                        {2} as use_in_code,
+                        {1} as use_in_code,
                         mes.met_in_code as met_in_code,
                         mes.mes_st_content as mes_st_content,
                         mes.mes_st_title as mes_st_title,
@@ -2242,9 +2326,16 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                         mes.mes_st_snippetmode as mes_st_snippetmode,
                         mes.mes_st_originalcontent as mes_st_originalcontent
                  from messages mes
-                 where mes.mes_in_code = {3}
-                );
+                 where mes.mes_in_code = {2}
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    p_requestMessage['v_data']['forwardMessageCode']
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_channels (
                     mes_in_code,
                     cha_in_code,
@@ -2258,8 +2349,15 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    p_requestMessage['v_data']['channelCode'],
+                    int(p_webSocketSession.cookies['user_id'].value)
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_channels (
                     mes_in_code,
@@ -2271,12 +2369,11 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {1},
                     {2},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
-                    int(p_webSocketSession.cookies['user_id'].value),
-                    p_requestMessage['v_data']['forwardMessageCode']
+                    int(p_webSocketSession.cookies['user_id'].value)
                 )
             )
 
@@ -2431,16 +2528,24 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    {2},
+                    {1},
                     1, --Plain Text
-                    '{3}',
+                    '{2}',
                     null,
                     null,
                     null,
                     null,
-                    '{4}'
-                );
+                    '{3}'
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    v_content,
+                    re.sub("'", "''", p_requestMessage['v_data']['messageRawContent'])
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_channels (
                     mes_in_code,
                     cha_in_code,
@@ -2454,8 +2559,15 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    p_requestMessage['v_data']['channelCode'],
+                    int(p_webSocketSession.cookies['user_id'].value)
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_channels (
                     mes_in_code,
@@ -2467,13 +2579,11 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {1},
                     {2},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
-                    int(p_webSocketSession.cookies['user_id'].value),
-                    v_content,
-                    re.sub("'", "''", p_requestMessage['v_data']['messageRawContent'])
+                    int(p_webSocketSession.cookies['user_id'].value)
                 )
             )
         elif p_requestMessage['v_data']['messageType'] == 2: #Pasted Image
@@ -2504,16 +2614,25 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    {2},
+                    {1},
                     2, --Pasted Image
                     null,
+                    '{2}',
                     '{3}',
                     '{4}',
-                    '{5}',
                     null,
                     null
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    v_title,
+                    v_attachmentName,
+                    v_attachmentPath
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_channels (
                     mes_in_code,
                     cha_in_code,
@@ -2527,8 +2646,15 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    p_requestMessage['v_data']['channelCode'],
+                    int(p_webSocketSession.cookies['user_id'].value)
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_channels (
                     mes_in_code,
@@ -2540,14 +2666,11 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {1},
                     {2},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
-                    int(p_webSocketSession.cookies['user_id'].value),
-                    v_title,
-                    v_attachmentName,
-                    v_attachmentPath
+                    int(p_webSocketSession.cookies['user_id'].value)
                 )
             )
 
@@ -2591,16 +2714,25 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    {2},
+                    {1},
                     3, --Snippet
-                    '{4}',
                     '{3}',
+                    '{2}',
                     null,
                     null,
-                    '{5}',
+                    '{4}',
                     null
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    v_title,
+                    v_content,
+                    v_snippetMode
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_channels (
                     mes_in_code,
                     cha_in_code,
@@ -2614,8 +2746,15 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    p_requestMessage['v_data']['channelCode'],
+                    int(p_webSocketSession.cookies['user_id'].value)
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_channels (
                     mes_in_code,
@@ -2627,14 +2766,11 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {1},
                     {2},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
-                    int(p_webSocketSession.cookies['user_id'].value),
-                    v_title,
-                    v_content,
-                    v_snippetMode
+                    int(p_webSocketSession.cookies['user_id'].value)
                 )
             )
         elif p_requestMessage['v_data']['messageType'] == 4: #Attachment
@@ -2665,16 +2801,25 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    {2},
+                    {1},
                     4, --Attachment
                     null,
+                    '{2}',
                     '{3}',
                     '{4}',
-                    '{5}',
                     null,
                     null
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    v_title,
+                    v_attachmentName,
+                    v_attachmentPath
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_channels (
                     mes_in_code,
                     cha_in_code,
@@ -2688,8 +2833,15 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    p_requestMessage['v_data']['channelCode'],
+                    int(p_webSocketSession.cookies['user_id'].value)
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_channels (
                     mes_in_code,
@@ -2701,14 +2853,11 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {1},
                     {2},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
-                    int(p_webSocketSession.cookies['user_id'].value),
-                    v_title,
-                    v_attachmentName,
-                    v_attachmentPath
+                    int(p_webSocketSession.cookies['user_id'].value)
                 )
             )
 
@@ -2855,16 +3004,24 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    {2},
+                    {1},
                     5, --Mention
-                    '{3}',
+                    '{2}',
                     null,
                     null,
                     null,
                     null,
-                    '{4}'
-                );
+                    '{3}'
+                )
+                '''.format(
+                    v_messageCode,
+                    int(p_webSocketSession.cookies['user_id'].value),
+                    v_content,
+                    v_originalContent
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_channels (
                     mes_in_code,
                     cha_in_code,
@@ -2878,8 +3035,15 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    p_requestMessage['v_data']['channelCode'],
+                    int(p_webSocketSession.cookies['user_id'].value)
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_channels (
                     mes_in_code,
@@ -2891,13 +3055,11 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {1},
                     {2},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
-                    int(p_webSocketSession.cookies['user_id'].value),
-                    v_content,
-                    v_originalContent
+                    int(p_webSocketSession.cookies['user_id'].value)
                 )
             )
 
@@ -4004,14 +4166,22 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     {1},
                     1, --Plain Text
-                    '{3}',
+                    '{2}',
                     null,
                     null,
                     null,
                     null,
-                    '{4}'
-                );
+                    '{3}'
+                )
+                '''.format(
+                    v_messageCode,
+                    p_requestMessage['v_data']['botCode'],
+                    v_content,
+                    re.sub("'", "''", p_requestMessage['v_data']['messageContent'])
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
                     gro_in_cde,
@@ -4025,8 +4195,15 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_groups usg
                  where usg.gro_in_cde = {2}
                    and usg.use_in_code <> {1}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    p_requestMessage['v_data']['botCode'],
+                    p_requestMessage['v_data']['destinyCode']
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
@@ -4038,12 +4215,11 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {2},
                     {1},
                     True
-                );'''.format(
+                )
+                '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['botCode'],
-                    p_requestMessage['v_data']['destinyCode'],
-                    v_content,
-                    re.sub("'", "''", p_requestMessage['v_data']['messageContent'])
+                    p_requestMessage['v_data']['destinyCode']
                 )
             )
         elif p_requestMessage['v_data']['destinyType'] == 2: #Group
@@ -4069,16 +4245,24 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
                     strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    {2},
+                    {1},
                     1, --Plain Text
-                    '{3}',
+                    '{2}',
                     null,
                     null,
                     null,
                     null,
-                    '{4}'
-                );
+                    '{3}'
+                )
+                '''.format(
+                    v_messageCode,
+                    p_requestMessage['v_data']['botCode'],
+                    v_content,
+                    re.sub("'", "''", p_requestMessage['v_data']['messageContent'])
+                )
+            )
 
+            v_database.Execute('''
                 insert into messages_channels (
                     mes_in_code,
                     cha_in_code,
@@ -4092,8 +4276,15 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                );
+                )
+                '''.format(
+                    v_messageCode,
+                    p_requestMessage['v_data']['destinyCode'],
+                    p_requestMessage['v_data']['botCode']
+                )
+            )
 
+            v_database.Execute('''
                 --User that sent the message "has already seen it"
                 insert into messages_channels (
                     mes_in_code,
@@ -4105,13 +4296,11 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {1},
                     {2},
                     True
-                );
+                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['destinyCode'],
-                    p_requestMessage['v_data']['botCode'],
-                    v_content,
-                    re.sub("'", "''", p_requestMessage['v_data']['messageContent'])
+                    p_requestMessage['v_data']['botCode']
                 )
             )
 

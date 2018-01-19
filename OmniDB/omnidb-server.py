@@ -112,6 +112,7 @@ if __name__ == "__main__":
             chat_port = Config.getint('webserver', 'chat_port')
         except:
             chat_port = OmniDB.settings.WS_CHAT_PORT
+    
     try:
         is_ssl = Config.getboolean('webserver', 'is_ssl')
     except:

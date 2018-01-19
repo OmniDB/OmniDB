@@ -189,7 +189,7 @@
 
 #div_chat_right_left_pre_header {
     flex: 0 0 auto;
-    padding: 5px 10px;
+    padding: 7px 10px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: space-between;

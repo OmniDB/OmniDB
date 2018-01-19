@@ -27,6 +27,7 @@ logger = logging.getLogger('OmniDB_app.ChatServer')
 
 import re
 import base64
+import shutil
 from enum import Enum
 from .Chat import classes
 from .Chat import exception
@@ -496,7 +497,7 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
                                    on mes.use_in_code = use.user_id
                         where mec.cha_in_code = {0}
                           and mec.use_in_code = {1}
-                        order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
+                        order by mes.mes_dt_creation desc
                         limit 40
                     ) y
 
@@ -531,10 +532,10 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
                                                        and mc.use_in_code = {1}
                                                        and mc.mec_bo_viewed = 0
                                                     )
-                        order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
+                        order by mes.mes_dt_creation desc
                     ) y
                 ) x
-                order by strftime('%m/%d/%Y %H:%M:%S', x.mes_dt_creation) desc'''.format(
+                order by x.mes_dt_creation desc'''.format(
                     v_channel.code,
                     p_userCode
                 )
@@ -692,7 +693,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                                    on mes.use_in_code = use.user_id
                         where meg.gro_in_code = {0}
                           and meg.use_in_code = {1}
-                        order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
+                        order by mes.mes_dt_creation desc
                         limit 40
                     ) y
 
@@ -727,10 +728,10 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                                                        and mg.use_in_code = {1}
                                                        and mg.meg_bo_viewed = 0
                                                     )
-                        order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
+                        order by mes.mes_dt_creation desc
                     ) y
                 ) x
-                order by strftime('%m/%d/%Y %H:%M:%S', x.mes_dt_creation) desc'''.format(
+                order by x.mes_dt_creation desc'''.format(
                     v_group.code,
                     int(p_webSocketSession.cookies['user_id'].value)
                 )
@@ -807,7 +808,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                                    on mes.use_in_code = use.user_id
                         where mec.cha_in_code = {0}
                           and mec.use_in_code = {1}
-                        order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
+                        order by mes.mes_dt_creation desc
                         limit 40
                     ) y
 
@@ -842,10 +843,10 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
                                                        and mc.use_in_code = {1}
                                                        and mc.mec_bo_viewed = 0
                                                     )
-                        order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
+                        order by mes.mes_dt_creation desc
                     ) y
                 ) x
-                order by strftime('%m/%d/%Y %H:%M:%S', x.mes_dt_creation) desc'''.format(
+                order by x.mes_dt_creation desc'''.format(
                     v_channel.code,
                     int(p_webSocketSession.cookies['user_id'].value)
                 )
@@ -948,8 +949,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 )
                 select {0} as mes_in_code,
-                        strftime('%m/%d/%Y %H:%M:%S', datetime('now')) as mes_dt_creation,
-                        strftime('%m/%d/%Y %H:%M:%S', datetime('now')) as mes_dt_update,
+                        datetime('now') as mes_dt_creation,
+                        datetime('now') as mes_dt_update,
                         {1} as use_in_code,
                         mes.met_in_code as met_in_code,
                         mes.mes_st_content as mes_st_content,
@@ -1018,15 +1019,10 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             ))
 
             if v_messageType == 2 or v_messageType == 4: #Pasted image or attachment
-                #TODO: verify this
                 try:
-                    syscall(
-                        'cp {0}/{1} {2}/{3}'.format(
-                            settings.PSCORE_CHAT_FOLDER,
-                            p_requestMessage['v_data']['forwardMessageCode'],
-                            settings.PSCORE_CHAT_FOLDER,
-                            v_messageCode
-                        )
+                    shutil.copyfile(
+                        os.path.join(settings.CHAT_FOLDER, str(p_requestMessage['v_data']['forwardMessageCode'])),
+                        os.path.join(settings.CHAT_FOLDER, str(v_messageCode)),
                     )
                 except Exception as exc:
                     v_database.Execute('''
@@ -1161,8 +1157,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     1, --Plain Text
                     '{2}',
@@ -1223,7 +1219,7 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
         elif p_requestMessage['v_data']['messageType'] == 2: #Pasted Image
             v_title = re.sub("'", "''", p_requestMessage['v_data']['messageTitle'])
             v_attachmentName = re.sub("'", "''", p_requestMessage['v_data']['messageAttachmentName'])
-            v_attachmentPath = '{0}/{1}'.format(settings.PSCORE_CHAT_FOLDER, v_messageCode)
+            v_attachmentPath = '{0}/{1}'.format(settings.CHAT_FOLDER, v_messageCode)
             v_attachmentPath = re.sub("'", "''", v_attachmentPath)
 
             v_messageCode = int(v_database.ExecuteScalar('''
@@ -1246,8 +1242,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     2, --Pasted Image
                     null,
@@ -1308,11 +1304,10 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
 
             try:
-                v_file = open('{0}/{1}'.format(settings.PSCORE_CHAT_FOLDER, v_messageCode), 'wb')
+                v_file = open('{0}/{1}'.format(settings.CHAT_FOLDER, v_messageCode), 'wb')
                 v_file.write(base64.b64decode(p_requestMessage['v_data']['messageContent']))
                 v_file.close()
             except Exception as exc:
-                #TODO: verify this
                 v_database.Execute('''
                     delete
                     from messages
@@ -1346,8 +1341,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     3, --Snippet
                     '{3}',
@@ -1409,7 +1404,7 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
         elif p_requestMessage['v_data']['messageType'] == 4: #Attachment
             v_title = re.sub("'", "''", p_requestMessage['v_data']['messageTitle'])
             v_attachmentName = re.sub("'", "''", p_requestMessage['v_data']['messageAttachmentName'])
-            v_attachmentPath = '{0}/{1}'.format(settings.PSCORE_CHAT_FOLDER, v_messageCode)
+            v_attachmentPath = '{0}/{1}'.format(settings.CHAT_FOLDER, v_messageCode)
             v_attachmentPath = re.sub("'", "''", v_attachmentPath)
 
             v_messageCode = int(v_database.ExecuteScalar('''
@@ -1432,8 +1427,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     4, --Attachment
                     null,
@@ -1494,11 +1489,10 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
 
             try:
-                v_file = open('{0}/{1}'.format(settings.PSCORE_CHAT_FOLDER, v_messageCode), 'wb')
+                v_file = open('{0}/{1}'.format(settings.CHAT_FOLDER, v_messageCode), 'wb')
                 v_file.write(base64.b64decode(p_requestMessage['v_data']['messageContent']))
                 v_file.close()
             except Exception as exc:
-                #TODO: verify this
                 v_database.Execute('''
                     delete
                     from messages
@@ -1635,8 +1629,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     5, --Mention
                     '{2}',
@@ -1738,7 +1732,9 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_userList = GetUsersToSendMessageByGroupCode(p_webSocketSession, p_requestMessage['v_data']['groupCode'])
 
                 if v_userList is not None:
-                    v_userList.remove(int(p_webSocketSession.cookies['user_id'].value))
+                    if int(p_webSocketSession.cookies['user_id'].value) in v_userList:
+                        v_userList.remove(int(p_webSocketSession.cookies['user_id'].value))
+
                     p_responseMessage['v_data'] = v_data
                     p_responseMessage['v_code'] = response.NewGroupMessage.value
                     SendToSomeClients(v_userList, p_responseMessage)
@@ -1802,7 +1798,7 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
                            on mes.use_in_code = use.user_id
                 where meg.gro_in_code = {0}
                   and meg.use_in_code = {1}
-                order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
+                order by mes.mes_dt_creation desc
                 limit 20
                 offset {2}'''.format(
                     p_requestMessage['v_data']['groupCode'],
@@ -1831,10 +1827,10 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
                            on mes.use_in_code = use.user_id
                 where meg.gro_in_code = {0}
                   and meg.use_in_code = {1}
-                  and strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) >= (select m.mes_dt_creation
-                                                                             from messages m
-                                                                             where m.mes_in_code = {3})
-                order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
+                  and mes.mes_dt_creation >= (select m.mes_dt_creation
+                                              from messages m
+                                              where m.mes_in_code = {3})
+                order by mes.mes_dt_creation desc
                 offset {2}'''.format(
                     p_requestMessage['v_data']['groupCode'],
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -1964,7 +1960,9 @@ def SetGroupUserWriting(p_webSocketSession, p_requestMessage, p_responseMessage)
     v_userList = GetUsersToSendMessageByGroupCode(p_webSocketSession, p_requestMessage['v_data']['groupCode'])
 
     if v_userList is not None:
-        v_userList.remove(int(p_webSocketSession.cookies['user_id'].value))
+        if int(p_webSocketSession.cookies['user_id'].value) in v_userList:
+            v_userList.remove(int(p_webSocketSession.cookies['user_id'].value))
+
         p_responseMessage['v_data'] = p_requestMessage['v_data']
         p_responseMessage['v_code'] = response.GroupUserWriting.value
         SendToSomeClients(v_userList, p_responseMessage)
@@ -1990,7 +1988,7 @@ def ChangeGroupSilenceSettings(p_webSocketSession, p_requestMessage, p_responseM
             '''.format(
                 p_requestMessage['v_data']['groupCode'],
                 p_webSocketSession.cookies['user_id'].value,
-                ('True' if p_requestMessage['v_data']['silenceGroup'] else 'False')
+                ('1' if p_requestMessage['v_data']['silenceGroup'] else '0')
             )
         )
 
@@ -2063,7 +2061,7 @@ def UpdateGroupSnippetMessage(p_webSocketSession, p_requestMessage, p_responseMe
 
         v_database.Execute('''
             update messages
-            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+            set mes_dt_update = datetime('now'),
                 mes_st_title = '{2}',
                 mes_st_snippetmode = '{3}',
                 mes_st_content = '{4}'
@@ -2078,7 +2076,7 @@ def UpdateGroupSnippetMessage(p_webSocketSession, p_requestMessage, p_responseMe
             )
         )
 
-        v_updatedAt = ExecuteScalar('''
+        v_updatedAt = v_database.ExecuteScalar('''
             select mes.mes_dt_update
             from messages mes
             where mes.mes_in_code = {0}
@@ -2227,7 +2225,7 @@ def UpdateGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
 
         v_database.ExecuteScalar('''
             update messages
-            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+            set mes_dt_update = datetime('now'),
                 mes_st_content = '{2}',
                 mes_st_originalcontent = '{3}'
             where mes_in_code = {0}
@@ -2240,7 +2238,7 @@ def UpdateGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
         )
 
-        v_updatedAt = ExecuteScalar('''
+        v_updatedAt = v_database.ExecuteScalar('''
             select mes.mes_dt_update
             from messages mes
             where mes.mes_in_code = {0}
@@ -2308,8 +2306,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 )
                 select {0} as mes_in_code,
-                        strftime('%m/%d/%Y %H:%M:%S', datetime('now')) as mes_dt_creation,
-                        strftime('%m/%d/%Y %H:%M:%S', datetime('now')) as mes_dt_update,
+                        datetime('now') as mes_dt_creation,
+                        datetime('now') as mes_dt_update,
                         {1} as use_in_code,
                         mes.met_in_code as met_in_code,
                         mes.mes_st_content as mes_st_content,
@@ -2376,14 +2374,9 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
 
             if v_messageType == 2 or v_messageType == 4: #Pasted image or attachment
                 try:
-                    #TODO: verify this
-                    syscall(
-                        'cp {0}/{1} {2}/{3}'.format(
-                            settings.PSCORE_CHAT_FOLDER,
-                            p_requestMessage['v_data']['forwardMessageCode'],
-                            settings.PSCORE_CHAT_FOLDER,
-                            v_messageCode
-                        )
+                    shutil.copyfile(
+                        os.path.join(settings.CHAT_FOLDER, str(p_requestMessage['v_data']['forwardMessageCode'])),
+                        os.path.join(settings.CHAT_FOLDER, str(v_messageCode)),
                     )
                 except Exception as exc:
                     v_database.Execute('''
@@ -2517,8 +2510,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     1, --Plain Text
                     '{2}',
@@ -2579,7 +2572,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
         elif p_requestMessage['v_data']['messageType'] == 2: #Pasted Image
             v_title = re.sub("'", "''", p_requestMessage['v_data']['messageTitle'])
             v_attachmentName = re.sub("'", "''", p_requestMessage['v_data']['messageAttachmentName'])
-            v_attachmentPath = '{0}/{1}'.format(settings.PSCORE_CHAT_FOLDER, v_messageCode)
+            v_attachmentPath = '{0}/{1}'.format(settings.CHAT_FOLDER, v_messageCode)
             v_attachmentPath = re.sub("'", "''", v_attachmentPath)
 
             v_messageCode = int(v_database.ExecuteScalar('''
@@ -2602,8 +2595,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     2, --Pasted Image
                     null,
@@ -2664,7 +2657,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
 
             try:
-                v_file = open('{0}/{1}'.format(settings.PSCORE_CHAT_FOLDER, v_messageCode), 'wb')
+                v_file = open('{0}/{1}'.format(settings.CHAT_FOLDER, v_messageCode), 'wb')
                 v_file.write(base64.b64decode(p_requestMessage['v_data']['messageContent']))
                 v_file.close()
             except Exception as exc:
@@ -2701,8 +2694,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     3, --Snippet
                     '{3}',
@@ -2764,7 +2757,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
         elif p_requestMessage['v_data']['messageType'] == 4: #Attachment
             v_title = re.sub("'", "''", p_requestMessage['v_data']['messageTitle'])
             v_attachmentName = re.sub("'", "''", p_requestMessage['v_data']['messageAttachmentName'])
-            v_attachmentPath = '{0}/{1}'.format(settings.PSCORE_CHAT_FOLDER, v_messageCode)
+            v_attachmentPath = '{0}/{1}'.format(settings.CHAT_FOLDER, v_messageCode)
             v_attachmentPath = re.sub("'", "''", v_attachmentPath)
 
             v_messageCode = int(v_database.ExecuteScalar('''
@@ -2787,8 +2780,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     4, --Attachment
                     null,
@@ -2849,7 +2842,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
 
             try:
-                v_file = open('{0}/{1}'.format(settings.PSCORE_CHAT_FOLDER, v_messageCode), 'wb')
+                v_file = open('{0}/{1}'.format(settings.CHAT_FOLDER, v_messageCode), 'wb')
                 v_file.write(base64.b64decode(p_requestMessage['v_data']['messageContent']))
                 v_file.close()
             except Exception as exc:
@@ -2989,8 +2982,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     5, --Mention
                     '{2}',
@@ -3092,7 +3085,9 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_userList = GetUsersToSendMessageByChannelCode(p_webSocketSession, p_requestMessage['v_data']['channelCode'])
 
                 if v_userList is not None:
-                    v_userList.remove(int(p_webSocketSession.cookies['user_id'].value))
+                    if int(p_webSocketSession.cookies['user_id'].value) in v_userList:
+                        v_userList.remove(int(p_webSocketSession.cookies['user_id'].value))
+
                     p_responseMessage['v_data'] = v_data
                     p_responseMessage['v_code'] = response.NewChannelMessage.value
                     SendToSomeClients(v_userList, p_responseMessage)
@@ -3156,7 +3151,7 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
                            on mes.use_in_code = use.user_id
                 where mec.cha_in_code = {0}
                   and mec.use_in_code = {1}
-                order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
+                order by mes.mes_dt_creation desc
                 limit 20
                 offset {2}'''.format(
                     p_requestMessage['v_data']['channelCode'],
@@ -3185,10 +3180,10 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
                            on mes.use_in_code = use.user_id
                 where mec.cha_in_code = {0}
                   and mec.use_in_code = {1}
-                  and strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) >= (select m.mes_dt_creation
-                                                                             from messages m
-                                                                             where m.mes_in_code = {3})
-                order by strftime('%m/%d/%Y %H:%M:%S', mes.mes_dt_creation) desc
+                  and mes.mes_dt_creation >= (select m.mes_dt_creation
+                                              from messages m
+                                              where m.mes_in_code = {3})
+                order by mes.mes_dt_creation desc
                 offset {2}'''.format(
                     p_requestMessage['v_data']['channelCode'],
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -3290,7 +3285,9 @@ def SetChannelUserWriting(p_webSocketSession, p_requestMessage, p_responseMessag
     v_userList = GetUsersToSendMessageByChannelCode(p_webSocketSession, p_requestMessage['v_data']['channelCode'])
 
     if v_userList is not None:
-        v_userList.remove(int(p_webSocketSession.cookies['user_id'].value))
+        if int(p_webSocketSession.cookies['user_id'].value) in v_userList:
+            v_userList.remove(int(p_webSocketSession.cookies['user_id'].value))
+
         p_responseMessage['v_data'] = p_requestMessage['v_data']
         p_responseMessage['v_code'] = response.ChannelUserWriting.value
         SendToSomeClients(v_userList, p_responseMessage)
@@ -3316,7 +3313,7 @@ def ChangeChannelSilenceSettings(p_webSocketSession, p_requestMessage, p_respons
             '''.format(
                 p_requestMessage['v_data']['channelCode'],
                 p_webSocketSession.cookies['user_id'].value,
-                ('True' if p_requestMessage['v_data']['silenceChannel'] else 'False')
+                ('1' if p_requestMessage['v_data']['silenceChannel'] else '0')
             )
         )
 
@@ -3389,7 +3386,7 @@ def UpdateChannelSnippetMessage(p_webSocketSession, p_requestMessage, p_response
 
         v_database.Execute('''
             update messages
-            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+            set mes_dt_update = datetime('now'),
                 mes_st_title = '{2}',
                 mes_st_snippetmode = '{3}',
                 mes_st_content = '{4}'
@@ -3404,7 +3401,7 @@ def UpdateChannelSnippetMessage(p_webSocketSession, p_requestMessage, p_response
             )
         )
 
-        v_updatedAt = ExecuteScalar('''
+        v_updatedAt = v_database.ExecuteScalar('''
             select mes.mes_dt_update
             from messages mes
             where mes.mes_in_code = {0}
@@ -3553,7 +3550,7 @@ def UpdateChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage
 
         v_database.Execute('''
             update messages
-            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+            set mes_dt_update = datetime('now'),
                 mes_st_content = '{2}',
                 mes_st_originalcontent = '{3}'
             where mes_in_code = {0}
@@ -3566,7 +3563,7 @@ def UpdateChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage
             )
         )
 
-        v_updatedAt = ExecuteScalar('''
+        v_updatedAt = v_database.ExecuteScalar('''
             select mes.mes_dt_update
             from messages mes
             where mes.mes_in_code = {0}
@@ -3624,7 +3621,7 @@ def CreatePrivateChannel(p_webSocketSession, p_requestMessage, p_responseMessage
             ) values (
                 {0},
                 '{1}',
-                True
+                1
             )
             '''.format(
                 v_channelCode,
@@ -3640,13 +3637,15 @@ def CreatePrivateChannel(p_webSocketSession, p_requestMessage, p_responseMessage
             ) values (
                 {1},
                 {0},
-                False
+                0
             )
             '''.format(
                 v_channelCode,
                 int(p_webSocketSession.cookies['user_id'].value)
             )
         )
+
+        v_database.Close()
 
         #Get channel info
         v_channel = GetChannelInfo(p_webSocketSession, int(v_channelCode), int(p_webSocketSession.cookies['user_id'].value))
@@ -3658,8 +3657,6 @@ def CreatePrivateChannel(p_webSocketSession, p_requestMessage, p_responseMessage
         p_responseMessage['v_code'] = response.NewPrivateChannel.value
         p_responseMessage['v_data'] = v_data
         SendToClient(p_webSocketSession, p_responseMessage, True)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'CreatePrivateChannel', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3766,7 +3763,7 @@ def InvitePrivateChannelMembers(p_webSocketSession, p_requestMessage, p_response
                 ) values (
                     {1},
                     {0},
-                    False
+                    0
                 )
                 '''.format(
                     p_requestMessage['v_data']['channelCode'],
@@ -3925,7 +3922,7 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                 where mec.use_in_code = {0}
             ) x
             where x.mes_st_originalcontent like '%{1}%'
-            order by strftime('%m/%d/%Y %H:%M:%S', x.mes_dt_creation) desc'''.format(
+            order by x.mes_dt_creation desc'''.format(
                 int(p_webSocketSession.cookies['user_id'].value),
                 p_requestMessage['v_data']['textPattern'].replace("'", "''")
             )
@@ -4148,8 +4145,8 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     1, --Plain Text
                     '{2}',
@@ -4228,8 +4225,8 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    datetime('now'),
+                    datetime('now'),
                     {1},
                     1, --Plain Text
                     '{2}',

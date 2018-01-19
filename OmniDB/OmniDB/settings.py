@@ -32,6 +32,13 @@ else:
     HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-server')
 if not os.path.exists(HOME_DIR):
     os.makedirs(HOME_DIR)
+CHAT_FOLDER = os.path.join(HOME_DIR, 'chat')
+if not os.path.exists(CHAT_FOLDER):
+    os.makedirs(CHAT_FOLDER)
+try:
+    os.symlink(CHAT_FOLDER, 'chat')#TODO: verificar isso aqui
+except:
+    pass
 LOG_DIR = HOME_DIR
 SESSION_DATABASE = os.path.join(HOME_DIR, 'db.sqlite3')
 if not os.path.exists(SESSION_DATABASE):

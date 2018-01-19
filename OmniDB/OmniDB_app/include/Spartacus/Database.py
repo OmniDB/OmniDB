@@ -325,7 +325,9 @@ class Generic(ABC):
                 v_value = p_row[p_fields[k].v_name]
                 if type(v_value) == type(None):
                     v_mog.append('null')
-                elif type(v_value) == type(str()) or type(v_value) == datetime.datetime:
+                elif type(v_value) == type(str()):
+                    v_mog.append(p_fields[k].v_mask.replace('#', "'{0}'".format(v_value.replace("'", "''"))))
+                elif type(v_value) == datetime.datetime:
                     v_mog.append(p_fields[k].v_mask.replace('#', "'{0}'".format(v_value)))
                 else:
                     v_mog.append(p_fields[k].v_mask.replace('#', "{0}".format(v_value)))

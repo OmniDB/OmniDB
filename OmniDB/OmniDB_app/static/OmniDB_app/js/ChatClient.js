@@ -137,7 +137,7 @@ function updateChatConnectionStatus(p_status, p_showPopUp) {
         v_imgStatus.title = v_title;
         v_imgStatus.style.width = '15px';
         v_imgStatus.style.height = '15px';
-        v_imgStatus.style.marginTop = '-5px';
+        v_imgStatus.style.marginBottom = '-3px';
 
         var v_headerContent = document.querySelector('#popup_chat #div_chat_user_info_login');
 

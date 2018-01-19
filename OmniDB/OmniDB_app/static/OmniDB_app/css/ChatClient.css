@@ -135,6 +135,7 @@
     margin-right: 5px;
     width: 15px;
     height: 15px;
+    margin-bottom: -4px;
 }
 
 #div_chat_right {
@@ -205,6 +206,7 @@
     height: 15px;
     margin-right: 5px;
     margin-top: -5px;
+    margin-bottom: -2px;
 }
 
 #input_chat_right_pre_header_search {
@@ -329,7 +331,6 @@
 
 .div_chat_right_left_item {
     display: flex;
-    width: 100%;
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 5px;
@@ -526,7 +527,7 @@
 }
 
 .div_chat_right_left_item_body_padding {
-    padding-left: 46px;
+    padding-left: 48px;
 }
 
 .div_chat_right_left_item_header {
@@ -956,7 +957,7 @@ button:focus {
 }
 
 .img_user_status_icon {
-    margin-top: -5px;
+    margin-bottom: -4px;
     margin-right: 5px;
     height: 17px;
     width: 17px;

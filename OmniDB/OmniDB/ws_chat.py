@@ -541,7 +541,7 @@ def GetChannelInfo(p_webSocketSession, p_channelCode, p_userCode):
             )
 
             for v_row2 in v_table2.Rows:
-                v_user = classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
+                v_user = classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None)
                 v_message = classes.Message(
                     int(v_row2['mes_in_code']),
                     v_row2['mes_dt_creation'],
@@ -737,7 +737,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
 
             for v_row2 in v_table2.Rows:
-                v_user = classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
+                v_user = classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None)
                 v_message = classes.Message(
                     int(v_row2['mes_in_code']),
                     v_row2['mes_dt_creation'],
@@ -852,7 +852,7 @@ def Login(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
 
             for v_row2 in v_table2.Rows:
-                v_user = classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None, None)
+                v_user = classes.User(v_row2['use_in_code'], '', v_row2['use_st_login'], None)
                 v_message = classes.Message(
                     int(v_row2['mes_in_code']),
                     v_row2['mes_dt_creation'],
@@ -947,9 +947,9 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_snippetmode,
                     mes_st_originalcontent
                 )
-                (select {0} as mes_in_code,
-                        strftime('%m/%d/%Y %H:%M:%S', date('now')) as mes_dt_creation,
-                        strftime('%m/%d/%Y %H:%M:%S', date('now')) as mes_dt_update,
+                select {0} as mes_in_code,
+                        strftime('%m/%d/%Y %H:%M:%S', datetime('now')) as mes_dt_creation,
+                        strftime('%m/%d/%Y %H:%M:%S', datetime('now')) as mes_dt_update,
                         {1} as use_in_code,
                         mes.met_in_code as met_in_code,
                         mes.mes_st_content as mes_st_content,
@@ -960,7 +960,6 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                         mes.mes_st_originalcontent as mes_st_originalcontent
                  from messages mes
                  where mes.mes_in_code = {2}
-                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -971,18 +970,17 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 )
-                (select {0} as mes_in_code,
-                        usg.gro_in_cde as gro_in_cde,
+                select {0} as mes_in_code,
+                        usg.gro_in_code as gro_in_code,
                         usg.use_in_code,
-                        False as meg_bo_viewed
+                        0 as meg_bo_viewed
                  from users_groups usg
-                 where usg.gro_in_cde = {2}
+                 where usg.gro_in_code = {2}
                    and usg.use_in_code <> {1}
-                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -994,14 +992,14 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 ) values (
                     {0},
                     {2},
                     {1},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -1163,8 +1161,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     1, --Plain Text
                     '{2}',
@@ -1185,18 +1183,17 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 )
-                (select {0} as mes_in_code,
-                        usg.gro_in_cde as gro_in_cde,
+                select {0} as mes_in_code,
+                        usg.gro_in_code as gro_in_code,
                         usg.use_in_code,
-                        False as meg_bo_viewed
+                        0 as meg_bo_viewed
                  from users_groups usg
-                 where usg.gro_in_cde = {2}
+                 where usg.gro_in_code = {2}
                    and usg.use_in_code <> {1}
-                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -1208,14 +1205,14 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 ) values (
                     {0},
                     {2},
                     {1},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -1249,8 +1246,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     2, --Pasted Image
                     null,
@@ -1272,18 +1269,17 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 )
-                (select {0} as mes_in_code,
-                        usg.gro_in_cde as gro_in_cde,
+                select {0} as mes_in_code,
+                        usg.gro_in_code as gro_in_code,
                         usg.use_in_code,
-                        False as meg_bo_viewed
+                        0 as meg_bo_viewed
                  from users_groups usg
-                 where usg.gro_in_cde = {2}
+                 where usg.gro_in_code = {2}
                    and usg.use_in_code <> {1}
-                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -1295,14 +1291,14 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 ) values (
                     {0},
                     {2},
                     {1},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -1350,8 +1346,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     3, --Snippet
                     '{3}',
@@ -1373,18 +1369,17 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 )
-                (select {0} as mes_in_code,
-                        usg.gro_in_cde as gro_in_cde,
+                select {0} as mes_in_code,
+                        usg.gro_in_code as gro_in_code,
                         usg.use_in_code,
-                        False as meg_bo_viewed
+                        0 as meg_bo_viewed
                  from users_groups usg
-                 where usg.gro_in_cde = {2}
+                 where usg.gro_in_code = {2}
                    and usg.use_in_code <> {1}
-                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -1396,14 +1391,14 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 ) values (
                     {0},
                     {2},
                     {1},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -1437,8 +1432,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     4, --Attachment
                     null,
@@ -1460,18 +1455,17 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 )
-                (select {0} as mes_in_code,
-                        usg.gro_in_cde as gro_in_cde,
+                select {0} as mes_in_code,
+                        usg.gro_in_code as gro_in_code,
                         usg.use_in_code,
-                        False as meg_bo_viewed
+                        0 as meg_bo_viewed
                  from users_groups usg
-                 where usg.gro_in_cde = {2}
+                 where usg.gro_in_code = {2}
                    and usg.use_in_code <> {1}
-                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -1483,14 +1477,14 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 ) values (
                     {0},
                     {2},
                     {1},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -1641,8 +1635,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     5, --Mention
                     '{2}',
@@ -1663,18 +1657,17 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 )
-                (select {0} as mes_in_code,
-                        usg.gro_in_cde as gro_in_cde,
+                select {0} as mes_in_code,
+                        usg.gro_in_code as gro_in_code,
                         usg.use_in_code,
-                        False as meg_bo_viewed
+                        0 as meg_bo_viewed
                  from users_groups usg
-                 where usg.gro_in_cde = {2}
+                 where usg.gro_in_code = {2}
                    and usg.use_in_code <> {1}
-                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -1686,14 +1679,14 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 ) values (
                     {0},
                     {2},
                     {1},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -1722,7 +1715,7 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
 
             if len(v_table.Rows) > 0:
-                v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
+                v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None)
                 v_message = classes.Message(
                     int(v_table.Rows[0]['mes_in_code']),
                     v_table.Rows[0]['mes_dt_creation'],
@@ -1852,7 +1845,7 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
 
         if v_table is not None:
             for v_row in v_table.Rows:
-                v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
+                v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None)
                 v_message = classes.Message(
                     int(v_row['mes_in_code']),
                     v_row['mes_dt_creation'],
@@ -1903,7 +1896,7 @@ def MarkGroupMessagesAsRead(p_webSocketSession, p_requestMessage, p_responseMess
             v_database.Execute('''
                 update messages_groups
                 set meg_bo_viewed = 1
-                where gro_in_cde = {0}
+                where gro_in_code = {0}
                   and use_in_code = {1}
                   and mes_in_code = {2}
                 '''.format(
@@ -1992,7 +1985,7 @@ def ChangeGroupSilenceSettings(p_webSocketSession, p_requestMessage, p_responseM
         v_database.Execute('''
             update users_groups
             set usg_bo_silenced = {2}
-            where gro_in_cde = {0}
+            where gro_in_code = {0}
               and use_in_code = {1}
             '''.format(
                 p_requestMessage['v_data']['groupCode'],
@@ -2033,7 +2026,7 @@ def RemoveGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
 
         v_database.Execute('''
             delete from messages_groups
-            where gro_in_cde = {0}
+            where gro_in_code = {0}
               and use_in_code = {1}
               and mes_in_code = {2}
             '''.format(
@@ -2070,7 +2063,7 @@ def UpdateGroupSnippetMessage(p_webSocketSession, p_requestMessage, p_responseMe
 
         v_database.Execute('''
             update messages
-            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', date('now')),
+            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                 mes_st_title = '{2}',
                 mes_st_snippetmode = '{3}',
                 mes_st_content = '{4}'
@@ -2234,7 +2227,7 @@ def UpdateGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
 
         v_database.ExecuteScalar('''
             update messages
-            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', date('now')),
+            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                 mes_st_content = '{2}',
                 mes_st_originalcontent = '{3}'
             where mes_in_code = {0}
@@ -2314,9 +2307,9 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_snippetmode,
                     mes_st_originalcontent
                 )
-                (select {0} as mes_in_code,
-                        strftime('%m/%d/%Y %H:%M:%S', date('now')) as mes_dt_creation,
-                        strftime('%m/%d/%Y %H:%M:%S', date('now')) as mes_dt_update,
+                select {0} as mes_in_code,
+                        strftime('%m/%d/%Y %H:%M:%S', datetime('now')) as mes_dt_creation,
+                        strftime('%m/%d/%Y %H:%M:%S', datetime('now')) as mes_dt_update,
                         {1} as use_in_code,
                         mes.met_in_code as met_in_code,
                         mes.mes_st_content as mes_st_content,
@@ -2327,7 +2320,6 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                         mes.mes_st_originalcontent as mes_st_originalcontent
                  from messages mes
                  where mes.mes_in_code = {2}
-                )
                 '''.format(
                     v_messageCode,
                     int(p_webSocketSession.cookies['user_id'].value),
@@ -2342,14 +2334,13 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     use_in_code,
                     mec_bo_viewed
                 )
-                (select {0} as mes_in_code,
+                select {0} as mes_in_code,
                         usc.cha_in_code as cha_in_code,
                         usc.use_in_code,
-                        False as mec_bo_viewed
+                        0 as mec_bo_viewed
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
@@ -2368,7 +2359,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     {1},
                     {2},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -2526,8 +2517,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     1, --Plain Text
                     '{2}',
@@ -2552,14 +2543,13 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     use_in_code,
                     mec_bo_viewed
                 )
-                (select {0} as mes_in_code,
+                select {0} as mes_in_code,
                         usc.cha_in_code as cha_in_code,
                         usc.use_in_code,
-                        False as mec_bo_viewed
+                        0 as mec_bo_viewed
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
@@ -2578,7 +2568,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     {1},
                     {2},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -2612,8 +2602,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     2, --Pasted Image
                     null,
@@ -2639,14 +2629,13 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     use_in_code,
                     mec_bo_viewed
                 )
-                (select {0} as mes_in_code,
+                select {0} as mes_in_code,
                         usc.cha_in_code as cha_in_code,
                         usc.use_in_code,
-                        False as mec_bo_viewed
+                        0 as mec_bo_viewed
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
@@ -2665,7 +2654,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     {1},
                     {2},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -2712,8 +2701,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     3, --Snippet
                     '{3}',
@@ -2739,14 +2728,13 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     use_in_code,
                     mec_bo_viewed
                 )
-                (select {0} as mes_in_code,
+                select {0} as mes_in_code,
                         usc.cha_in_code as cha_in_code,
                         usc.use_in_code,
-                        False as mec_bo_viewed
+                        0 as mec_bo_viewed
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
@@ -2765,7 +2753,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     {1},
                     {2},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -2799,8 +2787,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     4, --Attachment
                     null,
@@ -2826,14 +2814,13 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     use_in_code,
                     mec_bo_viewed
                 )
-                (select {0} as mes_in_code,
+                select {0} as mes_in_code,
                         usc.cha_in_code as cha_in_code,
                         usc.use_in_code,
-                        False as mec_bo_viewed
+                        0 as mec_bo_viewed
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
@@ -2852,7 +2839,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     {1},
                     {2},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -3002,8 +2989,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     5, --Mention
                     '{2}',
@@ -3028,14 +3015,13 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     use_in_code,
                     mec_bo_viewed
                 )
-                (select {0} as mes_in_code,
+                select {0} as mes_in_code,
                         usc.cha_in_code as cha_in_code,
                         usc.use_in_code,
-                        False as mec_bo_viewed
+                        0 as mec_bo_viewed
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['channelCode'],
@@ -3054,7 +3040,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     {1},
                     {2},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -3083,7 +3069,7 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
 
             if len(v_table.Rows) > 0:
-                v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
+                v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None)
                 v_message = classes.Message(
                     int(v_table.Rows[0]['mes_in_code']),
                     v_table.Rows[0]['mes_dt_creation'],
@@ -3213,7 +3199,7 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
 
         if v_table is not None:
             for v_row in v_table.Rows:
-                v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
+                v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None)
                 v_message = classes.Message(
                     int(v_row['mes_in_code']),
                     v_row['mes_dt_creation'],
@@ -3403,7 +3389,7 @@ def UpdateChannelSnippetMessage(p_webSocketSession, p_requestMessage, p_response
 
         v_database.Execute('''
             update messages
-            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', date('now')),
+            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                 mes_st_title = '{2}',
                 mes_st_snippetmode = '{3}',
                 mes_st_content = '{4}'
@@ -3567,7 +3553,7 @@ def UpdateChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage
 
         v_database.Execute('''
             update messages
-            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', date('now')),
+            set mes_dt_update = strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                 mes_st_content = '{2}',
                 mes_st_originalcontent = '{3}'
             where mes_in_code = {0}
@@ -3951,7 +3937,7 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
         }
 
         for v_row in v_table.Rows:
-            v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None, None)
+            v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None)
             v_message = classes.Message(
                 int(v_row['mes_in_code']),
                 v_row['mes_dt_creation'],
@@ -4162,8 +4148,8 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     1, --Plain Text
                     '{2}',
@@ -4184,18 +4170,17 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_database.Execute('''
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 )
-                (select {0} as mes_in_code,
-                        usg.gro_in_cde as gro_in_cde,
+                select {0} as mes_in_code,
+                        usg.gro_in_code as gro_in_code,
                         usg.use_in_code,
-                        False as meg_bo_viewed
+                        0 as meg_bo_viewed
                  from users_groups usg
-                 where usg.gro_in_cde = {2}
+                 where usg.gro_in_code = {2}
                    and usg.use_in_code <> {1}
-                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['botCode'],
@@ -4207,14 +4192,14 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                 --User that sent the message "has already seen it"
                 insert into messages_groups (
                     mes_in_code,
-                    gro_in_cde,
+                    gro_in_code,
                     use_in_code,
                     meg_bo_viewed
                 ) values (
                     {0},
                     {2},
                     {1},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -4243,8 +4228,8 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     mes_st_originalcontent
                 ) values (
                     {0},
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
-                    strftime('%m/%d/%Y %H:%M:%S', date('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
+                    strftime('%m/%d/%Y %H:%M:%S', datetime('now')),
                     {1},
                     1, --Plain Text
                     '{2}',
@@ -4269,14 +4254,13 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     use_in_code,
                     mec_bo_viewed
                 )
-                (select {0} as mes_in_code,
+                select {0} as mes_in_code,
                         usc.cha_in_code as cha_in_code,
                         usc.use_in_code,
-                        False as mec_bo_viewed
+                        0 as mec_bo_viewed
                  from users_channels usc
                  where usc.cha_in_code = {1}
                    and usc.use_in_code <> {2}
-                )
                 '''.format(
                     v_messageCode,
                     p_requestMessage['v_data']['destinyCode'],
@@ -4295,7 +4279,7 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                     {0},
                     {1},
                     {2},
-                    True
+                    1
                 )
                 '''.format(
                     v_messageCode,
@@ -4325,7 +4309,7 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                 )
 
                 if len(v_table.Rows) > 0:
-                    v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
+                    v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None)
                     v_message = classes.Message(
                         int(v_table.Rows[0]['mes_in_code']),
                         v_table.Rows[0]['mes_dt_creation'],
@@ -4372,7 +4356,7 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                 )
 
                 if len(v_table.Rows) > 0:
-                    v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None, None)
+                    v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None)
                     v_message = classes.Message(
                         int(v_table.Rows[0]['mes_in_code']),
                         v_table.Rows[0]['mes_dt_creation'],

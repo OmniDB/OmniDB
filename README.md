@@ -1,11 +1,12 @@
-# OmniDB 2.4.0
+# OmniDB 2.4.1
 
 ## Release Notes
 
-- Custom Monitoring Dashboard: User defined monitoring dashboard with charts and grids allowing the user to create custom monitors in a python sandbox
-- Persistent user data: OmniDB's database, config files and logs now persist through new release upgrades
-- Bug fixes:
-  - Autocomplete box window doesn't hide on mouse move anymore
+- Connections are now managed in the workspace, without losing existing work and focus
+- Autocomplete shortcut key is now Ctrl-Space by default
+- New improved Find & Replace for SQL Editor
+- OmniDB server now listens to the same port for HTTP(S) and WS(S), no need for opening two ports in firewall anymore
+
 
 # 1- Installation
 

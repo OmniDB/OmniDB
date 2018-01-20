@@ -36,7 +36,7 @@ CHAT_FOLDER = os.path.join(HOME_DIR, 'chat')
 if not os.path.exists(CHAT_FOLDER):
     os.makedirs(CHAT_FOLDER)
 try:
-    os.symlink(CHAT_FOLDER, 'chat')#TODO: verificar isso aqui
+    os.symlink(CHAT_FOLDER, os.path.join(BASE_DIR, 'OmniDB_app/static', 'chat'))
 except:
     pass
 LOG_DIR = HOME_DIR

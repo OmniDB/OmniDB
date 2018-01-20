@@ -43,7 +43,7 @@
 }
 
 #div_chat_user_info_header {
-    font-family: lato-bold;
+    font-weight: 700;
     font-size: 16px;
     text-align: left;
     padding-left: 10px;
@@ -75,7 +75,7 @@
 }
 
 .div_chat_left_header {
-    font-family: lato-bold;
+    font-weight: 700;
     font-size: 16px;
     text-align: left;
     padding-left: 10px;
@@ -87,6 +87,10 @@
 .div_chat_left_header_filter_container {
     margin-right: 10px;
     margin-bottom: 5px;
+}
+
+#div_chat_groups .div_chat_left_header_filter_container {
+    margin-top: 5px;
 }
 
 .button_chat_left_header {
@@ -123,11 +127,11 @@
 .div_chat_left_content_item_active {
     background: rgb(74, 104, 150);
     color: white;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .div_chat_left_content_item_unread {
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .div_chat_left_content_item_status {
@@ -219,7 +223,7 @@
 }
 
 #span_chat_right_pre_header_name {
-    font-family: lato-bold;
+    font-weight: 700;
     font-size: 16px;
 }
 
@@ -261,7 +265,7 @@
     z-index: 9999999;
     padding: 5px;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    top: -90px;
+    top: -75px;
     left: -2px;
     border-radius: 10px;
     background-color: white;
@@ -286,7 +290,7 @@
 .div_chat_right_left_footer_left_options_item:hover {
     background-color: rgb(74, 104, 150);
     color: white;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 #div_chat_right_left_footer_middle {
@@ -364,7 +368,7 @@
 }
 
 .div_chat_message_pasted_img {
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .div_chat_message_pasted_img > img {
@@ -386,7 +390,7 @@
 }
 
 .div_chat_message_snippet {
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .div_chat_message_snippet_container {
@@ -413,7 +417,7 @@
 }
 
 .div_chat_message_attachment {
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .div_chat_message_attachment > img {
@@ -523,7 +527,6 @@
     flex-direction: column;
     flex-grow: 1;
     padding-left: 10px;
-    font-family: lato-bold;
 }
 
 .div_chat_right_left_item_body_padding {
@@ -532,7 +535,7 @@
 
 .div_chat_right_left_item_header {
     flex-grow: 1;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .span_chat_right_item_header {
@@ -587,8 +590,8 @@ span.badge {
     margin-left: 5px;
     display: inline-block;
     min-width: 10px;
-    padding: 3px 7px;
-    font-size: 12px;
+    padding: 2px 4px;
+    font-size: 10px;
     font-weight: 700;
     line-height: 1;
     color: #fff;
@@ -694,7 +697,7 @@ span.badge_hidden {
 .context_menu_item_active {
     background-color: rgb(74, 104, 150);
     color: white;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .arrow_right {
@@ -733,7 +736,7 @@ span.badge_hidden {
 .context_menu_item:hover {
     background-color: rgb(74, 104, 150);
     color: white;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .context_menu_item_disabled:hover {
@@ -746,7 +749,7 @@ span.badge_hidden {
 .context_menu_item_inline:hover {
     background-color: rgba(0, 0, 0, 0.1);
     color: white;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .modal {
@@ -830,12 +833,12 @@ button:focus {
 
 #span_share_with {
     flex: 1 0 auto;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 #select_share_message_with {
     display: inline-block !important;
-    font-family: lato-bold;
+    font-weight: 700;
     flex-grow: 1;
     margin-left: 10px;
 }
@@ -879,7 +882,6 @@ button:focus {
 #chat_status {
     font-size: 9px;
     padding: 1px 4px;
-    margin-left: 15px;
     margin-top: 7px;
     display: none;
 }
@@ -892,12 +894,12 @@ button:focus {
 }
 
 #span_create_channel_name {
-    font-family: lato-bold;
+    font-weight: 700;
     flex: 1 0 auto;
 }
 
 #input_create_channel_name {
-    font-family: lato-bold;
+    font-weight: 700;
     flex: 1 1 auto;
     flex-grow: 1;
     margin-left: 5px;
@@ -915,12 +917,12 @@ button:focus {
 }
 
 #span_rename_channel_name {
-    font-family: lato-bold;
+    font-weight: 700;
     flex: 1 0 auto;
 }
 
 #input_rename_channel_name {
-    font-family: lato-bold;
+    font-weight: 700;
     flex: 1 1 auto;
     flex-grow: 1;
     margin-left: 5px;
@@ -972,12 +974,12 @@ button:focus {
 .notify_context_menu .context_menu_item_active:hover {
     background-color: rgb(74, 104, 150);
     color: white;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .span_notify_user {
     color: #2185c1;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .gif_loading {
@@ -1024,7 +1026,7 @@ button:focus {
     flex-direction: column;
     flex-grow: 1;
     padding-left: 10px;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .div_chat_searched_old_messages_item_body_padding {
@@ -1055,11 +1057,11 @@ button:focus {
 
 .div_chat_searched_old_messages_item_header {
     flex-grow: 1;
-    font-family: lato-bold;
+    font-weight: 700;
 }
 
 .span_chat_searched_old_messages_item_header1 {
-    font-family: lato-bold;
+    font-weight: 700;
     color: #2185c1;
 }
 
@@ -1075,7 +1077,7 @@ button:focus {
     line-height: 0.1em;
     margin: 10px 0 20px;
     font-size: 16px;
-    font-family: lato-bold;
+    font-weight: 700;
     opacity: 0.7;
 }
 

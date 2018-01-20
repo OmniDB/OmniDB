@@ -5950,8 +5950,8 @@ function chatLoginResult(p_data) {
                                                         progressBar: p_progressBar
                                                     };
 
-                                                    chatSendGroupMessage(v_data, v_context, v_progressBar);
-                                                }.bind(v_binaryReader, p_chatPopUp, v_name)
+                                                    chatSendGroupMessage(v_data, v_context);
+                                                }.bind(v_binaryReader, p_chatPopUp, v_name, v_progressBar)
                                             );
 
                                             v_binaryReader.readAsBinaryString(v_blob);
@@ -7725,6 +7725,25 @@ function chatInvitedPrivateChannelMembers(p_data) {
     if(v_chatPopUp != null) {
         var v_channel = v_chatPopUp.tag.channelList.getChannelByCode(p_data.channel.code);
         var v_indexOf = v_chatPopUp.tag.channelList.indexOf(v_channel);
+
+        p_data.channel.messageList.getMessageByCode = function(p_messageCode) {
+            for(var i = 0; i < this.length; i++) {
+                if(this[i].code == p_messageCode) {
+                    return this[i];
+                }
+            }
+
+            return null;
+        }
+
+        p_data.channel.messageList.removeMessageByCode = function(p_messageCode) {
+            for(var i = 0; i < this.length; i++) {
+                if(this[i].code == p_messageCode) {
+                    this.splice(i, 1);
+                    return;
+                }
+            }
+        }
 
         if(v_indexOf != -1) {
             v_chatPopUp.tag.channelList.splice(v_indexOf, 1, p_data.channel);

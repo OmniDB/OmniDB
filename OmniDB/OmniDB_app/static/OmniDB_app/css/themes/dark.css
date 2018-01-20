@@ -396,9 +396,24 @@ input {
 
 .context_menu {
     background-color: #191919 !important;
-    color: white !important;
+    background-color: rgb(72, 74, 85) !important;
 }
 
 .context_menu_item:hover {
     background-color: #1e90ff !important;
+}
+
+.div_chat_right_left_footer_left_options {
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    background-color: rgb(72, 74, 85) !important;
+    color: black !important;
+}
+
+#div_chat_right_left_pre_header {
+    background-color: rgb(72, 74, 85) !important;
+}
+
+.div_chat_message_attachment_container {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: rgb(72, 74, 85) !important;
 }

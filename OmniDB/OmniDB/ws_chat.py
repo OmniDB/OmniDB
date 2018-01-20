@@ -1032,6 +1032,16 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                         '''.format(v_messageCode)
                     )
 
+                    v_database.Execute('''
+                        delete from messages_groups
+                        where mes_in_code = {0}
+                          and gro_in_code = {1}
+                        '''.format(
+                            v_messageCode,
+                            p_requestMessage['v_data']['groupCode']
+                        )
+                    )
+
                     raise Exception() from exc
         elif p_requestMessage['v_data']['messageType'] == 1: #Plain Text
             v_content = p_requestMessage['v_data']['messageContent']
@@ -1315,6 +1325,16 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     '''.format(v_messageCode)
                 )
 
+                v_database.Execute('''
+                    delete from messages_groups
+                    where mes_in_code = {0}
+                      and gro_in_code = {1}
+                    '''.format(
+                        v_messageCode,
+                        p_requestMessage['v_data']['groupCode']
+                    )
+                )
+
                 raise Exception() from exc
         elif p_requestMessage['v_data']['messageType'] == 3: #Snippet
             v_title = re.sub("'", "''", p_requestMessage['v_data']['messageTitle'])
@@ -1498,6 +1518,16 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     from messages
                     where mes_in_code = {0}
                     '''.format(v_messageCode)
+                )
+
+                v_database.Execute('''
+                    delete from messages_groups
+                    where mes_in_code = {0}
+                      and gro_in_code = {1}
+                    '''.format(
+                        v_messageCode,
+                        p_requestMessage['v_data']['groupCode']
+                    )
                 )
 
                 raise Exception() from exc
@@ -2386,6 +2416,16 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                         '''.format(v_messageCode)
                     )
 
+                    v_database.Execute('''
+                        delete from messages_channels
+                        where mes_in_code = {0}
+                          and gro_in_code = {1}
+                        '''.format(
+                            v_messageCode,
+                            p_requestMessage['v_data']['channelCode']
+                        )
+                    )
+
                     raise Exception() from exc
         elif p_requestMessage['v_data']['messageType'] == 1: #Plain Text
             v_content = p_requestMessage['v_data']['messageContent']
@@ -2668,6 +2708,16 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     '''.format(v_messageCode)
                 )
 
+                v_database.Execute('''
+                    delete from messages_channels
+                    where mes_in_code = {0}
+                      and gro_in_code = {1}
+                    '''.format(
+                        v_messageCode,
+                        p_requestMessage['v_data']['channelCode']
+                    )
+                )
+
                 raise Exception() from exc
         elif p_requestMessage['v_data']['messageType'] == 3: #Snippet
             v_title = re.sub("'", "''", p_requestMessage['v_data']['messageTitle'])
@@ -2851,6 +2901,16 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                     from messages
                     where mes_in_code = {0}
                     '''.format(v_messageCode)
+                )
+
+                v_database.Execute('''
+                    delete from messages_channels
+                    where mes_in_code = {0}
+                      and gro_in_code = {1}
+                    '''.format(
+                        v_messageCode,
+                        p_requestMessage['v_data']['channelCode']
+                    )
                 )
 
                 raise Exception() from exc
@@ -3771,6 +3831,8 @@ def InvitePrivateChannelMembers(p_webSocketSession, p_requestMessage, p_response
                 )
             )
 
+        v_database.Close()
+
         for v_userCode in GetUsersToSendMessageByChannelCode(p_webSocketSession, p_requestMessage['v_data']['channelCode']):
             #Get channel info
             v_channel = GetChannelInfo(p_webSocketSession, p_requestMessage['v_data']['channelCode'], v_userCode)
@@ -3783,8 +3845,6 @@ def InvitePrivateChannelMembers(p_webSocketSession, p_requestMessage, p_response
                 p_responseMessage['v_code'] = response.InvitedPrivateChannelMembers.value
                 p_responseMessage['v_data'] = v_data
                 SendToSomeClients([v_userCode], p_responseMessage)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'InvitePrivateChannel', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3890,7 +3950,7 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
                        meg.meg_bo_viewed as visualizada,
                        coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
-                       regexp_replace(coalesce(mes.mes_st_originalcontent, ''), '#start_mentioned_message#.*#end_mentioned_message#', '') as mes_st_originalcontent
+                       regex_replace('#start_mentioned_message#.*#end_mentioned_message#', coalesce(mes.mes_st_originalcontent, ''), '') as mes_st_originalcontent
                 from messages_groups meg
                 inner join messages mes
                            on meg.mes_in_code = mes.mes_in_code
@@ -3913,7 +3973,7 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
                        mec.mec_bo_viewed as visualizada,
                        coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
-                       regexp_replace(coalesce(mes.mes_st_originalcontent, ''), '#start_mentioned_message#.*#end_mentioned_message#', '') as mes_st_originalcontent
+                       regex_replace('#start_mentioned_message#.*#end_mentioned_message#', coalesce(mes.mes_st_originalcontent, ''), '') as mes_st_originalcontent
                 from messages_channels mec
                 inner join messages mes
                            on mec.mes_in_code = mes.mes_in_code
@@ -4391,7 +4451,6 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
         p_responseMessage['v_data'] = 'Error while executing the static method "SendMessageAsBot": {0}'.format(traceback.format_exc())
         SendToClient(p_webSocketSession, p_responseMessage, True)
         return
-
 
 def start_wsserver_thread():
     t = threading.Thread(target=start_wsserver)

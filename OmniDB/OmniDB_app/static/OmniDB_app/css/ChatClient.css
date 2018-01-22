@@ -165,7 +165,6 @@
 
 #div_chat_right_right_close {
     flex: 0 0 auto;
-    width: 100%;
     text-align: right;
     padding: 5px;
 }
@@ -285,6 +284,7 @@
     border-radius: 5px;
     padding: 5px;
     cursor: pointer;
+    color: #9b9b9b;
 }
 
 .div_chat_right_left_footer_left_options_item:hover {

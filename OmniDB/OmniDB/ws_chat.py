@@ -1719,7 +1719,11 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 )
             )
 
+        v_database.Close()
+
         if v_messageCode != 0:
+            v_database.Open()
+
             v_table = v_database.Query('''
                 select mes.mes_in_code,
                        mes.mes_dt_creation,
@@ -1737,6 +1741,8 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                            on mes.use_in_code = use.user_id
                 where mes.mes_in_code = {0}'''.format(v_messageCode)
             )
+
+            v_database.Close()
 
             if len(v_table.Rows) > 0:
                 v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None)
@@ -1771,8 +1777,6 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
 
                 v_data['message'].viewed = True
                 SendToClient(p_webSocketSession, p_responseMessage, True)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'SendGroupMessage', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -1869,6 +1873,8 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
                 )
             )
 
+        v_database.Close()
+
         if v_table is not None:
             for v_row in v_table.Rows:
                 v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None)
@@ -1890,8 +1896,6 @@ def RetrieveGroupHistory(p_webSocketSession, p_requestMessage, p_responseMessage
         p_responseMessage['v_data'] = v_data
         p_responseMessage['v_code'] = response.RetrievedGroupHistory.value
         SendToClient(p_webSocketSession, p_responseMessage, False)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'RetrieveGroupHistory', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -1932,11 +1936,11 @@ def MarkGroupMessagesAsRead(p_webSocketSession, p_requestMessage, p_responseMess
                 )
             )
 
+        v_database.Close()
+
         p_responseMessage['v_data'] = p_requestMessage['v_data']
         p_responseMessage['v_code'] = response.MarkedGroupMessagesAsRead.value
         SendToClient(p_webSocketSession, p_responseMessage, True)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'MarkGroupMessagesAsRead', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -2022,6 +2026,8 @@ def ChangeGroupSilenceSettings(p_webSocketSession, p_requestMessage, p_responseM
             )
         )
 
+        v_database.Close()
+
         v_data = {
             'groupCode': p_requestMessage['v_data']['groupCode'],
             'groupSilenced': p_requestMessage['v_data']['silenceGroup']
@@ -2030,8 +2036,6 @@ def ChangeGroupSilenceSettings(p_webSocketSession, p_requestMessage, p_responseM
         p_responseMessage['v_data'] = v_data
         p_responseMessage['v_code'] = response.GroupSilenceSettings.value
         SendToClient(p_webSocketSession, p_responseMessage, True)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'ChangeGroupSilenceSettings', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -2064,11 +2068,11 @@ def RemoveGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
         )
 
+        v_database.Close()
+
         p_responseMessage['v_data'] = p_requestMessage['v_data']
         p_responseMessage['v_code'] = response.RemovedGroupMessage.value
         SendToClient(p_webSocketSession, p_responseMessage, True)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'RemoveGroupMessage', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -2115,6 +2119,8 @@ def UpdateGroupSnippetMessage(p_webSocketSession, p_requestMessage, p_responseMe
             )
         )
 
+        v_database.Close()
+
         v_userList = GetUsersToSendMessageByGroupCode(p_webSocketSession, p_requestMessage['v_data']['groupCode'])
 
         if v_userList is not None:
@@ -2122,8 +2128,6 @@ def UpdateGroupSnippetMessage(p_webSocketSession, p_requestMessage, p_responseMe
             p_responseMessage['v_data']['updatedAt'] = v_updatedAt
             p_responseMessage['v_code'] = response.UpdatedGroupSnippetMessage.value
             SendToSomeClients(v_userList, p_responseMessage)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'UpdateGroupSnippetMessage', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -2277,6 +2281,8 @@ def UpdateGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
         )
 
+        v_database.Close()
+
         v_data = {
             'groupCode': p_requestMessage['v_data']['groupCode'],
             'messageCode': p_requestMessage['v_data']['messageCode'],
@@ -2291,8 +2297,6 @@ def UpdateGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             p_responseMessage['v_data'] = v_data
             p_responseMessage['v_code'] = response.UpdatedGroupMessage.value
             SendToSomeClients(v_userList, p_responseMessage)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'UpdateGroupMessage', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3102,7 +3106,11 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 )
             )
 
+        v_database.Close()
+
         if v_messageCode != 0:
+            v_database.Open()
+
             v_table = v_database.Query('''
                 select mes.mes_in_code,
                        mes.mes_dt_creation,
@@ -3120,6 +3128,8 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                            on mes.use_in_code = use.user_id
                 where mes.mes_in_code = {0}'''.format(v_messageCode)
             )
+
+            v_database.Close()
 
             if len(v_table.Rows) > 0:
                 v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None)
@@ -3154,8 +3164,6 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
 
                 v_data['message'].viewed = True
                 SendToClient(p_webSocketSession, p_responseMessage, True)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'SendChannelMessage', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3252,6 +3260,8 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
                 )
             )
 
+        v_database.Close()
+
         if v_table is not None:
             for v_row in v_table.Rows:
                 v_user = classes.User(v_row['use_in_code'], '', v_row['use_st_login'], None)
@@ -3273,8 +3283,6 @@ def RetrieveChannelHistory(p_webSocketSession, p_requestMessage, p_responseMessa
         p_responseMessage['v_data'] = v_data
         p_responseMessage['v_code'] = response.RetrievedChannelHistory.value
         SendToClient(p_webSocketSession, p_responseMessage, False)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'RetrieveChannelHistory', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3315,11 +3323,11 @@ def MarkChannelMessagesAsRead(p_webSocketSession, p_requestMessage, p_responseMe
                 )
             )
 
+        v_database.Close()
+
         p_responseMessage['v_data'] = p_requestMessage['v_data']
         p_responseMessage['v_code'] = response.MarkedChannelMessagesAsRead.value
         SendToClient(p_webSocketSession, p_responseMessage, True)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'MarkChannelMessagesAsRead', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3377,6 +3385,8 @@ def ChangeChannelSilenceSettings(p_webSocketSession, p_requestMessage, p_respons
             )
         )
 
+        v_database.Close()
+
         v_data = {
             'channelCode': p_requestMessage['v_data']['channelCode'],
             'channelSilenced': p_requestMessage['v_data']['silenceChannel']
@@ -3385,8 +3395,6 @@ def ChangeChannelSilenceSettings(p_webSocketSession, p_requestMessage, p_respons
         p_responseMessage['v_data'] = v_data
         p_responseMessage['v_code'] = response.ChannelSilenceSettings.value
         SendToClient(p_webSocketSession, p_responseMessage, True)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'ChangeChannelSilenceSettings', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3419,11 +3427,11 @@ def RemoveChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage
             )
         )
 
+        v_database.Close()
+
         p_responseMessage['v_data'] = p_requestMessage['v_data']
         p_responseMessage['v_code'] = response.RemovedChannelMessage.value
         SendToClient(p_webSocketSession, p_responseMessage, True)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'RemoveChannelMessage', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3470,6 +3478,8 @@ def UpdateChannelSnippetMessage(p_webSocketSession, p_requestMessage, p_response
             )
         )
 
+        v_database.Close()
+
         v_userList = GetUsersToSendMessageByChannelCode(p_webSocketSession, p_requestMessage['v_data']['channelCode'])
 
         if v_userList is not None:
@@ -3477,8 +3487,6 @@ def UpdateChannelSnippetMessage(p_webSocketSession, p_requestMessage, p_response
             p_responseMessage['v_data']['updatedAt'] = v_updatedAt
             p_responseMessage['v_code'] = response.UpdatedChannelSnippetMessage.value
             SendToSomeClients(v_userList, p_responseMessage)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'UpdateChannelSnippetMessage', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3632,6 +3640,8 @@ def UpdateChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage
             )
         )
 
+        v_database.Close()
+
         v_data = {
             'channelCode': p_requestMessage['v_data']['channelCode'],
             'messageCode': p_requestMessage['v_data']['messageCode'],
@@ -3646,8 +3656,6 @@ def UpdateChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage
             p_responseMessage['v_data'] = v_data
             p_responseMessage['v_code'] = response.UpdatedChannelMessage.value
             SendToSomeClients(v_userList, p_responseMessage)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'UpdateChannelMessage', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3747,14 +3755,14 @@ def RenamePrivateChannel(p_webSocketSession, p_requestMessage, p_responseMessage
             )
         )
 
+        v_database.Close()
+
         v_userList = GetUsersToSendMessageByChannelCode(p_webSocketSession, p_requestMessage['v_data']['channelCode'])
 
         if v_userList is not None:
             p_responseMessage['v_data'] = p_requestMessage['v_data']
             p_responseMessage['v_code'] = response.RenamedPrivateChannel.value
             SendToSomeClients(v_userList, p_responseMessage)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'RenamePrivateChannel', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3787,13 +3795,13 @@ def QuitPrivateChannel(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
         )
 
+        v_database.Close()
+
         if v_userList is not None:
             p_responseMessage['v_data'] = p_requestMessage['v_data']
             p_responseMessage['v_data']['userCode'] = int(p_webSocketSession.cookies['user_id'].value)
             p_responseMessage['v_code'] = response.QuittedPrivateChannel.value
             SendToSomeClients(v_userList, p_responseMessage)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'QuitPrivateChannel', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3896,6 +3904,8 @@ def SetUserChatStatus(p_webSocketSession, p_requestMessage, p_responseMessage):
             )
         )
 
+        v_database.Close()
+
         v_status = classes.Status(int(p_requestMessage['v_data']['userChatStatusCode']), v_statusName)
 
         p_responseMessage['v_code'] = response.UserChatStatus.value
@@ -3906,8 +3916,6 @@ def SetUserChatStatus(p_webSocketSession, p_requestMessage, p_responseMessage):
         }
 
         SendToAllClients(p_responseMessage)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'SetUserChatStatus', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -3950,7 +3958,11 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
                        meg.meg_bo_viewed as visualizada,
                        coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
-                       regex_replace('#start_mentioned_message#.*#end_mentioned_message#', coalesce(mes.mes_st_originalcontent, ''), '') as mes_st_originalcontent
+                       (case instr(coalesce(mes.mes_st_originalcontent, ''), '#start_mentioned_message#')
+                             when 0 then coalesce(mes.mes_st_originalcontent, '')
+                             else substr(coalesce(mes.mes_st_originalcontent, ''), 1, instr(coalesce(mes.mes_st_originalcontent, ''), '#start_mentioned_message#'))
+                        end
+                       ) as mes_st_originalcontent
                 from messages_groups meg
                 inner join messages mes
                            on meg.mes_in_code = mes.mes_in_code
@@ -3973,7 +3985,11 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                        coalesce(mes.mes_st_attachmentname, '') as mes_st_attachmentname,
                        mec.mec_bo_viewed as visualizada,
                        coalesce(mes.mes_st_snippetmode, '') as mes_st_snippetmode,
-                       regex_replace('#start_mentioned_message#.*#end_mentioned_message#', coalesce(mes.mes_st_originalcontent, ''), '') as mes_st_originalcontent
+                       (case instr(coalesce(mes.mes_st_originalcontent, ''), '#start_mentioned_message#')
+                             when 0 then coalesce(mes.mes_st_originalcontent, '')
+                             else substr(coalesce(mes.mes_st_originalcontent, ''), 1, instr(coalesce(mes.mes_st_originalcontent, ''), '#start_mentioned_message#'))
+                        end
+                       ) as mes_st_originalcontent
                 from messages_channels mec
                 inner join messages mes
                            on mec.mes_in_code = mes.mes_in_code
@@ -3987,6 +4003,8 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                 p_requestMessage['v_data']['textPattern'].replace("'", "''")
             )
         )
+
+        v_database.Close()
 
         v_data = {
             'textPattern': p_requestMessage['v_data']['textPattern'],
@@ -4017,8 +4035,6 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
         p_responseMessage['v_code'] = response.SearchedOldMessages.value
         p_responseMessage['v_data'] = v_data
         SendToClient(p_webSocketSession, p_responseMessage, False)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         LogException(p_webSocketSession, '', 'Database Exception', 'SearchOldMessages', traceback.format_exc())
         p_responseMessage['v_error'] = True
@@ -4345,8 +4361,12 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                 )
             )
 
+        v_database.Close()
+
         if v_messageCode != 0:
             if p_requestMessage['v_data']['destinyType'] == 1: #Channel
+                v_database.Open()
+
                 v_table = v_database.Query('''
                     select mes.mes_in_code,
                            mes.mes_dt_creation,
@@ -4364,6 +4384,8 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                                on mes.use_in_code = use.user_id
                     where mes.mes_in_code = {0}'''.format(v_messageCode)
                 )
+
+                v_database.Close()
 
                 if len(v_table.Rows) > 0:
                     v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None)
@@ -4394,6 +4416,8 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                         SendToSomeClients(v_userList, p_responseMessage)
 
             elif p_requestMessage['v_data']['destinyType'] == 2: #Group
+                v_database.Open()
+
                 v_table = v_database.Query('''
                     select mes.mes_in_code,
                            mes.mes_dt_creation,
@@ -4411,6 +4435,8 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                                on mes.use_in_code = use.user_id
                     where mes.mes_in_code = {0}'''.format(v_messageCode)
                 )
+
+                v_database.Close()
 
                 if len(v_table.Rows) > 0:
                     v_user = classes.User(v_table.Rows[0]['use_in_code'], '', v_table.Rows[0]['use_st_login'], None)
@@ -4439,8 +4465,6 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
                         p_responseMessage['v_data'] = v_data
                         p_responseMessage['v_code'] = response.NewGroupMessage.value
                         SendToSomeClients(v_userList, p_responseMessage)
-
-        v_database.Close()
     except Spartacus.Database.Exception as exc:
         p_responseMessage['v_error'] = True
         p_responseMessage['v_data'] = 'Error while executing the static method "SendMessageAsBot": {0}'.format(traceback.format_exc())

@@ -6478,7 +6478,7 @@ function chatLoginResult(p_data) {
                                 function(p_channel, p_event) {
                                     var v_html =
                                         '<div style="margin-bottom: 10px;">' +
-                                        '    <span>Do you really want to leave the channel <b>' + p_channel.name + '</b></span> ' +
+                                        '    <span>Do you really want to leave the channel <b>' + p_channel.name + '</b>?</span> ' +
                                         '</div>' +
                                         '<div style="text-align: center;">' +
                                         '    <button id="button_quit_channel_no">No</button>' +

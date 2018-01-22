@@ -2206,6 +2206,7 @@ function chatLoginResult(p_data) {
 
                         var v_editor = ace.edit('div_snippet_editor');
                         v_editor.getSession().setMode('ace/mode/' + p_message.snippetMode);
+                        v_editor.setTheme("ace/theme/" + v_editor_theme);
                         v_editor.getSession().setUseSoftTabs(true);
                         v_editor.setValue(p_message.content);
                         v_editor.clearSelection();
@@ -2272,6 +2273,7 @@ function chatLoginResult(p_data) {
 
                         var v_editor = ace.edit('div_snippet_editor');
                         v_editor.getSession().setMode('ace/mode/' + p_message.snippetMode);
+                        v_editor.setTheme("ace/theme/" + v_editor_theme);
                         v_editor.getSession().setUseSoftTabs(true);
                         v_editor.setValue(p_message.content);
                         v_editor.clearSelection();
@@ -2740,6 +2742,7 @@ function chatLoginResult(p_data) {
 
                                 var v_editor = ace.edit('div_snippet_editor');
                                 v_editor.getSession().setMode('ace/mode/plain_text');
+                                v_editor.setTheme("ace/theme/" + v_editor_theme);
                                 v_editor.getSession().setUseSoftTabs(true);
 
                                 var v_selectSnippetMode = document.getElementById('select_snippet_mode');
@@ -3597,7 +3600,7 @@ function chatLoginResult(p_data) {
                 v_divChatRightContent.children[0].remove();
                 var v_item = p_chatPopUp.tag.getRenderedChannelMessage(v_channel.code, v_channel.messageList[j - 1], true);
                 v_divChatRightContent.insertBefore(v_item, v_divChatRightContent.firstChild);
-                i = j;
+                i = j - 1;
             }
 
             var v_actualDate = '';
@@ -4679,6 +4682,7 @@ function chatLoginResult(p_data) {
 
                         var v_editor = ace.edit('div_snippet_editor');
                         v_editor.getSession().setMode('ace/mode/' + p_message.snippetMode);
+                        v_editor.setTheme("ace/theme/" + v_editor_theme);
                         v_editor.getSession().setUseSoftTabs(true);
                         v_editor.setValue(p_message.content);
                         v_editor.clearSelection();
@@ -4745,6 +4749,7 @@ function chatLoginResult(p_data) {
 
                         var v_editor = ace.edit('div_snippet_editor');
                         v_editor.getSession().setMode('ace/mode/' + p_message.snippetMode);
+                        v_editor.setTheme("ace/theme/" + v_editor_theme);
                         v_editor.getSession().setUseSoftTabs(true);
                         v_editor.setValue(p_message.content);
                         v_editor.clearSelection();
@@ -5227,6 +5232,7 @@ function chatLoginResult(p_data) {
 
                                 var v_editor = ace.edit('div_snippet_editor');
                                 v_editor.getSession().setMode('ace/mode/plain_text');
+                                v_editor.setTheme("ace/theme/" + v_editor_theme);
                                 v_editor.getSession().setUseSoftTabs(true);
 
                                 var v_selectSnippetMode = document.getElementById('select_snippet_mode');
@@ -6084,7 +6090,7 @@ function chatLoginResult(p_data) {
                 v_divChatRightContent.children[0].remove();
                 var v_item = p_chatPopUp.tag.getRenderedGroupMessage(v_group.code, v_group.messageList[j - 1], true);
                 v_divChatRightContent.insertBefore(v_item, v_divChatRightContent.firstChild);
-                i = j;
+                i = j - 1;
             }
 
             var v_actualDate = '';

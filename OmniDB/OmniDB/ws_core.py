@@ -483,9 +483,9 @@ def thread_query(self,args,ws_object):
                 v_database.v_connection.Open()
 
             if (v_mode==0 or v_mode==1) and not v_all_data:
-                v_data1 = v_database.v_connection.QueryBlock(v_sql,50, True)
+                v_data1 = v_database.v_connection.QueryBlock(v_sql, 50, True, True)
             elif v_mode==2 or v_all_data:
-                v_data1 = v_database.v_connection.QueryBlock(v_sql,-1, True)
+                v_data1 = v_database.v_connection.QueryBlock(v_sql, -1, True, True)
 
             v_notices = v_database.v_connection.GetNotices()
             v_notices_text = ''

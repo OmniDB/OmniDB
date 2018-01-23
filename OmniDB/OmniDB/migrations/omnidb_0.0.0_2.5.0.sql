@@ -7,7 +7,7 @@ INSERT INTO db_type VALUES('sqlite',0);--omnidb--
 INSERT INTO db_type VALUES('mysql',0);--omnidb--
 INSERT INTO db_type VALUES('postgresql',1);--omnidb--
 INSERT INTO db_type VALUES('firebird',0);--omnidb--
-INSERT INTO db_type VALUES('oracle',0);--omnidb--
+INSERT INTO db_type VALUES('oracle',1);--omnidb--
 INSERT INTO db_type VALUES('sqlserver',0);--omnidb--
 INSERT INTO db_type VALUES('access',0);--omnidb--
 INSERT INTO db_type VALUES('sqlce',0);--omnidb--
@@ -550,4 +550,4 @@ CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)
 );--omnidb--
-INSERT INTO version VALUES('2.4.1');--omnidb--
+INSERT INTO version VALUES('2.5.0');--omnidb--

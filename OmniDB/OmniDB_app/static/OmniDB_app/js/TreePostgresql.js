@@ -2513,7 +2513,7 @@ function refreshTreePostgresql(node) {
     } else if (node.tag.type == 'partition_list') {
         getPartitionsPostgresql(node);
     } else if (node.tag.type == 'server') {
-        getTreeDetails(node);
+        getTreeDetailsPostgresql(node);
     } else if (node.tag.type == 'physicalreplicationslot_list') {
         getPhysicalReplicationSlotsPostgresql(node);
     } else if (node.tag.type == 'logicalreplicationslot_list') {
@@ -2567,7 +2567,7 @@ function refreshTreePostgresql(node) {
 /// Retrieving tree details.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getTreeDetails(node) {
+function getTreeDetailsPostgresql(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
@@ -5921,7 +5921,7 @@ function getBDRMajorVersion(p_version) {
 }
 
 function postgresqlTerminateBackendConfirm(p_pid) {
-    execAjax('/kill_backend_postgres/',
+    execAjax('/kill_backend_postgresql/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_pid": p_pid

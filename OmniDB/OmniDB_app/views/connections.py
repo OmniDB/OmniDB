@@ -59,8 +59,28 @@ def get_connections(request):
     try:
         v_technologies = v_session.v_omnidb_database.v_connection.Query('''
             select dbt_st_name
+            from (
+            select dbt_st_name,
+                   sort
+            from (
+            select dbt_st_name,
+                   1 as sort
             from db_type
             where dbt_in_enabled = 1
+              and dbt_st_name = 'postgresql'
+            union
+            select a.dbt_st_name,
+                   (select count(*)
+                    from db_type b
+                    where b.dbt_in_enabled = 1
+                      and b.dbt_st_name <> 'postgresql'
+                      and a.dbt_st_name >= b.dbt_st_name)+1 as sort
+            from db_type a
+            where a.dbt_in_enabled = 1
+              and a.dbt_st_name <> 'postgresql'
+            )
+            order by sort
+            )
         ''')
     except Exception as exc:
         v_return['v_data'] = str(exc)

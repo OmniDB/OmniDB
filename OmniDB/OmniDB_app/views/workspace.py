@@ -1746,7 +1746,7 @@ def refresh_monitoring(request):
         return JsonResponse(v_return)
 
     try:
-        v_data = v_database.v_connection.Query(v_sql,True)
+        v_data = v_database.v_connection.Query(v_sql,True,True)
         v_return['v_data'] = {
             'v_col_names' : v_data.Columns,
             'v_data' : v_data.Rows,

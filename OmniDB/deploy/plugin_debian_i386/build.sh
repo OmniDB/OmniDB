@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2.4.1
+VERSION=2.5.0
 ARCH=debian-i386
 
 cd ~/OmniDB/omnidb_plugin

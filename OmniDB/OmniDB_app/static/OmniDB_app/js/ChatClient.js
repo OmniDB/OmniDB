@@ -938,6 +938,28 @@ function chatLoginResult(p_data) {
         return null;
     };
 
+    v_chatPopUp.tag.contextList = [];
+
+    v_chatPopUp.tag.contextList.getContextByChannelCode = function(p_channelCode) {
+        for(var i = 0; i < this.length; i++) {
+            if(this[i].type = 1 && this[i].code == p_channelCode) {//Is channel and is the given channel
+                return this[i];
+            }
+        }
+
+        return null;
+    };
+
+    v_chatPopUp.tag.contextList.getContextByGroupCode = function(p_groupCode) {
+        for(var i = 0; i < this.length; i++) {
+            if(this[i].type = 2 && this[i].code == p_groupCode) {//Is group and is the given group
+                return this[i];
+            }
+        }
+
+        return null;
+    };
+
     var v_headerMenu = document.querySelector('.header_menu > div > ul');
 
     if(v_headerMenu != null) {
@@ -997,6 +1019,9 @@ function chatLoginResult(p_data) {
             v_li.appendChild(v_chatSpan);
         }
     }
+
+    v_chatPopUp.maximizeElement.remove();
+    v_chatPopUp.minimizeElement.remove();
 
     v_chatPopUp.contentElement.classList.add('popup-prevent-container-drag');
     var v_cloneNode = v_chatPopUp.closeElement.cloneNode(true);
@@ -1302,6 +1327,7 @@ function chatLoginResult(p_data) {
 
                 var v_img = document.createElement('img');
                 v_img.src = '/static/OmniDB_app/images/icons/extension_chat_code.png';
+                v_img.title = 'Click to open the Snippet';
                 v_container.appendChild(v_img);
 
                 var v_divName = document.createElement('div');
@@ -1663,6 +1689,16 @@ function chatLoginResult(p_data) {
                     useInternalCDN: false
                 });
 
+                window.addEventListener(
+                    'blur',
+                    function(p_editor, p_event) {
+                        if(p_editor != null) {
+                            p_editor.altPressed = false;
+                            p_editor.shiftPressed = false;
+                        }
+                    }.bind(window, v_editor[0].emojioneArea)
+                );
+
                 var v_buttonCancel = document.getElementById('button_modal_cancel');
 
                 v_buttonCancel.addEventListener(
@@ -1704,6 +1740,7 @@ function chatLoginResult(p_data) {
                 );
 
                 v_editor[0].emojioneArea.altPressed = false;
+                v_editor[0].emojioneArea.shiftPressed = false;
                 v_editor[0].selectingEmoji = false;
 
                 v_editor[0].emojioneArea.on(
@@ -1715,11 +1752,14 @@ function chatLoginResult(p_data) {
                         if(p_event.keyCode == 18) { //Alt
                             this.altPressed = true;
                         }
+                        else if(p_event.keyCode == 16) { //Shift
+                            this.shiftPressed = true;
+                        }
 
                         if(p_event.keyCode == 13) { //Enter
                             p_event.preventDefault();
 
-                            if(this.altPressed) {
+                            if(this.altPressed || this.shiftPressed) {
                                 var v_selection = window.getSelection();
                                 var v_range = v_selection.getRangeAt(0);
                                 var v_div = document.createElement('div');
@@ -1743,8 +1783,11 @@ function chatLoginResult(p_data) {
                         if(p_event.keyCode == 18) { //Alt
                             this.altPressed = false;
                         }
+                        else if(p_event.keyCode == 16) { //Shift
+                            this.shiftPressed = false;
+                        }
 
-                        if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed) { //Enter and not selecting emoticons or inserting new lines
+                        if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed && !this.shiftPressed) { //Enter and not selecting emoticons or inserting new lines
                             p_event.preventDefault();
 
                             if(p_editor[0].innerHTML.length > 0) {
@@ -1899,6 +1942,16 @@ function chatLoginResult(p_data) {
                             useInternalCDN: false
                         });
 
+                        window.addEventListener(
+                            'blur',
+                            function(p_editor, p_event) {
+                                if(p_editor != null) {
+                                    p_editor.altPressed = false;
+                                    p_editor.shiftPressed = false;
+                                }
+                            }.bind(window, v_editor[0].emojioneArea)
+                        );
+
                         if(p_message.type == 1) { //Plain text
                             v_editor[0].emojioneArea.setText(p_message.rawContent);
                         }
@@ -1959,6 +2012,7 @@ function chatLoginResult(p_data) {
                         );
 
                         v_editor[0].emojioneArea.altPressed = false;
+                        v_editor[0].emojioneArea.shiftPressed = false;
                         v_editor[0].selectingEmoji = false;
 
                         v_editor[0].emojioneArea.on(
@@ -1970,11 +2024,14 @@ function chatLoginResult(p_data) {
                                 if(p_event.keyCode == 18) { //Alt
                                     this.altPressed = true;
                                 }
+                                else if(p_event.keyCode == 16) { //Shift
+                                    this.shiftPressed = true;
+                                }
 
                                 if(p_event.keyCode == 13) { //Enter
                                     p_event.preventDefault();
 
-                                    if(this.altPressed) {
+                                    if(this.altPressed || this.shiftPressed) {
                                         var v_selection = window.getSelection();
                                         var v_range = v_selection.getRangeAt(0);
                                         var v_div = document.createElement('div');
@@ -1998,8 +2055,11 @@ function chatLoginResult(p_data) {
                                 if(p_event.keyCode == 18) { //Alt
                                     this.altPressed = false;
                                 }
+                                else if(p_event.keyCode == 16) { //Shift
+                                    this.shiftPressed = false;
+                                }
 
-                                if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed) { //Enter and not selecting emoticons or inserting new lines
+                                if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed && !this.shiftPressed) { //Enter and not selecting emoticons or inserting new lines
                                     p_event.preventDefault();
 
                                     if(p_editor[0].innerHTML.length > 0) {
@@ -2255,6 +2315,17 @@ function chatLoginResult(p_data) {
                 );
 
                 v_contextMenu.appendChild(v_actionEdit);
+
+                var v_snippetContainerImg = v_messageContent.querySelector('.div_chat_message_snippet_container > img')
+
+                if(v_snippetContainerImg != null) {
+                    v_snippetContainerImg.addEventListener(
+                        'click',
+                        function(p_actionEdit, p_event) {
+                            p_actionEdit.click();
+                        }.bind(v_snippetContainerImg, v_actionEdit)
+                    );
+                }
             }
             else {
                 var v_actionView = document.createElement('div');
@@ -2300,6 +2371,17 @@ function chatLoginResult(p_data) {
                 );
 
                 v_contextMenu.appendChild(v_actionView);
+
+                var v_snippetContainerImg = v_messageContent.querySelector('.div_chat_message_snippet_container > img')
+
+                if(v_snippetContainerImg != null) {
+                    v_snippetContainerImg.addEventListener(
+                        'click',
+                        function(p_actionView, p_event) {
+                            p_actionView.click();
+                        }.bind(v_snippetContainerImg, v_actionView)
+                    );
+                }
             }
         }
 
@@ -2510,6 +2592,12 @@ function chatLoginResult(p_data) {
                 v_rightContent.addEventListener(
                     'scroll',
                     function(p_chatPopUp, p_event) {
+                        var v_channelContext = p_chatPopUp.tag.contextList.getContextByChannelCode(this.parentElement.channelCode);
+
+                        if(v_channelContext != null) {
+                            v_channelContext.scrollTop = this.scrollTop;
+                        }
+
                         var v_channel = p_chatPopUp.tag.channelList.getChannelByCode(this.parentElement.channelCode);
 
                         if(v_channel != null) {
@@ -2908,9 +2996,22 @@ function chatLoginResult(p_data) {
                     useInternalCDN: false
                 });
 
+                p_chatPopUp.tag.renderedEditor = v_editor[0].emojioneArea;
+
+                window.addEventListener(
+                    'blur',
+                    function(p_editor, p_event) {
+                        if(p_editor != null) {
+                            p_editor.altPressed = false;
+                            p_editor.shiftPressed = false;
+                        }
+                    }.bind(window, v_editor[0].emojioneArea)
+                );
+
                 v_editor[0].emojioneArea.sentWriting = false;
                 v_editor[0].emojioneArea.sentNotWriting = true; //true in order to avoid first message bug
                 v_editor[0].emojioneArea.altPressed = false;
+                v_editor[0].emojioneArea.shiftPressed = false;
                 v_editor[0].selectingEmoji = false;
                 v_editor[0].selectingUserMenu = null;
 
@@ -3073,6 +3174,9 @@ function chatLoginResult(p_data) {
                         if(p_event.keyCode == 18) { //Alt
                             this.altPressed = true;
                         }
+                        else if(p_event.keyCode == 16) { //Shift
+                            this.shiftPressed = true;
+                        }
 
                         if(!this.checkSelectingUser()) {
                             if(p_event.key == '@') {
@@ -3228,7 +3332,7 @@ function chatLoginResult(p_data) {
                             p_event.preventDefault();
 
                             if(!this.checkSelectingUser()) {
-                                if(this.altPressed) {
+                                if(this.altPressed || this.shiftPressed) {
                                     var v_selection = window.getSelection();
                                     var v_range = v_selection.getRangeAt(0);
                                     var v_div = document.createElement('div');
@@ -3280,6 +3384,9 @@ function chatLoginResult(p_data) {
                         if(p_event.keyCode == 18) { //Alt
                             this.altPressed = false;
                         }
+                        else if(p_event.keyCode == 16) { //Shift
+                            this.shiftPressed = false;
+                        }
 
                         if(this.checkSelectingUser()) {
                             if(p_event.keyCode != 38 && p_event.keyCode != 40 && p_event.keyCode != 13) {//Arrow Up | Arrow Down | Enter
@@ -3316,7 +3423,7 @@ function chatLoginResult(p_data) {
                             }
                         }
 
-                        if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed) { //Enter and not selecting emoticons or inserting new lines
+                        if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed && !this.shiftPressed) { //Enter and not selecting emoticons or inserting new lines
                             p_event.preventDefault();
 
                             if(this.checkSelectingUser() && this.selectingUserMenu != null) {
@@ -3778,6 +3885,7 @@ function chatLoginResult(p_data) {
 
                 var v_img = document.createElement('img');
                 v_img.src = '/static/OmniDB_app/images/icons/extension_chat_code.png';
+                v_img.title = 'Click to open the Snippet';
                 v_container.appendChild(v_img);
 
                 var v_divName = document.createElement('div');
@@ -4139,6 +4247,16 @@ function chatLoginResult(p_data) {
                     useInternalCDN: false
                 });
 
+                window.addEventListener(
+                    'blur',
+                    function(p_editor, p_event) {
+                        if(p_editor != null) {
+                            p_editor.altPressed = false;
+                            p_editor.shiftPressed = false;
+                        }
+                    }.bind(window, v_editor[0].emojioneArea)
+                );
+
                 var v_buttonCancel = document.getElementById('button_modal_cancel');
 
                 v_buttonCancel.addEventListener(
@@ -4180,6 +4298,7 @@ function chatLoginResult(p_data) {
                 );
 
                 v_editor[0].emojioneArea.altPressed = false;
+                v_editor[0].emojioneArea.shiftPressed = false;
                 v_editor[0].selectingEmoji = false;
 
                 v_editor[0].emojioneArea.on(
@@ -4191,11 +4310,14 @@ function chatLoginResult(p_data) {
                         if(p_event.keyCode == 18) { //Alt
                             this.altPressed = true;
                         }
+                        else if(p_event.keyCode == 16) { //Shift
+                            this.shiftPressed = true;
+                        }
 
                         if(p_event.keyCode == 13) { //Enter
                             p_event.preventDefault();
 
-                            if(this.altPressed) {
+                            if(this.altPressed || this.shiftPressed) {
                                 var v_selection = window.getSelection();
                                 var v_range = v_selection.getRangeAt(0);
                                 var v_div = document.createElement('div');
@@ -4219,8 +4341,11 @@ function chatLoginResult(p_data) {
                         if(p_event.keyCode == 18) { //Alt
                             this.altPressed = false;
                         }
+                        else if(p_event.keyCode == 16) { //Shift
+                            this.shiftPressed = false;
+                        }
 
-                        if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed) { //Enter and not selecting emoticons or inserting new lines
+                        if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed && !this.shiftPressed) { //Enter and not selecting emoticons or inserting new lines
                             p_event.preventDefault();
 
                             if(p_editor[0].innerHTML.length > 0) {
@@ -4375,6 +4500,16 @@ function chatLoginResult(p_data) {
                             useInternalCDN: false
                         });
 
+                        window.addEventListener(
+                            'blur',
+                            function(p_editor, p_event) {
+                                if(p_editor != null) {
+                                    p_editor.altPressed = false;
+                                    p_editor.shiftPressed = false;
+                                }
+                            }.bind(window, v_editor[0].emojioneArea)
+                        );
+
                         if(p_message.type == 1) { //Plain text
                             v_editor[0].emojioneArea.setText(p_message.rawContent);
                         }
@@ -4435,6 +4570,7 @@ function chatLoginResult(p_data) {
                         );
 
                         v_editor[0].emojioneArea.altPressed = false;
+                        v_editor[0].emojioneArea.shiftPressed = false;
                         v_editor[0].selectingEmoji = false;
 
                         v_editor[0].emojioneArea.on(
@@ -4446,11 +4582,14 @@ function chatLoginResult(p_data) {
                                 if(p_event.keyCode == 18) { //Alt
                                     this.altPressed = true;
                                 }
+                                else if(p_event.keyCode == 16) { //Shift
+                                    this.shiftPressed = true;
+                                }
 
                                 if(p_event.keyCode == 13) { //Enter
                                     p_event.preventDefault();
 
-                                    if(this.altPressed) {
+                                    if(this.altPressed || this.shiftPressed) {
                                         var v_selection = window.getSelection();
                                         var v_range = v_selection.getRangeAt(0);
                                         var v_div = document.createElement('div');
@@ -4474,8 +4613,11 @@ function chatLoginResult(p_data) {
                                 if(p_event.keyCode == 18) { //Alt
                                     this.altPressed = false;
                                 }
+                                else if(p_event.keyCode == 16) { //Shift
+                                    this.shiftPressed = false;
+                                }
 
-                                if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed) { //Enter and not selecting emoticons or inserting new lines
+                                if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed && !this.shiftPressed) { //Enter and not selecting emoticons or inserting new lines
                                     p_event.preventDefault();
 
                                     if(p_editor[0].innerHTML.length > 0) {
@@ -4731,6 +4873,17 @@ function chatLoginResult(p_data) {
                 );
 
                 v_contextMenu.appendChild(v_actionEdit);
+
+                var v_snippetContainerImg = v_messageContent.querySelector('.div_chat_message_snippet_container > img')
+
+                if(v_snippetContainerImg != null) {
+                    v_snippetContainerImg.addEventListener(
+                        'click',
+                        function(p_actionEdit, p_event) {
+                            p_actionEdit.click();
+                        }.bind(v_snippetContainerImg, v_actionEdit)
+                    );
+                }
             }
             else {
                 var v_actionView = document.createElement('div');
@@ -4776,6 +4929,17 @@ function chatLoginResult(p_data) {
                 );
 
                 v_contextMenu.appendChild(v_actionView);
+
+                var v_snippetContainerImg = v_messageContent.querySelector('.div_chat_message_snippet_container > img')
+
+                if(v_snippetContainerImg != null) {
+                    v_snippetContainerImg.addEventListener(
+                        'click',
+                        function(p_actionView, p_event) {
+                            p_actionView.click();
+                        }.bind(v_snippetContainerImg, v_actionView)
+                    );
+                }
             }
         }
 
@@ -5000,6 +5164,12 @@ function chatLoginResult(p_data) {
                 v_rightContent.addEventListener(
                     'scroll',
                     function(p_chatPopUp, p_event) {
+                        var v_groupContext = p_chatPopUp.tag.contextList.getContextByGroupCode(this.parentElement.groupCode);
+
+                        if(v_groupContext != null) {
+                            v_groupContext.scrollTop = this.scrollTop;
+                        }
+                        
                         var v_group = p_chatPopUp.tag.groupList.getGroupByCode(this.parentElement.groupCode);
 
                         if(v_group != null) {
@@ -5398,9 +5568,22 @@ function chatLoginResult(p_data) {
                     useInternalCDN: false
                 });
 
+                p_chatPopUp.tag.renderedEditor = v_editor[0].emojioneArea;
+
+                window.addEventListener(
+                    'blur',
+                    function(p_editor, p_event) {
+                        if(p_editor != null) {
+                            p_editor.altPressed = false;
+                            p_editor.shiftPressed = false;
+                        }
+                    }.bind(window, v_editor[0].emojioneArea)
+                );
+
                 v_editor[0].emojioneArea.sentWriting = false;
                 v_editor[0].emojioneArea.sentNotWriting = true; //true in order to avoid first message bug
                 v_editor[0].emojioneArea.altPressed = false;
+                v_editor[0].emojioneArea.shiftPressed = false;
                 v_editor[0].selectingEmoji = false;
                 v_editor[0].selectingUserMenu = null;
 
@@ -5563,6 +5746,9 @@ function chatLoginResult(p_data) {
                         if(p_event.keyCode == 18) { //Alt
                             this.altPressed = true;
                         }
+                        else if(p_event.keyCode == 16) { //Shift
+                            this.shiftPressed = true;
+                        }
 
                         if(!this.checkSelectingUser()) {
                             if(p_event.key == '@') {
@@ -5718,7 +5904,7 @@ function chatLoginResult(p_data) {
                             p_event.preventDefault();
 
                             if(!this.checkSelectingUser()) {
-                                if(this.altPressed) {
+                                if(this.altPressed || this.shiftPressed) {
                                     var v_selection = window.getSelection();
                                     var v_range = v_selection.getRangeAt(0);
                                     var v_div = document.createElement('div');
@@ -5770,6 +5956,9 @@ function chatLoginResult(p_data) {
                         if(p_event.keyCode == 18) { //Alt
                             this.altPressed = false;
                         }
+                        else if(p_event.keyCode == 16) { //Shift
+                            this.shiftPressed = false;
+                        }
 
                         if(this.checkSelectingUser()) {
                             if(p_event.keyCode != 38 && p_event.keyCode != 40 && p_event.keyCode != 13) {//Arrow Up | Arrow Down | Enter
@@ -5806,7 +5995,7 @@ function chatLoginResult(p_data) {
                             }
                         }
 
-                        if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed) { //Enter and not selecting emoticons or inserting new lines
+                        if(p_event.keyCode == 13 && !this.selectingEmoji && !this.altPressed && !this.shiftPressed) { //Enter and not selecting emoticons or inserting new lines
                             p_event.preventDefault();
 
                             if(this.checkSelectingUser() && this.selectingUserMenu != null) {
@@ -6564,6 +6753,13 @@ function chatLoginResult(p_data) {
     //Render channels items
     for(var i = 0; i < v_chatPopUp.tag.channelList.length; i++) {
         v_chatPopUp.tag.renderChannelItem(v_chatPopUp.tag.channelList[i]);
+
+        v_chatPopUp.tag.contextList.push({
+            type: 1, //Channel
+            code: v_chatPopUp.tag.channelList[i].code,
+            text: '',
+            scrollTop: 0
+        });
     }
 
     v_chatPopUp.tag.renderGroupItem = function(p_group) {
@@ -6720,6 +6916,13 @@ function chatLoginResult(p_data) {
     //Render groups items
     for(var i = 0; i < v_chatPopUp.tag.groupList.length; i++) {
         v_chatPopUp.tag.renderGroupItem(v_chatPopUp.tag.groupList[i]);
+
+        v_chatPopUp.tag.contextList.push({
+            type: 2, //Group
+            code: v_chatPopUp.tag.groupList[i].code,
+            text: '',
+            scrollTop: 0
+        });
     }
 
     //Click first group to initialize a chat window
@@ -6777,7 +6980,7 @@ function chatNewGroupMessage(p_data, p_context) {
                 }
             }
 
-            var v_forceNotify = (p_data.message.content.indexOf('<span class="span_notify_user">@' + v_user_login + '</span>') != -1);
+            var v_forceNotify = (p_data.message.content.indexOf('<span class="span_notify_user">@' + v_user_login + '</span>') != -1) || (!v_group.silenced && document.hidden);
 
             var v_notify = true;
 
@@ -6844,7 +7047,7 @@ function chatNewGroupMessage(p_data, p_context) {
 
                 switch(p_data.message.type) {
                     case 1: { //Plain text
-                        v_body = p_data.message.content;
+                        v_body = p_data.message.rawContent;
                         break;
                     }
                     case 2: { //Pasted image
@@ -6860,7 +7063,7 @@ function chatNewGroupMessage(p_data, p_context) {
                         break;
                     }
                     case 5: { //Mention
-                        v_body = p_data.message.content;
+                        v_body = p_data.message.rawContent;
                         break;
                     }
                 }
@@ -7230,7 +7433,7 @@ function chatNewChannelMessage(p_data, p_context) {
                 }
             }
 
-            var v_forceNotify = (p_data.message.content.indexOf('<span class="span_notify_user">@' + v_user_login + '</span>') != -1);
+            var v_forceNotify = (p_data.message.content.indexOf('<span class="span_notify_user">@' + v_user_login + '</span>') != -1) || (!v_channel.silenced && document.hidden);
 
             var v_notify = true;
 
@@ -7297,7 +7500,7 @@ function chatNewChannelMessage(p_data, p_context) {
 
                 switch(p_data.message.type) {
                     case 1: { //Plain text
-                        v_body = p_data.message.content;
+                        v_body = p_data.message.rawContent;
                         break;
                     }
                     case 2: { //Pasted image
@@ -7313,7 +7516,7 @@ function chatNewChannelMessage(p_data, p_context) {
                         break;
                     }
                     case 5: { //Mention
-                        v_body = p_data.message.content;
+                        v_body = p_data.message.rawContent;
                         break;
                     }
                 }
@@ -7635,6 +7838,13 @@ function chatNewPrivateChannel(p_data, p_context) {
         v_chatPopUp.tag.channelList.push(p_data.channel);
         v_chatPopUp.tag.renderChannelItem(p_data.channel);
 
+        v_chatPopUp.tag.contextList.push({
+            type: 1, //Channel
+            code: p_data.channel.code,
+            text: '',
+            scrollTop: 0
+        });
+
         if(p_context != null && p_context.userCode == v_user_id) {
             v_chatPopUp.tag.renderChannel(p_data.channel.code);
         }
@@ -7757,6 +7967,13 @@ function chatInvitedPrivateChannelMembers(p_data) {
         else {//Other users that just received this message
             v_chatPopUp.tag.channelList.push(p_data.channel);
             v_chatPopUp.tag.renderChannelItem(p_data.channel)
+
+            v_chatPopUp.tag.contextList.push({
+                type: 1, //Channel
+                code: p_data.channel.code,
+                text: '',
+                scrollTop: 0
+            });
         }
     }
 }

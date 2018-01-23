@@ -1051,13 +1051,13 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_content = '<blockquote>{0}</blockquote>'.format(v_content[4:])
 
             #Format pre elements
-            v_match = re.search(r'```(.*?)```', v_content)
+            v_match = re.search(r'```((.|\s)*?)```', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<pre>' + v_content[v_start + 3: v_end - 3] + '</pre>' + v_content[v_end:]
-                v_match = re.search(r'```(.*?)```', v_content)
+                v_match = re.search(r'```((.|\s)*?)```', v_content)
 
             #Format kbd elements
             v_match = re.search(r'``(.*?)``', v_content)
@@ -1078,31 +1078,31 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_match = re.search(r'`(.*?)`', v_content)
 
             #Format bold elements
-            v_match = re.search(r'\*(.*?)\*', v_content)
+            v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<b>' + v_content[v_start + 1: v_end - 1] + '</b>' + v_content[v_end:]
-                v_match = re.search(r'\*(.*?)\*', v_content)
+                v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
             #Format italic elements
-            v_match = re.search(r'_(.*?)_', v_content)
+            v_match = re.search(r'\b_(.*?)_\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<i>' + v_content[v_start + 1: v_end - 1] + '</i>' + v_content[v_end:]
-                v_match = re.search(r'_(.*?)_', v_content)
+                v_match = re.search(r'\b_(.*?)_\b', v_content)
 
             #Format strike elements
-            v_match = re.search(r'~(.*?)~', v_content)
+            v_match = re.search(r'\b~(.*?)~\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<strike>' + v_content[v_start + 1: v_end - 1] + '</strike>' + v_content[v_end:]
-                v_match = re.search(r'~(.*?)~', v_content)
+                v_match = re.search(r'\b~(.*?)~\b', v_content)
 
             #Format anchor elements
             #v_match = re.search(r'^(?!href=")https?:\/\/(www\.)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?', v_content)
@@ -1540,13 +1540,13 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_content = '<blockquote>{0}</blockquote>'.format(v_content[4:])
 
             #Format pre elements
-            v_match = re.search(r'```(.*?)```', v_content)
+            v_match = re.search(r'```((.|\s)*?)```', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<pre>' + v_content[v_start + 3: v_end - 3] + '</pre>' + v_content[v_end:]
-                v_match = re.search(r'```(.*?)```', v_content)
+                v_match = re.search(r'```((.|\s)*?)```', v_content)
 
             #Format kbd elements
             v_match = re.search(r'``(.*?)``', v_content)
@@ -1567,31 +1567,31 @@ def SendGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_match = re.search(r'`(.*?)`', v_content)
 
             #Format bold elements
-            v_match = re.search(r'\*(.*?)\*', v_content)
+            v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<b>' + v_content[v_start + 1: v_end - 1] + '</b>' + v_content[v_end:]
-                v_match = re.search(r'\*(.*?)\*', v_content)
+                v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
             #Format italic elements
-            v_match = re.search(r'_(.*?)_', v_content)
+            v_match = re.search(r'\b_(.*?)_\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<i>' + v_content[v_start + 1: v_end - 1] + '</i>' + v_content[v_end:]
-                v_match = re.search(r'_(.*?)_', v_content)
+                v_match = re.search(r'\b_(.*?)_\b', v_content)
 
             #Format strike elements
-            v_match = re.search(r'~(.*?)~', v_content)
+            v_match = re.search(r'\b~(.*?)~\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<strike>' + v_content[v_start + 1: v_end - 1] + '</strike>' + v_content[v_end:]
-                v_match = re.search(r'~(.*?)~', v_content)
+                v_match = re.search(r'\b~(.*?)~\b', v_content)
 
             #Format anchor elements
             #v_match = re.search(r'^(?!href=")https?:\/\/(www\.)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?', v_content)
@@ -2159,13 +2159,13 @@ def UpdateGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_content = '<blockquote>{0}</blockquote>'.format(v_content[4:])
 
         #Format pre elements
-        v_match = re.search(r'```(.*?)```', v_content)
+        v_match = re.search(r'```((.|\s)*?)```', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<pre>' + v_content[v_start + 3: v_end - 3] + '</pre>' + v_content[v_end:]
-            v_match = re.search(r'```(.*?)```', v_content)
+            v_match = re.search(r'```((.|\s)*?)```', v_content)
 
         #Format kbd elements
         v_match = re.search(r'``(.*?)``', v_content)
@@ -2186,31 +2186,31 @@ def UpdateGroupMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_match = re.search(r'`(.*?)`', v_content)
 
         #Format bold elements
-        v_match = re.search(r'\*(.*?)\*', v_content)
+        v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<b>' + v_content[v_start + 1: v_end - 1] + '</b>' + v_content[v_end:]
-            v_match = re.search(r'\*(.*?)\*', v_content)
+            v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
         #Format italic elements
-        v_match = re.search(r'_(.*?)_', v_content)
+        v_match = re.search(r'\b_(.*?)_\b', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<i>' + v_content[v_start + 1: v_end - 1] + '</i>' + v_content[v_end:]
-            v_match = re.search(r'_(.*?)_', v_content)
+            v_match = re.search(r'\b_(.*?)_\b', v_content)
 
         #Format strike elements
-        v_match = re.search(r'~(.*?)~', v_content)
+        v_match = re.search(r'\b~(.*?)~\b', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<strike>' + v_content[v_start + 1: v_end - 1] + '</strike>' + v_content[v_end:]
-            v_match = re.search(r'~(.*?)~', v_content)
+            v_match = re.search(r'\b~(.*?)~\b', v_content)
 
         #Format anchor elements
         #v_match = re.search(r'^(?!href=")https?:\/\/(www\.)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?', v_content)
@@ -2439,13 +2439,13 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_content = '<blockquote>{0}</blockquote>'.format(v_content[4:])
 
             #Format pre elements
-            v_match = re.search(r'```(.*?)```', v_content)
+            v_match = re.search(r'```((.|\s)*?)```', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<pre>' + v_content[v_start + 3: v_end - 3] + '</pre>' + v_content[v_end:]
-                v_match = re.search(r'```(.*?)```', v_content)
+                v_match = re.search(r'```((.|\s)*?)```', v_content)
 
             #Format kbd elements
             v_match = re.search(r'``(.*?)``', v_content)
@@ -2466,31 +2466,31 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_match = re.search(r'`(.*?)`', v_content)
 
             #Format bold elements
-            v_match = re.search(r'\*(.*?)\*', v_content)
+            v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<b>' + v_content[v_start + 1: v_end - 1] + '</b>' + v_content[v_end:]
-                v_match = re.search(r'\*(.*?)\*', v_content)
+                v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
             #Format italic elements
-            v_match = re.search(r'_(.*?)_', v_content)
+            v_match = re.search(r'\b_(.*?)_\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<i>' + v_content[v_start + 1: v_end - 1] + '</i>' + v_content[v_end:]
-                v_match = re.search(r'_(.*?)_', v_content)
+                v_match = re.search(r'\b_(.*?)_\b', v_content)
 
             #Format strike elements
-            v_match = re.search(r'~(.*?)~', v_content)
+            v_match = re.search(r'\b~(.*?)~\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<strike>' + v_content[v_start + 1: v_end - 1] + '</strike>' + v_content[v_end:]
-                v_match = re.search(r'~(.*?)~', v_content)
+                v_match = re.search(r'\b~(.*?)~\b', v_content)
 
             #Format anchor elements
             #v_match = re.search(r'^(?!href=")https?:\/\/(www\.)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?', v_content)
@@ -2927,13 +2927,13 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_content = '<blockquote>{0}</blockquote>'.format(v_content[4:])
 
             #Format pre elements
-            v_match = re.search(r'```(.*?)```', v_content)
+            v_match = re.search(r'```((.|\s)*?)```', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<pre>' + v_content[v_start + 3: v_end - 3] + '</pre>' + v_content[v_end:]
-                v_match = re.search(r'```(.*?)```', v_content)
+                v_match = re.search(r'```((.|\s)*?)```', v_content)
 
             #Format kbd elements
             v_match = re.search(r'``(.*?)``', v_content)
@@ -2954,31 +2954,31 @@ def SendChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_match = re.search(r'`(.*?)`', v_content)
 
             #Format bold elements
-            v_match = re.search(r'\*(.*?)\*', v_content)
+            v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<b>' + v_content[v_start + 1: v_end - 1] + '</b>' + v_content[v_end:]
-                v_match = re.search(r'\*(.*?)\*', v_content)
+                v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
             #Format italic elements
-            v_match = re.search(r'_(.*?)_', v_content)
+            v_match = re.search(r'\b_(.*?)_\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<i>' + v_content[v_start + 1: v_end - 1] + '</i>' + v_content[v_end:]
-                v_match = re.search(r'_(.*?)_', v_content)
+                v_match = re.search(r'\b_(.*?)_\b', v_content)
 
             #Format strike elements
-            v_match = re.search(r'~(.*?)~', v_content)
+            v_match = re.search(r'\b~(.*?)~\b', v_content)
 
             while v_match is not None:
                 v_start = v_match.start()
                 v_end = v_match.end()
                 v_content = v_content[:v_start] + '<strike>' + v_content[v_start + 1: v_end - 1] + '</strike>' + v_content[v_end:]
-                v_match = re.search(r'~(.*?)~', v_content)
+                v_match = re.search(r'\b~(.*?)~\b', v_content)
 
             #Format anchor elements
             #v_match = re.search(r'^(?!href=")https?:\/\/(www\.)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?', v_content)
@@ -3518,13 +3518,13 @@ def UpdateChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage
             v_content = '<blockquote>{0}</blockquote>'.format(v_content[4:])
 
         #Format pre elements
-        v_match = re.search(r'```(.*?)```', v_content)
+        v_match = re.search(r'```((.|\s)*?)```', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<pre>' + v_content[v_start + 3: v_end - 3] + '</pre>' + v_content[v_end:]
-            v_match = re.search(r'```(.*?)```', v_content)
+            v_match = re.search(r'```((.|\s)*?)```', v_content)
 
         #Format kbd elements
         v_match = re.search(r'``(.*?)``', v_content)
@@ -3545,31 +3545,31 @@ def UpdateChannelMessage(p_webSocketSession, p_requestMessage, p_responseMessage
             v_match = re.search(r'`(.*?)`', v_content)
 
         #Format bold elements
-        v_match = re.search(r'\*(.*?)\*', v_content)
+        v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<b>' + v_content[v_start + 1: v_end - 1] + '</b>' + v_content[v_end:]
-            v_match = re.search(r'\*(.*?)\*', v_content)
+            v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
         #Format italic elements
-        v_match = re.search(r'_(.*?)_', v_content)
+        v_match = re.search(r'\b_(.*?)_\b', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<i>' + v_content[v_start + 1: v_end - 1] + '</i>' + v_content[v_end:]
-            v_match = re.search(r'_(.*?)_', v_content)
+            v_match = re.search(r'\b_(.*?)_\b', v_content)
 
         #Format strike elements
-        v_match = re.search(r'~(.*?)~', v_content)
+        v_match = re.search(r'\b~(.*?)~\b', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<strike>' + v_content[v_start + 1: v_end - 1] + '</strike>' + v_content[v_end:]
-            v_match = re.search(r'~(.*?)~', v_content)
+            v_match = re.search(r'\b~(.*?)~\b', v_content)
 
         #Format anchor elements
         #v_match = re.search(r'^(?!href=")https?:\/\/(www\.)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?', v_content)
@@ -4079,13 +4079,13 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_content = '<blockquote>{0}</blockquote>'.format(v_content[1:])
 
         #Format pre elements
-        v_match = re.search(r'```(.*?)```', v_content)
+        v_match = re.search(r'```((.|\s)*?)```', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<pre>' + v_content[v_start + 3: v_end - 3] + '</pre>' + v_content[v_end:]
-            v_match = re.search(r'```(.*?)```', v_content)
+            v_match = re.search(r'```((.|\s)*?)```', v_content)
 
         #Format kbd elements
         v_match = re.search(r'``(.*?)``', v_content)
@@ -4106,31 +4106,31 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
             v_match = re.search(r'`(.*?)`', v_content)
 
         #Format bold elements
-        v_match = re.search(r'\*(.*?)\*', v_content)
+        v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<b>' + v_content[v_start + 1: v_end - 1] + '</b>' + v_content[v_end:]
-            v_match = re.search(r'\*(.*?)\*', v_content)
+            v_match = re.search(r'\b\*(.*?)\*\b', v_content)
 
         #Format italic elements
-        v_match = re.search(r'_(.*?)_', v_content)
+        v_match = re.search(r'\b_(.*?)_\b', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<i>' + v_content[v_start + 1: v_end - 1] + '</i>' + v_content[v_end:]
-            v_match = re.search(r'_(.*?)_', v_content)
+            v_match = re.search(r'\b_(.*?)_\b', v_content)
 
         #Format strike elements
-        v_match = re.search(r'~(.*?)~', v_content)
+        v_match = re.search(r'\b~(.*?)~\b', v_content)
 
         while v_match is not None:
             v_start = v_match.start()
             v_end = v_match.end()
             v_content = v_content[:v_start] + '<strike>' + v_content[v_start + 1: v_end - 1] + '</strike>' + v_content[v_end:]
-            v_match = re.search(r'~(.*?)~', v_content)
+            v_match = re.search(r'\b~(.*?)~\b', v_content)
 
         #Format anchor elements
         #v_match = re.search(r'^(?!href=")https?:\/\/(www\.)?[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?', v_content)
@@ -4152,7 +4152,7 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
 
         if p_requestMessage['v_data']['destinyType'] == 1: #Channel
             #Format user notification
-            v_userDict = GetUsersLoginByChannelCode(p_webSocketSession, int(p_requestMessage['v_data']['channelCode']))
+            v_userDict = GetUsersLoginByChannelCode(p_webSocketSession, int(p_requestMessage['v_data']['destinyCode']))
 
             if v_userDict is not None:
                 v_match = re.search(r'(^@|(?<=\s)@)([a-z]|[A-Z]|[0-9]|_|\.)+((?=\s)|\b)', v_content)
@@ -4175,7 +4175,7 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
 
         elif p_requestMessage['v_data']['destinyType'] == 2: #Group
             #Format user notification
-            v_userDict = GetUsersLoginByGroupCode(p_webSocketSession, int(p_requestMessage['v_data']['groupCode']))
+            v_userDict = GetUsersLoginByGroupCode(p_webSocketSession, int(p_requestMessage['v_data']['destinyCode']))
 
             if v_userDict is not None:
                 v_match = re.search(r'(^@|(?<=\s)@)([a-z]|[A-Z]|[0-9]|_|\.)+((?=\s)|\b)', v_content)

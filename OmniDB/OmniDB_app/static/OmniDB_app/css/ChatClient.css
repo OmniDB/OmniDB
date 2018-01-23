@@ -12,6 +12,10 @@
     display: none;
 }
 
+#popup_chat {
+    position: fixed;
+}
+
 #popup_chat .popup-content {
     padding: 0px;
     font-family: lato-light;
@@ -187,7 +191,7 @@
     flex-grow: 1;
     text-align: left;
     background-color: white;
-    flex: 1 0 auto;
+    flex: 1 0 100%;
 }
 
 #div_chat_right_left_pre_header {
@@ -339,6 +343,7 @@
     padding-right: 10px;
     padding-bottom: 5px;
     position: relative;
+    word-break: break-all;
 }
 
 #div_chat_right_left_content > .div_chat_right_left_item:hover {
@@ -409,7 +414,7 @@
     height: 45px;
     margin-right: 10px;
     margin-bottom: 5px;
-    /*cursor: pointer;*/
+    cursor: pointer;
 }
 
 .div_chat_message_snippet_container > div {

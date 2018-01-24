@@ -33,7 +33,7 @@ import django.contrib.messages.context_processors
 import psycopg2
 
 from django.core.handlers.wsgi import WSGIHandler
-from OmniDB import user_database, ws_core, ws_chat
+from OmniDB import user_database, ws_core
 
 import logging
 import logging.config
@@ -90,38 +90,7 @@ if __name__ == "__main__":
                       default=OmniDB.settings.CONFFILE, type=str,
                       help="configuration file")
 
-    parser.add_option("-w", "--wschatport", dest="chatport",
-                      default=OmniDB.settings.WS_CHAT_PORT, type=int,
-                      help="chat port")
-
     (options, args) = parser.parse_args()
-
-    #Choosing empty port
-    port = options.chatport
-    num_attempts = 0
-
-    print('''Starting Chat websocket...''')
-    logger.info('''Starting Chat websocket...''')
-    print('''Checking port availability...''')
-    logger.info('''Checking port availability...''')
-
-    while not check_port(port) or num_attempts >= 20:
-        print("Port {0} is busy, trying another port...".format(port))
-        logger.info("Port {0} is busy, trying another port...".format(port))
-        port = random.randint(1025,32676)
-        num_attempts = num_attempts + 1
-
-    if num_attempts < 20:
-        OmniDB.settings.WS_CHAT_PORT = port
-
-        print ("Starting chat websocket server at port {0}.".format(str(port)))
-        logger.info("Starting chat websocket server at port {0}.".format(str(port)))
-
-        #Websocket Chat
-        ws_chat.start_wsserver_thread()
-    else:
-        print('Tried 20 different ports without success, closing...')
-        logger.info('Tried 20 different ports without success, closing...')
 
     #Parsing config file
     Config = configparser.ConfigParser()

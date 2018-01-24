@@ -4488,27 +4488,3 @@ def SendMessageAsBot(p_webSocketSession, p_requestMessage, p_responseMessage):
         p_responseMessage['v_data'] = 'Error while executing the static method "SendMessageAsBot": {0}'.format(traceback.format_exc())
         SendToClient(p_webSocketSession, p_responseMessage, True)
         return
-
-def start_wsserver_thread():
-    t = threading.Thread(target=start_wsserver)
-    t.setDaemon(True)
-    t.start()
-
-def start_wsserver():
-    try:
-        v_application = tornado.web.Application([
-            (r'/ws', WSHandler),
-            (r'/wss',WSHandler),
-        ])
-
-        if settings.IS_SSL:
-            v_sslCtx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-            v_sslCtx.load_cert_chain(settings.SSL_CERTIFICATE, settings.SSL_KEY)
-            v_server = tornado.httpserver.HTTPServer(v_application, ssl_options = v_sslCtx)
-        else:
-            v_server = tornado.httpserver.HTTPServer(v_application)
-
-        v_server.listen(settings.WS_CHAT_PORT)
-        #tornado.ioloop.IOLoop.instance().start()
-    except Exception as exc:
-        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))

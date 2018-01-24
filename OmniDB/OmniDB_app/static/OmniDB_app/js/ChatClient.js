@@ -336,11 +336,16 @@ function startChatWebSocket(p_port) {
         updateChatConnectionStatus('red', false);
     }
 
+    var v_address = '';
+    var v_channel = '';
+
     if(v_is_secure) {
 		v_address = 'wss://' + window.location.hostname;
+        v_channel = 'chatwss';
     }
 	else {
 		v_address = 'ws://' + window.location.hostname;
+        v_channel = 'chatws';
     }
 
     v_chatWebSocket  = createWebSocket(
@@ -495,7 +500,7 @@ function startChatWebSocket(p_port) {
             console.log(p_event);
             updateChatConnectionStatus('red', true);
         },
-        true
+        v_channel
     );
 }
 
@@ -775,10 +780,10 @@ function chatLoginResult(p_data) {
     }
 
     var v_config = {
-        width: window.innerWidth * 0.7 + 'px',
-        height: window.innerHeight * 0.7 + 'px',
-        top: window.innerHeight * 0.15 + 'px',
-        left: window.innerWidth * 0.15 + 'px',
+        width: window.innerWidth * 0.8 + 'px',
+        height: window.innerHeight * 0.8 + 'px',
+        top: window.innerHeight * 0.10 + 'px',
+        left: window.innerWidth * 0.10 + 'px',
         resizable: true,
         draggable: true,
         forceClose: true

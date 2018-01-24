@@ -33,6 +33,7 @@ import django.contrib.auth
 import django.core.handlers.wsgi
 import django.db
 import tornado.wsgi
+from . import ws_chat
 
 class StoppableThread(threading.Thread):
     def __init__(self,p1,p2,p3):
@@ -362,6 +363,8 @@ def start_wsserver():
         application = tornado.web.Application([
           (r'/ws', WSHandler),
           (r'/wss',WSHandler),
+          (r'/chatws', ws_chat.WSHandler),
+          (r'/chatwss',ws_chat.WSHandler),
           ('.*', tornado.web.FallbackHandler, dict(fallback=wsgi_app)),
         ])
 

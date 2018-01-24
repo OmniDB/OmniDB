@@ -33,7 +33,7 @@ import django.contrib.messages.context_processors
 import psycopg2
 
 from django.core.handlers.wsgi import WSGIHandler
-from OmniDB import user_database, ws_core, ws_chat
+from OmniDB import user_database, ws_core
 
 import logging
 import logging.config
@@ -79,10 +79,6 @@ if __name__ == "__main__":
                       default=OmniDB.settings.CONFFILE, type=str,
                       help="configuration file")
 
-    parser.add_option("-w", "--wschatport", dest="chatport",
-                      default=None, type=int,
-                      help="chat port")
-
     (options, args) = parser.parse_args()
 
     #Parsing config file
@@ -105,14 +101,6 @@ if __name__ == "__main__":
             listening_port = Config.getint('webserver', 'listening_port')
         except:
             listening_port = OmniDB.settings.OMNIDB_DEFAULT_SERVER_PORT
-    if options.chatport!=None:
-        chat_port = options.chatport
-    else:
-        try:
-            chat_port = Config.getint('webserver', 'chat_port')
-        except:
-            chat_port = OmniDB.settings.WS_CHAT_PORT
-    
     try:
         is_ssl = Config.getboolean('webserver', 'is_ssl')
     except:
@@ -125,36 +113,6 @@ if __name__ == "__main__":
         ssl_key_file = Config.get('webserver', 'ssl_key_file')
     except:
         ssl_key_file = ''
-
-    #Choosing empty port
-    port = chat_port
-    num_attempts = 0
-
-    print('''Starting chat websocket...''')
-    logger.info('''Starting chat websocket...''')
-    print('''Checking port availability...''')
-    logger.info('''Checking port availability...''')
-
-    while not check_port(port) or num_attempts >= 20:
-        print("Port {0} is busy, trying another port...".format(port))
-        logger.info("Port {0} is busy, trying another port...".format(port))
-        port = random.randint(1025,32676)
-        num_attempts = num_attempts + 1
-
-    if num_attempts < 20:
-        OmniDB.settings.WS_CHAT_PORT   = port
-        OmniDB.settings.IS_SSL          = is_ssl
-        OmniDB.settings.SSL_CERTIFICATE = ssl_certificate_file
-        OmniDB.settings.SSL_KEY         = ssl_key_file
-
-        print ("Starting chat websocket server at port {0}.".format(str(port)))
-        logger.info("Starting chat websocket server at port {0}.".format(str(port)))
-
-        #Websocket Chat
-        ws_chat.start_wsserver_thread()
-    else:
-        print('Tried 20 different ports without success, closing...')
-        logger.info('Tried 20 different ports without success, closing...')
 
     #Choosing empty port
     port = listening_port

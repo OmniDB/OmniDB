@@ -56,11 +56,16 @@ var v_queryWebSocket;
 function startQueryWebSocket(p_port) {
 
 	var v_address = '';
+	var v_channel = '';
 
-	if (v_is_secure)
+	if (v_is_secure) {
 		v_address = 'wss://' + window.location.hostname;
-	else
+		v_channel = 'wss';
+	}
+	else {
 		v_address = 'ws://' + window.location.hostname;
+		v_channel = 'ws';
+	}
 
 	v_queryWebSocket  = createWebSocket(
 		v_address,
@@ -152,7 +157,8 @@ function startQueryWebSocket(p_port) {
 		},
 		function(p_event) {//Error
 			//showError('An error has occurred during the communication with the query server.');
-		}
+		},
+		v_channel
 	);
 
 }

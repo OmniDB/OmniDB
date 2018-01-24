@@ -227,17 +227,30 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             v_chatSessionsLock.release()
 
         if v_userCode != 0:
-            v_responseMessage = {
-                'v_code': response.UserStatus.value,
-                'v_context_code': None,
-                'v_error': False,
-                'v_data': {
-                    'userCode': int(self.cookies['user_id'].value),
-                    'userStatus': 'offline'
-                }
-            }
+            v_found = False
 
-            SendToAllClients(v_responseMessage)
+            try:
+                v_chatSessionsLock.acquire()
+
+                for v_chatSession in v_chatSessions:
+                    if 'user_id' in v_chatSession.cookies and int(v_chatSession.cookies['user_id'].value) == v_userCode:
+                        v_found = True
+                        break
+            finally:
+                v_chatSessionsLock.release()
+
+            if not v_found:
+                v_responseMessage = {
+                    'v_code': response.UserStatus.value,
+                    'v_context_code': None,
+                    'v_error': False,
+                    'v_data': {
+                        'userCode': int(self.cookies['user_id'].value),
+                        'userStatus': 'offline'
+                    }
+                }
+
+                SendToAllClients(v_responseMessage)
 
     def check_origin(self, p_origin):
         """Ignore origin problems.

@@ -1340,7 +1340,7 @@ function chatLoginResult(p_data) {
         v_item.createdAt = p_message.createdAt;
 
         if(p_message.createdAt != p_message.updatedAt) {//Message was edited
-            v_item.title = '(Edited) ' + p_message.updatedAt;
+            v_item.title = p_message.updatedAt + ' (Edited)';
         }
         else {
             v_item.title = p_message.createdAt;
@@ -3920,8 +3920,13 @@ function chatLoginResult(p_data) {
             var v_channelContext = p_chatPopUp.tag.contextList.getContextByChannelCode(v_channel.code);
 
             if(v_channelContext != null) {
-                p_chatPopUp.tag.renderedEditor.setText(v_channelContext.text);
-                p_chatPopUp.tag.renderedContent.scrollTop = v_channelContext.scrollTop + 1; //In order to avoid bug and recover messages
+                if(!v_channelContext.firstRender) {
+                    p_chatPopUp.tag.renderedEditor.setText(v_channelContext.text);
+                    p_chatPopUp.tag.renderedContent.scrollTop = v_channelContext.scrollTop + 1; //In order to avoid bug and recover messages
+                }
+                else {
+                    v_channelContext.firstRender = false;
+                }
             }
         }
 
@@ -3937,7 +3942,7 @@ function chatLoginResult(p_data) {
         v_item.createdAt = p_message.createdAt;
 
         if(p_message.createdAt != p_message.updatedAt) {//Message was edited
-            v_item.title = '(Edited) ' + p_message.updatedAt;
+            v_item.title = p_message.updatedAt + ' (Edited)';
         }
         else {
             v_item.title = p_message.createdAt;
@@ -6531,8 +6536,13 @@ function chatLoginResult(p_data) {
             var v_groupContext = p_chatPopUp.tag.contextList.getContextByGroupCode(v_group.code);
 
             if(v_groupContext != null) {
-                p_chatPopUp.tag.renderedEditor.setText(v_groupContext.text);
-                p_chatPopUp.tag.renderedContent.scrollTop = v_groupContext.scrollTop + 1; //In order to avoid bug and recover messages
+                if(!v_groupContext.firstRender) {
+                    p_chatPopUp.tag.renderedEditor.setText(v_groupContext.text);
+                    p_chatPopUp.tag.renderedContent.scrollTop = v_groupContext.scrollTop + 1; //In order to avoid bug and recover messages
+                }
+                else {
+                    v_groupContext.firstRender
+                }
             }
         }
 
@@ -6918,7 +6928,8 @@ function chatLoginResult(p_data) {
             type: 1, //Channel
             code: v_chatPopUp.tag.channelList[i].code,
             text: '',
-            scrollTop: 0
+            scrollTop: 0,
+            firstRender: true
         });
     }
 
@@ -7081,7 +7092,8 @@ function chatLoginResult(p_data) {
             type: 2, //Group
             code: v_chatPopUp.tag.groupList[i].code,
             text: '',
-            scrollTop: 0
+            scrollTop: 0,
+            firstRender: true
         });
     }
 
@@ -8018,7 +8030,8 @@ function chatNewPrivateChannel(p_data, p_context) {
             type: 1, //Channel
             code: p_data.channel.code,
             text: '',
-            scrollTop: 0
+            scrollTop: 0,
+            firstRender: true
         });
 
         if(p_context != null && p_context.userCode == v_user_id) {
@@ -8148,7 +8161,8 @@ function chatInvitedPrivateChannelMembers(p_data) {
                 type: 1, //Channel
                 code: p_data.channel.code,
                 text: '',
-                scrollTop: 0
+                scrollTop: 0,
+                firstRender: true
             });
         }
     }

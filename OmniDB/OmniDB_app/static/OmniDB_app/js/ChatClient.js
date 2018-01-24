@@ -1,4 +1,86 @@
 /**
+ * Create fadeIn and fadeOut functions. Put it in window.FX
+ * Got from: https://codepen.io/gabrieleromanato/pen/frIwl
+ */
+(function() {
+    var FX = {
+        easing: {
+            linear: function(progress) {
+                return progress;
+            },
+            quadratic: function(progress) {
+                return Math.pow(progress, 2);
+            },
+            swing: function(progress) {
+                return 0.5 - Math.cos(progress * Math.PI) / 2;
+            },
+            circ: function(progress) {
+                return 1 - Math.sin(Math.acos(progress));
+            },
+            back: function(progress, x) {
+                return Math.pow(progress, 2) * ((x + 1) * progress - x);
+            },
+            bounce: function(progress) {
+                for (var a = 0, b = 1, result; 1; a += b, b /= 2) {
+                    if (progress >= (7 - 4 * a) / 11) {
+                        return -Math.pow((11 - 6 * a - 11 * progress) / 4, 2) + Math.pow(b, 2);
+                    }
+                }
+            },
+            elastic: function(progress, x) {
+                return Math.pow(2, 10 * (progress - 1)) * Math.cos(20 * Math.PI * x / 3 * progress);
+            }
+        },
+        animate: function(options) {
+            var start = new Date;
+            var id = setInterval(function() {
+                var timePassed = new Date - start;
+                var progress = timePassed / options.duration;
+                if (progress > 1) {
+                    progress = 1;
+                }
+                options.progress = progress;
+                var delta = options.delta(progress);
+                options.step(delta);
+                if (progress == 1) {
+                    clearInterval(id);
+                    options.complete();
+                }
+            }, options.delay || 10);
+        },
+        fadeOut: function(element, options) {
+            var to = 1;
+            this.animate({
+                duration: options.duration,
+                delta: function(progress) {
+                    progress = this.progress;
+                    return FX.easing.swing(progress);
+                },
+                complete: options.complete,
+                step: function(delta) {
+                    element.style.opacity = to - delta;
+                }
+            });
+        },
+        fadeIn: function(element, options) {
+            var to = 0;
+            this.animate({
+                duration: options.duration,
+                delta: function(progress) {
+                    progress = this.progress;
+                    return FX.easing.swing(progress);
+                },
+                complete: options.complete,
+                step: function(delta) {
+                    element.style.opacity = to + delta;
+                }
+            });
+        }
+    };
+    window.FX = FX;
+})()
+
+/**
  * Converts all properties types of an object to string.
  * @param {object} p_data - the object of whose properties should be converted to string.
  */
@@ -1747,7 +1829,13 @@ function chatLoginResult(p_data) {
                     'keydown',
                     function(p_editor, p_event) {
                         var v_dropdownMenu = document.querySelector('.dropdown-menu.textcomplete-dropdown');
-                        this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+
+                        if(v_dropdownMenu != null) {
+                            this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+                        }
+                        else {
+                            this.selectingEmoji = false;
+                        }
 
                         if(p_event.keyCode == 18) { //Alt
                             this.altPressed = true;
@@ -2019,7 +2107,13 @@ function chatLoginResult(p_data) {
                             'keydown',
                             function(p_editor, p_event) {
                                 var v_dropdownMenu = document.querySelector('.dropdown-menu.textcomplete-dropdown');
-                                this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+
+                                if(v_dropdownMenu != null) {
+                                    this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+                                }
+                                else {
+                                    this.selectingEmoji = false;
+                                }
 
                                 if(p_event.keyCode == 18) { //Alt
                                     this.altPressed = true;
@@ -2410,22 +2504,34 @@ function chatLoginResult(p_data) {
 
     v_chatPopUp.tag.renderChannel = function(p_chatPopUp, p_channelCode, p_renderAtMessage) {
         if(p_chatPopUp.tag.renderedType == 1) { //Channel
-            var v_data = {
+            /*var v_data = {
                 channelCode: p_chatPopUp.tag.renderedChannel,
                 userCode: parseInt(v_user_id),
                 userWriting: false
             };
 
-            chatSetChannelUserWriting(v_data);
+            chatSetChannelUserWriting(v_data);*/
+
+            var v_channelContext = p_chatPopUp.tag.contextList.getContextByChannelCode(p_chatPopUp.tag.renderedChannel);
+
+            if(v_channelContext != null) {
+                v_channelContext.text = p_chatPopUp.tag.renderedEditor.getText();
+            }
         }
         else if(p_chatPopUp.tag.renderedType == 2) { //Group
-            var v_data = {
+            /*var v_data = {
                 groupCode: p_chatPopUp.tag.renderedGroup,
                 userCode: parseInt(v_user_id),
                 userWriting: false
             };
 
-            chatSetGroupUserWriting(v_data);
+            chatSetGroupUserWriting(v_data);*/
+
+            var v_groupContext = p_chatPopUp.tag.contextList.getContextByGroupCode(p_chatPopUp.tag.renderedGroup);
+
+            if(v_groupContext != null) {
+                v_groupContext.text = p_chatPopUp.tag.renderedEditor.getText();
+            }
         }
 
         //Change active element
@@ -2636,6 +2742,8 @@ function chatLoginResult(p_data) {
                 );
 
 	            v_divChatRight.appendChild(v_rightContent);
+
+                p_chatPopUp.tag.renderedContent = v_rightContent;
 
 	            var v_rightFooter = document.createElement('div');
 	            v_rightFooter.id = 'div_chat_right_left_footer';
@@ -3142,7 +3250,13 @@ function chatLoginResult(p_data) {
                     'keydown',
                     function(p_chatPopUp, p_editor, p_event) {
                         var v_dropdownMenu = document.querySelector('.dropdown-menu.textcomplete-dropdown');
-                        this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+
+                        if(v_dropdownMenu != null) {
+                            this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+                        }
+                        else {
+                            this.selectingEmoji = false;
+                        }
 
                         if(p_editor[0].innerHTML.length > 0 && !this.sentWriting) {
                             var v_data = {
@@ -3802,6 +3916,13 @@ function chatLoginResult(p_data) {
 	                chatMarkChannelMessagesAsRead(v_data);
 	            }
             }
+
+            var v_channelContext = p_chatPopUp.tag.contextList.getContextByChannelCode(v_channel.code);
+
+            if(v_channelContext != null) {
+                p_chatPopUp.tag.renderedEditor.setText(v_channelContext.text);
+                p_chatPopUp.tag.renderedContent.scrollTop = v_channelContext.scrollTop + 1; //In order to avoid bug and recover messages
+            }
         }
 
         p_chatPopUp.tag.updateHeader();
@@ -4305,7 +4426,13 @@ function chatLoginResult(p_data) {
                     'keydown',
                     function(p_editor, p_event) {
                         var v_dropdownMenu = document.querySelector('.dropdown-menu.textcomplete-dropdown');
-                        this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+
+                        if(v_dropdownMenu != null) {
+                            this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+                        }
+                        else {
+                            this.selectingEmoji = false;
+                        }
 
                         if(p_event.keyCode == 18) { //Alt
                             this.altPressed = true;
@@ -4577,7 +4704,13 @@ function chatLoginResult(p_data) {
                             'keydown',
                             function(p_editor, p_event) {
                                 var v_dropdownMenu = document.querySelector('.dropdown-menu.textcomplete-dropdown');
-                                this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+
+                                if(v_dropdownMenu != null) {
+                                    this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+                                }
+                                else {
+                                    this.selectingEmoji = false;
+                                }
 
                                 if(p_event.keyCode == 18) { //Alt
                                     this.altPressed = true;
@@ -4968,22 +5101,34 @@ function chatLoginResult(p_data) {
 
     v_chatPopUp.tag.renderGroup = function(p_chatPopUp, p_groupCode, p_renderAtMessage) {
         if(p_chatPopUp.tag.renderedType == 1) { //Channel
-            var v_data = {
+            /*var v_data = {
                 channelCode: p_chatPopUp.tag.renderedChannel,
                 userCode: parseInt(v_user_id),
                 userWriting: false
             };
 
-            chatSetChannelUserWriting(v_data);
+            chatSetChannelUserWriting(v_data);*/
+
+            var v_channelContext = p_chatPopUp.tag.contextList.getContextByChannelCode(p_chatPopUp.tag.renderedChannel);
+
+            if(v_channelContext != null) {
+                v_channelContext.text = p_chatPopUp.tag.renderedEditor.getText();
+            }
         }
         else if(p_chatPopUp.tag.renderedType == 2) { //Group
-            var v_data = {
+            /*var v_data = {
                 groupCode: p_chatPopUp.tag.renderedGroup,
                 userCode: parseInt(v_user_id),
                 userWriting: false
             };
 
-            chatSetGroupUserWriting(v_data);
+            chatSetGroupUserWriting(v_data);*/
+
+            var v_groupContext = p_chatPopUp.tag.contextList.getContextByGroupCode(p_chatPopUp.tag.renderedGroup);
+
+            if(v_groupContext != null) {
+                v_groupContext.text = p_chatPopUp.tag.renderedEditor.getText();
+            }
         }
 
         //Change active element
@@ -5169,7 +5314,7 @@ function chatLoginResult(p_data) {
                         if(v_groupContext != null) {
                             v_groupContext.scrollTop = this.scrollTop;
                         }
-                        
+
                         var v_group = p_chatPopUp.tag.groupList.getGroupByCode(this.parentElement.groupCode);
 
                         if(v_group != null) {
@@ -5208,6 +5353,8 @@ function chatLoginResult(p_data) {
                 );
 
 	            v_divChatRight.appendChild(v_rightContent);
+
+                p_chatPopUp.tag.renderedContent = v_rightContent;
 
 	            var v_rightFooter = document.createElement('div');
 	            v_rightFooter.id = 'div_chat_right_left_footer';
@@ -5714,7 +5861,13 @@ function chatLoginResult(p_data) {
                     'keydown',
                     function(p_chatPopUp, p_editor, p_event) {
                         var v_dropdownMenu = document.querySelector('.dropdown-menu.textcomplete-dropdown');
-                        this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+
+                        if(v_dropdownMenu != null) {
+                            this.selectingEmoji = v_dropdownMenu.style.display == 'block';
+                        }
+                        else {
+                            this.selectingEmoji = false;
+                        }
 
                         if(p_editor[0].innerHTML.length > 0 && !this.sentWriting) {
                             var v_data = {
@@ -6373,6 +6526,13 @@ function chatLoginResult(p_data) {
 
 	                chatMarkGroupMessagesAsRead(v_data);
 	            }
+            }
+
+            var v_groupContext = p_chatPopUp.tag.contextList.getContextByGroupCode(v_group.code);
+
+            if(v_groupContext != null) {
+                p_chatPopUp.tag.renderedEditor.setText(v_groupContext.text);
+                p_chatPopUp.tag.renderedContent.scrollTop = v_groupContext.scrollTop + 1; //In order to avoid bug and recover messages
             }
         }
 
@@ -7121,7 +7281,15 @@ function chatRetrievedGroupHistory(p_data) {
         }
     }
 
-    document.getElementById('div_history').style.display = '';
+    FX.fadeOut(
+        document.getElementById('div_history'),
+        {
+            duration: 2000,
+            complete: function() {
+                document.getElementById('div_history').style.display = '';
+            }
+        }
+    );
 }
 
 /**
@@ -7574,7 +7742,15 @@ function chatRetrievedChannelHistory(p_data) {
         }
     }
 
-    document.getElementById('div_history').style.display = '';
+    FX.fadeOut(
+        document.getElementById('div_history'),
+        {
+            duration: 2000,
+            complete: function() {
+                document.getElementById('div_history').style.display = '';
+            }
+        }
+    );
 }
 
 /**

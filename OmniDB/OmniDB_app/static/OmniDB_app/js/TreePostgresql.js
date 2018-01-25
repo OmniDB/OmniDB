@@ -2472,8 +2472,6 @@ function refreshTreePostgresql(node) {
         getUniquesPostgresql(node);
     } else if (node.tag.type == 'foreign_keys') {
         getFKsPostgresql(node);
-    } else if (node.tag.type == 'sequence_list') {
-        getSequencesPostgresql(node);
     } else if (node.tag.type == 'view_list') {
         getViewsPostgresql(node);
     } else if (node.tag.type == 'view') {

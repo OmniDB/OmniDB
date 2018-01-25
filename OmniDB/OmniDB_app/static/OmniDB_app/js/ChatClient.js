@@ -2507,7 +2507,7 @@ function chatLoginResult(p_data) {
         return v_item;
     }.bind(v_chatPopUp.tag.getRenderedChannelMessage, v_chatPopUp);
 
-    v_chatPopUp.tag.renderChannel = function(p_chatPopUp, p_channelCode, p_renderAtMessage) {
+    v_chatPopUp.tag.renderChannel = function(p_chatPopUp, p_channelCode, p_renderAtMessage, p_preventContextScroll) {
         if(p_chatPopUp.tag.renderedType == 1) { //Channel
             /*var v_data = {
                 channelCode: p_chatPopUp.tag.renderedChannel,
@@ -2558,7 +2558,7 @@ function chatLoginResult(p_data) {
                 v_sameChannel = true;
                 var v_divChatRightContent = document.getElementById('div_chat_right_left_content');
 
-                if((v_divChatRightContent.offsetHeight + v_divChatRightContent.scrollTop) == v_divChatRightContent.scrollHeight) {//If scroll was at max allowed
+                if((v_divChatRightContent.offsetHeight + v_divChatRightContent.scrollTop + 1) >= v_divChatRightContent.scrollHeight) {//If scroll was at max allowed
                     v_onLastMessage = true;
                 }
                 else {
@@ -2723,7 +2723,7 @@ function chatLoginResult(p_data) {
 	                        }
 	                        else {
 	                            //Mark messages as read, if it's the case
-					            if(this.scrollTop == (this.scrollHeight - this.offsetHeight)) {
+					            if((this.offsetHeight + this.scrollTop + 1) >= this.scrollHeight) {
                                     var v_messageCodeList = [];
 
                                     for(var i = 0; i < v_channel.messageList.length; i++) {
@@ -3903,7 +3903,7 @@ function chatLoginResult(p_data) {
             }
 
             //Mark messages as read, if it's the case
-            if(v_divChatRightContent.scrollTop == (v_divChatRightContent.scrollHeight - v_divChatRightContent.offsetHeight)) {
+            if((v_divChatRightContent.offsetHeight + v_divChatRightContent.scrollTop + 1) >= v_divChatRightContent.scrollHeight) {
                 var v_messageCodeList = [];
 
 	            for(var i = 0; i < v_channel.messageList.length; i++) {
@@ -3927,7 +3927,10 @@ function chatLoginResult(p_data) {
             if(v_channelContext != null) {
                 if(!v_channelContext.firstRender) {
                     p_chatPopUp.tag.renderedEditor.setText(v_channelContext.text);
-                    p_chatPopUp.tag.renderedContent.scrollTop = v_channelContext.scrollTop + 1; //In order to avoid bug and recover messages
+
+                    if(!p_preventContextScroll) {
+                        p_chatPopUp.tag.renderedContent.scrollTop = v_channelContext.scrollTop + 1; //In order to avoid bug and recover messages
+                    }
                 }
                 else {
                     v_channelContext.firstRender = false;
@@ -5109,7 +5112,7 @@ function chatLoginResult(p_data) {
         return v_item;
     }.bind(v_chatPopUp.tag.getRenderedGroupMessage, v_chatPopUp);
 
-    v_chatPopUp.tag.renderGroup = function(p_chatPopUp, p_groupCode, p_renderAtMessage) {
+    v_chatPopUp.tag.renderGroup = function(p_chatPopUp, p_groupCode, p_renderAtMessage, p_preventContextScroll) {
         if(p_chatPopUp.tag.renderedType == 1) { //Channel
             /*var v_data = {
                 channelCode: p_chatPopUp.tag.renderedChannel,
@@ -5160,7 +5163,7 @@ function chatLoginResult(p_data) {
                 v_sameGroup = true;
                 var v_divChatRightContent = document.getElementById('div_chat_right_left_content');
 
-                if((v_divChatRightContent.offsetHeight + v_divChatRightContent.scrollTop) == v_divChatRightContent.scrollHeight) {//If scroll was at max allowed
+                if((v_divChatRightContent.offsetHeight + v_divChatRightContent.scrollTop + 1) >= v_divChatRightContent.scrollHeight) {//If scroll was at max allowed
                     v_onLastMessage = true;
                 }
                 else {
@@ -5339,7 +5342,7 @@ function chatLoginResult(p_data) {
 	                        }
 	                        else {
 	                            //Mark messages as read, if it's the case
-					            if(this.scrollTop == (this.scrollHeight - this.offsetHeight)) {
+					            if((this.offsetHeight + this.scrollTop + 1) >= this.scrollHeight) {
                                     var v_messageCodeList = [];
 
                                     for(var i = 0; i < v_group.messageList.length; i++) {
@@ -6519,7 +6522,7 @@ function chatLoginResult(p_data) {
             }
 
             //Mark messages as read, if it's the case
-            if(v_divChatRightContent.scrollTop == (v_divChatRightContent.scrollHeight - v_divChatRightContent.offsetHeight)) {
+            if((v_divChatRightContent.offsetHeight + v_divChatRightContent.scrollTop + 1) >= v_divChatRightContent.scrollHeight) {
                 var v_messageCodeList = [];
 
 	            for(var i = 0; i < v_group.messageList.length; i++) {
@@ -6543,7 +6546,10 @@ function chatLoginResult(p_data) {
             if(v_groupContext != null) {
                 if(!v_groupContext.firstRender) {
                     p_chatPopUp.tag.renderedEditor.setText(v_groupContext.text);
-                    p_chatPopUp.tag.renderedContent.scrollTop = v_groupContext.scrollTop + 1; //In order to avoid bug and recover messages
+
+                    if(!p_preventContextScroll) {
+                        p_chatPopUp.tag.renderedContent.scrollTop = v_groupContext.scrollTop + 1; //In order to avoid bug and recover messages
+                    }
                 }
                 else {
                     v_groupContext.firstRender
@@ -6597,7 +6603,7 @@ function chatLoginResult(p_data) {
         v_item.addEventListener(
             'click',
             function(p_chatPopUp, p_event) {
-                p_chatPopUp.tag.renderChannel(this.channelCode);
+                p_chatPopUp.tag.renderChannel(this.channelCode, null, false);
             }.bind(v_item, v_chatPopUp)
         );
 
@@ -7006,7 +7012,7 @@ function chatLoginResult(p_data) {
                 v_item.addEventListener(
                     'click',
                     function(p_chatPopUp, p_event) {
-                        p_chatPopUp.tag.renderGroup(this.groupCode);
+                        p_chatPopUp.tag.renderGroup(this.groupCode, null, false);
                     }.bind(v_item, v_chatPopUp)
                 );
 
@@ -7166,7 +7172,7 @@ function chatNewGroupMessage(p_data, p_context) {
                 var v_onLastMessage = false;
                 var v_firstVisibleMessageCode = null;
 
-                if((v_divChatRightContent.offsetHeight + v_divChatRightContent.scrollTop) == v_divChatRightContent.scrollHeight) {//If scroll was at max allowed
+                if((v_divChatRightContent.offsetHeight + v_divChatRightContent.scrollTop + 1) >= v_divChatRightContent.scrollHeight) {//If scroll was at max allowed
                     v_onLastMessage = true;
                     v_notify = false;
                 }
@@ -7290,10 +7296,10 @@ function chatRetrievedGroupHistory(p_data) {
             }
 
             if(p_data.fromMessageCode != null) {
-                v_chatPopUp.tag.renderGroup(v_group.code, p_data.fromMessageCode);
+                v_chatPopUp.tag.renderGroup(v_group.code, p_data.fromMessageCode, true);
             }
             else {
-                v_chatPopUp.tag.renderGroup(v_group.code);
+                v_chatPopUp.tag.renderGroup(v_group.code, null, true);
             }
         }
     }
@@ -7627,7 +7633,7 @@ function chatNewChannelMessage(p_data, p_context) {
                 var v_onLastMessage = false;
                 var v_firstVisibleMessageCode = null;
 
-                if((v_divChatRightContent.offsetHeight + v_divChatRightContent.scrollTop) == v_divChatRightContent.scrollHeight) {//If scroll was at max allowed
+                if((v_divChatRightContent.offsetHeight + v_divChatRightContent.scrollTop + 1) >= v_divChatRightContent.scrollHeight) {//If scroll was at max allowed
                     v_onLastMessage = true;
                     v_notify = false;
                 }
@@ -7751,10 +7757,10 @@ function chatRetrievedChannelHistory(p_data) {
             }
 
             if(p_data.fromMessageCode != null) {
-                v_chatPopUp.tag.renderChannel(v_channel.code, p_data.fromMessageCode);
+                v_chatPopUp.tag.renderChannel(v_channel.code, p_data.fromMessageCode, true);
             }
             else {
-                v_chatPopUp.tag.renderChannel(v_channel.code);
+                v_chatPopUp.tag.renderChannel(v_channel.code, null, true);
             }
         }
     }
@@ -8040,7 +8046,7 @@ function chatNewPrivateChannel(p_data, p_context) {
         });
 
         if(p_context != null && p_context.userCode == v_user_id) {
-            v_chatPopUp.tag.renderChannel(p_data.channel.code);
+            v_chatPopUp.tag.renderChannel(p_data.channel.code, null, false);
         }
     }
 }
@@ -8343,7 +8349,7 @@ function chatSearchedOldMessages(p_data) {
                                     var v_message = v_channel.messageList.getMessageByCode(this.messageCode);
 
                                     if(v_message != null) {
-                                        p_chatPopUp.tag.renderChannel(v_channel.code, v_message.code);
+                                        p_chatPopUp.tag.renderChannel(v_channel.code, v_message.code, false);
                                     }
                                     else {
                                         var v_data = {
@@ -8363,7 +8369,7 @@ function chatSearchedOldMessages(p_data) {
                                     var v_message = v_group.messageList.getMessageByCode(this.messageCode);
 
                                     if(v_message != null) {
-                                        p_chatPopUp.tag.renderGroup(v_group.code, v_message.code);
+                                        p_chatPopUp.tag.renderGroup(v_group.code, v_message.code, false);
                                     }
                                     else {
                                         var v_data = {

@@ -289,6 +289,8 @@ function changeDatabase(p_value) {
 
 	if (v_conn_object.v_db_type=='postgresql')
 		getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
+    else if (v_conn_object.v_db_type=='oracle')
+		getTreeOracle(v_connTabControl.selectedTab.tag.divTree.id);
 	else
 		getTree(v_connTabControl.selectedTab.tag.divTree.id);
 

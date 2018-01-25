@@ -2635,7 +2635,7 @@ def get_xl_table_nodes(request):
 
     return JsonResponse(v_return)
 
-def kill_backend_postgres(request):
+def kill_backend(request):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -2664,7 +2664,7 @@ def kill_backend_postgres(request):
         return JsonResponse(v_return)
 
     try:
-        v_data = v_database.v_connection.Execute('select pg_terminate_backend({0})'.format(v_pid))
+        v_database.Terminate(v_pid)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True

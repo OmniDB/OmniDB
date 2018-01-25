@@ -42,7 +42,8 @@ def index(request):
         'execute': settings.BINDKEY_EXECUTE,
         'execute_mac': settings.BINDKEY_EXECUTE_MAC,
         'autocomplete': settings.BINDKEY_AUTOCOMPLETE,
-        'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC
+        'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC,
+        'chat_link': settings.CHAT_LINK
     }
 
     template = loader.get_template('OmniDB_app/workspace.html')

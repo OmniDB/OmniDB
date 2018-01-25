@@ -780,12 +780,12 @@ function chatLoginResult(p_data) {
     }
 
     var v_config = {
-        width: window.innerWidth * 0.8 + 'px',
-        height: window.innerHeight * 0.8 + 'px',
-        top: window.innerHeight * 0.10 + 'px',
-        left: window.innerWidth * 0.10 + 'px',
-        resizable: true,
-        draggable: true,
+        width: 'calc(100vw - 47px)',
+        height: 'calc(100vh - 90px)',
+        top: '0',
+        left: '0',
+        resizable: false,
+        draggable: false,
         forceClose: true
     };
 
@@ -845,6 +845,14 @@ function chatLoginResult(p_data) {
         v_config,//Config
         v_callbacks//Callbacks
     );
+
+    for(var i = 0; i < v_connTabControl.tabList.length; i++) {
+        if(v_connTabControl.tabList[i].tag.mode == 'chat') {
+            v_connTabControl.tabList[i].elementDiv.appendChild(v_chatPopUp.containerElement);
+
+            break;
+        }
+    }
 
     document.getElementById('div_chat_user_info_login').addEventListener(
         'contextmenu',
@@ -1060,8 +1068,9 @@ function chatLoginResult(p_data) {
             v_chatIcon.style.height = '16px';
             v_chatIcon.style.width = '16px';
             v_chatIcon.title = 'Show / Hide Chat PopUp'
-            v_chatIcon.src = '/static/OmniDB_app/images/icons/header_chat_icon_inactive.png';
+            v_chatIcon.src = '/static/OmniDB_app/images/icons/header_chat_icon_active.png';
 
+            /*Removed while embeding chat to outer tab
             v_chatIcon.addEventListener(
                 'click',
                 function(p_chatPopUp, p_event) {
@@ -1095,7 +1104,19 @@ function chatLoginResult(p_data) {
             }
             else {
                 v_chatPopUp.show();
-            }
+            }*/
+
+            v_chatIcon.addEventListener(
+                'click',
+                function(p_event) {
+                    for(var i = 0; i < v_connTabControl.tabList.length; i++) {
+                        if(v_connTabControl.tabList[i].tag.mode == 'chat') {
+                            v_connTabControl.selectTab(v_connTabControl.tabList[i]);
+                            break;
+                        }
+                    }
+                }
+            )
 
             v_li.appendChild(v_chatIcon);
 

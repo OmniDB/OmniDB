@@ -30,6 +30,7 @@ $(function () {
 	initCreateTabFunctions();
 
 	v_connTabControl.tag.createSnippetTab();
+	v_connTabControl.tag.createChatTab();
 
 	getDatabaseList(true);
 
@@ -387,7 +388,7 @@ function refreshHeights(p_all) {
 	}
 
 	//If inner tab exists
-	if (v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
+	if (v_connTabControl.selectedTab.tag.tabControl != null && v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
 		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 		//Snippet tab, adjust editor only

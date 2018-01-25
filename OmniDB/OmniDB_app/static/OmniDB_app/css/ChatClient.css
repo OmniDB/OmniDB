@@ -149,8 +149,8 @@
 #div_chat_right {
     display: flex;
     height: 100%;
-    flex-grow: 1;
     flex-wrap: nowrap;
+    flex: 1 0 auto;
 }
 
 #div_chat_right_right {
@@ -188,10 +188,9 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    flex-grow: 1;
     text-align: left;
     background-color: white;
-    flex: 1 0 100%;
+    flex: 1 0 auto;
 }
 
 #div_chat_right_left_pre_header {
@@ -1090,4 +1089,32 @@ button:focus {
     background: #fff;
     padding: 0 10px;
     color: #F00;
+}
+
+/*Some changes to embed chat popup in outer tab*/
+#popup_chat {
+    z-index: unset;
+    width: calc(100vw - 46px);
+    height: calc(100vh - 89px);
+    top: unset;
+    left: unset;
+    position: unset;
+}
+
+#popup_chat .popup-content {
+    padding: 0px;
+    font-family: lato-light;
+    font-size: 14px;
+    height: 100%;
+}
+
+#div_chat_container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    box-sizing: border-box;
+}
+
+#popup_chat .popup-header {
+    display: none;
 }

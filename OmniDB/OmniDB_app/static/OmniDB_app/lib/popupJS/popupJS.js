@@ -1487,6 +1487,13 @@ function createPopUpControl(p_id, p_startZIndex) {
 		false
 	);
 
+    window.addEventListener(
+        'blur',
+        function() {
+            v_popUpControlObject.containerElement.isCtrlPressed = false;
+        }.bind(window, v_popUpControlObject),
+    );
+
 	v_popUpControlObject.containerElement.removeEventListener(
 		'dragover',
 		gv_popUpdragOverFunction,

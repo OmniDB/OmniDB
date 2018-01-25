@@ -15,6 +15,7 @@ import sys
 import shutil
 import random
 import string
+import getpass
 
 # Development Mode
 DEV_MODE = True
@@ -36,9 +37,10 @@ CHAT_FOLDER = os.path.join(HOME_DIR, 'chat')
 if not os.path.exists(CHAT_FOLDER):
     os.makedirs(CHAT_FOLDER)
 try:
-    os.symlink(CHAT_FOLDER, os.path.join(BASE_DIR, 'OmniDB_app/static', 'chat'))
+    os.symlink(CHAT_FOLDER, os.path.join(BASE_DIR, 'OmniDB_app/static', 'chat-{0}'.format(getpass.getuser())))
 except:
     pass
+CHAT_LINK = '/static/chat-{0}'.format(getpass.getuser())
 LOG_DIR = HOME_DIR
 SESSION_DATABASE = os.path.join(HOME_DIR, 'db.sqlite3')
 if not os.path.exists(SESSION_DATABASE):

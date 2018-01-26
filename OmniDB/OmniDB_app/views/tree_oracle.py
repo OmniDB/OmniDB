@@ -57,17 +57,17 @@ def get_tree_info(request):
                 'create_database': v_database.TemplateCreateDatabase().v_text,
                 'alter_database': v_database.TemplateAlterDatabase().v_text,
                 'drop_database': v_database.TemplateDropDatabase().v_text,
-                #'create_sequence': v_database.TemplateCreateSequence().v_text,
-                #'alter_sequence': v_database.TemplateAlterSequence().v_text,
-                #'drop_sequence': v_database.TemplateDropSequence().v_text,
+                'create_sequence': v_database.TemplateCreateSequence().v_text,
+                'alter_sequence': v_database.TemplateAlterSequence().v_text,
+                'drop_sequence': v_database.TemplateDropSequence().v_text,
                 'create_function': v_database.TemplateCreateFunction().v_text,
                 'drop_function': v_database.TemplateDropFunction().v_text,
                 'create_procedure': v_database.TemplateCreateProcedure().v_text,
                 'drop_procedure': v_database.TemplateDropProcedure().v_text,
                 #'create_triggerfunction': v_database.TemplateCreateTriggerFunction().v_text,
                 #'drop_triggerfunction': v_database.TemplateDropTriggerFunction().v_text,
-                #'create_view': v_database.TemplateCreateView().v_text,
-                #'drop_view': v_database.TemplateDropView().v_text,
+                'create_view': v_database.TemplateCreateView().v_text,
+                'drop_view': v_database.TemplateDropView().v_text,
                 #'create_mview': v_database.TemplateCreateMaterializedView().v_text,
                 #'refresh_mview': v_database.TemplateRefreshMaterializedView().v_text,
                 #'drop_mview': v_database.TemplateDropMaterializedView().v_text,
@@ -794,6 +794,236 @@ def get_procedure_definition(request):
 
     try:
         v_return['v_data'] = v_database.GetProcedureDefinition(v_function)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def get_sequences(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_sequences = []
+
+    try:
+        v_sequences = v_database.QuerySequences(False,v_schema)
+        for v_sequence in v_sequences.Rows:
+            v_sequence_data = {
+                'v_sequence_name': v_sequence['sequence_name']
+            }
+            v_list_sequences.append(v_sequence_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_sequences
+
+    return JsonResponse(v_return)
+
+def get_sequence_values(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_schema = json_object['p_schema']
+    v_sequence = json_object['p_sequence']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_values = []
+
+    try:
+        v_values = v_database.QuerySequenceValues(v_sequence, v_schema)
+        for v_value in v_values.Rows:
+            v_value_data = {
+                'v_minimum_value': v_value['minimum_value'],
+                'v_maximum_value': v_value['maximum_value'],
+                'v_current_value': v_value['current_value'],
+                'v_increment': v_value['increment']
+            }
+            v_list_values.append(v_value_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_values
+
+    return JsonResponse(v_return)
+
+def get_views(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QueryViews(False,v_schema)
+        for v_table in v_tables.Rows:
+            v_table_data = {
+                'v_name': v_table['table_name'],
+                'v_has_triggers': v_database.v_has_triggers,
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
+
+    return JsonResponse(v_return)
+
+def get_views_columns(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_columns = []
+
+    try:
+        v_columns = v_database.QueryViewFields(v_table,False,v_schema)
+        for v_column in v_columns.Rows:
+            v_column_data = {
+                'v_column_name': v_column['column_name'],
+                'v_data_type': v_column['data_type'],
+                'v_data_length': v_column['data_length'],
+            }
+            v_list_columns.append(v_column_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_columns
+
+    return JsonResponse(v_return)
+
+def get_view_definition(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_view = json_object['p_view']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    try:
+        v_return['v_data'] = v_database.GetViewDefinition(v_view, v_schema)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True

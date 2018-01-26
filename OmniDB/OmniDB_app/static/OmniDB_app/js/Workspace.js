@@ -30,7 +30,10 @@ $(function () {
 	initCreateTabFunctions();
 
 	v_connTabControl.tag.createSnippetTab();
-	v_connTabControl.tag.createChatTab();
+	
+	if(!gv_desktopMode) {
+		v_connTabControl.tag.createChatTab();
+	}
 
 	getDatabaseList(true);
 

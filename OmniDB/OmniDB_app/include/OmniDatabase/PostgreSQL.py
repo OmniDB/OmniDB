@@ -851,7 +851,7 @@ class PostgreSQL:
             from information_schema.sequences
             where 1 = 1
             {0}
-            order by 1
+            order by 1, 2
         '''.format(v_filter), True)
         return v_table
 

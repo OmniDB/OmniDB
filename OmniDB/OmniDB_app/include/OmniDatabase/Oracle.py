@@ -536,152 +536,146 @@ class Oracle:
         return v_body
 
     def TemplateCreateRole(self):
-        return Template('''CREATE ROLE name
---[ ENCRYPTED | UNENCRYPTED ] PASSWORD 'password'
---SUPERUSER | NOSUPERUSER
---CREATEDB | NOCREATEDB
---CREATEROLE | NOCREATEROLE
---INHERIT | NOINHERIT
---LOGIN | NOLOGIN
---REPLICATION | NOREPLICATION
---BYPASSRLS | NOBYPASSRLS
---CONNECTION LIMIT connlimit
---VALID UNTIL 'timestamp'
---IN ROLE role_name [, ...]
---IN GROUP role_name [, ...]
---ROLE role_name [, ...]
---ADMIN role_name [, ...]
---USER role_name [, ...]
---SYSID uid
+        return Template('''CREATE { ROLE | USER } name
+--NOT IDENTIFIED
+--IDENTIFIED BY password
+--DEFAULT TABLESPACE tablespace
+--TEMPORARY TABLESPACE tablespace
+--QUOTA { size | UNLIMITED } ON tablespace
+--PASSWORD EXPIRE
+--ACCOUNT { LOCK | UNLOCK }
 ''')
 
     def TemplateAlterRole(self):
-        return Template('''ALTER ROLE #role_name#
---SUPERUSER | NOSUPERUSER
---CREATEDB | NOCREATEDB
---CREATEROLE | NOCREATEROLE
---INHERIT | NOINHERIT
---LOGIN | NOLOGIN
---REPLICATION | NOREPLICATION
---BYPASSRLS | NOBYPASSRLS
---CONNECTION LIMIT connlimit
---[ ENCRYPTED | UNENCRYPTED ] PASSWORD 'password'
---VALID UNTIL 'timestamp'
---RENAME TO new_name
---[ IN DATABASE database_name ] SET configuration_parameter TO { value | DEFAULT }
---[ IN DATABASE database_name ] SET configuration_parameter FROM CURRENT
---[ IN DATABASE database_name ] RESET configuration_parameter
---[ IN DATABASE database_name ] RESET ALL
+        return Template('''ALTER { ROLE | USER } #role_name#
+--NOT IDENTIFIED
+--IDENTIFIED BY password
+--DEFAULT TABLESPACE tablespace
+--TEMPORARY TABLESPACE tablespace
+--QUOTA { size | UNLIMITED } ON tablespace
+--DEFAULT ROLE { role [, role ] ... | ALL [ EXCEPT role [, role ] ... ] | NONE }
+--PASSWORD EXPIRE
+--ACCOUNT { LOCK | UNLOCK }
 ''')
 
     def TemplateDropRole(self):
-        return Template('DROP ROLE #role_name#')
+        return Template('''DROP { ROLE | USER } #role_name#
+--CASCADE
+''')
 
     def TemplateCreateTablespace(self):
-        return Template('''CREATE TABLESPACE name
-LOCATION 'directory'
---OWNER new_owner | CURRENT_USER | SESSION_USER
---WITH ( tablespace_option = value [, ... ] )
+        return Template('''CREATE { SMALLFILE | BIGFILE }
+[ TEMPORARY | UNDO ] TABLESPACE name
+[ DATAFILE | TEMPFILE ] 'filename' [ SIZE size ] [ REUSE ]
+--AUTOEXTEND OFF | AUTOEXTEND ON [ NEXT size ]
+--MAXSIZE [ size | UNLIMITED ]
+--MINIMUM EXTENT size
+--BLOCKSIZE size
+--LOGGING | NOLOGGING | FORCE LOGGING
+--ENCRYPTION [ USING 'algorithm' ]
+--ONLINE | OFFLINE
+--EXTENT MANAGEMENT LOCAL { AUTOALLOCATE | UNIFORM [ SIZE size ] }
+--SEGMENT SPACE MANAGEMENT { AUTO | MANUAL }
+--FLASHBACK { ON | OFF }
+--RETENTION { GUARANTEE | NOGUARANTEE }
 ''')
 
     def TemplateAlterTablespace(self):
         return Template('''ALTER TABLESPACE #tablespace_name#
+--MINIMUM EXTENT size
+--RESIZE size
+--COALESCE
+--SHRINK SPACE [ KEEP size ]
 --RENAME TO new_name
---OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
---SET seq_page_cost = value
---RESET seq_page_cost
---SET random_page_cost = value
---RESET random_page_cost
---SET effective_io_concurrency = value
---RESET effective_io_concurrency
+--[ BEGIN | END ] BACKUP
+--ADD [ DATAFILE | TEMPFILE ] 'filename' [ SIZE size ] [ REUSE AUTOEXTEND OFF | AUTOEXTEND ON [ NEXT size ] ] [ MAXSIZE [ size | UNLIMITED ] ]
+--DROP [ DATAFILE | TEMPFILE ] 'filename'
+--SHRINK TEMPFILE 'filename' [ KEEP size ]
+--RENAME DATAFILE 'filename' TO 'new_filename'
+--[ DATAFILE | TEMPFILE ] [ ONLINE | OFFLINE ]
+--[ NO ] FORCE LOGGING
+--ONLINE
+--OFFLINE [ NORMAL | TEMPORARY | IMMEDIATE ]
+--READ [ ONLY | WRITE ]
+--PERMANENT | TEMPORARY
+--AUTOEXTEND OFF | AUTOEXTEND ON [ NEXT size ]
+--MAXSIZE [ size | UNLIMITED ]
+--FLASHBACK { ON | OFF }
+--RETENTION { GUARANTEE | NOGUARANTEE }
 ''')
 
     def TemplateDropTablespace(self):
-        return Template('DROP TABLESPACE #tablespace_name#')
+        return Template('''DROP TABLESPACE #tablespace_name#
+--INCLUDING CONTENTS
+--[ AND | KEEP ] DATAFILES
+--CASCADE CONSTRAINTS
+''')
 
     def TemplateCreateDatabase(self):
         return Template('''CREATE DATABASE name
---OWNER user_name
---TEMPLATE template
---ENCODING encoding
---LC_COLLATE lc_collate
---LC_CTYPE lc_ctype
---TABLESPACE tablespace
---CONNECTION LIMIT connlimit
+--USER SYS IDENTIFIED BY password
+--USER SYSTEM IDENTIFIED BY password
+--CONTROLFILE REUSE
+--MAXDATAFILES integer
+--MAXINSTANCES integer
+--CHARACTER SET charset
+--NATIONAL CHARACTER SET charset
+--SET DEFAULT [ SMALLFILE | BIGFILE ] TABLESPACE
+--EXTENT MANAGEMENT LOCAL
+--DEFAULT TABLESPACE tablespace
+--[ BIGFILE | SMALLFILE ] DEFAULT TEMPORARY TABLESPACE tablespace
+--[ BIGFILE | SMALLFILE ] UNDO TABLESPACE tablespace
 ''')
 
     def TemplateAlterDatabase(self):
         return Template('''ALTER DATABASE #database_name#
---ALLOW_CONNECTIONS allowconn
---CONNECTION LIMIT connlimit
---IS_TEMPLATE istemplate
---RENAME TO new_name
---OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
---SET TABLESPACE new_tablespace
---SET configuration_parameter TO { value | DEFAULT }
---SET configuration_parameter FROM CURRENT
---RESET configuration_parameter
---RESET ALL
+--OPEN READ ONLY
+--OPEN READ WRITE [ RESETLOGS | NORESETLOGS ] [ UPGRADE | DOWNGRADE ]
+--[ BEGIN | END ] BACKUP
+--SET DEFAULT [ SMALLFILE | BIGFILE ] TABLESPACE
+--DEFAULT TABLESPACE tablespace
+--[ BIGFILE | SMALLFILE ] DEFAULT TEMPORARY TABLESPACE tablespace
+--RENAME GLOBAL_NAME TO new_name
+--{ ENABLE | DISABLE } BLOCK CHANGING TRACKING
+--FLASHBACK { ON | OFF }
 ''')
 
     def TemplateDropDatabase(self):
-        return Template('DROP DATABASE #database_name#')
+        return Template('DROP DATABASE')
 
     def TemplateCreateFunction(self):
         return Template('''CREATE OR REPLACE FUNCTION #schema_name#.name
 --(
 --    [ argmode ] [ argname ] argtype [ { DEFAULT | = } default_expr ]
 --)
---RETURNS rettype
---RETURNS TABLE ( column_name column_type )
-LANGUAGE plpgsql
---IMMUTABLE | STABLE | VOLATILE
---STRICT
---SECURITY DEFINER
---COST execution_cost
---ROWS result_rows
+--RETURN rettype
+--PIPELINED
 AS
-$function$
---DECLARE
 -- variables
+-- pragmas
 BEGIN
 -- definition
 END;
-$function$
 ''')
 
     def TemplateDropFunction(self):
-        return Template('''DROP FUNCTION #function_name#
---CASCADE
-''')
+        return Template('DROP FUNCTION #function_name#')
 
     def TemplateCreateProcedure(self):
-        return Template('''CREATE OR REPLACE FUNCTION #schema_name#.name
+        return Template('''CREATE OR REPLACE PROCEDURE #schema_name#.name
 --(
 --    [ argmode ] [ argname ] argtype [ { DEFAULT | = } default_expr ]
 --)
---RETURNS rettype
---RETURNS TABLE ( column_name column_type )
-LANGUAGE plpgsql
---IMMUTABLE | STABLE | VOLATILE
---STRICT
---SECURITY DEFINER
---COST execution_cost
---ROWS result_rows
 AS
-$function$
---DECLARE
 -- variables
+-- pragmas
 BEGIN
 -- definition
 END;
-$function$
 ''')
 
     def TemplateDropProcedure(self):
-        return Template('''DROP FUNCTION #function_name#
---CASCADE
-''')
+        return Template('DROP PROCEDURE #function_name#')
 
     def TemplateCreateTable(self):
         pass
@@ -691,46 +685,45 @@ $function$
 
     def TemplateDropTable(self):
         return Template('''DROP TABLE #table_name#
---CASCADE
+--CASCADE CONSTRAINTS
+--PURGE
 ''')
 
     def TemplateCreateColumn(self):
         return Template('''ALTER TABLE #table_name#
-ADD COLUMN name data_type
---COLLATE collation
---column_constraint [ ... ] ]
+ADD name data_type
+--SORT
+--DEFAULT expr
+--NOT NULL
 ''')
 
     def TemplateAlterColumn(self):
         return Template('''ALTER TABLE #table_name#
---ALTER COLUMN #column_name#
---RENAME COLUMN #column_name# TO new_column
---TYPE data_type [ COLLATE collation ] [ USING expression ]
---SET DEFAULT expression
---DROP DEFAULT
---SET NOT NULL
---DROP NOT NULL
---SET STATISTICS integer
---SET ( attribute_option = value [, ... ] )
---RESET ( attribute_option [, ... ] )
---SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+--MODIFY #column_name# { datatype | DEFAULT expr | [ NULL | NOT NULL ]}
+--RENAME COLUMN #column_name# TO new_name
 '''
 )
 
     def TemplateDropColumn(self):
         return Template('''ALTER TABLE #table_name#
 DROP COLUMN #column_name#
---CASCADE
+--CASCADE CONSTRAINTS
+--INVALIDATE
 ''')
 
     def TemplateCreatePrimaryKey(self):
         return Template('''ALTER TABLE #table_name#
 ADD CONSTRAINT name
 PRIMARY KEY ( column_name [, ... ] )
---WITH ( storage_parameter [= value] [, ... ] )
---WITH OIDS
---WITHOUT OIDS
---USING INDEX TABLESPACE tablespace_name
+--[ NOT ] DEFERRABLE
+--INITIALLY { IMMEDIATE | DEFERRED }
+--RELY | NORELY
+--USING INDEX index_name
+--ENABLE
+--DISABLE
+--VALIDATE
+--NOVALIDATE
+--EXCEPTIONS INTO table_name
 ''')
 
     def TemplateDropPrimaryKey(self):
@@ -743,10 +736,15 @@ DROP CONSTRAINT #constraint_name#
         return Template('''ALTER TABLE #table_name#
 ADD CONSTRAINT name
 UNIQUE ( column_name [, ... ] )
---WITH ( storage_parameter [= value] [, ... ] )
---WITH OIDS
---WITHOUT OIDS
---USING INDEX TABLESPACE tablespace_name
+--[ NOT ] DEFERRABLE
+--INITIALLY { IMMEDIATE | DEFERRED }
+--RELY | NORELY
+--USING INDEX index_name
+--ENABLE
+--DISABLE
+--VALIDATE
+--NOVALIDATE
+--EXCEPTIONS INTO table_name
 ''')
 
     def TemplateDropUnique(self):
@@ -760,10 +758,15 @@ DROP CONSTRAINT #constraint_name#
 ADD CONSTRAINT name
 FOREIGN KEY ( column_name [, ... ] )
 REFERENCES reftable [ ( refcolumn [, ... ] ) ]
---MATCH { FULL | PARTIAL | SIMPLE }
---ON DELETE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT }
---ON UPDATE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT }
---NOT VALID
+--[ NOT ] DEFERRABLE
+--INITIALLY { IMMEDIATE | DEFERRED }
+--RELY | NORELY
+--USING INDEX index_name
+--ENABLE
+--DISABLE
+--VALIDATE
+--NOVALIDATE
+--EXCEPTIONS INTO table_name
 ''')
 
     def TemplateDropForeignKey(self):
@@ -773,23 +776,30 @@ DROP CONSTRAINT #constraint_name#
 ''')
 
     def TemplateCreateIndex(self):
-        return Template('''CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ] name
+        return Template('''CREATE [ UNIQUE ] INDEX name
 ON #table_name#
---USING method
-( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] )
---WITH ( storage_parameter = value [, ... ] )
---WHERE predicate
+( { column_name | ( expression ) } [ ASC | DESC ] )
+--ONLINE
+--TABLESPACE tablespace
+--[ SORT | NOSORT ]
+--REVERSE
+--[ VISIBLE | INVISIBLE ]
+--[ NOPARALLEL | PARALLEL integer ]
 ''')
 
     def TemplateAlterIndex(self):
         return Template('''ALTER INDEX #index_name#
---RENAME to new_name
---SET TABLESPACE tablespace_name
---SET ( storage_parameter = value [, ... ] )
---RESET ( storage_parameter [, ... ] )
+--COMPILE
+--[ ENABLE | DISABLE ]
+--UNUSABLE
+--[ VISIBLE | INVISIBLE ]
+--RENAME TO new_name
+--COALESCE
+--[ MONITORING | NOMONITORING ] USAGE
+--UPDATE BLOCK REFERENCES
 ''')
 
     def TemplateDropIndex(self):
-        return Template('''DROP INDEX [ CONCURRENTLY ] #index_name#
---CASCADE
+        return Template('''DROP INDEX #index_name#
+--FORCE
 ''')

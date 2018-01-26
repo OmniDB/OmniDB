@@ -535,6 +535,101 @@ class Oracle:
         v_body = v_body + self.v_connection.ExecuteScalar("select dbms_metadata.get_ddl('PROCEDURE', '{0}') from dual".format(p_procedure))
         return v_body
 
+    def QuerySequences(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and sequence_owner = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and sequence_owner = '{0}' ".format(self.v_schema)
+        v_table = self.v_connection.Query('''
+            select sequence_owner as "sequence_schema",
+                   sequence_name as "sequence_name"
+            from all_sequences
+            where 1 = 1
+            {0}
+            order by 1, 2
+        '''.format(v_filter), True)
+        return v_table
+
+    def QuerySequenceValues(self, p_sequence, p_schema):
+        if p_schema:
+            v_schema = p_schema
+        else:
+            v_schema = self.v_schema
+        return self.v_connection.Query('''
+            select sequence_owner as "sequence_schema",
+                   sequence_name as "sequence_name",
+                   min_value as "minimum_value",
+                   max_value as "maximum_value",
+                   last_number as "current_value",
+                   increment_by as "increment"
+            from all_sequences
+            where sequence_owner = '{0}'
+              and sequence_name = '{1}'
+            order by 1
+        '''.format(v_schema, p_sequence), True)
+
+    def QueryViews(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and owner = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and owner = '{0}' ".format(self.v_schema)
+        return self.v_connection.Query('''
+            select view_name as "table_name",
+                   owner as "table_schema"
+            from all_views
+            where 1 = 1
+            {0}
+            order by 2, 1
+        '''.format(v_filter), True)
+
+    def QueryViewFields(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and owner = '{0}' and table_name = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and owner = '{0}' and table_name = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and owner = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and owner = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and table_name = '{0}' ".format(p_table)
+        return self.v_connection.Query('''
+            select table_name as "table_name",
+                   column_name as "column_name",
+                   case when data_type = 'NUMBER' and data_scale = '0' then 'INTEGER' else data_type end as "data_type",
+                   case nullable when 'Y' then 'YES' else 'NO' end as "nullable",
+                   data_length as "data_length",
+                   data_precision as "data_precision",
+                   data_scale as "data_scale"
+            from all_tab_columns
+            where 1 = 1
+            {0}
+            order by table_name, column_id
+        '''.format(v_filter), True)
+
+    def GetViewDefinition(self, p_view, p_schema):
+        if p_schema:
+            v_schema = p_schema
+        else:
+            v_schema = self.v_schema
+        return '''CREATE OR REPLACE VIEW {0}.{1} AS
+{2}
+'''.format(p_schema, p_view,
+        self.v_connection.ExecuteScalar('''
+                select text
+                from all_views
+                where owner = '{0}'
+                  and view_name = '{1}'
+            '''.format(v_schema, p_view)
+    ))
+
     def TemplateCreateRole(self):
         return Template('''CREATE { ROLE | USER } name
 --NOT IDENTIFIED
@@ -802,4 +897,38 @@ ON #table_name#
     def TemplateDropIndex(self):
         return Template('''DROP INDEX #index_name#
 --FORCE
+''')
+
+    def TemplateCreateSequence(self):
+        return Template('''CREATE SEQUENCE #schema_name#.name
+--INCREMENT BY increment
+--MINVALUE minvalue | NOMINVALUE
+--MAXVALUE maxvalue | NOMAXVALUE
+--START WITH start
+--CACHE cache | NOCACHE
+--CYCLE | NOCYCLE
+--ORDER | NOORDER
+''')
+
+    def TemplateAlterSequence(self):
+        return Template('''ALTER SEQUENCE #sequence_name#
+--INCREMENT BY increment
+--MINVALUE minvalue | NOMINVALUE
+--MAXVALUE maxvalue | NOMAXVALUE
+--CACHE cache | NOCACHE
+--CYCLE | NOCYCLE
+--ORDER | NOORDER
+''')
+
+    def TemplateDropSequence(self):
+        return Template('DROP SEQUENCE #sequence_name#')
+
+    def TemplateCreateView(self):
+        return Template('''CREATE OR REPLACE VIEW #schema_name#.name AS
+SELECT ...
+''')
+
+    def TemplateDropView(self):
+        return Template('''DROP VIEW #view_name#
+--CASCADE CONSTRAINTS
 ''')

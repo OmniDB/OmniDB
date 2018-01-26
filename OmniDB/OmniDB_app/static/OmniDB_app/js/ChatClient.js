@@ -508,30 +508,32 @@ function startChatWebSocket(p_port) {
  * Function executed after page load.
  */
 $(document).ready(function() {
-    //Configure popup component
-    gv_chatPopUpControl = createPopUpControl('chat', 1000000);
+    if(!gv_desktopMode) {
+        //Configure popup component
+        gv_chatPopUpControl = createPopUpControl('chat', 1000000);
 
-    gv_chatPopUpControl.getChatPopUp = function() {
-        for(var i = 0; i < this.popUpList.length; i++) {
-            if(this.popUpList[i].tag.mode == 'Chat') {
-                return this.popUpList[i];
+        gv_chatPopUpControl.getChatPopUp = function() {
+            for(var i = 0; i < this.popUpList.length; i++) {
+                if(this.popUpList[i].tag.mode == 'Chat') {
+                    return this.popUpList[i];
+                }
             }
-        }
 
-        return null;
-    };
+            return null;
+        };
 
-    //Open a new connection to the server
-    startChatWebSocket(gv_chatWebSocketPort);
+        //Open a new connection to the server
+        startChatWebSocket(gv_chatWebSocketPort);
 
-    //Try to grant notification permission
-    Notification.requestPermission();
+        //Try to grant notification permission
+        Notification.requestPermission();
 
-    //Append history overlay to body
-    var v_divHistory = document.createElement('div');
-    v_divHistory.id = 'div_history';
-    v_divHistory.innerHTML = 'Retrieving history...';
-    document.body.appendChild(v_divHistory);
+        //Append history overlay to body
+        var v_divHistory = document.createElement('div');
+        v_divHistory.id = 'div_history';
+        v_divHistory.innerHTML = 'Retrieving history...';
+        document.body.appendChild(v_divHistory);
+    }
 });
 
 /**

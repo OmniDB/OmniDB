@@ -388,6 +388,8 @@ CREATE TABLE users (user_id integer not null,
     chat_enabled integer,
     super_user integer,
     user_key text,
+    stc_in_code integer,
+    use_bo_bot integer,
     constraint pk_users primary key (user_id),
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)

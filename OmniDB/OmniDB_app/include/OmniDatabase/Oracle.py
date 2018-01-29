@@ -552,24 +552,6 @@ class Oracle:
         '''.format(v_filter), True)
         return v_table
 
-    def QuerySequenceValues(self, p_sequence, p_schema):
-        if p_schema:
-            v_schema = p_schema
-        else:
-            v_schema = self.v_schema
-        return self.v_connection.Query('''
-            select sequence_owner as "sequence_schema",
-                   sequence_name as "sequence_name",
-                   min_value as "minimum_value",
-                   max_value as "maximum_value",
-                   last_number as "current_value",
-                   increment_by as "increment"
-            from all_sequences
-            where sequence_owner = '{0}'
-              and sequence_name = '{1}'
-            order by 1
-        '''.format(v_schema, p_sequence), True)
-
     def QueryViews(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -932,3 +914,43 @@ SELECT ...
         return Template('''DROP VIEW #view_name#
 --CASCADE CONSTRAINTS
 ''')
+
+    def GetProperties(self, p_schema, p_object, p_type):
+        v_table1 = self.v_connection.Query('''
+            select owner as "Owner",
+                   object_name as "Object Name",
+                   object_id as "Object ID",
+                   object_type as "Object Type",
+                   created as "Created",
+                   last_ddl_time as "Last DDL Time",
+                   timestamp as "Timestamp",
+                   status as "Status",
+                   temporary as "Temporary",
+                   generated as "Generated",
+                   secondary as "Secondary"
+            from all_objects
+            where owner = '{0}'
+              and object_name = '{1}'
+        '''.format(self.v_schema, p_object)).Transpose('Property', 'Value')
+        if p_type == 'sequence':
+            v_table2 = self.v_connection.Query('''
+                select last_number as "Last Value",
+                       min_value as "Min Value",
+                       max_value as "Max Value",
+                       increment_by as "Increment By",
+                       cycle_flag as "Is Cached",
+                       order_flag as "Is Ordered",
+                       cache_size as "Cache Size"
+                from all_sequences
+                where sequence_owner = '{0}'
+                  and sequence_name = '{1}'
+            '''.format(self.v_schema, p_object)).Transpose('Property', 'Value')
+            v_table1.Merge(v_table2)
+        return v_table1
+
+    def GetDDL(self, p_schema, p_object, p_type):
+        return self.v_connection.ExecuteScalar('''
+            select dbms_metadata.get_ddl(object_type, object_name) as ddl,
+            from user_objects
+            where object_name = '{0}'
+        '''.format(p_object))

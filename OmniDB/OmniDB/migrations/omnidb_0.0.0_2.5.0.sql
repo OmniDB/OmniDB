@@ -388,29 +388,13 @@ CREATE TABLE users (user_id integer not null,
     chat_enabled integer,
     super_user integer,
     user_key text,
+    stc_in_code integer,
+    use_bo_bot integer,
     constraint pk_users primary key (user_id),
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)
 );--omnidb--
 INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'0c4a137f-9918-4c0b-af45-480deef6f760');--omnidb--
-
-CREATE TABLE messages (
-    mes_in_code integer not null,
-    mes_st_text text,
-    mes_dt_timestamp text not null,
-    user_id integer not null,
-    mes_bo_image integer not null,
-    constraint pk_messages primary key (mes_in_code),
-    constraint messages_fk_0 foreign key (user_id) references users (user_id)  on update NO ACTION  on delete CASCADE
-);--omnidb--
-
-CREATE TABLE messages_users (
-    mes_in_code integer not null,
-    user_id integer not null,
-    constraint pk_messages_users primary key (mes_in_code, user_id),
-    constraint messages_users_fk_0 foreign key (mes_in_code) references messages (mes_in_code)  on update NO ACTION  on delete CASCADE,
-    constraint messages_users_fk_1 foreign key (user_id) references users (user_id)  on update NO ACTION  on delete CASCADE
-);--omnidb--
 
 CREATE TABLE snippets_nodes (
     sn_id integer not null,
@@ -545,6 +529,97 @@ INSERT INTO mon_units VALUES(13,'postgresql',replace('result = {\n    "type": "l
 INSERT INTO mon_units VALUES(14,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Standby: Replication Lag (Size)"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Size (MB)"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\nreplags = connection.Query(''''''\n    SELECT round(pg_xlog_location_diff(pg_last_xlog_receive_location(), pg_last_xlog_replay_location())/1048576.0,2) AS lag\n'''''')\n\ndatasets = []\nfor replag in replags.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": "Lag",\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [replag[''lag'']]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Standby: Replication Lag (Size)',0,NULL,5);--omnidb--
 INSERT INTO mon_units VALUES(15,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Standby: Replication Lag (Time)"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Seconds"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\nreplags = connection.Query(''''''\n    SELECT COALESCE(ROUND(EXTRACT(epoch FROM now() - pg_last_xact_replay_timestamp())),0) AS lag\n'''''')\n\ndatasets = []\nfor replag in replags.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": "Lag",\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [replag[''lag'']]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Standby: Replication Lag (Time)',0,NULL,5);--omnidb--
 INSERT INTO mon_units VALUES(16,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"System Memory Usage (Total: " + total_mem + "MB)"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "%",\n                },\n                "ticks": {\n                    "beginAtZero": True,\n                    "max": 100\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\nmem_data = connection.ExecuteScalar(''''''\n    CREATE TEMPORARY TABLE omnidb_monitor_result (result TEXT);\n    DO LANGUAGE plpythonu\n    $$\n    import sys\n    import StringIO\n    import subprocess\n    codeOut = StringIO.StringIO()\n    codeErr = StringIO.StringIO()\n    sys.stdout = codeOut\n    sys.stderr = codeErr\n    print subprocess.Popen("free -m | tail -n +2 | head -n 1 | tr -s '' '' | cut -f2,3,4 -d '' ''", shell=True, stdout=subprocess.PIPE).stdout.read()\n    sys.stdout = sys.__stdout__\n    sys.stderr = sys.__stderr__\n    result = codeOut.getvalue()\n    plpy.execute("INSERT INTO omnidb_monitor_result VALUES (''{0}'')".format(result))\n    $$;\n    SELECT * FROM omnidb_monitor_result;\n'''''')\n\ndatasets = []\nmem_split = mem_data.split('' '')\ntotal_mem = mem_split[0]\nused_mem = mem_split[1]\nfree_mem = mem_split[2]\nperc_mem = round(int(used_mem)*100/int(total_mem),2)\ncolor = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\ndatasets.append({\n        "label": "Memory",\n        "fill": False,\n        "backgroundColor": color,\n        "borderColor": color,\n        "lineTension": 0,\n        "pointRadius": 1,\n        "borderWidth": 1,\n        "data": [perc_mem]\n    })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Memory Usage',0,NULL,5);--omnidb--
+
+CREATE TABLE channels (
+    cha_in_code integer not null,
+    cha_st_name text,
+    cha_bo_private integer not null,
+    constraint pk_channels primary key (cha_in_code)
+);--omnidb--
+INSERT INTO channels VALUES(1, 'General', 0);--omnidb--
+
+CREATE TABLE groups (
+    gro_in_code integer not null,
+    constraint pk_groups primary key (gro_in_code)
+);--omnidb--
+
+CREATE TABLE messages_types (
+    met_in_code integer not null,
+    met_st_description text,
+    constraint pk_messages_types primary key (met_in_code)
+);--omnidb--
+INSERT INTO messages_types VALUES(1, 'Plain Text');--omnidb--
+INSERT INTO messages_types VALUES(2, 'Pasted Image');--omnidb--
+INSERT INTO messages_types VALUES(3, 'Snippet');--omnidb--
+INSERT INTO messages_types VALUES(4, 'Attachment');--omnidb--
+INSERT INTO messages_types VALUES(5, 'Mention');--omnidb--
+
+CREATE TABLE messages (
+    mes_in_code integer not null,
+    mes_dt_creation text not null,
+    mes_dt_update text not null,
+    use_in_code integer not null,
+    met_in_code integer not null,
+    mes_st_content text,
+    mes_st_title text,
+    mes_st_attachmentname text,
+    mes_st_attachmentpath text,
+    mes_st_snippetmode text,
+    mes_st_originalcontent text,
+    constraint pk_messages primary key (mes_in_code),
+    constraint messages_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
+    constraint messages_fk_1 foreign key (met_in_code) references messages_types (met_in_code)  on update CASCADE  on delete CASCADE
+);--omnidb--
+
+CREATE TABLE messages_channels (
+    mes_in_code integer not null,
+    cha_in_code integer not null,
+    use_in_code integer not null,
+    mec_bo_viewed integer not null,
+    constraint pk_messages_channels primary key (mes_in_code, cha_in_code, use_in_code),
+    constraint messages_channels_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
+    constraint messages_channels_fk_1 foreign key (mes_in_code) references messages (mes_in_code)  on update CASCADE  on delete CASCADE ,
+    constraint messages_channels_fk_2 foreign key (cha_in_code) references channels (cha_in_code)  on update CASCADE  on delete CASCADE
+);--omnidb--
+
+CREATE TABLE messages_groups (
+    mes_in_code integer not null,
+    gro_in_code integer not null,
+    use_in_code integer not null,
+    meg_bo_viewed integer not null,
+    constraint pk_messages_groups primary key (mes_in_code, gro_in_code, use_in_code),
+    constraint messages_groups_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
+    constraint messages_groups_fk_1 foreign key (mes_in_code) references messages (mes_in_code)  on update CASCADE  on delete CASCADE ,
+    constraint messages_groups_fk_2 foreign key (gro_in_code) references groups (gro_in_code)  on update CASCADE  on delete CASCADE
+);--omnidb--
+
+CREATE TABLE status_chat (
+    stc_in_code integer not null,
+    stc_st_name text not null,
+    constraint pk_status_chat primary key (stc_in_code)
+);--omnidb--
+INSERT INTO status_chat VALUES(1, 'None');--omnidb--
+INSERT INTO status_chat VALUES(2, 'In a Meeting');--omnidb--
+INSERT INTO status_chat VALUES(3, 'Remote Work');--omnidb--
+INSERT INTO status_chat VALUES(4, 'Busy');--omnidb--
+
+CREATE TABLE users_channels (
+    use_in_code integer not null,
+    cha_in_code integer not null,
+    usc_bo_silenced integer not null,
+    constraint pk_users_channels primary key (use_in_code, cha_in_code),
+    constraint users_channels_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
+    constraint users_channels_fk_1 foreign key (cha_in_code) references channels (cha_in_code)  on update CASCADE  on delete CASCADE
+);--omnidb--
+
+CREATE TABLE users_groups (
+    use_in_code integer not null,
+    gro_in_code integer not null,
+    usg_bo_silenced integer not null,
+    constraint pk_users_groups primary key (use_in_code, gro_in_code),
+    constraint users_groups_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
+    constraint users_groups_fk_1 foreign key (gro_in_code) references groups (gro_in_code)  on update CASCADE  on delete CASCADE
+);--omnidb--
 
 CREATE TABLE version (
     ver_id text not null,

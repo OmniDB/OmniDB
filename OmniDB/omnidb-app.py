@@ -52,6 +52,8 @@ import urllib.request
 
 logger = logging.getLogger('OmniDB_app.Init')
 
+import OmniDB.settings
+
 def check_port(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -79,6 +81,7 @@ def init_browser(server_port):
     cef.Shutdown()
 
 if __name__ == "__main__":
+    OmniDB.settings.DESKTOP_MODE = True
     #default port
 
     parser = optparse.OptionParser(version=OmniDB.settings.OMNIDB_VERSION)

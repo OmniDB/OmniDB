@@ -19,8 +19,8 @@ You should have received a copy of the GNU General Public License along with Omn
 /// <param name="p_onMessage">On message receive callback.</param>
 /// <param name="p_onClose">On connection close callback.</param>
 /// <param name="p_onError">On connection error callback.</param>
-/// <param name="p_userId">On connection error callback.</param>
-function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_onError) {
+/// <param name="p_channel">The channel to be used in the server.</param>
+function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_onError, p_channel) {
 	if(typeof p_address == 'undefined' || p_address == null) {
 		return;
 	}
@@ -31,7 +31,7 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 		v_port = p_port;
 	}
 
-	var v_connection = new WebSocket(p_address + ':' + v_port + '/ws');
+	var v_connection = new WebSocket(p_address + ':' + v_port + '/' + p_channel);
 
 	if(p_onOpen != null && typeof p_onOpen == 'function') {
 		v_connection.onopen = p_onOpen;

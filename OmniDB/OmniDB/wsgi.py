@@ -24,6 +24,3 @@ user_database.work()
 
 #Websocket Core
 ws_core.start_wsserver_thread()
-
-#Websocket Chat
-#ws_chat.start_wsserver_thread()

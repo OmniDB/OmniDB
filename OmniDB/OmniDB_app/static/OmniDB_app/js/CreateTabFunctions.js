@@ -208,6 +208,32 @@ function initCreateTabFunctions() {
 
   }
 
+  var v_createChatTabFunction = function() {
+
+  	var v_tab = v_connTabControl.createTab(
+        '<img style="width: 16px; height: 16px;" src="/static/OmniDB_app/images/icons/header_chat_icon_inactive.png"/> Chat',
+        false,
+        null,
+        null,
+        null,
+        null,
+        true,
+        null
+    );
+
+  	v_connTabControl.selectTab(v_tab);
+
+  	var v_div = document.getElementById('div_' + v_tab.id);
+  	v_div.innerHTML = '';
+
+  	var v_tag = {
+  		connTabControl: v_connTabControl,
+        mode: 'chat'
+  	};
+
+    v_tab.tag = v_tag;
+  }
+
   var v_createServerMonitoringTabFunction = function() {
 
   	var v_tab = v_connTabControl.createTab(
@@ -1653,6 +1679,7 @@ function initCreateTabFunctions() {
   //Functions to create tabs globally
   v_connTabControl.tag.createConnTab = v_createConnTabFunction;
   v_connTabControl.tag.createSnippetTab = v_createSnippetTabFunction;
+  v_connTabControl.tag.createChatTab = v_createChatTabFunction;
   v_connTabControl.tag.createServerMonitoringTab = v_createServerMonitoringTabFunction;
 
   //Functions to create tabs inside snippet tab

@@ -855,25 +855,6 @@ class PostgreSQL:
         '''.format(v_filter), True)
         return v_table
 
-    def QuerySequenceValues(self, p_sequence, p_schema):
-        v_table = self.v_connection.Query('''
-            select quote_ident(sequence_schema) as sequence_schema,
-                   quote_ident(sequence_name) as sequence_name,
-                   minimum_value,
-                   maximum_value,
-                   0 as current_value,
-                   increment
-            from information_schema.sequences
-            where quote_ident(sequence_schema) = '{0}'
-              and quote_ident(sequence_name) = '{1}'
-            order by 1
-        '''.format(p_schema, p_sequence), True)
-        for i in range(0, len(v_table.Rows)):
-            v_table.Rows[i]['current_value'] = self.v_connection.ExecuteScalar(
-                "select last_value from {0}.{1}".format(v_table.Rows[i]['sequence_schema'], v_table.Rows[i]['sequence_name'])
-            )
-        return v_table
-
     def QueryViews(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -2258,3 +2239,225 @@ TO NODE ( nodename [, ... ] )
 
     def TemplateXLAlterTableDeleteNode(self):
         return Template('ALTER TABLE #table_name# DELETE NODE (#node_name#)')
+
+    def GetProperties(self, p_schema, p_object, p_type):
+        if p_type == 'role':
+            return GetPropertiesRole(p_object).Transpose('Property', 'Value')
+        elif p_type == 'tablespace':
+            return GetPropertiesTablespace(p_object).Transpose('Property', 'Value')
+        elif p_type == 'database':
+            return GetPropertiesDatabase(p_object).Transpose('Property', 'Value')
+        elif p_type == 'schema':
+            return GetPropertiesSchema(p_object).Transpose('Property', 'Value')
+        elif p_type == 'table':
+            return GetPropertiesTable(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'index':
+            return GetPropertiesIndex(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'sequence':
+            return GetPropertiesSequence(p_schema, p_object)
+        elif p_type == 'view':
+            return GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'mview':
+            return GetPropertiesMaterializedView(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'function':
+            return GetPropertiesFunction(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'trigger':
+            return GetPropertiesTrigger(p_schema, p_object).Transpose('Property', 'Value')
+    elif p_type == 'triggerfunction':
+            return GetPropertiesTriggerFunction(p_schema, p_object).Transpose('Property', 'Value')
+        else:
+            return None
+
+    def GetPropertiesRole(self, p_object):
+        return self.v_connection.Query('''
+            select rolname as "Role",
+                   oid as "OID",
+                   rolsuper as "Super User",
+                   rolinherit as "Inherit",
+                   rolcreaterole as "Can Create Role",
+                   rolcreatedb as "Can Create Database",
+                   rolcanlogin as "Can Login",
+                   rolreplication as "Replication",
+                   rolconnlimit as "Connection Limit",
+                   rolvaliduntil as "Valid Until"
+            from pg_roles
+            where rolname = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesTablespace(self, p_object):
+        return self.v_connection.Query('''
+            select t.spcname as "Tablespace",
+                   r.rolname as "Owner",
+                   t.oid as "OID",
+                   pg_tablespace_location(t.oid) as "Location",
+                   t.spcacl as "ACL",
+                   t.spcoptions as "Options"
+            from pg_tablespace t
+            inner join pg_roles r
+            on r.oid = t.spcowner
+            where t.spcname = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesDatabase(self, p_object):
+        return self.v_connection.Query('''
+            select d.datname as "Database",
+                   r.rolname as "Owner",
+                   pg_encoding_to_char(d.encoding) as "Encoding",
+                   d.datcollate as "LC_COLLATE",
+                   d.datctype as "LC_CTYPE",
+                   d.datistemplate as "Is Template",
+                   d.datallowconn as "Allows Connections",
+                   d.datconnlimit as "Connection Limit",
+                   t.spcname as "Tablespace",
+                   d.datacl as "ACL"
+            from pg_database d
+            inner join pg_roles r
+            on r.oid = d.datdba
+            inner join pg_tablespace t
+            on t.oid = d.dattablespace
+            where d.datname = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesSchema(self, p_object):
+        return self.v_connection.Query('''
+            select n.nspname as "Schema",
+                   r.rolname as "Owner",
+                   n.nspacl as "ACL"
+            from pg_namespace n
+            inner join pg_roles r
+            on r.oid = n.nspowner
+            where n.nspname = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesTable(self, p_schema, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   c.relname as "Table",
+                   c.oid as "OID",
+                   r.rolname as "Owner",
+                   pg_size_pretty(pg_relation_size(c.oid)) as "Size",
+                   coalesce(t1.spcname, t2.spcname) as "Tablespace",
+                   c.relacl as "ACL",
+                   c.reloptions as "Options",
+                   pg_relation_filepath(c.oid) as "Filenode",
+                   c.reltuples as "Estimate Count",
+                   c.relhasindex as "Has Index",
+                   (case c.relpersistence when 'p' then 'Permanent' when 'u' then 'Unlogged' when 't' then 'Temporary' end) as "Persistence",
+                   c.relnatts as "Number of Attributes",
+                   c.relchecks as "Number of Checks",
+                   c.relhasoids as "Has OIDs",
+                   c.relhaspkey as "Has Primary Key",
+                   c.relhasrules as "Has Rules",
+                   c.relhastriggers as "Has Triggers",
+                   c.relhassubclass as "Has Subclass"
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_roles r
+            on r.oid = c.relowner
+            left join pg_tablespace t1
+            on t1.oid = c.reltablespace
+            inner join (
+            select t.spcname
+            from pg_database d
+            inner join pg_tablespace t
+            on t.oid = d.dattablespace
+            where d.datname = current_database()
+            ) t2
+            on 1 = 1
+            where n.nspname = '{0}'
+              and c.relname = '{1}'
+        '''.format(p_schema, p_object))
+
+    def GetPropertiesIndex(self, p_schema, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   c.relname as "Index",
+                   c.oid as "OID",
+                   r.rolname as "Owner",
+                   pg_size_pretty(pg_relation_size(c.oid)) as "Size",
+                   a.amname as "Access Method",
+                   coalesce(t1.spcname, t2.spcname) as "Tablespace",
+                   pg_relation_filepath(c.oid) as "Filenode"
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_roles r
+            on r.oid = c.relowner
+            left join pg_tablespace t1
+            on t1.oid = c.reltablespace
+            inner join (
+            select t.spcname
+            from pg_database d
+            inner join pg_tablespace t
+            on t.oid = d.dattablespace
+            where d.datname = current_database()
+            ) t2
+            on 1 = 1
+            inner join pg_am a
+            on a.oid = c.relam
+            where n.nspname = '{0}'
+              and c.relname = '{1}'
+        '''.format(p_schema, p_object))
+
+    def GetPropertiesSequence(self, p_schema, p_object):
+        v_table1 = self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   c.relname as "Sequence",
+                   c.oid as "OID",
+                   r.rolname as "Owner",
+                   coalesce(t1.spcname, t2.spcname) as "Tablespace",
+                   pg_relation_filepath(c.oid) as "Filenode"
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_roles r
+            on r.oid = c.relowner
+            left join pg_tablespace t1
+            on t1.oid = c.reltablespace
+            inner join (
+            select t.spcname
+            from pg_database d
+            inner join pg_tablespace t
+            on t.oid = d.dattablespace
+            where d.datname = current_database()
+            ) t2
+            on 1 = 1
+            where n.nspname = '{0}'
+              and c.relname = '{1}'
+        '''.format(p_schema, p_object)).Transpose('Property', 'Value')
+        v_table2 = self.v_connection.Query('''
+            select last_value as "Last Value",
+                   start_value as "Start Value",
+                   increment_by as "Increment By",
+                   max_value as "Max Value",
+                   min_value as "Min Value",
+                   cache_value as "Cache Value",
+                   is_cycled as "Is Cycled",
+                   is_called as "Is Called"
+            from {0}.{1}
+        '''.format(p_schema, p_object)).Transpose('Property', 'Value')
+        v_table1.Merge(v_table2)
+        return v_table1
+
+    def GetPropertiesView(self, p_schema, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   c.relname as "View",
+                   c.oid as "OID",
+                   r.rolname as "Owner"
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_roles r
+            on r.oid = c.relowner
+            where n.nspname = '{0}'
+              and c.relname = '{1}'
+        '''.format(p_schema, p_object))
+
+    def GetDDL(self, p_schema, p_object, p_type):
+        return ''

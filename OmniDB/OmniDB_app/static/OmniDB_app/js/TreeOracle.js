@@ -663,17 +663,6 @@ function getTreeOracle(p_div) {
         },
         'cm_sequence': {
             elements: [{
-                text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        getSequenceValuesOracle(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
                 text: 'Alter Sequence',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
@@ -1328,8 +1317,6 @@ function refreshTreeOracle(node) {
         getProcedureFieldsOracle(node);
     } else if (node.tag.type == 'sequence_list') {
         getSequencesOracle(node);
-    } else if (node.tag.type == 'sequence') {
-        getSequenceValuesOracle(node);
     } else if (node.tag.type == 'database_list') {
         getDatabasesOracle(node);
     } else if (node.tag.type == 'tablespace_list') {
@@ -1818,56 +1805,6 @@ function getSequencesOracle(node) {
                     '/static/OmniDB_app/images/sequence_list.png', {
                         type: 'sequence'
                     }, 'cm_sequence');
-                v_node.createChildNode('', true,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
-
-            }
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving sequence values
-/// </summary>
-/// <param name="node">Node object.</param>
-function getSequenceValuesOracle(node) {
-    node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
-        null);
-
-    execAjax('/get_sequence_values_oracle/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_schema": null,
-            "p_sequence": node.text
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                node.createChildNode('Minimum Value: ' + p_return.v_data[
-                        i].v_minimum_value, false,
-                    '/static/OmniDB_app/images/bullet_red.png', null,
-                    null);
-                node.createChildNode('Maximum Value: ' + p_return.v_data[
-                        i].v_maximum_value, false,
-                    '/static/OmniDB_app/images/bullet_red.png', null,
-                    null);
-                node.createChildNode('Current Value: ' + p_return.v_data[
-                        i].v_current_value, false,
-                    '/static/OmniDB_app/images/bullet_red.png', null,
-                    null);
-                node.createChildNode('Increment: ' + p_return.v_data[i].v_increment,
-                    false, '/static/OmniDB_app/images/bullet_red.png',
-                    null, null);
 
             }
 

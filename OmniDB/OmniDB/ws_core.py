@@ -33,6 +33,7 @@ import django.contrib.auth
 import django.core.handlers.wsgi
 import django.db
 import tornado.wsgi
+from . import ws_chat
 
 class StoppableThread(threading.Thread):
     def __init__(self,p1,p2,p3):
@@ -51,6 +52,7 @@ class request(IntEnum):
   CancelThread   = 6
   Debug          = 7
   CloseTab       = 8
+  DataMining     = 9
 
 class response(IntEnum):
   LoginResult         = 0
@@ -63,6 +65,7 @@ class response(IntEnum):
   MessageException    = 7
   DebugResponse       = 8
   RemoveContext       = 9
+  DataMiningResult    = 10
 
 class debugState(IntEnum):
   Initial  = 0
@@ -179,7 +182,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                         self.write_message(json.dumps(v_response))
                         return
 
-                    if v_code == request.Query or v_code == request.QueryEditData or v_code == request.SaveEditData:
+                    if v_code == request.Query or v_code == request.QueryEditData or v_code == request.SaveEditData or v_code == request.DataMining:
 
                         #create tab object if it doesn't exist
                         try:
@@ -257,6 +260,24 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                             tab_object['type'] = 'edit'
                             #t.setDaemon(True)
                             t.start()
+                        #Query Data Mining
+                        elif v_code == request.DataMining:
+                            tab_object['tab_db_id'] = v_data['v_tab_db_id']
+                            v_data['v_tab_object'] = tab_object
+                            v_data['v_mode'] = 0
+                            v_data['v_all_data'] = True
+                            v_data['v_sql_cmd'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'], v_data['summarizeResults'])
+                            tab_object['sql_cmd'] = v_data['v_sql_cmd']
+                            t = StoppableThread(thread_query,v_data,self)
+                            tab_object['thread'] = t
+                            tab_object['type'] = 'query'
+                            tab_object['tab_id'] = v_data['v_tab_id']
+                            #t.setDaemon(True)
+                            t.start()
+
+                            #Send Ack Message
+                            v_response['v_code'] = response.QueryAck
+                            self.write_message(json.dumps(v_response))
                     #Debugger
                     elif v_code == request.Debug:
 
@@ -342,6 +363,8 @@ def start_wsserver():
         application = tornado.web.Application([
           (r'/ws', WSHandler),
           (r'/wss',WSHandler),
+          (r'/chatws', ws_chat.WSHandler),
+          (r'/chatwss',ws_chat.WSHandler),
           ('.*', tornado.web.FallbackHandler, dict(fallback=wsgi_app)),
         ])
 
@@ -432,7 +455,7 @@ def thread_query(self,args,ws_object):
     try:
         v_database_index = args['v_db_index']
         v_sql            = args['v_sql_cmd']
-        v_select_value   = args['v_cmd_type']
+        #v_select_value   = args['v_cmd_type']
         v_tab_id         = args['v_tab_id']
         v_tab_object     = args['v_tab_object']
         v_mode           = args['v_mode']

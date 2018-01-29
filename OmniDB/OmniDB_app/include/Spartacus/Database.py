@@ -203,6 +203,16 @@ class DataTable(object):
                     v_row.append(r[c])
                 v_pretty.add_row(v_row)
             return v_pretty.get_string()
+    def Transpose(self, p_column1, p_column2):
+        if len(self.Rows) == 1:
+            v_table = Spartacus.Database.DataTable()
+            v_table.AddColumn(p_column1)
+            v_table.AddColumn(p_column2)
+            for k in len(self.Columns):
+                v_table.AddRow([self.Columns[k], self.Rows[0][k]])
+            return v_table
+        else:
+            raise Spartacus.Database.Exception('Can only transpose a table with a single row.')
 
 class DataField(object):
     def __init__(self, p_name, p_type=None, p_dbtype=None, p_mask='#'):

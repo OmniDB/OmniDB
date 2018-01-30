@@ -55,6 +55,8 @@ urlpatterns = [
     url(r'^indent_sql/', views.workspace.indent_sql, name='indent_sql'),
     url(r'^refresh_monitoring/', views.workspace.refresh_monitoring, name='refresh_monitoring'),
 
+    url(r'^test_ws/', views.workspace.test_ws, name='test_ws'),
+
     #TREE_SNIPPETS
     url(r'^get_node_children/', views.tree_snippets.get_node_children, name='get_node_children'),
     url(r'^get_snippet_text/', views.tree_snippets.get_snippet_text, name='get_snippet_text'),
@@ -133,6 +135,7 @@ urlpatterns = [
     url(r'^get_xl_group_nodes_postgresql/', views.tree_postgresql.get_xl_group_nodes, name='get_xl_group_nodes'),
     url(r'^get_xl_table_properties_postgresql/', views.tree_postgresql.get_xl_table_properties, name='get_xl_table_properties'),
     url(r'^get_xl_table_nodes_postgresql/', views.tree_postgresql.get_xl_table_nodes, name='get_xl_table_nodes'),
+    url(r'^get_properties_postgresql/', views.tree_postgresql.get_properties_postgresql, name='get_properties_postgresql'),
 
     #TREE_ORACLE
     url(r'^get_tree_info_oracle/', views.tree_oracle.get_tree_info, name='get_tree_info'),

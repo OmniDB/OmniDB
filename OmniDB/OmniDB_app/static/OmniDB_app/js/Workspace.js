@@ -30,7 +30,10 @@ $(function () {
 	initCreateTabFunctions();
 
 	v_connTabControl.tag.createSnippetTab();
-	
+
+	//v_connTabControl.tag.createServerMonitoringTab();
+
+
 	if(!gv_desktopMode) {
 		v_connTabControl.tag.createChatTab();
 	}
@@ -209,8 +212,6 @@ function getDatabaseList(p_init, p_callback) {
 				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
 				v_connTabControl.tag.connections = p_return.v_data.v_connections;
 
-				//v_connTabControl.tag.createServerMonitoringTab();
-
 				if (p_init) {
 
 					v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
@@ -373,12 +374,19 @@ $(window).resize(function() {
 });
 
 function refreshTreeHeight() {
-	var v_tree = v_connTabControl.selectedTab.tag.divTree;
+	var v_tag = v_connTabControl.selectedTab.tag;
 
-	if (v_tree) {
-		var v_height  = window.innerHeight - $(v_tree).offset().top - 12;
-		v_tree.style.height = v_height + "px";
+	if (v_tag.currTreeTab=='properties') {
+		var v_height  = window.innerHeight - $(v_tag.divProperties).offset().top - 21;
+		v_tag.divProperties.style.height = v_height + "px";
+		v_tag.gridProperties.render();
+		v_tag.gridProperties.render();
 	}
+	else if (v_tag.currTreeTab=='ddl') {
+		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 21;
+		v_tag.divDDL.style.height = v_height + "px";
+	}
+
 }
 
 function refreshHeights(p_all) {
@@ -765,7 +773,7 @@ function resizeHorizontalEnd(event) {
 		else if (v_tab_tag.mode=='alter') {
 	        v_tab_tag.tabControl.selectedTab.tag.ht.render();
 		}
-		else if(v_tab.tag.mode == 'data_mining') {
+		else if(v_tab_tag.mode == 'data_mining') {
 			if(v_tab_tag.currQueryTab == 'data') {
 				if(v_tab_tag.ht != null) {
 					v_tab_tag.ht.render();
@@ -773,6 +781,16 @@ function resizeHorizontalEnd(event) {
 			}
 		}
 
+	}
+
+	if (v_connTabControl.selectedTab.tag.TreeTabControl!=null) {
+		var v_conn_tab_tag = v_connTabControl.selectedTab.tag;
+		if (v_conn_tab_tag.currTreeTab=='properties') {
+			var v_height  = window.innerHeight - $(v_conn_tab_tag.divProperties).offset().top - 21;
+			v_conn_tab_tag.divProperties.style.height = v_height + "px";
+			v_conn_tab_tag.gridProperties.render();
+			v_conn_tab_tag.gridProperties.render();
+		}
 	}
 
 }

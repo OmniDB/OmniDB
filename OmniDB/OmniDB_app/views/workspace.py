@@ -1759,3 +1759,25 @@ def refresh_monitoring(request):
         return JsonResponse(v_return)
 
     return JsonResponse(v_return)
+
+import time
+
+def test_ws(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    time.sleep(10)
+
+    return JsonResponse(v_return)

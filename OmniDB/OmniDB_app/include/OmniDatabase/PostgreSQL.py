@@ -2767,6 +2767,7 @@ TO NODE ( nodename [, ... ] )
         return self.v_connection.Query('''
             select d.datname as "Database",
                    r.rolname as "Owner",
+                   pg_size_pretty(pg_database_size(d.oid)) as "Size",
                    pg_encoding_to_char(d.encoding) as "Encoding",
                    d.datcollate as "LC_COLLATE",
                    d.datctype as "LC_CTYPE",
@@ -2924,9 +2925,6 @@ TO NODE ( nodename [, ... ] )
               and c.relname = '{1}'
         '''.format(p_schema, p_object))
 
-    def GetDDL(self, p_schema, p_object, p_type):
-        return ''
-
     def GetProperties(self, p_schema, p_object, p_type):
         if p_type == 'role':
             return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
@@ -2954,3 +2952,6 @@ TO NODE ( nodename [, ... ] )
             return self.GetPropertiesTriggerFunction(p_schema, p_object).Transpose('Property', 'Value')
         else:
             return None
+
+    def GetDDL(self, p_schema, p_object, p_type):
+        return ''

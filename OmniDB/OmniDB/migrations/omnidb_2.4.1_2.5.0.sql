@@ -1,5 +1,4 @@
 UPDATE db_type SET dbt_in_enabled = 1 WHERE dbt_st_name = 'oracle';--omnidb--
-UPDATE version SET ver_id = '2.5.0';--omnidb--
 
 ALTER TABLE users
 ADD COLUMN stc_in_code integer;--omnidb--
@@ -96,6 +95,11 @@ CREATE TABLE users_channels (
     constraint users_channels_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
     constraint users_channels_fk_1 foreign key (cha_in_code) references channels (cha_in_code)  on update CASCADE  on delete CASCADE
 );--omnidb--
+INSERT INTO users_channels (use_in_code, cha_in_code, usc_bo_silenced)
+SELECT user_id as use_in_code,
+       1 as cha_in_code,
+       0 as usc_bo_silenced
+from users;--omnidb--
 
 CREATE TABLE users_groups (
     use_in_code integer not null,
@@ -118,7 +122,7 @@ SELECT a.user_id AS user_id_a,
        b.user_id AS user_id_b
 FROM users a
 INNER JOIN users b ON 1 = 1
-WHERE b.user_id <> a.user_id;--omnidb--
+WHERE b.user_id < a.user_id;--omnidb--
 
 INSERT INTO groups (gro_in_code)
 SELECT group_id
@@ -132,3 +136,5 @@ SELECT user_id_b, group_id, 0
 FROM user_group_tmp;--omnidb--
 
 DROP TABLE user_group_tmp;--omnidb--
+
+UPDATE version SET ver_id = '2.5.0';--omnidb--

@@ -2733,34 +2733,6 @@ TO NODE ( nodename [, ... ] )
     def TemplateXLAlterTableDeleteNode(self):
         return Template('ALTER TABLE #table_name# DELETE NODE (#node_name#)')
 
-    def GetProperties(self, p_schema, p_object, p_type):
-        if p_type == 'role':
-            return GetPropertiesRole(p_object).Transpose('Property', 'Value')
-        elif p_type == 'tablespace':
-            return GetPropertiesTablespace(p_object).Transpose('Property', 'Value')
-        elif p_type == 'database':
-            return GetPropertiesDatabase(p_object).Transpose('Property', 'Value')
-        elif p_type == 'schema':
-            return GetPropertiesSchema(p_object).Transpose('Property', 'Value')
-        elif p_type == 'table':
-            return GetPropertiesTable(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'index':
-            return GetPropertiesIndex(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'sequence':
-            return GetPropertiesSequence(p_schema, p_object)
-        elif p_type == 'view':
-            return GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'mview':
-            return GetPropertiesMaterializedView(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'function':
-            return GetPropertiesFunction(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'trigger':
-            return GetPropertiesTrigger(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'triggerfunction':
-            return GetPropertiesTriggerFunction(p_schema, p_object).Transpose('Property', 'Value')
-        else:
-            return None
-
     def GetPropertiesRole(self, p_object):
         return self.v_connection.Query('''
             select rolname as "Role",
@@ -2954,3 +2926,31 @@ TO NODE ( nodename [, ... ] )
 
     def GetDDL(self, p_schema, p_object, p_type):
         return ''
+
+    def GetProperties(self, p_schema, p_object, p_type):
+        if p_type == 'role':
+            return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
+        elif p_type == 'tablespace':
+            return self.GetPropertiesTablespace(p_object).Transpose('Property', 'Value')
+        elif p_type == 'database':
+            return self.GetPropertiesDatabase(p_object).Transpose('Property', 'Value')
+        elif p_type == 'schema':
+            return self.GetPropertiesSchema(p_object).Transpose('Property', 'Value')
+        elif p_type == 'table':
+            return self.GetPropertiesTable(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'index':
+            return self.GetPropertiesIndex(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'sequence':
+            return self.GetPropertiesSequence(p_schema, p_object)
+        elif p_type == 'view':
+            return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'mview':
+            return self.GetPropertiesMaterializedView(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'function':
+            return self.GetPropertiesFunction(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'trigger':
+            return self.GetPropertiesTrigger(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'triggerfunction':
+            return self.GetPropertiesTriggerFunction(p_schema, p_object).Transpose('Property', 'Value')
+        else:
+            return None

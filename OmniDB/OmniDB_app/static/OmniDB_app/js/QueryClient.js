@@ -58,6 +58,7 @@ function startQueryWebSocket(p_port) {
 	var v_address = '';
 	var v_channel = '';
 
+
 	if (v_is_secure) {
 		v_address = 'wss://' + window.location.hostname;
 		v_channel = 'wss';

@@ -180,7 +180,7 @@ def get_tree_info(request):
 
     return JsonResponse(v_return)
 
-def get_properties_postgresql(request):
+def get_properties(request):
 
     v_return = {}
     v_return['v_data'] = ''

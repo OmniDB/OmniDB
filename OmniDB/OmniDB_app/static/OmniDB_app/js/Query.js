@@ -47,7 +47,9 @@ function cancelSQLTab(p_tab_tag) {
 	else
 		v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setReadOnly(false);
+	if(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor) {
+		v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setReadOnly(false);
+	}
 
 	v_tab_tag.state = v_queryState.Idle;
 	v_tab_tag.tab_loading_span.style.display = 'none';
@@ -104,7 +106,9 @@ function querySQL(p_mode,
 				v_log_query: p_log_query
 			}
 
-			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setReadOnly(true);
+			if(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor) {
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setReadOnly(true);
+			}
 
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state = v_queryState.Executing;
 
@@ -199,7 +203,9 @@ function querySQLReturnRender(p_message,p_context) {
 	p_context.tab_tag.context = null;
 	p_context.tab_tag.data = null;
 
-	p_context.tab_tag.editor.setReadOnly(false);
+	if(p_context.tab_tag.editor) {
+		p_context.tab_tag.editor.setReadOnly(false);
+	}
 
 	var v_div_result = p_context.tab_tag.div_result;
 	var v_query_info = p_context.tab_tag.query_info;
@@ -210,15 +216,20 @@ function querySQLReturnRender(p_message,p_context) {
 	}
 	else {
 		p_context.tab_tag.selectDataTabFunc();
-		p_context.tab_tag.div_count_notices.style.display = 'none';
+
+		if(p_context.tab_tag.div_count_notices) {
+			p_context.tab_tag.div_count_notices.style.display = 'none';
+		}
 
 		if (p_message.v_error) {
 
 			v_div_result.innerHTML = '<div class="error_text">' + p_message.v_data.message + '</div>';
 			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 			if (p_message.v_data.position!=null) {
-				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(p_message.v_data.position.row,p_message.v_data.position.col)
-				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.textInput.focus()
+				if(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor) {
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(p_message.v_data.position.row,p_message.v_data.position.col)
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.textInput.focus()
+				}
 			}
 
 		}
@@ -238,19 +249,31 @@ function querySQLReturnRender(p_message,p_context) {
 				var v_data = p_message.v_data;
 
 				if (v_data.v_notices_length>0) {
-					p_context.tab_tag.div_count_notices.innerHTML = v_data.v_notices_length;
-					p_context.tab_tag.div_count_notices.style.display = 'inline-block';
-					p_context.tab_tag.div_notices.innerHTML = v_data.v_notices;
+					if(p_context.tab_tag.div_count_notices) {
+						p_context.tab_tag.div_count_notices.innerHTML = v_data.v_notices_length;
+						p_context.tab_tag.div_count_notices.style.display = 'inline-block';
+						p_context.tab_tag.div_notices.innerHTML = v_data.v_notices;
+					}
 				}
 
 				//Show fetch buttons if data has 50 rows
 				if (v_data.v_data.length>=50 && p_context.mode!=2) {
-					p_context.tab_tag.bt_fetch_more.style.display = '';
-					p_context.tab_tag.bt_fetch_all.style.display = '';
+					if(p_context.tab_tag.bt_fetch_more) {
+						p_context.tab_tag.bt_fetch_more.style.display = '';
+					}
+
+					if(p_context.tab_tag.bt_fetch_all) {
+						p_context.tab_tag.bt_fetch_all.style.display = '';
+					}
 				}
 				else {
-					p_context.tab_tag.bt_fetch_more.style.display = 'none';
-					p_context.tab_tag.bt_fetch_all.style.display = 'none';
+					if(p_context.tab_tag.bt_fetch_more) {
+						p_context.tab_tag.bt_fetch_more.style.display = 'none';
+					}
+
+					if(p_context.tab_tag.bt_fetch_all) {
+						p_context.tab_tag.bt_fetch_all.style.display = 'none';
+					}
 				}
 
 				if (p_context.mode==0) {

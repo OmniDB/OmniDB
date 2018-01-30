@@ -30,6 +30,10 @@ $(function () {
 	initCreateTabFunctions();
 
 	v_connTabControl.tag.createSnippetTab();
+	
+	if(!gv_desktopMode) {
+		v_connTabControl.tag.createChatTab();
+	}
 
 	getDatabaseList(true);
 
@@ -389,7 +393,7 @@ function refreshHeights(p_all) {
 	}
 
 	//If inner tab exists
-	if (v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
+	if (v_connTabControl.selectedTab.tag.tabControl != null && v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
 		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 		//Snippet tab, adjust editor only
@@ -496,12 +500,21 @@ function refreshHeights(p_all) {
 				}
 			}
 		}
+		else if(v_tab_tag.mode == 'data_mining') {
+			if(v_tab_tag.currQueryTab == 'data') {
+				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+
+				if(v_tab_tag.ht != null) {
+					v_tab_tag.ht.render();
+				}
+			}
+			else if(v_tab_tag.currQueryTab == 'message') {
+				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+			}
+		}
 	}
 
 }
-
-
-
 
 /// <summary>
 /// Resize SQL editor and result div.
@@ -553,7 +566,9 @@ function resizeVerticalEnd(event) {
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	v_tab_tag.editor.resize();
+	if(v_tab_tag.editor != null) {
+		v_tab_tag.editor.resize();
+	}
 
 	if (v_tab_tag.mode=='query') {
 		if (v_tab_tag.currQueryTab=='data') {
@@ -597,6 +612,18 @@ function resizeVerticalEnd(event) {
 	else if (v_tab_tag.mode=='edit') {
 		if (v_tab_tag.editDataObject.ht!=null) {
 			v_tab_tag.editDataObject.ht.render();
+		}
+	}
+	else if(v_tab_tag.mode == 'data_mining') {
+		if(v_tab_tag.currQueryTab == 'data') {
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+
+			if(v_tab_tag.ht != null) {
+				v_tab_tag.ht.render();
+			}
+		}
+		else if(v_tab_tag.currQueryTab == 'message') {
+			v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
 		}
 	}
 }
@@ -737,6 +764,13 @@ function resizeHorizontalEnd(event) {
 		}
 		else if (v_tab_tag.mode=='alter') {
 	        v_tab_tag.tabControl.selectedTab.tag.ht.render();
+		}
+		else if(v_tab.tag.mode == 'data_mining') {
+			if(v_tab_tag.currQueryTab == 'data') {
+				if(v_tab_tag.ht != null) {
+					v_tab_tag.ht.render();
+				}
+			}
 		}
 
 	}

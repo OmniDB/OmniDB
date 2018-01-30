@@ -289,7 +289,7 @@ class Generic(ABC):
     def Open(self, p_autocommit=True):
         pass
     @abstractmethod
-    def Query(self, p_sql, p_alltypesstr=False):
+    def Query(self, p_sql, p_alltypesstr=False, p_simple=False):
         pass
     @abstractmethod
     def Execute(self, p_sql):
@@ -322,7 +322,7 @@ class Generic(ABC):
     def GetStatus(self):
         pass
     @abstractmethod
-    def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
+    def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         pass
     @abstractmethod
     def InsertBlock(self, p_block, p_tablename, p_fields=None):
@@ -940,7 +940,7 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Query(self, p_sql, p_alltypesstr=False):
+    def Query(self, p_sql, p_alltypesstr=False, p_simple=False):
         try:
             v_keep = None
             if self.v_con is None:
@@ -1141,7 +1141,7 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
+    def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
@@ -1314,7 +1314,7 @@ class MySQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Query(self, p_sql, p_alltypesstr=False):
+    def Query(self, p_sql, p_alltypesstr=False, p_simple=False):
         try:
             v_keep = None
             if self.v_con is None:
@@ -1454,7 +1454,7 @@ class MySQL(Generic):
         pass
     def GetStatus(self):
         return None
-    def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
+    def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
@@ -1556,7 +1556,7 @@ class MariaDB(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Query(self, p_sql, p_alltypesstr=False):
+    def Query(self, p_sql, p_alltypesstr=False, p_simple=False):
         try:
             v_keep = None
             if self.v_con is None:
@@ -1696,7 +1696,7 @@ class MariaDB(Generic):
         pass
     def GetStatus(self):
         return None
-    def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False):
+    def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')

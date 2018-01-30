@@ -1083,3 +1083,7 @@ iframe {
 }
 
 .ddChild, .ddChild ul {height:auto !important; max-height: 200px !important;}
+
+h2 {
+  margin: 0px;
+}

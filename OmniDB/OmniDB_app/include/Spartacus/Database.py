@@ -208,7 +208,7 @@ class DataTable(object):
             v_table = Spartacus.Database.DataTable()
             v_table.AddColumn(p_column1)
             v_table.AddColumn(p_column2)
-            for k in len(self.Columns):
+            for k in range(len(self.Columns)):
                 v_table.AddRow([self.Columns[k], self.Rows[0][k]])
             return v_table
         else:

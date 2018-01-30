@@ -56,7 +56,7 @@ function startQueryWebSocket(p_port) {
 	var v_address = '';
 
 	if (v_is_secure)
-		v_address = 'wss://' + window.location.hostname;
+		v_address = 'ws://' + window.location.hostname;
 	else
 		v_address = 'ws://' + window.location.hostname;
 

@@ -55,6 +55,8 @@ urlpatterns = [
     url(r'^indent_sql/', views.workspace.indent_sql, name='indent_sql'),
     url(r'^refresh_monitoring/', views.workspace.refresh_monitoring, name='refresh_monitoring'),
 
+    url(r'^test_ws/', views.workspace.test_ws, name='test_ws'),
+
     #TREE_SNIPPETS
     url(r'^get_node_children/', views.tree_snippets.get_node_children, name='get_node_children'),
     url(r'^get_snippet_text/', views.tree_snippets.get_snippet_text, name='get_snippet_text'),

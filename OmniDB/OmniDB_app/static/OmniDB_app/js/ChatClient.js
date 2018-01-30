@@ -374,8 +374,6 @@ function startChatWebSocket(p_port) {
                 return;
             }
 
-            console.log(p_message);
-
             switch(p_message.v_code) {
                 case v_chatResponseCodes.LoginResult: {
                     chatLoginResult(p_message.v_data);
@@ -497,7 +495,6 @@ function startChatWebSocket(p_port) {
             }
         },
         function(p_event) {//Error
-            console.log(p_event);
             updateChatConnectionStatus('red', true);
         },
         v_channel

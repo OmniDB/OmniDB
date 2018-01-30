@@ -23,7 +23,6 @@ SOFTWARE.*/
 .popup-container {
 	position: absolute;
 	border-radius: 4px;
-    font-family: lato-lite;
 }
 
 .popup-header {
@@ -78,10 +77,7 @@ SOFTWARE.*/
 }
 
 .active-popup {
-	/*background: rgba(225, 225, 225, 1.0);*/
 	background: #f2f2f2;
-	border: 2px solid rgba(0, 0, 0, 0.5);
-	box-shadow: 0 0 15px #115898;
 }
 
 .inactive-popup {

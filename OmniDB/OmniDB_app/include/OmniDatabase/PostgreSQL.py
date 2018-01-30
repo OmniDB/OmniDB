@@ -2756,7 +2756,7 @@ TO NODE ( nodename [, ... ] )
             return GetPropertiesFunction(p_schema, p_object).Transpose('Property', 'Value')
         elif p_type == 'trigger':
             return GetPropertiesTrigger(p_schema, p_object).Transpose('Property', 'Value')
-    elif p_type == 'triggerfunction':
+        elif p_type == 'triggerfunction':
             return GetPropertiesTriggerFunction(p_schema, p_object).Transpose('Property', 'Value')
         else:
             return None

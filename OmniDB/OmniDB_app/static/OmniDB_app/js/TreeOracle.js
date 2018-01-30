@@ -1270,6 +1270,10 @@ function getTreeOracle(p_div) {
         refreshTreeOracle(node);
     }
 
+    tree.clickNodeEvent = function(node) {
+      getPropertiesOracle(node);
+    }
+
     var node_server = tree.createNode('Oracle', false,
         '/static/OmniDB_app/images/oracle_medium.png', null, {
             type: 'server'
@@ -1279,6 +1283,25 @@ function getTreeOracle(p_div) {
     tree.drawTree();
 
 
+}
+
+/// <summary>
+/// Retrieving properties.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPropertiesOracle(node) {
+    if (node.tag != undefined)
+      if (node.tag.type == 'table') {
+        getProperties('/get_properties_oracle/',
+          {
+            p_schema: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      }
+      else {
+        clearProperties();
+      }
 }
 
 /// <summary>

@@ -2988,7 +2988,11 @@ function getTreePostgresql(p_div) {
     var tree = createTree(p_div, '#fcfdfd', context_menu);
 
     tree.nodeAfterOpenEvent = function(node) {
-        refreshTreePostgresql(node);
+      refreshTreePostgresql(node);
+    }
+
+    tree.clickNodeEvent = function(node) {
+      getPropertiesPostgresql(node);
     }
 
     var node_server = tree.createNode('PostgreSQL', false,
@@ -3000,6 +3004,33 @@ function getTreePostgresql(p_div) {
     tree.drawTree();
 
 
+}
+
+/// <summary>
+/// Retrieving properties.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPropertiesPostgresql(node) {
+    if (node.tag != undefined)
+      if (node.tag.type == 'table') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      }
+      else if (node.tag.type == 'sequence') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      }
+      else {
+        clearProperties();
+      }
 }
 
 /// <summary>
@@ -3729,6 +3760,7 @@ function getTablesPostgresql(node) {
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         has_partitions: p_return.v_data[i].v_has_partitions
                     }, 'cm_table');
+
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
                         type: 'table_field'

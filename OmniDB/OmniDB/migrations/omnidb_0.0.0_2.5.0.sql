@@ -611,6 +611,11 @@ CREATE TABLE users_channels (
     constraint users_channels_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
     constraint users_channels_fk_1 foreign key (cha_in_code) references channels (cha_in_code)  on update CASCADE  on delete CASCADE
 );--omnidb--
+INSERT INTO users_channels (use_in_code, cha_in_code, usc_bo_silenced)
+SELECT user_id as use_in_code,
+       1 as cha_in_code,
+       0 as usc_bo_silenced
+from users;--omnidb--
 
 CREATE TABLE users_groups (
     use_in_code integer not null,

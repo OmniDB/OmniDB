@@ -46,10 +46,21 @@ function initCreateTabFunctions() {
     	"<div style='padding-right: 12px;'><div id='" + v_tab.id + "_div_select_db' style='width: 100%; display: inline-block;'></div>" +
     	"</div>" +
     	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
-    	"<div style='width: 97%;'><div id='" + v_tab.id + "_tree' style='margin-top: 10px; overflow: auto;'></div>" +
-    	"</div>" +
-    	"<div id='html1'>" +
-    	"</div>" +
+    	"<div style='margin-right: 10px;'><div id='" + v_tab.id + "_tree' style='margin-top: 10px; overflow: auto; height: 50%;'></div>" +
+      "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+      "<div id='tree_tabs_" + v_tab.id + "'>" +
+      "<ul>" +
+      "<li id='tree_tabs_" + v_tab.id + "_tab1'>Properties</li>" +
+      "<li id='tree_tabs_" + v_tab.id + "_tab2'>DDL</li>" +
+      "</ul>" +
+      "<div id='div_tree_tabs_" + v_tab.id + "_tab1'>" +
+      "<div id='" + v_tab.id + "_properties' class='query_result' style='width: 100%; overflow: auto;'></div>" +
+      "</div>" +
+      "<div id='div_tree_tabs_" + v_tab.id + "_tab2'>" +
+      "<div id='" + v_tab.id + "_ddl' style='width: 100%; line-height: 16px; user-select: initial;'></div>" +
+      "</div>" +
+      "</div>" +
+      "</div>" +
     	"</div>" +
     	"<div id='" + v_tab.id + "_div_right' class='div_right' style='float:left; width:80%;'>" +
     	"<div id='" + v_tab.id + "_tabs'>" +
@@ -91,27 +102,93 @@ function initCreateTabFunctions() {
     	var v_div = document.getElementById('div_' + v_tab.id);
     	v_div.innerHTML = v_html;
 
-    	var v_height  = window.innerHeight - $('#' + v_tab.id + '_tree').offset().top - 60;
-    	document.getElementById(v_tab.id + '_tree').style.height = v_height + "px";
+      var v_treeTabs = createTabControl('tree_tabs_' + v_tab.id,0,null);
+      v_treeTabs.selectTabIndex(0);
 
     	var v_currTabControl = createTabControl(v_tab.id + '_tabs',0,null);
 
     	v_currTabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
 
+      //Properties Grid
+      var v_divProperties = document.getElementById(v_tab.id + '_properties');
+
+      var columnProperties = [];
+
+      var col = new Object();
+      col.title =  'Property';
+      col.readOnly = true;
+      columnProperties.push(col);
+
+      var col = new Object();
+      col.title =  'Value';
+      col.readOnly = true;
+      columnProperties.push(col);
+
+      var ht = new Handsontable(v_divProperties,
+                          {
+                            data: [],
+                            columns : columnProperties,
+                            colHeaders : true,
+                            stretchH: 'all',
+                            autoColumnSize : true,
+                            manualColumnResize: false,
+                            minSpareCols :0,
+                            minSpareRows :0,
+                            fillHandle:false,
+                            cells: function (row, col, prop) {
+
+                              var cellProperties = {};
+
+                              if (row % 2 == 0)
+                                cellProperties.renderer = blueHtmlRenderer;
+                              else
+                                cellProperties.renderer =whiteHtmlRenderer;
+
+
+                              return cellProperties;
+
+                            }
+                          });
+
     	var v_tag = {
     		tabControl: v_currTabControl,
         tabTitle: v_tab_title_span,
     		divTree: document.getElementById(v_tab.id + '_tree'),
+        divProperties: v_divProperties,
+        gridProperties: ht,
+        divDDL: document.getElementById(v_tab.id + '_ddl'),
     		divLeft: document.getElementById(v_tab.id + '_div_left'),
     		divRight: document.getElementById(v_tab.id + '_div_right'),
         divSelectDB: document.getElementById(v_tab.id + '_div_select_db'),
     		selectedDatabaseIndex: 0,
     		connTabControl: v_connTabControl,
         mode: 'connection',
-        firstTimeOpen: true
+        firstTimeOpen: true,
+        TreeTabControl: v_treeTabs,
+        currTreeTab: null,
     	};
 
     	v_tab.tag = v_tag;
+
+      var v_selectPropertiesTabFunc = function() {
+  			v_treeTabs.selectTabIndex(0);
+        v_tag.currTreeTab = 'properties';
+        refreshTreeHeight();
+  		}
+
+      var v_selectDDLTabFunc = function() {
+  			v_treeTabs.selectTabIndex(1);
+        v_tag.currTreeTab = 'ddl';
+        refreshTreeHeight();
+  		}
+
+      v_tag.selectPropertiesTabFunc    = v_selectPropertiesTabFunc;
+      v_tag.selectDDLTabFunc = v_selectDDLTabFunc;
+
+      v_treeTabs.tabList[0].elementLi.onclick = v_selectPropertiesTabFunc;
+  		v_treeTabs.tabList[1].elementLi.onclick = v_selectDDLTabFunc;
+
+      v_selectPropertiesTabFunc();
 
       if (p_create_query_tab)
     	 v_connTabControl.tag.createQueryTab();
@@ -302,30 +379,175 @@ function initCreateTabFunctions() {
 			closeSnippetTab(v_tab);
 		};
 
-		var v_html = "<div style='height: 100%;'>" +
-    "<div>Node name: <input type='text' id='txt_snippet_" + v_tab.id + "' /></div>" +
-    "<div style='padding-right: 12px;'><div id='" + v_tab.id + "_div_select_db' style='width: 100%; display: inline-block;'></div>" +
+		var v_html = "<div><h2>Connection</h2>" +
+    "<div id='conn_grid_" + v_tab.id + "' style='width: 100%; height: 50px; overflow: auto;'></div>" +
+    "<h2 style='margin-top: 10px;'>Units</h2>" +
+    "<div id='alert_grid_" + v_tab.id + "' style='width: 100%; height: 200px; overflow: auto;'></div>" +
 		"<button id='bt_save_" + v_tab.id + "' class='bt_execute' title='Save' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='saveSnippetText();'><img src='/static/OmniDB_app/images/save.png' style='vertical-align: middle;'/></button>" +
     "</div>";
 		var v_div = document.getElementById('div_' + v_tab.id);
 		v_div.innerHTML = v_html;
 
-    var v_div_select_db = document.getElementById(v_tab.id + '_div_select_db');
-  	v_div_select_db.innerHTML = v_connTabControl.tag.selectHTML;
-    //v_div_select_db.childNodes[0].childNodes[v_index].selected=true
-  	$(v_div_select_db.childNodes[0]).msDropDown();
+    var columnProperties = [];
 
-    var v_txt_snippet = document.getElementById('txt_snippet_' + v_tab.id);
+    var col = new Object();
+    col.title =  'Technology';
+    col.type = 'dropdown';
+    col.source = ['test'];
+    columnProperties.push(col);
 
+    var col = new Object();
+    col.title =  'Server';
+    columnProperties.push(col);
 
-		var v_tag = {
-			tab_id: v_tab.id,
-			mode: 'monitor_node',
-			tab_title_span : v_tab_title_span,
-			tab_close_span : v_tab_close_span,
+    var col = new Object();
+    col.title =  'Port';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Database';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'User';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Title';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Actions';
+    col.renderer = 'html';
+    col.readOnly = true;
+    col.width = '60'
+    columnProperties.push(col);
+
+    var v_div_result_conn = document.getElementById('conn_grid_' + v_tab.id);
+
+    var ht_conn = new Handsontable(v_div_result_conn,
+                        {
+                          data: [['','','','','','',"<img title='Test Connection' src='/static/OmniDB_app/images/test.png' class='img_ht' onclick='pmonTestConnection()'/>"]],
+                          columns : columnProperties,
+                          colHeaders : true,
+                          manualColumnResize: true,
+                          minSpareCols :0,
+                          minSpareRows :0,
+                          fillHandle:false,
+                          cells: function (row, col, prop) {
+
+                            var cellProperties = {};
+                            cellProperties.renderer = whiteHtmlRenderer;
+
+                            return cellProperties;
+
+                          }
+                        });
+
+    var columnProperties = [];
+
+    var col = new Object();
+    col.title =  'Name';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Description';
+    col.width = '300px';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Enabled';
+    col.type = 'checkbox';
+    col.checkedTemplate = '1';
+    col.uncheckedTemplate = '0';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Interval';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Timeout';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Min Value';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Max Value';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Status';
+    col.readOnly = true;
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Acknowledge';
+    col.type = 'checkbox';
+    col.checkedTemplate = '1';
+    col.uncheckedTemplate = '0';
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Last Received Data';
+    col.readOnly = true;
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Monitor Count';
+    col.readOnly = true;
+    columnProperties.push(col);
+
+    var col = new Object();
+    col.title =  'Actions';
+    col.renderer = 'html';
+    col.readOnly = true;
+    col.width = '60px';
+    columnProperties.push(col);
+
+    var v_div_result_alert = document.getElementById('alert_grid_' + v_tab.id);
+
+    var ht_alert = new Handsontable(v_div_result_alert,
+                        {
+                          data: [['','',0,'','','','','',0,'','',''],
+                        ['','',0,'','','','','',0,'','',''],
+                      ['','',0,'','','','','',0,'','',''],
+                    ['','',0,'','','','','',0,'','','']],
+                          columns : columnProperties,
+                          colHeaders : true,
+                          manualColumnResize: true,
+                          minSpareCols :0,
+                          minSpareRows :0,
+                          fillHandle:false,
+                          cells: function (row, col, prop) {
+
+                            var cellProperties = {};
+                            if (row % 2 == 0)
+                              cellProperties.renderer = blueHtmlRenderer;
+
+                            if (col == 7)
+                              cellProperties.renderer = monitorStatusRenderer;
+
+                            if (col == 9 || col == 10 || col == 11)
+                              cellProperties.renderer = grayHtmlRenderer;
+
+                            return cellProperties;
+
+                          }
+                        });
+
+    var v_tag = {
+    	tab_id: v_tab.id,
+    	mode: 'monitor_node',
+    	tab_title_span : v_tab_title_span,
+    	tab_close_span : v_tab_close_span,
       bt_save: document.getElementById('bt_save_' + v_tab.id),
-			tabControl: v_connTabControl.selectedTab.tag.tabControl,
-		};
+      conn_grid_did: v_div_result_conn,
+      conn_grid: ht_conn,
+    	tabControl: v_connTabControl.selectedTab.tag.tabControl,
+    };
 
 		v_tab.tag = v_tag;
 

@@ -48,12 +48,14 @@ function initCreateTabFunctions() {
     	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
     	"<div style='margin-right: 10px;'><div id='" + v_tab.id + "_tree' style='margin-top: 10px; overflow: auto; height: 50%;'></div>" +
       "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
-      "<div id='tree_tabs_" + v_tab.id + "'>" +
+
+      "<div id='tree_tabs_" + v_tab.id + "' style='position: relative;'>" +
+      "<div id='" + v_tab.id + "_loading' class='div_loading_local' style='z-index: 1000;'></div>" +
       "<ul>" +
       "<li id='tree_tabs_" + v_tab.id + "_tab1'>Properties</li>" +
       "<li id='tree_tabs_" + v_tab.id + "_tab2'>DDL</li>" +
       "</ul>" +
-      "<div id='div_tree_tabs_" + v_tab.id + "_tab1'>" +
+      "<div id='div_tree_tabs_" + v_tab.id + "_tab1' style='position: relative;'>" +
       "<div id='" + v_tab.id + "_properties' class='query_result' style='width: 100%; overflow: auto;'></div>" +
       "</div>" +
       "<div id='div_tree_tabs_" + v_tab.id + "_tab2'>" +
@@ -135,6 +137,16 @@ function initCreateTabFunctions() {
                             minSpareCols :0,
                             minSpareRows :0,
                             fillHandle:false,
+                            contextMenu: {
+                  						callback: function (key, options) {
+                  							if (key === 'view_data') {
+                  							  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+                  							}
+                  						},
+                  						items: {
+                  							"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+                  						}
+                				    },
                             cells: function (row, col, prop) {
 
                               var cellProperties = {};
@@ -156,7 +168,9 @@ function initCreateTabFunctions() {
     		divTree: document.getElementById(v_tab.id + '_tree'),
         divProperties: v_divProperties,
         gridProperties: ht,
+        gridPropertiesCleared: true,
         divDDL: document.getElementById(v_tab.id + '_ddl'),
+        divLoading: document.getElementById(v_tab.id + '_loading'),
     		divLeft: document.getElementById(v_tab.id + '_div_left'),
     		divRight: document.getElementById(v_tab.id + '_div_right'),
         divSelectDB: document.getElementById(v_tab.id + '_div_select_db'),
@@ -283,6 +297,32 @@ function initCreateTabFunctions() {
       refreshTreeHeight();
     },10);
 
+  }
+
+  var v_createChatTabFunction = function() {
+
+  	var v_tab = v_connTabControl.createTab(
+        '<img style="width: 16px; height: 16px;" src="/static/OmniDB_app/images/icons/header_chat_icon_inactive.png"/> Chat',
+        false,
+        null,
+        null,
+        null,
+        null,
+        true,
+        null
+    );
+
+  	v_connTabControl.selectTab(v_tab);
+
+  	var v_div = document.getElementById('div_' + v_tab.id);
+  	v_div.innerHTML = '';
+
+  	var v_tag = {
+  		connTabControl: v_connTabControl,
+        mode: 'chat'
+  	};
+
+    v_tab.tag = v_tag;
   }
 
   var v_createServerMonitoringTabFunction = function() {
@@ -1875,6 +1915,7 @@ function initCreateTabFunctions() {
   //Functions to create tabs globally
   v_connTabControl.tag.createConnTab = v_createConnTabFunction;
   v_connTabControl.tag.createSnippetTab = v_createSnippetTabFunction;
+  v_connTabControl.tag.createChatTab = v_createChatTabFunction;
   v_connTabControl.tag.createServerMonitoringTab = v_createServerMonitoringTabFunction;
 
   //Functions to create tabs inside snippet tab

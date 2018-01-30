@@ -136,7 +136,7 @@ if __name__ == "__main__":
                       help="databases maintenance")
     parser.add_option("-r", "--resetdatabase", dest="reset",
                       default=False,action="store_true",
-                      help="reset user and Django databases")
+                      help="reset chat, user and Django databases")
     (options, args) = parser.parse_args()
 
     if len(sys.argv[1:])==0:
@@ -148,8 +148,8 @@ if __name__ == "__main__":
         try:
             value = input('Would you like to continue? (y/n) ')
             if value.lower()=='y':
-                clean_users()
                 clean_chat()
+                clean_users()
                 clean_sessions()
                 vacuum()
                 create_superuser('admin', 'admin')

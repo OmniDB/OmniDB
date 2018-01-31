@@ -3071,7 +3071,7 @@ function getPropertiesPostgresql(node) {
         getProperties('/get_properties_postgresql/',
           {
             p_schema: node.parent.parent.text,
-            p_object: node.text,
+            p_object: node.tag.id,
             p_type: node.tag.type
           });
       } else if (node.tag.type == 'trigger') {
@@ -3085,7 +3085,7 @@ function getPropertiesPostgresql(node) {
         getProperties('/get_properties_postgresql/',
           {
             p_schema: node.parent.parent.text,
-            p_object: node.text,
+            p_object: node.tag.id,
             p_type: node.tag.type
           });
       } else {

@@ -7,7 +7,7 @@ INSERT INTO db_type VALUES('sqlite',0);--omnidb--
 INSERT INTO db_type VALUES('mysql',0);--omnidb--
 INSERT INTO db_type VALUES('postgresql',1);--omnidb--
 INSERT INTO db_type VALUES('firebird',0);--omnidb--
-INSERT INTO db_type VALUES('oracle',0);--omnidb--
+INSERT INTO db_type VALUES('oracle',1);--omnidb--
 INSERT INTO db_type VALUES('sqlserver',0);--omnidb--
 INSERT INTO db_type VALUES('access',0);--omnidb--
 INSERT INTO db_type VALUES('sqlce',0);--omnidb--
@@ -394,7 +394,7 @@ CREATE TABLE users (user_id integer not null,
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)
 );--omnidb--
-INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'0c4a137f-9918-4c0b-af45-480deef6f760', 1, 0);--omnidb--
+INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'0c4a137f-9918-4c0b-af45-480deef6f760',1,0);--omnidb--
 
 CREATE TABLE snippets_nodes (
     sn_id integer not null,
@@ -549,10 +549,10 @@ CREATE TABLE messages_types (
     constraint pk_messages_types primary key (met_in_code)
 );--omnidb--
 INSERT INTO messages_types VALUES(1, 'Plain Text');--omnidb--
-INSERT INTO messages_types VALUES(1, 'Pasted Image');--omnidb--
-INSERT INTO messages_types VALUES(1, 'Snippet');--omnidb--
-INSERT INTO messages_types VALUES(1, 'Attachment');--omnidb--
-INSERT INTO messages_types VALUES(1, 'Mention');--omnidb--
+INSERT INTO messages_types VALUES(2, 'Pasted Image');--omnidb--
+INSERT INTO messages_types VALUES(3, 'Snippet');--omnidb--
+INSERT INTO messages_types VALUES(4, 'Attachment');--omnidb--
+INSERT INTO messages_types VALUES(5, 'Mention');--omnidb--
 
 CREATE TABLE messages (
     mes_in_code integer not null,

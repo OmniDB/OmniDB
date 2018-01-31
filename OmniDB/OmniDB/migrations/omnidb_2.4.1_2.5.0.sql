@@ -1,3 +1,5 @@
+UPDATE db_type SET dbt_in_enabled = 1 WHERE dbt_st_name = 'oracle';--omnidb--
+
 ALTER TABLE users
 ADD COLUMN stc_in_code integer;--omnidb--
 
@@ -31,10 +33,10 @@ CREATE TABLE messages_types (
     constraint pk_messages_types primary key (met_in_code)
 );--omnidb--
 INSERT INTO messages_types VALUES(1, 'Plain Text');--omnidb--
-INSERT INTO messages_types VALUES(1, 'Pasted Image');--omnidb--
-INSERT INTO messages_types VALUES(1, 'Snippet');--omnidb--
-INSERT INTO messages_types VALUES(1, 'Attachment');--omnidb--
-INSERT INTO messages_types VALUES(1, 'Mention');--omnidb--
+INSERT INTO messages_types VALUES(2, 'Pasted Image');--omnidb--
+INSERT INTO messages_types VALUES(3, 'Snippet');--omnidb--
+INSERT INTO messages_types VALUES(4, 'Attachment');--omnidb--
+INSERT INTO messages_types VALUES(5, 'Mention');--omnidb--
 
 CREATE TABLE messages (
     mes_in_code integer not null,
@@ -120,7 +122,7 @@ SELECT a.user_id AS user_id_a,
        b.user_id AS user_id_b
 FROM users a
 INNER JOIN users b ON 1 = 1
-WHERE b.user_id <> a.user_id;--omnidb--
+WHERE b.user_id < a.user_id;--omnidb--
 
 INSERT INTO groups (gro_in_code)
 SELECT group_id
@@ -135,8 +137,4 @@ FROM user_group_tmp;--omnidb--
 
 DROP TABLE user_group_tmp;--omnidb--
 
-CREATE TABLE version (
-    ver_id text not null,
-    constraint pk_versions primary key (ver_id)
-);--omnidb--
-INSERT INTO version VALUES('2.5.0');--omnidb--
+UPDATE version SET ver_id = '2.5.0';--omnidb--

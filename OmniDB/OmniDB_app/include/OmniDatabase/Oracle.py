@@ -949,7 +949,7 @@ SELECT ...
         print(v_table1.Pretty())
         return v_table1
 
-    def GetDDL(self, p_schema, p_object, p_type):
+    def GetDDL(self, p_schema, p_table, p_object, p_type):
         return self.v_connection.ExecuteScalar('''
             select dbms_metadata.get_ddl(object_type, object_name) as ddl,
             from user_objects

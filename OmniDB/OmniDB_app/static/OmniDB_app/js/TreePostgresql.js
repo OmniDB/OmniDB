@@ -1812,17 +1812,6 @@ function getTreePostgresql(p_div) {
         },
         'cm_sequence': {
             elements: [{
-                text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        getSequenceValuesPostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
                 text: 'Alter Sequence',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
@@ -2999,7 +2988,11 @@ function getTreePostgresql(p_div) {
     var tree = createTree(p_div, '#fcfdfd', context_menu);
 
     tree.nodeAfterOpenEvent = function(node) {
-        refreshTreePostgresql(node);
+      refreshTreePostgresql(node);
+    }
+
+    tree.clickNodeEvent = function(node) {
+      getPropertiesPostgresql(node);
     }
 
     var node_server = tree.createNode('PostgreSQL', false,
@@ -3010,7 +3003,94 @@ function getTreePostgresql(p_div) {
         null, null);
     tree.drawTree();
 
+}
 
+/// <summary>
+/// Retrieving properties.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPropertiesPostgresql(node) {
+    if (node.tag != undefined)
+        if (node.tag.type == 'role') {
+          getProperties('/get_properties_postgresql/',
+            {
+              p_schema: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'tablespace') {
+          getProperties('/get_properties_postgresql/',
+            {
+              p_schema: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'database') {
+          getProperties('/get_properties_postgresql/',
+            {
+              p_schema: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'schema') {
+          getProperties('/get_properties_postgresql/',
+            {
+              p_schema: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'table') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'sequence') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'view') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'mview') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'function') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'trigger') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'triggerfunction') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else {
+        clearProperties();
+      }
 }
 
 /// <summary>
@@ -3031,8 +3111,6 @@ function refreshTreePostgresql(node) {
         getUniquesPostgresql(node);
     } else if (node.tag.type == 'foreign_keys') {
         getFKsPostgresql(node);
-    } else if (node.tag.type == 'sequence_list') {
-        getSequencesPostgresql(node);
     } else if (node.tag.type == 'view_list') {
         getViewsPostgresql(node);
     } else if (node.tag.type == 'view') {
@@ -3049,8 +3127,6 @@ function refreshTreePostgresql(node) {
         getFunctionFieldsPostgresql(node);
     } else if (node.tag.type == 'sequence_list') {
         getSequencesPostgresql(node);
-    } else if (node.tag.type == 'sequence') {
-        getSequenceValuesPostgresql(node);
     } else if (node.tag.type == 'database_list') {
         getDatabasesPostgresql(node);
     } else if (node.tag.type == 'tablespace_list') {
@@ -3072,7 +3148,7 @@ function refreshTreePostgresql(node) {
     } else if (node.tag.type == 'partition_list') {
         getPartitionsPostgresql(node);
     } else if (node.tag.type == 'server') {
-        getTreeDetails(node);
+        getTreeDetailsPostgresql(node);
     } else if (node.tag.type == 'physicalreplicationslot_list') {
         getPhysicalReplicationSlotsPostgresql(node);
     } else if (node.tag.type == 'logicalreplicationslot_list') {
@@ -3126,7 +3202,7 @@ function refreshTreePostgresql(node) {
 /// Retrieving tree details.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getTreeDetails(node) {
+function getTreeDetailsPostgresql(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
@@ -3744,6 +3820,7 @@ function getTablesPostgresql(node) {
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         has_partitions: p_return.v_data[i].v_has_partitions
                     }, 'cm_table');
+
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
                         type: 'table_field'
@@ -3886,56 +3963,6 @@ function getSequencesPostgresql(node) {
                     '/static/OmniDB_app/images/sequence_list.png', {
                         type: 'sequence'
                     }, 'cm_sequence');
-                v_node.createChildNode('', true,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
-
-            }
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving sequence values
-/// </summary>
-/// <param name="node">Node object.</param>
-function getSequenceValuesPostgresql(node) {
-    node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
-        null);
-
-    execAjax('/get_sequence_values_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_schema": node.parent.parent.text,
-            "p_sequence": node.text
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                node.createChildNode('Minimum Value: ' + p_return.v_data[
-                        i].v_minimum_value, false,
-                    '/static/OmniDB_app/images/bullet_red.png', null,
-                    null);
-                node.createChildNode('Maximum Value: ' + p_return.v_data[
-                        i].v_maximum_value, false,
-                    '/static/OmniDB_app/images/bullet_red.png', null,
-                    null);
-                node.createChildNode('Current Value: ' + p_return.v_data[
-                        i].v_current_value, false,
-                    '/static/OmniDB_app/images/bullet_red.png', null,
-                    null);
-                node.createChildNode('Increment: ' + p_return.v_data[i].v_increment,
-                    false, '/static/OmniDB_app/images/bullet_red.png',
-                    null, null);
 
             }
 
@@ -6480,7 +6507,7 @@ function getBDRMajorVersion(p_version) {
 }
 
 function postgresqlTerminateBackendConfirm(p_pid) {
-    execAjax('/kill_backend_postgres/',
+    execAjax('/kill_backend_postgresql/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_pid": p_pid

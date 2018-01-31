@@ -8,5 +8,4 @@ PrettyTable
 openpyxl
 pgspecial
 RestrictedPython>=4.0b2
-cherrypy
-websocket-client
+cx_Oracle>=6.1

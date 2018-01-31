@@ -18,7 +18,6 @@
 
 #popup_chat .popup-content {
     padding: 0px;
-    font-family: lato-light;
     font-size: 14px;
 }
 
@@ -33,8 +32,8 @@
     height: 100%;
     display: flex;
     flex-wrap: wrap;
-    border-right: 1px solid rgba(0, 0, 0, 0.5);
-    background-color: rgb(246, 246, 246);
+    border-right: 1px solid rgba(0, 0, 0, 0.25);
+    background-color: #fcfdfd;
     flex: 0 0 200px;
 }
 
@@ -43,7 +42,7 @@
     flex-direction: column;
     width: 100%;
     height: 49px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
 }
 
 #div_chat_user_info_header {
@@ -52,6 +51,7 @@
     text-align: left;
     padding-left: 10px;
     height: 30px;
+    line-height: 30px;
 }
 
 #div_chat_user_info_login {
@@ -66,7 +66,7 @@
     flex-direction: column;
     width: 100%;
     height: calc(50% - 22px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
     min-height: 70px;
 }
 
@@ -80,10 +80,11 @@
 
 .div_chat_left_header {
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15px;
     text-align: left;
     padding-left: 10px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    padding-top: 5px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
     /*height: 30px;*/
     height: auto;
 }
@@ -91,6 +92,7 @@
 .div_chat_left_header_filter_container {
     margin-right: 10px;
     margin-bottom: 5px;
+    margin-top: 5px;
 }
 
 #div_chat_groups .div_chat_left_header_filter_container {
@@ -99,8 +101,6 @@
 
 .button_chat_left_header {
     padding: 1px 6px;
-    float: right;
-    margin: 3px;
     height: auto;
 }
 
@@ -116,8 +116,9 @@
 .div_chat_left_content_item {
     flex-direction: column;
     padding-left: 15px;
-    padding-bottom: 5px;
     cursor: pointer;
+    height: 20px;
+    line-height: 20px;
 }
 
 .div_chat_left_content_item_hidden {
@@ -126,6 +127,7 @@
 
 .div_chat_left_content_item:hover {
     background-color: rgb(74, 104, 150);
+    color: white;
 }
 
 .div_chat_left_content_item_active {
@@ -139,11 +141,11 @@
 }
 
 .div_chat_left_content_item_status {
-    display: inline-block;
-    margin-right: 5px;
-    width: 15px;
-    height: 15px;
-    margin-bottom: -4px;
+  display: inline-block;
+  margin-right: 5px;
+  width: 15px;
+  height: 15px;
+  vertical-align: sub;
 }
 
 #div_chat_right {
@@ -159,7 +161,7 @@
     flex-direction: column;
     flex: 0 0 350px;
     box-sizing: border-box;
-    border-left: 1px solid rgba(0, 0, 0, 0.5);
+    border-left: 1px solid rgba(0, 0, 0, 0.25);
     background-color: white;
 }
 
@@ -189,14 +191,14 @@
     flex-direction: column;
     height: 100%;
     text-align: left;
-    background-color: white;
+    background-color: #fcfdfd;
     flex: 1 0 auto;
 }
 
 #div_chat_right_left_pre_header {
     flex: 0 0 auto;
     padding: 7px 10px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
     display: flex;
     justify-content: space-between;
     flex-wrap: nowrap;
@@ -225,6 +227,7 @@
 }
 
 #span_chat_right_pre_header_name {
+    line-height: 35px;
     font-weight: 700;
     font-size: 16px;
 }
@@ -245,7 +248,7 @@
 
 #div_chat_right_left_footer {
     display: flex;
-    border: 2px solid rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 0, 0, 0.25);
     border-radius: 5px;
     margin: 10px;
     flex: 0 0 auto;
@@ -257,7 +260,7 @@
 }
 
 .button_chat_right_footer_left {
-    color: 2px solid rgba(0, 0, 0, 0.5);
+    color: 2px solid rgba(0, 0, 0, 0.25);
     border-radius: 0px;
     height: 32px;
 }
@@ -271,7 +274,6 @@
     left: -2px;
     border-radius: 10px;
     background-color: white;
-    font-family: lato-light;
     width: 150px;
 }
 
@@ -314,16 +316,16 @@
     word-wrap: break-word;
     word-break: break-all;
     flex: 1 1 auto;
-    border-left: 2px solid rgba(0, 0, 0, 0.5);
+    border-left: 2px solid rgba(0, 0, 0, 0.25);
 }
 
 .emojionearea {
-    border: 2px solid rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 0, 0, 0.25);
 }
 
 #div_chat_right_left_footer > .emojionearea {
     border: 0px;
-    border-left: 2px solid rgba(0, 0, 0, 0.5);
+    border-left: 2px solid rgba(0, 0, 0, 0.25);
     border-radius: 0px;
 }
 
@@ -354,7 +356,6 @@
 }
 
 .div_chat_message_plain_text {
-    font-family: lato-light;
 }
 
 .div_chat_message_plain_text > img.emojioneemoji {
@@ -389,7 +390,7 @@
 }
 
 #div_chat_right_left_content > .div_chat_message_pasted_img > img:hover {
-    border: 2px solid rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 0, 0, 0.25);
     opacity: 1.0;
 }
 
@@ -438,7 +439,7 @@
 }
 
 #div_chat_right_left_content > .div_chat_message_attachment > img:hover {
-    border: 2px solid rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 0, 0, 0.25);
     opacity: 1.0;
 }
 
@@ -466,7 +467,6 @@
 }
 
 .div_chat_message_mention {
-    font-family: lato-light;
 }
 
 .div_chat_message_mention > img.emojioneemoji {
@@ -543,7 +543,6 @@
 }
 
 .span_chat_right_item_header {
-    font-family: lato-light;
     color: gray;
 }
 
@@ -663,7 +662,6 @@ span.badge_hidden {
     left: -2px;
     border-radius: 10px;
     background-color: white;
-    font-family: lato-light;
     width: 180px;
 }
 
@@ -746,7 +744,6 @@ span.badge_hidden {
 .context_menu_item_disabled:hover {
     background-color: transparent !important;
     color: #9b9b9b !important;
-    font-family: lato-light !important;
     cursor:
 }
 
@@ -972,7 +969,6 @@ button:focus {
 .notify_context_menu .context_menu_item:hover {
     background-color: unset;
     color: #9b9b9b;
-    font-family: lato-light;
 }
 
 .notify_context_menu .context_menu_item_active:hover {
@@ -1016,7 +1012,7 @@ button:focus {
     position: relative;
     margin-bottom: 10px;
     box-sizing: border-box;
-    border: 1px solid rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.25);
     border-radius: 5px;
     cursor: pointer;
 }
@@ -1042,7 +1038,6 @@ button:focus {
 }
 
 .div_chat_searched_old_messages_item_plain_text {
-    font-family: lato-light;
 }
 
 .div_chat_searched_old_messages_item_plain_text > img.emojioneemoji {
@@ -1070,7 +1065,6 @@ button:focus {
 }
 
 .span_chat_searched_old_messages_item_header2 {
-    font-family: lato-light;
     color: gray;
 }
 
@@ -1103,8 +1097,7 @@ button:focus {
 
 #popup_chat .popup-content {
     padding: 0px;
-    font-family: lato-light;
-    font-size: 14px;
+    font-size: 13px;
     height: 100%;
 }
 

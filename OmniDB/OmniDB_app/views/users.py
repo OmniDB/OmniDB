@@ -113,7 +113,7 @@ def new_user(request):
                 1,
                 0
             )
-        '''.format(v_userCode)
+        '''.format(v_userCode))
 
         v_table = v_session.v_omnidb_database.v_connection.Query('''
             select use.user_id as use_in_code

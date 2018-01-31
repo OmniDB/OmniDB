@@ -207,8 +207,8 @@ LOGGING = {
 }
 
 #OMNIDB PARAMETERS
-OMNIDB_VERSION             = 'OmniDB 2.4.1'
-OMNIDB_SHORT_VERSION       = '2.4.1'
+OMNIDB_VERSION             = 'OmniDB 2.5.0'
+OMNIDB_SHORT_VERSION       = '2.5.0'
 BINDKEY_EXECUTE            = 'alt+q'
 BINDKEY_EXECUTE_MAC        = 'ctrl+q'
 BINDKEY_AUTOCOMPLETE       = 'ctrl+space'

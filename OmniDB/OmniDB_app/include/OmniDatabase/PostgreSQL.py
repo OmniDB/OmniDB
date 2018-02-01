@@ -2767,6 +2767,7 @@ TO NODE ( nodename [, ... ] )
         return self.v_connection.Query('''
             select d.datname as "Database",
                    r.rolname as "Owner",
+                   pg_size_pretty(pg_database_size(d.oid)) as "Size",
                    pg_encoding_to_char(d.encoding) as "Encoding",
                    d.datcollate as "LC_COLLATE",
                    d.datctype as "LC_CTYPE",
@@ -2924,8 +2925,39 @@ TO NODE ( nodename [, ... ] )
               and c.relname = '{1}'
         '''.format(p_schema, p_object))
 
-    def GetDDL(self, p_schema, p_object, p_type):
-        return ''
+    def GetPropertiesFunction(self, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   p.proname as "Function",
+                   quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as "Function ID",
+                   p.oid as "OID",
+                   r.rolname as "Owner",
+                   l.lanname as "Language",
+                   p.procost as "Estimated Execution Cost",
+                   p.prorows as "Estimated Returned Rows",
+                   p.proisagg as "Is Aggregate",
+                   p.proiswindow as "Is Window",
+                   p.prosecdef as "Security Definer",
+                   p.proleakproof as "Leak Proof",
+                   p.proisstrict as "Is Strict",
+                   p.proretset as "Returns Set",
+                   (case p.provolatile when 'i' then 'Immutable' when 's' then 'Stable' when 'v' then 'Volatile' end) as "Volatile",
+                   (case p.proparallel when 's' then 'Safe' when 'r' then 'Restricted' when 'u' then 'Unsafe' end) as "Parallel",
+                   p.pronargs as "Number of Arguments",
+                   p.pronargdefaults as "Number of Default Arguments",
+                   p.probin as "Invoke",
+                   p.proconfig as "Configuration",
+                   p.proacl as "ACL"
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            inner join pg_roles r
+            on r.oid = p.proowner
+            inner join pg_language l
+            on l.oid = p.prolang
+            where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+        '''.format(p_object))
 
     def GetProperties(self, p_schema, p_object, p_type):
         if p_type == 'role':
@@ -2945,12 +2977,536 @@ TO NODE ( nodename [, ... ] )
         elif p_type == 'view':
             return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
         elif p_type == 'mview':
-            return self.GetPropertiesMaterializedView(p_schema, p_object).Transpose('Property', 'Value')
+            return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
         elif p_type == 'function':
             return self.GetPropertiesFunction(p_schema, p_object).Transpose('Property', 'Value')
         elif p_type == 'trigger':
-            return self.GetPropertiesTrigger(p_schema, p_object).Transpose('Property', 'Value')
+            return None
         elif p_type == 'triggerfunction':
-            return self.GetPropertiesTriggerFunction(p_schema, p_object).Transpose('Property', 'Value')
+            return self.GetPropertiesFunction(p_schema, p_object).Transpose('Property', 'Value')
         else:
             return None
+
+    def GetDDLRole(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            with
+            q1 as (
+             select
+               'CREATE ' || case when rolcanlogin then 'USER' else 'GROUP' end
+               ||' '||quote_ident(rolname)|| E';\n' ||
+               'ALTER ROLE '|| quote_ident(rolname) || E' WITH\n  ' ||
+               case when rolcanlogin then 'LOGIN' else 'NOLOGIN' end || E'\n  ' ||
+               case when rolsuper then 'SUPERUSER' else 'NOSUPERUSER' end || E'\n  ' ||
+               case when rolinherit then 'INHERIT' else 'NOINHERIT' end || E'\n  ' ||
+               case when rolcreatedb then 'CREATEDB' else 'NOCREATEDB' end || E'\n  ' ||
+               case when rolcreaterole then 'CREATEROLE' else 'NOCREATEROLE' end || E'\n  ' ||
+               case when rolreplication then 'REPLICATION' else 'NOREPLICATION' end || E';\n  ' ||
+            -- 9.5+ case when rolbypassrls then 'BYPASSRLS' else 'NOBYPASSRLS' end || E';\n' ||
+               case
+                 when description is not null
+                 then E'\n'
+                      ||'COMMENT ON ROLE '||quote_ident(rolname)
+                      ||' IS '||quote_literal(description)||E';\n'
+                 else ''
+               end || E'\n' ||
+               case when rolpassword is not null
+                    then 'ALTER ROLE '|| quote_ident(rolname)||
+                         ' ENCRYPTED PASSWORD '||quote_literal(rolpassword)||E';\n'
+                    else ''
+               end ||
+               case when rolvaliduntil is not null
+                    then 'ALTER ROLE '|| quote_ident(rolname)||
+                         ' VALID UNTIL '||quote_nullable(rolvaliduntil)||E';\n'
+                    else ''
+               end ||
+               case when rolconnlimit>=0
+                    then 'ALTER ROLE '|| quote_ident(rolname)||
+                         ' CONNECTION LIMIT '||rolconnlimit||E';\n'
+                    else ''
+               end ||
+               E'\n' as ddl
+               from pg_authid a
+               left join pg_shdescription d on d.objoid=a.oid
+              where a.oid = '{0}'::regrole
+             ),
+            q2 as (
+             select string_agg('ALTER ROLE ' || quote_ident(rolname)
+                               ||' SET '||pg_roles.rolconfig[i]||E';\n','')
+                as ddl_config
+              from pg_roles,
+              generate_series(
+                 (select array_lower(rolconfig,1) from pg_roles where oid='{0}'::regrole),
+                 (select array_upper(rolconfig,1) from pg_roles where oid='{0}'::regrole)
+              ) as generate_series(i)
+             where oid = '{0}'::regrole
+             )
+            select ddl||coalesce(ddl_config||E'\n','')
+              from q1,q2;
+        '''.format(p_object))
+
+    def GetDDLTablespace(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            select 'CREATE TABLESPACE ' || t.spcname ||
+                   ' LOCATION ' || chr(39) || pg_tablespace_location(t.oid) || chr(39) ||
+                   ' OWNER ' || r.rolname || ';'
+            from pg_tablespace t
+            inner join pg_roles r
+            on r.oid = t.spcowner
+            where t.spcname = '{0}'
+        '''.format(p_object))
+
+    def GetDDLDatabase(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            select 'CREATE DATABASE ' || d.datname ||
+                   ' OWNER ' || r.rolname ||
+                   ' TABLESPACE ' || t.spcname || ';'
+            from pg_database d
+            inner join pg_roles r
+            on r.oid = d.datdba
+            inner join pg_tablespace t
+            on t.oid = d.dattablespace
+            where d.datname = '{0}'
+        '''.format(p_object))
+
+    def GetDDLSchema(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            with obj as (
+               SELECT n.oid,
+                     'pg_namespace'::regclass,
+                     n.nspname as name,
+                     current_database() as namespace,
+                     case
+                       when n.nspname like 'pg_%' then 'SYSTEM'
+                       when n.nspname = r.rolname then 'AUTHORIZATION'
+                       else 'NAMESPACE'
+                     end as kind,
+                     pg_get_userbyid(n.nspowner) AS owner,
+                     'SCHEMA' as sql_kind,
+                     quote_ident(n.nspname) as sql_identifier
+                FROM pg_namespace n join pg_authid r on r.oid = n.nspowner
+               WHERE n.oid = '{0}'::regnamespace
+            ),
+            comment as (
+                select format(
+                       E'COMMENT ON %s %s IS %L;\n',
+                       obj.sql_kind, sql_identifier, obj_description(oid)) as text
+                from obj
+            ),
+            alterowner as (
+                select format(
+                       E'ALTER %s %s OWNER TO %s;\n',
+                       obj.sql_kind, sql_identifier, quote_ident(owner)) as text
+                from obj
+            )
+            select format(E'CREATE SCHEMA %s;\n',cast('{0}'::regnamespace as text))
+            	   || comment.text
+                   || alterowner.text
+              from pg_namespace n
+              inner join comment on 1=1
+              inner join alterowner on 1=1
+             where n.oid = '{0}'::regnamespace
+        ''')
+
+    def GetDDLClass(self, p_schema, p_object):
+        return self.v_connection.ExecuteScalar('''
+            with obj as (
+               SELECT c.oid,
+                     'pg_class'::regclass,
+                     c.relname AS name,
+                     n.nspname AS namespace,
+                     coalesce(cc.column2,c.relkind::text) AS kind,
+                     pg_get_userbyid(c.relowner) AS owner,
+                     coalesce(cc.column2,c.relkind::text) AS sql_kind,
+                     cast('{0}.{1}'::regclass AS text) AS sql_identifier
+                FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+                LEFT join (
+                     values ('r','TABLE'),
+                            ('v','VIEW'),
+                            ('i','INDEX'),
+                            ('S','SEQUENCE'),
+                            ('s','SPECIAL'),
+                            ('m','MATERIALIZED VIEW'),
+                            ('c','TYPE'),
+                            ('t','TOAST'),
+                            ('f','FOREIGN TABLE')
+                ) as cc on cc.column1 = c.relkind
+               WHERE c.oid = '{0}.{1}'::regclass
+            ),
+            columns as (
+                SELECT a.attname AS name, format_type(t.oid, NULL::integer) AS type,
+                    CASE
+                        WHEN (a.atttypmod - 4) > 0 THEN a.atttypmod - 4
+                        ELSE NULL::integer
+                    END AS size,
+                    a.attnotnull AS not_null,
+                    def.adsrc AS "default",
+                    col_description(c.oid, a.attnum::integer) AS comment,
+                    con.conname AS primary_key,
+                    a.attislocal AS is_local,
+                    a.attstorage::text AS storage,
+                    nullif(col.collcollate::text,'') AS collation,
+                    a.attnum AS ord,
+                    s.nspname AS namespace,
+                    c.relname AS class_name,
+                    format('%s.%I',text(c.oid::regclass),a.attname) AS sql_identifier,
+                    c.oid,
+                    format('%I %s%s%s',
+                    	a.attname::text,
+                    	format_type(t.oid, a.atttypmod),
+            	        CASE
+                	      WHEN length(col.collcollate) > 0
+                    	  THEN ' COLLATE ' || quote_ident(col.collcollate::text)
+                          ELSE ''
+                    	END,
+                    	CASE
+                          WHEN a.attnotnull THEN ' NOT NULL'::text
+                          ELSE ''::text
+                    	END)
+                    AS definition
+               FROM pg_class c
+               JOIN pg_namespace s ON s.oid = c.relnamespace
+               JOIN pg_attribute a ON c.oid = a.attrelid
+               LEFT JOIN pg_attrdef def ON c.oid = def.adrelid AND a.attnum = def.adnum
+               LEFT JOIN pg_constraint con
+                    ON con.conrelid = c.oid AND (a.attnum = ANY (con.conkey)) AND con.contype = 'p'
+               LEFT JOIN pg_type t ON t.oid = a.atttypid
+               LEFT JOIN pg_collation col ON col.oid = a.attcollation
+               JOIN pg_namespace tn ON tn.oid = t.typnamespace
+              WHERE c.relkind IN ('r','v','c','f') AND a.attnum > 0 AND NOT a.attisdropped
+                AND has_table_privilege(c.oid, 'select') AND has_schema_privilege(s.oid, 'usage')
+                AND c.oid = '{0}.{1}'::regclass
+              ORDER BY s.nspname, c.relname, a.attnum
+            ),
+            comments as (
+               select 'COMMENT ON COLUMN ' || text('{0}.{1}') || '.' || quote_ident(name) ||
+                      ' IS ' || quote_nullable(comment) || ';' as cc
+                 from columns
+                where comment IS NOT NULL
+            ),
+            settings as (
+               select 'ALTER ' || obj.kind || ' ' || text('{0}.{1}') || ' SET (' ||
+                      quote_ident(option_name)||'='||quote_nullable(option_value) ||');' as ss
+                 from pg_options_to_table((select reloptions from pg_class where oid = '{0}.{1}'::regclass))
+                 join obj on (true)
+            ),
+            constraints as (
+               SELECT nc.nspname AS namespace,
+                    r.relname AS class_name,
+                    c.conname AS constraint_name,
+                    case c.contype
+                        when 'c'::"char" then 'CHECK'::text
+                        when 'f'::"char" then 'FOREIGN KEY'::text
+                        when 'p'::"char" then 'PRIMARY KEY'::text
+                        when 'u'::"char" then 'UNIQUE'::text
+                        when 't'::"char" then 'TRIGGER'::text
+                        when 'x'::"char" then 'EXCLUDE'::text
+                        else c.contype::text
+                    end AS constraint_type,
+                    pg_get_constraintdef(c.oid,true) AS constraint_definition,
+                    c.condeferrable AS is_deferrable,
+                    c.condeferred  AS initially_deferred,
+                    r.oid as regclass, c.oid AS sysid
+               FROM pg_namespace nc, pg_namespace nr, pg_constraint c, pg_class r
+              WHERE nc.oid = c.connamespace AND nr.oid = r.relnamespace AND c.conrelid = r.oid
+                AND coalesce(r.oid='{0}.{1}'::regclass,true)
+            ),
+            indexes as (
+               SELECT DISTINCT
+                    c.oid AS oid,
+                    n.nspname::text AS namespace,
+                    c.relname::text AS class,
+                    i.relname::text AS name,
+                    NULL::text AS tablespace,
+                    CASE d.refclassid
+                        WHEN 'pg_constraint'::regclass
+                        THEN 'ALTER TABLE ' || text(c.oid::regclass)
+                             || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
+                             || ' ' || pg_get_constraintdef(cc.oid)
+                        ELSE pg_get_indexdef(i.oid)
+                    END AS indexdef,
+                    cc.conname::text AS constraint_name
+               FROM pg_index x
+               JOIN pg_class c ON c.oid = x.indrelid
+               JOIN pg_namespace n ON n.oid = c.relnamespace
+               JOIN pg_class i ON i.oid = x.indexrelid
+               JOIN pg_depend d ON d.objid = x.indexrelid
+               LEFT JOIN pg_constraint cc ON cc.oid = d.refobjid
+              WHERE c.relkind in ('r','m') AND i.relkind = 'i'::"char"
+                AND coalesce(c.oid = '{0}.{1}'::regclass,true)
+            ),
+            triggers as (
+               SELECT
+                    CASE t.tgisinternal
+                        WHEN true THEN 'CONSTRAINT'::text
+                        ELSE NULL::text
+                    END AS is_constraint, t.tgname::text AS trigger_name,
+                    CASE (t.tgtype::integer & 64) <> 0
+                        WHEN true THEN 'INSTEAD'::text
+                        ELSE CASE t.tgtype::integer & 2
+                          WHEN 2 THEN 'BEFORE'::text
+                          WHEN 0 THEN 'AFTER'::text
+                          ELSE NULL::text
+                        END
+                    END AS action_order,
+                    array_to_string(array[
+                      case when (t.tgtype::integer &  4) <> 0 then 'INSERT'   end,
+                      case when (t.tgtype::integer &  8) <> 0 then 'DELETE'   end,
+                      case when (t.tgtype::integer & 16) <> 0 then 'UPDATE'   end,
+                      case when (t.tgtype::integer & 32) <> 0 then 'TRUNCATE' end
+                    ],' OR ') AS event_manipulation,
+                    c.oid::regclass::text AS event_object_sql_identifier,
+                    p.oid::regprocedure::text AS action_statement,
+                    CASE t.tgtype::integer & 1
+                        WHEN 1 THEN 'ROW'::text
+                        ELSE 'STATEMENT'::text
+                    END AS action_orientation,
+                    pg_get_triggerdef(t.oid,true) as trigger_definition,
+                    c.oid::regclass AS regclass,
+                    p.oid::regprocedure AS regprocedure,
+                    s.nspname::text AS event_object_schema,
+                    c.relname::text AS event_object_table,
+                    (quote_ident(t.tgname::text) || ' ON ') || c.oid::regclass::text AS sql_identifier
+               FROM pg_trigger t
+               LEFT JOIN pg_class c ON c.oid = t.tgrelid
+               LEFT JOIN pg_namespace s ON s.oid = c.relnamespace
+               LEFT JOIN pg_proc p ON p.oid = t.tgfoid
+               LEFT JOIN pg_namespace s1 ON s1.oid = p.pronamespace
+               WHERE coalesce(c.oid='{0}.{1}'::regclass,true)
+            ),
+            rules as (
+               SELECT n.nspname::text AS namespace,
+                    c.relname::text AS class_name,
+                    r.rulename::text AS rule_name,
+                    CASE
+                        WHEN r.ev_type = '1'::"char" THEN 'SELECT'::text
+                        WHEN r.ev_type = '2'::"char" THEN 'UPDATE'::text
+                        WHEN r.ev_type = '3'::"char" THEN 'INSERT'::text
+                        WHEN r.ev_type = '4'::"char" THEN 'DELETE'::text
+                        ELSE 'UNKNOWN'::text
+                    END AS rule_event,
+                    r.is_instead,
+                    pg_get_ruledef(r.oid, true) AS rule_definition,
+                    c.oid::regclass AS regclass
+               FROM pg_rewrite r
+               JOIN pg_class c ON c.oid = r.ev_class
+               JOIN pg_namespace n ON n.oid = c.relnamespace
+              WHERE coalesce(c.oid='{0}.{1}'::regclass,true)
+                AND NOT (r.ev_type = '1'::"char" AND r.rulename = '_RETURN'::name)
+              ORDER BY r.oid
+            ),
+            createview as (
+                select
+                 'CREATE '||
+                  case relkind
+                    when 'v' THEN 'OR REPLACE VIEW '
+                    when 'm' THEN 'MATERIALIZED VIEW '
+                  end || (oid::regclass::text) || E' AS\n'||
+                  pg_catalog.pg_get_viewdef(oid,true)||E'\n' as text
+                 FROM pg_class t
+                 WHERE oid = '{0}.{1}'::regclass
+                   AND relkind in ('v','m')
+            ),
+            createtable as (
+                select
+                    'CREATE '||
+                  case relpersistence
+                    when 'u' then 'UNLOGGED '
+                    when 't' then 'TEMPORARY '
+                    else ''
+                  end
+                  || obj.kind || ' ' || obj.sql_identifier
+                  || case obj.kind when 'TYPE' then ' AS' else '' end
+                  ||
+                  E' (\n'||
+                    coalesce(''||(
+                      SELECT coalesce(string_agg('    '||definition,E',\n'),'')
+                        FROM columns WHERE is_local
+                    )||E'\n','')||')'
+                  ||
+                  (SELECT
+                    coalesce(' INHERITS(' || string_agg(i.inhparent::regclass::text,', ') || ')', '')
+                     FROM pg_inherits i WHERE i.inhrelid = '{0}.{1}'::regclass)
+                  ||
+                  CASE relhasoids WHEN true THEN ' WITH OIDS' ELSE '' END
+                  ||
+                  coalesce(
+                    E'\nSERVER '||quote_ident(fs.srvname)||E'\nOPTIONS (\n'||
+                    (select string_agg(
+                              '    '||quote_ident(option_name)||' '||quote_nullable(option_value),
+                              E',\n')
+                       from pg_options_to_table(ft.ftoptions))||E'\n)'
+                    ,'')
+                  ||
+                  E';\n' as text
+                 FROM pg_class c JOIN obj ON (true)
+                 LEFT JOIN pg_foreign_table  ft ON (c.oid = ft.ftrelid)
+                 LEFT JOIN pg_foreign_server fs ON (ft.ftserver = fs.oid)
+                 WHERE c.oid = '{0}.{1}'::regclass
+                -- AND relkind in ('r','c')
+            ),
+            createsequence as (
+                select
+                 'CREATE SEQUENCE '||(oid::regclass::text) || E';\n'
+                 ||'ALTER SEQUENCE '||(oid::regclass::text)
+                 ||E'\n INCREMENT BY '||increment
+                 ||E'\n MINVALUE '||minimum_value
+                 ||E'\n MAXVALUE '||maximum_value
+                 ||E'\n START WITH '||start_value
+                 ||E'\n '|| case cycle_option when 'YES' then 'CYCLE' else 'NO CYCLE' end
+                 ||E';\n' as text
+                 FROM information_schema.sequences s JOIN obj ON (true)
+                 WHERE sequence_schema = obj.namespace
+                   AND sequence_name = obj.name
+                   AND obj.kind = 'SEQUENCE'
+            ),
+            createindex as (
+                with ii as (
+                 SELECT CASE d.refclassid
+                            WHEN 'pg_constraint'::regclass
+                            THEN 'ALTER TABLE ' || text(c.oid::regclass)
+                                 || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
+                                 || ' ' || pg_get_constraintdef(cc.oid)
+                            ELSE pg_get_indexdef(i.oid)
+                        END AS indexdef
+                   FROM pg_index x
+                   JOIN pg_class c ON c.oid = x.indrelid
+                   JOIN pg_class i ON i.oid = x.indexrelid
+                   JOIN pg_depend d ON d.objid = x.indexrelid
+                   LEFT JOIN pg_constraint cc ON cc.oid = d.refobjid
+                  WHERE c.relkind in ('r','m') AND i.relkind = 'i'::"char"
+                    AND i.oid = '{0}.{1}'::regclass
+                )
+                 SELECT indexdef || E';\n' as text
+                   FROM ii
+            ),
+            createclass as (
+                select format(E'--\n-- Type: %s ; Name: %s; Owner: %s\n--\n\n', obj.kind,obj.name,obj.owner)
+                ||
+                 case
+                  when obj.kind in ('VIEW','MATERIALIZED VIEW') then (select text from createview)
+                  when obj.kind in ('TABLE','TYPE','FOREIGN TABLE') then (select text from createtable)
+                  when obj.kind in ('SEQUENCE') then (select text from createsequence)
+                  when obj.kind in ('INDEX') then (select text from createindex)
+                  else '-- UNSUPPORTED CLASS: '||obj.kind
+                 end
+                  || E'\n' ||
+                  coalesce((select string_agg(cc,E'\n')||E'\n' from comments),'')
+                  ||
+                  coalesce(E'\n'||(select string_agg(ss,E'\n')||E'\n' from settings),'')
+                  || E'\n' as text
+                from obj
+            ),
+            altertabledefaults as (
+                select
+                    coalesce(
+                      string_agg(
+                        'ALTER TABLE '||text('{0}.{1}')||
+                          ' ALTER '||quote_ident(name)||
+                          ' SET DEFAULT '||"default",
+                        E';\n') || E';\n\n',
+                    '') as text
+                   from columns
+                  where "default" is not null
+            ),
+            createconstraints as (
+                with cs as (
+                  select
+                   'ALTER TABLE ' || text(regclass(regclass)) ||
+                   ' ADD CONSTRAINT ' || quote_ident(constraint_name) ||
+                   E'\n  ' || constraint_definition as sql
+                    from constraints
+                   order by constraint_type desc, sysid
+                 )
+                 select coalesce(string_agg(sql,E';\n') || E';\n\n','') as text
+                   from cs
+            ),
+            createindexes as (
+                with ii as (select * from indexes order by name)
+                 SELECT coalesce(string_agg(indexdef||E';\n','') || E'\n' , '') as text
+                   FROM ii
+                  WHERE constraint_name is null
+            ),
+            createtriggers as (
+                with tg as (
+                  select trigger_definition as sql
+                 from triggers where is_constraint is null
+                 order by trigger_name
+                 -- per SQL triggers get called in order created vs name as in PostgreSQL
+                 )
+                 select coalesce(string_agg(sql,E';\n')||E';\n\n','') as text
+                   from tg
+            ),
+            createrules as (
+                select coalesce(string_agg(rule_definition,E'\n')||E'\n\n','') as text
+                from rules
+               where regclass = '{0}.{1}'::regclass
+                 and rule_definition is not null
+            ),
+            alterowner as (
+                select
+                   case
+                     when obj.kind = 'INDEX' then ''
+                     else 'ALTER '||sql_kind||' '||sql_identifier||
+                          ' OWNER TO '||quote_ident(owner)||E';\n'
+                   end as text
+                  from obj
+            ),
+            grants as (
+                select
+                   coalesce(
+                    string_agg(format(
+                    	E'GRANT %s ON %s TO %s%s;\n',
+                        privilege_type,
+                        '{0}.{1}',
+                        case grantee
+                          when 'PUBLIC' then 'PUBLIC'
+                          else quote_ident(grantee)
+                        end,
+                		case is_grantable
+                          when 'YES' then ' WITH GRANT OPTION'
+                          else ''
+                        end), ''),
+                    '') as text
+                 FROM information_schema.table_privileges g
+                 join obj on (true)
+                 WHERE table_schema=obj.namespace
+                   AND table_name=obj.name
+                   AND grantee<>obj.owner
+            )
+            select (select text from createclass) ||
+                   (select text from altertabledefaults) ||
+                   (select text from createconstraints) ||
+                   (select text from createindexes) ||
+                   (select text from createtriggers) ||
+                   (select text from createrules) ||
+                   (select text from alterowner) ||
+                   (select text from grants)
+        '''.format(p_schema, p_object))
+
+    def GetDDL(self, p_schema, p_table, p_object, p_type):
+        if p_type == 'role':
+            return self.GetDDLRole(p_object)
+        elif p_type == 'tablespace':
+            return self.GetDDLTablespace(p_object)
+        elif p_type == 'database':
+            return self.GetDDLDatabase(p_object)
+        elif p_type == 'schema':
+            return self.GetDDLSchema(p_object)
+        elif p_type == 'table':
+            return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'index':
+            return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'sequence':
+            return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'view':
+            return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'mview':
+            return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'function':
+            return self.GetFunctionDefinition(p_object)
+        elif p_type == 'trigger':
+            return self.GetTriggerDefinition(p_object, p_table, p_schema)
+        elif p_type == 'triggerfunction':
+            return self.GetTriggerFunctionDefinition(p_object)
+        else:
+            return ''

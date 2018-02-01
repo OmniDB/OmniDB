@@ -135,7 +135,7 @@ urlpatterns = [
     url(r'^get_xl_group_nodes_postgresql/', views.tree_postgresql.get_xl_group_nodes, name='get_xl_group_nodes'),
     url(r'^get_xl_table_properties_postgresql/', views.tree_postgresql.get_xl_table_properties, name='get_xl_table_properties'),
     url(r'^get_xl_table_nodes_postgresql/', views.tree_postgresql.get_xl_table_nodes, name='get_xl_table_nodes'),
-    url(r'^get_properties_postgresql/', views.tree_postgresql.get_properties_postgresql, name='get_properties_postgresql'),
+    url(r'^get_properties_postgresql/', views.tree_postgresql.get_properties, name='get_properties'),
 
     #TREE_ORACLE
     url(r'^get_tree_info_oracle/', views.tree_oracle.get_tree_info, name='get_tree_info'),
@@ -167,6 +167,7 @@ urlpatterns = [
     url(r'^get_tablespaces_oracle/', views.tree_oracle.get_tablespaces, name='get_tablespaces'),
     url(r'^get_roles_oracle/', views.tree_oracle.get_roles, name='get_roles'),
     url(r'^kill_backend_oracle/', views.tree_oracle.kill_backend, name='kill_backend'),
+    url(r'^get_properties_oracle/', views.tree_oracle.get_properties, name='get_properties'),
 
     #MONITORING SYSTEM
     url(r'^get_monitor_nodes/', views.monitor_dashboard.get_monitor_nodes, name='get_monitor_nodes'),

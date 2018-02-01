@@ -26,6 +26,8 @@ import logging
 logger = logging.getLogger('OmniDB_app.QueryServer')
 
 import os
+import platform
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "OmniDB.settings")
 from tornado.options import options, define, parse_command_line
 import django.conf
@@ -350,9 +352,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     return True
 
 def start_wsserver_thread():
-    t = threading.Thread(target=start_wsserver)
-    t.setDaemon(True)
-    t.start()
+    if platform.system() != 'Windows':
+        t = threading.Thread(target=start_wsserver)
+        t.setDaemon(True)
+        t.start()
+    else:
+        start_wsserver()
 
 def start_wsserver():
     logger.info('''*** Starting OmniDB ***''')

@@ -1271,7 +1271,7 @@ function getTreeOracle(p_div) {
     }
 
     tree.clickNodeEvent = function(node) {
-      getPropertiesOracle(node);
+        getPropertiesOracle(node);
     }
 
     var node_server = tree.createNode('Oracle', false,
@@ -1291,15 +1291,103 @@ function getTreeOracle(p_div) {
 /// <param name="node">Node object.</param>
 function getPropertiesOracle(node) {
     if (node.tag != undefined)
-      if (node.tag.type == 'table') {
+        if (node.tag.type == 'role') {
+          getProperties('/get_properties_oracle/',
+            {
+              p_schema: null,
+              p_table: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'tablespace') {
+          getProperties('/get_properties_oracle/',
+            {
+              p_schema: null,
+              p_table: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'database') {
+          getProperties('/get_properties_oracle/',
+            {
+              p_schema: null,
+              p_table: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'schema') {
+          getProperties('/get_properties_oracle/',
+            {
+              p_schema: null,
+              p_table: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'table') {
         getProperties('/get_properties_oracle/',
           {
-            p_schema: node.parent.parent.text,
+            p_schema: null,
+            p_table: null,
             p_object: node.text,
             p_type: node.tag.type
           });
-      }
-      else {
+      } else if (node.tag.type == 'sequence') {
+        getProperties('/get_properties_oracle/',
+          {
+            p_schema: null,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'view') {
+        getProperties('/get_properties_oracle/',
+          {
+            p_schema: null,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'mview') {
+        getProperties('/get_properties_oracle/',
+          {
+            p_schema: null,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'function') {
+        getProperties('/get_properties_oracle/',
+          {
+            p_schema: null,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'procedure') {
+        getProperties('/get_properties_oracle/',
+          {
+            p_schema: null,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'trigger') {
+        getProperties('/get_properties_oracle/',
+          {
+            p_schema: null,
+            p_table: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'triggerfunction') {
+        getProperties('/get_properties_oracle/',
+          {
+            p_schema: null,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else {
         clearProperties();
       }
 }

@@ -276,6 +276,7 @@
     position: relative;
     display: flex;
     flex-wrap: wrap;
+    align-items: flex-start;
 }
 
 #div_chat_right_left_footer {
@@ -392,6 +393,7 @@
     word-wrap: break-word;
     flex: 1 0 auto;
     min-width: 0;
+    box-sizing: border-box;
 }
 
 #div_chat_right_left_content > .div_chat_right_left_item:hover {
@@ -539,7 +541,7 @@
     background-color: rgba(0, 0, 0, 0.8);
     overflow: hidden;
     z-index: 10000000;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     box-sizing: border-box;
@@ -560,10 +562,10 @@
     overflow: hidden;
     position: absolute;
     margin: auto;
-    top: 0;
+    /*top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 0;*/
 }
 
 .img_chat_user {
@@ -642,6 +644,7 @@ pre {
     background-color: #f5f5f5;
     border: 1px solid #ccc;
     border-radius: 4px;
+    overflow: auto;
 }
 
 blockquote {

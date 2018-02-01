@@ -1295,6 +1295,7 @@ function getPropertiesOracle(node) {
           getProperties('/get_properties_oracle/',
             {
               p_schema: null,
+              p_table: null,
               p_object: node.text,
               p_type: node.tag.type
             });
@@ -1302,6 +1303,7 @@ function getPropertiesOracle(node) {
           getProperties('/get_properties_oracle/',
             {
               p_schema: null,
+              p_table: null,
               p_object: node.text,
               p_type: node.tag.type
             });
@@ -1309,6 +1311,7 @@ function getPropertiesOracle(node) {
           getProperties('/get_properties_oracle/',
             {
               p_schema: null,
+              p_table: null,
               p_object: node.text,
               p_type: node.tag.type
             });
@@ -1316,6 +1319,7 @@ function getPropertiesOracle(node) {
           getProperties('/get_properties_oracle/',
             {
               p_schema: null,
+              p_table: null,
               p_object: node.text,
               p_type: node.tag.type
             });
@@ -1323,6 +1327,7 @@ function getPropertiesOracle(node) {
         getProperties('/get_properties_oracle/',
           {
             p_schema: null,
+            p_table: null,
             p_object: node.text,
             p_type: node.tag.type
           });
@@ -1330,6 +1335,7 @@ function getPropertiesOracle(node) {
         getProperties('/get_properties_oracle/',
           {
             p_schema: null,
+            p_table: null,
             p_object: node.text,
             p_type: node.tag.type
           });
@@ -1337,6 +1343,7 @@ function getPropertiesOracle(node) {
         getProperties('/get_properties_oracle/',
           {
             p_schema: null,
+            p_table: null,
             p_object: node.text,
             p_type: node.tag.type
           });
@@ -1344,6 +1351,7 @@ function getPropertiesOracle(node) {
         getProperties('/get_properties_oracle/',
           {
             p_schema: null,
+            p_table: null,
             p_object: node.text,
             p_type: node.tag.type
           });
@@ -1351,6 +1359,7 @@ function getPropertiesOracle(node) {
         getProperties('/get_properties_oracle/',
           {
             p_schema: null,
+            p_table: null,
             p_object: node.text,
             p_type: node.tag.type
           });
@@ -1358,6 +1367,7 @@ function getPropertiesOracle(node) {
         getProperties('/get_properties_oracle/',
           {
             p_schema: null,
+            p_table: null,
             p_object: node.text,
             p_type: node.tag.type
           });
@@ -1365,117 +1375,20 @@ function getPropertiesOracle(node) {
         getProperties('/get_properties_oracle/',
           {
             p_schema: null,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else if (node.tag.type == 'triggerfunction') {
-        getProperties('/get_properties_oracle/',
-          {
-            p_schema: null,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else {
-        clearProperties();
-      }
-}
-
-/// <summary>
-/// Retrieving DDL.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getDDLOracle(node) {
-    if (node.tag != undefined)
-        if (node.tag.type == 'role') {
-          getDDL('/get_ddl_oracle/',
-            {
-              p_schema: null,
-              p_table: null,
-              p_object: node.text,
-              p_type: node.tag.type
-            });
-        } else if (node.tag.type == 'tablespace') {
-          getDDL('/get_ddl_oracle/',
-            {
-              p_schema: null,
-              p_table: null,
-              p_object: node.text,
-              p_type: node.tag.type
-            });
-        } else if (node.tag.type == 'database') {
-          getDDL('/get_ddl_oracle/',
-            {
-              p_schema: null,
-              p_table: null,
-              p_object: node.text,
-              p_type: node.tag.type
-            });
-        } else if (node.tag.type == 'schema') {
-          getDDL('/get_ddl_oracle/',
-            {
-              p_schema: null,
-              p_table: null,
-              p_object: node.text,
-              p_type: node.tag.type
-            });
-        } else if (node.tag.type == 'table') {
-        getDDL('/get_ddl_oracle/',
-          {
-            p_schema: node.parent.parent.text,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else if (node.tag.type == 'sequence') {
-        getDDL('/get_ddl_oracle/',
-          {
-            p_schema: node.parent.parent.text,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else if (node.tag.type == 'view') {
-        getDDL('/get_ddl_oracle/',
-          {
-            p_schema: node.parent.parent.text,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else if (node.tag.type == 'mview') {
-        getDDL('/get_ddl_oracle/',
-          {
-            p_schema: node.parent.parent.text,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else if (node.tag.type == 'function') {
-        getDDL('/get_ddl_oracle/',
-          {
-            p_schema: node.parent.parent.text,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else if (node.tag.type == 'trigger') {
-        getDDL('/get_ddl_oracle/',
-          {
-            p_schema: node.parent.parent.parent.parent.text,
             p_table: node.parent.parent.text,
             p_object: node.text,
             p_type: node.tag.type
           });
       } else if (node.tag.type == 'triggerfunction') {
-        getDDL('/get_ddl_oracle/',
+        getProperties('/get_properties_oracle/',
           {
-            p_schema: node.parent.parent.text,
+            p_schema: null,
             p_table: null,
             p_object: node.text,
             p_type: node.tag.type
           });
       } else {
-        clearDDL();
+        clearProperties();
       }
 }
 

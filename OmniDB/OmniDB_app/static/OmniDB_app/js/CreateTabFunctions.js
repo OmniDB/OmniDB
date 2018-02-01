@@ -47,7 +47,7 @@ function initCreateTabFunctions() {
     	"</div>" +
     	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
     	"<div style='margin-right: 10px;'><div id='" + v_tab.id + "_tree' style='margin-top: 10px; overflow: auto; height: 50%;'></div>" +
-      "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+      "<div onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
 
       "<div id='tree_tabs_" + v_tab.id + "' style='position: relative;'>" +
       "<div id='" + v_tab.id + "_loading' class='div_loading_local' style='z-index: 1000;'></div>" +
@@ -56,10 +56,10 @@ function initCreateTabFunctions() {
       "<li id='tree_tabs_" + v_tab.id + "_tab2'>DDL</li>" +
       "</ul>" +
       "<div id='div_tree_tabs_" + v_tab.id + "_tab1' style='position: relative;'>" +
-      "<div id='" + v_tab.id + "_properties' class='query_result' style='width: 100%; overflow: auto;'></div>" +
+      "<div id='" + v_tab.id + "_properties' style='width: 100%; overflow: auto;'></div>" +
       "</div>" +
       "<div id='div_tree_tabs_" + v_tab.id + "_tab2'>" +
-      "<div id='" + v_tab.id + "_ddl' style='width: 100%; line-height: 16px; user-select: initial;'></div>" +
+      "<div id='" + v_tab.id + "_ddl' style='width: 100%; line-height: 16px;'></div>" +
       "</div>" +
       "</div>" +
       "</div>" +
@@ -110,6 +110,32 @@ function initCreateTabFunctions() {
     	var v_currTabControl = createTabControl(v_tab.id + '_tabs',0,null);
 
     	v_currTabControl.createTab('+',false,v_connTabControl.tag.createQueryTab);
+
+      //DDL editor
+      var v_ddl_div = document.getElementById(v_tab.id + '_ddl');
+
+  		var langTools = ace.require("ace/ext/language_tools");
+  		var v_editor = ace.edit(v_tab.id + '_ddl');
+  		v_editor.setTheme("ace/theme/" + v_editor_theme);
+  		v_editor.session.setMode("ace/mode/sql");
+  		v_editor.commands.bindKey(".", "startAutocomplete");
+
+  		v_editor.setFontSize(Number(v_editor_font_size));
+
+  		v_editor.commands.bindKey("ctrl-space", null);
+
+      //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+      v_editor.commands.bindKey("Cmd-,", null)
+      v_editor.commands.bindKey("Ctrl-,", null)
+      v_editor.commands.bindKey("Cmd-Delete", null)
+      v_editor.commands.bindKey("Ctrl-Delete", null)
+      v_editor.setReadOnly(true);
+
+  		v_ddl_div.onclick = function() {
+
+  			v_editor.focus();
+
+  		};
 
       //Properties Grid
       var v_divProperties = document.getElementById(v_tab.id + '_properties');
@@ -180,6 +206,7 @@ function initCreateTabFunctions() {
         firstTimeOpen: true,
         TreeTabControl: v_treeTabs,
         currTreeTab: null,
+        ddlEditor: v_editor
     	};
 
     	v_tab.tag = v_tag;

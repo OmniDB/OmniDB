@@ -103,6 +103,18 @@ def new_user(request):
             (select {0} as user_id),'user' || (select coalesce(max(user_id), 0) + 1 from users),'',1,'14',1,0,'{1}', 1, 0)
         '''.format(v_userCode, str(uuid.uuid4())))
 
+        v_session.v_omnidb_database.v_connection.Execute('''
+            insert into users_channels (
+                use_in_code,
+                cha_in_code,
+                usc_bo_silenced
+            ) values (
+                {0}
+                1,
+                0
+            )
+        '''.format(v_userCode))
+
         v_table = v_session.v_omnidb_database.v_connection.Query('''
             select use.user_id as use_in_code
             from users use

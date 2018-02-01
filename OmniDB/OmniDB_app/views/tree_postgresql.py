@@ -180,7 +180,7 @@ def get_tree_info(request):
 
     return JsonResponse(v_return)
 
-def get_properties_postgresql(request):
+def get_properties(request):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -209,17 +209,22 @@ def get_properties_postgresql(request):
         return JsonResponse(v_return)
 
     v_list_properties = []
+    v_ddl = ''
 
     try:
         v_properties = v_database.GetProperties(v_data['p_schema'],v_data['p_object'],v_data['p_type'])
         for v_property in v_properties.Rows:
             v_list_properties.append([v_property['Property'],v_property['Value']])
+        v_ddl = v_database.GetDDL(v_data['p_schema'],v_data['p_table'],v_data['p_object'],v_data['p_type'])
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_return['v_data'] = v_list_properties
+    v_return['v_data'] = {
+        'properties': v_list_properties,
+        'ddl': v_ddl
+    }
 
     return JsonResponse(v_return)
 

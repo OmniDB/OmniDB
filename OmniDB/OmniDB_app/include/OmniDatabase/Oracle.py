@@ -931,7 +931,7 @@ SELECT ...
             from all_objects
             where owner = '{0}'
               and object_name = '{1}'
-        '''.format(self.v_schema, p_object)).Transpose('Property', 'Value')
+        '''.format(self.v_schema, p_object), True, True).Transpose('Property', 'Value')
         if p_type == 'sequence':
             v_table2 = self.v_connection.Query('''
                 select last_number as "Last Value",
@@ -944,11 +944,11 @@ SELECT ...
                 from all_sequences
                 where sequence_owner = '{0}'
                   and sequence_name = '{1}'
-            '''.format(self.v_schema, p_object)).Transpose('Property', 'Value')
+            '''.format(self.v_schema, p_object), True, True).Transpose('Property', 'Value')
             v_table1.Merge(v_table2)
         return v_table1
 
-    def GetDDL(self, p_schema, p_object, p_type):
+    def GetDDL(self, p_schema, p_table, p_object, p_type):
         return self.v_connection.ExecuteScalar('''
             select dbms_metadata.get_ddl(object_type, object_name) as ddl,
             from user_objects

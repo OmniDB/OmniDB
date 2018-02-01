@@ -2,11 +2,40 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
+import platform
+
+workdir = os.path.dirname(os.path.realpath(__file__))
+rerun = True
+if platform.system() == 'Linux':
+    if not 'LD_LIBRARY_PATH' in os.environ:
+        os.environ['LD_LIBRARY_PATH'] = ':' + workdir
+    elif not workdir in os.environ.get('LD_LIBRARY_PATH'):
+        os.environ['LD_LIBRARY_PATH'] += ':' + workdir
+    else:
+      rerun = False
+elif platform.system() == 'Darwin':
+    if not 'DYLD_LIBRARY_PATH' in os.environ:
+        os.environ['DYLD_LIBRARY_PATH'] = ':' + workdir
+    elif not workdir in os.environ.get('DYLD_LIBRARY_PATH'):
+        os.environ['DYLD_LIBRARY_PATH'] += ':' + workdir
+    else:
+      rerun = False
+elif platform.system() == 'Windows':
+    if not 'PATH' in os.environ:
+        os.environ['PATH'] = ';' + workdir
+    elif not workdir in os.environ.get('PATH'):
+        os.environ['PATH'] += ';' + workdir
+    else:
+      rerun = False
+else:
+    rerun = False
+if rerun:
+  os.execve(os.path.realpath(__file__), sys.argv, os.environ)
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'OmniDB.settings'
 import django
 django.setup()
-import sys
 import html.parser
 import http.cookies
 import OmniDB

@@ -946,7 +946,6 @@ SELECT ...
                   and sequence_name = '{1}'
             '''.format(self.v_schema, p_object), True, True).Transpose('Property', 'Value')
             v_table1.Merge(v_table2)
-        print(v_table1.Pretty())
         return v_table1
 
     def GetDDL(self, p_schema, p_table, p_object, p_type):

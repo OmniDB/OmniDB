@@ -109,7 +109,7 @@ def new_user(request):
                 cha_in_code,
                 usc_bo_silenced
             ) values (
-                {0}
+                {0},
                 1,
                 0
             )

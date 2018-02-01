@@ -944,8 +944,9 @@ button:focus {
 
 #chat_status {
     font-size: 9px;
-    padding: 1px 4px;
-    margin-top: 7px;
+    /*padding: 1px 4px;
+    margin-top: 7px;*/
+    height: unset;
     display: none;
 }
 

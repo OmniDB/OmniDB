@@ -1054,6 +1054,7 @@ function chatLoginResult(p_data) {
         return null;
     };
 
+    /*Removed while embeding chat to outer tab
     var v_headerMenu = document.querySelector('.header_menu > div > ul');
 
     if(v_headerMenu != null) {
@@ -1103,7 +1104,7 @@ function chatLoginResult(p_data) {
             }
             else {
                 v_chatPopUp.show();
-            }*/
+            }
 
             v_chatIcon.addEventListener(
                 'click',
@@ -1125,7 +1126,7 @@ function chatLoginResult(p_data) {
             v_chatSpan.innerHTML = '0';
             v_li.appendChild(v_chatSpan);
         }
-    }
+    }*/
 
     v_chatPopUp.maximizeElement.remove();
     v_chatPopUp.minimizeElement.remove();
@@ -1136,12 +1137,13 @@ function chatLoginResult(p_data) {
     v_chatPopUp.closeElement.remove();
     v_chatPopUp.closeElement = v_cloneNode;
 
+    /*Removed while embeding chat to outer tab
     v_cloneNode.addEventListener(
         'click',
         function(p_chatIcon, p_event) {
             p_chatIcon.click();
         }.bind(v_cloneNode, v_chatIcon)
-    );
+    );*/
 
     var v_buttonCreatePrivateChannel = document.getElementById('button_create_private_channel');
 

@@ -7329,7 +7329,7 @@ function chatRetrievedGroupHistory(p_data) {
     FX.fadeOut(
         document.getElementById('div_history'),
         {
-            duration: 2000,
+            duration: 1000,
             complete: function() {
                 document.getElementById('div_history').style.display = '';
             }
@@ -7790,7 +7790,7 @@ function chatRetrievedChannelHistory(p_data) {
     FX.fadeOut(
         document.getElementById('div_history'),
         {
-            duration: 2000,
+            duration: 1000,
             complete: function() {
                 document.getElementById('div_history').style.display = '';
             }

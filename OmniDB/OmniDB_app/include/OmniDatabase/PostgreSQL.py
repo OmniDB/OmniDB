@@ -3001,7 +3001,6 @@ TO NODE ( nodename [, ... ] )
                case when rolcreatedb then 'CREATEDB' else 'NOCREATEDB' end || E'\n  ' ||
                case when rolcreaterole then 'CREATEROLE' else 'NOCREATEROLE' end || E'\n  ' ||
                case when rolreplication then 'REPLICATION' else 'NOREPLICATION' end || E';\n  ' ||
-            -- 9.5+ case when rolbypassrls then 'BYPASSRLS' else 'NOBYPASSRLS' end || E';\n' ||
                case
                  when description is not null
                  then E'\n'
@@ -3025,9 +3024,9 @@ TO NODE ( nodename [, ... ] )
                     else ''
                end ||
                E'\n' as ddl
-               from pg_authid a
+               from pg_roles a
                left join pg_shdescription d on d.objoid=a.oid
-              where a.oid = '{0}'::regrole
+              where quote_ident(a.rolname) = '{0}'
              ),
             q2 as (
              select string_agg('ALTER ROLE ' || quote_ident(rolname)
@@ -3035,20 +3034,21 @@ TO NODE ( nodename [, ... ] )
                 as ddl_config
               from pg_roles,
               generate_series(
-                 (select array_lower(rolconfig,1) from pg_roles where oid='{0}'::regrole),
-                 (select array_upper(rolconfig,1) from pg_roles where oid='{0}'::regrole)
+                 (select array_lower(rolconfig,1) from pg_roles where quote_ident(rolname)='{0}'),
+                 (select array_upper(rolconfig,1) from pg_roles where quote_ident(rolname)='{0}')
               ) as generate_series(i)
-             where oid = '{0}'::regrole
+             where quote_ident(rolname) = '{0}'
              )
             select ddl||coalesce(ddl_config||E'\n','')
-              from q1,q2;
+              from q1,q2
         '''.format(p_object))
 
     def GetDDLTablespace(self, p_object):
         return self.v_connection.ExecuteScalar('''
-            select 'CREATE TABLESPACE ' || t.spcname ||
-                   ' LOCATION ' || chr(39) || pg_tablespace_location(t.oid) || chr(39) ||
-                   ' OWNER ' || r.rolname || ';'
+            select format(E'CREATE TABLESPACE %s\nLOCATION %s\nOWNER %s;',
+                         t.spcname,
+                         chr(39) || pg_tablespace_location(t.oid) || chr(39),
+                         r.rolname)
             from pg_tablespace t
             inner join pg_roles r
             on r.oid = t.spcowner
@@ -3057,9 +3057,10 @@ TO NODE ( nodename [, ... ] )
 
     def GetDDLDatabase(self, p_object):
         return self.v_connection.ExecuteScalar('''
-            select 'CREATE DATABASE ' || d.datname ||
-                   ' OWNER ' || r.rolname ||
-                   ' TABLESPACE ' || t.spcname || ';'
+            select format(E'CREATE DATABASE %s\nOWNER %s\nTABLESPACE %s;',
+                          d.datname,
+                          r.rolname,
+                          t.spcname)
             from pg_database d
             inner join pg_roles r
             on r.oid = d.datdba
@@ -3083,8 +3084,8 @@ TO NODE ( nodename [, ... ] )
                      pg_get_userbyid(n.nspowner) AS owner,
                      'SCHEMA' as sql_kind,
                      quote_ident(n.nspname) as sql_identifier
-                FROM pg_namespace n join pg_authid r on r.oid = n.nspowner
-               WHERE n.oid = '{0}'::regnamespace
+                FROM pg_namespace n join pg_roles r on r.oid = n.nspowner
+               WHERE quote_ident(n.nspname) = '{0}'
             ),
             comment as (
                 select format(
@@ -3098,14 +3099,14 @@ TO NODE ( nodename [, ... ] )
                        obj.sql_kind, sql_identifier, quote_ident(owner)) as text
                 from obj
             )
-            select format(E'CREATE SCHEMA %s;\n',cast('{0}'::regnamespace as text))
+            select format(E'CREATE SCHEMA %s;\n',quote_ident(n.nspname))
             	   || comment.text
                    || alterowner.text
               from pg_namespace n
               inner join comment on 1=1
               inner join alterowner on 1=1
-             where n.oid = '{0}'::regnamespace
-        ''')
+             where quote_ident(n.nspname) = '{0}'
+        '''.format(p_object))
 
     def GetDDLClass(self, p_schema, p_object):
         return self.v_connection.ExecuteScalar('''

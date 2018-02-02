@@ -328,8 +328,16 @@ function initCreateTabFunctions() {
 
   var v_createChatTabFunction = function() {
 
+    var v_img =
+        '<div>' +
+        '    <img id="chat_icon" style="height: 16px; width: 16px;" src="/static/OmniDB_app/images/icons/header_chat_icon_inactive.png">' +
+        '    <span>Chat</span>' +
+        '    <span id="chat_status" class="badge">0</span>' +
+        '</div>';
+
   	var v_tab = v_connTabControl.createTab(
-        '<img style="width: 16px; height: 16px;" src="/static/OmniDB_app/images/icons/header_chat_icon_inactive.png"/> Chat',
+        //'<img style="width: 16px; height: 16px;" src="/static/OmniDB_app/images/icons/header_chat_icon_inactive.png"/> Chat',
+        v_img,
         false,
         null,
         null,

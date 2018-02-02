@@ -480,7 +480,7 @@ class Oracle:
 
     def GetFunctionDefinition(self, p_function):
         v_body = '-- DROP FUNCTION {0};\n'.format(p_function)
-        v_body = v_body + self.v_connection.ExecuteScalar("select dbms_metadata.get_ddl('FUNCTION', '{0}') from dual".format(p_function))
+        v_body = v_body + self.v_connection.ExecuteScalar("select dbms_lob.substr(dbms_metadata.get_ddl('FUNCTION', '{0}'), 4000, 1) from dual".format(p_function))
         return v_body
 
     def QueryProcedures(self, p_all_schemas=False, p_schema=None):
@@ -532,7 +532,7 @@ class Oracle:
 
     def GetProcedureDefinition(self, p_procedure):
         v_body = '-- DROP PROCEDURE {0};\n'.format(p_procedure)
-        v_body = v_body + self.v_connection.ExecuteScalar("select dbms_metadata.get_ddl('PROCEDURE', '{0}') from dual".format(p_procedure))
+        v_body = v_body + self.v_connection.ExecuteScalar("select dbms_lob.substr(dbms_metadata.get_ddl('PROCEDURE', '{0}'), 4000, 1) from dual".format(p_procedure))
         return v_body
 
     def QuerySequences(self, p_all_schemas=False, p_schema=None):
@@ -916,41 +916,44 @@ SELECT ...
 ''')
 
     def GetProperties(self, p_schema, p_object, p_type):
-        v_table1 = self.v_connection.Query('''
-            select owner as "Owner",
-                   object_name as "Object Name",
-                   object_id as "Object ID",
-                   object_type as "Object Type",
-                   created as "Created",
-                   last_ddl_time as "Last DDL Time",
-                   timestamp as "Timestamp",
-                   status as "Status",
-                   temporary as "Temporary",
-                   generated as "Generated",
-                   secondary as "Secondary"
-            from all_objects
-            where owner = '{0}'
-              and object_name = '{1}'
-        '''.format(self.v_schema, p_object), True, True).Transpose('Property', 'Value')
-        if p_type == 'sequence':
-            v_table2 = self.v_connection.Query('''
-                select last_number as "Last Value",
-                       min_value as "Min Value",
-                       max_value as "Max Value",
-                       increment_by as "Increment By",
-                       cycle_flag as "Is Cached",
-                       order_flag as "Is Ordered",
-                       cache_size as "Cache Size"
-                from all_sequences
-                where sequence_owner = '{0}'
-                  and sequence_name = '{1}'
+        if p_type not in ('database', 'tablespace', 'role'):
+            v_table1 = self.v_connection.Query('''
+                select owner as "Owner",
+                       object_name as "Object Name",
+                       object_id as "Object ID",
+                       object_type as "Object Type",
+                       created as "Created",
+                       last_ddl_time as "Last DDL Time",
+                       timestamp as "Timestamp",
+                       status as "Status",
+                       temporary as "Temporary",
+                       generated as "Generated",
+                       secondary as "Secondary"
+                from all_objects
+                where owner = '{0}'
+                  and object_name = '{1}'
             '''.format(self.v_schema, p_object), True, True).Transpose('Property', 'Value')
-            v_table1.Merge(v_table2)
-        return v_table1
+            if p_type == 'sequence':
+                v_table2 = self.v_connection.Query('''
+                    select last_number as "Last Value",
+                           min_value as "Min Value",
+                           max_value as "Max Value",
+                           increment_by as "Increment By",
+                           cycle_flag as "Is Cached",
+                           order_flag as "Is Ordered",
+                           cache_size as "Cache Size"
+                    from all_sequences
+                    where sequence_owner = '{0}'
+                      and sequence_name = '{1}'
+                '''.format(self.v_schema, p_object), True, True).Transpose('Property', 'Value')
+                v_table1.Merge(v_table2)
+            return v_table1
+        else:
+            return None
 
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         return self.v_connection.ExecuteScalar('''
-            select dbms_metadata.get_ddl(object_type, object_name) as ddl,
+            select dbms_lob.substr(dbms_metadata.get_ddl(object_type, object_name), 4000, 1) as ddl
             from user_objects
             where object_name = '{0}'
         '''.format(p_object))

@@ -4035,7 +4035,7 @@ def SearchOldMessages(p_webSocketSession, p_requestMessage, p_responseMessage):
                 v_row['mes_st_content'],
                 v_row['mes_st_title'],
                 v_row['mes_st_attachmentname'],
-                v_row['visualizada'],
+                (True if v_row['visualizada'] else False),
                 v_row['mes_st_snippetmode'],
                 v_row['mes_st_originalcontent']
             )

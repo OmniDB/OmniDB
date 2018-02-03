@@ -2047,7 +2047,7 @@ class Oracle(Generic):
             raise Spartacus.Database.Exception("Oracle is not supported. Please install it with 'pip install Spartacus[oracle]'.")
     def GetConnectionString(self):
         if self.v_password is None or self.v_password == '':
-            return '{0}@{1}:{2}/{3}'.format(
+            return '{0}/@{1}:{2}/{3}'.format(
                 self.v_user,
                 self.v_host,
                 self.v_port,

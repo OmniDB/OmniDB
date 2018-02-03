@@ -3192,7 +3192,7 @@ function oracleTerminateBackend(p_row) {
 
     var v_pid = p_row[1] + ',' + p_row[2];
 
-    showConfirm('Are you sure you want to terminate backend ' + v_pid + '?',
+    showConfirm('Are you sure you want to terminate session ' + v_pid + '?',
         function() {
 
             oracleTerminateBackendConfirm(v_pid);

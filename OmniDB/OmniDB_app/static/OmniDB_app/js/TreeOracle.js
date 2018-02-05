@@ -1291,7 +1291,7 @@ function getTreeOracle(p_div) {
 /// <param name="node">Node object.</param>
 function getPropertiesOracle(node) {
     if (node.tag != undefined)
-        /*if (node.tag.type == 'role') {
+        if (node.tag.type == 'role') {
           getProperties('/get_properties_oracle/',
             {
               p_schema: null,
@@ -1315,15 +1315,7 @@ function getPropertiesOracle(node) {
               p_object: node.text,
               p_type: node.tag.type
             });
-        } else if (node.tag.type == 'schema') {
-          getProperties('/get_properties_oracle/',
-            {
-              p_schema: null,
-              p_table: null,
-              p_object: node.text,
-              p_type: node.tag.type
-            });
-        } else*/ if (node.tag.type == 'table') {
+        } else if (node.tag.type == 'table') {
         getProperties('/get_properties_oracle/',
           {
             p_schema: null,
@@ -1620,29 +1612,32 @@ function getTreeDetailsOracle(node) {
                 .v_database, true, '/static/OmniDB_app/images/db.png', {
                     type: 'connection'
                 }, 'cm_connection');
-            if (!node.tree.tag.express) {
-                var node_databases = node.createChildNode('Databases', false,
-                    '/static/OmniDB_app/images/db.png', {
-                        type: 'database_list',
-                        num_databases: 0
-                    }, 'cm_databases');
-                node_databases.createChildNode('', true,
+
+            if (node.tree.tag.superuser) {
+                if (!node.tree.tag.express) {
+                    var node_databases = node.createChildNode('Databases', false,
+                        '/static/OmniDB_app/images/db.png', {
+                            type: 'database_list',
+                            num_databases: 0
+                        }, 'cm_databases');
+                    node_databases.createChildNode('', true,
+                        '/static/OmniDB_app/images/spin.svg', null, null);
+                }
+                var node_tablespaces = node.createChildNode('Tablespaces',
+                    false, '/static/OmniDB_app/images/folder.png', {
+                        type: 'tablespace_list',
+                        num_tablespaces: 0
+                    }, 'cm_tablespaces');
+                node_tablespaces.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+                var node_roles = node.createChildNode('Roles', false,
+                    '/static/OmniDB_app/images/role.png', {
+                        type: 'role_list',
+                        num_roles: 0
+                    }, 'cm_roles');
+                node_roles.createChildNode('', true,
                     '/static/OmniDB_app/images/spin.svg', null, null);
             }
-            var node_tablespaces = node.createChildNode('Tablespaces',
-                false, '/static/OmniDB_app/images/folder.png', {
-                    type: 'tablespace_list',
-                    num_tablespaces: 0
-                }, 'cm_tablespaces');
-            node_tablespaces.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
-            var node_roles = node.createChildNode('Roles', false,
-                '/static/OmniDB_app/images/role.png', {
-                    type: 'role_list',
-                    num_roles: 0
-                }, 'cm_roles');
-            node_roles.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
 
             var node_tables = node_connection.createChildNode('Tables', false,
                 '/static/OmniDB_app/images/table_multiple.png', {

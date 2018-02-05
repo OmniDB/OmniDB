@@ -916,7 +916,107 @@ SELECT ...
 ''')
 
     def GetProperties(self, p_schema, p_object, p_type):
-        if p_type not in ('database', 'tablespace', 'role'):
+        if p_type == 'role':
+            v_table1 = self.v_connection.Query('''
+                select username as "User",
+                       user_id as "ID",
+                       account_status as "Status",
+                       lock_date as "Lock Date",
+                       expiry_date as "Expiry Date",
+                       default_tablespace as "Default Tablespace",
+                       temporary_tablespace as "Temporary Tablespace",
+                       created as "Creation Date",
+                       initial_rsrc_consumer_group as "Group",
+                       authentication_type as "Authentication Type"
+                from dba_users
+                where username = '{0}'
+            '''.format(p_object), True, True).Transpose('Property', 'Value')
+        elif p_type == 'tablespace':
+            v_table1 = self.v_connection.Query('''
+                select tablespace_name as "Tablespace",
+                       block_size as "Block Size",
+                       initial_extent as "Initial Extent",
+                       next_extent as "Next Extent",
+                       min_extents as "Min Extents",
+                       max_extents as "Max Extents",
+                       max_size as "Max Size",
+                       pct_increase as "Percent Increase",
+                       min_extlen as "Min Extent Length",
+                       status as "Status",
+                       contents as "Contents",
+                       logging as "Logging",
+                       force_logging as "Force Logging",
+                       extent_management as "Extent Management",
+                       allocation_type as "Allocation Type",
+                       plugged_in as "Plugged In",
+                       segment_space_management as "Segment Space Management",
+                       def_tab_compression as "Deferrable Compression",
+                       retention as "Retention",
+                       bigfile as "Big File",
+                       predicate_evaluation as "Predicate Evaluation",
+                       encrypted as "Encrypted",
+                       compress_for as "Compression Format"
+                from dba_tablespaces
+                where tablespace_name = '{0}'
+            '''.format(p_object), True, True).Transpose('Property', 'Value')
+        elif p_type == 'database':
+            v_table1 = self.v_connection.Query('''
+                select name as "Name",
+                       dbid as "ID",
+                       created as "Creation Date",
+                       resetlogs_change# as "Reset Logs Change Number",
+                       resetlogs_time as "Reset Logs Time",
+                       prior_resetlogs_change# as "Prior Reset Logs Change Number",
+                       prior_resetlogs_time as "Prior Reset Logs Time",
+                       log_mode as "Log Mode",
+                       checkpoint_change# as "Checkpoint Change Number",
+                       archive_change# as "Archive Change Number",
+                       controlfile_type as "Control File Type",
+                       controlfile_created as "Control File Creation Date",
+                       controlfile_sequence# as "Control File Sequence Number",
+                       controlfile_change# as "Control File Change Number",
+                       controlfile_time as "Control File Time",
+                       open_resetlogs as "Open Reset Logs",
+                       version_time as "Version Time",
+                       open_mode as "Open Mode",
+                       protection_mode as "Protection Mode",
+                       protection_level as "Protection Level",
+                       remote_archive as "Remote Archive",
+                       activation# as "Activation Number",
+                       switchover# as "Switchover Number",
+                       database_role as "Database Role",
+                       archivelog_change# as "Archive Log Change Number",
+                       archivelog_compression as "Archive Log Compression",
+                       switchover_status as "Switchover Status",
+                       dataguard_broker as "Dataguard Broker",
+                       guard_status as "Guard Status",
+                       force_logging as "Force Logging",
+                       platform_id as "Platform ID",
+                       platform_name as "Platform Name",
+                       recovery_target_incarnation# as "Rcv Tgt Incarnation Number",
+                       last_open_incarnation# as "Last Open Incarnation Number",
+                       current_scn as "Current SCN",
+                       flashback_on as "Flashback On",
+                       db_unique_name as "Database Unique Name",
+                       standby_became_primary_scn as "Standby Became Primary SCN",
+                       fs_failover_status as "Failover Status",
+                       fs_failover_current_target as "Failover Current Target",
+                       fs_failover_threshold as "Failover Threshold",
+                       fs_failover_observer_present as "Failover Observer Present",
+                       fs_failover_observer_host as "Failover Observer Host",
+                       controlfile_converted as "Control File Converted",
+                       primary_db_unique_name as "Primary Database Unique Name",
+                       min_required_capture_change# as "Min Req Capture Change Number",
+                       supplemental_log_data_min as "Supplemental Log Data Min",
+                       supplemental_log_data_pk as "Supplemental Log Data PK",
+                       supplemental_log_data_ui as "Supplemental Log Data UI",
+                       supplemental_log_data_fk as "Supplemental Log Data FK",
+                       supplemental_log_data_all as "Supplemental Log Data All",
+                       supplemental_log_data_pl as "Supplemental Log Data PL"
+                from v$database
+                where name = '{0}'
+            '''.format(p_object), True, True).Transpose('Property', 'Value')
+        else:
             v_table1 = self.v_connection.Query('''
                 select owner as "Owner",
                        object_name as "Object Name",
@@ -932,6 +1032,7 @@ SELECT ...
                 from all_objects
                 where owner = '{0}'
                   and object_name = '{1}'
+                  and subobject_name is null
             '''.format(self.v_schema, p_object), True, True).Transpose('Property', 'Value')
             if p_type == 'sequence':
                 v_table2 = self.v_connection.Query('''
@@ -947,13 +1048,14 @@ SELECT ...
                       and sequence_name = '{1}'
                 '''.format(self.v_schema, p_object), True, True).Transpose('Property', 'Value')
                 v_table1.Merge(v_table2)
-            return v_table1
-        else:
-            return None
+        return v_table1
 
     def GetDDL(self, p_schema, p_table, p_object, p_type):
-        return self.v_connection.ExecuteScalar('''
-            select dbms_lob.substr(dbms_metadata.get_ddl(object_type, object_name), 4000, 1) as ddl
-            from user_objects
-            where object_name = '{0}'
-        '''.format(p_object))
+        if p_type == 'role' or p_type == 'tablespace' or p_type == 'database':
+            return ' '
+        else:
+            return self.v_connection.ExecuteScalar('''
+                select dbms_lob.substr(dbms_metadata.get_ddl(object_type, object_name), 4000, 1) as ddl
+                from user_objects
+                where object_name = '{0}'
+            '''.format(p_object))

@@ -2746,7 +2746,7 @@ TO NODE ( nodename [, ... ] )
                    rolconnlimit as "Connection Limit",
                    rolvaliduntil as "Valid Until"
             from pg_roles
-            where rolname = '{0}'
+            where quote_ident(rolname) = '{0}'
         '''.format(p_object))
 
     def GetPropertiesTablespace(self, p_object):
@@ -2760,7 +2760,7 @@ TO NODE ( nodename [, ... ] )
             from pg_tablespace t
             inner join pg_roles r
             on r.oid = t.spcowner
-            where t.spcname = '{0}'
+            where quote_ident(t.spcname) = '{0}'
         '''.format(p_object))
 
     def GetPropertiesDatabase(self, p_object):
@@ -2781,7 +2781,7 @@ TO NODE ( nodename [, ... ] )
             on r.oid = d.datdba
             inner join pg_tablespace t
             on t.oid = d.dattablespace
-            where d.datname = '{0}'
+            where quote_ident(d.datname) = '{0}'
         '''.format(p_object))
 
     def GetPropertiesSchema(self, p_object):
@@ -2792,7 +2792,7 @@ TO NODE ( nodename [, ... ] )
             from pg_namespace n
             inner join pg_roles r
             on r.oid = n.nspowner
-            where n.nspname = '{0}'
+            where quote_ident(n.nspname) = '{0}'
         '''.format(p_object))
 
     def GetPropertiesTable(self, p_schema, p_object):
@@ -2832,8 +2832,8 @@ TO NODE ( nodename [, ... ] )
             where d.datname = current_database()
             ) t2
             on 1 = 1
-            where n.nspname = '{0}'
-              and c.relname = '{1}'
+            where quote_ident(n.nspname) = '{0}'
+              and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object))
 
     def GetPropertiesIndex(self, p_schema, p_object):
@@ -2864,8 +2864,8 @@ TO NODE ( nodename [, ... ] )
             on 1 = 1
             inner join pg_am a
             on a.oid = c.relam
-            where n.nspname = '{0}'
-              and c.relname = '{1}'
+            where quote_ident(n.nspname) = '{0}'
+              and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object))
 
     def GetPropertiesSequence(self, p_schema, p_object):
@@ -2892,8 +2892,8 @@ TO NODE ( nodename [, ... ] )
             where d.datname = current_database()
             ) t2
             on 1 = 1
-            where n.nspname = '{0}'
-              and c.relname = '{1}'
+            where quote_ident(n.nspname) = '{0}'
+              and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object)).Transpose('Property', 'Value')
         v_table2 = self.v_connection.Query('''
             select last_value as "Last Value",
@@ -2921,8 +2921,8 @@ TO NODE ( nodename [, ... ] )
             on n.oid = c.relnamespace
             inner join pg_roles r
             on r.oid = c.relowner
-            where n.nspname = '{0}'
-              and c.relname = '{1}'
+            where quote_ident(n.nspname) = '{0}'
+              and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object))
 
     def GetPropertiesFunction(self, p_object):
@@ -3052,7 +3052,7 @@ TO NODE ( nodename [, ... ] )
             from pg_tablespace t
             inner join pg_roles r
             on r.oid = t.spcowner
-            where t.spcname = '{0}'
+            where quote_ident(t.spcname) = '{0}'
         '''.format(p_object))
 
     def GetDDLDatabase(self, p_object):
@@ -3066,7 +3066,7 @@ TO NODE ( nodename [, ... ] )
             on r.oid = d.datdba
             inner join pg_tablespace t
             on t.oid = d.dattablespace
-            where d.datname = '{0}'
+            where quote_ident(d.datname) = '{0}'
         '''.format(p_object))
 
     def GetDDLSchema(self, p_object):

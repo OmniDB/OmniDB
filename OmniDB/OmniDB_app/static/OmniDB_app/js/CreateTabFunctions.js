@@ -231,9 +231,6 @@ function initCreateTabFunctions() {
 
       v_selectPropertiesTabFunc();
 
-      if (p_create_query_tab)
-    	 v_connTabControl.tag.createQueryTab();
-
       var v_index = v_connTabControl.tag.connections[0].v_conn_id;
       if (p_index)
         v_index = p_index;
@@ -242,7 +239,10 @@ function initCreateTabFunctions() {
       v_tag.divSelectDB.childNodes[0].value=v_index;
     	$(v_tag.divSelectDB.childNodes[0]).msDropDown();
 
-    	changeDatabase(v_index)
+    	changeDatabase(v_index);
+
+      if (p_create_query_tab)
+    	 v_connTabControl.tag.createQueryTab();
 
     	v_connTabControl.createTab('+',false,v_createConnTabFunction);
 
@@ -1253,8 +1253,8 @@ function initCreateTabFunctions() {
 					"<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='querySQL(0);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_indent_" + v_tab.id + "' class='bt_execute' title='Indent SQL' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='indentSQL();'><img src='/static/OmniDB_app/images/indent.png' style='vertical-align: middle;'/></button>" +
 					"<select id='sel_filtered_data_" + v_tab.id + "' style='display: none;'><option value='0' >Script</option><option selected='selected' value='1' >Query</option></select>" +
-          "<button onclick='getExplain(0)' title='Explain' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;'><img src='/static/OmniDB_app/images/explain.png' style='vertical-align: middle;'/></button>" +
-          "<button onclick='getExplain(1)' title='Explain Analyze' style='margin-bottom: 5px; display: inline-block; vertical-align: middle;'><img src='/static/OmniDB_app/images/analyze.png' style='vertical-align: middle;'/></button>" +
+          "<button class='dbms_object postgresql_object' onclick='getExplain(0)' title='Explain' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle; display: none;'><img src='/static/OmniDB_app/images/explain.png' style='vertical-align: middle;'/></button>" +
+          "<button class='dbms_object postgresql_object' onclick='getExplain(1)' title='Explain Analyze' style='margin-bottom: 5px; display: inline-block; vertical-align: middle; display: none;'><img src='/static/OmniDB_app/images/analyze.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='querySQL(1);'>Fetch more</button>" +
           "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='querySQL(2);'>Fetch all</button>" +
           "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='cancelSQL();'>Cancel</button>" +
@@ -1264,8 +1264,8 @@ function initCreateTabFunctions() {
           "        <div id='query_result_tabs_" + v_tab.id + "'>" +
           "            <ul>" +
           "            <li id='query_result_tabs_" + v_tab.id + "_tab1'>Data</li>" +
-          "            <li id='query_result_tabs_" + v_tab.id + "_tab2'>Messages <div id='query_result_tabs_count_notices_" + v_tab.id + "' class='count_notices' style='display: none;'></div></li>" +
-          "            <li id='query_result_tabs_" + v_tab.id + "_tab3'>Explain</li>" +
+          "            <li id='query_result_tabs_" + v_tab.id + "_tab2' class='dbms_object postgresql_object' style='display: none;'>Messages <div id='query_result_tabs_count_notices_" + v_tab.id + "' class='count_notices' style='display: none;'></div></li>" +
+          "            <li id='query_result_tabs_" + v_tab.id + "_tab3' class='dbms_object postgresql_object' style='display: none;'>Explain</li>" +
           "			</ul>" +
           "			<div id='div_query_result_tabs_" + v_tab.id + "_tab1'>" +
           "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
@@ -1445,6 +1445,8 @@ function initCreateTabFunctions() {
     setTimeout(function() {
       refreshHeights();
     },10);
+
+    adjustQueryTabObjects(false);
 
 	};
 

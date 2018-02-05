@@ -289,6 +289,7 @@ function changeDatabase(p_value) {
 	}
 
 	v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
+	v_connTabControl.selectedTab.tag.selectedDBMS = v_conn_object.v_db_type;
 
 	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
 
@@ -298,6 +299,8 @@ function changeDatabase(p_value) {
 		getTreeOracle(v_connTabControl.selectedTab.tag.divTree.id);
 	else
 		getTree(v_connTabControl.selectedTab.tag.divTree.id);
+
+	adjustQueryTabObjects(true);
 
 }
 
@@ -694,8 +697,6 @@ function resizeTreeVerticalEnd(event) {
 		if (Math.abs(v_height_diff) > parseInt(v_result_div.clientHeight, 10))
 		 v_height_diff = parseInt(v_result_div.clientHeight, 10) - 10;
 	}
-
-	console.log(v_height_diff);
 
 	v_tree_div.style.height = parseInt(v_tree_div.clientHeight, 10) + v_height_diff + 'px';
 	v_result_div.style.height = parseInt(v_result_div.clientHeight, 10) - v_height_diff + 'px';
@@ -1204,4 +1205,24 @@ function addLoadingCursor() {
 
 function removeLoadingCursor() {
 	document.body.classList.remove("cursor_loading");
+}
+
+function adjustQueryTabObjects(p_all_tabs) {
+	var v_dbms = v_connTabControl.selectedTab.tag.selectedDBMS;
+
+	var v_target_div = null;
+	if (!p_all_tabs)
+		v_target_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.elementDiv;
+	else
+		v_target_div = v_connTabControl.selectedTab.elementDiv;
+
+	var v_objects = $(v_target_div).find(".dbms_object").each(function() {
+	  $( this ).css('display','none');
+	});
+
+	var v_objects = $(v_target_div).find("." + v_dbms + "_object").each(function() {
+	  $( this ).css('display','inline-block');
+	});
+
+
 }

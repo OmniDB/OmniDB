@@ -2046,21 +2046,13 @@ class Oracle(Generic):
         else:
             raise Spartacus.Database.Exception("Oracle is not supported. Please install it with 'pip install Spartacus[oracle]'.")
     def GetConnectionString(self):
-        if self.v_password is None or self.v_password == '':
-            return '{0}/@{1}:{2}/{3}'.format(
-                self.v_user,
-                self.v_host,
-                self.v_port,
-                self.v_service
-            )
-        else:
-            return '{0}/{1}@{2}:{3}/{4}'.format(
-                self.v_user,
-                self.v_password,
-                self.v_host,
-                self.v_port,
-                self.v_service
-            )
+        return '{0}/{1}@{2}:{3}/{4}'.format(
+            self.v_user,
+            self.v_password,
+            self.v_host,
+            self.v_port,
+            self.v_service
+        )
     def Open(self, p_autocommit=True):
         try:
             self.v_con = cx_Oracle.connect(self.GetConnectionString())
@@ -2070,6 +2062,7 @@ class Oracle(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+
     def Query(self, p_sql, p_alltypesstr=False, p_simple=False):
         try:
             v_keep = None

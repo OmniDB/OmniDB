@@ -32,6 +32,11 @@ def index(request):
     else:
         v_is_secure = 'false'
 
+    if settings.DEV_MODE:
+        v_dev_mode = 'true'
+    else:
+        v_dev_mode = 'false'
+
     context = {
         'session' : v_session,
         'desktop_mode': settings.DESKTOP_MODE,
@@ -39,6 +44,7 @@ def index(request):
         'menu_item': 'workspace',
         'query_port': settings.OMNIDB_PORT,
         'is_secure' : v_is_secure,
+        'dev_mode': v_dev_mode,
         'execute': settings.BINDKEY_EXECUTE,
         'execute_mac': settings.BINDKEY_EXECUTE_MAC,
         'autocomplete': settings.BINDKEY_AUTOCOMPLETE,

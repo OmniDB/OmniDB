@@ -14,20 +14,6 @@ if platform.system() == 'Linux':
         os.environ['LD_LIBRARY_PATH'] += ':' + workdir
     else:
       rerun = False
-elif platform.system() == 'Darwin':
-    if not 'DYLD_LIBRARY_PATH' in os.environ:
-        os.environ['DYLD_LIBRARY_PATH'] = ':' + workdir
-    elif not workdir in os.environ.get('DYLD_LIBRARY_PATH'):
-        os.environ['DYLD_LIBRARY_PATH'] += ':' + workdir
-    else:
-      rerun = False
-elif platform.system() == 'Windows':
-    if not 'PATH' in os.environ:
-        os.environ['PATH'] = ';' + workdir
-    elif not workdir in os.environ.get('PATH'):
-        os.environ['PATH'] += ';' + workdir
-    else:
-      rerun = False
 else:
     rerun = False
 if rerun:

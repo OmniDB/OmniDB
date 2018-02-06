@@ -34,9 +34,9 @@ $(function () {
 	//v_connTabControl.tag.createServerMonitoringTab();
 
 
-	if(!gv_desktopMode) {
+	/*if(!gv_desktopMode) {
 		v_connTabControl.tag.createChatTab();
-	}
+	}*/
 
 	getDatabaseList(true);
 

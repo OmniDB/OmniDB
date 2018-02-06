@@ -2979,11 +2979,11 @@ TO NODE ( nodename [, ... ] )
         elif p_type == 'mview':
             return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
         elif p_type == 'function':
-            return self.GetPropertiesFunction(p_schema, p_object).Transpose('Property', 'Value')
+            return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
         elif p_type == 'trigger':
             return None
         elif p_type == 'triggerfunction':
-            return self.GetPropertiesFunction(p_schema, p_object).Transpose('Property', 'Value')
+            return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
         else:
             return None
 

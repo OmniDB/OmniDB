@@ -621,13 +621,13 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Vacuum Database', node.tree
                         .tag.vacuum);
                 }
-            }, {
+            }/*, {
                 text: 'Data Mining',
                 icon: '/static/OmniDB_app/images/data_mining.png',
                 action: function(node) {
                     tabDataMining();
                 }
-            }]
+            }*/]
         },
         'cm_databases': {
             elements: [{

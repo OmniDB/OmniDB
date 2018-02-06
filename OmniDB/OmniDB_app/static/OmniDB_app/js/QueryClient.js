@@ -58,8 +58,17 @@ function startQueryWebSocket(p_port) {
 	var v_address = '';
 	var v_channel = '';
 
+	var v_secure = false;
+	if (window.location.protocol == "https:")
+		v_secure  = true;
 
-	if (v_is_secure) {
+	var v_port = p_port;
+
+	if (!v_dev_mode)
+		v_port = parseInt(window.location.port);
+
+
+	if (v_secure) {
 		v_address = 'wss://' + window.location.hostname;
 		v_channel = 'wss';
 	}
@@ -70,7 +79,7 @@ function startQueryWebSocket(p_port) {
 
 	v_queryWebSocket  = createWebSocket(
 		v_address,
-		p_port,
+		v_port,
 		function(p_event) {//Open
 			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Login, v_user_key, false);
 		},

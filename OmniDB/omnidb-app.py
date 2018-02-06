@@ -5,7 +5,7 @@ import os
 import sys
 import platform
 
-workdir = os.path.dirname(os.path.realpath(__file__))
+workdir = '/opt/omnidb-app/'
 rerun = True
 if platform.system() == 'Linux':
     if not 'LD_LIBRARY_PATH' in os.environ:
@@ -17,7 +17,7 @@ if platform.system() == 'Linux':
 else:
     rerun = False
 if rerun:
-  os.execve(os.path.realpath(__file__), sys.argv, os.environ)
+  os.execve(workdir + 'omnidb-app', sys.argv, os.environ)
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'OmniDB.settings'
 import django

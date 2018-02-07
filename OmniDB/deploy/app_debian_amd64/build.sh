@@ -83,7 +83,7 @@ mkdir -p omnidb-app_$VERSION-$ARCH
 cd omnidb-app_$VERSION-$ARCH
 mkdir opt
 mv ../omnidb-app opt/
-cd opt/omnidb-server/
+cd opt/omnidb-app/
 cp ~/linux_x64/* .
 ln -s libclntsh.so.11.1 libclntsh.so
 ln -s libocci.so.11.1 libocci.so

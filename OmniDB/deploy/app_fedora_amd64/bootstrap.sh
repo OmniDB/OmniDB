@@ -3,13 +3,8 @@
 PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
-yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build wget
+yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build wget p7zip
 yum groupinstall -y gnome
-echo "Done"
-
-echo "Installing p7zip..."
-wget https://www.mirrorservice.org/sites/dl.fedoraproject.org/pub/epel/7/x86_64/Packages/p/p7zip-16.02-2.el7.x86_64.rpm
-rpm -U --quiet p7zip-16.02-2.el7.x86_64.rpm
 echo "Done"
 
 echo "Installing pyenv..."

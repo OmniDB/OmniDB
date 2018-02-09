@@ -851,27 +851,8 @@ class PostgreSQL:
             from information_schema.sequences
             where 1 = 1
             {0}
-            order by 1
+            order by 1, 2
         '''.format(v_filter), True)
-        return v_table
-
-    def QuerySequenceValues(self, p_sequence, p_schema):
-        v_table = self.v_connection.Query('''
-            select quote_ident(sequence_schema) as sequence_schema,
-                   quote_ident(sequence_name) as sequence_name,
-                   minimum_value,
-                   maximum_value,
-                   0 as current_value,
-                   increment
-            from information_schema.sequences
-            where quote_ident(sequence_schema) = '{0}'
-              and quote_ident(sequence_name) = '{1}'
-            order by 1
-        '''.format(p_schema, p_sequence), True)
-        for i in range(0, len(v_table.Rows)):
-            v_table.Rows[i]['current_value'] = self.v_connection.ExecuteScalar(
-                "select last_value from {0}.{1}".format(v_table.Rows[i]['sequence_schema'], v_table.Rows[i]['sequence_name'])
-            )
         return v_table
 
     def QueryViews(self, p_all_schemas=False, p_schema=None):
@@ -1069,6 +1050,499 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and quote_ident(s.subname) = '{1}'
             order by 1
         '''.format(self.v_service, p_sub), True)
+
+    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_summarizeResults):
+        v_sql = '''
+            select x.*
+            from (
+                select null::text as category,
+                       null::text as schema_name,
+                       null::text as table_name,
+                       null::text as column_name,
+                       null::text as match_value
+
+                /*#START_FUNCTION NAME#
+                union
+
+                select 'Function Name'::text as category,
+                       n.nspname::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       p.proname::text as match_value
+                from pg_proc p
+                inner join pg_namespace n
+                           on p.pronamespace = n.oid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and n.nspname not like 'pg%%temp%%'
+                  and format_type(p.prorettype, null) <> 'trigger'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and p.proname ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                #END_FUNCTION NAME#*/
+
+                /*#START_TABLE NAME#
+                union
+
+                select 'Table Name'::text as category,
+                       t.table_schema::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       t.table_name::text as match_value
+                from information_schema.tables t
+                where t.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and t.table_schema not like 'pg%%temp%%'
+                  and t.table_type = 'BASE TABLE'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and t.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and t.table_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(t.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_TABLE NAME#*/
+
+                /*#START_VIEW NAME#
+                union
+
+                select 'View Name'::text as category,
+                       v.table_schema::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       v.table_name::text as match_value
+                from information_schema.views v
+                where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and v.table_schema not like 'pg%%temp%%'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and v.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(v.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and v.table_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(v.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_VIEW NAME#*/
+
+                /*#START_MATERIALIZED VIEW NAME#
+                union
+
+                select 'Materialized View Name'::text as category,
+                       n.nspname::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       c.relname::text as match_value
+                from pg_class c
+                inner join pg_namespace n
+                           on n.oid = c.relnamespace
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and n.nspname not like 'pg%%temp%%'
+                  and c.relkind = 'm'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and c.relname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.relname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and c.relname ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                #END_MATERIALIZED VIEW NAME#*/
+
+                /*#START_SEQUENCE NAME#
+                union
+
+                select 'Sequence Name'::text as category,
+                       s.sequence_schema::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       s.sequence_name::text as match_value
+                from information_schema.sequences s
+                where s.sequence_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and s.sequence_schema not like 'pg%%temp%%'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and s.sequence_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(s.sequence_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and s.sequence_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(s.sequence_schema) in (#VALUE_BY_SCHEMA#)
+                #END_SEQUENCE NAME#*/
+
+                /*#START_SCHEMA NAME#
+                union
+
+                select 'Schema Name'::text as category,
+                       ''::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       n.nspname::text as match_value
+                from pg_namespace n
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and n.nspname not like 'pg%%temp%%'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and n.nspname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(n.nspname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and n.nspname ~ '#VALUE_PATTERN_REGEX#'
+                #END_SCHEMA NAME#*/
+
+                /*#START_FUNCTION DEFINITION#
+                union
+
+                select 'Function Definition'::text as category,
+                       y.schema_name::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       y.function_definition::text as match_value
+                from (
+                    select pg_get_functiondef(z.function_oid::regprocedure) as function_definition,
+                           *
+                    from (
+                        select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as function_oid,
+                               p.proname as function_name,
+                               n.nspname as schema_name
+                        from pg_proc p
+                        inner join pg_namespace n
+                                   on p.pronamespace = n.oid
+                        where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                          and n.nspname not like 'pg%%temp%%'
+                          and format_type(p.prorettype, null) <> 'trigger'
+                        --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                    ) z
+                ) y
+                where 1 = 1
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and y.function_definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.function_definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and y.function_definition ~ '#VALUE_PATTERN_REGEX#'
+                #END_FUNCTION DEFINITION#*/
+
+                /*#START_TRIGGER NAME#
+                union
+
+                select 'Trigger Name'::text as category,
+                       n.nspname::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       p.proname::text as match_value
+                from pg_proc p
+                inner join pg_namespace n
+                           on p.pronamespace = n.oid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and n.nspname not like 'pg%%temp%%'
+                  and format_type(p.prorettype, null) = 'trigger'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and p.proname ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                #END_TRIGGER NAME#*/
+
+                /*#START_TRIGGER SOURCE#
+                union
+
+                select 'Trigger Source'::text as category,
+                       n.nspname::text as schema_name,
+                       ''::text as table_name,
+                       ''::text as column_name,
+                       p.prosrc::text as match_value
+                from pg_proc p
+                inner join pg_namespace n
+                           on p.pronamespace = n.oid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and n.nspname not like 'pg%%temp%%'
+                  and format_type(p.prorettype, null) = 'trigger'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and p.prosrc like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.prosrc) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and p.prosrc ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                #END_TRIGGER SOURCE#*/
+
+                /*#START_TABLE COLUMN NAME#
+                union
+
+                select 'Table Column Name'::text as category,
+                       c.table_schema::text as schema_name,
+                       c.table_name::text as table_name,
+                       ''::text as column_name,
+                       c.column_name::text as match_value
+                from information_schema.tables t
+                inner join information_schema.columns c
+                           on t.table_name = c.table_name and t.table_schema = c.table_schema
+                where c.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and c.table_schema not like 'pg%%temp%%'
+                  and t.table_type = 'BASE TABLE'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_TABLE COLUMN NAME#*/
+
+                /*#START_VIEW COLUMN NAME#
+                union
+
+                select 'View Column Name'::text as category,
+                       c.table_schema::text as schema_name,
+                       c.table_name::text as table_name,
+                       ''::text as column_name,
+                       c.column_name::text as match_value
+                from information_schema.views v
+                inner join information_schema.columns c
+                           on v.table_name = c.table_name and v.table_schema = c.table_schema
+                where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and v.table_schema not like 'pg%%temp%%'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_VIEW COLUMN NAME#*/
+
+                /*#START_MATERIALIZED VIEW COLUMN NAME#
+                union
+
+                select 'Materialized View Column Name'::text as category,
+                       n.nspname::text as schema_name,
+                       c.relname::text as table_name,
+                       ''::text as column_name,
+                       a.attname::text as match_value
+                from pg_attribute a
+                inner join pg_class c
+                           on c.oid = a.attrelid
+                inner join pg_namespace n
+                           on n.oid = c.relnamespace
+                inner join pg_type t
+                           on t.oid = a.atttypid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and n.nspname not like 'pg%%temp%%'
+                  and a.attnum > 0
+                  and not a.attisdropped
+                  and c.relkind = 'm'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and a.attname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(a.attname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and a.attname ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                #END_MATERIALIZED VIEW COLUMN NAME#*/
+
+                /*#START_PK NAME#
+                union
+
+                select 'PK Name'::text as category,
+                       tc.table_schema::text as schema_name,
+                       tc.table_name::text as table_name,
+                       ''::text as column_name,
+                       tc.constraint_name::text as match_value
+                from information_schema.table_constraints tc
+                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and tc.table_schema not like 'pg%%temp%%'
+                  and tc.constraint_type = 'PRIMARY KEY'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_PK NAME#*/
+
+                /*#START_FK NAME#
+                union
+
+                select 'FK Name'::text as category,
+                       tc.table_schema::text as schema_name,
+                       tc.table_name::text as table_name,
+                       ''::text as column_name,
+                       tc.constraint_name::text as match_value
+                from information_schema.table_constraints tc
+                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and tc.table_schema not like 'pg%%temp%%'
+                  and tc.constraint_type = 'FOREIGN KEY'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_FK NAME#*/
+
+                /*#START_UNIQUE NAME#
+                union
+
+                select 'Unique Name'::text as category,
+                       tc.table_schema::text as schema_name,
+                       tc.table_name::text as table_name,
+                       ''::text as column_name,
+                       tc.constraint_name::text as match_value
+                from information_schema.table_constraints tc
+                where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and tc.table_schema not like 'pg%%temp%%'
+                  and tc.constraint_type = 'UNIQUE'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
+                #END_UNIQUE NAME#*/
+
+                /*#START_INDEX NAME#
+                union
+
+                select 'Index Name'::text as category,
+                       i.schemaname::text as schema_name,
+                       i.tablename::text as table_name,
+                       ''::text as column_name,
+                       i.indexname::text as match_value
+                from pg_indexes i
+                where i.schemaname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and i.schemaname not like 'pg%%temp%%'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and i.indexname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(i.indexname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and i.indexname ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(i.schemaname) in (#VALUE_BY_SCHEMA#)
+                #END_INDEX NAME#*/
+
+                /*#START_CHECK NAME#
+                union
+
+                select 'Check Name'::text as category,
+                       quote_ident(n.nspname)::text as schema_name,
+                       ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.')::text as table_name,
+                       ''::text as column_name,
+                       quote_ident(c.conname)::text as match_value
+                from pg_constraint c
+                inner join pg_class t
+                           on t.oid = c.conrelid
+                inner join pg_namespace n
+                           on t.relnamespace = n.oid
+                where contype = 'c'
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(c.conname) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(c.conname)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and quote_ident(c.conname) ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(quote_ident(n.nspname)) in (#VALUE_BY_SCHEMA#)
+                #END_INDEX NAME#*/
+
+                /*#START_RULE NAME#
+                union
+
+                select 'Rule Name'::text as category,
+                       quote_ident(schemaname)::text as schema_name,
+                       quote_ident(tablename)::text as table_name,
+                       ''::text as column_name,
+                       quote_ident(rulename)::text as match_value
+                from pg_rules
+                where 1 = 1
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(rulename) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(rulename)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and quote_ident(rulename) ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(quote_ident(schemaname)) in (#VALUE_BY_SCHEMA#)
+                #END_RULE NAME#*/
+
+                /*#START_RULE DEFINITION#
+                union
+
+                select 'Rule Definition'::text as category,
+                       quote_ident(schemaname)::text as schema_name,
+                       quote_ident(tablename)::text as table_name,
+                       ''::text as column_name,
+                       definition::text as match_value
+                from pg_rules
+                where 1 = 1
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and definition ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(quote_ident(schemaname)) in (#VALUE_BY_SCHEMA#)
+                #END_RULE DEFINITION#*/
+
+                /*#START_PARTITION NAME#
+                union
+
+                select 'Partition Name'::text as category,
+                       quote_ident(np.nspname)::text as schema_name,
+                       quote_ident(cp.relname)::text as table_name,
+                       ''::text as column_name,
+                       quote_ident(cc.relname)::text as match_value
+                from pg_inherits i
+                inner join pg_class cp
+                           on cp.oid = i.inhparent
+                inner join pg_namespace np
+                           on np.oid = cp.relnamespace
+                inner join pg_class cc
+                           on cc.oid = i.inhrelid
+                inner join pg_namespace nc
+                           on nc.oid = cc.relnamespace
+                where 1 = 1
+                --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(cc.relname) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(cc.relname)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                --#FILTER_PATTERN_REGEX# and quote_ident(cc.relname) ~ '#VALUE_PATTERN_REGEX#'
+                --#FILTER_BY_SCHEMA#  and lower(quote_ident(np.nspname)) in (#VALUE_BY_SCHEMA#)
+                #END_PARTITION NAME#*/
+
+                --#START_DATA##END_DATA#
+            ) x
+            where x.category is not null
+            order by x.category, x.schema_name, x.table_name, x.column_name, x.match_value
+        '''
+
+        v_inSchemas = ''
+
+        if len(p_schemaList) > 0:
+            for v_schema in p_schemaList:
+                v_inSchemas += "'{0}', ".format(v_schema)
+
+            v_inSchemas = v_inSchemas[:-2]
+
+        if 'Data' in p_categoryList and v_inSchemas != '':
+            v_columnsSql = '''
+                select n.nspname as schema_name,
+                       c.relname as table_name,
+                       a.attname as column_name
+                from pg_namespace n
+                inner join pg_class c
+                           on n.oid = c.relnamespace
+                inner join pg_attribute a
+                           on c.oid = a.attrelid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and n.nspname not like 'pg%%temp%%'
+                  and c.relkind = 'r'
+                  and attnum > 0
+                  and not a.attisdropped
+                  and n.nspname in ({0})
+            '''.format(v_inSchemas)
+
+            v_columnsTable = self.v_connection.Query(v_columnsSql)
+
+            if len(v_columnsTable.Rows) > 0:
+                v_dataSql = ''
+
+                for v_columnRow in v_columnsTable.Rows:
+                    v_dataSql += '''
+
+                        union
+
+                        select 'Data' as category,
+                               '{0}' as schema_name,
+                               '{1}' as table_name,
+                               '{2}' as column_name,
+                               t.{2}::text as match_value
+                        from (
+                            select t.{2}
+                            from {0}.{1} t
+                            where 1 = 1
+                            --#FILTER_PATTERN_CASE_SENSITIVE#  and t.{2}::text like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.{2}::text) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                            --#FILTER_PATTERN_REGEX# and t.{2}::text ~ '#VALUE_PATTERN_REGEX#'
+                        ) t
+                    '''.format(
+                        v_columnRow['schema_name'],
+                        v_columnRow['table_name'],
+                        v_columnRow['column_name']
+                    )
+
+                v_sql = v_sql.replace('--#START_DATA##END_DATA#', v_dataSql)
+
+        if v_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', v_inSchemas)
+
+        if p_regex:
+            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        for v_category in p_categoryList:
+            if v_category != 'Data':
+                v_sql = v_sql.replace('/*#START_{0}#'.format(v_category.upper()), '').replace('#END_{0}#*/'.format(v_category.upper()), '')
+
+        if p_summarizeResults:
+            v_sql = '''
+                select s.category,
+                       s.schema_name,
+                       s.table_name,
+                       s.column_name,
+                       count(*) as match_count
+                from (
+                    {0}
+                ) s
+                group by s.category, s.schema_name, s.table_name, s.column_name
+            '''.format(v_sql)
+
+        return v_sql
 
     def TemplateCreateRole(self):
         return Template('''CREATE ROLE name
@@ -2258,3 +2732,815 @@ TO NODE ( nodename [, ... ] )
 
     def TemplateXLAlterTableDeleteNode(self):
         return Template('ALTER TABLE #table_name# DELETE NODE (#node_name#)')
+
+    def GetPropertiesRole(self, p_object):
+        return self.v_connection.Query('''
+            select rolname as "Role",
+                   oid as "OID",
+                   rolsuper as "Super User",
+                   rolinherit as "Inherit",
+                   rolcreaterole as "Can Create Role",
+                   rolcreatedb as "Can Create Database",
+                   rolcanlogin as "Can Login",
+                   rolreplication as "Replication",
+                   rolconnlimit as "Connection Limit",
+                   rolvaliduntil as "Valid Until"
+            from pg_roles
+            where quote_ident(rolname) = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesTablespace(self, p_object):
+        return self.v_connection.Query('''
+            select t.spcname as "Tablespace",
+                   r.rolname as "Owner",
+                   t.oid as "OID",
+                   pg_tablespace_location(t.oid) as "Location",
+                   t.spcacl as "ACL",
+                   t.spcoptions as "Options"
+            from pg_tablespace t
+            inner join pg_roles r
+            on r.oid = t.spcowner
+            where quote_ident(t.spcname) = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesDatabase(self, p_object):
+        return self.v_connection.Query('''
+            select d.datname as "Database",
+                   r.rolname as "Owner",
+                   pg_size_pretty(pg_database_size(d.oid)) as "Size",
+                   pg_encoding_to_char(d.encoding) as "Encoding",
+                   d.datcollate as "LC_COLLATE",
+                   d.datctype as "LC_CTYPE",
+                   d.datistemplate as "Is Template",
+                   d.datallowconn as "Allows Connections",
+                   d.datconnlimit as "Connection Limit",
+                   t.spcname as "Tablespace",
+                   d.datacl as "ACL"
+            from pg_database d
+            inner join pg_roles r
+            on r.oid = d.datdba
+            inner join pg_tablespace t
+            on t.oid = d.dattablespace
+            where quote_ident(d.datname) = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesSchema(self, p_object):
+        return self.v_connection.Query('''
+            select n.nspname as "Schema",
+                   r.rolname as "Owner",
+                   n.nspacl as "ACL"
+            from pg_namespace n
+            inner join pg_roles r
+            on r.oid = n.nspowner
+            where quote_ident(n.nspname) = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesTable(self, p_schema, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   c.relname as "Table",
+                   c.oid as "OID",
+                   r.rolname as "Owner",
+                   pg_size_pretty(pg_relation_size(c.oid)) as "Size",
+                   coalesce(t1.spcname, t2.spcname) as "Tablespace",
+                   c.relacl as "ACL",
+                   c.reloptions as "Options",
+                   pg_relation_filepath(c.oid) as "Filenode",
+                   c.reltuples as "Estimate Count",
+                   c.relhasindex as "Has Index",
+                   (case c.relpersistence when 'p' then 'Permanent' when 'u' then 'Unlogged' when 't' then 'Temporary' end) as "Persistence",
+                   c.relnatts as "Number of Attributes",
+                   c.relchecks as "Number of Checks",
+                   c.relhasoids as "Has OIDs",
+                   c.relhaspkey as "Has Primary Key",
+                   c.relhasrules as "Has Rules",
+                   c.relhastriggers as "Has Triggers",
+                   c.relhassubclass as "Has Subclass"
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_roles r
+            on r.oid = c.relowner
+            left join pg_tablespace t1
+            on t1.oid = c.reltablespace
+            inner join (
+            select t.spcname
+            from pg_database d
+            inner join pg_tablespace t
+            on t.oid = d.dattablespace
+            where d.datname = current_database()
+            ) t2
+            on 1 = 1
+            where quote_ident(n.nspname) = '{0}'
+              and quote_ident(c.relname) = '{1}'
+        '''.format(p_schema, p_object))
+
+    def GetPropertiesIndex(self, p_schema, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   c.relname as "Index",
+                   c.oid as "OID",
+                   r.rolname as "Owner",
+                   pg_size_pretty(pg_relation_size(c.oid)) as "Size",
+                   a.amname as "Access Method",
+                   coalesce(t1.spcname, t2.spcname) as "Tablespace",
+                   pg_relation_filepath(c.oid) as "Filenode"
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_roles r
+            on r.oid = c.relowner
+            left join pg_tablespace t1
+            on t1.oid = c.reltablespace
+            inner join (
+            select t.spcname
+            from pg_database d
+            inner join pg_tablespace t
+            on t.oid = d.dattablespace
+            where d.datname = current_database()
+            ) t2
+            on 1 = 1
+            inner join pg_am a
+            on a.oid = c.relam
+            where quote_ident(n.nspname) = '{0}'
+              and quote_ident(c.relname) = '{1}'
+        '''.format(p_schema, p_object))
+
+    def GetPropertiesSequence(self, p_schema, p_object):
+        v_table1 = self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   c.relname as "Sequence",
+                   c.oid as "OID",
+                   r.rolname as "Owner",
+                   coalesce(t1.spcname, t2.spcname) as "Tablespace",
+                   pg_relation_filepath(c.oid) as "Filenode"
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_roles r
+            on r.oid = c.relowner
+            left join pg_tablespace t1
+            on t1.oid = c.reltablespace
+            inner join (
+            select t.spcname
+            from pg_database d
+            inner join pg_tablespace t
+            on t.oid = d.dattablespace
+            where d.datname = current_database()
+            ) t2
+            on 1 = 1
+            where quote_ident(n.nspname) = '{0}'
+              and quote_ident(c.relname) = '{1}'
+        '''.format(p_schema, p_object)).Transpose('Property', 'Value')
+        v_table2 = self.v_connection.Query('''
+            select last_value as "Last Value",
+                   start_value as "Start Value",
+                   increment_by as "Increment By",
+                   max_value as "Max Value",
+                   min_value as "Min Value",
+                   cache_value as "Cache Value",
+                   is_cycled as "Is Cycled",
+                   is_called as "Is Called"
+            from {0}.{1}
+        '''.format(p_schema, p_object)).Transpose('Property', 'Value')
+        v_table1.Merge(v_table2)
+        return v_table1
+
+    def GetPropertiesView(self, p_schema, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   c.relname as "View",
+                   c.oid as "OID",
+                   r.rolname as "Owner"
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_roles r
+            on r.oid = c.relowner
+            where quote_ident(n.nspname) = '{0}'
+              and quote_ident(c.relname) = '{1}'
+        '''.format(p_schema, p_object))
+
+    def GetPropertiesFunction(self, p_object):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       n.nspname as "Schema",
+                       p.proname as "Function",
+                       quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as "Function ID",
+                       p.oid as "OID",
+                       r.rolname as "Owner",
+                       l.lanname as "Language",
+                       p.procost as "Estimated Execution Cost",
+                       p.prorows as "Estimated Returned Rows",
+                       p.proisagg as "Is Aggregate",
+                       p.proiswindow as "Is Window",
+                       p.prosecdef as "Security Definer",
+                       p.proleakproof as "Leak Proof",
+                       p.proisstrict as "Is Strict",
+                       p.proretset as "Returns Set",
+                       (case p.provolatile when 'i' then 'Immutable' when 's' then 'Stable' when 'v' then 'Volatile' end) as "Volatile",
+                       p.pronargs as "Number of Arguments",
+                       p.pronargdefaults as "Number of Default Arguments",
+                       p.probin as "Invoke",
+                       p.proconfig as "Configuration",
+                       p.proacl as "ACL"
+                from pg_proc p
+                join pg_namespace n
+                on p.pronamespace = n.oid
+                inner join pg_roles r
+                on r.oid = p.proowner
+                inner join pg_language l
+                on l.oid = p.prolang
+                where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+            '''.format(p_object))
+        else:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       n.nspname as "Schema",
+                       p.proname as "Function",
+                       quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as "Function ID",
+                       p.oid as "OID",
+                       r.rolname as "Owner",
+                       l.lanname as "Language",
+                       p.procost as "Estimated Execution Cost",
+                       p.prorows as "Estimated Returned Rows",
+                       p.proisagg as "Is Aggregate",
+                       p.proiswindow as "Is Window",
+                       p.prosecdef as "Security Definer",
+                       p.proleakproof as "Leak Proof",
+                       p.proisstrict as "Is Strict",
+                       p.proretset as "Returns Set",
+                       (case p.provolatile when 'i' then 'Immutable' when 's' then 'Stable' when 'v' then 'Volatile' end) as "Volatile",
+                       (case p.proparallel when 's' then 'Safe' when 'r' then 'Restricted' when 'u' then 'Unsafe' end) as "Parallel",
+                       p.pronargs as "Number of Arguments",
+                       p.pronargdefaults as "Number of Default Arguments",
+                       p.probin as "Invoke",
+                       p.proconfig as "Configuration",
+                       p.proacl as "ACL"
+                from pg_proc p
+                join pg_namespace n
+                on p.pronamespace = n.oid
+                inner join pg_roles r
+                on r.oid = p.proowner
+                inner join pg_language l
+                on l.oid = p.prolang
+                where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+            '''.format(p_object))
+
+    def GetProperties(self, p_schema, p_object, p_type):
+        if p_type == 'role':
+            return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
+        elif p_type == 'tablespace':
+            return self.GetPropertiesTablespace(p_object).Transpose('Property', 'Value')
+        elif p_type == 'database':
+            return self.GetPropertiesDatabase(p_object).Transpose('Property', 'Value')
+        elif p_type == 'schema':
+            return self.GetPropertiesSchema(p_object).Transpose('Property', 'Value')
+        elif p_type == 'table':
+            return self.GetPropertiesTable(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'index':
+            return self.GetPropertiesIndex(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'sequence':
+            return self.GetPropertiesSequence(p_schema, p_object)
+        elif p_type == 'view':
+            return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'mview':
+            return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'function':
+            return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+        elif p_type == 'trigger':
+            return None
+        elif p_type == 'triggerfunction':
+            return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+        else:
+            return None
+
+    def GetDDLRole(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            with
+            q1 as (
+             select
+               'CREATE ' || case when rolcanlogin then 'USER' else 'GROUP' end
+               ||' '||quote_ident(rolname)|| E';\n' ||
+               'ALTER ROLE '|| quote_ident(rolname) || E' WITH\n  ' ||
+               case when rolcanlogin then 'LOGIN' else 'NOLOGIN' end || E'\n  ' ||
+               case when rolsuper then 'SUPERUSER' else 'NOSUPERUSER' end || E'\n  ' ||
+               case when rolinherit then 'INHERIT' else 'NOINHERIT' end || E'\n  ' ||
+               case when rolcreatedb then 'CREATEDB' else 'NOCREATEDB' end || E'\n  ' ||
+               case when rolcreaterole then 'CREATEROLE' else 'NOCREATEROLE' end || E'\n  ' ||
+               case when rolreplication then 'REPLICATION' else 'NOREPLICATION' end || E';\n  ' ||
+               case
+                 when description is not null
+                 then E'\n'
+                      ||'COMMENT ON ROLE '||quote_ident(rolname)
+                      ||' IS '||quote_literal(description)||E';\n'
+                 else ''
+               end || E'\n' ||
+               case when rolpassword is not null
+                    then 'ALTER ROLE '|| quote_ident(rolname)||
+                         ' ENCRYPTED PASSWORD '||quote_literal(rolpassword)||E';\n'
+                    else ''
+               end ||
+               case when rolvaliduntil is not null
+                    then 'ALTER ROLE '|| quote_ident(rolname)||
+                         ' VALID UNTIL '||quote_nullable(rolvaliduntil)||E';\n'
+                    else ''
+               end ||
+               case when rolconnlimit>=0
+                    then 'ALTER ROLE '|| quote_ident(rolname)||
+                         ' CONNECTION LIMIT '||rolconnlimit||E';\n'
+                    else ''
+               end ||
+               E'\n' as ddl
+               from pg_roles a
+               left join pg_shdescription d on d.objoid=a.oid
+              where quote_ident(a.rolname) = '{0}'
+             ),
+            q2 as (
+             select string_agg('ALTER ROLE ' || quote_ident(rolname)
+                               ||' SET '||pg_roles.rolconfig[i]||E';\n','')
+                as ddl_config
+              from pg_roles,
+              generate_series(
+                 (select array_lower(rolconfig,1) from pg_roles where quote_ident(rolname)='{0}'),
+                 (select array_upper(rolconfig,1) from pg_roles where quote_ident(rolname)='{0}')
+              ) as generate_series(i)
+             where quote_ident(rolname) = '{0}'
+             )
+            select ddl||coalesce(ddl_config||E'\n','')
+              from q1,q2
+        '''.format(p_object))
+
+    def GetDDLTablespace(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            select format(E'CREATE TABLESPACE %s\nLOCATION %s\nOWNER %s;',
+                         t.spcname,
+                         chr(39) || pg_tablespace_location(t.oid) || chr(39),
+                         r.rolname)
+            from pg_tablespace t
+            inner join pg_roles r
+            on r.oid = t.spcowner
+            where quote_ident(t.spcname) = '{0}'
+        '''.format(p_object))
+
+    def GetDDLDatabase(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            select format(E'CREATE DATABASE %s\nOWNER %s\nTABLESPACE %s;',
+                          d.datname,
+                          r.rolname,
+                          t.spcname)
+            from pg_database d
+            inner join pg_roles r
+            on r.oid = d.datdba
+            inner join pg_tablespace t
+            on t.oid = d.dattablespace
+            where quote_ident(d.datname) = '{0}'
+        '''.format(p_object))
+
+    def GetDDLSchema(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            with obj as (
+               SELECT n.oid,
+                     'pg_namespace'::regclass,
+                     n.nspname as name,
+                     current_database() as namespace,
+                     case
+                       when n.nspname like 'pg_%' then 'SYSTEM'
+                       when n.nspname = r.rolname then 'AUTHORIZATION'
+                       else 'NAMESPACE'
+                     end as kind,
+                     pg_get_userbyid(n.nspowner) AS owner,
+                     'SCHEMA' as sql_kind,
+                     quote_ident(n.nspname) as sql_identifier
+                FROM pg_namespace n join pg_roles r on r.oid = n.nspowner
+               WHERE quote_ident(n.nspname) = '{0}'
+            ),
+            comment as (
+                select format(
+                       E'COMMENT ON %s %s IS %L;\n',
+                       obj.sql_kind, sql_identifier, obj_description(oid)) as text
+                from obj
+            ),
+            alterowner as (
+                select format(
+                       E'ALTER %s %s OWNER TO %s;\n',
+                       obj.sql_kind, sql_identifier, quote_ident(owner)) as text
+                from obj
+            )
+            select format(E'CREATE SCHEMA %s;\n',quote_ident(n.nspname))
+            	   || comment.text
+                   || alterowner.text
+              from pg_namespace n
+              inner join comment on 1=1
+              inner join alterowner on 1=1
+             where quote_ident(n.nspname) = '{0}'
+        '''.format(p_object))
+
+    def GetDDLClass(self, p_schema, p_object):
+        return self.v_connection.ExecuteScalar('''
+            with obj as (
+               SELECT c.oid,
+                     'pg_class'::regclass,
+                     c.relname AS name,
+                     n.nspname AS namespace,
+                     coalesce(cc.column2,c.relkind::text) AS kind,
+                     pg_get_userbyid(c.relowner) AS owner,
+                     coalesce(cc.column2,c.relkind::text) AS sql_kind,
+                     cast('{0}.{1}'::regclass AS text) AS sql_identifier
+                FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+                LEFT join (
+                     values ('r','TABLE'),
+                            ('v','VIEW'),
+                            ('i','INDEX'),
+                            ('S','SEQUENCE'),
+                            ('s','SPECIAL'),
+                            ('m','MATERIALIZED VIEW'),
+                            ('c','TYPE'),
+                            ('t','TOAST'),
+                            ('f','FOREIGN TABLE')
+                ) as cc on cc.column1 = c.relkind
+               WHERE c.oid = '{0}.{1}'::regclass
+            ),
+            columns as (
+                SELECT a.attname AS name, format_type(t.oid, NULL::integer) AS type,
+                    CASE
+                        WHEN (a.atttypmod - 4) > 0 THEN a.atttypmod - 4
+                        ELSE NULL::integer
+                    END AS size,
+                    a.attnotnull AS not_null,
+                    def.adsrc AS "default",
+                    col_description(c.oid, a.attnum::integer) AS comment,
+                    con.conname AS primary_key,
+                    a.attislocal AS is_local,
+                    a.attstorage::text AS storage,
+                    nullif(col.collcollate::text,'') AS collation,
+                    a.attnum AS ord,
+                    s.nspname AS namespace,
+                    c.relname AS class_name,
+                    format('%s.%I',text(c.oid::regclass),a.attname) AS sql_identifier,
+                    c.oid,
+                    format('%I %s%s%s',
+                    	a.attname::text,
+                    	format_type(t.oid, a.atttypmod),
+            	        CASE
+                	      WHEN length(col.collcollate) > 0
+                    	  THEN ' COLLATE ' || quote_ident(col.collcollate::text)
+                          ELSE ''
+                    	END,
+                    	CASE
+                          WHEN a.attnotnull THEN ' NOT NULL'::text
+                          ELSE ''::text
+                    	END)
+                    AS definition
+               FROM pg_class c
+               JOIN pg_namespace s ON s.oid = c.relnamespace
+               JOIN pg_attribute a ON c.oid = a.attrelid
+               LEFT JOIN pg_attrdef def ON c.oid = def.adrelid AND a.attnum = def.adnum
+               LEFT JOIN pg_constraint con
+                    ON con.conrelid = c.oid AND (a.attnum = ANY (con.conkey)) AND con.contype = 'p'
+               LEFT JOIN pg_type t ON t.oid = a.atttypid
+               LEFT JOIN pg_collation col ON col.oid = a.attcollation
+               JOIN pg_namespace tn ON tn.oid = t.typnamespace
+              WHERE c.relkind IN ('r','v','c','f') AND a.attnum > 0 AND NOT a.attisdropped
+                AND has_table_privilege(c.oid, 'select') AND has_schema_privilege(s.oid, 'usage')
+                AND c.oid = '{0}.{1}'::regclass
+              ORDER BY s.nspname, c.relname, a.attnum
+            ),
+            comments as (
+               select 'COMMENT ON COLUMN ' || text('{0}.{1}') || '.' || quote_ident(name) ||
+                      ' IS ' || quote_nullable(comment) || ';' as cc
+                 from columns
+                where comment IS NOT NULL
+            ),
+            settings as (
+               select 'ALTER ' || obj.kind || ' ' || text('{0}.{1}') || ' SET (' ||
+                      quote_ident(option_name)||'='||quote_nullable(option_value) ||');' as ss
+                 from pg_options_to_table((select reloptions from pg_class where oid = '{0}.{1}'::regclass))
+                 join obj on (true)
+            ),
+            constraints as (
+               SELECT nc.nspname AS namespace,
+                    r.relname AS class_name,
+                    c.conname AS constraint_name,
+                    case c.contype
+                        when 'c'::"char" then 'CHECK'::text
+                        when 'f'::"char" then 'FOREIGN KEY'::text
+                        when 'p'::"char" then 'PRIMARY KEY'::text
+                        when 'u'::"char" then 'UNIQUE'::text
+                        when 't'::"char" then 'TRIGGER'::text
+                        when 'x'::"char" then 'EXCLUDE'::text
+                        else c.contype::text
+                    end AS constraint_type,
+                    pg_get_constraintdef(c.oid,true) AS constraint_definition,
+                    c.condeferrable AS is_deferrable,
+                    c.condeferred  AS initially_deferred,
+                    r.oid as regclass, c.oid AS sysid
+               FROM pg_namespace nc, pg_namespace nr, pg_constraint c, pg_class r
+              WHERE nc.oid = c.connamespace AND nr.oid = r.relnamespace AND c.conrelid = r.oid
+                AND coalesce(r.oid='{0}.{1}'::regclass,true)
+            ),
+            indexes as (
+               SELECT DISTINCT
+                    c.oid AS oid,
+                    n.nspname::text AS namespace,
+                    c.relname::text AS class,
+                    i.relname::text AS name,
+                    NULL::text AS tablespace,
+                    CASE d.refclassid
+                        WHEN 'pg_constraint'::regclass
+                        THEN 'ALTER TABLE ' || text(c.oid::regclass)
+                             || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
+                             || ' ' || pg_get_constraintdef(cc.oid)
+                        ELSE pg_get_indexdef(i.oid)
+                    END AS indexdef,
+                    cc.conname::text AS constraint_name
+               FROM pg_index x
+               JOIN pg_class c ON c.oid = x.indrelid
+               JOIN pg_namespace n ON n.oid = c.relnamespace
+               JOIN pg_class i ON i.oid = x.indexrelid
+               JOIN pg_depend d ON d.objid = x.indexrelid
+               LEFT JOIN pg_constraint cc ON cc.oid = d.refobjid
+              WHERE c.relkind in ('r','m') AND i.relkind = 'i'::"char"
+                AND coalesce(c.oid = '{0}.{1}'::regclass,true)
+            ),
+            triggers as (
+               SELECT
+                    CASE t.tgisinternal
+                        WHEN true THEN 'CONSTRAINT'::text
+                        ELSE NULL::text
+                    END AS is_constraint, t.tgname::text AS trigger_name,
+                    CASE (t.tgtype::integer & 64) <> 0
+                        WHEN true THEN 'INSTEAD'::text
+                        ELSE CASE t.tgtype::integer & 2
+                          WHEN 2 THEN 'BEFORE'::text
+                          WHEN 0 THEN 'AFTER'::text
+                          ELSE NULL::text
+                        END
+                    END AS action_order,
+                    array_to_string(array[
+                      case when (t.tgtype::integer &  4) <> 0 then 'INSERT'   end,
+                      case when (t.tgtype::integer &  8) <> 0 then 'DELETE'   end,
+                      case when (t.tgtype::integer & 16) <> 0 then 'UPDATE'   end,
+                      case when (t.tgtype::integer & 32) <> 0 then 'TRUNCATE' end
+                    ],' OR ') AS event_manipulation,
+                    c.oid::regclass::text AS event_object_sql_identifier,
+                    p.oid::regprocedure::text AS action_statement,
+                    CASE t.tgtype::integer & 1
+                        WHEN 1 THEN 'ROW'::text
+                        ELSE 'STATEMENT'::text
+                    END AS action_orientation,
+                    pg_get_triggerdef(t.oid,true) as trigger_definition,
+                    c.oid::regclass AS regclass,
+                    p.oid::regprocedure AS regprocedure,
+                    s.nspname::text AS event_object_schema,
+                    c.relname::text AS event_object_table,
+                    (quote_ident(t.tgname::text) || ' ON ') || c.oid::regclass::text AS sql_identifier
+               FROM pg_trigger t
+               LEFT JOIN pg_class c ON c.oid = t.tgrelid
+               LEFT JOIN pg_namespace s ON s.oid = c.relnamespace
+               LEFT JOIN pg_proc p ON p.oid = t.tgfoid
+               LEFT JOIN pg_namespace s1 ON s1.oid = p.pronamespace
+               WHERE coalesce(c.oid='{0}.{1}'::regclass,true)
+            ),
+            rules as (
+               SELECT n.nspname::text AS namespace,
+                    c.relname::text AS class_name,
+                    r.rulename::text AS rule_name,
+                    CASE
+                        WHEN r.ev_type = '1'::"char" THEN 'SELECT'::text
+                        WHEN r.ev_type = '2'::"char" THEN 'UPDATE'::text
+                        WHEN r.ev_type = '3'::"char" THEN 'INSERT'::text
+                        WHEN r.ev_type = '4'::"char" THEN 'DELETE'::text
+                        ELSE 'UNKNOWN'::text
+                    END AS rule_event,
+                    r.is_instead,
+                    pg_get_ruledef(r.oid, true) AS rule_definition,
+                    c.oid::regclass AS regclass
+               FROM pg_rewrite r
+               JOIN pg_class c ON c.oid = r.ev_class
+               JOIN pg_namespace n ON n.oid = c.relnamespace
+              WHERE coalesce(c.oid='{0}.{1}'::regclass,true)
+                AND NOT (r.ev_type = '1'::"char" AND r.rulename = '_RETURN'::name)
+              ORDER BY r.oid
+            ),
+            createview as (
+                select
+                 'CREATE '||
+                  case relkind
+                    when 'v' THEN 'OR REPLACE VIEW '
+                    when 'm' THEN 'MATERIALIZED VIEW '
+                  end || (oid::regclass::text) || E' AS\n'||
+                  pg_catalog.pg_get_viewdef(oid,true)||E'\n' as text
+                 FROM pg_class t
+                 WHERE oid = '{0}.{1}'::regclass
+                   AND relkind in ('v','m')
+            ),
+            createtable as (
+                select
+                    'CREATE '||
+                  case relpersistence
+                    when 'u' then 'UNLOGGED '
+                    when 't' then 'TEMPORARY '
+                    else ''
+                  end
+                  || obj.kind || ' ' || obj.sql_identifier
+                  || case obj.kind when 'TYPE' then ' AS' else '' end
+                  ||
+                  E' (\n'||
+                    coalesce(''||(
+                      SELECT coalesce(string_agg('    '||definition,E',\n'),'')
+                        FROM columns WHERE is_local
+                    )||E'\n','')||')'
+                  ||
+                  (SELECT
+                    coalesce(' INHERITS(' || string_agg(i.inhparent::regclass::text,', ') || ')', '')
+                     FROM pg_inherits i WHERE i.inhrelid = '{0}.{1}'::regclass)
+                  ||
+                  CASE relhasoids WHEN true THEN ' WITH OIDS' ELSE '' END
+                  ||
+                  coalesce(
+                    E'\nSERVER '||quote_ident(fs.srvname)||E'\nOPTIONS (\n'||
+                    (select string_agg(
+                              '    '||quote_ident(option_name)||' '||quote_nullable(option_value),
+                              E',\n')
+                       from pg_options_to_table(ft.ftoptions))||E'\n)'
+                    ,'')
+                  ||
+                  E';\n' as text
+                 FROM pg_class c JOIN obj ON (true)
+                 LEFT JOIN pg_foreign_table  ft ON (c.oid = ft.ftrelid)
+                 LEFT JOIN pg_foreign_server fs ON (ft.ftserver = fs.oid)
+                 WHERE c.oid = '{0}.{1}'::regclass
+                -- AND relkind in ('r','c')
+            ),
+            createsequence as (
+                select
+                 'CREATE SEQUENCE '||(oid::regclass::text) || E';\n'
+                 ||'ALTER SEQUENCE '||(oid::regclass::text)
+                 ||E'\n INCREMENT BY '||increment
+                 ||E'\n MINVALUE '||minimum_value
+                 ||E'\n MAXVALUE '||maximum_value
+                 ||E'\n START WITH '||start_value
+                 ||E'\n '|| case cycle_option when 'YES' then 'CYCLE' else 'NO CYCLE' end
+                 ||E';\n' as text
+                 FROM information_schema.sequences s JOIN obj ON (true)
+                 WHERE sequence_schema = obj.namespace
+                   AND sequence_name = obj.name
+                   AND obj.kind = 'SEQUENCE'
+            ),
+            createindex as (
+                with ii as (
+                 SELECT CASE d.refclassid
+                            WHEN 'pg_constraint'::regclass
+                            THEN 'ALTER TABLE ' || text(c.oid::regclass)
+                                 || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
+                                 || ' ' || pg_get_constraintdef(cc.oid)
+                            ELSE pg_get_indexdef(i.oid)
+                        END AS indexdef
+                   FROM pg_index x
+                   JOIN pg_class c ON c.oid = x.indrelid
+                   JOIN pg_class i ON i.oid = x.indexrelid
+                   JOIN pg_depend d ON d.objid = x.indexrelid
+                   LEFT JOIN pg_constraint cc ON cc.oid = d.refobjid
+                  WHERE c.relkind in ('r','m') AND i.relkind = 'i'::"char"
+                    AND i.oid = '{0}.{1}'::regclass
+                )
+                 SELECT indexdef || E';\n' as text
+                   FROM ii
+            ),
+            createclass as (
+                select format(E'--\n-- Type: %s ; Name: %s; Owner: %s\n--\n\n', obj.kind,obj.name,obj.owner)
+                ||
+                 case
+                  when obj.kind in ('VIEW','MATERIALIZED VIEW') then (select text from createview)
+                  when obj.kind in ('TABLE','TYPE','FOREIGN TABLE') then (select text from createtable)
+                  when obj.kind in ('SEQUENCE') then (select text from createsequence)
+                  when obj.kind in ('INDEX') then (select text from createindex)
+                  else '-- UNSUPPORTED CLASS: '||obj.kind
+                 end
+                  || E'\n' ||
+                  coalesce((select string_agg(cc,E'\n')||E'\n' from comments),'')
+                  ||
+                  coalesce(E'\n'||(select string_agg(ss,E'\n')||E'\n' from settings),'')
+                  || E'\n' as text
+                from obj
+            ),
+            altertabledefaults as (
+                select
+                    coalesce(
+                      string_agg(
+                        'ALTER TABLE '||text('{0}.{1}')||
+                          ' ALTER '||quote_ident(name)||
+                          ' SET DEFAULT '||"default",
+                        E';\n') || E';\n\n',
+                    '') as text
+                   from columns
+                  where "default" is not null
+            ),
+            createconstraints as (
+                with cs as (
+                  select
+                   'ALTER TABLE ' || text(regclass(regclass)) ||
+                   ' ADD CONSTRAINT ' || quote_ident(constraint_name) ||
+                   E'\n  ' || constraint_definition as sql
+                    from constraints
+                   order by constraint_type desc, sysid
+                 )
+                 select coalesce(string_agg(sql,E';\n') || E';\n\n','') as text
+                   from cs
+            ),
+            createindexes as (
+                with ii as (select * from indexes order by name)
+                 SELECT coalesce(string_agg(indexdef||E';\n','') || E'\n' , '') as text
+                   FROM ii
+                  WHERE constraint_name is null
+            ),
+            createtriggers as (
+                with tg as (
+                  select trigger_definition as sql
+                 from triggers where is_constraint is null
+                 order by trigger_name
+                 -- per SQL triggers get called in order created vs name as in PostgreSQL
+                 )
+                 select coalesce(string_agg(sql,E';\n')||E';\n\n','') as text
+                   from tg
+            ),
+            createrules as (
+                select coalesce(string_agg(rule_definition,E'\n')||E'\n\n','') as text
+                from rules
+               where regclass = '{0}.{1}'::regclass
+                 and rule_definition is not null
+            ),
+            alterowner as (
+                select
+                   case
+                     when obj.kind = 'INDEX' then ''
+                     else 'ALTER '||sql_kind||' '||sql_identifier||
+                          ' OWNER TO '||quote_ident(owner)||E';\n'
+                   end as text
+                  from obj
+            ),
+            grants as (
+                select
+                   coalesce(
+                    string_agg(format(
+                    	E'GRANT %s ON %s TO %s%s;\n',
+                        privilege_type,
+                        '{0}.{1}',
+                        case grantee
+                          when 'PUBLIC' then 'PUBLIC'
+                          else quote_ident(grantee)
+                        end,
+                		case is_grantable
+                          when 'YES' then ' WITH GRANT OPTION'
+                          else ''
+                        end), ''),
+                    '') as text
+                 FROM information_schema.table_privileges g
+                 join obj on (true)
+                 WHERE table_schema=obj.namespace
+                   AND table_name=obj.name
+                   AND grantee<>obj.owner
+            )
+            select (select text from createclass) ||
+                   (select text from altertabledefaults) ||
+                   (select text from createconstraints) ||
+                   (select text from createindexes) ||
+                   (select text from createtriggers) ||
+                   (select text from createrules) ||
+                   (select text from alterowner) ||
+                   (select text from grants)
+        '''.format(p_schema, p_object))
+
+    def GetDDL(self, p_schema, p_table, p_object, p_type):
+        if p_type == 'role':
+            return self.GetDDLRole(p_object)
+        elif p_type == 'tablespace':
+            return self.GetDDLTablespace(p_object)
+        elif p_type == 'database':
+            return self.GetDDLDatabase(p_object)
+        elif p_type == 'schema':
+            return self.GetDDLSchema(p_object)
+        elif p_type == 'table':
+            return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'index':
+            return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'sequence':
+            return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'view':
+            return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'mview':
+            return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'function':
+            return self.GetFunctionDefinition(p_object)
+        elif p_type == 'trigger':
+            return self.GetTriggerDefinition(p_object, p_table, p_schema)
+        elif p_type == 'triggerfunction':
+            return self.GetTriggerFunctionDefinition(p_object)
+        else:
+            return ''

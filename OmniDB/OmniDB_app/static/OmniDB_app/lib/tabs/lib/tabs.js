@@ -60,10 +60,10 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 			if (this.selectedDiv!=null) {
 				this.selectedDiv.className = 'tab';
-				this.selectedLi.className = 'original';
+				this.selectedLi.classList.remove('selected');
 			}
 
-			this.tabList[p_index].elementLi.className = 'original selected';
+			this.tabList[p_index].elementLi.classList.add('selected');
 
 			this.tabList[p_index].elementDiv.className = 'tab selected_div';
 
@@ -89,10 +89,10 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 				if (this.selectedDiv!=null) {
 					this.selectedDiv.className = 'tab';
-					this.selectedLi.className = 'original';
+					this.selectedLi.classList.remove('selected');
 				}
 
-				p_tab.elementLi.className = 'original selected';
+				p_tab.elementLi.classList.add('selected');
 
 				p_tab.elementDiv.className = 'tab selected_div';
 

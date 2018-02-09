@@ -2926,38 +2926,71 @@ TO NODE ( nodename [, ... ] )
         '''.format(p_schema, p_object))
 
     def GetPropertiesFunction(self, p_object):
-        return self.v_connection.Query('''
-            select current_database() as "Database",
-                   n.nspname as "Schema",
-                   p.proname as "Function",
-                   quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as "Function ID",
-                   p.oid as "OID",
-                   r.rolname as "Owner",
-                   l.lanname as "Language",
-                   p.procost as "Estimated Execution Cost",
-                   p.prorows as "Estimated Returned Rows",
-                   p.proisagg as "Is Aggregate",
-                   p.proiswindow as "Is Window",
-                   p.prosecdef as "Security Definer",
-                   p.proleakproof as "Leak Proof",
-                   p.proisstrict as "Is Strict",
-                   p.proretset as "Returns Set",
-                   (case p.provolatile when 'i' then 'Immutable' when 's' then 'Stable' when 'v' then 'Volatile' end) as "Volatile",
-                   (case p.proparallel when 's' then 'Safe' when 'r' then 'Restricted' when 'u' then 'Unsafe' end) as "Parallel",
-                   p.pronargs as "Number of Arguments",
-                   p.pronargdefaults as "Number of Default Arguments",
-                   p.probin as "Invoke",
-                   p.proconfig as "Configuration",
-                   p.proacl as "ACL"
-            from pg_proc p
-            join pg_namespace n
-            on p.pronamespace = n.oid
-            inner join pg_roles r
-            on r.oid = p.proowner
-            inner join pg_language l
-            on l.oid = p.prolang
-            where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
-        '''.format(p_object))
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       n.nspname as "Schema",
+                       p.proname as "Function",
+                       quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as "Function ID",
+                       p.oid as "OID",
+                       r.rolname as "Owner",
+                       l.lanname as "Language",
+                       p.procost as "Estimated Execution Cost",
+                       p.prorows as "Estimated Returned Rows",
+                       p.proisagg as "Is Aggregate",
+                       p.proiswindow as "Is Window",
+                       p.prosecdef as "Security Definer",
+                       p.proleakproof as "Leak Proof",
+                       p.proisstrict as "Is Strict",
+                       p.proretset as "Returns Set",
+                       (case p.provolatile when 'i' then 'Immutable' when 's' then 'Stable' when 'v' then 'Volatile' end) as "Volatile",
+                       p.pronargs as "Number of Arguments",
+                       p.pronargdefaults as "Number of Default Arguments",
+                       p.probin as "Invoke",
+                       p.proconfig as "Configuration",
+                       p.proacl as "ACL"
+                from pg_proc p
+                join pg_namespace n
+                on p.pronamespace = n.oid
+                inner join pg_roles r
+                on r.oid = p.proowner
+                inner join pg_language l
+                on l.oid = p.prolang
+                where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+            '''.format(p_object))
+        else:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       n.nspname as "Schema",
+                       p.proname as "Function",
+                       quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as "Function ID",
+                       p.oid as "OID",
+                       r.rolname as "Owner",
+                       l.lanname as "Language",
+                       p.procost as "Estimated Execution Cost",
+                       p.prorows as "Estimated Returned Rows",
+                       p.proisagg as "Is Aggregate",
+                       p.proiswindow as "Is Window",
+                       p.prosecdef as "Security Definer",
+                       p.proleakproof as "Leak Proof",
+                       p.proisstrict as "Is Strict",
+                       p.proretset as "Returns Set",
+                       (case p.provolatile when 'i' then 'Immutable' when 's' then 'Stable' when 'v' then 'Volatile' end) as "Volatile",
+                       (case p.proparallel when 's' then 'Safe' when 'r' then 'Restricted' when 'u' then 'Unsafe' end) as "Parallel",
+                       p.pronargs as "Number of Arguments",
+                       p.pronargdefaults as "Number of Default Arguments",
+                       p.probin as "Invoke",
+                       p.proconfig as "Configuration",
+                       p.proacl as "ACL"
+                from pg_proc p
+                join pg_namespace n
+                on p.pronamespace = n.oid
+                inner join pg_roles r
+                on r.oid = p.proowner
+                inner join pg_language l
+                on l.oid = p.prolang
+                where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+            '''.format(p_object))
 
     def GetProperties(self, p_schema, p_object, p_type):
         if p_type == 'role':

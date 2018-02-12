@@ -80,8 +80,8 @@ Supported Platforms:
 Supported DBMS:
 
 - [X] PostgreSQL
+- [X] Oracle
 - [ ] MySQL
-- [ ] Oracle
 - [ ] Firebird
 - [ ] SQLite
 - [ ] Microsoft SQL Server

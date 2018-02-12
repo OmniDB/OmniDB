@@ -52,11 +52,6 @@ mkdir -p omnidb-server_$VERSION-$ARCH
 cd omnidb-server_$VERSION-$ARCH
 mkdir opt
 mv ../omnidb-server opt/
-cd opt/omnidb-server/
-cp ~/linux_x64/* .
-ln -s libclntsh.so.11.1 libclntsh.so
-ln -s libocci.so.11.1 libocci.so
-cd ../../
 mkdir -p usr/bin
 cd usr/bin
 ln -s /opt/omnidb-server/omnidb-server .
@@ -76,7 +71,6 @@ Description: OmniDB is a web tool that simplifies database management focusing o
  Server package includes web server and requires a web browser to be used. Ideal for network and server usage.
  App package includes everything, even a simple web browser.
  Plugin package includes a PostgreSQL plugin to enable PLpgSQL function debugger.
- OIC package includes Oracle Instant Client required for OmniDB to access Oracle databases.
  OmniDB is supported by 2ndQuadrant (http://www.2ndquadrant.com)
 EOF
 cd ..

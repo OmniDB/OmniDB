@@ -29,11 +29,6 @@ rm -rf ~/OmniDB
 git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 echo "Done"
 
-echo "Downloading OIC..."
-wget https://github.com/OmniDB/OracleInstantClient/raw/master/oic/linux_x86.7z
-7za x linux_x86.7z
-echo "Done"
-
 echo "Building..."
 cd ~/OmniDB/OmniDB/deploy/server_centos_i386/
 ./build.sh

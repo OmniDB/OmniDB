@@ -3,7 +3,9 @@
 ## Release Notes
 
 - Basic support to Oracle databases. Users can manage, connect, and interact with Oracle databases using most of the same features provided to manage PostgreSQL databases.
-  - macOS: Download Oracle Instant Client ([link](https://github.com/OmniDB/OracleInstantClient/raw/master/oic/macos_x64.7z)) and extract in ~/lib.
+  - macOS: Download Oracle Instant Client ([64-bit](http://www.oracle.com/technetwork/topics/intel-macsoft-096467.html)) and extract in ~/lib.
+  - Linux: Install Oracle Instant Client ([32-bit](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)) ([64-bit](http://www.oracle.com/technetwork/topics/linuxsoft-082809.html)) and extract it into OmniDB's folder.
+  - Windows: Install Oracle Instant Client ([32-bit](http://www.oracle.com/technetwork/topics/winsoft-085727.html)) ([64-bit](http://www.oracle.com/technetwork/topics/winx64soft-089540.html)) and extract it into OmniDB's folder.
 - New DDL Panel. A new panel located below the treeview displays properties and DDL of the currently selected node (works for PostgreSQL and Oracle).
 
 

@@ -4,7 +4,7 @@ PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
 apt-get update -y
-apt-get install -y git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils libgconf-2-4
+apt-get install -y git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils libgconf-2-4 p7zip
 echo "Done"
 
 echo "Installing pyenv..."
@@ -23,6 +23,11 @@ echo "Done"
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
 git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
+echo "Done"
+
+echo "Downloading OIC..."
+wget https://github.com/OmniDB/OracleInstantClient/raw/master/oic/linux_x64.7z
+p7zip -d linux_x64.7z
 echo "Done"
 
 echo "Building..."

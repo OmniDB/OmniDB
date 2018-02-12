@@ -52,11 +52,6 @@ mkdir -p omnidb-server_$VERSION-$ARCH
 cd omnidb-server_$VERSION-$ARCH
 mkdir opt
 mv ../omnidb-server opt/
-cd opt/omnidb-server/
-cp ~/linux_x86/* .
-ln -s libclntsh.so.11.1 libclntsh.so
-ln -s libocci.so.11.1 libocci.so
-cd ../../
 mkdir -p usr/bin
 cd usr/bin
 ln -s /opt/omnidb-server/omnidb-server .

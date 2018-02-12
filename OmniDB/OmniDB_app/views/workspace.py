@@ -32,6 +32,11 @@ def index(request):
     else:
         v_is_secure = 'false'
 
+    if settings.DEV_MODE:
+        v_dev_mode = 'true'
+    else:
+        v_dev_mode = 'false'
+
     context = {
         'session' : v_session,
         'desktop_mode': settings.DESKTOP_MODE,
@@ -39,10 +44,12 @@ def index(request):
         'menu_item': 'workspace',
         'query_port': settings.OMNIDB_PORT,
         'is_secure' : v_is_secure,
+        'dev_mode': v_dev_mode,
         'execute': settings.BINDKEY_EXECUTE,
         'execute_mac': settings.BINDKEY_EXECUTE_MAC,
         'autocomplete': settings.BINDKEY_AUTOCOMPLETE,
-        'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC
+        'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC,
+        'chat_link': settings.CHAT_LINK
     }
 
     template = loader.get_template('OmniDB_app/workspace.html')
@@ -1746,7 +1753,7 @@ def refresh_monitoring(request):
         return JsonResponse(v_return)
 
     try:
-        v_data = v_database.v_connection.Query(v_sql,True)
+        v_data = v_database.v_connection.Query(v_sql,True,True)
         v_return['v_data'] = {
             'v_col_names' : v_data.Columns,
             'v_data' : v_data.Rows,
@@ -1756,5 +1763,27 @@ def refresh_monitoring(request):
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+import time
+
+def test_ws(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    time.sleep(10)
 
     return JsonResponse(v_return)

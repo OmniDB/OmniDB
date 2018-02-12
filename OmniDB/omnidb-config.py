@@ -24,6 +24,18 @@ def create_superuser(p_user, p_pwd):
             (select coalesce(max(user_id), 0) + 1 from users),'{0}','{1}',1,'14',1,1,'{2}')
         '''.format(p_user,v_cryptor.Encrypt(p_pwd),str(uuid.uuid4())))
         print('Superuser created.')
+        #database.v_connection.Execute('''
+        #    insert into users_channels (
+        #        use_in_code,
+        #        cha_in_code,
+        #        usc_bo_silenced
+        #    ) values (
+        #        1,
+        #        1,
+        #        0
+        #    )
+        #    '''
+        #)
     except Exception as exc:
         print('Error:')
         print(exc)
@@ -34,6 +46,54 @@ def clean_users():
         database.v_connection.Execute('''
             delete
             from users
+        ''')
+        print ('Done.')
+    except Exception as exc:
+        print('Error:')
+        print(exc)
+
+def clean_chat():
+    try:
+        print('Cleaning chat...')
+        database.v_connection.Execute('''
+            delete
+            from messages_groups
+        ''')
+        database.v_connection.Execute('''
+            delete
+            from messages_channels
+        ''')
+        database.v_connection.Execute('''
+            delete
+            from messages
+        ''')
+        database.v_connection.Execute('''
+            delete
+            from users_groups
+        ''')
+        database.v_connection.Execute('''
+            delete
+            from users_channels
+        ''')
+        database.v_connection.Execute('''
+            delete
+            from groups
+        ''')
+        database.v_connection.Execute('''
+            delete
+            from channels
+        ''')
+        database.v_connection.Execute('''
+            insert into channels (
+                cha_in_code,
+                cha_st_name,
+                cha_bo_private
+            )
+            values (
+                1,
+                'General',
+                0
+            )
         ''')
         print ('Done.')
     except Exception as exc:
@@ -88,6 +148,7 @@ if __name__ == "__main__":
         try:
             value = input('Would you like to continue? (y/n) ')
             if value.lower()=='y':
+                #clean_chat()
                 clean_users()
                 clean_sessions()
                 vacuum()

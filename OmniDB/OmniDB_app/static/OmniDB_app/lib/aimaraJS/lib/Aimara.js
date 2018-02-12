@@ -45,6 +45,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				color: p_color,
 				elementLi: null,
 				doubleClickNodeEvent: null,
+				clickNodeEvent: null,
 				///// Removing the node and all its children
 				removeNode: function() { v_tree.removeNode(this); },
 				///// Expanding or collapsing the node, depending on the expanded value
@@ -173,6 +174,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			};
 
 			v_span.onclick = function(e) {
+				v_tree.clickNode(p_node);
 				v_tree.selectNode(p_node);
 
 				if (e.ctrlKey) {
@@ -311,6 +313,17 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				else
 					p_node.expandNode();
 			}
+		},
+		///// Clicking node
+		// p_node: Reference to the node;
+		clickNode: function(p_node) {
+			//global event
+			if (this.clickNodeEvent)
+				this.clickNodeEvent(p_node);
+
+			//node event
+			if (p_node.clickNodeEvent)
+				p_node.clickNodeEvent(p_node);
 		},
 		///// Double clicking node
 		// p_node: Reference to the node;

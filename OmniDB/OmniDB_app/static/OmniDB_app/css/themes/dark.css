@@ -356,51 +356,6 @@ input {
 	border-right: 1px dotted #6d6d6d !important;
 }
 
-#div_chat {
-	color: #bfc1c0 !important;
-	border: 1px solid #6d6d6d !important;
-}
-
-#div_chat_header {
-    border-bottom: 1px solid #6d6d6d !important;
-}
-
-#div_chat_left_panel {
-	border-right: 1px solid #6d6d6d !important;
-	background: #25282c !important;
-}
-
-#div_chat_content {
-	background: #25282c !important;
-	color: #4D4D4C !important;
-}
-
-#div_chat_footer {
-	border-top: 1px solid #6d6d6d !important;
-	background: #25282c !important;
-}
-
-.div_message_time {
-	color: #dddddd !important;
-}
-
-.div_user {
-	border-bottom: 1px solid #6d6d6d !important;
-}
-
-.div_message_user {
-	color: #777777 !important;
-}
-
-.div_message_text {
-	color: #C5C8C6 !important;
-}
-
-#textarea_chat_message {
-	background-color: #1d1f21 !important;
-	color: #C5C8C6 !important;
-}
-
 .div_chat_header_default {
 	background-color: #1d1f21 !important;
 }
@@ -411,4 +366,54 @@ input {
 
 .query_result {
   color: #d7d7d7;
+}
+
+#popup_chat {
+    color: white;
+}
+
+.popup-header {
+    background: #25282c !important;
+    border-bottom: 2px solid #6d6d6d !important;
+}
+
+#div_chat_left {
+    background-color: rgb(72, 74, 85) !important;
+}
+
+#div_chat_right_left {
+    background-color: #1d1f21 !important;
+}
+
+#div_chat_right_right {
+    background-color: #1d1f21 !important;
+}
+
+.modal_content {
+    background-color: rgb(72, 74, 85) !important;
+    color: white !important;
+}
+
+.context_menu {
+    background-color: #191919 !important;
+    background-color: rgb(72, 74, 85) !important;
+}
+
+.context_menu_item:hover {
+    background-color: #1e90ff !important;
+}
+
+.div_chat_right_left_footer_left_options {
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    background-color: rgb(72, 74, 85) !important;
+    color: black !important;
+}
+
+#div_chat_right_left_pre_header {
+    background-color: rgb(72, 74, 85) !important;
+}
+
+.div_chat_message_attachment_container {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: rgb(72, 74, 85) !important;
 }

@@ -180,6 +180,54 @@ def get_tree_info(request):
 
     return JsonResponse(v_return)
 
+def get_properties(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_data = json_object['p_data']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_properties = []
+    v_ddl = ''
+
+    try:
+        v_properties = v_database.GetProperties(v_data['p_schema'],v_data['p_object'],v_data['p_type'])
+        for v_property in v_properties.Rows:
+            v_list_properties.append([v_property['Property'],v_property['Value']])
+        v_ddl = v_database.GetDDL(v_data['p_schema'],v_data['p_table'],v_data['p_object'],v_data['p_type'])
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = {
+        'properties': v_list_properties,
+        'ddl': v_ddl
+    }
+
+    return JsonResponse(v_return)
+
 def get_tables(request):
 
     v_return = {}
@@ -1460,56 +1508,6 @@ def get_sequences(request):
 
     return JsonResponse(v_return)
 
-def get_sequence_values(request):
-
-    v_return = {}
-    v_return['v_data'] = ''
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
-    json_object = json.loads(request.POST.get('data', None))
-    v_database_index = json_object['p_database_index']
-    v_schema = json_object['p_schema']
-    v_sequence = json_object['p_sequence']
-
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    v_list_values = []
-
-    try:
-        v_values = v_database.QuerySequenceValues(v_sequence, v_schema)
-        for v_value in v_values.Rows:
-            v_value_data = {
-                'v_minimum_value': v_value['minimum_value'],
-                'v_maximum_value': v_value['maximum_value'],
-                'v_current_value': v_value['current_value'],
-                'v_increment': v_value['increment']
-            }
-            v_list_values.append(v_value_data)
-    except Exception as exc:
-        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    v_return['v_data'] = v_list_values
-
-    return JsonResponse(v_return)
-
 def get_extensions(request):
 
     v_return = {}
@@ -2635,7 +2633,7 @@ def get_xl_table_nodes(request):
 
     return JsonResponse(v_return)
 
-def kill_backend_postgres(request):
+def kill_backend(request):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -2664,7 +2662,7 @@ def kill_backend_postgres(request):
         return JsonResponse(v_return)
 
     try:
-        v_data = v_database.v_connection.Execute('select pg_terminate_backend({0})'.format(v_pid))
+        v_database.v_connection.Terminate(v_pid)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True

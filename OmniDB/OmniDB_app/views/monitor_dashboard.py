@@ -43,7 +43,7 @@ def get_monitor_nodes(request):
         #Child nodes
         v_nodes = v_session.v_omnidb_database.v_connection.Query('''
             select node_id, node_name, dbt_st_name, server, port, service, user
-            from mon_nodes
+            from pmon_nodes
         ''')
         for v_node in v_nodes.Rows:
             v_node_data = {

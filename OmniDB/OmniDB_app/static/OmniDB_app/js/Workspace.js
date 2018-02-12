@@ -31,6 +31,13 @@ $(function () {
 
 	v_connTabControl.tag.createSnippetTab();
 
+	//v_connTabControl.tag.createServerMonitoringTab();
+
+
+	/*if(!gv_desktopMode) {
+		v_connTabControl.tag.createChatTab();
+	}*/
+
 	getDatabaseList(true);
 
 	//Prevent "cannot edit" bug in ace editor
@@ -205,8 +212,6 @@ function getDatabaseList(p_init, p_callback) {
 				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
 				v_connTabControl.tag.connections = p_return.v_data.v_connections;
 
-				//v_connTabControl.tag.createServerMonitoringTab();
-
 				if (p_init) {
 
 					v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
@@ -284,13 +289,18 @@ function changeDatabase(p_value) {
 	}
 
 	v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
+	v_connTabControl.selectedTab.tag.selectedDBMS = v_conn_object.v_db_type;
 
 	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
 
 	if (v_conn_object.v_db_type=='postgresql')
 		getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
+    else if (v_conn_object.v_db_type=='oracle')
+		getTreeOracle(v_connTabControl.selectedTab.tag.divTree.id);
 	else
 		getTree(v_connTabControl.selectedTab.tag.divTree.id);
+
+	adjustQueryTabObjects(true);
 
 }
 
@@ -367,12 +377,20 @@ $(window).resize(function() {
 });
 
 function refreshTreeHeight() {
-	var v_tree = v_connTabControl.selectedTab.tag.divTree;
+	var v_tag = v_connTabControl.selectedTab.tag;
 
-	if (v_tree) {
-		var v_height  = window.innerHeight - $(v_tree).offset().top - 12;
-		v_tree.style.height = v_height + "px";
+	if (v_tag.currTreeTab=='properties') {
+		var v_height  = window.innerHeight - $(v_tag.divProperties).offset().top - 21;
+		v_tag.divProperties.style.height = v_height + "px";
+		v_tag.gridProperties.render();
+		v_tag.gridProperties.render();
 	}
+	else if (v_tag.currTreeTab=='ddl') {
+		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 21;
+		v_tag.divDDL.style.height = v_height + "px";
+		v_tag.ddlEditor.resize();
+	}
+
 }
 
 function refreshHeights(p_all) {
@@ -387,7 +405,7 @@ function refreshHeights(p_all) {
 	}
 
 	//If inner tab exists
-	if (v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
+	if (v_connTabControl.selectedTab.tag.tabControl != null && v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
 		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 		//Snippet tab, adjust editor only
@@ -494,12 +512,21 @@ function refreshHeights(p_all) {
 				}
 			}
 		}
+		else if(v_tab_tag.mode == 'data_mining') {
+			if(v_tab_tag.currQueryTab == 'data') {
+				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+
+				if(v_tab_tag.ht != null) {
+					v_tab_tag.ht.render();
+				}
+			}
+			else if(v_tab_tag.currQueryTab == 'message') {
+				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+			}
+		}
 	}
 
 }
-
-
-
 
 /// <summary>
 /// Resize SQL editor and result div.
@@ -551,7 +578,9 @@ function resizeVerticalEnd(event) {
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	v_tab_tag.editor.resize();
+	if(v_tab_tag.editor != null) {
+		v_tab_tag.editor.resize();
+	}
 
 	if (v_tab_tag.mode=='query') {
 		if (v_tab_tag.currQueryTab=='data') {
@@ -597,6 +626,93 @@ function resizeVerticalEnd(event) {
 			v_tab_tag.editDataObject.ht.render();
 		}
 	}
+	else if(v_tab_tag.mode == 'data_mining') {
+		if(v_tab_tag.currQueryTab == 'data') {
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+
+			if(v_tab_tag.ht != null) {
+				v_tab_tag.ht.render();
+			}
+		}
+		else if(v_tab_tag.currQueryTab == 'message') {
+			v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+		}
+	}
+}
+
+/// <summary>
+/// Resize SQL editor and result div.
+/// </summary>
+function resizeTreeVertical(event) {
+	var v_verticalLine = document.createElement('div');
+	v_verticalLine.id = 'vertical-resize-line';
+	document.body.appendChild(v_verticalLine);
+
+	document.body.addEventListener(
+		'mousemove',
+		verticalLinePosition
+	)
+
+	v_start_height = event.screenY;
+	document.body.addEventListener("mouseup", resizeTreeVerticalEnd);
+
+}
+
+/// <summary>
+/// Resize SQL editor and result div.
+/// </summary>
+function resizeTreeVerticalEnd(event) {
+
+	document.body.removeEventListener("mouseup", resizeTreeVerticalEnd);
+	document.getElementById('vertical-resize-line').remove();
+
+	document.body.removeEventListener(
+		'mousemove',
+		verticalLinePosition
+	)
+
+	var v_height_diff = event.screenY - v_start_height;
+
+	var v_tag = v_connTabControl.selectedTab.tag;
+
+	var v_tree_div = v_tag.divTree;
+	var v_result_div = null;
+
+	if (v_tag.currTreeTab=='properties') {
+		v_result_div = v_tag.divProperties;
+		v_tag.gridProperties.render();
+		v_tag.gridProperties.render();
+	}
+	else if (v_tag.currTreeTab=='ddl') {
+		v_result_div = v_tag.divDDL;
+		v_tag.ddlEditor.resize();
+	}
+
+
+	if (v_height_diff < 0) {
+		if (Math.abs(v_height_diff) > parseInt(v_tree_div.clientHeight, 10))
+		 v_height_diff = parseInt(v_tree_div.clientHeight, 10)*-1 + 10;
+	}
+	else {
+		if (Math.abs(v_height_diff) > parseInt(v_result_div.clientHeight, 10))
+		 v_height_diff = parseInt(v_result_div.clientHeight, 10) - 10;
+	}
+
+	v_tree_div.style.height = parseInt(v_tree_div.clientHeight, 10) + v_height_diff + 'px';
+	v_result_div.style.height = parseInt(v_result_div.clientHeight, 10) - v_height_diff + 'px';
+
+	if (v_tag.currTreeTab=='properties') {
+		var v_height  = window.innerHeight - $(v_tag.divProperties).offset().top - 21;
+		v_tag.divProperties.style.height = v_height + "px";
+		v_tag.gridProperties.render();
+		v_tag.gridProperties.render();
+	}
+	else if (v_tag.currTreeTab=='ddl') {
+		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 21;
+		v_tag.divDDL.style.height = v_height + "px";
+		v_tag.ddlEditor.resize();
+	}
+
 }
 
 
@@ -736,7 +852,25 @@ function resizeHorizontalEnd(event) {
 		else if (v_tab_tag.mode=='alter') {
 	        v_tab_tag.tabControl.selectedTab.tag.ht.render();
 		}
+		else if(v_tab_tag.mode == 'data_mining') {
+			if(v_tab_tag.currQueryTab == 'data') {
+				if(v_tab_tag.ht != null) {
+					v_tab_tag.ht.render();
+				}
+			}
+		}
 
+	}
+
+	if (v_connTabControl.selectedTab.tag.TreeTabControl!=null) {
+		var v_conn_tab_tag = v_connTabControl.selectedTab.tag;
+		if (v_conn_tab_tag.currTreeTab=='properties') {
+			v_conn_tab_tag.gridProperties.render();
+			v_conn_tab_tag.gridProperties.render();
+		}
+		else if (v_conn_tab_tag.currTreeTab=='ddl') {
+			v_conn_tab_tag.ddlEditor.resize();
+		}
 	}
 
 }
@@ -1071,4 +1205,24 @@ function addLoadingCursor() {
 
 function removeLoadingCursor() {
 	document.body.classList.remove("cursor_loading");
+}
+
+function adjustQueryTabObjects(p_all_tabs) {
+	var v_dbms = v_connTabControl.selectedTab.tag.selectedDBMS;
+
+	var v_target_div = null;
+	if (!p_all_tabs)
+		v_target_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.elementDiv;
+	else
+		v_target_div = v_connTabControl.selectedTab.elementDiv;
+
+	var v_objects = $(v_target_div).find(".dbms_object").each(function() {
+	  $( this ).css('display','none');
+	});
+
+	var v_objects = $(v_target_div).find("." + v_dbms + "_object").each(function() {
+	  $( this ).css('display','inline-block');
+	});
+
+
 }

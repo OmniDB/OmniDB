@@ -22,7 +22,8 @@ var v_queryRequestCodes = {
 	SaveEditData: 5,
 	CancelThread: 6,
 	Debug: 7,
-	CloseTab: 8
+	CloseTab: 8,
+	DataMining: 9
 }
 
 /// <summary>
@@ -38,7 +39,8 @@ var v_queryResponseCodes = {
 	QueryAck: 6,
 	MessageException: 7,
 	DebugResponse: 8,
-	RemoveContext: 9
+	RemoveContext: 9,
+	DataMiningResult: 10
 }
 
 /// <summary>
@@ -54,15 +56,31 @@ var v_queryWebSocket;
 function startQueryWebSocket(p_port) {
 
 	var v_address = '';
+	var v_channel = '';
 
-	if (v_is_secure)
+	var v_secure = false;
+	if (window.location.protocol == "https:")
+		v_secure  = true;
+
+	var v_port = p_port;
+
+	if (!v_dev_mode) {
+		v_port = parseInt(window.location.port) || (window.location.protocol === 'https:' ? 443 : 80);
+	}
+
+
+	if (v_secure) {
 		v_address = 'wss://' + window.location.hostname;
-	else
+		v_channel = 'wss';
+	}
+	else {
 		v_address = 'ws://' + window.location.hostname;
+		v_channel = 'ws';
+	}
 
 	v_queryWebSocket  = createWebSocket(
 		v_address,
-		p_port,
+		v_port,
 		function(p_event) {//Open
 			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Login, v_user_key, false);
 		},
@@ -133,6 +151,15 @@ function startQueryWebSocket(p_port) {
 				default: {
 					break;
 				}
+				case parseInt(v_queryResponseCodes.DataMiningResult): {
+					if (p_context) {
+						SetAcked(p_context);
+						querySQLReturn(v_message,p_context);
+						//Remove context
+						removeContext(v_queryWebSocket,p_context_code);
+					}
+					break;
+				}
 			}
 		},
 		function(p_event) {//Close
@@ -141,7 +168,8 @@ function startQueryWebSocket(p_port) {
 		},
 		function(p_event) {//Error
 			//showError('An error has occurred during the communication with the query server.');
-		}
+		},
+		v_channel
 	);
 
 }

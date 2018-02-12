@@ -2,10 +2,9 @@
 
 ## Release Notes
 
-- Connections are now managed in the workspace, without losing existing work and focus
-- Autocomplete shortcut key is now Ctrl-Space by default
-- New improved Find & Replace for SQL Editor
-- OmniDB server now listens to the same port for HTTP(S) and WS(S), no need for opening two ports in firewall anymore
+- Basic support to Oracle databases. Users can manage, connect, and interact with Oracle databases using most of the same features provided to manage PostgreSQL databases.
+  - macOS: Download Oracle Instant Client ([link](https://github.com/OmniDB/OracleInstantClient/raw/master/oic/macos_x64.7z)) and extract in ~/lib.
+- New DDL Panel. A new panel located below the treeview displays properties and DDL of the currently selected node (works for PostgreSQL and Oracle).
 
 
 # 1- Installation

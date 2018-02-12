@@ -40,6 +40,559 @@ function tabSQLTemplate(p_tab_name, p_template) {
     }, 4000);
 }
 
+function tabDataMining() {
+    var v_name = 'Data Mining';
+
+    v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length - 1);
+
+    var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+        '<span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 16px;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+        false,
+        null,
+        renameTab,
+        null,
+        null,
+        true,
+        function() {
+            if(this.tag != null) {
+                refreshHeights();
+            }
+
+            if(this.tag != null && this.tag.editor != null) {
+                this.tag.editor.focus();
+                checkQueryStatus(this);
+            }
+        }
+    );
+    v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+
+    //Adding unique names to spans
+    var v_tab_title_span = document.getElementById('tab_title');
+    v_tab_title_span.id = 'tab_title_' + v_tab.id;
+
+    var v_tab_loading_span = document.getElementById('tab_loading');
+    v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
+
+    var v_tab_close_span = document.getElementById('tab_close');
+    v_tab_close_span.id = 'tab_close_' + v_tab.id;
+
+    v_tab_close_span.onclick = function() {
+        removeTab(v_tab);
+    };
+
+    var v_tab_check_span = document.getElementById('tab_check');
+    v_tab_check_span.id = 'tab_check_' + v_tab.id;
+
+    var v_tab_stub_span = document.getElementById('tab_stub');
+    v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
+
+    var v_html =
+        "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 400px; border: 1px solid #c3c3c3;'></div>" +
+        "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+        "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
+        "<select id='sel_filtered_data_" + v_tab.id + "' style='display: none;'><option value='0' >Script</option><option selected='selected' value='1' >Query</option></select>" +
+        "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='cancelSQL();'>Cancel</button>" +
+        "<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
+        "<button class='bt_export' title='Export Data' style='display: none; margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><img src='/static/OmniDB_app/images/table_export.png' style='vertical-align: middle;'/></button>" +
+        "<select id='sel_export_type_" + v_tab.id + "' style='display: none; float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='DBF' >DBF</option></select>" +
+        "        <div id='query_result_tabs_" + v_tab.id + "'>" +
+        "            <ul>" +
+        "            <li id='query_result_tabs_" + v_tab.id + "_tab1'>Data</li>" +
+        "			</ul>" +
+        "			<div id='div_query_result_tabs_" + v_tab.id + "_tab1'>" +
+        "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
+        "			</div>";
+
+    var v_div = document.getElementById('div_' + v_tab.id);
+    v_div.innerHTML = v_html;
+
+    var v_containerDiv = document.getElementById('txt_query_' + v_tab.id);
+    v_containerDiv.style.display = 'flex';
+    v_containerDiv.style.flexDirection = 'column';
+    v_containerDiv.style.overflow = 'auto';
+
+    var v_filterHeader = document.createElement('h3');
+    v_filterHeader.innerHTML = 'Text Filter';
+    v_filterHeader.style.marginLeft = '10px';
+    v_filterHeader.style.marginBottom = '0px';
+    v_filterHeader.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_filterHeader);
+
+    var v_filterContainerDiv = document.createElement('div');
+    v_filterContainerDiv.style.display = 'flex';
+    v_filterContainerDiv.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_filterContainerDiv);
+
+    var v_inputFilter = document.createElement('input');
+    v_inputFilter.type = 'text';
+    v_inputFilter.placeholder = 'Type the pattern to be searched...';
+    v_inputFilter.style.margin = '10px';
+    v_inputFilter.style.flex = '1 0 auto';
+    v_inputFilter.classList.add('data-mining-input-text');
+    v_filterContainerDiv.appendChild(v_inputFilter);
+
+    var v_divCase = document.createElement('div');
+    v_divCase.style.margin = '10px';
+    v_divCase.style.flex = '0 0 auto';
+    v_filterContainerDiv.appendChild(v_divCase);
+
+    var v_inputCase = document.createElement('input');
+    v_inputCase.type = 'checkbox';
+    v_inputCase.style.margin = '10px';
+    v_inputCase.classList.add('data-mining-input-case');
+    v_divCase.appendChild(v_inputCase);
+
+    var v_spanCase = document.createElement('span');
+    v_spanCase.innerHTML = 'Case-sensitive';
+    v_divCase.appendChild(v_spanCase);
+
+    var v_divRegex = document.createElement('div');
+    v_divRegex.style.margin = '10px';
+    v_divRegex.style.flex = '0 0 auto';
+    v_filterContainerDiv.appendChild(v_divRegex);
+
+    var v_inputRegex = document.createElement('input');
+    v_inputRegex.type = 'checkbox';
+    v_inputRegex.style.margin = '10px';
+    v_inputRegex.classList.add('data-mining-input-regex');
+    v_divRegex.appendChild(v_inputRegex);
+
+    v_inputRegex.addEventListener(
+        'click',
+        function(p_inputCase, p_spanCase, p_event) {
+            p_inputCase.disabled = this.checked;
+
+            if(this.checked) {
+                p_spanCase.style.opacity = '0.5';
+            }
+            else {
+                p_spanCase.style.opacity = '';
+            }
+        }.bind(v_inputRegex, v_inputCase, v_spanCase)
+    );
+
+    var v_spanRegex = document.createElement('span');
+    v_spanRegex.innerHTML = 'Regular Expression';
+    v_divRegex.appendChild(v_spanRegex);
+
+    var v_optionsHeader = document.createElement('h3');
+    v_optionsHeader.innerHTML = 'Categories Filter';
+    v_optionsHeader.style.marginLeft = '10px';
+    v_optionsHeader.style.marginBottom = '0px';
+    v_optionsHeader.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_optionsHeader);
+
+    var v_optionsContainerDiv = document.createElement('div');
+    v_optionsContainerDiv.style.display = 'grid';
+    v_optionsContainerDiv.style.gridTemplateColumns = '1fr 1fr 1fr 1fr';
+    v_optionsContainerDiv.style.gridRowGap = '10px';
+    v_optionsContainerDiv.style.gridColumnGap = '10px';
+    v_optionsContainerDiv.style.justifyItems = 'start';
+    v_optionsContainerDiv.style.boxSizing = 'border-box';
+    v_optionsContainerDiv.style.padding = '10px';
+    v_containerDiv.appendChild(v_optionsContainerDiv);
+
+    var v_optionList = [
+        {'text': 'Data', 'value': 1},
+        {'text': 'FK Name', 'value': 2},
+        {'text': 'Function Definition', 'value': 3},
+        {'text': 'Function Name', 'value': 4},
+        {'text': 'Index Name', 'value': 5},
+        {'text': 'Materialized View Column Name', 'value': 6},
+        {'text': 'Materialized View Name', 'value': 7},
+        {'text': 'PK Name', 'value': 8},
+        {'text': 'Schema Name', 'value': 9},
+        {'text': 'Sequence Name', 'value': 10},
+        {'text': 'Table Column Name', 'value': 11},
+        {'text': 'Table Name', 'value': 12},
+        {'text': 'Trigger Name', 'value': 13},
+        {'text': 'Trigger Source', 'value': 14},
+        {'text': 'Unique Name', 'value': 15},
+        {'text': 'View Column Name', 'value': 16},
+        {'text': 'View Name', 'value': 17},
+        {'text': 'Check Name', 'value': 18},
+        {'text': 'Rule Name', 'value': 19},
+        {'text': 'Rule Definition', 'value': 20},
+        {'text': 'Partition Name', 'value': 21},
+    ];
+
+    var v_compare = function(a, b) {
+        if(a.text < b.text) {
+            return -1;
+        }
+        else if(a.text > b.text) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    v_optionList.sort(v_compare);
+
+    for(var i = 0; i < v_optionList.length; i++) {
+        var v_divOption = document.createElement('div');
+        v_optionsContainerDiv.appendChild(v_divOption);
+
+        var v_inputOption = document.createElement('input');
+        v_inputOption.type = 'checkbox';
+        v_inputOption.value = v_optionList[i].text;
+        v_inputOption.classList.add('data-mining-input-option');
+        v_divOption.appendChild(v_inputOption);
+
+        var v_spanOption = document.createElement('span');
+        v_spanOption.innerHTML = v_optionList[i].text;
+        v_divOption.appendChild(v_spanOption);
+    }
+
+    var v_categoriesButtonsContainer = document.createElement('div');
+    v_categoriesButtonsContainer.style.display = 'flex';
+    v_categoriesButtonsContainer.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_categoriesButtonsContainer);
+
+    var v_buttonSelectAllCategories = document.createElement('button');
+    v_buttonSelectAllCategories.style.margin = '10px';
+    v_buttonSelectAllCategories.innerHTML = 'Select All';
+
+    v_buttonSelectAllCategories.addEventListener(
+        'click',
+        function(p_event) {
+            var v_grandParent = this.parentElement.parentElement;
+
+            var v_categoryList = v_grandParent.querySelectorAll('.data-mining-input-option');
+
+            for(var i = 0; i < v_categoryList.length; i++) {
+                v_categoryList[i].checked = true;
+            }
+        }
+    );
+
+    v_categoriesButtonsContainer.appendChild(v_buttonSelectAllCategories);
+
+    var v_buttonUnselectAllCategories = document.createElement('button');
+    v_buttonUnselectAllCategories.style.margin = '10px';
+    v_buttonUnselectAllCategories.innerHTML = 'Unselect All';
+
+    v_buttonUnselectAllCategories.addEventListener(
+        'click',
+        function(p_event) {
+            var v_grandParent = this.parentElement.parentElement;
+
+            var v_categoryList = v_grandParent.querySelectorAll('.data-mining-input-option');
+
+            for(var i = 0; i < v_categoryList.length; i++) {
+                v_categoryList[i].checked = false;
+            }
+        }
+    );
+
+    v_categoriesButtonsContainer.appendChild(v_buttonUnselectAllCategories);
+
+    var v_schemasHeader = document.createElement('h3');
+    v_schemasHeader.innerHTML = 'Schemas Filter';
+    v_schemasHeader.style.marginLeft = '10px';
+    v_schemasHeader.style.marginBottom = '0px';
+    v_schemasHeader.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_schemasHeader);
+
+    var v_schemasContainerDiv = document.createElement('div');
+    v_schemasContainerDiv.style.display = 'grid';
+    v_schemasContainerDiv.style.gridTemplateColumns = '1fr 1fr 1fr 1fr 1fr';
+    v_schemasContainerDiv.style.gridRowGap = '10px';
+    v_schemasContainerDiv.style.gridColumnGap = '10px';
+    v_schemasContainerDiv.style.justifyItems = 'start';
+    v_schemasContainerDiv.style.boxSizing = 'border-box';
+    v_schemasContainerDiv.style.padding = '10px';
+    v_containerDiv.appendChild(v_schemasContainerDiv);
+
+    execAjax('/get_schemas_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+        }),
+        function(p_schemasContainerDiv, p_return) {
+            var v_schemaList = p_return.v_data;
+
+            var v_compare = function(a, b) {
+                if(a.v_name < b.v_name) {
+                    return -1;
+                }
+                else if(a.v_name > b.v_name) {
+                    return 1;
+                }
+                else {
+                    return 0;
+                }
+            }
+
+            v_schemaList.sort(v_compare);
+
+            v_disconsiderSchemas = {'information_schema': 1, 'omnidb': 1, 'pg_catalog': 1, 'pg_toast': 1}
+
+            for(var i = 0; i < v_schemaList.length; i++) {
+                if(!(v_schemaList[i].v_name in v_disconsiderSchemas) && (v_schemaList[i].v_name.search(/pg.*temp.*/) == -1)) {
+                    var v_divSchema = document.createElement('div');
+                    p_schemasContainerDiv.appendChild(v_divSchema);
+
+                    var v_inputSchema = document.createElement('input');
+                    v_inputSchema.type = 'checkbox';
+                    v_inputSchema.value = v_schemaList[i].v_name;
+                    v_inputSchema.classList.add('data-mining-input-schema');
+                    v_divSchema.appendChild(v_inputSchema);
+
+                    var v_spanSchema = document.createElement('span');
+                    v_spanSchema.innerHTML = v_schemaList[i].v_name;
+                    v_divSchema.appendChild(v_spanSchema);
+                }
+            }
+        }.bind(null, v_schemasContainerDiv),
+        function(p_return) {
+            showAlert(p_return.v_data);
+        },
+        'box',
+        false
+    );
+
+    var v_schemasButtonsContainer = document.createElement('div');
+    v_schemasButtonsContainer.style.display = 'flex';
+    v_schemasButtonsContainer.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_schemasButtonsContainer);
+
+    var v_buttonSelectAllSchemas = document.createElement('button');
+    v_buttonSelectAllSchemas.style.margin = '10px';
+    v_buttonSelectAllSchemas.innerHTML = 'Select All';
+
+    v_buttonSelectAllSchemas.addEventListener(
+        'click',
+        function(p_event) {
+            var v_grandParent = this.parentElement.parentElement;
+
+            var v_schemaList = v_grandParent.querySelectorAll('.data-mining-input-schema');
+
+            for(var i = 0; i < v_schemaList.length; i++) {
+                v_schemaList[i].checked = true;
+            }
+        }
+    );
+
+    v_schemasButtonsContainer.appendChild(v_buttonSelectAllSchemas);
+
+    var v_buttonUnselectAllSchemas = document.createElement('button');
+    v_buttonUnselectAllSchemas.style.margin = '10px';
+    v_buttonUnselectAllSchemas.innerHTML = 'Unselect All';
+
+    v_buttonUnselectAllSchemas.addEventListener(
+        'click',
+        function(p_event) {
+            var v_grandParent = this.parentElement.parentElement;
+
+            var v_schemaList = v_grandParent.querySelectorAll('.data-mining-input-schema');
+
+            for(var i = 0; i < v_schemaList.length; i++) {
+                v_schemaList[i].checked = false;
+            }
+        }
+    );
+
+    v_schemasButtonsContainer.appendChild(v_buttonUnselectAllSchemas);
+
+    var v_summarizeHeader = document.createElement('h3');
+    v_summarizeHeader.innerHTML = 'Summarize Results';
+    v_summarizeHeader.style.marginLeft = '10px';
+    v_summarizeHeader.style.marginBottom = '0px';
+    v_summarizeHeader.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_summarizeHeader);
+
+    var v_summarizeContainerDiv = document.createElement('div');
+    v_summarizeContainerDiv.style.display = 'grid';
+    v_summarizeContainerDiv.style.gridTemplateColumns = '1fr';
+    v_summarizeContainerDiv.style.gridRowGap = '10px';
+    v_summarizeContainerDiv.style.gridColumnGap = '10px';
+    v_summarizeContainerDiv.style.justifyItems = 'start';
+    v_summarizeContainerDiv.style.boxSizing = 'border-box';
+    v_summarizeContainerDiv.style.padding = '10px';
+    v_containerDiv.appendChild(v_summarizeContainerDiv);
+
+    var v_divSummarize = document.createElement('div');
+    v_summarizeContainerDiv.appendChild(v_divSummarize);
+
+    var v_inputSummarize = document.createElement('input');
+    v_inputSummarize.type = 'checkbox';
+    v_inputSummarize.classList.add('data-mining-input-summarize');
+    v_divSummarize.appendChild(v_inputSummarize);
+
+    var v_spanSummarize = document.createElement('span');
+    v_spanSummarize.innerHTML = 'Summarize';
+    v_divSummarize.appendChild(v_spanSummarize);
+
+    var v_buttonStart = document.getElementById('bt_start_' + v_tab.id);
+
+    v_buttonStart.addEventListener(
+        'click',
+        function(p_event) {
+            var v_parent = this.parentElement;
+
+            var v_data = {
+                text: '',
+                regex: false,
+                caseSensitive: false,
+                categoryList: [],
+                schemaList: [],
+                summarizeResults: false
+            };
+
+            var v_inputFilter = v_parent.querySelector('.data-mining-input-text');
+
+            if(v_inputFilter != null) {
+                v_data.text = v_inputFilter.value;
+            }
+
+            if(v_data.text.trim() == '') {
+                showAlert('Please, provide a string in order to search.');
+                return;
+            }
+
+            var v_inputCase = v_parent.querySelector('.data-mining-input-case');
+
+            if(v_inputCase != null) {
+                v_data.caseSensitive = v_inputCase.checked;
+            }
+
+            var v_inputRegex = v_parent.querySelector('.data-mining-input-regex');
+
+            if(v_inputRegex != null) {
+                v_data.regex = v_inputRegex.checked;
+            }
+
+            var v_categoryList = v_parent.querySelectorAll('.data-mining-input-option');
+
+            for(var i = 0; i < v_categoryList.length; i++) {
+                if(v_categoryList[i].checked) {
+                    v_data.categoryList.push(v_categoryList[i].value);
+                }
+            }
+
+            if(v_data.categoryList.length == 0) {
+                showAlert('Please, select at least one category to search.');
+                return;
+            }
+
+            var v_schemaList = v_parent.querySelectorAll('.data-mining-input-schema');
+
+            for(var i = 0; i < v_schemaList.length; i++) {
+                if(v_schemaList[i].checked) {
+                    v_data.schemaList.push(v_schemaList[i].value);
+                }
+            }
+
+            if(v_data.schemaList.length == 0) {
+                showAlert('Please, select at least one schema to search.');
+                return;
+            }
+
+            var v_inputSummarize = v_parent.querySelector('.data-mining-input-summarize');
+
+            if(v_inputSummarize != null) {
+                v_data.summarizeResults = v_inputSummarize.checked;
+            }
+
+            if(v_data.categoryList.indexOf('Data') != -1) {
+                showConfirm(
+                    'You have selected the category "Data". Please, be aware that it can consume a considerable amount of time and resources, depending on selected schemas size. Do you want to proceed?',
+                    function(p_data) {
+                        queryDataMining(p_data);
+                    }.bind(null, v_data)
+                );
+            }
+            else {
+                queryDataMining(v_data);
+            }
+        }
+    );
+
+    var v_curr_tabs = createTabControl('query_result_tabs_' + v_tab.id, 0, null);
+
+    var v_tab_db_id = null;
+
+    var v_tag = {
+        tab_id: v_tab.id,
+        mode: 'data_mining',
+        editorDivId: 'txt_query_' + v_tab.id,
+        query_info: document.getElementById('div_query_info_' + v_tab.id),
+        div_result: document.getElementById('div_result_' + v_tab.id),
+        div_notices: document.getElementById('div_notices_' + v_tab.id),
+        div_count_notices: document.getElementById('query_result_tabs_count_notices_' + v_tab.id),
+        sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id),
+        sel_export_type : document.getElementById('sel_export_type_' + v_tab.id),
+        tab_title_span : v_tab_title_span,
+        tab_loading_span : v_tab_loading_span,
+        tab_close_span : v_tab_close_span,
+        tab_check_span : v_tab_check_span,
+        tab_stub_span : v_tab_stub_span,
+        bt_start: document.getElementById('bt_start_' + v_tab.id),
+        bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
+        state : 0,
+        context: null,
+        tabControl: v_connTabControl.selectedTab.tag.tabControl,
+        queryTabControl: v_curr_tabs,
+        currQueryTab: null,
+        connTab: v_connTabControl.selectedTab,
+        currDatabaseIndex: null,
+        tab_db_id: v_tab_db_id
+    };
+
+    v_tab.tag = v_tag;
+
+    var v_selectDataTabFunc = function() {
+        v_curr_tabs.selectTabIndex(0);
+        v_tag.currQueryTab = 'data';
+        refreshHeights();
+    }
+
+    var v_selectMessageTabFunc = function() {
+        v_curr_tabs.selectTabIndex(1);
+        v_tag.currQueryTab = 'message';
+        v_tag.div_count_notices.style.display = 'none';
+        refreshHeights();
+    }
+
+    v_tag.selectDataTabFunc    = v_selectDataTabFunc;
+    v_curr_tabs.tabList[0].elementLi.onclick = v_selectDataTabFunc;
+
+    v_selectDataTabFunc();
+
+    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+', false, v_connTabControl.tag.createQueryTab);
+
+    v_add_tab.tag = {
+        mode: 'add'
+    }
+
+    setTimeout(
+        function() {
+            refreshHeights();
+        },
+        10
+    );
+
+    var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
+        content: {
+            text: 'Adjust parameters and run!'
+        },
+        position: {
+            my: 'bottom center',
+            at: 'top center'
+        },
+        style: {
+            classes: 'qtip-bootstrap'
+        },
+        show: {
+            ready: true
+        }
+    })
+    window.setTimeout(function() {
+        qtip.qtip('api').destroy();
+    }, 4000);
+}
+
 /// <summary>
 /// Retrieving tree.
 /// </summary>
@@ -68,7 +621,13 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Vacuum Database', node.tree
                         .tag.vacuum);
                 }
-            }]
+            }/*, {
+                text: 'Data Mining',
+                icon: '/static/OmniDB_app/images/data_mining.png',
+                action: function(node) {
+                    tabDataMining();
+                }
+            }*/]
         },
         'cm_databases': {
             elements: [{
@@ -1253,17 +1812,6 @@ function getTreePostgresql(p_div) {
         },
         'cm_sequence': {
             elements: [{
-                text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        getSequenceValuesPostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
                 text: 'Alter Sequence',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
@@ -2440,7 +2988,11 @@ function getTreePostgresql(p_div) {
     var tree = createTree(p_div, '#fcfdfd', context_menu);
 
     tree.nodeAfterOpenEvent = function(node) {
-        refreshTreePostgresql(node);
+      refreshTreePostgresql(node);
+    }
+
+    tree.clickNodeEvent = function(node) {
+      getPropertiesPostgresql(node);
     }
 
     var node_server = tree.createNode('PostgreSQL', false,
@@ -2451,7 +3003,105 @@ function getTreePostgresql(p_div) {
         null, null);
     tree.drawTree();
 
+}
 
+/// <summary>
+/// Retrieving properties.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPropertiesPostgresql(node) {
+    if (node.tag != undefined)
+        if (node.tag.type == 'role') {
+          getProperties('/get_properties_postgresql/',
+            {
+              p_schema: null,
+              p_table: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'tablespace') {
+          getProperties('/get_properties_postgresql/',
+            {
+              p_schema: null,
+              p_table: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'database') {
+          getProperties('/get_properties_postgresql/',
+            {
+              p_schema: null,
+              p_table: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'schema') {
+          getProperties('/get_properties_postgresql/',
+            {
+              p_schema: null,
+              p_table: null,
+              p_object: node.text,
+              p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'table') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'sequence') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'view') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'mview') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'function') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.tag.id,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'trigger') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_table: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
+      } else if (node.tag.type == 'triggerfunction') {
+        getProperties('/get_properties_postgresql/',
+          {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.tag.id,
+            p_type: node.tag.type
+          });
+      } else {
+        clearProperties();
+      }
 }
 
 /// <summary>
@@ -2472,8 +3122,6 @@ function refreshTreePostgresql(node) {
         getUniquesPostgresql(node);
     } else if (node.tag.type == 'foreign_keys') {
         getFKsPostgresql(node);
-    } else if (node.tag.type == 'sequence_list') {
-        getSequencesPostgresql(node);
     } else if (node.tag.type == 'view_list') {
         getViewsPostgresql(node);
     } else if (node.tag.type == 'view') {
@@ -2490,8 +3138,6 @@ function refreshTreePostgresql(node) {
         getFunctionFieldsPostgresql(node);
     } else if (node.tag.type == 'sequence_list') {
         getSequencesPostgresql(node);
-    } else if (node.tag.type == 'sequence') {
-        getSequenceValuesPostgresql(node);
     } else if (node.tag.type == 'database_list') {
         getDatabasesPostgresql(node);
     } else if (node.tag.type == 'tablespace_list') {
@@ -2513,7 +3159,7 @@ function refreshTreePostgresql(node) {
     } else if (node.tag.type == 'partition_list') {
         getPartitionsPostgresql(node);
     } else if (node.tag.type == 'server') {
-        getTreeDetails(node);
+        getTreeDetailsPostgresql(node);
     } else if (node.tag.type == 'physicalreplicationslot_list') {
         getPhysicalReplicationSlotsPostgresql(node);
     } else if (node.tag.type == 'logicalreplicationslot_list') {
@@ -2567,7 +3213,7 @@ function refreshTreePostgresql(node) {
 /// Retrieving tree details.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getTreeDetails(node) {
+function getTreeDetailsPostgresql(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
@@ -3185,6 +3831,7 @@ function getTablesPostgresql(node) {
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         has_partitions: p_return.v_data[i].v_has_partitions
                     }, 'cm_table');
+
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
                         type: 'table_field'
@@ -3327,56 +3974,6 @@ function getSequencesPostgresql(node) {
                     '/static/OmniDB_app/images/sequence_list.png', {
                         type: 'sequence'
                     }, 'cm_sequence');
-                v_node.createChildNode('', true,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
-
-            }
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving sequence values
-/// </summary>
-/// <param name="node">Node object.</param>
-function getSequenceValuesPostgresql(node) {
-    node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
-        null);
-
-    execAjax('/get_sequence_values_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_schema": node.parent.parent.text,
-            "p_sequence": node.text
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                node.createChildNode('Minimum Value: ' + p_return.v_data[
-                        i].v_minimum_value, false,
-                    '/static/OmniDB_app/images/bullet_red.png', null,
-                    null);
-                node.createChildNode('Maximum Value: ' + p_return.v_data[
-                        i].v_maximum_value, false,
-                    '/static/OmniDB_app/images/bullet_red.png', null,
-                    null);
-                node.createChildNode('Current Value: ' + p_return.v_data[
-                        i].v_current_value, false,
-                    '/static/OmniDB_app/images/bullet_red.png', null,
-                    null);
-                node.createChildNode('Increment: ' + p_return.v_data[i].v_increment,
-                    false, '/static/OmniDB_app/images/bullet_red.png',
-                    null, null);
 
             }
 
@@ -5921,7 +6518,7 @@ function getBDRMajorVersion(p_version) {
 }
 
 function postgresqlTerminateBackendConfirm(p_pid) {
-    execAjax('/kill_backend_postgres/',
+    execAjax('/kill_backend_postgresql/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_pid": p_pid

@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.4.1
+VERSION=2.5.0
 ARCH=fedora-amd64
 
 echo "Installing OmniDB dependencies..."
@@ -108,8 +108,15 @@ echo -n "Renaming bundles... "
 mv deploy/packages/omnidb-app deploy/packages/omnidb-app_$VERSION-$ARCH
 echo "Done."
 
+echo "Including OIC... "
+cd deploy/packages/omnidb-app_$VERSION-$ARCH
+cp ~/linux_x64/* .
+ln -s libclntsh.so.11.1 libclntsh.so
+ln -s libocci.so.11.1 libocci.so
+cd ..
+echo "Done"
+
 echo "Generating tar.gz packages... "
-cd deploy/packages
 tar -czvf omnidb-app_$VERSION-$ARCH.tar.gz omnidb-app_$VERSION-$ARCH
 echo "Done"
 

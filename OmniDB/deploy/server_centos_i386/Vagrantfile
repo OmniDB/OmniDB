@@ -14,7 +14,9 @@ Vagrant::Config.run do |config|
   config.vm.box = "wholebits/centos6-32"
   config.vm.box_url = "https://app.vagrantup.com/wholebits/boxes/centos6-32"
   config.vm.host_name = "deployserver32"
-
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "omnidb_centos_deployserver32"
+  end
   config.vm.share_folder "bootstrap", "/mnt/bootstrap", ".", :create => true
   config.vm.provision :shell, :path => "bootstrap.sh"
 end

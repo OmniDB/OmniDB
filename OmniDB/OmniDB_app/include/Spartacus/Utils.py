@@ -187,7 +187,7 @@ class DataFileWriter(object):
         try:
             if self.v_extension == 'csv':
                 self.v_file = open(self.v_filename, 'w', encoding=self.v_encoding)
-                self.v_object = csv.DictWriter(v_file, fieldnames=self.v_header)
+                self.v_object = csv.DictWriter(self.v_file, fieldnames=self.v_header)
                 self.v_object.writeheader()
                 self.v_open = True
             elif self.v_extension == 'xlsx':

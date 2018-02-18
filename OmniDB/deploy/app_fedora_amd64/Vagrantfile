@@ -14,7 +14,9 @@ Vagrant::Config.run do |config|
   config.vm.box = "bento/fedora-24"
   config.vm.box_url = "https://app.vagrantup.com/bento/boxes/fedora-24"
   config.vm.host_name = "deployapp64"
-
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "omnidb_fedora_deployapp64"
+  end
   config.vm.share_folder "bootstrap", "/mnt/bootstrap", ".", :create => true
   config.vm.provision :shell, :path => "bootstrap.sh"
 end

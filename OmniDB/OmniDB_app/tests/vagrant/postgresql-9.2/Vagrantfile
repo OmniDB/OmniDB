@@ -14,7 +14,9 @@ Vagrant::Config.run do |config|
   config.vm.box = "debian/stretch64"
   config.vm.box_url = "https://app.vagrantup.com/debian/boxes/stretch64"
   config.vm.host_name = "postgresql92"
-
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "omnidb_pg92"
+  end
   config.vm.share_folder "bootstrap", "/mnt/bootstrap", ".", :create => true
   config.vm.provision :shell, :path => "bootstrap.sh"
 

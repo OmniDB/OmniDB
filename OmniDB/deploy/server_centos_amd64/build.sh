@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.5.0
+VERSION=2.6.0
 ARCH=centos-amd64
 
 echo "Installing OmniDB dependencies..."

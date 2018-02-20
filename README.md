@@ -49,7 +49,7 @@ pip install -r requirements.txt
 Download or clone OmniDB repo and extract it somewhere. To start Django server, enter into `OmniDB/OmniDB` folder and type:
 
 ```
-python3 omnidb-server.py
+python manage.py runserver
 ```
 
 # 2- Introduction

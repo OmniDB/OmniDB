@@ -8,15 +8,12 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-end
-
-Vagrant::Config.run do |config|
   config.vm.box = "debian/wheezy64"
   config.vm.box_url = "https://app.vagrantup.com/debian/boxes/wheezy64"
   config.vm.host_name = "deployplugin64"
   config.vm.provider :virtualbox do |vb|
     vb.name = "omnidb_debian_deployplugin64"
   end
-  config.vm.share_folder "bootstrap", "/mnt/bootstrap", ".", :create => true
+  config.vm.synced_folder ".", "/mnt/bootstrap"
   config.vm.provision :shell, :path => "bootstrap.sh"
 end

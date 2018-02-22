@@ -437,21 +437,21 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(n.nspname) = '{0}' and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = '{1}' ".format(p_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(t.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(n.nspname) = '{0}' and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(t.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
                 v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
                 v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = {0}".format(p_table)
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(t.relname) = {0}".format(p_table)
             else:
                 v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
             select quote_ident(n.nspname) as schema_name,
-                   ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') as table_name,
+                   quote_ident(t.relname) as table_name,
                    quote_ident(c.conname) as constraint_name,
                    c.consrc as constraint_source
             from pg_constraint c
@@ -468,16 +468,16 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(n.nspname) = '{0}' and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = '{1}' ".format(p_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(t.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(n.nspname) = '{0}' and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(t.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
                 v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
                 v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = {0}".format(p_table)
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(t.relname) = {0}".format(p_table)
             else:
                 v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
@@ -496,7 +496,7 @@ class PostgreSQL:
             on t.relnamespace = n.oid
             where contype = 'x'
               and quote_ident(n.nspname) = $1
-              and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = $2
+              and quote_ident(t.relname) = $2
               and quote_ident(c.conname) = $3
             ) x
             inner join pg_operator o
@@ -517,7 +517,7 @@ class PostgreSQL:
             on t.relnamespace = n.oid
             where contype = 'x'
               and quote_ident(n.nspname) = $1
-              and ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') = $2
+              and quote_ident(t.relname) = $2
               and quote_ident(c.conname) = $3
             ) x
             inner join pg_attribute a
@@ -531,16 +531,16 @@ class PostgreSQL:
             ), ',')
             $$ language sql;
             select quote_ident(n.nspname) as schema_name,
-                   ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.') as table_name,
+                   quote_ident(t.relname) as table_name,
                    quote_ident(c.conname) as constraint_name,
                    pg_temp.fnc_omnidb_exclude_ops(
                        quote_ident(n.nspname),
-                       ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.'),
+                       quote_ident(t.relname),
                        quote_ident(c.conname)
                    ) as operations,
                    pg_temp.fnc_omnidb_exclude_attrs(
                        quote_ident(n.nspname),
-                       ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.'),
+                       quote_ident(t.relname),
                        quote_ident(c.conname)
                    ) as attributes
             from pg_constraint c
@@ -583,10 +583,10 @@ class PostgreSQL:
         return self.v_connection.ExecuteScalar('''
             select definition
             from pg_rules
-            where quote_ident(table_schema) = '{0}'
-              and quote_ident(table_name) = '{1}'
+            where quote_ident(schemaname) = '{0}'
+              and quote_ident(tablename) = '{1}'
               and quote_ident(rulename) = '{2}'
-        '''.format(p_schema, p_table, p_rule))
+        '''.format(p_schema, p_table, p_rule)).replace('CREATE RULE', 'CREATE OR REPLACE RULE')
 
     def QueryTablesTriggers(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
@@ -607,10 +607,7 @@ class PostgreSQL:
         return self.v_connection.Query('''
             select quote_ident(n.nspname) as schema_name,
                    quote_ident(c.relname) as table_name,
-                   quote_ident(t.tgname) as trigger_name,
-                   t.tgenabled as trigger_enabled,
-                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function_name,
-                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()' as trigger_function_id
+                   quote_ident(t.tgname) as trigger_name
             from pg_trigger t
             inner join pg_class c
             on c.oid = t.tgrelid
@@ -634,7 +631,7 @@ class PostgreSQL:
                    (case when length(coalesce(x.action_condition, '')) > 0 then '  WHEN ( ' || x.action_condition || ') ' || chr(10) else '' end) ||
                    '  ' || x.action_statement as definition
             from (
-            select distinct quote_ident(t.trigger_name),
+            select distinct quote_ident(t.trigger_name) as trigger_name,
                    t.action_timing,
                    e.event as event_manipulation,
                    t.action_orientation,
@@ -645,9 +642,9 @@ class PostgreSQL:
             select array_to_string(array(
             select event_manipulation::text
             from information_schema.triggers
-            where event_object_schema = '{0}'
-              and event_object_table = '{1}'
-              and trigger_name = '{2}'
+            where quote_ident(event_object_schema) = '{0}'
+              and quote_ident(event_object_table) = '{1}'
+              and quote_ident(trigger_name) = '{2}'
             ), ' OR ') as event
             ) e
             on 1 = 1
@@ -1380,7 +1377,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
                 select 'Check Name'::text as category,
                        quote_ident(n.nspname)::text as schema_name,
-                       ltrim(quote_ident(t.relname), quote_ident(n.nspname) || '.')::text as table_name,
+                       quote_ident(t.relname)::text as table_name,
                        ''::text as column_name,
                        quote_ident(c.conname)::text as match_value
                 from pg_constraint c
@@ -2992,7 +2989,68 @@ TO NODE ( nodename [, ... ] )
                 where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
             '''.format(p_object))
 
-    def GetProperties(self, p_schema, p_object, p_type):
+    def GetPropertiesTrigger(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   y.schema_name as "Schema",
+                   y.table_name as "Table",
+                   y.trigger_name as "Trigger",
+                   y.oid as "OID",
+                   y.trigger_enabled as "Enabled",
+                   y.trigger_function_name as "Trigger Function",
+                   x.action_timing as "Action Timing",
+                   x.event_manipulation as "Action Manipulation",
+                   x.action_orientation as "Action Orientation",
+                   x.action_condition as "Action Condition",
+                   x.action_statement as "Action Statement"
+            from (
+            select distinct quote_ident(t.event_object_schema) as schema_name,
+                   quote_ident(t.event_object_table) as table_name,
+                   quote_ident(t.trigger_name) as trigger_name,
+                   t.action_timing,
+                   array_to_string(array(
+                   select t2.event_manipulation::text
+                   from information_schema.triggers t2
+                   where t2.event_object_schema = t.event_object_schema
+                     and t2.event_object_table = t.event_object_table
+                     and t2.trigger_name = t.trigger_name
+                   ), ' OR ') as event_manipulation,
+                   t.action_orientation,
+                   t.action_condition,
+                   t.action_statement
+            from information_schema.triggers t
+            where quote_ident(t.event_object_schema) = '{0}'
+              and quote_ident(t.event_object_table) = '{1}'
+              and quote_ident(t.trigger_name) = '{2}'
+            ) x
+            inner join (
+            select t.oid,
+                   quote_ident(n.nspname) as schema_name,
+                   quote_ident(c.relname) as table_name,
+                   quote_ident(t.tgname) as trigger_name,
+                   t.tgenabled as trigger_enabled,
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function_name,
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()' as trigger_function_id
+            from pg_trigger t
+            inner join pg_class c
+            on c.oid = t.tgrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_proc p
+            on p.oid = t.tgfoid
+            inner join pg_namespace np
+            on np.oid = p.pronamespace
+            where not t.tgisinternal
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(c.relname) = '{1}'
+              and quote_ident(t.tgname) = '{2}'
+            ) y
+            on y.schema_name = x.schema_name
+            and y.table_name = x.table_name
+            and y.trigger_name = x.trigger_name
+        '''.format(p_schema, p_table, p_object))
+
+    def GetProperties(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
         elif p_type == 'tablespace':
@@ -3014,7 +3072,7 @@ TO NODE ( nodename [, ... ] )
         elif p_type == 'function':
             return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
         elif p_type == 'trigger':
-            return None
+            return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
         elif p_type == 'triggerfunction':
             return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
         else:

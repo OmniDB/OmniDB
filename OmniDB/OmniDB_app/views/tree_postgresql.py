@@ -212,7 +212,7 @@ def get_properties(request):
     v_ddl = ''
 
     try:
-        v_properties = v_database.GetProperties(v_data['p_schema'],v_data['p_object'],v_data['p_type'])
+        v_properties = v_database.GetProperties(v_data['p_schema'],v_data['p_table'],v_data['p_object'],v_data['p_type'])
         for v_property in v_properties.Rows:
             v_list_properties.append([v_property['Property'],v_property['Value']])
         v_ddl = v_database.GetDDL(v_data['p_schema'],v_data['p_table'],v_data['p_object'],v_data['p_type'])
@@ -656,7 +656,7 @@ def get_rules(request):
         v_rules = v_database.QueryTablesRules(v_table,False,v_schema)
         for v_rule in v_rules.Rows:
             v_rule_data = []
-            v_rule_data.append(v_rule['constraint_name'])
+            v_rule_data.append(v_rule['rule_name'])
             v_list_rules.append(v_rule_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -664,6 +664,45 @@ def get_rules(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_rules
+
+    return JsonResponse(v_return)
+
+def get_rule_definition(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_rule = json_object['p_rule']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    try:
+        v_return['v_data'] = v_database.GetRuleDefinition(v_rule, v_table, v_schema)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     return JsonResponse(v_return)
 
@@ -703,9 +742,6 @@ def get_triggers(request):
         for v_trigger in v_triggers.Rows:
             v_trigger_data = []
             v_trigger_data.append(v_trigger['trigger_name'])
-            v_trigger_data.append(v_trigger['trigger_enabled'])
-            v_trigger_data.append(v_trigger['trigger_function_name'])
-            v_trigger_data.append(v_trigger['trigger_function_id'])
             v_list_triggers.append(v_trigger_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }

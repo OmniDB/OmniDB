@@ -1458,6 +1458,14 @@ function getTreePostgresql(p_div) {
                             '#rule_name#', node.text));
                 }
             }, {
+                text: 'Edit Rule',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    v_connTabControl.tag.createQueryTab(
+                        node.text);
+                    getRuleDefinitionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Rule',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
@@ -3086,7 +3094,7 @@ function getPropertiesPostgresql(node) {
       } else if (node.tag.type == 'trigger') {
         getProperties('/get_properties_postgresql/',
           {
-            p_schema: node.parent.parent.text,
+            p_schema: node.parent.parent.parent.parent.text,
             p_table: node.parent.parent.text,
             p_object: node.text,
             p_type: node.tag.type
@@ -4835,6 +4843,57 @@ function getRulesPostgresql(node) {
 }
 
 /// <summary>
+/// Retrieving rule definition.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getRuleDefinitionPostgresql(node) {
+
+    execAjax('/get_rule_definition_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_rule": node.text,
+            "p_table": node.parent.parent.text,
+            "p_schema": node.parent.parent.parent.parent.text
+        }),
+        function(p_return) {
+
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .setValue(p_return.v_data);
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .clearSelection();
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .gotoLine(0, 0, true);
+            //v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+            renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
+                node.text);
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
+                .value = 1;
+
+            var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
+                .tag.div_result;
+
+            if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                .ht != null) {
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                    .ht.destroy();
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                    .ht = null;
+            }
+
+            v_div_result.innerHTML = '';
+
+            maximizeEditor();
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        true);
+
+}
+
+/// <summary>
 /// Retrieving Triggers.
 /// </summary>
 /// <param name="node">Node object.</param>
@@ -4867,14 +4926,14 @@ function getTriggersPostgresql(node) {
                         false, '/static/OmniDB_app/images/trigger.png', {
                             type: 'trigger'
                         }, 'cm_trigger');
-                    v_node.createChildNode('Enabled: ' + p_return.v_data[i]
+                    /*v_node.createChildNode('Enabled: ' + p_return.v_data[i]
                         [1], false,
                         '/static/OmniDB_app/images/bullet_red.png',
                         null, null);
                     v_node.createChildNode('Function: ' + p_return.v_data[i]
                         [2], false,
                         '/static/OmniDB_app/images/bullet_red.png',
-                        null, null);
+                        null, null);*/
 
                 }
 

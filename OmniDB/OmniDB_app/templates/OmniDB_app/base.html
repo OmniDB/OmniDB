@@ -49,18 +49,89 @@
   {% endblock %}
 
 	<div id="div_config_user" style="display: none;">
-	    <div class="modal_background_dark">
-	        <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
+	        <div class ="config_box">
 	            <a class="modal-closer" onclick="hideConfigUser()">x</a>
 
 	            <div id="config_tabs" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
 	                <ul>
-	                <li id="config_tabs_tab1">Editor</li>
+                  <li id="config_tabs_tab1">Shortcuts</li>
+	                <li id="config_tabs_tab2">Editor</li>
                   {% if not desktop_mode %}
-	                 <li id="config_tabs_tab2">User</li>
+	                 <li id="config_tabs_tab3">User</li>
                   {% endif %}
 	  				</ul>
-	  				<div id="div_config_tabs_tab1">
+            <div id="div_config_tabs_tab1">
+
+              <div id="div_shortcut_background_dark"><div style="position: absolute; top: 50%; width: 100%;">Press key combination... (ESC to cancel)</div></div>
+
+              <div class='shortcut_block'>
+
+                <div class='shortcut_block_title'>Query Tab</div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Run Query</div>
+                  <div class='shortcut_element'><button id="shortcut_run_query" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Indent</div>
+                  <div class='shortcut_element'><button id="shortcut_indent" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Explain (PostgreSQL)</div>
+                  <div class='shortcut_element'><button id="shortcut_explain" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Explain Analyze (PostgreSQL)</div>
+                  <div class='shortcut_element'><button id="shortcut_analyze" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_block_title'>Tab Management</div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>New Inner Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_new_inner_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Remove Current Inner Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_remove_inner_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Select Left Inner Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_left_inner_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Select Right Inner Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_right_inner_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>New Connection Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_new_outer_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Remove Current Connection Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_remove_outer_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Select Left Outer Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_left_outer_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Select Right Outer Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_right_outer_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+              </div>
+              <div style="text-align: center; margin-top: 10px; margin-bottom: 5px;">
+                <button onclick="saveShortcuts();">Save Changes</button>
+              </div>
+
+
+	  				</div>
+	  				<div id="div_config_tabs_tab2">
 
 	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
 		                <div style="text-align: center;">
@@ -124,9 +195,9 @@
 
 	  				</div>
             {% if not desktop_mode %}
-	  				<div id="div_config_tabs_tab2">
+	  				<div id="div_config_tabs_tab3">
             {% else %}
-            <div id="div_config_tabs_tab2" style="display: none;">
+            <div id="div_config_tabs_tab3" style="display: none;">
             {% endif %}
 	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
 		                	<div style="text-align: center;">
@@ -147,7 +218,6 @@
 		                </div>
 	  				</div>
 				</div>
-	        </div>
 	    </div>
 	</div>
 
@@ -294,6 +364,11 @@
   var v_database_list = null;
   var v_completer_ready = true;
   var v_tree_object;
+  var v_shortcut_object = {
+    shortcuts: {{shortcuts|safe}},
+    button: null,
+    actions: null
+  };
 
   </script>
 

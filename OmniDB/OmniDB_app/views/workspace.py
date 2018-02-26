@@ -37,6 +37,43 @@ def index(request):
     else:
         v_dev_mode = 'false'
 
+    v_shortcuts = v_session.v_omnidb_database.v_connection.Query('''
+        select default_shortcut_code as shortcut_code,
+               case when user_defined_shortcut_code is null then default_ctrl_pressed else user_defined_ctrl_pressed end as ctrl_pressed,
+               case when user_defined_shortcut_code is null then default_shift_pressed else user_defined_shift_pressed end as shift_pressed,
+               case when user_defined_shortcut_code is null then default_alt_pressed else user_defined_alt_pressed end as alt_pressed,
+               case when user_defined_shortcut_code is null then default_meta_pressed else user_defined_meta_pressed end as meta_pressed,
+               case when user_defined_shortcut_code is null then default_shortcut_key else user_defined_shortcut_key end as shortcut_key
+        from
+        (select defaults.shortcut_code as default_shortcut_code,
+               defaults.ctrl_pressed as default_ctrl_pressed,
+               defaults.shift_pressed as default_shift_pressed,
+               defaults.alt_pressed as default_alt_pressed,
+               defaults.meta_pressed as default_meta_pressed,
+               defaults.shortcut_key as default_shortcut_key,
+               user_defined.shortcut_code as user_defined_shortcut_code,
+               user_defined.ctrl_pressed as user_defined_ctrl_pressed,
+               user_defined.shift_pressed as user_defined_shift_pressed,
+               user_defined.alt_pressed as user_defined_alt_pressed,
+               user_defined.meta_pressed as user_defined_meta_pressed,
+               user_defined.shortcut_key as user_defined_shortcut_key
+        from shortcuts defaults
+        left join shortcuts user_defined on (defaults.shortcut_code = user_defined.shortcut_code and user_defined.user_id = {0})
+        where defaults.user_id is null) subquery
+    '''.format(v_session.v_user_id))
+
+    shortcut_object = {}
+
+    for v_shortcut in v_shortcuts.Rows:
+        shortcut_object[v_shortcut['shortcut_code']] = {
+            'ctrl_pressed': v_shortcut['ctrl_pressed'],
+            'shift_pressed': v_shortcut['shift_pressed'],
+            'alt_pressed': v_shortcut['alt_pressed'],
+            'meta_pressed': v_shortcut['meta_pressed'],
+            'shortcut_key': v_shortcut['shortcut_key'],
+            'shortcut_code': v_shortcut['shortcut_code']
+        }
+
     context = {
         'session' : v_session,
         'desktop_mode': settings.DESKTOP_MODE,
@@ -49,6 +86,7 @@ def index(request):
         'execute_mac': settings.BINDKEY_EXECUTE_MAC,
         'autocomplete': settings.BINDKEY_AUTOCOMPLETE,
         'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC,
+        'shortcuts': shortcut_object,
         'chat_link': settings.CHAT_LINK
     }
 
@@ -123,6 +161,50 @@ def save_config_user(request):
         v_return['v_error'] = True
 
     request.session['omnidb_session'] = v_session
+
+    return JsonResponse(v_return)
+
+def save_shortcuts(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+    v_cryptor = request.session.get('cryptor')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_shortcuts = json_object['p_shortcuts']
+
+    try:
+        v_session.v_omnidb_database.v_connection.Open();
+        v_session.v_omnidb_database.v_connection.Execute('BEGIN');
+        v_session.v_omnidb_database.v_connection.Execute('''
+            delete from shortcuts where user_id = {0}
+        '''.format(v_session.v_user_id))
+        for v_shortcut in v_shortcuts:
+            v_session.v_omnidb_database.v_connection.Execute('''
+                insert into shortcuts values (
+                {0},
+                '{1}',
+                {2},
+                {3},
+                {4},
+                {5},
+                '{6}')
+            '''.format(v_session.v_user_id,v_shortcut['shortcut_code'],v_shortcut['ctrl_pressed'],v_shortcut['shift_pressed'],v_shortcut['alt_pressed'],v_shortcut['meta_pressed'],v_shortcut['shortcut_key']))
+        v_session.v_omnidb_database.v_connection.Close();
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     return JsonResponse(v_return)
 
@@ -1470,6 +1552,7 @@ def get_completions(request):
     v_found = False
 
     inst = get_positions (p_sql, p_prefix)
+    print(inst)
 
     index = 0
 

@@ -341,6 +341,22 @@ textarea {
     vertical-align: top;
 }
 
+#div_shortcut_background_dark {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba( 0, 0, 0, .4 );
+    vertical-align: top;
+    color: white;
+    font-size: 40px;
+    text-shadow: 1px 1px #000000;
+    text-align: center;
+}
+
 body.loading .div_loading {
     display: block;
 }
@@ -348,7 +364,7 @@ body.loading .div_loading {
 .div_loading {
   display: none;
   position: absolute;
-  z-index: 100001;
+  z-index: 100005;
   top: 0;
   left: 0;
   height: 100%;
@@ -1086,4 +1102,55 @@ iframe {
 
 h2 {
   margin: 0px;
+}
+
+.shortcut_line {
+  white-space: nowrap;
+}
+
+.shortcut_element {
+  height: 30px;
+  line-height: 30px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  vertical-align: middle;
+  display: inline-block;
+  width: 50%;
+  text-align: center;
+}
+
+.shortcut_button {
+  width:180px;
+  position: relative;
+}
+
+.shortcut_block_title {
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  border-bottom: 1px dashed #c3c3c3;
+  padding-bottom: 5px;
+}
+
+.shortcut_block {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.config_box {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin-top: 30px;
+  margin-right: 13px;
+  width: 500px;
+  padding: 5px 5px;
+  border-radius: 3px;
+  background-color: #f9f9f9;
+  z-index: 1000;
+  background-color: #f9f9f9;
+  border: 1px solid #cdcdcd;
+  box-shadow: 2px 2px 2px #cecece;
 }

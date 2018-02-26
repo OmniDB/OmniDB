@@ -894,6 +894,7 @@ class PostgreSQL(Generic):
             self.v_help.AddRow(['\\timing', '\\timing', 'Toggle timing of commands.'])
             self.v_expanded = False
             self.v_timing = False
+            psycopg2.extras.register_default_json(loads=lambda x: x)
         else:
             raise Spartacus.Database.Exception("PostgreSQL is not supported. Please install it with 'pip install Spartacus[postgresql]'.")
     def GetConnectionString(self):

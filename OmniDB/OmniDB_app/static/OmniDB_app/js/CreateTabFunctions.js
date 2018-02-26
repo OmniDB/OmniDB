@@ -116,6 +116,7 @@ function initCreateTabFunctions() {
 
   		var langTools = ace.require("ace/ext/language_tools");
   		var v_editor = ace.edit(v_tab.id + '_ddl');
+      v_editor.$blockScrolling = Infinity;
   		v_editor.setTheme("ace/theme/" + v_editor_theme);
   		v_editor.session.setMode("ace/mode/sql");
   		v_editor.commands.bindKey(".", "startAutocomplete");
@@ -166,7 +167,7 @@ function initCreateTabFunctions() {
                             contextMenu: {
                   						callback: function (key, options) {
                   							if (key === 'view_data') {
-                  							  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+                  							  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
                   							}
                   						},
                   						items: {
@@ -203,6 +204,7 @@ function initCreateTabFunctions() {
     		selectedDatabaseIndex: 0,
     		connTabControl: v_connTabControl,
         mode: 'connection',
+        tabCloseSpan: v_tab_close_span,
         firstTimeOpen: true,
         TreeTabControl: v_treeTabs,
         currTreeTab: null,
@@ -689,6 +691,7 @@ function initCreateTabFunctions() {
 
     var v_txt_script = document.getElementById('txt_script_' + v_tab.id);
     var v_editor = ace.edit('txt_script_' + v_tab.id);
+    v_editor.$blockScrolling = Infinity;
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/python");
 		v_editor.commands.bindKey(".", "startAutocomplete");
@@ -701,6 +704,7 @@ function initCreateTabFunctions() {
 
     var v_txt_data = document.getElementById('txt_data_' + v_tab.id);
     var v_editor_data = ace.edit('txt_data_' + v_tab.id);
+    v_editor.$blockScrolling = Infinity;
 		v_editor_data.setTheme("ace/theme/" + v_editor_theme);
 		v_editor_data.session.setMode("ace/mode/python");
 		v_editor_data.commands.bindKey(".", "startAutocomplete");
@@ -735,7 +739,8 @@ function initCreateTabFunctions() {
       bt_test: document.getElementById('bt_test_' + v_tab.id),
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
       unit_id: null,
-      object: null
+      object: null,
+      tabCloseSpan: v_tab_close_span
 		};
 
 		v_tab.tag = v_tag;
@@ -808,7 +813,8 @@ function initCreateTabFunctions() {
       units: [],
       unit_sequence: 0,
       tab_active: true,
-      connTabTag: v_connTabControl.selectedTab.tag
+      connTabTag: v_connTabControl.selectedTab.tag,
+      tabCloseSpan: v_tab_close_span
 		};
 
 		v_tab.tag = v_tag;
@@ -871,6 +877,7 @@ function initCreateTabFunctions() {
 
 		var langTools = ace.require("ace/ext/language_tools");
 		var v_editor = ace.edit('txt_snippet_' + v_tab.id);
+    v_editor.$blockScrolling = Infinity;
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/sql");
 		v_editor.commands.bindKey(".", "startAutocomplete");
@@ -906,7 +913,8 @@ function initCreateTabFunctions() {
       bt_save: document.getElementById('bt_save_' + v_tab.id),
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
 			snippetTab: v_connTabControl.selectedTab,
-      snippetObject: null
+      snippetObject: null,
+      tabCloseSpan: v_tab_close_span
 		};
 
 		v_tab.tag = v_tag;
@@ -958,7 +966,8 @@ function initCreateTabFunctions() {
 			tab_title_span : v_tab_title_span,
 			tab_close_span : v_tab_close_span,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
-      network: null
+      network: null,
+      tabCloseSpan: v_tab_close_span
 		};
 
 		v_tab.tag = v_tag;
@@ -1007,6 +1016,7 @@ function initCreateTabFunctions() {
 			iframe: document.getElementById('website_' + v_tab.id),
 			tab_title_span : v_tab_title_span,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
+      tabCloseSpan: v_tab.elementClose
 		};
 
 		v_tab.tag = v_tag;
@@ -1055,6 +1065,7 @@ function initCreateTabFunctions() {
 			iframe: document.getElementById('website_' + v_tab.id),
 			tab_title_span : v_tab_title_span,
 			tabControl: v_connTabControl,
+      tabCloseSpan: v_tab.elementClose
 		};
 
 		v_tab.tag = v_tag;
@@ -1114,7 +1125,8 @@ function initCreateTabFunctions() {
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
       ht: null,
       query: p_query,
-      actions: p_actions
+      actions: p_actions,
+      tabCloseSpan: v_tab_close_span
 		};
 
     //Adding action to button
@@ -1188,7 +1200,8 @@ function initCreateTabFunctions() {
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
       ht: null,
       current_page: 1,
-      pages: null
+      pages: null,
+      tabCloseSpan: v_tab_close_span
 		};
 
 		v_tab.tag = v_tag;
@@ -1253,14 +1266,14 @@ function initCreateTabFunctions() {
 					"<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='querySQL(0);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_indent_" + v_tab.id + "' class='bt_execute' title='Indent SQL' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='indentSQL();'><img src='/static/OmniDB_app/images/indent.png' style='vertical-align: middle;'/></button>" +
 					"<select id='sel_filtered_data_" + v_tab.id + "' style='display: none;'><option value='0' >Script</option><option selected='selected' value='1' >Query</option></select>" +
-          "<button class='dbms_object postgresql_object' onclick='getExplain(0)' title='Explain' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle; display: none;'><img src='/static/OmniDB_app/images/explain.png' style='vertical-align: middle;'/></button>" +
-          "<button class='dbms_object postgresql_object' onclick='getExplain(1)' title='Explain Analyze' style='margin-bottom: 5px; display: inline-block; vertical-align: middle; display: none;'><img src='/static/OmniDB_app/images/analyze.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_explain_" + v_tab.id + "' class='dbms_object postgresql_object' onclick='getExplain(0)' title='Explain' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle; display: none;'><img src='/static/OmniDB_app/images/explain.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_analyze_" + v_tab.id + "' class='dbms_object postgresql_object' onclick='getExplain(1)' title='Explain Analyze' style='margin-bottom: 5px; display: inline-block; vertical-align: middle; display: none;'><img src='/static/OmniDB_app/images/analyze.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='querySQL(1);'>Fetch more</button>" +
           "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='querySQL(2);'>Fetch all</button>" +
           "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='cancelSQL();'>Cancel</button>" +
 					"<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
-					"<button class='bt_export' title='Export Data' style='display: none; margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><img src='/static/OmniDB_app/images/table_export.png' style='vertical-align: middle;'/></button>" +
-					"<select id='sel_export_type_" + v_tab.id + "' style='display: none; float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='DBF' >DBF</option></select>" +
+					"<button class='bt_export' title='Export Data' style='margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><img src='/static/OmniDB_app/images/table_export.png' style='vertical-align: middle;'/></button>" +
+					"<select id='sel_export_type_" + v_tab.id + "' style='float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='html' >HTML</option></select>" +
           "        <div id='query_result_tabs_" + v_tab.id + "'>" +
           "            <ul>" +
           "            <li id='query_result_tabs_" + v_tab.id + "_tab1'>Data</li>" +
@@ -1284,6 +1297,7 @@ function initCreateTabFunctions() {
 
 		var langTools = ace.require("ace/ext/language_tools");
 		var v_editor = ace.edit('txt_query_' + v_tab.id);
+    v_editor.$blockScrolling = Infinity;
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/sql");
 		v_editor.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
@@ -1393,7 +1407,9 @@ function initCreateTabFunctions() {
       bt_fetch_more: document.getElementById('bt_fetch_more_' + v_tab.id),
       bt_fetch_all: document.getElementById('bt_fetch_all_' + v_tab.id),
       bt_start: document.getElementById('bt_start_' + v_tab.id),
-      bt_save: document.getElementById('bt_save_' + v_tab.id),
+      bt_indent: document.getElementById('bt_indent_' + v_tab.id),
+      bt_explain: document.getElementById('bt_explain_' + v_tab.id),
+      bt_analyze: document.getElementById('bt_analyze_' + v_tab.id),
       bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
 			state : 0,
       context: null,
@@ -1402,7 +1418,8 @@ function initCreateTabFunctions() {
       currQueryTab: null,
 			connTab: v_connTabControl.selectedTab,
       currDatabaseIndex: null,
-      tab_db_id: v_tab_db_id
+      tab_db_id: v_tab_db_id,
+      tabCloseSpan: v_tab_close_span
 		};
 
 		v_tab.tag = v_tag;
@@ -1508,6 +1525,7 @@ function initCreateTabFunctions() {
 
     var langTools = ace.require("ace/ext/language_tools");
     var v_editor = ace.edit('txt_filter_data_' + v_tab.id);
+    v_editor.$blockScrolling = Infinity;
     v_editor.setTheme("ace/theme/" + v_editor_theme);
     v_editor.session.setMode("ace/mode/sql");
     v_editor.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
@@ -1614,7 +1632,8 @@ function initCreateTabFunctions() {
       context: null,
       tabControl: v_connTabControl.selectedTab.tag.tabControl,
       connTab: v_connTabControl.selectedTab,
-      tabId: v_connTabControl.selectedTab.tag.tabControl.tabCounter
+      tabId: v_connTabControl.selectedTab.tag.tabControl.tabCounter,
+      tabCloseSpan: v_tab_close_span
     };
 
     v_tab.tag = v_tag;
@@ -1703,7 +1722,8 @@ function initCreateTabFunctions() {
 			htDivIndexes: document.getElementById('div_alter_index_data_' + v_tab.id),
 			tab_title_span : v_tab_title_span,
 			tabControl: v_curr_tabs,
-			alterTableObject: { mode: null }
+			alterTableObject: { mode: null },
+      tabCloseSpan: v_tab_close_span
 		};
 
 		v_curr_tabs.tabList[0].elementLi.onclick = function() {
@@ -1831,6 +1851,7 @@ function initCreateTabFunctions() {
 
 		var langTools = ace.require("ace/ext/language_tools");
 		var v_editor = ace.edit('txt_func_body_' + v_tab.id);
+    v_editor.$blockScrolling = Infinity;
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/sql");
 		v_editor.commands.bindKey(".", "startAutocomplete");
@@ -1887,7 +1908,8 @@ function initCreateTabFunctions() {
       htVariable: null,
       htResult: null,
       chart: null,
-      breakPoint: null
+      breakPoint: null,
+      tabCloseSpan: v_tab_close_span
 		};
 
 		v_tab.tag = v_tag;

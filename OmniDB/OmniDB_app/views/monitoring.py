@@ -47,13 +47,14 @@ def receive_alert_data(request):
             'sqlite',
             '',
             '',
-            'tool_database',
+            settings.OMNIDB_DATABASE,
             '',
             '',
             '',
             '0',
             ''
         )
+        print('x')
 
         try:
             v_alert_id = database.v_connection.ExecuteScalar('''
@@ -65,6 +66,7 @@ def receive_alert_data(request):
                   and n.node_key = '{2}'
                 limit 1
             '''.format(payload['node'],payload['alert'],payload['key']))
+            print(v_alert_id)
             if v_alert_id:
                 monitoring_core.receive_status(v_alert_id,payload['status'],payload['message'],payload['value'])
 

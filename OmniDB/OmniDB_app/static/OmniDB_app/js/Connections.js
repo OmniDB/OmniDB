@@ -30,7 +30,7 @@ function newConnectionConfirm() {
 function dropConnection() {
 
 	var v_data = v_connections_data.ht.getData();
-	var v_row = v_connections_data.ht.getSelected()[0];
+	var v_row = v_connections_data.ht.getSelected()[0][0];
 
 	//New connection, just remove from grid
 	if (v_connections_data.v_conn_ids[v_row].mode==2) {
@@ -269,6 +269,7 @@ function showConnectionList() {
 				var col = new Object();
 				col.title =  'Technology';
 				col.type = 'dropdown';
+				col.allowInvalid = false,
 				col.source = p_return.v_data.v_technologies;
 				columnProperties.push(col);
 

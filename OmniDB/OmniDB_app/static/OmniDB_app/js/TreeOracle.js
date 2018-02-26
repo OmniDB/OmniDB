@@ -1440,10 +1440,16 @@ function refreshTreeOracle(node) {
         getColumnsOracle(node);
     } else if (node.tag.type == 'primary_key') {
         getPKOracle(node);
+    } else if (node.tag.type == 'pk') {
+        getPKColumnsOracle(node);
     } else if (node.tag.type == 'uniques') {
         getUniquesOracle(node);
+    } else if (node.tag.type == 'unique') {
+        getUniquesColumnsOracle(node);
     } else if (node.tag.type == 'foreign_keys') {
         getFKsOracle(node);
+    } else if (node.tag.type == 'foreign_key') {
+        getFKsColumnsOracle(node);
     } else if (node.tag.type == 'view_list') {
         getViewsOracle(node);
     } else if (node.tag.type == 'view') {
@@ -1454,6 +1460,8 @@ function refreshTreeOracle(node) {
         getMaterializedViewsColumnsOracle(node);
     } */else if (node.tag.type == 'indexes') {
         getIndexesOracle(node);
+    } else if (node.tag.type == 'index') {
+        getIndexesColumnsOracle(node);
     } else if (node.tag.type == 'function_list') {
         getFunctionsOracle(node);
     } else if (node.tag.type == 'function') {
@@ -2377,7 +2385,7 @@ function getPKOracle(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_table": node.parent.text,
-            "p_schema": node.parent.parent.parent.text
+            "p_schema": null
         }),
         function(p_return) {
 
@@ -2424,7 +2432,7 @@ function getPKColumnsOracle(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_key": node.text,
             "p_table": node.parent.parent.text,
-            "p_schema": node.parent.parent.parent.parent.text
+            "p_schema": null
         }),
         function(p_return) {
 
@@ -2460,7 +2468,7 @@ function getUniquesOracle(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_table": node.parent.text,
-            "p_schema": node.parent.parent.parent.text
+            "p_schema": null
         }),
         function(p_return) {
 
@@ -2511,7 +2519,7 @@ function getUniquesColumnsOracle(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_unique": node.text,
             "p_table": node.parent.parent.text,
-            "p_schema": node.parent.parent.parent.parent.text
+            "p_schema": null
         }),
         function(p_return) {
 
@@ -2552,7 +2560,7 @@ function getIndexesOracle(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_table": node.parent.text,
-            "p_schema": node.parent.parent.parent.text
+            "p_schema": null
         }),
         function(p_return) {
 
@@ -2606,7 +2614,7 @@ function getIndexesColumnsOracle(node) {
             "p_index": node.text.replace(' (Non Unique)', '').replace(
                 ' (Unique)', ''),
             "p_table": node.parent.parent.text,
-            "p_schema": node.parent.parent.parent.parent.text
+            "p_schema": null
         }),
         function(p_return) {
 
@@ -2647,7 +2655,7 @@ function getFKsOracle(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_table": node.parent.text,
-            "p_schema": node.parent.parent.parent.text
+            "p_schema": null
         }),
         function(p_return) {
 
@@ -2703,7 +2711,7 @@ function getFKsColumnsOracle(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_fkey": node.text,
             "p_table": node.parent.parent.text,
-            "p_schema": node.parent.parent.parent.parent.text
+            "p_schema": null
         }),
         function(p_return) {
 

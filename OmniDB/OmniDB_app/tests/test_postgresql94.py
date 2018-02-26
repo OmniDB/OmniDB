@@ -1281,10 +1281,12 @@ TO NODE ( nodename [, ... ] )
         assert 1 == data['v_error_id']
 
     def test_get_uniques_postgresql_session(self):
-        response = self.cs.post('/get_uniques_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "orders"}'})
+        self.database.v_connection.Execute('alter table public.categories add constraint un_test unique (categoryname)')
+        response = self.cs.post('/get_uniques_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "categories"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
-        assert self.lists_equal([a[0] for a in data['v_data']], [])
+        assert self.lists_equal([a[0] for a in data['v_data']], ['un_test'])
+        self.database.v_connection.Execute('alter table public.categories drop constraint un_test')
 
     def test_get_indexes_postgresql_nosession(self):
         response = self.cn.post('/get_indexes_postgresql/')
@@ -1463,3 +1465,107 @@ TO NODE ( nodename [, ... ] )
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.role in [a['v_name'] for a in data['v_data']]
+
+    def test_get_checks_postgresql_nosession(self):
+        response = self.cn.post('/get_checks_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_checks_postgresql_session(self):
+        self.database.v_connection.Execute("alter table public.categories add constraint ch_test check ( position(' ' in categoryname) = 0 )")
+        response = self.cs.post('/get_checks_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "categories"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[0] for a in data['v_data']], ['ch_test'])
+        self.database.v_connection.Execute('alter table public.categories drop constraint ch_test')
+
+    def test_get_excludes_postgresql_nosession(self):
+        response = self.cn.post('/get_excludes_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_excludes_postgresql_session(self):
+        self.database.v_connection.Execute('alter table public.categories add constraint ex_test exclude (categoryname with = )')
+        response = self.cs.post('/get_excludes_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "categories"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[0] for a in data['v_data']], ['ex_test'])
+        self.database.v_connection.Execute('alter table public.categories drop constraint ex_test')
+
+    def test_get_rules_postgresql_nosession(self):
+        response = self.cn.post('/get_rules_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_rules_postgresql_session(self):
+        self.database.v_connection.Execute('create rule ru_test as on delete to public.categories do instead nothing')
+        response = self.cs.post('/get_rules_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "categories"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[0] for a in data['v_data']], ['ru_test'])
+        self.database.v_connection.Execute('drop rule ru_test on public.categories')
+
+    def test_get_rule_definition_postgresql_nosession(self):
+        response = self.cn.post('/get_rule_definition_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_rule_definition_postgresql_session(self):
+        self.database.v_connection.Execute('create rule ru_test as on delete to public.categories do instead nothing')
+        response = self.cs.post('/get_rule_definition_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "categories", "p_rule": "ru_test"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert '''CREATE OR REPLACE RULE ru_test AS
+    ON DELETE TO categories DO INSTEAD NOTHING;''' in data['v_data']
+        self.database.v_connection.Execute('drop rule ru_test on public.categories')
+
+    def test_get_triggerfunctions_postgresql_nosession(self):
+        response = self.cn.post('/get_triggerfunctions_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_triggerfunctions_postgresql_session(self):
+        self.database.v_connection.Execute("create or replace function public.tg_ins_category() returns trigger language plpgsql as $function$begin new.categoryname := old.categoryname || ' modified'; end;$function$")
+        response = self.cs.post('/get_triggerfunctions_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a['v_name'] for a in data['v_data']], ['tg_ins_category'])
+        self.database.v_connection.Execute('drop function tg_ins_category()')
+
+    def test_get_triggerfunction_definition_postgresql_nosession(self):
+        response = self.cn.post('/get_triggerfunction_definition_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_triggerfunction_definition_postgresql_session(self):
+        self.database.v_connection.Execute("create or replace function public.tg_ins_category() returns trigger language plpgsql as $function$begin new.categoryname := old.categoryname || ' modified'; end;$function$")
+        response = self.cs.post('/get_triggerfunction_definition_postgresql/', {'data': '{"p_database_index": 0, "p_function": "public.tg_ins_category()"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert '''CREATE OR REPLACE FUNCTION public.tg_ins_category()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$begin new.categoryname := old.categoryname || ' modified'; end;$function$''' in data['v_data']
+        self.database.v_connection.Execute('drop function tg_ins_category()')
+
+    def test_get_triggers_postgresql_nosession(self):
+        response = self.cn.post('/get_triggers_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_triggers_postgresql_session(self):
+        self.database.v_connection.Execute("create or replace function public.tg_ins_category() returns trigger language plpgsql as $function$begin new.categoryname := old.categoryname || ' modified'; end;$function$")
+        self.database.v_connection.Execute('create trigger tg_ins before insert on public.categories for each statement execute procedure public.tg_ins_category()')
+        response = self.cs.post('/get_triggers_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "categories"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[0] for a in data['v_data']], ['tg_ins'])
+        self.database.v_connection.Execute('drop trigger tg_ins on public.categories')
+        self.database.v_connection.Execute('drop function public.tg_ins_category()')

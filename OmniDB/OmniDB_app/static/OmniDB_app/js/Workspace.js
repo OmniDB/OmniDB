@@ -78,115 +78,6 @@ $(function () {
 	  e.preventDefault();
 	},false);
 
-	var v_keyBoardShortCuts = function(p_event) {
-		var v_tabControl = null;
-
-		if((p_event.ctrlKey || p_event.metaKey) && p_event.shiftKey) {
-			v_tabControl = v_connTabControl;
-		}
-		else if(p_event.ctrlKey || p_event.metaKey) {
-			v_tabControl = v_connTabControl.selectedTab.tag.tabControl;
-		}
-		if(v_tabControl != null) {
-			switch(p_event.keyCode) {
-				case 188: {//'<'
-					p_event.preventDefault();
-					p_event.stopPropagation();
-
-					var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
-
-					switch(v_actualIndex) {
-						case 0: {
-							v_tabControl.tabList[v_tabControl.tabList.length - 2].elementLi.click();//avoid triggering click on '+' tab
-							break;
-						}
-						default: {
-							v_tabControl.tabList[v_actualIndex - 1].elementLi.click();
-							break;
-						}
-					}
-
-					break;
-				}
-				case 190: {//'>'
-					p_event.preventDefault();
-					p_event.stopPropagation();
-
-					var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
-
-					switch(v_actualIndex) {
-						case (v_tabControl.tabList.length - 2): {//avoid triggering click on '+' tab
-							v_tabControl.tabList[0].elementLi.click();
-							break;
-						}
-						default: {
-							v_tabControl.tabList[v_actualIndex + 1].elementLi.click();
-							break;
-						}
-					}
-
-					break;
-				}
-				case 46: {//delete
-					p_event.preventDefault();
-					p_event.stopPropagation();
-
-					if(v_tabControl.id == 'conn_tabs') {
-						if(v_tabControl.tabList.indexOf(v_tabControl.selectedTab) != 0 && v_tabControl.tabList.length > 2) {//not snippet tab and cannot delete '+' tab
-							v_tabControl.selectedTab.elementClose.click();
-						}
-					}
-					else {
-						if(v_tabControl.tabList.length > 1) {//cannot delete '+' tab
-							v_tabControl.selectedTab.elementClose.click();
-						}
-					}
-
-					break;
-				}
-				case 45: {//insert
-					p_event.preventDefault();
-					p_event.stopPropagation();
-
-					v_tabControl.tabList[v_tabControl.tabList.length - 1].elementLi.click();
-
-					break;
-				}
-				case 69: {// 'e'
-					p_event.preventDefault();
-					p_event.stopPropagation();
-
-					if(v_tabControl.selectedTab.tag.bt_start != null) {
-						v_tabControl.selectedTab.tag.bt_start.click();
-					}
-
-					break;
-				}
-				case 83: {// 's'
-					p_event.preventDefault();
-					p_event.stopPropagation();
-
-					if(v_tabControl.selectedTab.tag.bt_save != null) {
-						v_tabControl.selectedTab.tag.bt_save.click();
-					}
-					else if(v_tabControl.selectedTab.tag.btSave != null) {
-						v_tabControl.selectedTab.tag.btSave.click();
-					}
-					else if(v_tabControl.selectedTab.tag.button_save != null) {
-						v_tabControl.selectedTab.tag.button_save.click();
-					}
-
-					break;
-				}
-			}
-		}
-	}
-
-	//Some keyboard shortcuts
-	document.body.addEventListener(
-		'keydown',
-		v_keyBoardShortCuts
-	)
 /*
 	//WebSockets
 	startChatWebSocket(2011, v_enable_omnichat);
@@ -1152,7 +1043,7 @@ function refreshMonitoring(p_tab_tag) {
 					contextMenu: {
 						callback: function (key, options) {
 							if (key === 'view_data') {
-							  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+							  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
 							}
 						},
 						items: {

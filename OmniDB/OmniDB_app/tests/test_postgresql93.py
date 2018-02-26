@@ -1300,6 +1300,18 @@ TO NODE ( nodename [, ... ] )
         data = json.loads(response.content.decode())
         assert self.lists_equal([a[0] for a in data['v_data']], ['ix_order_custid', 'orders_pkey'])
 
+    def test_get_indexes_columns_postgresql_nosession(self):
+        response = self.cn.post('/get_indexes_columns_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_indexes_columns_postgresql_session(self):
+        response = self.cs.post('/get_indexes_columns_postgresql/', {'data': '{"p_database_index": 0, "p_index": "ix_order_custid", "p_schema": "public", "p_table": "orders"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[0] for a in data['v_data']], ['customerid'])
+
     def test_get_functions_postgresql_nosession(self):
         response = self.cn.post('/get_functions_postgresql/')
         assert 200 == response.status_code
@@ -1569,3 +1581,75 @@ AS $function$begin new.categoryname := old.categoryname || ' modified'; end;$fun
         assert self.lists_equal([a[0] for a in data['v_data']], ['tg_ins'])
         self.database.v_connection.Execute('drop trigger tg_ins on public.categories')
         self.database.v_connection.Execute('drop function public.tg_ins_category()')
+
+    def test_get_partitions_postgresql_nosession(self):
+        response = self.cn.post('/get_partitions_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_partitions_postgresql_session(self):
+        self.database.v_connection.Execute('create table public.categories_p1 (check ( category < 100 )) inherits (public.categories)')
+        response = self.cs.post('/get_partitions_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "categories"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[0] for a in data['v_data']], ['public.categories_p1'])
+        self.database.v_connection.Execute('alter table public.categories_p1 no inherit public.categories')
+        self.database.v_connection.Execute('drop table public.categories_p1')
+
+    def test_get_mviews_postgresql_nosession(self):
+        response = self.cn.post('/get_mviews_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_mviews_postgresql_session(self):
+        self.database.v_connection.Execute('create materialized view public.mvw_omnidb_test as select c.customerid, c.firstname, c.lastname, sum(o.totalamount) as totalamount from customers c inner join orders o on o.customerid = c.customerid group by c.customerid, c.firstname, c.lastname')
+        response = self.cs.post('/get_mviews_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a['v_name'] for a in data['v_data']], ['mvw_omnidb_test'])
+        self.database.v_connection.Execute('drop materialized view public.mvw_omnidb_test')
+
+    def test_get_mviews_columns_postgresql_nosession(self):
+        response = self.cn.post('/get_mviews_columns_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_mviews_columns_postgresql_session(self):
+        self.database.v_connection.Execute('create materialized view public.mvw_omnidb_test as select c.customerid, c.firstname, c.lastname, sum(o.totalamount) as totalamount from customers c inner join orders o on o.customerid = c.customerid group by c.customerid, c.firstname, c.lastname')
+        response = self.cs.post('/get_mviews_columns_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "mvw_omnidb_test"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a['v_column_name'] for a in data['v_data']], [
+            'customerid',
+            'firstname',
+            'lastname',
+            'totalamount'
+        ])
+        self.database.v_connection.Execute('drop materialized view public.mvw_omnidb_test')
+
+    def test_get_mview_definition_postgresql_nosession(self):
+        response = self.cn.post('/get_mview_definition_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_mview_definition_postgresql_session(self):
+        self.database.v_connection.Execute('create materialized view public.mvw_omnidb_test as select c.customerid, c.firstname, c.lastname, sum(o.totalamount) as totalamount from customers c inner join orders o on o.customerid = c.customerid group by c.customerid, c.firstname, c.lastname')
+        response = self.cs.post('/get_mview_definition_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_view": "mvw_omnidb_test"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert '''DROP MATERIALIZED VIEW public.mvw_omnidb_test;
+
+CREATE MATERIALIZED VIEW public.mvw_omnidb_test AS
+ SELECT c.customerid,
+    c.firstname,
+    c.lastname,
+    sum(o.totalamount) AS totalamount
+   FROM (customers c
+     JOIN orders o ON ((o.customerid = c.customerid)))
+  GROUP BY c.customerid, c.firstname, c.lastname;
+''' in data['v_data']
+        self.database.v_connection.Execute('drop materialized view public.mvw_omnidb_test')

@@ -486,6 +486,17 @@ function getTreeOracle(p_div) {
         },
         'cm_pk': {
             elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
                 text: 'Drop Primary Key',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
@@ -523,6 +534,17 @@ function getTreeOracle(p_div) {
         },
         'cm_fk': {
             elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
                 text: 'Drop Foreign Key',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
@@ -560,6 +582,17 @@ function getTreeOracle(p_div) {
         },
         'cm_unique': {
             elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
                 text: 'Drop Unique',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
@@ -607,6 +640,17 @@ function getTreeOracle(p_div) {
         },
         'cm_index': {
             elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
                 text: 'Alter Index',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
@@ -2333,7 +2377,7 @@ function getPKOracle(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_table": node.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -2346,15 +2390,50 @@ function getPKOracle(node) {
                 //node.contextMenu = 'cm_pks'
             }
 
-            if (p_return.v_data.length > 0)
+            if (p_return.v_data.length > 0) {
                 v_node = node.createChildNode(p_return.v_data[0][0], false,
                     '/static/OmniDB_app/images/key.png', {
                         type: 'pk'
                     }, 'cm_pk');
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', {
+                        type: 'pk_field'
+                    }, null);
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving PKs Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getPKColumnsOracle(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_pk_columns_oracle/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_key": node.text,
+            "p_table": node.parent.parent.text,
+            "p_schema": node.parent.parent.parent.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
-                v_node.createChildNode(p_return.v_data[i][1], false,
+                v_node.createChildNode(p_return.v_data[i][0], false,
                     '/static/OmniDB_app/images/add.png', null, null);
 
             }
@@ -2381,7 +2460,7 @@ function getUniquesOracle(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_table": node.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -2390,31 +2469,60 @@ function getUniquesOracle(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            v_curr_fk = '';
+            if (p_return.v_data.length > 0) {
 
-            new_node = '';
-            new_name = '';
+                for (i = 0; i < p_return.v_data.length; i++) {
 
-            var v_node;
+                    v_node = node.createChildNode(p_return.v_data[i][0],
+                        false,
+                        '/static/OmniDB_app/images/blue_key.png', {
+                            type: 'unique'
+                        }, 'cm_unique');
+
+                    v_node.createChildNode('', false,
+                        '/static/OmniDB_app/images/spin.svg', {
+                            type: 'unique_field'
+                        }, null);
+
+                }
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving Uniques Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getUniquesColumnsOracle(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_uniques_columns_oracle/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_unique": node.text,
+            "p_table": node.parent.parent.text,
+            "p_schema": node.parent.parent.parent.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
 
             if (p_return.v_data.length > 0) {
 
                 for (i = 0; i < p_return.v_data.length; i++) {
 
-                    if (v_curr_fk == '' || (p_return.v_data[i][0] !=
-                            v_curr_fk && v_curr_fk != '')) {
-
-                        v_curr_fk = p_return.v_data[i][0];
-
-                        v_node = node.createChildNode(p_return.v_data[i][0],
-                            false,
-                            '/static/OmniDB_app/images/blue_key.png', {
-                                type: 'unique'
-                            }, 'cm_unique');
-
-                    }
-
-                    v_node.createChildNode(p_return.v_data[i][1], false,
+                    v_node.createChildNode(p_return.v_data[i][0], false,
                         '/static/OmniDB_app/images/add.png', null, null
                     );
 
@@ -2444,7 +2552,7 @@ function getIndexesOracle(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_table": node.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -2453,32 +2561,63 @@ function getIndexesOracle(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            v_curr_fk = '';
-
-            new_node = '';
-            new_name = '';
-
             var v_node;
-
 
             if (p_return.v_data.length > 0) {
 
                 for (i = 0; i < p_return.v_data.length; i++) {
 
-                    if (v_curr_fk == '' || (p_return.v_data[i][0] !=
-                            v_curr_fk && v_curr_fk != '')) {
+                    v_node = node.createChildNode(p_return.v_data[i][0] +
+                        ' (' + p_return.v_data[i][1] + ')', false,
+                        '/static/OmniDB_app/images/index.png', {
+                            type: 'index'
+                        }, 'cm_index');
 
-                        v_curr_fk = p_return.v_data[i][0];
+                    v_node.createChildNode('', false,
+                        '/static/OmniDB_app/images/spin.svg', {
+                            type: 'index_field'
+                        }, null);
 
-                        v_node = node.createChildNode(p_return.v_data[i][0] +
-                            ' (' + p_return.v_data[i][1] + ')', false,
-                            '/static/OmniDB_app/images/index.png', {
-                                type: 'index'
-                            }, 'cm_index');
+                }
 
-                    }
+            }
 
-                    v_node.createChildNode(p_return.v_data[i][2], false,
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving Indexes Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getIndexesColumnsOracle(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_indexes_columns_oracle/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_index": node.text.replace(' (Non Unique)', '').replace(
+                ' (Unique)', ''),
+            "p_table": node.parent.parent.text,
+            "p_schema": node.parent.parent.parent.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            if (p_return.v_data.length > 0) {
+
+                for (i = 0; i < p_return.v_data.length; i++) {
+
+                    node.createChildNode(p_return.v_data[i][0], false,
                         '/static/OmniDB_app/images/add.png', null, null
                     );
 
@@ -2508,7 +2647,7 @@ function getFKsOracle(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_table": node.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -2517,43 +2656,78 @@ function getFKsOracle(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            v_curr_fk = '';
+            for (i = 0; i < p_return.v_data.length; i++) {
 
-            new_node = '';
-            new_name = '';
+                v_node = node.createChildNode(p_return.v_data[i][0],
+                    false,
+                    '/static/OmniDB_app/images/silver_key.png', {
+                        type: 'foreign_key'
+                    }, 'cm_fk');
+                v_node.createChildNode('Referenced Table: ' + p_return.v_data[
+                        i][1], false,
+                    '/static/OmniDB_app/images/table.png', null,
+                    null);
+                v_node.createChildNode('Delete Rule: ' + p_return.v_data[
+                        i][2], false,
+                    '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
+                v_node.createChildNode('Update Rule: ' + p_return.v_data[
+                        i][3], false,
+                    '/static/OmniDB_app/images/bullet_red.png',
+                    null, null);
 
-            var v_node;
+                v_curr_fk = p_return.v_data[i][0];
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving FKs Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getFKsColumnsOracle(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_fks_columns_oracle/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_fkey": node.text,
+            "p_table": node.parent.parent.text,
+            "p_schema": node.parent.parent.parent.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.createChildNode('Referenced Table: ' + p_return.v_data[
+                    0][0], false,
+                '/static/OmniDB_app/images/table.png', null,
+                null);
+            node.createChildNode('Delete Rule: ' + p_return.v_data[
+                    0][1], false,
+                '/static/OmniDB_app/images/bullet_red.png',
+                null, null);
+            node.createChildNode('Update Rule: ' + p_return.v_data[
+                    0][2], false,
+                '/static/OmniDB_app/images/bullet_red.png',
+                null, null);
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
-                if (v_curr_fk == '' || (p_return.v_data[i][0] != v_curr_fk &&
-                        v_curr_fk != '')) {
-
-                    v_node = node.createChildNode(p_return.v_data[i][0],
-                        false,
-                        '/static/OmniDB_app/images/silver_key.png', {
-                            type: 'foreign_key'
-                        }, 'cm_fk');
-                    v_node.createChildNode('Referenced Table: ' + p_return.v_data[
-                            i][2], false,
-                        '/static/OmniDB_app/images/table.png', null,
-                        null);
-                    v_node.createChildNode('Delete Rule: ' + p_return.v_data[
-                            i][4], false,
-                        '/static/OmniDB_app/images/bullet_red.png',
-                        null, null);
-                    v_node.createChildNode('Update Rule: ' + p_return.v_data[
-                            i][5], false,
-                        '/static/OmniDB_app/images/bullet_red.png',
-                        null, null);
-
-                    v_curr_fk = p_return.v_data[i][0];
-
-                }
-
-                v_node.createChildNode(p_return.v_data[i][1] +
+                node.createChildNode(p_return.v_data[i][3] +
                     ' <img style="vertical-align: middle;" src="/static/OmniDB_app/images/arrow_right.png"/> ' +
-                    p_return.v_data[i][3], false,
+                    p_return.v_data[i][4], false,
                     '/static/OmniDB_app/images/add.png', null, null);
 
             }

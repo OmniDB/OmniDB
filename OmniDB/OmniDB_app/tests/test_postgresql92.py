@@ -1300,6 +1300,18 @@ TO NODE ( nodename [, ... ] )
         data = json.loads(response.content.decode())
         assert self.lists_equal([a[0] for a in data['v_data']], ['ix_order_custid', 'orders_pkey'])
 
+    def test_get_indexes_columns_postgresql_nosession(self):
+        response = self.cn.post('/get_indexes_columns_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_indexes_columns_postgresql_session(self):
+        response = self.cs.post('/get_indexes_columns_postgresql/', {'data': '{"p_database_index": 0, "p_index": "ix_order_custid", "p_schema": "public", "p_table": "orders"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[0] for a in data['v_data']], ['customerid'])
+
     def test_get_functions_postgresql_nosession(self):
         response = self.cn.post('/get_functions_postgresql/')
         assert 200 == response.status_code
@@ -1562,3 +1574,18 @@ AS $function$begin new.categoryname := old.categoryname || ' modified'; end;$fun
         assert self.lists_equal([a[0] for a in data['v_data']], ['tg_ins'])
         self.database.v_connection.Execute('drop trigger tg_ins on public.categories')
         self.database.v_connection.Execute('drop function public.tg_ins_category()')
+
+    def test_get_partitions_postgresql_nosession(self):
+        response = self.cn.post('/get_partitions_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_partitions_postgresql_session(self):
+        self.database.v_connection.Execute('create table public.categories_p1 (check ( category < 100 )) inherits (public.categories)')
+        response = self.cs.post('/get_partitions_postgresql/', {'data': '{"p_database_index": 0, "p_schema": "public", "p_table": "categories"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[0] for a in data['v_data']], ['public.categories_p1'])
+        self.database.v_connection.Execute('alter table public.categories_p1 no inherit public.categories')
+        self.database.v_connection.Execute('drop table public.categories_p1')

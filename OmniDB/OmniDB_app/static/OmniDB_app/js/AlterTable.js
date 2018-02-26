@@ -899,7 +899,7 @@ function dropColumnAlterTable() {
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_data = v_currTabTag.alterTableObject.htColumns.getData();
-	var v_row = v_currTabTag.alterTableObject.htColumns.getSelected()[0];
+	var v_row = v_currTabTag.alterTableObject.htColumns.getSelected()[0][0];
 
 	if (v_currTabTag.alterTableObject.infoRowsColumns[v_row].mode==2) {
 
@@ -931,7 +931,7 @@ function dropConstraintAlterTable() {
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_data = v_currTabTag.alterTableObject.htConstraints.getData();
-	var v_row = v_currTabTag.alterTableObject.htConstraints.getSelected()[0];
+	var v_row = v_currTabTag.alterTableObject.htConstraints.getSelected()[0][0];
 
 	if (v_currTabTag.alterTableObject.infoRowsConstraints[v_row].mode==2) {
 
@@ -963,7 +963,7 @@ function dropIndexAlterTable() {
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_data = v_currTabTag.alterTableObject.htIndexes.getData();
-	var v_row = v_currTabTag.alterTableObject.htIndexes.getSelected()[0];
+	var v_row = v_currTabTag.alterTableObject.htIndexes.getSelected()[0][0];
 
 	if (v_currTabTag.alterTableObject.infoRowsIndexes[v_row].mode==2) {
 
@@ -1144,7 +1144,7 @@ function showColumnSelectionConstraints() {
 	var v_select_left = document.getElementById('sel_columns_left');
 	var v_select_right = document.getElementById('sel_columns_right');
 
-	var v_selected = v_currTabTag.alterTableObject.htConstraints.getSelected();
+	var v_selected = v_currTabTag.alterTableObject.htConstraints.getSelected()[0];
 
 	if (v_currTabTag.alterTableObject.infoRowsConstraints[v_selected[0]].mode==2) {
 
@@ -1201,7 +1201,7 @@ function showColumnSelectionIndexes() {
 	var v_select_left = document.getElementById('sel_columns_left');
 	var v_select_right = document.getElementById('sel_columns_right');
 
-	var v_selected = v_currTabTag.alterTableObject.htIndexes.getSelected();
+	var v_selected = v_currTabTag.alterTableObject.htIndexes.getSelected()[0];
 
 	if (v_currTabTag.alterTableObject.infoRowsIndexes[v_selected[0]].mode==2) {
 

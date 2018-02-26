@@ -201,7 +201,7 @@ function startMonitorDashboard() {
 function includeMonitorUnit(p_id) {
   var v_grid = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_grid;
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-  var v_row_data = v_grid.getDataAtRow(v_grid.getSelected()[0]);
+  var v_row_data = v_grid.getDataAtRow(v_grid.getSelected()[0][0]);
 
   var div = buildMonitorUnit({'v_id': p_id, 'v_title': v_row_data[1], 'v_interval': v_row_data[3]},true);
   refreshMonitorDashboard(true,v_tab_tag,div);
@@ -416,7 +416,7 @@ function testMonitorScript() {
                 contextMenu: {
                   callback: function (key, options) {
                     if (key === 'view_data') {
-                        editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+                        editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
                     }
                   },
                   items: {
@@ -516,7 +516,7 @@ function showMonitorUnitList() {
             contextMenu: {
               callback: function (key, options) {
                 if (key === 'view_data') {
-                    editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+                    editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
                 }
               },
               items: {
@@ -739,7 +739,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
         							contextMenu: {
         								callback: function (key, options) {
         									if (key === 'view_data') {
-        									  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+        									  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
         									}
         								},
         								items: {

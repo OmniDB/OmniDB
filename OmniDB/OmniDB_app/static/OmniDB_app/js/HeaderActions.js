@@ -141,6 +141,29 @@ function saveConfigUser() {
 }
 
 /// <summary>
+/// Saves shortcuts to OmniDB database.
+/// </summary>
+function saveShortcuts() {
+
+	var v_shortcut_list = [];
+
+	for (var property in v_shortcut_object.shortcuts) {
+    if (v_shortcut_object.shortcuts.hasOwnProperty(property)) {
+        v_shortcut_list.push(v_shortcut_object.shortcuts[property]);
+    }
+  }
+
+	var input = JSON.stringify({"p_shortcuts": v_shortcut_list});
+
+	execAjax('/save_shortcuts/',
+			input,
+			function(p_return) {
+				showAlert('Shortcuts saved.');
+
+			});
+}
+
+/// <summary>
 /// Displays edit cell window.
 /// </summary>
 /// <param name="p_ht">Handsontable object.</param>
@@ -172,7 +195,7 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
     };
 
 	if (p_content!=null)
-		v_editor.setValue(p_content);
+		v_editor.setValue(String(p_content));
 	else
 		v_editor.setValue('');
 

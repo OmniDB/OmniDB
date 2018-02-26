@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 """
 
 import os
-from . import user_database, ws_core
+from . import user_database, ws_core, monitoring_core
 
 from django.core.wsgi import get_wsgi_application
 

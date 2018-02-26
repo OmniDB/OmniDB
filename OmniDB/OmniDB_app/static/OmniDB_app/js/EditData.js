@@ -90,7 +90,7 @@ function deleteRowEditData() {
 
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 	var v_data = v_currTabTag.editDataObject.ht.getData();
-	var v_row = v_currTabTag.editDataObject.ht.getSelected()[0];
+	var v_row = v_currTabTag.editDataObject.ht.getSelected()[0][0];
 
 	if (v_currTabTag.editDataObject.infoRows[v_row].mode==2) {
 
@@ -341,9 +341,9 @@ function queryEditDataReturnRender(p_message,p_context) {
 					callback: function (key, options) {
 						if (key === 'edit_data') {
 							if (v_currTabTag.editDataObject.hasPK)
-								editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),true);
+								editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),true);
 							else
-								editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+								editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
 						}
 					},
 					items: {

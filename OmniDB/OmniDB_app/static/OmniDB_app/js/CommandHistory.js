@@ -159,7 +159,7 @@ function refreshCommandList() {
 																callback: function (key, options) {
 
 																	if (key === 'view_data') {
-																	  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+																	  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
 																	}
 
 																},

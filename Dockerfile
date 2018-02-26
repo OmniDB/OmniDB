@@ -1,19 +1,16 @@
-FROM python:3.5
+FROM debian:stable-slim
 
-# Environment stuff
-ENV OMNIDB_HOME /app
-ENV OMNIDB_PORT 8000
+RUN  apt-get update \
+  && apt-get install -y wget \
+  && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir /app
+WORKDIR /app
 
-# Copy the project
-RUN mkdir $OMNIDB_HOME 
-COPY . $OMNIDB_HOME/ 
-WORKDIR $OMNIDB_HOME/OmniDB
+RUN wget https://omnidb.org/dist/2.5.0/omnidb-server_2.5.0-debian-amd64.deb
 
-# # Install deppendencies
-RUN pip3 install pip --upgrade && \
-    pip3 install -r ../requirements.txt
-    
-# Start server
-EXPOSE $OMNIDB_PORT
-CMD [ "sh", "-c", "python3 manage.py runserver 0.0.0.0:$OMNIDB_PORT" ]
+RUN dpkg -i /app/omnidb-server_2.5.0-debian-amd64.deb
+
+EXPOSE 8000
+
+CMD ["omnidb-server"]

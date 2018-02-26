@@ -317,8 +317,9 @@ function querySQLReturnRender(p_message,p_context) {
 							fillHandle:false,
 							contextMenu: {
 								callback: function (key, options) {
+									console.log(options[0])
 									if (key === 'view_data') {
-									  	editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+									  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
 									}
 								},
 								items: {

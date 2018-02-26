@@ -515,6 +515,11 @@ def thread_query(self,args,ws_object):
             elif v_mode==2 or v_all_data:
                 v_data1 = v_database.v_connection.QueryBlock(v_sql, -1, True, True)
 
+            #f = Spartacus.Utils.DataFileWriter('arquivo.csv',v_data1.Columns)
+            #f.Open()
+            #f.Write(v_data1)
+            #f.Flush()
+
             v_notices = v_database.v_connection.GetNotices()
             v_notices_text = ''
             if len(v_notices) > 0:

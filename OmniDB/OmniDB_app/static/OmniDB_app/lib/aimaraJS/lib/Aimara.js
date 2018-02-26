@@ -185,6 +185,10 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			};
 
 			v_span.oncontextmenu = function(e) {
+
+				v_tree.clickNode(p_node);
+				v_tree.selectNode(p_node);
+
 				if (e.button==2) {
 					e.preventDefault();
 					e.stopPropagation();

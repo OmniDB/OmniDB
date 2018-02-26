@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.5.0
+VERSION=2.6.0
 ARCH=centos-amd64
 
 echo "Installing OmniDB dependencies..."
@@ -41,15 +41,8 @@ echo -n "Renaming bundles... "
 mv deploy/packages/omnidb-server deploy/packages/omnidb-server_$VERSION-$ARCH
 echo "Done."
 
-echo "Including OIC... "
-cd deploy/packages/omnidb-server_$VERSION-$ARCH
-cp ~/linux_x64/* .
-ln -s libclntsh.so.11.1 libclntsh.so
-ln -s libocci.so.11.1 libocci.so
-cd ..
-echo "Done"
-
 echo "Generating tar.gz packages... "
+cd deploy/packages
 tar -czvf omnidb-server_$VERSION-$ARCH.tar.gz omnidb-server_$VERSION-$ARCH
 echo "Done"
 

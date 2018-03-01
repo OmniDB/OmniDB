@@ -1262,6 +1262,18 @@ TO NODE ( nodename [, ... ] )
         data = json.loads(response.content.decode())
         assert self.lists_equal([a[0] for a in data['v_data']], ['orders_pkey'])
 
+    def test_get_pk_columns_postgresql_nosession(self):
+        response = self.cn.post('/get_pk_columns_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_pk_columns_postgresql_session(self):
+        response = self.cs.post('/get_pk_columns_postgresql/', {'data': '{"p_database_index": 0, "p_key": "orders_pkey", "p_schema": "public", "p_table": "orders"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[0] for a in data['v_data']], ['orderid'])
+
     def test_get_fks_postgresql_nosession(self):
         response = self.cn.post('/get_fks_postgresql/')
         assert 200 == response.status_code
@@ -1273,6 +1285,18 @@ TO NODE ( nodename [, ... ] )
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a[0] for a in data['v_data']], ['fk_customerid'])
+
+    def test_get_fks_columns_postgresql_nosession(self):
+        response = self.cn.post('/get_fks_columns_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_fks_columns_postgresql_session(self):
+        response = self.cs.post('/get_fks_columns_postgresql/', {'data': '{"p_database_index": 0, "p_fkey": "fk_customerid", "p_schema": "public", "p_table": "orders"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[3] for a in data['v_data']], ['customerid'])
 
     def test_get_uniques_postgresql_nosession(self):
         response = self.cn.post('/get_uniques_postgresql/')
@@ -1286,6 +1310,20 @@ TO NODE ( nodename [, ... ] )
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a[0] for a in data['v_data']], ['un_test'])
+        self.database.v_connection.Execute('alter table public.categories drop constraint un_test')
+
+    def test_get_uniques_columns_postgresql_nosession(self):
+        response = self.cn.post('/get_uniques_columns_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_uniques_columns_postgresql_session(self):
+        self.database.v_connection.Execute('alter table public.categories add constraint un_test unique (categoryname)')
+        response = self.cs.post('/get_uniques_columns_postgresql/', {'data': '{"p_database_index": 0, "p_unique": "un_test", "p_schema": "public", "p_table": "categories"}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a[0] for a in data['v_data']], ['categoryname'])
         self.database.v_connection.Execute('alter table public.categories drop constraint un_test')
 
     def test_get_indexes_postgresql_nosession(self):
@@ -1653,3 +1691,43 @@ CREATE MATERIALIZED VIEW public.mvw_omnidb_test AS
   GROUP BY c.customerid, c.firstname, c.lastname;
 ''' in data['v_data']
         self.database.v_connection.Execute('drop materialized view public.mvw_omnidb_test')
+
+    def test_get_extensions_postgresql_nosession(self):
+        response = self.cn.post('/get_extensions_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_extensions_postgresql_session(self):
+        response = self.cs.post('/get_extensions_postgresql/', {'data': '{"p_database_index": 0}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a['v_name'] for a in data['v_data']], ['plpgsql'])
+
+    def test_get_physicalreplicationslots_postgresql_nosession(self):
+        response = self.cn.post('/get_physicalreplicationslots_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_physicalreplicationslots_postgresql_session(self):
+        self.database.v_connection.Execute("select * from pg_create_physical_replication_slot('test_slot')")
+        response = self.cs.post('/get_physicalreplicationslots_postgresql/', {'data': '{"p_database_index": 0}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a['v_name'] for a in data['v_data']], ['test_slot'])
+        self.database.v_connection.Execute("select pg_drop_replication_slot('test_slot')")
+
+    def test_get_logicalreplicationslots_postgresql_nosession(self):
+        response = self.cn.post('/get_logicalreplicationslots_postgresql/')
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert 1 == data['v_error_id']
+
+    def test_get_logicalreplicationslots_postgresql_session(self):
+        self.database.v_connection.Execute("select * from pg_create_logical_replication_slot('test_slot', 'test_decoding')")
+        response = self.cs.post('/get_logicalreplicationslots_postgresql/', {'data': '{"p_database_index": 0}'})
+        assert 200 == response.status_code
+        data = json.loads(response.content.decode())
+        assert self.lists_equal([a['v_name'] for a in data['v_data']], ['test_slot'])
+        self.database.v_connection.Execute("select pg_drop_replication_slot('test_slot')")

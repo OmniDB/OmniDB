@@ -3629,27 +3629,29 @@ function getTreeDetailsPostgresql(node) {
                 }, 'cm_extensions');
             node_extensions.createChildNode('', true,
                 '/static/OmniDB_app/images/spin.svg', null, null);
-            var node_replication = node.createChildNode(
-                'Replication Slots', false,
-                '/static/OmniDB_app/images/replication.png', {
-                    type: 'replication',
-                }, null);
-            var node_phyrepslots = node_replication.createChildNode(
-                'Physical Replication Slots', false,
-                '/static/OmniDB_app/images/repslot.png', {
-                    type: 'physicalreplicationslot_list',
-                    num_repslots: 0
-                }, 'cm_physicalreplicationslots');
-            node_phyrepslots.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
-            var node_logrepslots = node_replication.createChildNode(
-                'Logical Replication Slots', false,
-                '/static/OmniDB_app/images/repslot.png', {
-                    type: 'logicalreplicationslot_list',
-                    num_repslots: 0
-                }, 'cm_logicalreplicationslots');
-            node_logrepslots.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
+            if (parseFloat(getMajorVersion(node.tree.tag.version)) >= 9.4) {
+                var node_replication = node.createChildNode(
+                    'Replication Slots', false,
+                    '/static/OmniDB_app/images/replication.png', {
+                        type: 'replication',
+                    }, null);
+                var node_phyrepslots = node_replication.createChildNode(
+                    'Physical Replication Slots', false,
+                    '/static/OmniDB_app/images/repslot.png', {
+                        type: 'physicalreplicationslot_list',
+                        num_repslots: 0
+                    }, 'cm_physicalreplicationslots');
+                node_phyrepslots.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+                var node_logrepslots = node_replication.createChildNode(
+                    'Logical Replication Slots', false,
+                    '/static/OmniDB_app/images/repslot.png', {
+                        type: 'logicalreplicationslot_list',
+                        num_repslots: 0
+                    }, 'cm_logicalreplicationslots');
+                node_logrepslots.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+            }
             if (parseInt(getMajorVersion(node.tree.tag.version)) >= 10) {
                 var node_replication = node_connection.createChildNode(
                     'Logical Replication', false,

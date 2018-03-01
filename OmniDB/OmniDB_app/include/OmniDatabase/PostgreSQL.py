@@ -2121,7 +2121,10 @@ ON #table_name#
         return Template('''SELECT pg_drop_replication_slot('#slot_name#')''')
 
     def TemplateCreateLogicalReplicationSlot(self):
-        return Template('''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'pgoutput')''')
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
+            return Template('''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'pgoutput')''')
+        else:
+            return Template('''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'test_decoding')''')
 
     def TemplateDropLogicalReplicationSlot(self):
         return Template('''SELECT pg_drop_replication_slot('#slot_name#')''')

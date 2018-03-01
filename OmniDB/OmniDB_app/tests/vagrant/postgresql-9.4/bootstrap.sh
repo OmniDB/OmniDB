@@ -81,6 +81,10 @@ echo "host    all             all             all                     md5" >> "$
 # Explicitly set default client_encoding
 echo "client_encoding = utf8" >> "$PG_CONF"
 
+# Explicitly set replication slot configuration
+echo "max_replication_slots = 10" >> "$PG_CONF"
+echo "wal_level = logical" >> "$PG_CONF"
+
 # Restart so that all new config is loaded:
 service postgresql restart
 

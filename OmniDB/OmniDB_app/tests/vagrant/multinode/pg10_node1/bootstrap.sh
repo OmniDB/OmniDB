@@ -56,7 +56,7 @@ PG_REPO_APT_SOURCE=/etc/apt/sources.list.d/pgdg.list
 if [ ! -f "$PG_REPO_APT_SOURCE" ]
 then
   # Add PG apt repo:
-  echo "deb http://apt.postgresql.org/pub/repos/apt/ sid-pgdg-testing main 10" > "$PG_REPO_APT_SOURCE"
+  echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" > "$PG_REPO_APT_SOURCE"
 
   # Add PGDG repo key:
   wget --quiet -O - https://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | apt-key add -
@@ -66,7 +66,7 @@ fi
 apt-get update
 apt-get -y upgrade
 
-apt-get -y install postgresql-10 postgresql-client-10 postgresql-common=184.pgdg+1 postgresql-client-common=184.pgdg+1 libpq5=10~beta4-1.pgdg+1
+apt-get -y install "postgresql-$PG_VERSION"
 
 PG_CONF="/etc/postgresql/$PG_VERSION/main/postgresql.conf"
 PG_HBA="/etc/postgresql/$PG_VERSION/main/pg_hba.conf"
@@ -80,6 +80,10 @@ echo "host    all             all             all                     md5" >> "$
 
 # Explicitly set default client_encoding
 echo "client_encoding = utf8" >> "$PG_CONF"
+
+# Explicitly set replication slot configuration
+echo "max_replication_slots = 10" >> "$PG_CONF"
+echo "wal_level = logical" >> "$PG_CONF"
 
 # Restart so that all new config is loaded:
 service postgresql restart

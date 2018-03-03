@@ -66,7 +66,7 @@ SQ_REPO_APT_SOURCE=/etc/apt/sources.list.d/2ndquadrant.list
 if [ ! -f "$SQ_REPO_APT_SOURCE" ]
 then
   # Add 2ndQ apt repo:
-  echo "deb [arch=amd64] http://packages.2ndquadrant.com/bdr/apt/ stretch-2ndquadrant main" > "$SQ_REPO_APT_SOURCE"
+  echo "deb [arch=amd64] http://packages.2ndquadrant.com/bdr/apt/ sid-2ndquadrant main" > "$SQ_REPO_APT_SOURCE"
 
   # Add 2ndQ repo key:
   wget --quiet -O - http://packages.2ndquadrant.com/bdr/apt/AA7A6805.asc | sudo apt-key add -

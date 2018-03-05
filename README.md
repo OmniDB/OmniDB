@@ -1,4 +1,4 @@
-# OmniDB 2.5.0
+# OmniDB 2.6.0
 
 ## Release Notes
 

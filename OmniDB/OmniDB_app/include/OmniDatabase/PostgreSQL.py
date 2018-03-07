@@ -2896,9 +2896,26 @@ TO NODE ( nodename [, ... ] )
             where quote_ident(d.datname) = '{0}'
         '''.format(p_object))
 
+    def GetPropertiesExtension(self, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   e.extname as "Extension",
+                   r.rolname as "Owner",
+                   n.nspname as "Schema",
+                   e.extrelocatable as "Relocatable",
+                   e.extversion as "Version"
+            from pg_extension e
+            inner join pg_roles r
+            on r.oid = e.extowner
+            inner join pg_namespace n
+            on n.oid = e.extnamespace
+            where e.extname = '{0}'
+        '''.format(p_object))
+
     def GetPropertiesSchema(self, p_object):
         return self.v_connection.Query('''
-            select n.nspname as "Schema",
+            select current_database() as "Database",
+                   n.nspname as "Schema",
                    r.rolname as "Owner",
                    n.nspacl as "ACL"
             from pg_namespace n
@@ -3172,6 +3189,8 @@ TO NODE ( nodename [, ... ] )
             return self.GetPropertiesTablespace(p_object).Transpose('Property', 'Value')
         elif p_type == 'database':
             return self.GetPropertiesDatabase(p_object).Transpose('Property', 'Value')
+        elif p_type == 'extension':
+            return self.GetPropertiesExtension(p_object).Transpose('Property', 'Value')
         elif p_type == 'schema':
             return self.GetPropertiesSchema(p_object).Transpose('Property', 'Value')
         elif p_type == 'table':
@@ -3274,6 +3293,9 @@ TO NODE ( nodename [, ... ] )
             on t.oid = d.dattablespace
             where quote_ident(d.datname) = '{0}'
         '''.format(p_object))
+
+    def GetDDLExtension(self, p_object):
+        return 'CREATE EXTENSION {0};'.format(p_object)
 
     def GetDDLSchema(self, p_object):
         return self.v_connection.ExecuteScalar('''
@@ -3697,6 +3719,8 @@ TO NODE ( nodename [, ... ] )
             return self.GetDDLTablespace(p_object)
         elif p_type == 'database':
             return self.GetDDLDatabase(p_object)
+        elif p_type == 'extension':
+            return self.GetDDLExtension(p_object)
         elif p_type == 'schema':
             return self.GetDDLSchema(p_object)
         elif p_type == 'table':

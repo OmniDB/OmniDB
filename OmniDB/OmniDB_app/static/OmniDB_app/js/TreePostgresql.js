@@ -3151,6 +3151,13 @@ function getPropertiesPostgresql(node) {
             p_object: node.text,
             p_type: node.tag.type
         });
+    } else if (node.tag.type == 'extension') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: null,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
     } else if (node.tag.type == 'schema') {
         getProperties('/get_properties_postgresql/', {
             p_schema: null,

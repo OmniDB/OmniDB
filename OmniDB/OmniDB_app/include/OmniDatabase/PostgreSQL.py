@@ -68,7 +68,7 @@ class PostgreSQL:
         self.v_server = p_server
         self.v_user = p_user
         self.v_schema = 'public'
-        self.v_connection = Spartacus.Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password)
+        self.v_connection = Spartacus.Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password, 'OmniDB')
 
         self.v_has_schema = True
         self.v_has_functions = True

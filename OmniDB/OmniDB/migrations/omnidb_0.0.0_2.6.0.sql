@@ -21,7 +21,7 @@ CREATE TABLE data_categories (
     constraint pk_data_categories primary key (cat_st_name)
 );--omnidb--
 INSERT INTO data_categories VALUES('bigint','Big Integer','numeric');--omnidb--
-INSERT INTO data_categories VALUES('boolean','Boolean','text');--omnidb--
+INSERT INTO data_categories VALUES('boolean','Boolean','other');--omnidb--
 INSERT INTO data_categories VALUES('char','String','text');--omnidb--
 INSERT INTO data_categories VALUES('date','Date Only','other');--omnidb--
 INSERT INTO data_categories VALUES('datetime','Date Time','other');--omnidb--
@@ -546,8 +546,32 @@ INSERT INTO mon_units VALUES(14,'postgresql',replace('result = {\n    "type": "l
 INSERT INTO mon_units VALUES(15,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Standby: Replication Lag (Time)"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Seconds"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\nreplags = connection.Query(''''''\n    SELECT COALESCE(ROUND(EXTRACT(epoch FROM now() - pg_last_xact_replay_timestamp())),0) AS lag\n'''''')\n\ndatasets = []\nfor replag in replags.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": "Lag",\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [replag[''lag'']]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Standby: Replication Lag (Time)',0,NULL,5);--omnidb--
 INSERT INTO mon_units VALUES(16,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"System Memory Usage (Total: " + total_mem + "MB)"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "%",\n                },\n                "ticks": {\n                    "beginAtZero": True,\n                    "max": 100\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\nmem_data = connection.ExecuteScalar(''''''\n    CREATE TEMPORARY TABLE omnidb_monitor_result (result TEXT);\n    DO LANGUAGE plpythonu\n    $$\n    import sys\n    import StringIO\n    import subprocess\n    codeOut = StringIO.StringIO()\n    codeErr = StringIO.StringIO()\n    sys.stdout = codeOut\n    sys.stderr = codeErr\n    print subprocess.Popen("free -m | tail -n +2 | head -n 1 | tr -s '' '' | cut -f2,3,4 -d '' ''", shell=True, stdout=subprocess.PIPE).stdout.read()\n    sys.stdout = sys.__stdout__\n    sys.stderr = sys.__stderr__\n    result = codeOut.getvalue()\n    plpy.execute("INSERT INTO omnidb_monitor_result VALUES (''{0}'')".format(result))\n    $$;\n    SELECT * FROM omnidb_monitor_result;\n'''''')\n\ndatasets = []\nmem_split = mem_data.split('' '')\ntotal_mem = mem_split[0]\nused_mem = mem_split[1]\nfree_mem = mem_split[2]\nperc_mem = round(int(used_mem)*100/int(total_mem),2)\ncolor = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\ndatasets.append({\n        "label": "Memory",\n        "fill": False,\n        "backgroundColor": color,\n        "borderColor": color,\n        "lineTension": 0,\n        "pointRadius": 1,\n        "borderWidth": 1,\n        "data": [perc_mem]\n    })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Memory Usage',0,NULL,5);--omnidb--
 
+CREATE TABLE shortcuts (
+    user_id integer,
+    shortcut_code text,
+    ctrl_pressed integer,
+    shift_pressed integer,
+    alt_pressed integer,
+    meta_pressed integer,
+    shortcut_key text,
+    constraint pk_shortcuts primary key (user_id, shortcut_code),
+    constraint fk_shortcuts_users foreign key (user_id) references users (user_id) on update CASCADE on delete CASCADE
+);--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_analyze',0,0,1,0,'S');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_explain',0,0,1,0,'A');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_indent',0,0,1,0,'D');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_left_inner_tab',1,0,0,0,',');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_left_outer_tab',0,0,1,0,',');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_new_inner_tab',1,0,0,0,'INSERT');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_new_outer_tab',0,0,1,0,'INSERT');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_remove_inner_tab',1,0,0,0,'END');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_remove_outer_tab',0,0,1,0,'END');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_right_inner_tab',1,0,0,0,'.');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_run_query',0,0,1,0,'Q');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_right_outer_tab',0,0,1,0,'.');--omnidb--
+
 CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)
 );--omnidb--
-INSERT INTO version VALUES('2.5.0');--omnidb--
+INSERT INTO version VALUES('2.6.0');--omnidb--

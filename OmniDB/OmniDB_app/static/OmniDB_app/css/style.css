@@ -1134,7 +1134,7 @@ h2 {
 }
 
 .shortcut_block {
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
   overflow-x: hidden;
 }

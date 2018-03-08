@@ -141,6 +141,7 @@ if __name__ == "__main__":
 
     if num_attempts_port < 20:
         OmniDB.settings.OMNIDB_PORT          = port
+        OmniDB.settings.OMNIDB_ADDRESS       = '127.0.0.1'
         OmniDB.settings.TORNADO_SERVE_DJANGO = True
 
         print ("Starting server at port {0}.".format(str(port)))

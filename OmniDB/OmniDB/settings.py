@@ -216,6 +216,7 @@ BINDKEY_AUTOCOMPLETE_MAC   = 'cmd+space'
 OMNIDB_DEFAULT_SERVER_PORT = 8000
 OMNIDB_DEFAULT_APP_PORT    = 25480
 OMNIDB_PORT                = 25482
+OMNIDB_ADDRESS             = '0.0.0.0'
 IS_SSL                     = False
 SSL_CERTIFICATE            = ""
 SSL_KEY                    = ""

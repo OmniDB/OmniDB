@@ -20,7 +20,10 @@ $(function () {
       if (v_connTabControl.selectedTab.tag.mode=='connection') {
         if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query')
           v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.bt_start.click();
+        else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='console')
+          consoleSQL(false);
       }
+
 
     },
     shortcut_indent: function() {
@@ -54,9 +57,13 @@ $(function () {
     shortcut_new_inner_tab: function() {
 
       if (v_connTabControl.selectedTab.tag.mode=='connection' || v_connTabControl.selectedTab.tag.mode=='snippets') {
+        v_connTabControl.tag.createQueryTab();
+      }
+      else if (v_connTabControl.selectedTab.tag.mode=='snippets') {
         var v_tabControl = v_connTabControl.selectedTab.tag.tabControl;
         v_tabControl.tabList[v_tabControl.tabList.length - 1].elementLi.click();
       }
+
 
     },
     shortcut_new_outer_tab: function() {

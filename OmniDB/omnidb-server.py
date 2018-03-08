@@ -146,6 +146,7 @@ if __name__ == "__main__":
 
     if num_attempts < 20:
         OmniDB.settings.OMNIDB_PORT          = port
+        OmniDB.settings.OMNIDB_ADDRESS       = listening_address
         OmniDB.settings.IS_SSL               = is_ssl
         OmniDB.settings.SSL_CERTIFICATE      = ssl_certificate_file
         OmniDB.settings.SSL_KEY              = ssl_key_file

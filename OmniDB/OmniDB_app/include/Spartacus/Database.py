@@ -376,7 +376,11 @@ class SQLite(Generic):
         return None
     def Open(self, p_autocommit=True):
         try:
-            self.v_con = sqlite3.connect(self.v_service, self.v_timeout)
+            if p_autocommit:
+                self.v_con = sqlite3.connect(self.v_service, self.v_timeout, isolation_level=None)
+            else:
+                self.v_con = sqlite3.connect(self.v_service, self.v_timeout)
+
             #self.v_con.row_factory = sqlite3.Row
             self.v_cur = self.v_con.cursor()
             if self.v_foreignkeys:
@@ -895,6 +899,7 @@ class PostgreSQL(Generic):
             self.v_expanded = False
             self.v_timing = False
             psycopg2.extras.register_default_json(loads=lambda x: x)
+            psycopg2.extras.register_default_jsonb(loads=lambda x: x)
         else:
             raise Spartacus.Database.Exception("PostgreSQL is not supported. Please install it with 'pip install Spartacus[postgresql]'.")
     def GetConnectionString(self):
@@ -1254,6 +1259,7 @@ class PostgreSQL(Generic):
                     v_status = self.GetStatus()
                     if self.v_timing:
                         v_status = v_status + '\nTime: {0}'.format(datetime.datetime.now() - v_timestart)
+
             if v_title and v_table and len(v_table.Rows) > 0 and v_status:
                 return v_title + '\n' + v_table.Pretty(self.v_expanded) + '\n' + v_status
             elif v_title and v_table and len(v_table.Rows) > 0:

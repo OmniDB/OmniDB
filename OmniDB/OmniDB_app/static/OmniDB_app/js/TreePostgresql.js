@@ -2994,6 +2994,7 @@ function getTreePostgresql(p_div) {
         }
     };
     var tree = createTree(p_div, '#fcfdfd', context_menu);
+    v_connTabControl.selectedTab.tag.tree = tree;
 
     tree.nodeAfterOpenEvent = function(node) {
       refreshTreePostgresql(node);
@@ -3838,14 +3839,15 @@ function getTablesPostgresql(node) {
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         has_partitions: p_return.v_data[i].v_has_partitions
-                    }, 'cm_table');
+                    }, 'cm_table',null,false);
 
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
                         type: 'table_field'
-                    }, null);
+                    }, null,null,false);
 
             }
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -5025,13 +5027,14 @@ function getFunctionsPostgresql(node) {
                     false, '/static/OmniDB_app/images/gear2.png', {
                         type: 'function',
                         id: p_return.v_data[i].v_id
-                    }, 'cm_function');
+                    }, 'cm_function',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
                         type: 'function_field'
-                    }, null);
+                    }, null,null,false);
 
             }
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -6621,8 +6624,13 @@ function postgresqlTerminateBackend(p_row) {
 
 function getExplain(p_mode) {
 
-    var v_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
-        .getValue();
+  var v_query;
+  var v_selected_text = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getSelectedText();
+
+	if (v_selected_text!='')
+		v_query = v_selected_text;
+	else
+		v_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
 
     if (v_query.trim() == '') {
         showAlert('Please provide a string.');
@@ -6632,7 +6640,7 @@ function getExplain(p_mode) {
         else if (p_mode == 1)
             v_query = 'explain analyze ' + v_query;
 
-        querySQL(0, true, v_query, getExplainReturn,false);
+        querySQL(0, true, v_query, getExplainReturn,true);
     }
 }
 

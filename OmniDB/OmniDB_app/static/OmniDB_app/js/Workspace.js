@@ -237,7 +237,7 @@ function removeTab(p_tab) {
 									if (p_tab.tag.editor!=null)
 										p_tab.tag.editor.destroy();
 
-									if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit') {
+									if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit' || p_tab.tag.mode=='console') {
 										var v_message_data = { tab_id: p_tab.tag.tab_id, tab_db_id: null };
 										if (p_tab.tag.mode=='query')
 											v_message_data.tab_db_id = p_tab.tag.tab_db_id;
@@ -325,6 +325,11 @@ function refreshHeights(p_all) {
 			else if (v_tab_tag.currQueryTab=='explain') {
 				v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 29 + 'px';
 			}
+		}
+		else if (v_tab_tag.mode=='console') {
+			v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 70 + 'px';
+			v_tab_tag.editor_console.resize();
+
 		}
 		else if (v_tab_tag.mode=='debug') {
 			if (v_tab_tag.currDebugTab=='variable') {
@@ -517,6 +522,10 @@ function resizeVerticalEnd(event) {
 			v_tab_tag.editDataObject.ht.render();
 		}
 	}
+	else if (v_tab_tag.mode=='console') {
+		v_tab_tag.editor_input.resize();
+		v_tab_tag.editor_console.resize();
+	}
 	else if(v_tab_tag.mode == 'data_mining') {
 		if(v_tab_tag.currQueryTab == 'data') {
 			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
@@ -708,6 +717,10 @@ function resizeHorizontalEnd(event) {
 					v_tab_tag.ht.render();
 			}
 		}
+		if (v_tab_tag.mode=='console') {
+			v_tab_tag.editor_input.resize();
+			v_tab_tag.editor_console.resize();
+		}
 		if (v_tab_tag.mode=='debug') {
 			v_tab_tag.editor.resize();
 			if (v_tab_tag.currDebugTab=='parameter') {
@@ -775,6 +788,8 @@ function checkTabStatus(v_tab) {
 		checkEditDataStatus(v_tab.tag.tabControl.selectedTab);
 	else if (v_tab.tag.tabControl.selectedTab.tag.mode=='debug')
 		checkDebugStatus(v_tab.tag.tabControl.selectedTab);
+	else if (v_tab.tag.tabControl.selectedTab.tag.mode=='console')
+		checkConsoleStatus(v_tab.tag.tabControl.selectedTab);
 
 }
 
@@ -799,7 +814,13 @@ function closeGraphTab(p_tab) {
 function indentSQL() {
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-	var v_sql_value = v_tab_tag.editor.getValue();
+	var v_editor = null;
+	if (v_tab_tag.mode=='query')
+		v_editor = v_tab_tag.editor;
+	else if (v_tab_tag.mode=='console')
+		v_editor = v_tab_tag.editor_input;
+
+	var v_sql_value = v_editor.getValue();
 
 	if (v_sql_value.trim()=='') {
 		showAlert('Please provide a string.');
@@ -809,9 +830,9 @@ function indentSQL() {
 				JSON.stringify({"p_sql": v_sql_value}),
 				function(p_return) {
 
-					v_tab_tag.editor.setValue(p_return.v_data);
-					v_tab_tag.editor.clearSelection();
-					v_tab_tag.editor.gotoLine(0, 0, true);
+					v_editor.setValue(p_return.v_data);
+					v_editor.clearSelection();
+					v_editor.gotoLine(0, 0, true);
 
 				},
 				null,
@@ -1114,6 +1135,42 @@ function adjustQueryTabObjects(p_all_tabs) {
 	var v_objects = $(v_target_div).find("." + v_dbms + "_object").each(function() {
 	  $( this ).css('display','inline-block');
 	});
+
+
+}
+
+function showMenuNewTab(e) {
+	customMenu(
+		{
+			x:e.clientX+5,
+			y:e.clientY+5
+		},
+		[
+			{
+				text: 'Query Tab',
+				icon: '/static/OmniDB_app/images/text_edit.png',
+				action: function() {
+					v_connTabControl.tag.createQueryTab();
+				}
+			},
+			{
+				text: 'Console Tab',
+				icon: '/static/OmniDB_app/images/console.png',
+				action: function() {
+					v_connTabControl.tag.createConsoleTab();
+				}
+			},
+			{
+				text: 'Monitoring Dashboard',
+				icon: '/static/OmniDB_app/images/monitoring.png',
+				action: function() {
+					v_connTabControl.tag.createMonitorDashboardTab();
+					startMonitorDashboard();
+				}
+			}
+		],
+		null);
+
 
 
 }

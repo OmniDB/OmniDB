@@ -23,7 +23,8 @@ var v_queryRequestCodes = {
 	CancelThread: 6,
 	Debug: 7,
 	CloseTab: 8,
-	DataMining: 9
+	DataMining: 9,
+	Console: 10
 }
 
 /// <summary>
@@ -40,7 +41,8 @@ var v_queryResponseCodes = {
 	MessageException: 7,
 	DebugResponse: 8,
 	RemoveContext: 9,
-	DataMiningResult: 10
+	DataMiningResult: 10,
+	ConsoleResult: 11
 }
 
 /// <summary>
@@ -113,6 +115,15 @@ function startQueryWebSocket(p_port) {
 					if (p_context) {
 						SetAcked(p_context);
 						querySQLReturn(v_message,p_context);
+						//Remove context
+						removeContext(v_queryWebSocket,p_context_code);
+					}
+					break;
+				}
+				case parseInt(v_queryResponseCodes.ConsoleResult): {
+					if (p_context) {
+						SetAcked(p_context);
+						consoleReturn(v_message,p_context);
 						//Remove context
 						removeContext(v_queryWebSocket,p_context_code);
 					}
@@ -202,6 +213,19 @@ function QueryPasswordRequired(p_context, p_message) {
 			},
 			function() {
 				cancelEditDataTab();
+			},
+			p_message
+		);
+	}
+	else if (p_context.tab_tag.mode=='console') {
+		showPasswordPrompt(
+			p_context.database_index,
+			function() {
+				cancelConsole();
+				consoleSQL();
+			},
+			function() {
+				cancelConsole();
 			},
 			p_message
 		);

@@ -50,57 +50,59 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 		tag: new Object(),
 		selectTabIndex : function(p_index) {
 
-
-			if (this.selectedTab!=null)
-				this.selectedTab.selected = false;
-
-			this.tabList[p_index].selected = true;
-
-			this.selectedTab = this.tabList[p_index];
-
-			if (this.selectedDiv!=null) {
-				this.selectedDiv.className = 'tab';
-				this.selectedLi.classList.remove('selected');
-			}
-
-			this.tabList[p_index].elementLi.classList.add('selected');
-
-			this.tabList[p_index].elementDiv.className = 'tab selected_div';
-
-			this.selectedLi = this.tabList[p_index].elementLi;
-			this.selectedDiv = this.tabList[p_index].elementDiv;
-
-			if(this.tabList[p_index].selectFunction != null) {
-				this.tabList[p_index].selectFunction();
-			}
-
-		},
-		selectTab : function(p_tab) {
-
-			if (this.selectedTab!=p_tab) {
-
-
+			if (this.tabList[p_index].selectable) {
 				if (this.selectedTab!=null)
 					this.selectedTab.selected = false;
 
-				p_tab.selected = true;
+				this.tabList[p_index].selected = true;
 
-				this.selectedTab = p_tab;
+				this.selectedTab = this.tabList[p_index];
 
 				if (this.selectedDiv!=null) {
 					this.selectedDiv.className = 'tab';
 					this.selectedLi.classList.remove('selected');
 				}
 
-				p_tab.elementLi.classList.add('selected');
+				this.tabList[p_index].elementLi.classList.add('selected');
 
-				p_tab.elementDiv.className = 'tab selected_div';
+				this.tabList[p_index].elementDiv.className = 'tab selected_div';
 
-				this.selectedLi = p_tab.elementLi;
-				this.selectedDiv = p_tab.elementDiv;
+				this.selectedLi = this.tabList[p_index].elementLi;
+				this.selectedDiv = this.tabList[p_index].elementDiv;
 
-				if(p_tab.selectFunction != null) {
-					p_tab.selectFunction();
+				if(this.tabList[p_index].selectFunction != null) {
+					this.tabList[p_index].selectFunction();
+				}
+			}
+
+		},
+		selectTab : function(p_tab) {
+
+			if (this.selectedTab!=p_tab) {
+				if (p_tab.selectable) {
+
+					if (this.selectedTab!=null)
+						this.selectedTab.selected = false;
+
+					p_tab.selected = true;
+
+					this.selectedTab = p_tab;
+
+					if (this.selectedDiv!=null) {
+						this.selectedDiv.className = 'tab';
+						this.selectedLi.classList.remove('selected');
+					}
+
+					p_tab.elementLi.classList.add('selected');
+
+					p_tab.elementDiv.className = 'tab selected_div';
+
+					this.selectedLi = p_tab.elementLi;
+					this.selectedDiv = p_tab.elementDiv;
+
+					if(p_tab.selectFunction != null) {
+						p_tab.selectFunction();
+					}
 				}
 			}
 
@@ -149,7 +151,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 			p_tab.text = p_name;
 
 		},
-		createTab : function(p_name,p_close,p_clickFunction,p_dblClickFunction,p_contextMenu, p_deleteFunction, p_isDraggable, p_selectFunction) {
+		createTab : function(p_name,p_close,p_clickFunction,p_dblClickFunction,p_contextMenu, p_deleteFunction, p_isDraggable, p_selectFunction, p_selectable = true) {
 
 			var v_control = this;
 			var v_index = this.tabCounter;
@@ -170,6 +172,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 				deleteFunction: p_deleteFunction,
 				contextMenu : p_contextMenu,
 				selectFunction: p_selectFunction,
+				selectable: p_selectable,
 				removeTab: function() { v_control.removeTab(this); },
 				renameTab: function(p_name) { v_control.renameTab(this,p_name); },
 				disableClose: function() { v_control.disableClose(this) },
@@ -178,9 +181,9 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 					this.clickFunction = p_function;
 					var v_tab = this;
-					v_li.onclick = function() {
+					v_li.onclick = function(e) {
 						v_control.selectTab(v_tab);
-						v_tab.clickFunction();
+						v_tab.clickFunction(e);
 					};
 
 				},
@@ -234,12 +237,12 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 			v_tab.elementLi = v_li;
 			v_tab.elementDiv = v_div;
 
-			v_li.onclick = function() {
+			v_li.onclick = function(e) {
 
 				v_control.selectTab(v_tab);
 
 				if (v_tab.clickFunction!=null)
-					v_tab.clickFunction();
+					v_tab.clickFunction(e);
 			};
 
 						if(typeof p_isDraggable != 'undefined' && p_isDraggable != null && p_isDraggable == true) {
@@ -549,7 +552,8 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 					elementLi : null,
 					elementDiv : null,
 					tag : null,
-					contextMenu: null
+					contextMenu: null,
+					selectable: true
 				};
 
 				v_new_tab.elementLi = v_lis[j];

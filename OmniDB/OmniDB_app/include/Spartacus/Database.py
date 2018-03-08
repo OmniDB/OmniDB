@@ -857,7 +857,7 @@ PostgreSQL
 ------------------------------------------------------------------------
 '''
 class PostgreSQL(Generic):
-    def __init__(self, p_host, p_port, p_service, p_user, p_password):
+    def __init__(self, p_host, p_port, p_service, p_user, p_password, p_application_name='spartacus'):
         if 'PostgreSQL' in v_supported_rdbms:
             self.v_host = p_host
             if p_port is None or p_port == '':
@@ -870,6 +870,7 @@ class PostgreSQL(Generic):
                 self.v_service = p_service
             self.v_user = p_user
             self.v_password = p_password
+            self.v_application_name = p_application_name
             self.v_con = None
             self.v_cur = None
             self.v_special = PGSpecial()
@@ -905,25 +906,28 @@ class PostgreSQL(Generic):
     def GetConnectionString(self):
         if self.v_host is None or self.v_host == '':
             if self.v_password is None or self.v_password == '':
-                return "port={0} dbname='{1}' user='{2}'".format(
-                    self.v_port,
-                    self.v_service,
-                    self.v_user
-                )
-            else:
-                return "port={0} dbname='{1}' user='{2}' password='{3}'".format(
+                return "port={0} dbname='{1}' user='{2}' application_name='{3}'".format(
                     self.v_port,
                     self.v_service,
                     self.v_user,
-                    self.v_password
+                    self.v_application_name
+                )
+            else:
+                return "port={0} dbname='{1}' user='{2}' password='{3}' application_name='{4}'".format(
+                    self.v_port,
+                    self.v_service,
+                    self.v_user,
+                    self.v_password,
+                    self.v_application_name
                 )
         else:
-            return "host='{0}' port={1} dbname='{2}' user='{3}' password='{4}'".format(
+            return "host='{0}' port={1} dbname='{2}' user='{3}' password='{4}' application_name='{5}'".format(
                 self.v_host,
                 self.v_port,
                 self.v_service,
                 self.v_user,
-                self.v_password
+                self.v_password,
+                self.v_application_name
             )
     def Open(self, p_autocommit=True):
         try:

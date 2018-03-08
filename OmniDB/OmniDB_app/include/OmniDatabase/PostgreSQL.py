@@ -68,7 +68,7 @@ class PostgreSQL:
         self.v_server = p_server
         self.v_user = p_user
         self.v_schema = 'public'
-        self.v_connection = Spartacus.Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password)
+        self.v_connection = Spartacus.Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password, 'OmniDB')
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -311,13 +311,10 @@ class PostgreSQL:
             from (select distinct
                          quote_ident(kcu1.constraint_name) as constraint_name,
                          quote_ident(kcu1.table_name) as table_name,
-                         quote_ident(kcu1.column_name) as column_name,
                          quote_ident(kcu2.constraint_name) as r_constraint_name,
                          quote_ident(kcu2.table_name) as r_table_name,
-                         quote_ident(kcu2.column_name) as r_column_name,
                          quote_ident(kcu1.constraint_schema) as table_schema,
                          quote_ident(kcu2.constraint_schema) as r_table_schema,
-                         kcu1.ordinal_position,
                          rc.update_rule as update_rule,
                          rc.delete_rule as delete_rule
             from information_schema.referential_constraints rc
@@ -334,8 +331,54 @@ class PostgreSQL:
             {0}
             ) t
             order by quote_ident(constraint_name),
-                     quote_ident(table_name),
-                     ordinal_position
+                     quote_ident(table_name)
+        '''.format(v_filter), True)
+
+    def QueryTablesForeignKeysColumns(self, p_fkey, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' and quote_ident(kcu1.table_name) = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' and quote_ident(kcu1.table_name) = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(rc.constraint_schema) not in ('information_schema','pg_catalog') and quote_ident(kcu1.table_name) = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(rc.constraint_schema) not in ('information_schema','pg_catalog') "
+        v_filter = v_filter + "and quote_ident(kcu1.constraint_name) = '{0}' ".format(p_fkey)
+        return self.v_connection.Query('''
+            select *
+            from (select distinct
+                         quote_ident(kcu1.constraint_name) as constraint_name,
+                         quote_ident(kcu1.table_name) as table_name,
+                         quote_ident(kcu1.column_name) as column_name,
+                         quote_ident(kcu2.constraint_name) as r_constraint_name,
+                         quote_ident(kcu2.table_name) as r_table_name,
+                         quote_ident(kcu2.column_name) as r_column_name,
+                         quote_ident(kcu1.constraint_schema) as table_schema,
+                         quote_ident(kcu2.constraint_schema) as r_table_schema,
+                         rc.update_rule as update_rule,
+                         rc.delete_rule as delete_rule,
+                         kcu1.ordinal_position
+            from information_schema.referential_constraints rc
+            join information_schema.key_column_usage kcu1
+            on kcu1.constraint_catalog = rc.constraint_catalog
+            and kcu1.constraint_schema = rc.constraint_schema
+            and kcu1.constraint_name = rc.constraint_name
+            join information_schema.key_column_usage kcu2
+            on kcu2.constraint_catalog = rc.unique_constraint_catalog
+            and kcu2.constraint_schema = rc.unique_constraint_schema
+            and kcu2.constraint_name = rc.unique_constraint_name
+            and kcu2.ordinal_position = kcu1.ordinal_position
+            where 1 = 1
+            {0}
+            ) t
+            order by ordinal_position
         '''.format(v_filter), True)
 
     def QueryTablesPrimaryKeys(self, p_table=None, p_all_schemas=False, p_schema=None):
@@ -356,9 +399,34 @@ class PostgreSQL:
                 v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
             select quote_ident(tc.constraint_name) as constraint_name,
-                   quote_ident(kc.column_name) as column_name,
                    quote_ident(tc.table_name) as table_name,
                    quote_ident(tc.table_schema) as table_schema
+            from information_schema.table_constraints tc
+            where tc.constraint_type = 'PRIMARY KEY'
+            {0}
+            order by quote_ident(tc.constraint_name),
+                     quote_ident(tc.table_name)
+        '''.format(v_filter), True)
+
+    def QueryTablesPrimaryKeysColumns(self, p_pkey, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') and quote_ident(tc.table_name) = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') "
+        v_filter = v_filter + "and quote_ident(tc.constraint_name) = '{0}' ".format(p_pkey)
+        return self.v_connection.Query('''
+            select quote_ident(kc.column_name) as column_name
             from information_schema.table_constraints tc
             join information_schema.key_column_usage kc
             on kc.table_name = tc.table_name
@@ -366,9 +434,7 @@ class PostgreSQL:
             and kc.constraint_name = tc.constraint_name
             where tc.constraint_type = 'PRIMARY KEY'
             {0}
-            order by quote_ident(tc.constraint_name),
-                     quote_ident(tc.table_name),
-                     kc.ordinal_position
+            order by kc.ordinal_position
         '''.format(v_filter), True)
 
     def QueryTablesUniques(self, p_table=None, p_all_schemas=False, p_schema=None):
@@ -389,9 +455,34 @@ class PostgreSQL:
                 v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
             select quote_ident(tc.constraint_name) as constraint_name,
-                   quote_ident(kc.column_name) as column_name,
                    quote_ident(tc.table_name) as table_name,
                    quote_ident(tc.table_schema) as table_schema
+            from information_schema.table_constraints tc
+            where tc.constraint_type = 'UNIQUE'
+            {0}
+            order by quote_ident(tc.constraint_name),
+                     quote_ident(tc.table_name)
+        '''.format(v_filter), True)
+
+    def QueryTablesUniquesColumns(self, p_unique, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') and quote_ident(tc.table_name) = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') "
+        v_filter = v_filter + "and quote_ident(tc.constraint_name) = '{0}' ".format(p_unique)
+        return self.v_connection.Query('''
+            select quote_ident(kc.column_name) as column_name
             from information_schema.table_constraints tc
             join information_schema.key_column_usage kc
             on kc.table_name = tc.table_name
@@ -399,9 +490,7 @@ class PostgreSQL:
             and kc.constraint_name = tc.constraint_name
             where tc.constraint_type = 'UNIQUE'
             {0}
-            order by quote_ident(tc.constraint_name),
-                     quote_ident(tc.table_name),
-                     kc.ordinal_position
+            order by kc.ordinal_position
         '''.format(v_filter), True)
 
     def QueryTablesIndexes(self, p_table=None, p_all_schemas=False, p_schema=None):
@@ -423,7 +512,6 @@ class PostgreSQL:
         return self.v_connection.Query('''
             select quote_ident(t.tablename) as table_name,
                    quote_ident(t.indexname) as index_name,
-                   unnest(string_to_array(replace(substr(t.indexdef, strpos(t.indexdef, '(')+1, strpos(t.indexdef, ')')-strpos(t.indexdef, '(')-1), ' ', ''),',')) as column_name,
                    (case when strpos(t.indexdef, 'UNIQUE') > 0 then 'Unique' else 'Non Unique' end) as uniqueness,
                    quote_ident(t.schemaname) as schema_name
             from pg_indexes t
@@ -431,6 +519,30 @@ class PostgreSQL:
             {0}
             order by quote_ident(t.tablename),
                      quote_ident(t.indexname)
+        '''.format(v_filter), True)
+
+    def QueryTablesIndexesColumns(self, p_index, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') and quote_ident(t.tablename) = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') "
+        v_filter = v_filter + "and quote_ident(t.indexname) = '{0}' ".format(p_index)
+        return self.v_connection.Query('''
+            select unnest(string_to_array(replace(substr(t.indexdef, strpos(t.indexdef, '(')+1, strpos(t.indexdef, ')')-strpos(t.indexdef, '(')-1), ' ', ''),',')) as column_name
+            from pg_indexes t
+            where 1 = 1
+            {0}
         '''.format(v_filter), True)
 
     def QueryTablesChecks(self, p_table=None, p_all_schemas=False, p_schema=None):
@@ -2009,7 +2121,10 @@ ON #table_name#
         return Template('''SELECT pg_drop_replication_slot('#slot_name#')''')
 
     def TemplateCreateLogicalReplicationSlot(self):
-        return Template('''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'pgoutput')''')
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
+            return Template('''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'pgoutput')''')
+        else:
+            return Template('''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'test_decoding')''')
 
     def TemplateDropLogicalReplicationSlot(self):
         return Template('''SELECT pg_drop_replication_slot('#slot_name#')''')
@@ -2781,9 +2896,26 @@ TO NODE ( nodename [, ... ] )
             where quote_ident(d.datname) = '{0}'
         '''.format(p_object))
 
+    def GetPropertiesExtension(self, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   e.extname as "Extension",
+                   r.rolname as "Owner",
+                   n.nspname as "Schema",
+                   e.extrelocatable as "Relocatable",
+                   e.extversion as "Version"
+            from pg_extension e
+            inner join pg_roles r
+            on r.oid = e.extowner
+            inner join pg_namespace n
+            on n.oid = e.extnamespace
+            where e.extname = '{0}'
+        '''.format(p_object))
+
     def GetPropertiesSchema(self, p_object):
         return self.v_connection.Query('''
-            select n.nspname as "Schema",
+            select current_database() as "Database",
+                   n.nspname as "Schema",
                    r.rolname as "Owner",
                    n.nspacl as "ACL"
             from pg_namespace n
@@ -3057,6 +3189,8 @@ TO NODE ( nodename [, ... ] )
             return self.GetPropertiesTablespace(p_object).Transpose('Property', 'Value')
         elif p_type == 'database':
             return self.GetPropertiesDatabase(p_object).Transpose('Property', 'Value')
+        elif p_type == 'extension':
+            return self.GetPropertiesExtension(p_object).Transpose('Property', 'Value')
         elif p_type == 'schema':
             return self.GetPropertiesSchema(p_object).Transpose('Property', 'Value')
         elif p_type == 'table':
@@ -3159,6 +3293,9 @@ TO NODE ( nodename [, ... ] )
             on t.oid = d.dattablespace
             where quote_ident(d.datname) = '{0}'
         '''.format(p_object))
+
+    def GetDDLExtension(self, p_object):
+        return 'CREATE EXTENSION {0};'.format(p_object)
 
     def GetDDLSchema(self, p_object):
         return self.v_connection.ExecuteScalar('''
@@ -3582,6 +3719,8 @@ TO NODE ( nodename [, ... ] )
             return self.GetDDLTablespace(p_object)
         elif p_type == 'database':
             return self.GetDDLDatabase(p_object)
+        elif p_type == 'extension':
+            return self.GetDDLExtension(p_object)
         elif p_type == 'schema':
             return self.GetDDLSchema(p_object)
         elif p_type == 'table':

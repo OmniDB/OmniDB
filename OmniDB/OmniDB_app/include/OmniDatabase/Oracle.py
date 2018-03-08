@@ -260,16 +260,52 @@ class Oracle:
             if p_table:
                 v_filter = "and detail_table.table_name = '{0}' ".format(p_table)
         return self.v_connection.Query('''
-            select master_table.table_name as "r_table_name",
+            select constraint_info.constraint_name as "constraint_name",
+                   detail_table.table_name as "table_name",
+                   constraint_info.r_constraint_name as "r_constraint_name",
+                   master_table.table_name as "r_table_name",
+                   detail_table.owner as "table_schema",
                    master_table.owner as "r_table_schema",
-                   master_table.column_name as "r_column_name",
+                   constraint_info.delete_rule as "delete_rule",
+                   'NO ACTION' as "update_rule"
+            from user_constraints constraint_info,
+                 user_cons_columns detail_table,
+                 user_cons_columns master_table
+            where constraint_info.constraint_name = detail_table.constraint_name
+              and constraint_info.r_constraint_name = master_table.constraint_name
+              and detail_table.position = master_table.position
+              and constraint_info.constraint_type = 'R'
+            {0}
+            order by constraint_info.constraint_name,
+                     detail_table.table_name
+        '''.format(v_filter), True)
+
+    def QueryTablesForeignKeysColumns(self, p_fkey, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and constraint_info.owner = '{0}' and detail_table.table_name = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and constraint_info.owner = '{0}' and detail_table.table_name = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and constraint_info.owner = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and constraint_info.owner = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and detail_table.table_name = '{0}' ".format(p_table)
+        v_filter = v_filter + "and constraint_info.constraint_name = '{0}' ".format(p_fkey)
+        return self.v_connection.Query('''
+            select constraint_info.constraint_name as "constraint_name",
                    detail_table.table_name as "table_name",
                    detail_table.column_name as "column_name",
+                   constraint_info.r_constraint_name as "r_constraint_name",
+                   master_table.table_name as "r_table_name",
+                   master_table.column_name as "r_column_name",
                    detail_table.owner as "table_schema",
-                   constraint_info.constraint_name as "constraint_name",
+                   master_table.owner as "r_table_schema",
                    constraint_info.delete_rule as "delete_rule",
                    'NO ACTION' as "update_rule",
-                   constraint_info.r_constraint_name as "r_constraint_name",
                    detail_table.position as "ordinal_position"
             from user_constraints constraint_info,
                  user_cons_columns detail_table,
@@ -300,6 +336,42 @@ class Oracle:
                 v_filter = "and \"table_name\" = '{0}' ".format(p_table)
         return self.v_connection.Query('''
             select distinct *
+            from (
+                select cons.constraint_name as "constraint_name",
+                       cols.table_name as "table_name",
+                       cons.owner as "table_schema"
+                from all_constraints cons,
+                     all_cons_columns cols,
+                     all_tables t
+                where cons.constraint_type = 'P'
+                  and t.table_name = cols.table_name
+                  and cons.constraint_name = cols.constraint_name
+                  and cons.owner = cols.owner
+                order by cons.owner,
+                         cols.table_name,
+                         cons.constraint_name
+            )
+            where 1 = 1
+            {0}
+        '''.format(v_filter), True)
+
+    def QueryTablesPrimaryKeysColumns(self, p_pkey, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and \"table_schema\" = '{0}' and \"table_name\" = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and \"table_schema\" = '{0}' and \"table_name\" = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and \"table_schema\" = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and \"table_schema\" = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and \"table_name\" = '{0}' ".format(p_table)
+        v_filter = v_filter + "and \"constraint_name\" = '{0}' ".format(p_pkey)
+        return self.v_connection.Query('''
+            select "column_name"
             from (
                 select cons.constraint_name as "constraint_name",
                        cols.column_name as "column_name",
@@ -339,6 +411,42 @@ class Oracle:
             select distinct *
             from (
                 select cons.constraint_name as "constraint_name",
+                       cols.table_name as "table_name",
+                       cons.owner as "table_schema"
+                from all_constraints cons,
+                     all_cons_columns cols,
+                     all_tables t
+                where cons.constraint_type = 'U'
+                  and t.table_name = cols.table_name
+                  and cons.constraint_name = cols.constraint_name
+                  and cons.owner = cols.owner
+                order by cons.owner,
+                         cols.table_name,
+                         cons.constraint_name
+            )
+            where 1 = 1
+            {0}
+        '''.format(v_filter), True)
+
+    def QueryTablesUniquesColumns(self, p_unique, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and \"table_schema\" = '{0}' and \"table_name\" = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and \"table_schema\" = '{0}' and \"table_name\" = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and \"table_schema\" = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and \"table_schema\" = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and \"table_name\" = '{0}' ".format(p_table)
+        v_filter = v_filter + "and \"constraint_name\" = '{0}' ".format(p_unique)
+        return self.v_connection.Query('''
+            select "column_name"
+            from (
+                select cons.constraint_name as "constraint_name",
                        cols.column_name as "column_name",
                        cols.table_name as "table_name",
                        cons.owner as "table_schema"
@@ -372,21 +480,44 @@ class Oracle:
         else:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
+        print(v_filter)
         return self.v_connection.Query('''
             select t.owner as "schema_name",
                    t.table_name as "table_name",
                    t.index_name as "index_name",
-                   c.column_name as "column_name",
                    case when t.uniqueness = 'UNIQUE' then 'Unique' else 'Non Unique' end as "uniqueness"
+            from all_indexes t
+            where 1=1
+            {0}
+            order by t.owner,
+                     t.table_name,
+                     t.index_name
+        '''.format(v_filter), True)
+
+    def QueryTablesIndexesColumns(self, p_index, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and t.owner = '{0}' and t.table_name = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and t.owner = '{0}' and t.table_name = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and t.owner = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and t.owner = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and t.table_name = '{0}' ".format(p_table)
+        v_filter = v_filter + "and t.index_name = '{0}' ".format(p_index)
+        return self.v_connection.Query('''
+            select c.column_name as "column_name"
             from all_indexes t,
                  all_ind_columns c
             where t.table_name = c.table_name
               and t.index_name = c.index_name
               and t.owner = c.index_owner
             {0}
-            order by t.owner,
-                     t.table_name,
-                     t.index_name
+            order by c.column_position
         '''.format(v_filter), True)
 
     def QueryDataLimited(self, p_query, p_count=-1):

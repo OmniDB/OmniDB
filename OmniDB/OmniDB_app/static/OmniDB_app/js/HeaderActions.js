@@ -185,6 +185,7 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 	var v_editor = ace.edit('txt_edit_content');
 	v_editor.setTheme("ace/theme/" + v_editor_theme);
 	v_editor.session.setMode("ace/mode/text");
+	v_editor.$blockScrolling = Infinity;
 
 	v_editor.setFontSize(Number(v_editor_font_size));
 

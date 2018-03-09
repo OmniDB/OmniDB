@@ -28,14 +28,9 @@ logger = logging.getLogger('OmniDB_app.QueryServer')
 import os
 import platform
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "OmniDB.settings")
 from tornado.options import options, define, parse_command_line
-import django.conf
-import django.contrib.auth
-import django.core.handlers.wsgi
-import django.db
-import tornado.wsgi
 from . import ws_chat
+from OmniDB.startup import clean_temp_folder
 
 class StoppableThread(threading.Thread):
     def __init__(self,p1,p2,p3):
@@ -381,15 +376,12 @@ def start_wsserver_thread():
 def start_wsserver():
     logger.info('''*** Starting OmniDB ***''')
 
-    wsgi_app = tornado.wsgi.WSGIContainer(
-    django.core.handlers.wsgi.WSGIHandler())
     try:
         application = tornado.web.Application([
           (r'/ws', WSHandler),
           (r'/wss',WSHandler),
           (r'/chatws', ws_chat.WSHandler),
-          (r'/chatwss',ws_chat.WSHandler),
-          ('.*', tornado.web.FallbackHandler, dict(fallback=wsgi_app)),
+          (r'/chatwss',ws_chat.WSHandler)
         ])
 
         if settings.IS_SSL:
@@ -400,7 +392,7 @@ def start_wsserver():
         else:
             server = tornado.httpserver.HTTPServer(application)
 
-        server.listen(settings.OMNIDB_PORT,address=settings.OMNIDB_ADDRESS)
+        server.listen(settings.OMNIDB_WEBSOCKET_PORT,address=settings.OMNIDB_ADDRESS)
         tornado.ioloop.IOLoop.instance().start()
 
     except Exception as exc:
@@ -479,7 +471,7 @@ def thread_query(self,args,ws_object):
     try:
         v_database_index = args['v_db_index']
         v_sql            = args['v_sql_cmd']
-        #v_select_value   = args['v_cmd_type']
+        v_cmd_type       = args['v_cmd_type']
         v_tab_id         = args['v_tab_id']
         v_tab_object     = args['v_tab_object']
         v_mode           = args['v_mode']
@@ -526,43 +518,73 @@ def thread_query(self,args,ws_object):
                 except Exception as exc:
                     None
 
-            if v_mode==0:
-                v_database.v_connection.Open()
-
-            if (v_mode==0 or v_mode==1) and not v_all_data:
-                v_data1 = v_database.v_connection.QueryBlock(v_sql, 50, True, True)
-            elif v_mode==2 or v_all_data:
-                v_data1 = v_database.v_connection.QueryBlock(v_sql, -1, True, True)
-
-            #f = Spartacus.Utils.DataFileWriter('arquivo.csv',v_data1.Columns)
-            #f.Open()
-            #f.Write(v_data1)
-            #f.Flush()
-
-            v_notices = v_database.v_connection.GetNotices()
-            v_notices_text = ''
-            if len(v_notices) > 0:
-                for v_notice in v_notices:
-                    v_notices_text += v_notice.replace('\n','<br/>')
-
-            if v_mode==2 or v_all_data or len(v_data1.Rows)<50:
-                try:
-                    v_database.v_connection.Close()
-                except:
-                    pass
-
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
 
-            v_response['v_data'] = {
-                'v_col_names' : v_data1.Columns,
-                'v_data' : v_data1.Rows,
-                'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
-                'v_duration': v_duration,
-                'v_notices': v_notices_text,
-                'v_notices_length': len(v_notices),
-                'v_inserted_id': v_inserted_id
-            }
+            if v_cmd_type=='export_csv' or v_cmd_type=='export_xlsx':
+
+                #cleaning temp folder
+                clean_temp_folder()
+
+                if v_cmd_type=='export_csv':
+                    v_extension = 'csv'
+                else:
+                    v_extension = 'xlsx'
+
+                v_export_dir = settings.TEMP_DIR
+                if not os.path.exists(v_export_dir):
+                    os.makedirs(v_export_dir)
+
+                v_database.v_connection.Open()
+                v_data1 = v_database.v_connection.QueryBlock(v_sql, -1, True, True)
+                v_database.v_connection.Close()
+                v_file_name = '{0}.{1}'.format(str(time.time()).replace('.','_'),v_extension)
+                f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name),v_data1.Columns)
+                f.Open()
+                f.Write(v_data1)
+                f.Flush()
+
+                v_response['v_data'] = {
+                    'v_filename': '/static/temp/{0}'.format(v_file_name),
+                    'v_downloadname': 'omnidb_exported.{0}'.format(v_extension),
+                    'v_duration': v_duration,
+                    'v_inserted_id': v_inserted_id
+                }
+
+            else:
+
+                if v_mode==0:
+                    v_database.v_connection.Open()
+
+                if (v_mode==0 or v_mode==1) and not v_all_data:
+                    v_data1 = v_database.v_connection.QueryBlock(v_sql, 50, True, True)
+                elif v_mode==2 or v_all_data:
+                    v_data1 = v_database.v_connection.QueryBlock(v_sql, -1, True, True)
+
+                v_notices = v_database.v_connection.GetNotices()
+                v_notices_text = ''
+                if len(v_notices) > 0:
+                    for v_notice in v_notices:
+                        v_notices_text += v_notice.replace('\n','<br/>')
+
+                if v_mode==2 or v_all_data or len(v_data1.Rows)<50:
+                    try:
+                        v_database.v_connection.Close()
+                    except:
+                        pass
+
+                log_end_time = datetime.now()
+                v_duration = GetDuration(log_start_time,log_end_time)
+
+                v_response['v_data'] = {
+                    'v_col_names' : v_data1.Columns,
+                    'v_data' : v_data1.Rows,
+                    'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
+                    'v_duration': v_duration,
+                    'v_notices': v_notices_text,
+                    'v_notices_length': len(v_notices),
+                    'v_inserted_id': v_inserted_id
+                }
         except Exception as exc:
             try:
                 v_database.v_connection.Close()
@@ -631,6 +653,16 @@ def thread_console(self,args,ws_object):
 
         v_session = ws_object.v_session
         v_database = args['v_database']
+        v_omnidb_database = OmniDatabase.Generic.InstantiateDatabase(
+            'sqlite',
+            '',
+            '',
+            settings.OMNIDB_DATABASE,
+            '',
+            '',
+            '0',
+            ''
+        )
 
         log_start_time = datetime.now()
 
@@ -650,6 +682,38 @@ def thread_console(self,args,ws_object):
 
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
+
+            #logging to console history
+            v_omnidb_database.v_connection.Open()
+            v_omnidb_database.v_connection.Execute('BEGIN TRANSACTION')
+            v_omnidb_database.v_connection.Execute('''
+                insert into console_history values (
+                {0},
+                {1},
+                '{2}',
+                DATETIME('now'))
+            '''.format(v_session.v_user_id,
+                       v_database.v_conn_id,
+                       v_sql.replace("'","''")))
+
+            #keep 100 rows in console history table for current user/connection
+            v_omnidb_database.v_connection.Execute('''
+                delete
+                from console_history
+                where command_date not in (
+                    select command_date
+                    from console_history
+                    where user_id = {0}
+                      and conn_id = {1}
+                    order by command_date desc
+                    limit 100
+                )
+                and user_id = {0}
+                and conn_id = {1}
+            '''.format(v_session.v_user_id,
+                       v_database.v_conn_id,
+                       v_sql.replace("'","''")))
+            v_omnidb_database.v_connection.Close()
 
 
             v_response['v_data'] = {

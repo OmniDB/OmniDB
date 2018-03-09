@@ -1,0 +1,149 @@
+html {
+	position: relative;
+	height: 100%;
+	height: 100vh;
+}
+body {
+	position: relative;
+	margin: 0px;
+	height: 100%;
+	height: 100vh;
+	font-family: monospace;
+	background-color: #F2F2F2;
+}
+#div_form {
+	position: absolute;
+	display: table;
+	top: 10%;
+	bottom: 10%;
+	right: 0;
+	left: 0;
+	width: 280px;
+	max-width: 100%;
+	margin: auto;
+	box-sizing: border-box;
+	background-color: #FFFFFF;
+	box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.07);
+	border-radius: 3px;
+}
+#div_form .loginWrap {
+	display: inline-block;
+	padding: 10px;
+	text-align: center;
+}
+#div_form .div_time {
+	display: inline-block;
+}
+#div_form .version {
+	padding-right: 34px;
+	text-align: right;
+}
+#div_form small {
+	display: inline-block:
+}
+#div_form .inputWrap {
+	position: relative;
+	display: block;
+	margin: 30px 0px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	background-color: #FFFFFF;
+	box-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+	transition: 0.45s;
+}
+#div_form .inputWrap.isActive {
+	transform: scale(1.2);
+}
+#div_form .inputWrap label {
+	position: absolute;
+	display: block;
+	padding: 2px 3px;
+	bottom: 6px;
+	left: 3px;
+	font-size: 12px;
+	color: #152d50;
+	background-color: #96da58;
+	z-index: 1;
+}
+#div_form #user_title {
+	content: "user";
+}
+#div_form #pwd_title {
+	content: "password";
+}
+#div_form input {
+	display: block;
+	margin-left: 40px;
+	padding: 14px 8px 6px 14px;
+	width: 220px;
+	font-family: monospace;
+	color: #839ec7;
+	background-color: #fbfbfb;
+	box-sizing: border-box;
+	border-left: 2px solid #5d9eff;
+	border-top: 2px solid #FFFFFF;
+	border-right: 2px solid #FFFFFF;
+	border-bottom: 1px solid #FFFFFF;
+}
+#div_form input::placeholder {
+	color: #c2c2c2;
+}
+button {
+	display: inline-block;
+	padding: 6px 10px;
+	font-size: 22px;
+	border: none;
+	color: #FFFFFF;
+	background-color: #839ec7;
+	cursor: pointer;
+}
+
+.modal_background_dark {
+    position: fixed;
+    z-index: 100000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba( 0, 0, 0, .4 );
+    vertical-align: top;
+}
+
+.white_box {
+    border-radius: 3px;
+    border: 1px solid #FFFFFF;
+    background-color: #FFFFFF;
+    position: fixed;
+    font-size: 12px;
+}
+
+.div_alert_text {
+	text-align: center;
+	margin-top: 20px;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.div_alert_buttons {
+	position: absolute;
+	width: 100%;
+	text-align: center;
+	bottom: 0px;
+	margin-bottom: 10px;
+}
+
+body.loading .div_loading {
+    display: block;
+}
+
+.div_loading {
+  display: none;
+  position: absolute;
+  z-index: 100005;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(252, 253, 253, 0.6) url(../images/loading.svg) 50% 50% no-repeat
+}

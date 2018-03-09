@@ -4,7 +4,8 @@
 
 	<link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico" />
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/login.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/login.css"/>
 
 	<script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js"   ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js" ></script>
@@ -31,11 +32,7 @@
 				function(p_return) {
 
 					if (p_return.v_data!=-1) {
-						//if (p_return.v_data==0)
-						//	window.open("../connections",'_self');
-						//else
-						//	window.open("../workspace",'_self');
-                        window.open("../workspace", '_self');
+						window.open("../workspace", '_self');
 					}
 					else
 						showAlert('Invalid username or password.');
@@ -49,20 +46,27 @@
 	</script>
 </head>
 <body>
-<div id="div_form">
-	<table style="width: 70%; margin-left: auto; margin-right: auto; height: 200px; vertical-align: middle;">
-	<tr>
-	<td style="width: 20%;">
-	<div id="div_time" style="font-size: 50px; color:white; font-weight: bold; text-shadow: 2px 2px rgb(106, 129, 162);"><img src="/static/OmniDB_app/images/omnidb_big.png"/></div>
-	</td>
-	<td style="width: 80%;" style="text-align: center;">
-		<input id='txt_user' type='text' placeholder='user' onkeydown="if (event.keyCode == 13) signIn();"/>
-		<input id='txt_pwd' type='password' placeholder='password' onkeydown="if (event.keyCode == 13) signIn();"/>
-		<button onclick='signIn()'>Sign in</button>
-	</td>
-	</tr>
-	</table>
-</div>
+	<div id="div_form">
+		<div class="loginWrap">
+			<div id="div_time">
+				<div class="logo">
+					<img src="/static/OmniDB_app/images/omnidb_big_2.png">
+				</div>
+				<div class="version">
+					<small>v{{ omnidb_short_version }}</small>
+				</div>
+			</div>
+			<div id="userBox" class="inputWrap">
+				<label id="user_title">user</label>
+				<input id="txt_user" type="text" placeholder="user" onfocus="this.parentElement.classList.add('isActive')" onblur="this.parentElement.classList.remove('isActive')" onkeydown="if (event.keyCode == 13) signIn();">
+			</div>
+			<div id="pwdBox" class="inputWrap">
+				<label id="pwd_title">pwd</label>
+				<input id="txt_pwd" type="password" placeholder="password" onfocus="this.parentElement.classList.add('isActive')" onblur="this.parentElement.classList.remove('isActive')" onkeydown="if (event.keyCode == 13) signIn();">
+			</div>
+			<button onclick="signIn()">Sign in</button>
+		</div>
+	</div>
 
 <div id="div_error" style="display:none;">
 		<div class="modal_background_dark">

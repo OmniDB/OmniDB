@@ -5,6 +5,7 @@ import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB import settings
+from OmniDB.startup import clean_temp_folder
 
 import optparse
 
@@ -124,6 +125,15 @@ def vacuum():
         print('Error:')
         print(exc)
 
+def clean_temp():
+    try:
+        print('Cleaning temp folder...')
+        clean_temp_folder(True)
+        print ('Done.')
+    except Exception as exc:
+        print('Error:')
+        print(exc)
+
 
 if __name__ == "__main__":
 
@@ -152,6 +162,7 @@ if __name__ == "__main__":
                 clean_users()
                 clean_sessions()
                 vacuum()
+                clean_temp()
                 create_superuser('admin', 'admin')
         except Exception as exc:
             print('Error:')

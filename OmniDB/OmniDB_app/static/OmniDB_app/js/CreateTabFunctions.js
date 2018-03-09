@@ -15,7 +15,7 @@ function initCreateTabFunctions() {
   var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
 
     if (v_connTabControl.tag.connections.length==0) {
-      v_connTabControl.selectTabIndex(0);
+      v_connTabControl.selectTabIndex(v_connTabControl.tabList.length-2);
       showAlert('Create connections first.')
     }
     else {
@@ -321,6 +321,8 @@ function initCreateTabFunctions() {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue('Welcome to OmniDB!');
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+
+    v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
 
     setTimeout(function() {
       refreshTreeHeight();
@@ -1273,7 +1275,7 @@ function initCreateTabFunctions() {
           "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-left: 5px; display: none; vertical-align: middle;' onclick='cancelSQL();'>Cancel</button>" +
 					"<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
 					"<button class='bt_export' title='Export Data' style='margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><img src='/static/OmniDB_app/images/table_export.png' style='vertical-align: middle;'/></button>" +
-					"<select id='sel_export_type_" + v_tab.id + "' style='float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='html' >HTML</option></select>" +
+					"<select id='sel_export_type_" + v_tab.id + "' style='float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option></select>" +
           "        <div id='query_result_tabs_" + v_tab.id + "'>" +
           "            <ul>" +
           "            <li id='query_result_tabs_" + v_tab.id + "_tab1'>Data</li>" +
@@ -1492,9 +1494,15 @@ function initCreateTabFunctions() {
 
 		var v_html = "<div id='txt_console_" + v_tab.id + "' style=' width: 100%; height: 120px; border: 1px solid #c3c3c3;'></div>" +
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+          "<div id='console_history_div_" + v_tab.id + "' class='console_command_history'><a class='modal-closer' onclick='closeConsoleHistory()'>x</a>" +
+          "<div id='console_history_grid_" + v_tab.id + "' class='console_command_history_grid'></div>" +
+          "</div>" +
+          "</span>" +
+          "</div>" +
           "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='consoleSQL(false);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_indent_" + v_tab.id + "' class='bt_execute' title='Indent SQL' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='indentSQL();'><img src='/static/OmniDB_app/images/indent.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_clear_" + v_tab.id + "' class='bt_execute' title='Clear Console' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='clearConsole();'><img src='/static/OmniDB_app/images/vacuum.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_clear_" + v_tab.id + "' class='bt_execute' title='Command History' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='showConsoleHistory();'><img src='/static/OmniDB_app/images/command_list.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-left: 5px; display: none; vertical-align: middle;' onclick='cancelConsole();'>Cancel</button>" +
 					"<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
           "<div id='txt_input_" + v_tab.id + "' style=' width: 100%; height: 150px; border: 1px solid #c3c3c3;'></div>";
@@ -1605,7 +1613,7 @@ function initCreateTabFunctions() {
 		};
 
 		v_editor2.setOptions({enableBasicAutocompletion: true});
-    v_editor2.setValue('>> Console tab. Type the commands in the editor below this box. \\? to view command list.')
+    v_editor2.setValue('>> ' + v_connTabControl.selectedTab.tag.consoleHelp)
     v_editor2.setReadOnly(true);
     v_editor2.clearSelection();
 
@@ -1634,7 +1642,10 @@ function initCreateTabFunctions() {
 			connTab: v_connTabControl.selectedTab,
       currDatabaseIndex: null,
       tabCloseSpan: v_tab_close_span,
-      state: 0
+      state: 0,
+      console_history_div: document.getElementById('console_history_div_' + v_tab.id),
+      console_history_grid_div: document.getElementById('console_history_grid_' + v_tab.id),
+      console_history_grid: null,
 		};
 
 		v_tab.tag = v_tag;

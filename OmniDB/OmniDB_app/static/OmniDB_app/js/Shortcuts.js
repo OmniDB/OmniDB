@@ -101,7 +101,6 @@ $(function () {
     },
     shortcut_left_outer_tab: function() {
 
-      if (v_connTabControl.selectedTab.tag.mode=='connection' || v_connTabControl.selectedTab.tag.mode=='snippets') {
         var v_tabControl = v_connTabControl;
         var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
 
@@ -109,7 +108,6 @@ $(function () {
           v_tabControl.tabList[v_tabControl.tabList.length - 2].elementLi.click();
         else
             v_tabControl.tabList[v_actualIndex - 1].elementLi.click();
-      }
 
     },
     shortcut_right_inner_tab: function() {

@@ -120,6 +120,7 @@ class Oracle:
 			"SET NULL",
 			"CASCADE"
         ]
+        self.v_console_help = "Console tab."
 
     def GetName(self):
         return self.v_service

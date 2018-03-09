@@ -66,11 +66,6 @@ function startQueryWebSocket(p_port) {
 
 	var v_port = p_port;
 
-	if (!v_dev_mode) {
-		v_port = parseInt(window.location.port) || (window.location.protocol === 'https:' ? 443 : 80);
-	}
-
-
 	if (v_secure) {
 		v_address = 'wss://' + window.location.hostname;
 		v_channel = 'wss';

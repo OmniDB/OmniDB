@@ -570,6 +570,15 @@ INSERT INTO shortcuts VALUES(NULL,'shortcut_right_inner_tab',1,0,0,0,'.');--omni
 INSERT INTO shortcuts VALUES(NULL,'shortcut_run_query',0,0,1,0,'Q');--omnidb--
 INSERT INTO shortcuts VALUES(NULL,'shortcut_right_outer_tab',0,0,1,0,'.');--omnidb--
 
+CREATE TABLE console_history (
+    user_id integer,
+    conn_id integer,
+    command_text text,
+    command_date text,
+    constraint fk_ch_users foreign key (user_id) references users (user_id) on update CASCADE on delete CASCADE,
+    constraint fk_ch_conn foreign key (conn_id) references connections (conn_id) on update CASCADE on delete CASCADE
+);--omnidb--
+
 CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)

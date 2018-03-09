@@ -19,6 +19,100 @@ var v_consoleState = {
 	Ready: 2
 }
 
+function showConsoleHistory() {
+
+  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+
+  var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+  var v_grid_div = v_tab_tag.console_history_grid_div;
+  v_grid_div.innerHTML = '';
+
+  execAjax('/get_console_history/',
+        input,
+        function(p_return) {
+
+          var columnProperties = [];
+
+          var col = new Object();
+          col.readOnly = true;
+          col.title =  ' ';
+          col.width = '25px';
+          columnProperties.push(col);
+
+          var col = new Object();
+          col.readOnly = true;
+          col.title =  'Date';
+          col.width = '130px';
+          columnProperties.push(col);
+
+          var col = new Object();
+          col.readOnly = true;
+          col.title =  'Command';
+          col.width = '420px';
+          columnProperties.push(col);
+
+          v_tab_tag.console_history_div.style.display = 'block';
+          if (v_tab_tag.console_history_grid) {
+            v_tab_tag.console_history_grid.destroy();
+          }
+
+
+          v_tab_tag.console_history_grid = new Handsontable(v_grid_div,
+          {
+            data: p_return.v_data.data,
+            columns : columnProperties,
+            colHeaders : true,
+            rowHeaders : false,
+            //copyRowsLimit : 1000000000,
+            //copyColsLimit : 1000000000,
+            copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
+            manualColumnResize: true,
+            fillHandle:false,
+            contextMenu: {
+              callback: function (key, options) {
+                if (key === 'view_data') {
+                    editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
+                }
+              },
+              items: {
+                "view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+              }
+              },
+                cells: function (row, col, prop) {
+                var cellProperties = {};
+                if (row % 2 == 0)
+                cellProperties.renderer = blueHtmlRenderer;
+              else
+                cellProperties.renderer = whiteHtmlRenderer;
+                return cellProperties;
+            }
+          });
+
+        },
+        null,
+        'box');
+
+}
+
+function closeConsoleHistory() {
+  v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.console_history_grid_div.innerHTML = '';
+  v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.console_history_div.style.display = 'none';
+  v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.console_history_grid.destroy();
+  v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.console_history_grid = null;
+}
+
+function consoleHistorySelectCommand() {
+  var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+  var v_grid = v_tab_tag.console_history_grid;
+
+  var v_command = v_grid.getDataAtRow(v_grid.getSelected()[0][0])[2];
+  closeConsoleHistory();
+  v_tab_tag.editor_input.setValue(v_command);
+  v_tab_tag.editor_input.clearSelection();
+  v_tab_tag.editor_input.focus();
+}
+
 function appendToEditor(p_editor, p_text) {
   var v_last_row = p_editor.session.getLength() - 1;
   var v_last_col = p_editor.session.getLine(v_last_row).length;
@@ -29,7 +123,7 @@ function appendToEditor(p_editor, p_text) {
 
 function clearConsole() {
   var v_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-  v_tag.editor_console.setValue('>> Console tab. Type the commands in the editor below this box. \\? to view command list.');
+  v_tag.editor_console.setValue('>> ' + v_connTabControl.selectedTab.tag.consoleHelp);
   v_tag.editor_console.clearSelection();
 
 }
@@ -50,50 +144,55 @@ function consoleSQL(p_check_command = true) {
   	}
   	else {
 
-      appendToEditor(v_tag.editor_console,'\n>> ' + v_content + '\n');
-      v_tag.editor_input.setValue('');
-      v_tag.editor_input.clearSelection();
-      v_tag.editor_input.setReadOnly(false);
+      if (v_content=='') {
+  			showAlert('Please provide a string.');
+  		}
+  		else {
 
-      var v_message_data = {
-        v_sql_cmd : v_content,
-        v_db_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-        v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id
-      }
+        appendToEditor(v_tag.editor_console,'\n>> ' + v_content + '\n');
+        v_tag.editor_input.setValue('');
+        v_tag.editor_input.clearSelection();
+        v_tag.editor_input.setReadOnly(false);
 
-      v_tag.editor_input.setReadOnly(true);
-
-      var d = new Date,
-      dformat = [(d.getMonth()+1).padLeft(),
-                 d.getDate().padLeft(),
-                 d.getFullYear()].join('/') +' ' +
-                [d.getHours().padLeft(),
-                 d.getMinutes().padLeft(),
-                 d.getSeconds().padLeft()].join(':');
-
-      var v_context = {
-        tab_tag: v_tag,
-        start_time: new Date().getTime(),
-        start_datetime: dformat,
-        database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-        acked: false
-      }
-      v_context.tab_tag.context = v_context;
-
-      sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Console, v_message_data, false, v_context);
-
-      v_tag.state = v_consoleState.Executing;
-      v_tag.tab_loading_span.style.display = '';
-      v_tag.tab_check_span.style.display = 'none';
-      v_tag.tab_stub_span.style.display = 'none';
-      v_tag.bt_cancel.style.display = '';
-      v_tag.query_info.innerHTML = 'Running...';
-
-      setTimeout(function() {
-        if (!v_context.acked) {
-          cancelConsoleTab(v_context.tab_tag);
+        var v_message_data = {
+          v_sql_cmd : v_content,
+          v_db_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+          v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id
         }
-      },20000);
+
+        v_tag.editor_input.setReadOnly(true);
+
+        var d = new Date,
+        dformat = [(d.getMonth()+1).padLeft(),
+                   d.getDate().padLeft(),
+                   d.getFullYear()].join('/') +' ' +
+                  [d.getHours().padLeft(),
+                   d.getMinutes().padLeft(),
+                   d.getSeconds().padLeft()].join(':');
+
+        var v_context = {
+          tab_tag: v_tag,
+          start_datetime: dformat,
+          database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+          acked: false
+        }
+        v_context.tab_tag.context = v_context;
+
+        sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Console, v_message_data, false, v_context);
+
+        v_tag.state = v_consoleState.Executing;
+        v_tag.tab_loading_span.style.display = '';
+        v_tag.tab_check_span.style.display = 'none';
+        v_tag.tab_stub_span.style.display = 'none';
+        v_tag.bt_cancel.style.display = '';
+        v_tag.query_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
+
+        setTimeout(function() {
+          if (!v_context.acked) {
+            cancelConsoleTab(v_context.tab_tag);
+          }
+        },20000);
+      }
     }
   }
 }
@@ -181,7 +280,7 @@ function consoleReturnRender(p_message,p_context) {
   v_tag.editor_input.setValue('');
   v_tag.editor_input.clearSelection();
 
-  v_tag.query_info.innerHTML = '';
+  v_tag.query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
   v_tag.tab_loading_span.style.display = 'none';
   v_tag.tab_check_span.style.display = 'none';
   v_tag.bt_cancel.style.display = 'none';

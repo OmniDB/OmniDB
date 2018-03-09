@@ -55,6 +55,7 @@ class request(IntEnum):
   Debug          = 7
   CloseTab       = 8
   DataMining     = 9
+  Console        = 10
 
 class response(IntEnum):
   LoginResult         = 0
@@ -68,6 +69,7 @@ class response(IntEnum):
   DebugResponse       = 8
   RemoveContext       = 9
   DataMiningResult    = 10
+  ConsoleResult       = 11
 
 class debugState(IntEnum):
   Initial  = 0
@@ -184,7 +186,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                         self.write_message(json.dumps(v_response))
                         return
 
-                    if v_code == request.Query or v_code == request.QueryEditData or v_code == request.SaveEditData or v_code == request.DataMining:
+                    if v_code == request.Query or v_code == request.QueryEditData or v_code == request.SaveEditData or v_code == request.DataMining or v_code == request.Console:
 
                         #create tab object if it doesn't exist
                         try:
@@ -234,6 +236,22 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                             t = StoppableThread(thread_query,v_data,self)
                             tab_object['thread'] = t
                             tab_object['type'] = 'query'
+                            tab_object['sql_cmd'] = v_data['v_sql_cmd']
+                            tab_object['sql_save'] = v_data['v_sql_save']
+                            tab_object['tab_id'] = v_data['v_tab_id']
+                            #t.setDaemon(True)
+                            t.start()
+
+                            #Send Ack Message
+                            v_response['v_code'] = response.QueryAck
+                            self.write_message(json.dumps(v_response))
+
+                        #Console request
+                        if v_code == request.Console:
+                            v_data['v_tab_object'] = tab_object
+                            t = StoppableThread(thread_console,v_data,self)
+                            tab_object['thread'] = t
+                            tab_object['type'] = 'console'
                             tab_object['sql_cmd'] = v_data['v_sql_cmd']
                             tab_object['tab_id'] = v_data['v_tab_id']
                             #t.setDaemon(True)
@@ -331,6 +349,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                         self.write_message(json.dumps(v_response))
 
                 except Exception as exc:
+                    print(str(exc))
                     v_response['v_code'] = response.SessionMissing
                     self.write_message(json.dumps(v_response))
 
@@ -381,7 +400,7 @@ def start_wsserver():
         else:
             server = tornado.httpserver.HTTPServer(application)
 
-        server.listen(settings.OMNIDB_PORT)
+        server.listen(settings.OMNIDB_PORT,address=settings.OMNIDB_ADDRESS)
         tornado.ioloop.IOLoop.instance().start()
 
     except Exception as exc:
@@ -497,7 +516,7 @@ def thread_query(self,args,ws_object):
                     insert into tabs (conn_id,user_id,tab_id,snippet)
                     values
                     ({0},{1},(select coalesce(max(tab_id), 0) + 1 from tabs),'{2}')
-                    '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, ws_object.v_session.v_user_id, v_tab_object['sql_cmd'].replace("'","''")))
+                    '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, ws_object.v_session.v_user_id, v_tab_object['sql_save'].replace("'","''")))
                     v_inserted_id = v_omnidb_database.v_connection.ExecuteScalar('''
                     select coalesce(max(tab_id), 0) from tabs
                     ''')
@@ -582,9 +601,82 @@ def thread_query(self,args,ws_object):
                 set conn_id = {0},
                     snippet = '{1}'
                 where tab_id = {2}
-                '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, v_tab_object['sql_cmd'].replace("'","''"), v_tab_object['tab_db_id']))
+                '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, v_tab_object['sql_save'].replace("'","''"), v_tab_object['tab_db_id']))
             except Exception as exc:
                 None
+    except Exception as exc:
+        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+        v_response['v_error'] = True
+        v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
+        if not self.cancel:
+            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+def thread_console(self,args,ws_object):
+    v_response = {
+        'v_code': response.ConsoleResult,
+        'v_context_code': args['v_context_code'],
+        'v_error': False,
+        'v_data': 1
+    }
+
+    try:
+        v_database_index = args['v_db_index']
+        v_sql            = args['v_sql_cmd']
+        v_tab_id         = args['v_tab_id']
+        v_tab_object     = args['v_tab_object']
+
+        #Removing last character if it is a semi-colon
+        if v_sql[-1:]==';':
+            v_sql = v_sql[:-1]
+
+        v_session = ws_object.v_session
+        v_database = args['v_database']
+
+        log_start_time = datetime.now()
+
+        try:
+
+            if not v_database.v_connection.v_con:
+                v_database.v_connection.Open()
+            v_database.v_connection.ClearNotices()
+            v_data1 = v_database.v_connection.Special(v_sql);
+
+
+            v_notices = v_database.v_connection.GetNotices()
+            v_notices_text = ''
+            if len(v_notices) > 0:
+                for v_notice in v_notices:
+                    v_notices_text += v_notice
+
+            log_end_time = datetime.now()
+            v_duration = GetDuration(log_start_time,log_end_time)
+
+
+            v_response['v_data'] = {
+                'v_data' : v_data1,
+                'v_duration': v_duration,
+                'v_notices': v_notices_text,
+                'v_notices_length': len(v_notices)
+            }
+            v_database.v_connection.ClearNotices()
+        except Exception as exc:
+            try:
+                v_database.v_connection.Close()
+            except:
+                pass
+            log_end_time = datetime.now()
+            v_duration = GetDuration(log_start_time,log_end_time)
+            log_status = 'error'
+            v_response['v_data'] = {
+                'position': v_database.GetErrorPosition(str(exc)),
+                'message' : str(exc),
+                'v_duration': v_duration
+            }
+            v_response['v_error'] = True
+
+        if not self.cancel:
+            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_error'] = True

@@ -29,7 +29,9 @@ $(function () {
 
 	initCreateTabFunctions();
 
+
 	v_connTabControl.tag.createSnippetTab();
+	v_connTabControl.tag.createWebsiteOuterTab(v_short_version,window.location.origin + '/welcome');
 
 	//v_connTabControl.tag.createServerMonitoringTab();
 
@@ -105,7 +107,7 @@ function getDatabaseList(p_init, p_callback) {
 
 				if (p_init) {
 
-					v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
+					//v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
 
 					if (v_connTabControl.tag.connections.length>0) {
 
@@ -178,9 +180,12 @@ function changeDatabase(p_value) {
 			break;
 		}
 	}
+	if (!v_conn_object)
+		v_conn_object = v_connTabControl.tag.connections[0];
 
 	v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
 	v_connTabControl.selectedTab.tag.selectedDBMS = v_conn_object.v_db_type;
+	v_connTabControl.selectedTab.tag.consoleHelp = v_conn_object.v_console_help;
 
 	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
 
@@ -1171,6 +1176,16 @@ function showMenuNewTab(e) {
 		],
 		null);
 
+}
 
+function exportData() {
+	var v_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
+	var v_export_type = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_export_type.value;
+	querySQL(0, true, v_query, exportDataReturn,true,v_query,'export_' + v_export_type,true);
+}
 
+function exportDataReturn(p_data) {
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectDataTabFunc();
+	var v_text = 'The file is ready to be saved. <a href="' + p_data.v_data.v_filename + '" download="'+ p_data.v_data.v_downloadname + '">Save</a>';
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.innerHTML = v_text;
 }

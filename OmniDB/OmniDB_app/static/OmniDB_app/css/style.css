@@ -1154,3 +1154,35 @@ h2 {
   border: 1px solid #cdcdcd;
   box-shadow: 2px 2px 2px #cecece;
 }
+
+.console_command_history {
+  display: none;
+  position: absolute;
+  margin-top: -222px;
+  width: 600px;
+  height: 200px;
+  padding: 5px 5px;
+  border-radius: 3px;
+  background-color: #f9f9f9;
+  border: 1px solid #cdcdcd;
+  z-index: 1000;
+  box-shadow: 2px 2px 2px #cecece;
+}
+
+.console_command_history_grid {
+  position: relative;
+  width: 600px;
+  height: 200px;
+  overflow: auto;
+}
+
+.welcome_release_item {
+  font-size: 14px;
+  margin-top: 30px;
+  border-radius: 15px;
+  background: #a5c2ec;
+  padding: 20px;
+  display: inline-block;
+  margin: 10 auto;
+  max-width: 90%;
+}

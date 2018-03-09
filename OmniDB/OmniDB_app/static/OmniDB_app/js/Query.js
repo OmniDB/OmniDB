@@ -64,11 +64,22 @@ function cancelSQLTab(p_tab_tag) {
 
 }
 
+function getQueryEditorValue() {
+
+	var v_selected_text = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getSelectedText();
+
+	if (v_selected_text!='')
+		return v_selected_text;
+	else
+		return v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
+}
+
 function querySQL(p_mode,
 									p_all_data = false,
-									p_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue(),
+									p_query = getQueryEditorValue(),
 									p_callback = null,
-									p_log_query = true) {
+									p_log_query = true,
+									p_save_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue()) {
 
 	var v_state = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state;
 
@@ -97,6 +108,7 @@ function querySQL(p_mode,
 
 			var v_message_data = {
 				v_sql_cmd : v_sql_value,
+				v_sql_save : p_save_query,
 				v_cmd_type: v_sel_value,
 				v_db_index: v_db_index,
 				v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
@@ -131,6 +143,10 @@ function querySQL(p_mode,
 			v_tab_tag.bt_fetch_all.style.display = 'none';
 			v_tab_tag.div_notices.innerHTML = '';
 
+			var v_has_selected_text = false;
+			if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getSelectedText()!='')
+				v_has_selected_text = true;
+
 			var v_context = {
 				tab_tag: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag,
 				start_time: new Date().getTime(),
@@ -138,6 +154,7 @@ function querySQL(p_mode,
 				sel_value: v_sel_value,
 				database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
 				mode: p_mode,
+				has_selected_text: v_has_selected_text,
 				callback: p_callback,
 				acked: false
 			}
@@ -222,11 +239,10 @@ function querySQLReturnRender(p_message,p_context) {
 		}
 
 		if (p_message.v_error) {
-
 			v_div_result.innerHTML = '<div class="error_text">' + p_message.v_data.message + '</div>';
 			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 			if (p_message.v_data.position!=null) {
-				if(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor) {
+				if(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor && !p_context.has_selected_text) {
 					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(p_message.v_data.position.row,p_message.v_data.position.col)
 					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.textInput.focus()
 				}
@@ -317,7 +333,6 @@ function querySQLReturnRender(p_message,p_context) {
 							fillHandle:false,
 							contextMenu: {
 								callback: function (key, options) {
-									console.log(options[0])
 									if (key === 'view_data') {
 									  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
 									}

@@ -380,6 +380,7 @@ class SQLite(Generic):
                 self.v_con = sqlite3.connect(self.v_service, self.v_timeout, isolation_level=None)
             else:
                 self.v_con = sqlite3.connect(self.v_service, self.v_timeout)
+
             #self.v_con.row_factory = sqlite3.Row
             self.v_cur = self.v_con.cursor()
             if self.v_foreignkeys:
@@ -1262,6 +1263,7 @@ class PostgreSQL(Generic):
                     v_status = self.GetStatus()
                     if self.v_timing:
                         v_status = v_status + '\nTime: {0}'.format(datetime.datetime.now() - v_timestart)
+
             if v_title and v_table and len(v_table.Rows) > 0 and v_status:
                 return v_title + '\n' + v_table.Pretty(self.v_expanded) + '\n' + v_status
             elif v_title and v_table and len(v_table.Rows) > 0:

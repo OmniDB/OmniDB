@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 def index(request):
     context = {
+        'omnidb_short_version': settings.OMNIDB_SHORT_VERSION
     }
 
     user = request.GET.get('user', '')

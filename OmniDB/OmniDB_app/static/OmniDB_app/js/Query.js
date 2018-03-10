@@ -79,7 +79,9 @@ function querySQL(p_mode,
 									p_query = getQueryEditorValue(),
 									p_callback = null,
 									p_log_query = true,
-									p_save_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue()) {
+									p_save_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue(),
+									p_cmd_type = null,
+									p_clear_data = false) {
 
 	var v_state = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state;
 
@@ -90,7 +92,6 @@ function querySQL(p_mode,
 
 		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 		var v_sql_value = p_query;
-		var v_sel_value = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data.value;
 		var v_db_index  = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
 		var v_tab_loading_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_loading_span;
 		var v_tab_close_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_close_span;
@@ -109,7 +110,7 @@ function querySQL(p_mode,
 			var v_message_data = {
 				v_sql_cmd : v_sql_value,
 				v_sql_save : p_save_query,
-				v_cmd_type: v_sel_value,
+				v_cmd_type: p_cmd_type,
 				v_db_index: v_db_index,
 				v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
 				v_tab_db_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_db_id,
@@ -123,8 +124,6 @@ function querySQL(p_mode,
 			}
 
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state = v_queryState.Executing;
-
-			var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_sql": v_sql_value, "p_select_value" : v_sel_value});
 
 			var start_time = new Date().getTime();
 
@@ -151,7 +150,7 @@ function querySQL(p_mode,
 				tab_tag: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag,
 				start_time: new Date().getTime(),
 				start_datetime: dformat,
-				sel_value: v_sel_value,
+				cmd_type: p_cmd_type,
 				database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
 				mode: p_mode,
 				has_selected_text: v_has_selected_text,
@@ -160,7 +159,7 @@ function querySQL(p_mode,
 			}
 			v_context.tab_tag.context = v_context;
 
-			if (p_mode==0 && p_callback==null) {
+			if ((p_mode==0 && p_callback==null) || p_clear_data) {
 				if (v_context.tab_tag.ht!=null) {
 					v_context.tab_tag.ht.destroy();
 					v_context.tab_tag.ht = null;

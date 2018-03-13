@@ -126,10 +126,10 @@ button {
 }
 
 .div_alert_buttons {
-	position: absolute;
 	width: 100%;
 	text-align: center;
 	bottom: 0px;
+	margin-top: 10px;
 	margin-bottom: 10px;
 }
 

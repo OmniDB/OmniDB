@@ -4,20 +4,8 @@
 import os
 import sys
 import platform
-
-workdir = '/opt/omnidb-app/'
-rerun = True
-if platform.system() == 'Linux':
-    if not 'LD_LIBRARY_PATH' in os.environ:
-        os.environ['LD_LIBRARY_PATH'] = ':' + workdir
-    elif not workdir in os.environ.get('LD_LIBRARY_PATH'):
-        os.environ['LD_LIBRARY_PATH'] += ':' + workdir
-    else:
-      rerun = False
-else:
-    rerun = False
-if rerun:
-  os.execve(workdir + 'omnidb-app', sys.argv, os.environ)
+import random
+import string
 
 #Parameters
 import optparse
@@ -25,6 +13,7 @@ import configparser
 import OmniDB.custom_settings
 OmniDB.custom_settings.DEV_MODE = False
 OmniDB.custom_settings.DESKTOP_MODE = True
+OmniDB.custom_settings.APP_TOKEN = ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(50))
 
 parser = optparse.OptionParser(version=OmniDB.custom_settings.OMNIDB_VERSION)
 parser.add_option("-H", "--host", dest="host",
@@ -150,7 +139,6 @@ from django.contrib.sessions.backends.db import SessionStore
 from cefpython3 import cefpython as cef
 
 import socket
-import random
 import urllib.request
 
 logger = logging.getLogger('OmniDB_app.Init')
@@ -167,7 +155,7 @@ def check_port(port):
 def init_browser(server_port):
     sys.excepthook = cef.ExceptHook  # To shutdown all CEF processes on error
     cef.Initialize()
-    cef.CreateBrowserSync(url="http://localhost:{0}?user=admin&pwd=admin".format(str(server_port)),window_title="OmniDB")
+    cef.CreateBrowserSync(url="http://localhost:{0}?user=admin&pwd=admin&token={1}".format(str(server_port),OmniDB.custom_settings.APP_TOKEN),window_title="OmniDB")
     cef.MessageLoop()
     cef.Shutdown()
 

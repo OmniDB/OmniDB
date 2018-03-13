@@ -42,6 +42,7 @@ urlpatterns = [
     #WORKSPACE
     url(r'^workspace/', views.workspace.index, name='workspace'),
     url(r'^welcome/', views.workspace.welcome, name='welcome'),
+    url(r'^shortcuts/', views.workspace.shortcuts, name='shortcuts'),
     url(r'^save_config_user/', views.workspace.save_config_user, name='save_config_user'),
     url(r'^save_shortcuts/', views.workspace.save_shortcuts, name='save_shortcuts'),
     url(r'^get_database_list/', views.workspace.get_database_list, name='get_database_list'),
@@ -57,6 +58,7 @@ urlpatterns = [
     url(r'^indent_sql/', views.workspace.indent_sql, name='indent_sql'),
     url(r'^refresh_monitoring/', views.workspace.refresh_monitoring, name='refresh_monitoring'),
     url(r'^get_console_history/', views.workspace.get_console_history, name='get_console_history'),
+    url(r'^get_console_history_clean/', views.workspace.get_console_history_clean, name='get_console_history_clean'),
 
     url(r'^test_ws/', views.workspace.test_ws, name='test_ws'),
 

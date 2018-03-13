@@ -3,13 +3,26 @@
   <title>OmniDB</title>
   <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
 	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.6.0.1"/>
+  <style>
+    img {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body style="text-align: center; margin-top: 30px;">
   <img src="/static/OmniDB_app/images/omnidb_big_2.png"/>
   <h3>v{{ omnidb_short_version }}</h3>
   <h2>Release notes:</h2>
-    <div><div class="welcome_release_item">Basic support to Oracle databases. Users can manage, connect, and interact with Oracle databases using most of the same features provided to manage PostgreSQL databases.</div></div>
-    <div><div class="welcome_release_item">New DDL Panel. A new panel located below the treeview displays properties and DDL of the currently selected node (works for PostgreSQL and Oracle).</div></div>
+    <div><div class="welcome_release_item">Psql like console tab allowing users to run commands and keep track of past executions</div></div>
+    <div><div class="welcome_release_item">Export query results to CSV or XLSX</div></div>
+    <div><div class="welcome_release_item">Interface allowing users to define shortcuts for several actions, such as run query, cancel query, explain, tab management and others</div></div>
+    <div><div class="welcome_release_item">Execute selected query in query tab</div></div>
+    <div><div class="welcome_release_item">Separation between server hosting OmniDB and websocket server (to handle query, console and debugging tabs), enhancing performance for multiple users</div></div>
+    <div><div class="welcome_release_item">JSON and JSONB types fetched with single-quotes, following the JSON standard</div></div>
+    <div><div class="welcome_release_item">Enhanced performance of database tree when rendering thousands of nodes</div></div>
+    <div><div class="welcome_release_item">OmniDB sets application_name for all PostgreSQL connections</div></div>
+    <div><div class="welcome_release_item">New login screen</div></div>
+    <div><div class="welcome_release_item">Welcome tab with details about current version</div></div>
 
 </body>
 </html>

@@ -14,7 +14,7 @@ import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB_app.include.Session import Session
-from OmniDB import settings
+from OmniDB import settings, custom_settings
 
 import logging
 logger = logging.getLogger(__name__)
@@ -30,13 +30,11 @@ def index(request):
     if user and pwd:
         num_connections = sign_in_automatic(request,user,pwd)
 
-        '''
-        if num_connections == 0:
-            return redirect('connections')
-        elif num_connections > 0:
+
+        if num_connections >= 0:
             return redirect('workspace')
-        '''
-        return redirect('workspace')
+        else:
+            return HttpResponse("INVALID APP TOKEN")
 
     template = loader.get_template('OmniDB_app/login.html')
     return HttpResponse(template.render(context, request))
@@ -71,6 +69,13 @@ def check_session_message(request):
     return JsonResponse(v_return)
 
 def sign_in_automatic(request, username, pwd):
+
+    token = request.GET.get('token', '')
+    valid_token = custom_settings.APP_TOKEN
+
+    if valid_token and token != valid_token:
+        return -1
+
     database = OmniDatabase.Generic.InstantiateDatabase(
         'sqlite',
         '',
@@ -140,6 +145,12 @@ def sign_in(request):
     v_return['v_data'] = -1
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
+
+    valid_token = custom_settings.APP_TOKEN
+
+    if valid_token:
+        v_return['v_data'] = -2
+        return JsonResponse(v_return)
 
     json_object = json.loads(request.POST.get('data', None))
     username = json_object['p_username']

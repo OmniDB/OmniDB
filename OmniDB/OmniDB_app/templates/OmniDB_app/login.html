@@ -31,8 +31,11 @@
 				JSON.stringify({"p_username": v_user_name, "p_pwd": v_pwd}),
 				function(p_return) {
 
-					if (p_return.v_data!=-1) {
+					if (p_return.v_data>=0) {
 						window.open("../workspace", '_self');
+					}
+					else if (p_return.v_data==-2) {
+						showAlert('Invalid authentication token, use omnidb-server to support multiple users.');
 					}
 					else
 						showAlert('Invalid username or password.');
@@ -70,7 +73,7 @@
 
 <div id="div_error" style="display:none;">
 		<div class="modal_background_dark">
-				<div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
+				<div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%; transform: translate(0px, -50%); -webkit-transform: translate(0px, -50%);">
 						<a class="bt_close" onclick="hideError()">x</a>
 						<div id="div_error_msg" style="height:100%; width:100%; margin-top:20px; text-align: center;"></div>
 				</div>
@@ -79,7 +82,7 @@
 
 <div id="div_alert" style="display:none;">
 		<div class="modal_background_dark">
-				<div class ="white_box" style="width: 30%; height: 20%; left: 35%; top: 40%;">
+				<div class ="white_box" style="width: 30%; left: 35%; top: 40%;">
 						<div id="div_alert_content" style="height:100%; width:100%;"></div>
 				</div>
 		</div>

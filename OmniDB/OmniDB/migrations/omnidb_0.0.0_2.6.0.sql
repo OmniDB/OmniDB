@@ -569,6 +569,9 @@ INSERT INTO shortcuts VALUES(NULL,'shortcut_remove_outer_tab',0,0,1,0,'END');--o
 INSERT INTO shortcuts VALUES(NULL,'shortcut_right_inner_tab',1,0,0,0,'.');--omnidb--
 INSERT INTO shortcuts VALUES(NULL,'shortcut_run_query',0,0,1,0,'Q');--omnidb--
 INSERT INTO shortcuts VALUES(NULL,'shortcut_right_outer_tab',0,0,1,0,'.');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_cancel_query',0,0,1,0,'C');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_next_console_command',1,0,0,0,'ARROWDOWN');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_previous_console_command',1,0,0,0,'ARROWUP');--omnidb--
 
 CREATE TABLE console_history (
     user_id integer,

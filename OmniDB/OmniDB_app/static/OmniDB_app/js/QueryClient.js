@@ -170,7 +170,15 @@ function startQueryWebSocket(p_port) {
 		},
 		function(p_event) {//Close
 			//showError('The connection with query server was closed.<br>WebSocket error code: ' + p_event.code + '.<br>Reconnected.');
-			startQueryWebSocket(p_port);
+			//startQueryWebSocket(p_port);
+			showAlert(
+				'<img src="/static/OmniDB_app/images/error.png"/><br>' +
+				'Cannot connect to websocket server in port ' + v_port + '. Trying again in 10 seconds...'
+			,function() {
+				setTimeout(function() {
+					startQueryWebSocket(p_port);
+				},10000);
+			})
 		},
 		function(p_event) {//Error
 			//showError('An error has occurred during the communication with the query server.');

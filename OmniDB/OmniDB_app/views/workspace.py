@@ -104,6 +104,16 @@ def welcome(request):
     template = loader.get_template('OmniDB_app/welcome.html')
     return HttpResponse(template.render(context, request))
 
+def shortcuts(request):
+
+    context = {
+        'omnidb_version': settings.OMNIDB_VERSION,
+        'omnidb_short_version': settings.OMNIDB_SHORT_VERSION
+    }
+
+    template = loader.get_template('OmniDB_app/shortcuts.html')
+    return HttpResponse(template.render(context, request))
+
 def save_config_user(request):
 
     v_return = {}
@@ -1915,6 +1925,7 @@ def get_console_history(request):
 
     v_return['v_data'] = []
     v_data = []
+    v_data_clean = []
 
     try:
         v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
@@ -1922,7 +1933,54 @@ def get_console_history(request):
             v_actions = '<img src="/static/OmniDB_app/images/select.png" class="img_ht" onclick="consoleHistorySelectCommand()"/>'
 
             v_data.append([v_actions,v_unit['command_date'],v_unit['command_text']])
-        v_return['v_data'] = { 'data': v_data }
+            v_data_clean.append(v_unit['command_text'])
+        v_return['v_data'] = { 'data': v_data, 'data_clean': v_data_clean }
+
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def get_console_history_clean(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    v_query = '''
+        select command_text,
+               command_date
+        from console_history
+        where user_id = {0}
+          and conn_id = {1}
+        order by command_date desc
+    '''.format(v_session.v_user_id,v_database_index)
+
+
+    v_return['v_data'] = []
+    v_data_clean = []
+
+    try:
+        v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
+        for v_unit in v_units.Rows:
+            v_data_clean.append(v_unit['command_text'])
+        v_return['v_data'] = v_data_clean
 
     except Exception as exc:
         v_return['v_data'] = str(exc)

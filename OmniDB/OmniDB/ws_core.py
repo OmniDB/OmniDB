@@ -665,6 +665,7 @@ def thread_console(self,args,ws_object):
         )
 
         log_start_time = datetime.now()
+        log_status = 'success'
 
         try:
 
@@ -682,39 +683,6 @@ def thread_console(self,args,ws_object):
 
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
-
-            #logging to console history
-            v_omnidb_database.v_connection.Open()
-            v_omnidb_database.v_connection.Execute('BEGIN TRANSACTION')
-            v_omnidb_database.v_connection.Execute('''
-                insert into console_history values (
-                {0},
-                {1},
-                '{2}',
-                DATETIME('now'))
-            '''.format(v_session.v_user_id,
-                       v_database.v_conn_id,
-                       v_sql.replace("'","''")))
-
-            #keep 100 rows in console history table for current user/connection
-            v_omnidb_database.v_connection.Execute('''
-                delete
-                from console_history
-                where command_date not in (
-                    select command_date
-                    from console_history
-                    where user_id = {0}
-                      and conn_id = {1}
-                    order by command_date desc
-                    limit 100
-                )
-                and user_id = {0}
-                and conn_id = {1}
-            '''.format(v_session.v_user_id,
-                       v_database.v_conn_id,
-                       v_sql.replace("'","''")))
-            v_omnidb_database.v_connection.Close()
-
 
             v_response['v_data'] = {
                 'v_data' : v_data1,
@@ -740,6 +708,48 @@ def thread_console(self,args,ws_object):
 
         if not self.cancel:
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+        #logging to console history
+        v_omnidb_database.v_connection.Open()
+        v_omnidb_database.v_connection.Execute('BEGIN TRANSACTION')
+        v_omnidb_database.v_connection.Execute('''
+            insert into console_history values (
+            {0},
+            {1},
+            '{2}',
+            DATETIME('now'))
+        '''.format(v_session.v_user_id,
+                   v_database.v_conn_id,
+                   v_sql.replace("'","''")))
+
+        #keep 100 rows in console history table for current user/connection
+        v_omnidb_database.v_connection.Execute('''
+            delete
+            from console_history
+            where command_date not in (
+                select command_date
+                from console_history
+                where user_id = {0}
+                  and conn_id = {1}
+                order by command_date desc
+                limit 100
+            )
+            and user_id = {0}
+            and conn_id = {1}
+        '''.format(v_session.v_user_id,
+                   v_database.v_conn_id,
+                   v_sql.replace("'","''")))
+
+        #Log to history
+        LogHistory(v_omnidb_database,
+                v_session.v_user_id,
+                v_session.v_user_name,
+                v_sql,
+                log_start_time,
+                log_end_time,
+                v_duration,
+                log_status)
+        v_omnidb_database.v_connection.Close()
 
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))

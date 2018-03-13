@@ -208,7 +208,9 @@ function initCreateTabFunctions() {
         firstTimeOpen: true,
         TreeTabControl: v_treeTabs,
         currTreeTab: null,
-        ddlEditor: v_editor
+        ddlEditor: v_editor,
+        consoleHistoryFecthed: false,
+        consoleHistoryList: null
     	};
 
     	v_tab.tag = v_tag;
@@ -237,11 +239,11 @@ function initCreateTabFunctions() {
       if (p_index)
         v_index = p_index;
 
-    	v_tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
+    	changeDatabase(v_index);
+
+      v_tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
       v_tag.divSelectDB.childNodes[0].value=v_index;
     	$(v_tag.divSelectDB.childNodes[0]).msDropDown();
-
-    	changeDatabase(v_index);
 
       if (p_create_query_tab)
     	 v_connTabControl.tag.createQueryTab();
@@ -1072,7 +1074,7 @@ function initCreateTabFunctions() {
 
 		v_tab.tag = v_tag;
 
-		v_connTabControl.createTab('+',false,v_createConnTabFunction);
+    v_connTabControl.createTab('+',false,function() { v_createConnTabFunction(); });
 
     setTimeout(function() {
       refreshHeights();
@@ -1453,6 +1455,7 @@ function initCreateTabFunctions() {
     },10);
 
     adjustQueryTabObjects(false);
+    v_editor.focus();
 
 	};
 
@@ -1527,6 +1530,8 @@ function initCreateTabFunctions() {
     v_editor1.commands.bindKey("Ctrl-,", null)
     v_editor1.commands.bindKey("Cmd-Delete", null)
     v_editor1.commands.bindKey("Ctrl-Delete", null)
+    v_editor1.commands.bindKey("Ctrl-Up", null)
+    v_editor1.commands.bindKey("Ctrl-Down", null)
 
 		document.getElementById('txt_input_' + v_tab.id).onclick = function() {
 
@@ -1605,6 +1610,10 @@ function initCreateTabFunctions() {
     v_editor2.commands.bindKey("Ctrl-,", null)
     v_editor2.commands.bindKey("Cmd-Delete", null)
     v_editor2.commands.bindKey("Ctrl-Delete", null)
+    v_editor2.commands.bindKey("Ctrl-Up", null)
+    v_editor2.commands.bindKey("Ctrl-Down", null)
+
+
 
 		document.getElementById('txt_console_' + v_tab.id).onclick = function() {
 
@@ -1632,6 +1641,7 @@ function initCreateTabFunctions() {
 			div_console: document.getElementById('txt_console_' + v_tab.id),
       div_result: document.getElementById('txt_input_' + v_tab.id),
       query_info: document.getElementById('div_query_info_' + v_tab.id),
+      bt_indent: document.getElementById('bt_indent_' + v_tab.id),
       bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
 			tab_loading_span : v_tab_loading_span,
 			tab_close_span : v_tab_close_span,
@@ -1646,6 +1656,7 @@ function initCreateTabFunctions() {
       console_history_div: document.getElementById('console_history_div_' + v_tab.id),
       console_history_grid_div: document.getElementById('console_history_grid_' + v_tab.id),
       console_history_grid: null,
+      console_history_cmd_index: -1
 		};
 
 		v_tab.tag = v_tag;

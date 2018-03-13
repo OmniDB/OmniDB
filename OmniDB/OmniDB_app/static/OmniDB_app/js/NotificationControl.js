@@ -34,7 +34,7 @@ function hideError() {
 }
 
 
-function showAlert(p_info)
+function showAlert(p_info, p_funcYes = null)
 {
 	var v_div_text = document.createElement('div');
 	v_div_text.className = 'div_alert_text';
@@ -48,6 +48,8 @@ function showAlert(p_info)
 	v_button.onclick = function() {
 		document.getElementById('div_alert_content').innerHTML = '';
 		$('#div_alert').hide();
+		if (p_funcYes!=null)
+			p_funcYes();
 	};
 
 	v_div_buttons.appendChild(v_button);

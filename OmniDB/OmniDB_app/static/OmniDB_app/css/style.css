@@ -626,15 +626,16 @@ button:hover {
 	text-align: center;
 	margin-top: 20px;
 	width: 80%;
+  min-height: 50px;
 	margin-left: auto;
 	margin-right: auto;
 }
 
 .div_alert_buttons {
-	position: absolute;
 	width: 100%;
 	text-align: center;
 	bottom: 0px;
+  margin-top: 10px;
 	margin-bottom: 10px;
 }
 

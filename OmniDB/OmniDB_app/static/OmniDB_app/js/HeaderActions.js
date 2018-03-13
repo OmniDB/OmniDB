@@ -77,6 +77,20 @@ function goToConnections() {
 }
 
 /// <summary>
+/// Go to connections.
+/// </summary>
+function confirmSignout() {
+
+	showConfirm('Are you sure you want to sign out?',
+		function() {
+
+			window.open("../logout","_self");
+
+		});
+
+}
+
+/// <summary>
 /// Go to workspace.
 /// </summary>
 function goToWorkspace() {

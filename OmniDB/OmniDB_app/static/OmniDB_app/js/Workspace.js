@@ -31,7 +31,7 @@ $(function () {
 
 
 	v_connTabControl.tag.createSnippetTab();
-	v_connTabControl.tag.createWebsiteOuterTab(v_short_version,window.location.origin + '/welcome');
+	v_connTabControl.tag.createWebsiteOuterTab(v_short_version,'/welcome');
 
 	//v_connTabControl.tag.createServerMonitoringTab();
 

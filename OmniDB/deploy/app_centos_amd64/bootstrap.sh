@@ -7,11 +7,6 @@ yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-deve
 yum groupinstall -y "GNOME Desktop"
 echo "Done"
 
-echo "Installing p7zip..."
-wget https://www.mirrorservice.org/sites/dl.fedoraproject.org/pub/epel/7/x86_64/Packages/p/p7zip-16.02-2.el7.x86_64.rpm
-rpm -U --quiet p7zip-16.02-2.el7.x86_64.rpm
-echo "Done"
-
 echo "Installing pyenv..."
 git clone --depth 1 https://github.com/pyenv/pyenv.git ~/.pyenv
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc

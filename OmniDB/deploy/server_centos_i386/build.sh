@@ -53,7 +53,7 @@ mkdir -p BUILD RPMS SOURCES SPECS
 cp ../omnidb-server_$VERSION-$ARCH.tar.gz SOURCES/
 cat > SOURCES/omnidb-server.sh <<EOF
 #!/bin/bash
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-server/ /opt/omnidb-server/omnidb-server $@
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-server/ /opt/omnidb-server/omnidb-server \$@
 EOF
 
 cat > SPECS/omnidb-server.spec <<EOF

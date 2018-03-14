@@ -54,7 +54,11 @@ mkdir opt
 mv ../omnidb-server opt/
 mkdir -p usr/bin
 cd usr/bin
-ln -s /opt/omnidb-server/omnidb-server .
+cat > omnidb-server <<EOF
+#!/bin/bash
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-server/ /opt/omnidb-server/omnidb-server
+EOF
+chmod 777 omnidb-server
 ln -s /opt/omnidb-server/omnidb-config-server .
 cd ../..
 mkdir DEBIAN

@@ -1785,9 +1785,11 @@ function getDatabasesOracle(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/db.png', {
                         type: 'database'
-                    }, 'cm_database');
+                    }, 'cm_database',null,false);
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -1826,9 +1828,11 @@ function getTablespacesOracle(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/folder.png', {
                         type: 'tablespace'
-                    }, 'cm_tablespace');
+                    }, 'cm_tablespace',null,false);
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -1866,9 +1870,11 @@ function getRolesOracle(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/role.png', {
                         type: 'role'
-                    }, 'cm_role');
+                    }, 'cm_role',null,false);
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -1917,13 +1923,15 @@ function getTablesOracle(node) {
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         has_partitions: p_return.v_data[i].v_has_partitions
-                    }, 'cm_table');
+                    }, 'cm_table',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
                         type: 'table_field'
-                    }, null);
+                    }, null,null,false);
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -1962,9 +1970,11 @@ function getSequencesOracle(node) {
                     false,
                     '/static/OmniDB_app/images/sequence_list.png', {
                         type: 'sequence'
-                    }, 'cm_sequence');
+                    }, 'cm_sequence',null,false);
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -2004,12 +2014,14 @@ function getViewsOracle(node) {
                     false, '/static/OmniDB_app/images/view.png', {
                         type: 'view',
                         has_triggers: p_return.v_data[i].v_has_triggers
-                    }, 'cm_view');
+                    }, 'cm_view',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
                         type: 'view_field'
-                    }, null);
+                    }, null,null,false);
             }
+
+            node.drawChildNodes();
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2041,17 +2053,17 @@ function getViewsColumnsOracle(node) {
 
             v_list = node.createChildNode('Columns (' + p_return.v_data.length +
                 ')', false, '/static/OmniDB_app/images/add.png', null,
-                null);
+                null,null,false);
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = v_list.createChildNode(p_return.v_data[i].v_column_name,
                     false, '/static/OmniDB_app/images/add.png', {
                         type: 'table_field'
-                    }, null);
+                    }, null,null,false);
                 v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
                     false, '/static/OmniDB_app/images/bullet_red.png',
-                    null, null);
+                    null, null,null,false);
 
             }
 
@@ -2059,19 +2071,21 @@ function getViewsColumnsOracle(node) {
                 v_node = node.createChildNode('Rules', false,
                     '/static/OmniDB_app/images/rule.png', {
                         type: 'rule_list'
-                    }, 'cm_rules');
+                    }, 'cm_rules',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
+                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
             }
 
             if (node.tag.has_triggers) {
                 v_node = node.createChildNode('Triggers', false,
                     '/static/OmniDB_app/images/trigger.png', {
                         type: 'trigger_list'
-                    }, 'cm_view_triggers');
+                    }, 'cm_view_triggers',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
+                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -2292,20 +2306,20 @@ function getColumnsOracle(node) {
             v_list = node.createChildNode('Columns (' + p_return.v_data.length +
                 ')', false, '/static/OmniDB_app/images/add.png', {
                     type: 'column_list'
-                }, 'cm_columns');
+                }, 'cm_columns',null,false);
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = v_list.createChildNode(p_return.v_data[i].v_column_name,
                     false, '/static/OmniDB_app/images/add.png', {
                         type: 'table_field'
-                    }, 'cm_column');
+                    }, 'cm_column',null,false);
                 v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
                     false, '/static/OmniDB_app/images/bullet_red.png',
-                    null, null);
+                    null, null,null,false);
                 v_node.createChildNode('Nullable: ' + p_return.v_data[i].v_nullable,
                     false, '/static/OmniDB_app/images/bullet_red.png',
-                    null, null);
+                    null, null,null,false);
 
             }
 
@@ -2313,55 +2327,57 @@ function getColumnsOracle(node) {
                 v_node = node.createChildNode('Primary Key', false,
                     '/static/OmniDB_app/images/key.png', {
                         type: 'primary_key'
-                    }, 'cm_pks');
+                    }, 'cm_pks',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
+                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
             }
 
             if (node.tag.has_foreign_keys) {
                 v_node = node.createChildNode('Foreign Keys', false,
                     '/static/OmniDB_app/images/silver_key.png', {
                         type: 'foreign_keys'
-                    }, 'cm_fks');
+                    }, 'cm_fks',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
+                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
             }
 
             if (node.tag.has_uniques) {
                 v_node = node.createChildNode('Uniques', false,
                     '/static/OmniDB_app/images/blue_key.png', {
                         type: 'uniques'
-                    }, 'cm_uniques');
+                    }, 'cm_uniques',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
+                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
             }
 
             if (node.tag.has_indexes) {
                 v_node = node.createChildNode('Indexes', false,
                     '/static/OmniDB_app/images/index.png', {
                         type: 'indexes'
-                    }, 'cm_indexes');
+                    }, 'cm_indexes',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
+                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
             }
 
             if (node.tag.has_triggers) {
                 v_node = node.createChildNode('Triggers', false,
                     '/static/OmniDB_app/images/trigger.png', {
                         type: 'trigger_list'
-                    }, 'cm_triggers');
+                    }, 'cm_triggers',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
+                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
             }
 
             if (node.tag.has_partitions) {
                 v_node = node.createChildNode('Partitions', false,
                     '/static/OmniDB_app/images/partition.png', {
                         type: 'partition_list'
-                    }, 'cm_partitions');
+                    }, 'cm_partitions',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
+                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -2442,9 +2458,11 @@ function getPKColumnsOracle(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node.createChildNode(p_return.v_data[i][0], false,
-                    '/static/OmniDB_app/images/add.png', null, null);
+                    '/static/OmniDB_app/images/add.png', null, null,null,false);
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -2485,14 +2503,16 @@ function getUniquesOracle(node) {
                         false,
                         '/static/OmniDB_app/images/blue_key.png', {
                             type: 'unique'
-                        }, 'cm_unique');
+                        }, 'cm_unique',null,false);
 
                     v_node.createChildNode('', false,
                         '/static/OmniDB_app/images/spin.svg', {
                             type: 'unique_field'
-                        }, null);
+                        }, null,null,false);
 
                 }
+
+                node.drawChildNodes();
 
             }
 
@@ -2531,10 +2551,12 @@ function getUniquesColumnsOracle(node) {
                 for (i = 0; i < p_return.v_data.length; i++) {
 
                     v_node.createChildNode(p_return.v_data[i][0], false,
-                        '/static/OmniDB_app/images/add.png', null, null
+                        '/static/OmniDB_app/images/add.png', null, null,null,false
                     );
 
                 }
+
+                node.drawChildNodes();
 
             }
 
@@ -2579,14 +2601,16 @@ function getIndexesOracle(node) {
                         ' (' + p_return.v_data[i][1] + ')', false,
                         '/static/OmniDB_app/images/index.png', {
                             type: 'index'
-                        }, 'cm_index');
+                        }, 'cm_index',null,false);
 
                     v_node.createChildNode('', false,
                         '/static/OmniDB_app/images/spin.svg', {
                             type: 'index_field'
-                        }, null);
+                        }, null,null,false);
 
                 }
+
+                node.drawChildNodes();
 
             }
 
@@ -2626,10 +2650,12 @@ function getIndexesColumnsOracle(node) {
                 for (i = 0; i < p_return.v_data.length; i++) {
 
                     node.createChildNode(p_return.v_data[i][0], false,
-                        '/static/OmniDB_app/images/add.png', null, null
+                        '/static/OmniDB_app/images/add.png', null, null,null,false
                     );
 
                 }
+
+                node.drawChildNodes();
 
             }
 
@@ -2670,23 +2696,25 @@ function getFKsOracle(node) {
                     false,
                     '/static/OmniDB_app/images/silver_key.png', {
                         type: 'foreign_key'
-                    }, 'cm_fk');
+                    }, 'cm_fk',null,false);
                 v_node.createChildNode('Referenced Table: ' + p_return.v_data[
                         i][1], false,
                     '/static/OmniDB_app/images/table.png', null,
-                    null);
+                    null,null,false);
                 v_node.createChildNode('Delete Rule: ' + p_return.v_data[
                         i][2], false,
                     '/static/OmniDB_app/images/bullet_red.png',
-                    null, null);
+                    null, null,null,false);
                 v_node.createChildNode('Update Rule: ' + p_return.v_data[
                         i][3], false,
                     '/static/OmniDB_app/images/bullet_red.png',
-                    null, null);
+                    null, null,null,false);
 
                 v_curr_fk = p_return.v_data[i][0];
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -2721,24 +2749,26 @@ function getFKsColumnsOracle(node) {
             node.createChildNode('Referenced Table: ' + p_return.v_data[
                     0][0], false,
                 '/static/OmniDB_app/images/table.png', null,
-                null);
+                null,null,false);
             node.createChildNode('Delete Rule: ' + p_return.v_data[
                     0][1], false,
                 '/static/OmniDB_app/images/bullet_red.png',
-                null, null);
+                null, null,null,false);
             node.createChildNode('Update Rule: ' + p_return.v_data[
                     0][2], false,
                 '/static/OmniDB_app/images/bullet_red.png',
-                null, null);
+                null, null,null,false);
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 node.createChildNode(p_return.v_data[i][3] +
                     ' <img style="vertical-align: middle;" src="/static/OmniDB_app/images/arrow_right.png"/> ' +
                     p_return.v_data[i][4], false,
-                    '/static/OmniDB_app/images/add.png', null, null);
+                    '/static/OmniDB_app/images/add.png', null, null,null,false);
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -2882,13 +2912,15 @@ function getFunctionsOracle(node) {
                     false, '/static/OmniDB_app/images/gear2.png', {
                         type: 'function',
                         id: p_return.v_data[i].v_id
-                    }, 'cm_function');
+                    }, 'cm_function',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
                         type: 'function_field'
-                    }, null);
+                    }, null,null,false);
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -2926,20 +2958,22 @@ function getFunctionFieldsOracle(node) {
                 if (p_return.v_data[i].v_type == 'O')
                     v_node = node.createChildNode(p_return.v_data[i].v_name,
                         false, '/static/OmniDB_app/images/output.png', null,
-                        null);
+                        null,null,false);
                 else {
                     if (p_return.v_data[i].v_type == 'I')
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
                             false, '/static/OmniDB_app/images/input.png',
-                            null, null);
+                            null, null,null,false);
                     else
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
                             false,
                             '/static/OmniDB_app/images/input_output.png',
-                            null, null);
+                            null, null,null,false);
                 }
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -3058,13 +3092,15 @@ function getProceduresOracle(node) {
                     false, '/static/OmniDB_app/images/gear2.png', {
                         type: 'procedure',
                         id: p_return.v_data[i].v_id
-                    }, 'cm_procedure');
+                    }, 'cm_procedure',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
                         type: 'procedure_field'
-                    }, null);
+                    }, null,null,false);
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {
@@ -3102,20 +3138,22 @@ function getProcedureFieldsOracle(node) {
                 if (p_return.v_data[i].v_type == 'O')
                     v_node = node.createChildNode(p_return.v_data[i].v_name,
                         false, '/static/OmniDB_app/images/output.png', null,
-                        null);
+                        null,null,false);
                 else {
                     if (p_return.v_data[i].v_type == 'I')
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
                             false, '/static/OmniDB_app/images/input.png',
-                            null, null);
+                            null, null,null,false);
                     else
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
                             false,
                             '/static/OmniDB_app/images/input_output.png',
-                            null, null);
+                            null, null,null,false);
                 }
 
             }
+
+            node.drawChildNodes();
 
         },
         function(p_return) {

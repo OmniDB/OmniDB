@@ -27,6 +27,11 @@
 			</ul>
 			<div style="position: absolute; right: 0px; top: 0px;">
 				<ul>
+          <li style="padding-right: 10px;">
+            <img id="websocket_status_offline" title="Offline" style="vertical-align: middle; cursor: pointer;" src="/static/OmniDB_app/images/status_red.png"/>
+            <img id="websocket_status_connecting" title="Connecting..." style="vertical-align: middle; cursor: pointer; display: none;" src="/static/OmniDB_app/images/status_blue.png"/>
+            <img id="websocket_status_online" title="Online" style="vertical-align: middle; cursor: pointer; display: none;" src="/static/OmniDB_app/images/status_green.png"/>
+          </li>
           {% if not desktop_mode %}
   					<li style="color: #F1F7FF; padding-right: 10px;">{{ session.v_user_name }}</li>
             {% if session.v_super_user == 1 %}
@@ -67,7 +72,7 @@
               <div class='shortcut_block'>
 
                 <div class='shortcut_block_title'>Editor</div>
-                Shortcuts active in all editors. They will override any user defined shortcut. See list <a onclick="showWebsite('Shortcuts','/shortcuts')" >here</a>.
+                Shortcuts active in all editors. They will override any user defined shortcut. See list <a class='link_text' onclick="showWebsite('Shortcuts','/shortcuts')" >here</a>.
 
                 <div class='shortcut_block_title' style="margin-top: 10px;">Query/Console Tab</div>
 

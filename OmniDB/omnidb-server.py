@@ -32,7 +32,7 @@ parser.add_option("-e", "--ewsport", dest="ewsport",
 
 parser.add_option("-d", "--homedir", dest="homedir",
                   default='', type=str,
-                  help="home directory")
+                  help="home directory containing local databases config and log files")
 
 parser.add_option("-c", "--configfile", dest="conf",
                   default='', type=str,
@@ -107,6 +107,10 @@ try:
     ssl_key_file = Config.get('webserver', 'ssl_key_file')
 except:
     ssl_key_file = ''
+try:
+    csrf_trusted_origins = Config.get('webserver', 'csrf_trusted_origins')
+except:
+    csrf_trusted_origins = ''
 
 
 import OmniDB
@@ -223,6 +227,7 @@ class DjangoApplication(object):
             print ("Press Ctrl+C to exit")
 
             cherrypy.engine.block()
+            cherrypy.engine.exit()
         else:
             print('Tried 20 different ports without success, closing...')
             logger.info('Tried 20 different ports without success, closing...')
@@ -254,6 +259,19 @@ if __name__ == "__main__":
         OmniDB.settings.IS_SSL                         = is_ssl
         OmniDB.settings.SSL_CERTIFICATE                = ssl_certificate_file
         OmniDB.settings.SSL_KEY                        = ssl_key_file
+
+        if is_ssl:
+            csrf_trusted_origins_list = csrf_trusted_origins.split(',')
+            if len(csrf_trusted_origins_list)>0:
+                OmniDB.settings.CSRF_TRUSTED_ORIGINS = csrf_trusted_origins_list
+
+            if not os.path.exists(ssl_certificate_file):
+                print("Certificate file not found. Please specify a file that exists.")
+                sys.exit()
+            if not os.path.exists(ssl_key_file):
+                print("Key file not found. Please specify a file that exists.")
+                sys.exit()
+
 
         print ("Starting websocket server at port {0}.".format(str(port)))
         logger.info("Starting websocket server at port {0}.".format(str(port)))

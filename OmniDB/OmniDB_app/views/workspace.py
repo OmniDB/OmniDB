@@ -80,11 +80,10 @@ def index(request):
         'omnidb_version': settings.OMNIDB_VERSION,
         'omnidb_short_version': settings.OMNIDB_SHORT_VERSION,
         'menu_item': 'workspace',
-        'query_port': settings.OMNIDB_EXTERNAL_WEBSOCKET_PORT,
+        'query_port': settings.OMNIDB_WEBSOCKET_PORT,
+        'query_port_external': settings.OMNIDB_EXTERNAL_WEBSOCKET_PORT,
         'is_secure' : v_is_secure,
         'dev_mode': v_dev_mode,
-        'execute': settings.BINDKEY_EXECUTE,
-        'execute_mac': settings.BINDKEY_EXECUTE_MAC,
         'autocomplete': settings.BINDKEY_AUTOCOMPLETE,
         'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC,
         'shortcuts': shortcut_object,
@@ -1574,7 +1573,6 @@ def get_completions(request):
     v_found = False
 
     inst = get_positions (p_sql, p_prefix)
-    print(inst)
 
     index = 0
 

@@ -161,7 +161,6 @@ function querySQL(p_mode,
 
 			if ((p_mode==0 && p_callback==null) || p_clear_data) {
 				if (v_context.tab_tag.ht!=null) {
-					console.log('destroy')
 					v_context.tab_tag.ht.destroy();
 					v_context.tab_tag.ht = null;
 				}

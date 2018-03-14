@@ -188,7 +188,7 @@ class DjangoApplication(object):
             cherrypy.engine.start()
 
             init_browser(port)
-            cherrypy.engine.block()
+            cherrypy.engine.exit()
         else:
             print('Tried 20 different ports without success, closing...')
             logger.info('Tried 20 different ports without success, closing...')

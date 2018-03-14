@@ -87,7 +87,7 @@ mkdir -p usr/bin
 cd usr/bin
 cat > omnidb-app <<EOF
 #!/bin/bash
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app $@
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app \$@
 EOF
 chmod 777 omnidb-app
 ln -s /opt/omnidb-app/omnidb-config-app .

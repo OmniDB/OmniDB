@@ -56,7 +56,7 @@ mkdir -p usr/bin
 cd usr/bin
 cat > omnidb-server <<EOF
 #!/bin/bash
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-server/ /opt/omnidb-server/omnidb-server $@
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-server/ /opt/omnidb-server/omnidb-server \$@
 EOF
 chmod 777 omnidb-server
 ln -s /opt/omnidb-server/omnidb-config-server .

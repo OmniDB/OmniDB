@@ -85,7 +85,11 @@ mkdir opt
 mv ../omnidb-app opt/
 mkdir -p usr/bin
 cd usr/bin
-ln -s /opt/omnidb-app/omnidb-app .
+cat > omnidb-app <<EOF
+#!/bin/bash
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app
+EOF
+chmod 777 omnidb-app
 ln -s /opt/omnidb-app/omnidb-config-app .
 cd ../..
 mkdir -p usr/share
@@ -95,7 +99,7 @@ cat > usr/share/applications/omnidb-app.desktop <<EOF
 [Desktop Entry]
 Name=OmniDB
 Comment=OmniDB
-Exec="/opt/omnidb-app/omnidb-app"
+Exec="/usr/bin/omnidb-app"
 Terminal=false
 Type=Application
 Icon=omnidb

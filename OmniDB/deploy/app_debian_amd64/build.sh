@@ -18,11 +18,11 @@ rm -rf deploy/packages
 echo "Done."
 
 echo -n "Switching to Release Mode..."
-sed -i -e 's/DEV_MODE = True/DEV_MODE = False/g' OmniDB/settings.py
+sed -i -e 's/DEV_MODE = True/DEV_MODE = False/g' OmniDB/custom_settings.py
 echo "Done."
 
 echo -n "Switching to Desktop Mode... "
-sed -i -e 's/DESKTOP_MODE = False/DESKTOP_MODE = True/g' OmniDB/settings.py
+sed -i -e 's/DESKTOP_MODE = False/DESKTOP_MODE = True/g' OmniDB/custom_settings.py
 echo "Done."
 
 echo "Generating bundles... "

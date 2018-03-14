@@ -1,19 +1,48 @@
 #!/usr/bin/env python
-import sys, uuid
+import sys, uuid, os
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
-from OmniDB import settings
-from OmniDB.startup import clean_temp_folder
+
+import OmniDB.custom_settings
 
 import optparse
 
+parser = optparse.OptionParser(version=OmniDB.custom_settings.OMNIDB_VERSION)
+parser.add_option("-d", "--homedir", dest="homedir",
+                  default='', type=str,
+                  help="home directory containing local databases config and log files")
+parser.add_option("-c", "--createsuperuser", dest="createsuperuser",
+                  nargs=2,metavar="username password",
+                  help="create super user: -c username password")
+parser.add_option("-a", "--vacuum", dest="vacuum",
+                  default=False, action="store_true",
+                  help="databases maintenance")
+parser.add_option("-r", "--resetdatabase", dest="reset",
+                  default=False,action="store_true",
+                  help="reset user and session databases")
+parser.add_option("-t", "--deletetemp", dest="deletetemp",
+                  default=False,action="store_true",
+                  help="delete temporary files")
+(options, args) = parser.parse_args()
+
+if options.homedir!='':
+    if not os.path.exists(options.homedir):
+        print("Home directory does not exist. Please specify a directory that exists.")
+        sys.exit()
+    else:
+        OmniDB.custom_settings.HOME_DIR = options.homedir
+
+#importing settings after setting HOME_DIR
+import OmniDB.settings
+from OmniDB.startup import clean_temp_folder
+
 database = OmniDatabase.Generic.InstantiateDatabase(
-    'sqlite','','',settings.OMNIDB_DATABASE,'','','0',''
+    'sqlite','','',OmniDB.settings.OMNIDB_DATABASE,'','','0',''
 )
 database_sessions = OmniDatabase.Generic.InstantiateDatabase(
-    'sqlite','','',settings.SESSION_DATABASE,'','','0',''
+    'sqlite','','',OmniDB.settings.SESSION_DATABASE,'','','0',''
 )
 
 def create_superuser(p_user, p_pwd):
@@ -137,18 +166,6 @@ def clean_temp():
 
 if __name__ == "__main__":
 
-    parser = optparse.OptionParser(version=settings.OMNIDB_VERSION)
-    parser.add_option("-c", "--createsuperuser", dest="createsuperuser",
-                      nargs=2,metavar="username password",
-                      help="create super user: -c username password")
-    parser.add_option("-a", "--vacuum", dest="vacuum",
-                      default=False, action="store_true",
-                      help="databases maintenance")
-    parser.add_option("-r", "--resetdatabase", dest="reset",
-                      default=False,action="store_true",
-                      help="reset user and Django databases")
-    (options, args) = parser.parse_args()
-
     if len(sys.argv[1:])==0:
         parser.print_help()
         sys.exit(0)
@@ -170,6 +187,9 @@ if __name__ == "__main__":
 
     if options.vacuum:
         vacuum()
+
+    if options.deletetemp:
+        clean_temp()
 
     if options.createsuperuser:
         create_superuser(options.createsuperuser[0], options.createsuperuser[1])

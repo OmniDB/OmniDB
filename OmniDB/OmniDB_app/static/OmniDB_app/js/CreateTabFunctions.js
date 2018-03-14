@@ -130,6 +130,8 @@ function initCreateTabFunctions() {
       v_editor.commands.bindKey("Ctrl-,", null)
       v_editor.commands.bindKey("Cmd-Delete", null)
       v_editor.commands.bindKey("Ctrl-Delete", null)
+      v_editor.commands.bindKey("Ctrl-Up", null)
+      v_editor.commands.bindKey("Ctrl-Down", null)
       v_editor.setReadOnly(true);
 
   		v_ddl_div.onclick = function() {
@@ -245,8 +247,10 @@ function initCreateTabFunctions() {
       v_tag.divSelectDB.childNodes[0].value=v_index;
     	$(v_tag.divSelectDB.childNodes[0]).msDropDown();
 
-      if (p_create_query_tab)
-    	 v_connTabControl.tag.createQueryTab();
+      if (p_create_query_tab) {
+         v_connTabControl.tag.createConsoleTab();
+    	   v_connTabControl.tag.createQueryTab();
+      }
 
     	v_connTabControl.createTab('+',false,function() { v_createConnTabFunction(); });
 
@@ -705,6 +709,8 @@ function initCreateTabFunctions() {
     v_editor.commands.bindKey("Ctrl-,", null)
     v_editor.commands.bindKey("Cmd-Delete", null)
     v_editor.commands.bindKey("Ctrl-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Up", null)
+    v_editor.commands.bindKey("Ctrl-Down", null)
 
     var v_txt_data = document.getElementById('txt_data_' + v_tab.id);
     var v_editor_data = ace.edit('txt_data_' + v_tab.id);
@@ -718,6 +724,8 @@ function initCreateTabFunctions() {
     v_editor_data.commands.bindKey("Ctrl-,", null)
     v_editor_data.commands.bindKey("Cmd-Delete", null)
     v_editor_data.commands.bindKey("Ctrl-Delete", null)
+    v_editor_data.commands.bindKey("Ctrl-Up", null)
+    v_editor_data.commands.bindKey("Ctrl-Down", null)
 
 		v_txt_script.onclick = function() {
 
@@ -895,6 +903,8 @@ function initCreateTabFunctions() {
     v_editor.commands.bindKey("Ctrl-,", null)
     v_editor.commands.bindKey("Cmd-Delete", null)
     v_editor.commands.bindKey("Ctrl-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Up", null)
+    v_editor.commands.bindKey("Ctrl-Down", null)
 
 		v_txt_snippet.onclick = function() {
 
@@ -1307,6 +1317,7 @@ function initCreateTabFunctions() {
 		v_editor.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
     v_editor.commands.bindKey(v_keybind_object.v_autocomplete_mac, "startAutocomplete");
 
+
 		v_editor.setFontSize(Number(v_editor_font_size));
 
 		//v_editor.commands.bindKey("ctrl-space", null);
@@ -1316,6 +1327,8 @@ function initCreateTabFunctions() {
     v_editor.commands.bindKey("Ctrl-,", null)
     v_editor.commands.bindKey("Cmd-Delete", null)
     v_editor.commands.bindKey("Ctrl-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Up", null)
+    v_editor.commands.bindKey("Ctrl-Down", null)
 
 		document.getElementById('txt_query_' + v_tab.id).onclick = function() {
 
@@ -1402,6 +1415,7 @@ function initCreateTabFunctions() {
       bt_explain: document.getElementById('bt_explain_' + v_tab.id),
       bt_analyze: document.getElementById('bt_analyze_' + v_tab.id),
       bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
+      bt_export: document.getElementById('bt_export_' + v_tab.id),
 			state : 0,
       context: null,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
@@ -1743,6 +1757,8 @@ function initCreateTabFunctions() {
     v_editor.commands.bindKey("Ctrl-,", null)
     v_editor.commands.bindKey("Cmd-Delete", null)
     v_editor.commands.bindKey("Ctrl-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Up", null)
+    v_editor.commands.bindKey("Ctrl-Down", null)
 
     document.getElementById('txt_filter_data_' + v_tab.id).onclick = function() {
 
@@ -1751,18 +1767,6 @@ function initCreateTabFunctions() {
     };
 
 
-    var command = {
-      name: "save",
-      bindKey: {
-            mac: v_keybind_object.v_execute_mac,
-            win: v_keybind_object.v_execute
-          },
-      exec: function(){
-      queryEditData();
-      }
-    }
-
-    v_editor.commands.addCommand(command);
 
     var qtags = {
       getCompletions: function(editor, session, pos, prefix, callback) {
@@ -2023,7 +2027,7 @@ function initCreateTabFunctions() {
           "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Start' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='startDebug();'><img src='/static/OmniDB_app/images/trigger.png' style='vertical-align: middle;'/></button>" +
 					"<button id='bt_step_over_" + v_tab.id + "' class='bt_execute' title='Step Over (Next Statement)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(0);'><img src='/static/OmniDB_app/images/step_over.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_step_out_" + v_tab.id + "' class='bt_execute' title='Resume (Next Breakpoint)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(1);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
-          "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='cancelDebug();'>Cancel</button>" +
+          "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-right: 5px; display: none; vertical-align: middle;' onclick='cancelDebug();'>Cancel</button>" +
 					"<div id='div_debug_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
           "        <div id='debug_result_tabs_" + v_tab.id + "'>" +
           "            <ul>" +
@@ -2070,6 +2074,8 @@ function initCreateTabFunctions() {
     v_editor.commands.bindKey("Ctrl-,", null)
     v_editor.commands.bindKey("Cmd-Delete", null)
     v_editor.commands.bindKey("Ctrl-Delete", null)
+    v_editor.commands.bindKey("Ctrl-Up", null)
+    v_editor.commands.bindKey("Ctrl-Down", null)
     v_editor.setReadOnly(true);
 
 		document.getElementById('txt_func_body_' + v_tab.id).onclick = function() {

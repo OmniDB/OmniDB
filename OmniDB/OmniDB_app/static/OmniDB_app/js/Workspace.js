@@ -88,7 +88,7 @@ $(function () {
 		document.getElementById('div_chat').style.display = 'none';
 	}
 */
-	startQueryWebSocket(v_query_port);
+	startQueryWebSocket();
 });
 
 /// <summary>
@@ -118,8 +118,10 @@ function getDatabaseList(p_init, p_callback) {
 							v_has_old_tabs = true;
 
 						for (var i=0; i < p_return.v_data.v_existing_tabs.length; i++) {
-							if (v_current_parent == null || v_current_parent != p_return.v_data.v_existing_tabs[i].index)
+							if (v_current_parent == null || v_current_parent != p_return.v_data.v_existing_tabs[i].index) {
 								v_connTabControl.tag.createConnTab(p_return.v_data.v_existing_tabs[i].index,false);
+								v_connTabControl.tag.createConsoleTab();
+							}
 
 							v_current_parent = p_return.v_data.v_existing_tabs[i].index;
 							v_connTabControl.tag.createQueryTab('Query',p_return.v_data.v_existing_tabs[i].tab_db_id);
@@ -1179,6 +1181,7 @@ function showMenuNewTab(e) {
 }
 
 function exportData() {
+
 	var v_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
 	var v_export_type = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_export_type.value;
 	querySQL(0, true, v_query, exportDataReturn,true,v_query,'export_' + v_export_type,true);
@@ -1186,6 +1189,6 @@ function exportData() {
 
 function exportDataReturn(p_data) {
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectDataTabFunc();
-	var v_text = 'The file is ready to be saved. <a href="' + p_data.v_data.v_filename + '" download="'+ p_data.v_data.v_downloadname + '">Save</a>';
+	var v_text = '<div style="font-size: 14px;">The file is ready. <a href="' + p_data.v_data.v_filename + '" download="'+ p_data.v_data.v_downloadname + '">Save</a></div>';
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.innerHTML = v_text;
 }

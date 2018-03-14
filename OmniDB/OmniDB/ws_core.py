@@ -536,7 +536,7 @@ def thread_query(self,args,ws_object):
                     os.makedirs(v_export_dir)
 
                 v_database.v_connection.Open()
-                v_data1 = v_database.v_connection.QueryBlock(v_sql, -1, True, True)
+                v_data1 = v_database.v_connection.QueryBlock(v_sql, -1, True, False)
                 v_database.v_connection.Close()
                 v_file_name = '{0}.{1}'.format(str(time.time()).replace('.','_'),v_extension)
                 f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name),v_data1.Columns)

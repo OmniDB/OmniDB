@@ -221,6 +221,10 @@ class DjangoApplication(object):
 
             print ("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)))
             logger.info("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)))
+
+            # Startup
+            startup.startup_procedure()
+
             cherrypy.engine.start()
 
             print ("Open OmniDB in your favorite browser")
@@ -278,9 +282,6 @@ if __name__ == "__main__":
 
         #Removing Expired Sessions
         SessionStore.clear_expired()
-
-        # Startup
-        startup.startup_procedure()
 
         #Websocket Core
         ws_core.start_wsserver_thread()

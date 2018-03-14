@@ -271,9 +271,11 @@ if __name__ == "__main__":
 
             if not os.path.exists(ssl_certificate_file):
                 print("Certificate file not found. Please specify a file that exists.")
+                logger.info("Certificate file not found. Please specify a file that exists.")
                 sys.exit()
             if not os.path.exists(ssl_key_file):
                 print("Key file not found. Please specify a file that exists.")
+                logger.info("Key file not found. Please specify a file that exists.")
                 sys.exit()
 
 

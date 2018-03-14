@@ -18,7 +18,7 @@ rm -rf deploy/packages
 echo "Done."
 
 echo -n "Switching to Release Mode..."
-sed -i -e 's/DEV_MODE = True/DEV_MODE = False/g' OmniDB/settings.py
+sed -i -e 's/DEV_MODE = True/DEV_MODE = False/g' OmniDB/custom_settings.py
 echo "Done."
 
 echo -n "Replacing line-end char for SQLite backward compatibility..."
@@ -51,6 +51,10 @@ mkdir omnidb-server
 cd omnidb-server
 mkdir -p BUILD RPMS SOURCES SPECS
 cp ../omnidb-server_$VERSION-$ARCH.tar.gz SOURCES/
+cat > SOURCES/omnidb-server.sh <<EOF
+#!/bin/bash
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-server/ /opt/omnidb-server/omnidb-server
+EOF
 
 cat > SPECS/omnidb-server.spec <<EOF
 %global _enable_debug_package 0
@@ -93,7 +97,8 @@ mkdir -p %{buildroot}/opt/%{name}
 chmod 777 %{buildroot}/opt/%{name}
 cp -r ./* %{buildroot}/opt/%{name}
 mkdir -p %{buildroot}/%{_bindir}
-ln -s /opt/%{name}/%{name} %{buildroot}/%{_bindir}/%{name}
+cp ../../SOURCES/%{name}.sh %{buildroot}/%{_bindir}/%{name}
+chmod 777 %{buildroot}/%{_bindir}/%{name}
 ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
 
 %files

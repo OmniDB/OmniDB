@@ -1,5 +1,10 @@
 UPDATE data_categories SET cat_st_class = 'other' WHERE cat_st_name = 'boolean';--omnidb--
 
+UPDATE mon_units SET script_chart = replace('total_size = connection.ExecuteScalar(''''''\n    SELECT round(sum(pg_catalog.pg_database_size(datname)/1048576.0),2)\n    FROM pg_catalog.pg_database\n    WHERE NOT datistemplate\n'''''')\n\nresult = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Database Size (Total: " + str(total_size) + " MB)"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Size (MB)"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10))
+WHERE unit_id = 2;--omnidb--
+UPDATE mon_units SET script_chart = replace('total_size = connection.ExecuteScalar(''''''\n    SELECT round(sum(pg_catalog.pg_database_size(datname)/1048576.0),2)\n    FROM pg_catalog.pg_database\n    WHERE NOT datistemplate\n'''''')\n\nresult = {\n    "type": "pie",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Database Size (Total: " + str(total_size) + " MB)"\n        }\n    }\n}\n','\n',char(10))
+WHERE unit_id = 10;--omnidb--
+
 CREATE TABLE shortcuts (
     user_id integer,
     shortcut_code text,

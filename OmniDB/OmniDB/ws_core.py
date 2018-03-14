@@ -27,6 +27,7 @@ logger = logging.getLogger('OmniDB_app.QueryServer')
 
 import os
 import platform
+import re
 
 from tornado.options import options, define, parse_command_line
 from . import ws_chat
@@ -344,7 +345,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                         self.write_message(json.dumps(v_response))
 
                 except Exception as exc:
-                    print(str(exc))
                     v_response['v_code'] = response.SessionMissing
                     self.write_message(json.dumps(v_response))
 
@@ -669,42 +669,54 @@ def thread_console(self,args,ws_object):
 
         try:
 
-            if not v_database.v_connection.v_con:
-                v_database.v_connection.Open()
-            v_database.v_connection.ClearNotices()
-            v_data1 = v_database.v_connection.Special(v_sql);
+            PATTERN = re.compile(r'''((?:[^;'"\$]|"[^"]*"|"[^"]*|'[^']*'|'[^']*|(?P<quoted_string>\$[^\$]*\$).*(?P=quoted_string)|\$[^\$]*\$.*)+)''', re.DOTALL)
+            list_sql = PATTERN.split(v_sql)[1::3]
 
+            v_data_return = ''
 
-            v_notices = v_database.v_connection.GetNotices()
-            v_notices_text = ''
-            if len(v_notices) > 0:
-                for v_notice in v_notices:
-                    v_notices_text += v_notice
+            for sql in list_sql:
+                try:
+                    if not v_database.v_connection.v_con:
+                        v_database.v_connection.Open()
+
+                    formated_sql = sql.strip()
+
+                    v_database.v_connection.ClearNotices()
+                    v_data_return += '\n>> ' + formated_sql + '\n'
+                    v_data1 = v_database.v_connection.Special(sql);
+
+                    v_notices = v_database.v_connection.GetNotices()
+                    v_notices_text = ''
+                    if len(v_notices) > 0:
+                        for v_notice in v_notices:
+                            v_notices_text += v_notice
+                        v_data_return += v_notices_text
+
+                    v_data_return += v_data1
+                except Exception as exc:
+                    v_data_return += str(exc)
+
 
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
 
             v_response['v_data'] = {
-                'v_data' : v_data1,
-                'v_duration': v_duration,
-                'v_notices': v_notices_text,
-                'v_notices_length': len(v_notices)
+                'v_data' : v_data_return,
+                'v_duration': v_duration
             }
             v_database.v_connection.ClearNotices()
         except Exception as exc:
-            try:
-                v_database.v_connection.Close()
-            except:
-                pass
+            #try:
+            #    v_database.v_connection.Close()
+            #except:
+            #    pass
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
             log_status = 'error'
             v_response['v_data'] = {
-                'position': v_database.GetErrorPosition(str(exc)),
-                'message' : str(exc),
+                'v_data': str(exc),
                 'v_duration': v_duration
             }
-            v_response['v_error'] = True
 
         if not self.cancel:
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
@@ -753,8 +765,10 @@ def thread_console(self,args,ws_object):
 
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
-        v_response['v_error'] = True
-        v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
+        v_response['v_data'] = {
+            'v_data': str(exc),
+            'v_duration': ''
+        }
         if not self.cancel:
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 

@@ -213,8 +213,6 @@ LOGGING = {
 #OMNIDB PARAMETERS
 OMNIDB_VERSION                 = custom_settings.OMNIDB_VERSION
 OMNIDB_SHORT_VERSION           = custom_settings.OMNIDB_SHORT_VERSION
-BINDKEY_EXECUTE                = 'alt+q'
-BINDKEY_EXECUTE_MAC            = 'ctrl+q'
 BINDKEY_AUTOCOMPLETE           = 'ctrl+space'
 BINDKEY_AUTOCOMPLETE_MAC       = 'cmd+space'
 OMNIDB_WEBSOCKET_PORT          = 25482

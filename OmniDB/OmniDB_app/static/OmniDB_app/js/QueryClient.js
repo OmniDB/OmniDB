@@ -51,11 +51,31 @@ var v_queryResponseCodes = {
 /// </summary>
 var v_queryWebSocket;
 
+var v_ws_offline = document.getElementById('websocket_status_offline');
+var v_ws_connecting = document.getElementById('websocket_status_connecting');
+var v_ws_online = document.getElementById('websocket_status_online');
+
+function setStatusIcon(p_mode) {
+	var v_img = document.getElementById('websocket_status');
+	v_ws_offline.style.display = 'none';
+	v_ws_connecting.style.display = 'none';
+	v_ws_online.style.display = 'none';
+	if (p_mode == 0)
+		v_ws_offline.style.display = '';
+	else if (p_mode == 1)
+		v_ws_connecting.style.display = '';
+	else if (p_mode == 2)
+		v_ws_online.style.display = '';
+
+}
+
 /// <summary>
 /// Starts query client
 /// </summary>
 /// <param name="p_port">Port where chat will listen for connections.</param>
 function startQueryWebSocket(p_port) {
+
+	setStatusIcon(1);
 
 	var v_address = '';
 	var v_channel = '';
@@ -64,7 +84,9 @@ function startQueryWebSocket(p_port) {
 	if (window.location.protocol == "https:")
 		v_secure  = true;
 
-	var v_port = p_port;
+	var v_port = v_query_port_external;
+	if (p_port)
+		v_port = p_port;
 
 	if (v_secure) {
 		v_address = 'wss://' + window.location.hostname;
@@ -80,6 +102,7 @@ function startQueryWebSocket(p_port) {
 		v_port,
 		function(p_event) {//Open
 			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Login, v_user_key, false);
+			setStatusIcon(2);
 		},
 		function(p_message, p_context, p_context_code) {//Message
 			var v_message = p_message;
@@ -171,14 +194,21 @@ function startQueryWebSocket(p_port) {
 		function(p_event) {//Close
 			//showError('The connection with query server was closed.<br>WebSocket error code: ' + p_event.code + '.<br>Reconnected.');
 			//startQueryWebSocket(p_port);
-			showAlert(
-				'<img src="/static/OmniDB_app/images/error.png"/><br>' +
-				'Cannot connect to websocket server in port ' + v_port + '. Trying again in 10 seconds...'
-			,function() {
-				setTimeout(function() {
-					startQueryWebSocket(p_port);
-				},10000);
-			})
+
+			setStatusIcon(0);
+
+			if (!p_port) {
+				startQueryWebSocket(v_query_port);
+			}
+			else {
+				showAlert(
+					'Cannot connect to websocket server with ports ' + v_query_port_external + ' (external) and ' + v_query_port + ' (internal). Trying again in 5 seconds...'
+				,function() {
+					setTimeout(function() {
+						startQueryWebSocket();
+					},5000);
+				})
+			}
 		},
 		function(p_event) {//Error
 			//showError('An error has occurred during the communication with the query server.');

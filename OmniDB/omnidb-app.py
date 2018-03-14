@@ -16,9 +16,6 @@ OmniDB.custom_settings.DESKTOP_MODE = True
 OmniDB.custom_settings.APP_TOKEN = ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(50))
 
 parser = optparse.OptionParser(version=OmniDB.custom_settings.OMNIDB_VERSION)
-parser.add_option("-H", "--host", dest="host",
-                  default=None, type=str,
-                  help="listening address")
 
 parser.add_option("-p", "--port", dest="port",
                   default=None, type=int,
@@ -28,13 +25,9 @@ parser.add_option("-w", "--wsport", dest="wsport",
                   default=None, type=int,
                   help="websocket port")
 
-parser.add_option("-e", "--ewsport", dest="ewsport",
-                  default=None, type=int,
-                  help="external websocket port")
-
 parser.add_option("-d", "--homedir", dest="homedir",
                   default='', type=str,
-                  help="home directory")
+                  help="home directory containing local databases config and log files")
 
 parser.add_option("-c", "--configfile", dest="conf",
                   default='', type=str,
@@ -65,14 +58,6 @@ else:
 Config = configparser.ConfigParser()
 Config.read(config_file)
 
-if options.host!=None:
-    listening_address = options.host
-else:
-    try:
-        listening_address = Config.get('webserver', 'listening_address')
-    except:
-        listening_address = OmniDB.settings.OMNIDB_ADDRESS
-
 if options.port!=None:
     listening_port = options.port
 else:
@@ -89,13 +74,6 @@ else:
     except:
         ws_port = OmniDB.settings.OMNIDB_WEBSOCKET_PORT
 
-if options.ewsport!=None:
-    ews_port = options.ewsport
-else:
-    try:
-        ews_port = Config.getint('webserver', 'websocket_port')
-    except:
-        ews_port = None
 
 
 import OmniDB
@@ -205,12 +183,16 @@ class DjangoApplication(object):
                 'log.error_file': ''
             })
 
-            print ("Starting server {0} at http://localhost:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
-            logger.info("Starting server {0} at http://localhost:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
+            print ("Starting server {0} at http://127.0.0.1:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
+            logger.info("Starting server {0} at http://127.0.0.1:{1}.".format(OmniDB.settings.OMNIDB_VERSION,str(port)))
+
+            # Startup
+            startup.startup_procedure()
+
             cherrypy.engine.start()
 
             init_browser(port)
-            cherrypy.engine.block()
+            cherrypy.engine.exit()
         else:
             print('Tried 20 different ports without success, closing...')
             logger.info('Tried 20 different ports without success, closing...')
@@ -235,16 +217,13 @@ if __name__ == "__main__":
     if num_attempts_port < 20:
         OmniDB.settings.OMNIDB_WEBSOCKET_PORT          = port
         OmniDB.settings.OMNIDB_EXTERNAL_WEBSOCKET_PORT = port
-        OmniDB.settings.OMNIDB_ADDRESS                 = listening_address
+        OmniDB.settings.OMNIDB_ADDRESS                 = '127.0.0.1'
 
         print ("Starting websocket server at port {0}.".format(str(port)))
         logger.info("Starting websocket server at port {0}.".format(str(port)))
 
         #Removing Expired Sessions
         SessionStore.clear_expired()
-
-        # Startup
-        startup.startup_procedure()
 
         #Websocket Core
         ws_core.start_wsserver_thread()

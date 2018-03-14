@@ -1187,3 +1187,9 @@ h2 {
   margin: 10 auto;
   max-width: 90%;
 }
+
+.link_text {
+  font-weight: bold;
+  color: blue;
+  cursor: pointer;
+}

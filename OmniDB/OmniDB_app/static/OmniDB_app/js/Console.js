@@ -137,7 +137,6 @@ function getConsoleHistoryCommandConfirm(p_mode) {
 			v_tab_tag.console_history_cmd_index = v_next_index;
 		}
 	}
-	console.log(v_next_index)
 
 	if (v_next_index!=null) {
 		var v_command = '';
@@ -209,7 +208,7 @@ function consoleSQL(p_check_command = true) {
 					v_connTabControl.selectedTab.tag.consoleHistoryList.unshift(v_content);
 				v_tag.console_history_cmd_index = -1;
 
-        appendToEditor(v_tag.editor_console,'\n>> ' + v_content + '\n');
+        //appendToEditor(v_tag.editor_console,'\n');
         v_tag.editor_input.setValue('');
         v_tag.editor_input.clearSelection();
         v_tag.editor_input.setReadOnly(false);
@@ -329,14 +328,9 @@ function consoleReturnRender(p_message,p_context) {
   var v_tag = p_context.tab_tag;
 
   v_tag.editor_input.setReadOnly(false);
-  if (p_message.v_error)
-    appendToEditor(v_tag.editor_console,p_message.v_data.message);
-  else {
-    if (p_message.v_data.v_notices_length > 0)
-      appendToEditor(v_tag.editor_console,p_message.v_data.v_notices + p_message.v_data.v_data);
-    else
-      appendToEditor(v_tag.editor_console,p_message.v_data.v_data);
-  }
+
+  appendToEditor(v_tag.editor_console,p_message.v_data.v_data);
+
   v_tag.editor_input.setValue('');
   v_tag.editor_input.clearSelection();
 

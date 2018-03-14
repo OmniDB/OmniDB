@@ -481,7 +481,6 @@ class Oracle:
         else:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
-        print(v_filter)
         return self.v_connection.Query('''
             select t.owner as "schema_name",
                    t.table_name as "table_name",

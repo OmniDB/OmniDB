@@ -131,7 +131,7 @@ Categories=Development;
 EOF
 cat > SOURCES/omnidb-app.sh <<EOF
 #!/bin/bash
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app $@
 EOF
 
 cat > SPECS/omnidb-app.spec <<EOF

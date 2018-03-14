@@ -22,9 +22,9 @@ $(function () {
           v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.bt_start.click();
         else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='console')
           consoleSQL(false);
+        else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
+          queryEditData();
       }
-
-
     },
     shortcut_cancel_query: function() {
 

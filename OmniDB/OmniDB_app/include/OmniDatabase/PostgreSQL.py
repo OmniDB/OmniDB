@@ -246,19 +246,41 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_schema:
-                v_filter = "and quote_ident(table_schema) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(table_schema) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(self.v_schema)
         else:
-            v_filter = "and quote_ident(table_schema) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select quote_ident(table_name) as table_name,
-                   quote_ident(table_schema) as table_schema
-            from information_schema.tables
-            where table_type = 'BASE TABLE'
-            {0}
-            order by 2, 1
-        '''.format(v_filter), True)
+            v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') "
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
+            return self.v_connection.Query('''
+                select quote_ident(t.table_name) as table_name,
+                       quote_ident(t.table_schema) as table_schema
+                from information_schema.tables t
+                where t.table_type = 'BASE TABLE'
+                  and (quote_ident(t.table_schema),quote_ident(t.table_name)) not in (
+                select quote_ident(nc.nspname),
+                       quote_ident(cc.relname)
+                from pg_inherits i
+                inner join pg_class cc on cc.oid = i.inhrelid
+                inner join pg_namespace nc on nc.oid = cc.relnamespace
+                )
+                {0}
+                order by 2, 1
+            '''.format(v_filter), True)
+        else:
+            return self.v_connection.Query('''
+                select quote_ident(t.table_name) as table_name,
+                       quote_ident(t.table_schema) as table_schema
+                from information_schema.tables t
+                inner join pg_class c
+                on c.relname = quote_ident(t.table_name)
+                inner join pg_namespace n
+                on n.oid = c.relnamespace
+                where t.table_type = 'BASE TABLE'
+                  and not c.relispartition
+                {0}
+                order by 2, 1
+            '''.format(v_filter), True)
 
     def QueryTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''

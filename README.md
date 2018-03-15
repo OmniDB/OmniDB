@@ -2,12 +2,18 @@
 
 ## Release Notes
 
-- Basic support to Oracle databases. Users can manage, connect, and interact with Oracle databases using most of the same features provided to manage PostgreSQL databases.
-  - macOS: Download Oracle Instant Client ([64-bit](http://www.oracle.com/technetwork/topics/intel-macsoft-096467.html)) and extract in ~/lib.
-  - Linux: Download Oracle Instant Client ([32-bit](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)) ([64-bit](http://www.oracle.com/technetwork/topics/linuxsoft-082809.html)) and extract it into OmniDB's folder.
-  - Windows: Download Oracle Instant Client ([32-bit](http://www.oracle.com/technetwork/topics/winsoft-085727.html)) ([64-bit](http://www.oracle.com/technetwork/topics/winx64soft-089540.html)) and extract it into OmniDB's folder.
-- New DDL Panel. A new panel located below the treeview displays properties and DDL of the currently selected node (works for PostgreSQL and Oracle).
-
+- New features:
+  - Psql like console tab allowing users to run commands and keep track of past executions
+  - Export query results to CSV or XLSX
+  - Interface allowing users to define shortcuts for several actions, such as run query, cancel query, explain, tab management and others
+  - Execute selected query in query tab
+- Improvements:
+  - Separation between server hosting OmniDB and websocket server (to handle query, console and debugging tabs), enhancing performance for multiple users ([deployment tutorial](https://omnidb.org/en/documentation-en/19-deploying-omnidb-server))
+  - JSON and JSONB types fetched with single-quotes, following the JSON standard
+  - Enhanced performance of database tree when rendering thousands of nodes
+  - OmniDB sets application_name for all PostgreSQL connections
+  - New login screen
+  - Welcome tab with details about current version
 
 # 1- Installation
 
@@ -38,6 +44,7 @@ echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 source ~/.bashrc
 
 pyenv install 3.5.2
+cd OMNIDB_FOLDER
 pyenv local 3.5.2
 
 pip install pip --upgrade
@@ -49,7 +56,7 @@ pip install -r requirements.txt
 Download or clone OmniDB repo and extract it somewhere. To start Django server, enter into `OmniDB/OmniDB` folder and type:
 
 ```
-python3 omnidb-server.py
+python omnidb-server.py
 ```
 
 # 2- Introduction

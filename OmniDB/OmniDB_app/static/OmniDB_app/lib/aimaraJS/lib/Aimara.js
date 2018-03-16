@@ -161,7 +161,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				p_node.elementUl.parentNode.removeChild(p_node.elementUl);
 				p_node.elementLi.appendChild(v_ul);
 				p_node.elementUl = v_ul;
-				this.adjustLines(v_ul,false);
+				this.adjustLines(v_ul,true);
 			}
 
 

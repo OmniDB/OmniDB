@@ -338,6 +338,7 @@ function consoleReturnRender(p_message,p_context) {
   v_tag.tab_loading_span.style.display = 'none';
   v_tag.tab_check_span.style.display = 'none';
   v_tag.bt_cancel.style.display = 'none';
+	v_tag.tab_stub_span.style.display = '';
 
 
 }

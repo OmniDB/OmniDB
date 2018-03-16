@@ -1485,29 +1485,29 @@ def start_edit_data(request):
         if v_pk != None:
             if len(v_pk.Rows) > 0:
                 v_return['v_data']['v_ini_orderby'] = 'order by '
-            v_first = True
-            v_index = 0
-            for k in range(0, len(v_return['v_data']['v_cols'])):
-                v_pk_cols = v_database.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], v_table, False, v_schema)
-                for v_pk_col in v_pk_cols.Rows:
-                    if v_pk_col['column_name'].lower() == v_return['v_data']['v_cols'][k]['v_column'].lower():
-                        v_return['v_data']['v_cols'][k]['v_is_pk'] = True
+                v_first = True
+                v_index = 0
+                for k in range(0, len(v_return['v_data']['v_cols'])):
+                    v_pk_cols = v_database.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], v_table, False, v_schema)
+                    for v_pk_col in v_pk_cols.Rows:
+                        if v_pk_col['column_name'].lower() == v_return['v_data']['v_cols'][k]['v_column'].lower():
+                            v_return['v_data']['v_cols'][k]['v_is_pk'] = True
 
-                        if not v_first:
-                            v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + ', '
-                        v_first = False
+                            if not v_first:
+                                v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + ', '
+                            v_first = False
 
-                        v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + 't.' + v_pk_col['column_name']
+                            v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + 't.' + v_pk_col['column_name']
 
-                        v_pk_info = {}
-                        v_pk_info['v_column'] = v_pk_col['column_name']
-                        v_pk_info['v_index'] = v_index
-                        v_pk_info['v_class'] = v_return['v_data']['v_cols'][k]['v_class']
-                        v_pk_info['v_compareformat'] = v_return['v_data']['v_cols'][k]['v_compareformat']
+                            v_pk_info = {}
+                            v_pk_info['v_column'] = v_pk_col['column_name']
+                            v_pk_info['v_index'] = v_index
+                            v_pk_info['v_class'] = v_return['v_data']['v_cols'][k]['v_class']
+                            v_pk_info['v_compareformat'] = v_return['v_data']['v_cols'][k]['v_compareformat']
 
-                        v_return['v_data']['v_pk'].append(v_pk_info)
-                        break
-                v_index = v_index + 1
+                            v_return['v_data']['v_pk'].append(v_pk_info)
+                            break
+                    v_index = v_index + 1
 
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }

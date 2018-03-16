@@ -278,6 +278,7 @@ class PostgreSQL:
                 on n.oid = c.relnamespace
                 where t.table_type = 'BASE TABLE'
                   and not c.relispartition
+                  and c.relkind = 'r'
                 {0}
                 order by 2, 1
             '''.format(v_filter), True)

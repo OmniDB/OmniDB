@@ -276,6 +276,7 @@ class PostgreSQL:
                 on c.relname = t.table_name
                 inner join pg_namespace n
                 on n.oid = c.relnamespace
+                and n.nspname = quote_ident(t.table_schema)
                 where t.table_type = 'BASE TABLE'
                   and not c.relispartition
                   and c.relkind = 'r'

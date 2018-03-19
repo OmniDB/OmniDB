@@ -713,7 +713,7 @@ ON #table_name#
         response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
-        assert '''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'pgoutput')''' == data['v_data']['v_database_return']['create_logicalreplicationslot']
+        assert '''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'test_decoding')''' == data['v_data']['v_database_return']['create_logicalreplicationslot']
 
     def test_template_drop_logicalreplicationslot(self):
         response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0}'})

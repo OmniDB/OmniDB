@@ -174,6 +174,8 @@ function getDatabaseList(p_init, p_callback) {
 /// <param name="p_value">Database ID.</param>
 function changeDatabase(p_value) {
 
+	v_connTabControl.selectedTab.tag.divDetails.innerHTML = '';
+
 	//finding connection object
 	var v_conn_object = null;
 	for (var i=0; i<v_connTabControl.tag.connections.length; i++) {
@@ -188,8 +190,21 @@ function changeDatabase(p_value) {
 	v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
 	v_connTabControl.selectedTab.tag.selectedDBMS = v_conn_object.v_db_type;
 	v_connTabControl.selectedTab.tag.consoleHelp = v_conn_object.v_console_help;
+	v_connTabControl.selectedTab.tag.selectedDatabase = v_conn_object.v_database;
 
 	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
+
+	execAjax('/change_active_database/',
+			JSON.stringify({
+					"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					"p_tab_id": v_connTabControl.selectedTab.id,
+					"p_database": v_connTabControl.selectedTab.tag.selectedDatabase
+			}),
+			function(p_return) {
+
+			},
+			null,
+			'box');
 
 	if (v_conn_object.v_db_type=='postgresql')
 		getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
@@ -854,6 +869,7 @@ function drawGraph(p_all, p_schema) {
 
 	execAjax('/draw_graph/',
 			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+											"p_tab_id": v_connTabControl.selectedTab.id,
 											"p_complete": p_all,
 											"p_schema": p_schema}),
 			function(p_return) {
@@ -1015,6 +1031,7 @@ function refreshMonitoring(p_tab_tag) {
 
 	execAjax('/refresh_monitoring/',
 			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+											"p_tab_id": v_connTabControl.selectedTab.id,
 											"p_query": p_tab_tag.query}),
 			function(p_return) {
 

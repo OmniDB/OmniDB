@@ -1193,3 +1193,9 @@ h2 {
   color: blue;
   cursor: pointer;
 }
+
+.connection_details {
+  border-bottom: 1px dashed #c3c3c3;
+  padding-bottom: 5px;
+  margin-top: 5px;
+}

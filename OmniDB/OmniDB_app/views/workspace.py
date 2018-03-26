@@ -22,6 +22,7 @@ import sqlparse
 def index(request):
     #Invalid session
     if not request.session.get('omnidb_session'):
+        print('SESSION GONE')
         request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
         return redirect('login')
 
@@ -89,6 +90,10 @@ def index(request):
         'shortcuts': shortcut_object,
         'chat_link': settings.CHAT_LINK
     }
+
+    #wiping tab connection list
+    v_session.v_tab_connections = dict([])
+    request.session['omnidb_session'] = v_session
 
     template = loader.get_template('OmniDB_app/workspace.html')
     return HttpResponse(template.render(context, request))
@@ -255,7 +260,8 @@ def get_database_list(request):
             'v_db_type': v_database.v_db_type,
             'v_alias': v_database.v_alias,
             'v_conn_id': v_database.v_conn_id,
-            'v_console_help': v_database.v_console_help
+            'v_console_help': v_database.v_console_help,
+            'v_database': v_database.v_service
         }
 
         v_databases.append(v_database_data)
@@ -288,6 +294,49 @@ def get_database_list(request):
         'v_connections': v_databases,
         'v_id': v_session.v_database_index,
         'v_existing_tabs': v_existing_tabs
+    }
+
+    return JsonResponse(v_return)
+
+def change_active_database(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_data = json_object['p_database']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    v_database_new = OmniDatabase.Generic.InstantiateDatabase(
+        v_database.v_db_type,
+        v_database.v_server,
+        v_database.v_port,
+        v_database.v_service,
+        v_database.v_user,
+        v_database.v_connection.v_password,
+        v_database.v_conn_id,
+        v_database.v_alias
+    )
+    v_database_new.v_service = v_data;
+    v_database_new.v_connection.v_service = v_data;
+
+    v_session.v_tab_connections[v_tab_id] = v_database_new
+    request.session['omnidb_session'] = v_session
+
+    v_return['v_data'] = {
     }
 
     return JsonResponse(v_return)
@@ -343,10 +392,11 @@ def draw_graph(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_complete = json_object['p_complete']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -473,10 +523,11 @@ def alter_table_data(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_table_name     = json_object['p_table']
     v_schema_name    = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -1404,10 +1455,11 @@ def start_edit_data(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_table          = json_object['p_table']
     v_schema         = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -1578,6 +1630,7 @@ def get_completions(request):
 
     json_object = json.loads(request.POST.get('data', None))
     p_database_index = json_object['p_database_index']
+    p_tab_id = json_object['p_tab_id']
     p_prefix = json_object['p_prefix']
     p_sql = json_object['p_sql']
     p_prefix_pos = json_object['p_prefix_pos']
@@ -1589,7 +1642,7 @@ def get_completions(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_database = v_session.v_databases[p_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     v_list = []
 
@@ -1685,6 +1738,7 @@ def get_completions_table(request):
 
     json_object = json.loads(request.POST.get('data', None))
     p_database_index = json_object['p_database_index']
+    p_tab_id = json_object['p_tab_id']
     p_table = json_object['p_table']
     p_schema = json_object['p_schema']
 
@@ -1695,7 +1749,7 @@ def get_completions_table(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_database = v_session.v_databases[p_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     if v_database.v_has_schema:
         v_table_name = p_schema + "." + p_table
@@ -1867,9 +1921,10 @@ def refresh_monitoring(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_sql            = json_object['p_query']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -1931,8 +1986,9 @@ def get_console_history(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     v_query = '''
         select command_text,
@@ -1981,8 +2037,9 @@ def get_console_history_clean(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     v_query = '''
         select command_text,

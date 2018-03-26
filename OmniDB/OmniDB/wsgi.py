@@ -17,7 +17,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "OmniDB.settings")
 application = get_wsgi_application()
 
 # Startup Procedure
-startup.startup_procedure()
+#startup.startup_procedure()
 
 #Monitoring Core
 #monitoring_core.start_monitoring_thread()

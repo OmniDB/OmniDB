@@ -181,7 +181,8 @@ function buildMonitorUnit(p_unit, p_first) {
 
 function startMonitorDashboard() {
 
-  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                              "p_tab_id": v_connTabControl.selectedTab.id});
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	execAjax('/get_monitor_units/',
@@ -236,7 +237,8 @@ function closeMonitorUnitList() {
 function editMonitorUnit(p_unit_id) {
   v_connTabControl.tag.createNewMonitorUnitTab();
 
-  var input1 = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+  var input1 = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                               "p_tab_id": v_connTabControl.selectedTab.id});
 
   execAjax('/get_monitor_unit_list/',
 				input1,
@@ -291,6 +293,7 @@ function saveMonitorScript() {
   }
   else {
     var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                                "p_tab_id": v_connTabControl.selectedTab.id,
                                 "p_unit_id": v_tab_tag.unit_id,
                                 "p_unit_name": v_tab_tag.input_unit_name.value,
                                 "p_unit_type": v_tab_tag.select_type.value,
@@ -363,7 +366,11 @@ function testMonitorScript() {
   var v_script_data = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor_data.getValue();
   var v_type = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.select_type.value;
 
-	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_script_chart": v_script_chart, "p_script_data": v_script_data, "p_type": v_type});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                              "p_tab_id": v_connTabControl.selectedTab.id,
+                              "p_script_chart": v_script_chart,
+                              "p_script_data": v_script_data,
+                              "p_type": v_type});
 
 	execAjax('/test_monitor_script/',
 				input,
@@ -461,7 +468,8 @@ function testMonitorScript() {
 
 function showMonitorUnitList() {
 
-  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                              "p_tab_id": v_connTabControl.selectedTab.id});
 
   var v_grid_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_grid_div;
   v_grid_div.innerHTML = '';
@@ -571,7 +579,9 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
       }
     }
 
-    var input = JSON.stringify({"p_database_index": v_tab_tag.connTabTag.selectedDatabaseIndex, "p_ids": v_units});
+    var input = JSON.stringify({"p_database_index": v_tab_tag.connTabTag.selectedDatabaseIndex,
+                                "p_tab_id": v_connTabControl.selectedTab.id,
+                                "p_ids": v_units});
 
   	execAjax('/refresh_monitor_units/',
   				input,

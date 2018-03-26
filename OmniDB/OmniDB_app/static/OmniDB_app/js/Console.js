@@ -21,7 +21,8 @@ var v_consoleState = {
 
 function showConsoleHistory() {
 
-  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+															"p_tab_id": v_connTabControl.selectedTab.id});
 	var v_conn_tag = v_connTabControl.selectedTab.tag;
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
@@ -102,7 +103,8 @@ function getConsoleHistoryCommand(p_mode) {
 	//fetch command history if not fetched before
 	var v_conn_tag = v_connTabControl.selectedTab.tag;
 	if (!v_conn_tag.consoleHistoryFecthed) {
-		var input = JSON.stringify({"p_database_index": v_conn_tag.selectedDatabaseIndex});
+		var input = JSON.stringify({"p_database_index": v_conn_tag.selectedDatabaseIndex,
+																"p_tab_id": v_connTabControl.selectedTab.id});
 
 	  execAjax('/get_console_history_clean/',
 	        input,

@@ -263,6 +263,8 @@ if __name__ == "__main__":
         OmniDB.settings.IS_SSL                         = is_ssl
         OmniDB.settings.SSL_CERTIFICATE                = ssl_certificate_file
         OmniDB.settings.SSL_KEY                        = ssl_key_file
+        OmniDB.settings.SESSION_COOKIE_SECURE          = True
+        OmniDB.settings.CSRF_COOKIE_SECURE             = True
 
         if is_ssl:
             csrf_trusted_origins_list = csrf_trusted_origins.split(',')

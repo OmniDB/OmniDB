@@ -29,6 +29,7 @@ var v_editDataState = {
 function startEditData(p_table,p_schema) {
 
 	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+															"p_tab_id": v_connTabControl.selectedTab.id,
 															"p_table" : p_table,
 															"p_schema": p_schema});
 

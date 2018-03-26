@@ -12,8 +12,8 @@ def clean_temp_folder(p_all_files = False):
     current_time = time.time()
     for f in os.listdir(v_temp_folder):
         try:
+            v_file = os.path.join(v_temp_folder,f)
             if v_file !='.keep':
-                v_file = os.path.join(v_temp_folder,f)
                 creation_time = os.path.getctime(v_file)
                 if ((current_time - creation_time) // (24 * 3600) >= 1) or p_all_files:
                     os.remove(v_file)

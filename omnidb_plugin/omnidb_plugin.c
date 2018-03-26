@@ -111,7 +111,6 @@ Datum omnidb_enable_debugger(PG_FUNCTION_ARGS)
 {
     omnidb_plugin_active = true;
     sprintf(omnidb_plugin_conninfo, "%s", text_to_cstring(PG_GETARG_TEXT_P(0)));
-    elog(LOG, "omnidb, CONNINFO, (%s)", omnidb_plugin_conninfo);
 	PG_RETURN_VOID();
 }
 

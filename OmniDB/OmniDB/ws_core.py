@@ -206,21 +206,30 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                             self.v_list_tab_objects[v_data['v_tab_id']] = tab_object
                             None;
 
-                        #create database object
-                        if tab_object['database_index']!=v_data['v_db_index']:
-                            v_database = v_session.v_databases[v_data['v_db_index']]['database']
-                            v_database_new = OmniDatabase.Generic.InstantiateDatabase(
-                                v_database.v_db_type,
-                                v_database.v_server,
-                                v_database.v_port,
-                                v_database.v_service,
-                                v_database.v_user,
-                                v_database.v_connection.v_password,
-                                v_database.v_conn_id,
-                                v_database.v_alias
-                            )
-                            tab_object['omnidatabase'] = v_database_new
-                            tab_object['database_index'] = v_data['v_db_index']
+                        try:
+                            v_conn_tab_connection = v_session.v_tab_connections[v_data['v_conn_tab_id']]
+                            #create database object
+                            if tab_object['database_index']!=v_data['v_db_index'] or v_conn_tab_connection.v_service!=tab_object['omnidatabase'].v_service:
+                                v_database = v_session.v_databases[v_data['v_db_index']]['database']
+                                v_database_new = OmniDatabase.Generic.InstantiateDatabase(
+                                    v_conn_tab_connection.v_db_type,
+                                    v_conn_tab_connection.v_server,
+                                    v_conn_tab_connection.v_port,
+                                    v_conn_tab_connection.v_service,
+                                    v_conn_tab_connection.v_user,
+                                    v_conn_tab_connection.v_connection.v_password,
+                                    v_conn_tab_connection.v_conn_id,
+                                    v_conn_tab_connection.v_alias
+                                )
+                                tab_object['omnidatabase'] = v_database_new
+                                tab_object['database_index'] = v_data['v_db_index']
+                        except Exception as exc:
+                            logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+                            v_response['v_code'] = response.MessageException
+                            v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
+                            self.write_message(json.dumps(v_response))
+
+
 
                         v_data['v_context_code'] = v_context_code
                         v_data['v_database'] = tab_object['omnidatabase']
@@ -299,35 +308,42 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
                         #New debugger, create connections
                         if v_data['v_state'] == debugState.Starting:
-                            v_database = v_session.v_databases[v_data['v_db_index']]['database']
-                            v_database_debug = OmniDatabase.Generic.InstantiateDatabase(
-                                v_database.v_db_type,
-                                v_database.v_server,
-                                v_database.v_port,
-                                v_database.v_service,
-                                v_database.v_user,
-                                v_database.v_connection.v_password,
-                                v_database.v_conn_id,
-                                v_database.v_alias
-                            )
-                            v_database_control = OmniDatabase.Generic.InstantiateDatabase(
-                                v_database.v_db_type,
-                                v_database.v_server,
-                                v_database.v_port,
-                                v_database.v_service,
-                                v_database.v_user,
-                                v_database.v_connection.v_password,
-                                v_database.v_conn_id,
-                                v_database.v_alias
-                            )
-                            tab_object =  { 'thread': None,
-                                         'omnidatabase_debug': v_database_debug,
-                                         'omnidatabase_control': v_database_control,
-                                         'debug_pid': -1,
-                                         'cancelled': False,
-                                         'tab_id': v_data['v_tab_id'],
-                                         'type': 'debug' }
-                            self.v_list_tab_objects[v_data['v_tab_id']] = tab_object
+                            try:
+                                v_conn_tab_connection = v_session.v_tab_connections[v_data['v_conn_tab_id']]
+                                v_database_debug = OmniDatabase.Generic.InstantiateDatabase(
+                                    v_conn_tab_connection.v_db_type,
+                                    v_conn_tab_connection.v_server,
+                                    v_conn_tab_connection.v_port,
+                                    v_conn_tab_connection.v_service,
+                                    v_conn_tab_connection.v_user,
+                                    v_conn_tab_connection.v_connection.v_password,
+                                    v_conn_tab_connection.v_conn_id,
+                                    v_conn_tab_connection.v_alias
+                                )
+                                v_database_control = OmniDatabase.Generic.InstantiateDatabase(
+                                    v_conn_tab_connection.v_db_type,
+                                    v_conn_tab_connection.v_server,
+                                    v_conn_tab_connection.v_port,
+                                    v_conn_tab_connection.v_service,
+                                    v_conn_tab_connection.v_user,
+                                    v_conn_tab_connection.v_connection.v_password,
+                                    v_conn_tab_connection.v_conn_id,
+                                    v_conn_tab_connection.v_alias
+                                )
+                                tab_object =  { 'thread': None,
+                                             'omnidatabase_debug': v_database_debug,
+                                             'omnidatabase_control': v_database_control,
+                                             'debug_pid': -1,
+                                             'cancelled': False,
+                                             'tab_id': v_data['v_tab_id'],
+                                             'type': 'debug' }
+                                self.v_list_tab_objects[v_data['v_tab_id']] = tab_object
+                            except Exception as exc:
+                                logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+                                v_response['v_code'] = response.MessageException
+                                v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
+                                self.write_message(json.dumps(v_response))
+
                         #Existing debugger, get existing tab_object
                         else:
                             tab_object = self.v_list_tab_objects[v_data['v_tab_id']]
@@ -1099,6 +1115,7 @@ def thread_debug_run_func(self,args,ws_object):
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         #Cancelled, return cancelled status
         else:
+            v_response['v_code'] = response.DebugResponse
             v_response['v_data'] = {
                 'v_state': debugState.Cancel,
                 'v_remove_context': True,
@@ -1188,7 +1205,6 @@ def thread_debug(self,args,ws_object):
             # Function ended instantly
             if not t.isAlive():
                 v_database_control.v_connection.Close()
-
             else:
                 v_variables = v_database_control.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(pid),True)
 
@@ -1235,8 +1251,8 @@ def thread_debug(self,args,ws_object):
         #Cancelling debugger, the thread executing the function will return the cancel status
         elif v_state == debugState.Cancel:
             v_tab_object['cancelled'] = True
-            v_database_control.v_connection.Cancel()
             v_database_control.v_connection.Terminate(v_tab_object['debug_pid'])
+            v_database_control.v_connection.Cancel()
             v_database_control.v_connection.Close()
 
 

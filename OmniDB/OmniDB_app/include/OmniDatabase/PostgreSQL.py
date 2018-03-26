@@ -280,6 +280,13 @@ class PostgreSQL:
                 where t.table_type = 'BASE TABLE'
                   and not c.relispartition
                   and c.relkind = 'r'
+                  and (quote_ident(t.table_schema),quote_ident(t.table_name)) not in (
+                select quote_ident(nc.nspname),
+                       quote_ident(cc.relname)
+                from pg_inherits i
+                inner join pg_class cc on cc.oid = i.inhrelid
+                inner join pg_namespace nc on nc.oid = cc.relnamespace
+                )
                 {0}
                 order by 2, 1
             '''.format(v_filter), True)

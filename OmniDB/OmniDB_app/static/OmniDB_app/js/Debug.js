@@ -79,6 +79,7 @@ function setupDebug(p_node) {
 	execAjax('/get_function_fields_postgresql/',
 			JSON.stringify({
 					"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					"p_tab_id": v_connTabControl.selectedTab.id,
 					"p_function": p_node.tag.id,
 					"p_schema": p_node.parent.parent.text
 			}),
@@ -201,6 +202,7 @@ function startDebug() {
 		var v_message_data = {
 	    v_db_index: v_tab_tag.database_index,
 	    v_state: v_tab_tag.state,
+			v_conn_tab_id: v_connTabControl.selectedTab.id,
 	    v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
 	    v_function: v_function
 	  }

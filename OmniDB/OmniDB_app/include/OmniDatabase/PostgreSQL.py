@@ -273,11 +273,13 @@ class PostgreSQL:
                        quote_ident(t.table_schema) as table_schema
                 from information_schema.tables t
                 inner join pg_class c
-                on c.relname = quote_ident(t.table_name)
+                on c.relname = t.table_name
                 inner join pg_namespace n
                 on n.oid = c.relnamespace
+                and n.nspname = t.table_schema
                 where t.table_type = 'BASE TABLE'
                   and not c.relispartition
+                  and c.relkind = 'r'
                 {0}
                 order by 2, 1
             '''.format(v_filter), True)

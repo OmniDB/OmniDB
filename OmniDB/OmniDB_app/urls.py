@@ -146,6 +146,8 @@ urlpatterns = [
     url(r'^get_xl_table_properties_postgresql/', views.tree_postgresql.get_xl_table_properties, name='get_xl_table_properties'),
     url(r'^get_xl_table_nodes_postgresql/', views.tree_postgresql.get_xl_table_nodes, name='get_xl_table_nodes'),
     url(r'^get_properties_postgresql/', views.tree_postgresql.get_properties, name='get_properties'),
+    url(r'^get_database_objects_postgresql/', views.tree_postgresql.get_database_objects, name='get_database_objects'),
+    url(r'^change_active_database/', views.workspace.change_active_database, name='change_active_database'),
 
     #TREE_ORACLE
     url(r'^get_tree_info_oracle/', views.tree_oracle.get_tree_info, name='get_tree_info'),

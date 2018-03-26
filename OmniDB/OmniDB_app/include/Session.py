@@ -38,6 +38,7 @@ class Session(object):
         self.v_database_index = -1
         self.v_databases = {}
         self.v_user_key = p_user_key
+        self.v_tab_connections = dict([])
 
         self.RefreshDatabaseList()
 

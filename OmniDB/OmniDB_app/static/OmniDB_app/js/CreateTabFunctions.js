@@ -46,7 +46,10 @@ function initCreateTabFunctions() {
     	"<div style='padding-right: 12px;'><div id='" + v_tab.id + "_div_select_db' style='width: 100%; display: inline-block;'></div>" +
     	"</div>" +
     	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
-    	"<div style='margin-right: 10px;'><div id='" + v_tab.id + "_tree' style='margin-top: 10px; overflow: auto; height: 50%;'></div>" +
+    	"<div style='margin-right: 10px;'>" +
+      "<div id='" + v_tab.id + "_details' class='connection_details' ></div>" +
+      "<div id='" + v_tab.id + "_tree' style='margin-top: 5px; overflow: auto; height: 50%;'>" +
+      "</div>" +
       "<div onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
 
       "<div id='tree_tabs_" + v_tab.id + "' style='position: relative;'>" +
@@ -194,6 +197,7 @@ function initCreateTabFunctions() {
     	var v_tag = {
     		tabControl: v_currTabControl,
         tabTitle: v_tab_title_span,
+        divDetails: document.getElementById(v_tab.id + '_details'),
     		divTree: document.getElementById(v_tab.id + '_tree'),
         divProperties: v_divProperties,
         gridProperties: ht,
@@ -1348,7 +1352,7 @@ function initCreateTabFunctions() {
             addLoadingCursor();
 
             execAjax('/get_completions/',
-                JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
+                JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_tab_id": v_connTabControl.selectedTab.id, p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
                 function(p_return) {
 
                   removeLoadingCursor();
@@ -1565,7 +1569,7 @@ function initCreateTabFunctions() {
             addLoadingCursor();
 
             execAjax('/get_completions/',
-                JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
+                JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_tab_id": v_connTabControl.selectedTab.id, p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
                 function(p_return) {
 
                   removeLoadingCursor();
@@ -1781,6 +1785,7 @@ function initCreateTabFunctions() {
 
             execAjax('/get_completions_table/',
                 JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                                "p_tab_id": v_connTabControl.selectedTab.id,
                                 "p_table": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editDataObject.table,
                                 "p_schema": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editDataObject.schema}),
                 function(p_return) {

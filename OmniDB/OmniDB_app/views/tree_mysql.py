@@ -29,8 +29,9 @@ def get_tree_info(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -46,17 +47,18 @@ def get_tree_info(request):
                 'v_database': v_database.GetName(),
                 'version': v_database.GetVersion(),
                 'v_username': v_database.GetUserName(),
-                'superuser': v_database.GetUserSuper(),
-                'express': v_database.GetExpress(),
                 'create_role': v_database.TemplateCreateRole().v_text,
                 'alter_role': v_database.TemplateAlterRole().v_text,
                 'drop_role': v_database.TemplateDropRole().v_text,
-                'create_tablespace': v_database.TemplateCreateTablespace().v_text,
-                'alter_tablespace': v_database.TemplateAlterTablespace().v_text,
-                'drop_tablespace': v_database.TemplateDropTablespace().v_text,
-                'create_sequence': v_database.TemplateCreateSequence().v_text,
-                'alter_sequence': v_database.TemplateAlterSequence().v_text,
-                'drop_sequence': v_database.TemplateDropSequence().v_text,
+                #'create_tablespace': v_database.TemplateCreateTablespace().v_text,
+                #'alter_tablespace': v_database.TemplateAlterTablespace().v_text,
+                #'drop_tablespace': v_database.TemplateDropTablespace().v_text,
+                'create_database': v_database.TemplateCreateDatabase().v_text,
+                'alter_database': v_database.TemplateAlterDatabase().v_text,
+                'drop_database': v_database.TemplateDropDatabase().v_text,
+                #'create_sequence': v_database.TemplateCreateSequence().v_text,
+                #'alter_sequence': v_database.TemplateAlterSequence().v_text,
+                #'drop_sequence': v_database.TemplateDropSequence().v_text,
                 'create_function': v_database.TemplateCreateFunction().v_text,
                 'drop_function': v_database.TemplateDropFunction().v_text,
                 'create_procedure': v_database.TemplateCreateProcedure().v_text,
@@ -65,9 +67,6 @@ def get_tree_info(request):
                 #'drop_triggerfunction': v_database.TemplateDropTriggerFunction().v_text,
                 'create_view': v_database.TemplateCreateView().v_text,
                 'drop_view': v_database.TemplateDropView().v_text,
-                #'create_mview': v_database.TemplateCreateMaterializedView().v_text,
-                #'refresh_mview': v_database.TemplateRefreshMaterializedView().v_text,
-                #'drop_mview': v_database.TemplateDropMaterializedView().v_text,
                 #create_table
                 #alter_table
                 'drop_table': v_database.TemplateDropTable().v_text,
@@ -81,7 +80,6 @@ def get_tree_info(request):
                 'create_foreignkey': v_database.TemplateCreateForeignKey().v_text,
                 'drop_foreignkey': v_database.TemplateDropForeignKey().v_text,
                 'create_index': v_database.TemplateCreateIndex().v_text,
-                'alter_index': v_database.TemplateAlterIndex().v_text,
                 'drop_index': v_database.TemplateDropIndex().v_text,
                 #'create_trigger': v_database.TemplateCreateTrigger().v_text,
                 #'create_view_trigger': v_database.TemplateCreateViewTrigger().v_text,
@@ -119,8 +117,9 @@ def get_properties(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_data = json_object['p_data']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -132,15 +131,15 @@ def get_properties(request):
     v_list_properties = []
     v_ddl = ''
 
-    try:
-        v_properties = v_database.GetProperties(v_data['p_schema'],v_data['p_object'],v_data['p_type'])
-        for v_property in v_properties.Rows:
-            v_list_properties.append([v_property['Property'],v_property['Value']])
-        v_ddl = v_database.GetDDL(v_data['p_schema'],v_data['p_table'],v_data['p_object'],v_data['p_type'])
-    except Exception as exc:
-        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    #try:
+    v_properties = v_database.GetProperties(v_data['p_schema'],v_data['p_table'],v_data['p_object'],v_data['p_type'])
+    for v_property in v_properties.Rows:
+        v_list_properties.append([v_property['Property'],v_property['Value']])
+    v_ddl = v_database.GetDDL(v_data['p_schema'],v_data['p_table'],v_data['p_object'],v_data['p_type'])
+    #except Exception as exc:
+    #    v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+    #    v_return['v_error'] = True
+    #    return JsonResponse(v_return)
 
     v_return['v_data'] = {
         'properties': v_list_properties,
@@ -167,8 +166,9 @@ def get_tables(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -223,8 +223,9 @@ def get_columns(request):
     v_database_index = json_object['p_database_index']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -273,8 +274,9 @@ def get_pk(request):
     v_database_index = json_object['p_database_index']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -320,8 +322,9 @@ def get_pk_columns(request):
     v_pkey = json_object['p_key']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -366,8 +369,9 @@ def get_fks(request):
     v_database_index = json_object['p_database_index']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -416,8 +420,9 @@ def get_fks_columns(request):
     v_fkey = json_object['p_fkey']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -466,8 +471,9 @@ def get_uniques(request):
     v_database_index = json_object['p_database_index']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -513,8 +519,9 @@ def get_uniques_columns(request):
     v_unique = json_object['p_unique']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -559,8 +566,9 @@ def get_indexes(request):
     v_database_index = json_object['p_database_index']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -607,8 +615,9 @@ def get_indexes_columns(request):
     v_index = json_object['p_index']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -634,7 +643,7 @@ def get_indexes_columns(request):
 
     return JsonResponse(v_return)
 
-def get_tablespaces(request):
+def get_databases(request):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -651,8 +660,9 @@ def get_tablespaces(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -661,21 +671,21 @@ def get_tablespaces(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_list_tablespaces = []
+    v_list_databases = []
 
     try:
-        v_tablespaces = v_database.QueryTablespaces()
-        for v_tablespace in v_tablespaces.Rows:
-            v_tablespace_data = {
-                'v_name': v_tablespace['tablespace_name']
+        v_databases = v_database.QueryDatabases()
+        for v_database in v_databases.Rows:
+            v_database_data = {
+                'v_name': v_database[0]
             }
-            v_list_tablespaces.append(v_tablespace_data)
+            v_list_databases.append(v_database_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_return['v_data'] = v_list_tablespaces
+    v_return['v_data'] = v_list_databases
 
     return JsonResponse(v_return)
 
@@ -696,8 +706,9 @@ def get_roles(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -742,8 +753,9 @@ def get_functions(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -790,8 +802,9 @@ def get_function_fields(request):
     v_database_index = json_object['p_database_index']
     v_function = json_object['p_function']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -837,8 +850,9 @@ def get_function_definition(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_function = json_object['p_function']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -874,8 +888,9 @@ def get_procedures(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -922,8 +937,9 @@ def get_procedure_fields(request):
     v_database_index = json_object['p_database_index']
     v_function = json_object['p_procedure']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -969,8 +985,9 @@ def get_procedure_definition(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_function = json_object['p_procedure']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -985,52 +1002,6 @@ def get_procedure_definition(request):
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
-
-    return JsonResponse(v_return)
-
-def get_sequences(request):
-
-    v_return = {}
-    v_return['v_data'] = ''
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
-    json_object = json.loads(request.POST.get('data', None))
-    v_database_index = json_object['p_database_index']
-    v_schema = json_object['p_schema']
-
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    v_list_sequences = []
-
-    try:
-        v_sequences = v_database.QuerySequences(False,v_schema)
-        for v_sequence in v_sequences.Rows:
-            v_sequence_data = {
-                'v_sequence_name': v_sequence['sequence_name']
-            }
-            v_list_sequences.append(v_sequence_data)
-    except Exception as exc:
-        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    v_return['v_data'] = v_list_sequences
 
     return JsonResponse(v_return)
 
@@ -1052,8 +1023,9 @@ def get_views(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -1100,8 +1072,9 @@ def get_views_columns(request):
     v_database_index = json_object['p_database_index']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -1149,8 +1122,9 @@ def get_view_definition(request):
     v_database_index = json_object['p_database_index']
     v_view = json_object['p_view']
     v_schema = json_object['p_schema']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -1186,8 +1160,9 @@ def kill_backend(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_pid            = json_object['p_pid']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))

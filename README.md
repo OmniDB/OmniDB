@@ -1,19 +1,13 @@
-# OmniDB 2.6.0
+# OmniDB 2.7.0
 
 ## Release Notes
 
 - New features:
-  - Psql like console tab allowing users to run commands and keep track of past executions
-  - Export query results to CSV or XLSX
-  - Interface allowing users to define shortcuts for several actions, such as run query, cancel query, explain, tab management and others
-  - Execute selected query in query tab
+  - Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2
 - Improvements:
-  - Separation between server hosting OmniDB and websocket server (to handle query, console and debugging tabs), enhancing performance for multiple users ([deployment tutorial](https://omnidb.org/en/documentation-en/19-deploying-omnidb-server))
-  - JSON and JSONB types fetched with single-quotes, following the JSON standard
-  - Enhanced performance of database tree when rendering thousands of nodes
-  - OmniDB sets application_name for all PostgreSQL connections
-  - New login screen
-  - Welcome tab with details about current version
+  - Multi Database and Active Database for PostgreSQL, MySQL and MariaDB
+  - Commands `\?`, `\x` and `\timing` for Console Tab for Oracle, MySQL and MariaDB
+  - Console status showing number of rows affected in Console Tab for Oracle, MySQL and MariaDB
 
 # 1- Installation
 

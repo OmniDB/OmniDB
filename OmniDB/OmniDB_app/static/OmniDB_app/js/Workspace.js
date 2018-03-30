@@ -210,6 +210,10 @@ function changeDatabase(p_value) {
 		getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
     else if (v_conn_object.v_db_type=='oracle')
 		getTreeOracle(v_connTabControl.selectedTab.tag.divTree.id);
+    else if (v_conn_object.v_db_type=='mysql')
+		getTreeMysql(v_connTabControl.selectedTab.tag.divTree.id);
+    else if (v_conn_object.v_db_type=='mariadb')
+		getTreeMariadb(v_connTabControl.selectedTab.tag.divTree.id);
 	else
 		getTree(v_connTabControl.selectedTab.tag.divTree.id);
 

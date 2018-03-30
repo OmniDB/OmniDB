@@ -1302,7 +1302,7 @@ class PostgreSQL(Generic):
                 else:
                     if self.v_timing:
                         v_timestart = datetime.datetime.now()
-                    v_table = self.Query(p_sql)
+                    v_table = self.Query(p_sql, True)
                     v_status = self.GetStatus()
                     if self.v_timing:
                         v_status = v_status + '\nTime: {0}'.format(datetime.datetime.now() - v_timestart)
@@ -1626,7 +1626,7 @@ class MySQL(Generic):
                 else:
                     if self.v_timing:
                         v_timestart = datetime.datetime.now()
-                    v_table = self.Query(p_sql)
+                    v_table = self.Query(p_sql, True)
                     v_tmp = self.GetStatus()
                     if v_tmp == 1:
                         v_status = '1 row '
@@ -1957,7 +1957,7 @@ class MariaDB(Generic):
                 else:
                     if self.v_timing:
                         v_timestart = datetime.datetime.now()
-                    v_table = self.Query(p_sql)
+                    v_table = self.Query(p_sql, True)
                     v_tmp = self.GetStatus()
                     if v_tmp == 1:
                         v_status = '1 row '
@@ -2538,7 +2538,7 @@ class Oracle(Generic):
                 else:
                     if self.v_timing:
                         v_timestart = datetime.datetime.now()
-                    v_table = self.Query(p_sql)
+                    v_table = self.Query(p_sql, True)
                     v_tmp = self.GetStatus()
                     if v_tmp == 1:
                         v_status = '1 row '

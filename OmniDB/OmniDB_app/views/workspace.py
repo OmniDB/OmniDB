@@ -680,13 +680,13 @@ def alter_table_data(request):
 
                 for v_fk in v_fks_table.Rows:
                     if v_schema_name:
-                        v_fks_col_table = v_database.QueryTablesPrimaryKeysColumns(v_fk['constraint_name'], v_table_name, False, v_schema_name)
+                        v_fks_col_table = v_database.QueryTablesForeignKeysColumns(v_fk['constraint_name'], v_table_name, False, v_schema_name)
                     else:
-                        v_fks_col_table = v_database.QueryTablesPrimaryKeysColumns(v_fk['constraint_name'], v_table_name)
+                        v_fks_col_table = v_database.QueryTablesForeignKeysColumns(v_fk['constraint_name'], v_table_name)
 
                     for v_column in v_fks_col_table.Rows:
 
-                        if v_column["constraint_name"]!=v_constraint_name:
+                        if v_fk["constraint_name"]!=v_constraint_name:
                             v_row_data = []
 
                             v_row_data.append(v_constraint_name)
@@ -762,7 +762,7 @@ def alter_table_data(request):
 
                     for v_column in v_uniques_col_table.Rows:
 
-                        if v_column["constraint_name"]!=v_constraint_name:
+                        if v_unique["constraint_name"]!=v_constraint_name:
                             v_row_data = []
 
                             v_row_data.append(v_constraint_name)
@@ -783,7 +783,6 @@ def alter_table_data(request):
                             v_constraint_name = v_column["constraint_name"]
                             v_column_list = ""
                             v_first = True
-
 
                         if not v_first:
                             v_column_list += ", "
@@ -1482,7 +1481,7 @@ def start_edit_data(request):
         else:
             v_table_name = v_table
         v_columns = v_database.QueryTablesFields(v_table,False,v_schema)
-        v_data1 = v_database.QueryDataLimited('select * from ' + v_table_name, 0)
+        v_data1 = v_database.QueryDataLimited('select * from ' + v_table_name + ' t', 0)
         v_query_column_classes = ''
         v_first = True
 

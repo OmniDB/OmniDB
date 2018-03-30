@@ -120,7 +120,7 @@ class Oracle:
 			"SET NULL",
 			"CASCADE"
         ]
-        self.v_console_help = "Console tab."
+        self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
 
     def GetName(self):
         return self.v_service
@@ -192,13 +192,6 @@ class Oracle:
         return self.v_connection.Query('''
             select tablespace_name as "tablespace_name"
             from dba_tablespaces
-            order by 1
-        ''', True)
-
-    def QueryDatabases(self):
-        return self.v_connection.Query('''
-            select name as "database_name"
-            from v$database
             order by 1
         ''', True)
 
@@ -553,7 +546,7 @@ class Oracle:
                 p_table,
                 p_filter,
                 v_limit
-            ), True, True
+            ), True
         )
 
     def QueryFunctions(self, p_all_schemas=False, p_schema=None):
@@ -575,39 +568,25 @@ class Oracle:
 
     def QueryFunctionFields(self, p_function, p_schema):
         if p_schema:
-            return self.v_connection.Query('''
-                select (case t.in_out
-                          when 'IN' then 'I'
-                          when 'OUT' then 'O'
-                          else 'R'
-                        end) as "type",
-                       (case when t.position = 0
-                             then 'return ' || t.data_type
-                             else t.argument_name || ' ' || t.data_type
-                        end) as "name",
-                       t.position+1 as "seq"
-                from all_arguments t
-                where t.owner = '{0}'
-                  and t.object_name = '{1}'
-                order by 3
-            '''.format(p_schema, p_function), True)
+            v_schema = p_schema
         else:
-            return self.v_connection.Query('''
-                select (case t.in_out
-                          when 'IN' then 'I'
-                          when 'OUT' then 'O'
-                          else 'R'
-                        end) as "type",
-                       (case when t.position = 0
-                             then 'return ' || t.data_type
-                             else t.argument_name || ' ' || t.data_type
-                        end) as "name",
-                       t.position+1 as "seq"
-                from all_arguments t
-                where t.owner = '{0}'
-                  and t.object_name = '{1}'
-                order by 3
-            '''.format(self.v_schema, p_function), True)
+            v_schema = self.v_schema
+        return self.v_connection.Query('''
+            select (case t.in_out
+                      when 'IN' then 'I'
+                      when 'OUT' then 'O'
+                      else 'R'
+                    end) as "type",
+                   (case when t.position = 0
+                         then 'return ' || t.data_type
+                         else t.argument_name || ' ' || t.data_type
+                    end) as "name",
+                   t.position+1 as "seq"
+            from all_arguments t
+            where t.owner = '{0}'
+              and t.object_name = '{1}'
+            order by 3
+        '''.format(v_schema, p_function), True)
 
     def GetFunctionDefinition(self, p_function):
         v_body = '-- DROP FUNCTION {0};\n'.format(p_function)
@@ -633,33 +612,22 @@ class Oracle:
 
     def QueryProcedureFields(self, p_procedure, p_schema):
         if p_schema:
-            return self.v_connection.Query('''
-                select (case t.in_out
-                          when 'IN' then 'I'
-                          when 'OUT' then 'O'
-                          else 'R'
-                        end) as "type",
-                       t.argument_name || ' ' || t.data_type as "name",
-                       t.position+1 as "seq"
-                from all_arguments t
-                where t.owner = '{0}'
-                  and t.object_name = '{1}'
-                order by 3
-            '''.format(p_schema, p_procedure), True)
+            v_schema = p_schema
         else:
-            return self.v_connection.Query('''
-                select (case t.in_out
-                          when 'IN' then 'I'
-                          when 'OUT' then 'O'
-                          else 'R'
-                        end) as "type",
-                       t.argument_name || ' ' || t.data_type as "name",
-                       t.position+1 as "seq"
-                from all_arguments t
-                where t.owner = '{0}'
-                  and t.object_name = '{1}'
-                order by 3
-            '''.format(self.v_schema, p_procedure), True)
+            v_schema = self.v_schema
+        return self.v_connection.Query('''
+            select (case t.in_out
+                      when 'IN' then 'I'
+                      when 'OUT' then 'O'
+                      else 'R'
+                    end) as "type",
+                   t.argument_name || ' ' || t.data_type as "name",
+                   t.position+1 as "seq"
+            from all_arguments t
+            where t.owner = '{0}'
+              and t.object_name = '{1}'
+            order by 3
+        '''.format(v_schema, p_procedure), True)
 
     def GetProcedureDefinition(self, p_procedure):
         v_body = '-- DROP PROCEDURE {0};\n'.format(p_procedure)
@@ -818,38 +786,6 @@ class Oracle:
 --[ AND | KEEP ] DATAFILES
 --CASCADE CONSTRAINTS
 ''')
-
-    def TemplateCreateDatabase(self):
-        return Template('''CREATE DATABASE name
---USER SYS IDENTIFIED BY password
---USER SYSTEM IDENTIFIED BY password
---CONTROLFILE REUSE
---MAXDATAFILES integer
---MAXINSTANCES integer
---CHARACTER SET charset
---NATIONAL CHARACTER SET charset
---SET DEFAULT [ SMALLFILE | BIGFILE ] TABLESPACE
---EXTENT MANAGEMENT LOCAL
---DEFAULT TABLESPACE tablespace
---[ BIGFILE | SMALLFILE ] DEFAULT TEMPORARY TABLESPACE tablespace
---[ BIGFILE | SMALLFILE ] UNDO TABLESPACE tablespace
-''')
-
-    def TemplateAlterDatabase(self):
-        return Template('''ALTER DATABASE #database_name#
---OPEN READ ONLY
---OPEN READ WRITE [ RESETLOGS | NORESETLOGS ] [ UPGRADE | DOWNGRADE ]
---[ BEGIN | END ] BACKUP
---SET DEFAULT [ SMALLFILE | BIGFILE ] TABLESPACE
---DEFAULT TABLESPACE tablespace
---[ BIGFILE | SMALLFILE ] DEFAULT TEMPORARY TABLESPACE tablespace
---RENAME GLOBAL_NAME TO new_name
---{ ENABLE | DISABLE } BLOCK CHANGING TRACKING
---FLASHBACK { ON | OFF }
-''')
-
-    def TemplateDropDatabase(self):
-        return Template('DROP DATABASE')
 
     def TemplateCreateFunction(self):
         return Template('''CREATE OR REPLACE FUNCTION #schema_name#.name
@@ -1089,63 +1025,6 @@ SELECT ...
                        compress_for as "Compression Format"
                 from dba_tablespaces
                 where tablespace_name = '{0}'
-            '''.format(p_object), True, True).Transpose('Property', 'Value')
-        elif p_type == 'database':
-            v_table1 = self.v_connection.Query('''
-                select name as "Name",
-                       dbid as "ID",
-                       created as "Creation Date",
-                       resetlogs_change# as "Reset Logs Change Number",
-                       resetlogs_time as "Reset Logs Time",
-                       prior_resetlogs_change# as "Prior Reset Logs Change Number",
-                       prior_resetlogs_time as "Prior Reset Logs Time",
-                       log_mode as "Log Mode",
-                       checkpoint_change# as "Checkpoint Change Number",
-                       archive_change# as "Archive Change Number",
-                       controlfile_type as "Control File Type",
-                       controlfile_created as "Control File Creation Date",
-                       controlfile_sequence# as "Control File Sequence Number",
-                       controlfile_change# as "Control File Change Number",
-                       controlfile_time as "Control File Time",
-                       open_resetlogs as "Open Reset Logs",
-                       version_time as "Version Time",
-                       open_mode as "Open Mode",
-                       protection_mode as "Protection Mode",
-                       protection_level as "Protection Level",
-                       remote_archive as "Remote Archive",
-                       activation# as "Activation Number",
-                       switchover# as "Switchover Number",
-                       database_role as "Database Role",
-                       archivelog_change# as "Archive Log Change Number",
-                       archivelog_compression as "Archive Log Compression",
-                       switchover_status as "Switchover Status",
-                       dataguard_broker as "Dataguard Broker",
-                       guard_status as "Guard Status",
-                       force_logging as "Force Logging",
-                       platform_id as "Platform ID",
-                       platform_name as "Platform Name",
-                       recovery_target_incarnation# as "Rcv Tgt Incarnation Number",
-                       last_open_incarnation# as "Last Open Incarnation Number",
-                       current_scn as "Current SCN",
-                       flashback_on as "Flashback On",
-                       db_unique_name as "Database Unique Name",
-                       standby_became_primary_scn as "Standby Became Primary SCN",
-                       fs_failover_status as "Failover Status",
-                       fs_failover_current_target as "Failover Current Target",
-                       fs_failover_threshold as "Failover Threshold",
-                       fs_failover_observer_present as "Failover Observer Present",
-                       fs_failover_observer_host as "Failover Observer Host",
-                       controlfile_converted as "Control File Converted",
-                       primary_db_unique_name as "Primary Database Unique Name",
-                       min_required_capture_change# as "Min Req Capture Change Number",
-                       supplemental_log_data_min as "Supplemental Log Data Min",
-                       supplemental_log_data_pk as "Supplemental Log Data PK",
-                       supplemental_log_data_ui as "Supplemental Log Data UI",
-                       supplemental_log_data_fk as "Supplemental Log Data FK",
-                       supplemental_log_data_all as "Supplemental Log Data All",
-                       supplemental_log_data_pl as "Supplemental Log Data PL"
-                from v$database
-                where name = '{0}'
             '''.format(p_object), True, True).Transpose('Property', 'Value')
         else:
             v_table1 = self.v_connection.Query('''

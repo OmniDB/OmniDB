@@ -78,30 +78,46 @@ function initCreateTabFunctions() {
       v_tab_title_span.id = 'tab_title_' + v_tab.id;
       var v_tab_close_span = document.getElementById('tab_close');
   		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-  		v_tab_close_span.onclick = function() {
+  		v_tab_close_span.onclick = function(e) {
         var v_this_tab = v_tab;
-        showConfirm('Are you sure you want to remove this tab?',
-                      function() {
-                        //Go through all child tabs and properly send close request for each
-                        var v_tabs_to_remove = [];
-                        for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
+        customMenu(
+          {
+            x:e.clientX+5,
+            y:e.clientY+5
+          },
+          [
+            {
+              text: 'Confirm',
+              icon: '/static/OmniDB_app/images/check.png',
+              action: function() {
+                var v_tabs_to_remove = [];
+                for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
 
-                          var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
-                          if (v_tab.tag.mode=='query' || v_tab.tag.mode=='edit' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='console') {
-        										var v_message_data = { tab_id: v_tab.tag.tab_id, tab_db_id: null };
-        										if (v_tab.tag.mode=='query')
-        											v_message_data.tab_db_id = v_tab.tag.tab_db_id;
-                            v_tabs_to_remove.push(v_message_data);
-        									}
-                          else if (v_tab.tag.mode=='monitor_dashboard') {
-                            v_tab.tag.tab_active = false;
-                            cancelMonitorUnits(v_tab.tag);
-                          }
-                        }
-                        if (v_tabs_to_remove.length>0)
-                          sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, v_tabs_to_remove, false, null);
-                        v_this_tab.removeTab();
-                      });
+                  var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
+                  if (v_tab.tag.mode=='query' || v_tab.tag.mode=='edit' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='console') {
+                    var v_message_data = { tab_id: v_tab.tag.tab_id, tab_db_id: null };
+                    if (v_tab.tag.mode=='query')
+                      v_message_data.tab_db_id = v_tab.tag.tab_db_id;
+                    v_tabs_to_remove.push(v_message_data);
+                  }
+                  else if (v_tab.tag.mode=='monitor_dashboard') {
+                    v_tab.tag.tab_active = false;
+                    cancelMonitorUnits(v_tab.tag);
+                  }
+                }
+                if (v_tabs_to_remove.length>0)
+                  sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, v_tabs_to_remove, false, null);
+                v_this_tab.removeTab();
+              }
+            },
+            {
+              text: 'Cancel',
+              icon: '/static/OmniDB_app/images/tab_close.png',
+              action: function() {
+              }
+            }
+          ],
+          null);
   		};
 
     	var v_div = document.getElementById('div_' + v_tab.id);
@@ -312,7 +328,7 @@ function initCreateTabFunctions() {
 
   	var v_currTabControl = createTabControl(v_tab.id + '_tabs',0,null);
 
-  	v_currTabControl.createTab('+',false,function(e) {showMenuNewTab(e); },null,null,null,null,null,false);
+  	v_currTabControl.createTab('+',false,function(e) {console.log(e);showMenuNewTab(e); },null,null,null,null,null,false);
 
   	var v_tag = {
   		tabControl: v_currTabControl,
@@ -438,7 +454,7 @@ function initCreateTabFunctions() {
   }
 
   var v_createNewMonitorNodeTabFunction = function(p_node) {
-
+/*
 		var v_name = 'New Node';
 		if (p_node)
 			v_name = p_node;
@@ -644,7 +660,7 @@ function initCreateTabFunctions() {
 
     setTimeout(function() {
       refreshHeights();
-    },10);
+    },10);*/
 
 	};
 
@@ -676,8 +692,29 @@ function initCreateTabFunctions() {
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
 		var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-			removeTab(v_tab);
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
 		};
 
 		var v_html = "<div style='margin-top: 5px; margin-bottom: 5px;'>" +
@@ -795,8 +832,30 @@ function initCreateTabFunctions() {
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
     var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-			closeMonitorDashboardTab(v_tab);
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              closeMonitorDashboardTab(v_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
+
 		};
 
 		var v_html = "<div>" +
@@ -877,8 +936,29 @@ function initCreateTabFunctions() {
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
 		var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-			closeSnippetTab(v_tab);
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              closeSnippetTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
 		};
 
 		var v_html = "<div id='txt_snippet_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
@@ -937,7 +1017,7 @@ function initCreateTabFunctions() {
 
 		v_tab.tag = v_tag;
 
-		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createSnippetTextTab);
+		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,function() { v_connTabControl.tag.createSnippetTextTab() });
 
     setTimeout(function() {
       refreshHeights();
@@ -968,8 +1048,32 @@ function initCreateTabFunctions() {
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
 		var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-			closeGraphTab(v_tab);
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network) {
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network.destroy();
+              }
+              v_current_tab.removeTab();
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
 		};
 
 		var v_html = "<div id='graph_" + v_tab.id + "' style=' width: 100%; height: 200px;'></div>";
@@ -1005,8 +1109,8 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-      '<img src="/static/OmniDB_app/images/globe.png"/><span id="tab_title"> ' + p_name + '</span>',
-      true,
+      '<img src="/static/OmniDB_app/images/globe.png"/><span id="tab_title"> ' + p_name + '</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+      false,
       null,
       null,
       null,
@@ -1018,6 +1122,33 @@ function initCreateTabFunctions() {
         }
       });
 		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+
+    var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
+		};
 
 		//Adding unique names to spans
 		var v_tab_title_span = document.getElementById('tab_title');
@@ -1054,8 +1185,8 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
 		var v_tab = v_connTabControl.createTab(
-      '<img src="/static/OmniDB_app/images/globe.png"/><span id="tab_title"> ' + p_name + '</span>',
-      true,
+      '<img src="/static/OmniDB_app/images/globe.png"/><span id="tab_title"> ' + p_name + '</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+      false,
       null,
       null,
       null,
@@ -1067,6 +1198,33 @@ function initCreateTabFunctions() {
         }
       });
 		v_connTabControl.selectTab(v_tab);
+
+    var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
+		};
 
 		//Adding unique names to spans
 		var v_tab_title_span = document.getElementById('tab_title');
@@ -1119,8 +1277,29 @@ function initCreateTabFunctions() {
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
     var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-			removeTab(v_tab);
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
 		};
 
     var v_html = "<button id='bt_refresh_" + v_tab.id + "' class='bt_execute' title='Refresh' style='margin-bottom: 5px; margin-right: 5px; display: inline-block;'>Refresh</button>" +
@@ -1189,8 +1368,29 @@ function initCreateTabFunctions() {
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
     var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-			removeTab(v_tab);
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
 		};
 
     var v_html = "<button id='bt_first_" + v_tab.id + "' onclick='commandHistoryFirstPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='First'>First</button>" +
@@ -1270,8 +1470,29 @@ function initCreateTabFunctions() {
 		v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
 		var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-			removeTab(v_tab);
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
 		};
     var v_tab_check_span = document.getElementById('tab_check');
 		v_tab_check_span.id = 'tab_check_' + v_tab.id;
@@ -1505,8 +1726,29 @@ function initCreateTabFunctions() {
 		v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
 		var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-			removeTab(v_tab);
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
 		};
     var v_tab_check_span = document.getElementById('tab_check');
 		v_tab_check_span.id = 'tab_check_' + v_tab.id;
@@ -1719,8 +1961,29 @@ function initCreateTabFunctions() {
     v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
     var v_tab_close_span = document.getElementById('tab_close');
     v_tab_close_span.id = 'tab_close_' + v_tab.id;
-    v_tab_close_span.onclick = function() {
-      removeTab(v_tab);
+    v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
     };
     var v_tab_check_span = document.getElementById('tab_check');
     v_tab_check_span.id = 'tab_check_' + v_tab.id;
@@ -1884,8 +2147,29 @@ function initCreateTabFunctions() {
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
 		var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-			removeTab(v_tab);
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
 		};
 		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
 
@@ -2013,13 +2297,31 @@ function initCreateTabFunctions() {
 		v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
 		var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-      showConfirm('Are you sure you want to remove this tab?',
-                    function() {
-                      var v_message_data = { tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id, tab_db_id: null };
-                      sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, [v_message_data], false, null);
-                      v_tab.removeTab();
-                    });
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              var v_message_data = { tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id, tab_db_id: null };
+              sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, [v_message_data], false, null);
+              v_current_tab.removeTab();
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
 		};
     var v_tab_check_span = document.getElementById('tab_check');
 		v_tab_check_span.id = 'tab_check_' + v_tab.id;
@@ -2030,6 +2332,7 @@ function initCreateTabFunctions() {
 
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
           "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Start' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='startDebug();'><img src='/static/OmniDB_app/images/trigger.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_reload_" + v_tab.id + "' class='bt_execute' title='Reload Function Attributes' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;'><img src='/static/OmniDB_app/images/refresh.png' style='vertical-align: middle;'/></button>" +
 					"<button id='bt_step_over_" + v_tab.id + "' class='bt_execute' title='Step Over (Next Statement)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(0);'><img src='/static/OmniDB_app/images/step_over.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_step_out_" + v_tab.id + "' class='bt_execute' title='Resume (Next Breakpoint)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(1);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-right: 5px; display: none; vertical-align: middle;' onclick='cancelDebug();'>Cancel</button>" +
@@ -2055,7 +2358,9 @@ function initCreateTabFunctions() {
           "<div id='div_notices_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
           "			</div>" +
           "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab5'>" +
-          "<div id='div_statistics_" + v_tab.id + "' style='width: 100%; overflow: auto;'></div>" +
+          "<div id='div_statistics_" + v_tab.id + "' style='width: 100%; overflow: auto; position: relative;'>" +
+          "<canvas id='div_statistics_canvas_" + v_tab.id + "'></canvas>" +
+          "</div>" +
           "			</div></div>";
 
 		var v_div = document.getElementById('div_' + v_tab.id);
@@ -2100,12 +2405,14 @@ function initCreateTabFunctions() {
 			div_result: document.getElementById('div_result_' + v_tab.id),
       div_notices: document.getElementById('div_notices_' + v_tab.id),
       div_statistics: document.getElementById('div_statistics_' + v_tab.id),
+      div_statistics_canvas: document.getElementById('div_statistics_canvas_' + v_tab.id),
       div_count_notices: document.getElementById('debug_result_tabs_count_notices_' + v_tab.id),
 			tab_title_span : v_tab_title_span,
 			tab_loading_span : v_tab_loading_span,
 			tab_close_span : v_tab_close_span,
 			tab_check_span : v_tab_check_span,
       tab_stub_span : v_tab_stub_span,
+      bt_reload: document.getElementById('bt_reload_' + v_tab.id),
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
       bt_step_over: document.getElementById('bt_step_over_' + v_tab.id),
       bt_step_out: document.getElementById('bt_step_out_' + v_tab.id),

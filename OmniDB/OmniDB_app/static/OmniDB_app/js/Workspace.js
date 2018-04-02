@@ -167,6 +167,11 @@ function getDatabaseList(p_init, p_callback) {
 
 }
 
+function checkBeforeChangeDatabase(e,p_select) {
+	console.log(e)
+	console.log(p_select)
+}
+
 /// <summary>
 /// Changing selected database.
 /// </summary>
@@ -249,26 +254,23 @@ function renameTabConfirm(p_tab, p_name) {
 /// <param name="p_tab">Tab object.</param>
 function removeTab(p_tab) {
 
-	showConfirm('Are you sure you want to remove this tab?',
-                function() {
-                	if (p_tab.tag.ht!=null) {
-										p_tab.tag.ht.destroy();
-										p_tab.tag.div_result.innerHTML = '';
-									}
+	if (p_tab.tag.ht!=null) {
+		p_tab.tag.ht.destroy();
+		p_tab.tag.div_result.innerHTML = '';
+	}
 
-									if (p_tab.tag.editor!=null)
-										p_tab.tag.editor.destroy();
+	if (p_tab.tag.editor!=null)
+		p_tab.tag.editor.destroy();
 
-									if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit' || p_tab.tag.mode=='console') {
-										var v_message_data = { tab_id: p_tab.tag.tab_id, tab_db_id: null };
-										if (p_tab.tag.mode=='query')
-											v_message_data.tab_db_id = p_tab.tag.tab_db_id;
+	if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit' || p_tab.tag.mode=='console') {
+		var v_message_data = { tab_id: p_tab.tag.tab_id, tab_db_id: null };
+		if (p_tab.tag.mode=='query')
+			v_message_data.tab_db_id = p_tab.tag.tab_db_id;
 
-										sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, [v_message_data], false, null);
-										//console.log('closing query tab')
-									}
-									p_tab.removeTab();
-                });
+		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, [v_message_data], false, null);
+		//console.log('closing query tab')
+	}
+	p_tab.removeTab();
 
 }
 
@@ -813,21 +815,6 @@ function checkTabStatus(v_tab) {
 	else if (v_tab.tag.tabControl.selectedTab.tag.mode=='console')
 		checkConsoleStatus(v_tab.tag.tabControl.selectedTab);
 
-}
-
-/// <summary>
-/// Removes tab.
-/// </summary>
-/// <param name="p_tab">Tab object.</param>
-function closeGraphTab(p_tab) {
-
-	showConfirm('Are you sure you want to close this graph tab?',
-                function() {
-									if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network) {
-										v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network.destroy();
-									}
-									p_tab.removeTab();
-                });
 }
 
 /// <summary>

@@ -1088,6 +1088,8 @@ function getTreeMariadb(p_div) {
         }
     };
     var tree = createTree(p_div, '#fcfdfd', context_menu);
+    v_connTabControl.selectedTab.tag.tree = tree;
+    v_connTabControl.selectedTab.tag.divDetails.innerHTML = 'Active database: <b>' + v_connTabControl.selectedTab.tag.selectedDatabase + '</b>';
 
     tree.nodeAfterOpenEvent = function(node) {
         refreshTreeMariadb(node);
@@ -2902,7 +2904,7 @@ function mariadbTerminateBackend(p_row) {
     showConfirm('Are you sure you want to terminate process ' + p_row[0] + '?',
         function() {
 
-            mariadbTerminateBackendConfirm(v_pid);
+            mariadbTerminateBackendConfirm(p_row[0]);
 
         });
 

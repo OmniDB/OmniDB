@@ -60,34 +60,6 @@ function getTreeMysql(p_div) {
                 }
             }]
         },
-        'cm_connection': {
-            elements: [{
-                text: 'Render Graph',
-                icon: '/static/OmniDB_app/images/graph.png',
-                action: function(node) {
-
-                },
-                submenu: {
-                    elements: [{
-                        text: 'Simple Graph',
-                        icon: '/static/OmniDB_app/images/graph.png',
-                        action: function(node) {
-                            v_connTabControl.tag.createGraphTab(
-                                node.text)
-                            drawGraph(false, node.tree.tag.v_database);
-                        }
-                    }, {
-                        text: 'Complete Graph',
-                        icon: '/static/OmniDB_app/images/graph.png',
-                        action: function(node) {
-                            v_connTabControl.tag.createGraphTab(
-                                node.text)
-                            drawGraph(true, node.tree.tag.v_database);
-                        }
-                    }]
-                }
-            }]
-        },
         'cm_databases': {
             elements: [{
                 text: 'Refresh',
@@ -120,23 +92,51 @@ function getTreeMysql(p_div) {
             }*/]
         },
         'cm_database': {
-            elements: [{
-                text: 'Alter Database',
-                icon: '/static/OmniDB_app/images/text_edit.png',
-                action: function(node) {
-                    tabSQLTemplate('Alter Database', node.tree.tag
-                        .alter_database.replace(
-                            '#database_name#', node.text));
-                }
-            }, {
-                text: 'Drop Database',
-                icon: '/static/OmniDB_app/images/tab_close.png',
-                action: function(node) {
-                    tabSQLTemplate('Drop Database', node.tree.tag
-                        .drop_database.replace(
-                            '#database_name#', node.text));
-                }
-            }]
+            elements: [
+              {
+                  text: 'Render Graph',
+                  icon: '/static/OmniDB_app/images/graph.png',
+                  action: function(node) {
+
+                  },
+                  submenu: {
+                      elements: [{
+                          text: 'Simple Graph',
+                          icon: '/static/OmniDB_app/images/graph.png',
+                          action: function(node) {
+                              v_connTabControl.tag.createGraphTab(
+                                  node.text)
+                              drawGraph(false, node.text);
+                          }
+                      }, {
+                          text: 'Complete Graph',
+                          icon: '/static/OmniDB_app/images/graph.png',
+                          action: function(node) {
+                              v_connTabControl.tag.createGraphTab(
+                                  node.text)
+                              drawGraph(true, node.text);
+                          }
+                      }]
+                  }
+              },
+              {
+                  text: 'Alter Database',
+                  icon: '/static/OmniDB_app/images/text_edit.png',
+                  action: function(node) {
+                      tabSQLTemplate('Alter Database', node.tree.tag
+                          .alter_database.replace(
+                              '#database_name#', node.text));
+                  }
+              }, {
+                  text: 'Drop Database',
+                  icon: '/static/OmniDB_app/images/tab_close.png',
+                  action: function(node) {
+                      tabSQLTemplate('Drop Database', node.tree.tag
+                          .drop_database.replace(
+                              '#database_name#', node.text));
+                  }
+              }
+            ]
         },
         'cm_roles': {
             elements: [{
@@ -202,7 +202,7 @@ function getTreeMysql(p_div) {
                 text: 'Create Table',
                 icon: '/static/OmniDB_app/images/new_table.png',
                 action: function(node) {
-                    startAlterTable(true, 'new', null, node.tree.tag.v_database);
+                    startAlterTable(true, 'new', null, node.parent.text);
                 }
             }/*, {
                 text: 'Doc: Basics',
@@ -258,7 +258,7 @@ function getTreeMysql(p_div) {
                         action: function(node) {
 
                             var v_table_name = '';
-                            v_table_name = node.tree.tag.v_database + '.' + node.text;
+                            v_table_name = node.parent.parent.text + '.' + node.text;
 
                             v_connTabControl.tag.createQueryTab(
                                 node.text);
@@ -291,7 +291,7 @@ function getTreeMysql(p_div) {
                         icon: '/static/OmniDB_app/images/edit_data.png',
                         action: function(node) {
                             startEditData(node.text,
-                                node.tree.tag.v_database
+                                node.parent.parent.text
                             );
                         }
                     }, {
@@ -300,7 +300,7 @@ function getTreeMysql(p_div) {
                         action: function(node) {
 
                             var v_table_name = '';
-                            v_table_name = node.tree.tag.v_database + '.' + node.text;
+                            v_table_name = node.parent.parent.text + '.' + node.text;
 
                             v_connTabControl.tag.createQueryTab(
                                 node.text);
@@ -331,7 +331,7 @@ function getTreeMysql(p_div) {
                                 .tag.tabControl.selectedTab
                                 .tag.editor.setValue(
                                     'DELETE FROM ' +
-                                    node.tree.tag.v_database + '.' + node.text);
+                                    node.parent.parent.text + '.' + node.text);
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
                                 .tag.editor.clearSelection();
@@ -356,7 +356,7 @@ function getTreeMysql(p_div) {
                         action: function(node) {
                             startAlterTable(true,
                                 'alter', node.text,
-                                node.tree.tag.v_database
+                                node.parent.parent.text
                             );
                         }
                     }, {
@@ -367,7 +367,7 @@ function getTreeMysql(p_div) {
                                 node.tree.tag.drop_table
                                 .replace(
                                     '#table_name#',
-                                    node.tree.tag.v_database + '.' + node.text));
+                                    node.parent.parent.text + '.' + node.text));
                         }
                     }]
                 }
@@ -380,7 +380,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Field', node.tree.tag
                         .create_column.replace(
-                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
+                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent
                             .text));
                 }
             }]
@@ -392,7 +392,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Column', node.tree.tag
                         .alter_column.replace(
-                            '#table_name#', node.tree.tag.v_database + '.' +
+                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             /#column_name#/g, node.text));
                 }
@@ -402,7 +402,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Column', node.tree.tag
                         .drop_column.replace('#table_name#',
-                            node.tree.tag.v_database + '.' + node.parent.parent
+                            node.parent.parent.parent.parent.text + '.' + node.parent.parent
                             .text).replace(/#column_name#/g,
                             node.text));
                 }
@@ -426,7 +426,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Primary Key', node.tree
                         .tag.create_primarykey.replace(
-                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
+                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent
                             .text));
                 }
             }]
@@ -449,7 +449,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Primary Key', node.tree
                         .tag.drop_primarykey.replace(
-                            '#table_name#', node.tree.tag.v_database + '.' +
+                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             '#constraint_name#', node.text)
                     );
@@ -474,7 +474,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Foreign Key', node.tree
                         .tag.create_foreignkey.replace(
-                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
+                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent
                             .text));
                 }
             }]
@@ -497,7 +497,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Foreign Key', node.tree
                         .tag.drop_foreignkey.replace(
-                            '#table_name#', node.tree.tag.v_database + '.' +
+                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             '#constraint_name#', node.text)
                     );
@@ -522,7 +522,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Unique', node.tree.tag
                         .create_unique.replace(
-                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
+                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent
                             .text));
                 }
             }]
@@ -545,7 +545,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Unique', node.tree.tag
                         .drop_unique.replace('#table_name#',
-                            node.tree.tag.v_database + '.' + node.parent.parent
+                            node.parent.parent.parent.parent.text + '.' + node.parent.parent
                             .text).replace(
                             '#constraint_name#', node.text)
                     );
@@ -570,7 +570,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Index', node.tree.tag
                         .create_index.replace(
-                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
+                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent
                             .text));
                 }
             }/*, {
@@ -602,7 +602,7 @@ function getTreeMysql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Index', node.tree.tag.drop_index
-                        .replace('#index_name#', node.tree.tag.v_database + '.' + node.text.replace(
+                        .replace('#index_name#', node.parent.parent.parent.parent.text + '.' + node.text.replace(
                                 ' (Unique)', '').replace(
                                 ' (Non Unique)', '')));
                 }
@@ -626,7 +626,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create View', node.tree.tag
                         .create_view.replace(
-                            '#schema_name#', node.tree.tag.v_database
+                            '#schema_name#', node.parent.text
                         ));
                 }
             }/*, {
@@ -659,7 +659,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
 
                     var v_table_name = '';
-                    v_table_name = node.tree.tag.v_database + '.' + node.text;
+                    v_table_name = node.parent.parent.text + '.' + node.text;
 
                     v_connTabControl.tag.createQueryTab(
                         node.text);
@@ -695,7 +695,7 @@ function getTreeMysql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop View', node.tree.tag.drop_view
-                        .replace('#view_name#', node.tree.tag.v_database + '.' + node.text)
+                        .replace('#view_name#', node.parent.parent.text + '.' + node.text)
                     );
                 }
             }]
@@ -881,7 +881,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Function', node.tree
                         .tag.create_function.replace(
-                            '#schema_name#', node.tree.tag.v_database
+                            '#schema_name#', node.parent.text
                         ));
                 }
             }/*, {
@@ -954,7 +954,7 @@ function getTreeMysql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Procedure', node.tree
                         .tag.create_procedure.replace(
-                            '#schema_name#', node.tree.tag.v_database
+                            '#schema_name#', node.parent.text
                         ));
                 }
             }/*, {
@@ -1088,9 +1088,12 @@ function getTreeMysql(p_div) {
         }
     };
     var tree = createTree(p_div, '#fcfdfd', context_menu);
+    v_connTabControl.selectedTab.tag.tree = tree;
+    v_connTabControl.selectedTab.tag.divDetails.innerHTML = 'Active database: <b>' + v_connTabControl.selectedTab.tag.selectedDatabase + '</b>';
 
     tree.nodeAfterOpenEvent = function(node) {
-        refreshTreeMysql(node);
+      refreshTreeMysql(node);
+
     }
 
     tree.clickNodeEvent = function(node) {
@@ -1117,7 +1120,7 @@ function getPropertiesMysql(node) {
         if (node.tag.type == 'table') {
         getProperties('/get_properties_mysql/',
           {
-            p_schema: null,
+            p_schema: node.parent.parent.text,
             p_table: null,
             p_object: node.text,
             p_type: node.tag.type
@@ -1125,7 +1128,7 @@ function getPropertiesMysql(node) {
       } else if (node.tag.type == 'view') {
         getProperties('/get_properties_mysql/',
           {
-            p_schema: null,
+            p_schema: node.parent.parent.text,
             p_table: null,
             p_object: node.text,
             p_type: node.tag.type
@@ -1133,7 +1136,7 @@ function getPropertiesMysql(node) {
       } else if (node.tag.type == 'function') {
         getProperties('/get_properties_mysql/',
           {
-            p_schema: null,
+            p_schema: node.parent.parent.text,
             p_table: null,
             p_object: node.text,
             p_type: node.tag.type
@@ -1141,7 +1144,7 @@ function getPropertiesMysql(node) {
       } else if (node.tag.type == 'procedure') {
         getProperties('/get_properties_mysql/',
           {
-            p_schema: null,
+            p_schema: node.parent.parent.text,
             p_table: null,
             p_object: node.text,
             p_type: node.tag.type
@@ -1191,6 +1194,8 @@ function refreshTreeMysql(node) {
         getProcedureFieldsMysql(node);
     } else if (node.tag.type == 'database_list') {
         getDatabasesMysql(node);
+    } else if (node.tag.type == 'database') {
+        getDatabaseObjectsMysql(node);
     } else if (node.tag.type == 'role_list') {
         getRolesMysql(node);
     } /*else if (node.tag.type == 'trigger_list') {
@@ -1347,11 +1352,6 @@ function getTreeDetailsMysql(node) {
 
             node.setText(p_return.v_data.v_database_return.version);
 
-            var node_connection = node.createChildNode(p_return.v_data.v_database_return
-                .v_database, true, '/static/OmniDB_app/images/db.png', {
-                    type: 'connection'
-                }, 'cm_connection');
-
             var node_databases = node.createChildNode('Databases', false,
                 '/static/OmniDB_app/images/db.png', {
                 type: 'database_list',
@@ -1367,42 +1367,6 @@ function getTreeDetailsMysql(node) {
             node_roles.createChildNode('', true,
                 '/static/OmniDB_app/images/spin.svg', null, null);
 
-            var node_tables = node_connection.createChildNode('Tables', false,
-                '/static/OmniDB_app/images/table_multiple.png', {
-                    type: 'table_list',
-                    num_tables: 0,
-                    database: v_connTabControl.selectedTab.tag.selectedDatabase
-                }, 'cm_tables');
-            node_tables.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
-
-            var node_views = node_connection.createChildNode('Views', false,
-                '/static/OmniDB_app/images/view_multiple.png', {
-                    type: 'view_list',
-                    num_views: 0,
-                    database: v_connTabControl.selectedTab.tag.selectedDatabase
-                }, 'cm_views');
-            node_views.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
-
-            var node_functions = node_connection.createChildNode('Functions',
-                false, '/static/OmniDB_app/images/gear2.png', {
-                    type: 'function_list',
-                    num_functions: 0,
-                    database: v_connTabControl.selectedTab.tag.selectedDatabase
-                }, 'cm_functions');
-            node_functions.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
-
-            var node_functions = node_connection.createChildNode('Procedures',
-                false, '/static/OmniDB_app/images/gear2.png', {
-                    type: 'procedure_list',
-                    num_functions: 0,
-                    database: v_connTabControl.selectedTab.tag.selectedDatabase
-                }, 'cm_procedures');
-            node_functions.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
-
             if (v_connTabControl.selectedTab.tag.firstTimeOpen) {
               v_connTabControl.selectedTab.tag.firstTimeOpen = false;
               //v_connTabControl.tag.createMonitorDashboardTab();
@@ -1416,6 +1380,51 @@ function getTreeDetailsMysql(node) {
         'box',
         false);
 
+}
+
+/// <summary>
+/// Retrieving database objects.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getDatabaseObjectsMysql(node) {
+
+    node.removeChildNodes();
+
+    var node_tables = node.createChildNode('Tables', false,
+        '/static/OmniDB_app/images/table_multiple.png', {
+            type: 'table_list',
+            num_tables: 0,
+            database: v_connTabControl.selectedTab.tag.selectedDatabase
+        }, 'cm_tables');
+    node_tables.createChildNode('', true,
+        '/static/OmniDB_app/images/spin.svg', null, null);
+
+    var node_views = node.createChildNode('Views', false,
+        '/static/OmniDB_app/images/view_multiple.png', {
+            type: 'view_list',
+            num_views: 0,
+            database: v_connTabControl.selectedTab.tag.selectedDatabase
+        }, 'cm_views');
+    node_views.createChildNode('', true,
+        '/static/OmniDB_app/images/spin.svg', null, null);
+
+    var node_functions = node.createChildNode('Functions',
+        false, '/static/OmniDB_app/images/gear2.png', {
+            type: 'function_list',
+            num_functions: 0,
+            database: v_connTabControl.selectedTab.tag.selectedDatabase
+        }, 'cm_functions');
+    node_functions.createChildNode('', true,
+        '/static/OmniDB_app/images/spin.svg', null, null);
+
+    var node_functions = node.createChildNode('Procedures',
+        false, '/static/OmniDB_app/images/gear2.png', {
+            type: 'procedure_list',
+            num_functions: 0,
+            database: v_connTabControl.selectedTab.tag.selectedDatabase
+        }, 'cm_procedures');
+    node_functions.createChildNode('', true,
+        '/static/OmniDB_app/images/spin.svg', null, null);
 }
 
 /// <summary>
@@ -1445,11 +1454,19 @@ function getDatabasesMysql(node) {
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
-                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                var v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/db.png', {
                         type: 'database',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        database: p_return.v_data[i].v_name.replace(/"/g, '')
                     }, 'cm_database',null,false);
+
+                if (v_connTabControl.selectedTab.tag.selectedDatabase == p_return.v_data[i].v_name.replace(/"/g, '')) {
+                  v_node.setNodeBold();
+                  v_connTabControl.selectedTab.tag.selectedDatabaseNode = v_node;
+                }
+
+                v_node.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
 
             }
 
@@ -1522,7 +1539,7 @@ function getTablesMysql(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
-            "p_schema": null
+            "p_schema": node.parent.text
         }),
         function(p_return) {
 
@@ -1546,7 +1563,8 @@ function getTablesMysql(node) {
                         has_excludes: p_return.v_data[i].v_has_excludes,
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
-                        has_partitions: p_return.v_data[i].v_has_partitions
+                        has_partitions: p_return.v_data[i].v_has_partitions,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_table',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
@@ -1580,7 +1598,7 @@ function getViewsMysql(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
-            "p_schema": null
+            "p_schema": node.parent.text
         }),
         function(p_return) {
 
@@ -1630,7 +1648,7 @@ function getViewsColumnsMysql(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.text
         }),
         function(p_return) {
 
@@ -1695,7 +1713,7 @@ function getViewDefinitionMysql(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_view": node.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.text
         }),
         function(p_return) {
 
@@ -1750,7 +1768,7 @@ function getColumnsMysql(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.text
         }),
         function(p_return) {
 
@@ -1864,7 +1882,7 @@ function getPKMysql(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -1914,7 +1932,7 @@ function getPKColumnsMysql(node) {
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_key": node.text,
             "p_table": node.parent.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -1953,7 +1971,7 @@ function getUniquesMysql(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -2009,7 +2027,7 @@ function getUniquesColumnsMysql(node) {
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_unique": node.text,
             "p_table": node.parent.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -2053,7 +2071,7 @@ function getIndexesMysql(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -2111,7 +2129,7 @@ function getIndexesColumnsMysql(node) {
             "p_index": node.text.replace(' (Non Unique)', '').replace(
                 ' (Unique)', ''),
             "p_table": node.parent.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -2155,7 +2173,7 @@ function getFKsMysql(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -2215,7 +2233,7 @@ function getFKsColumnsMysql(node) {
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_fkey": node.text,
             "p_table": node.parent.parent.text,
-            "p_schema": null
+            "p_schema": node.parent.parent.parent.parent.text
         }),
         function(p_return) {
 
@@ -2376,7 +2394,7 @@ function getFunctionsMysql(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
-            "p_schema": null
+            "p_schema": node.parent.text
         }),
         function(p_return) {
 
@@ -2427,7 +2445,7 @@ function getFunctionFieldsMysql(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id,
-            "p_schema": null
+            "p_schema": node.parent.parent.text
         }),
         function(p_return) {
 
@@ -2561,7 +2579,7 @@ function getProceduresMysql(node) {
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
-            "p_schema": null
+            "p_schema": node.parent.text
         }),
         function(p_return) {
 
@@ -2613,7 +2631,7 @@ function getProcedureFieldsMysql(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_procedure": node.tag.id,
-            "p_schema": null
+            "p_schema": node.parent.parent.text
         }),
         function(p_return) {
 
@@ -2902,7 +2920,7 @@ function mysqlTerminateBackend(p_row) {
     showConfirm('Are you sure you want to terminate process ' + p_row[0] + '?',
         function() {
 
-            mysqlTerminateBackendConfirm(v_pid);
+            mysqlTerminateBackendConfirm(p_row[0]);
 
         });
 

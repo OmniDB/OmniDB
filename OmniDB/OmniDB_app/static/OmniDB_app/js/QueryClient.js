@@ -255,7 +255,9 @@ function QueryPasswordRequired(p_context, p_message) {
 			p_context.database_index,
 			function() {
 				cancelConsole();
-				consoleSQL();
+				p_context.tab_tag.editor_input.setValue(p_context.tab_tag.last_command);
+        p_context.tab_tag.editor_input.clearSelection();
+				consoleSQL(false);
 			},
 			function() {
 				cancelConsole();

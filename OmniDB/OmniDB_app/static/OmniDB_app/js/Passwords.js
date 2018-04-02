@@ -36,6 +36,7 @@ function checkPasswordPrompt(p_database_index, p_callback_function, p_cancel_cal
 
   execAjax('/renew_password/',
 			JSON.stringify({"p_database_index": p_database_index,
+                      "p_tab_id": v_connTabControl.selectedTab.id,
                       "p_password": v_password}),
 			function(p_return) {
 

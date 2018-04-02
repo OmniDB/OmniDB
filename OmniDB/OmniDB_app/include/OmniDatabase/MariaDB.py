@@ -126,7 +126,7 @@ class MariaDB:
         return self.v_service
 
     def GetVersion(self):
-        return self.v_connection.ExecuteScalar('select version()')
+        return 'MariaDB ' + self.v_connection.ExecuteScalar('select version()')
 
     def GetUserName(self):
         return self.v_user

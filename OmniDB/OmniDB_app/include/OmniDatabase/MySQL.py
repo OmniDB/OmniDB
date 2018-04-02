@@ -126,7 +126,7 @@ class MySQL:
         return self.v_service
 
     def GetVersion(self):
-        return self.v_connection.ExecuteScalar('select version()')
+        return 'MySQL ' + self.v_connection.ExecuteScalar('select version()')
 
     def GetUserName(self):
         return self.v_user

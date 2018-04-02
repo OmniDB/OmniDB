@@ -414,7 +414,8 @@ function closeConnectionListFinish(p_index) {
 
 				v_tab.tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
 				v_tab.tag.divSelectDB.childNodes[0].value = v_tab.tag.selectedDatabaseIndex;
-				$(v_tab.tag.divSelectDB.childNodes[0]).msDropDown();
+				v_tab.tag.dd_object = $(v_tab.tag.divSelectDB.childNodes[0]).msDropDown().data("dd");
+				v_tab.tag.dd_selected_index = v_tab.tag.dd_object.selectedIndex;
 
 			}
 		}

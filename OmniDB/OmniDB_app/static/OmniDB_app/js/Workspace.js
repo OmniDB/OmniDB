@@ -167,9 +167,26 @@ function getDatabaseList(p_init, p_callback) {
 
 }
 
-function checkBeforeChangeDatabase(e,p_select) {
-	console.log(e)
-	console.log(p_select)
+/// <summary>
+/// Check if there are troublesome tabs
+/// </summary>
+/// <param name="p_cancel_function">Ok function.</param>
+/// <param name="p_ok_function">Cancel function.</param>
+function checkBeforeChangeDatabase(p_cancel_function, p_ok_function) {
+	for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
+
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
+		if (v_tab.tag!=null)
+			if (v_tab.tag.mode=='edit' || v_tab.tag.mode=='alter' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='monitor_dashboard') {
+				showAlert('Before changing connection please close any tab that belongs to the following types: <br/><br/><b>Edit Data<br/><br/>Alter Table<br/><br/>Function Debugging<br/><br/>Monitoring Dashboard');
+				v_connTabControl.selectedTab.tag.dd_object.set("selectedIndex",v_connTabControl.selectedTab.tag.dd_selected_index);
+				if (p_cancel_function!=null)
+					p_cancel_function();
+				return null;
+			}
+	}
+	if (p_ok_function!=null)
+		p_ok_function();
 }
 
 /// <summary>
@@ -179,46 +196,59 @@ function checkBeforeChangeDatabase(e,p_select) {
 /// <param name="p_value">Database ID.</param>
 function changeDatabase(p_value) {
 
-	v_connTabControl.selectedTab.tag.divDetails.innerHTML = '';
+	//check if there are troublesome tabs
+	checkBeforeChangeDatabase(
+		function() {
+			v_connTabControl.selectedTab.tag.dd_object.set("selectedIndex",v_connTabControl.selectedTab.tag.dd_selected_index);
+		},
+		function() {
 
-	//finding connection object
-	var v_conn_object = null;
-	for (var i=0; i<v_connTabControl.tag.connections.length; i++) {
-		if (p_value==v_connTabControl.tag.connections[i].v_conn_id) {
-			v_conn_object = v_connTabControl.tag.connections[i];
-			break;
-		}
-	}
-	if (!v_conn_object)
-		v_conn_object = v_connTabControl.tag.connections[0];
+			v_connTabControl.selectedTab.tag.divDetails.innerHTML = '';
 
-	v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
-	v_connTabControl.selectedTab.tag.selectedDBMS = v_conn_object.v_db_type;
-	v_connTabControl.selectedTab.tag.consoleHelp = v_conn_object.v_console_help;
-	v_connTabControl.selectedTab.tag.selectedDatabase = v_conn_object.v_database;
+			//finding connection object
+			var v_conn_object = null;
+			for (var i=0; i<v_connTabControl.tag.connections.length; i++) {
+				if (p_value==v_connTabControl.tag.connections[i].v_conn_id) {
+					v_conn_object = v_connTabControl.tag.connections[i];
+					break;
+				}
+			}
+			if (!v_conn_object)
+				v_conn_object = v_connTabControl.tag.connections[0];
 
-	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
+			v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
+			v_connTabControl.selectedTab.tag.selectedDBMS = v_conn_object.v_db_type;
+			v_connTabControl.selectedTab.tag.consoleHelp = v_conn_object.v_console_help;
+			v_connTabControl.selectedTab.tag.selectedDatabase = v_conn_object.v_database;
+			v_connTabControl.selectedTab.tag.dd_selected_index = v_connTabControl.selectedTab.tag.dd_object.selectedIndex;
 
-	execAjax('/change_active_database/',
-			JSON.stringify({
-					"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-					"p_tab_id": v_connTabControl.selectedTab.id,
-					"p_database": v_connTabControl.selectedTab.tag.selectedDatabase
-			}),
-			function(p_return) {
+			v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
 
-			},
-			null,
-			'box');
+			execAjax('/change_active_database/',
+					JSON.stringify({
+							"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+							"p_tab_id": v_connTabControl.selectedTab.id,
+							"p_database": v_connTabControl.selectedTab.tag.selectedDatabase
+					}),
+					function(p_return) {
 
-	if (v_conn_object.v_db_type=='postgresql')
-		getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
-    else if (v_conn_object.v_db_type=='oracle')
-		getTreeOracle(v_connTabControl.selectedTab.tag.divTree.id);
-	else
-		getTree(v_connTabControl.selectedTab.tag.divTree.id);
+					},
+					null,
+					'box');
 
-	adjustQueryTabObjects(true);
+			if (v_conn_object.v_db_type=='postgresql')
+				getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
+		    else if (v_conn_object.v_db_type=='oracle')
+				getTreeOracle(v_connTabControl.selectedTab.tag.divTree.id);
+		    else if (v_conn_object.v_db_type=='mysql')
+				getTreeMysql(v_connTabControl.selectedTab.tag.divTree.id);
+		    else if (v_conn_object.v_db_type=='mariadb')
+				getTreeMariadb(v_connTabControl.selectedTab.tag.divTree.id);
+			else
+				getTree(v_connTabControl.selectedTab.tag.divTree.id);
+
+			adjustQueryTabObjects(true);
+		});
 
 }
 

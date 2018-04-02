@@ -43,7 +43,7 @@ function tabSQLTemplate(p_tab_name, p_template) {
 /// <summary>
 /// Retrieving tree.
 /// </summary>
-function getTreeOracle(p_div) {
+function getTreeMariadb(p_div) {
 
     var context_menu = {
         'cm_server': {
@@ -52,7 +52,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -74,7 +74,7 @@ function getTreeOracle(p_div) {
                         action: function(node) {
                             v_connTabControl.tag.createGraphTab(
                                 node.text)
-                            drawGraph(false, node.tree.tag.v_username);
+                            drawGraph(false, node.tree.tag.v_database);
                         }
                     }, {
                         text: 'Complete Graph',
@@ -82,62 +82,59 @@ function getTreeOracle(p_div) {
                         action: function(node) {
                             v_connTabControl.tag.createGraphTab(
                                 node.text)
-                            drawGraph(true, node.tree.tag.v_username);
+                            drawGraph(true, node.tree.tag.v_database);
                         }
                     }]
                 }
             }]
         },
-        'cm_tablespaces': {
+        'cm_databases': {
             elements: [{
                 text: 'Refresh',
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
                     }
                 }
             }, {
-                text: 'Create Tablespace',
+                text: 'Create Database',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Create Tablespace', node.tree
-                        .tag.create_tablespace);
+                    tabSQLTemplate('Create Database', node.tree
+                        .tag.create_database);
                 }
             }/*, {
-                text: 'Doc: Tablespaces',
+                text: 'Doc: Databases',
                 icon: '/static/OmniDB_app/images/globe.png',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Tablespaces',
+                        'Documentation: Databases',
                         'https://www.postgresql.org/docs/' +
                         getMajorVersion(node.tree.tag.version) +
-                        '/static/manage-ag-tablespaces.html'
-                    );
+                        '/static/managing-databases.html');
                 }
             }*/]
         },
-        'cm_tablespace': {
+        'cm_database': {
             elements: [{
-                text: 'Alter Tablespace',
+                text: 'Alter Database',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Alter Tablespace', node.tree
-                        .tag.alter_tablespace.replace(
-                            '#tablespace_name#', node.text)
-                    );
+                    tabSQLTemplate('Alter Database', node.tree.tag
+                        .alter_database.replace(
+                            '#database_name#', node.text));
                 }
             }, {
-                text: 'Drop Tablespace',
+                text: 'Drop Database',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                    tabSQLTemplate('Drop Tablespace', node.tree
-                        .tag.drop_tablespace.replace(
-                            '#tablespace_name#', node.text)
-                    );
+                    tabSQLTemplate('Drop Database', node.tree.tag
+                        .drop_database.replace(
+                            '#database_name#', node.text));
                 }
             }]
         },
@@ -147,7 +144,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -195,7 +192,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -205,7 +202,7 @@ function getTreeOracle(p_div) {
                 text: 'Create Table',
                 icon: '/static/OmniDB_app/images/new_table.png',
                 action: function(node) {
-                    startAlterTable(true, 'new', null, node.tree.tag.v_username);
+                    startAlterTable(true, 'new', null, node.tree.tag.v_database);
                 }
             }/*, {
                 text: 'Doc: Basics',
@@ -245,7 +242,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -261,7 +258,7 @@ function getTreeOracle(p_div) {
                         action: function(node) {
 
                             var v_table_name = '';
-                            v_table_name = node.tree.tag.v_username + '.' + node.text;
+                            v_table_name = node.tree.tag.v_database + '.' + node.text;
 
                             v_connTabControl.tag.createQueryTab(
                                 node.text);
@@ -294,7 +291,7 @@ function getTreeOracle(p_div) {
                         icon: '/static/OmniDB_app/images/edit_data.png',
                         action: function(node) {
                             startEditData(node.text,
-                                node.tree.tag.v_username
+                                node.tree.tag.v_database
                             );
                         }
                     }, {
@@ -303,7 +300,7 @@ function getTreeOracle(p_div) {
                         action: function(node) {
 
                             var v_table_name = '';
-                            v_table_name = node.tree.tag.v_username + '.' + node.text;
+                            v_table_name = node.tree.tag.v_database + '.' + node.text;
 
                             v_connTabControl.tag.createQueryTab(
                                 node.text);
@@ -334,7 +331,7 @@ function getTreeOracle(p_div) {
                                 .tag.tabControl.selectedTab
                                 .tag.editor.setValue(
                                     'DELETE FROM ' +
-                                    node.tree.tag.v_username + '.' + node.text);
+                                    node.tree.tag.v_database + '.' + node.text);
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
                                 .tag.editor.clearSelection();
@@ -359,7 +356,7 @@ function getTreeOracle(p_div) {
                         action: function(node) {
                             startAlterTable(true,
                                 'alter', node.text,
-                                node.tree.tag.v_username
+                                node.tree.tag.v_database
                             );
                         }
                     }, {
@@ -370,7 +367,7 @@ function getTreeOracle(p_div) {
                                 node.tree.tag.drop_table
                                 .replace(
                                     '#table_name#',
-                                    node.tree.tag.v_username + '.' + node.text));
+                                    node.tree.tag.v_database + '.' + node.text));
                         }
                     }]
                 }
@@ -383,7 +380,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Field', node.tree.tag
                         .create_column.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' + node.parent
+                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
                             .text));
                 }
             }]
@@ -395,7 +392,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Column', node.tree.tag
                         .alter_column.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' +
+                            '#table_name#', node.tree.tag.v_database + '.' +
                             node.parent.parent.text).replace(
                             /#column_name#/g, node.text));
                 }
@@ -405,7 +402,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Column', node.tree.tag
                         .drop_column.replace('#table_name#',
-                            node.tree.tag.v_username + '.' + node.parent.parent
+                            node.tree.tag.v_database + '.' + node.parent.parent
                             .text).replace(/#column_name#/g,
                             node.text));
                 }
@@ -417,7 +414,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -429,7 +426,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Primary Key', node.tree
                         .tag.create_primarykey.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' + node.parent
+                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
                             .text));
                 }
             }]
@@ -452,7 +449,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Primary Key', node.tree
                         .tag.drop_primarykey.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' +
+                            '#table_name#', node.tree.tag.v_database + '.' +
                             node.parent.parent.text).replace(
                             '#constraint_name#', node.text)
                     );
@@ -465,7 +462,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -477,7 +474,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Foreign Key', node.tree
                         .tag.create_foreignkey.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' + node.parent
+                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
                             .text));
                 }
             }]
@@ -500,7 +497,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Foreign Key', node.tree
                         .tag.drop_foreignkey.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' +
+                            '#table_name#', node.tree.tag.v_database + '.' +
                             node.parent.parent.text).replace(
                             '#constraint_name#', node.text)
                     );
@@ -513,7 +510,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -525,7 +522,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Unique', node.tree.tag
                         .create_unique.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' + node.parent
+                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
                             .text));
                 }
             }]
@@ -548,7 +545,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Unique', node.tree.tag
                         .drop_unique.replace('#table_name#',
-                            node.tree.tag.v_username + '.' + node.parent.parent
+                            node.tree.tag.v_database + '.' + node.parent.parent
                             .text).replace(
                             '#constraint_name#', node.text)
                     );
@@ -561,7 +558,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -573,7 +570,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Index', node.tree.tag
                         .create_index.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' + node.parent
+                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
                             .text));
                 }
             }/*, {
@@ -601,76 +598,13 @@ function getTreeOracle(p_div) {
                     }
                 }
             }, {
-                text: 'Alter Index',
-                icon: '/static/OmniDB_app/images/text_edit.png',
-                action: function(node) {
-                    tabSQLTemplate('Alter Index', node.tree.tag
-                        .alter_index.replace('#index_name#',
-                            node.tree.tag.v_username + '.' +
-                            node.text.replace(' (Unique)',
-                                '').replace(' (Non Unique)',
-                                '')));
-                }
-            }, {
                 text: 'Drop Index',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Index', node.tree.tag.drop_index
-                        .replace('#index_name#', node.tree.tag.v_username + '.' + node.text.replace(
+                        .replace('#index_name#', node.tree.tag.v_database + '.' + node.text.replace(
                                 ' (Unique)', '').replace(
                                 ' (Non Unique)', '')));
-                }
-            }]
-        },
-        'cm_sequences': {
-            elements: [{
-                text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreeOracle(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Create Sequence',
-                icon: '/static/OmniDB_app/images/text_edit.png',
-                action: function(node) {
-                    tabSQLTemplate('Create Sequence', node.tree
-                        .tag.create_sequence.replace(
-                            '#schema_name#', node.tree.tag.v_username
-                        ));
-                }
-            }/*, {
-                text: 'Doc: Sequences',
-                icon: '/static/OmniDB_app/images/globe.png',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Sequences',
-                        'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
-                        '/static/sql-createsequence.html');
-                }
-            }*/]
-        },
-        'cm_sequence': {
-            elements: [{
-                text: 'Alter Sequence',
-                icon: '/static/OmniDB_app/images/text_edit.png',
-                action: function(node) {
-                    tabSQLTemplate('Alter Sequence', node.tree.tag
-                        .alter_sequence.replace(
-                            '#sequence_name#', node.tree.tag.v_username + '.' + node.text));
-                }
-            }, {
-                text: 'Drop Sequence',
-                icon: '/static/OmniDB_app/images/tab_close.png',
-                action: function(node) {
-                    tabSQLTemplate('Drop Sequence', node.tree.tag
-                        .drop_sequence.replace(
-                            '#sequence_name#', node.tree.tag.v_username + '.' + node.text));
                 }
             }]
         },
@@ -680,7 +614,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -692,7 +626,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create View', node.tree.tag
                         .create_view.replace(
-                            '#schema_name#', node.tree.tag.v_username
+                            '#schema_name#', node.tree.tag.v_database
                         ));
                 }
             }/*, {
@@ -713,7 +647,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -725,7 +659,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
 
                     var v_table_name = '';
-                    v_table_name = node.tree.tag.v_username + '.' + node.text;
+                    v_table_name = node.tree.tag.v_database + '.' + node.text;
 
                     v_connTabControl.tag.createQueryTab(
                         node.text);
@@ -754,14 +688,14 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createQueryTab(
                         node.text);
-                    getViewDefinitionOracle(node);
+                    getViewDefinitionMariadb(node);
                 }
             }, {
                 text: 'Drop View',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop View', node.tree.tag.drop_view
-                        .replace('#view_name#', node.tree.tag.v_username + '.' + node.text)
+                        .replace('#view_name#', node.tree.tag.v_database + '.' + node.text)
                     );
                 }
             }]
@@ -772,7 +706,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -784,7 +718,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Trigger', node.tree.tag
                         .create_trigger.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' + node.parent
+                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
                             .text));
                 }
             }, {
@@ -805,7 +739,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -817,7 +751,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Trigger', node.tree.tag
                         .create_view_trigger.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' + node.parent
+                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
                             .text));
                 }
             }, {
@@ -839,7 +773,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Trigger', node.tree.tag
                         .alter_trigger.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' +
+                            '#table_name#', node.tree.tag.v_database + '.' +
                             node.parent.parent.text).replace(
                             '#trigger_name#', node.text));
                 }
@@ -849,7 +783,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Enable Trigger', node.tree.tag
                         .enable_trigger.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' +
+                            '#table_name#', node.tree.tag.v_database + '.' +
                             node.parent.parent.text).replace(
                             '#trigger_name#', node.text));
                 }
@@ -859,7 +793,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Disable Trigger', node.tree
                         .tag.disable_trigger.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' +
+                            '#table_name#', node.tree.tag.v_database + '.' +
                             node.parent.parent.text).replace(
                             '#trigger_name#', node.text));
                 }
@@ -869,7 +803,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Trigger', node.tree.tag
                         .drop_trigger.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' +
+                            '#table_name#', node.tree.tag.v_database + '.' +
                             node.parent.parent.text).replace(
                             '#trigger_name#', node.text));
                 }
@@ -881,7 +815,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -893,7 +827,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Partition', node.tree
                         .tag.create_partition.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' + node.parent
+                            '#table_name#', node.tree.tag.v_database + '.' + node.parent
                             .text));
                 }
             }, {
@@ -915,7 +849,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('No Inherit Partition', node
                         .tree.tag.noinherit_partition.replace(
-                            '#table_name#', node.tree.tag.v_username + '.' +
+                            '#table_name#', node.tree.tag.v_database + '.' +
                             node.parent.parent.text).replace(
                             '#partition_name#', node.text));
                 }
@@ -935,7 +869,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -947,7 +881,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Function', node.tree
                         .tag.create_function.replace(
-                            '#schema_name#', node.tree.tag.v_username
+                            '#schema_name#', node.tree.tag.v_database
                         ));
                 }
             }/*, {
@@ -968,7 +902,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -980,7 +914,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createQueryTab(
                         node.text);
-                    getFunctionDefinitionOracle(node);
+                    getFunctionDefinitionMariadb(node);
                 }
             }/*, {
                 text: 'Debug Function',
@@ -988,7 +922,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createDebuggerTab(
                         node.text);
-                    getDebugFunctionDefinitionOracle(node);
+                    getDebugFunctionDefinitionMariadb(node);
                     setupDebug(node);
                 }
             }*/, {
@@ -1008,7 +942,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -1020,7 +954,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Procedure', node.tree
                         .tag.create_procedure.replace(
-                            '#schema_name#', node.tree.tag.v_username
+                            '#schema_name#', node.tree.tag.v_database
                         ));
                 }
             }/*, {
@@ -1041,7 +975,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -1053,7 +987,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createQueryTab(
                         node.text);
-                    getProcedureDefinitionOracle(node);
+                    getProcedureDefinitionMariadb(node);
                 }
             }/*, {
                 text: 'Debug Procedure',
@@ -1061,7 +995,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createDebuggerTab(
                         node.text);
-                    getDebugProcedureDefinitionOracle(node);
+                    getDebugProcedureDefinitionMariadb(node);
                     setupDebug(node);
                 }
             }*/, {
@@ -1081,7 +1015,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -1093,7 +1027,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Trigger Function',
                         node.tree.tag.create_triggerfunction
-                        .replace('#schema_name#', node.tree.tag.v_username));
+                        .replace('#schema_name#', node.tree.tag.v_database));
                 }
             }, {
                 text: 'Doc: Trigger Functions',
@@ -1113,7 +1047,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -1125,7 +1059,7 @@ function getTreeOracle(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createQueryTab(
                         node.text);
-                    getTriggerFunctionDefinitionOracle(node);
+                    getTriggerFunctionDefinitionMariadb(node);
                 }
             }, {
                 text: 'Drop Trigger Function',
@@ -1137,111 +1071,6 @@ function getTreeOracle(p_div) {
                     );
                 }
             }]
-        },
-        'cm_mviews': {
-            elements: [{
-                text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreeOracle(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Create Mat. View',
-                icon: '/static/OmniDB_app/images/text_edit.png',
-                action: function(node) {
-                    tabSQLTemplate('Create Materialized View',
-                        node.tree.tag
-                        .create_mview.replace(
-                            '#schema_name#', node.tree.tag.v_username
-                        ));
-                }
-            }, {
-                text: 'Doc: Mat. Views',
-                icon: '/static/OmniDB_app/images/globe.png',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Materialized Views',
-                        'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
-                        '/static/sql-creatematerializedview.html'
-                    );
-                }
-            }]
-        },
-        'cm_mview': {
-            elements: [{
-                text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreeOracle(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Query Data',
-                icon: '/static/OmniDB_app/images/query.png',
-                action: function(node) {
-
-                    var v_table_name = '';
-                    v_table_name = node.tree.tag.v_username + '.' + node.text;
-
-                    v_connTabControl.tag.createQueryTab(
-                        node.text);
-
-                    v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.sel_filtered_data.value =
-                        1;
-
-                    v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.editor.setValue(
-                            '-- Querying Data\nselect t.*\nfrom ' +
-                            v_table_name + ' t');
-                    v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.editor.clearSelection();
-                    renameTabConfirm(v_connTabControl.selectedTab
-                        .tag.tabControl.selectedTab, node.text
-                    );
-
-                    //minimizeEditor();
-
-                    querySQL(0);
-                }
-            }, {
-                text: 'Edit Mat. View',
-                icon: '/static/OmniDB_app/images/text_edit.png',
-                action: function(node) {
-                    v_connTabControl.tag.createQueryTab(
-                        node.text);
-                    getMaterializedViewDefinitionOracle(
-                        node);
-                }
-            }, {
-                text: 'Refresh Mat. View',
-                icon: '/static/OmniDB_app/images/text_edit.png',
-                action: function(node) {
-                    tabSQLTemplate('Refresh Materialized View',
-                        node.tree.tag.refresh_mview
-                        .replace('#view_name#', node.tree.tag.v_username + '.' + node.text)
-                    );
-                }
-            }, {
-                text: 'Drop Mat. View',
-                icon: '/static/OmniDB_app/images/tab_close.png',
-                action: function(node) {
-                    tabSQLTemplate('Drop Materialized View',
-                        node.tree.tag.drop_mview
-                        .replace('#view_name#', node.tree.tag.v_username + '.' + node.text)
-                    );
-                }
-            }]
         },*/
         'cm_refresh': {
             elements: [{
@@ -1249,7 +1078,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -1259,22 +1088,25 @@ function getTreeOracle(p_div) {
         }
     };
     var tree = createTree(p_div, '#fcfdfd', context_menu);
+    v_connTabControl.selectedTab.tag.tree = tree;
+    v_connTabControl.selectedTab.tag.divDetails.innerHTML = 'Active database: <b>' + v_connTabControl.selectedTab.tag.selectedDatabase + '</b>';
 
     tree.nodeAfterOpenEvent = function(node) {
-        refreshTreeOracle(node);
+        refreshTreeMariadb(node);
     }
 
     tree.clickNodeEvent = function(node) {
-        getPropertiesOracle(node);
+        getPropertiesMariadb(node);
     }
 
-    var node_server = tree.createNode('Oracle', false,
-        '/static/OmniDB_app/images/oracle_medium.png', null, {
+    var node_server = tree.createNode('MariaDB', false,
+        '/static/OmniDB_app/images/mariadb_medium.png', null, {
             type: 'server'
         }, 'cm_server');
     node_server.createChildNode('', true, '/static/OmniDB_app/images/spin.svg',
         null, null);
     tree.drawTree();
+
 
 }
 
@@ -1282,34 +1114,10 @@ function getTreeOracle(p_div) {
 /// Retrieving properties.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getPropertiesOracle(node) {
+function getPropertiesMariadb(node) {
     if (node.tag != undefined)
-        if (node.tag.type == 'role') {
-          getProperties('/get_properties_oracle/',
-            {
-              p_schema: null,
-              p_table: null,
-              p_object: node.text,
-              p_type: node.tag.type
-            });
-        } else if (node.tag.type == 'tablespace') {
-          getProperties('/get_properties_oracle/',
-            {
-              p_schema: null,
-              p_table: null,
-              p_object: node.text,
-              p_type: node.tag.type
-            });
-        } else if (node.tag.type == 'table') {
-        getProperties('/get_properties_oracle/',
-          {
-            p_schema: null,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else if (node.tag.type == 'sequence') {
-        getProperties('/get_properties_oracle/',
+        if (node.tag.type == 'table') {
+        getProperties('/get_properties_mariadb/',
           {
             p_schema: null,
             p_table: null,
@@ -1317,15 +1125,7 @@ function getPropertiesOracle(node) {
             p_type: node.tag.type
           });
       } else if (node.tag.type == 'view') {
-        getProperties('/get_properties_oracle/',
-          {
-            p_schema: null,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else if (node.tag.type == 'mview') {
-        getProperties('/get_properties_oracle/',
+        getProperties('/get_properties_mariadb/',
           {
             p_schema: null,
             p_table: null,
@@ -1333,7 +1133,7 @@ function getPropertiesOracle(node) {
             p_type: node.tag.type
           });
       } else if (node.tag.type == 'function') {
-        getProperties('/get_properties_oracle/',
+        getProperties('/get_properties_mariadb/',
           {
             p_schema: null,
             p_table: null,
@@ -1341,23 +1141,7 @@ function getPropertiesOracle(node) {
             p_type: node.tag.type
           });
       } else if (node.tag.type == 'procedure') {
-        getProperties('/get_properties_oracle/',
-          {
-            p_schema: null,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else if (node.tag.type == 'trigger') {
-        getProperties('/get_properties_oracle/',
-          {
-            p_schema: null,
-            p_table: node.parent.parent.text,
-            p_object: node.text,
-            p_type: node.tag.type
-          });
-      } else if (node.tag.type == 'triggerfunction') {
-        getProperties('/get_properties_oracle/',
+        getProperties('/get_properties_mariadb/',
           {
             p_schema: null,
             p_table: null,
@@ -1373,58 +1157,52 @@ function getPropertiesOracle(node) {
 /// Refreshing tree node.
 /// </summary>
 /// <param name="node">Node object.</param>
-function refreshTreeOracle(node) {
+function refreshTreeMariadb(node) {
     if (node.tag != undefined)
         if (node.tag.type == 'table_list') {
-            getTablesOracle(node);
+            getTablesMariadb(node);
     } else if (node.tag.type == 'table') {
-        getColumnsOracle(node);
+        getColumnsMariadb(node);
     } else if (node.tag.type == 'primary_key') {
-        getPKOracle(node);
+        getPKMariadb(node);
     } else if (node.tag.type == 'pk') {
-        getPKColumnsOracle(node);
+        getPKColumnsMariadb(node);
     } else if (node.tag.type == 'uniques') {
-        getUniquesOracle(node);
+        getUniquesMariadb(node);
     } else if (node.tag.type == 'unique') {
-        getUniquesColumnsOracle(node);
+        getUniquesColumnsMariadb(node);
     } else if (node.tag.type == 'foreign_keys') {
-        getFKsOracle(node);
+        getFKsMariadb(node);
     } else if (node.tag.type == 'foreign_key') {
-        getFKsColumnsOracle(node);
+        getFKsColumnsMariadb(node);
     } else if (node.tag.type == 'view_list') {
-        getViewsOracle(node);
+        getViewsMariadb(node);
     } else if (node.tag.type == 'view') {
-        getViewsColumnsOracle(node);
-    } /*else if (node.tag.type == 'mview_list') {
-        getMaterializedViewsOracle(node);
-    } else if (node.tag.type == 'mview') {
-        getMaterializedViewsColumnsOracle(node);
-    } */else if (node.tag.type == 'indexes') {
-        getIndexesOracle(node);
+        getViewsColumnsMariadb(node);
+    } else if (node.tag.type == 'indexes') {
+        getIndexesMariadb(node);
     } else if (node.tag.type == 'index') {
-        getIndexesColumnsOracle(node);
+        getIndexesColumnsMariadb(node);
     } else if (node.tag.type == 'function_list') {
-        getFunctionsOracle(node);
+        getFunctionsMariadb(node);
     } else if (node.tag.type == 'function') {
-        getFunctionFieldsOracle(node);
+        getFunctionFieldsMariadb(node);
     } else if (node.tag.type == 'procedure_list') {
-        getProceduresOracle(node);
+        getProceduresMariadb(node);
     } else if (node.tag.type == 'procedure') {
-        getProcedureFieldsOracle(node);
-    } else if (node.tag.type == 'sequence_list') {
-        getSequencesOracle(node);
-    } else if (node.tag.type == 'tablespace_list') {
-        getTablespacesOracle(node);
+        getProcedureFieldsMariadb(node);
+    } else if (node.tag.type == 'database_list') {
+        getDatabasesMariadb(node);
     } else if (node.tag.type == 'role_list') {
-        getRolesOracle(node);
+        getRolesMariadb(node);
     } /*else if (node.tag.type == 'trigger_list') {
-        getTriggersOracle(node);
+        getTriggersMariadb(node);
     } else if (node.tag.type == 'triggerfunction_list') {
-        getTriggerFunctionsOracle(node);
+        getTriggerFunctionsMariadb(node);
     } else if (node.tag.type == 'partition_list') {
-        getPartitionsOracle(node);
+        getPartitionsMariadb(node);
     } */else if (node.tag.type == 'server') {
-        getTreeDetailsOracle(node);
+        getTreeDetailsMariadb(node);
     }
 }
 
@@ -1432,15 +1210,16 @@ function refreshTreeOracle(node) {
 /// Retrieving tree details.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getTreeDetailsOracle(node) {
+function getTreeDetailsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_tree_info_oracle/',
+    execAjax('/get_tree_info_mariadb/',
         JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
         }),
         function(p_return) {
 
@@ -1450,7 +1229,7 @@ function getTreeDetailsOracle(node) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreeOracle(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -1496,19 +1275,15 @@ function getTreeDetailsOracle(node) {
                 node.removeChildNodes();
 
             node.tree.tag = {
+                v_database: p_return.v_data.v_database_return.v_database,
                 version: p_return.v_data.v_database_return.version,
                 v_username: p_return.v_data.v_database_return.v_username,
-                superuser: p_return.v_data.v_database_return.superuser,
-                express: p_return.v_data.v_database_return.express,
                 create_role: p_return.v_data.v_database_return.create_role,
                 alter_role: p_return.v_data.v_database_return.alter_role,
                 drop_role: p_return.v_data.v_database_return.drop_role,
-                create_tablespace: p_return.v_data.v_database_return.create_tablespace,
-                alter_tablespace: p_return.v_data.v_database_return.alter_tablespace,
-                drop_tablespace: p_return.v_data.v_database_return.drop_tablespace,
-                create_sequence: p_return.v_data.v_database_return.create_sequence,
-                alter_sequence: p_return.v_data.v_database_return.alter_sequence,
-                drop_sequence: p_return.v_data.v_database_return.drop_sequence,
+                create_database: p_return.v_data.v_database_return.create_database,
+                alter_database: p_return.v_data.v_database_return.alter_database,
+                drop_database: p_return.v_data.v_database_return.drop_database,
                 create_function: p_return.v_data.v_database_return.create_function,
                 drop_function: p_return.v_data.v_database_return.drop_function,
                 create_procedure: p_return.v_data.v_database_return.create_procedure,
@@ -1519,9 +1294,6 @@ function getTreeDetailsOracle(node) {
                 //    .drop_triggerfunction,
                 create_view: p_return.v_data.v_database_return.create_view,
                 drop_view: p_return.v_data.v_database_return.drop_view,
-                //create_mview: p_return.v_data.v_database_return.create_mview,
-                //refresh_mview: p_return.v_data.v_database_return.refresh_mview,
-                //drop_mview: p_return.v_data.v_database_return.drop_mview,
                 //create_table
                 //alter_table
                 drop_table: p_return.v_data.v_database_return.drop_table,
@@ -1535,7 +1307,6 @@ function getTreeDetailsOracle(node) {
                 create_foreignkey: p_return.v_data.v_database_return.create_foreignkey,
                 drop_foreignkey: p_return.v_data.v_database_return.drop_foreignkey,
                 create_index: p_return.v_data.v_database_return.create_index,
-                alter_index: p_return.v_data.v_database_return.alter_index,
                 drop_index: p_return.v_data.v_database_return.drop_index//,
                 //create_trigger: p_return.v_data.v_database_return.create_trigger,
                 //create_view_trigger: p_return.v_data.v_database_return.create_view_trigger,
@@ -1548,51 +1319,33 @@ function getTreeDetailsOracle(node) {
                 //drop_partition: p_return.v_data.v_database_return.drop_partition
             }
 
-            if (node.tree.tag.superuser) {
-                node.tree.contextMenu.cm_server.elements.push({
-                    text: 'Monitoring',
-                    icon: '/static/OmniDB_app/images/monitoring.png',
-                    action: function(node) {},
-                    submenu: {
-                        elements: [/*{
-                            text: 'Dashboard',
-                            icon: '/static/OmniDB_app/images/monitoring.png',
-                            action: function(node) {
-                                v_connTabControl.tag.createMonitorDashboardTab();
-                                startMonitorDashboard();
-                            }
-                        }, */{
-                            text: 'Sessions',
-                            icon: '/static/OmniDB_app/images/monitoring.png',
-                            action: function(node) {
-                                v_connTabControl.tag.createMonitoringTab(
-                                    'Sessions',
-                                    'select * from v$session', [{
-                                        icon: '/static/OmniDB_app/images/tab_close.png',
-                                        title: 'Terminate',
-                                        action: 'oracleTerminateBackend'
-                                    }]);
-                            }
-                        }]
-                    }
-                });
-            }/* else {
-                node.tree.contextMenu.cm_server.elements.push({
-                    text: 'Monitoring',
-                    icon: '/static/OmniDB_app/images/monitoring.png',
-                    action: function(node) {},
-                    submenu: {
-                        elements: [{
-                            text: 'Dashboard',
-                            icon: '/static/OmniDB_app/images/monitoring.png',
-                            action: function(node) {
-                                v_connTabControl.tag.createMonitorDashboardTab();
-                                startMonitorDashboard();
-                            }
-                        }]
-                    }
-                });
-            }*/
+            node.tree.contextMenu.cm_server.elements.push({
+                text: 'Monitoring',
+                icon: '/static/OmniDB_app/images/monitoring.png',
+                action: function(node) {},
+                submenu: {
+                    elements: [/*{
+                        text: 'Dashboard',
+                        icon: '/static/OmniDB_app/images/monitoring.png',
+                        action: function(node) {
+                            v_connTabControl.tag.createMonitorDashboardTab();
+                            startMonitorDashboard();
+                        }
+                    }, */{
+                        text: 'Process List',
+                        icon: '/static/OmniDB_app/images/monitoring.png',
+                        action: function(node) {
+                            v_connTabControl.tag.createMonitoringTab(
+                                'Process List',
+                                'select * from information_schema.processlist', [{
+                                    icon: '/static/OmniDB_app/images/tab_close.png',
+                                    title: 'Terminate',
+                                    action: 'mariadbTerminateBackend'
+                                }]);
+                        }
+                    }]
+                }
+            });
 
             node.setText(p_return.v_data.v_database_return.version);
 
@@ -1601,61 +1354,44 @@ function getTreeDetailsOracle(node) {
                     type: 'connection'
                 }, 'cm_connection');
 
-            if (node.tree.tag.superuser) {
-                var node_tablespaces = node.createChildNode('Tablespaces',
-                    false, '/static/OmniDB_app/images/folder.png', {
-                        type: 'tablespace_list',
-                        num_tablespaces: 0
-                    }, 'cm_tablespaces');
-                node_tablespaces.createChildNode('', true,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
-                var node_roles = node.createChildNode('Roles', false,
-                    '/static/OmniDB_app/images/role.png', {
-                        type: 'role_list',
-                        num_roles: 0
-                    }, 'cm_roles');
-                node_roles.createChildNode('', true,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
-            }
+            var node_databases = node.createChildNode('Databases', false,
+                '/static/OmniDB_app/images/db.png', {
+                type: 'database_list',
+                num_databases: 0
+            }, 'cm_databases');
+            node_databases.createChildNode('', true,
+                '/static/OmniDB_app/images/spin.svg', null, null);
+            var node_roles = node.createChildNode('Roles', false,
+                '/static/OmniDB_app/images/role.png', {
+                    type: 'role_list',
+                    num_roles: 0
+            }, 'cm_roles');
+            node_roles.createChildNode('', true,
+                '/static/OmniDB_app/images/spin.svg', null, null);
 
             var node_tables = node_connection.createChildNode('Tables', false,
                 '/static/OmniDB_app/images/table_multiple.png', {
                     type: 'table_list',
-                    num_tables: 0
+                    num_tables: 0,
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
                 }, 'cm_tables');
             node_tables.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
-
-            var node_sequences = node_connection.createChildNode('Sequences',
-                false,
-                '/static/OmniDB_app/images/sequence_list.png', {
-                    type: 'sequence_list',
-                    num_sequences: 0
-                }, 'cm_sequences');
-            node_sequences.createChildNode('', true,
                 '/static/OmniDB_app/images/spin.svg', null, null);
 
             var node_views = node_connection.createChildNode('Views', false,
                 '/static/OmniDB_app/images/view_multiple.png', {
                     type: 'view_list',
-                    num_views: 0
+                    num_views: 0,
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
                 }, 'cm_views');
             node_views.createChildNode('', true,
                 '/static/OmniDB_app/images/spin.svg', null, null);
 
-            /*var node_mviews = node_connection.createChildNode(
-                'Materialized Views', false,
-                '/static/OmniDB_app/images/view_multiple.png', {
-                    type: 'mview_list',
-                    num_views: 0
-                }, 'cm_mviews');
-            node_mviews.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);*/
-
             var node_functions = node_connection.createChildNode('Functions',
                 false, '/static/OmniDB_app/images/gear2.png', {
                     type: 'function_list',
-                    num_functions: 0
+                    num_functions: 0,
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
                 }, 'cm_functions');
             node_functions.createChildNode('', true,
                 '/static/OmniDB_app/images/spin.svg', null, null);
@@ -1663,7 +1399,8 @@ function getTreeDetailsOracle(node) {
             var node_functions = node_connection.createChildNode('Procedures',
                 false, '/static/OmniDB_app/images/gear2.png', {
                     type: 'procedure_list',
-                    num_functions: 0
+                    num_functions: 0,
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
                 }, 'cm_procedures');
             node_functions.createChildNode('', true,
                 '/static/OmniDB_app/images/spin.svg', null, null);
@@ -1684,34 +1421,37 @@ function getTreeDetailsOracle(node) {
 }
 
 /// <summary>
-/// Retrieving tablespaces.
+/// Retrieving databases.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getTablespacesOracle(node) {
+function getDatabasesMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_tablespaces_oracle/',
+
+    execAjax('/get_databases_mariadb/',
         JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id
         }),
         function(p_return) {
 
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            node.setText('Tablespaces (' + p_return.v_data.length + ')');
+            node.setText('Databases (' + p_return.v_data.length + ')');
 
-            node.tag.num_tablespaces = p_return.v_data.length;
+            node.tag.num_databases = p_return.v_data.length;
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/folder.png', {
-                        type: 'tablespace'
-                    }, 'cm_tablespace',null,false);
+                    false, '/static/OmniDB_app/images/db.png', {
+                        type: 'database',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_database',null,false);
 
             }
 
@@ -1729,15 +1469,16 @@ function getTablespacesOracle(node) {
 /// Retrieving roles.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getRolesOracle(node) {
+function getRolesMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_roles_oracle/',
+    execAjax('/get_roles_mariadb/',
         JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id
         }),
         function(p_return) {
 
@@ -1752,7 +1493,8 @@ function getRolesOracle(node) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/role.png', {
-                        type: 'role'
+                        type: 'role',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_role',null,false);
 
             }
@@ -1771,16 +1513,17 @@ function getRolesOracle(node) {
 /// Retrieving tables.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getTablesOracle(node) {
+function getTablesMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
 
-    execAjax('/get_tables_oracle/',
+    execAjax('/get_tables_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -1809,51 +1552,9 @@ function getTablesOracle(node) {
                     }, 'cm_table',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
-                        type: 'table_field'
+                        type: 'table_field',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null,null,false);
-
-            }
-
-            node.drawChildNodes();
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving sequences.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getSequencesOracle(node) {
-    node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
-        null);
-
-    execAjax('/get_sequences_oracle/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_schema": null
-        }),
-        function(p_return) {
-
-            node.setText('Sequences (' + p_return.v_data.length + ')');
-
-            node.tag.num_tables = p_return.v_data.length;
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                v_node = node.createChildNode(p_return.v_data[i].v_sequence_name,
-                    false,
-                    '/static/OmniDB_app/images/sequence_list.png', {
-                        type: 'sequence'
-                    }, 'cm_sequence',null,false);
 
             }
 
@@ -1871,15 +1572,16 @@ function getSequencesOracle(node) {
 /// Retrieving views.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getViewsOracle(node) {
+function getViewsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_views_oracle/',
+    execAjax('/get_views_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -1896,11 +1598,13 @@ function getViewsOracle(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/view.png', {
                         type: 'view',
-                        has_triggers: p_return.v_data[i].v_has_triggers
+                        has_triggers: p_return.v_data[i].v_has_triggers,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_view',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
-                        type: 'view_field'
+                        type: 'view_field',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null,null,false);
             }
 
@@ -1917,15 +1621,16 @@ function getViewsOracle(node) {
 /// Retrieving View Columns.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getViewsColumnsOracle(node) {
+function getViewsColumnsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_views_columns_oracle/',
+    execAjax('/get_views_columns_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.text,
             "p_schema": null
         }),
@@ -1942,7 +1647,8 @@ function getViewsColumnsOracle(node) {
 
                 v_node = v_list.createChildNode(p_return.v_data[i].v_column_name,
                     false, '/static/OmniDB_app/images/add.png', {
-                        type: 'table_field'
+                        type: 'table_field',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null,null,false);
                 v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
                     false, '/static/OmniDB_app/images/bullet_red.png',
@@ -1953,7 +1659,8 @@ function getViewsColumnsOracle(node) {
             if (node.tag.has_rules) {
                 v_node = node.createChildNode('Rules', false,
                     '/static/OmniDB_app/images/rule.png', {
-                        type: 'rule_list'
+                        type: 'rule_list',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_rules',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', null, null,null,false);
@@ -1962,7 +1669,8 @@ function getViewsColumnsOracle(node) {
             if (node.tag.has_triggers) {
                 v_node = node.createChildNode('Triggers', false,
                     '/static/OmniDB_app/images/trigger.png', {
-                        type: 'trigger_list'
+                        type: 'trigger_list',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_view_triggers',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', null, null,null,false);
@@ -1982,11 +1690,12 @@ function getViewsColumnsOracle(node) {
 /// Retrieving view definition.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getViewDefinitionOracle(node) {
+function getViewDefinitionMariadb(node) {
 
-    execAjax('/get_view_definition_oracle/',
+    execAjax('/get_view_definition_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_view": node.text,
             "p_schema": null
         }),
@@ -2027,157 +1736,21 @@ function getViewDefinitionOracle(node) {
         true);
 
 }
-
-/*
-/// <summary>
-/// Retrieving materialized views.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getMaterializedViewsOracle(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
-        null);
-
-    execAjax('/get_mviews_oracle/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_schema": null
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            node.setText('Materialized Views (' + p_return.v_data.length +
-                ')');
-
-            node.tag.num_tables = p_return.v_data.length;
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/view.png', {
-                        type: 'mview'
-                    }, 'cm_mview');
-                v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', {
-                        type: 'mview_field'
-                    }, null);
-            }
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving Materialized View Columns.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getMaterializedViewsColumnsOracle(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
-        null);
-
-    execAjax('/get_mviews_columns_oracle/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_table": node.text,
-            "p_schema": null
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                v_node = node.createChildNode(p_return.v_data[i].v_column_name,
-                    false, '/static/OmniDB_app/images/add.png', {
-                        type: 'table_field'
-                    }, null);
-                v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
-                    false, '/static/OmniDB_app/images/bullet_red.png',
-                    null, null);
-
-            }
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving materialized view definition.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getMaterializedViewDefinitionOracle(node) {
-
-    execAjax('/get_mview_definition_oracle/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_view": node.text,
-            "p_schema": null
-        }),
-        function(p_return) {
-
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
-                .setValue(p_return.v_data);
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
-                .clearSelection();
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
-                .gotoLine(0, 0, true);
-            //v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
-            renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
-                node.text);
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
-                .value = 1;
-
-            var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
-                .tag.div_result;
-
-            if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
-                .ht != null) {
-                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
-                    .ht.destroy();
-                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
-                    .ht = null;
-            }
-
-            v_div_result.innerHTML = '';
-
-            maximizeEditor();
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        true);
-
-}
-*/
 
 /// <summary>
 /// Retrieving columns.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getColumnsOracle(node) {
+function getColumnsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_columns_oracle/',
+    execAjax('/get_columns_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.text,
             "p_schema": null
         }),
@@ -2188,14 +1761,16 @@ function getColumnsOracle(node) {
 
             v_list = node.createChildNode('Columns (' + p_return.v_data.length +
                 ')', false, '/static/OmniDB_app/images/add.png', {
-                    type: 'column_list'
+                    type: 'column_list',
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
                 }, 'cm_columns',null,false);
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = v_list.createChildNode(p_return.v_data[i].v_column_name,
                     false, '/static/OmniDB_app/images/add.png', {
-                        type: 'table_field'
+                        type: 'table_field',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_column',null,false);
                 v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
                     false, '/static/OmniDB_app/images/bullet_red.png',
@@ -2209,7 +1784,8 @@ function getColumnsOracle(node) {
             if (node.tag.has_primary_keys) {
                 v_node = node.createChildNode('Primary Key', false,
                     '/static/OmniDB_app/images/key.png', {
-                        type: 'primary_key'
+                        type: 'primary_key',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_pks',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', null, null,null,false);
@@ -2218,7 +1794,8 @@ function getColumnsOracle(node) {
             if (node.tag.has_foreign_keys) {
                 v_node = node.createChildNode('Foreign Keys', false,
                     '/static/OmniDB_app/images/silver_key.png', {
-                        type: 'foreign_keys'
+                        type: 'foreign_keys',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_fks',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', null, null,null,false);
@@ -2227,7 +1804,8 @@ function getColumnsOracle(node) {
             if (node.tag.has_uniques) {
                 v_node = node.createChildNode('Uniques', false,
                     '/static/OmniDB_app/images/blue_key.png', {
-                        type: 'uniques'
+                        type: 'uniques',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_uniques',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', null, null,null,false);
@@ -2236,7 +1814,8 @@ function getColumnsOracle(node) {
             if (node.tag.has_indexes) {
                 v_node = node.createChildNode('Indexes', false,
                     '/static/OmniDB_app/images/index.png', {
-                        type: 'indexes'
+                        type: 'indexes',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_indexes',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', null, null,null,false);
@@ -2245,7 +1824,8 @@ function getColumnsOracle(node) {
             if (node.tag.has_triggers) {
                 v_node = node.createChildNode('Triggers', false,
                     '/static/OmniDB_app/images/trigger.png', {
-                        type: 'trigger_list'
+                        type: 'trigger_list',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_triggers',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', null, null,null,false);
@@ -2254,7 +1834,8 @@ function getColumnsOracle(node) {
             if (node.tag.has_partitions) {
                 v_node = node.createChildNode('Partitions', false,
                     '/static/OmniDB_app/images/partition.png', {
-                        type: 'partition_list'
+                        type: 'partition_list',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_partitions',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', null, null,null,false);
@@ -2274,15 +1855,16 @@ function getColumnsOracle(node) {
 /// Retrieving PKs.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getPKOracle(node) {
+function getPKMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_pk_oracle/',
+    execAjax('/get_pk_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2300,11 +1882,13 @@ function getPKOracle(node) {
             if (p_return.v_data.length > 0) {
                 v_node = node.createChildNode(p_return.v_data[0][0], false,
                     '/static/OmniDB_app/images/key.png', {
-                        type: 'pk'
+                        type: 'pk',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_pk');
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
-                        type: 'pk_field'
+                        type: 'pk_field',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null);
             }
 
@@ -2320,15 +1904,16 @@ function getPKOracle(node) {
 /// Retrieving PKs Columns.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getPKColumnsOracle(node) {
+function getPKColumnsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_pk_columns_oracle/',
+    execAjax('/get_pk_columns_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_key": node.text,
             "p_table": node.parent.parent.text,
             "p_schema": null
@@ -2359,15 +1944,16 @@ function getPKColumnsOracle(node) {
 /// Retrieving Uniques.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getUniquesOracle(node) {
+function getUniquesMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_uniques_oracle/',
+    execAjax('/get_uniques_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2385,12 +1971,14 @@ function getUniquesOracle(node) {
                     v_node = node.createChildNode(p_return.v_data[i][0],
                         false,
                         '/static/OmniDB_app/images/blue_key.png', {
-                            type: 'unique'
+                            type: 'unique',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, 'cm_unique',null,false);
 
                     v_node.createChildNode('', false,
                         '/static/OmniDB_app/images/spin.svg', {
-                            type: 'unique_field'
+                            type: 'unique_field',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, null,null,false);
 
                 }
@@ -2411,15 +1999,16 @@ function getUniquesOracle(node) {
 /// Retrieving Uniques Columns.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getUniquesColumnsOracle(node) {
+function getUniquesColumnsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_uniques_columns_oracle/',
+    execAjax('/get_uniques_columns_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_unique": node.text,
             "p_table": node.parent.parent.text,
             "p_schema": null
@@ -2455,15 +2044,16 @@ function getUniquesColumnsOracle(node) {
 /// Retrieving Indexes.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getIndexesOracle(node) {
+function getIndexesMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_indexes_oracle/',
+    execAjax('/get_indexes_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2483,7 +2073,8 @@ function getIndexesOracle(node) {
                     v_node = node.createChildNode(p_return.v_data[i][0] +
                         ' (' + p_return.v_data[i][1] + ')', false,
                         '/static/OmniDB_app/images/index.png', {
-                            type: 'index'
+                            type: 'index',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, 'cm_index',null,false);
 
                     v_node.createChildNode('', false,
@@ -2509,15 +2100,16 @@ function getIndexesOracle(node) {
 /// Retrieving Indexes Columns.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getIndexesColumnsOracle(node) {
+function getIndexesColumnsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_indexes_columns_oracle/',
+    execAjax('/get_indexes_columns_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_index": node.text.replace(' (Non Unique)', '').replace(
                 ' (Unique)', ''),
             "p_table": node.parent.parent.text,
@@ -2554,15 +2146,16 @@ function getIndexesColumnsOracle(node) {
 /// Retrieving FKs.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getFKsOracle(node) {
+function getFKsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_fks_oracle/',
+    execAjax('/get_fks_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2578,7 +2171,8 @@ function getFKsOracle(node) {
                 v_node = node.createChildNode(p_return.v_data[i][0],
                     false,
                     '/static/OmniDB_app/images/silver_key.png', {
-                        type: 'foreign_key'
+                        type: 'foreign_key',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_fk',null,false);
                 v_node.createChildNode('Referenced Table: ' + p_return.v_data[
                         i][1], false,
@@ -2611,15 +2205,16 @@ function getFKsOracle(node) {
 /// Retrieving FKs Columns.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getFKsColumnsOracle(node) {
+function getFKsColumnsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_fks_columns_oracle/',
+    execAjax('/get_fks_columns_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_fkey": node.text,
             "p_table": node.parent.parent.text,
             "p_schema": null
@@ -2666,15 +2261,16 @@ function getFKsColumnsOracle(node) {
 /// Retrieving Triggers.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getTriggersOracle(node) {
+function getTriggersMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_triggers_oracle/',
+    execAjax('/get_triggers_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2693,7 +2289,8 @@ function getTriggersOracle(node) {
 
                     v_node = node.createChildNode(p_return.v_data[i][0],
                         false, '/static/OmniDB_app/images/trigger.png', {
-                            type: 'trigger'
+                            type: 'trigger',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, 'cm_trigger');
                     v_node.createChildNode('Enabled: ' + p_return.v_data[i]
                         [1], false,
@@ -2720,15 +2317,16 @@ function getTriggersOracle(node) {
 /// Retrieving Partitions.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getPartitionsOracle(node) {
+function getPartitionsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_partitions_oracle/',
+    execAjax('/get_partitions_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2748,7 +2346,8 @@ function getPartitionsOracle(node) {
                     v_node = node.createChildNode(p_return.v_data[i][0],
                         false,
                         '/static/OmniDB_app/images/partition.png', {
-                            type: 'partition'
+                            type: 'partition',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, 'cm_partition');
 
                 }
@@ -2768,16 +2367,17 @@ function getPartitionsOracle(node) {
 /// Retrieving functions.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getFunctionsOracle(node) {
+function getFunctionsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
 
-    execAjax('/get_functions_oracle/',
+    execAjax('/get_functions_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -2794,7 +2394,8 @@ function getFunctionsOracle(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/gear2.png', {
                         type: 'function',
-                        id: p_return.v_data[i].v_id
+                        id: p_return.v_data[i].v_id,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_function',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
@@ -2817,15 +2418,16 @@ function getFunctionsOracle(node) {
 /// Retrieving function fields.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getFunctionFieldsOracle(node) {
+function getFunctionFieldsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_function_fields_oracle/',
+    execAjax('/get_function_fields_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id,
             "p_schema": null
         }),
@@ -2870,11 +2472,12 @@ function getFunctionFieldsOracle(node) {
 /// Retrieving function definition.
 /// </summary>
 /// <param name="node">Node object.</param>
-/*function getDebugFunctionDefinitionOracle(node) {
+/*function getDebugFunctionDefinitionMariadb(node) {
 
-    execAjax('/get_function_debug_oracle/',
+    execAjax('/get_function_debug_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id
         }),
         function(p_return) {
@@ -2899,11 +2502,12 @@ function getFunctionFieldsOracle(node) {
 /// Retrieving function definition.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getFunctionDefinitionOracle(node) {
+function getFunctionDefinitionMariadb(node) {
 
-    execAjax('/get_function_definition_oracle/',
+    execAjax('/get_function_definition_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id
         }),
         function(p_return) {
@@ -2948,16 +2552,17 @@ function getFunctionDefinitionOracle(node) {
 /// Retrieving procedures.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getProceduresOracle(node) {
+function getProceduresMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
 
-    execAjax('/get_procedures_oracle/',
+    execAjax('/get_procedures_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -2974,11 +2579,13 @@ function getProceduresOracle(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/gear2.png', {
                         type: 'procedure',
-                        id: p_return.v_data[i].v_id
+                        id: p_return.v_data[i].v_id,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_procedure',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', {
-                        type: 'procedure_field'
+                        type: 'procedure_field',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null,null,false);
 
             }
@@ -2997,15 +2604,16 @@ function getProceduresOracle(node) {
 /// Retrieving procedure fields.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getProcedureFieldsOracle(node) {
+function getProcedureFieldsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-    execAjax('/get_procedure_fields_oracle/',
+    execAjax('/get_procedure_fields_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_procedure": node.tag.id,
             "p_schema": null
         }),
@@ -3050,11 +2658,12 @@ function getProcedureFieldsOracle(node) {
 /// Retrieving procedure definition.
 /// </summary>
 /// <param name="node">Node object.</param>
-/*function getDebugProcedureDefinitionOracle(node) {
+/*function getDebugProcedureDefinitionMariadb(node) {
 
-    execAjax('/get_function_debug_oracle/',
+    execAjax('/get_function_debug_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id
         }),
         function(p_return) {
@@ -3079,11 +2688,12 @@ function getProcedureFieldsOracle(node) {
 /// Retrieving procedure definition.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getProcedureDefinitionOracle(node) {
+function getProcedureDefinitionMariadb(node) {
 
-    execAjax('/get_procedure_definition_oracle/',
+    execAjax('/get_procedure_definition_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_procedure": node.tag.id
         }),
         function(p_return) {
@@ -3129,16 +2739,16 @@ function getProcedureDefinitionOracle(node) {
 /// Retrieving trigger functions.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getTriggerFunctionsOracle(node) {
+function getTriggerFunctionsMariadb(node) {
 
     node.removeChildNodes();
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-
-    execAjax('/get_triggerfunctions_oracle/',
+    execAjax('/get_triggerfunctions_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -3156,7 +2766,8 @@ function getTriggerFunctionsOracle(node) {
                 node.createChildNode(p_return.v_data[i].v_name, false,
                     '/static/OmniDB_app/images/gear2.png', {
                         type: 'triggerfunction',
-                        id: p_return.v_data[i].v_id
+                        id: p_return.v_data[i].v_id,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_triggerfunction');
 
             }
@@ -3173,11 +2784,12 @@ function getTriggerFunctionsOracle(node) {
 /// Retrieving trigger function definition.
 /// </summary>
 /// <param name="node">Node object.</param>
-function getTriggerFunctionDefinitionOracle(node) {
+function getTriggerFunctionDefinitionMariadb(node) {
 
-    execAjax('/get_triggerfunction_definition_oracle/',
+    execAjax('/get_triggerfunction_definition_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id
         }),
         function(p_return) {
@@ -3256,10 +2868,11 @@ function nodeOpenError(p_return, p_node) {
     return tmp.join('.')
 }*/
 
-function oracleTerminateBackendConfirm(p_pid) {
-    execAjax('/kill_backend_oracle/',
+function mariadbTerminateBackendConfirm(p_pid) {
+    execAjax('/kill_backend_mariadb/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
             "p_pid": p_pid
         }),
         function(p_return) {
@@ -3272,7 +2885,7 @@ function oracleTerminateBackendConfirm(p_pid) {
                 showPasswordPrompt(
                     v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
                     function() {
-                        oracleTerminateBackendConfirm(p_pid);
+                        mariadbTerminateBackendConfirm(p_pid);
                     },
                     null,
                     p_return.v_data.message
@@ -3286,14 +2899,12 @@ function oracleTerminateBackendConfirm(p_pid) {
 
 }
 
-function oracleTerminateBackend(p_row) {
+function mariadbTerminateBackend(p_row) {
 
-    var v_pid = p_row[1] + ',' + p_row[2];
-
-    showConfirm('Are you sure you want to terminate session ' + v_pid + '?',
+    showConfirm('Are you sure you want to terminate process ' + p_row[0] + '?',
         function() {
 
-            oracleTerminateBackendConfirm(v_pid);
+            mariadbTerminateBackendConfirm(p_row[0]);
 
         });
 

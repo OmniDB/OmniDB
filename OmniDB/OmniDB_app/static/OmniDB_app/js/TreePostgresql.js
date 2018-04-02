@@ -78,8 +78,29 @@ function tabDataMining() {
     var v_tab_close_span = document.getElementById('tab_close');
     v_tab_close_span.id = 'tab_close_' + v_tab.id;
 
-    v_tab_close_span.onclick = function() {
-        removeTab(v_tab);
+    v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
     };
 
     var v_tab_check_span = document.getElementById('tab_check');
@@ -1819,7 +1840,6 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createDebuggerTab(
                         node.text);
-                    getDebugFunctionDefinitionPostgresql(node);
                     setupDebug(node);
                 }
             }, {
@@ -3137,36 +3157,46 @@ function checkCurrentDatabase(p_node, p_complete_check, p_callback_continue, p_c
 
     showConfirm3('This node belongs to another database, change active database to <b>' + p_node.tag.database + '</b>?',
         function() {
+          var v_call_back_continue = p_callback_continue;
+          var v_call_back_stop = p_callback_stop;
 
-          execAjax('/change_active_database/',
-              JSON.stringify({
-                  "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-                  "p_tab_id": v_connTabControl.selectedTab.id,
-                  "p_database": p_node.tag.database
-              }),
-              function(p_return) {
+          checkBeforeChangeDatabase(
+            function() {
+              if (p_callback_stop)
+                p_callback_stop();
+            },
+            function() {
+              execAjax('/change_active_database/',
+                  JSON.stringify({
+                      "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                      "p_tab_id": v_connTabControl.selectedTab.id,
+                      "p_database": p_node.tag.database
+                  }),
+                  function(p_return) {
 
-                v_connTabControl.selectedTab.tag.divDetails.innerHTML = 'Active database: <b>' + p_node.tag.database + '</b>';
+                    v_connTabControl.selectedTab.tag.divDetails.innerHTML = 'Active database: <b>' + p_node.tag.database + '</b>';
 
-                v_connTabControl.selectedTab.tag.selectedDatabaseNode.clearNodeBold();
-                //searching new selected database node
-                var v_list_database_nodes = p_node.tree.childNodes[0].childNodes[0].childNodes;
-                for (var i=0; i<v_list_database_nodes.length; i++) {
-                  if (p_node.tag.database == v_list_database_nodes[i].text.replace(/"/g, '')) {
-                    v_list_database_nodes[i].setNodeBold();
-                    v_connTabControl.selectedTab.tag.selectedDatabase = p_node.tag.database;
-                    v_connTabControl.selectedTab.tag.selectedDatabaseNode = v_list_database_nodes[i];
-                  }
+                    v_connTabControl.selectedTab.tag.selectedDatabaseNode.clearNodeBold();
+                    //searching new selected database node
+                    var v_list_database_nodes = p_node.tree.childNodes[0].childNodes[0].childNodes;
+                    for (var i=0; i<v_list_database_nodes.length; i++) {
+                      if (p_node.tag.database == v_list_database_nodes[i].text.replace(/"/g, '')) {
+                        v_list_database_nodes[i].setNodeBold();
+                        v_connTabControl.selectedTab.tag.selectedDatabase = p_node.tag.database;
+                        v_connTabControl.selectedTab.tag.selectedDatabaseNode = v_list_database_nodes[i];
+                      }
 
-                }
-                if (p_callback_continue)
-                  p_callback_continue();
+                    }
+                    if (p_callback_continue)
+                      p_callback_continue();
 
-              },
-              function(p_return) {
-                  nodeOpenError(p_return, node);
-              },
-              'box');
+                  },
+                  function(p_return) {
+                      nodeOpenError(p_return, node);
+                  },
+                  'box');
+            })
+
 
         },
         function() {

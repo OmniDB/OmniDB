@@ -831,11 +831,8 @@ function cancelMonitorUnits(p_tab_tag) {
 /// <param name="p_tab">Tab object.</param>
 function closeMonitorDashboardTab(p_tab) {
 
-	showConfirm('Are you sure you want to close the dashboard?',
-                function() {
-                	p_tab.removeTab();
-                  p_tab.tag.tab_active = false;
-                  cancelMonitorUnits(p_tab.tag);
-                });
+  p_tab.removeTab();
+  p_tab.tag.tab_active = false;
+  cancelMonitorUnits(p_tab.tag);
 
 }

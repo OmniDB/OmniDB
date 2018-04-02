@@ -23,10 +23,20 @@ var v_debugState = {
 }
 
 function setupDebug(p_node) {
+	getDebugFunctionDefinitionPostgresql(p_node);
 
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 	v_tab_tag.database_index = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
 	v_tab_tag.function = p_node.parent.parent.text + '.' + p_node.text;
+
+	v_tab_tag.bt_reload.onclick = function() {
+		if (v_tab_tag.state!=v_debugState.Initial && v_tab_tag.state!=v_debugState.Finished && v_tab_tag.state!=v_debugState.Cancel)
+			showAlert('Not ready reload function attributes.');
+		else {
+			setupDebug(p_node);
+		}
+	};
+	v_tab_tag.selectParameterTabFunc();
 
 
 	//Customize editor to enable adding breakpoints
@@ -104,6 +114,11 @@ function setupDebug(p_node) {
 			  columnProperties.push(col);
 			  v_tab_tag.div_result.innerHTML = '';
 
+				if (v_tab_tag.htParameter) {
+					v_tab_tag.htParameter.destroy();
+					v_tab_tag.div_parameter.innerHTML = '';
+				}
+
 			  v_tab_tag.htParameter = new Handsontable(v_tab_tag.div_parameter,
 			  {
 			    data: v_data,
@@ -152,6 +167,11 @@ function setupDebug(p_node) {
   columnProperties.push(col);
   v_tab_tag.div_result.innerHTML = '';
 
+	if (v_tab_tag.htVariable) {
+		v_tab_tag.htVariable.destroy();
+		v_tab_tag.div_variable.innerHTML = '';
+	}
+
   v_tab_tag.htVariable = new Handsontable(v_tab_tag.div_variable,
   {
     data: [],
@@ -172,6 +192,12 @@ function setupDebug(p_node) {
         return cellProperties;
     }
   });
+
+	//Remove markers
+	for (var i=0; i<v_tab_tag.markerList.length; i++) {
+		v_tab_tag.editor.session.removeMarker(v_tab_tag.markerList[i]);
+	}
+	v_tab_tag.markerList = [];
 
 }
 
@@ -214,6 +240,7 @@ function startDebug() {
 	  v_context.tab_tag.context = v_context;
 
 		v_tab_tag.bt_start.style.display = 'none';
+		v_tab_tag.bt_reload.style.display = 'none';
 		v_tab_tag.bt_step_over.style.display = 'inline-block';
 		v_tab_tag.bt_step_out.style.display = 'inline-block';
 		v_tab_tag.bt_cancel.style.display = 'inline-block';
@@ -231,9 +258,9 @@ function startDebug() {
 		}
 
 		if (v_tab_tag.chart!=null) {
-			v_tab_tag.chart.detach();
+			v_tab_tag.chart.destroy();
 			v_tab_tag.chart = null;
-			v_tab_tag.div_statistics.innerHTML = '';
+			//v_tab_tag.div_statistics.innerHTML = '';
 		}
 
 		//Remove markers
@@ -402,6 +429,7 @@ function debugResponseRender(p_message, p_context) {
 
 		//Update buttons
 		p_context.tab_tag.bt_start.style.display = 'inline-block';
+		p_context.tab_tag.bt_reload.style.display = 'inline-block';
 		p_context.tab_tag.bt_step_over.style.display = 'none';
 		p_context.tab_tag.bt_step_out.style.display = 'none';
 		p_context.tab_tag.bt_cancel.style.display = 'none';
@@ -493,7 +521,72 @@ function debugResponseRender(p_message, p_context) {
 					var v_width = 80*p_message.v_data.v_result_statistics.length;
 					v_width = Math.max(v_width,400)
 
-					p_context.tab_tag.chart = new Chartist.Line(p_context.tab_tag.div_statistics, {
+					console.log(v_chart_labels)
+					console.log(v_chart_data)
+					var v_chart_data_list = [];
+					for (var i=0; i<v_chart_data.length;i++) {
+						v_chart_data_list.push(v_chart_data[i].value);
+					}
+					console.log(v_max_value)
+					var ctx = p_context.tab_tag.div_statistics_canvas.getContext('2d');
+					p_context.tab_tag.chart = new Chart(ctx,result = {
+					    "type": "line",
+					    "data": {
+					    "labels": v_chart_labels,
+					    "datasets": [{
+					            //"label": 'Title 1',
+					            "fill": false,
+					            "backgroundColor": "rgb(75, 192, 192)",
+					            "borderColor": "rgb(75, 192, 192)",
+					            "lineTension": 0,
+					            "pointRadius": 2,
+					            "borderWidth": 2,
+					            "data": v_chart_data_list
+					        }]
+					},
+					    "options": {
+					        "responsive": true,
+									"maintainAspectRatio": false,
+					        "title":{
+					            "display":false,
+					            "text":"Statistics"
+					        },
+									"legend": {
+					        	"display": false
+					        },
+					        "tooltips": {
+					            "mode": "index",
+					            "intersect": false
+					        },
+					        "hover": {
+					            "mode": "nearest",
+					            "intersect": true
+					        },
+					        "scales": {
+					            "xAxes": [{
+					                "display": true,
+					                "scaleLabel": {
+					                    "display": true,
+					                    "labelString": "Line Number"
+					                }
+					            }],
+					            "yAxes": [{
+					                "display": true,
+					                "scaleLabel": {
+					                    "display": true,
+					                    "labelString": "Duration(s)"
+					                },
+													"ticks": {
+					                    "beginAtZero": true,
+					                    "max": Math.ceil(v_max_value + 0.5)
+					                }
+					            }]
+					        }
+					    }
+					}
+					);
+					//console.log(p_context.tab_tag.div_statistics)
+					/*p_context.tab_tag.chart = new Chartist.Line(p_context.tab_tag.div_statistics, {
 				  labels: v_chart_labels,
 				  series: [
 				    v_chart_data
@@ -533,7 +626,7 @@ function debugResponseRender(p_message, p_context) {
 					    right: 40,
 							left: 40
 					  }
-					});
+					});*/
 
 					//Adding heat colors to function body
 					v_max_value = v_max_value + 0.5;
@@ -566,6 +659,7 @@ function debugResponseRender(p_message, p_context) {
 
 				//Update buttons
 				p_context.tab_tag.bt_start.style.display = 'inline-block';
+				p_context.tab_tag.bt_reload.style.display = 'inline-block';
 				p_context.tab_tag.bt_step_over.style.display = 'none';
 				p_context.tab_tag.bt_step_out.style.display = 'none';
 				p_context.tab_tag.bt_cancel.style.display = 'none';

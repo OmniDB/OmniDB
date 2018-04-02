@@ -78,8 +78,29 @@ function tabDataMining() {
     var v_tab_close_span = document.getElementById('tab_close');
     v_tab_close_span.id = 'tab_close_' + v_tab.id;
 
-    v_tab_close_span.onclick = function() {
-        removeTab(v_tab);
+    v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      customMenu(
+        {
+          x:e.clientX+5,
+          y:e.clientY+5
+        },
+        [
+          {
+            text: 'Confirm',
+            icon: '/static/OmniDB_app/images/check.png',
+            action: function() {
+              removeTab(v_current_tab);
+            }
+          },
+          {
+            text: 'Cancel',
+            icon: '/static/OmniDB_app/images/tab_close.png',
+            action: function() {
+            }
+          }
+        ],
+        null);
     };
 
     var v_tab_check_span = document.getElementById('tab_check');
@@ -1819,7 +1840,6 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createDebuggerTab(
                         node.text);
-                    getDebugFunctionDefinitionPostgresql(node);
                     setupDebug(node);
                 }
             }, {

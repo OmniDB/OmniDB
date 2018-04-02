@@ -22,7 +22,6 @@ import sqlparse
 def index(request):
     #Invalid session
     if not request.session.get('omnidb_session'):
-        print('SESSION GONE')
         request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
         return redirect('login')
 
@@ -358,6 +357,7 @@ def renew_password(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_password = json_object['p_password']
 
     v_database_object = v_session.v_databases[v_database_index]
@@ -367,6 +367,10 @@ def renew_password(request):
 
     if v_test=='Connection successful.':
         v_database_object['prompt_timeout'] = datetime.now()
+        #changing password of tab connection
+        v_tab_connection = v_session.v_tab_connections[v_tab_id]
+        v_tab_connection.v_connection.v_password = v_password
+        v_session.v_tab_connections[v_tab_id] = v_tab_connection
     else:
         v_return['v_error'] = True
         v_return['v_data'] = v_test

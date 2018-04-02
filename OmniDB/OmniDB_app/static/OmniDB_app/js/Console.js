@@ -214,6 +214,7 @@ function consoleSQL(p_check_command = true) {
         v_tag.editor_input.setValue('');
         v_tag.editor_input.clearSelection();
         v_tag.editor_input.setReadOnly(false);
+				v_tag.last_command = v_content;
 
         var v_message_data = {
           v_sql_cmd : v_content,

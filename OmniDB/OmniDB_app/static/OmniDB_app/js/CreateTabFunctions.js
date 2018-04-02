@@ -261,11 +261,14 @@ function initCreateTabFunctions() {
       if (p_index)
         v_index = p_index;
 
-    	changeDatabase(v_index);
+
 
       v_tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
       v_tag.divSelectDB.childNodes[0].value=v_index;
-    	$(v_tag.divSelectDB.childNodes[0]).msDropDown();
+
+      v_tab.tag.dd_object = $(v_tag.divSelectDB.childNodes[0]).msDropDown().data("dd");
+
+      changeDatabase(v_index);
 
       if (p_create_query_tab) {
          v_connTabControl.tag.createConsoleTab();

@@ -214,11 +214,12 @@ function consoleSQL(p_check_command = true) {
         v_tag.editor_input.setValue('');
         v_tag.editor_input.clearSelection();
         v_tag.editor_input.setReadOnly(false);
+				v_tag.last_command = v_content;
 
         var v_message_data = {
           v_sql_cmd : v_content,
           v_db_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-          v_conn_tab_id: v_connTabControl.selectedTab.id,
+					v_conn_tab_id: v_connTabControl.selectedTab.id,
           v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id
         }
 

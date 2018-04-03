@@ -1089,7 +1089,7 @@ function getTreeMysql(p_div) {
     };
     var tree = createTree(p_div, '#fcfdfd', context_menu);
     v_connTabControl.selectedTab.tag.tree = tree;
-    v_connTabControl.selectedTab.tag.divDetails.innerHTML = 'Active database: <b>' + v_connTabControl.selectedTab.tag.selectedDatabase + '</b>';
+    //v_connTabControl.selectedTab.tag.divDetails.innerHTML = 'Active database: <b>' + v_connTabControl.selectedTab.tag.selectedDatabase + '</b>';
 
     tree.nodeAfterOpenEvent = function(node) {
       refreshTreeMysql(node);
@@ -1281,6 +1281,7 @@ function getTreeDetailsMysql(node) {
                 v_database: p_return.v_data.v_database_return.v_database,
                 version: p_return.v_data.v_database_return.version,
                 v_username: p_return.v_data.v_database_return.v_username,
+                superuser: p_return.v_data.v_database_return.superuser,
                 create_role: p_return.v_data.v_database_return.create_role,
                 alter_role: p_return.v_data.v_database_return.alter_role,
                 drop_role: p_return.v_data.v_database_return.drop_role,
@@ -1359,13 +1360,16 @@ function getTreeDetailsMysql(node) {
             }, 'cm_databases');
             node_databases.createChildNode('', true,
                 '/static/OmniDB_app/images/spin.svg', null, null);
-            var node_roles = node.createChildNode('Roles', false,
-                '/static/OmniDB_app/images/role.png', {
-                    type: 'role_list',
-                    num_roles: 0
-            }, 'cm_roles');
-            node_roles.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
+
+            if (node.tree.tag.superuser) {
+                var node_roles = node.createChildNode('Roles', false,
+                    '/static/OmniDB_app/images/role.png', {
+                        type: 'role_list',
+                        num_roles: 0
+                }, 'cm_roles');
+                node_roles.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null);
+            }
 
             if (v_connTabControl.selectedTab.tag.firstTimeOpen) {
               v_connTabControl.selectedTab.tag.firstTimeOpen = false;

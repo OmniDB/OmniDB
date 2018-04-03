@@ -8,6 +8,8 @@
   - Multi Database and Active Database for PostgreSQL, MySQL and MariaDB
   - Commands `\?`, `\x` and `\timing` for Console Tab for Oracle, MySQL and MariaDB
   - Console status showing number of rows affected in Console Tab for Oracle, MySQL and MariaDB
+  - "Analyze" action for tables and materialized views for PostgreSQL
+  - "Truncate" action for tables for PostgreSQL
 
 # 1- Installation
 
@@ -84,7 +86,7 @@ Supported DBMS:
 
 - [X] PostgreSQL
 - [X] Oracle
-- [ ] MySQL
+- [X] MySQL / MariaDB
 - [ ] Firebird
 - [ ] SQLite
 - [ ] Microsoft SQL Server

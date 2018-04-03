@@ -700,24 +700,6 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
-        'cm_connection': {
-            elements: [{
-                    text: 'Vacuum Database',
-                    icon: '/static/OmniDB_app/images/vacuum.png',
-                    action: function(node) {
-                        tabSQLTemplate('Vacuum Database', node.tree
-                            .tag.vacuum);
-                    }
-                }
-                /*, {
-                                text: 'Data Mining',
-                                icon: '/static/OmniDB_app/images/data_mining.png',
-                                action: function(node) {
-                                    tabDataMining();
-                                }
-                            }*/
-            ]
-        },
         'cm_databases': {
             elements: [{
                 text: 'Refresh',
@@ -737,7 +719,13 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Create Database', node.tree
                         .tag.create_database);
                 }
-            }, {
+            }/*, {
+                text: 'Data Mining',
+                icon: '/static/OmniDB_app/images/data_mining.png',
+                action: function(node) {
+                    tabDataMining();
+                }
+            }*/, {
                 text: 'Doc: Databases',
                 icon: '/static/OmniDB_app/images/globe.png',
                 action: function(node) {
@@ -1166,6 +1154,19 @@ function getTreePostgresql(p_div) {
                                 .tag.sel_filtered_data.value =
                                 1;
                         }
+                    }, {
+                        text: 'Truncate Table',
+                        icon: '/static/OmniDB_app/images/truncate.png',
+                        action: function(node) {
+                            tabSQLTemplate(
+                                'Truncate Table',
+                                node.tree.tag.truncate
+                                .replace(
+                                    '#table_name#',
+                                    node.parent.parent
+                                    .text + '.' +
+                                    node.text));
+                        }
                     }]
                 }
             }, {
@@ -1179,6 +1180,19 @@ function getTreePostgresql(p_div) {
                             tabSQLTemplate(
                                 'Vacuum Table',
                                 node.tree.tag.vacuum_table
+                                .replace(
+                                    '#table_name#',
+                                    node.parent.parent
+                                    .text + '.' +
+                                    node.text));
+                        }
+                    }, {
+                        text: 'Analyze Table',
+                        icon: '/static/OmniDB_app/images/analyze.png',
+                        action: function(node) {
+                            tabSQLTemplate(
+                                'Analyze Table',
+                                node.tree.tag.analyze_table
                                 .replace(
                                     '#table_name#',
                                     node.parent.parent
@@ -2168,6 +2182,19 @@ function getTreePostgresql(p_div) {
                         .replace('#view_name#', node.parent
                             .parent.text + '.' + node.text)
                     );
+                }
+            }, {
+                text: 'Analyze Mat. View',
+                icon: '/static/OmniDB_app/images/analyze.png',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Analyze Mat. View',
+                        node.tree.tag.analyze_table
+                        .replace(
+                            '#table_name#',
+                            node.parent.parent
+                            .text + '.' +
+                            node.text));
                 }
             }, {
                 text: 'Drop Mat. View',
@@ -3603,6 +3630,9 @@ function getTreeDetailsPostgresql(node) {
                 drop_partition: p_return.v_data.v_database_return.drop_partition,
                 vacuum: p_return.v_data.v_database_return.vacuum,
                 vacuum_table: p_return.v_data.v_database_return.vacuum_table,
+                analyze: p_return.v_data.v_database_return.analyze,
+                analyze_table: p_return.v_data.v_database_return.analyze_table,
+                truncate: p_return.v_data.v_database_return.truncate,
                 create_physicalreplicationslot: p_return.v_data.v_database_return
                     .create_physicalreplicationslot,
                 drop_physicalreplicationslot: p_return.v_data.v_database_return

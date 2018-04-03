@@ -64,7 +64,7 @@ class MySQL:
         self.v_server = p_server
         self.v_user = p_user
         self.v_schema = p_service
-        self.v_connection = Spartacus.Database.MariaDB(p_server, p_port, p_service, p_user, p_password)
+        self.v_connection = Spartacus.Database.MySQL(p_server, p_port, p_service, p_user, p_password)
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -131,6 +131,20 @@ class MySQL:
     def GetUserName(self):
         return self.v_user
 
+    def GetUserSuper(self):
+        try:
+            v_super = self.v_connection.ExecuteScalar('''
+                select super_priv
+                from mysql.user
+                where user = '{0}'
+            '''.format(self.v_user))
+            if v_super == 'Y':
+                return True
+            else:
+                return False
+        except Exception as exc:
+            return False
+
     def PrintDatabaseInfo(self):
         return self.v_user + '@' + self.v_service
 
@@ -186,7 +200,7 @@ class MySQL:
             select table_name,
                    table_schema
             from information_schema.tables
-            where table_type = 'BASE TABLE'
+            where table_type in ('BASE TABLE', 'SYSTEM VIEW')
             {0}
             order by 2, 1
         '''.format(v_filter), True)
@@ -216,7 +230,7 @@ class MySQL:
             from information_schema.columns c,
                  information_schema.tables t
             where t.table_name = c.table_name
-              and t.table_type = 'BASE TABLE'
+              and t.table_type in ('BASE TABLE', 'SYSTEM VIEW')
             {0}
             order by c.table_name,
                      c.ordinal_position
@@ -498,7 +512,7 @@ class MySQL:
         else:
             v_schema = self.v_schema
         return self.v_connection.Query('''
-            select 'O' as type
+            select 'O' as type,
                    concat('returns ', t.data_type) as name,
                    0 as seq
             from information_schema.routines t
@@ -522,7 +536,7 @@ class MySQL:
 
     def GetFunctionDefinition(self, p_function):
         v_body = '--DROP FUNCTION {0};\n'.format(p_function)
-        v_body = v_body + self.v_connection.ExecuteScalar('show create function {0}.{1}'.format(self.v_schema, p_function))
+        v_body = v_body + self.v_connection.Query('show create function {0}.{1}'.format(self.v_schema, p_function), True, True).Rows[0][2]
         return v_body
 
     def QueryProcedures(self, p_all_schemas=False, p_schema=None):
@@ -563,7 +577,7 @@ class MySQL:
 
     def GetProcedureDefinition(self, p_procedure):
         v_body = '--DROP PROCEDURE {0};\n'.format(p_procedure)
-        v_body = v_body + self.v_connection.ExecuteScalar('show create procedure {0}.{1}'.format(self.v_schema, p_procedure))
+        v_body = v_body + self.v_connection.Query('show create procedure {0}.{1}'.format(self.v_schema, p_procedure), True, True).Rows[0][2]
         return v_body
 
     def QueryViews(self, p_all_schemas=False, p_schema=None):
@@ -586,16 +600,16 @@ class MySQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and table_schema = '{0}' and table_name = '{1}' ".format(p_schema, p_table)
+                v_filter = "and c.table_schema = '{0}' and c.table_name = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and table_schema = '{0}' and table_name = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "and c.table_schema = '{0}' and c.table_name = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and table_schema = '{0}' ".format(p_schema)
+                v_filter = "and c.table_schema = '{0}' ".format(p_schema)
             else:
-                v_filter = "and table_schema = '{0}' ".format(self.v_schema)
+                v_filter = "and c.table_schema = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and table_name = '{0}' ".format(p_table)
+                v_filter = "and c.table_name = '{0}' ".format(p_table)
         return self.v_connection.Query('''
             select distinct c.table_name as table_name,
                    c.column_name,
@@ -607,7 +621,7 @@ class MySQL:
             from information_schema.columns c,
                  information_schema.tables t
             where t.table_name = c.table_name
-              and t.table_type = 'BASE TABLE'
+              and t.table_type = 'VIEW'
             {0}
             order by c.table_name,
                      c.ordinal_position
@@ -618,7 +632,7 @@ class MySQL:
             v_schema = p_schema
         else:
             v_schema = self.v_schema
-        return self.v_connection.ExecuteScalar('show create view {0}.{1}'.format(v_schema, p_view))
+        return self.v_connection.Query('show create view {0}.{1}'.format(v_schema, p_view), True, True).Rows[0][1]
 
     def TemplateCreateRole(self):
         return Template('''CREATE USER name
@@ -793,8 +807,7 @@ SELECT ...
     def GetProperties(self, p_schema, p_table, p_object, p_type):
         if p_type == 'table':
             return self.v_connection.Query('''
-                select database() as "Database",
-                       table_schema as "Table Schema",
+                select table_schema as "Table Schema",
                        table_name as "Table Name",
                        table_type as "Table Type",
                        engine as "Engine",
@@ -815,11 +828,10 @@ SELECT ...
                 from information_schema.tables
                 where table_schema = '{0}'
                   and table_name = '{1}'
-            '''.format(self.GetName(), p_object), True).Transpose('Property', 'Value')
+            '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
         elif p_type == 'view':
             return self.v_connection.Query('''
-                select database() as "Database",
-                       table_schema as "View Schema",
+                select table_schema as "View Schema",
                        table_name as "View Name",
                        check_option as "Check Option",
                        is_updatable as "Is Updatable",
@@ -827,17 +839,16 @@ SELECT ...
                        character_set_client as "Character Set Client",
                        collation_connection as "Collation Connection",
                        algorithm as "Algorithm"
-                from information_schema.tables
+                from information_schema.views
                 where table_schema = '{0}'
                   and table_name = '{1}'
-            '''.format(self.GetName(), p_object), True).Transpose('Property', 'Value')
+            '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
         elif p_type == 'function':
             return self.v_connection.Query('''
-                select database() as "Database",
-                       routine_schema as "Routine Schema",
+                select routine_schema as "Routine Schema",
                        routine_name as "Routine Name",
-                       routine_type as "Routine Type"
-                       data_type as "Data Type"
+                       routine_type as "Routine Type",
+                       data_type as "Data Type",
                        character_maximum_length as "Character Maximum Length",
                        character_octet_length as "Character Octet Length",
                        numeric_precision as "Numeric Precision",
@@ -862,14 +873,13 @@ SELECT ...
                 where routine_type = 'FUNCTION'
                   and routine_schema = '{0}'
                   and routine_name = '{1}'
-            '''.format(self.GetName(), p_object), True).Transpose('Property', 'Value')
+            '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
         elif p_type == 'procedure':
-            return self.Query('''
-                select database() as "Database",
-                       routine_schema as "Routine Schema",
+            return self.v_connection.Query('''
+                select routine_schema as "Routine Schema",
                        routine_name as "Routine Name",
-                       routine_type as "Routine Type"
-                       data_type as "Data Type"
+                       routine_type as "Routine Type",
+                       data_type as "Data Type",
                        character_maximum_length as "Character Maximum Length",
                        character_octet_length as "Character Octet Length",
                        numeric_precision as "Numeric Precision",
@@ -894,10 +904,12 @@ SELECT ...
                 where routine_type = 'PROCEDURE'
                   and routine_schema = '{0}'
                   and routine_name = '{1}'
-            '''.format(self.GetName(), p_object), True).Transpose('Property', 'Value')
+            '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
         else:
             return None
 
     def GetDDL(self, p_schema, p_table, p_object, p_type):
-        v_table = self.v_connection.Query('show create {0} {1}'.format(p_type, p_object), True, True)
-        return v_table.Rows[0][1]
+        if p_type == 'function' or p_type == 'procedure':
+            return self.v_connection.Query('show create {0} {1}.{2}'.format(p_type, p_schema, p_object), True, True).Rows[0][2]
+        else:
+            return self.v_connection.Query('show create {0} {1}.{2}'.format(p_type, p_schema, p_object), True, True).Rows[0][1]

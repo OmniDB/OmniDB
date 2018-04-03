@@ -2132,6 +2132,22 @@ ON #table_name#
 --(column_name, [, ...])
 ''')
 
+    def TemplateAnalyze(self):
+        return Template('ANALYZE')
+
+    def TemplateAnalyzeTable(self):
+        return Template('''ANALYZE #table_name#
+--(column_name, [, ...])
+''')
+
+    def TemplateTruncate(self):
+        return Template('''TRUNCATE
+--ONLY
+#table_name#
+--RESTART IDENTITY
+--CASCADE
+''')
+
     def TemplateCreatePhysicalReplicationSlot(self):
         return Template('''SELECT * FROM pg_create_physical_replication_slot('slot_name')''')
 

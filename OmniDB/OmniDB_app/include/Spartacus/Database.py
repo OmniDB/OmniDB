@@ -25,10 +25,10 @@ SOFTWARE.
 from collections import OrderedDict
 from abc import ABC, abstractmethod
 import datetime
-import prettytable
 import math
 
 import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.prettytable as prettytable
 
 class Exception(Exception):
     pass
@@ -218,6 +218,7 @@ class DataTable(object):
             else:
                 v_pretty = prettytable.PrettyTable()
                 v_pretty._set_field_names(self.Columns)
+                v_pretty._set_align('l')
                 for r in self.Rows:
                     v_row = []
                     for c in range(0, len(self.Columns)):
@@ -279,6 +280,7 @@ class DataTable(object):
             else:
                 v_pretty = prettytable.PrettyTable()
                 v_pretty._set_field_names(self.Columns)
+                v_pretty._set_align('l')
                 for r in self.Rows:
                     v_row = []
                     for c in self.Columns:

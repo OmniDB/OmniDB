@@ -47,7 +47,7 @@ function initCreateTabFunctions() {
     	"</div>" +
     	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
     	"<div style='margin-right: 10px;'>" +
-      "<div id='" + v_tab.id + "_details' class='connection_details' ></div>" +
+      "<div id='" + v_tab.id + "_details' class='connection_details query_info' ></div>" +
       "<div id='" + v_tab.id + "_tree' style='margin-top: 5px; overflow: auto; height: 50%;'>" +
       "</div>" +
       "<div onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
@@ -721,16 +721,16 @@ function initCreateTabFunctions() {
 		};
 
 		var v_html = "<div style='margin-top: 5px; margin-bottom: 5px;'>" +
-    "<span>Name: </span><input type='text' id='txt_unit_name_" + v_tab.id + "' />" +
-    "<span style='margin-left: 5px;'>Type: </span><select id='select_type_" + v_tab.id + "'><option value='chart_append'>Chart (Append)</option><option value='chart'>Chart (No Append)</option><option value='grid'>Grid</option></select>" +
-    "<span style='margin-left: 5px;'>Refresh Interval: </span><input type='text' id='txt_interval_" + v_tab.id + "' style='width: 100px;' onkeypress='return event.charCode >= 48 && event.charCode <= 57'/> seconds" +
+    "<span class='query_info'>Name: </span><input type='text' id='txt_unit_name_" + v_tab.id + "' />" +
+    "<span style='margin-left: 5px;' class='query_info'>Type: </span><select id='select_type_" + v_tab.id + "'><option value='chart_append'>Chart (Append)</option><option value='chart'>Chart (No Append)</option><option value='grid'>Grid</option></select>" +
+    "<span style='margin-left: 5px;' class='query_info'>Refresh Interval: </span><input type='text' id='txt_interval_" + v_tab.id + "' style='width: 100px;' onkeypress='return event.charCode >= 48 && event.charCode <= 57'/> <span class='query_info'>seconds</span>" +
     "</div>" +
     "<div style='margin-top: 5px; margin-bottom: 5px;'>" +
-    "<span>Template: </span><select id='select_template_" + v_tab.id + "' onchange='selectUnitTemplate(this.value)'><option value=-1>Select Template</option></select>" +
+    "<span class='query_info'>Template: </span><select id='select_template_" + v_tab.id + "' onchange='selectUnitTemplate(this.value)'><option value=-1>Select Template</option></select>" +
     "</div>" +
     "<div>" +
-    "<div style='width:50%; display: inline-block; box-sizing: border-box; padding-right: 5px;'><div style='margin-bottom: 5px;'>Data Script:</div><div id='txt_data_" + v_tab.id + "' style=' width: 100%; height: 250px; border: 1px solid #c3c3c3;'></div></div>" +
-    "<div style='width:50%; display: inline-block; box-sizing: border-box; padding-left: 5px;'><div style='margin-bottom: 5px;'>Chart Script:</div><div id='txt_script_" + v_tab.id + "' style=' width: 100%; height: 250px; border: 1px solid #c3c3c3;'></div></div>" +
+    "<div style='width:50%; display: inline-block; box-sizing: border-box; padding-right: 5px;'><div style='margin-bottom: 5px;' class='query_info'>Data Script:</div><div id='txt_data_" + v_tab.id + "' style=' width: 100%; height: 250px; border: 1px solid #c3c3c3;'></div></div>" +
+    "<div style='width:50%; display: inline-block; box-sizing: border-box; padding-left: 5px;'><div style='margin-bottom: 5px;' class='query_info'>Chart Script:</div><div id='txt_script_" + v_tab.id + "' style=' width: 100%; height: 250px; border: 1px solid #c3c3c3;'></div></div>" +
     "</div>" +
 		"<button class='bt_execute' title='Test' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='testMonitorScript();'><img src='/static/OmniDB_app/images/trigger.png' style='vertical-align: middle;'/></button>" +
     "<button class='bt_execute' title='Save' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='saveMonitorScript();'><img src='/static/OmniDB_app/images/save.png' style='vertical-align: middle;'/></button>" +

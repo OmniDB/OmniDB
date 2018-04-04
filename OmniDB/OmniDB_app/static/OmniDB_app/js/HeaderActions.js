@@ -15,11 +15,8 @@ You should have received a copy of the GNU General Public License along with Omn
 /// </summary>
 $(function() {
 
-	var v_fileref = document.createElement("link");
-    v_fileref.setAttribute("rel", "stylesheet");
-    v_fileref.setAttribute("type", "text/css");
-    v_fileref.setAttribute("href", '/static/OmniDB_app/css/themes/' + v_theme_type + '.css');
-    document.getElementsByTagName("head")[0].appendChild(v_fileref);
+	var v_fileref = document.getElementById("ss_theme");
+  v_fileref.setAttribute("href", '/static/OmniDB_app/css/themes/' + v_theme_type + '.css');
 
 	var v_configTabControl = createTabControl('config_tabs',0,null);
 	v_configTabControl.selectTabIndex(0);
@@ -27,13 +24,38 @@ $(function() {
 
 });
 
+function changeTheme(p_option) {
+	var v_fileref = document.getElementById("ss_theme");
+	var p_options = p_option.split('/');
+
+	if (parseInt(p_options[0])>=17)
+		v_fileref.setAttribute("href", '/static/OmniDB_app/css/themes/dark.css');
+	else
+		v_fileref.setAttribute("href", '/static/OmniDB_app/css/themes/light.css');
+
+		var els = document.getElementsByClassName("ace_editor");
+
+	Array.prototype.forEach.call(els, function(el) {
+	    // Do stuff here
+			ace.edit(el).setTheme("ace/theme/" + p_options[1]);
+	});
+}
+
+function changeFontSize(p_option) {
+	var els = document.getElementsByClassName("ace_editor");
+	Array.prototype.forEach.call(els, function(el) {
+	    // Do stuff here
+			ace.edit(el).setFontSize(Number(p_option));
+	});
+}
+
 /// <summary>
 /// Opens user config window.
 /// </summary>
 function showConfigUser() {
 
 	document.getElementById('sel_editor_font_size').value = v_editor_font_size;
-	document.getElementById('sel_editor_theme').value = v_theme_id;
+	document.getElementById('sel_editor_theme').value = v_theme_id + '/' + v_editor_theme;
 
 	document.getElementById('txt_confirm_new_pwd').value = '';
 	document.getElementById('txt_new_pwd').value = '';
@@ -130,7 +152,7 @@ function hideConfigUser() {
 function saveConfigUser() {
 
 	v_editor_font_size = document.getElementById('sel_editor_font_size').value;
-	v_theme_id = document.getElementById('sel_editor_theme').value;
+	v_theme_id = document.getElementById('sel_editor_theme').value.split('/')[0];
 
 	var v_confirm_pwd = document.getElementById('txt_confirm_new_pwd');
 	var v_pwd = document.getElementById('txt_new_pwd');
@@ -148,7 +170,7 @@ function saveConfigUser() {
 					v_editor_theme = p_return.v_data.v_theme_name;
 					v_theme_type = p_return.v_data.v_theme_type;
 					$('#div_config_user').hide();
-					showAlert('Configuration saved. Please, refresh the page for changes to take effect.');
+					showAlert('Configuration saved.');
 
 				});
 	}

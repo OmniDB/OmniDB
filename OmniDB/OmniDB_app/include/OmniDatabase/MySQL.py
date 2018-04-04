@@ -180,11 +180,11 @@ class MySQL:
         return v_return
 
     def QueryRoles(self):
-        return self.v_connection.Query('''
-            select user as role_name
+        return self.v_connection.Query("""
+            select concat('''',user,'''','@','''',host,'''') as role_name
             from mysql.user
             order by 1
-        ''', True)
+        """, True)
 
     def QueryDatabases(self):
         return self.v_connection.Query('show databases', True, True)
@@ -837,8 +837,7 @@ SELECT ...
                        is_updatable as "Is Updatable",
                        security_type as "Security Type",
                        character_set_client as "Character Set Client",
-                       collation_connection as "Collation Connection",
-                       algorithm as "Algorithm"
+                       collation_connection as "Collation Connection"
                 from information_schema.views
                 where table_schema = '{0}'
                   and table_name = '{1}'

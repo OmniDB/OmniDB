@@ -93,7 +93,8 @@ function testConnectionConfirm(p_index) {
 							testConnectionConfirm(p_index);
 						},
 						null,
-						p_return.v_data
+						p_return.v_data,
+						false
 					);
 
 			},
@@ -105,7 +106,8 @@ function testConnectionConfirm(p_index) {
 							testConnectionConfirm(p_index);
 						},
 						null,
-						p_return.v_data.message
+						p_return.v_data.message,
+						false
 					);
 				}
 			},
@@ -186,7 +188,8 @@ function selectConnectionConfirm(p_index) {
 							selectConnection(p_index);
 						},
 						null,
-						p_return.v_data
+						p_return.v_data,
+						false
 					);
 
 			},
@@ -198,7 +201,8 @@ function selectConnectionConfirm(p_index) {
 							selectConnection(p_index);
 						},
 						null,
-						p_return.v_data.message
+						p_return.v_data.message,
+						false
 					);
 				}
 			},

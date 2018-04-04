@@ -6,7 +6,6 @@ psycopg2-binary
 pyscrypt
 pyaes
 openpyxl
-pgspecial
 RestrictedPython>=4.0b2
 cx_Oracle>=6.1
 pymysql

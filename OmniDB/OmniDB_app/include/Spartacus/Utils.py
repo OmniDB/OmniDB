@@ -171,7 +171,7 @@ class DataFileReader(object):
             raise Spartacus.Utils.Exception(str(exc))
 
 class DataFileWriter(object):
-    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8'):
+    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8', p_delimiter=';', p_lineterminator='\n'):
         v_tmp = p_filename.split('.')
         if len(v_tmp) > 1:
             self.v_extension = v_tmp[-1].lower()
@@ -179,15 +179,17 @@ class DataFileWriter(object):
             self.v_extension = 'csv'
         self.v_filename = p_filename
         self.v_file = None
-        self.v_header = p_fieldnames
+        self.v_header = p_fieldnames # Can't be empty for CSV
         self.v_encoding = p_encoding
+        self.v_delimiter = p_delimiter
+        self.v_lineterminator = p_lineterminator
         self.v_currentrow = 1
         self.v_open = False
     def Open(self):
         try:
             if self.v_extension == 'csv':
                 self.v_file = open(self.v_filename, 'w', encoding=self.v_encoding)
-                self.v_object = csv.DictWriter(self.v_file, fieldnames=self.v_header)
+                self.v_object = csv.DictWriter(self.v_file, fieldnames=self.v_header, delimiter=self.v_delimiter, lineterminator=self.v_lineterminator)
                 self.v_object.writeheader()
                 self.v_open = True
             elif self.v_extension == 'xlsx':

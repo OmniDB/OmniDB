@@ -3,14 +3,16 @@
   <title>OmniDB</title>
   <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.7.0.1"            />
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.7.0.1"/>
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.7.0.1"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.7.0.1"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/jquery.qtip.min.css?v2.7.0.1"  />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.7.0.2"            />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.7.0.2"/>
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.7.0.2"    />
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.7.0.2"    />
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/jquery.qtip.min.css?v2.7.0.2"  />
 
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/bootstrap.css">
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/main.css">
+
+  <link id="ss_theme" rel="stylesheet" type="text/css">
 
   {% block include_css %}
   {% endblock %}
@@ -159,7 +161,7 @@
 	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
 		                <div style="text-align: center;">
 		                <div style="margin-bottom: 10px;">Editor font size</div>
-		                <select id="sel_editor_font_size" style="width: 200px; margin-bottom: 20px;">
+		                <select id="sel_editor_font_size" style="width: 200px; margin-bottom: 20px;" onchange="changeFontSize(this.value)">
 		                	<option value="10">10</option>
 		                	<option value="11">11</option>
 		                	<option value="12">12</option>
@@ -169,45 +171,47 @@
 		                	<option value="16">16</option>
 		                	<option value="17">17</option>
 		                	<option value="18">18</option>
+                      <option value="19">19</option>
+                      <option value="20">20</option>
 		                </select>
                     <div style="margin-bottom: 10px;">Editor theme</div>
-		                <select id="sel_editor_theme" style="width: 200px; margin-bottom: 20px;">
-		                	<option value="1">(Light) OmniDB</option>
-		                	<option value="2">(Light) Chrome</option>
-		                	<option value="3">(Light) Clouds</option>
-		                	<option value="4">(Light) Crimson Editor</option>
-		                	<option value="5">(Light) Dawn</option>
-		                	<option value="6">(Light) Dreamweaver</option>
-		                	<option value="7">(Light) Eclipse</option>
-		                	<option value="8">(Light) Github</option>
-		                	<option value="9">(Light) Iplastic</option>
-		                	<option value="10">(Light) Katzenmilch</option>
-		                	<option value="11">(Light) Kuroir</option>
-		                	<option value="12">(Light) Solarized Light</option>
-		                	<option value="13">(Light) SQL Server</option>
-		                	<option value="14">(Light) Textmate</option>
-		                	<option value="15">(Light) Tomorrow</option>
-		                	<option value="16">(Light) XCode</option>
-							        <option value="17">(Dark) OmniDB Dark</option>
-		                	<option value="18">(Dark) Ambiance</option>
-		                	<option value="19">(Dark) Chaos</option>
-		                	<option value="20">(Dark) Clouds Midnight</option>
-		                	<option value="21">(Dark) Cobalt</option>
-		                	<option value="22">(Dark) Idle Fingers</option>
-		                	<option value="23">(Dark) KR Theme</option>
-		                	<option value="24">(Dark) Merbivore</option>
-		                	<option value="25">(Dark) Merbivore Soft</option>
-		                	<option value="26">(Dark) Mono Industrial</option>
-		                	<option value="27">(Dark) Monokai</option>
-		                	<option value="28">(Dark) Pastel On Dark</option>
-		                	<option value="29">(Dark) Solarized Dark</option>
-		                	<option value="30">(Dark) Terminal</option>
-		                	<option value="31">(Dark) Tomorrow Night</option>
-		                	<option value="32">(Dark) Tomorrow Night Blue</option>
-		                	<option value="33">(Dark) Tomorrow Night Bright</option>
-		                	<option value="34">(Dark) Tomorrow Night 80s</option>
-		                	<option value="35">(Dark) Twilight</option>
-		                	<option value="36">(Dark) Vibrant Ink</option>
+		                <select id="sel_editor_theme" style="width: 200px; margin-bottom: 20px;" onchange="changeTheme(this.value)">
+		                	<option value="1/omnidb">(Light) OmniDB</option>
+		                	<option value="2/chrome">(Light) Chrome</option>
+		                	<option value="3/clouds">(Light) Clouds</option>
+		                	<option value="4/crimson_editor">(Light) Crimson Editor</option>
+		                	<option value="5/dawn">(Light) Dawn</option>
+		                	<option value="6/dreamweaver">(Light) Dreamweaver</option>
+		                	<option value="7/eclipse">(Light) Eclipse</option>
+		                	<option value="8/github">(Light) Github</option>
+		                	<option value="9/iplastic">(Light) Iplastic</option>
+		                	<option value="10/katzenmilch">(Light) Katzenmilch</option>
+		                	<option value="11/kuroir">(Light) Kuroir</option>
+		                	<option value="12/solarized_light">(Light) Solarized Light</option>
+		                	<option value="13/sqlserver">(Light) SQL Server</option>
+		                	<option value="14/textmate">(Light) Textmate</option>
+		                	<option value="15/tomorrow">(Light) Tomorrow</option>
+		                	<option value="16/xcode">(Light) XCode</option>
+							        <option value="17/omnidb_dark">(Dark) OmniDB Dark</option>
+		                	<option value="18/ambiance">(Dark) Ambiance</option>
+		                	<option value="19/chaos">(Dark) Chaos</option>
+		                	<option value="20/clouds_midnight">(Dark) Clouds Midnight</option>
+		                	<option value="21/cobalt">(Dark) Cobalt</option>
+		                	<option value="22/idle_fingers">(Dark) Idle Fingers</option>
+		                	<option value="23/kr_theme">(Dark) KR Theme</option>
+		                	<option value="24/merbivore">(Dark) Merbivore</option>
+		                	<option value="25/merbivore_soft">(Dark) Merbivore Soft</option>
+		                	<option value="26/mono_industrial">(Dark) Mono Industrial</option>
+		                	<option value="27/monokai">(Dark) Monokai</option>
+		                	<option value="28/pastel_on_dark">(Dark) Pastel On Dark</option>
+		                	<option value="29/solarized_dark">(Dark) Solarized Dark</option>
+		                	<option value="30/terminal">(Dark) Terminal</option>
+		                	<option value="31/tomorrow_night">(Dark) Tomorrow Night</option>
+		                	<option value="32/tomorrow_night_blue">(Dark) Tomorrow Night Blue</option>
+		                	<option value="33/tomorrow_night_bright">(Dark) Tomorrow Night Bright</option>
+		                	<option value="34/tomorrow_night_eighties">(Dark) Tomorrow Night 80s</option>
+		                	<option value="35/twilight">(Dark) Twilight</option>
+		                	<option value="36/vibrant_ink">(Dark) Vibrant Ink</option>
 		                </select>
 		                </div>
                     <div style="text-align: center;">
@@ -338,26 +342,26 @@
 
   <div class="div_loading"></div>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.7.0.1"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.7.0.1"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.7.0.1"             ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.7.0.1"         ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.7.0.2"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.7.0.2"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.7.0.2"             ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.7.0.2"         ></script>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.7.0.1"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery.qtip.min.js?v2.7.0.1"        ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.7.0.1"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.7.0.1"               ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.7.0.1"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.7.0.1"></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.7.0.1"         ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.7.0.1"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.7.0.1"    ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.7.0.1"            ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.7.0.1"       ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.7.0.1"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.7.0.1"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.7.0.1"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.7.0.1"                  ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.7.0.2"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery.qtip.min.js?v2.7.0.2"        ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.7.0.2"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.7.0.2"               ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.7.0.2"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.7.0.2"></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.7.0.2"         ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.7.0.2"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.7.0.2"    ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.7.0.2"            ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.7.0.2"       ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.7.0.2"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.7.0.2"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.7.0.2"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.7.0.2"                  ></script>
 
   <script type="text/javascript">
 

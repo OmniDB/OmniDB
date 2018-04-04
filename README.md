@@ -4,12 +4,15 @@
 
 - New features:
   - Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2
-- Improvements:
   - Multi Database and Active Database for PostgreSQL, MySQL and MariaDB
+- Improvements:
   - Commands `\?`, `\x` and `\timing` for Console Tab for Oracle, MySQL and MariaDB
   - Console status showing number of rows affected in Console Tab for Oracle, MySQL and MariaDB
   - "Analyze" action for tables and materialized views for PostgreSQL
   - "Truncate" action for tables for PostgreSQL
+  - UI and editor themes can be applied on-the-fly
+  - Dark theme for charts
+  - Support to quoted identifiers on Oracle
 
 # 1- Installation
 

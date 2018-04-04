@@ -5,7 +5,6 @@ sqlparse>=0.2.3
 psycopg2-binary
 pyscrypt
 pyaes
-PrettyTable
 openpyxl
 pgspecial
 RestrictedPython>=4.0b2

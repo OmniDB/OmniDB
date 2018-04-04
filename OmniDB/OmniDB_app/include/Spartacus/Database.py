@@ -331,8 +331,8 @@ except ImportError:
 try:
     import psycopg2
     from psycopg2 import extras
-    from pgspecial.main import PGSpecial
-    from pgspecial.namedqueries import NamedQueries
+    from OmniDB_app.include.Spartacus.pgspecial.main import PGSpecial
+    from OmniDB_app.include.Spartacus.pgspecial.namedqueries import NamedQueries
     v_supported_rdbms.append('PostgreSQL')
 except ImportError:
     pass

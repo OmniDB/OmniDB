@@ -368,9 +368,12 @@ def renew_password(request):
     if v_test=='Connection successful.':
         v_database_object['prompt_timeout'] = datetime.now()
         #changing password of tab connection
-        v_tab_connection = v_session.v_tab_connections[v_tab_id]
-        v_tab_connection.v_connection.v_password = v_password
-        v_session.v_tab_connections[v_tab_id] = v_tab_connection
+        try:
+            v_tab_connection = v_session.v_tab_connections[v_tab_id]
+            v_tab_connection.v_connection.v_password = v_password
+            v_session.v_tab_connections[v_tab_id] = v_tab_connection
+        except Exception:
+            None
     else:
         v_return['v_error'] = True
         v_return['v_data'] = v_test
@@ -935,6 +938,7 @@ def save_alter_table(request):
     p_row_constraints_info = json_object['p_row_constraints_info']
     p_data_indexes = json_object['p_data_indexes']
     p_row_indexes_info = json_object['p_row_indexes_info']
+    print(p_schema_name)
 
     v_database = v_session.v_databases[p_database_index]['database']
 
@@ -1335,9 +1339,14 @@ def save_alter_table(request):
 
         if p_original_table_name != p_new_table_name:
 
+            if v_database.v_has_schema:
+                v_new_table_name = p_schema_name + "." + p_new_table_name
+            else:
+                v_new_table_name = p_new_table_name
+
             v_command = v_database.v_rename_table_command
             v_command = v_command.replace ("#p_table_name#", v_table_name)
-            v_command = v_command.replace ("#p_new_table_name#", p_new_table_name)
+            v_command = v_command.replace ("#p_new_table_name#", v_new_table_name)
 
             v_info_return = {
                 'error': False,
@@ -1364,6 +1373,8 @@ def save_alter_table(request):
             v_table_name = p_schema_name + "." + p_new_table_name
         else:
             v_table_name = p_new_table_name
+
+        print(v_table_name)
 
         v_command = "create table " + v_table_name + " ("
 

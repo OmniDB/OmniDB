@@ -1223,6 +1223,6 @@ function exportData() {
 
 function exportDataReturn(p_data) {
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectDataTabFunc();
-	var v_text = '<div style="font-size: 14px;">The file is ready. <a href="' + p_data.v_data.v_filename + '" download="'+ p_data.v_data.v_downloadname + '">Save</a></div>';
+	var v_text = '<div style="font-size: 14px;">The file is ready. <a class="link_text" href="' + p_data.v_data.v_filename + '" download="'+ p_data.v_data.v_downloadname + '">Save</a></div>';
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.innerHTML = v_text;
 }

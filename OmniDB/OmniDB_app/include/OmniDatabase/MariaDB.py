@@ -180,11 +180,11 @@ class MariaDB:
         return v_return
 
     def QueryRoles(self):
-        return self.v_connection.Query('''
-            select user as role_name
+        return self.v_connection.Query("""
+            select concat('''',user,'''','@','''',host,'''') as role_name
             from mysql.user
             order by 1
-        ''', True)
+        """, True)
 
     def QueryDatabases(self):
         return self.v_connection.Query('show databases', True, True)

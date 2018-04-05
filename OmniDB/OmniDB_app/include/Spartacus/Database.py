@@ -25,10 +25,10 @@ SOFTWARE.
 from collections import OrderedDict
 from abc import ABC, abstractmethod
 import datetime
-import prettytable
 import math
 
 import OmniDB_app.include.Spartacus as Spartacus
+import OmniDB_app.include.Spartacus.prettytable as prettytable
 
 class Exception(Exception):
     pass
@@ -218,6 +218,7 @@ class DataTable(object):
             else:
                 v_pretty = prettytable.PrettyTable()
                 v_pretty._set_field_names(self.Columns)
+                v_pretty._set_align('l')
                 for r in self.Rows:
                     v_row = []
                     for c in range(0, len(self.Columns)):
@@ -279,6 +280,7 @@ class DataTable(object):
             else:
                 v_pretty = prettytable.PrettyTable()
                 v_pretty._set_field_names(self.Columns)
+                v_pretty._set_align('l')
                 for r in self.Rows:
                     v_row = []
                     for c in self.Columns:
@@ -329,8 +331,8 @@ except ImportError:
 try:
     import psycopg2
     from psycopg2 import extras
-    from pgspecial.main import PGSpecial
-    from pgspecial.namedqueries import NamedQueries
+    from OmniDB_app.include.Spartacus.pgspecial.main import PGSpecial
+    from OmniDB_app.include.Spartacus.pgspecial.namedqueries import NamedQueries
     v_supported_rdbms.append('PostgreSQL')
 except ImportError:
     pass

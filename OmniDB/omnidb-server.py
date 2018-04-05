@@ -47,7 +47,7 @@ if options.homedir!='':
     else:
         OmniDB.custom_settings.HOME_DIR = options.homedir
 
-#importing settings after setting HOME_DIR
+#importing settings after setting HOME_DIR and other required parameters
 import OmniDB.settings
 
 if options.conf!='':
@@ -111,6 +111,23 @@ try:
     csrf_trusted_origins = Config.get('webserver', 'csrf_trusted_origins')
 except:
     csrf_trusted_origins = ''
+
+#Configuring Django settings before loading them
+if is_ssl:
+    OmniDB.settings.SESSION_COOKIE_SECURE = True
+    OmniDB.settings.CSRF_COOKIE_SECURE = True
+    csrf_trusted_origins_list = csrf_trusted_origins.split(',')
+    if len(csrf_trusted_origins_list)>0:
+        OmniDB.settings.CSRF_TRUSTED_ORIGINS = csrf_trusted_origins_list
+
+    if not os.path.exists(ssl_certificate_file):
+        print("Certificate file not found. Please specify a file that exists.")
+        logger.info("Certificate file not found. Please specify a file that exists.")
+        sys.exit()
+    if not os.path.exists(ssl_key_file):
+        print("Key file not found. Please specify a file that exists.")
+        logger.info("Key file not found. Please specify a file that exists.")
+        sys.exit()
 
 
 import OmniDB
@@ -265,21 +282,6 @@ if __name__ == "__main__":
         OmniDB.settings.SSL_KEY                        = ssl_key_file
         OmniDB.settings.SESSION_COOKIE_SECURE          = True
         OmniDB.settings.CSRF_COOKIE_SECURE             = True
-
-        if is_ssl:
-            csrf_trusted_origins_list = csrf_trusted_origins.split(',')
-            if len(csrf_trusted_origins_list)>0:
-                OmniDB.settings.CSRF_TRUSTED_ORIGINS = csrf_trusted_origins_list
-
-            if not os.path.exists(ssl_certificate_file):
-                print("Certificate file not found. Please specify a file that exists.")
-                logger.info("Certificate file not found. Please specify a file that exists.")
-                sys.exit()
-            if not os.path.exists(ssl_key_file):
-                print("Key file not found. Please specify a file that exists.")
-                logger.info("Key file not found. Please specify a file that exists.")
-                sys.exit()
-
 
         print ("Starting websocket server at port {0}.".format(str(port)))
         logger.info("Starting websocket server at port {0}.".format(str(port)))

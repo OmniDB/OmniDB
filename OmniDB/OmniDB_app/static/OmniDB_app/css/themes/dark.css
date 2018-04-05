@@ -293,23 +293,9 @@ select {
   background: #1e90ff;
 }*/
 a.modal-closer {
-    position: absolute;
-    display: block;
-    width: 25px;
-    height: 25px;
-    right: -15px;
-    top: -15px;
-    cursor: pointer;
-    z-index: 1000;
-    border-radius: 20px;
     color: #ffffff !important;
     border: 1px solid #1e90ff !important;
     background-color: #1e90ff !important;
-    text-align: center;
-    line-height: 23px;
-    font-size: 16px;
-    font-family: Tahoma, Geneva, sans-serif;
-    font-weight: 500;
 }
 a.modal-closer:hover {
     background-color: #303030 !important;

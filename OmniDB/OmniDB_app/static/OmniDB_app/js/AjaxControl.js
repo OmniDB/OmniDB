@@ -23,11 +23,13 @@ function startLoading()
 // Removing loading modal.
 function endLoading()
 {
-	v_calls_count--;
+	if (v_calls_count>0)
+		v_calls_count--;
 	if (v_calls_count==0) {
 		$body = $("body");
-	    $body.removeClass("loading");
-    }
+    $body.removeClass("loading");
+  }
+
 }
 
 function getCookie(name) {

@@ -397,6 +397,7 @@ function testMonitorScript() {
 
               var ctx = canvas.getContext('2d');
               v_tab_tag.object = new Chart(ctx, p_return.v_data.v_object);
+              adjustChartTheme(v_tab_tag.object);
 
             }
             else if (v_type=='grid') {
@@ -558,7 +559,6 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
     v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
   if (v_tab_tag.units.length>0) {
-
     for (var i=0; i<v_tab_tag.units.length; i++) {
       var v_unit_rendered = 0
       if (v_tab_tag.units[i].object!=null)
@@ -580,7 +580,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
     }
 
     var input = JSON.stringify({"p_database_index": v_tab_tag.connTabTag.selectedDatabaseIndex,
-                                "p_tab_id": v_connTabControl.selectedTab.id,
+                                "p_tab_id": v_tab_tag.connTabTag.tab_id,
                                 "p_ids": v_units});
 
   	execAjax('/refresh_monitor_units/',
@@ -626,6 +626,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
 
                     var ctx = canvas.getContext('2d');
                     var v_chart = new Chart(ctx, v_return_unit.v_object);
+                    adjustChartTheme(v_chart);
 
                     v_unit.object = v_chart;
 

@@ -33,6 +33,8 @@ from tornado.options import options, define, parse_command_line
 from . import ws_chat
 from OmniDB.startup import clean_temp_folder
 
+import sqlparse
+
 class StoppableThread(threading.Thread):
     def __init__(self,p1,p2,p3):
         super(StoppableThread, self).__init__(target=p1, args=(self,p2,p3,))
@@ -685,20 +687,22 @@ def thread_console(self,args,ws_object):
 
         try:
 
-            PATTERN = re.compile(r'''((?:[^;'"\$]|"[^"]*"|"[^"]*|'[^']*'|'[^']*|(?P<quoted_string>\$[^\$]*\$).*(?P=quoted_string)|\$[^\$]*\$.*)+)''', re.DOTALL)
-            list_sql = PATTERN.split(v_sql)[1::3]
+            #PATTERN = re.compile(r'''((?:[^;'"\$]|"[^"]*"|"[^"]*|'[^']*'|'[^']*|(?P<quoted_string>\$[^\$]*\$).*(?P=quoted_string)|\$[^\$]*\$.*)+)''', re.DOTALL)
+            #list_sql = PATTERN.split(v_sql)[1::3]
+            list_sql = sqlparse.split(v_sql)
 
             v_data_return = ''
 
             for sql in list_sql:
+
                 try:
+                    formated_sql = sql.strip()
+                    v_data_return += '\n>> ' + formated_sql + '\n'
+
                     if not v_database.v_connection.v_con:
                         v_database.v_connection.Open()
 
-                    formated_sql = sql.strip()
-
                     v_database.v_connection.ClearNotices()
-                    v_data_return += '\n>> ' + formated_sql + '\n'
                     v_data1 = v_database.v_connection.Special(sql);
 
                     v_notices = v_database.v_connection.GetNotices()
@@ -1064,7 +1068,8 @@ def thread_debug_run_func(self,args,ws_object):
 
     try:
         #enable debugger for current connection
-        v_database_debug.v_connection.Execute("select omnidb.omnidb_enable_debugger('{0}')".format(v_database_debug.v_connection.GetConnectionString().replace("'", "''")))
+        v_conn_string = "port=5432 dbname=''{0}'' user=''{1}''".format(v_database_debug.v_service,v_database_debug.v_user);
+        v_database_debug.v_connection.Execute("select omnidb.omnidb_enable_debugger('{0}')".format(v_conn_string))
 
         #run function it will lock until the function ends
         v_func_return = v_database_debug.v_connection.Query('select * from {0} limit 1000'.format(args['v_function']),True)

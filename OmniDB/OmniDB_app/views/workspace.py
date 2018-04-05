@@ -329,6 +329,7 @@ def change_active_database(request):
         v_database.v_conn_id,
         v_database.v_alias
     )
+    
     v_database_new.v_service = v_data;
     v_database_new.v_connection.v_service = v_data;
 

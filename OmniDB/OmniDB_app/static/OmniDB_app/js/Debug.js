@@ -269,8 +269,14 @@ function startDebug() {
 		}
 		v_tab_tag.markerList = [];
 
-
 	  sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Debug, v_message_data, false, v_context);
+
+		setTimeout(function() {
+			if (!v_context.acked) {
+				cancelDebugInterface(v_context);
+				showAlert('No response from query server.');
+			}
+		},3000);
 	}
 
 }
@@ -328,11 +334,19 @@ function stepDebug(p_mode) {
     }
 
     var v_context = {
-      tab_tag: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+      tab_tag: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag,
+			acked: false
     }
     v_context.tab_tag.context = v_context;
 
     sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Debug, v_message_data, false, v_context);
+
+		setTimeout(function() {
+			if (!v_context.acked) {
+				cancelDebugInterface(v_context);
+				showAlert('No response from query server.');
+			}
+		},3000);
 
 
   }
@@ -387,7 +401,19 @@ function cancelDebug() {
 			v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id
 		}
 
-		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Debug, v_message_data, false, null);
+		var v_context = {
+	    tab_tag: v_tab_tag,
+	    acked: false
+	  }
+
+		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Debug, v_message_data, false, v_context);
+
+		setTimeout(function() {
+			if (!v_context.acked) {
+				cancelDebugInterface(v_context);
+				showAlert('No response from query server.');
+			}
+		},3000);
 	}
 }
 
@@ -414,6 +440,28 @@ function debugResponse(p_message, p_context) {
 
 }
 
+function cancelDebugInterface(p_context) {
+	p_context.tab_tag.state = v_debugState.Cancel;
+	p_context.tab_tag.tab_stub_span.style.display = '';
+	p_context.tab_tag.tab_check_span.style.display = 'none';
+	p_context.tab_tag.tab_loading_span.style.display = 'none';
+
+	p_context.tab_tag.debug_info.innerHTML = '<b>Canceled.</b>';
+
+	//Update buttons
+	p_context.tab_tag.bt_start.style.display = 'inline-block';
+	p_context.tab_tag.bt_reload.style.display = 'inline-block';
+	p_context.tab_tag.bt_step_over.style.display = 'none';
+	p_context.tab_tag.bt_step_out.style.display = 'none';
+	p_context.tab_tag.bt_cancel.style.display = 'none';
+
+	//Remove marker
+	if (p_context.tab_tag.markerId) {
+		p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
+		p_context.tab_tag.markerId = null;
+	}
+}
+
 function debugResponseRender(p_message, p_context) {
 
 	p_context.tab_tag.tab_stub_span.style.display = '';
@@ -425,20 +473,7 @@ function debugResponseRender(p_message, p_context) {
 
 	//Cancelled
 	if (p_context.tab_tag.state==v_debugState.Cancel) {
-		p_context.tab_tag.debug_info.innerHTML = '<b>Canceled.</b>';
-
-		//Update buttons
-		p_context.tab_tag.bt_start.style.display = 'inline-block';
-		p_context.tab_tag.bt_reload.style.display = 'inline-block';
-		p_context.tab_tag.bt_step_over.style.display = 'none';
-		p_context.tab_tag.bt_step_out.style.display = 'none';
-		p_context.tab_tag.bt_cancel.style.display = 'none';
-
-		//Remove marker
-		if (p_context.tab_tag.markerId) {
-			p_context.tab_tag.editor.session.removeMarker(p_context.tab_tag.markerId);
-			p_context.tab_tag.markerId = null;
-		}
+		cancelDebugInterface(p_context);
 
 	}
 	else {
@@ -521,13 +556,10 @@ function debugResponseRender(p_message, p_context) {
 					var v_width = 80*p_message.v_data.v_result_statistics.length;
 					v_width = Math.max(v_width,400)
 
-					console.log(v_chart_labels)
-					console.log(v_chart_data)
 					var v_chart_data_list = [];
 					for (var i=0; i<v_chart_data.length;i++) {
 						v_chart_data_list.push(v_chart_data[i].value);
 					}
-					console.log(v_max_value)
 					var ctx = p_context.tab_tag.div_statistics_canvas.getContext('2d');
 					p_context.tab_tag.chart = new Chart(ctx,result = {
 					    "type": "line",
@@ -585,48 +617,7 @@ function debugResponseRender(p_message, p_context) {
 					    }
 					}
 					);
-					//console.log(p_context.tab_tag.div_statistics)
-					/*p_context.tab_tag.chart = new Chartist.Line(p_context.tab_tag.div_statistics, {
-				  labels: v_chart_labels,
-				  series: [
-				    v_chart_data
-				  ]
-					}, {
-					  fullWidth: true,
-						lineSmooth: false,
-						high: v_max_value + 0.5,
-						width: v_width + 'px',
-						plugins: [
-					    ctPointLabels({
-					      textAnchor: 'middle'
-					    }),
-							Chartist.plugins.ctAxisTitle({
-					      axisX: {
-					        axisTitle: 'Line Number',
-					        axisClass: 'ct-axis-title',
-					        offset: {
-					          x: 0,
-					          y: 30
-					        },
-					        textAnchor: 'middle'
-					      },
-					      axisY: {
-					        axisTitle: 'Duration(s)',
-					        axisClass: 'ct-axis-title',
-					        offset: {
-					          x: 0,
-					          y: 0
-					        },
-					        textAnchor: 'middle',
-					        flipTitle: false
-					      }
-					    })
-					  ],
-					  chartPadding: {
-					    right: 40,
-							left: 40
-					  }
-					});*/
+					adjustChartTheme(p_context.tab_tag.chart);
 
 					//Adding heat colors to function body
 					v_max_value = v_max_value + 0.5;

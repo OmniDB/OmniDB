@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.6.0
+VERSION=2.7.0
 ARCH=fedora-amd64
 
 echo "Installing OmniDB dependencies..."

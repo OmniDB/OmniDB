@@ -329,7 +329,7 @@ def change_active_database(request):
         v_database.v_conn_id,
         v_database.v_alias
     )
-    
+
     v_database_new.v_service = v_data;
     v_database_new.v_connection.v_service = v_data;
 
@@ -939,7 +939,6 @@ def save_alter_table(request):
     p_row_constraints_info = json_object['p_row_constraints_info']
     p_data_indexes = json_object['p_data_indexes']
     p_row_indexes_info = json_object['p_row_indexes_info']
-    print(p_schema_name)
 
     v_database = v_session.v_databases[p_database_index]['database']
 
@@ -1374,8 +1373,6 @@ def save_alter_table(request):
             v_table_name = p_schema_name + "." + p_new_table_name
         else:
             v_table_name = p_new_table_name
-
-        print(v_table_name)
 
         v_command = "create table " + v_table_name + " ("
 

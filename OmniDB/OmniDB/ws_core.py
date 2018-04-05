@@ -348,9 +348,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
                         #Existing debugger, get existing tab_object
                         else:
-                            print('d1')
                             tab_object = self.v_list_tab_objects[v_data['v_tab_id']]
-                            print('d2')
 
                         v_data['v_context_code'] = v_context_code
                         v_data['v_tab_object'] = tab_object

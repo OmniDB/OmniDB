@@ -1359,6 +1359,7 @@ class MySQL(Generic):
             self.v_expanded = False
             self.v_timing = False
             self.v_status = 0
+            self.v_con_id = 0
         else:
             raise Spartacus.Database.Exception("MySQL is not supported. Please install it with 'pip install Spartacus[mysql]'.")
     def GetConnectionString(self):
@@ -1374,6 +1375,7 @@ class MySQL(Generic):
             self.v_cur = self.v_con.cursor()
             self.v_start = True
             self.v_status = 0
+            self.v_con_id = self.ExecuteScalar('select connection_id()')
         except pymysql.Error as exc:
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
@@ -1463,7 +1465,16 @@ class MySQL(Generic):
     def Cancel(self):
         try:
             if self.v_con:
-                self.v_con.cancel()
+                v_con2 = pymysql.connect(
+                    host=self.v_host,
+                    port=int(self.v_port),
+                    db=self.v_service,
+                    user=self.v_user,
+                    password=self.v_password)
+                v_cur2 = v_con2.cursor()
+                self.v_status = v_cur2.execute('kill {0}'.format(self.v_con_id))
+                v_cur2.close()
+                v_con2.close()
                 if self.v_cur:
                     self.v_cur.close()
                     self.v_cur = None
@@ -1474,7 +1485,7 @@ class MySQL(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
     def GetPID(self):
-        return None
+        return self.v_con_id
     def Terminate(self, p_pid):
         try:
             self.Execute('kill {0}'.format(p_pid))
@@ -1690,6 +1701,7 @@ class MariaDB(Generic):
             self.v_expanded = False
             self.v_timing = False
             self.v_status = 0
+            self.v_con_id = 0
         else:
             raise Spartacus.Database.Exception("MariaDB is not supported. Please install it with 'pip install Spartacus[mariadb]'.")
     def GetConnectionString(self):
@@ -1705,6 +1717,7 @@ class MariaDB(Generic):
             self.v_cur = self.v_con.cursor()
             self.v_start = True
             self.v_status = 0
+            self.v_con_id = self.ExecuteScalar('select connection_id()')
         except pymysql.Error as exc:
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
@@ -1794,7 +1807,16 @@ class MariaDB(Generic):
     def Cancel(self):
         try:
             if self.v_con:
-                self.v_con.cancel()
+                v_con2 = pymysql.connect(
+                    host=self.v_host,
+                    port=int(self.v_port),
+                    db=self.v_service,
+                    user=self.v_user,
+                    password=self.v_password)
+                v_cur2 = v_con2.cursor()
+                self.v_status = v_cur2.execute('kill {0}'.format(self.v_con_id))
+                v_cur2.close()
+                v_con2.close()
                 if self.v_cur:
                     self.v_cur.close()
                     self.v_cur = None
@@ -1805,7 +1827,7 @@ class MariaDB(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
     def GetPID(self):
-        return None
+        return self.v_con_id
     def Terminate(self, p_pid):
         try:
             self.Execute('kill {0}'.format(p_pid))

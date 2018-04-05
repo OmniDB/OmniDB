@@ -199,6 +199,7 @@ function initCreateTabFunctions() {
                           });
 
     	var v_tag = {
+        tab_id: v_tab.id,
     		tabControl: v_currTabControl,
         tabTitle: v_tab_title_span,
         divDetails: document.getElementById(v_tab.id + '_details'),

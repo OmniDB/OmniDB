@@ -559,7 +559,6 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
     v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
   if (v_tab_tag.units.length>0) {
-
     for (var i=0; i<v_tab_tag.units.length; i++) {
       var v_unit_rendered = 0
       if (v_tab_tag.units[i].object!=null)
@@ -581,7 +580,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
     }
 
     var input = JSON.stringify({"p_database_index": v_tab_tag.connTabTag.selectedDatabaseIndex,
-                                "p_tab_id": v_connTabControl.selectedTab.id,
+                                "p_tab_id": v_tab_tag.connTabTag.tab_id,
                                 "p_ids": v_units});
 
   	execAjax('/refresh_monitor_units/',

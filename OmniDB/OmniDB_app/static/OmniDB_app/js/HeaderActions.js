@@ -92,8 +92,6 @@ function showConfigUser() {
 
 	document.getElementById('sel_editor_font_size').value = v_editor_font_size;
 	document.getElementById('sel_editor_theme').value = v_theme_id + '/' + v_editor_theme;
-	console.log(v_theme_id);
-	console.log(v_editor_theme);
 
 	document.getElementById('txt_confirm_new_pwd').value = '';
 	document.getElementById('txt_new_pwd').value = '';

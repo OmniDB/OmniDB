@@ -4,9 +4,14 @@
 
 - New features:
   - Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2
-  - Multi Database and Active Database for PostgreSQL, MySQL and MariaDB
+  - Management of multiple databases in the same connection
+  - Debugger plugin can now be installed in PostgreSQL hosted on Windows
 - Improvements:
-  - Commands `\?`, `\x` and `\timing` for Console Tab for Oracle, MySQL and MariaDB
+  - Improved security for omnidb-server when running with SSL
+  - New button to reload the source code of the function in the debugger interface
+  - Other improvements to the debugger interface
+  - Improved security for debugger
+  - Commands \?, \x and \timing for Console Tab for Oracle, MySQL and MariaDB
   - Console status showing number of rows affected in Console Tab for Oracle, MySQL and MariaDB
   - "Analyze" action for tables and materialized views for PostgreSQL
   - "Truncate" action for tables for PostgreSQL

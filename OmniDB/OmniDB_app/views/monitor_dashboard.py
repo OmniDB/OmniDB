@@ -300,6 +300,7 @@ def save_monitor_unit(request):
             v_return['v_data'] = v_inserted_id
         #existing unit
         else:
+            v_return['v_data'] = v_unit_id
             v_session.v_omnidb_database.v_connection.Execute('''
                 update mon_units
                 set dbt_st_name = '{0}',
@@ -371,7 +372,7 @@ def refresh_monitor_units(request):
     v_tab_id = json_object['p_tab_id']
     v_ids = json_object['p_ids']
 
-    v_database_orig = v_session.v_databases[v_database_index]['database']
+    v_database_orig = v_session.v_tab_connections[v_tab_id]
     v_database = OmniDatabase.Generic.InstantiateDatabase(
         v_database_orig.v_db_type,
         v_database_orig.v_server,

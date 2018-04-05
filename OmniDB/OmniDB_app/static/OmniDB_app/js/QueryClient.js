@@ -164,6 +164,7 @@ function startQueryWebSocket(p_port) {
 				}
 				case parseInt(v_queryResponseCodes.DebugResponse): {
 					if (p_context) {
+						SetAcked(p_context);
 						debugResponse(p_message, p_context);
 						if (p_message.v_data.v_remove_context) {
 							removeContext(v_queryWebSocket,p_context_code);

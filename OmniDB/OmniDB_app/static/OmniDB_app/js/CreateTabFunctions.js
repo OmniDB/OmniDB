@@ -1384,7 +1384,7 @@ function initCreateTabFunctions() {
           "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
           "			</div>" +
           "			<div id='div_query_result_tabs_" + v_tab.id + "_tab2'>" +
-          "<div id='div_notices_" + v_tab.id + "' style='width: 100%; line-height: 16px; user-select: initial;'></div>" +
+          "<div id='div_notices_" + v_tab.id + "' class='query_result' style='width: 100%; line-height: 16px; user-select: initial;'></div>" +
           "			</div>" +
           "			<div id='div_query_result_tabs_" + v_tab.id + "_tab3'>" +
           "<div id='div_explain_" + v_tab.id + "' style='width: 100%; overflow: auto;'></div>" +

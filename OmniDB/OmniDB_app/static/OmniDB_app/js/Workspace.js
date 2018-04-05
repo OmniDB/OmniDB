@@ -298,7 +298,6 @@ function removeTab(p_tab) {
 			v_message_data.tab_db_id = p_tab.tag.tab_db_id;
 
 		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, [v_message_data], false, null);
-		//console.log('closing query tab')
 	}
 	p_tab.removeTab();
 
@@ -1181,26 +1180,25 @@ function adjustQueryTabObjects(p_all_tabs) {
 }
 
 function showMenuNewTab(e) {
-	customMenu(
+	var v_option_list = [
 		{
-			x:e.clientX+5,
-			y:e.clientY+5
+			text: 'Query Tab',
+			icon: '/static/OmniDB_app/images/text_edit.png',
+			action: function() {
+				v_connTabControl.tag.createQueryTab();
+			}
 		},
-		[
-			{
-				text: 'Query Tab',
-				icon: '/static/OmniDB_app/images/text_edit.png',
-				action: function() {
-					v_connTabControl.tag.createQueryTab();
-				}
-			},
-			{
-				text: 'Console Tab',
-				icon: '/static/OmniDB_app/images/console.png',
-				action: function() {
-					v_connTabControl.tag.createConsoleTab();
-				}
-			},
+		{
+			text: 'Console Tab',
+			icon: '/static/OmniDB_app/images/console.png',
+			action: function() {
+				v_connTabControl.tag.createConsoleTab();
+			}
+		}
+	]
+
+	if (v_connTabControl.selectedTab.tag.selectedDBMS=='postgresql') {
+		v_option_list.push(
 			{
 				text: 'Monitoring Dashboard',
 				icon: '/static/OmniDB_app/images/monitoring.png',
@@ -1209,7 +1207,15 @@ function showMenuNewTab(e) {
 					startMonitorDashboard();
 				}
 			}
-		],
+		);
+	}
+
+	customMenu(
+		{
+			x:e.clientX+5,
+			y:e.clientY+5
+		},
+		v_option_list,
 		null);
 
 }

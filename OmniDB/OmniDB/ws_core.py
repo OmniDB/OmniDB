@@ -384,12 +384,9 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     return True
 
 def start_wsserver_thread():
-    if platform.system() != 'Windows':
-        t = threading.Thread(target=start_wsserver)
-        t.setDaemon(True)
-        t.start()
-    else:
-        start_wsserver()
+    t = threading.Thread(target=start_wsserver)
+    t.setDaemon(True)
+    t.start()
 
 def start_wsserver():
     logger.info('''*** Starting OmniDB ***''')

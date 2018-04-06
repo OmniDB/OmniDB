@@ -2155,7 +2155,9 @@ function initCreateTabFunctions() {
           "			</div>" +
           "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab5'>" +
           "<div id='div_statistics_" + v_tab.id + "' style='width: 100%; overflow: auto; position: relative;'>" +
-          "<canvas id='div_statistics_canvas_" + v_tab.id + "'></canvas>" +
+          "<div id='div_statistics_container_" + v_tab.id + "' style='height: 100%; position: relative;'>" +
+          "<canvas id='div_statistics_canvas_" + v_tab.id + "''></canvas>" +
+          "</div>" +
           "</div>" +
           "			</div></div>";
 
@@ -2201,6 +2203,7 @@ function initCreateTabFunctions() {
 			div_result: document.getElementById('div_result_' + v_tab.id),
       div_notices: document.getElementById('div_notices_' + v_tab.id),
       div_statistics: document.getElementById('div_statistics_' + v_tab.id),
+      div_statistics_container: document.getElementById('div_statistics_container_' + v_tab.id),
       div_statistics_canvas: document.getElementById('div_statistics_canvas_' + v_tab.id),
       div_count_notices: document.getElementById('debug_result_tabs_count_notices_' + v_tab.id),
 			tab_title_span : v_tab_title_span,

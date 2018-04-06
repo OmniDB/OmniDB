@@ -553,8 +553,9 @@ function debugResponseRender(p_message, p_context) {
 
 					p_context.tab_tag.debug_info.innerHTML = '<b>Finished</b> - <b>Total duration</b>: ' + (v_total_duration).toFixed(3) + ' s';
 
-					var v_width = 80*p_message.v_data.v_result_statistics.length;
+					var v_width = 30*p_message.v_data.v_result_statistics.length;
 					v_width = Math.max(v_width,400)
+					p_context.tab_tag.div_statistics_container.style.width = v_width + 'px';
 
 					var v_chart_data_list = [];
 					for (var i=0; i<v_chart_data.length;i++) {
@@ -572,7 +573,7 @@ function debugResponseRender(p_message, p_context) {
 					            "borderColor": "rgb(75, 192, 192)",
 					            "lineTension": 0,
 					            "pointRadius": 2,
-					            "borderWidth": 2,
+					            "borderWidth": 1,
 					            "data": v_chart_data_list
 					        }]
 					},

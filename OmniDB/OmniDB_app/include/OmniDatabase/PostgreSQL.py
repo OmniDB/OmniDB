@@ -3058,17 +3058,33 @@ TO NODE ( nodename [, ... ] )
             where quote_ident(n.nspname) = '{0}'
               and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object)).Transpose('Property', 'Value')
-        v_table2 = self.v_connection.Query('''
-            select last_value as "Last Value",
-                   start_value as "Start Value",
-                   increment_by as "Increment By",
-                   max_value as "Max Value",
-                   min_value as "Min Value",
-                   cache_value as "Cache Value",
-                   is_cycled as "Is Cycled",
-                   is_called as "Is Called"
-            from {0}.{1}
-        '''.format(p_schema, p_object)).Transpose('Property', 'Value')
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
+            v_table2 = self.v_connection.Query('''
+                select last_value as "Last Value",
+                       start_value as "Start Value",
+                       increment_by as "Increment By",
+                       max_value as "Max Value",
+                       min_value as "Min Value",
+                       cache_value as "Cache Value",
+                       is_cycled as "Is Cycled",
+                       is_called as "Is Called"
+                from {0}.{1}
+            '''.format(p_schema, p_object)).Transpose('Property', 'Value')
+        else:
+            v_table2 = self.v_connection.Query('''
+                select data_type as "Data Type",
+                       last_value as "Last Value",
+                       start_value as "Start Value",
+                       increment_by as "Increment By",
+                       max_value as "Max Value",
+                       min_value as "Min Value",
+                       cache_size as "Cache Size",
+                       cycle as "Is Cycled"
+                from pg_sequences
+                where schemaname = '{0}'
+                  and sequencename = '{1}'
+            '''.format(p_schema, p_object)).Transpose('Property', 'Value')
+            v_table1.Merge(v_table2)
         v_table1.Merge(v_table2)
         return v_table1
 

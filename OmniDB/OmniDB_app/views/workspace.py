@@ -1654,7 +1654,7 @@ def get_completions(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_database = v_session.v_tab_connections[v_tab_id]
+    v_database = v_session.v_tab_connections[p_tab_id]
 
     v_list = []
 
@@ -1761,7 +1761,7 @@ def get_completions_table(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_database = v_session.v_tab_connections[v_tab_id]
+    v_database = v_session.v_tab_connections[p_tab_id]
 
     if v_database.v_has_schema:
         v_table_name = p_schema + "." + p_table

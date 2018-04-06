@@ -1,3 +1,4 @@
+DROP SCHEMA IF EXISTS omnidb CASCADE;
 CREATE SCHEMA omnidb;
 
 CREATE FUNCTION omnidb.omnidb_enable_debugger(character varying)
@@ -12,7 +13,8 @@ CREATE TABLE omnidb.contexts
   lineno        INTEGER,
   stmttype      TEXT,
   breakpoint    INTEGER NOT NULL,
-  finished      BOOLEAN
+  finished      BOOLEAN,
+  username      TEXT DEFAULT current_user
 );
 
 CREATE TABLE omnidb.variables
@@ -21,7 +23,8 @@ CREATE TABLE omnidb.variables
   name          TEXT,
   attribute     TEXT,
   vartype       TEXT,
-  value         TEXT
+  value         TEXT,
+  username      TEXT DEFAULT current_user
 );
 
 ALTER TABLE omnidb.variables
@@ -36,7 +39,8 @@ CREATE TABLE omnidb.statistics
   lineno        INTEGER,
   step          INTEGER,
   tstart        TIMESTAMP WITHOUT TIME ZONE,
-  tend          TIMESTAMP WITHOUT TIME ZONE
+  tend          TIMESTAMP WITHOUT TIME ZONE,
+  username      TEXT DEFAULT current_user
 );
 
 ALTER TABLE omnidb.statistics

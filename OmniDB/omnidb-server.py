@@ -245,7 +245,8 @@ class DjangoApplication(object):
             cherrypy.engine.start()
 
             print ("Open OmniDB in your favorite browser")
-            print ("Press Ctrl+C to exit")
+            if platform.system() != 'Windows':
+                print ("Press Ctrl+C to exit")
 
             cherrypy.engine.block()
             cherrypy.engine.exit()

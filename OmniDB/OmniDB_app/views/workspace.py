@@ -632,15 +632,14 @@ def alter_table_data(request):
 
             if v_pk_table != None and len(v_pk_table.Rows)>0:
 
-                v_column_list = ''
-                v_first = True
-
                 for v_pk in v_pk_table.Rows:
                     if v_schema_name:
                         v_pk_col_table = v_database.QueryTablesPrimaryKeysColumns(v_pk['constraint_name'], v_table_name, False, v_schema_name)
                     else:
                         v_pk_col_table = v_database.QueryTablesPrimaryKeysColumns(v_pk['constraint_name'], v_table_name)
 
+                    v_column_list = ''
+                    v_first = True
                     for v_column in v_pk_col_table.Rows:
                         if not v_first:
                             v_column_list += ", "
@@ -672,25 +671,26 @@ def alter_table_data(request):
 
             if v_fks_table != None and len(v_fks_table.Rows)>0:
 
-                v_column_list = ""
-                v_referenced_column_list = ""
-                v_constraint_name = v_fks_table.Rows[0]["constraint_name"]
-                v_update_rule = v_fks_table.Rows[0]["update_rule"]
-                v_delete_rule = v_fks_table.Rows[0]["delete_rule"]
-                v_r_table_name = ""
-
-                if v_database.v_has_schema:
-                    v_r_table_name = v_fks_table.Rows[0]["r_table_schema"] + "." + v_fks_table.Rows[0]["r_table_name"]
-                else:
-                    v_r_table_name = v_fks_table.Rows[0]["r_table_name"]
-
-                v_first = True
-
                 for v_fk in v_fks_table.Rows:
+
+                    v_column_list = ""
+                    v_referenced_column_list = ""
+                    v_constraint_name = v_fk["constraint_name"]
+                    v_update_rule = v_fk["update_rule"]
+                    v_delete_rule = v_fk["delete_rule"]
+                    v_r_table_name = ""
+
+                    if v_database.v_has_schema:
+                        v_r_table_name = v_fk["r_table_schema"] + "." + v_fk["r_table_name"]
+                    else:
+                        v_r_table_name = v_fk["r_table_name"]
+
                     if v_schema_name:
                         v_fks_col_table = v_database.QueryTablesForeignKeysColumns(v_fk['constraint_name'], v_table_name, False, v_schema_name)
                     else:
                         v_fks_col_table = v_database.QueryTablesForeignKeysColumns(v_fk['constraint_name'], v_table_name)
+
+                    v_first = True
 
                     for v_column in v_fks_col_table.Rows:
 
@@ -758,15 +758,18 @@ def alter_table_data(request):
                 v_uniques_table = v_database.QueryTablesUniques(v_table_name)
 
             if v_uniques_table != None and len(v_uniques_table.Rows)>0:
-                v_column_list = ""
-                v_constraint_name = v_uniques_table.Rows[0]["constraint_name"]
-                v_first = True
 
                 for v_unique in v_uniques_table.Rows:
+
+                    v_column_list = ""
+                    v_constraint_name = v_unique["constraint_name"]
+
                     if v_schema_name:
                         v_uniques_col_table = v_database.QueryTablesUniquesColumns(v_unique['constraint_name'], v_table_name, False, v_schema_name)
                     else:
                         v_uniques_col_table = v_database.QueryTablesUniquesColumns(v_unique['constraint_name'], v_table_name)
+
+                    v_first = True
 
                     for v_column in v_uniques_col_table.Rows:
 
@@ -826,16 +829,18 @@ def alter_table_data(request):
 
             if v_indexes_table != None and len(v_indexes_table.Rows)>0:
 
-                v_column_list = ""
-                v_index_name = v_indexes_table.Rows[0]["index_name"]
-                v_uniqueness = v_indexes_table.Rows[0]["uniqueness"]
-                v_first = True
-
                 for v_index in v_indexes_table.Rows:
+
+                    v_column_list = ""
+                    v_index_name = v_index["index_name"]
+                    v_uniqueness = v_index["uniqueness"]
+
                     if v_schema_name:
                         v_indexes_col_table = v_database.QueryTablesIndexesColumns(v_index['index_name'], v_table_name, False, v_schema_name)
                     else:
                         v_indexes_col_table = v_database.QueryTablesIndexesColumns(v_index['index_name'], v_table_name)
+
+                    v_first = True
 
                     for v_column in v_indexes_col_table.Rows:
 

@@ -42,6 +42,7 @@
 #include "libpq-fe.h"
 #include "fmgr.h"
 #include "utils/builtins.h"
+#include "omnidb_plugin.h"
 
 PG_MODULE_MAGIC;
 
@@ -246,7 +247,7 @@ static void profiler_stmt_beg( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
         else
             omnidb_plugin_breakpoint = 0;
 
-        if (omnidb_plugin_breakpoint == 0 || omnidb_plugin_breakpoint == stmt->lineno)
+				if ((omnidb_plugin_breakpoint == 0 || omnidb_plugin_breakpoint == stmt->lineno) && ((stmt->cmd_type == 11 && stmt->lineno != 0) || (stmt->cmd_type != 11)))
         {
             update_variables(estate);
 

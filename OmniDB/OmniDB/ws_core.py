@@ -549,7 +549,10 @@ def thread_query(self,args,ws_object):
                 v_data1 = v_database.v_connection.QueryBlock(v_sql, -1, True, False)
                 v_database.v_connection.Close()
                 v_file_name = '{0}.{1}'.format(str(time.time()).replace('.','_'),v_extension)
-                f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name),v_data1.Columns)
+                if platform.system() == 'Windows':
+                    f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns, 'windows-1252')
+                else:
+                    f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns)
                 f.Open()
                 f.Write(v_data1)
                 f.Flush()

@@ -143,7 +143,6 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 		//First call
 		if (omnidb_plugin_depth == 0)
         {
-            elog(LOG, "omnidb, CONNINFO, (%s)", omnidb_plugin_conninfo);
             omnidb_plugin_conn = PQconnectdb(omnidb_plugin_conninfo);
             if (PQstatus(omnidb_plugin_conn) != CONNECTION_BAD)
             {

@@ -229,11 +229,11 @@ function QueryPasswordRequired(p_context, p_message) {
 		showPasswordPrompt(
 			p_context.database_index,
 			function() {
-				cancelSQLTab();
-				querySQL(p_context.mode);
+				cancelSQLTab(p_context.tab_tag);
+				//querySQL(p_context.mode);
 			},
 			function() {
-				cancelSQLTab();
+				cancelSQLTab(p_context.tab_tag);
 			},
 			p_message
 		);
@@ -242,11 +242,11 @@ function QueryPasswordRequired(p_context, p_message) {
 		showPasswordPrompt(
 			p_context.database_index,
 			function() {
-				cancelEditDataTab();
-				queryEditData();
+				cancelEditDataTab(p_context.tab_tag);
+				//queryEditData();
 			},
 			function() {
-				cancelEditDataTab();
+				cancelEditDataTab(p_context.tab_tag);
 			},
 			p_message
 		);
@@ -255,13 +255,13 @@ function QueryPasswordRequired(p_context, p_message) {
 		showPasswordPrompt(
 			p_context.database_index,
 			function() {
-				cancelConsole();
-				p_context.tab_tag.editor_input.setValue(p_context.tab_tag.last_command);
-        p_context.tab_tag.editor_input.clearSelection();
-				consoleSQL(false);
+				cancelConsoleTab(p_context.tab_tag);
+				//p_context.tab_tag.editor_input.setValue(p_context.tab_tag.last_command);
+        //p_context.tab_tag.editor_input.clearSelection();
+				//consoleSQL(false);
 			},
 			function() {
-				cancelConsole();
+				cancelConsoleTab(p_context.tab_tag);
 			},
 			p_message
 		);

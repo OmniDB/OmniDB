@@ -111,12 +111,9 @@ def closeTabHandler(ws_object,p_tab_object_id):
     except Exception as exc:
         None
 
+def thread_dispatcher(self,args,ws_object):
+    message = args
 
-
-class WSHandler(tornado.websocket.WebSocketHandler):
-  def open(self):
-    None
-  def on_message(self, message):
     v_response = {
         'v_code': 0,
         'v_context_code': 0,
@@ -133,21 +130,21 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         v_response['v_context_code'] = v_context_code
         #Login request
         if v_code == request.Login:
-            self.v_user_key = v_data
+            ws_object.v_user_key = v_data
             try:
                 v_session = SessionStore(session_key=v_data)['omnidb_session']
-                self.v_session = v_session
+                ws_object.v_session = v_session
                 v_response['v_code'] = response.LoginResult
-                self.v_list_tab_objects = dict([])
-                self.write_message(json.dumps(v_response))
+                ws_object.v_list_tab_objects = dict([])
+                ws_object.write_message(json.dumps(v_response))
             except Exception:
                 v_response['v_code'] = response.SessionMissing
-                self.write_message(json.dumps(v_response))
+                ws_object.write_message(json.dumps(v_response))
         else:
             #Cancel thread
             if v_code == request.CancelThread:
                 try:
-                    thread_data = self.v_list_tab_objects[v_data]
+                    thread_data = ws_object.v_list_tab_objects[v_data]
                     if thread_data:
 
                         thread_data['thread'].stop()
@@ -158,11 +155,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             #Close Tab
             elif v_code == request.CloseTab:
                 for v_tab_close_data in v_data:
-                    closeTabHandler(self,v_tab_close_data['tab_id'])
+                    closeTabHandler(ws_object,v_tab_close_data['tab_id'])
                     #remove from tabs table if db_tab_id is not null
                     if v_tab_close_data['tab_db_id']:
                         try:
-                            self.v_session.v_omnidb_database.v_connection.Execute('''
+                            ws_object.v_session.v_omnidb_database.v_connection.Execute('''
                             delete from tabs
                             where tab_id = {0}
                             '''.format(v_tab_close_data['tab_db_id']))
@@ -171,24 +168,28 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
             else:
                 try:
+                    #Send Ack Message
+                    v_response['v_code'] = response.QueryAck
+                    ws_object.write_message(json.dumps(v_response))
+
                     #Getting refreshed session
-                    s = SessionStore(session_key=self.v_user_key)
+                    s = SessionStore(session_key=ws_object.v_user_key)
                     v_session = s['omnidb_session']
-                    self.v_session = v_session
+                    ws_object.v_session = v_session
 
                     #Check database prompt timeout
                     v_timeout = v_session.DatabaseReachPasswordTimeout(v_data['v_db_index'])
                     if v_timeout['timeout']:
                         v_response['v_code'] = response.PasswordRequired
                         v_response['v_data'] = v_timeout['message']
-                        self.write_message(json.dumps(v_response))
+                        ws_object.write_message(json.dumps(v_response))
                         return
 
                     if v_code == request.Query or v_code == request.QueryEditData or v_code == request.SaveEditData or v_code == request.DataMining or v_code == request.Console:
 
                         #create tab object if it doesn't exist
                         try:
-                            tab_object = self.v_list_tab_objects[v_data['v_tab_id']]
+                            tab_object = ws_object.v_list_tab_objects[v_data['v_tab_id']]
                         except Exception as exc:
                             v_database = v_session.v_databases[v_data['v_db_index']]['database']
                             v_database_new = OmniDatabase.Generic.InstantiateDatabase(
@@ -205,13 +206,19 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                                          'omnidatabase': v_database_new,
                                          'database_index': -1,
                                          'inserted_tab': False }
-                            self.v_list_tab_objects[v_data['v_tab_id']] = tab_object
+                            ws_object.v_list_tab_objects[v_data['v_tab_id']] = tab_object
                             None;
 
                         try:
                             v_conn_tab_connection = v_session.v_tab_connections[v_data['v_conn_tab_id']]
                             #create database object
-                            if tab_object['database_index']!=v_data['v_db_index'] or v_conn_tab_connection.v_service!=tab_object['omnidatabase'].v_service:
+                            if (tab_object['database_index']!=v_data['v_db_index'] or
+                            v_conn_tab_connection.v_db_type!=tab_object['omnidatabase'].v_db_type or
+                            v_conn_tab_connection.v_server!=tab_object['omnidatabase'].v_server or
+                            v_conn_tab_connection.v_port!=tab_object['omnidatabase'].v_port or
+                            v_conn_tab_connection.v_service!=tab_object['omnidatabase'].v_service or
+                            v_conn_tab_connection.v_user!=tab_object['omnidatabase'].v_user or
+                            v_conn_tab_connection.v_connection.v_password!=tab_object['omnidatabase'].v_connection.v_password):
                                 v_database = v_session.v_databases[v_data['v_db_index']]['database']
                                 v_database_new = OmniDatabase.Generic.InstantiateDatabase(
                                     v_conn_tab_connection.v_db_type,
@@ -229,7 +236,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                             logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
                             v_response['v_code'] = response.MessageException
                             v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
-                            self.write_message(json.dumps(v_response))
+                            ws_object.write_message(json.dumps(v_response))
 
 
 
@@ -240,7 +247,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                         if v_code == request.Query:
                             tab_object['tab_db_id'] = v_data['v_tab_db_id']
                             v_data['v_tab_object'] = tab_object
-                            t = StoppableThread(thread_query,v_data,self)
+                            t = StoppableThread(thread_query,v_data,ws_object)
                             tab_object['thread'] = t
                             tab_object['type'] = 'query'
                             tab_object['sql_cmd'] = v_data['v_sql_cmd']
@@ -249,14 +256,10 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                             #t.setDaemon(True)
                             t.start()
 
-                            #Send Ack Message
-                            v_response['v_code'] = response.QueryAck
-                            self.write_message(json.dumps(v_response))
-
                         #Console request
                         if v_code == request.Console:
                             v_data['v_tab_object'] = tab_object
-                            t = StoppableThread(thread_console,v_data,self)
+                            t = StoppableThread(thread_console,v_data,ws_object)
                             tab_object['thread'] = t
                             tab_object['type'] = 'console'
                             tab_object['sql_cmd'] = v_data['v_sql_cmd']
@@ -264,25 +267,17 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                             #t.setDaemon(True)
                             t.start()
 
-                            #Send Ack Message
-                            v_response['v_code'] = response.QueryAck
-                            self.write_message(json.dumps(v_response))
-
                         #Query edit data
                         elif v_code == request.QueryEditData:
-                            t = StoppableThread(thread_query_edit_data,v_data,self)
+                            t = StoppableThread(thread_query_edit_data,v_data,ws_object)
                             tab_object['thread'] = t
                             tab_object['type'] = 'edit'
                             #t.setDaemon(True)
                             t.start()
 
-                            #Send Ack Message
-                            v_response['v_code'] = response.QueryAck
-                            self.write_message(json.dumps(v_response))
-
                         #Save edit data
                         elif v_code == request.SaveEditData:
-                            t = StoppableThread(thread_save_edit_data,v_data,self)
+                            t = StoppableThread(thread_save_edit_data,v_data,ws_object)
                             tab_object['thread'] = t
                             tab_object['type'] = 'edit'
                             #t.setDaemon(True)
@@ -295,16 +290,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                             v_data['v_all_data'] = True
                             v_data['v_sql_cmd'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'], v_data['summarizeResults'])
                             tab_object['sql_cmd'] = v_data['v_sql_cmd']
-                            t = StoppableThread(thread_query,v_data,self)
+                            t = StoppableThread(thread_query,v_data,ws_object)
                             tab_object['thread'] = t
                             tab_object['type'] = 'query'
                             tab_object['tab_id'] = v_data['v_tab_id']
                             #t.setDaemon(True)
                             t.start()
 
-                            #Send Ack Message
-                            v_response['v_code'] = response.QueryAck
-                            self.write_message(json.dumps(v_response))
                     #Debugger
                     elif v_code == request.Debug:
 
@@ -339,38 +331,41 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                                              'cancelled': False,
                                              'tab_id': v_data['v_tab_id'],
                                              'type': 'debug' }
-                                self.v_list_tab_objects[v_data['v_tab_id']] = tab_object
+                                ws_object.v_list_tab_objects[v_data['v_tab_id']] = tab_object
                             except Exception as exc:
                                 logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
                                 v_response['v_code'] = response.MessageException
                                 v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
-                                self.write_message(json.dumps(v_response))
+                                ws_object.write_message(json.dumps(v_response))
 
                         #Existing debugger, get existing tab_object
                         else:
-                            tab_object = self.v_list_tab_objects[v_data['v_tab_id']]
+                            tab_object = ws_object.v_list_tab_objects[v_data['v_tab_id']]
 
                         v_data['v_context_code'] = v_context_code
                         v_data['v_tab_object'] = tab_object
 
-                        t = StoppableThread(thread_debug,v_data,self)
+                        t = StoppableThread(thread_debug,v_data,ws_object)
                         #tab_object['thread'] = t
                         #t.setDaemon(True)
                         t.start()
 
-                        #Send Ack Message
-                        v_response['v_code'] = response.QueryAck
-                        self.write_message(json.dumps(v_response))
-
                 except Exception as exc:
                     v_response['v_code'] = response.SessionMissing
-                    self.write_message(json.dumps(v_response))
+                    ws_object.write_message(json.dumps(v_response))
 
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_code'] = response.MessageException
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
-        self.write_message(json.dumps(v_response))
+        ws_object.write_message(json.dumps(v_response))
+
+class WSHandler(tornado.websocket.WebSocketHandler):
+  def open(self):
+    None
+  def on_message(self, message):
+    t = StoppableThread(thread_dispatcher,message,self)
+    t.start()
 
   def on_close(self):
     try:

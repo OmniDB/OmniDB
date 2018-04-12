@@ -1,7 +1,7 @@
 # Summary
 
 - 1. Linux Installation
-- [Linux Installation](#linux-installation)
+- [Linux Installation](#1-linux-installation)
 - 2. Windows Installation
 - 3. Post-installation steps ** **REQUIRED** **
 

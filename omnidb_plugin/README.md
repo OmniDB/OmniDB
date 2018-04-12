@@ -1,12 +1,18 @@
 # Summary
 
-- 1. Installing from DEB/RPM packages
-- 2. Compiling the extension from source
-- 3. Notes
+- 1. Linux Installation
+- 2. Windows Installation
+- 3. Post-installation steps ** **REQUIRED** **
 
-# 1. Installing from DEB/RPM packages
+# 1. Linux Installation
+You can install from packages or compile from source.
 
-## 1.1. Install the package
+- 1.1. Installing from DEB/RPM packages
+- 1.2. Compiling the extension from source
+
+## 1.1. Installing from DEB/RPM packages
+
+### 1.1.1. Install the package
 
 ```bash
 # For example, Debian-like 64 bits:
@@ -16,14 +22,14 @@ sudo dpkg -i omnidb-plugin_2.4.0-debian-amd64.deb
 sudo rpm -ivU omnidb-plugin_2.4.0-centos-amd64.rpm
 ```
 
-## 1.2. Create a symlink
+### 1.1.2. Create a symlink
 
 ```bash
 # Find the PostgreSQL version and path for $libdir and create a link to the specific library. For example:
 sudo ln -s /opt/omnidb-plugin/omnidb_plugin_96.so /usr/lib/postgresql/9.6/lib/omnidb_plugin.so
 ```
 
-## 1.3. Set shared_preload_libraries
+### 1.1.3. Set shared_preload_libraries
 
 ```bash
 nano /etc/postgresql/X.Y/main/postgresql.conf
@@ -32,47 +38,45 @@ nano /etc/postgresql/X.Y/main/postgresql.conf
 sudo systemctl restart postgresql
 ```
 
-## 1.4. Post-installation steps
+### 1.1.4. Post-installation steps
 
-### 1.4.1. Create omnidb schema in your database (should be done by a superuser)
-
-```bash
-psql -d <database> -f debugger_schema.sql
-```
-
-### 1.4.2. Grant privileges to each user that will debug functions (should be done by a superuser)
-
-```bash
-psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;'
-```
-
-### 1.4.3. Create sample functions (optional)
+#### 1.1.4.1. Create omnidb schema in your database (should be done by a superuser)
 
 ```bash
 psql -d <database> -f debugger_schema.sql
 ```
 
-# 2. Compiling the extension from source
+#### 1.1.4.2. Create sample functions (optional)
 
-## 2.1. Install headers for PostgreSQL and libpq
+```bash
+psql -d <database> -f sample_functions.sql
+```
+
+#### 1.1.4.3. Next steps
+
+Follow Post-Installation steps in section 3.
+
+## 1.2. Compiling the extension from source
+
+### 1.2.1. Install headers for PostgreSQL and libpq
 
 ```bash
 sudo apt install postgresql-server-dev-X.Y libpq-dev
 ```
 
-## 2.2. Compile omnidb_plugin
+### 1.2.2. Compile omnidb_plugin
 
 ```bash
 make
 ```
 
-## 2.3. Install omnidb_plugin
+### 1.2.3. Install omnidb_plugin
 
 ```bash
 sudo make install
 ```
 
-## 2.4. Set shared_preload_libraries
+### 1.2.4. Set shared_preload_libraries
 
 ```bash
 nano /etc/postgresql/X.Y/main/postgresql.conf
@@ -81,34 +85,98 @@ nano /etc/postgresql/X.Y/main/postgresql.conf
 sudo systemctl restart postgresql
 ```
 
-## 2.5. Post-installation steps
+### 1.2.5. Post-installation steps
 
-### 2.5.1. Create omnidb_plugin extension (should be done by a superuser)
+#### 1.2.5.1. Create omnidb_plugin extension (should be done by a superuser)
 
 ```bash
 psql -d <database> -c 'CREATE EXTENSION omnidb_plugin'
 ```
 
-### 2.5.2. Grant privileges to each user that will debug functions (should be done by a superuser)
+#### 1.2.5.2. Create sample functions (optional)
 
 ```bash
-psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;'
+psql -d <database> -f sample_functions.sql
 ```
 
-### 2.5.3. Create sample functions (optional)
+#### 1.2.5.3. Next steps
+
+Follow Post-Installation steps in section 3.
+
+# 2. Windows Installation
+
+## 2.1. Downloading the plugin
+
+Download the zip corresponding to your architecture from the website.
+
+## 2.1. Installing the plugin
+
+Move the omnidb_plugin.dll corresponding to your PostgreSQL version to the folder *lib*, which is inside the folder where PostgreSQL was installed.
+
+## 2.3. Set shared_preload_libraries
+
+Change the file *PostgreSQL_directory/data/postgresql.conf*, including the following line:
+
+```bash
+shared_preload_libraries = 'omnidb_plugin'
+```
+
+Then restart PostgreSQL.
+
+## 2.4. Post-installation steps
+
+### 2.4.1. Create omnidb schema in your database (should be done by a superuser)
 
 ```bash
 psql -d <database> -f debugger_schema.sql
 ```
 
-# 3. Notes
+### 2.4.2. Create sample functions (optional)
 
-- omnidb_plugin only works in Linux at the moment. OmniDB server can still be
-hosted in Windows and MacOSX, but for the debugger to work properly, it needs to
-connect to omnidb_plugin in PostgreSQL in Linux.
+```bash
+psql -d <database> -f sample_functions.sql
+```
 
-- The omnidb_plugin extension can only be created if you compile the plugin
-yourself following step 2 above.
+### 2.4.3. Next steps
 
-- If you use OmniDB to connect to PostgreSQL using .pgpass file, you should
-create a corresponding .pgpass file inside the home of the postgres user.
+Follow Post-Installation steps in section 3.
+
+# 3. Post-installation steps ** **REQUIRED** **
+
+## 3.1. Grant privileges to each database user that will debug functions (should be done by a superuser)
+
+Every database user that uses the debugger needs access to the debugger control tables.
+
+```bash
+psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;'
+```
+
+## 3.2. Enable local passwordless access to each database user that will debug functions
+
+Every database user that uses the debugger needs local passwordless access to the database. This is because the database will create an additional local connection to perform debugging operations.
+
+This can be done by adding a rule to *pg_hba.conf* or changing *.pgpass* of the postgres user.
+
+### 3.2.1 *pg_hba.conf*
+
+Add a rule similar to:
+
+a) Linux:
+```bash
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+local   all             <user>                                  trust
+```
+
+b) Windows:
+```bash
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+host    all             <user>          127.0.0.1/32            trust
+```
+
+### 3.2.2 *.pgpass*
+
+```bash
+hostname:port:database:username:password
+```
+
+More information about how .pgpass works can be found here: https://www.postgresql.org/docs/10/static/libpq-pgpass.html

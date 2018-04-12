@@ -5,7 +5,7 @@
 - New features:
   - Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2
   - Management of multiple databases in the same connection
-  - Debugger plugin can now be installed in PostgreSQL hosted on Windows
+  - Debugger plugin can now be installed in PostgreSQL hosted on Windows ([Install Instructions](https://github.com/OmniDB/OmniDB/blob/master/omnidb_plugin/README.md))
 - Improvements:
   - Improved security for omnidb-server when running with SSL
   - New button to reload the source code of the function in the debugger interface

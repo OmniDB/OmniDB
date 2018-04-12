@@ -2,7 +2,7 @@
 
 # OmniDB 2.7.0
 
-## Release Date: April 12, 2018
+## Release Date: *April 12, 2018*
 
 ## Release Notes
 

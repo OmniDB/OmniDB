@@ -29,6 +29,7 @@ var v_editDataState = {
 function startEditData(p_table,p_schema) {
 
 	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+															"p_tab_id": v_connTabControl.selectedTab.id,
 															"p_table" : p_table,
 															"p_schema": p_schema});
 
@@ -174,6 +175,7 @@ function queryEditData() {
 			v_count: v_currTabTag.sel_filtered_data.value,
 			v_pk_list: v_currTabTag.editDataObject.pk,
 			v_columns: v_currTabTag.editDataObject.columns,
+			v_conn_tab_id: v_connTabControl.selectedTab.id,
 			v_tab_id: v_currTabTag.tab_id
 		}
 
@@ -490,6 +492,7 @@ function saveEditData() {
 			v_rows_info: v_changedRowsInfo,
 			v_pk_info: v_currTabTag.editDataObject.pk,
 			v_columns: v_currTabTag.editDataObject.columns,
+			v_conn_tab_id: v_connTabControl.selectedTab.id,
 			v_tab_id: v_currTabTag.tab_id
 		}
 

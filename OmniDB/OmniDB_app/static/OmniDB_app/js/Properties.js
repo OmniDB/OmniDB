@@ -8,6 +8,7 @@ function getProperties(p_view, p_data) {
 
 	execAjax(p_view,
       JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+											"p_tab_id": v_connTabControl.selectedTab.id,
                       "p_data": p_data}),
 			function(p_return) {
 

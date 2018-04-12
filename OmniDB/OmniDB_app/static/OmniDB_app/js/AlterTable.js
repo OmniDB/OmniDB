@@ -18,7 +18,10 @@ You should have received a copy of the GNU General Public License along with Omn
 /// <param name="p_schema">Schema name.</param>
 function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 
-	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table": p_table, "p_schema": p_schema});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+															"p_tab_id": v_connTabControl.selectedTab.id,
+															"p_table": p_table,
+															"p_schema": p_schema});
 
 	execAjax('/alter_table_data/',
 				input,
@@ -611,7 +614,18 @@ function saveAlterTable() {
 	var v_new_table_name = v_currTabTag.txtTableName.value;
   var v_schema_name = v_currTabTag.alterTableObject.schemaName;
 
-	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_mode" : v_currTabTag.alterTableObject.mode, "p_schema_name": v_currTabTag.alterTableObject.schemaName, "p_new_table_name": v_new_table_name, "p_original_table_name": v_currTabTag.alterTableObject.tableName, "p_data_columns": v_changedRowsColumnsData, "p_row_columns_info": v_changedRowsColumnsInfo, "p_data_constraints": v_changedRowsConstraintsData, "p_row_constraints_info": v_changedRowsConstraintsInfo, "p_data_indexes": v_changedRowsIndexesData, "p_row_indexes_info": v_changedRowsIndexesInfo});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+															"p_tab_id": v_connTabControl.selectedTab.id,
+															"p_mode" : v_currTabTag.alterTableObject.mode,
+															"p_schema_name": v_currTabTag.alterTableObject.schemaName,
+															"p_new_table_name": v_new_table_name,
+															"p_original_table_name": v_currTabTag.alterTableObject.tableName,
+															"p_data_columns": v_changedRowsColumnsData,
+															"p_row_columns_info": v_changedRowsColumnsInfo,
+															"p_data_constraints": v_changedRowsConstraintsData,
+															"p_row_constraints_info": v_changedRowsConstraintsInfo,
+															"p_data_indexes": v_changedRowsIndexesData,
+															"p_row_indexes_info": v_changedRowsIndexesInfo});
 
 	execAjax('/save_alter_table/',
 			input,

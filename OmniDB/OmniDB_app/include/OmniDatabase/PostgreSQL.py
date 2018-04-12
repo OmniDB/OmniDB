@@ -257,13 +257,6 @@ class PostgreSQL:
                        quote_ident(t.table_schema) as table_schema
                 from information_schema.tables t
                 where t.table_type = 'BASE TABLE'
-                  and (quote_ident(t.table_schema),quote_ident(t.table_name)) not in (
-                select quote_ident(nc.nspname),
-                       quote_ident(cc.relname)
-                from pg_inherits i
-                inner join pg_class cc on cc.oid = i.inhrelid
-                inner join pg_namespace nc on nc.oid = cc.relnamespace
-                )
                 {0}
                 order by 2, 1
             '''.format(v_filter), True)
@@ -273,11 +266,13 @@ class PostgreSQL:
                        quote_ident(t.table_schema) as table_schema
                 from information_schema.tables t
                 inner join pg_class c
-                on c.relname = quote_ident(t.table_name)
+                on c.relname = t.table_name
                 inner join pg_namespace n
                 on n.oid = c.relnamespace
+                and n.nspname = t.table_schema
                 where t.table_type = 'BASE TABLE'
                   and not c.relispartition
+                  and c.relkind = 'r'
                 {0}
                 order by 2, 1
             '''.format(v_filter), True)
@@ -2137,6 +2132,22 @@ ON #table_name#
 --(column_name, [, ...])
 ''')
 
+    def TemplateAnalyze(self):
+        return Template('ANALYZE')
+
+    def TemplateAnalyzeTable(self):
+        return Template('''ANALYZE #table_name#
+--(column_name, [, ...])
+''')
+
+    def TemplateTruncate(self):
+        return Template('''TRUNCATE
+--ONLY
+#table_name#
+--RESTART IDENTITY
+--CASCADE
+''')
+
     def TemplateCreatePhysicalReplicationSlot(self):
         return Template('''SELECT * FROM pg_create_physical_replication_slot('slot_name')''')
 
@@ -3047,17 +3058,33 @@ TO NODE ( nodename [, ... ] )
             where quote_ident(n.nspname) = '{0}'
               and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object)).Transpose('Property', 'Value')
-        v_table2 = self.v_connection.Query('''
-            select last_value as "Last Value",
-                   start_value as "Start Value",
-                   increment_by as "Increment By",
-                   max_value as "Max Value",
-                   min_value as "Min Value",
-                   cache_value as "Cache Value",
-                   is_cycled as "Is Cycled",
-                   is_called as "Is Called"
-            from {0}.{1}
-        '''.format(p_schema, p_object)).Transpose('Property', 'Value')
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
+            v_table2 = self.v_connection.Query('''
+                select last_value as "Last Value",
+                       start_value as "Start Value",
+                       increment_by as "Increment By",
+                       max_value as "Max Value",
+                       min_value as "Min Value",
+                       cache_value as "Cache Value",
+                       is_cycled as "Is Cycled",
+                       is_called as "Is Called"
+                from {0}.{1}
+            '''.format(p_schema, p_object)).Transpose('Property', 'Value')
+        else:
+            v_table2 = self.v_connection.Query('''
+                select data_type as "Data Type",
+                       last_value as "Last Value",
+                       start_value as "Start Value",
+                       increment_by as "Increment By",
+                       max_value as "Max Value",
+                       min_value as "Min Value",
+                       cache_size as "Cache Size",
+                       cycle as "Is Cycled"
+                from pg_sequences
+                where schemaname = '{0}'
+                  and sequencename = '{1}'
+            '''.format(p_schema, p_object)).Transpose('Property', 'Value')
+            v_table1.Merge(v_table2)
         v_table1.Merge(v_table2)
         return v_table1
 

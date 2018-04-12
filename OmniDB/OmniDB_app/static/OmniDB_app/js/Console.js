@@ -21,7 +21,8 @@ var v_consoleState = {
 
 function showConsoleHistory() {
 
-  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+															"p_tab_id": v_connTabControl.selectedTab.id});
 	var v_conn_tag = v_connTabControl.selectedTab.tag;
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
@@ -102,7 +103,8 @@ function getConsoleHistoryCommand(p_mode) {
 	//fetch command history if not fetched before
 	var v_conn_tag = v_connTabControl.selectedTab.tag;
 	if (!v_conn_tag.consoleHistoryFecthed) {
-		var input = JSON.stringify({"p_database_index": v_conn_tag.selectedDatabaseIndex});
+		var input = JSON.stringify({"p_database_index": v_conn_tag.selectedDatabaseIndex,
+																"p_tab_id": v_connTabControl.selectedTab.id});
 
 	  execAjax('/get_console_history_clean/',
 	        input,
@@ -212,10 +214,12 @@ function consoleSQL(p_check_command = true) {
         v_tag.editor_input.setValue('');
         v_tag.editor_input.clearSelection();
         v_tag.editor_input.setReadOnly(false);
+				v_tag.last_command = v_content;
 
         var v_message_data = {
           v_sql_cmd : v_content,
           v_db_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					v_conn_tab_id: v_connTabControl.selectedTab.id,
           v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id
         }
 
@@ -338,6 +342,7 @@ function consoleReturnRender(p_message,p_context) {
   v_tag.tab_loading_span.style.display = 'none';
   v_tag.tab_check_span.style.display = 'none';
   v_tag.bt_cancel.style.display = 'none';
+	v_tag.tab_stub_span.style.display = '';
 
 
 }

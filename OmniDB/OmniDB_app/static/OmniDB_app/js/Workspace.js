@@ -168,37 +168,87 @@ function getDatabaseList(p_init, p_callback) {
 }
 
 /// <summary>
+/// Check if there are troublesome tabs
+/// </summary>
+/// <param name="p_cancel_function">Ok function.</param>
+/// <param name="p_ok_function">Cancel function.</param>
+function checkBeforeChangeDatabase(p_cancel_function, p_ok_function) {
+	for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
+
+		var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
+		if (v_tab.tag!=null)
+			if (v_tab.tag.mode=='edit' || v_tab.tag.mode=='alter' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='monitor_dashboard') {
+				showAlert('Before changing connection please close any tab that belongs to the following types: <br/><br/><b>Edit Data<br/><br/>Alter Table<br/><br/>Function Debugging<br/><br/>Monitoring Dashboard');
+				v_connTabControl.selectedTab.tag.dd_object.set("selectedIndex",v_connTabControl.selectedTab.tag.dd_selected_index);
+				if (p_cancel_function!=null)
+					p_cancel_function();
+				return null;
+			}
+	}
+	if (p_ok_function!=null)
+		p_ok_function();
+}
+
+/// <summary>
 /// Changing selected database.
 /// </summary>
 /// <param name="p_sel_id">Selection tag ID.</param>
 /// <param name="p_value">Database ID.</param>
 function changeDatabase(p_value) {
 
-	//finding connection object
-	var v_conn_object = null;
-	for (var i=0; i<v_connTabControl.tag.connections.length; i++) {
-		if (p_value==v_connTabControl.tag.connections[i].v_conn_id) {
-			v_conn_object = v_connTabControl.tag.connections[i];
-			break;
-		}
-	}
-	if (!v_conn_object)
-		v_conn_object = v_connTabControl.tag.connections[0];
+	//check if there are troublesome tabs
+	checkBeforeChangeDatabase(
+		function() {
+			v_connTabControl.selectedTab.tag.dd_object.set("selectedIndex",v_connTabControl.selectedTab.tag.dd_selected_index);
+		},
+		function() {
 
-	v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
-	v_connTabControl.selectedTab.tag.selectedDBMS = v_conn_object.v_db_type;
-	v_connTabControl.selectedTab.tag.consoleHelp = v_conn_object.v_console_help;
+			v_connTabControl.selectedTab.tag.divDetails.innerHTML = '';
 
-	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
+			//finding connection object
+			var v_conn_object = null;
+			for (var i=0; i<v_connTabControl.tag.connections.length; i++) {
+				if (p_value==v_connTabControl.tag.connections[i].v_conn_id) {
+					v_conn_object = v_connTabControl.tag.connections[i];
+					break;
+				}
+			}
+			if (!v_conn_object)
+				v_conn_object = v_connTabControl.tag.connections[0];
 
-	if (v_conn_object.v_db_type=='postgresql')
-		getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
-    else if (v_conn_object.v_db_type=='oracle')
-		getTreeOracle(v_connTabControl.selectedTab.tag.divTree.id);
-	else
-		getTree(v_connTabControl.selectedTab.tag.divTree.id);
+			v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
+			v_connTabControl.selectedTab.tag.selectedDBMS = v_conn_object.v_db_type;
+			v_connTabControl.selectedTab.tag.consoleHelp = v_conn_object.v_console_help;
+			v_connTabControl.selectedTab.tag.selectedDatabase = v_conn_object.v_database;
+			v_connTabControl.selectedTab.tag.dd_selected_index = v_connTabControl.selectedTab.tag.dd_object.selectedIndex;
 
-	adjustQueryTabObjects(true);
+			v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
+
+			execAjax('/change_active_database/',
+					JSON.stringify({
+							"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+							"p_tab_id": v_connTabControl.selectedTab.id,
+							"p_database": v_connTabControl.selectedTab.tag.selectedDatabase
+					}),
+					function(p_return) {
+
+					},
+					null,
+					'box');
+
+			if (v_conn_object.v_db_type=='postgresql')
+				getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
+		    else if (v_conn_object.v_db_type=='oracle')
+				getTreeOracle(v_connTabControl.selectedTab.tag.divTree.id);
+		    else if (v_conn_object.v_db_type=='mysql')
+				getTreeMysql(v_connTabControl.selectedTab.tag.divTree.id);
+		    else if (v_conn_object.v_db_type=='mariadb')
+				getTreeMariadb(v_connTabControl.selectedTab.tag.divTree.id);
+			else
+				getTree(v_connTabControl.selectedTab.tag.divTree.id);
+
+			adjustQueryTabObjects(true);
+		});
 
 }
 
@@ -234,26 +284,22 @@ function renameTabConfirm(p_tab, p_name) {
 /// <param name="p_tab">Tab object.</param>
 function removeTab(p_tab) {
 
-	showConfirm('Are you sure you want to remove this tab?',
-                function() {
-                	if (p_tab.tag.ht!=null) {
-										p_tab.tag.ht.destroy();
-										p_tab.tag.div_result.innerHTML = '';
-									}
+	if (p_tab.tag.ht!=null) {
+		p_tab.tag.ht.destroy();
+		p_tab.tag.div_result.innerHTML = '';
+	}
 
-									if (p_tab.tag.editor!=null)
-										p_tab.tag.editor.destroy();
+	if (p_tab.tag.editor!=null)
+		p_tab.tag.editor.destroy();
 
-									if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit' || p_tab.tag.mode=='console') {
-										var v_message_data = { tab_id: p_tab.tag.tab_id, tab_db_id: null };
-										if (p_tab.tag.mode=='query')
-											v_message_data.tab_db_id = p_tab.tag.tab_db_id;
+	if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit' || p_tab.tag.mode=='console') {
+		var v_message_data = { tab_id: p_tab.tag.tab_id, tab_db_id: null };
+		if (p_tab.tag.mode=='query')
+			v_message_data.tab_db_id = p_tab.tag.tab_db_id;
 
-										sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, [v_message_data], false, null);
-										//console.log('closing query tab')
-									}
-									p_tab.removeTab();
-                });
+		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, [v_message_data], false, null);
+	}
+	p_tab.removeTab();
 
 }
 
@@ -801,21 +847,6 @@ function checkTabStatus(v_tab) {
 }
 
 /// <summary>
-/// Removes tab.
-/// </summary>
-/// <param name="p_tab">Tab object.</param>
-function closeGraphTab(p_tab) {
-
-	showConfirm('Are you sure you want to close this graph tab?',
-                function() {
-									if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network) {
-										v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network.destroy();
-									}
-									p_tab.removeTab();
-                });
-}
-
-/// <summary>
 /// Indent SQL.
 /// </summary>
 function indentSQL() {
@@ -854,6 +885,7 @@ function drawGraph(p_all, p_schema) {
 
 	execAjax('/draw_graph/',
 			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+											"p_tab_id": v_connTabControl.selectedTab.id,
 											"p_complete": p_all,
 											"p_schema": p_schema}),
 			function(p_return) {
@@ -1015,6 +1047,7 @@ function refreshMonitoring(p_tab_tag) {
 
 	execAjax('/refresh_monitoring/',
 			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+											"p_tab_id": v_connTabControl.selectedTab.id,
 											"p_query": p_tab_tag.query}),
 			function(p_return) {
 
@@ -1147,26 +1180,25 @@ function adjustQueryTabObjects(p_all_tabs) {
 }
 
 function showMenuNewTab(e) {
-	customMenu(
+	var v_option_list = [
 		{
-			x:e.clientX+5,
-			y:e.clientY+5
+			text: 'Query Tab',
+			icon: '/static/OmniDB_app/images/text_edit.png',
+			action: function() {
+				v_connTabControl.tag.createQueryTab();
+			}
 		},
-		[
-			{
-				text: 'Query Tab',
-				icon: '/static/OmniDB_app/images/text_edit.png',
-				action: function() {
-					v_connTabControl.tag.createQueryTab();
-				}
-			},
-			{
-				text: 'Console Tab',
-				icon: '/static/OmniDB_app/images/console.png',
-				action: function() {
-					v_connTabControl.tag.createConsoleTab();
-				}
-			},
+		{
+			text: 'Console Tab',
+			icon: '/static/OmniDB_app/images/console.png',
+			action: function() {
+				v_connTabControl.tag.createConsoleTab();
+			}
+		}
+	]
+
+	if (v_connTabControl.selectedTab.tag.selectedDBMS=='postgresql') {
+		v_option_list.push(
 			{
 				text: 'Monitoring Dashboard',
 				icon: '/static/OmniDB_app/images/monitoring.png',
@@ -1175,7 +1207,15 @@ function showMenuNewTab(e) {
 					startMonitorDashboard();
 				}
 			}
-		],
+		);
+	}
+
+	customMenu(
+		{
+			x:e.clientX+5,
+			y:e.clientY+5
+		},
+		v_option_list,
 		null);
 
 }
@@ -1189,6 +1229,6 @@ function exportData() {
 
 function exportDataReturn(p_data) {
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectDataTabFunc();
-	var v_text = '<div style="font-size: 14px;">The file is ready. <a href="' + p_data.v_data.v_filename + '" download="'+ p_data.v_data.v_downloadname + '">Save</a></div>';
+	var v_text = '<div style="font-size: 14px;">The file is ready. <a class="link_text" href="' + p_data.v_data.v_filename + '" download="'+ p_data.v_data.v_downloadname + '">Save</a></div>';
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.innerHTML = v_text;
 }

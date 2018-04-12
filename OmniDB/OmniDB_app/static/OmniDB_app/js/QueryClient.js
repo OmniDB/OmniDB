@@ -164,6 +164,7 @@ function startQueryWebSocket(p_port) {
 				}
 				case parseInt(v_queryResponseCodes.DebugResponse): {
 					if (p_context) {
+						SetAcked(p_context);
 						debugResponse(p_message, p_context);
 						if (p_message.v_data.v_remove_context) {
 							removeContext(v_queryWebSocket,p_context_code);
@@ -228,11 +229,11 @@ function QueryPasswordRequired(p_context, p_message) {
 		showPasswordPrompt(
 			p_context.database_index,
 			function() {
-				cancelSQLTab();
-				querySQL(p_context.mode);
+				cancelSQLTab(p_context.tab_tag);
+				//querySQL(p_context.mode);
 			},
 			function() {
-				cancelSQLTab();
+				cancelSQLTab(p_context.tab_tag);
 			},
 			p_message
 		);
@@ -241,11 +242,11 @@ function QueryPasswordRequired(p_context, p_message) {
 		showPasswordPrompt(
 			p_context.database_index,
 			function() {
-				cancelEditDataTab();
-				queryEditData();
+				cancelEditDataTab(p_context.tab_tag);
+				//queryEditData();
 			},
 			function() {
-				cancelEditDataTab();
+				cancelEditDataTab(p_context.tab_tag);
 			},
 			p_message
 		);
@@ -254,11 +255,13 @@ function QueryPasswordRequired(p_context, p_message) {
 		showPasswordPrompt(
 			p_context.database_index,
 			function() {
-				cancelConsole();
-				consoleSQL();
+				cancelConsoleTab(p_context.tab_tag);
+				//p_context.tab_tag.editor_input.setValue(p_context.tab_tag.last_command);
+        //p_context.tab_tag.editor_input.clearSelection();
+				//consoleSQL(false);
 			},
 			function() {
-				cancelConsole();
+				cancelConsoleTab(p_context.tab_tag);
 			},
 			p_message
 		);

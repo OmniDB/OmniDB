@@ -42,6 +42,7 @@
 #include "libpq-fe.h"
 #include "fmgr.h"
 #include "utils/builtins.h"
+#include "omnidb_plugin.h"
 
 PG_MODULE_MAGIC;
 
@@ -111,7 +112,6 @@ Datum omnidb_enable_debugger(PG_FUNCTION_ARGS)
 {
     omnidb_plugin_active = true;
     sprintf(omnidb_plugin_conninfo, "%s", text_to_cstring(PG_GETARG_TEXT_P(0)));
-    elog(LOG, "omnidb, CONNINFO, (%s)", omnidb_plugin_conninfo);
 	PG_RETURN_VOID();
 }
 
@@ -143,7 +143,6 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 		//First call
 		if (omnidb_plugin_depth == 0)
         {
-            elog(LOG, "omnidb, CONNINFO, (%s)", omnidb_plugin_conninfo);
             omnidb_plugin_conn = PQconnectdb(omnidb_plugin_conninfo);
             if (PQstatus(omnidb_plugin_conn) != CONNECTION_BAD)
             {
@@ -247,7 +246,7 @@ static void profiler_stmt_beg( PLpgSQL_execstate * estate, PLpgSQL_stmt * stmt )
         else
             omnidb_plugin_breakpoint = 0;
 
-        if (omnidb_plugin_breakpoint == 0 || omnidb_plugin_breakpoint == stmt->lineno)
+				if ((omnidb_plugin_breakpoint == 0 || omnidb_plugin_breakpoint == stmt->lineno) && ((stmt->cmd_type == 11 && stmt->lineno != 0) || (stmt->cmd_type != 11)))
         {
             update_variables(estate);
 

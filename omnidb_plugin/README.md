@@ -1,9 +1,9 @@
 # Summary
 
-- 1. Linux Installation
-- [Linux Installation](#1-linux-installation)
-- 2. Windows Installation
-- 3. Post-installation steps ** **REQUIRED** **
+- [1- Linux Installation](#1-linux-installation)
+- [2- Windows Installation](#2-windows-installation)
+- [3- Post-installation steps ** **REQUIRED** **](#3-post-installation-steps--required-)
+
 
 # 1. Linux Installation
 You can install from packages or compile from source.

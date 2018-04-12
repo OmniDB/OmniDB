@@ -55,7 +55,7 @@ psql -d <database> -f sample_functions.sql
 
 #### 1.1.4.3. Next steps
 
-Follow Post-Installation steps in section 3.
+Follow [Post-installation steps](#3-post-installation-steps--required-) in section 3.
 
 ## 1.2. Compiling the extension from source
 
@@ -102,7 +102,7 @@ psql -d <database> -f sample_functions.sql
 
 #### 1.2.5.3. Next steps
 
-Follow Post-Installation steps in section 3.
+Follow [Post-installation steps](#3-post-installation-steps--required-) in section 3.
 
 # 2. Windows Installation
 
@@ -140,7 +140,7 @@ psql -d <database> -f sample_functions.sql
 
 ### 2.4.3. Next steps
 
-Follow Post-Installation steps in section 3.
+Follow [Post-installation steps](#3-post-installation-steps--required-) in section 3.
 
 # 3. Post-installation steps ** **REQUIRED** **
 

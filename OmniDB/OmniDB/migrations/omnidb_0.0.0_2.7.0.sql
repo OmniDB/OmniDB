@@ -4,14 +4,14 @@ CREATE TABLE db_type (
     constraint pk_db_type primary key (dbt_st_name)
 );--omnidb--
 INSERT INTO db_type VALUES('sqlite',0);--omnidb--
-INSERT INTO db_type VALUES('mysql',0);--omnidb--
+INSERT INTO db_type VALUES('mysql',1);--omnidb--
 INSERT INTO db_type VALUES('postgresql',1);--omnidb--
 INSERT INTO db_type VALUES('firebird',0);--omnidb--
 INSERT INTO db_type VALUES('oracle',1);--omnidb--
 INSERT INTO db_type VALUES('sqlserver',0);--omnidb--
 INSERT INTO db_type VALUES('access',0);--omnidb--
 INSERT INTO db_type VALUES('sqlce',0);--omnidb--
-INSERT INTO db_type VALUES('mariadb',0);--omnidb--
+INSERT INTO db_type VALUES('mariadb',1);--omnidb--
 INSERT INTO db_type VALUES('filedb',0);--omnidb--
 
 CREATE TABLE data_categories (
@@ -586,4 +586,4 @@ CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)
 );--omnidb--
-INSERT INTO version VALUES('2.6.0');--omnidb--
+INSERT INTO version VALUES('2.7.0');--omnidb--

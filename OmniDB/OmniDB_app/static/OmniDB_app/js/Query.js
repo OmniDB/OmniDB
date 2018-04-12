@@ -112,6 +112,7 @@ function querySQL(p_mode,
 				v_sql_save : p_save_query,
 				v_cmd_type: p_cmd_type,
 				v_db_index: v_db_index,
+				v_conn_tab_id: v_connTabControl.selectedTab.id,
 				v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
 				v_tab_db_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_db_id,
 				v_mode: p_mode,
@@ -137,7 +138,7 @@ function querySQL(p_mode,
 
 			v_tab_tag.tab_loading_span.style.display = '';
 			v_tab_tag.tab_stub_span.style.display = 'none';
-			v_tab_tag.bt_cancel.style.display = '';
+			v_tab_tag.bt_cancel.style.display = 'inline-block';
 			v_tab_tag.bt_fetch_more.style.display = 'none';
 			v_tab_tag.bt_fetch_all.style.display = 'none';
 			v_tab_tag.div_notices.innerHTML = '';
@@ -176,7 +177,7 @@ function querySQL(p_mode,
 					cancelSQLTab(v_context.tab_tag);
 					showAlert('No response from query server.');
 				}
-			},20000);
+			},10000);
 
 		}
 	}

@@ -181,7 +181,8 @@ function buildMonitorUnit(p_unit, p_first) {
 
 function startMonitorDashboard() {
 
-  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                              "p_tab_id": v_connTabControl.selectedTab.id});
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	execAjax('/get_monitor_units/',
@@ -236,7 +237,8 @@ function closeMonitorUnitList() {
 function editMonitorUnit(p_unit_id) {
   v_connTabControl.tag.createNewMonitorUnitTab();
 
-  var input1 = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+  var input1 = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                               "p_tab_id": v_connTabControl.selectedTab.id});
 
   execAjax('/get_monitor_unit_list/',
 				input1,
@@ -291,6 +293,7 @@ function saveMonitorScript() {
   }
   else {
     var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                                "p_tab_id": v_connTabControl.selectedTab.id,
                                 "p_unit_id": v_tab_tag.unit_id,
                                 "p_unit_name": v_tab_tag.input_unit_name.value,
                                 "p_unit_type": v_tab_tag.select_type.value,
@@ -363,7 +366,11 @@ function testMonitorScript() {
   var v_script_data = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor_data.getValue();
   var v_type = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.select_type.value;
 
-	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_script_chart": v_script_chart, "p_script_data": v_script_data, "p_type": v_type});
+	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                              "p_tab_id": v_connTabControl.selectedTab.id,
+                              "p_script_chart": v_script_chart,
+                              "p_script_data": v_script_data,
+                              "p_type": v_type});
 
 	execAjax('/test_monitor_script/',
 				input,
@@ -390,6 +397,7 @@ function testMonitorScript() {
 
               var ctx = canvas.getContext('2d');
               v_tab_tag.object = new Chart(ctx, p_return.v_data.v_object);
+              adjustChartTheme(v_tab_tag.object);
 
             }
             else if (v_type=='grid') {
@@ -461,7 +469,8 @@ function testMonitorScript() {
 
 function showMonitorUnitList() {
 
-  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
+  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                              "p_tab_id": v_connTabControl.selectedTab.id});
 
   var v_grid_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_grid_div;
   v_grid_div.innerHTML = '';
@@ -550,7 +559,6 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
     v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
   if (v_tab_tag.units.length>0) {
-
     for (var i=0; i<v_tab_tag.units.length; i++) {
       var v_unit_rendered = 0
       if (v_tab_tag.units[i].object!=null)
@@ -571,7 +579,9 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
       }
     }
 
-    var input = JSON.stringify({"p_database_index": v_tab_tag.connTabTag.selectedDatabaseIndex, "p_ids": v_units});
+    var input = JSON.stringify({"p_database_index": v_tab_tag.connTabTag.selectedDatabaseIndex,
+                                "p_tab_id": v_tab_tag.connTabTag.tab_id,
+                                "p_ids": v_units});
 
   	execAjax('/refresh_monitor_units/',
   				input,
@@ -616,6 +626,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
 
                     var ctx = canvas.getContext('2d');
                     var v_chart = new Chart(ctx, v_return_unit.v_object);
+                    adjustChartTheme(v_chart);
 
                     v_unit.object = v_chart;
 
@@ -821,11 +832,8 @@ function cancelMonitorUnits(p_tab_tag) {
 /// <param name="p_tab">Tab object.</param>
 function closeMonitorDashboardTab(p_tab) {
 
-	showConfirm('Are you sure you want to close the dashboard?',
-                function() {
-                	p_tab.removeTab();
-                  p_tab.tag.tab_active = false;
-                  cancelMonitorUnits(p_tab.tag);
-                });
+  p_tab.removeTab();
+  p_tab.tag.tab_active = false;
+  cancelMonitorUnits(p_tab.tag);
 
 }

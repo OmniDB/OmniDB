@@ -510,6 +510,7 @@ button {
   color: #333;
   font-size: 13px;
   height: 30px;
+  line-height: 0px;
   padding-left: 12px;
   padding-right: 12px;
   border: solid #d5d5d5 1px;
@@ -1192,4 +1193,10 @@ h2 {
   font-weight: bold;
   color: blue;
   cursor: pointer;
+}
+
+.connection_details {
+  border-bottom: 1px dashed #c3c3c3;
+  padding-bottom: 5px;
+  margin-top: 5px;
 }

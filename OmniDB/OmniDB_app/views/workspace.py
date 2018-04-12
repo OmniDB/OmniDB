@@ -90,6 +90,10 @@ def index(request):
         'chat_link': settings.CHAT_LINK
     }
 
+    #wiping tab connection list
+    v_session.v_tab_connections = dict([])
+    request.session['omnidb_session'] = v_session
+
     template = loader.get_template('OmniDB_app/workspace.html')
     return HttpResponse(template.render(context, request))
 
@@ -255,7 +259,8 @@ def get_database_list(request):
             'v_db_type': v_database.v_db_type,
             'v_alias': v_database.v_alias,
             'v_conn_id': v_database.v_conn_id,
-            'v_console_help': v_database.v_console_help
+            'v_console_help': v_database.v_console_help,
+            'v_database': v_database.v_service
         }
 
         v_databases.append(v_database_data)
@@ -292,6 +297,50 @@ def get_database_list(request):
 
     return JsonResponse(v_return)
 
+def change_active_database(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_data = json_object['p_database']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    v_database_new = OmniDatabase.Generic.InstantiateDatabase(
+        v_database.v_db_type,
+        v_database.v_server,
+        v_database.v_port,
+        v_database.v_service,
+        v_database.v_user,
+        v_database.v_connection.v_password,
+        v_database.v_conn_id,
+        v_database.v_alias
+    )
+
+    v_database_new.v_service = v_data;
+    v_database_new.v_connection.v_service = v_data;
+
+    v_session.v_tab_connections[v_tab_id] = v_database_new
+    request.session['omnidb_session'] = v_session
+
+    v_return['v_data'] = {
+    }
+
+    return JsonResponse(v_return)
+
 def renew_password(request):
 
     v_return = {}
@@ -309,6 +358,7 @@ def renew_password(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_password = json_object['p_password']
 
     v_database_object = v_session.v_databases[v_database_index]
@@ -318,6 +368,13 @@ def renew_password(request):
 
     if v_test=='Connection successful.':
         v_database_object['prompt_timeout'] = datetime.now()
+        #changing password of tab connection
+        try:
+            v_tab_connection = v_session.v_tab_connections[v_tab_id]
+            v_tab_connection.v_connection.v_password = v_password
+            v_session.v_tab_connections[v_tab_id] = v_tab_connection
+        except Exception:
+            None
     else:
         v_return['v_error'] = True
         v_return['v_data'] = v_test
@@ -343,10 +400,11 @@ def draw_graph(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_complete = json_object['p_complete']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -473,10 +531,11 @@ def alter_table_data(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_table_name     = json_object['p_table']
     v_schema_name    = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -573,15 +632,14 @@ def alter_table_data(request):
 
             if v_pk_table != None and len(v_pk_table.Rows)>0:
 
-                v_column_list = ''
-                v_first = True
-
                 for v_pk in v_pk_table.Rows:
                     if v_schema_name:
                         v_pk_col_table = v_database.QueryTablesPrimaryKeysColumns(v_pk['constraint_name'], v_table_name, False, v_schema_name)
                     else:
                         v_pk_col_table = v_database.QueryTablesPrimaryKeysColumns(v_pk['constraint_name'], v_table_name)
 
+                    v_column_list = ''
+                    v_first = True
                     for v_column in v_pk_col_table.Rows:
                         if not v_first:
                             v_column_list += ", "
@@ -613,29 +671,30 @@ def alter_table_data(request):
 
             if v_fks_table != None and len(v_fks_table.Rows)>0:
 
-                v_column_list = ""
-                v_referenced_column_list = ""
-                v_constraint_name = v_fks_table.Rows[0]["constraint_name"]
-                v_update_rule = v_fks_table.Rows[0]["update_rule"]
-                v_delete_rule = v_fks_table.Rows[0]["delete_rule"]
-                v_r_table_name = ""
-
-                if v_database.v_has_schema:
-                    v_r_table_name = v_fks_table.Rows[0]["r_table_schema"] + "." + v_fks_table.Rows[0]["r_table_name"]
-                else:
-                    v_r_table_name = v_fks_table.Rows[0]["r_table_name"]
-
-                v_first = True
-
                 for v_fk in v_fks_table.Rows:
-                    if v_schema_name:
-                        v_fks_col_table = v_database.QueryTablesPrimaryKeysColumns(v_fk['constraint_name'], v_table_name, False, v_schema_name)
+
+                    v_column_list = ""
+                    v_referenced_column_list = ""
+                    v_constraint_name = v_fk["constraint_name"]
+                    v_update_rule = v_fk["update_rule"]
+                    v_delete_rule = v_fk["delete_rule"]
+                    v_r_table_name = ""
+
+                    if v_database.v_has_schema:
+                        v_r_table_name = v_fk["r_table_schema"] + "." + v_fk["r_table_name"]
                     else:
-                        v_fks_col_table = v_database.QueryTablesPrimaryKeysColumns(v_fk['constraint_name'], v_table_name)
+                        v_r_table_name = v_fk["r_table_name"]
+
+                    if v_schema_name:
+                        v_fks_col_table = v_database.QueryTablesForeignKeysColumns(v_fk['constraint_name'], v_table_name, False, v_schema_name)
+                    else:
+                        v_fks_col_table = v_database.QueryTablesForeignKeysColumns(v_fk['constraint_name'], v_table_name)
+
+                    v_first = True
 
                     for v_column in v_fks_col_table.Rows:
 
-                        if v_column["constraint_name"]!=v_constraint_name:
+                        if v_fk["constraint_name"]!=v_constraint_name:
                             v_row_data = []
 
                             v_row_data.append(v_constraint_name)
@@ -699,19 +758,22 @@ def alter_table_data(request):
                 v_uniques_table = v_database.QueryTablesUniques(v_table_name)
 
             if v_uniques_table != None and len(v_uniques_table.Rows)>0:
-                v_column_list = ""
-                v_constraint_name = v_uniques_table.Rows[0]["constraint_name"]
-                v_first = True
 
                 for v_unique in v_uniques_table.Rows:
+
+                    v_column_list = ""
+                    v_constraint_name = v_unique["constraint_name"]
+
                     if v_schema_name:
                         v_uniques_col_table = v_database.QueryTablesUniquesColumns(v_unique['constraint_name'], v_table_name, False, v_schema_name)
                     else:
                         v_uniques_col_table = v_database.QueryTablesUniquesColumns(v_unique['constraint_name'], v_table_name)
 
+                    v_first = True
+
                     for v_column in v_uniques_col_table.Rows:
 
-                        if v_column["constraint_name"]!=v_constraint_name:
+                        if v_unique["constraint_name"]!=v_constraint_name:
                             v_row_data = []
 
                             v_row_data.append(v_constraint_name)
@@ -732,7 +794,6 @@ def alter_table_data(request):
                             v_constraint_name = v_column["constraint_name"]
                             v_column_list = ""
                             v_first = True
-
 
                         if not v_first:
                             v_column_list += ", "
@@ -768,16 +829,18 @@ def alter_table_data(request):
 
             if v_indexes_table != None and len(v_indexes_table.Rows)>0:
 
-                v_column_list = ""
-                v_index_name = v_indexes_table.Rows[0]["index_name"]
-                v_uniqueness = v_indexes_table.Rows[0]["uniqueness"]
-                v_first = True
-
                 for v_index in v_indexes_table.Rows:
+
+                    v_column_list = ""
+                    v_index_name = v_index["index_name"]
+                    v_uniqueness = v_index["uniqueness"]
+
                     if v_schema_name:
                         v_indexes_col_table = v_database.QueryTablesIndexesColumns(v_index['index_name'], v_table_name, False, v_schema_name)
                     else:
                         v_indexes_col_table = v_database.QueryTablesIndexesColumns(v_index['index_name'], v_table_name)
+
+                    v_first = True
 
                     for v_column in v_indexes_col_table.Rows:
 
@@ -1281,9 +1344,14 @@ def save_alter_table(request):
 
         if p_original_table_name != p_new_table_name:
 
+            if v_database.v_has_schema:
+                v_new_table_name = p_schema_name + "." + p_new_table_name
+            else:
+                v_new_table_name = p_new_table_name
+
             v_command = v_database.v_rename_table_command
             v_command = v_command.replace ("#p_table_name#", v_table_name)
-            v_command = v_command.replace ("#p_new_table_name#", p_new_table_name)
+            v_command = v_command.replace ("#p_new_table_name#", v_new_table_name)
 
             v_info_return = {
                 'error': False,
@@ -1404,10 +1472,11 @@ def start_edit_data(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_table          = json_object['p_table']
     v_schema         = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -1430,7 +1499,7 @@ def start_edit_data(request):
         else:
             v_table_name = v_table
         v_columns = v_database.QueryTablesFields(v_table,False,v_schema)
-        v_data1 = v_database.QueryDataLimited('select * from ' + v_table_name, 0)
+        v_data1 = v_database.QueryDataLimited('select * from ' + v_table_name + ' t', 0)
         v_query_column_classes = ''
         v_first = True
 
@@ -1485,29 +1554,29 @@ def start_edit_data(request):
         if v_pk != None:
             if len(v_pk.Rows) > 0:
                 v_return['v_data']['v_ini_orderby'] = 'order by '
-            v_first = True
-            v_index = 0
-            for k in range(0, len(v_return['v_data']['v_cols'])):
-                v_pk_cols = v_database.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], v_table, False, v_schema)
-                for v_pk_col in v_pk_cols.Rows:
-                    if v_pk_col['column_name'].lower() == v_return['v_data']['v_cols'][k]['v_column'].lower():
-                        v_return['v_data']['v_cols'][k]['v_is_pk'] = True
+                v_first = True
+                v_index = 0
+                for k in range(0, len(v_return['v_data']['v_cols'])):
+                    v_pk_cols = v_database.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], v_table, False, v_schema)
+                    for v_pk_col in v_pk_cols.Rows:
+                        if v_pk_col['column_name'].lower() == v_return['v_data']['v_cols'][k]['v_column'].lower():
+                            v_return['v_data']['v_cols'][k]['v_is_pk'] = True
 
-                        if not v_first:
-                            v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + ', '
-                        v_first = False
+                            if not v_first:
+                                v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + ', '
+                            v_first = False
 
-                        v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + 't.' + v_pk_col['column_name']
+                            v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + 't.' + v_pk_col['column_name']
 
-                        v_pk_info = {}
-                        v_pk_info['v_column'] = v_pk_col['column_name']
-                        v_pk_info['v_index'] = v_index
-                        v_pk_info['v_class'] = v_return['v_data']['v_cols'][k]['v_class']
-                        v_pk_info['v_compareformat'] = v_return['v_data']['v_cols'][k]['v_compareformat']
+                            v_pk_info = {}
+                            v_pk_info['v_column'] = v_pk_col['column_name']
+                            v_pk_info['v_index'] = v_index
+                            v_pk_info['v_class'] = v_return['v_data']['v_cols'][k]['v_class']
+                            v_pk_info['v_compareformat'] = v_return['v_data']['v_cols'][k]['v_compareformat']
 
-                        v_return['v_data']['v_pk'].append(v_pk_info)
-                        break
-                v_index = v_index + 1
+                            v_return['v_data']['v_pk'].append(v_pk_info)
+                            break
+                    v_index = v_index + 1
 
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -1578,6 +1647,7 @@ def get_completions(request):
 
     json_object = json.loads(request.POST.get('data', None))
     p_database_index = json_object['p_database_index']
+    p_tab_id = json_object['p_tab_id']
     p_prefix = json_object['p_prefix']
     p_sql = json_object['p_sql']
     p_prefix_pos = json_object['p_prefix_pos']
@@ -1589,7 +1659,7 @@ def get_completions(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_database = v_session.v_databases[p_database_index]['database']
+    v_database = v_session.v_tab_connections[p_tab_id]
 
     v_list = []
 
@@ -1685,6 +1755,7 @@ def get_completions_table(request):
 
     json_object = json.loads(request.POST.get('data', None))
     p_database_index = json_object['p_database_index']
+    p_tab_id = json_object['p_tab_id']
     p_table = json_object['p_table']
     p_schema = json_object['p_schema']
 
@@ -1695,7 +1766,7 @@ def get_completions_table(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_database = v_session.v_databases[p_database_index]['database']
+    v_database = v_session.v_tab_connections[p_tab_id]
 
     if v_database.v_has_schema:
         v_table_name = p_schema + "." + p_table
@@ -1867,9 +1938,10 @@ def refresh_monitoring(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_sql            = json_object['p_query']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -1931,8 +2003,9 @@ def get_console_history(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     v_query = '''
         select command_text,
@@ -1981,8 +2054,9 @@ def get_console_history_clean(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     v_query = '''
         select command_text,

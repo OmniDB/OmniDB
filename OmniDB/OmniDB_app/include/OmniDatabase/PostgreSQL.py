@@ -271,8 +271,7 @@ class PostgreSQL:
                 on n.oid = c.relnamespace
                 and n.nspname = t.table_schema
                 where t.table_type = 'BASE TABLE'
-                  and not c.relispartition
-                  and c.relkind = 'r'
+                  and c.relkind in ('r', 'p')
                 {0}
                 order by 2, 1
             '''.format(v_filter), True)

@@ -103,6 +103,7 @@ urlpatterns = [
     url(r'^get_rules_postgresql/', views.tree_postgresql.get_rules, name='get_rules'),
     url(r'^get_rule_definition_postgresql/', views.tree_postgresql.get_rule_definition, name='get_rule_definition'),
     url(r'^get_triggers_postgresql/', views.tree_postgresql.get_triggers, name='get_triggers'),
+    url(r'^get_inheriteds_postgresql/', views.tree_postgresql.get_inheriteds, name='get_inheriteds'),
     url(r'^get_partitions_postgresql/', views.tree_postgresql.get_partitions, name='get_partitions'),
     url(r'^get_functions_postgresql/', views.tree_postgresql.get_functions, name='get_functions'),
     url(r'^get_function_fields_postgresql/', views.tree_postgresql.get_function_fields, name='get_function_fields'),

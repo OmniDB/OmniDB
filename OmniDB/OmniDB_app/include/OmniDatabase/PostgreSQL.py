@@ -251,31 +251,14 @@ class PostgreSQL:
                 v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(self.v_schema)
         else:
             v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') "
-        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
-            return self.v_connection.Query('''
-                select quote_ident(t.table_name) as table_name,
-                       quote_ident(t.table_schema) as table_schema
-                from information_schema.tables t
-                where t.table_type = 'BASE TABLE'
-                {0}
-                order by 2, 1
-            '''.format(v_filter), True)
-        else:
-            return self.v_connection.Query('''
-                select quote_ident(t.table_name) as table_name,
-                       quote_ident(t.table_schema) as table_schema
-                from information_schema.tables t
-                inner join pg_class c
-                on c.relname = t.table_name
-                inner join pg_namespace n
-                on n.oid = c.relnamespace
-                and n.nspname = t.table_schema
-                where t.table_type = 'BASE TABLE'
-                  and not c.relispartition
-                  and c.relkind = 'r'
-                {0}
-                order by 2, 1
-            '''.format(v_filter), True)
+        return self.v_connection.Query('''
+            select quote_ident(t.table_name) as table_name,
+                   quote_ident(t.table_schema) as table_schema
+            from information_schema.tables t
+            where t.table_type = 'BASE TABLE'
+            {0}
+            order by 2, 1
+        '''.format(v_filter), True)
 
     def QueryTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
@@ -784,6 +767,53 @@ class PostgreSQL:
             ) x
         '''.format(p_schema, p_table, p_trigger))
 
+    def QueryTablesInheriteds(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "and quote_ident(np.nspname) = '{0}' and quote_ident(cp.relname) = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "and quote_ident(np.nspname) = '{0}' and quote_ident(cp.relname) = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "and quote_ident(np.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(np.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "and quote_ident(np.nspname) not in ('information_schema','pg_catalog') and quote_ident(cp.relname) = {0}".format(p_table)
+            else:
+                v_filter = "and quote_ident(np.nspname) not in ('information_schema','pg_catalog') "
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
+            return self.v_connection.Query('''
+                select quote_ident(np.nspname) as parent_schema,
+                       quote_ident(cp.relname) as parent_table,
+                       quote_ident(nc.nspname) as child_schema,
+                       quote_ident(cc.relname) as child_table
+                from pg_inherits i
+                inner join pg_class cp on cp.oid = i.inhparent
+                inner join pg_namespace np on np.oid = cp.relnamespace
+                inner join pg_class cc on cc.oid = i.inhrelid
+                inner join pg_namespace nc on nc.oid = cc.relnamespace
+                where not cc.relispartition
+                {0}
+                order by 1, 2, 3, 4
+            '''.format(v_filter))
+        else:
+            return self.v_connection.Query('''
+                select quote_ident(np.nspname) as parent_schema,
+                       quote_ident(cp.relname) as parent_table,
+                       quote_ident(nc.nspname) as child_schema,
+                       quote_ident(cc.relname) as child_table
+                from pg_inherits i
+                inner join pg_class cp on cp.oid = i.inhparent
+                inner join pg_namespace np on np.oid = cp.relnamespace
+                inner join pg_class cc on cc.oid = i.inhrelid
+                inner join pg_namespace nc on nc.oid = cc.relnamespace
+                where 1 = 1
+                {0}
+                order by 1, 2, 3, 4
+            '''.format(v_filter))
+
     def QueryTablesPartitions(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -810,7 +840,7 @@ class PostgreSQL:
             inner join pg_namespace np on np.oid = cp.relnamespace
             inner join pg_class cc on cc.oid = i.inhrelid
             inner join pg_namespace nc on nc.oid = cc.relnamespace
-            where 1 = 1
+            where cc.relispartition
             {0}
             order by 1, 2, 3, 4
         '''.format(v_filter))
@@ -2104,7 +2134,7 @@ ON #table_name#
 --CASCADE
 ''')
 
-    def TemplateCreatePartition(self):
+    def TemplateCreateInherited(self):
         return Template('''CREATE TABLE name (
     CHECK ( condition )
 ) INHERITS (#table_name#)
@@ -2112,6 +2142,16 @@ ON #table_name#
 
     def TemplateNoInheritPartition(self):
         return Template('ALTER TABLE #partition_name# NO INHERIT #table_name#')
+
+    def TemplateCreatePartition(self):
+        return Template('''CREATE TABLE name PARTITION OF #table_name# FOR VALUES
+--IN ( { numeric_literal | string_literal | NULL } [, ...] )
+--FROM ( { numeric_literal | string_literal | MINVALUE | MAXVALUE } [, ...] ) TO ( { numeric_literal | string_literal | MINVALUE | MAXVALUE } [, ...] )
+--PARTITION BY { RANGE | LIST } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
+''')
+
+    def TemplateDetachPartition(self):
+        return Template('ALTER TABLE #table_name# DETACH PARTITION #partition_name#')
 
     def TemplateDropPartition(self):
         return Template('DROP TABLE #partition_name#')

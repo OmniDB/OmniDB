@@ -1739,6 +1739,62 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
+        'cm_inheriteds': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Inherited',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Inherited', node.tree
+                        .tag.create_inherited.replace(
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
+                }
+            }, {
+                text: 'Doc: Partitioning',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Partitioning',
+                        'https://www.postgresql.org/docs/' +
+                        getMajorVersion(node.tree.tag.version) +
+                        '/static/ddl-partitioning.html');
+                }
+            }]
+        },
+        'cm_inherited': {
+            elements: [{
+                text: 'No Inherit Table',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('No Inherit Partition', node
+                        .tree.tag.noinherit_partition.replace(
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
+                            node.parent.parent.text).replace(
+                            '#partition_name#', node.text));
+                }
+            }, {
+                text: 'Drop Inherited',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Partition', node.tree.tag
+                        .drop_partition.replace(
+                            '#partition_name#', node.text));
+                }
+            }]
+        },
         'cm_partitions': {
             elements: [{
                 text: 'Refresh',
@@ -1762,11 +1818,11 @@ function getTreePostgresql(p_div) {
                             .text));
                 }
             }, {
-                text: 'Doc: Partitions',
+                text: 'Doc: Partitioning',
                 icon: '/static/OmniDB_app/images/globe.png',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Partitions',
+                        'Documentation: Partitioning',
                         'https://www.postgresql.org/docs/' +
                         getMajorVersion(node.tree.tag.version) +
                         '/static/ddl-partitioning.html');
@@ -1775,11 +1831,11 @@ function getTreePostgresql(p_div) {
         },
         'cm_partition': {
             elements: [{
-                text: 'No Inherit Partition',
+                text: 'Detach Partition',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('No Inherit Partition', node
-                        .tree.tag.noinherit_partition.replace(
+                    tabSQLTemplate('Detach Partition', node
+                        .tree.tag.detach_partition.replace(
                             '#table_name#', node.parent.parent
                             .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
@@ -3409,6 +3465,8 @@ function refreshTreePostgresqlConfirm(node) {
         getTriggersPostgresql(node);
     } else if (node.tag.type == 'triggerfunction_list') {
         getTriggerFunctionsPostgresql(node);
+    } else if (node.tag.type == 'inherited_list') {
+        getInheritedsPostgresql(node);
     } else if (node.tag.type == 'partition_list') {
         getPartitionsPostgresql(node);
     } else if (node.tag.type == 'server') {
@@ -3625,8 +3683,10 @@ function getTreeDetailsPostgresql(node) {
                 enable_trigger: p_return.v_data.v_database_return.enable_trigger,
                 disable_trigger: p_return.v_data.v_database_return.disable_trigger,
                 drop_trigger: p_return.v_data.v_database_return.drop_trigger,
-                create_partition: p_return.v_data.v_database_return.create_partition,
+                create_inherited: p_return.v_data.v_database_return.create_inherited,
                 noinherit_partition: p_return.v_data.v_database_return.noinherit_partition,
+                create_partition: p_return.v_data.v_database_return.create_partition,
+                detach_partition: p_return.v_data.v_database_return.detach_partition,
                 drop_partition: p_return.v_data.v_database_return.drop_partition,
                 vacuum: p_return.v_data.v_database_return.vacuum,
                 vacuum_table: p_return.v_data.v_database_return.vacuum_table,
@@ -4759,13 +4819,23 @@ function getColumnsPostgresql(node) {
             }
 
             if (node.tag.has_partitions) {
-                v_node = node.createChildNode('Partitions', false,
+                v_node = node.createChildNode('Inherited Tables', false,
                     '/static/OmniDB_app/images/partition.png', {
-                        type: 'partition_list',
+                        type: 'inherited_list',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, 'cm_partitions',null,false);
+                    }, 'cm_inheriteds',null,false);
                 v_node.createChildNode('', false,
                     '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+
+                if (parseInt(getMajorVersion(node.tree.tag.version)) >= 10) {
+                    v_node = node.createChildNode('Partitions', false,
+                        '/static/OmniDB_app/images/partition.png', {
+                            type: 'partition_list',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        }, 'cm_partitions',null,false);
+                    v_node.createChildNode('', false,
+                        '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+                }
             }
 
             if (v_connTabControl.selectedTab.tag.selectedDatabaseNode.tag.database_data.bdr_version != null) {
@@ -5472,6 +5542,57 @@ function getTriggersPostgresql(node) {
                         [2], false,
                         '/static/OmniDB_app/images/bullet_red.png',
                         null, null);*/
+
+                }
+
+                node.drawChildNodes();
+
+            }
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving Partitions.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getInheritedsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_inheriteds_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": node.parent.text,
+            "p_schema": node.parent.parent.parent.text
+        }),
+        function(p_return) {
+
+            node.setText('Inherited Tables (' + p_return.v_data.length + ')');
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            var v_node;
+
+            if (p_return.v_data.length > 0) {
+
+                for (i = 0; i < p_return.v_data.length; i++) {
+
+                    v_node = node.createChildNode(p_return.v_data[i][0],
+                        false,
+                        '/static/OmniDB_app/images/partition.png', {
+                            type: 'inherit',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        }, 'cm_inherit',null,false);
 
                 }
 

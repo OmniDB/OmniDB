@@ -259,6 +259,7 @@ def list_objects(cur, pattern, verbose, relkinds):
                     c.relname as "Name",
                     CASE c.relkind
                       WHEN 'r' THEN 'table' WHEN 'v' THEN 'view'
+                      WHEN 'p' THEN 'partitioned table'
                       WHEN 'm' THEN 'materialized view' WHEN 'i' THEN 'index'
                       WHEN 'S' THEN 'sequence' WHEN 's' THEN 'special'
                       WHEN 'f' THEN 'foreign table' END
@@ -298,7 +299,7 @@ def list_objects(cur, pattern, verbose, relkinds):
 
 @special_command('\\dt', '\\dt[+] [pattern]', 'List tables.')
 def list_tables(cur, pattern, verbose):
-    return list_objects(cur, pattern, verbose, ['r', ''])
+    return list_objects(cur, pattern, verbose, ['r', 'p', ''])
 
 
 @special_command('\\dv', '\\dv[+] [pattern]', 'List views.')

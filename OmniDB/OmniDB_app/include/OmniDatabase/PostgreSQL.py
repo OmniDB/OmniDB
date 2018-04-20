@@ -264,31 +264,39 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' and quote_ident(c.table_name) = '{1}' ".format(p_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' and quote_ident(c.table_name) = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') and quote_ident(c.table_name) = {0}".format(p_table)
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
             else:
-                v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select quote_ident(c.table_name) as table_name,
-                   quote_ident(c.column_name) as column_name,
-                   c.data_type as data_type,
-                   c.is_nullable as nullable,
-                   c.character_maximum_length as data_length,
-                   c.numeric_precision as data_precision,
-                   c.numeric_scale as data_scale
-            from information_schema.columns c
-            join information_schema.tables t on (c.table_name = t.table_name and c.table_schema = t.table_schema)
-            where t.table_type = 'BASE TABLE'
-            {0}
-            order by quote_ident(c.table_name), c.ordinal_position
+            select quote_ident(c.relname) as table_name,
+                   quote_ident(a.attname) as column_name,
+                   t.typname as data_type,
+                   not t.typnotnull as nullable,
+                   t.typlen as data_length,
+                   null as data_precision,
+                   null as data_scale
+            from pg_attribute a
+            inner join pg_class c
+            on c.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_type t
+            on t.oid = a.atttypid
+            where a.attnum > 0
+              and not a.attisdropped
+              and c.relkind in ('r', 'f', 'p')
+              {0}
+            order by quote_ident(c.relname),
+                     a.attnum
         '''.format(v_filter), True)
 
     def QueryTablesForeignKeys(self, p_table=None, p_all_schemas=False, p_schema=None):
@@ -1034,31 +1042,39 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' and quote_ident(c.table_name) = '{1}' ".format(p_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' and quote_ident(c.table_name) = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') and quote_ident(c.table_name) = {0}".format(p_table)
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
             else:
-                v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select quote_ident(c.table_name) as table_name,
-                   quote_ident(c.column_name) as column_name,
-                   c.data_type as data_type,
-                   c.is_nullable as nullable,
-                   c.character_maximum_length as data_length,
-                   c.numeric_precision as data_precision,
-                   c.numeric_scale as data_scale
-            from information_schema.columns c
-            join information_schema.views t on (c.table_name = t.table_name and c.table_schema = t.table_schema)
-            where 1 = 1
-            {0}
-            order by quote_ident(c.table_name), c.ordinal_position
+            select quote_ident(c.relname) as table_name,
+                   quote_ident(a.attname) as column_name,
+                   t.typname as data_type,
+                   not t.typnotnull as nullable,
+                   t.typlen as data_length,
+                   null as data_precision,
+                   null as data_scale
+            from pg_attribute a
+            inner join pg_class c
+            on c.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join pg_type t
+            on t.oid = a.atttypid
+            where a.attnum > 0
+              and not a.attisdropped
+              and c.relkind = 'v'
+              {0}
+            order by quote_ident(c.relname),
+                     a.attnum
         '''.format(v_filter), True)
 
     def GetViewDefinition(self, p_view, p_schema):

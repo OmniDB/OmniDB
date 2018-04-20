@@ -2266,7 +2266,7 @@ class Oracle(Generic):
     def __init__(self, p_host, p_port, p_service, p_user, p_password):
         if 'Oracle' in v_supported_rdbms:
             self.v_host = p_host
-            if p_port is None or p_port == '':
+            if p_host is not None and (p_port is None or p_port == ''):
                 self.v_port = 1521
             else:
                 self.v_port = p_port

@@ -2288,21 +2288,34 @@ class Oracle(Generic):
         else:
             raise Spartacus.Database.Exception("Oracle is not supported. Please install it with 'pip install Spartacus[oracle]'.")
     def GetConnectionString(self):
-        if self.v_password is None or self.v_password == '':
-            return '{0}/@{1}:{2}/{3}'.format(
-                self.v_user,
-                self.v_host,
-                self.v_port,
-                self.v_service
-            )
+        if self.v_host is None and self.v_port is None: # tnsnames.ora
+            if self.v_password is None or self.v_password == '':
+                return '{0}/@{1}'.format(
+                    self.v_user,
+                    self.v_service
+                )
+            else:
+                return '{0}/{1}@{2}'.format(
+                    self.v_user,
+                    self.v_password,
+                    self.v_service
+                )
         else:
-            return '{0}/{1}@{2}:{3}/{4}'.format(
-                self.v_user,
-                self.v_password,
-                self.v_host,
-                self.v_port,
-                self.v_service
-            )
+            if self.v_password is None or self.v_password == '':
+                return '{0}/@{1}:{2}/{3}'.format(
+                    self.v_user,
+                    self.v_host,
+                    self.v_port,
+                    self.v_service
+                )
+            else:
+                return '{0}/{1}@{2}:{3}/{4}'.format(
+                    self.v_user,
+                    self.v_password,
+                    self.v_host,
+                    self.v_port,
+                    self.v_service
+                )
     def Open(self, p_autocommit=True):
         try:
             self.v_con = cx_Oracle.connect(self.GetConnectionString())

@@ -170,7 +170,8 @@ def thread_dispatcher(self,args,ws_object):
                 try:
                     #Send Ack Message
                     v_response['v_code'] = response.QueryAck
-                    ws_object.write_message(json.dumps(v_response))
+                    #ws_object.write_message(json.dumps(v_response))
+                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                     #Getting refreshed session
                     s = SessionStore(session_key=ws_object.v_user_key)
@@ -352,13 +353,15 @@ def thread_dispatcher(self,args,ws_object):
 
                 except Exception as exc:
                     v_response['v_code'] = response.SessionMissing
-                    ws_object.write_message(json.dumps(v_response))
+                    #ws_object.write_message(json.dumps(v_response))
+                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_code'] = response.MessageException
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
-        ws_object.write_message(json.dumps(v_response))
+        #ws_object.write_message(json.dumps(v_response))
+        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
 class WSHandler(tornado.websocket.WebSocketHandler):
   def open(self):
@@ -1251,8 +1254,8 @@ def thread_debug(self,args,ws_object):
         #Cancelling debugger, the thread executing the function will return the cancel status
         elif v_state == debugState.Cancel:
             v_tab_object['cancelled'] = True
-            v_database_control.v_connection.Terminate(v_tab_object['debug_pid'])
             v_database_control.v_connection.Cancel()
+            v_database_control.v_connection.Terminate(v_tab_object['debug_pid'])
             v_database_control.v_connection.Close()
 
 

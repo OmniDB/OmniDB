@@ -46,7 +46,7 @@ def get_tree_info(request):
             'v_database_return': {
                 'v_database': v_database.GetName(),
                 'version': v_database.GetVersion(),
-                'superuser': v_database.GetUserSuper(),
+                #'superuser': v_database.GetUserSuper(),
                 'create_role': v_database.TemplateCreateRole().v_text,
                 'alter_role': v_database.TemplateAlterRole().v_text,
                 'drop_role': v_database.TemplateDropRole().v_text,

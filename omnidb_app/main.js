@@ -9,6 +9,7 @@ const url = require('url')
 
 var ipc = require('electron').ipcMain;
 let django;
+let callback_started = false;
 
 let mainWindow
 
@@ -22,11 +23,18 @@ function createWindow () {
     slashes: true
   }))
 
-  //django = child_process.spawn(path.join(__dirname, 'omnidb-server/omnidb-server'),[],{detached: true});
-  django = child_process.spawn('python3',['/home/rafaelthca/Repositories/github/rafaelthca/OmniDB/OmniDB/omnidb-server.py','-A'],{detached: true});
-  django.stdout.on('data', (data) => {
-    v_data_list = data.toString('utf8').split("\n");
-    mainWindow.webContents.send('info' , v_data_list);
+  ipc.on('invokeAction', function(event, data){
+    callback_started = true;
+
+    //Starting the server
+    //django = child_process.spawn(path.join(__dirname, 'omnidb-server/omnidb-server'),['-A'],{detached: true});
+    django = child_process.spawn('python3',['/home/rafaelthca/Repositories/github/rafaelthca/OmniDB/OmniDB/omnidb-server.py','-A'],{detached: true});
+
+    django.stdout.on('data', (data) => {
+      v_data_list = data.toString('utf8').split("\n");
+      mainWindow.webContents.send('info' , v_data_list);
+    });
+
   });
 
   mainWindow.on('closed', function () {
@@ -40,7 +48,11 @@ app.on('window-all-closed', function () {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   //if (process.platform !== 'darwin') {
-  process.kill(django.pid);
+  if (callback_started) {
+    while (django==null)
+      null;
+    process.kill(django.pid);
+  }
   app.quit();
   //}
 })

@@ -1,21 +1,18 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
-
-var ById = function (id) {
-    return document.getElementById(id);
-}
 var jsonfile = require('jsonfile');
 var favicon = require('favicon-getter').default;
 var path = require('path');
 var uuid = require('uuid');
 var bookmarks = path.join(__dirname, 'bookmarks.json');
 
-var view = ById('view');
-var loading = ById('loading');
-var loading_interface = ById('loading_interface');
+var view = document.getElementById('view');
+var loading = document.getElementById('loading');
+var loading_interface = document.getElementById('loading_interface');
+console.log(view)
+
 
 var ipc = require('electron').ipcRenderer;
+
+ipc.send('invokeAction', null);
 
 ipc.on('info' , function(event , data) {
   for (var i=0; i<data.length-1; i++) {

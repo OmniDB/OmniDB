@@ -102,8 +102,10 @@ def get_tree_info(request):
                 'enable_trigger': v_database.TemplateEnableTrigger().v_text,
                 'disable_trigger': v_database.TemplateDisableTrigger().v_text,
                 'drop_trigger': v_database.TemplateDropTrigger().v_text,
-                'create_partition': v_database.TemplateCreatePartition().v_text,
+                'create_inherited': v_database.TemplateCreateInherited().v_text,
                 'noinherit_partition': v_database.TemplateNoInheritPartition().v_text,
+                'create_partition': v_database.TemplateCreatePartition().v_text,
+                'detach_partition': v_database.TemplateDetachPartition().v_text,
                 'drop_partition': v_database.TemplateDropPartition().v_text,
                 'vacuum': v_database.TemplateVacuum().v_text,
                 'vacuum_table': v_database.TemplateVacuumTable().v_text,
@@ -994,6 +996,53 @@ def get_triggers(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_triggers
+
+    return JsonResponse(v_return)
+
+def get_inheriteds(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_partitions = []
+
+    try:
+        v_partitions = v_database.QueryTablesInheriteds(v_table,False,v_schema)
+        for v_partition in v_partitions.Rows:
+            v_partition_data = []
+            v_partition_data.append(v_partition['child_schema'] + '.' + v_partition['child_table'])
+            v_list_partitions.append(v_partition_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_partitions
 
     return JsonResponse(v_return)
 

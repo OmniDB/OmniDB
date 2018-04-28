@@ -3567,7 +3567,7 @@ function getTreeDetailsPostgresql(node) {
 
             node.tree.tag = {
                 version: p_return.v_data.v_database_return.version,
-                superuser: p_return.v_data.v_database_return.superuser,
+                //superuser: p_return.v_data.v_database_return.superuser,
                 create_role: p_return.v_data.v_database_return.create_role,
                 alter_role: p_return.v_data.v_database_return.alter_role,
                 drop_role: p_return.v_data.v_database_return.drop_role,

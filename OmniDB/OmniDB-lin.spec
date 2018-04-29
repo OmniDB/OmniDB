@@ -13,7 +13,7 @@ data_files = [
 
 b = Analysis(['omnidb-server.py'],
              binaries=[],
-             datas=data_files_server,
+             datas=data_files,
              hiddenimports=['cheroot.ssl','cheroot.ssl.builtin'],
              hookspath=[],
              runtime_hooks=[],

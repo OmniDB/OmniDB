@@ -51,13 +51,13 @@ echo "Done."
 echo "Generating GUI bundles..."
 cd ~/OmniDB/omnidb_app
 ./buildgui.sh
-cd omnidb-app-linux-x86
+cd omnidb-app-linux-ia32
 rm LICENSE* version
 echo "Done."
 
 echo -n "Organizing GUI bundles..."
 cd ~/OmniDB/OmniDB
-mv ~/OmniDB/omnidb_app/omnidb-app-linux-x86 deploy/packages/omnidb-app
+mv ~/OmniDB/omnidb_app/omnidb-app-linux-ia32 deploy/packages/omnidb-app
 echo "Done."
 
 echo -n "Renaming bundles... "

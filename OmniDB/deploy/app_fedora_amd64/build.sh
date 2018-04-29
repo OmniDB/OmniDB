@@ -24,7 +24,6 @@ echo -n "Cleaning... "
 rm -rf build
 rm -rf dist
 rm -rf deploy/packages
-rm -rf ~/OmniDB/omnidb_app/omnidb-gui*
 echo "Done."
 
 echo -n "Switching to Release Mode..."

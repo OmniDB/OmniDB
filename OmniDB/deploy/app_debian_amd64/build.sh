@@ -41,10 +41,11 @@ echo "Done."
 
 echo -n "Organizing server bundles..."
 rm -rf build
-mkdir -p deploy/packages/omnidb-app
+mkdir deploy/packages
 cp dist/omnidb-config/omnidb-config dist/omnidb-server/omnidb-config-server
-mv dist/omnidb-server deploy/packages/omnidb-app
-chmod 777 deploy/packages/omnidb-app/omnidb-server/OmniDB_app/static/temp/
+chmod 777 dist/omnidb-server/OmniDB_app/static/temp/
+rm -rf ~/OmniDB/omnidb_app/omnidb-server
+mv dist/omnidb-server ~/OmniDB/omnidb_app
 rm -rf dist
 echo "Done."
 

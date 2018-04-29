@@ -1,12 +1,16 @@
 #!/bin/bash
 
-VERSION=2.7.0
+VERSION=2.8.0
 ARCH=debian-amd64
 
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install -r ~/OmniDB/requirements.txt --upgrade
 pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt --upgrade
+echo "Done"
+
+echo "Installing electron-packager..."
+npm install electron-packager -g
 echo "Done"
 
 cd ~/OmniDB/OmniDB
@@ -88,7 +92,7 @@ mkdir -p usr/bin
 cd usr/bin
 cat > omnidb-app <<EOF
 #!/bin/bash
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app \$@
+LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app \$@
 EOF
 chmod 777 omnidb-app
 ln -s /opt/omnidb-app/omnidb-config-app .

@@ -3,7 +3,7 @@
 PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
-yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build wget p7zip
+yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build wget nodejs npm
 yum groupinstall -y gnome
 echo "Done"
 

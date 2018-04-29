@@ -23,4 +23,16 @@ def clean_temp_folder(p_all_files = False):
 def startup_procedure():
     user_database.work()
     clean_temp_folder(True)
-    os.remove(settings.SESSION_DATABASE)
+
+    #removing existing sessions
+    database_sessions = OmniDatabase.Generic.InstantiateDatabase(
+        'sqlite','','',settings.SESSION_DATABASE,'','','0',''
+    )
+    try:
+        database_sessions.v_connection.Execute('''
+            delete
+            from django_session
+        ''')
+    except Exception as exc:
+        print('Error:')
+        print(exc)

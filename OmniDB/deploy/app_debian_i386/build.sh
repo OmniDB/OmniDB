@@ -7,11 +7,16 @@ echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install -r ~/OmniDB/requirements.txt --upgrade
 pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt --upgrade
-echo "Done"
+echo "Done."
+
+echo "Installing NodeJS modules..."
+cd ~/OmniDB/omnidb_app
+npm install
+echo "Done."
 
 echo "Installing electron-packager..."
 npm install electron-packager -g
-echo "Done"
+echo "Done."
 
 cd ~/OmniDB/OmniDB
 
@@ -19,6 +24,7 @@ echo -n "Cleaning... "
 rm -rf build
 rm -rf dist
 rm -rf deploy/packages
+rm -rf ~/OmniDB/omnidb_app/omnidb-gui*
 echo "Done."
 
 echo -n "Switching to Release Mode..."

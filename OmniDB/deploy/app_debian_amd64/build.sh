@@ -58,7 +58,7 @@ echo "Done."
 
 echo -n "Organizing GUI bundles..."
 cd ~/OmniDB/OmniDB
-mv ~/OmniDB/omnidb_app/omnidb-app-linux-x64/* deploy/packages/omnidb-app
+mv ~/OmniDB/omnidb_app/omnidb-app-linux-x64 deploy/packages/omnidb-app
 echo "Done."
 
 echo -n "Renaming bundles... "

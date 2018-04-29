@@ -11,7 +11,7 @@ echo "Done."
 
 echo "Installing NodeJS modules..."
 cd ~/OmniDB/omnidb_app
-npm install
+npm install --unsafe-perm
 echo "Done."
 
 echo "Installing electron-packager..."

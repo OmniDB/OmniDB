@@ -11,3 +11,5 @@ log/omnidb.log
 *.vagrant
 OmniDB/chat
 OmniDB/OmniDB_app/static/chat*
+omnidb_app/node_modules/
+

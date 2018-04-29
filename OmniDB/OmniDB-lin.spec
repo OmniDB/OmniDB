@@ -25,7 +25,7 @@ pyz_a = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe_a = EXE(pyz_a,
           a.scripts,
-          [('v', None, 'OPTION')]
+          [('v', None, 'OPTION')],
           exclude_binaries=True,
           name='omnidb-server',
           debug=False,

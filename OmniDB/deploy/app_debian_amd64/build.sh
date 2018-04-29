@@ -50,7 +50,7 @@ echo "Done."
 
 echo "Generating GUI bundles..."
 cd ~/OmniDB/omnidb_app
-electron-packager . omnidb-gui
+./buildgui.sh
 cd omnidb-gui-linux-x64
 rm LICENSE* version
 echo "Done."

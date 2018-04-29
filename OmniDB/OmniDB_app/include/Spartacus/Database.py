@@ -334,8 +334,8 @@ try:
     from OmniDB_app.include.Spartacus.pgspecial.main import PGSpecial
     from OmniDB_app.include.Spartacus.pgspecial.namedqueries import NamedQueries
     v_supported_rdbms.append('PostgreSQL')
-except ImportError:
-    pass
+except ImportError as exc:
+    print(str(exc))
 try:
     import pymysql
     v_supported_rdbms.append('MySQL')

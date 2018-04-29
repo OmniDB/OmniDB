@@ -51,13 +51,13 @@ echo "Done."
 echo "Generating GUI bundles..."
 cd ~/OmniDB/omnidb_app
 ./buildgui.sh
-cd omnidb-gui-linux-x64
+cd omnidb-app-linux-x64
 rm LICENSE* version
 echo "Done."
 
 echo -n "Organizing GUI bundles..."
 cd ~/OmniDB/OmniDB
-cp -r ~/OmniDB/omnidb_app/omnidb-gui-linux-x64/* deploy/packages/omnidb-app
+cp -r ~/OmniDB/omnidb_app/omnidb-app-linux-x64/* deploy/packages/omnidb-app
 echo "Done."
 
 echo -n "Renaming bundles... "
@@ -80,7 +80,7 @@ mkdir -p usr/bin
 cd usr/bin
 cat > omnidb-app <<EOF
 #!/bin/bash
-LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-gui \$@
+LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app \$@
 EOF
 chmod 777 omnidb-app
 ln -s /opt/omnidb-app/omnidb-config-app .

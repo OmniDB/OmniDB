@@ -3,6 +3,7 @@ cherrypy
 tornado==4.5.1
 sqlparse>=0.2.3
 psycopg2
+psycopg2-binary
 pyscrypt
 pyaes
 openpyxl

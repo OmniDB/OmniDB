@@ -1,3 +1,3 @@
 #!/bin/bash
 
-electron-packager . omnidb-gui
+electron-packager . omnidb-app

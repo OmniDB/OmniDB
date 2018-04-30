@@ -60,6 +60,11 @@ cd ~/OmniDB/OmniDB
 mv ~/OmniDB/omnidb_app/omnidb-app-linux-x64 deploy/packages/omnidb-app
 echo "Done."
 
+echo -n "Copying libgconf... "
+cp /usr/lib/x86_64-linux-gnu/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
+chmod 755 deploy/packages/omnidb-app/libgconf-2.so.4
+echo "Done."
+
 echo -n "Renaming bundles... "
 mv deploy/packages/omnidb-app deploy/packages/omnidb-app_$VERSION-$ARCH
 echo "Done."

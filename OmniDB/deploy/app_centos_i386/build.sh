@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 VERSION=2.8.0
-ARCH=centos-amd64
+ARCH=centos-i386
 
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
@@ -51,17 +51,17 @@ echo "Done."
 echo "Generating GUI bundles..."
 cd ~/OmniDB/omnidb_app
 ./buildgui.sh
-cd omnidb-app-linux-x64
+cd omnidb-app-linux-ia32
 rm LICENSE* version
 echo "Done."
 
 echo -n "Organizing GUI bundles..."
 cd ~/OmniDB/OmniDB
-mv ~/OmniDB/omnidb_app/omnidb-app-linux-x64 deploy/packages/omnidb-app
+mv ~/OmniDB/omnidb_app/omnidb-app-linux-ia32 deploy/packages/omnidb-app
 echo "Done."
 
 echo -n "Copying libgconf... "
-cp /usr/lib64/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
+cp /usr/lib/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
 chmod 755 deploy/packages/omnidb-app/libgconf-2.so.4
 echo "Done."
 
@@ -112,7 +112,7 @@ cat > SPECS/omnidb-app.spec <<EOF
 %define buildroot %{_topdir}/%{longname}-root
 
 BuildRoot: %{buildroot}
-BuildArch: x86_64
+BuildArch: i686
 Summary: Application to manage multiple databases
 License: MIT
 Name: %{name}
@@ -166,7 +166,7 @@ update-desktop-database
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-app.spec
-cp RPMS/x86_64/omnidb-app-$VERSION-0.x86_64.rpm ../omnidb-app_$VERSION-$ARCH.rpm
+cp RPMS/i686/omnidb-app-$VERSION-0.i686.rpm ../omnidb-app_$VERSION-$ARCH.rpm
 cd ..
 echo "Done"
 

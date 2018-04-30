@@ -65,6 +65,21 @@ cp /usr/lib64/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
 chmod 755 deploy/packages/omnidb-app/libgconf-2.so.4
 echo "Done."
 
+echo -n "Copying libXss... "
+cp deploy/lib/libXss.so.1 deploy/packages/omnidb-app/libXss.so.1
+chmod 755 deploy/packages/omnidb-app/libXss.so.1
+echo "Done."
+
+echo -n "Copying libnss3... "
+cp deploy/lib/libnss3.so deploy/packages/omnidb-app/libnss3.so
+chmod 755 deploy/packages/omnidb-app/libnss3.so
+echo "Done."
+
+echo -n "Copying libXtst... "
+cp /usr/lib64/libXtst.so.6 deploy/packages/omnidb-app/libXtst.so.6
+chmod 755 deploy/packages/omnidb-app/libXtst.so.6
+echo "Done."
+
 echo -n "Renaming bundles... "
 mv deploy/packages/omnidb-app deploy/packages/omnidb-app_$VERSION-$ARCH
 echo "Done."

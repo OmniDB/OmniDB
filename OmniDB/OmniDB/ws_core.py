@@ -146,13 +146,9 @@ def thread_dispatcher(self,args,ws_object):
                 try:
                     thread_data = ws_object.v_list_tab_objects[v_data]
                     if thread_data:
-                        print('stopping')
                         thread_data['thread'].stop()
-                        print('cancelling')
                         thread_data['omnidatabase'].v_connection.Cancel(False)
-                        print('ok')
                 except Exception as exc:
-                    print('nao achou')
                     None;
 
             #Close Tab
@@ -212,7 +208,6 @@ def thread_dispatcher(self,args,ws_object):
                             v_conn_tab_connection.v_service!=tab_object['omnidatabase'].v_service or
                             v_conn_tab_connection.v_user!=tab_object['omnidatabase'].v_user or
                             v_conn_tab_connection.v_connection.v_password!=tab_object['omnidatabase'].v_connection.v_password):
-                                print('NEW DATABASE REQUIRED')
                                 v_database_new = OmniDatabase.Generic.InstantiateDatabase(
                                     v_conn_tab_connection.v_db_type,
                                     v_conn_tab_connection.v_connection.v_host,

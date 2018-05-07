@@ -27,8 +27,8 @@ function createWindow () {
     callback_started = true;
 
     //Starting the server
-    //django = child_process.spawn(path.join(__dirname, 'omnidb-server/omnidb-server'),['-A'],{detached: true});
-    django = child_process.spawn('python3',['/home/rafaelthca/Repositories/github/rafaelthca/OmniDB/OmniDB/omnidb-server.py','-A'],{detached: true});
+    django = child_process.spawn(path.join(__dirname, 'omnidb-server/omnidb-server'),['-A'],{detached: true});
+    //django = child_process.spawn('python3',['/home/william/Documents/Projects/OmniDB/OmniDB/omnidb-server.py','-A'],{detached: true});
 
     django.stdout.on('data', (data) => {
       v_data_list = data.toString('utf8').split("\n");

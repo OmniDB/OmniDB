@@ -375,8 +375,8 @@ def refresh_monitor_units(request):
     v_database_orig = v_session.v_tab_connections[v_tab_id]
     v_database = OmniDatabase.Generic.InstantiateDatabase(
         v_database_orig.v_db_type,
-        v_database_orig.v_server,
-        v_database_orig.v_port,
+        v_database_orig.v_connection.v_host,
+        str(v_database_orig.v_connection.v_port),
         v_database_orig.v_service,
         v_database_orig.v_user,
         v_database_orig.v_connection.v_password,

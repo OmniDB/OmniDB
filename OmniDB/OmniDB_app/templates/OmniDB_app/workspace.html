@@ -70,6 +70,35 @@
 					<button onclick="saveConnections()">Save Data</button>
 				</div>
 				<div id='connection_list_div_grid' class='connection_grid'></div>
+
+				<div class="modal_background_dark" id="ssh_tunnel_div" style="display: none;">
+					<div class='ssh_tunnel_window'><a class='modal-closer' onclick='closeTunnelWindow()'>x</a>
+						<div style='display:inline-block; white-space: nowrap; width: 100%;'>
+							<div style='block; white-space: nowrap; width: 100%;'>
+								<div style='display:inline-block; width: 70%; float: left; padding-right: 5px; box-sizing: border-box;'>
+									<div class='query_info' style='margin: 5px 0px;'>Host:</div>
+									<input id='tunnel_server' onchange="changeTunnelInput(this,'ssh_server')" type='text' style='width: 100%;' />
+								</div>
+								<div style='display:inline-block; width: 30%;'>
+									<div class='query_info' style='margin: 5px 0px;'>Port:</div>
+									<input id='tunnel_port' onchange="changeTunnelInput(this,'ssh_port')" type='text' style='width: 100%;' />
+								</div>
+							</div>
+							<div style='block; white-space: nowrap; width: 100%;'>
+								<div style='display:inline-block; width: 50%; float: left; padding-right: 5px; box-sizing: border-box;'>
+									<div class='query_info' style='margin: 5px 0px;'>Username:</div>
+									<input id='tunnel_user' onchange="changeTunnelInput(this,'ssh_user')" type='text' autocomplete="off" style='width: 100%;' />
+								</div>
+								<div style='display:inline-block; width: 50%;'>
+									<div class='query_info' style='margin: 5px 0px;'>Password/Passphrase:</div>
+									<input id='tunnel_password' onchange="changeTunnelInput(this,'ssh_password')" type='input' autocomplete="off" style='width: 100%;' />
+								</div>
+							</div>
+							<div class='query_info' style='margin: 5px 0px;'>Private Key:</div>
+							<textarea id='tunnel_key' onchange="changeTunnelInput(this,'ssh_key')" style='width: 100%; height: 250px;'></textarea>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -128,5 +157,6 @@
 	var gv_chatWebSocketPort = v_query_port;
 	var gv_chatAttachmentPath = '{{ chat_link }}';
 	var gv_desktopMode = ('{{ desktop_mode }}' == 'True');
+	var v_tab_token = '{{ tab_token }}';
 </script>
 {% endblock %}

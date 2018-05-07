@@ -133,7 +133,7 @@ def sign_in_automatic(request, username, pwd):
                 request.session.session_key
             )
 
-            v_session.RefreshDatabaseList()
+            #v_session.RefreshDatabaseList()
             request.session['omnidb_session'] = v_session
 
             if not request.session.get('cryptor'):
@@ -215,7 +215,7 @@ def sign_in(request):
                 request.session.session_key
             )
 
-            v_session.RefreshDatabaseList()
+            #v_session.RefreshDatabaseList()
             request.session['omnidb_session'] = v_session
 
             if not request.session.get('cryptor'):

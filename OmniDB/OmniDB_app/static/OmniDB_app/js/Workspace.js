@@ -26,6 +26,8 @@ $(function () {
 	});
 
 	v_connTabControl = createTabControl('conn_tabs',0,null);
+	v_connTabControl.tag.change_active_database_call_list = [];
+	v_connTabControl.tag.change_active_database_call_running = false;
 
 	initCreateTabFunctions();
 
@@ -224,17 +226,11 @@ function changeDatabase(p_value) {
 
 			v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
 
-			execAjax('/change_active_database/',
-					JSON.stringify({
-							"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-							"p_tab_id": v_connTabControl.selectedTab.id,
-							"p_database": v_connTabControl.selectedTab.tag.selectedDatabase
-					}),
-					function(p_return) {
-
-					},
-					null,
-					'box');
+			queueChangeActiveDatabaseThreadSafe({
+					"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					"p_tab_id": v_connTabControl.selectedTab.id,
+					"p_database": v_connTabControl.selectedTab.tag.selectedDatabase
+			});
 
 			if (v_conn_object.v_db_type=='postgresql')
 				getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
@@ -250,6 +246,27 @@ function changeDatabase(p_value) {
 			adjustQueryTabObjects(true);
 		});
 
+}
+
+function queueChangeActiveDatabaseThreadSafe(p_data) {
+
+	v_connTabControl.tag.change_active_database_call_list.push(p_data);
+	if (!v_connTabControl.tag.change_active_database_call_running) {
+		changeActiveDatabaseThreadSafe(v_connTabControl.tag.change_active_database_call_list.pop());
+	}
+}
+
+function changeActiveDatabaseThreadSafe(p_data) {
+	v_connTabControl.tag.change_active_database_call_running = true;
+	execAjax('/change_active_database/',
+			JSON.stringify(p_data),
+			function(p_return) {
+				v_connTabControl.tag.change_active_database_call_running = false;
+				if (v_connTabControl.tag.change_active_database_call_list.length>0)
+					changeActiveDatabaseThreadSafe(v_connTabControl.tag.change_active_database_call_list.pop());
+			},
+			null,
+			'box');
 }
 
 /// <summary>

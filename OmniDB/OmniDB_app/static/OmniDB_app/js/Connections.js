@@ -60,8 +60,18 @@ function dropConnection() {
 function newConnection() {
 
 	var v_data = v_connections_data.ht.getData();
-	v_data.push(['postgresql','','','','','','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
-	v_connections_data.v_conn_ids.push({'id': -1, 'mode': 2, 'old_mode': 2 })
+	v_data.push(['postgresql','','','','','','<input type="checkbox" onchange="changeTunnelCheckbox(this)"/><img style="vertical-align: text-bottom;" title="Configure Tunnel" src="/static/OmniDB_app/images/configure.png" class="img_ht" onclick="showTunnelWindow()"/>','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
+	v_connections_data.v_conn_ids.push({
+		'id': -1,
+		'mode': 2,
+		'old_mode': 2,
+		'ssh_server': '',
+		'ssh_port': '22',
+		'ssh_user': '',
+		'ssh_password': '',
+		'ssh_key': '',
+		'ssh_enabled': false
+	})
 	v_connections_data.ht.loadData(v_data);
 
 	var v_div_result = document.getElementById('connection_list_div_grid');
@@ -279,6 +289,7 @@ function showConnectionList() {
 
 				var col = new Object();
 				col.title =  'Server';
+				col.width = '120'
 				columnProperties.push(col);
 
 				var col = new Object();
@@ -295,6 +306,13 @@ function showConnectionList() {
 
 				var col = new Object();
 				col.title =  'Title';
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'SSH Tunnel';
+				col.renderer = 'html';
+				col.readOnly = true;
+				col.width = '80'
 				columnProperties.push(col);
 
 				var col = new Object();
@@ -550,4 +568,58 @@ function listConnections() {
 				null,
 				'box');
 
+}
+
+function showTunnelWindow() {
+	var v_row = v_connections_data.ht.getSelected()[0][0];
+	v_connections_data.v_selected_row = v_row;
+	if (v_connections_data.v_conn_ids[v_row].locked)
+		showConnectionLocked();
+	else {
+		document.getElementById('tunnel_server').value = v_connections_data.v_conn_ids[v_row].ssh_server;
+		document.getElementById('tunnel_port').value = v_connections_data.v_conn_ids[v_row].ssh_port;
+		document.getElementById('tunnel_user').value = v_connections_data.v_conn_ids[v_row].ssh_user;
+		document.getElementById('tunnel_password').value = v_connections_data.v_conn_ids[v_row].ssh_password;
+		document.getElementById('tunnel_key').value = v_connections_data.v_conn_ids[v_row].ssh_key;
+		document.getElementById('ssh_tunnel_div').style.display = 'block';
+	}
+}
+
+function closeTunnelWindow() {
+	document.getElementById('ssh_tunnel_div').style.display = 'none';
+}
+
+function changeTunnelCheckbox(p_object) {
+	var v_row = v_connections_data.ht.getSelected()[0][0];
+	//Locked, go back to original state
+	if (v_connections_data.v_conn_ids[v_row].locked) {
+		if (p_object.checked)
+			p_object.checked = false;
+		else
+			p_object.checked = true;
+	}
+	//Not locked, update control object
+	else {
+		v_connections_data.v_conn_ids[v_row].ssh_enabled = p_object.checked;
+
+		if (p_object.checked)
+			v_connections_data.ht.setDataAtCell(v_row,6,"<input type='checkbox' onchange='changeTunnelCheckbox(this)' checked/><img style='vertical-align: text-bottom;' title='Configure Tunnel' src='/static/OmniDB_app/images/configure.png' class='img_ht' onclick='showTunnelWindow()'/>");
+		else
+			v_connections_data.ht.setDataAtCell(v_row,6,"<input type='checkbox' onchange='changeTunnelCheckbox(this)'/><img style='vertical-align: text-bottom;' title='Configure Tunnel' src='/static/OmniDB_app/images/configure.png' class='img_ht' onclick='showTunnelWindow()'/>");
+
+	}
+}
+
+function changeTunnelInput(p_object, p_type) {
+	var v_row = v_connections_data.v_selected_row;
+	v_connections_data.v_conn_ids[v_row][p_type] = p_object.value;
+	if(v_connections_data.v_conn_ids[v_row].mode!=2) {
+			if (v_connections_data.v_conn_ids[v_row].mode!=-1)
+				v_connections_data.v_conn_ids[v_row].mode = 1;
+			else
+				v_connections_data.v_conn_ids[v_row].old_mode = 1;
+
+			document.getElementById('div_save').style.visibility = 'visible';
+			v_connections_data.ht.render();
+	}
 }

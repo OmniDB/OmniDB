@@ -264,7 +264,7 @@ select {
 /* -------------------------
 				Modal
 --------------------------*/
-.white_box, .config_box, .connection_list, .dashboard_unit_list, .dashboard_unit, .dashboard_unit_test, .console_command_history {
+.white_box, .config_box, .connection_list, .dashboard_unit_list, .dashboard_unit, .dashboard_unit_test, .console_command_history, .ssh_tunnel_window {
   border: 1px solid #6d6d6d !important;
   background-color: #25282c !important;
   box-shadow: none !important;
@@ -312,7 +312,7 @@ button:hover {
   background: #1e90ff !important;
   border: solid #1e90ff 1px !important;
 }
-input {
+input, textarea {
     background-color: #1d1f21 !important;
 	color: #d7d7d7 !important;
 	border-color: #6d6d6d !important;

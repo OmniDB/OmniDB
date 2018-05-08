@@ -2515,29 +2515,76 @@ replication_set := '#set_name#'
         ''')
 
     def GetBDRNodeName(self):
-        return self.v_connection.ExecuteScalar('select bdr.bdr_get_local_node_name()')
-
-    def QueryBDRProperties(self):
-        try:
-            v_tmp = self.v_connection.ExecuteScalar('select bdr.bdr_is_active_in_db()')
-            v_test = True
-        except Spartacus.Database.Exception as exc:
-            v_test = False
-        if v_test:
-            return self.v_connection.Query('''
-                select bdr.bdr_version() as version,
-                       bdr.bdr_is_active_in_db() as active,
-                       coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
-                       bdr.bdr_apply_is_paused() as paused
+        if int(self.GetBDRVersion()[0]) >= 3:
+            return self.v_connection.ExecuteScalar('''
+                select quote_ident(n.node_name) as node_name
+                from bdr.node b
+                inner join pglogical.node n
+                on n.node_id = b.pglogical_node_id
+                inner join pglogical.local_node l
+                on l.node_id = n.node_id
+                where bdr.peer_state_name(b.local_state) not like '%PART%'
+                limit 1
             ''')
         else:
-            return self.v_connection.Query('''
-                select bdr.bdr_version() as version,
-                       (coalesce(bdr.bdr_get_local_node_name(), 'Not set') != 'Not set') as active,
-                       coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
-                       bdr.bdr_apply_is_paused() as paused
-            ''')
+            return self.v_connection.ExecuteScalar('select bdr.bdr_get_local_node_name()')
 
+    def QueryBDRProperties(self):
+        if int(self.GetBDRVersion()[0]) >= 3:
+            return self.v_connection.Query('''
+                select (select extversion
+                        from pg_extension
+                        where extname = 'bdr') as version,
+                       (select count(*)
+                        from bdr.node b
+                        inner join bdr.node_group g
+                        on g.node_group_id = b.node_group_id
+                        inner join pglogical.node n
+                        on n.node_id = b.pglogical_node_id
+                        inner join pglogical.local_node l
+                        on l.node_id = n.node_id
+                        where bdr.peer_state_name(b.local_state) not like '%PART%'
+                        limit 1) >= 1 as active,
+                       coalesce((select quote_ident(n.node_name)
+                                 from bdr.node b
+                                 inner join pglogical.node n
+                                 on n.node_id = b.pglogical_node_id
+                                 inner join pglogical.local_node l
+                                 on l.node_id = n.node_id
+                                 where bdr.peer_state_name(b.local_state) not like '%PART%'), 'Not set') as node_name,
+                       False as paused,
+                       (select bdr.peer_state_name(b.local_state)
+                        from bdr.node b
+                        inner join pglogical.node n
+                        on n.node_id = b.pglogical_node_id
+                        inner join pglogical.local_node l
+                        on l.node_id = n.node_id
+                        where bdr.peer_state_name(b.local_state) not like '%PART%') as node_state
+            ''')
+        else:
+            try:
+                v_tmp = self.v_connection.ExecuteScalar('select bdr.bdr_is_active_in_db()')
+                v_test = True
+            except Spartacus.Database.Exception as exc:
+                v_test = False
+            if v_test:
+                return self.v_connection.Query('''
+                    select bdr.bdr_version() as version,
+                           bdr.bdr_is_active_in_db() as active,
+                           coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
+                           bdr.bdr_apply_is_paused() as paused,
+                           null as node_state
+                ''')
+            else:
+                return self.v_connection.Query('''
+                    select bdr.bdr_version() as version,
+                           (coalesce(bdr.bdr_get_local_node_name(), 'Not set') != 'Not set') as active,
+                           coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
+                           bdr.bdr_apply_is_paused() as paused,
+                           null as node_state
+                ''')
+
+    # only in BDR < 3
     def QueryBDRNodes(self):
         return self.v_connection.Query('''
             select quote_ident(node_name) as node_name
@@ -2546,6 +2593,7 @@ replication_set := '#set_name#'
             order by 1
         ''')
 
+    # only in BDR < 3
     def QueryBDRReplicationSets(self):
         return self.v_connection.Query('''
             select quote_ident(set_name) as set_name,
@@ -2556,9 +2604,11 @@ replication_set := '#set_name#'
             order by 1
         ''')
 
+    # only in BDR < 3
     def QueryBDRTableReplicationSets(self, p_table):
         return self.v_connection.Query("select unnest(bdr.table_get_replication_sets('{0}')) as set_name".format(p_table))
 
+    # only in BDR < 3
     def QueryBDRTableConflictHandlers(self, p_table, p_schema):
         return self.v_connection.Query('''
             select quote_ident(t.ch_name) as ch_name,
@@ -2572,6 +2622,43 @@ replication_set := '#set_name#'
             where n.nspname = '{0}'
               and c.relname = '{1}'
         '''.format(p_schema, p_table))
+
+    # only in BDR >= 3
+    def QueryBDRGroups(self):
+        return self.v_connection.Query('''
+            select quote_ident(node_group_name) as group_name
+            from bdr.node_group
+            order by 1
+        ''')
+
+    # only in BDR >= 3
+    def QueryBDRGroupNodes(self, p_group):
+        return self.v_connection.Query('''
+            select quote_ident(n.node_name) || (case when l.node_id is not null then ' (local)' else '' end) as node_name,
+                   bdr.peer_state_name(b.local_state) as node_state
+            from bdr.node b
+            inner join bdr.node_group g
+            on g.node_group_id = b.node_group_id
+            inner join pglogical.node n
+            on n.node_id = b.pglogical_node_id
+            left join pglogical.local_node l
+            on l.node_id = n.node_id
+            where bdr.peer_state_name(b.local_state) not like '%PART%'
+              and g.node_group_name = '{0}'
+            order by 1
+        '''.format(p_group))
+
+    # only in BDR >= 3
+    def TemplateBDRCreateLocalNode(self):
+        return Template('''select bdr.create_node(
+'node_name'
+, 'host={0} port={1} dbname={2}'
+)
+'''.format(self.v_server, self.v_port, self.v_service))
+
+    # only in BDR >= 3
+    def TemplateBDRPromoteLocalNode(self):
+        return Template('select bdr.promote_node()')
 
     def TemplateBDRCreateGroup(self):
         return Template('''select bdr.bdr_group_create(
@@ -2597,9 +2684,11 @@ local_node_name := 'node_name'
     def TemplateBDRJoinWait(self):
         return Template('select bdr.bdr_node_join_wait_for_ready()')
 
+    # only in BDR < 3
     def TemplateBDRPause(self):
         return Template('select bdr.bdr_apply_pause()')
 
+    # only in BDR < 3
     def TemplateBDRResume(self):
         return Template('select bdr.bdr_apply_resume()')
 
@@ -2609,11 +2698,13 @@ local_node_name := 'node_name'
     def TemplateBDRPartNode(self):
         return Template("select bdr.bdr_part_by_node_names('{#node_name#}')")
 
+    # only in BDR < 3
     def TemplateBDRInsertReplicationSet(self):
         return Template('''INSERT INTO bdr.bdr_replication_set_config (set_name, replicate_inserts, replicate_updates, replicate_deletes)
 VALUES ('set_name', 't', 't', 't')
 ''')
 
+    # only in BDR < 3
     def TemplateBDRUpdateReplicationSet(self):
         return Template('''UPDATE bdr.bdr_replication_set_config SET
 --replicate_inserts = { 't' | 'f' }
@@ -2622,15 +2713,18 @@ VALUES ('set_name', 't', 't', 't')
 WHERE set_name = '#set_name#'
 ''')
 
+    # only in BDR < 3
     def TemplateBDRDeleteReplicationSet(self):
         return Template('''DELETE
 FROM bdr.bdr_replication_set_config
 WHERE set_name = '#set_name#'
 ''')
 
+    # only in BDR < 3
     def TemplateBDRSetTableReplicationSets(self):
         return Template("select bdr.table_set_replication_sets('#table_name#', '{repset1,repset2,...}')")
 
+    # only in BDR < 3
     def TemplateBDRCreateConflictHandler(self):
         return Template('''CREATE OR REPLACE FUNCTION #table_name#_fnc_conflict_handler (
   row1 #table_name#,
@@ -2661,17 +2755,19 @@ from bdr.bdr_create_conflict_handler(
 )
 ''')
 
+    # only in BDR < 3
     def TemplateBDRDropConflictHandler(self):
         return Template("select bdr.bdr_drop_conflict_handler('#table_name#', '#ch_name#')")
 
-    # only in BDR >= 1
-
+    # only in BDR >= 1 and BDR < 3
     def TemplateBDRTerminateApplyWorkers(self):
         return Template("select bdr.terminate_apply_workers('{#node_name#}')")
 
+    # only in BDR >= 1 and BDR < 3
     def TemplateBDRTerminateWalsenderWorkers(self):
         return Template("select bdr.terminate_walsender_workers('{#node_name#}')")
 
+    # only in BDR >= 1 and BDR < 3
     def TemplateBDRRemove(self):
         return Template('''select bdr.remove_bdr_from_local_node(
 force := False

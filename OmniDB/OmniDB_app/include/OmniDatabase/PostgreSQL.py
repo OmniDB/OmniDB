@@ -127,12 +127,16 @@ class PostgreSQL:
 			"CASCADE"
         ]
         self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
+        self.v_version = ''
+        self.v_version_num = ''
 
     def GetName(self):
         return self.v_service
 
     def GetVersion(self):
-        return 'PostgreSQL ' + self.v_connection.ExecuteScalar('show server_version')
+        self.v_version = self.v_connection.ExecuteScalar('show server_version')
+        self.v_version_num = self.v_connection.ExecuteScalar('show server_version_num')
+        return 'PostgreSQL ' + self.v_version
 
     def GetUserSuper(self):
         return self.v_connection.ExecuteScalar("select rolsuper from pg_roles where rolname = '{0}'".format(self.v_user))
@@ -791,7 +795,7 @@ class PostgreSQL:
                 v_filter = "and quote_ident(np.nspname) not in ('information_schema','pg_catalog') and quote_ident(cp.relname) = {0}".format(p_table)
             else:
                 v_filter = "and quote_ident(np.nspname) not in ('information_schema','pg_catalog') "
-        if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
+        if int(self.v_version_num) >= 100000:
             return self.v_connection.Query('''
                 select quote_ident(np.nspname) as parent_schema,
                        quote_ident(cp.relname) as parent_table,
@@ -2211,7 +2215,7 @@ ON #table_name#
         return Template('''SELECT pg_drop_replication_slot('#slot_name#')''')
 
     def TemplateCreateLogicalReplicationSlot(self):
-        if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
+        if int(self.v_version_num) >= 100000:
             return Template('''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'pgoutput')''')
         else:
             return Template('''SELECT * FROM pg_create_logical_replication_slot('slot_name', 'test_decoding')''')
@@ -2823,7 +2827,7 @@ force := False
 ''')
 
     def TemplateXLCreateGroup(self):
-        if 'XL' in self.GetVersion():
+        if 'XL' in self.v_version:
             v_text = '''-- This command needs to be executed in all nodes.
 -- Please adjust the parameters in all commands below.
 
@@ -2838,7 +2842,7 @@ force := False
         return Template(v_text)
 
     def TemplateXLDropGroup(self):
-        if 'XL' in self.GetVersion():
+        if 'XL' in self.v_version:
             v_text = '''-- This command needs to be executed in all nodes.
 
 '''
@@ -2852,7 +2856,7 @@ force := False
         return Template(v_text)
 
     def TemplateXLCreateNode(self):
-        if 'XL' in self.GetVersion():
+        if 'XL' in self.v_version:
             v_text = '''-- This command needs to be executed in all nodes.
 -- Please adjust the parameters in all commands below.
 
@@ -2873,7 +2877,7 @@ PORT = portnum
         return Template(v_text)
 
     def TemplateXLAlterNode(self):
-        if 'XL' in self.GetVersion():
+        if 'XL' in self.v_version:
             v_text = '''-- This command needs to be executed in all nodes.
 -- Please adjust the parameters in all commands below.
 
@@ -2902,7 +2906,7 @@ PORT = portnum
         return Template('EXECUTE DIRECT ON (#node_name#) \'SELECT pgxc_pool_reload()\'')
 
     def TemplateXLDropNode(self):
-        if 'XL' in self.GetVersion():
+        if 'XL' in self.v_version:
             v_text = '''-- This command needs to be executed in all nodes.
 
 '''
@@ -3114,7 +3118,7 @@ TO NODE ( nodename [, ... ] )
             where quote_ident(n.nspname) = '{0}'
               and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object)).Transpose('Property', 'Value')
-        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
+        if int(self.v_version_num) < 100000:
             v_table2 = self.v_connection.Query('''
                 select last_value as "Last Value",
                        start_value as "Start Value",
@@ -3161,7 +3165,7 @@ TO NODE ( nodename [, ... ] )
         '''.format(p_schema, p_object))
 
     def GetPropertiesFunction(self, p_object):
-        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+        if int(self.v_version_num) < 90600:
             return self.v_connection.Query('''
                 select current_database() as "Database",
                        n.nspname as "Schema",

@@ -1042,8 +1042,8 @@ iframe {
   position: absolute;
   margin-top: 30px;
   margin-left: 5px;
-  width: 650px;
-  height: 300px;
+  width: 900px;
+  height: 500px;
   padding: 5px 5px;
   border-radius: 3px;
   background-color: #f9f9f9;
@@ -1093,8 +1093,8 @@ iframe {
 
 .connection_grid {
   position: relative;
-  width: 650px;
-  height: 250px;
+  width: 900px;
+  height: 450px;
   overflow: auto;
   margin-top: 5px;
 }
@@ -1204,7 +1204,7 @@ h2 {
   position: absolute;
   margin-top: 35px;
   margin-left: 10px;
-  width: 650px;
+  width: 900px;
   padding: 5px;
   border-radius: 3px;
   background-color: #f9f9f9;

@@ -1,0 +1,74 @@
+div.welcome_release_header {
+    position: relative;
+    text-align: center;
+    width: 240px;
+    margin: auto;
+}
+div.welcome_release_header img {
+    display: inline-block;
+    padding-bottom: 28px;
+}
+div.welcome_release_header h3 {
+    position: absolute;
+    bottom: 15px;
+    left: 85px;
+    color: #a2a2a2;
+    font-size: 12px;
+    font-family: mono;
+}
+section.welcome_release_content h2 {
+  font-size: 24px;
+  font-family: mono;
+  text-transform: uppercase;
+  font-weight: 400;
+  width: 540px;
+  margin: auto;
+  background-color: #7dabf3;
+  color: #FFFFFF;
+  padding: 8px 17px;
+}
+div.welcome_release_container {
+    text-align: center;
+}
+ul.welcome_release_list {
+    display: inline-block;
+    padding: 0px 0px 0px 32px;
+    margin: 0px auto;
+    width: 540px;
+    border-left: 1px solid #7dabf3;
+}
+li.welcome_release_item {
+    margin: 8px;
+    display: block;
+    position: relative;
+    text-align: left;
+}
+li.welcome_release_item::before {
+    display: block;
+    content: " ";
+    width: 67px;
+    height: 1px;
+    background-color: #7dabf3;
+    position: absolute;
+    left: -40px;
+    top: 29px;
+    z-index: 1;
+}
+li.welcome_release_item span::before {
+    position: absolute;
+    display: block;
+    content: " ";
+    width: 7px;
+    height: 7px;
+    background-color: #7dabf3;
+    top: 19px;
+    left: 15px;
+}
+li.welcome_release_item span {
+    font-size: 14px;
+    background: #f6f6f6;
+    padding: 12px 12px 12px 32px;
+    margin: 8px;
+    display: inline-block;
+    position: relative;
+}

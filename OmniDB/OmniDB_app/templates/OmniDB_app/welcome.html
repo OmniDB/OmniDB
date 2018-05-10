@@ -2,7 +2,7 @@
 <head>
   <title>OmniDB</title>
   <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.6.0.1"/>
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/welcome.css?v2.7.0"/>
   <style>
     img {
       margin-top: 20px;
@@ -10,23 +10,28 @@
   </style>
 </head>
 <body style="text-align: center;">
-  <img src="/static/OmniDB_app/images/omnidb_big_2.png"/>
-  <h3>v{{ omnidb_short_version }}</h3>
-  <h2>Release notes:</h2>
-    <div><div class="welcome_release_item">Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2</div></div>
-    <div><div class="welcome_release_item">Management of multiple databases in the same connection</div></div>
-    <div><div class="welcome_release_item">Debugger plugin can now be installed in PostgreSQL hosted on Windows</div></div>
-    <div><div class="welcome_release_item">Improved security for omnidb-server when running with SSL</div></div>
-    <div><div class="welcome_release_item">New button to reload the source code of the function in the debugger interface</div></div>
-    <div><div class="welcome_release_item">Other improvements to the debugger interface</div></div>
-    <div><div class="welcome_release_item">Improved security for debugger</div></div>
-    <div><div class="welcome_release_item">Commands \?, \x and \timing for Console Tab for Oracle, MySQL and MariaDB</div></div>
-    <div><div class="welcome_release_item">Console status showing number of rows affected in Console Tab for Oracle, MySQL and MariaDB</div></div>
-    <div><div class="welcome_release_item">"Analyze" action for tables and materialized views for PostgreSQL</div></div>
-    <div><div class="welcome_release_item">"Truncate" action for tables for PostgreSQL</div></div>
-    <div><div class="welcome_release_item">UI and editor themes can be applied on-the-fly</div></div>
-    <div><div class="welcome_release_item">Dark theme for charts</div></div>
-    <div><div class="welcome_release_item">Support to quoted identifiers on Oracle</div></div>
+  <div class="welcome_release_header">
+    <img src="/static/OmniDB_app/images/omnidb_big_2.png">
+    <h3>v{{ omnidb_short_version }}</h3>
+  </div>
+  <section class="welcome_release_content">
+    <h2>Release notes</h2>
+    <div class="welcome_release_container">
+      <ul class="welcome_release_list">
+        <li class="welcome_release_item"><span>Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2</span></li>
+        <li class="welcome_release_item"><span>Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2</span></li>
+        <li class="welcome_release_item"><span>Maecenas mollis ex ut ipsum aliquet fermentum. Proin varius, tellus eget blandit tempus, metus nibh ultricies enim, id porttitor libero diam at velit. Nam non odio rutrum, euismod ante id, viverra velit. Nulla scelerisque tortor nec tortor ultricies, sed luctus elit feugiat. Phasellus arcu nulla, ullamcorper quis eleifend sed, rutrum id enim.</span></li>
+        <li class="welcome_release_item"><span>ab</span></li>
+        <li class="welcome_release_item"><span>c</span></li>
+        <li class="welcome_release_item"><span>Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2</span></li>
+        <li class="welcome_release_item"><span>Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2</span></li>
+        <li class="welcome_release_item"><span>Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2</span></li>
+        <li class="welcome_release_item"><span>Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2</span></li>
+        <li class="welcome_release_item"><span>Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2</span></li>
+        <li class="welcome_release_item"><span>Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2</span></li>
+      </ul>
+    </div>
+  </section>
 
 </body>
 </html>

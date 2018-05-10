@@ -114,7 +114,6 @@ def sign_in_automatic(request, username, pwd):
             try:
                 request.session.save()
             except Exception as exc:
-                print('exception, creating')
                 request.session.create()
 
             logger.info('User "{0}" logged in.'.format(username))

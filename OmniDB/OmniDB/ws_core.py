@@ -13,7 +13,6 @@ import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
-import time
 
 from enum import IntEnum
 from datetime import datetime
@@ -498,11 +497,26 @@ def thread_query(self,args,ws_object):
 
         log_start_time = datetime.now()
         log_status = 'success'
-        print('STARTING QUERY')
 
         v_inserted_id = None
         try:
-
+            #insert new tab record
+            if not v_tab_object['tab_db_id'] and not v_tab_object['inserted_tab'] and v_log_query:
+                try:
+                    v_omnidb_database.v_connection.Open()
+                    v_omnidb_database.v_connection.Execute('''
+                    insert into tabs (conn_id,user_id,tab_id,snippet)
+                    values
+                    ({0},{1},(select coalesce(max(tab_id), 0) + 1 from tabs),'{2}')
+                    '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, ws_object.v_session.v_user_id, v_tab_object['sql_save'].replace("'","''")))
+                    v_inserted_id = v_omnidb_database.v_connection.ExecuteScalar('''
+                    select coalesce(max(tab_id), 0) from tabs
+                    ''')
+                    v_omnidb_database.v_connection.Close()
+                    v_tab_object['inserted_tab'] = True
+                    v_inserted_tab = True
+                except Exception as exc:
+                    None
 
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
@@ -541,6 +555,7 @@ def thread_query(self,args,ws_object):
                 }
 
             else:
+
                 if v_mode==0:
                     v_database.v_connection.Open()
 
@@ -563,7 +578,6 @@ def thread_query(self,args,ws_object):
 
                 log_end_time = datetime.now()
                 v_duration = GetDuration(log_start_time,log_end_time)
-                print('ENDING QUERY')
 
                 v_response['v_data'] = {
                     'v_col_names' : v_data1.Columns,
@@ -592,7 +606,6 @@ def thread_query(self,args,ws_object):
 
         if not self.cancel:
             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
-            print('SENT')
 
         #Log to history
         if v_mode==0 and v_log_query:

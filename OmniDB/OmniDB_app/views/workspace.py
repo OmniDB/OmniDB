@@ -292,7 +292,6 @@ def get_database_list(request):
             v_existing_tabs.append({'index': v_tab['conn_id'], 'snippet': v_tab['snippet'], 'tab_db_id': v_tab['tab_id']})
 
     except Exception as exc:
-        print(exc)
         None
 
     v_return['v_data'] = {

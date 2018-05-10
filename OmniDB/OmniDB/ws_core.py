@@ -82,7 +82,7 @@ def closeTabHandler(ws_object,p_tab_object_id):
         tab_object = ws_object.v_list_tab_objects[p_tab_object_id]
         if tab_object['type'] == 'query':
             try:
-                tab_object['omnidatabase'].v_connection.Cancel()
+                tab_object['omnidatabase'].v_connection.Cancel(False)
             except Exception:
                 None
             try:
@@ -92,7 +92,7 @@ def closeTabHandler(ws_object,p_tab_object_id):
         elif tab_object['type'] == 'debug':
             tab_object['cancelled'] = True
             try:
-                tab_object['omnidatabase_control'].v_connection.Cancel()
+                tab_object['omnidatabase_control'].v_connection.Cancel(False)
             except Exception:
                 None
             try:
@@ -146,9 +146,8 @@ def thread_dispatcher(self,args,ws_object):
                 try:
                     thread_data = ws_object.v_list_tab_objects[v_data]
                     if thread_data:
-
                         thread_data['thread'].stop()
-                        thread_data['omnidatabase'].v_connection.Cancel()
+                        thread_data['omnidatabase'].v_connection.Cancel(False)
                 except Exception as exc:
                     None;
 
@@ -192,19 +191,8 @@ def thread_dispatcher(self,args,ws_object):
                         try:
                             tab_object = ws_object.v_list_tab_objects[v_data['v_tab_id']]
                         except Exception as exc:
-                            v_database = v_session.v_databases[v_data['v_db_index']]['database']
-                            v_database_new = OmniDatabase.Generic.InstantiateDatabase(
-                                v_database.v_db_type,
-                                v_database.v_server,
-                                v_database.v_port,
-                                v_database.v_service,
-                                v_database.v_user,
-                                v_database.v_connection.v_password,
-                                v_database.v_conn_id,
-                                v_database.v_alias
-                            )
                             tab_object =  { 'thread': None,
-                                         'omnidatabase': v_database_new,
+                                         'omnidatabase': None,
                                          'database_index': -1,
                                          'inserted_tab': False }
                             ws_object.v_list_tab_objects[v_data['v_tab_id']] = tab_object
@@ -215,16 +203,15 @@ def thread_dispatcher(self,args,ws_object):
                             #create database object
                             if (tab_object['database_index']!=v_data['v_db_index'] or
                             v_conn_tab_connection.v_db_type!=tab_object['omnidatabase'].v_db_type or
-                            v_conn_tab_connection.v_server!=tab_object['omnidatabase'].v_server or
-                            v_conn_tab_connection.v_port!=tab_object['omnidatabase'].v_port or
+                            v_conn_tab_connection.v_connection.v_host!=tab_object['omnidatabase'].v_connection.v_host or
+                            str(v_conn_tab_connection.v_connection.v_port)!=str(tab_object['omnidatabase'].v_connection.v_port) or
                             v_conn_tab_connection.v_service!=tab_object['omnidatabase'].v_service or
                             v_conn_tab_connection.v_user!=tab_object['omnidatabase'].v_user or
                             v_conn_tab_connection.v_connection.v_password!=tab_object['omnidatabase'].v_connection.v_password):
-                                v_database = v_session.v_databases[v_data['v_db_index']]['database']
                                 v_database_new = OmniDatabase.Generic.InstantiateDatabase(
                                     v_conn_tab_connection.v_db_type,
-                                    v_conn_tab_connection.v_server,
-                                    v_conn_tab_connection.v_port,
+                                    v_conn_tab_connection.v_connection.v_host,
+                                    str(v_conn_tab_connection.v_connection.v_port),
                                     v_conn_tab_connection.v_service,
                                     v_conn_tab_connection.v_user,
                                     v_conn_tab_connection.v_connection.v_password,
@@ -1254,7 +1241,7 @@ def thread_debug(self,args,ws_object):
         #Cancelling debugger, the thread executing the function will return the cancel status
         elif v_state == debugState.Cancel:
             v_tab_object['cancelled'] = True
-            v_database_control.v_connection.Cancel()
+            v_database_control.v_connection.Cancel(False)
             v_database_control.v_connection.Terminate(v_tab_object['debug_pid'])
             v_database_control.v_connection.Close()
 

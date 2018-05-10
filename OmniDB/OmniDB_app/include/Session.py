@@ -70,26 +70,36 @@ class Session(object):
             #Create tunnel if enabled
             if self.v_databases[p_database_index]['tunnel']['enabled']:
                 v_create_tunnel = False
+                print('TUNNELS: ')
+                for k in list(tunnels.keys()):
+                    print(k)
                 if self.v_databases[p_database_index]['tunnel_object'] != None:
+                    print('TUNNEL EXISTS')
                     try:
+                        result = 0
                         v_tunnel_object = tunnels[self.v_databases[p_database_index]['database'].v_conn_id]
-                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        result = sock.connect_ex(('127.0.0.1',v_tunnel_object.local_bind_port))
-                        if result != 0:
+                        print(v_tunnel_object.is_active)
+                        print(v_tunnel_object.tunnel_is_up)
+                        if not v_tunnel_object.is_active:
+                            v_tunnel_object.stop()
+                            print('STOPPED')
                             v_create_tunnel = True
                     except Exception as exc:
+                        print(str(exc))
+                        print('TUNNEL STATUS IS ' + str(result))
                         v_create_tunnel = True
                         None
 
                 if self.v_databases[p_database_index]['tunnel_object'] == None or v_create_tunnel:
                     try:
+                        print('NEED NEW TUNNEL')
                         if self.v_databases[p_database_index]['tunnel']['key'].strip() != '':
                             v_file_name = '{0}'.format(str(time.time())).replace('.','_')
                             v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
                             with open(v_full_file_name,'w') as f:
                                 f.write(self.v_databases[p_database_index]['tunnel']['key'])
                             server = SSHTunnelForwarder(
-                                (self.v_databases[p_database_index]['tunnel']['server'], int(self.v_databases[p_database_index]['tunnel']['port'])),
+                                (self.v_databases[p_database_index]['database'].v_server, int(self.v_databases[p_database_index]['tunnel']['port'])),
                                 ssh_username=self.v_databases[p_database_index]['tunnel']['user'],
                                 ssh_private_key_password=self.v_databases[p_database_index]['tunnel']['password'],
                                 ssh_pkey = v_full_file_name,
@@ -97,7 +107,7 @@ class Session(object):
                             )
                         else:
                             server = SSHTunnelForwarder(
-                                (self.v_databases[p_database_index]['tunnel']['server'], int(self.v_databases[p_database_index]['tunnel']['port'])),
+                                (self.v_databases[p_database_index]['database'].v_server, int(self.v_databases[p_database_index]['tunnel']['port'])),
                                 ssh_username=self.v_databases[p_database_index]['tunnel']['user'],
                                 ssh_password=self.v_databases[p_database_index]['tunnel']['password'],
                                 remote_bind_address=('127.0.0.1', int(self.v_databases[p_database_index]['database'].v_port))
@@ -185,10 +195,6 @@ class Session(object):
 
             #SSH Tunnel information
             try:
-                v_ssh_server = self.v_cryptor.Decrypt(r["ssh_server"])
-            except Exception as exc:
-                v_ssh_server = r["ssh_server"]
-            try:
                 v_ssh_port = self.v_cryptor.Decrypt(r["ssh_port"])
             except Exception as exc:
                 v_ssh_port = r["ssh_port"]
@@ -211,7 +217,6 @@ class Session(object):
 
             tunnel_information = {
                 'enabled': False,
-                'server': v_ssh_server,
                 'port': v_ssh_port,
                 'user': v_ssh_user,
                 'password': v_ssh_password,

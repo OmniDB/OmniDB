@@ -60,7 +60,7 @@ function dropConnection() {
 function newConnection() {
 
 	var v_data = v_connections_data.ht.getData();
-	v_data.push(['postgresql','','','','','','<input type="checkbox" onchange="changeTunnelCheckbox(this)"/><img style="vertical-align: text-bottom;" title="Configure Tunnel" src="/static/OmniDB_app/images/configure.png" class="img_ht" onclick="showTunnelWindow()"/>','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
+	v_data.push(['postgresql','','','','','',false,'22','','','','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
 	v_connections_data.v_conn_ids.push({
 		'id': -1,
 		'mode': 2,
@@ -233,12 +233,13 @@ function saveConnections(p_callback) {
 		if (v_connections_data.v_conn_ids[i].mode!=0) {
 			v_conn_id_list.push(v_connections_data.v_conn_ids[i])
 			var v_temp_row = v_connections_data.ht.getDataAtRow(i)
-			v_data_list.push([v_temp_row[0],v_temp_row[1],v_temp_row[2],v_temp_row[3],v_temp_row[4],v_temp_row[5]])
+			v_data_list.push([v_temp_row[0],v_temp_row[1],v_temp_row[2],v_temp_row[3],v_temp_row[4],v_temp_row[5],v_temp_row[6],v_temp_row[7],v_temp_row[8],v_temp_row[9],v_temp_row[10]])
 		}
 	}
 
 
 	var input = JSON.stringify({"p_data_list": v_data_list, "p_conn_id_list": v_conn_id_list});
+
 
 	execAjax('/save_connections/',
 			input,
@@ -310,9 +311,27 @@ function showConnectionList() {
 
 				var col = new Object();
 				col.title =  'SSH Tunnel';
-				col.renderer = 'html';
-				col.readOnly = true;
+				col.type = "checkbox",
+				col.checkedTemplate = true,
+        col.uncheckedTemplate = false
 				col.width = '80'
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'SSH Port';
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'SSH User';
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'SSH Password';
+				col.type = "password",
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'SSH Key';
 				columnProperties.push(col);
 
 				var col = new Object();

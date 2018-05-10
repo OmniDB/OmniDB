@@ -1042,8 +1042,8 @@ iframe {
   position: absolute;
   margin-top: 30px;
   margin-left: 5px;
-  width: 650px;
-  height: 300px;
+  width: 900px;
+  height: 500px;
   padding: 5px 5px;
   border-radius: 3px;
   background-color: #f9f9f9;
@@ -1093,8 +1093,8 @@ iframe {
 
 .connection_grid {
   position: relative;
-  width: 650px;
-  height: 250px;
+  width: 900px;
+  height: 450px;
   overflow: auto;
   margin-top: 5px;
 }
@@ -1198,22 +1198,4 @@ h2 {
   border-bottom: 1px dashed #c3c3c3;
   padding-bottom: 5px;
   margin-top: 5px;
-}
-
-.ssh_tunnel_window {
-  position: absolute;
-  margin-top: 35px;
-  margin-left: 10px;
-  width: 650px;
-  padding: 5px;
-  border-radius: 3px;
-  background-color: #f9f9f9;
-  z-index: 1000;
-}
-
-.ssh_tunnel_window textarea {
-  border-radius: 2px;
-  border: solid #d5d5d5 1px;
-  padding: 6px;
-  background-color: white;
 }

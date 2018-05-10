@@ -1045,7 +1045,6 @@ class PostgreSQL(Generic):
             if not v_keep:
                 self.Close()
     def ExecuteScalar(self, p_sql):
-        print(p_sql)
         try:
             v_keep = None
             if self.v_con is None:

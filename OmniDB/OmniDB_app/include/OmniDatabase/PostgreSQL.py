@@ -795,7 +795,7 @@ class PostgreSQL:
                 v_filter = "and quote_ident(np.nspname) not in ('information_schema','pg_catalog') and quote_ident(cp.relname) = {0}".format(p_table)
             else:
                 v_filter = "and quote_ident(np.nspname) not in ('information_schema','pg_catalog') "
-        if int(self.v_version_num) >= 100000:
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
             return self.v_connection.Query('''
                 select quote_ident(np.nspname) as parent_schema,
                        quote_ident(cp.relname) as parent_table,
@@ -3118,7 +3118,7 @@ TO NODE ( nodename [, ... ] )
             where quote_ident(n.nspname) = '{0}'
               and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object)).Transpose('Property', 'Value')
-        if int(self.v_version_num) < 100000:
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
             v_table2 = self.v_connection.Query('''
                 select last_value as "Last Value",
                        start_value as "Start Value",
@@ -3165,7 +3165,7 @@ TO NODE ( nodename [, ... ] )
         '''.format(p_schema, p_object))
 
     def GetPropertiesFunction(self, p_object):
-        if int(self.v_version_num) < 90600:
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
             return self.v_connection.Query('''
                 select current_database() as "Database",
                        n.nspname as "Schema",

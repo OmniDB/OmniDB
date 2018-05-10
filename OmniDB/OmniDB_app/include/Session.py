@@ -70,29 +70,19 @@ class Session(object):
             #Create tunnel if enabled
             if self.v_databases[p_database_index]['tunnel']['enabled']:
                 v_create_tunnel = False
-                print('TUNNELS: ')
-                for k in list(tunnels.keys()):
-                    print(k)
                 if self.v_databases[p_database_index]['tunnel_object'] != None:
-                    print('TUNNEL EXISTS')
                     try:
                         result = 0
                         v_tunnel_object = tunnels[self.v_databases[p_database_index]['database'].v_conn_id]
-                        print(v_tunnel_object.is_active)
-                        print(v_tunnel_object.tunnel_is_up)
                         if not v_tunnel_object.is_active:
                             v_tunnel_object.stop()
-                            print('STOPPED')
                             v_create_tunnel = True
                     except Exception as exc:
-                        print(str(exc))
-                        print('TUNNEL STATUS IS ' + str(result))
                         v_create_tunnel = True
                         None
 
                 if self.v_databases[p_database_index]['tunnel_object'] == None or v_create_tunnel:
                     try:
-                        print('NEED NEW TUNNEL')
                         if self.v_databases[p_database_index]['tunnel']['key'].strip() != '':
                             v_file_name = '{0}'.format(str(time.time())).replace('.','_')
                             v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)

@@ -272,7 +272,7 @@ def get_database_list(request):
         if not v_database_object['tunnel']['enabled']:
             v_details = v_database.PrintDatabaseDetails()
         else:
-            v_details = v_database_object['tunnel']['server'] + ':' + v_database.v_port + ' <b>(SSH Tunnel)</b>'
+            v_details = v_database_object['database'].v_server + ':' + v_database.v_port + ' <b>(SSH Tunnel)</b>'
 
         v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
         v_index = v_index + 1
@@ -292,7 +292,6 @@ def get_database_list(request):
             v_existing_tabs.append({'index': v_tab['conn_id'], 'snippet': v_tab['snippet'], 'tab_db_id': v_tab['tab_id']})
 
     except Exception as exc:
-        print(exc)
         None
 
     v_return['v_data'] = {

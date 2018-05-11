@@ -709,7 +709,10 @@ def thread_console(self,args,ws_object):
                 'v_data' : v_data_return,
                 'v_duration': v_duration
             }
-            v_database.v_connection.ClearNotices()
+            try:
+                v_database.v_connection.ClearNotices()
+            except Exception:
+                None
         except Exception as exc:
             #try:
             #    v_database.v_connection.Close()
@@ -948,7 +951,7 @@ def thread_save_edit_data(self,args,ws_object):
                         if v_value == '':
                             v_command = v_command + 'null'
                         else:
-                            v_command = v_command + v_columns[j-1]['v_writeformat'].replace('#', v_value)
+                            v_command = v_command + v_columns[j-1]['v_writeformat'].replace('#', v_value.replace("'", "''"))
                     else:
                         v_command = v_command + v_columns[j-1]['v_writeformat'].replace('#', v_value.replace("'", "''"))
 

@@ -125,7 +125,6 @@ class Session(object):
 
                     except Exception as exc:
                         return { 'timeout': True, 'message': str(exc)}
-
             #Reached timeout, must request password
             if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_TOTAL):
                 #Try passwordless connection
@@ -145,7 +144,6 @@ class Session(object):
                 s = SessionStore(session_key=self.v_user_key)
                 s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
                 s.save()
-
             return { 'timeout': False, 'message': ''}
 
     def GetSelectedDatabase(self):

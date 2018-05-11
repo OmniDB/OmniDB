@@ -1302,6 +1302,8 @@ function getTreePostgresql(p_div) {
                 text: 'Drop Primary Key',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
+                  print(node.parent.parent
+                  .parent.parent.text)
                     tabSQLTemplate('Drop Primary Key', node.tree
                         .tag.drop_primarykey.replace(
                             '#table_name#', node.parent.parent

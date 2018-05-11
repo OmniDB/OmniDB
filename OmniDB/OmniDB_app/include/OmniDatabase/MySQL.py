@@ -226,7 +226,8 @@ class MySQL:
                    c.is_nullable as nullable,
                    c.character_maximum_length as data_length,
                    c.numeric_precision as data_precision,
-                   c.numeric_scale as data_scale
+                   c.numeric_scale as data_scale,
+                   c.ordinal_position
             from information_schema.columns c,
                  information_schema.tables t
             where t.table_name = c.table_name
@@ -344,7 +345,8 @@ class MySQL:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         v_filter = "and concat('pk_', t.table_name) = '{0}' ".format(p_pkey)
         return self.v_connection.Query('''
-            select distinct k.column_name
+            select distinct k.column_name,
+                   k.ordinal_position
             from information_schema.table_constraints t
             join information_schema.key_column_usage k
             using (constraint_name, table_schema, table_name)
@@ -394,7 +396,8 @@ class MySQL:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         v_filter = "and t.constraint_name = '{0}' ".format(p_unique)
         return self.v_connection.Query('''
-            select distinct k.column_name
+            select distinct k.column_name,
+                   k.ordinal_position
             from information_schema.table_constraints t
             join information_schema.key_column_usage k
             using (constraint_name, table_schema, table_name)
@@ -425,9 +428,7 @@ class MySQL:
             from information_schema.statistics t
             where 1 = 1
             {0}
-            order by t.table_schema,
-                     t.table_name,
-                     t.index_name
+            order by 1, 2, 3
         '''.format(v_filter), True)
 
     def QueryTablesIndexesColumns(self, p_index, p_table=None, p_all_schemas=False, p_schema=None):
@@ -446,7 +447,8 @@ class MySQL:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         v_filter = "and (case when t.index_name = 'PRIMARY' then concat('pk_', t.table_name) else t.index_name end) = '{0}' ".format(p_index)
         return self.v_connection.Query('''
-            select distinct t.column_name
+            select distinct t.column_name,
+                   t.seq_in_index
             from information_schema.statistics t
             where 1 = 1
             {0}
@@ -617,7 +619,8 @@ class MySQL:
                    c.is_nullable as nullable,
                    c.character_maximum_length as data_length,
                    c.numeric_precision as data_precision,
-                   c.numeric_scale as data_scale
+                   c.numeric_scale as data_scale,
+                   c.ordinal_position
             from information_schema.columns c,
                  information_schema.tables t
             where t.table_name = c.table_name

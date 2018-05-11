@@ -25,6 +25,7 @@ SOFTWARE.
 from collections import OrderedDict
 from abc import ABC, abstractmethod
 import datetime
+import decimal
 import math
 
 import OmniDB_app.include.Spartacus as Spartacus
@@ -95,7 +96,7 @@ class DataTable(object):
                 raise Spartacus.Database.Exception('Can not merge tables with different columns.')
         else:
             raise Spartacus.Database.Exception('Can not merge tables with no columns.')
-    def Compare(self, p_datatable, p_pkcols, p_statuscolname, p_diffcolname, p_keepequal=False):
+    def Compare(self, p_datatable, p_pkcols, p_statuscolname, p_diffcolname, p_ordered=False, p_keepequal=False):
         if len(self.Columns) > 0 and len(p_datatable.Columns) > 0:
             if self.Columns == p_datatable.Columns:
                 v_table = DataTable()
@@ -103,60 +104,130 @@ class DataTable(object):
                     v_table.AddColumn(c)
                 v_table.AddColumn(p_statuscolname)
                 v_table.AddColumn(p_diffcolname)
-                for r1 in self.Rows:
-                    v_pkmatch = False
-                    for r2 in p_datatable.Rows:
-                        v_pkmatch = True
+                if p_ordered:
+                    k1 = 0
+                    k2 = 0
+                    while k1 < len(self.Rows) and k2 < len(p_datatable.Rows):
+                        r1 = self.Rows[k1]
+                        r2 = self.Rows[k2]
+                        pklist1 = []
+                        pklist2 = []
                         for pkcol in p_pkcols:
-                            if r1[pkcol] != r2[pkcol]:
-                                v_pkmatch = False
-                                break
-                        if v_pkmatch:
-                            break;
-                    if v_pkmatch:
-                        v_allmatch = True
-                        v_row = []
-                        v_diff = []
-                        for c in self.Columns:
-                            if r1[c] != r2[c]:
-                                v_row.append('{0} --> {1}'.format(r1[c], r2[c]))
-                                v_diff.append(c)
-                                v_allmatch = False
+                            pklist1.append(str(r1[pkcol]))
+                            pklist2.append(str(r2[pkcol]))
+                        pk1 = '_'.join(pklist1)
+                        pk2 = '_'.join(pklist2)
+                        if pk1 == pk2:
+                            v_allmatch = True
+                            v_row = []
+                            v_diff = []
+                            for c in self.Columns:
+                                if r1[c] != r2[c]:
+                                    v_row.append('{0} --> {1}'.format(r1[c], r2[c]))
+                                    v_diff.append(c)
+                                    v_allmatch = False
+                                else:
+                                    v_row.append(r1[c])
+                            if v_allmatch:
+                                v_row.append('E')
+                                v_row.append('')
+                                if p_keepequal:
+                                    v_table.AddRow(v_row)
                             else:
-                                v_row.append(r1[c])
-                        if v_allmatch:
-                            v_row.append('E')
-                            v_row.append('')
-                            if p_keepequal:
+                                v_row.append('U')
+                                v_row.append(','.join(v_diff))
                                 v_table.AddRow(v_row)
-                        else:
-                            v_row.append('U')
-                            v_row.append(','.join(v_diff))
+                            k1 = k1 + 1
+                            k2 = k2 + 1
+                        elif pk1 < pk2:
+                            v_row = []
+                            for c in self.Columns:
+                                v_row.append(r1[c])
+                            v_row.append('D')
+                            v_row.append('')
                             v_table.AddRow(v_row)
-                    else:
+                            k1 = k1 + 1
+                        else:
+                            v_row = []
+                            for c in p_datatable.Columns:
+                                v_row.append(r2[c])
+                            v_row.append('I')
+                            v_row.append('')
+                            v_table.AddRow(v_row)
+                            k2 = k2 + 1
+                    while k1 < len(self.Rows):
+                        r1 = self.Rows[k1]
                         v_row = []
                         for c in self.Columns:
                             v_row.append(r1[c])
                         v_row.append('D')
                         v_row.append('')
                         v_table.AddRow(v_row)
-                for r2 in p_datatable.Rows:
-                    v_pkmatch = False
-                    for r1 in self.Rows:
-                        v_pkmatch = True
-                        for pkcol in p_pkcols:
-                            if r1[pkcol] != r2[pkcol]:
-                                v_pkmatch = False
-                                break
-                        if v_pkmatch:
-                            break
-                    if not v_pkmatch:
+                        k1 = k1 + 1
+                    while k2 < len(p_datatable.Rows):
+                        r2 = self.Rows[k2]
                         v_row = []
                         for c in p_datatable.Columns:
                             v_row.append(r2[c])
                         v_row.append('I')
                         v_row.append('')
                         v_table.AddRow(v_row)
+                        k2 = k2 + 1
+                else:
+                    for r1 in self.Rows:
+                        v_pkmatch = False
+                        for r2 in p_datatable.Rows:
+                            v_pkmatch = True
+                            for pkcol in p_pkcols:
+                                if r1[pkcol] != r2[pkcol]:
+                                    v_pkmatch = False
+                                    break
+                            if v_pkmatch:
+                                break;
+                        if v_pkmatch:
+                            v_allmatch = True
+                            v_row = []
+                            v_diff = []
+                            for c in self.Columns:
+                                if r1[c] != r2[c]:
+                                    v_row.append('{0} --> {1}'.format(r1[c], r2[c]))
+                                    v_diff.append(c)
+                                    v_allmatch = False
+                                else:
+                                    v_row.append(r1[c])
+                            if v_allmatch:
+                                v_row.append('E')
+                                v_row.append('')
+                                if p_keepequal:
+                                    v_table.AddRow(v_row)
+                            else:
+                                v_row.append('U')
+                                v_row.append(','.join(v_diff))
+                                v_table.AddRow(v_row)
+                        else:
+                            v_row = []
+                            for c in self.Columns:
+                                v_row.append(r1[c])
+                            v_row.append('D')
+                            v_row.append('')
+                            v_table.AddRow(v_row)
+                    for r2 in p_datatable.Rows:
+                        v_pkmatch = False
+                        for r1 in self.Rows:
+                            v_pkmatch = True
+                            for pkcol in p_pkcols:
+                                if r1[pkcol] != r2[pkcol]:
+                                    v_pkmatch = False
+                                    break
+                            if v_pkmatch:
+                                break
+                        if not v_pkmatch:
+                            v_row = []
+                            for c in p_datatable.Columns:
+                                v_row.append(r2[c])
+                            v_row.append('I')
+                            v_row.append('')
+                            v_table.AddRow(v_row)
                 return v_table
             else:
                 raise Spartacus.Database.Exception('Can not compare tables with different columns.')
@@ -944,6 +1015,7 @@ class PostgreSQL(Generic):
             self.v_help.AddRow(['\\timing', '\\timing', 'Toggle timing of commands.'])
             self.v_expanded = False
             self.v_timing = False
+            self.v_types = None
             psycopg2.extras.register_default_json(loads=lambda x: x)
             psycopg2.extras.register_default_jsonb(loads=lambda x: x)
         else:
@@ -984,10 +1056,11 @@ class PostgreSQL(Generic):
             self.v_cur = self.v_con.cursor()
             self.v_start = True
             # PostgreSQL types
-            self.v_cur.execute('select oid, typname from pg_type')
-            self.v_types = dict([(r['oid'], r['typname']) for r in self.v_cur.fetchall()])
-            if not p_autocommit:
-                self.v_con.commit()
+            if self.v_types is None:
+                self.v_cur.execute('select oid, typname from pg_type')
+                self.v_types = dict([(r['oid'], r['typname']) for r in self.v_cur.fetchall()])
+                if not p_autocommit:
+                    self.v_con.commit()
             self.v_con.notices = DataList()
         except Spartacus.Database.Exception as exc:
             raise exc
@@ -1371,6 +1444,36 @@ class MySQL(Generic):
             self.v_timing = False
             self.v_status = 0
             self.v_con_id = 0
+            self.v_types = {
+                0: 'DECIMAL',
+                1: 'TINY',
+                2: 'SHORT',
+                3: 'LONG',
+                4: 'FLOAT',
+                5: 'DOUBLE',
+                6: 'NULL',
+                7: 'TIMESTAMP',
+                8: 'LONGLONG',
+                9: 'INT24',
+                10: 'DATE',
+                11: 'TIME',
+                12: 'DATETIME',
+                13: 'YEAR',
+                14: 'NEWDATE',
+                15: 'VARCHAR',
+                16: 'BIT',
+                245: 'JSON',
+                246: 'NEWDECIMAL',
+                247: 'ENUM',
+                248: 'SET',
+                249: 'TINY_BLOB',
+                250: 'MEDIUM_BLOB',
+                251: 'LONG_BLOB',
+                252: 'BLOB',
+                253: 'VAR_STRING',
+                254: 'STRING',
+                255: 'GEOMETRY'
+            }
         else:
             raise Spartacus.Database.Exception("MySQL is not supported. Please install it with 'pip install Spartacus[mysql]'.")
     def GetConnectionString(self):
@@ -1520,12 +1623,12 @@ class MySQL(Generic):
             if r != None:
                 k = 0
                 for c in self.v_cur.description:
-                    v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=type(r[k])))
+                    v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=self.v_types[c[1]]))
                     k = k + 1
             else:
                 k = 0
                 for c in self.v_cur.description:
-                    v_fields.append(DataField(c[0], p_type=type(None), p_dbtype=type(None)))
+                    v_fields.append(DataField(c[0], p_type=type(None), p_dbtype=self.v_types[c[1]]))
                     k = k + 1
             return v_fields
         except Spartacus.Database.Exception as exc:
@@ -1713,6 +1816,36 @@ class MariaDB(Generic):
             self.v_timing = False
             self.v_status = 0
             self.v_con_id = 0
+            self.v_types = {
+                0: 'DECIMAL',
+                1: 'TINY',
+                2: 'SHORT',
+                3: 'LONG',
+                4: 'FLOAT',
+                5: 'DOUBLE',
+                6: 'NULL',
+                7: 'TIMESTAMP',
+                8: 'LONGLONG',
+                9: 'INT24',
+                10: 'DATE',
+                11: 'TIME',
+                12: 'DATETIME',
+                13: 'YEAR',
+                14: 'NEWDATE',
+                15: 'VARCHAR',
+                16: 'BIT',
+                245: 'JSON',
+                246: 'NEWDECIMAL',
+                247: 'ENUM',
+                248: 'SET',
+                249: 'TINY_BLOB',
+                250: 'MEDIUM_BLOB',
+                251: 'LONG_BLOB',
+                252: 'BLOB',
+                253: 'VAR_STRING',
+                254: 'STRING',
+                255: 'GEOMETRY'
+            }
         else:
             raise Spartacus.Database.Exception("MariaDB is not supported. Please install it with 'pip install Spartacus[mariadb]'.")
     def GetConnectionString(self):
@@ -1862,12 +1995,12 @@ class MariaDB(Generic):
             if r != None:
                 k = 0
                 for c in self.v_cur.description:
-                    v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=type(r[k])))
+                    v_fields.append(DataField(c[0], p_type=type(r[k]), p_dbtype=self.v_types[c[1]]))
                     k = k + 1
             else:
                 k = 0
                 for c in self.v_cur.description:
-                    v_fields.append(DataField(c[0], p_type=type(None), p_dbtype=type(None)))
+                    v_fields.append(DataField(c[0], p_type=type(None), p_dbtype=self.v_types[c[1]]))
                     k = k + 1
             return v_fields
         except Spartacus.Database.Exception as exc:
@@ -2327,9 +2460,13 @@ class Oracle(Generic):
                     self.v_port,
                     self.v_service
                 )
+    def Handler(self, p_cursor, p_name, p_type, p_size, p_precision, p_scale):
+        if p_type == cx_Oracle.NUMBER:
+            return p_cursor.var(str, 100, p_cursor.arraysize, outconverter = decimal.Decimal)
     def Open(self, p_autocommit=True):
         try:
             self.v_con = cx_Oracle.connect(self.GetConnectionString())
+            self.v_con.outputtypehandler = self.Handler
             self.v_cur = self.v_con.cursor()
             self.v_start = True
         except cx_Oracle.Error as exc:

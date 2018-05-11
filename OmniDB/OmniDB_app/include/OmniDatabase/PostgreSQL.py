@@ -906,7 +906,8 @@ class PostgreSQL:
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
-            where format_type(p.prorettype, null) <> 'trigger'
+            where not p.proisagg
+              and format_type(p.prorettype, null) <> 'trigger'
             {0}
             order by 1
         '''.format(v_filter), True)
@@ -997,7 +998,8 @@ class PostgreSQL:
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
-            where format_type(p.prorettype, null) = 'trigger'
+            where not p.proisagg
+              and format_type(p.prorettype, null) = 'trigger'
             {0}
             order by 1
         '''.format(v_filter), True)
@@ -2591,7 +2593,8 @@ replication_set := '#set_name#'
     # only in BDR < 3
     def QueryBDRNodes(self):
         return self.v_connection.Query('''
-            select quote_ident(node_name) as node_name
+            select quote_ident(node_name) as node_name,
+                   bdr.bdr_get_local_node_name() == node_name as node_is_local
             from bdr.bdr_nodes
             where node_status <> 'k'
             order by 1
@@ -2639,7 +2642,8 @@ replication_set := '#set_name#'
     def QueryBDRGroupNodes(self, p_group):
         return self.v_connection.Query('''
             select quote_ident(n.node_name) || (case when l.node_id is not null then ' (local)' else '' end) as node_name,
-                   bdr.peer_state_name(b.local_state) as node_state
+                   bdr.peer_state_name(b.local_state) as node_state,
+                   l.node_id is not null as node_is_local
             from bdr.node b
             inner join bdr.node_group g
             on g.node_group_id = b.node_group_id
@@ -2649,6 +2653,21 @@ replication_set := '#set_name#'
             on l.node_id = n.node_id
             where bdr.peer_state_name(b.local_state) not like '%PART%'
               and g.node_group_name = '{0}'
+            order by 1
+        '''.format(p_group))
+
+    # only in BDR >= 3
+    def QueryBDRGroupTables(self, p_group):
+        return self.v_connection.Query('''
+            select quote_ident(n.nspname) || '.' || quote_ident(c.relname) as table_name
+            from pglogical.replication_set_table t
+            inner join pglogical.replication_set r
+            on r.set_id = t.set_id
+            inner join pg_class c
+            on c.oid = t.set_reloid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where quote_ident(r.set_name) = '{0}'
             order by 1
         '''.format(p_group))
 
@@ -2665,7 +2684,10 @@ replication_set := '#set_name#'
         return Template('select bdr.promote_node()')
 
     def TemplateBDRCreateGroup(self):
-        return Template('''select bdr.bdr_group_create(
+        if int(self.GetBDRVersion()[0]) >= 3:
+            return Template('''select bdr.create_node_group('group_name')''')
+        else:
+            return Template('''select bdr.bdr_group_create(
 local_node_name := 'node_name'
 , node_external_dsn := 'host={0} port={1} dbname={2}'
 , node_local_dsn := 'dbname={2}'
@@ -2675,7 +2697,15 @@ local_node_name := 'node_name'
 '''.format(self.v_server, self.v_port, self.v_service))
 
     def TemplateBDRJoinGroup(self):
-        return Template('''select bdr.bdr_group_join(
+        if int(self.GetBDRVersion()[0]) >= 3:
+            return Template('''select bdr.join_node_group(
+join_target_dsn := 'host= port= dbname='
+, node_group_name := 'group_name'
+--, pause_in_standby := false
+)
+''')
+        else:
+            return Template('''select bdr.bdr_group_join(
 local_node_name := 'node_name'
 , node_external_dsn := 'host={0} port={1} dbname={2}'
 , join_using_dsn := 'host= port= dbname='
@@ -2686,7 +2716,13 @@ local_node_name := 'node_name'
 '''.format(self.v_server, self.v_port, self.v_service))
 
     def TemplateBDRJoinWait(self):
-        return Template('select bdr.bdr_node_join_wait_for_ready()')
+        if int(self.GetBDRVersion()[0]) >= 3:
+            return Template('''select bdr.wait_for_join_completion(
+-- verbose_progress := false
+)
+''')
+        else:
+            return Template('select bdr.bdr_node_join_wait_for_ready()')
 
     # only in BDR < 3
     def TemplateBDRPause(self):
@@ -2697,10 +2733,24 @@ local_node_name := 'node_name'
         return Template('select bdr.bdr_apply_resume()')
 
     def TemplateBDRReplicateDDLCommand(self):
-        return Template("select bdr.bdr_replicate_ddl_command('DDL command here...')")
+        if int(self.GetBDRVersion()[0]) >= 3:
+            return Template('''select bdr.replicate_ddl_command(
+$$ DDL command here... $$
+--, replication_sets := null:text[]
+)
+''')
+        else:
+            return Template("select bdr.bdr_replicate_ddl_command('DDL command here...')")
 
     def TemplateBDRPartNode(self):
-        return Template("select bdr.bdr_part_by_node_names('{#node_name#}')")
+        if int(self.GetBDRVersion()[0]) >= 3:
+            return Template('''select bdr.part_node(
+node_name := '#node_name#'
+--, wait_for_completion := true
+)
+''')
+        else:
+            return Template("select bdr.bdr_part_by_node_names('{#node_name#}')")
 
     # only in BDR < 3
     def TemplateBDRInsertReplicationSet(self):
@@ -2778,6 +2828,23 @@ force := False
 , convert_global_sequences := True
 )
 ''')
+
+    # only in BDR >= 3
+    def TemplateBDRGroupAddTable(self):
+        return Template('''select bdr.replication_set_add_table(
+relation := 'schema.table'::regclass
+--, set_name := '#group_name#'
+--, synchronize_data := true
+--, columns := null::text[]
+--, row_filter := null
+)''')
+
+    # only in BDR >= 3
+    def TemplateBDRGroupRemoveTable(self):
+        return Template('''select bdr.replication_set_remove_table(
+relation := '#table_name#'::regclass
+--, set_name := '#group_name#'
+)''')
 
     def QueryXLNodes(self):
         return self.v_connection.Query('''

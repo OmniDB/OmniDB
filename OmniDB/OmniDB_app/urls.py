@@ -143,6 +143,7 @@ urlpatterns = [
     url(r'^get_bdr_table_conflicthandlers_postgresql/', views.tree_postgresql.get_bdr_table_conflicthandlers, name='get_bdr_table_conflicthandlers'),
     url(r'^get_bdr_groups_postgresql/', views.tree_postgresql.get_bdr_groups, name='get_bdr_groups'),
     url(r'^get_bdr_group_nodes_postgresql/', views.tree_postgresql.get_bdr_group_nodes, name='get_bdr_group_nodes'),
+    url(r'^get_bdr_group_tables_postgresql/', views.tree_postgresql.get_bdr_group_tables, name='get_bdr_group_tables'),
     url(r'^get_xl_nodes_postgresql/', views.tree_postgresql.get_xl_nodes, name='get_xl_nodes'),
     url(r'^get_xl_groups_postgresql/', views.tree_postgresql.get_xl_groups, name='get_xl_groups'),
     url(r'^get_xl_group_nodes_postgresql/', views.tree_postgresql.get_xl_group_nodes, name='get_xl_group_nodes'),

@@ -3653,7 +3653,8 @@ TO NODE ( nodename [, ... ] )
                             ('m','MATERIALIZED VIEW'),
                             ('c','TYPE'),
                             ('t','TOAST'),
-                            ('f','FOREIGN TABLE')
+                            ('f','FOREIGN TABLE'),
+                            ('p','TABLE')
                 ) as cc on cc.column1 = c.relkind
                WHERE c.oid = '{0}.{1}'::regclass
             ),
@@ -3697,7 +3698,7 @@ TO NODE ( nodename [, ... ] )
                LEFT JOIN pg_type t ON t.oid = a.atttypid
                LEFT JOIN pg_collation col ON col.oid = a.attcollation
                JOIN pg_namespace tn ON tn.oid = t.typnamespace
-              WHERE c.relkind IN ('r','v','c','f') AND a.attnum > 0 AND NOT a.attisdropped
+              WHERE c.relkind IN ('r','v','c','f','p') AND a.attnum > 0 AND NOT a.attisdropped
                 AND has_table_privilege(c.oid, 'select') AND has_schema_privilege(s.oid, 'usage')
                 AND c.oid = '{0}.{1}'::regclass
               ORDER BY s.nspname, c.relname, a.attnum
@@ -3841,16 +3842,44 @@ TO NODE ( nodename [, ... ] )
                   end
                   || obj.kind || ' ' || obj.sql_identifier
                   || case obj.kind when 'TYPE' then ' AS' else '' end
+                  || case when c.relispartition
+                  then
+                      E'\n' ||
+                      (SELECT
+                         coalesce(' PARTITION OF ' || string_agg(i.inhparent::regclass::text,', '), '')
+                         FROM pg_inherits i WHERE i.inhrelid = '{0}.{1}'::regclass) ||
+                      E'\n'||
+                        coalesce(' '||(
+                          pg_get_expr(c.relpartbound, c.oid, true)
+                        ),'')
+                  else
+                      E' (\n'||
+                        coalesce(''||(
+                          SELECT coalesce(string_agg('    '||definition,E',\n'),'')
+                            FROM columns WHERE is_local
+                        )||E'\n','')||')'
+                      ||
+                      (SELECT
+                        coalesce(' INHERITS(' || string_agg(i.inhparent::regclass::text,', ') || ')', '')
+                         FROM pg_inherits i WHERE i.inhrelid = '{0}.{1}'::regclass)
+                  end
                   ||
-                  E' (\n'||
-                    coalesce(''||(
-                      SELECT coalesce(string_agg('    '||definition,E',\n'),'')
-                        FROM columns WHERE is_local
-                    )||E'\n','')||')'
-                  ||
-                  (SELECT
-                    coalesce(' INHERITS(' || string_agg(i.inhparent::regclass::text,', ') || ')', '')
-                     FROM pg_inherits i WHERE i.inhrelid = '{0}.{1}'::regclass)
+                  case when c.relkind = 'p' then E'\n' || ' PARTITION BY ' ||
+                  (select (case p.partstrat when 'r' then 'RANGE' when 'l' then 'LIST' end) || ' (' ||
+                          array_to_string(array(
+                   select a.attname
+                   from (
+                   select unnest(partattrs) as partattr
+                   from pg_partitioned_table
+                   where partrelid = '{0}.{1}'::regclass
+                   ) pa
+                   inner join pg_attribute a
+                   on a.attrelid = '{0}.{1}'::regclass
+                   and a.attnum = pa.partattr
+                   ), ',') || ')'
+                   from pg_partitioned_table p
+                   where p.partrelid = '{0}.{1}'::regclass)
+                  else '' end
                   ||
                   CASE relhasoids WHEN true THEN ' WITH OIDS' ELSE '' END
                   ||
@@ -3909,7 +3938,7 @@ TO NODE ( nodename [, ... ] )
                 ||
                  case
                   when obj.kind in ('VIEW','MATERIALIZED VIEW') then (select text from createview)
-                  when obj.kind in ('TABLE','TYPE','FOREIGN TABLE') then (select text from createtable)
+                  when obj.kind in ('TABLE','TYPE','FOREIGN TABLE','PARTITIONED TABLE') then (select text from createtable)
                   when obj.kind in ('SEQUENCE') then (select text from createsequence)
                   when obj.kind in ('INDEX') then (select text from createindex)
                   else '-- UNSUPPORTED CLASS: '||obj.kind

@@ -104,7 +104,7 @@ def get_connections(request):
         v_connection_data_list.append(v_connection.v_user)
         v_connection_data_list.append(v_connection.v_alias)
         v_connection_data_list.append(v_tunnel['enabled'])
-
+        v_connection_data_list.append(v_tunnel['server'])
         v_connection_data_list.append(v_tunnel['port'])
         v_connection_data_list.append(v_tunnel['user'])
         v_connection_data_list.append(v_tunnel['password'])
@@ -180,12 +180,13 @@ def save_connections(request):
                         service = '{3}',
                         user = '{4}',
                         alias = '{5}',
-                        ssh_port = '{6}',
-                        ssh_user = '{7}',
-                        ssh_password = '{8}',
-                        ssh_key = '{9}',
-                        use_tunnel = '{10}'
-                    where conn_id = {11}
+                        ssh_server = '{6}',
+                        ssh_port = '{7}',
+                        ssh_user = '{8}',
+                        ssh_password = '{9}',
+                        ssh_key = '{10}',
+                        use_tunnel = '{11}'
+                    where conn_id = {12}
                 '''.format(
                     r[0],
                     v_cryptor.Encrypt(r[1]),
@@ -197,6 +198,7 @@ def save_connections(request):
                     v_cryptor.Encrypt(r[8]),
                     v_cryptor.Encrypt(r[9]),
                     v_cryptor.Encrypt(r[10]),
+                    v_cryptor.Encrypt(r[11]),
                     v_use_tunnel,
                     conn_id)
                 )
@@ -209,10 +211,11 @@ def save_connections(request):
                 v_session.v_databases[conn_id]['database'].v_alias    = r[5]
 
                 v_session.v_databases[conn_id]['tunnel']['enabled'] = r[6]
-                v_session.v_databases[conn_id]['tunnel']['port'] = r[7]
-                v_session.v_databases[conn_id]['tunnel']['user'] = r[8]
-                v_session.v_databases[conn_id]['tunnel']['password'] = r[9]
-                v_session.v_databases[conn_id]['tunnel']['key'] = r[10]
+                v_session.v_databases[conn_id]['tunnel']['server'] = r[7]
+                v_session.v_databases[conn_id]['tunnel']['port'] = r[8]
+                v_session.v_databases[conn_id]['tunnel']['user'] = r[9]
+                v_session.v_databases[conn_id]['tunnel']['password'] = r[10]
+                v_session.v_databases[conn_id]['tunnel']['key'] = r[11]
 
                 v_index = v_index + 1
 
@@ -250,7 +253,8 @@ def save_connections(request):
                     '{8}',
                     '{9}',
                     '{10}',
-                    '{11}')
+                    '{11}',
+                    '{12}')
                 '''.format(
                     v_session.v_user_id,
                     r[0],
@@ -263,6 +267,7 @@ def save_connections(request):
                     v_cryptor.Encrypt(r[8]),
                     v_cryptor.Encrypt(r[9]),
                     v_cryptor.Encrypt(r[10]),
+                    v_cryptor.Encrypt(r[11]),
                     v_use_tunnel
                 ))
                 v_inserted_id = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
@@ -282,10 +287,11 @@ def save_connections(request):
 
                 tunnel_information = {
                     'enabled': r[6],
-                    'port': r[7],
-                    'user': r[8],
-                    'password': r[9],
-                    'key': r[10]
+                    'server': r[7],
+                    'port': r[8],
+                    'user': r[9],
+                    'password': r[10],
+                    'key': r[11]
                 }
 
                 v_index = v_index + 1

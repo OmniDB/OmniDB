@@ -50,7 +50,11 @@ app.on('window-all-closed', function () {
   if (callback_started) {
     while (django==null)
       null;
-    process.kill(django.pid);
+    try {
+      process.kill(django.pid);
+    }
+    catch (e) {
+    }
   }
   app.quit();
   //}

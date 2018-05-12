@@ -250,19 +250,37 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_schema:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select quote_ident(t.table_name) as table_name,
-                   quote_ident(t.table_schema) as table_schema
-            from information_schema.tables t
-            where t.table_type = 'BASE TABLE'
-            {0}
-            order by 2, 1
-        '''.format(v_filter), True)
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
+            return self.v_connection.Query('''
+                select quote_ident(c.relname) as table_name,
+                       quote_ident(n.nspname) as table_schema,
+                       false as is_partition,
+                       false as is_partitioned
+                from pg_class c
+                inner join pg_namespace n
+                on n.oid = c.relnamespace
+                where c.relkind in ('r', 'p')
+                {0}
+                order by 2, 1
+            '''.format(v_filter), True)
+        else:
+            return self.v_connection.Query('''
+                select quote_ident(c.relname) as table_name,
+                       quote_ident(n.nspname) as table_schema,
+                       c.relispartition as is_partition,
+                       c.relkind = 'p' as is_partitioned
+                from pg_class c
+                inner join pg_namespace n
+                on n.oid = c.relnamespace
+                where c.relkind in ('r', 'p')
+                {0}
+                order by 2, 1
+            '''.format(v_filter), True)
 
     def QueryTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
@@ -3187,45 +3205,99 @@ TO NODE ( nodename [, ... ] )
         '''.format(p_object))
 
     def GetPropertiesTable(self, p_schema, p_object):
-        return self.v_connection.Query('''
-            select current_database() as "Database",
-                   n.nspname as "Schema",
-                   c.relname as "Table",
-                   c.oid as "OID",
-                   r.rolname as "Owner",
-                   pg_size_pretty(pg_relation_size(c.oid)) as "Size",
-                   coalesce(t1.spcname, t2.spcname) as "Tablespace",
-                   c.relacl as "ACL",
-                   c.reloptions as "Options",
-                   pg_relation_filepath(c.oid) as "Filenode",
-                   c.reltuples as "Estimate Count",
-                   c.relhasindex as "Has Index",
-                   (case c.relpersistence when 'p' then 'Permanent' when 'u' then 'Unlogged' when 't' then 'Temporary' end) as "Persistence",
-                   c.relnatts as "Number of Attributes",
-                   c.relchecks as "Number of Checks",
-                   c.relhasoids as "Has OIDs",
-                   c.relhaspkey as "Has Primary Key",
-                   c.relhasrules as "Has Rules",
-                   c.relhastriggers as "Has Triggers",
-                   c.relhassubclass as "Has Subclass"
-            from pg_class c
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            inner join pg_roles r
-            on r.oid = c.relowner
-            left join pg_tablespace t1
-            on t1.oid = c.reltablespace
-            inner join (
-            select t.spcname
-            from pg_database d
-            inner join pg_tablespace t
-            on t.oid = d.dattablespace
-            where d.datname = current_database()
-            ) t2
-            on 1 = 1
-            where quote_ident(n.nspname) = '{0}'
-              and quote_ident(c.relname) = '{1}'
-        '''.format(p_schema, p_object))
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       n.nspname as "Schema",
+                       c.relname as "Table",
+                       c.oid as "OID",
+                       r.rolname as "Owner",
+                       pg_size_pretty(pg_relation_size(c.oid)) as "Size",
+                       coalesce(t1.spcname, t2.spcname) as "Tablespace",
+                       c.relacl as "ACL",
+                       c.reloptions as "Options",
+                       pg_relation_filepath(c.oid) as "Filenode",
+                       c.reltuples as "Estimate Count",
+                       c.relhasindex as "Has Index",
+                       (case c.relpersistence when 'p' then 'Permanent' when 'u' then 'Unlogged' when 't' then 'Temporary' end) as "Persistence",
+                       c.relnatts as "Number of Attributes",
+                       c.relchecks as "Number of Checks",
+                       c.relhasoids as "Has OIDs",
+                       c.relhaspkey as "Has Primary Key",
+                       c.relhasrules as "Has Rules",
+                       c.relhastriggers as "Has Triggers",
+                       c.relhassubclass as "Has Subclass"
+                from pg_class c
+                inner join pg_namespace n
+                on n.oid = c.relnamespace
+                inner join pg_roles r
+                on r.oid = c.relowner
+                left join pg_tablespace t1
+                on t1.oid = c.reltablespace
+                inner join (
+                select t.spcname
+                from pg_database d
+                inner join pg_tablespace t
+                on t.oid = d.dattablespace
+                where d.datname = current_database()
+                ) t2
+                on 1 = 1
+                where quote_ident(n.nspname) = '{0}'
+                  and quote_ident(c.relname) = '{1}'
+            '''.format(p_schema, p_object))
+        else:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       n.nspname as "Schema",
+                       c.relname as "Table",
+                       c.oid as "OID",
+                       r.rolname as "Owner",
+                       pg_size_pretty(pg_relation_size(c.oid)) as "Size",
+                       coalesce(t1.spcname, t2.spcname) as "Tablespace",
+                       c.relacl as "ACL",
+                       c.reloptions as "Options",
+                       pg_relation_filepath(c.oid) as "Filenode",
+                       c.reltuples as "Estimate Count",
+                       c.relhasindex as "Has Index",
+                       (case c.relpersistence when 'p' then 'Permanent' when 'u' then 'Unlogged' when 't' then 'Temporary' end) as "Persistence",
+                       c.relnatts as "Number of Attributes",
+                       c.relchecks as "Number of Checks",
+                       c.relhasoids as "Has OIDs",
+                       c.relhaspkey as "Has Primary Key",
+                       c.relhasrules as "Has Rules",
+                       c.relhastriggers as "Has Triggers",
+                       c.relhassubclass as "Has Subclass",
+                       c.relkind = 'p' as "Is Partitioned",
+                       c.relispartition as "Is Partition",
+                       (case when c.relispartition then po.parent_table else '' end) as "Partition Of"
+                from pg_class c
+                inner join pg_namespace n
+                on n.oid = c.relnamespace
+                inner join pg_roles r
+                on r.oid = c.relowner
+                left join pg_tablespace t1
+                on t1.oid = c.reltablespace
+                inner join (
+                select t.spcname
+                from pg_database d
+                inner join pg_tablespace t
+                on t.oid = d.dattablespace
+                where d.datname = current_database()
+                ) t2
+                on 1 = 1
+                left join (
+                select quote_ident(n2.nspname) || '.' || quote_ident(c2.relname) as parent_table
+                from pg_inherits i
+                inner join pg_class c2
+                on c2.oid = i.inhparent
+                inner join pg_namespace n2
+                on n2.oid = c2.relnamespace
+                where i.inhrelid = '{0}.{1}'::regclass
+                ) po
+                on 1 = 1
+                where quote_ident(n.nspname) = '{0}'
+                  and quote_ident(c.relname) = '{1}'
+            '''.format(p_schema, p_object))
 
     def GetPropertiesIndex(self, p_schema, p_object):
         return self.v_connection.Query('''
@@ -3846,21 +3918,8 @@ TO NODE ( nodename [, ... ] )
                          FROM pg_inherits i WHERE i.inhrelid = '{0}.{1}'::regclass)
                   end
                   ||
-                  case when c.relkind = 'p' then E'\n' || ' PARTITION BY ' ||
-                  (select (case p.partstrat when 'r' then 'RANGE' when 'l' then 'LIST' end) || ' (' ||
-                          array_to_string(array(
-                   select a.attname
-                   from (
-                   select unnest(partattrs) as partattr
-                   from pg_partitioned_table
-                   where partrelid = '{0}.{1}'::regclass
-                   ) pa
-                   inner join pg_attribute a
-                   on a.attrelid = '{0}.{1}'::regclass
-                   and a.attnum = pa.partattr
-                   ), ',') || ')'
-                   from pg_partitioned_table p
-                   where p.partrelid = '{0}.{1}'::regclass)
+                  case when c.relkind = 'p'
+                  then E'\n' || ' PARTITION BY ' || pg_get_partkeydef('{0}.{1}'::regclass)
                   else '' end
                   ||
                   CASE relhasoids WHEN true THEN ' WITH OIDS' ELSE '' END

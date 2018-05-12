@@ -310,8 +310,18 @@ def get_tables(request):
     try:
         v_tables = v_database.QueryTables(False,v_schema)
         for v_table in v_tables.Rows:
+            if v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'False':
+                v_icon = 'table.png'
+            elif v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'True':
+                v_icon = 'table_partitioned.png'
+            elif v_table['is_partition'] == 'True' and v_table['is_partitioned'] == 'False':
+                v_icon = 'table_partition.png'
+            else:
+                v_icon = 'table_partitioned_partition.png'
+
             v_table_data = {
                 'v_name': v_table['table_name'],
+                'v_icon': v_icon,
                 'v_has_primary_keys': v_database.v_has_primary_keys,
                 'v_has_foreign_keys': v_database.v_has_foreign_keys,
                 'v_has_uniques': v_database.v_has_uniques,

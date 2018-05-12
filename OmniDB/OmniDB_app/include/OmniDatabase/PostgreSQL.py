@@ -250,19 +250,37 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_schema:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(t.table_schema) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             v_filter = "and quote_ident(t.table_schema) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select quote_ident(t.table_name) as table_name,
-                   quote_ident(t.table_schema) as table_schema
-            from information_schema.tables t
-            where t.table_type = 'BASE TABLE'
-            {0}
-            order by 2, 1
-        '''.format(v_filter), True)
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
+            return self.v_connection.Query('''
+                select quote_ident(c.relname) as table_name,
+                       quote_ident(n.nspname) as table_schema,
+                       false as is_partition,
+                       false as is_partitioned
+                from pg_class c
+                inner join pg_namespace n
+                on n.oid = c.relnamespace
+                where c.relkind in ('r', 'p')
+                {0}
+                order by 2, 1
+            '''.format(v_filter), True)
+        else:
+            return self.v_connection.Query('''
+                select quote_ident(c.relname) as table_name,
+                       quote_ident(n.nspname) as table_schema,
+                       c.relispartition as is_partition,
+                       c.relkind = 'p' as is_partitioned
+                from pg_class c
+                inner join pg_namespace n
+                on n.oid = c.relnamespace
+                where c.relkind in ('r', 'p')
+                {0}
+                order by 2, 1
+            '''.format(v_filter), True)
 
     def QueryTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
@@ -2684,7 +2702,8 @@ replication_set := '#set_name#'
         return Template('select bdr.promote_node()')
 
     def TemplateBDRCreateGroup(self):
-        if int(self.GetBDRVersion()[0]) >= 3:
+        v_version = self.GetBDRVersion()
+        if v_version is not None and int(v_version[0]) >= 3:
             return Template('''select bdr.create_node_group('group_name')''')
         else:
             return Template('''select bdr.bdr_group_create(
@@ -2697,7 +2716,8 @@ local_node_name := 'node_name'
 '''.format(self.v_server, self.v_port, self.v_service))
 
     def TemplateBDRJoinGroup(self):
-        if int(self.GetBDRVersion()[0]) >= 3:
+        v_version = self.GetBDRVersion()
+        if v_version is not None and int(v_version[0]) >= 3:
             return Template('''select bdr.join_node_group(
 join_target_dsn := 'host= port= dbname='
 , node_group_name := 'group_name'
@@ -2716,7 +2736,8 @@ local_node_name := 'node_name'
 '''.format(self.v_server, self.v_port, self.v_service))
 
     def TemplateBDRJoinWait(self):
-        if int(self.GetBDRVersion()[0]) >= 3:
+        v_version = self.GetBDRVersion()
+        if v_version is not None and int(v_version[0]) >= 3:
             return Template('''select bdr.wait_for_join_completion(
 -- verbose_progress := false
 )
@@ -2733,7 +2754,8 @@ local_node_name := 'node_name'
         return Template('select bdr.bdr_apply_resume()')
 
     def TemplateBDRReplicateDDLCommand(self):
-        if int(self.GetBDRVersion()[0]) >= 3:
+        v_version = self.GetBDRVersion()
+        if v_version is not None and int(v_version[0]) >= 3:
             return Template('''select bdr.replicate_ddl_command(
 $$ DDL command here... $$
 --, replication_sets := null:text[]
@@ -2743,7 +2765,8 @@ $$ DDL command here... $$
             return Template("select bdr.bdr_replicate_ddl_command('DDL command here...')")
 
     def TemplateBDRPartNode(self):
-        if int(self.GetBDRVersion()[0]) >= 3:
+        v_version = self.GetBDRVersion()
+        if v_version is not None and int(v_version[0]) >= 3:
             return Template('''select bdr.part_node(
 node_name := '#node_name#'
 --, wait_for_completion := true

@@ -1052,8 +1052,10 @@ function getTreePostgresql(p_div) {
                         action: function(node) {
 
                             var v_table_name = '';
-                            if (node.parent.parent.parent.parent != null)
-                                v_table_name = node.parent.parent.text + '.' +
+                            if (node.parent.parent.parent
+                                .parent != null)
+                                v_table_name = node.parent
+                                .parent.text + '.' +
                                 node.text;
                             else
                                 v_table_name = node.text;
@@ -1098,8 +1100,10 @@ function getTreePostgresql(p_div) {
                         action: function(node) {
 
                             var v_table_name = '';
-                            if (node.parent.parent.parent.parent != null)
-                                v_table_name = node.parent.parent.text + '.' +
+                            if (node.parent.parent.parent
+                                .parent != null)
+                                v_table_name = node.parent
+                                .parent.text + '.' +
                                 node.text;
                             else
                                 v_table_name = node.text;
@@ -1156,7 +1160,8 @@ function getTreePostgresql(p_div) {
                                 node.tree.tag.truncate
                                 .replace(
                                     '#table_name#',
-                                    node.parent.parent.text + '.' +
+                                    node.parent.parent
+                                    .text + '.' +
                                     node.text));
                         }
                     }]
@@ -1174,7 +1179,8 @@ function getTreePostgresql(p_div) {
                                 node.tree.tag.vacuum_table
                                 .replace(
                                     '#table_name#',
-                                    node.parent.parent.text + '.' +
+                                    node.parent.parent
+                                    .text + '.' +
                                     node.text));
                         }
                     }, {
@@ -1186,7 +1192,8 @@ function getTreePostgresql(p_div) {
                                 node.tree.tag.analyze_table
                                 .replace(
                                     '#table_name#',
-                                    node.parent.parent.text + '.' +
+                                    node.parent.parent
+                                    .text + '.' +
                                     node.text));
                         }
                     }, {
@@ -1206,7 +1213,8 @@ function getTreePostgresql(p_div) {
                                 node.tree.tag.drop_table
                                 .replace(
                                     '#table_name#',
-                                    node.parent.parent.text + '.' +
+                                    node.parent.parent
+                                    .text + '.' +
                                     node.text));
                         }
                     }]
@@ -1233,7 +1241,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Column', node.tree.tag
                         .alter_column.replace(
-                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             /#column_name#/g, node.text));
                 }
@@ -1243,7 +1252,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Column', node.tree.tag
                         .drop_column.replace('#table_name#',
-                            node.parent.parent.parent.parent.text + '.' + node.parent.parent.text).replace(/#column_name#/g,
+                            node.parent.parent.parent.parent
+                            .text + '.' + node.parent.parent
+                            .text).replace(/#column_name#/g,
                             node.text));
                 }
             }]
@@ -1266,7 +1277,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Primary Key', node.tree
                         .tag.create_primarykey.replace(
-                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
                 }
             }]
         },
@@ -1286,10 +1299,12 @@ function getTreePostgresql(p_div) {
                 text: 'Drop Primary Key',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
-                  print(node.parent.parent.parent.parent.text)
+                  print(node.parent.parent
+                  .parent.parent.text)
                     tabSQLTemplate('Drop Primary Key', node.tree
                         .tag.drop_primarykey.replace(
-                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             '#constraint_name#', node.text)
                     );
@@ -1314,7 +1329,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Foreign Key', node.tree
                         .tag.create_foreignkey.replace(
-                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
                 }
             }]
         },
@@ -1336,7 +1353,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Foreign Key', node.tree
                         .tag.drop_foreignkey.replace(
-                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             '#constraint_name#', node.text)
                     );
@@ -1361,7 +1379,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Unique', node.tree.tag
                         .create_unique.replace(
-                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
                 }
             }]
         },
@@ -1383,7 +1403,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Unique', node.tree.tag
                         .drop_unique.replace('#table_name#',
-                            node.parent.parent.parent.parent.text + '.' + node.parent.parent.text).replace(
+                            node.parent.parent.parent.parent
+                            .text + '.' + node.parent.parent
+                            .text).replace(
                             '#constraint_name#', node.text)
                     );
                 }
@@ -1407,7 +1429,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Index', node.tree.tag
                         .create_index.replace(
-                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
                 }
             }, {
                 text: 'Doc: Indexes',
@@ -1439,7 +1463,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Index', node.tree.tag
                         .alter_index.replace('#index_name#',
-                            node.parent.parent.parent.parent.text + '.' +
+                            node.parent.parent.parent.parent
+                            .text + '.' +
                             node.text.replace(' (Unique)',
                                 '').replace(' (Non Unique)',
                                 '')));
@@ -1449,7 +1474,9 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Index', node.tree.tag.drop_index
-                        .replace('#index_name#', node.parent.parent.parent.parent.text + '.' + node.text.replace(
+                        .replace('#index_name#', node.parent
+                            .parent.parent
+                            .parent.text + '.' + node.text.replace(
                                 ' (Unique)', '').replace(
                                 ' (Non Unique)', '')));
                 }
@@ -1473,7 +1500,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Check', node.tree.tag
                         .create_check.replace(
-                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
                 }
             }]
         },
@@ -1483,7 +1512,8 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Check', node.tree.tag.drop_check
-                        .replace('#table_name#', node.parent.parent.parent.parent.text +
+                        .replace('#table_name#', node.parent
+                            .parent.parent.parent.text +
                             '.' + node.parent.parent.text).replace(
                             '#constraint_name#', node.text)
                     );
@@ -1508,7 +1538,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Exclude', node.tree.tag
                         .create_exclude.replace(
-                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
                 }
             }]
         },
@@ -1519,7 +1551,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Exclude', node.tree.tag
                         .drop_exclude
-                        .replace('#table_name#', node.parent.parent.parent.parent.text +
+                        .replace('#table_name#', node.parent
+                            .parent.parent.parent.text +
                             '.' + node.parent.parent.text).replace(
                             '#constraint_name#', node.text)
                     );
@@ -1565,7 +1598,8 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
                     tabSQLTemplate('Alter Rule', node.tree.tag.alter_rule
-                        .replace('#table_name#', node.parent.parent.parent.parent.text +
+                        .replace('#table_name#', node.parent
+                            .parent.parent.parent.text +
                             '.' + node.parent.parent.text).replace(
                             '#rule_name#', node.text));
                 }
@@ -1582,7 +1616,8 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Rule', node.tree.tag.drop_rule
-                        .replace('#table_name#', node.parent.parent.parent.parent.text +
+                        .replace('#table_name#', node.parent
+                            .parent.parent.parent.text +
                             '.' + node.parent.parent.text).replace(
                             '#rule_name#', node.text));
                 }
@@ -1606,7 +1641,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Trigger', node.tree.tag
                         .create_trigger.replace(
-                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
                 }
             }, {
                 text: 'Doc: Triggers',
@@ -1638,7 +1675,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Trigger', node.tree.tag
                         .create_view_trigger.replace(
-                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
                 }
             }, {
                 text: 'Doc: Triggers',
@@ -1659,7 +1698,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Trigger', node.tree.tag
                         .alter_trigger.replace(
-                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             '#trigger_name#', node.text));
                 }
@@ -1669,7 +1709,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Enable Trigger', node.tree.tag
                         .enable_trigger.replace(
-                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             '#trigger_name#', node.text));
                 }
@@ -1679,7 +1720,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Disable Trigger', node.tree
                         .tag.disable_trigger.replace(
-                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             '#trigger_name#', node.text));
                 }
@@ -1689,7 +1731,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Trigger', node.tree.tag
                         .drop_trigger.replace(
-                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             '#trigger_name#', node.text));
                 }
@@ -1713,7 +1756,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Inherited', node.tree
                         .tag.create_inherited.replace(
-                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
                 }
             }, {
                 text: 'Doc: Partitioning',
@@ -1734,7 +1779,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('No Inherit Partition', node
                         .tree.tag.noinherit_partition.replace(
-                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             '#partition_name#', node.text));
                 }
@@ -1766,7 +1812,9 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Partition', node.tree
                         .tag.create_partition.replace(
-                            '#table_name#', node.parent.parent.parent.text + '.' + node.parent.text));
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
                 }
             }, {
                 text: 'Doc: Partitioning',
@@ -1787,7 +1835,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Detach Partition', node
                         .tree.tag.detach_partition.replace(
-                            '#table_name#', node.parent.parent.parent.parent.text + '.' +
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
                             node.parent.parent.text).replace(
                             '#partition_name#', node.text));
                 }
@@ -1891,7 +1940,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Trigger Function',
                         node.tree.tag.create_triggerfunction
-                        .replace('#schema_name#', node.parent.text));
+                        .replace('#schema_name#', node.parent
+                            .text));
                 }
             }, {
                 text: 'Doc: Trigger Functions',
@@ -1976,7 +2026,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Sequence', node.tree.tag
                         .alter_sequence.replace(
-                            '#sequence_name#', node.parent.parent.text + '.' + node.text));
+                            '#sequence_name#', node.parent.parent
+                            .text + '.' + node.text));
                 }
             }, {
                 text: 'Drop Sequence',
@@ -1984,7 +2035,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Sequence', node.tree.tag
                         .drop_sequence.replace(
-                            '#sequence_name#', node.parent.parent.text + '.' + node.text));
+                            '#sequence_name#', node.parent.parent
+                            .text + '.' + node.text));
                 }
             }]
         },
@@ -2080,7 +2132,8 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop View', node.tree.tag.drop_view
-                        .replace('#view_name#', node.parent.parent.text + '.' + node.text)
+                        .replace('#view_name#', node.parent
+                            .parent.text + '.' + node.text)
                     );
                 }
             }]
@@ -2181,7 +2234,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Refresh Materialized View',
                         node.tree.tag.refresh_mview
-                        .replace('#view_name#', node.parent.parent.text + '.' + node.text)
+                        .replace('#view_name#', node.parent
+                            .parent.text + '.' + node.text)
                     );
                 }
             }, {
@@ -2193,7 +2247,8 @@ function getTreePostgresql(p_div) {
                         node.tree.tag.analyze_table
                         .replace(
                             '#table_name#',
-                            node.parent.parent.text + '.' +
+                            node.parent.parent
+                            .text + '.' +
                             node.text));
                 }
             }, {
@@ -2202,7 +2257,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Materialized View',
                         node.tree.tag.drop_mview
-                        .replace('#view_name#', node.parent.parent.text + '.' + node.text)
+                        .replace('#view_name#', node.parent
+                            .parent.text + '.' + node.text)
                     );
                 }
             }]
@@ -2380,7 +2436,8 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
                     tabSQLTemplate('Drop Table', node.tree.tag.drop_pubtable
-                        .replace('#pub_name#', node.parent.parent.text)
+                        .replace('#pub_name#', node.parent.parent
+                            .text)
                         .replace('#table_name#', node.text)
                     );
                 }
@@ -2510,7 +2567,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Node Interface',
                         node.tree.tag.pglogical_drop_interface
-                        .replace('#node_name#', node.parent.text.replace(' (local)', ''))
+                        .replace('#node_name#', node.parent
+                            .text.replace(' (local)', ''))
                         .replace('#interface_name#', node.text)
                     );
                 }
@@ -2577,7 +2635,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Add Table',
                         node.tree.tag.pglogical_repset_add_table
-                        .replace('#repset_name#', node.parent.text)
+                        .replace('#repset_name#', node.parent
+                            .text)
                     );
                 }
             }, {
@@ -2586,7 +2645,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Add All Tables',
                         node.tree.tag.pglogical_repset_add_all_tables
-                        .replace('#repset_name#', node.parent.text)
+                        .replace('#repset_name#', node.parent
+                            .text)
                     );
                 }
             }]
@@ -2598,7 +2658,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Remove Table',
                         node.tree.tag.pglogical_repset_remove_table
-                        .replace('#repset_name#', node.parent.parent.text)
+                        .replace('#repset_name#', node.parent
+                            .parent.text)
                         .replace('#table_name#', node.text)
                     );
                 }
@@ -2622,7 +2683,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Add Sequence',
                         node.tree.tag.pglogical_repset_add_seq
-                        .replace('#repset_name#', node.parent.text)
+                        .replace('#repset_name#', node.parent
+                            .text)
                     );
                 }
             }, {
@@ -2631,7 +2693,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Add All Sequences',
                         node.tree.tag.pglogical_repset_add_all_seqs
-                        .replace('#repset_name#', node.parent.text)
+                        .replace('#repset_name#', node.parent
+                            .text)
                     );
                 }
             }]
@@ -2643,7 +2706,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Remove Sequence',
                         node.tree.tag.pglogical_repset_remove_seq
-                        .replace('#repset_name#', node.parent.parent.text)
+                        .replace('#repset_name#', node.parent
+                            .parent.text)
                         .replace('#sequence_name#', node.text)
                     );
                 }
@@ -2736,7 +2800,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Remove Replication Set',
                         node.tree.tag.pglogical_sub_remove_repset
-                        .replace('#sub_name#', node.parent.parent.text)
+                        .replace('#sub_name#', node.parent.parent
+                            .text)
                         .replace('#set_name#', node.text)
                     );
                 }
@@ -2872,7 +2937,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Set Replication Sets', node
                         .tree.tag.bdr_set_repsets
-                        .replace('#table_name#', node.parent.parent.parent.parent.text +
+                        .replace('#table_name#', node.parent
+                            .parent.parent.parent.text +
                             '.' + node.parent.parent.text));
                 }
             }]
@@ -2895,7 +2961,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Conflict Handler',
                         node.tree.tag.bdr_create_confhand
-                        .replace(/#table_name#/g, node.parent.parent.parent.parent.text +
+                        .replace(/#table_name#/g, node.parent
+                            .parent.parent.parent.text +
                             '.' + node.parent.parent.text));
                 }
             }]
@@ -2907,8 +2974,10 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Conflict Handler',
                         node.tree.tag.bdr_drop_confhand
-                        .replace('#table_name#', node.parent.parent.parent.parent.parent.text +
-                            '.' + node.parent.parent.parent.text)
+                        .replace('#table_name#', node.parent
+                            .parent.parent.parent.parent.text +
+                            '.' + node.parent.parent.parent
+                            .text)
                         .replace('#ch_name#', node.text));
                 }
             }]
@@ -2971,7 +3040,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Add Table',
                         node.tree.tag.bdr_group_add_table
-                        .replace('#group_name#', node.parent.text)
+                        .replace('#group_name#', node.parent
+                            .text)
                     );
                 }
             }]
@@ -2983,7 +3053,8 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Remove Table',
                         node.tree.tag.bdr_group_remove_table
-                        .replace('#group_name#', node.parent.parent.text)
+                        .replace('#group_name#', node.parent
+                            .parent.text)
                         .replace('#table_name#', node.text)
                     );
                 }
@@ -3201,7 +3272,8 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Alter Table Add Node',
                         node.tree.tag.xl_altertable_addnode
                         .replace('#table_name#',
-                            node.parent.parent.parent.parent.text + '.' +
+                            node.parent.parent.parent.parent
+                            .text + '.' +
                             node.parent.parent.text));
                 }
             }]
@@ -3225,7 +3297,8 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Alter Table Delete Node',
                         node.tree.tag.xl_altertable_deletenode
                         .replace('#table_name#',
-                            node.parent.parent.parent.parent.parent.text + '.' +
+                            node.parent.parent.parent.parent
+                            .parent.text + '.' +
                             node.parent.parent.parent.text)
                         .replace('#node_name#', node.text));
                 }
@@ -4279,7 +4352,7 @@ function getTablesPostgresql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/table.png', {
+                    false, '/static/OmniDB_app/images/' + p_return.v_data[i].v_icon, {
                         type: 'table',
                         has_primary_keys: p_return.v_data[i].v_has_primary_keys,
                         has_foreign_keys: p_return.v_data[i].v_has_foreign_keys,
@@ -5116,8 +5189,7 @@ function getUniquesPostgresql(node) {
                         false,
                         '/static/OmniDB_app/images/blue_key.png', {
                             type: 'unique',
-                            database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                            schema: node.parent.parent.parent.text,
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, 'cm_unique', null, false);
 
                     v_node.createChildNode('', false,

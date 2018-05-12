@@ -1,12 +1,12 @@
 {
   "name": "OmniDB",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "Database management application",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/OmniDB/OmniDB",
   "keywords": [
     "Electron",
     "quick",

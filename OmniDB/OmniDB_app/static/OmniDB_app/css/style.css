@@ -1042,7 +1042,7 @@ iframe {
   position: absolute;
   margin-top: 30px;
   margin-left: 5px;
-  width: 900px;
+  width: 1100px;
   height: 500px;
   padding: 5px 5px;
   border-radius: 3px;
@@ -1093,7 +1093,7 @@ iframe {
 
 .connection_grid {
   position: relative;
-  width: 900px;
+  width: 1100px;
   height: 450px;
   overflow: auto;
   margin-top: 5px;
@@ -1198,4 +1198,11 @@ h2 {
   border-bottom: 1px dashed #c3c3c3;
   padding-bottom: 5px;
   margin-top: 5px;
+}
+
+
+.dd .ddTitle .description, .ddlabel {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }

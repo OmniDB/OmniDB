@@ -1299,6 +1299,8 @@ function getTreePostgresql(p_div) {
                 text: 'Drop Primary Key',
                 icon: '/static/OmniDB_app/images/tab_close.png',
                 action: function(node) {
+                  print(node.parent.parent
+                  .parent.parent.text)
                     tabSQLTemplate('Drop Primary Key', node.tree
                         .tag.drop_primarykey.replace(
                             '#table_name#', node.parent.parent
@@ -4350,7 +4352,7 @@ function getTablesPostgresql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/table.png', {
+                    false, '/static/OmniDB_app/images/' + p_return.v_data[i].v_icon, {
                         type: 'table',
                         has_primary_keys: p_return.v_data[i].v_has_primary_keys,
                         has_foreign_keys: p_return.v_data[i].v_has_foreign_keys,

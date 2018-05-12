@@ -446,6 +446,7 @@ CREATE TABLE connections (
     user varchar(100),
     password varchar(100),
     alias varchar(100),
+    ssh_server varchar(500),
     ssh_port varchar(20),
     ssh_user varchar(100),
     ssh_password varchar(100),

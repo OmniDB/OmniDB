@@ -60,7 +60,7 @@ function dropConnection() {
 function newConnection() {
 
 	var v_data = v_connections_data.ht.getData();
-	v_data.push(['postgresql','','','','','',false,'22','','','','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
+	v_data.push(['postgresql','','','','','',false,'','22','','','','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
 	v_connections_data.v_conn_ids.push({
 		'id': -1,
 		'mode': 2,
@@ -233,7 +233,7 @@ function saveConnections(p_callback) {
 		if (v_connections_data.v_conn_ids[i].mode!=0) {
 			v_conn_id_list.push(v_connections_data.v_conn_ids[i])
 			var v_temp_row = v_connections_data.ht.getDataAtRow(i)
-			v_data_list.push([v_temp_row[0],v_temp_row[1],v_temp_row[2],v_temp_row[3],v_temp_row[4],v_temp_row[5],v_temp_row[6],v_temp_row[7],v_temp_row[8],v_temp_row[9],v_temp_row[10]])
+			v_data_list.push([v_temp_row[0],v_temp_row[1],v_temp_row[2],v_temp_row[3],v_temp_row[4],v_temp_row[5],v_temp_row[6],v_temp_row[7],v_temp_row[8],v_temp_row[9],v_temp_row[10],v_temp_row[11]])
 		}
 	}
 
@@ -318,6 +318,10 @@ function showConnectionList() {
 				columnProperties.push(col);
 
 				var col = new Object();
+				col.title =  'SSH Server';
+				columnProperties.push(col);
+
+				var col = new Object();
 				col.title =  'SSH Port';
 				columnProperties.push(col);
 
@@ -360,6 +364,21 @@ function showConnectionList() {
 															minSpareCols :0,
 															minSpareRows :0,
 															fillHandle:false,
+															contextMenu: {
+																callback: function (key, options) {
+																	if (key === 'view_data') {
+																		if (options[0].start.col!=6 && options[0].start.col!=12) {
+																			if (v_connections_data.v_conn_ids[options[0].start.row].locked)
+																		  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
+																			else
+																				editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),true);
+																		}
+																	}
+																},
+																items: {
+																	"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+																}
+													    },
 															beforeChange: function (changes, source) {
 
 																if (!changes)

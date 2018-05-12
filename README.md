@@ -3,21 +3,19 @@
 ## Release Notes
 
 - New features:
-  - Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2
-  - Management of multiple databases in the same connection
-  - Debugger plugin can now be installed in PostgreSQL hosted on Windows ([Install Instructions](https://github.com/OmniDB/OmniDB/blob/master/omnidb_plugin/README.md))
+  - Connection to any database via SSH tunnels
+  - Support for BDR 3.0
+  - Support for pglogical 3.0
 - Improvements:
-  - Improved security for omnidb-server when running with SSL
-  - New button to reload the source code of the function in the debugger interface
-  - Other improvements to the debugger interface
-  - Improved security for debugger
-  - Commands \?, \x and \timing for Console Tab for Oracle, MySQL and MariaDB
-  - Console status showing number of rows affected in Console Tab for Oracle, MySQL and MariaDB
-  - "Analyze" action for tables and materialized views for PostgreSQL
-  - "Truncate" action for tables for PostgreSQL
-  - UI and editor themes can be applied on-the-fly
-  - Dark theme for charts
-  - Support to quoted identifiers on Oracle
+  - Improvements to the OmniDB app window container
+  - Backslash commands supporting PostgreSQL 10 partitioned tables and partitions
+  - DDL for PostgreSQL 10 partitioned tables and partitions
+  - Tree view shows PostgreSQL 10 partitioned tables and partitions with different icons
+- Bug fixes:
+  - Fixed displaying table data in treeview when using MySQL 5.7
+  - Fixed column autocomplete when using MySQL and MariaDB
+  - Fixed JSONB editing
+  - Fixed RPM packages for latest Linux editions
 
 # 1- Installation
 

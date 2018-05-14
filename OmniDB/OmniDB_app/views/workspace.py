@@ -1541,7 +1541,6 @@ def start_edit_data(request):
                 v_database.v_db_type,
                 v_column['data_type'].lower()
             )
-        print(v_query_column_classes)
 
         v_column_classes = v_session.v_omnidb_database.v_connection.Query(v_query_column_classes)
 

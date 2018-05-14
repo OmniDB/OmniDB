@@ -353,6 +353,7 @@ function showConnectionList() {
 
 				v_connections_data = new Object();
 				v_connections_data.v_conn_ids = p_return.v_data.v_conn_ids;
+				v_connections_data.v_active = true;
 
 				var container = v_div_result;
 				v_connections_data.ht = new Handsontable(container,
@@ -462,6 +463,7 @@ function closeConnectionList(p_index) {
 	document.getElementById('div_save').style.visibility = 'hidden';
   v_connections_data.ht.destroy();
   v_connections_data.ht = null;
+	v_connections_data.v_active = false;
 	getDatabaseList(false, function() { closeConnectionListFinish(p_index) });
 }
 

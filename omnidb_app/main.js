@@ -43,21 +43,13 @@ function createWindow () {
 
 app.on('ready', createWindow)
 
-app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  //if (process.platform !== 'darwin') {
+app.on('will-quit', function () {
   if (callback_started) {
     while (django==null)
       null;
-    try {
-      process.kill(django.pid);
-    }
-    catch (e) {
-    }
+    process.kill(django.pid);
   }
   app.quit();
-  //}
 })
 
 app.on('activate', function () {

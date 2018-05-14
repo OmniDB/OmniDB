@@ -56,6 +56,19 @@ app.on('will-quit', function () {
   app.quit();
 })
 
+app.on('window-all-closed', function () {
+  if (callback_started) {
+    while (django==null)
+      null;
+    try {
+      process.kill(django.pid);
+    }
+    catch (e) {
+    }
+  }
+  app.quit();
+})
+
 app.on('activate', function () {
   if (mainWindow === null) {
     createWindow()

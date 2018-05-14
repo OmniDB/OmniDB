@@ -361,6 +361,10 @@ function refreshHeights(p_all) {
 		refreshTreeHeight();
 	}
 
+	if (v_connections_data && v_connections_data.v_active) {
+		v_connections_data.ht.render();
+	}
+
 	if (v_connTabControl.selectedTab.tag.mode=='monitor_all') {
 		v_connTabControl.selectedTab.tag.tabControlDiv.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.tabControlDiv).offset().top - 18 + 'px';
 	}

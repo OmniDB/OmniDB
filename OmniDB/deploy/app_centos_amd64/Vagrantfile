@@ -8,13 +8,12 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-end
-
-Vagrant::Config.run do |config|
   config.vm.box = "centos/7"
   config.vm.box_url = "https://app.vagrantup.com/centos/boxes/7"
   config.vm.host_name = "deployapp64"
-
-  config.vm.share_folder "bootstrap", "/mnt/bootstrap", ".", :create => true
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "omnidb_centos_deployapp64"
+  end
+  config.vm.synced_folder ".", "/mnt/bootstrap"
   config.vm.provision :shell, :path => "bootstrap.sh"
 end

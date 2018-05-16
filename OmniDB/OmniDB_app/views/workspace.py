@@ -18,6 +18,8 @@ from OmniDB_app.include.Session import Session
 
 from django.contrib.sessions.backends.db import SessionStore
 import sqlparse
+import random
+import string
 
 def index(request):
     #Invalid session
@@ -32,21 +34,90 @@ def index(request):
     else:
         v_is_secure = 'false'
 
+    if settings.DEV_MODE:
+        v_dev_mode = 'true'
+    else:
+        v_dev_mode = 'false'
+
+    v_shortcuts = v_session.v_omnidb_database.v_connection.Query('''
+        select default_shortcut_code as shortcut_code,
+               case when user_defined_shortcut_code is null then default_ctrl_pressed else user_defined_ctrl_pressed end as ctrl_pressed,
+               case when user_defined_shortcut_code is null then default_shift_pressed else user_defined_shift_pressed end as shift_pressed,
+               case when user_defined_shortcut_code is null then default_alt_pressed else user_defined_alt_pressed end as alt_pressed,
+               case when user_defined_shortcut_code is null then default_meta_pressed else user_defined_meta_pressed end as meta_pressed,
+               case when user_defined_shortcut_code is null then default_shortcut_key else user_defined_shortcut_key end as shortcut_key
+        from
+        (select defaults.shortcut_code as default_shortcut_code,
+               defaults.ctrl_pressed as default_ctrl_pressed,
+               defaults.shift_pressed as default_shift_pressed,
+               defaults.alt_pressed as default_alt_pressed,
+               defaults.meta_pressed as default_meta_pressed,
+               defaults.shortcut_key as default_shortcut_key,
+               user_defined.shortcut_code as user_defined_shortcut_code,
+               user_defined.ctrl_pressed as user_defined_ctrl_pressed,
+               user_defined.shift_pressed as user_defined_shift_pressed,
+               user_defined.alt_pressed as user_defined_alt_pressed,
+               user_defined.meta_pressed as user_defined_meta_pressed,
+               user_defined.shortcut_key as user_defined_shortcut_key
+        from shortcuts defaults
+        left join shortcuts user_defined on (defaults.shortcut_code = user_defined.shortcut_code and user_defined.user_id = {0})
+        where defaults.user_id is null) subquery
+    '''.format(v_session.v_user_id))
+
+    shortcut_object = {}
+
+    for v_shortcut in v_shortcuts.Rows:
+        shortcut_object[v_shortcut['shortcut_code']] = {
+            'ctrl_pressed': v_shortcut['ctrl_pressed'],
+            'shift_pressed': v_shortcut['shift_pressed'],
+            'alt_pressed': v_shortcut['alt_pressed'],
+            'meta_pressed': v_shortcut['meta_pressed'],
+            'shortcut_key': v_shortcut['shortcut_key'],
+            'shortcut_code': v_shortcut['shortcut_code']
+        }
+
     context = {
         'session' : v_session,
         'desktop_mode': settings.DESKTOP_MODE,
         'omnidb_version': settings.OMNIDB_VERSION,
+        'omnidb_short_version': settings.OMNIDB_SHORT_VERSION,
         'menu_item': 'workspace',
-        'query_port': settings.OMNIDB_PORT,
+        'query_port': settings.OMNIDB_WEBSOCKET_PORT,
+        'query_port_external': settings.OMNIDB_EXTERNAL_WEBSOCKET_PORT,
         'is_secure' : v_is_secure,
-        'execute': settings.BINDKEY_EXECUTE,
-        'execute_mac': settings.BINDKEY_EXECUTE_MAC,
+        'dev_mode': v_dev_mode,
         'autocomplete': settings.BINDKEY_AUTOCOMPLETE,
         'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC,
-        'chat_link': settings.CHAT_LINK
+        'shortcuts': shortcut_object,
+        'chat_link': settings.CHAT_LINK,
+        'tab_token': ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(20))
     }
 
+    #wiping tab connection list
+    v_session.v_tab_connections = dict([])
+    request.session['omnidb_session'] = v_session
+
     template = loader.get_template('OmniDB_app/workspace.html')
+    return HttpResponse(template.render(context, request))
+
+def welcome(request):
+
+    context = {
+        'omnidb_version': settings.OMNIDB_VERSION,
+        'omnidb_short_version': settings.OMNIDB_SHORT_VERSION
+    }
+
+    template = loader.get_template('OmniDB_app/welcome.html')
+    return HttpResponse(template.render(context, request))
+
+def shortcuts(request):
+
+    context = {
+        'omnidb_version': settings.OMNIDB_VERSION,
+        'omnidb_short_version': settings.OMNIDB_SHORT_VERSION
+    }
+
+    template = loader.get_template('OmniDB_app/shortcuts.html')
     return HttpResponse(template.render(context, request))
 
 def save_config_user(request):
@@ -120,6 +191,50 @@ def save_config_user(request):
 
     return JsonResponse(v_return)
 
+def save_shortcuts(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+    v_cryptor = request.session.get('cryptor')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_shortcuts = json_object['p_shortcuts']
+
+    try:
+        v_session.v_omnidb_database.v_connection.Open();
+        v_session.v_omnidb_database.v_connection.Execute('BEGIN');
+        v_session.v_omnidb_database.v_connection.Execute('''
+            delete from shortcuts where user_id = {0}
+        '''.format(v_session.v_user_id))
+        for v_shortcut in v_shortcuts:
+            v_session.v_omnidb_database.v_connection.Execute('''
+                insert into shortcuts values (
+                {0},
+                '{1}',
+                {2},
+                {3},
+                {4},
+                {5},
+                '{6}')
+            '''.format(v_session.v_user_id,v_shortcut['shortcut_code'],v_shortcut['ctrl_pressed'],v_shortcut['shift_pressed'],v_shortcut['alt_pressed'],v_shortcut['meta_pressed'],v_shortcut['shortcut_key']))
+        v_session.v_omnidb_database.v_connection.Close();
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
 def get_database_list(request):
 
     v_return = {}
@@ -146,14 +261,20 @@ def get_database_list(request):
         v_database_data = {
             'v_db_type': v_database.v_db_type,
             'v_alias': v_database.v_alias,
-            'v_conn_id': v_database.v_conn_id
+            'v_conn_id': v_database.v_conn_id,
+            'v_console_help': v_database.v_console_help,
+            'v_database': v_database.v_service
         }
 
         v_databases.append(v_database_data)
 
         v_alias = '({0}) '.format(v_database.v_alias)
+        if not v_database_object['tunnel']['enabled']:
+            v_details = v_database.PrintDatabaseDetails()
+        else:
+            v_details = v_database_object['database'].v_server + ':' + v_database.v_port + ' <b>(' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port'] + ')</b>'
 
-        v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_database.PrintDatabaseDetails(),v_alias,v_database.PrintDatabaseInfo())
+        v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
         v_index = v_index + 1
 
     v_html = '<select style="width: 100%; font-weight: bold;" onchange="changeDatabase(this.value);">{0}</select>'.format(v_options)
@@ -171,7 +292,6 @@ def get_database_list(request):
             v_existing_tabs.append({'index': v_tab['conn_id'], 'snippet': v_tab['snippet'], 'tab_db_id': v_tab['tab_id']})
 
     except Exception as exc:
-        print(exc)
         None
 
     v_return['v_data'] = {
@@ -179,6 +299,51 @@ def get_database_list(request):
         'v_connections': v_databases,
         'v_id': v_session.v_database_index,
         'v_existing_tabs': v_existing_tabs
+    }
+
+    return JsonResponse(v_return)
+
+def change_active_database(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_data = json_object['p_database']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    v_database_new = OmniDatabase.Generic.InstantiateDatabase(
+        v_database.v_db_type,
+        v_database.v_connection.v_host,
+        str(v_database.v_connection.v_port),
+        v_database.v_service,
+        v_database.v_user,
+        v_database.v_connection.v_password,
+        v_database.v_conn_id,
+        v_database.v_alias
+    )
+
+    v_database_new.v_service = v_data;
+    v_database_new.v_connection.v_service = v_data;
+
+    v_session.v_tab_connections[v_tab_id] = v_database_new
+
+    request.session['omnidb_session'] = v_session
+
+    v_return['v_data'] = {
     }
 
     return JsonResponse(v_return)
@@ -200,6 +365,7 @@ def renew_password(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_password = json_object['p_password']
 
     v_database_object = v_session.v_databases[v_database_index]
@@ -209,6 +375,13 @@ def renew_password(request):
 
     if v_test=='Connection successful.':
         v_database_object['prompt_timeout'] = datetime.now()
+        #changing password of tab connection
+        try:
+            v_tab_connection = v_session.v_tab_connections[v_tab_id]
+            v_tab_connection.v_connection.v_password = v_password
+            v_session.v_tab_connections[v_tab_id] = v_tab_connection
+        except Exception:
+            None
     else:
         v_return['v_error'] = True
         v_return['v_data'] = v_test
@@ -234,10 +407,11 @@ def draw_graph(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_complete = json_object['p_complete']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -316,7 +490,7 @@ def draw_graph(request):
 
             v_edges.append (v_edge)
 
-        	#FK referencing other schema, create a new node if it isn't in v_nodes list.
+            #FK referencing other schema, create a new node if it isn't in v_nodes list.
             if v_database.v_schema != v_curr_to_schema:
                 v_found = False
 
@@ -364,10 +538,11 @@ def alter_table_data(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_table_name     = json_object['p_table']
     v_schema_name    = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -434,16 +609,16 @@ def alter_table_data(request):
 
                 if v_data_sufix==2:
                     if v_column["data_precision"]!="" and v_column["data_scale"]!="":
-                    	v_row_data.append(v_column["data_type"]+ "(" + str(v_column["data_precision"]) + "," + str(v_column["data_scale"]) + ")")
+                        v_row_data.append(v_column["data_type"]+ "(" + str(v_column["data_precision"]) + "," + str(v_column["data_scale"]) + ")")
                     elif v_column["data_scale"]!="":
-                    	v_row_data.append(v_column["data_type"] + "(" + str(v_column["data_scale"]) + ")")
+                        v_row_data.append(v_column["data_type"] + "(" + str(v_column["data_scale"]) + ")")
                     else:
-                    	v_row_data.append(v_column["data_type"])
+                        v_row_data.append(v_column["data_type"])
                 elif v_data_sufix==1:
                     if v_column["data_length"]!="":
-                    	v_row_data.append(v_column["data_type"] + "(" + str(v_column["data_length"]) + ")")
+                        v_row_data.append(v_column["data_type"] + "(" + str(v_column["data_length"]) + ")")
                     else:
-                    	v_row_data.append(v_column["data_type"])
+                        v_row_data.append(v_column["data_type"])
                 else:
                     v_row_data.append(v_column["data_type"])
 
@@ -464,15 +639,19 @@ def alter_table_data(request):
 
             if v_pk_table != None and len(v_pk_table.Rows)>0:
 
-                v_column_list = ''
-                v_first = True
+                for v_pk in v_pk_table.Rows:
+                    if v_schema_name:
+                        v_pk_col_table = v_database.QueryTablesPrimaryKeysColumns(v_pk['constraint_name'], v_table_name, False, v_schema_name)
+                    else:
+                        v_pk_col_table = v_database.QueryTablesPrimaryKeysColumns(v_pk['constraint_name'], v_table_name)
 
-                for v_column in v_pk_table.Rows:
-                	if not v_first:
-                		v_column_list += ", "
-
-                	v_column_list += v_column["column_name"]
-                	v_first = False
+                    v_column_list = ''
+                    v_first = True
+                    for v_column in v_pk_col_table.Rows:
+                        if not v_first:
+                            v_column_list += ", "
+                        v_column_list += v_column["column_name"]
+                        v_first = False
 
                 v_row_data = []
 
@@ -485,9 +664,9 @@ def alter_table_data(request):
                 v_row_data.append("")
 
                 if v_database.v_can_drop_constraint:
-                	v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                    v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
                 else:
-                	v_row_data.append("")
+                    v_row_data.append("")
 
                 v_table_constraints.append(v_row_data)
 
@@ -499,79 +678,85 @@ def alter_table_data(request):
 
             if v_fks_table != None and len(v_fks_table.Rows)>0:
 
-                v_column_list = ""
-                v_referenced_column_list = ""
-                v_constraint_name = v_fks_table.Rows[0]["constraint_name"]
-                v_update_rule = v_fks_table.Rows[0]["update_rule"]
-                v_delete_rule = v_fks_table.Rows[0]["delete_rule"]
-                v_r_table_name = ""
+                for v_fk in v_fks_table.Rows:
 
-                if v_database.v_has_schema:
-                    v_r_table_name = v_fks_table.Rows[0]["r_table_schema"] + "." + v_fks_table.Rows[0]["r_table_name"]
-                else:
-                    v_r_table_name = v_fks_table.Rows[0]["r_table_name"]
-
-                v_first = True
-
-                for v_column in v_fks_table.Rows:
-
-                    if v_column["constraint_name"]!=v_constraint_name:
-                    	v_row_data = []
-
-                    	v_row_data.append(v_constraint_name)
-                    	v_row_data.append("Foreign Key")
-                    	v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
-                    	v_row_data.append(v_r_table_name)
-                    	v_row_data.append(v_referenced_column_list)
-                    	v_row_data.append(v_delete_rule)
-                    	v_row_data.append(v_update_rule)
-
-                    	if v_database.v_can_drop_constraint:
-                    		v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
-                    	else:
-                    		v_row_data.append("")
-
-                    	v_table_constraints.append(v_row_data)
-
-                    	v_constraint_name = v_column["constraint_name"]
-                    	v_update_rule = v_column["update_rule"]
-                    	v_delete_rule = v_column["delete_rule"]
-
-                    	v_column_list = ""
-                    	v_referenced_column_list = ""
-                    	v_first = True
+                    v_column_list = ""
+                    v_referenced_column_list = ""
+                    v_constraint_name = v_fk["constraint_name"]
+                    v_update_rule = v_fk["update_rule"]
+                    v_delete_rule = v_fk["delete_rule"]
+                    v_r_table_name = ""
 
                     if v_database.v_has_schema:
-                    	v_r_table_name = v_column["r_table_schema"] + "." + v_column["r_table_name"]
+                        v_r_table_name = v_fk["r_table_schema"] + "." + v_fk["r_table_name"]
                     else:
-                    	v_r_table_name = v_column["r_table_name"]
+                        v_r_table_name = v_fk["r_table_name"]
 
-
-                    if not v_first:
-                    	v_column_list += ", "
-                    	v_referenced_column_list += ", "
-
-                    v_column_list += v_column["column_name"]
-                    v_referenced_column_list += v_column["r_column_name"]
-                    v_first = False
-
-                if v_column_list!="":
-                    v_row_data = []
-
-                    v_row_data.append(v_constraint_name)
-                    v_row_data.append("Foreign Key")
-                    v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
-                    v_row_data.append(v_r_table_name)
-                    v_row_data.append(v_referenced_column_list)
-                    v_row_data.append(v_delete_rule)
-                    v_row_data.append(v_update_rule)
-
-                    if v_database.v_can_drop_constraint:
-                    	v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                    if v_schema_name:
+                        v_fks_col_table = v_database.QueryTablesForeignKeysColumns(v_fk['constraint_name'], v_table_name, False, v_schema_name)
                     else:
-                    	v_row_data.append("")
+                        v_fks_col_table = v_database.QueryTablesForeignKeysColumns(v_fk['constraint_name'], v_table_name)
 
-                    v_table_constraints.append(v_row_data)
+                    v_first = True
+
+                    for v_column in v_fks_col_table.Rows:
+
+                        if v_fk["constraint_name"]!=v_constraint_name:
+                            v_row_data = []
+
+                            v_row_data.append(v_constraint_name)
+                            v_row_data.append("Foreign Key")
+                            v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
+                            v_row_data.append(v_r_table_name)
+                            v_row_data.append(v_referenced_column_list)
+                            v_row_data.append(v_delete_rule)
+                            v_row_data.append(v_update_rule)
+
+                            if v_database.v_can_drop_constraint:
+                                v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                            else:
+                                v_row_data.append("")
+
+                            v_table_constraints.append(v_row_data)
+
+                            v_constraint_name = v_column["constraint_name"]
+                            v_update_rule = v_column["update_rule"]
+                            v_delete_rule = v_column["delete_rule"]
+
+                            v_column_list = ""
+                            v_referenced_column_list = ""
+                            v_first = True
+
+                        if v_database.v_has_schema:
+                            v_r_table_name = v_column["r_table_schema"] + "." + v_column["r_table_name"]
+                        else:
+                            v_r_table_name = v_column["r_table_name"]
+
+                        if not v_first:
+                            v_column_list += ", "
+                            v_referenced_column_list += ", "
+
+                        v_column_list += v_column["column_name"]
+                        v_referenced_column_list += v_column["r_column_name"]
+                        v_first = False
+
+                    if v_column_list!="":
+                        v_row_data = []
+
+                        v_row_data.append(v_constraint_name)
+                        v_row_data.append("Foreign Key")
+                        v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
+                        v_row_data.append(v_r_table_name)
+                        v_row_data.append(v_referenced_column_list)
+                        v_row_data.append(v_delete_rule)
+                        v_row_data.append(v_update_rule)
+
+                        if v_database.v_can_drop_constraint:
+                            v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                        else:
+                            v_row_data.append("")
+
+                        v_table_constraints.append(v_row_data)
 
             #Retrieving uniques
             if v_schema_name:
@@ -580,58 +765,66 @@ def alter_table_data(request):
                 v_uniques_table = v_database.QueryTablesUniques(v_table_name)
 
             if v_uniques_table != None and len(v_uniques_table.Rows)>0:
-                v_column_list = ""
-                v_constraint_name = v_uniques_table.Rows[0]["constraint_name"]
-                v_first = True
 
-                for v_column in v_uniques_table.Rows:
+                for v_unique in v_uniques_table.Rows:
 
-                	if v_column["constraint_name"]!=v_constraint_name:
-                		v_row_data = []
+                    v_column_list = ""
+                    v_constraint_name = v_unique["constraint_name"]
 
-                		v_row_data.append(v_constraint_name)
-                		v_row_data.append("Unique");
-                		v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
-                		v_row_data.append("")
-                		v_row_data.append("")
-                		v_row_data.append("")
-                		v_row_data.append("")
+                    if v_schema_name:
+                        v_uniques_col_table = v_database.QueryTablesUniquesColumns(v_unique['constraint_name'], v_table_name, False, v_schema_name)
+                    else:
+                        v_uniques_col_table = v_database.QueryTablesUniquesColumns(v_unique['constraint_name'], v_table_name)
 
-                		if v_database.v_can_drop_constraint:
-                			v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
-                		else:
-                			v_row_data.append("")
+                    v_first = True
 
-                		v_table_constraints.append(v_row_data)
+                    for v_column in v_uniques_col_table.Rows:
 
-                		v_constraint_name = v_column["constraint_name"]
-                		v_column_list = ""
-                		v_first = True
+                        if v_unique["constraint_name"]!=v_constraint_name:
+                            v_row_data = []
 
+                            v_row_data.append(v_constraint_name)
+                            v_row_data.append("Unique");
+                            v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
+                            v_row_data.append("")
+                            v_row_data.append("")
+                            v_row_data.append("")
+                            v_row_data.append("")
 
-                	if not v_first:
-                		v_column_list += ", "
+                            if v_database.v_can_drop_constraint:
+                                v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                            else:
+                                v_row_data.append("")
 
-                	v_column_list += v_column["column_name"]
-                	v_first = False
+                            v_table_constraints.append(v_row_data)
 
-                if v_column_list!="":
-                	v_row_data = []
+                            v_constraint_name = v_column["constraint_name"]
+                            v_column_list = ""
+                            v_first = True
 
-                	v_row_data.append(v_constraint_name)
-                	v_row_data.append("Unique")
-                	v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
-                	v_row_data.append("")
-                	v_row_data.append("")
-                	v_row_data.append("")
-                	v_row_data.append("")
+                        if not v_first:
+                            v_column_list += ", "
 
-                	if v_database.v_can_drop_constraint:
-                		v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
-                	else:
-                		v_row_data.append("")
+                        v_column_list += v_column["column_name"]
+                        v_first = False
 
-                	v_table_constraints.append(v_row_data)
+                    if v_column_list!="":
+                        v_row_data = []
+
+                        v_row_data.append(v_constraint_name)
+                        v_row_data.append("Unique")
+                        v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
+                        v_row_data.append("")
+                        v_row_data.append("")
+                        v_row_data.append("")
+                        v_row_data.append("")
+
+                        if v_database.v_can_drop_constraint:
+                            v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                        else:
+                            v_row_data.append("")
+
+                        v_table_constraints.append(v_row_data)
 
             v_table_indexes = []
 
@@ -643,78 +836,86 @@ def alter_table_data(request):
 
             if v_indexes_table != None and len(v_indexes_table.Rows)>0:
 
-            	v_column_list = ""
-            	v_index_name = v_indexes_table.Rows[0]["index_name"]
-            	v_uniqueness = v_indexes_table.Rows[0]["uniqueness"]
-            	v_first = True
+                for v_index in v_indexes_table.Rows:
 
-            	for v_column in v_indexes_table.Rows:
+                    v_column_list = ""
+                    v_index_name = v_index["index_name"]
+                    v_uniqueness = v_index["uniqueness"]
 
-            		if v_column["index_name"]!=v_index_name:
-            			v_row_data = []
+                    if v_schema_name:
+                        v_indexes_col_table = v_database.QueryTablesIndexesColumns(v_index['index_name'], v_table_name, False, v_schema_name)
+                    else:
+                        v_indexes_col_table = v_database.QueryTablesIndexesColumns(v_index['index_name'], v_table_name)
 
-            			v_row_data.append(v_index_name)
-            			v_row_data.append(v_uniqueness)
-            			v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_list)
-            			v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropIndexAlterTable()'/>")
+                    v_first = True
 
-            			v_table_indexes.append(v_row_data)
+                    for v_column in v_indexes_col_table.Rows:
 
-            			v_index_name = v_column["index_name"]
-            			v_uniqueness = v_column["uniqueness"]
-            			v_column_list = ""
-            			v_first = True
+                        if v_index["index_name"]!=v_index_name:
+                            v_row_data = []
 
-            		if not v_first:
-            			v_column_list += ", "
+                            v_row_data.append(v_index_name)
+                            v_row_data.append(v_uniqueness)
+                            v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_list)
+                            v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropIndexAlterTable()'/>")
 
-            		v_column_list += v_column["column_name"]
-            		v_first = False
+                            v_table_indexes.append(v_row_data)
 
-            	if v_column_list!="":
-            		v_row_data = []
+                            v_index_name = v_index["index_name"]
+                            v_uniqueness = v_index["uniqueness"]
+                            v_column_list = ""
+                            v_first = True
 
-            		v_row_data.append(v_index_name)
-            		v_row_data.append(v_uniqueness)
-            		v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_list)
-            		v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropIndexAlterTable()'/>")
+                        if not v_first:
+                            v_column_list += ", "
 
-            		v_table_indexes.append(v_row_data)
+                        v_column_list += v_column["column_name"]
+                        v_first = False
+
+                    if v_column_list!="":
+                        v_row_data = []
+
+                        v_row_data.append(v_index_name)
+                        v_row_data.append(v_uniqueness)
+                        v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_list)
+                        v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropIndexAlterTable()'/>")
+
+                        v_table_indexes.append(v_row_data)
 
             v_return['v_data'] = {
                 'v_can_rename_table': v_database.v_can_rename_table,
-            	'v_data_columns': v_table_columns,
-            	'v_data_constraints': v_table_constraints,
-            	'v_data_indexes': v_table_indexes,
-            	'v_data_types': v_data_types,
-            	'v_tables': v_tables,
-            	'v_can_rename_column': v_database.v_can_rename_column,
-            	'v_can_alter_type': v_database.v_can_alter_type,
-            	'v_can_alter_nullable': v_database.v_can_alter_nullable,
-            	'v_can_drop_column': v_database.v_can_drop_column,
-            	'v_can_add_constraint': v_database.v_can_add_constraint,
-            	'v_can_drop_constraint': v_database.v_can_drop_constraint,
-            	'v_has_update_rule': v_database.v_has_update_rule,
-            	'v_update_rules': v_database.v_update_rules,
-            	'v_delete_rules': v_database.v_delete_rules
+                'v_data_columns': v_table_columns,
+                'v_data_constraints': v_table_constraints,
+                'v_data_indexes': v_table_indexes,
+                'v_data_types': v_data_types,
+                'v_tables': v_tables,
+                'v_can_rename_column': v_database.v_can_rename_column,
+                'v_can_alter_type': v_database.v_can_alter_type,
+                'v_can_alter_nullable': v_database.v_can_alter_nullable,
+                'v_can_drop_column': v_database.v_can_drop_column,
+                'v_can_add_constraint': v_database.v_can_add_constraint,
+                'v_can_drop_constraint': v_database.v_can_drop_constraint,
+                'v_has_update_rule': v_database.v_has_update_rule,
+                'v_update_rules': v_database.v_update_rules,
+                'v_delete_rules': v_database.v_delete_rules
             }
         else:
             v_return['v_data'] = {
                 'v_can_rename_table': v_database.v_can_rename_table,
-            	'v_data_columns': [],
-            	'v_data_constraints': [],
-            	'v_data_indexes': [],
-            	'v_data_types': v_data_types,
-            	'v_tables': v_tables,
-            	'v_can_rename_column': v_database.v_can_rename_column,
-            	'v_can_alter_type': v_database.v_can_alter_type,
-            	'v_can_alter_nullable': v_database.v_can_alter_nullable,
-            	'v_can_drop_column': v_database.v_can_drop_column,
-            	'v_can_add_constraint': v_database.v_can_add_constraint,
-            	'v_can_drop_constraint': v_database.v_can_drop_constraint,
-            	'v_has_update_rule': v_database.v_has_update_rule,
-            	'v_update_rules': v_database.v_update_rules,
-            	'v_delete_rules': v_database.v_delete_rules
+                'v_data_columns': [],
+                'v_data_constraints': [],
+                'v_data_indexes': [],
+                'v_data_types': v_data_types,
+                'v_tables': v_tables,
+                'v_can_rename_column': v_database.v_can_rename_column,
+                'v_can_alter_type': v_database.v_can_alter_type,
+                'v_can_alter_nullable': v_database.v_can_alter_nullable,
+                'v_can_drop_column': v_database.v_can_drop_column,
+                'v_can_add_constraint': v_database.v_can_add_constraint,
+                'v_can_drop_constraint': v_database.v_can_drop_constraint,
+                'v_has_update_rule': v_database.v_has_update_rule,
+                'v_update_rules': v_database.v_update_rules,
+                'v_delete_rules': v_database.v_delete_rules
             }
 
         return JsonResponse(v_return)
@@ -769,13 +970,13 @@ def save_alter_table(request):
         v_table_name = ""
 
         if v_database.v_has_schema:
-        	v_table_name = p_schema_name + "." + p_original_table_name
+            v_table_name = p_schema_name + "." + p_original_table_name
         else:
-        	v_table_name = p_original_table_name
+            v_table_name = p_original_table_name
 
         #Columns
         for v_row in p_row_columns_info:
-        	#Adding new column
+            #Adding new column
             if v_row['mode'] == 2:
                 v_command = v_database.v_add_column_command
                 v_command = v_command.replace ("#p_table_name#", v_table_name)
@@ -827,7 +1028,7 @@ def save_alter_table(request):
 
                 v_return['v_data']['v_columns_simple_commands_return'].append(v_info_return)
 
-        	#Changing existing column
+            #Changing existing column
             elif v_row['mode'] == 1:
 
                 v_info_return = {
@@ -865,7 +1066,7 @@ def save_alter_table(request):
 
                 v_info_return['alter_datatype'] = v_info_return1
 
-        		#Changing column nullable
+                #Changing column nullable
                 v_info_return1 = {
                     'error': False,
                     'v_command': None,
@@ -897,7 +1098,7 @@ def save_alter_table(request):
 
                 v_info_return['alter_nullable'] = v_info_return1
 
-        		#Changing column name
+                #Changing column name
                 v_info_return1 = {
                     'error': False,
                     'v_command': None,
@@ -962,7 +1163,7 @@ def save_alter_table(request):
 
                     v_return['v_data']['v_constraints_commands_return'].append(v_info_return)
 
-        		#Adding FK
+                #Adding FK
                 elif p_data_constraints [i] [1] == "Foreign Key":
 
                     v_command = v_database.v_add_fk_command
@@ -1013,7 +1214,7 @@ def save_alter_table(request):
 
                     v_return['v_data']['v_constraints_commands_return'].append(v_info_return)
 
-        	#Dropping existing constraint
+            #Dropping existing constraint
             elif v_row['mode'] == -1:
 
                 #Dropping PK
@@ -1039,7 +1240,7 @@ def save_alter_table(request):
 
                     v_return['v_data']['v_constraints_commands_return'].append(v_info_return)
 
-        		#Dropping FK
+                #Dropping FK
                 elif p_data_constraints [i] [1] == "Foreign Key":
 
                     v_command = v_database.v_drop_fk_command;
@@ -1062,7 +1263,7 @@ def save_alter_table(request):
 
                     v_return['v_data']['v_constraints_commands_return'].append(v_info_return)
 
-        		#Dropping Unique
+                #Dropping Unique
                 elif p_data_constraints [i] [1] == "Unique":
 
                     v_command = v_database.v_drop_unique_command;
@@ -1092,15 +1293,15 @@ def save_alter_table(request):
         #Indexes
         for v_row in p_row_indexes_info:
 
-        	#Adding new index
+            #Adding new index
             if v_row['mode'] == 2:
 
                 v_command = "";
 
                 if p_data_indexes [i] [1] == "Unique":
-                	v_command = v_database.v_create_unique_index_command
+                    v_command = v_database.v_create_unique_index_command
                 else:
-                	v_command = v_database.v_create_index_command
+                    v_command = v_database.v_create_index_command
 
                 v_command = v_command.replace ("#p_table_name#", v_table_name)
                 v_command = v_command.replace ("#p_index_name#", p_data_indexes [i] [0])
@@ -1122,7 +1323,7 @@ def save_alter_table(request):
 
                 v_return['v_data']['v_indexes_commands_return'].append(v_info_return)
 
-        	#Dropping existing index
+            #Dropping existing index
             elif v_row['mode'] == -1:
 
                 v_command = v_database.v_drop_index_command
@@ -1150,9 +1351,14 @@ def save_alter_table(request):
 
         if p_original_table_name != p_new_table_name:
 
+            if v_database.v_has_schema:
+                v_new_table_name = p_schema_name + "." + p_new_table_name
+            else:
+                v_new_table_name = p_new_table_name
+
             v_command = v_database.v_rename_table_command
             v_command = v_command.replace ("#p_table_name#", v_table_name)
-            v_command = v_command.replace ("#p_new_table_name#", p_new_table_name)
+            v_command = v_command.replace ("#p_new_table_name#", v_new_table_name)
 
             v_info_return = {
                 'error': False,
@@ -1176,9 +1382,9 @@ def save_alter_table(request):
         v_table_name = ""
 
         if v_database.v_has_schema:
-        	v_table_name = p_schema_name + "." + p_new_table_name
+            v_table_name = p_schema_name + "." + p_new_table_name
         else:
-        	v_table_name = p_new_table_name
+            v_table_name = p_new_table_name
 
         v_command = "create table " + v_table_name + " ("
 
@@ -1186,52 +1392,52 @@ def save_alter_table(request):
 
         for v_row in p_row_columns_info:
 
-        	if not v_first:
-        		v_command += ","
+            if not v_first:
+                v_command += ","
 
-        	v_command += p_data_columns [i] [0] + " " + p_data_columns [i] [1]
-        	if p_data_columns [i] [2] == "NO":
-        		v_command += " not null"
+            v_command += p_data_columns [i] [0] + " " + p_data_columns [i] [1]
+            if p_data_columns [i] [2] == "NO":
+                v_command += " not null"
 
-        	i = i + 1
+            i = i + 1
 
-        	v_first = False
+            v_first = False
 
         i = 0
 
         for v_row in p_row_constraints_info:
 
             if not v_first:
-            	v_command += ","
+                v_command += ","
 
             v_first = False
 
             if p_data_constraints [i] [1] == "Primary Key":
 
-            	v_command_constraint = v_database.v_create_pk_command
-            	v_command_constraint = v_command_constraint.replace ("#p_constraint_name#", p_data_constraints [i] [0])
-            	v_command_constraint = v_command_constraint.replace ("#p_columns#", p_data_constraints [i] [2])
+                v_command_constraint = v_database.v_create_pk_command
+                v_command_constraint = v_command_constraint.replace ("#p_constraint_name#", p_data_constraints [i] [0])
+                v_command_constraint = v_command_constraint.replace ("#p_columns#", p_data_constraints [i] [2])
 
-            	v_command += v_command_constraint
+                v_command += v_command_constraint
 
             elif p_data_constraints [i] [1] == "Foreign Key":
 
-            	v_command_constraint = v_database.v_create_fk_command
-            	v_command_constraint = v_command_constraint.replace ("#p_constraint_name#", p_data_constraints [i] [0])
-            	v_command_constraint = v_command_constraint.replace ("#p_columns#", p_data_constraints [i] [2])
-            	v_command_constraint = v_command_constraint.replace ("#p_r_table_name#", p_data_constraints [i] [3])
-            	v_command_constraint = v_command_constraint.replace ("#p_r_columns#", p_data_constraints [i] [4])
-            	v_command_constraint = v_command_constraint.replace ("#p_delete_update_rules#", v_database.HandleUpdateDeleteRules(p_data_constraints [i] [6], p_data_constraints [i] [5]))
+                v_command_constraint = v_database.v_create_fk_command
+                v_command_constraint = v_command_constraint.replace ("#p_constraint_name#", p_data_constraints [i] [0])
+                v_command_constraint = v_command_constraint.replace ("#p_columns#", p_data_constraints [i] [2])
+                v_command_constraint = v_command_constraint.replace ("#p_r_table_name#", p_data_constraints [i] [3])
+                v_command_constraint = v_command_constraint.replace ("#p_r_columns#", p_data_constraints [i] [4])
+                v_command_constraint = v_command_constraint.replace ("#p_delete_update_rules#", v_database.HandleUpdateDeleteRules(p_data_constraints [i] [6], p_data_constraints [i] [5]))
 
-            	v_command += v_command_constraint
+                v_command += v_command_constraint
 
             elif p_data_constraints [i] [1] == "Unique":
 
-            	v_command_constraint = v_database.v_create_unique_command
-            	v_command_constraint = v_command_constraint.replace ("#p_constraint_name#", p_data_constraints [i] [0])
-            	v_command_constraint = v_command_constraint.replace ("#p_columns#", p_data_constraints [i] [2])
+                v_command_constraint = v_database.v_create_unique_command
+                v_command_constraint = v_command_constraint.replace ("#p_constraint_name#", p_data_constraints [i] [0])
+                v_command_constraint = v_command_constraint.replace ("#p_columns#", p_data_constraints [i] [2])
 
-            	v_command += v_command_constraint
+                v_command += v_command_constraint
 
             i = i + 1
 
@@ -1273,10 +1479,11 @@ def start_edit_data(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_table          = json_object['p_table']
     v_schema         = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -1299,7 +1506,7 @@ def start_edit_data(request):
         else:
             v_table_name = v_table
         v_columns = v_database.QueryTablesFields(v_table,False,v_schema)
-        v_data1 = v_database.QueryDataLimited('select * from ' + v_table_name, 0)
+        v_data1 = v_database.QueryDataLimited('select * from ' + v_table_name + ' t', 0)
         v_query_column_classes = ''
         v_first = True
 
@@ -1308,7 +1515,7 @@ def start_edit_data(request):
                 v_query_column_classes = v_query_column_classes + 'union '
             v_first = False
 
-            v_query_column_classes = v_query_column_classes + '''
+            v_query_column_classes = v_query_column_classes + """
             select '{0}' as column,
                    dc.cat_st_class as cat_st_class,
                    dt.dt_type as dt_type,
@@ -1322,14 +1529,14 @@ def start_edit_data(request):
               and dt.cat_st_name = dc.cat_st_name
             union
             select '{0}' as column,
-                   'text' as cat_st_class,
+                   'other' as cat_st_class,
                    '{2}' as dt_type,
                    '#' as dt_st_readformat,
                    '#' as dt_st_compareformat,
-                   '#' as dt_st_writeformat
+                   '''#''' as dt_st_writeformat
             where '{2}' not in (
                 select dt_type from data_types where dbt_st_name='{1}'
-            )'''.format(
+            )""".format(
                 v_column['column_name'],
                 v_database.v_db_type,
                 v_column['data_type'].lower()
@@ -1354,28 +1561,29 @@ def start_edit_data(request):
         if v_pk != None:
             if len(v_pk.Rows) > 0:
                 v_return['v_data']['v_ini_orderby'] = 'order by '
-            v_first = True
-            v_index = 0
-            for k in range(0, len(v_return['v_data']['v_cols'])):
-                for v_pk_col in v_pk.Rows:
-                    if v_pk_col['column_name'].lower() == v_return['v_data']['v_cols'][k]['v_column'].lower():
-                        v_return['v_data']['v_cols'][k]['v_is_pk'] = True
+                v_first = True
+                v_index = 0
+                for k in range(0, len(v_return['v_data']['v_cols'])):
+                    v_pk_cols = v_database.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], v_table, False, v_schema)
+                    for v_pk_col in v_pk_cols.Rows:
+                        if v_pk_col['column_name'].lower() == v_return['v_data']['v_cols'][k]['v_column'].lower():
+                            v_return['v_data']['v_cols'][k]['v_is_pk'] = True
 
-                        if not v_first:
-                            v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + ', '
-                        v_first = False
+                            if not v_first:
+                                v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + ', '
+                            v_first = False
 
-                        v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + 't.' + v_pk_col['column_name']
+                            v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + 't.' + v_pk_col['column_name']
 
-                        v_pk_info = {}
-                        v_pk_info['v_column'] = v_pk_col['column_name']
-                        v_pk_info['v_index'] = v_index
-                        v_pk_info['v_class'] = v_return['v_data']['v_cols'][k]['v_class']
-                        v_pk_info['v_compareformat'] = v_return['v_data']['v_cols'][k]['v_compareformat']
+                            v_pk_info = {}
+                            v_pk_info['v_column'] = v_pk_col['column_name']
+                            v_pk_info['v_index'] = v_index
+                            v_pk_info['v_class'] = v_return['v_data']['v_cols'][k]['v_class']
+                            v_pk_info['v_compareformat'] = v_return['v_data']['v_cols'][k]['v_compareformat']
 
-                        v_return['v_data']['v_pk'].append(v_pk_info)
-                        break
-                v_index = v_index + 1
+                            v_return['v_data']['v_pk'].append(v_pk_info)
+                            break
+                    v_index = v_index + 1
 
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -1403,29 +1611,29 @@ def is_reference(p_sql, p_prefix, p_occurence_index,p_cursor_index):
 
     #If prefix and occurence are the same
     if v_next_index == p_cursor_index:
-    	return False
+        return False
 
     #prefix is at the end of the string
     if p_occurence_index + v_length >= len(p_sql):
-    	if p_occurence_index == 0:
-    		return False
-    	elif p_sql [p_occurence_index - 1] == ' ':
-    		return True
-    	else:
-    		return False
+        if p_occurence_index == 0:
+            return False
+        elif p_sql [p_occurence_index - 1] == ' ':
+            return True
+        else:
+            return False
 
     next_char = p_sql [v_next_index]
 
     if next_char=='.':
-    	return False
+        return False
 
     if next_char == ',' or next_char == '\n' or next_char == ' ' or next_char == ')':
-    	if p_occurence_index == 0:
-    		return False
-    	elif p_sql [p_occurence_index - 1] == ' ':
-    		return True
-    	else:
-    		return False
+        if p_occurence_index == 0:
+            return False
+        elif p_sql [p_occurence_index - 1] == ' ':
+            return True
+        else:
+            return False
 
     return False
 
@@ -1446,6 +1654,7 @@ def get_completions(request):
 
     json_object = json.loads(request.POST.get('data', None))
     p_database_index = json_object['p_database_index']
+    p_tab_id = json_object['p_tab_id']
     p_prefix = json_object['p_prefix']
     p_sql = json_object['p_sql']
     p_prefix_pos = json_object['p_prefix_pos']
@@ -1457,7 +1666,7 @@ def get_completions(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_database = v_session.v_databases[p_database_index]['database']
+    v_database = v_session.v_tab_connections[p_tab_id]
 
     v_list = []
 
@@ -1468,37 +1677,37 @@ def get_completions(request):
     index = 0
 
     for v_index in inst:
-    	v_found = is_reference(p_sql, p_prefix, v_index, p_prefix_pos)
-    	if v_found:
-    		index = v_index
-    		break
+        v_found = is_reference(p_sql, p_prefix, v_index, p_prefix_pos)
+        if v_found:
+            index = v_index
+            break
 
     if not v_found:
-    	v_return['v_data'] = v_list
-    	return JsonResponse(v_return)
+        v_return['v_data'] = v_list
+        return JsonResponse(v_return)
 
     v_table = ""
 
     while index > 0 and p_sql[index - 1] == ' ':
-    	index = index - 1
+        index = index - 1
 
     v_last_pos = index
 
     if p_sql [v_last_pos - 1] == ')':
-    	v_level = 0
+        v_level = 0
 
-    	while index > 0:
-    		if p_sql [index - 1] == ')':
-    			v_level = v_level - 1
-    		elif p_sql [index - 1] == '(':
-    			v_level = v_level + 1
+        while index > 0:
+            if p_sql [index - 1] == ')':
+                v_level = v_level - 1
+            elif p_sql [index - 1] == '(':
+                v_level = v_level + 1
 
-    		if p_sql [index - 1] == '(' and v_level == 0:
-    			break
+            if p_sql [index - 1] == '(' and v_level == 0:
+                break
 
-    		index = index - 1
+            index = index - 1
 
-    	v_table = p_sql[index - 1:v_last_pos]
+        v_table = p_sql[index - 1:v_last_pos]
 
 
     else:
@@ -1516,7 +1725,7 @@ def get_completions(request):
         v_first_pos = index
         v_table = p_sql[v_first_pos:v_last_pos]
     try:
-    	v_data1 = v_database.v_connection.GetFields ("select x.* from " + v_table + " x where 1 = 0")
+        v_data1 = v_database.v_connection.GetFields ("select x.* from " + v_table + " x where 1 = 0")
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
@@ -1529,8 +1738,8 @@ def get_completions(request):
     v_score -= 100
 
     for v_type in v_data1:
-    	v_list.append ({'value': p_prefix + "." + v_type.v_truename, 'score': v_score, 'meta': v_type.v_dbtype});
-    	v_score -= 100;
+        v_list.append ({'value': p_prefix + "." + v_type.v_truename, 'score': v_score, 'meta': v_type.v_dbtype});
+        v_score -= 100;
 
     v_return['v_data'] = v_list
 
@@ -1553,6 +1762,7 @@ def get_completions_table(request):
 
     json_object = json.loads(request.POST.get('data', None))
     p_database_index = json_object['p_database_index']
+    p_tab_id = json_object['p_tab_id']
     p_table = json_object['p_table']
     p_schema = json_object['p_schema']
 
@@ -1563,7 +1773,7 @@ def get_completions_table(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_database = v_session.v_databases[p_database_index]['database']
+    v_database = v_session.v_tab_connections[p_tab_id]
 
     if v_database.v_has_schema:
         v_table_name = p_schema + "." + p_table
@@ -1573,7 +1783,7 @@ def get_completions_table(request):
     v_list = []
 
     try:
-    	v_data1 = v_database.v_connection.GetFields ("select x.* from " + v_table_name + " x where 1 = 0")
+        v_data1 = v_database.v_connection.GetFields ("select x.* from " + v_table_name + " x where 1 = 0")
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
@@ -1586,8 +1796,8 @@ def get_completions_table(request):
     v_score -= 100
 
     for v_type in v_data1:
-    	v_list.append ({'value': "t." + v_type.v_truename, 'score': v_score, 'meta': v_type.v_dbtype});
-    	v_score -= 100;
+        v_list.append ({'value': "t." + v_type.v_truename, 'score': v_score, 'meta': v_type.v_dbtype});
+        v_score -= 100;
 
     v_return['v_data'] = v_list
 
@@ -1735,9 +1945,10 @@ def refresh_monitoring(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_sql            = json_object['p_query']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -1779,5 +1990,103 @@ def test_ws(request):
 
     json_object = json.loads(request.POST.get('data', None))
     time.sleep(10)
+
+    return JsonResponse(v_return)
+
+def get_console_history(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    v_query = '''
+        select command_text,
+               command_date
+        from console_history
+        where user_id = {0}
+          and conn_id = {1}
+        order by command_date desc
+    '''.format(v_session.v_user_id,v_database_index)
+
+
+    v_return['v_data'] = []
+    v_data = []
+    v_data_clean = []
+
+    try:
+        v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
+        for v_unit in v_units.Rows:
+            v_actions = '<img src="/static/OmniDB_app/images/select.png" class="img_ht" onclick="consoleHistorySelectCommand()"/>'
+
+            v_data.append([v_actions,v_unit['command_date'],v_unit['command_text']])
+            v_data_clean.append(v_unit['command_text'])
+        v_return['v_data'] = { 'data': v_data, 'data_clean': v_data_clean }
+
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def get_console_history_clean(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    v_query = '''
+        select command_text,
+               command_date
+        from console_history
+        where user_id = {0}
+          and conn_id = {1}
+        order by command_date desc
+    '''.format(v_session.v_user_id,v_database_index)
+
+
+    v_return['v_data'] = []
+    v_data_clean = []
+
+    try:
+        v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
+        for v_unit in v_units.Rows:
+            v_data_clean.append(v_unit['command_text'])
+        v_return['v_data'] = v_data_clean
+
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     return JsonResponse(v_return)

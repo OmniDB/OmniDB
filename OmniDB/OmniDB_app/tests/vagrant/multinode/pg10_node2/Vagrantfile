@@ -10,7 +10,10 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
   config.vm.box = "debian/stretch64"
   config.vm.box_url = "https://app.vagrantup.com/debian/boxes/stretch64"
-  config.vm.host_name = "omnidb2"
+  config.vm.host_name = "omnidbpg102"
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "omnidb_pg10_node2"
+  end
   config.vm.network "private_network", ip: '192.168.56.102', :name => 'vboxnet0', :adapter => 2
   config.vm.network "forwarded_port", guest: 5432, host: 5402
   config.vm.synced_folder ".", "/mnt/bootstrap"

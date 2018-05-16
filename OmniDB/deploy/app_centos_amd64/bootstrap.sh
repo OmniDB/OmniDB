@@ -3,7 +3,7 @@
 PYTHON_VERSION=3.5.2
 
 echo "Installing dependencies..."
-yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build
+yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build curl epel-release
 yum groupinstall -y "GNOME Desktop"
 echo "Done"
 
@@ -18,6 +18,11 @@ echo "Done"
 echo "Installing Python $PYTHON_VERSION..."
 env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install $PYTHON_VERSION
 pyenv global $PYTHON_VERSION
+echo "Done"
+
+echo "Installing NodeJS..."
+curl --silent --location https://rpm.nodesource.com/setup_8.x | sudo bash -
+yum -y install nodejs
 echo "Done"
 
 echo "Cloning OmniDB repo..."

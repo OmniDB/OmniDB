@@ -54,9 +54,6 @@ def get_tree_info(request):
                 'create_tablespace': v_database.TemplateCreateTablespace().v_text,
                 'alter_tablespace': v_database.TemplateAlterTablespace().v_text,
                 'drop_tablespace': v_database.TemplateDropTablespace().v_text,
-                'create_database': v_database.TemplateCreateDatabase().v_text,
-                'alter_database': v_database.TemplateAlterDatabase().v_text,
-                'drop_database': v_database.TemplateDropDatabase().v_text,
                 'create_sequence': v_database.TemplateCreateSequence().v_text,
                 'alter_sequence': v_database.TemplateAlterSequence().v_text,
                 'drop_sequence': v_database.TemplateDropSequence().v_text,
@@ -133,54 +130,22 @@ def get_properties(request):
         return JsonResponse(v_return)
 
     v_list_properties = []
+    v_ddl = ''
 
     try:
         v_properties = v_database.GetProperties(v_data['p_schema'],v_data['p_object'],v_data['p_type'])
         for v_property in v_properties.Rows:
             v_list_properties.append([v_property['Property'],v_property['Value']])
+        v_ddl = v_database.GetDDL(v_data['p_schema'],v_data['p_table'],v_data['p_object'],v_data['p_type'])
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_return['v_data'] = v_list_properties
-
-    return JsonResponse(v_return)
-
-def get_ddl(request):
-
-    v_return = {}
-    v_return['v_data'] = ''
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
-    json_object = json.loads(request.POST.get('data', None))
-    v_database_index = json_object['p_database_index']
-    v_data = json_object['p_data']
-
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    try:
-        v_return['v_data'] = v_database.GetDDL(v_data['p_schema'],v_data['p_table'],v_data['p_object'],v_data['p_type'])
-    except Exception as exc:
-        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_return['v_data'] = {
+        'properties': v_list_properties,
+        'ddl': v_ddl
+    }
 
     return JsonResponse(v_return)
 
@@ -321,10 +286,56 @@ def get_pk(request):
     v_list_pk = []
 
     try:
-        v_pks = v_database.QueryTablesPrimaryKeys(v_table,False,v_schema)
+        v_pks = v_database.QueryTablesPrimaryKeys(v_table, False, v_schema)
         for v_pk in v_pks.Rows:
             v_pk_data = []
             v_pk_data.append(v_pk['constraint_name'])
+            v_list_pk.append(v_pk_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_pk
+
+    return JsonResponse(v_return)
+
+def get_pk_columns(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_pkey = json_object['p_key']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_pk = []
+
+    try:
+        v_pks = v_database.QueryTablesPrimaryKeysColumns(v_pkey, v_table, False, v_schema)
+        for v_pk in v_pks.Rows:
+            v_pk_data = []
             v_pk_data.append(v_pk['column_name'])
             v_list_pk.append(v_pk_data)
     except Exception as exc:
@@ -372,11 +383,60 @@ def get_fks(request):
         for v_fk in v_fks.Rows:
             v_fk_data = []
             v_fk_data.append(v_fk['constraint_name'])
-            v_fk_data.append(v_fk['column_name'])
             v_fk_data.append(v_fk['r_table_name'])
-            v_fk_data.append(v_fk['r_column_name'])
             v_fk_data.append(v_fk['delete_rule'])
             v_fk_data.append(v_fk['update_rule'])
+            v_list_fk.append(v_fk_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_fk
+
+    return JsonResponse(v_return)
+
+def get_fks_columns(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_fkey = json_object['p_fkey']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_fk = []
+
+    try:
+        v_fks = v_database.QueryTablesForeignKeysColumns(v_fkey, v_table, False, v_schema)
+        for v_fk in v_fks.Rows:
+            v_fk_data = []
+            v_fk_data.append(v_fk['r_table_name'])
+            v_fk_data.append(v_fk['delete_rule'])
+            v_fk_data.append(v_fk['update_rule'])
+            v_fk_data.append(v_fk['column_name'])
+            v_fk_data.append(v_fk['r_column_name'])
             v_list_fk.append(v_fk_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -419,10 +479,56 @@ def get_uniques(request):
     v_list_uniques = []
 
     try:
-        v_uniques = v_database.QueryTablesUniques(v_table,False,v_schema)
+        v_uniques = v_database.QueryTablesUniques(v_table, False, v_schema)
         for v_unique in v_uniques.Rows:
             v_unique_data = []
             v_unique_data.append(v_unique['constraint_name'])
+            v_list_uniques.append(v_unique_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_uniques
+
+    return JsonResponse(v_return)
+
+def get_uniques_columns(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_unique = json_object['p_unique']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_uniques = []
+
+    try:
+        v_uniques = v_database.QueryTablesUniquesColumns(v_unique, v_table, False, v_schema)
+        for v_unique in v_uniques.Rows:
+            v_unique_data = []
             v_unique_data.append(v_unique['column_name'])
             v_list_uniques.append(v_unique_data)
     except Exception as exc:
@@ -471,7 +577,6 @@ def get_indexes(request):
             v_index_data = []
             v_index_data.append(v_index['index_name'])
             v_index_data.append(v_index['uniqueness'])
-            v_index_data.append(v_index['column_name'])
             v_list_indexes.append(v_index_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -482,7 +587,7 @@ def get_indexes(request):
 
     return JsonResponse(v_return)
 
-def get_databases(request):
+def get_indexes_columns(request):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -499,6 +604,9 @@ def get_databases(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_index = json_object['p_index']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
 
     v_database = v_session.v_databases[v_database_index]['database']
 
@@ -509,21 +617,20 @@ def get_databases(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_list_databases = []
+    v_list_indexes = []
 
     try:
-        v_databases = v_database.QueryDatabases()
-        for v_database in v_databases.Rows:
-            v_database_data = {
-                'v_name': v_database['database_name']
-            }
-            v_list_databases.append(v_database_data)
+        v_indexes = v_database.QueryTablesIndexesColumns(v_index, v_table, False, v_schema)
+        for v_index in v_indexes.Rows:
+            v_index_data = []
+            v_index_data.append(v_index['column_name'])
+            v_list_indexes.append(v_index_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-    v_return['v_data'] = v_list_databases
+    v_return['v_data'] = v_list_indexes
 
     return JsonResponse(v_return)
 

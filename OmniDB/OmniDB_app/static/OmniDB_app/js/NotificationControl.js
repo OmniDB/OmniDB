@@ -34,7 +34,7 @@ function hideError() {
 }
 
 
-function showAlert(p_info)
+function showAlert(p_info, p_funcYes = null)
 {
 	var v_div_text = document.createElement('div');
 	v_div_text.className = 'div_alert_text';
@@ -48,6 +48,8 @@ function showAlert(p_info)
 	v_button.onclick = function() {
 		document.getElementById('div_alert_content').innerHTML = '';
 		$('#div_alert').hide();
+		if (p_funcYes!=null)
+			p_funcYes();
 	};
 
 	v_div_buttons.appendChild(v_button);
@@ -144,5 +146,39 @@ function showConfirm2(p_info,p_funcYes,p_funcNo)
 
 	$('#div_alert').show();
 
+}
+
+function showConfirm3(p_info,p_funcYes,p_funcNo)
+{
+
+	var v_div_text = document.createElement('div');
+	v_div_text.className = 'div_alert_text';
+	v_div_text.innerHTML = p_info;
+
+	var v_div_buttons = document.createElement('div');
+	v_div_buttons.className = 'div_alert_buttons';
+
+	var v_button = document.createElement('button');
+	v_button.innerHTML = 'Yes';
+	v_button.onclick = function() {
+		clickConfirmCancel();
+		p_funcYes();
+	};
+	v_div_buttons.appendChild(v_button);
+
+	v_button = document.createElement('button');
+	v_button.innerHTML = 'No';
+	v_button.onclick = function() {
+		clickConfirmCancel();
+		p_funcNo();
+	};
+	v_div_buttons.appendChild(v_button);
+
+	document.getElementById('div_alert_content').innerHTML = '';
+
+	document.getElementById('div_alert_content').appendChild(v_div_text);
+	document.getElementById('div_alert_content').appendChild(v_div_buttons);
+
+	$('#div_alert').show();
 
 }

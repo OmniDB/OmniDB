@@ -81,8 +81,9 @@ def get_monitor_unit_list(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     v_query = '''
         select unit_id,
@@ -182,8 +183,9 @@ def get_monitor_units(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     v_query = '''
         select unit_id, title, interval
@@ -269,8 +271,9 @@ def save_monitor_unit(request):
     v_unit_script_chart = json_object['p_unit_script_chart']
     v_unit_script_data = json_object['p_unit_script_data']
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
@@ -297,6 +300,7 @@ def save_monitor_unit(request):
             v_return['v_data'] = v_inserted_id
         #existing unit
         else:
+            v_return['v_data'] = v_unit_id
             v_session.v_omnidb_database.v_connection.Execute('''
                 update mon_units
                 set dbt_st_name = '{0}',
@@ -365,13 +369,14 @@ def refresh_monitor_units(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_ids = json_object['p_ids']
 
-    v_database_orig = v_session.v_databases[v_database_index]['database']
+    v_database_orig = v_session.v_tab_connections[v_tab_id]
     v_database = OmniDatabase.Generic.InstantiateDatabase(
         v_database_orig.v_db_type,
-        v_database_orig.v_server,
-        v_database_orig.v_port,
+        v_database_orig.v_connection.v_host,
+        str(v_database_orig.v_connection.v_port),
         v_database_orig.v_service,
         v_database_orig.v_user,
         v_database_orig.v_connection.v_password,
@@ -468,11 +473,12 @@ def test_monitor_script(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
     v_script_chart = json_object['p_script_chart']
     v_script_data = json_object['p_script_data']
     v_type = json_object['p_type']
 
-    v_database = v_session.v_databases[v_database_index]['database']
+    v_database = v_session.v_tab_connections[v_tab_id]
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))

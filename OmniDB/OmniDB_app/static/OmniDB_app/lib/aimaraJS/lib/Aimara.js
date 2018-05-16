@@ -23,6 +23,9 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		contextMenuDiv: null,
 		rendered: false,
 		tag: null,
+		nodeAfterOpenEvent: null,
+		clickNodeEvent: null,
+		beforeContextMenuEvent: null,
 		///// Creating a new node
 		// p_text: Text displayed on the node;
 		// p_expanded: True or false, indicating wether the node starts expanded or not;
@@ -30,7 +33,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		// p_parentNode: Reference to the parent node. Set null to create the node on the root;
 		// p_tag: Tag is used to store additional information on the node. All node attributes are visible when programming events and context menu actions;
 		// p_contextmenu: Name of the context menu, which is one of the attributes of the p_contextMenu object created with the tree;
-		createNode: function(p_text,p_expanded, p_icon, p_parentNode,p_tag,p_contextmenu,p_color) {
+		createNode: function(p_text,p_expanded, p_icon, p_parentNode,p_tag,p_contextmenu,p_color,p_render=true) {
 			var v_tree = this;
 			var node = {
 				tree: v_tree,
@@ -46,6 +49,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				elementLi: null,
 				doubleClickNodeEvent: null,
 				clickNodeEvent: null,
+				isBold: false,
 				///// Removing the node and all its children
 				removeNode: function() { v_tree.removeNode(this); },
 				///// Expanding or collapsing the node, depending on the expanded value
@@ -69,18 +73,21 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				// p_icon: Icon;
 				// p_tag: Tag;
 				// p_contextmenu: Context Menu;
-				createChildNode: function(p_text,p_expanded,p_icon,p_tag,p_contextmenu) { return v_tree.createNode(p_text,p_expanded,p_icon,this,p_tag,p_contextmenu); }
+				createChildNode: function(p_text,p_expanded,p_icon,p_tag,p_contextmenu,p_color,p_render=true) { return v_tree.createNode(p_text,p_expanded,p_icon,this,p_tag,p_contextmenu,p_color,p_render); },
+				drawChildNodes: function(p_node) { return v_tree.drawChildNodes(this); },
+				setNodeBold: function() { v_tree.setNodeBold(this); },
+				clearNodeBold: function() { v_tree.clearNodeBold(this); }
 			}
 
 			this.nodeCounter++;
-
-			if (this.rendered) {
+			if (this.rendered && p_render) {
 				if (p_parentNode==undefined) {
 					this.drawNode(this.ulElement,node);
 					this.adjustLines(this.ulElement,false);
 				}
 				else {
-					var v_ul = p_parentNode.elementLi.getElementsByTagName("ul")[0];
+
+					var v_ul = p_parentNode.elementUl;
 					if (p_parentNode.childNodes.length==0) {
 						if (p_parentNode.expanded) {
 						p_parentNode.elementLi.getElementsByTagName("ul")[0].style.display = 'block';
@@ -131,6 +138,53 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
       		this.adjustLines(document.getElementById(this.name),true);
 
+		},
+		drawChildNodes: function(p_node) {
+
+
+			if (p_node.childNodes.length>0) {
+				if (p_node.expanded) {
+				p_node.elementLi.getElementsByTagName("ul")[0].style.display = 'block';
+				var v_img = p_node.elementLi.getElementsByTagName("img")[0];
+				v_img.style.visibility = "visible";
+				v_img.src = '/static/OmniDB_app/images/collapse.png';
+				v_img.id = 'toggle_off';
+				}
+				else {
+					p_node.elementLi.getElementsByTagName("ul")[0].style.display = 'none';
+					var v_img = p_node.elementLi.getElementsByTagName("img")[0];
+					v_img.style.visibility = "visible";
+					v_img.src = '/static/OmniDB_app/images/expand.png';
+					v_img.id = 'toggle_on';
+				}
+
+				var v_ul = createSimpleElement('ul','ul_' + p_node.id,null);
+
+				for (var i=0; i<p_node.childNodes.length; i++) {
+					this.drawNode(v_ul,p_node.childNodes[i]);
+				}
+
+				p_node.elementUl.parentNode.removeChild(p_node.elementUl);
+				p_node.elementLi.appendChild(v_ul);
+				p_node.elementUl = v_ul;
+				this.adjustLines(v_ul,true);
+			}
+
+
+		},
+		//Set note text as bold
+		setNodeBold: function(p_node) {
+			p_node.isBold = true;
+			if (p_node.elementA!=null) {
+				p_node.elementA.innerHTML= '<b>' + p_node.text.replace(/"/g, '') + '</b>';
+			}
+		},
+		//Set note text as not bold
+		clearNodeBold: function(p_node) {
+			p_node.isBold = false;
+			if (p_node.elementA!=null) {
+				p_node.elementA.innerHTML= p_node.text.replace(/"/g, '');
+			}
 		},
 		///// Drawing the node. This function is used when drawing the Tree and should not be called directly;
 		// p_ulElement: Reference to the UL tag element where the node should be created;
@@ -185,14 +239,23 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			};
 
 			v_span.oncontextmenu = function(e) {
+
+				v_tree.clickNode(p_node);
+				v_tree.selectNode(p_node);
+
 				if (e.button==2) {
 					e.preventDefault();
 					e.stopPropagation();
 				}
 
 				if (p_node.contextMenu!=null) {
-						v_tree.selectNode(p_node);
-						v_tree.nodeContextMenu(e,p_node);
+						//v_tree.selectNode(p_node);
+						if (v_tree.beforeContextMenuEvent!=null) {
+							v_tree.beforeContextMenuEvent(p_node,function() { v_tree.nodeContextMenu(e,p_node); })
+						}
+						else {
+							v_tree.nodeContextMenu(e,p_node);
+						}
 				}
 			};
 
@@ -204,7 +267,11 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				if (p_node.color!=null)
 					v_a.style.color = p_node.color;
 
-				v_a.innerHTML=p_node.text.replace(/"/g, '');
+			  if (p_node.isBold)
+					v_a.innerHTML= '<b>' + p_node.text.replace(/"/g, '') + '</b>';
+				else
+					v_a.innerHTML= p_node.text.replace(/"/g, '');
+				p_node.elementA = v_a;
 				v_span.appendChild(v_a);
 				v_li.appendChild(v_exp_col);
 				v_li.appendChild(v_span);
@@ -223,6 +290,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 					this.drawNode(v_ul,p_node.childNodes[i]);
 				}
 			}
+			p_node.elementUl = v_ul;
 		},
 		///// Changing node text
 		// p_node: Reference to the node that will have its text updated;

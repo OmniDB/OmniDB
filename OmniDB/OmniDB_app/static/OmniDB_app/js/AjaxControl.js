@@ -23,11 +23,13 @@ function startLoading()
 // Removing loading modal.
 function endLoading()
 {
-	v_calls_count--;
+	if (v_calls_count>0)
+		v_calls_count--;
 	if (v_calls_count==0) {
 		$body = $("body");
-	    $body.removeClass("loading");
-    }
+    $body.removeClass("loading");
+  }
+
 }
 
 function getCookie(name) {
@@ -68,7 +70,7 @@ function execAjax(p_url,p_data,p_successFunc,p_errorFunc,p_notifMode,p_loading) 
 
 	$.ajax({
         url: p_url,
-        data: {data: p_data},
+        data: {data: p_data, tab_token: ''},
 				type: "post",
         dataType: "json",
 				beforeSend: function(xhr, settings) {

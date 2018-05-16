@@ -3,14 +3,16 @@
   <title>OmniDB</title>
   <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.5.0"            />
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.5.0"/>
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.5.0"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.5.0"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/jquery.qtip.min.css?v2.5.0"  />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.8.0.7"            />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.8.0.7"/>
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.8.0.7"    />
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.8.0.7"    />
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/jquery.qtip.min.css?v2.8.0.7"  />
 
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/bootstrap.css">
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/main.css">
+
+  <link id="ss_theme" rel="stylesheet" type="text/css">
 
   {% block include_css %}
   {% endblock %}
@@ -27,6 +29,11 @@
 			</ul>
 			<div style="position: absolute; right: 0px; top: 0px;">
 				<ul>
+          <li style="padding-right: 10px;">
+            <img id="websocket_status_offline" title="Offline" style="vertical-align: middle; cursor: pointer;" src="/static/OmniDB_app/images/status_red.png"/>
+            <img id="websocket_status_connecting" title="Connecting..." style="vertical-align: middle; cursor: pointer; display: none;" src="/static/OmniDB_app/images/status_blue.png"/>
+            <img id="websocket_status_online" title="Online" style="vertical-align: middle; cursor: pointer; display: none;" src="/static/OmniDB_app/images/status_green.png"/>
+          </li>
           {% if not desktop_mode %}
   					<li style="color: #F1F7FF; padding-right: 10px;">{{ session.v_user_name }}</li>
             {% if session.v_super_user == 1 %}
@@ -38,7 +45,7 @@
           {% endblock %}
 					<li style="padding-right: 10px;"><img title="About" style="vertical-align: middle; cursor: pointer;" onclick="showAbout();" src="/static/OmniDB_app/images/about.png"/></li>
           {% if not desktop_mode %}
-          <li><a href="../logout">Logout</a></li>
+          <li><a onclick="confirmSignout()">Sign out</a></li>
           {% endif %}
 				</ul>
 			</div>
@@ -49,23 +56,112 @@
   {% endblock %}
 
 	<div id="div_config_user" style="display: none;">
-	    <div class="modal_background_dark">
-	        <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
+	        <div class ="config_box">
 	            <a class="modal-closer" onclick="hideConfigUser()">x</a>
 
 	            <div id="config_tabs" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
 	                <ul>
-	                <li id="config_tabs_tab1">Editor</li>
+                  <li id="config_tabs_tab1">Shortcuts</li>
+	                <li id="config_tabs_tab2">Editor</li>
                   {% if not desktop_mode %}
-	                 <li id="config_tabs_tab2">User</li>
+	                 <li id="config_tabs_tab3">User</li>
                   {% endif %}
 	  				</ul>
-	  				<div id="div_config_tabs_tab1">
+            <div id="div_config_tabs_tab1">
+
+              <div id="div_shortcut_background_dark"><div style="position: absolute; top: 50%; width: 100%;">Press key combination... (ESC to cancel)</div></div>
+
+              <div class='shortcut_block'>
+
+                <div class='shortcut_block_title'>Editor</div>
+                Shortcuts active in all editors. They will override any user defined shortcut. See list <a class='link_text' onclick="showWebsite('Shortcuts','/shortcuts')" >here</a>.
+
+                <div class='shortcut_block_title' style="margin-top: 10px;">Query/Console Tab</div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Run Query</div>
+                  <div class='shortcut_element'><button id="shortcut_run_query" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Cancel Query</div>
+                  <div class='shortcut_element'><button id="shortcut_cancel_query" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Indent</div>
+                  <div class='shortcut_element'><button id="shortcut_indent" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Explain (PostgreSQL)</div>
+                  <div class='shortcut_element'><button id="shortcut_explain" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Explain Analyze (PostgreSQL)</div>
+                  <div class='shortcut_element'><button id="shortcut_analyze" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Previous Command (Console Tab)</div>
+                  <div class='shortcut_element'><button id="shortcut_previous_console_command" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Next Command (Console Tab)</div>
+                  <div class='shortcut_element'><button id="shortcut_next_console_command" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_block_title'>Tab Management</div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>New Inner Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_new_inner_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Remove Current Inner Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_remove_inner_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Select Left Inner Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_left_inner_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Select Right Inner Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_right_inner_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>New Connection Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_new_outer_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Remove Current Connection Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_remove_outer_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Select Left Outer Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_left_outer_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+                <div class='shortcut_line'>
+                  <div class='shortcut_element'>Select Right Outer Tab</div>
+                  <div class='shortcut_element'><button id="shortcut_right_outer_tab" class='shortcut_button' onclick="startSetShortcut(this)"></button></div>
+                </div>
+
+              </div>
+              <div style="text-align: center; margin-top: 10px; margin-bottom: 5px;">
+                <button onclick="saveShortcuts();">Save Changes</button>
+              </div>
+
+
+	  				</div>
+	  				<div id="div_config_tabs_tab2">
 
 	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
 		                <div style="text-align: center;">
 		                <div style="margin-bottom: 10px;">Editor font size</div>
-		                <select id="sel_editor_font_size" style="width: 200px; margin-bottom: 20px;">
+		                <select id="sel_editor_font_size" style="width: 200px; margin-bottom: 20px;" onchange="changeFontSize(this.value)">
 		                	<option value="10">10</option>
 		                	<option value="11">11</option>
 		                	<option value="12">12</option>
@@ -75,45 +171,47 @@
 		                	<option value="16">16</option>
 		                	<option value="17">17</option>
 		                	<option value="18">18</option>
+                      <option value="19">19</option>
+                      <option value="20">20</option>
 		                </select>
                     <div style="margin-bottom: 10px;">Editor theme</div>
-		                <select id="sel_editor_theme" style="width: 200px; margin-bottom: 20px;">
-		                	<option value="1">(Light) OmniDB</option>
-		                	<option value="2">(Light) Chrome</option>
-		                	<option value="3">(Light) Clouds</option>
-		                	<option value="4">(Light) Crimson Editor</option>
-		                	<option value="5">(Light) Dawn</option>
-		                	<option value="6">(Light) Dreamweaver</option>
-		                	<option value="7">(Light) Eclipse</option>
-		                	<option value="8">(Light) Github</option>
-		                	<option value="9">(Light) Iplastic</option>
-		                	<option value="10">(Light) Katzenmilch</option>
-		                	<option value="11">(Light) Kuroir</option>
-		                	<option value="12">(Light) Solarized Light</option>
-		                	<option value="13">(Light) SQL Server</option>
-		                	<option value="14">(Light) Textmate</option>
-		                	<option value="15">(Light) Tomorrow</option>
-		                	<option value="16">(Light) XCode</option>
-							        <option value="17">(Dark) OmniDB Dark</option>
-		                	<option value="18">(Dark) Ambiance</option>
-		                	<option value="19">(Dark) Chaos</option>
-		                	<option value="20">(Dark) Clouds Midnight</option>
-		                	<option value="21">(Dark) Cobalt</option>
-		                	<option value="22">(Dark) Idle Fingers</option>
-		                	<option value="23">(Dark) KR Theme</option>
-		                	<option value="24">(Dark) Merbivore</option>
-		                	<option value="25">(Dark) Merbivore Soft</option>
-		                	<option value="26">(Dark) Mono Industrial</option>
-		                	<option value="27">(Dark) Monokai</option>
-		                	<option value="28">(Dark) Pastel On Dark</option>
-		                	<option value="29">(Dark) Solarized Dark</option>
-		                	<option value="30">(Dark) Terminal</option>
-		                	<option value="31">(Dark) Tomorrow Night</option>
-		                	<option value="32">(Dark) Tomorrow Night Blue</option>
-		                	<option value="33">(Dark) Tomorrow Night Bright</option>
-		                	<option value="34">(Dark) Tomorrow Night 80s</option>
-		                	<option value="35">(Dark) Twilight</option>
-		                	<option value="36">(Dark) Vibrant Ink</option>
+		                <select id="sel_editor_theme" style="width: 200px; margin-bottom: 20px;" onchange="changeTheme(this.value)">
+		                	<option value="1/omnidb">(Light) OmniDB</option>
+		                	<option value="2/chrome">(Light) Chrome</option>
+		                	<option value="3/clouds">(Light) Clouds</option>
+		                	<option value="4/crimson_editor">(Light) Crimson Editor</option>
+		                	<option value="5/dawn">(Light) Dawn</option>
+		                	<option value="6/dreamweaver">(Light) Dreamweaver</option>
+		                	<option value="7/eclipse">(Light) Eclipse</option>
+		                	<option value="8/github">(Light) Github</option>
+		                	<option value="9/iplastic">(Light) Iplastic</option>
+		                	<option value="10/katzenmilch">(Light) Katzenmilch</option>
+		                	<option value="11/kuroir">(Light) Kuroir</option>
+		                	<option value="12/solarized_light">(Light) Solarized Light</option>
+		                	<option value="13/sqlserver">(Light) SQL Server</option>
+		                	<option value="14/textmate">(Light) Textmate</option>
+		                	<option value="15/tomorrow">(Light) Tomorrow</option>
+		                	<option value="16/xcode">(Light) XCode</option>
+							        <option value="17/omnidb_dark">(Dark) OmniDB Dark</option>
+		                	<option value="18/ambiance">(Dark) Ambiance</option>
+		                	<option value="19/chaos">(Dark) Chaos</option>
+		                	<option value="20/clouds_midnight">(Dark) Clouds Midnight</option>
+		                	<option value="21/cobalt">(Dark) Cobalt</option>
+		                	<option value="22/idle_fingers">(Dark) Idle Fingers</option>
+		                	<option value="23/kr_theme">(Dark) KR Theme</option>
+		                	<option value="24/merbivore">(Dark) Merbivore</option>
+		                	<option value="25/merbivore_soft">(Dark) Merbivore Soft</option>
+		                	<option value="26/mono_industrial">(Dark) Mono Industrial</option>
+		                	<option value="27/monokai">(Dark) Monokai</option>
+		                	<option value="28/pastel_on_dark">(Dark) Pastel On Dark</option>
+		                	<option value="29/solarized_dark">(Dark) Solarized Dark</option>
+		                	<option value="30/terminal">(Dark) Terminal</option>
+		                	<option value="31/tomorrow_night">(Dark) Tomorrow Night</option>
+		                	<option value="32/tomorrow_night_blue">(Dark) Tomorrow Night Blue</option>
+		                	<option value="33/tomorrow_night_bright">(Dark) Tomorrow Night Bright</option>
+		                	<option value="34/tomorrow_night_eighties">(Dark) Tomorrow Night 80s</option>
+		                	<option value="35/twilight">(Dark) Twilight</option>
+		                	<option value="36/vibrant_ink">(Dark) Vibrant Ink</option>
 		                </select>
 		                </div>
                     <div style="text-align: center;">
@@ -124,9 +222,9 @@
 
 	  				</div>
             {% if not desktop_mode %}
-	  				<div id="div_config_tabs_tab2">
+	  				<div id="div_config_tabs_tab3">
             {% else %}
-            <div id="div_config_tabs_tab2" style="display: none;">
+            <div id="div_config_tabs_tab3" style="display: none;">
             {% endif %}
 	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
 		                	<div style="text-align: center;">
@@ -147,7 +245,6 @@
 		                </div>
 	  				</div>
 				</div>
-	        </div>
 	    </div>
 	</div>
 
@@ -160,13 +257,12 @@
                 	<div style="margin: 20px;">
                 		<img src="/static/OmniDB_app/images/postgresql_medium.png" title="PostgreSQL"/>
                         <img src="/static/OmniDB_app/images/oracle_medium.png" title="Oracle"/>
-                		<!--<img src="/static/OmniDB_app/images/mysql_medium.png" title="MySQL"/>
-                		<img src="/static/OmniDB_app/images/sqlserver_medium.png" title="SQL Server"/>
+                		<img src="/static/OmniDB_app/images/mysql_medium.png" title="MySQL"/>
+                		<img src="/static/OmniDB_app/images/mariadb_medium.png" title="MariaDB"/>
+                        <!--<img src="/static/OmniDB_app/images/sqlserver_medium.png" title="SQL Server"/>
                 		<img src="/static/OmniDB_app/images/firebird_medium.png" title="Firebird"/>
                 		<img src="/static/OmniDB_app/images/sqlite_medium.png" title="SQLite"/>
-                		<img src="/static/OmniDB_app/images/access_medium.png" title="Microsoft Access"/>
-                		<img src="/static/OmniDB_app/images/mariadb_medium.png" title="MariaDB"/>
-			              <img src="/static/OmniDB_app/images/filedb_medium.png" title="Spartacus FileDB"/>-->
+                		<img src="/static/OmniDB_app/images/access_medium.png" title="Microsoft Access"/>-->
                 	</div>
                 	<div style="margin: 20px;"><a onclick="showWebsite('OmniDB', 'https://www.omnidb.org')" >www.omnidb.org</a></div>
                   <div style="margin: 20px;">
@@ -221,7 +317,7 @@
 
   <div id="div_alert" style="display:none;">
       <div class="modal_background_dark">
-          <div class ="white_box" style="width: 40%; height: 20%; left: 30%; top: 40%;">
+          <div class ="white_box" style="width: 40%; left: 30%; top: 50%;  transform: translate(0px, -50%); -webkit-transform: translate(0px, -50%);">
               <div id="div_alert_content" style="height:100%; width:100%;"></div>
           </div>
       </div>
@@ -246,26 +342,26 @@
 
   <div class="div_loading"></div>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.5.0"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.5.0"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.5.0"             ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.5.0"         ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.8.0.7"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.8.0.7"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.8.0.7"             ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.8.0.7"         ></script>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.5.0"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery.qtip.min.js?v2.5.0"        ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.5.0"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.5.0"               ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.5.0"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.5.0"></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.5.0"         ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.5.0"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.5.0"    ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.5.0"            ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.5.0"       ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.5.0"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.5.0"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.5.0"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.5.0"                  ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.8.0.7"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery.qtip.min.js?v2.8.0.7"        ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.8.0.7"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.8.0.7"               ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.8.0.7"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.8.0.7"></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.8.0.7"         ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.8.0.7"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.8.0.7"    ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.8.0.7"            ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.8.0.7"       ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.8.0.7"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.8.0.7"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.8.0.7"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.8.0.7"                  ></script>
 
   <script type="text/javascript">
 
@@ -280,6 +376,8 @@
 	var v_enable_omnichat = parseInt({{ session.v_enable_omnichat }});
     var v_session_key = v_user_key;
     var v_user_login = v_user_name;
+    var v_version = '{{ omnidb_version }}';
+    var v_short_version = '{{ omnidb_short_version }}';
 
   var v_menu_item = '{{ menu_item }}'
   $('#menu_' + v_menu_item).addClass('header_a_selected');
@@ -294,6 +392,11 @@
   var v_database_list = null;
   var v_completer_ready = true;
   var v_tree_object;
+  var v_shortcut_object = {
+    shortcuts: {{shortcuts|safe}},
+    button: null,
+    actions: null
+  };
 
   </script>
 

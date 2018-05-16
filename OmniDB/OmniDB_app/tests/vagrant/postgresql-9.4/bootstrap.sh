@@ -81,12 +81,16 @@ echo "host    all             all             all                     md5" >> "$
 # Explicitly set default client_encoding
 echo "client_encoding = utf8" >> "$PG_CONF"
 
+# Explicitly set replication slot configuration
+echo "max_replication_slots = 10" >> "$PG_CONF"
+echo "wal_level = logical" >> "$PG_CONF"
+
 # Restart so that all new config is loaded:
 service postgresql restart
 
 cat << EOF | su - postgres -c psql
 -- Create the database user:
-CREATE USER $APP_DB_USER WITH PASSWORD '$APP_DB_PASS';
+CREATE USER $APP_DB_USER WITH PASSWORD '$APP_DB_PASS' SUPERUSER;
 
 -- Create the database:
 CREATE DATABASE $APP_DB_NAME WITH OWNER=$APP_DB_USER

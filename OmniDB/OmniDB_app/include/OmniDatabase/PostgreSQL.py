@@ -302,8 +302,11 @@ class PostgreSQL:
             select quote_ident(c.relname) as table_name,
                    quote_ident(a.attname) as column_name,
                    t.typname as data_type,
-                   not t.typnotnull as nullable,
-                   --t.typlen as data_length,
+                   (case t.typnotnull when True
+                                     then 'NO'
+                                     else 'YES'
+                    end
+                   ) as nullable,
                    (select case when x.truetypmod = -1 /* default typmod */
                                 then null
                                 when x.truetypid in (1042, 1043) /* char, varchar */
@@ -1103,8 +1106,11 @@ class PostgreSQL:
             select quote_ident(c.relname) as table_name,
                    quote_ident(a.attname) as column_name,
                    t.typname as data_type,
-                   not t.typnotnull as nullable,
-                   --t.typlen as data_length,
+                   (case t.typnotnull when True
+                                     then 'NO'
+                                     else 'YES'
+                    end
+                   ) as nullable,
                    (select case when x.truetypmod = -1 /* default typmod */
                                 then null
                                 when x.truetypid in (1042, 1043) /* char, varchar */
@@ -1195,8 +1201,11 @@ class PostgreSQL:
             select quote_ident(c.relname) as table_name,
                    quote_ident(a.attname) as column_name,
                    t.typname as data_type,
-                   not t.typnotnull as nullable,
-                   --t.typlen as data_length,
+                   (case t.typnotnull when True
+                                     then 'NO'
+                                     else 'YES'
+                    end
+                   ) as nullable,
                    (select case when x.truetypmod = -1 /* default typmod */
                                 then null
                                 when x.truetypid in (1042, 1043) /* char, varchar */

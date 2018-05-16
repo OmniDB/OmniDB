@@ -547,6 +547,9 @@ def thread_query(self,args,ws_object):
                 f.Write(v_data1)
                 f.Flush()
 
+                log_end_time = datetime.now()
+                v_duration = GetDuration(log_start_time,log_end_time)
+
                 v_response['v_data'] = {
                     'v_filename': '/static/temp/{0}'.format(v_file_name),
                     'v_downloadname': 'omnidb_exported.{0}'.format(v_extension),

@@ -302,8 +302,32 @@ class PostgreSQL:
             select quote_ident(c.relname) as table_name,
                    quote_ident(a.attname) as column_name,
                    t.typname as data_type,
-                   not t.typnotnull as nullable,
-                   t.typlen as data_length,
+                   (case t.typnotnull when True
+                                     then 'NO'
+                                     else 'YES'
+                    end
+                   ) as nullable,
+                   (select case when x.truetypmod = -1 /* default typmod */
+                                then null
+                                when x.truetypid in (1042, 1043) /* char, varchar */
+                                then x.truetypmod - 4
+                                when x.truetypid in (1560, 1562) /* bit, varbit */
+                                then x.truetypmod
+                                else null
+                           end
+                    from (
+                        select (case when t.typtype = 'd'
+                                     then t.typbasetype
+                                     else a.atttypid
+                                end
+                               ) as truetypid,
+                               (case when t.typtype = 'd'
+                                     then t.typtypmod
+                                     else a.atttypmod
+                                end
+                               ) as truetypmod
+                    ) x
+                   ) as data_length,
                    null as data_precision,
                    null as data_scale
             from pg_attribute a
@@ -1082,8 +1106,32 @@ class PostgreSQL:
             select quote_ident(c.relname) as table_name,
                    quote_ident(a.attname) as column_name,
                    t.typname as data_type,
-                   not t.typnotnull as nullable,
-                   t.typlen as data_length,
+                   (case t.typnotnull when True
+                                     then 'NO'
+                                     else 'YES'
+                    end
+                   ) as nullable,
+                   (select case when x.truetypmod = -1 /* default typmod */
+                                then null
+                                when x.truetypid in (1042, 1043) /* char, varchar */
+                                then x.truetypmod - 4
+                                when x.truetypid in (1560, 1562) /* bit, varbit */
+                                then x.truetypmod
+                                else null
+                           end
+                    from (
+                        select (case when t.typtype = 'd'
+                                     then t.typbasetype
+                                     else a.atttypid
+                                end
+                               ) as truetypid,
+                               (case when t.typtype = 'd'
+                                     then t.typtypmod
+                                     else a.atttypmod
+                                end
+                               ) as truetypmod
+                    ) x
+                   ) as data_length,
                    null as data_precision,
                    null as data_scale
             from pg_attribute a
@@ -1153,8 +1201,32 @@ class PostgreSQL:
             select quote_ident(c.relname) as table_name,
                    quote_ident(a.attname) as column_name,
                    t.typname as data_type,
-                   not t.typnotnull as nullable,
-                   t.typlen as data_length,
+                   (case t.typnotnull when True
+                                     then 'NO'
+                                     else 'YES'
+                    end
+                   ) as nullable,
+                   (select case when x.truetypmod = -1 /* default typmod */
+                                then null
+                                when x.truetypid in (1042, 1043) /* char, varchar */
+                                then x.truetypmod - 4
+                                when x.truetypid in (1560, 1562) /* bit, varbit */
+                                then x.truetypmod
+                                else null
+                           end
+                    from (
+                        select (case when t.typtype = 'd'
+                                     then t.typbasetype
+                                     else a.atttypid
+                                end
+                               ) as truetypid,
+                               (case when t.typtype = 'd'
+                                     then t.typtypmod
+                                     else a.atttypmod
+                                end
+                               ) as truetypmod
+                    ) x
+                   ) as data_length,
                    null as data_precision,
                    null as data_scale
             from pg_attribute a

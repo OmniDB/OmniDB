@@ -368,7 +368,7 @@ function showConnectionList() {
 															contextMenu: {
 																callback: function (key, options) {
 																	if (key === 'view_data') {
-																		if (options[0].start.col!=6 && options[0].start.col!=12) {
+																		if (options[0].start.col!=6 && options[0].start.col!=10 && options[0].start.col!=12) {
 																			if (v_connections_data.v_conn_ids[options[0].start.row].locked)
 																		  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
 																			else

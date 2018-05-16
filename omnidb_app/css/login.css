@@ -49,6 +49,7 @@ body {
   background-color: #fbfbfb;
   border: 1px solid rgba(0,0,0,0.2);
 	text-align: left;
+	overflow-y: scroll;
 }
 #loading_interface #user_title {
 	content: "user";

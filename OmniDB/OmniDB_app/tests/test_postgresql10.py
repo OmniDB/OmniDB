@@ -653,14 +653,14 @@ ON #table_name#
 --CASCADE
 ''' == data['v_data']['v_database_return']['drop_trigger']
 
-    def test_template_create_partition(self):
+    def test_template_create_inherited(self):
         response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0, "p_tab_id": 0}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE TABLE name (
     CHECK ( condition )
 ) INHERITS (#table_name#)
-''' == data['v_data']['v_database_return']['create_partition']
+''' == data['v_data']['v_database_return']['create_inherited']
 
     def test_template_noinherit_partition(self):
         response = self.cs.post('/get_tree_info_postgresql/', {'data': '{"p_database_index": 0, "p_tab_id": 0}'})
@@ -1594,7 +1594,7 @@ TO NODE ( nodename [, ... ] )
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert '''CREATE OR REPLACE RULE ru_test AS
-    ON DELETE TO categories DO INSTEAD NOTHING;''' in data['v_data']
+    ON DELETE TO public.categories DO INSTEAD NOTHING;''' in data['v_data']
         self.database.v_connection.Execute('drop rule ru_test on public.categories')
 
     def test_get_triggerfunctions_postgresql_nosession(self):
@@ -1644,15 +1644,15 @@ AS $function$begin new.categoryname := old.categoryname || ' modified'; end;$fun
         self.database.v_connection.Execute('drop trigger tg_ins on public.categories')
         self.database.v_connection.Execute('drop function public.tg_ins_category()')
 
-    def test_get_partitions_postgresql_nosession(self):
-        response = self.cn.post('/get_partitions_postgresql/')
+    def test_get_inheriteds_postgresql_nosession(self):
+        response = self.cn.post('/get_inheriteds_postgresql/')
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert 1 == data['v_error_id']
 
-    def test_get_partitions_postgresql_session(self):
+    def test_get_inheriteds_postgresql_session(self):
         self.database.v_connection.Execute('create table public.categories_p1 (check ( category < 100 )) inherits (public.categories)')
-        response = self.cs.post('/get_partitions_postgresql/', {'data': '{"p_database_index": 0, "p_tab_id": 0, "p_schema": "public", "p_table": "categories"}'})
+        response = self.cs.post('/get_inheriteds_postgresql/', {'data': '{"p_database_index": 0, "p_tab_id": 0, "p_schema": "public", "p_table": "categories"}'})
         assert 200 == response.status_code
         data = json.loads(response.content.decode())
         assert self.lists_equal([a[0] for a in data['v_data']], ['public.categories_p1'])

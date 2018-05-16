@@ -20,6 +20,11 @@ env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install $PYTHON_VERSION
 pyenv global $PYTHON_VERSION
 echo "Done"
 
+echo "Installing NodeJS..."
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+apt-get install -y nodejs
+echo "Done"
+
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
 git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB

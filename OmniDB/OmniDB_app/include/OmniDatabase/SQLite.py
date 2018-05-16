@@ -107,6 +107,7 @@ class SQLite:
 			"SET DEFAULT",
 			"CASCADE"
         ]
+        self.v_console_help = "Console tab."
 
     def GetName(self):
         return self.v_service

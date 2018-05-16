@@ -1,12 +1,21 @@
-# OmniDB 2.5.0
+# OmniDB 2.8.0
 
 ## Release Notes
 
-- Connections are now managed in the workspace, without losing existing work and focus
-- Autocomplete shortcut key is now Ctrl-Space by default
-- New improved Find & Replace for SQL Editor
-- OmniDB server now listens to the same port for HTTP(S) and WS(S), no need for opening two ports in firewall anymore
-
+- New features:
+  - Connection to any database via SSH tunnels
+  - Support for BDR 3.0
+  - Support for pglogical 3.0
+- Improvements:
+  - Improvements to the OmniDB app window container
+  - Backslash commands supporting PostgreSQL 10 partitioned tables and partitions
+  - DDL for PostgreSQL 10 partitioned tables and partitions
+  - Tree view shows PostgreSQL 10 partitioned tables and partitions with different icons
+- Bug fixes:
+  - Fixed displaying table data in treeview when using MySQL 5.7
+  - Fixed column autocomplete when using MySQL and MariaDB
+  - Fixed JSONB editing
+  - Fixed RPM packages for latest Linux editions
 
 # 1- Installation
 
@@ -37,6 +46,7 @@ echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 source ~/.bashrc
 
 pyenv install 3.5.2
+cd OMNIDB_FOLDER
 pyenv local 3.5.2
 
 pip install pip --upgrade
@@ -48,7 +58,7 @@ pip install -r requirements.txt
 Download or clone OmniDB repo and extract it somewhere. To start Django server, enter into `OmniDB/OmniDB` folder and type:
 
 ```
-python3 manage.py runserver
+python omnidb-server.py
 ```
 
 # 2- Introduction
@@ -81,8 +91,8 @@ Supported Platforms:
 Supported DBMS:
 
 - [X] PostgreSQL
-- [ ] MySQL
-- [ ] Oracle
+- [X] Oracle
+- [X] MySQL / MariaDB
 - [ ] Firebird
 - [ ] SQLite
 - [ ] Microsoft SQL Server

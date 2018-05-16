@@ -23,7 +23,8 @@ var v_queryRequestCodes = {
 	CancelThread: 6,
 	Debug: 7,
 	CloseTab: 8,
-	DataMining: 9
+	DataMining: 9,
+	Console: 10
 }
 
 /// <summary>
@@ -40,7 +41,8 @@ var v_queryResponseCodes = {
 	MessageException: 7,
 	DebugResponse: 8,
 	RemoveContext: 9,
-	DataMiningResult: 10
+	DataMiningResult: 10,
+	ConsoleResult: 11
 }
 
 /// <summary>
@@ -49,17 +51,44 @@ var v_queryResponseCodes = {
 /// </summary>
 var v_queryWebSocket;
 
+var v_ws_offline = document.getElementById('websocket_status_offline');
+var v_ws_connecting = document.getElementById('websocket_status_connecting');
+var v_ws_online = document.getElementById('websocket_status_online');
+
+function setStatusIcon(p_mode) {
+	var v_img = document.getElementById('websocket_status');
+	v_ws_offline.style.display = 'none';
+	v_ws_connecting.style.display = 'none';
+	v_ws_online.style.display = 'none';
+	if (p_mode == 0)
+		v_ws_offline.style.display = '';
+	else if (p_mode == 1)
+		v_ws_connecting.style.display = '';
+	else if (p_mode == 2)
+		v_ws_online.style.display = '';
+
+}
+
 /// <summary>
 /// Starts query client
 /// </summary>
 /// <param name="p_port">Port where chat will listen for connections.</param>
 function startQueryWebSocket(p_port) {
 
+	setStatusIcon(1);
+
 	var v_address = '';
 	var v_channel = '';
 
+	var v_secure = false;
+	if (window.location.protocol == "https:")
+		v_secure  = true;
 
-	if (v_is_secure) {
+	var v_port = v_query_port_external;
+	if (p_port)
+		v_port = p_port;
+
+	if (v_secure) {
 		v_address = 'wss://' + window.location.hostname;
 		v_channel = 'wss';
 	}
@@ -70,9 +99,10 @@ function startQueryWebSocket(p_port) {
 
 	v_queryWebSocket  = createWebSocket(
 		v_address,
-		p_port,
+		v_port,
 		function(p_event) {//Open
 			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Login, v_user_key, false);
+			setStatusIcon(2);
 		},
 		function(p_message, p_context, p_context_code) {//Message
 			var v_message = p_message;
@@ -108,6 +138,15 @@ function startQueryWebSocket(p_port) {
 					}
 					break;
 				}
+				case parseInt(v_queryResponseCodes.ConsoleResult): {
+					if (p_context) {
+						SetAcked(p_context);
+						consoleReturn(v_message,p_context);
+						//Remove context
+						removeContext(v_queryWebSocket,p_context_code);
+					}
+					break;
+				}
 				case parseInt(v_queryResponseCodes.QueryEditDataResult): {
 					if (p_context) {
 						SetAcked(p_context);
@@ -125,6 +164,7 @@ function startQueryWebSocket(p_port) {
 				}
 				case parseInt(v_queryResponseCodes.DebugResponse): {
 					if (p_context) {
+						SetAcked(p_context);
 						debugResponse(p_message, p_context);
 						if (p_message.v_data.v_remove_context) {
 							removeContext(v_queryWebSocket,p_context_code);
@@ -154,7 +194,22 @@ function startQueryWebSocket(p_port) {
 		},
 		function(p_event) {//Close
 			//showError('The connection with query server was closed.<br>WebSocket error code: ' + p_event.code + '.<br>Reconnected.');
-			startQueryWebSocket(p_port);
+			//startQueryWebSocket(p_port);
+
+			setStatusIcon(0);
+
+			if (!p_port) {
+				startQueryWebSocket(v_query_port);
+			}
+			else {
+				showAlert(
+					'Cannot connect to websocket server with ports ' + v_query_port_external + ' (external) and ' + v_query_port + ' (internal). Trying again in 5 seconds...'
+				,function() {
+					setTimeout(function() {
+						startQueryWebSocket();
+					},5000);
+				})
+			}
 		},
 		function(p_event) {//Error
 			//showError('An error has occurred during the communication with the query server.');
@@ -174,11 +229,11 @@ function QueryPasswordRequired(p_context, p_message) {
 		showPasswordPrompt(
 			p_context.database_index,
 			function() {
-				cancelSQLTab();
-				querySQL(p_context.mode);
+				cancelSQLTab(p_context.tab_tag);
+				//querySQL(p_context.mode);
 			},
 			function() {
-				cancelSQLTab();
+				cancelSQLTab(p_context.tab_tag);
 			},
 			p_message
 		);
@@ -187,11 +242,26 @@ function QueryPasswordRequired(p_context, p_message) {
 		showPasswordPrompt(
 			p_context.database_index,
 			function() {
-				cancelEditDataTab();
-				queryEditData();
+				cancelEditDataTab(p_context.tab_tag);
+				//queryEditData();
 			},
 			function() {
-				cancelEditDataTab();
+				cancelEditDataTab(p_context.tab_tag);
+			},
+			p_message
+		);
+	}
+	else if (p_context.tab_tag.mode=='console') {
+		showPasswordPrompt(
+			p_context.database_index,
+			function() {
+				cancelConsoleTab(p_context.tab_tag);
+				//p_context.tab_tag.editor_input.setValue(p_context.tab_tag.last_command);
+        //p_context.tab_tag.editor_input.clearSelection();
+				//consoleSQL(false);
+			},
+			function() {
+				cancelConsoleTab(p_context.tab_tag);
 			},
 			p_message
 		);

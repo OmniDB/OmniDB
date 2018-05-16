@@ -1,0 +1,492 @@
+<html>
+<head>
+  <title>OmniDB</title>
+  <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.6.0.1"/>
+  <style>
+    table {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    table tr:nth-child(2n) {
+      background-color: #f6f8fa;
+    }
+    table tr {
+      background-color: #fff;
+      border-top: 1px solid #c6cbd1;
+    }
+    table th, table td {
+        padding: 6px 13px;
+        border: 1px solid #dfe2e5;
+    }
+    body {
+      text-align: center;
+    }
+    h2 {
+      margin: 20px 0px;
+    }
+  </style>
+</head>
+<body>
+<h1>Editor Shortcuts</h1>
+<h2>Line Operations</h2>
+<table>
+<thead>
+<tr>
+<th >Windows/Linux</th>
+<th >Mac</th>
+<th >Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td >Ctrl-D</td>
+<td >Command-D</td>
+<td >Remove line</td>
+</tr>
+<tr>
+<td >Alt-Shift-Down</td>
+<td >Command-Option-Down</td>
+<td >Copy lines down</td>
+</tr>
+<tr>
+<td >Alt-Shift-Up</td>
+<td >Command-Option-Up</td>
+<td >Copy lines up</td>
+</tr>
+<tr>
+<td >Alt-Down</td>
+<td >Option-Down</td>
+<td >Move lines down</td>
+</tr>
+<tr>
+<td >Alt-Up</td>
+<td >Option-Up</td>
+<td >Move lines up</td>
+</tr>
+<tr>
+<td >Alt-Delete</td>
+<td >Ctrl-K</td>
+<td >Remove to line end</td>
+</tr>
+<tr>
+<td >Alt-Backspace</td>
+<td >Command-Backspace</td>
+<td >Remove to linestart</td>
+</tr>
+<tr>
+<td >Ctrl-Backspace</td>
+<td >Option-Backspace, Ctrl-Option-Backspace</td>
+<td >Remove word left</td>
+</tr>
+<tr>
+<td >Ctrl-Delete</td>
+<td >Option-Delete</td>
+<td >Remove word right</td>
+</tr>
+<tr>
+<td >---</td>
+<td >Ctrl-O</td>
+<td >Split line</td>
+</tr>
+</tbody>
+</table>
+<h2>Selection</h2>
+<table>
+<thead>
+<tr>
+<th >Windows/Linux</th>
+<th >Mac</th>
+<th >Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td >Ctrl-A</td>
+<td >Command-A</td>
+<td >Select all</td>
+</tr>
+<tr>
+<td >Shift-Left</td>
+<td >Shift-Left</td>
+<td >Select left</td>
+</tr>
+<tr>
+<td >Shift-Right</td>
+<td >Shift-Right</td>
+<td >Select right</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-Left</td>
+<td >Option-Shift-Left</td>
+<td >Select word left</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-Right</td>
+<td >Option-Shift-Right</td>
+<td >Select word right</td>
+</tr>
+<tr>
+<td >Shift-Home</td>
+<td >Shift-Home</td>
+<td >Select line start</td>
+</tr>
+<tr>
+<td >Shift-End</td>
+<td >Shift-End</td>
+<td >Select line end</td>
+</tr>
+<tr>
+<td >Alt-Shift-Right</td>
+<td >Command-Shift-Right</td>
+<td >Select to line end</td>
+</tr>
+<tr>
+<td >Alt-Shift-Left</td>
+<td >Command-Shift-Left</td>
+<td >Select to line start</td>
+</tr>
+<tr>
+<td >Shift-Up</td>
+<td >Shift-Up</td>
+<td >Select up</td>
+</tr>
+<tr>
+<td >Shift-Down</td>
+<td >Shift-Down</td>
+<td >Select down</td>
+</tr>
+<tr>
+<td >Shift-PageUp</td>
+<td >Shift-PageUp</td>
+<td >Select page up</td>
+</tr>
+<tr>
+<td >Shift-PageDown</td>
+<td >Shift-PageDown</td>
+<td >Select page down</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-Home</td>
+<td >Command-Shift-Up</td>
+<td >Select to start</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-End</td>
+<td >Command-Shift-Down</td>
+<td >Select to end</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-D</td>
+<td >Command-Shift-D</td>
+<td >Duplicate selection</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-P</td>
+<td >---</td>
+<td >Select to matching bracket</td>
+</tr>
+</tbody>
+</table>
+<h2>Multicursor</h2>
+<table>
+<thead>
+<tr>
+<th >Windows/Linux</th>
+<th >Mac</th>
+<th >Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td >Ctrl-Alt-Up</td>
+<td >Ctrl-Option-Up</td>
+<td >Add multi-cursor above</td>
+</tr>
+<tr>
+<td >Ctrl-Alt-Down</td>
+<td >Ctrl-Option-Down</td>
+<td >Add multi-cursor below</td>
+</tr>
+<tr>
+<td >Ctrl-Alt-Right</td>
+<td >Ctrl-Option-Right</td>
+<td >Add next occurrence to multi-selection</td>
+</tr>
+<tr>
+<td >Ctrl-Alt-Left</td>
+<td >Ctrl-Option-Left</td>
+<td >Add previous occurrence to multi-selection</td>
+</tr>
+<tr>
+<td >Ctrl-Alt-Shift-Up</td>
+<td >Ctrl-Option-Shift-Up</td>
+<td >Move multicursor from current line to the line above</td>
+</tr>
+<tr>
+<td >Ctrl-Alt-Shift-Down</td>
+<td >Ctrl-Option-Shift-Down</td>
+<td >Move multicursor from current line to the line below</td>
+</tr>
+<tr>
+<td >Ctrl-Alt-Shift-Right</td>
+<td >Ctrl-Option-Shift-Right</td>
+<td >Remove current occurrence from multi-selection and move to next</td>
+</tr>
+<tr>
+<td >Ctrl-Alt-Shift-Left</td>
+<td >Ctrl-Option-Shift-Left</td>
+<td >Remove current occurrence from multi-selection and move to previous</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-L</td>
+<td >Ctrl-Shift-L</td>
+<td >Select all from multi-selection</td>
+</tr>
+</tbody>
+</table>
+<h2>Go to</h2>
+<table>
+<thead>
+<tr>
+<th >Windows/Linux</th>
+<th >Mac</th>
+<th >Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td >Left</td>
+<td >Left, Ctrl-B</td>
+<td >Go to left</td>
+</tr>
+<tr>
+<td >Right</td>
+<td >Right, Ctrl-F</td>
+<td >Go to right</td>
+</tr>
+<tr>
+<td >Ctrl-Left</td>
+<td >Option-Left</td>
+<td >Go to word left</td>
+</tr>
+<tr>
+<td >Ctrl-Right</td>
+<td >Option-Right</td>
+<td >Go to word right</td>
+</tr>
+<tr>
+<td >Up</td>
+<td >Up, Ctrl-P</td>
+<td >Go line up</td>
+</tr>
+<tr>
+<td >Down</td>
+<td >Down, Ctrl-N</td>
+<td >Go line down</td>
+</tr>
+<tr>
+<td >Alt-Left, Home</td>
+<td >Command-Left, Home, Ctrl-A</td>
+<td >Go to line start</td>
+</tr>
+<tr>
+<td >Alt-Right, End</td>
+<td >Command-Right, End, Ctrl-E</td>
+<td >Go to line end</td>
+</tr>
+<tr>
+<td >PageUp</td>
+<td >Option-PageUp</td>
+<td >Go to page up</td>
+</tr>
+<tr>
+<td >PageDown</td>
+<td >Option-PageDown, Ctrl-V</td>
+<td >Go to page down</td>
+</tr>
+<tr>
+<td >Ctrl-Home</td>
+<td >Command-Home, Command-Up</td>
+<td >Go to start</td>
+</tr>
+<tr>
+<td >Ctrl-End</td>
+<td >Command-End, Command-Down</td>
+<td >Go to end</td>
+</tr>
+<tr>
+<td >Ctrl-L</td>
+<td >Command-L</td>
+<td >Go to line</td>
+</tr>
+<tr>
+<td >Ctrl-P</td>
+<td >---</td>
+<td >Go to matching bracket</td>
+</tr>
+<tr>
+<td >---</td>
+<td >Option-PageDown</td>
+<td >Scroll page down</td>
+</tr>
+<tr>
+<td >---</td>
+<td >Option-PageUp</td>
+<td >Scroll page up</td>
+</tr>
+</tbody>
+</table>
+<h2>Find/Replace</h2>
+<table>
+<thead>
+<tr>
+<th >Windows/Linux</th>
+<th >Mac</th>
+<th >Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td >Ctrl-F</td>
+<td >Command-F</td>
+<td >Find</td>
+</tr>
+<tr>
+<td >Ctrl-H</td>
+<td >Command-Option-F</td>
+<td >Replace</td>
+</tr>
+<tr>
+<td >Ctrl-K</td>
+<td >Command-G</td>
+<td >Find next</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-K</td>
+<td >Command-Shift-G</td>
+<td >Find previous</td>
+</tr>
+</tbody>
+</table>
+<h2>Folding</h2>
+<table>
+<thead>
+<tr>
+<th >Windows/Linux</th>
+<th >Mac</th>
+<th >Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td >Alt-L, Ctrl-F1</td>
+<td >Command-Option-L, Command-F1</td>
+<td >Fold selection</td>
+</tr>
+<tr>
+<td >Alt-Shift-L, Ctrl-Shift-F1</td>
+<td >Command-Option-Shift-L, Command-Shift-F1</td>
+<td >Unfold</td>
+</tr>
+<tr>
+<td >Alt-0</td>
+<td >Command-Option-0</td>
+<td >Fold all</td>
+</tr>
+<tr>
+<td >Alt-Shift-0</td>
+<td >Command-Option-Shift-0</td>
+<td >Unfold all</td>
+</tr>
+</tbody>
+</table>
+<h2>Other</h2>
+<table>
+<thead>
+<tr>
+<th >Windows/Linux</th>
+<th >Mac</th>
+<th >Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td >Tab</td>
+<td >Tab</td>
+<td >Indent</td>
+</tr>
+<tr>
+<td >Shift-Tab</td>
+<td >Shift-Tab</td>
+<td >Outdent</td>
+</tr>
+<tr>
+<td >Ctrl-Z</td>
+<td >Command-Z</td>
+<td >Undo</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-Z, Ctrl-Y</td>
+<td >Command-Shift-Z, Command-Y</td>
+<td >Redo</td>
+</tr>
+<tr>
+<td >Ctrl-,</td>
+<td >Command-,</td>
+<td >Show the settings menu</td>
+</tr>
+<tr>
+<td >Ctrl-/</td>
+<td >Command-/</td>
+<td >Toggle comment</td>
+</tr>
+<tr>
+<td >Ctrl-T</td>
+<td >Ctrl-T</td>
+<td >Transpose letters</td>
+</tr>
+<tr>
+<td >Ctrl-Enter</td>
+<td >Command-Enter</td>
+<td >Enter full screen</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-U</td>
+<td >Ctrl-Shift-U</td>
+<td >Change to lower case</td>
+</tr>
+<tr>
+<td >Ctrl-U</td>
+<td >Ctrl-U</td>
+<td >Change to upper case</td>
+</tr>
+<tr>
+<td >Insert</td>
+<td >Insert</td>
+<td >Overwrite</td>
+</tr>
+<tr>
+<td >Ctrl-Shift-E</td>
+<td >Command-Shift-E</td>
+<td >Macros replay</td>
+</tr>
+<tr>
+<td >Ctrl-Alt-E</td>
+<td >---</td>
+<td >Macros recording</td>
+</tr>
+<tr>
+<td >Delete</td>
+<td >---</td>
+<td >Delete</td>
+</tr>
+<tr>
+<td >---</td>
+<td >Ctrl-L</td>
+<td >Center selection</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

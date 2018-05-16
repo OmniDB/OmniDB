@@ -1,0 +1,22 @@
+responseFileVersion=/oracle/assistants/rspfmt_dbca_response_schema_v12.2.0
+gdbName=###ORACLE_SID###
+sid=###ORACLE_SID###
+databaseConfigType=SI
+createAsContainerDatabase=true
+numberOfPDBs=1
+pdbName=###ORACLE_PDB###
+pdbAdminPassword=###ORACLE_PWD###
+templateName=General_Purpose.dbc
+sysPassword=###ORACLE_PWD###
+systemPassword=###ORACLE_PWD###
+emConfiguration=DBEXPRESS
+emExpressPort=5500
+dbsnmpPassword=###ORACLE_PWD###
+storageType=FS
+characterSet=###ORACLE_CHARACTERSET###
+nationalCharacterSet=AL16UTF16
+automaticMemoryManagement=FALSE
+totalMemory=1536
+# Some init.ora parameters - disable auditing to save space, enable FS optimizations
+initParams=audit_trail=none,audit_sys_operations=false,filesystemio_options=setall,commit_logging=batch,commit_wait=nowait
+

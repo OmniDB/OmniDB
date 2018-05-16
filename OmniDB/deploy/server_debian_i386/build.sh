@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2.5.0
+VERSION=2.8.0
 ARCH=debian-i386
 
 echo "Installing OmniDB dependencies..."
@@ -18,7 +18,7 @@ rm -rf deploy/packages
 echo "Done."
 
 echo -n "Switching to Release Mode..."
-sed -i -e 's/DEV_MODE = True/DEV_MODE = False/g' OmniDB/settings.py
+sed -i -e 's/DEV_MODE = True/DEV_MODE = False/g' OmniDB/custom_settings.py
 echo "Done."
 
 echo -n "Replacing line-end char for SQLite backward compatibility..."
@@ -34,6 +34,7 @@ rm -rf build
 mkdir deploy/packages
 cp dist/omnidb-config/omnidb-config dist/omnidb-server/omnidb-config-server
 mv dist/omnidb-server deploy/packages
+chmod 777 deploy/packages/omnidb-server/OmniDB_app/static/temp/
 rm -rf dist
 echo "Done."
 
@@ -54,7 +55,11 @@ mkdir opt
 mv ../omnidb-server opt/
 mkdir -p usr/bin
 cd usr/bin
-ln -s /opt/omnidb-server/omnidb-server .
+cat > omnidb-server <<EOF
+#!/bin/bash
+LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:.:/opt/omnidb-server/ /opt/omnidb-server/omnidb-server \$@
+EOF
+chmod 777 omnidb-server
 ln -s /opt/omnidb-server/omnidb-config-server .
 cd ../..
 mkdir DEBIAN

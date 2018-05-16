@@ -16,31 +16,30 @@ import shutil
 import random
 import string
 import getpass
+from . import custom_settings
 
 # Development Mode
-DEV_MODE = True
+DEV_MODE = custom_settings.DEV_MODE
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+TEMP_DIR = os.path.join(BASE_DIR,'OmniDB_app','static','temp')
+
 # OmniDB User Folder
-DESKTOP_MODE = False
+DESKTOP_MODE = custom_settings.DESKTOP_MODE
 if DEV_MODE:
     HOME_DIR = BASE_DIR
-elif DESKTOP_MODE:
-    HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-app')
+elif custom_settings.HOME_DIR:
+    HOME_DIR = custom_settings.HOME_DIR
 else:
-    HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-server')
+    if DESKTOP_MODE:
+        HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-app')
+    else:
+        HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-server')
 if not os.path.exists(HOME_DIR):
     os.makedirs(HOME_DIR)
-CHAT_FOLDER = os.path.join(HOME_DIR, 'chat')
-if not os.path.exists(CHAT_FOLDER):
-    os.makedirs(CHAT_FOLDER)
-try:
-    os.symlink(CHAT_FOLDER, os.path.join(BASE_DIR, 'OmniDB_app/static', 'chat-{0}'.format(getpass.getuser())))
-except:
-    pass
-CHAT_LINK = '/static/chat-{0}'.format(getpass.getuser())
+CHAT_LINK = ''
 LOG_DIR = HOME_DIR
 SESSION_DATABASE = os.path.join(HOME_DIR, 'db.sqlite3')
 if not os.path.exists(SESSION_DATABASE):
@@ -202,23 +201,26 @@ LOGGING = {
             'handlers': ['logfile_omnidb','console_omnidb_app'],
             'propagate': False,
             'level':'INFO',
+        },
+        'cherrypy.error': {
+            'handlers': ['logfile_django','console_omnidb_app'],
+            'level': 'INFO',
+            'propagate': False
         }
     }
 }
 
 #OMNIDB PARAMETERS
-OMNIDB_VERSION             = 'OmniDB 2.5.0'
-OMNIDB_SHORT_VERSION       = '2.5.0'
-BINDKEY_EXECUTE            = 'alt+q'
-BINDKEY_EXECUTE_MAC        = 'ctrl+q'
-BINDKEY_AUTOCOMPLETE       = 'ctrl+space'
-BINDKEY_AUTOCOMPLETE_MAC   = 'cmd+space'
-OMNIDB_DEFAULT_SERVER_PORT = 8000
-OMNIDB_DEFAULT_APP_PORT    = 25480
-OMNIDB_PORT                = 25482
-IS_SSL                     = False
-SSL_CERTIFICATE            = ""
-SSL_KEY                    = ""
-CH_CMDS_PER_PAGE           = 20
-PWD_TIMEOUT_TOTAL          = 1800
-PWD_TIMEOUT_REFRESH        = 300
+OMNIDB_VERSION                 = custom_settings.OMNIDB_VERSION
+OMNIDB_SHORT_VERSION           = custom_settings.OMNIDB_SHORT_VERSION
+BINDKEY_AUTOCOMPLETE           = 'ctrl+space'
+BINDKEY_AUTOCOMPLETE_MAC       = 'cmd+space'
+OMNIDB_WEBSOCKET_PORT          = 25482
+OMNIDB_EXTERNAL_WEBSOCKET_PORT = 25482
+OMNIDB_ADDRESS                 = '0.0.0.0'
+IS_SSL                         = False
+SSL_CERTIFICATE                = ""
+SSL_KEY                        = ""
+CH_CMDS_PER_PAGE               = 20
+PWD_TIMEOUT_TOTAL              = 1800
+PWD_TIMEOUT_REFRESH            = 300

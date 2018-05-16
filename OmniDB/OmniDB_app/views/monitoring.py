@@ -47,7 +47,7 @@ def receive_alert_data(request):
             'sqlite',
             '',
             '',
-            'tool_database',
+            settings.OMNIDB_DATABASE,
             '',
             '',
             '',

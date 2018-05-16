@@ -4,14 +4,14 @@ CREATE TABLE db_type (
     constraint pk_db_type primary key (dbt_st_name)
 );--omnidb--
 INSERT INTO db_type VALUES('sqlite',0);--omnidb--
-INSERT INTO db_type VALUES('mysql',0);--omnidb--
+INSERT INTO db_type VALUES('mysql',1);--omnidb--
 INSERT INTO db_type VALUES('postgresql',1);--omnidb--
 INSERT INTO db_type VALUES('firebird',0);--omnidb--
 INSERT INTO db_type VALUES('oracle',1);--omnidb--
 INSERT INTO db_type VALUES('sqlserver',0);--omnidb--
 INSERT INTO db_type VALUES('access',0);--omnidb--
 INSERT INTO db_type VALUES('sqlce',0);--omnidb--
-INSERT INTO db_type VALUES('mariadb',0);--omnidb--
+INSERT INTO db_type VALUES('mariadb',1);--omnidb--
 INSERT INTO db_type VALUES('filedb',0);--omnidb--
 
 CREATE TABLE data_categories (
@@ -21,7 +21,7 @@ CREATE TABLE data_categories (
     constraint pk_data_categories primary key (cat_st_name)
 );--omnidb--
 INSERT INTO data_categories VALUES('bigint','Big Integer','numeric');--omnidb--
-INSERT INTO data_categories VALUES('boolean','Boolean','text');--omnidb--
+INSERT INTO data_categories VALUES('boolean','Boolean','other');--omnidb--
 INSERT INTO data_categories VALUES('char','String','text');--omnidb--
 INSERT INTO data_categories VALUES('date','Date Only','other');--omnidb--
 INSERT INTO data_categories VALUES('datetime','Date Time','other');--omnidb--
@@ -388,13 +388,29 @@ CREATE TABLE users (user_id integer not null,
     chat_enabled integer,
     super_user integer,
     user_key text,
-    stc_in_code integer,
-    use_bo_bot integer,
     constraint pk_users primary key (user_id),
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)
 );--omnidb--
-INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'0c4a137f-9918-4c0b-af45-480deef6f760',1,0);--omnidb--
+INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'0c4a137f-9918-4c0b-af45-480deef6f760');--omnidb--
+
+CREATE TABLE messages (
+    mes_in_code integer not null,
+    mes_st_text text,
+    mes_dt_timestamp text not null,
+    user_id integer not null,
+    mes_bo_image integer not null,
+    constraint pk_messages primary key (mes_in_code),
+    constraint messages_fk_0 foreign key (user_id) references users (user_id)  on update NO ACTION  on delete CASCADE
+);--omnidb--
+
+CREATE TABLE messages_users (
+    mes_in_code integer not null,
+    user_id integer not null,
+    constraint pk_messages_users primary key (mes_in_code, user_id),
+    constraint messages_users_fk_0 foreign key (mes_in_code) references messages (mes_in_code)  on update NO ACTION  on delete CASCADE,
+    constraint messages_users_fk_1 foreign key (user_id) references users (user_id)  on update NO ACTION  on delete CASCADE
+);--omnidb--
 
 CREATE TABLE snippets_nodes (
     sn_id integer not null,
@@ -420,7 +436,8 @@ CREATE TABLE snippets_texts (
     constraint fk_st_users foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE
 );--omnidb--
 
-CREATE TABLE connections (conn_id integer,
+CREATE TABLE connections (
+    conn_id integer,
     user_id integer,
     dbt_st_name varchar(40),
     server varchar(500),
@@ -429,6 +446,12 @@ CREATE TABLE connections (conn_id integer,
     user varchar(100),
     password varchar(100),
     alias varchar(100),
+    ssh_server varchar(500),
+    ssh_port varchar(20),
+    ssh_user varchar(100),
+    ssh_password varchar(100),
+    ssh_key text,
+    use_tunnel integer,
     constraint pk_connections primary key (conn_id),
     constraint connections_fk_0 foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE,
     constraint connections_fk_1 foreign key (dbt_st_name) references db_type (dbt_st_name)  on update CASCADE  on delete CASCADE
@@ -514,7 +537,7 @@ CREATE TABLE mon_units (
     constraint fk_mu_users foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE
 );--omnidb--
 INSERT INTO mon_units VALUES(1,'postgresql',replace('max_connections = connection.ExecuteScalar(''SHOW max_connections'')\n\nresult = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Backends (max_connections: " + str(max_connections) + ")"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Value"\n                },\n                "ticks": {\n                    "beginAtZero": True,\n                    "max": int(max_connections)\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\ndatabases = connection.Query(''''''\n    SELECT d.datname,\n           s.numbackends\n    FROM pg_stat_database s\n    INNER JOIN pg_database d\n    ON d.oid = s.datid\n    WHERE NOT d.datistemplate\n'''''')\n\ndatasets = []\nfor db in databases.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": db[''datname''],\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [db["numbackends"]]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Backends',1,NULL,5);--omnidb--
-INSERT INTO mon_units VALUES(2,'postgresql',replace('total_size = connection.ExecuteScalar(''''''\n    SELECT round(sum(pg_catalog.pg_database_size(datname)/1048576.0),2)\n    FROM pg_catalog.pg_database\n    WHERE NOT datistemplate\n'''''')\n\nresult = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Database Size (Total: " + str(total_size) + ")"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Size (MB)"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\ndatabases = connection.Query(''''''\n    SELECT datname AS datname,\n           round(pg_catalog.pg_database_size(datname)/1048576.0,2) AS size\n    FROM pg_catalog.pg_database\n    WHERE NOT datistemplate\n    ORDER BY\n        CASE WHEN pg_catalog.has_database_privilege(datname, ''CONNECT'')\n             THEN pg_catalog.pg_database_size(datname)\n             ELSE NULL\n        END DESC\n'''''')\n\ndatasets = []\nfor db in databases.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": db[''datname''],\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [db["size"]]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Database Size',1,NULL,30);--omnidb--
+INSERT INTO mon_units VALUES(2,'postgresql',replace('total_size = connection.ExecuteScalar(''''''\n    SELECT round(sum(pg_catalog.pg_database_size(datname)/1048576.0),2)\n    FROM pg_catalog.pg_database\n    WHERE NOT datistemplate\n'''''')\n\nresult = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Database Size (Total: " + str(total_size) + " MB)"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Size (MB)"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\ndatabases = connection.Query(''''''\n    SELECT datname AS datname,\n           round(pg_catalog.pg_database_size(datname)/1048576.0,2) AS size\n    FROM pg_catalog.pg_database\n    WHERE NOT datistemplate\n    ORDER BY\n        CASE WHEN pg_catalog.has_database_privilege(datname, ''CONNECT'')\n             THEN pg_catalog.pg_database_size(datname)\n             ELSE NULL\n        END DESC\n'''''')\n\ndatasets = []\nfor db in databases.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": db[''datname''],\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [db["size"]]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Database Size',1,NULL,30);--omnidb--
 INSERT INTO mon_units VALUES(3,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Size: Top 5 Tables"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Size (MB)"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\ntables = connection.Query(''''''\n    SELECT nspname || ''.'' || relname AS relation,\n           round(pg_relation_size(c.oid)/1048576.0,2) AS size\n    FROM pg_class c\n    LEFT JOIN pg_namespace n ON (n.oid = c.relnamespace)\n    WHERE nspname NOT IN (''pg_catalog'', ''information_schema'')\n      AND c.relkind <> ''i''\n      AND nspname !~ ''^pg_toast''\n    ORDER BY pg_total_relation_size(c.oid) DESC\n    LIMIT 5\n'''''')\n\ndatasets = []\nfor table in tables.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": table[''relation''],\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [table["size"]]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Size: Top 5 Tables',1,NULL,15);--omnidb--
 INSERT INTO mon_units VALUES(4,'postgresql','',replace('from datetime import datetime\n\ndata = connection.Query(''''''\n    SELECT *\n    FROM pg_stat_activity\n'''''')\n\nresult = {\n    "columns": data.Columns,\n    "data": data.Rows\n}\n','\n',char(10)),'grid','Activity',1,NULL,15);--omnidb--
 INSERT INTO mon_units VALUES(5,'postgresql','',replace('from datetime import datetime\n\ndata = connection.Query(''''''\n    SELECT z.current_database,z.schemaname,z.tablename, pg_size_pretty(sum_wasted) AS total_bloat\n    FROM (\n    SELECT y.schemaname, y.tablename, y.current_database, sum(wastedbytes+wastedibytes)::bigint AS sum_wasted\n    FROM (\n    SELECT current_database,schemaname, tablename, tbloat, wastedbytes, iname, ibloat, wastedibytes AS wastedibytes\n    FROM (\n    SELECT\n      current_database(), schemaname, tablename, /*reltuples::bigint, relpages::bigint, otta,*/\n      ROUND((CASE WHEN otta=0 THEN 0.0 ELSE sml.relpages::FLOAT/otta END)::NUMERIC,1) AS tbloat,\n      CASE WHEN relpages < otta THEN 0 ELSE bs*(sml.relpages-otta)::BIGINT END AS wastedbytes,\n      iname, /*ituples::bigint, ipages::bigint, iotta,*/\n      ROUND((CASE WHEN iotta=0 OR ipages=0 THEN 0.0 ELSE ipages::FLOAT/iotta END)::NUMERIC,1) AS ibloat,\n      CASE WHEN ipages < iotta THEN 0 ELSE bs*(ipages-iotta) END AS wastedibytes\n    FROM (\n      SELECT\n        schemaname, tablename, cc.reltuples, cc.relpages, bs,\n        CEIL((cc.reltuples*((datahdr+ma-\n          (CASE WHEN datahdr%ma=0 THEN ma ELSE datahdr%ma END))+nullhdr2+4))/(bs-20::FLOAT)) AS otta,\n        COALESCE(c2.relname,''?'') AS iname, COALESCE(c2.reltuples,0) AS ituples, COALESCE(c2.relpages,0) AS ipages,\n        COALESCE(CEIL((c2.reltuples*(datahdr-12))/(bs-20::FLOAT)),0) AS iotta -- very rough approximation, assumes all cols\n      FROM (\n        SELECT\n          ma,bs,schemaname,tablename,\n          (datawidth+(hdr+ma-(CASE WHEN hdr%ma=0 THEN ma ELSE hdr%ma END)))::NUMERIC AS datahdr,\n          (maxfracsum*(nullhdr+ma-(CASE WHEN nullhdr%ma=0 THEN ma ELSE nullhdr%ma END))) AS nullhdr2\n        FROM (\n          SELECT\n            schemaname, tablename, hdr, ma, bs,\n            SUM((1-null_frac)*avg_width) AS datawidth,\n            MAX(null_frac) AS maxfracsum,\n            hdr+(\n              SELECT 1+COUNT(*)/8\n              FROM pg_stats s2\n              WHERE null_frac<>0 AND s2.schemaname = s.schemaname AND s2.tablename = s.tablename\n            ) AS nullhdr\n          FROM pg_stats s, (\n            SELECT\n              (SELECT current_setting(''block_size'')::NUMERIC) AS bs,\n              CASE WHEN SUBSTRING(v,12,3) IN (''8.0'',''8.1'',''8.2'') THEN 27 ELSE 23 END AS hdr,\n              CASE WHEN v ~ ''mingw32'' THEN 8 ELSE 4 END AS ma\n            FROM (SELECT version() AS v) AS foo\n          ) AS constants\n          GROUP BY 1,2,3,4,5\n        ) AS foo\n      ) AS rs\n      JOIN pg_class cc ON cc.relname = rs.tablename\n      JOIN pg_namespace nn ON cc.relnamespace = nn.oid AND nn.nspname = rs.schemaname AND nn.nspname <> ''information_schema''\n      LEFT JOIN pg_index i ON indrelid = cc.oid\n      LEFT JOIN pg_class c2 ON c2.oid = i.indexrelid\n    ) AS sml) x) y\n    GROUP BY y.schemaname, y.tablename, y.current_database) z\n    ORDER BY z.sum_wasted DESC\n    LIMIT 20\n'''''')\n\nresult = {\n    "columns": data.Columns,\n    "data": data.Rows\n}','\n',char(10)),'grid','Bloat: Top 20 Tables',0,NULL,30);--omnidb--
@@ -522,7 +545,7 @@ INSERT INTO mon_units VALUES(6,'postgresql',replace('max_connections = connectio
 INSERT INTO mon_units VALUES(7,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"CPU Usage"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Value",\n                },\n                "ticks": {\n                    "beginAtZero": True,\n                    "max": 100\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\012from random import randint\012\012cpu_data = connection.ExecuteScalar(''''''\012    CREATE TEMPORARY TABLE omnidb_monitor_result (result TEXT);\012    DO LANGUAGE plpythonu\012    $$\012    import sys\012    import StringIO\012    import subprocess\012    codeOut = StringIO.StringIO()\012    codeErr = StringIO.StringIO()\012    sys.stdout = codeOut\012    sys.stderr = codeErr\012    print subprocess.Popen("mpstat -P ALL 1 1 | grep ''Average:'' | tail -n +2 | tr -s '' '' | cut -f2,3 -d'' ''", shell=True, stdout=subprocess.PIPE).stdout.read()\012    sys.stdout = sys.__stdout__\012    sys.stderr = sys.__stderr__\012    result = codeOut.getvalue()\012    plpy.execute("INSERT INTO omnidb_monitor_result VALUES (''{0}'')".format(result))\012    $$;\012    SELECT * FROM omnidb_monitor_result;\012'''''')\012\012datasets = []\012for cpu in cpu_data.split(''\n''):\012    if cpu!='''':\012        cpu_split = cpu.split('' '')\012        color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\012        datasets.append({\012            "label": cpu_split[0],\012            "fill": False,\012            "backgroundColor": color,\012            "borderColor": color,\012            "lineTension": 0,\012            "pointRadius": 1,\012            "borderWidth": 1,\012            "data": [cpu_split[1]]\012        })\012\012result = {\012    "labels": [datetime.now().strftime(''%H:%M:%S'')],\012    "datasets": datasets\012}\012','\012',char(10)),'chart_append','CPU Usage',0,NULL,10);--omnidb--
 INSERT INTO mon_units VALUES(8,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Locks"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Num locks"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\nlocks = connection.Query(''''''\n    SELECT mode,\n           count(*) as count\n    FROM pg_locks\n    GROUP BY mode\n'''''')\n\ndatasets = []\nfor lock in locks.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": lock[''mode''],\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [lock["count"]]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Locks',1,NULL,15);--omnidb--
 INSERT INTO mon_units VALUES(9,'postgresql','',replace('data = connection.Query(''''''\n    SELECT pg_is_in_recovery() as "In Recovery"\n'''''')\n\nresult = {\n    "columns": data.Columns,\n    "data": data.Rows\n}','\n',char(10)),'grid','In Recovery',0,NULL,120);--omnidb--
-INSERT INTO mon_units VALUES(10,'postgresql',replace('total_size = connection.ExecuteScalar(''''''\n    SELECT round(sum(pg_catalog.pg_database_size(datname)/1048576.0),2)\n    FROM pg_catalog.pg_database\n    WHERE NOT datistemplate\n'''''')\n\nresult = {\n    "type": "pie",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Database Size (Total: " + str(total_size) + ")"\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\ndatabases = connection.Query(''''''\n    SELECT d.datname AS datname,\n           round(pg_catalog.pg_database_size(d.datname)/1048576.0,2) AS size\n    FROM pg_catalog.pg_database d\n    WHERE d.datname not in (''template0'',''template1'')\n'''''')\n\ndata = []\ncolor = []\nlabel = []\n\nfor db in databases.Rows:\n    data.append(db["size"])\n    color.append("rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")")\n    label.append(db["datname"])\n\nresult = {\n    "labels": label,\n    "datasets": [\n        {\n            "data": data,\n            "backgroundColor": color,\n            "label": "Dataset 1"\n        }\n    ]\n}\n','\n',char(10)),'chart','Database Size',0,NULL,30);--omnidb--
+INSERT INTO mon_units VALUES(10,'postgresql',replace('total_size = connection.ExecuteScalar(''''''\n    SELECT round(sum(pg_catalog.pg_database_size(datname)/1048576.0),2)\n    FROM pg_catalog.pg_database\n    WHERE NOT datistemplate\n'''''')\n\nresult = {\n    "type": "pie",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Database Size (Total: " + str(total_size) + " MB)"\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\ndatabases = connection.Query(''''''\n    SELECT d.datname AS datname,\n           round(pg_catalog.pg_database_size(d.datname)/1048576.0,2) AS size\n    FROM pg_catalog.pg_database d\n    WHERE d.datname not in (''template0'',''template1'')\n'''''')\n\ndata = []\ncolor = []\nlabel = []\n\nfor db in databases.Rows:\n    data.append(db["size"])\n    color.append("rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")")\n    label.append(db["datname"])\n\nresult = {\n    "labels": label,\n    "datasets": [\n        {\n            "data": data,\n            "backgroundColor": color,\n            "label": "Dataset 1"\n        }\n    ]\n}\n','\n',char(10)),'chart','Database Size',0,NULL,30);--omnidb--
 INSERT INTO mon_units VALUES(11,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Bloat: Top 5 Tables"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Size (MB)"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\ntables = connection.Query(''''''\n    SELECT z.schemaname || ''.'' || z.tablename as relation, sum_wasted/1048576.0 AS size\n    FROM (\n    SELECT y.schemaname, y.tablename, y.current_database, wastedbytes + sum(wastedibytes)::bigint AS sum_wasted\n    FROM (\n    SELECT current_database,schemaname, tablename, tbloat, wastedbytes, iname, ibloat, wastedibytes AS wastedibytes\n    FROM (\n    SELECT\n      current_database(), schemaname, tablename, /*reltuples::bigint, relpages::bigint, otta,*/\n      ROUND((CASE WHEN otta=0 THEN 0.0 ELSE sml.relpages::FLOAT/otta END)::NUMERIC,1) AS tbloat,\n      CASE WHEN relpages < otta THEN 0 ELSE bs*(sml.relpages-otta)::BIGINT END AS wastedbytes,\n      iname, /*ituples::bigint, ipages::bigint, iotta,*/\n      ROUND((CASE WHEN iotta=0 OR ipages=0 THEN 0.0 ELSE ipages::FLOAT/iotta END)::NUMERIC,1) AS ibloat,\n      CASE WHEN ipages < iotta THEN 0 ELSE bs*(ipages-iotta) END AS wastedibytes\n    FROM (\n      SELECT\n        schemaname, tablename, cc.reltuples, cc.relpages, bs,\n        CEIL((cc.reltuples*((datahdr+ma-\n          (CASE WHEN datahdr%ma=0 THEN ma ELSE datahdr%ma END))+nullhdr2+4))/(bs-20::FLOAT)) AS otta,\n        COALESCE(c2.relname,''?'') AS iname, COALESCE(c2.reltuples,0) AS ituples, COALESCE(c2.relpages,0) AS ipages,\n        COALESCE(CEIL((c2.reltuples*(datahdr-12))/(bs-20::FLOAT)),0) AS iotta -- very rough approximation, assumes all cols\n      FROM (\n        SELECT\n          ma,bs,schemaname,tablename,\n          (datawidth+(hdr+ma-(CASE WHEN hdr%ma=0 THEN ma ELSE hdr%ma END)))::NUMERIC AS datahdr,\n          (maxfracsum*(nullhdr+ma-(CASE WHEN nullhdr%ma=0 THEN ma ELSE nullhdr%ma END))) AS nullhdr2\n        FROM (\n          SELECT\n            schemaname, tablename, hdr, ma, bs,\n            SUM((1-null_frac)*avg_width) AS datawidth,\n            MAX(null_frac) AS maxfracsum,\n            hdr+(\n              SELECT 1+COUNT(*)/8\n              FROM pg_stats s2\n              WHERE null_frac<>0 AND s2.schemaname = s.schemaname AND s2.tablename = s.tablename\n            ) AS nullhdr\n          FROM pg_stats s, (\n            SELECT\n              (SELECT current_setting(''block_size'')::NUMERIC) AS bs,\n              CASE WHEN SUBSTRING(v,12,3) IN (''8.0'',''8.1'',''8.2'') THEN 27 ELSE 23 END AS hdr,\n              CASE WHEN v ~ ''mingw32'' THEN 8 ELSE 4 END AS ma\n            FROM (SELECT version() AS v) AS foo\n          ) AS constants\n          GROUP BY 1,2,3,4,5\n        ) AS foo\n      ) AS rs\n      JOIN pg_class cc ON cc.relname = rs.tablename\n      JOIN pg_namespace nn ON cc.relnamespace = nn.oid AND nn.nspname = rs.schemaname AND nn.nspname <> ''information_schema''\n      LEFT JOIN pg_index i ON indrelid = cc.oid\n      LEFT JOIN pg_class c2 ON c2.oid = i.indexrelid\n    ) AS sml) x) y\n    GROUP BY y.schemaname, y.tablename, y.current_database, y.wastedbytes) z\n    ORDER BY z.sum_wasted DESC\n    LIMIT 5\n'''''')\n\ndatasets = []\nfor table in tables.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": table[''relation''],\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [table["size"]]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Bloat: Top 5 Tables',0,NULL,45);--omnidb--
 INSERT INTO mon_units VALUES(12,'postgresql','',replace('from datetime import datetime\n\ndata = connection.Query(''''''\n    SELECT relname as table_name,\n           pg_size_pretty(pg_table_size(oid)) as table_size,\n           age(relfrozenxid) as xid_age,\n           current_setting(''autovacuum_freeze_max_age'')::integer as max_age,\n           round(age(relfrozenxid)/(current_setting(''autovacuum_freeze_max_age'')::integer)::numeric*100.0,4) as perc\n    FROM pg_class\n    WHERE relkind in (''r'', ''t'')\n    ORDER BY age(relfrozenxid) DESC\n    LIMIT 20;\n'''''')\n\nresult = {\n    "columns": data.Columns,\n    "data": data.Rows\n}\n','\n',char(10)),'grid','AutovacFreeze: Top 20 Tables',0,NULL,60);--omnidb--
 INSERT INTO mon_units VALUES(13,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Master: Replication Lag"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Size (MB)"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\nreplags = connection.Query(''''''\n    SELECT client_addr || ''-'' || application_name as standby,\n           round(pg_xlog_location_diff(pg_current_xlog_location(),replay_location)/1048576.0,2) AS lag\n    FROM pg_stat_replication\n'''''')\n\ndatasets = []\nfor replag in replags.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": replag[''standby''],\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [replag[''lag'']]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Master: Replication Lag',0,NULL,5);--omnidb--
@@ -530,104 +553,44 @@ INSERT INTO mon_units VALUES(14,'postgresql',replace('result = {\n    "type": "l
 INSERT INTO mon_units VALUES(15,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"Standby: Replication Lag (Time)"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Seconds"\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\nreplags = connection.Query(''''''\n    SELECT COALESCE(ROUND(EXTRACT(epoch FROM now() - pg_last_xact_replay_timestamp())),0) AS lag\n'''''')\n\ndatasets = []\nfor replag in replags.Rows:\n    color = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\n    datasets.append({\n            "label": "Lag",\n            "fill": False,\n            "backgroundColor": color,\n            "borderColor": color,\n            "lineTension": 0,\n            "pointRadius": 1,\n            "borderWidth": 1,\n            "data": [replag[''lag'']]\n        })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Standby: Replication Lag (Time)',0,NULL,5);--omnidb--
 INSERT INTO mon_units VALUES(16,'postgresql',replace('result = {\n    "type": "line",\n    "data": None,\n    "options": {\n        "responsive": True,\n        "title":{\n            "display":True,\n            "text":"System Memory Usage (Total: " + total_mem + "MB)"\n        },\n        "tooltips": {\n            "mode": "index",\n            "intersect": False\n        },\n        "hover": {\n            "mode": "nearest",\n            "intersect": True\n        },\n        "scales": {\n            "xAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "Time"\n                }\n            }],\n            "yAxes": [{\n                "display": True,\n                "scaleLabel": {\n                    "display": True,\n                    "labelString": "%",\n                },\n                "ticks": {\n                    "beginAtZero": True,\n                    "max": 100\n                }\n            }]\n        }\n    }\n}\n','\n',char(10)),replace('from datetime import datetime\nfrom random import randint\n\nmem_data = connection.ExecuteScalar(''''''\n    CREATE TEMPORARY TABLE omnidb_monitor_result (result TEXT);\n    DO LANGUAGE plpythonu\n    $$\n    import sys\n    import StringIO\n    import subprocess\n    codeOut = StringIO.StringIO()\n    codeErr = StringIO.StringIO()\n    sys.stdout = codeOut\n    sys.stderr = codeErr\n    print subprocess.Popen("free -m | tail -n +2 | head -n 1 | tr -s '' '' | cut -f2,3,4 -d '' ''", shell=True, stdout=subprocess.PIPE).stdout.read()\n    sys.stdout = sys.__stdout__\n    sys.stderr = sys.__stderr__\n    result = codeOut.getvalue()\n    plpy.execute("INSERT INTO omnidb_monitor_result VALUES (''{0}'')".format(result))\n    $$;\n    SELECT * FROM omnidb_monitor_result;\n'''''')\n\ndatasets = []\nmem_split = mem_data.split('' '')\ntotal_mem = mem_split[0]\nused_mem = mem_split[1]\nfree_mem = mem_split[2]\nperc_mem = round(int(used_mem)*100/int(total_mem),2)\ncolor = "rgb(" + str(randint(125, 225)) + "," + str(randint(125, 225)) + "," + str(randint(125, 225)) + ")"\ndatasets.append({\n        "label": "Memory",\n        "fill": False,\n        "backgroundColor": color,\n        "borderColor": color,\n        "lineTension": 0,\n        "pointRadius": 1,\n        "borderWidth": 1,\n        "data": [perc_mem]\n    })\n\nresult = {\n    "labels": [datetime.now().strftime(''%H:%M:%S'')],\n    "datasets": datasets\n}\n','\n',char(10)),'chart_append','Memory Usage',0,NULL,5);--omnidb--
 
-CREATE TABLE channels (
-    cha_in_code integer not null,
-    cha_st_name text,
-    cha_bo_private integer not null,
-    constraint pk_channels primary key (cha_in_code)
+CREATE TABLE shortcuts (
+    user_id integer,
+    shortcut_code text,
+    ctrl_pressed integer,
+    shift_pressed integer,
+    alt_pressed integer,
+    meta_pressed integer,
+    shortcut_key text,
+    constraint pk_shortcuts primary key (user_id, shortcut_code),
+    constraint fk_shortcuts_users foreign key (user_id) references users (user_id) on update CASCADE on delete CASCADE
 );--omnidb--
-INSERT INTO channels VALUES(1, 'General', 0);--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_analyze',0,0,1,0,'S');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_explain',0,0,1,0,'A');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_indent',0,0,1,0,'D');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_left_inner_tab',1,0,0,0,',');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_left_outer_tab',0,0,1,0,',');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_new_inner_tab',1,0,0,0,'INSERT');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_new_outer_tab',0,0,1,0,'INSERT');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_remove_inner_tab',1,0,0,0,'END');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_remove_outer_tab',0,0,1,0,'END');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_right_inner_tab',1,0,0,0,'.');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_run_query',0,0,1,0,'Q');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_right_outer_tab',0,0,1,0,'.');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_cancel_query',0,0,1,0,'C');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_next_console_command',1,0,0,0,'ARROWDOWN');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_previous_console_command',1,0,0,0,'ARROWUP');--omnidb--
 
-CREATE TABLE groups (
-    gro_in_code integer not null,
-    constraint pk_groups primary key (gro_in_code)
-);--omnidb--
-
-CREATE TABLE messages_types (
-    met_in_code integer not null,
-    met_st_description text,
-    constraint pk_messages_types primary key (met_in_code)
-);--omnidb--
-INSERT INTO messages_types VALUES(1, 'Plain Text');--omnidb--
-INSERT INTO messages_types VALUES(2, 'Pasted Image');--omnidb--
-INSERT INTO messages_types VALUES(3, 'Snippet');--omnidb--
-INSERT INTO messages_types VALUES(4, 'Attachment');--omnidb--
-INSERT INTO messages_types VALUES(5, 'Mention');--omnidb--
-
-CREATE TABLE messages (
-    mes_in_code integer not null,
-    mes_dt_creation text not null,
-    mes_dt_update text not null,
-    use_in_code integer not null,
-    met_in_code integer not null,
-    mes_st_content text,
-    mes_st_title text,
-    mes_st_attachmentname text,
-    mes_st_attachmentpath text,
-    mes_st_snippetmode text,
-    mes_st_originalcontent text,
-    constraint pk_messages primary key (mes_in_code),
-    constraint messages_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
-    constraint messages_fk_1 foreign key (met_in_code) references messages_types (met_in_code)  on update CASCADE  on delete CASCADE
-);--omnidb--
-
-CREATE TABLE messages_channels (
-    mes_in_code integer not null,
-    cha_in_code integer not null,
-    use_in_code integer not null,
-    mec_bo_viewed integer not null,
-    constraint pk_messages_channels primary key (mes_in_code, cha_in_code, use_in_code),
-    constraint messages_channels_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
-    constraint messages_channels_fk_1 foreign key (mes_in_code) references messages (mes_in_code)  on update CASCADE  on delete CASCADE ,
-    constraint messages_channels_fk_2 foreign key (cha_in_code) references channels (cha_in_code)  on update CASCADE  on delete CASCADE
-);--omnidb--
-
-CREATE TABLE messages_groups (
-    mes_in_code integer not null,
-    gro_in_code integer not null,
-    use_in_code integer not null,
-    meg_bo_viewed integer not null,
-    constraint pk_messages_groups primary key (mes_in_code, gro_in_code, use_in_code),
-    constraint messages_groups_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
-    constraint messages_groups_fk_1 foreign key (mes_in_code) references messages (mes_in_code)  on update CASCADE  on delete CASCADE ,
-    constraint messages_groups_fk_2 foreign key (gro_in_code) references groups (gro_in_code)  on update CASCADE  on delete CASCADE
-);--omnidb--
-
-CREATE TABLE status_chat (
-    stc_in_code integer not null,
-    stc_st_name text not null,
-    constraint pk_status_chat primary key (stc_in_code)
-);--omnidb--
-INSERT INTO status_chat VALUES(1, 'None');--omnidb--
-INSERT INTO status_chat VALUES(2, 'In a Meeting');--omnidb--
-INSERT INTO status_chat VALUES(3, 'Remote Work');--omnidb--
-INSERT INTO status_chat VALUES(4, 'Busy');--omnidb--
-
-CREATE TABLE users_channels (
-    use_in_code integer not null,
-    cha_in_code integer not null,
-    usc_bo_silenced integer not null,
-    constraint pk_users_channels primary key (use_in_code, cha_in_code),
-    constraint users_channels_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
-    constraint users_channels_fk_1 foreign key (cha_in_code) references channels (cha_in_code)  on update CASCADE  on delete CASCADE
-);--omnidb--
-INSERT INTO users_channels (use_in_code, cha_in_code, usc_bo_silenced)
-SELECT user_id as use_in_code,
-       1 as cha_in_code,
-       0 as usc_bo_silenced
-from users;--omnidb--
-
-CREATE TABLE users_groups (
-    use_in_code integer not null,
-    gro_in_code integer not null,
-    usg_bo_silenced integer not null,
-    constraint pk_users_groups primary key (use_in_code, gro_in_code),
-    constraint users_groups_fk_0 foreign key (use_in_code) references users (user_id)  on update CASCADE  on delete CASCADE ,
-    constraint users_groups_fk_1 foreign key (gro_in_code) references groups (gro_in_code)  on update CASCADE  on delete CASCADE
+CREATE TABLE console_history (
+    user_id integer,
+    conn_id integer,
+    command_text text,
+    command_date text,
+    constraint fk_ch_users foreign key (user_id) references users (user_id) on update CASCADE on delete CASCADE,
+    constraint fk_ch_conn foreign key (conn_id) references connections (conn_id) on update CASCADE on delete CASCADE
 );--omnidb--
 
 CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)
 );--omnidb--
-INSERT INTO version VALUES('2.5.0');--omnidb--
+INSERT INTO version VALUES('2.8.0');--omnidb--

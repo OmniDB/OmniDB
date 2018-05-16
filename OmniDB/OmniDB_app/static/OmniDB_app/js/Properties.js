@@ -8,10 +8,14 @@ function getProperties(p_view, p_data) {
 
 	execAjax(p_view,
       JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+											"p_tab_id": v_connTabControl.selectedTab.id,
                       "p_data": p_data}),
 			function(p_return) {
 
-        v_tab_tag.gridProperties.loadData(p_return.v_data);
+        v_tab_tag.gridProperties.loadData(p_return.v_data.properties);
+				v_tab_tag.ddlEditor.setValue(p_return.v_data.ddl);
+				v_tab_tag.ddlEditor.clearSelection();
+				v_tab_tag.ddlEditor.gotoLine(0, 0, true);
         v_tab_tag.divLoading.style.display = 'none';
         v_tab_tag.gridPropertiesCleared = false;
 
@@ -45,5 +49,9 @@ function clearProperties() {
   if (!v_tab_tag.gridPropertiesCleared) {
     v_tab_tag.gridProperties.loadData([]);
     v_tab_tag.gridPropertiesCleared = true;
+
+		v_tab_tag.ddlEditor.setValue('');
+		v_tab_tag.ddlEditor.clearSelection();
+		v_tab_tag.ddlEditor.gotoLine(0, 0, true);
   }
 }

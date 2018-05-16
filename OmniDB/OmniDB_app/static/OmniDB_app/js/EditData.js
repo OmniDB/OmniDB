@@ -29,6 +29,7 @@ var v_editDataState = {
 function startEditData(p_table,p_schema) {
 
 	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+															"p_tab_id": v_connTabControl.selectedTab.id,
 															"p_table" : p_table,
 															"p_schema": p_schema});
 
@@ -90,7 +91,7 @@ function deleteRowEditData() {
 
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 	var v_data = v_currTabTag.editDataObject.ht.getData();
-	var v_row = v_currTabTag.editDataObject.ht.getSelected()[0];
+	var v_row = v_currTabTag.editDataObject.ht.getSelected()[0][0];
 
 	if (v_currTabTag.editDataObject.infoRows[v_row].mode==2) {
 
@@ -174,6 +175,7 @@ function queryEditData() {
 			v_count: v_currTabTag.sel_filtered_data.value,
 			v_pk_list: v_currTabTag.editDataObject.pk,
 			v_columns: v_currTabTag.editDataObject.columns,
+			v_conn_tab_id: v_connTabControl.selectedTab.id,
 			v_tab_id: v_currTabTag.tab_id
 		}
 
@@ -341,9 +343,9 @@ function queryEditDataReturnRender(p_message,p_context) {
 					callback: function (key, options) {
 						if (key === 'edit_data') {
 							if (v_currTabTag.editDataObject.hasPK)
-								editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),true);
+								editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),true);
 							else
-								editCellData(this,options.start.row,options.start.col,this.getDataAtCell(options.start.row,options.start.col),false);
+								editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
 						}
 					},
 					items: {
@@ -490,6 +492,7 @@ function saveEditData() {
 			v_rows_info: v_changedRowsInfo,
 			v_pk_info: v_currTabTag.editDataObject.pk,
 			v_columns: v_currTabTag.editDataObject.columns,
+			v_conn_tab_id: v_connTabControl.selectedTab.id,
 			v_tab_id: v_currTabTag.tab_id
 		}
 

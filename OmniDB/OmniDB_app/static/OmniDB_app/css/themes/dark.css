@@ -18,7 +18,7 @@ div.header {
 /* --------------------
 			Div Loading
 ---------------------*/
-.div_loading {
+.div_loading, .div_loading_local {
 	background: rgba(0, 0, 0, 0.6) url(../../images/loading.svg) 50% 50% no-repeat !important;
 }
 
@@ -28,19 +28,27 @@ div.header {
 /* --------------------
 			Conn Tabs
 ---------------------*/
-.conn_tabs div > div.tab, .white_box div > div.tab {
+.conn_tabs div > div.tab, .white_box div > div.tab, .config_box div > div.tab {
   background-color: #484a55 !important;
 }
-.conn_tabs .div_tabs, .white_box .div_tabs, .ace_editor {
+.conn_tabs .div_tabs, .white_box .div_tabs, .config_box .div_tabs, .ace_editor {
   border: 1px solid #6d6d6d !important;
 }
-.conn_tabs .tabs, .white_box .tabs {
+.conn_tabs .tabs, .white_box .tabs, .config_box .tabs {
   background: #25282c !important;
 }
-.conn_tabs .tabs > li, .white_box .tabs > li {
+.conn_tabs .tabs > li, .white_box .tabs > li, .config_box .tabs > li {
   background-color: #484a55 !important;
   color: #d7d7d7 !important;
   font-weight: bold;
+}
+
+.config_box {
+  color: #d7d7d7 !important;
+}
+
+.link_text {
+  color: #9aa7e6 !important;
 }
 /* --------------------
 			Right Div
@@ -256,14 +264,19 @@ select {
 /* -------------------------
 				Modal
 --------------------------*/
-.white_box {
+.white_box, .config_box, .connection_list, .dashboard_unit_list, .dashboard_unit, .dashboard_unit_test, .console_command_history {
   border: 1px solid #6d6d6d !important;
   background-color: #25282c !important;
+  box-shadow: none !important;
 }
 .modal_background_dark {
   color: #d7d7d7 !important;
   background: rgba(0, 0, 0, 0.6) !important;
 }
+.table-resultset, .explain-plan-toolbar, .dashboard_unit {
+  color: #d7d7d7 !important;
+}
+
 /*
 .div_alert_buttons button {
   background: #17171f;
@@ -280,23 +293,9 @@ select {
   background: #1e90ff;
 }*/
 a.modal-closer {
-    position: absolute;
-    display: block;
-    width: 25px;
-    height: 25px;
-    right: -15px;
-    top: -15px;
-    cursor: pointer;
-    z-index: 1000;
-    border-radius: 20px;
     color: #ffffff !important;
     border: 1px solid #1e90ff !important;
     background-color: #1e90ff !important;
-    text-align: center;
-    line-height: 23px;
-    font-size: 16px;
-    font-family: Tahoma, Geneva, sans-serif;
-    font-weight: 500;
 }
 a.modal-closer:hover {
     background-color: #303030 !important;
@@ -313,7 +312,7 @@ button:hover {
   background: #1e90ff !important;
   border: solid #1e90ff 1px !important;
 }
-input {
+input, textarea {
     background-color: #1d1f21 !important;
 	color: #d7d7d7 !important;
 	border-color: #6d6d6d !important;
@@ -416,4 +415,26 @@ input {
 .div_chat_message_attachment_container {
     border: 1px solid rgba(0, 0, 0, 0.1);
     background-color: rgb(72, 74, 85) !important;
+}
+
+#horizontal-resize-line {
+    position: absolute;
+    float: left;
+    width: 0px;
+    height: 100vh;
+    border-left: 1px dashed white;
+    box-sizing: border-box;
+    top: 0;
+    z-index: 99999;
+}
+
+#vertical-resize-line {
+    position: absolute;
+    float: left;
+    width: 100vw;
+    height: 0px;
+    border-top: 1px dashed white;
+    box-sizing: border-box;
+    left: 0;
+    z-index: 99999;
 }

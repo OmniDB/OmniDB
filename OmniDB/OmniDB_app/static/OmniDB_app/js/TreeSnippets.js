@@ -186,17 +186,14 @@ function getChildSnippetNodes(node) {
 /// <param name="p_tab">Tab object.</param>
 function closeSnippetTab(p_tab) {
 
-	showConfirm('Are you sure you want to close this snippet?',
-                function() {
-                	p_tab.removeTab();
-                	if (p_tab.tag.ht!=null) {
-						p_tab.tag.ht.destroy();
-						p_tab.tag.div_result.innerHTML = '';
-					}
+  p_tab.removeTab();
+  if (p_tab.tag.ht!=null) {
+  	p_tab.tag.ht.destroy();
+  	p_tab.tag.div_result.innerHTML = '';
+  }
 
-					if (p_tab.tag.editor!=null)
-						p_tab.tag.editor.destroy();
-                });
+  if (p_tab.tag.editor!=null)
+  	p_tab.tag.editor.destroy();
 
 }
 

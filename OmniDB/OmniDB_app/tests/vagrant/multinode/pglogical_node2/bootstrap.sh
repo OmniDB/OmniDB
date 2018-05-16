@@ -8,7 +8,7 @@ APP_DB_PASS=omnidb
 APP_DB_NAME=omnidb_tests
 
 # Edit the following to change the version of PostgreSQL that is installed
-PG_VERSION=9.6
+PG_VERSION=10
 
 # Edit the following to change the local port PostgreSQL port 5432 will be mapped to
 PG_LOCAL_PORT=5409
@@ -66,7 +66,7 @@ SQ_REPO_APT_SOURCE=/etc/apt/sources.list.d/2ndquadrant.list
 if [ ! -f "$SQ_REPO_APT_SOURCE" ]
 then
   # Add 2ndQ apt repo:
-  echo "deb [arch=amd64] http://packages.2ndquadrant.com/pglogical/apt/ jessie-2ndquadrant main" > "$SQ_REPO_APT_SOURCE"
+  echo "deb [arch=amd64] http://packages.2ndquadrant.com/pglogical/apt/ stretch-2ndquadrant main" > "$SQ_REPO_APT_SOURCE"
 
   # Add 2ndQ repo key:
   wget --quiet -O - http://packages.2ndquadrant.com/pglogical/apt/AA7A6805.asc | sudo apt-key add -
@@ -76,7 +76,7 @@ fi
 apt-get update
 apt-get -y upgrade
 
-apt-get -y install postgresql-9.6-pglogical
+apt-get -y install postgresql-10-pglogical
 
 PG_CONF="/etc/postgresql/$PG_VERSION/main/postgresql.conf"
 PG_HBA="/etc/postgresql/$PG_VERSION/main/pg_hba.conf"
@@ -88,8 +88,7 @@ sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" "$PG_CONF"
 # Explicitly set default client_encoding
 echo "client_encoding = utf8" >> "$PG_CONF"
 
-# Other BDR specific settings
-echo "shared_preload_libraries = 'bdr'" >> "$PG_CONF"
+# Other pglogical specific settings
 echo "wal_level = 'logical'" >> "$PG_CONF"
 echo "track_commit_timestamp = on" >> "$PG_CONF"
 echo "max_connections = 100" >> "$PG_CONF"

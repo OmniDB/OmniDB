@@ -8,16 +8,13 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-end
-
-Vagrant::Config.run do |config|
   config.vm.box = "debian/stretch64"
   config.vm.box_url = "https://app.vagrantup.com/debian/boxes/stretch64"
   config.vm.host_name = "postgresql94"
-
-  config.vm.share_folder "bootstrap", "/mnt/bootstrap", ".", :create => true
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "omnidb_pg94"
+  end
+  config.vm.synced_folder ".", "/mnt/bootstrap"
   config.vm.provision :shell, :path => "bootstrap.sh"
-
-  # PostgreSQL Server port forwarding
-  config.vm.forward_port 5432, 5494
+  config.vm.network "forwarded_port", guest: 5432, host: 5494
 end

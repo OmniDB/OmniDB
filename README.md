@@ -14,7 +14,7 @@
 - Bug fixes:
   - Fixed displaying table data in treeview when using MySQL 5.7
   - Fixed column autocomplete when using MySQL and MariaDB
-  - Fixed JSONB editing
+  - Fixed JSON and JSONB editing
   - Fixed RPM packages for latest Linux editions
 
 # 1- Installation

@@ -1118,6 +1118,7 @@ function refreshMonitoring(p_tab_tag) {
 					colHeaders : true,
 					rowHeaders : true,
 					fixedColumnsLeft: v_fixedColumnsLeft,
+					fillHandle:false,
 					//copyRowsLimit : 1000000000,
 					//copyColsLimit : 1000000000,
                     copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
@@ -1226,6 +1227,39 @@ function showMenuNewTab(e) {
 				action: function() {
 					v_connTabControl.tag.createMonitorDashboardTab();
 					startMonitorDashboard();
+				}
+			}
+		);
+
+		v_option_list.push(
+			{
+				text: 'Backends',
+				icon: '/static/OmniDB_app/images/monitoring.png',
+				action: function() {
+					v_connTabControl.tag.createMonitoringTab(
+							'Backends',
+							'select * from pg_stat_activity', [{
+									icon: '/static/OmniDB_app/images/tab_close.png',
+									title: 'Terminate',
+									action: 'postgresqlTerminateBackend'
+							}]);
+				}
+			}
+		);
+	}
+	else if (v_connTabControl.selectedTab.tag.selectedDBMS=='mysql' || v_connTabControl.selectedTab.tag.selectedDBMS=='mariadb') {
+		v_option_list.push(
+			{
+				text: 'Process List',
+				icon: '/static/OmniDB_app/images/monitoring.png',
+				action: function() {
+					v_connTabControl.tag.createMonitoringTab(
+							'Process List',
+							'select * from information_schema.processlist', [{
+									icon: '/static/OmniDB_app/images/tab_close.png',
+									title: 'Terminate',
+									action: 'mysqlTerminateBackend'
+							}]);
 				}
 			}
 		);

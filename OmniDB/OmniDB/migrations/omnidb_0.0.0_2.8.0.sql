@@ -436,7 +436,8 @@ CREATE TABLE snippets_texts (
     constraint fk_st_users foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE
 );--omnidb--
 
-CREATE TABLE connections (conn_id integer,
+CREATE TABLE connections (
+    conn_id integer,
     user_id integer,
     dbt_st_name varchar(40),
     server varchar(500),
@@ -445,6 +446,12 @@ CREATE TABLE connections (conn_id integer,
     user varchar(100),
     password varchar(100),
     alias varchar(100),
+    ssh_server varchar(500),
+    ssh_port varchar(20),
+    ssh_user varchar(100),
+    ssh_password varchar(100),
+    ssh_key text,
+    use_tunnel integer,
     constraint pk_connections primary key (conn_id),
     constraint connections_fk_0 foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE,
     constraint connections_fk_1 foreign key (dbt_st_name) references db_type (dbt_st_name)  on update CASCADE  on delete CASCADE
@@ -586,4 +593,4 @@ CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)
 );--omnidb--
-INSERT INTO version VALUES('2.7.0');--omnidb--
+INSERT INTO version VALUES('2.8.0');--omnidb--

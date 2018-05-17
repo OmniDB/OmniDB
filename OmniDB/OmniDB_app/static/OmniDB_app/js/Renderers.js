@@ -82,10 +82,16 @@ function whiteHtmlRenderer(instance, td, row, col, prop, value, cellProperties) 
 
 	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
 	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
-	  }
-	  else {
-	  	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
-	  }
+    }
+    else if (cellProperties.__proto__.type=="password") {
+	  	Handsontable.renderers.PasswordRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="checkbox") {
+  	  Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+    }
+    else {
+  	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+    }
 
   	//td.style.background = 'rgb(255, 255, 255)';
   	td.className ='cellOdd';
@@ -95,10 +101,16 @@ function redHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
 
 	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
 	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
-	  }
-	  else {
-	  	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
-	  }
+    }
+    else if (cellProperties.__proto__.type=="password") {
+	  	Handsontable.renderers.PasswordRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="checkbox") {
+  	  Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+    }
+    else {
+  	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+    }
 
   	//td.style.background = 'rgb(255, 213, 213)';
   	//td.style.background = 'rgb(183, 46, 46)';
@@ -111,10 +123,16 @@ function grayHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
 
 	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
 	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
-	  }
-	  else {
-	  	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
-	  }
+    }
+    else if (cellProperties.__proto__.type=="password") {
+	  	Handsontable.renderers.PasswordRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="checkbox") {
+  	  Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+    }
+    else {
+  	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+    }
 
   	//td.style.background = 'rgb(242, 242, 242)';
 

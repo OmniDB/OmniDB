@@ -18,6 +18,8 @@ from OmniDB_app.include.Session import Session
 
 from django.contrib.sessions.backends.db import SessionStore
 import sqlparse
+import random
+import string
 
 def index(request):
     #Invalid session
@@ -87,7 +89,8 @@ def index(request):
         'autocomplete': settings.BINDKEY_AUTOCOMPLETE,
         'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC,
         'shortcuts': shortcut_object,
-        'chat_link': settings.CHAT_LINK
+        'chat_link': settings.CHAT_LINK,
+        'tab_token': ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(20))
     }
 
     #wiping tab connection list
@@ -266,8 +269,12 @@ def get_database_list(request):
         v_databases.append(v_database_data)
 
         v_alias = '({0}) '.format(v_database.v_alias)
+        if not v_database_object['tunnel']['enabled']:
+            v_details = v_database.PrintDatabaseDetails()
+        else:
+            v_details = v_database_object['database'].v_server + ':' + v_database.v_port + ' <b>(' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port'] + ')</b>'
 
-        v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_database.PrintDatabaseDetails(),v_alias,v_database.PrintDatabaseInfo())
+        v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
         v_index = v_index + 1
 
     v_html = '<select style="width: 100%; font-weight: bold;" onchange="changeDatabase(this.value);">{0}</select>'.format(v_options)
@@ -285,7 +292,6 @@ def get_database_list(request):
             v_existing_tabs.append({'index': v_tab['conn_id'], 'snippet': v_tab['snippet'], 'tab_db_id': v_tab['tab_id']})
 
     except Exception as exc:
-        print(exc)
         None
 
     v_return['v_data'] = {
@@ -321,8 +327,8 @@ def change_active_database(request):
 
     v_database_new = OmniDatabase.Generic.InstantiateDatabase(
         v_database.v_db_type,
-        v_database.v_server,
-        v_database.v_port,
+        v_database.v_connection.v_host,
+        str(v_database.v_connection.v_port),
         v_database.v_service,
         v_database.v_user,
         v_database.v_connection.v_password,
@@ -334,6 +340,7 @@ def change_active_database(request):
     v_database_new.v_connection.v_service = v_data;
 
     v_session.v_tab_connections[v_tab_id] = v_database_new
+
     request.session['omnidb_session'] = v_session
 
     v_return['v_data'] = {
@@ -1508,7 +1515,7 @@ def start_edit_data(request):
                 v_query_column_classes = v_query_column_classes + 'union '
             v_first = False
 
-            v_query_column_classes = v_query_column_classes + '''
+            v_query_column_classes = v_query_column_classes + """
             select '{0}' as column,
                    dc.cat_st_class as cat_st_class,
                    dt.dt_type as dt_type,
@@ -1522,14 +1529,14 @@ def start_edit_data(request):
               and dt.cat_st_name = dc.cat_st_name
             union
             select '{0}' as column,
-                   'text' as cat_st_class,
+                   'other' as cat_st_class,
                    '{2}' as dt_type,
                    '#' as dt_st_readformat,
                    '#' as dt_st_compareformat,
-                   '#' as dt_st_writeformat
+                   '''#''' as dt_st_writeformat
             where '{2}' not in (
                 select dt_type from data_types where dbt_st_name='{1}'
-            )'''.format(
+            )""".format(
                 v_column['column_name'],
                 v_database.v_db_type,
                 v_column['data_type'].lower()

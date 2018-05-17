@@ -4,7 +4,8 @@
 import os
 import sys
 import platform
-
+import random
+import string
 
 #Parameters
 import optparse
@@ -38,11 +39,24 @@ parser.add_option("-c", "--configfile", dest="conf",
                   default='', type=str,
                   help="configuration file")
 
+parser.add_option("-A", "--app", dest="app",
+                  action="store_true",
+                  default=False,
+                  help=optparse.SUPPRESS_HELP)
+
 (options, args) = parser.parse_args()
+
+#Generate random token if in app mode
+if options.app:
+    OmniDB.custom_settings.DESKTOP_MODE = True
+    OmniDB.custom_settings.APP_TOKEN = ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(50))
+    app_version = True
+else:
+    app_version = False
 
 if options.homedir!='':
     if not os.path.exists(options.homedir):
-        print("Home directory does not exist. Please specify a directory that exists.")
+        print("Home directory does not exist. Please specify a directory that exists.",flush=True)
         sys.exit()
     else:
         OmniDB.custom_settings.HOME_DIR = options.homedir
@@ -52,7 +66,7 @@ import OmniDB.settings
 
 if options.conf!='':
     if not os.path.exists(options.conf):
-        print("Config file not found, using default settings.")
+        print("Config file not found, using default settings.",flush=True)
         config_file = OmniDB.settings.CONFFILE
     else:
         config_file = options.conf
@@ -121,11 +135,11 @@ if is_ssl:
         OmniDB.settings.CSRF_TRUSTED_ORIGINS = csrf_trusted_origins_list
 
     if not os.path.exists(ssl_certificate_file):
-        print("Certificate file not found. Please specify a file that exists.")
+        print("Certificate file not found. Please specify a file that exists.",flush=True)
         logger.info("Certificate file not found. Please specify a file that exists.")
         sys.exit()
     if not os.path.exists(ssl_key_file):
-        print("Key file not found. Please specify a file that exists.")
+        print("Key file not found. Please specify a file that exists.",flush=True)
         logger.info("Key file not found. Please specify a file that exists.")
         sys.exit()
 
@@ -156,7 +170,6 @@ import django.contrib.sessions.serializers
 import django.template.loaders
 import django.contrib.auth.context_processors
 import django.contrib.messages.context_processors
-import psycopg2
 
 from django.core.handlers.wsgi import WSGIHandler
 from OmniDB import startup, ws_core
@@ -207,13 +220,13 @@ class DjangoApplication(object):
         port = parameters['listening_port']
         num_attempts = 0
 
-        print('''Starting OmniDB server...''')
+        print('''Starting OmniDB server...''',flush=True)
         logger.info('''Starting OmniDB server...''')
-        print('''Checking port availability...''')
+        print('''Checking port availability...''',flush=True)
         logger.info('''Checking port availability...''')
 
         while not check_port(port) or num_attempts >= 20:
-            print("Port {0} is busy, trying another port...".format(port))
+            print("Port {0} is busy, trying another port...".format(port),flush=True)
             logger.info("Port {0} is busy, trying another port...".format(port))
             port = random.randint(1025,32676)
             num_attempts = num_attempts + 1
@@ -236,7 +249,7 @@ class DjangoApplication(object):
 
             cherrypy.config.update(v_cherrypy_config)
 
-            print ("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)))
+            print ("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)),flush=True)
             logger.info("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)))
 
             # Startup
@@ -244,14 +257,19 @@ class DjangoApplication(object):
 
             cherrypy.engine.start()
 
-            print ("Open OmniDB in your favorite browser")
-            if platform.system() != 'Windows':
-                print ("Press Ctrl+C to exit")
+            if not app_version:
+                print ("Open OmniDB in your favorite browser",flush=True)
+                if platform.system() != 'Windows':
+                    print ("Press Ctrl+C to exit",flush=True)
+            else:
+                #Sending response to electron app
+                print ("http://localhost:{0}/login/?user=admin&pwd=admin&token={1}".format(str(port),OmniDB.custom_settings.APP_TOKEN),flush=True)
+
 
             cherrypy.engine.block()
             cherrypy.engine.exit()
         else:
-            print('Tried 20 different ports without success, closing...')
+            print('Tried 20 different ports without success, closing...',flush=True)
             logger.info('Tried 20 different ports without success, closing...')
 
 if __name__ == "__main__":
@@ -260,13 +278,13 @@ if __name__ == "__main__":
     port = ws_port
     num_attempts_port = 0
 
-    print('''Starting OmniDB websocket...''')
+    print('''Starting OmniDB websocket...''',flush=True)
     logger.info('''Starting OmniDB websocket...''')
-    print('''Checking port availability...''')
+    print('''Checking port availability...''',flush=True)
     logger.info('''Checking port availability...''')
 
     while not check_port(port) or num_attempts_port >= 20:
-        print("Port {0} is busy, trying another port...".format(port))
+        print("Port {0} is busy, trying another port...".format(port),flush=True)
         logger.info("Port {0} is busy, trying another port...".format(port))
         port = random.randint(1025,32676)
         num_attempts_port = num_attempts_port + 1
@@ -284,7 +302,7 @@ if __name__ == "__main__":
         OmniDB.settings.SESSION_COOKIE_SECURE          = True
         OmniDB.settings.CSRF_COOKIE_SECURE             = True
 
-        print ("Starting websocket server at port {0}.".format(str(port)))
+        print ("Starting websocket server at port {0}.".format(str(port)),flush=True)
         logger.info("Starting websocket server at port {0}.".format(str(port)))
 
         #Removing Expired Sessions
@@ -304,5 +322,5 @@ if __name__ == "__main__":
 
 
     else:
-        print('Tried 20 different ports without success, closing...')
+        print('Tried 20 different ports without success, closing...',flush=True)
         logger.info('Tried 20 different ports without success, closing...')

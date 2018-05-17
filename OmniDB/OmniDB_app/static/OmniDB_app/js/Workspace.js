@@ -26,6 +26,8 @@ $(function () {
 	});
 
 	v_connTabControl = createTabControl('conn_tabs',0,null);
+	v_connTabControl.tag.change_active_database_call_list = [];
+	v_connTabControl.tag.change_active_database_call_running = false;
 
 	initCreateTabFunctions();
 
@@ -224,17 +226,11 @@ function changeDatabase(p_value) {
 
 			v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
 
-			execAjax('/change_active_database/',
-					JSON.stringify({
-							"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-							"p_tab_id": v_connTabControl.selectedTab.id,
-							"p_database": v_connTabControl.selectedTab.tag.selectedDatabase
-					}),
-					function(p_return) {
-
-					},
-					null,
-					'box');
+			queueChangeActiveDatabaseThreadSafe({
+					"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					"p_tab_id": v_connTabControl.selectedTab.id,
+					"p_database": v_connTabControl.selectedTab.tag.selectedDatabase
+			});
 
 			if (v_conn_object.v_db_type=='postgresql')
 				getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
@@ -250,6 +246,27 @@ function changeDatabase(p_value) {
 			adjustQueryTabObjects(true);
 		});
 
+}
+
+function queueChangeActiveDatabaseThreadSafe(p_data) {
+
+	v_connTabControl.tag.change_active_database_call_list.push(p_data);
+	if (!v_connTabControl.tag.change_active_database_call_running) {
+		changeActiveDatabaseThreadSafe(v_connTabControl.tag.change_active_database_call_list.pop());
+	}
+}
+
+function changeActiveDatabaseThreadSafe(p_data) {
+	v_connTabControl.tag.change_active_database_call_running = true;
+	execAjax('/change_active_database/',
+			JSON.stringify(p_data),
+			function(p_return) {
+				v_connTabControl.tag.change_active_database_call_running = false;
+				if (v_connTabControl.tag.change_active_database_call_list.length>0)
+					changeActiveDatabaseThreadSafe(v_connTabControl.tag.change_active_database_call_list.pop());
+			},
+			null,
+			'box');
 }
 
 /// <summary>
@@ -342,6 +359,10 @@ function refreshHeights(p_all) {
 	//Adjusting tree height
 	if (p_all) {
 		refreshTreeHeight();
+	}
+
+	if (v_connections_data && v_connections_data.v_active) {
+		v_connections_data.ht.render();
 	}
 
 	if (v_connTabControl.selectedTab.tag.mode=='monitor_all') {
@@ -1097,6 +1118,7 @@ function refreshMonitoring(p_tab_tag) {
 					colHeaders : true,
 					rowHeaders : true,
 					fixedColumnsLeft: v_fixedColumnsLeft,
+					fillHandle:false,
 					//copyRowsLimit : 1000000000,
 					//copyColsLimit : 1000000000,
                     copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
@@ -1205,6 +1227,39 @@ function showMenuNewTab(e) {
 				action: function() {
 					v_connTabControl.tag.createMonitorDashboardTab();
 					startMonitorDashboard();
+				}
+			}
+		);
+
+		v_option_list.push(
+			{
+				text: 'Backends',
+				icon: '/static/OmniDB_app/images/monitoring.png',
+				action: function() {
+					v_connTabControl.tag.createMonitoringTab(
+							'Backends',
+							'select * from pg_stat_activity', [{
+									icon: '/static/OmniDB_app/images/tab_close.png',
+									title: 'Terminate',
+									action: 'postgresqlTerminateBackend'
+							}]);
+				}
+			}
+		);
+	}
+	else if (v_connTabControl.selectedTab.tag.selectedDBMS=='mysql' || v_connTabControl.selectedTab.tag.selectedDBMS=='mariadb') {
+		v_option_list.push(
+			{
+				text: 'Process List',
+				icon: '/static/OmniDB_app/images/monitoring.png',
+				action: function() {
+					v_connTabControl.tag.createMonitoringTab(
+							'Process List',
+							'select * from information_schema.processlist', [{
+									icon: '/static/OmniDB_app/images/tab_close.png',
+									title: 'Terminate',
+									action: 'mysqlTerminateBackend'
+							}]);
 				}
 			}
 		);

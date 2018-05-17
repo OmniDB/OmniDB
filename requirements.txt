@@ -1,6 +1,7 @@
 Django>=1.10
 cherrypy
 tornado==4.5.1
+click
 sqlparse>=0.2.3
 psycopg2-binary
 pyscrypt
@@ -9,3 +10,4 @@ openpyxl
 RestrictedPython>=4.0b2
 cx_Oracle>=6.1
 pymysql
+sshtunnel

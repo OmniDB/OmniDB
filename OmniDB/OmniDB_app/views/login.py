@@ -111,7 +111,10 @@ def sign_in_automatic(request, username, pwd):
         if pwd_decrypted == pwd:
 
             #creating session key to use it
-            request.session.save()
+            try:
+                request.session.save()
+            except Exception as exc:
+                request.session.create()
 
             logger.info('User "{0}" logged in.'.format(username))
 
@@ -129,11 +132,13 @@ def sign_in_automatic(request, username, pwd):
                 request.session.session_key
             )
 
-            v_session.RefreshDatabaseList()
+            #v_session.RefreshDatabaseList()
             request.session['omnidb_session'] = v_session
 
             if not request.session.get('cryptor'):
                 request.session['cryptor'] = cryptor
+
+
 
             return len(v_session.v_databases)
 
@@ -209,7 +214,7 @@ def sign_in(request):
                 request.session.session_key
             )
 
-            v_session.RefreshDatabaseList()
+            #v_session.RefreshDatabaseList()
             request.session['omnidb_session'] = v_session
 
             if not request.session.get('cryptor'):

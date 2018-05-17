@@ -46,7 +46,7 @@ def get_tree_info(request):
             'v_database_return': {
                 'v_database': v_database.GetName(),
                 'version': v_database.GetVersion(),
-                'superuser': v_database.GetUserSuper(),
+                #'superuser': v_database.GetUserSuper(),
                 'create_role': v_database.TemplateCreateRole().v_text,
                 'alter_role': v_database.TemplateAlterRole().v_text,
                 'drop_role': v_database.TemplateDropRole().v_text,
@@ -102,8 +102,10 @@ def get_tree_info(request):
                 'enable_trigger': v_database.TemplateEnableTrigger().v_text,
                 'disable_trigger': v_database.TemplateDisableTrigger().v_text,
                 'drop_trigger': v_database.TemplateDropTrigger().v_text,
-                'create_partition': v_database.TemplateCreatePartition().v_text,
+                'create_inherited': v_database.TemplateCreateInherited().v_text,
                 'noinherit_partition': v_database.TemplateNoInheritPartition().v_text,
+                'create_partition': v_database.TemplateCreatePartition().v_text,
+                'detach_partition': v_database.TemplateDetachPartition().v_text,
                 'drop_partition': v_database.TemplateDropPartition().v_text,
                 'vacuum': v_database.TemplateVacuum().v_text,
                 'vacuum_table': v_database.TemplateVacuumTable().v_text,
@@ -142,6 +144,8 @@ def get_tree_info(request):
                 'pglogical_drop_sub': v_database.TemplatePglogicalDropSubscription().v_text,
                 'pglogical_sub_add_repset': v_database.TemplatePglogicalSubscriptionAddReplicationSet().v_text,
                 'pglogical_sub_remove_repset': v_database.TemplatePglogicalSubscriptionRemoveReplicationSet().v_text,
+                'bdr_create_local_node': v_database.TemplateBDRCreateLocalNode().v_text,
+                'bdr_promote_local_node': v_database.TemplateBDRPromoteLocalNode().v_text,
                 'bdr_create_group': v_database.TemplateBDRCreateGroup().v_text,
                 'bdr_join_group': v_database.TemplateBDRJoinGroup().v_text,
                 'bdr_join_wait': v_database.TemplateBDRJoinWait().v_text,
@@ -155,10 +159,11 @@ def get_tree_info(request):
                 'bdr_set_repsets': v_database.TemplateBDRSetTableReplicationSets().v_text,
                 'bdr_create_confhand': v_database.TemplateBDRCreateConflictHandler().v_text,
                 'bdr_drop_confhand': v_database.TemplateBDRDropConflictHandler().v_text,
-                # only in BDR >= 1
                 'bdr_terminate_apply': v_database.TemplateBDRTerminateApplyWorkers().v_text,
                 'bdr_terminate_walsender': v_database.TemplateBDRTerminateWalsenderWorkers().v_text,
                 'bdr_remove': v_database.TemplateBDRRemove().v_text,
+                'bdr_group_add_table': v_database.TemplateBDRGroupAddTable().v_text,
+                'bdr_group_remove_table': v_database.TemplateBDRGroupRemoveTable().v_text,
                 'xl_pause_cluster': v_database.TemplateXLPauseCluster().v_text,
                 'xl_unpause_cluster': v_database.TemplateXLUnpauseCluster().v_text,
                 'xl_clean_connection': v_database.TemplateXLCleanConnection().v_text,
@@ -305,8 +310,18 @@ def get_tables(request):
     try:
         v_tables = v_database.QueryTables(False,v_schema)
         for v_table in v_tables.Rows:
+            if v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'False':
+                v_icon = 'table.png'
+            elif v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'True':
+                v_icon = 'table_partitioned.png'
+            elif v_table['is_partition'] == 'True' and v_table['is_partitioned'] == 'False':
+                v_icon = 'table_partition.png'
+            else:
+                v_icon = 'table_partitioned_partition.png'
+
             v_table_data = {
                 'v_name': v_table['table_name'],
+                'v_icon': v_icon,
                 'v_has_primary_keys': v_database.v_has_primary_keys,
                 'v_has_foreign_keys': v_database.v_has_foreign_keys,
                 'v_has_uniques': v_database.v_has_uniques,
@@ -994,6 +1009,53 @@ def get_triggers(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_triggers
+
+    return JsonResponse(v_return)
+
+def get_inheriteds(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_partitions = []
+
+    try:
+        v_partitions = v_database.QueryTablesInheriteds(v_table,False,v_schema)
+        for v_partition in v_partitions.Rows:
+            v_partition_data = []
+            v_partition_data.append(v_partition['child_schema'] + '.' + v_partition['child_table'])
+            v_list_partitions.append(v_partition_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_partitions
 
     return JsonResponse(v_return)
 
@@ -2510,7 +2572,8 @@ def get_bdr_properties(request):
                 'v_version': v_bdr['version'],
                 'v_active': v_bdr['active'],
                 'v_node_name': v_bdr['node_name'],
-                'v_paused': v_bdr['paused']
+                'v_paused': v_bdr['paused'],
+                'v_state': v_bdr['node_state']
             }
             v_list_bdr.append(v_bdr_data)
     except Exception as exc:
@@ -2556,7 +2619,8 @@ def get_bdr_nodes(request):
         v_nodes = v_database.QueryBDRNodes()
         for v_node in v_nodes.Rows:
             v_node_data = {
-                'v_name': v_node['node_name']
+                'v_name': v_node['node_name'],
+                'v_is_local': v_node['node_is_local']
             }
             v_list_nodes.append(v_node_data)
     except Exception as exc:
@@ -2712,6 +2776,148 @@ def get_bdr_table_conflicthandlers(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_chs
+
+    return JsonResponse(v_return)
+
+def get_bdr_groups(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_nodes = []
+
+    try:
+        v_nodes = v_database.QueryBDRGroups()
+        for v_node in v_nodes.Rows:
+            v_node_data = {
+                'v_name': v_node['group_name']
+            }
+            v_list_nodes.append(v_node_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_nodes
+
+    return JsonResponse(v_return)
+
+def get_bdr_group_nodes(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_group = json_object['p_group']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_nodes = []
+
+    try:
+        v_nodes = v_database.QueryBDRGroupNodes(v_group)
+        for v_node in v_nodes.Rows:
+            v_node_data = {
+                'v_name': v_node['node_name'],
+                'v_state': v_node['node_state'],
+                'v_is_local': v_node['node_is_local']
+            }
+            v_list_nodes.append(v_node_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_nodes
+
+    return JsonResponse(v_return)
+
+def get_bdr_group_tables(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+    v_group = json_object['p_group']
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QueryBDRGroupTables(v_group)
+        for v_table in v_tables.Rows:
+            v_table_data = {
+                'v_name': v_table['table_name']
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
 
     return JsonResponse(v_return)
 

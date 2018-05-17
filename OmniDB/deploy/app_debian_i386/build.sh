@@ -1,13 +1,22 @@
 #!/bin/bash
 
-VERSION=2.7.0
+VERSION=2.8.0
 ARCH=debian-i386
 
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install -r ~/OmniDB/requirements.txt --upgrade
 pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt --upgrade
-echo "Done"
+echo "Done."
+
+echo "Installing NodeJS modules..."
+cd ~/OmniDB/omnidb_app
+npm install --unsafe-perm
+echo "Done."
+
+echo "Installing electron-packager..."
+npm install electron-packager -g
+echo "Done."
 
 cd ~/OmniDB/OmniDB
 
@@ -25,47 +34,35 @@ echo -n "Switching to Desktop Mode... "
 sed -i -e 's/DESKTOP_MODE = False/DESKTOP_MODE = True/g' OmniDB/custom_settings.py
 echo "Done."
 
-echo "Generating bundles... "
+echo "Generating server bundles... "
 pyinstaller OmniDB-lin.spec
 echo "Done."
 
-echo -n "Organizing bundles..."
+echo -n "Organizing server bundles..."
 rm -rf build
 mkdir deploy/packages
-cp dist/omnidb-config/omnidb-config dist/omnidb-app/omnidb-config-app
-mv dist/omnidb-app deploy/packages
-chmod 777 deploy/packages/omnidb-app/OmniDB_app/static/temp/
+cp dist/omnidb-config/omnidb-config dist/omnidb-server/omnidb-config-server
+chmod 777 dist/omnidb-server/OmniDB_app/static/temp/
+rm -rf ~/OmniDB/omnidb_app/omnidb-server
+mv dist/omnidb-server ~/OmniDB/omnidb_app
 rm -rf dist
 echo "Done."
 
-echo -n "Copying cefpython files... "
-cp -r "$HOME/.pyenv/versions/3.5.2/lib/python3.5/site-packages/cefpython3" deploy/packages/omnidb-app
+echo "Generating GUI bundles..."
+cd ~/OmniDB/omnidb_app
+./buildgui.sh
+cd omnidb-app-linux-ia32
+rm LICENSE* version
+echo "Done."
+
+echo -n "Organizing GUI bundles..."
+cd ~/OmniDB/OmniDB
+mv ~/OmniDB/omnidb_app/omnidb-app-linux-ia32 deploy/packages/omnidb-app
 echo "Done."
 
 echo -n "Copying libgconf... "
-if [ $ARCH == "debian-amd64" ]
-then
-	cp /usr/lib/x86_64-linux-gnu/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
-	cp /usr/lib/x86_64-linux-gnu/libgconf-2.so.4 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
-else
-	cp /usr/lib/i386-linux-gnu/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
-	cp /usr/lib/i386-linux-gnu/libgconf-2.so.4 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
-fi
+cp /usr/lib/i386-linux-gnu/libgconf-2.so.4 deploy/packages/omnidb-app/libgconf-2.so.4
 chmod 755 deploy/packages/omnidb-app/libgconf-2.so.4
-chmod 755 deploy/packages/omnidb-app/cefpython3/libgconf-2.so.4
-echo "Done."
-
-echo -n "Copying libxcb... "
-if [ $ARCH == "debian-amd64" ]
-then
-	cp /usr/lib/x86_64-linux-gnu/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
-	cp /usr/lib/x86_64-linux-gnu/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
-else
-	cp /usr/lib/i386-linux-gnu/libxcb.so.1 deploy/packages/omnidb-app/libxcb.so.1
-	cp /usr/lib/i386-linux-gnu/libxcb.so.1 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
-fi
-chmod 755 deploy/packages/omnidb-app/libxcb.so.1
-chmod 755 deploy/packages/omnidb-app/cefpython3/libxcb.so.1
 echo "Done."
 
 echo -n "Renaming bundles... "
@@ -88,7 +85,7 @@ mkdir -p usr/bin
 cd usr/bin
 cat > omnidb-app <<EOF
 #!/bin/bash
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app \$@
+LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app \$@
 EOF
 chmod 777 omnidb-app
 ln -s /opt/omnidb-app/omnidb-config-app .

@@ -1,27 +1,27 @@
-## Next Release: *2.8.0 - May 17, 2018*
+## Next Release: *2.9.0 - June 14, 2018*
 
-# OmniDB 2.7.0
+# OmniDB 2.8.0
+
+## Release Date: *May 17, 2018*
 
 ## Release Date: *April 12, 2018*
 
 ## Release Notes
 
 - New features:
-  - Basic support for MySQL 5.6/5.7 and MariaDB 10.1/10.2
-  - Management of multiple databases in the same connection
-  - Debugger plugin can now be installed in PostgreSQL hosted on Windows ([Install Instructions](https://github.com/OmniDB/OmniDB/blob/master/omnidb_plugin/README.md))
+  - Connection to any database via SSH tunnels
+  - Support for BDR 3.0
+  - Support for pglogical 3.0
 - Improvements:
-  - Improved security for omnidb-server when running with SSL
-  - New button to reload the source code of the function in the debugger interface
-  - Other improvements to the debugger interface
-  - Improved security for debugger
-  - Commands \?, \x and \timing for Console Tab for Oracle, MySQL and MariaDB
-  - Console status showing number of rows affected in Console Tab for Oracle, MySQL and MariaDB
-  - "Analyze" action for tables and materialized views for PostgreSQL
-  - "Truncate" action for tables for PostgreSQL
-  - UI and editor themes can be applied on-the-fly
-  - Dark theme for charts
-  - Support to quoted identifiers on Oracle
+  - Improvements to the OmniDB app window container
+    - **IMPORTANT** - Oracle Management with OmniDB-app on **WINDOWS**: Oracle Instant Client ([32-bit](http://www.oracle.com/technetwork/topics/winsoft-085727.html)) ([64-bit](http://www.oracle.com/technetwork/topics/winx64soft-089540.html)) must be extracted into [OmniDB's folder]/resources/app/omnidb-server OR PATH environment variable must be adjusted to point to OIC's location.
+  - Backslash commands supporting PostgreSQL 10 partitioned tables and partitions
+  - DDL for PostgreSQL 10 partitioned tables and partitions
+  - Tree view shows PostgreSQL 10 partitioned tables and partitions with different icons
+- Bug fixes:
+  - Fixed displaying table data in treeview when using MySQL 5.7
+  - Fixed column autocomplete when using MySQL and MariaDB
+  - Fixed JSON and JSONB editing
 
 # 1- Installation
 

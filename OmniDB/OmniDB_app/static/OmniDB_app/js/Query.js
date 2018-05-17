@@ -228,8 +228,14 @@ function querySQLReturnRender(p_message,p_context) {
 	var v_query_info = p_context.tab_tag.query_info;
 
 	if (p_context.callback!=null) {
-		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-		p_context.callback(p_message);
+		if (p_message.v_error) {
+			v_div_result.innerHTML = '<div class="error_text">' + p_message.v_data.message + '</div>';
+			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+		}
+		else {
+			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+			p_context.callback(p_message);
+		}
 	}
 	else {
 		p_context.tab_tag.selectDataTabFunc();

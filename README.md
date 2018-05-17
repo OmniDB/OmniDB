@@ -11,7 +11,8 @@
   - Support for BDR 3.0
   - Support for pglogical 3.0
 - Improvements:
-  - Improvements to the OmniDB app window container
+  - Improvements to the OmniDB app window container 
+    - **IMPORTANT** - Oracle Management with OmniDB-app on **WINDOWS**: Oracle Instant Client ([32-bit](http://www.oracle.com/technetwork/topics/winsoft-085727.html)) ([64-bit](http://www.oracle.com/technetwork/topics/winx64soft-089540.html)) must be extracted into [OmniDB's folder]/resources/app/omnidb-server OR PATH environment variable must be adjusted to point to OIC's location.
   - Backslash commands supporting PostgreSQL 10 partitioned tables and partitions
   - DDL for PostgreSQL 10 partitioned tables and partitions
   - Tree view shows PostgreSQL 10 partitioned tables and partitions with different icons

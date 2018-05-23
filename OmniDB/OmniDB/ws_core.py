@@ -1,4 +1,5 @@
 import threading, time, datetime, json
+from concurrent.futures.thread import ThreadPoolExecutor
 import traceback
 
 import tornado.ioloop
@@ -41,6 +42,24 @@ class StoppableThread(threading.Thread):
         self.cancel = False
     def stop(self):
         self.cancel = True
+
+class StoppableThreadPool(ThreadPoolExecutor):
+    def __init__(self, p_max_workers=settings.THREAD_POOL_MAX_WORKERS, p_tag={}):
+        super(StoppableThreadPool, self).__init__(max_workers=p_max_workers)
+        self.tag = p_tag
+        self.cancel = False
+
+    def stop(self, p_callback=None):
+        self.cancel = True
+
+        if p_callback is not None:
+            p_callback(self)
+
+    def start(self, p_function, p_argsList=[]):
+        for p_args in p_argsList:
+            self.submit(p_function, self, *p_args)
+
+        super(StoppableThreadPool, self).shutdown(True)
 
 class request(IntEnum):
   Login          = 0
@@ -220,6 +239,7 @@ def thread_dispatcher(self,args,ws_object):
                                 )
                                 tab_object['omnidatabase'] = v_database_new
                                 tab_object['database_index'] = v_data['v_db_index']
+
                         except Exception as exc:
                             logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
                             v_response['v_code'] = response.MessageException
@@ -274,16 +294,34 @@ def thread_dispatcher(self,args,ws_object):
                         elif v_code == request.DataMining:
                             tab_object['tab_db_id'] = v_data['v_tab_db_id']
                             v_data['v_tab_object'] = tab_object
-                            v_data['v_mode'] = 0
-                            v_data['v_all_data'] = True
-                            v_data['v_sql_cmd'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'], v_data['summarizeResults'])
-                            tab_object['sql_cmd'] = v_data['v_sql_cmd']
-                            t = StoppableThread(thread_query,v_data,ws_object)
-                            tab_object['thread'] = t
-                            tab_object['type'] = 'query'
+                            v_data['v_sql_dict'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'])
+
+                            t = StoppableThreadPool(
+                                p_tag = {
+                                    'activeConnections': [],
+                                    'lock': threading.RLock(),
+                                    'result': {}
+                                }
+                            )
+
+                            tab_object['thread_pool'] = t
+                            tab_object['type'] = 'datamining'
                             tab_object['tab_id'] = v_data['v_tab_id']
-                            #t.setDaemon(True)
-                            t.start()
+
+                            v_argsList = []
+
+                            for v_key1 in v_data['v_sql_dict']:
+                                if v_key1 == 'Data':
+                                    for v_key2 in v_data['v_sql_dict'][v_key1]:
+                                        v_sql = v_data['v_sql_dict'][v_key1][v_key2]
+                                        v_argsList.append([v_key1, v_key2, v_sql, v_data, ws_object])
+                                else:
+                                    v_sql = v_data['v_sql_dict'][v_key1]
+                                    v_argsList.append([v_key1, None, v_sql, v_data, ws_object])
+
+                            t.start(thread_datamining, v_argsList)
+
+                            print(t.tag['result'])
 
                     #Debugger
                     elif v_code == request.Debug:
@@ -459,6 +497,68 @@ COMMAND: {5}'''.format(p_user_name,
                    p_duration))
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+
+def thread_datamining(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
+    try:
+        v_session = p_ws_object.v_session
+
+        v_database = OmniDatabase.Generic.InstantiateDatabase(
+            p_args['v_database'].v_db_type,
+            p_args['v_database'].v_server,
+            p_args['v_database'].v_port,
+            p_args['v_database'].v_service,
+            p_args['v_database'].v_user,
+            p_args['v_database'].v_connection.v_password,
+            p_args['v_database'].v_conn_id,
+            p_args['v_database'].v_alias
+        )
+
+        v_database.v_connection.Open()
+
+        try:
+            self.tag['lock'].acquire()
+            self.tag['activeConnections'].append(v_database.v_connection)
+        finally:
+            self.tag['lock'].release()
+
+        v_sql = re.sub(r'--#FILTER_PATTERN_CASE_SENSITIVE#.*\n', '', p_sql)
+        v_sql = re.sub(r'--#FILTER_PATTERN_CASE_INSENSITIVE#.*\n', '', v_sql)
+        v_sql = re.sub(r'--#FILTER_PATTERN_REGEX#.*\n', '', v_sql)
+        v_sql = re.sub(r'--#FILTER_BY_SCHEMA#.*\n', '', v_sql)
+
+        v_result = {
+            'count': v_database.v_connection.ExecuteScalar('''
+                select count(x.*)
+                from (
+                    {0}
+                ) x
+                '''.format(p_sql)
+            ),
+            'sql': v_sql
+        }
+
+        v_database.v_connection.Close()
+
+        try:
+            self.tag['lock'].acquire()
+            self.tag['activeConnections'].remove(v_database.v_connection)
+
+            if p_key1 is not None:
+                if p_key2 is not None:
+                    if p_key1 not in self.tag['result']:
+                        self.tag['result'][p_key1] = {}
+
+                    self.tag['result'][p_key1][p_key2] = v_result
+                else:
+                    self.tag['result'][p_key1] = v_result
+        finally:
+            self.tag['lock'].release()
+    except Exception as exc:
+        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+        v_response['v_error'] = True
+        v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
+        if not self.cancel:
+            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
 def thread_query(self,args,ws_object):
     v_response = {

@@ -1320,93 +1320,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         '''.format(self.v_service, p_sub), True)
 
-    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_summarizeResults):
-        v_sqlList = []
-
-        v_inSchemas = ''
-
-        if len(p_schemaList) > 0:
-            for v_schema in p_schemaList:
-                v_inSchemas += "'{0}', ".format(v_schema)
-
-            v_inSchemas = v_inSchemas[:-2]
-
-        for v_category in p_categoryList:
-            if v_category == 'Data':
-                v_sqlList += DataMiningData(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas)
-            elif v_category == 'FK Name':
-                v_sqlList.append(DataMiningFKName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Function Definition':
-                v_sqlList.append(DataMiningFunctionDefinition(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Function Name':
-                v_sqlList.append(DataMiningFunctioName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Index Name':
-                v_sqlList.append(DataMiningIndexName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Materialized View Column Name':
-                v_sqlList.append(DataMiningMaterializedViewColumnName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Materialized View Name':
-                v_sqlList.append(DataMiningMaterializedViewName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'PK Name':
-                v_sqlList.append(DataMiningPKName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Schema Name':
-                v_sqlList.append(DataMiningSchemaName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Sequence Name':
-                v_sqlList.append(DataMiningSequenceName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Table Column Name':
-                v_sqlList.append(DataMiningTableColumnName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Table Name':
-                v_sqlList.append(DataMiningTableName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Trigger Name':
-                v_sqlList.append(DataMiningTriggerName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Trigger Source':
-                v_sqlList.append(DataMiningTriggerSource(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Unique Name':
-                v_sqlList.append(DataMiningUniqueName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'View Column Name':
-                v_sqlList.append(DataMiningViewColumnName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'View Name':
-                v_sqlList.append(DataMiningViewName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Check Name':
-                v_sqlList.append(DataMiningCheckName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Rule Name':
-                v_sqlList.append(DataMiningRuleName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Rule Definition':
-                v_sqlList.append(DataMiningRuleDefinition(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-            elif v_category == 'Partition Name':
-                v_sqlList.append(DataMiningPartitionName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
-
-        #Use threadpool here
-
-        v_sql = '''
-            select x.*
-            from (
-                select null::text as category,
-                       null::text as schema_name,
-                       null::text as table_name,
-                       null::text as column_name,
-                       null::text as match_value
-
-                --#START_DATA##END_DATA#
-            ) x
-            where x.category is not null
-            order by x.category, x.schema_name, x.table_name, x.column_name, x.match_value
-        '''
-
-        if p_summarizeResults:
-            v_sql = '''
-                select s.category,
-                       s.schema_name,
-                       s.table_name,
-                       s.column_name,
-                       count(*) as match_count
-                from (
-                    {0}
-                ) s
-                group by s.category, s.schema_name, s.table_name, s.column_name
-            '''.format(v_sql)
-
     def DataMiningData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
-        v_sqlList = []
+        v_sqlDict = {}
 
         if p_inSchemas != '': #At least one schema must be selected
             v_columnsSql = '''
@@ -1460,9 +1375,19 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                     else:
                         v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
 
-                v_sqlList.append(v_sql)
+                v_key = '{0}.{1}'.format(v_columnRow['schema_name'], v_columnRow['table_name'])
 
-        return v_sqlList
+                if v_key not in v_sqlDict:
+                    v_sqlDict[v_key] = v_sql
+                else:
+                    v_sqlDict[v_key] += '''
+
+                        union
+
+                        {0}
+                    '''.format(v_sql)
+
+        return v_sqlDict
 
     def DataMiningFKName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
@@ -2093,6 +2018,63 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
 
         return v_sql
+
+    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList):
+        v_sqlDict = {}
+
+        v_inSchemas = ''
+
+        if len(p_schemaList) > 0:
+            for v_schema in p_schemaList:
+                v_inSchemas += "'{0}', ".format(v_schema)
+
+            v_inSchemas = v_inSchemas[:-2]
+
+        for v_category in p_categoryList:
+            if v_category == 'Data':
+                v_sqlDict[v_category] = self.DataMiningData(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'FK Name':
+                v_sqlDict[v_category] = self.DataMiningFKName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Function Definition':
+                v_sqlDict[v_category] = self.DataMiningFunctionDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Function Name':
+                v_sqlDict[v_category] = self.DataMiningFunctioName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Index Name':
+                v_sqlDict[v_category] = self.DataMiningIndexName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Materialized View Column Name':
+                v_sqlDict[v_category] = self.DataMiningMaterializedViewColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Materialized View Name':
+                v_sqlDict[v_category] = self.DataMiningMaterializedViewName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'PK Name':
+                v_sqlDict[v_category] = self.DataMiningPKName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Schema Name':
+                v_sqlDict[v_category] = self.DataMiningSchemaName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Sequence Name':
+                v_sqlDict[v_category] = self.DataMiningSequenceName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Table Column Name':
+                v_sqlDict[v_category] = self.DataMiningTableColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Table Name':
+                v_sqlDict[v_category] = self.DataMiningTableName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Trigger Name':
+                v_sqlDict[v_category] = self.DataMiningTriggerName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Trigger Source':
+                v_sqlDict[v_category] = self.DataMiningTriggerSource(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Unique Name':
+                v_sqlDict[v_category] = self.DataMiningUniqueName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'View Column Name':
+                v_sqlDict[v_category] = self.DataMiningViewColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'View Name':
+                v_sqlDict[v_category] = self.DataMiningViewName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Check Name':
+                v_sqlDict[v_category] = self.DataMiningCheckName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Rule Name':
+                v_sqlDict[v_category] = self.DataMiningRuleName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Rule Definition':
+                v_sqlDict[v_category] = self.DataMiningRuleDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Partition Name':
+                v_sqlDict[v_category] = self.DataMiningPartitionName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+
+        return v_sqlDict
 
     def TemplateCreateRole(self):
         return Template('''CREATE ROLE name

@@ -217,69 +217,70 @@ function tabDataMining() {
     v_containerDiv.appendChild(v_optionsContainerDiv);
 
     var v_optionList = [{
-        'text': 'Data',
-        'value': 1
-    }, {
-        'text': 'FK Name',
-        'value': 2
-    }, {
-        'text': 'Function Definition',
-        'value': 3
-    }, {
-        'text': 'Function Name',
-        'value': 4
-    }, {
-        'text': 'Index Name',
-        'value': 5
-    }, {
-        'text': 'Materialized View Column Name',
-        'value': 6
-    }, {
-        'text': 'Materialized View Name',
-        'value': 7
-    }, {
-        'text': 'PK Name',
-        'value': 8
-    }, {
-        'text': 'Schema Name',
-        'value': 9
-    }, {
-        'text': 'Sequence Name',
-        'value': 10
-    }, {
-        'text': 'Table Column Name',
-        'value': 11
-    }, {
-        'text': 'Table Name',
-        'value': 12
-    }, {
-        'text': 'Trigger Name',
-        'value': 13
-    }, {
-        'text': 'Trigger Source',
-        'value': 14
-    }, {
-        'text': 'Unique Name',
-        'value': 15
-    }, {
-        'text': 'View Column Name',
-        'value': 16
-    }, {
-        'text': 'View Name',
-        'value': 17
-    }, {
-        'text': 'Check Name',
-        'value': 18
-    }, {
-        'text': 'Rule Name',
-        'value': 19
-    }, {
-        'text': 'Rule Definition',
-        'value': 20
-    }, {
-        'text': 'Partition Name',
-        'value': 21
-    }, ];
+            'text': 'Data',
+            'value': 1
+        }, {
+            'text': 'FK Name',
+            'value': 2
+        }, {
+            'text': 'Function Definition',
+            'value': 3
+        }, {
+            'text': 'Function Name',
+            'value': 4
+        }, {
+            'text': 'Index Name',
+            'value': 5
+        }, {
+            'text': 'Materialized View Column Name',
+            'value': 6
+        }, {
+            'text': 'Materialized View Name',
+            'value': 7
+        }, {
+            'text': 'PK Name',
+            'value': 8
+        }, {
+            'text': 'Schema Name',
+            'value': 9
+        }, {
+            'text': 'Sequence Name',
+            'value': 10
+        }, {
+            'text': 'Table Column Name',
+            'value': 11
+        }, {
+            'text': 'Table Name',
+            'value': 12
+        }, {
+            'text': 'Trigger Name',
+            'value': 13
+        }, {
+            'text': 'Trigger Source',
+            'value': 14
+        }, {
+            'text': 'Unique Name',
+            'value': 15
+        }, {
+            'text': 'View Column Name',
+            'value': 16
+        }, {
+            'text': 'View Name',
+            'value': 17
+        }, {
+            'text': 'Check Name',
+            'value': 18
+        }, {
+            'text': 'Rule Name',
+            'value': 19
+        }, {
+            'text': 'Rule Definition',
+            'value': 20
+        }, {
+            'text': 'Partition Name',
+            'value': 21
+        }
+    ];
 
     var v_compare = function(a, b) {
         if (a.text < b.text) {

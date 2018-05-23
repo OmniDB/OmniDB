@@ -18,16 +18,14 @@ function queryDataMining(p_data, p_callback = null) {
 		var v_message_data = {
 			v_sql_cmd : '',
 			v_db_index: v_db_index,
+			v_conn_tab_id: v_connTabControl.selectedTab.id,
 			v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
-			v_tab_db_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_db_id,
-			v_all_data: true,
-			v_log_query: false,
+			v_tab_db_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_db_id,			
             text: p_data.text,
             regex: p_data.regex,
             caseSensitive: p_data.caseSensitive,
             categoryList: p_data.categoryList,
-            schemaList: p_data.schemaList,
-			summarizeResults: p_data.summarizeResults
+            schemaList: p_data.schemaList
 		};
 
 		v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state = v_queryState.Executing;

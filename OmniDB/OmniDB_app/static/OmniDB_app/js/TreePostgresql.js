@@ -468,35 +468,6 @@ function tabDataMining() {
 
     v_schemasButtonsContainer.appendChild(v_buttonUnselectAllSchemas);
 
-    var v_summarizeHeader = document.createElement('h3');
-    v_summarizeHeader.innerHTML = 'Summarize Results';
-    v_summarizeHeader.style.marginLeft = '10px';
-    v_summarizeHeader.style.marginBottom = '0px';
-    v_summarizeHeader.style.flex = '0 0 auto';
-    v_containerDiv.appendChild(v_summarizeHeader);
-
-    var v_summarizeContainerDiv = document.createElement('div');
-    v_summarizeContainerDiv.style.display = 'grid';
-    v_summarizeContainerDiv.style.gridTemplateColumns = '1fr';
-    v_summarizeContainerDiv.style.gridRowGap = '10px';
-    v_summarizeContainerDiv.style.gridColumnGap = '10px';
-    v_summarizeContainerDiv.style.justifyItems = 'start';
-    v_summarizeContainerDiv.style.boxSizing = 'border-box';
-    v_summarizeContainerDiv.style.padding = '10px';
-    v_containerDiv.appendChild(v_summarizeContainerDiv);
-
-    var v_divSummarize = document.createElement('div');
-    v_summarizeContainerDiv.appendChild(v_divSummarize);
-
-    var v_inputSummarize = document.createElement('input');
-    v_inputSummarize.type = 'checkbox';
-    v_inputSummarize.classList.add('data-mining-input-summarize');
-    v_divSummarize.appendChild(v_inputSummarize);
-
-    var v_spanSummarize = document.createElement('span');
-    v_spanSummarize.innerHTML = 'Summarize';
-    v_divSummarize.appendChild(v_spanSummarize);
-
     var v_buttonStart = document.getElementById('bt_start_' + v_tab.id);
 
     v_buttonStart.addEventListener(
@@ -509,8 +480,7 @@ function tabDataMining() {
                 regex: false,
                 caseSensitive: false,
                 categoryList: [],
-                schemaList: [],
-                summarizeResults: false
+                schemaList: []
             };
 
             var v_inputFilter = v_parent.querySelector(
@@ -565,13 +535,6 @@ function tabDataMining() {
             if (v_data.schemaList.length == 0) {
                 showAlert('Please, select at least one schema to search.');
                 return;
-            }
-
-            var v_inputSummarize = v_parent.querySelector(
-                '.data-mining-input-summarize');
-
-            if (v_inputSummarize != null) {
-                v_data.summarizeResults = v_inputSummarize.checked;
             }
 
             if (v_data.categoryList.indexOf('Data') != -1) {
@@ -715,13 +678,6 @@ function getTreePostgresql(p_div) {
                             .tag.create_database);
                     }
                 }
-                /*, {
-                                text: 'Data Mining',
-                                icon: '/static/OmniDB_app/images/data_mining.png',
-                                action: function(node) {
-                                    tabDataMining();
-                                }
-                            }*/
                 , {
                     text: 'Doc: Databases',
                     icon: '/static/OmniDB_app/images/globe.png',
@@ -751,6 +707,12 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Drop Database', node.tree.tag
                         .drop_database.replace(
                             '#database_name#', node.text));
+                }
+            }, {
+                text: 'Data Mining',
+                icon: '/static/OmniDB_app/images/data_mining.png',
+                action: function(node) {
+                    tabDataMining();
                 }
             }]
         },

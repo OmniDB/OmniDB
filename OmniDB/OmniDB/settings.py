@@ -224,3 +224,4 @@ SSL_KEY                        = ""
 CH_CMDS_PER_PAGE               = 20
 PWD_TIMEOUT_TOTAL              = 1800
 PWD_TIMEOUT_REFRESH            = 300
+THREAD_POOL_MAX_WORKERS        = 2

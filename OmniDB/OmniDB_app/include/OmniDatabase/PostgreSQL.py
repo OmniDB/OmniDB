@@ -1321,7 +1321,61 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
         '''.format(self.v_service, p_sub), True)
 
     def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_summarizeResults):
-        v_return = []
+        v_sqlList = []
+
+        v_inSchemas = ''
+
+        if len(p_schemaList) > 0:
+            for v_schema in p_schemaList:
+                v_inSchemas += "'{0}', ".format(v_schema)
+
+            v_inSchemas = v_inSchemas[:-2]
+
+        for v_category in p_categoryList:
+            if v_category == 'Data':
+                v_sqlList += DataMiningData(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'FK Name':
+                v_sqlList.append(DataMiningFKName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Function Definition':
+                v_sqlList.append(DataMiningFunctionDefinition(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Function Name':
+                v_sqlList.append(DataMiningFunctioName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Index Name':
+                v_sqlList.append(DataMiningIndexName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Materialized View Column Name':
+                v_sqlList.append(DataMiningMaterializedViewColumnName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Materialized View Name':
+                v_sqlList.append(DataMiningMaterializedViewName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'PK Name':
+                v_sqlList.append(DataMiningPKName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Schema Name':
+                v_sqlList.append(DataMiningSchemaName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Sequence Name':
+                v_sqlList.append(DataMiningSequenceName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Table Column Name':
+                v_sqlList.append(DataMiningTableColumnName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Table Name':
+                v_sqlList.append(DataMiningTableName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Trigger Name':
+                v_sqlList.append(DataMiningTriggerName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Trigger Source':
+                v_sqlList.append(DataMiningTriggerSource(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Unique Name':
+                v_sqlList.append(DataMiningUniqueName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'View Column Name':
+                v_sqlList.append(DataMiningViewColumnName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'View Name':
+                v_sqlList.append(DataMiningViewName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Check Name':
+                v_sqlList.append(DataMiningCheckName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Rule Name':
+                v_sqlList.append(DataMiningRuleName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Rule Definition':
+                v_sqlList.append(DataMiningRuleDefinition(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+            elif v_category == 'Partition Name':
+                v_sqlList.append(DataMiningPartitionName(self, p_textPattern, p_caseSentive, p_regex, v_inSchemas))
+
+        #Use threadpool here
 
         v_sql = '''
             select x.*
@@ -1338,21 +1392,6 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by x.category, x.schema_name, x.table_name, x.column_name, x.match_value
         '''
 
-        v_inSchemas = ''
-
-        if len(p_schemaList) > 0:
-            for v_schema in p_schemaList:
-                v_inSchemas += "'{0}', ".format(v_schema)
-
-            v_inSchemas = v_inSchemas[:-2]
-
-        if 'Data' in p_categoryList and v_inSchemas != '':
-            kkkk
-
-        for v_category in p_categoryList:
-            if v_category != 'Data':
-                v_sql = v_sql.replace('/*#START_{0}#'.format(v_category.upper()), '').replace('#END_{0}#*/'.format(v_category.upper()), '')
-
         if p_summarizeResults:
             v_sql = '''
                 select s.category,
@@ -1365,6 +1404,135 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 ) s
                 group by s.category, s.schema_name, s.table_name, s.column_name
             '''.format(v_sql)
+
+    def DataMiningData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sqlList = []
+
+        if p_inSchemas != '': #At least one schema must be selected
+            v_columnsSql = '''
+                select n.nspname as schema_name,
+                       c.relname as table_name,
+                       a.attname as column_name
+                from pg_namespace n
+                inner join pg_class c
+                           on n.oid = c.relnamespace
+                inner join pg_attribute a
+                           on c.oid = a.attrelid
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and n.nspname not like 'pg%%temp%%'
+                  and c.relkind = 'r'
+                  and attnum > 0
+                  and not a.attisdropped
+                  and n.nspname in ({0})
+            '''.format(p_inSchemas)
+
+            v_columnsTable = self.v_connection.Query(v_columnsSql)
+
+            for v_columnRow in v_columnsTable.Rows:
+                v_sql = '''
+                    select 'Data' as category,
+                           '{0}' as schema_name,
+                           '{1}' as table_name,
+                           '{2}' as column_name,
+                           t.{2}::text as match_value
+                    from (
+                        select t.{2}
+                        from {0}.{1} t
+                        where 1 = 1
+                        --#FILTER_PATTERN_CASE_SENSITIVE#  and t.{2}::text like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+                        --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.{2}::text) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+                        --#FILTER_PATTERN_REGEX# and t.{2}::text ~ '#VALUE_PATTERN_REGEX#'
+                    ) t
+                '''.format(
+                    v_columnRow['schema_name'],
+                    v_columnRow['table_name'],
+                    v_columnRow['column_name']
+                )
+
+                if p_inSchemas != '':
+                    v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+                if p_regex:
+                    v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+                else:
+                    if p_caseSentive:
+                        v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+                    else:
+                        v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+                v_sqlList.append(v_sql)
+
+        return v_sqlList
+
+    def DataMiningFKName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'FK Name'::text as category,
+                   tc.table_schema::text as schema_name,
+                   tc.table_name::text as table_name,
+                   ''::text as column_name,
+                   tc.constraint_name::text as match_value
+            from information_schema.table_constraints tc
+            where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and tc.table_schema not like 'pg%%temp%%'
+              and tc.constraint_type = 'FOREIGN KEY'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningFunctionDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Function Definition'::text as category,
+                   y.schema_name::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   y.function_definition::text as match_value
+            from (
+                select pg_get_functiondef(z.function_oid::regprocedure) as function_definition,
+                       *
+                from (
+                    select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as function_oid,
+                           p.proname as function_name,
+                           n.nspname as schema_name
+                    from pg_proc p
+                    inner join pg_namespace n
+                               on p.pronamespace = n.oid
+                    where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                      and n.nspname not like 'pg%%temp%%'
+                      and format_type(p.prorettype, null) <> 'trigger'
+                    --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                ) z
+            ) y
+            where 1 = 1
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and y.function_definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.function_definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+            --#FILTER_PATTERN_REGEX# and y.function_definition ~ '#VALUE_PATTERN_REGEX#'
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
 
         return v_sql
 
@@ -1400,21 +1568,20 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningTableName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def DataMiningIndexName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
-            select 'Table Name'::text as category,
-                   t.table_schema::text as schema_name,
-                   ''::text as table_name,
+            select 'Index Name'::text as category,
+                   i.schemaname::text as schema_name,
+                   i.tablename::text as table_name,
                    ''::text as column_name,
-                   t.table_name::text as match_value
-            from information_schema.tables t
-            where t.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-              and t.table_schema not like 'pg%%temp%%'
-              and t.table_type = 'BASE TABLE'
-            --#FILTER_PATTERN_CASE_SENSITIVE#  and t.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and t.table_name ~ '#VALUE_PATTERN_REGEX#'
-            --#FILTER_BY_SCHEMA#  and lower(t.table_schema) in (#VALUE_BY_SCHEMA#)
+                   i.indexname::text as match_value
+            from pg_indexes i
+            where i.schemaname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and i.schemaname not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and i.indexname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(i.indexname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+            --#FILTER_PATTERN_REGEX# and i.indexname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_BY_SCHEMA#  and lower(i.schemaname) in (#VALUE_BY_SCHEMA#)
         '''
 
         if p_inSchemas != '':
@@ -1430,20 +1597,29 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningViewName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def DataMiningMaterializedViewColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
-            select 'View Name'::text as category,
-                   v.table_schema::text as schema_name,
-                   ''::text as table_name,
+            select 'Materialized View Column Name'::text as category,
+                   n.nspname::text as schema_name,
+                   c.relname::text as table_name,
                    ''::text as column_name,
-                   v.table_name::text as match_value
-            from information_schema.views v
-            where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-              and v.table_schema not like 'pg%%temp%%'
-            --#FILTER_PATTERN_CASE_SENSITIVE#  and v.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(v.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and v.table_name ~ '#VALUE_PATTERN_REGEX#'
-            --#FILTER_BY_SCHEMA#  and lower(v.table_schema) in (#VALUE_BY_SCHEMA#)
+                   a.attname::text as match_value
+            from pg_attribute a
+            inner join pg_class c
+                       on c.oid = a.attrelid
+            inner join pg_namespace n
+                       on n.oid = c.relnamespace
+            inner join pg_type t
+                       on t.oid = a.atttypid
+            where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and n.nspname not like 'pg%%temp%%'
+              and a.attnum > 0
+              and not a.attisdropped
+              and c.relkind = 'm'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and a.attname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(a.attname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+            --#FILTER_PATTERN_REGEX# and a.attname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
         if p_inSchemas != '':
@@ -1491,20 +1667,21 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningSequenceName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def DataMiningPKName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
-            select 'Sequence Name'::text as category,
-                   s.sequence_schema::text as schema_name,
-                   ''::text as table_name,
+            select 'PK Name'::text as category,
+                   tc.table_schema::text as schema_name,
+                   tc.table_name::text as table_name,
                    ''::text as column_name,
-                   s.sequence_name::text as match_value
-            from information_schema.sequences s
-            where s.sequence_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-              and s.sequence_schema not like 'pg%%temp%%'
-            --#FILTER_PATTERN_CASE_SENSITIVE#  and s.sequence_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(s.sequence_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and s.sequence_name ~ '#VALUE_PATTERN_REGEX#'
-            --#FILTER_BY_SCHEMA#  and lower(s.sequence_schema) in (#VALUE_BY_SCHEMA#)
+                   tc.constraint_name::text as match_value
+            from information_schema.table_constraints tc
+            where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and tc.table_schema not like 'pg%%temp%%'
+              and tc.constraint_type = 'PRIMARY KEY'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
         if p_inSchemas != '':
@@ -1548,33 +1725,82 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningFunctionDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def DataMiningSequenceName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
-            select 'Function Definition'::text as category,
-                   y.schema_name::text as schema_name,
+            select 'Sequence Name'::text as category,
+                   s.sequence_schema::text as schema_name,
                    ''::text as table_name,
                    ''::text as column_name,
-                   y.function_definition::text as match_value
-            from (
-                select pg_get_functiondef(z.function_oid::regprocedure) as function_definition,
-                       *
-                from (
-                    select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as function_oid,
-                           p.proname as function_name,
-                           n.nspname as schema_name
-                    from pg_proc p
-                    inner join pg_namespace n
-                               on p.pronamespace = n.oid
-                    where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-                      and n.nspname not like 'pg%%temp%%'
-                      and format_type(p.prorettype, null) <> 'trigger'
-                    --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
-                ) z
-            ) y
-            where 1 = 1
-            --#FILTER_PATTERN_CASE_SENSITIVE#  and y.function_definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.function_definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and y.function_definition ~ '#VALUE_PATTERN_REGEX#'
+                   s.sequence_name::text as match_value
+            from information_schema.sequences s
+            where s.sequence_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and s.sequence_schema not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and s.sequence_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(s.sequence_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+            --#FILTER_PATTERN_REGEX# and s.sequence_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_BY_SCHEMA#  and lower(s.sequence_schema) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningTableColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Table Column Name'::text as category,
+                   c.table_schema::text as schema_name,
+                   c.table_name::text as table_name,
+                   ''::text as column_name,
+                   c.column_name::text as match_value
+            from information_schema.tables t
+            inner join information_schema.columns c
+                       on t.table_name = c.table_name and t.table_schema = c.table_schema
+            where c.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and c.table_schema not like 'pg%%temp%%'
+              and t.table_type = 'BASE TABLE'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+            --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningTableName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Table Name'::text as category,
+                   t.table_schema::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   t.table_name::text as match_value
+            from information_schema.tables t
+            where t.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and t.table_schema not like 'pg%%temp%%'
+              and t.table_type = 'BASE TABLE'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and t.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+            --#FILTER_PATTERN_REGEX# and t.table_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_BY_SCHEMA#  and lower(t.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
         if p_inSchemas != '':
@@ -1654,23 +1880,21 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def DataMiningUniqueName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
-            select 'Table Column Name'::text as category,
-                   c.table_schema::text as schema_name,
-                   c.table_name::text as table_name,
+            select 'Unique Name'::text as category,
+                   tc.table_schema::text as schema_name,
+                   tc.table_name::text as table_name,
                    ''::text as column_name,
-                   c.column_name::text as match_value
-            from information_schema.tables t
-            inner join information_schema.columns c
-                       on t.table_name = c.table_name and t.table_schema = c.table_schema
-            where c.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-              and c.table_schema not like 'pg%%temp%%'
-              and t.table_type = 'BASE TABLE'
-            --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
-            --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
+                   tc.constraint_name::text as match_value
+            from information_schema.table_constraints tc
+            where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and tc.table_schema not like 'pg%%temp%%'
+              and tc.constraint_type = 'UNIQUE'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
         if p_inSchemas != '':
@@ -1717,148 +1941,20 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningMaterializedViewColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def DataMiningViewName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
-            select 'Materialized View Column Name'::text as category,
-                   n.nspname::text as schema_name,
-                   c.relname::text as table_name,
+            select 'View Name'::text as category,
+                   v.table_schema::text as schema_name,
+                   ''::text as table_name,
                    ''::text as column_name,
-                   a.attname::text as match_value
-            from pg_attribute a
-            inner join pg_class c
-                       on c.oid = a.attrelid
-            inner join pg_namespace n
-                       on n.oid = c.relnamespace
-            inner join pg_type t
-                       on t.oid = a.atttypid
-            where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-              and n.nspname not like 'pg%%temp%%'
-              and a.attnum > 0
-              and not a.attisdropped
-              and c.relkind = 'm'
-            --#FILTER_PATTERN_CASE_SENSITIVE#  and a.attname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(a.attname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and a.attname ~ '#VALUE_PATTERN_REGEX#'
-            --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
-        '''
-
-        if p_inSchemas != '':
-            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
-
-        if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
-        else:
-            if p_caseSentive:
-                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
-            else:
-                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
-
-        return v_sql
-
-    def DataMiningPKName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
-        v_sql = '''
-            select 'PK Name'::text as category,
-                   tc.table_schema::text as schema_name,
-                   tc.table_name::text as table_name,
-                   ''::text as column_name,
-                   tc.constraint_name::text as match_value
-            from information_schema.table_constraints tc
-            where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-              and tc.table_schema not like 'pg%%temp%%'
-              and tc.constraint_type = 'PRIMARY KEY'
-            --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
-            --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
-        '''
-
-        if p_inSchemas != '':
-            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
-
-        if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
-        else:
-            if p_caseSentive:
-                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
-            else:
-                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
-
-        return v_sql
-
-    def DataMiningFKName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
-        v_sql = '''
-            select 'FK Name'::text as category,
-                   tc.table_schema::text as schema_name,
-                   tc.table_name::text as table_name,
-                   ''::text as column_name,
-                   tc.constraint_name::text as match_value
-            from information_schema.table_constraints tc
-            where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-              and tc.table_schema not like 'pg%%temp%%'
-              and tc.constraint_type = 'FOREIGN KEY'
-            --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
-            --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
-        '''
-
-        if p_inSchemas != '':
-            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
-
-        if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
-        else:
-            if p_caseSentive:
-                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
-            else:
-                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
-
-        return v_sql
-
-    def DataMiningUniqueName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
-        v_sql = '''
-            select 'Unique Name'::text as category,
-                   tc.table_schema::text as schema_name,
-                   tc.table_name::text as table_name,
-                   ''::text as column_name,
-                   tc.constraint_name::text as match_value
-            from information_schema.table_constraints tc
-            where tc.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-              and tc.table_schema not like 'pg%%temp%%'
-              and tc.constraint_type = 'UNIQUE'
-            --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
-            --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
-        '''
-
-        if p_inSchemas != '':
-            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
-
-        if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
-        else:
-            if p_caseSentive:
-                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
-            else:
-                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
-
-        return v_sql
-
-    def DataMiningIndexName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
-        v_sql = '''
-            select 'Index Name'::text as category,
-                   i.schemaname::text as schema_name,
-                   i.tablename::text as table_name,
-                   ''::text as column_name,
-                   i.indexname::text as match_value
-            from pg_indexes i
-            where i.schemaname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-              and i.schemaname not like 'pg%%temp%%'
-            --#FILTER_PATTERN_CASE_SENSITIVE#  and i.indexname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(i.indexname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and i.indexname ~ '#VALUE_PATTERN_REGEX#'
-            --#FILTER_BY_SCHEMA#  and lower(i.schemaname) in (#VALUE_BY_SCHEMA#)
+                   v.table_name::text as match_value
+            from information_schema.views v
+            where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and v.table_schema not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and v.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(v.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
+            --#FILTER_PATTERN_REGEX# and v.table_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_BY_SCHEMA#  and lower(v.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
         if p_inSchemas != '':
@@ -1997,61 +2093,6 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
 
         return v_sql
-
-    def DataMiningData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
-        v_return = []
-
-        if p_inSchemas != '':
-            v_columnsSql = '''
-                select n.nspname as schema_name,
-                       c.relname as table_name,
-                       a.attname as column_name
-                from pg_namespace n
-                inner join pg_class c
-                           on n.oid = c.relnamespace
-                inner join pg_attribute a
-                           on c.oid = a.attrelid
-                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
-                  and n.nspname not like 'pg%%temp%%'
-                  and c.relkind = 'r'
-                  and attnum > 0
-                  and not a.attisdropped
-                  and n.nspname in ({0})
-            '''.format(p_inSchemas)
-
-            v_columnsTable = self.v_connection.Query(v_columnsSql)
-
-            for v_columnRow in v_columnsTable.Rows:
-                v_sql = '''
-                    select 'Data' as category,
-                           '{0}' as schema_name,
-                           '{1}' as table_name,
-                           '{2}' as column_name,
-                           t.{2}::text as match_value
-                    from (
-                        select t.{2}
-                        from {0}.{1} t
-                        where 1 = 1
-                        --#FILTER_PATTERN_CASE_SENSITIVE#  and t.{2}::text like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
-                        --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.{2}::text) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-                        --#FILTER_PATTERN_REGEX# and t.{2}::text ~ '#VALUE_PATTERN_REGEX#'
-                    ) t
-                '''.format(
-                    v_columnRow['schema_name'],
-                    v_columnRow['table_name'],
-                    v_columnRow['column_name']
-                )
-
-                if p_inSchemas != '':
-                    v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
-
-                if p_regex:
-                    v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
-                else:
-                    if p_caseSentive:
-                        v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
-                    else:
-                        v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
 
     def TemplateCreateRole(self):
         return Template('''CREATE ROLE name

@@ -165,8 +165,15 @@ def thread_dispatcher(self,args,ws_object):
                 try:
                     thread_data = ws_object.v_list_tab_objects[v_data]
                     if thread_data:
-                        thread_data['thread'].stop()
-                        thread_data['omnidatabase'].v_connection.Cancel(False)
+                        if thread_data['type'] == 'datamining':
+                            def callback(self):
+                                for v_activeConnection in self.tag['activeConnections']:
+                                    v_activeConnection.Cancel(False)
+
+                            thread_data['thread_pool'].stop(callback=callback)
+                        else:
+                            thread_data['thread'].stop()
+                            thread_data['omnidatabase'].v_connection.Cancel(False)
                 except Exception as exc:
                     None;
 
@@ -292,6 +299,13 @@ def thread_dispatcher(self,args,ws_object):
                             t.start()
                         #Query Data Mining
                         elif v_code == request.DataMining:
+                            v_response = {
+                                'v_code': response.DataMiningResult,
+                                'v_context_code': v_data['v_context_code'],
+                                'v_error': False,
+                                'v_data': 1
+                            }
+
                             tab_object['tab_db_id'] = v_data['v_tab_db_id']
                             v_data['v_tab_object'] = tab_object
                             v_data['v_sql_dict'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'])
@@ -319,9 +333,33 @@ def thread_dispatcher(self,args,ws_object):
                                     v_sql = v_data['v_sql_dict'][v_key1]
                                     v_argsList.append([v_key1, None, v_sql, v_data, ws_object])
 
-                            t.start(thread_datamining, v_argsList)
+                            log_start_time = datetime.now()
+                            log_status = 'success'
 
-                            print(t.tag['result'])
+                            try:
+                                #Will block here until thread pool ends
+                                t.start(thread_datamining, v_argsList)
+
+                                log_end_time = datetime.now()
+                                v_duration = GetDuration(log_start_time,log_end_time)
+
+                                v_response['v_data'] = {
+                                    'v_duration': v_duration,
+                                    'v_result': t.tag['result']
+                                }
+                            except Exception as exc:
+                                log_end_time = datetime.now()
+                                v_duration = GetDuration(log_start_time,log_end_time)
+                                log_status = 'error'
+                                v_response['v_data'] = {
+                                    'message' : str(exc).replace('\n','<br>'),
+                                    'v_duration': v_duration
+                                }
+                                v_response['v_error'] = True
+
+                            #If the thread pool wasn't previously cancelled
+                            if not t.cancel:
+                                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                     #Debugger
                     elif v_code == request.Debug:
@@ -501,6 +539,10 @@ COMMAND: {5}'''.format(p_user_name,
 def thread_datamining(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
     try:
         v_session = p_ws_object.v_session
+
+        #This thread pool was canceled by the user, so do nothing
+        if self.cancel:
+            return
 
         v_database = OmniDatabase.Generic.InstantiateDatabase(
             p_args['v_database'].v_db_type,

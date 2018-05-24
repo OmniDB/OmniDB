@@ -20,7 +20,7 @@ function queryDataMining(p_data, p_callback = null) {
 			v_db_index: v_db_index,
 			v_conn_tab_id: v_connTabControl.selectedTab.id,
 			v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
-			v_tab_db_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_db_id,			
+			v_tab_db_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_db_id,
             text: p_data.text,
             regex: p_data.regex,
             caseSensitive: p_data.caseSensitive,
@@ -75,5 +75,25 @@ function queryDataMining(p_data, p_callback = null) {
 				showAlert('No response from query server.');
 			}
 		},20000);
+	}
+}
+
+function dataMiningReturn(p_message, p_context) {
+	console.log(p_message);
+	console.log(p_context);
+	console.log('kkk');
+
+	var v_div_result = p_context.tab_tag.div_result;
+	var v_query_info = p_context.tab_tag.query_info;
+
+	if(p_message.v_error) {
+		v_div_result.innerHTML = '<div class="error_text">' + p_message.v_data.message + '</div>';
+		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+	}
+	else {
+		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+		v_div_result.innerHTML = '<div class="query_info">Done.</div>';
+
+		var tree = createTree(p_div, '#fcfdfd', context_menu);
 	}
 }

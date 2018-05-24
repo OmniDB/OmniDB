@@ -6,6 +6,7 @@ function queryDataMining(p_data, p_callback = null) {
 	}
 	else {
 		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+		v_tab_tag.queryTabControl.tabList[0].elementDiv.innerHTML = '';
 		var v_db_index  = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
 		var v_tab_loading_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_loading_span;
 		var v_tab_close_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_close_span;
@@ -78,10 +79,34 @@ function queryDataMining(p_data, p_callback = null) {
 	}
 }
 
+function checkDataMiningStatus(p_tab) {
+	if(p_tab.tag.state == v_queryState.Ready) {
+		dataMiningReturnRender(p_tab.tag.data, p_tab.tag.context);
+	}
+}
+
 function dataMiningReturn(p_message, p_context) {
-	console.log(p_message);
-	console.log(p_context);
-	console.log('kkk');
+	//If data mining wasn't canceled already
+	if(p_context.tab_tag.state!=v_queryState.Idle) {
+
+		if(p_context.tab_tag.tab_id == p_context.tab_tag.tabControl.selectedTab.id && p_context.tab_tag.connTab.id == p_context.tab_tag.connTab.tag.connTabControl.selectedTab.id) {
+			dataMiningReturnRender(p_message, p_context);
+		}
+		else {
+			p_context.tab_tag.state = v_queryState.Ready;
+			p_context.tab_tag.context = p_context;
+			p_context.tab_tag.data = p_message;
+
+			p_context.tab_tag.tab_loading_span.style.display = 'none';
+			p_context.tab_tag.tab_check_span.style.display = '';
+		}
+	}
+}
+
+function dataMiningReturnRender(p_message, p_context) {
+	p_context.tab_tag.state = v_queryState.Idle;
+	p_context.tab_tag.context = null;
+	p_context.tab_tag.data = null;
 
 	var v_div_result = p_context.tab_tag.div_result;
 	var v_query_info = p_context.tab_tag.query_info;
@@ -94,6 +119,118 @@ function dataMiningReturn(p_message, p_context) {
 		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 		v_div_result.innerHTML = '<div class="query_info">Done.</div>';
 
-		var tree = createTree(p_div, '#fcfdfd', context_menu);
+		var v_context_menu = {
+	        'cm_see_details': {
+	            elements: [{
+	                text: 'See More',
+	                icon: '/static/OmniDB_app/images/explain.png',
+	                action: function(p_node) {
+						tabSQLTemplate('Data Mining - ' + p_node.tag.key, p_node.tag.sql, false);
+	                }
+	            }]
+	        }
+		};
+
+		var v_tree = createTree(p_context.tab_tag.queryTabControl.tabList[0].elementDiv.id, '#fcfdfd', v_context_menu);
+
+		for(v_key in p_message.v_data.v_result) {
+			if(v_key == 'Data') {
+				var v_count = 0;
+
+				var v_node = v_tree.createNode(
+					v_key,
+					false,
+					'/static/OmniDB_app/images/data_mining.png',
+					null,
+					p_message.v_data.v_result[v_key],
+					null
+				);
+
+				v_node.tag.key = v_key;
+
+				for(v_key2 in p_message.v_data.v_result[v_key]) {
+					if(p_message.v_data.v_result[v_key][v_key2].count > 0) {
+						var v_matches = '';
+						v_count += p_message.v_data.v_result[v_key][v_key2].count;
+
+						switch(p_message.v_data.v_result[v_key][v_key2].count) {
+							case 1: {
+								v_matches = '(1 match)';
+								break;
+							}
+							default: {
+								v_matches = '(' + p_message.v_data.v_result[v_key][v_key2].count + ' matches)';
+								break;
+							}
+						}
+
+						var v_childNode = v_node.createChildNode(
+							v_key2 + ' ' + v_matches,
+							false,
+							'/static/OmniDB_app/images/data_mining.png',
+							p_message.v_data.v_result[v_key][v_key2],
+							'cm_see_details'
+						);
+
+						v_childNode.tag.key = v_key2;
+					}
+				}
+
+				var v_dataMatches = '';
+
+				switch(v_count) {
+					case 0: {
+						v_dataMatches = '(No match)';
+						break;
+					}
+					case 1: {
+						v_dataMatches = '(1 match)';
+						break;
+					}
+					default: {
+						v_dataMatches = '(' + v_count + ' matches)';
+						break;
+					}
+				}
+
+				v_node.text = v_key + ' ' + v_dataMatches;
+			}
+			else {
+				var v_matches = '';
+
+				switch(p_message.v_data.v_result[v_key].count) {
+					case 0: {
+						v_matches = '(No match)';
+						break;
+					}
+					case 1: {
+						v_matches = '(1 match)';
+						break;
+					}
+					default: {
+						v_matches = '(' + p_message.v_data.v_result[v_key].count + ' matches)';
+						break;
+					}
+				}
+
+				var v_node = v_tree.createNode(
+					v_key + ' ' + v_matches,
+					false,
+					'/static/OmniDB_app/images/data_mining.png',
+					null,
+					p_message.v_data.v_result[v_key],
+					'cm_see_details'
+				);
+
+				v_node.tag.key = v_key;
+			}
+		}
+
+		v_tree.drawTree();
 	}
+
+	p_context.tab_tag.tab_loading_span.style.display = 'none';
+	p_context.tab_tag.tab_check_span.style.display = 'none';
+	p_context.tab_tag.tab_stub_span.style.display = '';
+	p_context.tab_tag.bt_cancel.style.display = 'none';
 }

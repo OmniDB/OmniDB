@@ -10,7 +10,7 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
-function tabSQLTemplate(p_tab_name, p_template) {
+function tabSQLTemplate(p_tab_name, p_template, p_showQtip=true) {
     v_connTabControl.tag.createQueryTab(p_tab_name);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
         p_template);
@@ -20,24 +20,26 @@ function tabSQLTemplate(p_tab_name, p_template) {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
         .value = 1;
 
-    var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
-        content: {
-            text: 'Adjust command and run!'
-        },
-        position: {
-            my: 'bottom center',
-            at: 'top center'
-        },
-        style: {
-            classes: 'qtip-bootstrap'
-        },
-        show: {
-            ready: true
-        }
-    })
-    window.setTimeout(function() {
-        qtip.qtip('api').destroy();
-    }, 4000);
+    if(p_showQtip) {
+        var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
+            content: {
+                text: 'Adjust command and run!'
+            },
+            position: {
+                my: 'bottom center',
+                at: 'top center'
+            },
+            style: {
+                classes: 'qtip-bootstrap'
+            },
+            show: {
+                ready: true
+            }
+        })
+        window.setTimeout(function() {
+            qtip.qtip('api').destroy();
+        }, 4000);
+    }
 }
 
 function tabDataMining() {
@@ -60,9 +62,8 @@ function tabDataMining() {
                 refreshHeights();
             }
 
-            if (this.tag != null && this.tag.editor != null) {
-                this.tag.editor.focus();
-                checkQueryStatus(this);
+            if (this.tag != null) {
+                checkDataMiningStatus(this);
             }
         }
     );
@@ -473,79 +474,84 @@ function tabDataMining() {
     v_buttonStart.addEventListener(
         'click',
         function(p_event) {
-            var v_parent = this.parentElement;
+            if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state != v_queryState.Idle) {
+        		showAlert('Tab with activity in progress.');
+        	}
+            else {
+                var v_parent = this.parentElement;
 
-            var v_data = {
-                text: '',
-                regex: false,
-                caseSensitive: false,
-                categoryList: [],
-                schemaList: []
-            };
+                var v_data = {
+                    text: '',
+                    regex: false,
+                    caseSensitive: false,
+                    categoryList: [],
+                    schemaList: []
+                };
 
-            var v_inputFilter = v_parent.querySelector(
-                '.data-mining-input-text');
+                var v_inputFilter = v_parent.querySelector(
+                    '.data-mining-input-text');
 
-            if (v_inputFilter != null) {
-                v_data.text = v_inputFilter.value;
-            }
-
-            if (v_data.text.trim() == '') {
-                showAlert('Please, provide a string in order to search.');
-                return;
-            }
-
-            var v_inputCase = v_parent.querySelector(
-                '.data-mining-input-case');
-
-            if (v_inputCase != null) {
-                v_data.caseSensitive = v_inputCase.checked;
-            }
-
-            var v_inputRegex = v_parent.querySelector(
-                '.data-mining-input-regex');
-
-            if (v_inputRegex != null) {
-                v_data.regex = v_inputRegex.checked;
-            }
-
-            var v_categoryList = v_parent.querySelectorAll(
-                '.data-mining-input-option');
-
-            for (var i = 0; i < v_categoryList.length; i++) {
-                if (v_categoryList[i].checked) {
-                    v_data.categoryList.push(v_categoryList[i].value);
+                if (v_inputFilter != null) {
+                    v_data.text = v_inputFilter.value;
                 }
-            }
 
-            if (v_data.categoryList.length == 0) {
-                showAlert('Please, select at least one category to search.');
-                return;
-            }
-
-            var v_schemaList = v_parent.querySelectorAll(
-                '.data-mining-input-schema');
-
-            for (var i = 0; i < v_schemaList.length; i++) {
-                if (v_schemaList[i].checked) {
-                    v_data.schemaList.push(v_schemaList[i].value);
+                if (v_data.text.trim() == '') {
+                    showAlert('Please, provide a string in order to search.');
+                    return;
                 }
-            }
 
-            if (v_data.schemaList.length == 0) {
-                showAlert('Please, select at least one schema to search.');
-                return;
-            }
+                var v_inputCase = v_parent.querySelector(
+                    '.data-mining-input-case');
 
-            if (v_data.categoryList.indexOf('Data') != -1) {
-                showConfirm(
-                    'You have selected the category "Data". Please, be aware that it can consume a considerable amount of time and resources, depending on selected schemas size. Do you want to proceed?',
-                    function(p_data) {
-                        queryDataMining(p_data);
-                    }.bind(null, v_data)
-                );
-            } else {
-                queryDataMining(v_data);
+                if (v_inputCase != null) {
+                    v_data.caseSensitive = v_inputCase.checked;
+                }
+
+                var v_inputRegex = v_parent.querySelector(
+                    '.data-mining-input-regex');
+
+                if (v_inputRegex != null) {
+                    v_data.regex = v_inputRegex.checked;
+                }
+
+                var v_categoryList = v_parent.querySelectorAll(
+                    '.data-mining-input-option');
+
+                for (var i = 0; i < v_categoryList.length; i++) {
+                    if (v_categoryList[i].checked) {
+                        v_data.categoryList.push(v_categoryList[i].value);
+                    }
+                }
+
+                if (v_data.categoryList.length == 0) {
+                    showAlert('Please, select at least one category to search.');
+                    return;
+                }
+
+                var v_schemaList = v_parent.querySelectorAll(
+                    '.data-mining-input-schema');
+
+                for (var i = 0; i < v_schemaList.length; i++) {
+                    if (v_schemaList[i].checked) {
+                        v_data.schemaList.push(v_schemaList[i].value);
+                    }
+                }
+
+                if (v_data.schemaList.length == 0) {
+                    showAlert('Please, select at least one schema to search.');
+                    return;
+                }
+
+                if (v_data.categoryList.indexOf('Data') != -1) {
+                    showConfirm(
+                        'You have selected the category "Data". Please, be aware that it can consume a considerable amount of time, depending on selected schemas size. Do you want to proceed?',
+                        function(p_data) {
+                            queryDataMining(p_data);
+                        }.bind(null, v_data)
+                    );
+                } else {
+                    queryDataMining(v_data);
+                }
             }
         }
     );

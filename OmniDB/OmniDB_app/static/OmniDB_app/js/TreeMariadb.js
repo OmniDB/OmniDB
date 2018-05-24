@@ -10,7 +10,7 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
-function tabSQLTemplate(p_tab_name, p_template) {
+function tabSQLTemplate(p_tab_name, p_template, p_showQtip=true) {
     v_connTabControl.tag.createQueryTab(p_tab_name);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
         p_template);
@@ -20,24 +20,26 @@ function tabSQLTemplate(p_tab_name, p_template) {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
         .value = 1;
 
-    var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
-        content: {
-            text: 'Adjust command and run!'
-        },
-        position: {
-            my: 'bottom center',
-            at: 'top center'
-        },
-        style: {
-            classes: 'qtip-bootstrap'
-        },
-        show: {
-            ready: true
-        }
-    })
-    window.setTimeout(function() {
-        qtip.qtip('api').destroy();
-    }, 4000);
+    if(p_showQtip) {
+        var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
+            content: {
+                text: 'Adjust command and run!'
+            },
+            position: {
+                my: 'bottom center',
+                at: 'top center'
+            },
+            style: {
+                classes: 'qtip-bootstrap'
+            },
+            show: {
+                ready: true
+            }
+        })
+        window.setTimeout(function() {
+            qtip.qtip('api').destroy();
+        }, 4000);
+    }
 }
 
 /// <summary>

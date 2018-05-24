@@ -576,7 +576,7 @@ def thread_datamining(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
                 ) x
                 '''.format(p_sql)
             ),
-            'sql': v_sql
+            'sql': sqlparse.format(v_sql, reindent=True)
         }
 
         v_database.v_connection.Close()

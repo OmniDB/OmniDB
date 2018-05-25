@@ -63,16 +63,19 @@ class Cryptor(object):
             raise Spartacus.Utils.Exception(str(exc))
 
 class DataFileReader(object):
-    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8'):
+    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8', p_delimiter=None):
         v_tmp = p_filename.split('.')
         if len(v_tmp) > 1:
             self.v_extension = v_tmp[-1].lower()
         else:
             self.v_extension = 'csv'
+        if self.v_extension == 'txt' or self.v_extension == 'out':
+            self.v_extension = 'csv'
         self.v_filename = p_filename
         self.v_file = None
         self.v_header = p_fieldnames
         self.v_encoding = p_encoding
+        self.v_delimiter = p_delimiter
         self.v_open = False
     def Open(self):
         try:
@@ -86,6 +89,8 @@ class DataFileReader(object):
                 if not v_sniffer.has_header(v_sample):
                     raise Spartacus.Utils.Exception('CSV file {0} does not have a header.'.format(self.v_filename))
                 v_dialect = v_sniffer.sniff(v_sample)
+                if self.v_delimiter is not None:
+                    v_dialect.delimiter = self.v_delimiter
                 self.v_object = csv.DictReader(self.v_file, self.v_header, None, None, v_dialect)
                 self.v_open = True
             elif self.v_extension == 'xlsx':
@@ -102,7 +107,7 @@ class DataFileReader(object):
             if not self.v_open:
                 raise Spartacus.Utils.Exception('You need to call Open() first.')
             if self.v_extension == 'csv':
-                v_table = Spartacus.Database.DataTable()
+                v_table = Spartacus.Database.DataTable(None, p_alltypesstr=True)
                 v_first = True
                 x = 0
                 for v_row in self.v_object:
@@ -176,6 +181,8 @@ class DataFileWriter(object):
         if len(v_tmp) > 1:
             self.v_extension = v_tmp[-1].lower()
         else:
+            self.v_extension = 'csv'
+        if self.v_extension == 'txt' or self.v_extension == 'out':
             self.v_extension = 'csv'
         self.v_filename = p_filename
         self.v_file = None

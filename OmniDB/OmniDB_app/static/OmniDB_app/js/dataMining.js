@@ -117,7 +117,7 @@ function dataMiningReturnRender(p_message, p_context) {
 	}
 	else {
 		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-		v_div_result.innerHTML = '<div class="query_info">Done.</div>';
+		v_div_result.innerHTML = '<div class="query_info"></div>';
 
 		var v_context_menu = {
 	        'cm_see_details': {

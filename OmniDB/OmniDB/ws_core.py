@@ -167,10 +167,15 @@ def thread_dispatcher(self,args,ws_object):
                     if thread_data:
                         if thread_data['type'] == 'datamining':
                             def callback(self):
-                                for v_activeConnection in self.tag['activeConnections']:
-                                    v_activeConnection.Cancel(False)
+                                try:
+                                    self.tag['lock'].acquire()
 
-                            thread_data['thread_pool'].stop(callback=callback)
+                                    for v_activeConnection in self.tag['activeConnections']:
+                                        v_activeConnection.Cancel(False)
+                                finally:
+                                    self.tag['lock'].release()
+
+                            thread_data['thread_pool'].stop(p_callback=callback)
                         else:
                             thread_data['thread'].stop()
                             thread_data['omnidatabase'].v_connection.Cancel(False)

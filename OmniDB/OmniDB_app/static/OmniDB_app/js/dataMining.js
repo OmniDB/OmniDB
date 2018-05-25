@@ -6,7 +6,7 @@ function queryDataMining(p_data, p_callback = null) {
 	}
 	else {
 		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-		v_tab_tag.queryTabControl.tabList[0].elementDiv.innerHTML = '';
+		//v_tab_tag.queryTabControl.tabList[0].elementDiv.innerHTML = '';
 		var v_db_index  = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
 		var v_tab_loading_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_loading_span;
 		var v_tab_close_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_close_span;
@@ -64,6 +64,7 @@ function queryDataMining(p_data, p_callback = null) {
 			}
 
 			v_context.tab_tag.div_result.innerHTML = '';
+			refreshHeights(true);
 		}
 
 		v_context.tab_tag.query_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
@@ -117,7 +118,7 @@ function dataMiningReturnRender(p_message, p_context) {
 	}
 	else {
 		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-		v_div_result.innerHTML = '<div class="query_info"></div>';
+		v_div_result.innerHTML = '';
 
 		var v_context_menu = {
 	        'cm_see_details': {
@@ -131,7 +132,7 @@ function dataMiningReturnRender(p_message, p_context) {
 	        }
 		};
 
-		var v_tree = createTree(p_context.tab_tag.queryTabControl.tabList[0].elementDiv.id, '#fcfdfd', v_context_menu);
+		var v_tree = createTree(v_div_result.id, '#fcfdfd', v_context_menu);
 
 		for(v_key in p_message.v_data.v_result) {
 			if(v_key == 'Data') {
@@ -197,6 +198,7 @@ function dataMiningReturnRender(p_message, p_context) {
 			}
 			else {
 				var v_matches = '';
+				var v_cm = null
 
 				switch(p_message.v_data.v_result[v_key].count) {
 					case 0: {
@@ -205,10 +207,12 @@ function dataMiningReturnRender(p_message, p_context) {
 					}
 					case 1: {
 						v_matches = '(1 match)';
+						v_cm = 'cm_see_details';
 						break;
 					}
 					default: {
 						v_matches = '(' + p_message.v_data.v_result[v_key].count + ' matches)';
+						v_cm = 'cm_see_details';
 						break;
 					}
 				}
@@ -219,7 +223,7 @@ function dataMiningReturnRender(p_message, p_context) {
 					'/static/OmniDB_app/images/data_mining.png',
 					null,
 					p_message.v_data.v_result[v_key],
-					'cm_see_details'
+					v_cm
 				);
 
 				v_node.tag.key = v_key;
@@ -233,4 +237,5 @@ function dataMiningReturnRender(p_message, p_context) {
 	p_context.tab_tag.tab_check_span.style.display = 'none';
 	p_context.tab_tag.tab_stub_span.style.display = '';
 	p_context.tab_tag.bt_cancel.style.display = 'none';
+	refreshHeights(true);
 }

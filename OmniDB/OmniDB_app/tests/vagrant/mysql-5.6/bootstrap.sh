@@ -36,7 +36,7 @@ fi
 apt-get update
 apt-get -y upgrade
 
-apt-get -y install mysql-server
+apt-get -y install mysql-server --allow-unauthenticated
 
 sed -i -e '/bind-address/s/^/#/g' /etc/mysql/mysql.conf.d/mysqld.cnf
 
@@ -52,3 +52,4 @@ date > "$PROVISIONED_ON"
 
 echo "Successfully created MySQL dev virtual machine."
 echo ""
+

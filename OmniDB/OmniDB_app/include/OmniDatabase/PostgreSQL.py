@@ -2924,7 +2924,7 @@ replication_set := '#set_name#'
     def QueryBDRNodes(self):
         return self.v_connection.Query('''
             select quote_ident(node_name) as node_name,
-                   bdr.bdr_get_local_node_name() == node_name as node_is_local
+                   bdr.bdr_get_local_node_name() = node_name as node_is_local
             from bdr.bdr_nodes
             where node_status <> 'k'
             order by 1

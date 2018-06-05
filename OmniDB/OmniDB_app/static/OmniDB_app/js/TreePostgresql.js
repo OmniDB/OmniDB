@@ -1050,41 +1050,8 @@ function getTreePostgresql(p_div) {
                         text: 'Query Data',
                         icon: '/static/OmniDB_app/images/query.png',
                         action: function(node) {
-
-                            var v_table_name = '';
-                            if (node.parent.parent.parent
-                                .parent != null)
-                                v_table_name = node.parent
-                                .parent.text + '.' +
-                                node.text;
-                            else
-                                v_table_name = node.text;
-
-                            v_connTabControl.tag.createQueryTab(
-                                node.text);
-
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.sel_filtered_data.value =
-                                1;
-
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.setValue(
-                                    '-- Querying Data\nselect t.*\nfrom ' +
-                                    v_table_name + ' t'
-                                );
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.clearSelection();
-                            renameTabConfirm(
-                                v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab,
-                                node.text);
-
-                            //minimizeEditor();
-
-                            querySQL(0);
+                            TemplateSelectPostgresql(node.parent
+                              .parent.text, node.text);
                         }
                     }, {
                         text: 'Edit Data',
@@ -1093,6 +1060,20 @@ function getTreePostgresql(p_div) {
                             startEditData(node.text,
                                 node.parent.parent.text
                             );
+                        }
+                    }, {
+                        text: 'Insert Record',
+                        icon: '/static/OmniDB_app/images/insert.png',
+                        action: function(node) {
+                            TemplateInsertPostgresql(node.parent
+                              .parent.text, node.text);
+                        }
+                    }, {
+                        text: 'Update Records',
+                        icon: '/static/OmniDB_app/images/update.png',
+                        action: function(node) {
+                            TemplateUpdatePostgresql(node.parent
+                              .parent.text, node.text);
                         }
                     }, {
                         text: 'Count Records',
@@ -1131,25 +1112,14 @@ function getTreePostgresql(p_div) {
                         text: 'Delete Records',
                         icon: '/static/OmniDB_app/images/tab_close.png',
                         action: function(node) {
-                            v_connTabControl.tag.createQueryTab(
-                                'Delete Records');
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.setValue(
-                                    'DELETE FROM ' +
-                                    node.parent.parent.text +
-                                    '.' + node.text);
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.clearSelection();
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.gotoLine(0,
-                                    0, true);
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.sel_filtered_data.value =
-                                1;
+                          tabSQLTemplate(
+                              'Delete Records',
+                              node.tree.tag.delete
+                              .replace(
+                                  '#table_name#',
+                                  node.parent.parent
+                                  .text + '.' +
+                                  node.text));
                         }
                     }, {
                         text: 'Truncate Table',
@@ -3834,6 +3804,7 @@ function getTreeDetailsPostgresql(node) {
                 vacuum_table: p_return.v_data.v_database_return.vacuum_table,
                 analyze: p_return.v_data.v_database_return.analyze,
                 analyze_table: p_return.v_data.v_database_return.analyze_table,
+                delete: p_return.v_data.v_database_return.delete,
                 truncate: p_return.v_data.v_database_return.truncate,
                 create_physicalreplicationslot: p_return.v_data.v_database_return
                     .create_physicalreplicationslot,
@@ -7817,6 +7788,100 @@ function getXLTableNodesPostgresql(node) {
         },
         function(p_return) {
             nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving SELECT SQL template.
+/// </summary>
+function TemplateSelectPostgresql(p_schema, p_table) {
+
+    execAjax('/template_select_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": p_table,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+            v_connTabControl.tag.createQueryTab(
+                p_schema + '.' + p_table);
+
+            v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab
+                .tag.sel_filtered_data.value =
+                1;
+
+            v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab
+                .tag.editor.setValue(p_return.v_data.v_template);
+            v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab
+                .tag.editor.clearSelection();
+            renameTabConfirm(
+                v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab,
+                p_schema + '.' + p_table);
+
+            //minimizeEditor();
+
+            querySQL(0);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving INSERT SQL template.
+/// </summary>
+function TemplateInsertPostgresql(p_schema, p_table) {
+
+    execAjax('/template_insert_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": p_table,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Insert ' + p_schema + '.' + p_table,
+              p_return.v_data.v_template);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving UPDATE SQL template.
+/// </summary>
+function TemplateUpdatePostgresql(p_schema, p_table) {
+
+    execAjax('/template_update_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": p_table,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Update ' + p_schema + '.' + p_table,
+              p_return.v_data.v_template);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
         },
         'box',
         false);

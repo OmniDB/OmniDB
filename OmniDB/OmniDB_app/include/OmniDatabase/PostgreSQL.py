@@ -2051,10 +2051,103 @@ SELECT ...
 ''')
 
     def TemplateCreateTable(self):
-        pass
+        return Template('''CREATE
+--TEMPORARY
+--UNLOGGED
+TABLE #schema_name#.table_name
+--OF type_name
+--AS query [ WITH [ NO ] DATA ]
+--PARTITION OF parent_table
+(
+    column_name data_type
+    --COLLATE collation
+    --CONSTRAINT constraint_name
+    --NOT NULL
+    --NULL
+    --CHECK ( expression ) [ NO INHERIT ]
+    --DEFAULT default_expr
+    --GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ]
+    --UNIQUE [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --PRIMARY KEY [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ] [ ON UPDATE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ]
+    --CHECK ( expression ) [ NO INHERIT ]
+    --UNIQUE ( column_name [, ... ] ) [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --PRIMARY KEY ( column_name [, ... ] ) [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --EXCLUDE [ USING index_method ] ( { column_name | ( expression ) } [ opclass ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] WITH operator [, ... ] ) [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ] [ WHERE ( predicate ) ]
+    --FOREIGN KEY ( column_name [, ... ] ) REFERENCES reftable [ ( refcolumn [, ... ] ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ] [ ON UPDATE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ]
+    --DEFERRABLE
+    --NOT DEFERRABLE
+    --INITIALLY DEFERRED
+    --INITIALLY IMMEDIATE
+    --LIKE source_table [ { INCLUDING | EXCLUDING } { COMMENTS | CONSTRAINTS | DEFAULTS | IDENTITY | INDEXES | STATISTICS | STORAGE | ALL } ... ]
+)
+--FOR VALUES IN ( { numeric_literal | string_literal | TRUE | FALSE | NULL } [, ...] )
+--FOR VALUES FROM ( { numeric_literal | string_literal | TRUE | FALSE | MINVALUE | MAXVALUE } [, ...] ) TO ( { numeric_literal | string_literal | TRUE | FALSE | MINVALUE | MAXVALUE } [, ...] )
+--INHERITS ( parent_table [, ... ] )
+--PARTITION BY { RANGE | LIST } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] )
+--WITH ( storage_parameter [= value] [, ... ] )
+--WITH OIDS
+--WITHOUT OIDS
+--ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP }
+--TABLESPACE tablespace_name
+''')
 
     def TemplateAlterTable(self):
-        pass
+        return Template('''ALTER TABLE
+--ONLY
+#table_name#
+--ADD [ COLUMN ] [ IF NOT EXISTS ] column_name data_type [ COLLATE collation ] [ column_constraint [ ... ] ]
+--DROP [ COLUMN ] [ IF EXISTS ] column_name [ RESTRICT | CASCADE ]
+--ALTER [ COLUMN ] column_name [ SET DATA ] TYPE data_type [ COLLATE collation ] [ USING expression ]
+--ALTER [ COLUMN ] column_name SET DEFAULT expression
+--ALTER [ COLUMN ] column_name DROP DEFAULT
+--ALTER [ COLUMN ] column_name { SET | DROP } NOT NULL
+--ALTER [ COLUMN ] column_name ADD GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ]
+--ALTER [ COLUMN ] column_name { SET GENERATED { ALWAYS | BY DEFAULT } | SET sequence_option | RESTART [ [ WITH ] restart ] } [...]
+--ALTER [ COLUMN ] column_name DROP IDENTITY [ IF EXISTS ]
+--ALTER [ COLUMN ] column_name SET STATISTICS integer
+--ALTER [ COLUMN ] column_name SET ( attribute_option = value [, ... ] )
+--ALTER [ COLUMN ] column_name RESET ( attribute_option [, ... ] )
+--ALTER [ COLUMN ] column_name SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+--ADD table_constraint [ NOT VALID ]
+--ADD CONSTRAINT constraint_name { UNIQUE | PRIMARY KEY } USING INDEX index_name [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+--ALTER CONSTRAINT constraint_name [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+--VALIDATE CONSTRAINT constraint_name
+--DROP CONSTRAINT [ IF EXISTS ]  constraint_name [ RESTRICT | CASCADE ]
+--DISABLE TRIGGER [ trigger_name | ALL | USER ]
+--ENABLE TRIGGER [ trigger_name | ALL | USER ]
+--ENABLE REPLICA TRIGGER trigger_name
+--ENABLE ALWAYS TRIGGER trigger_name
+--DISABLE RULE rewrite_rule_name
+--ENABLE RULE rewrite_rule_name
+--ENABLE REPLICA RULE rewrite_rule_name
+--ENABLE ALWAYS RULE rewrite_rule_name
+--DISABLE ROW LEVEL SECURITY
+--ENABLE ROW LEVEL SECURITY
+--FORCE ROW LEVEL SECURITY
+--NO FORCE ROW LEVEL SECURITY
+--CLUSTER ON index_name
+--SET WITHOUT CLUSTER
+--SET WITH OIDS
+--SET WITHOUT OIDS
+--SET TABLESPACE new_tablespace
+--SET { LOGGED | UNLOGGED }
+--SET ( storage_parameter = value [, ... ] )
+--RESET ( storage_parameter [, ... ] )
+--INHERIT parent_table
+--NO INHERIT parent_table
+--OF type_name
+--NOT OF
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--REPLICA IDENTITY { DEFAULT | USING INDEX index_name | FULL | NOTHING }
+--RENAME [ COLUMN ] column_name TO new_column_name
+--RENAME CONSTRAINT constraint_name TO new_constraint_name
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--ALL IN TABLESPACE name [ OWNED BY role_name [, ... ] ] SET TABLESPACE new_tablespace [ NOWAIT ]
+--ATTACH PARTITION partition_name FOR VALUES partition_bound_spec
+--DETACH PARTITION partition_name
+''')
 
     def TemplateDropTable(self):
         return Template('''DROP TABLE #table_name#

@@ -251,7 +251,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				if (p_node.contextMenu!=null) {
 						//v_tree.selectNode(p_node);
 						if (v_tree.beforeContextMenuEvent!=null) {
-							v_tree.beforeContextMenuEvent(p_node,function() { v_tree.nodeContextMenu(e,p_node); })
+							v_tree.beforeContextMenuEvent(p_node,function(p_items) { v_tree.nodeContextMenu(e,p_node,p_items); })
 						}
 						else {
 							v_tree.nodeContextMenu(e,p_node);
@@ -445,7 +445,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		///// Rendering context menu when mouse right button is pressed over a node. This function should no be called directly
 		// p_event: Event triggered when right clicking;
 		// p_node: Reference to the node;
-		nodeContextMenu: function(p_event,p_node) {
+		nodeContextMenu: function(p_event,p_node, p_items) {
 				if (p_node.contextMenu!=undefined) {
 
 					var v_tree = this;

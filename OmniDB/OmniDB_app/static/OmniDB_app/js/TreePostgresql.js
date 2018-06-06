@@ -3332,7 +3332,10 @@ function getTreePostgresql(p_div) {
     }
 
     tree.beforeContextMenuEvent = function(node, callback) {
-        checkCurrentDatabase(node, false, callback);
+        var v_customCallback = function() {
+          callback('X');
+        }
+        checkCurrentDatabase(node, false, v_customCallback);
     }
 
     var node_server = tree.createNode('PostgreSQL', false,
@@ -3544,6 +3547,7 @@ function getPropertiesPostgresqlConfirm(node) {
 /// </summary>
 /// <param name="node">Node object.</param>
 function refreshTreePostgresqlConfirm(node) {
+    console.log(node)
     if (node.tag != undefined)
         if (node.tag.type == 'schema_list') {
             getSchemasPostgresql(node);

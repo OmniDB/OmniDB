@@ -722,10 +722,121 @@ END;
         return Template('DROP PROCEDURE #function_name#')
 
     def TemplateCreateTable(self):
-        pass
+        return Template('''CREATE
+-- TEMPORARY
+TABLE #schema_name#.table_name
+-- AS query
+(
+    column_name data_type
+    -- NOT NULL
+    -- NULL
+    -- DEFAULT default_value
+    -- AUTO_INCREMENT
+    -- UNIQUE
+    -- PRIMARY KEY
+    -- COMMENT 'string'
+    -- COLUMN_FORMAT { FIXED | DYNAMIC | DEFAULT }
+    -- STORAGE { DISK | MEMORY | DEFAULT }
+    -- [ GENERATED ALWAYS ] AS (expression) [ VIRTUAL | STORED ]
+    -- [ CONSTRAINT [ symbol ] ] PRIMARY KEY [ USING { BTREE | HASH } ] ( column_name, ... )
+    -- { INDEX | KEY } [ index_name ] [ USING { BTREE | HASH } ] ( column_name, ... )
+    -- [ CONSTRAINT [ symbol ] ] UNIQUE [ INDEX | KEY ] [ index_name ] [ USING { BTREE | HASH } ] ( column_name, ... )
+    -- { FULLTEXT | SPATIAL } [ INDEX | KEY ] [ index_name ] [ USING { BTREE | HASH } ] ( column_name, ... )
+    -- [ CONSTRAINT [ symbol ] ] FOREIGN KEY [ index_name ]  ( column_name, ... ) REFERENCES reftable ( refcolumn, ... ) [MATCH FULL | MATCH PARTIAL | MATCH SIMPLE] [ON DELETE { RESTRICT | CASCADE | SET NULL | NO ACTION | SET DEFAULT }] [ON UPDATE { RESTRICT | CASCADE | SET NULL | NO ACTION | SET DEFAULT }]
+    -- CHECK ( expr )
+)
+-- AUTO_INCREMENT value
+-- AVG_ROW_LENGTH value
+-- [ DEFAULT ] CHARACTER SET charset_name
+-- CHECKSUM { 0 | 1 }
+-- [ DEFAULT ] COLLATE collation_name
+-- COMMENT 'string'
+-- COMPRESSION { 'ZLIB' | 'LZ4' | 'NONE' }
+-- CONNECTION 'connect_string'
+-- { DATA | INDEX } DIRECTORY 'absolute path to directory'
+-- DELAY_KEY_WRITE { 0 | 1 }
+-- ENCRYPTION { 'Y' | 'N' }
+-- ENGINE engine_name
+-- INSERT_METHOD { NO | FIRST | LAST }
+-- KEY_BLOCK_SIZE value
+-- MAX_ROWS value
+-- MIN_ROWS value
+-- PACK_KEYS { 0 | 1 | DEFAULT }
+-- PASSWORD 'string'
+-- ROW_FORMAT { DEFAULT | DYNAMIC | FIXED | COMPRESSED | REDUNDANT | COMPACT }
+-- STATS_AUTO_RECALC { DEFAULT | 0 | 1 }
+-- STATS_PERSISTENT { DEFAULT | 0 | 1 }
+-- STATS_SAMPLE_PAGES value
+-- TABLESPACE tablespace_name [STORAGE { DISK | MEMORY | DEFAULT } ]
+''')
 
     def TemplateAlterTable(self):
-        pass
+        return Template('''ALTER TABLE #table_name#
+-- ADD [ COLUMN ] col_name column_definition  [ FIRST | AFTER col_name ]
+-- ADD [ COLUMN ] ( col_name column_definition , ... )
+-- ADD { INDEX | KEY } [ index_name ] USING { BTREE | HASH } (index_col_name , ... )
+-- ADD [ CONSTRAINT [ symbol ] ] PRIMARY KEY USING { BTREE | HASH } ( index_col_name , ... )
+-- ADD [ CONSTRAINT [ symbol ] ] UNIQUE [ INDEX | KEY ] [ index_name ] USING { BTREE | HASH } ( index_col_name , ... )
+-- ADD FULLTEXT [ INDEX | KEY ] ( index_col_name , ... )
+-- ADD SPATIAL [ INDEX | KEY ] [ index_name ] (index_col_name , ... )
+-- ADD [ CONSTRAINT [ symbol ] ] FOREIGN KEY [ index_name ] ( index_col_name , ... ) reference_definition
+-- ALGORITHM { DEFAULT | INPLACE | COPY }
+-- ALTER [ COLUMN ] col_name { SET DEFAULT literal | DROP DEFAULT }
+-- CHANGE [ COLUMN ] old_col_name new_col_name column_definition [ FIRST | AFTER col_name ]
+-- [DEFAULT] CHARACTER SET charset_name [ COLLATE collation_name ]
+-- CONVERT TO CHARACTER SET charset_name [ COLLATE collation_name ]
+-- { DISABLE | ENABLE } KEYS
+-- { DISCARD | IMPORT } TABLESPACE
+-- DROP [ COLUMN ] col_name
+-- DROP { INDEX | KEY } index_name
+-- DROP PRIMARY KEY
+-- DROP FOREIGN KEY fk_symbol
+-- FORCE
+-- LOCK { DEFAULT | NONE | SHARED | EXCLUSIVE }
+-- MODIFY [ COLUMN ] col_name column_definition [ FIRST | AFTER col_name ]
+-- ORDER BY col_name [, col_name] ...
+-- RENAME { INDEX | KEY } old_index_name TO new_index_name
+-- RENAME [ TO | AS ] new_tbl_name
+-- { WITHOUT | WITH } VALIDATION
+-- ADD PARTITION ( partition_definition )
+-- DROP PARTITION partition_names
+-- DISCARD PARTITION { partition_names | ALL } TABLESPACE
+-- IMPORT PARTITION { partition_names | ALL } TABLESPACE
+-- TRUNCATE PARTITION { partition_names | ALL }
+-- COALESCE PARTITION number
+-- REORGANIZE PARTITION partition_names INTO ( partition_definitions )
+-- EXCHANGE PARTITION partition_name WITH TABLE tbl_name [ { WITH | WITHOUT } VALIDATION ]
+-- ANALYZE PARTITION { partition_names | ALL }
+-- CHECK PARTITION { partition_names | ALL }
+-- OPTIMIZE PARTITION { partition_names | ALL }
+-- REBUILD PARTITION { partition_names | ALL }
+-- REPAIR PARTITION { partition_names | ALL }
+-- REMOVE PARTITIONING
+-- UPGRADE PARTITIONING
+-- AUTO_INCREMENT value
+-- AVG_ROW_LENGTH value
+-- [ DEFAULT ] CHARACTER SET charset_name
+-- CHECKSUM { 0 | 1 }
+-- [ DEFAULT ] COLLATE collation_name
+-- COMMENT 'string'
+-- COMPRESSION { 'ZLIB' | 'LZ4' | 'NONE' }
+-- CONNECTION 'connect_string'
+-- { DATA | INDEX } DIRECTORY 'absolute path to directory'
+-- DELAY_KEY_WRITE { 0 | 1 }
+-- ENCRYPTION { 'Y' | 'N' }
+-- ENGINE engine_name
+-- INSERT_METHOD { NO | FIRST | LAST }
+-- KEY_BLOCK_SIZE value
+-- MAX_ROWS value
+-- MIN_ROWS value
+-- PACK_KEYS { 0 | 1 | DEFAULT }
+-- PASSWORD 'string'
+-- ROW_FORMAT { DEFAULT | DYNAMIC | FIXED | COMPRESSED | REDUNDANT | COMPACT }
+-- STATS_AUTO_RECALC { DEFAULT | 0 | 1 }
+-- STATS_PERSISTENT { DEFAULT | 0 | 1 }
+-- STATS_SAMPLE_PAGES value
+-- TABLESPACE tablespace_name [STORAGE { DISK | MEMORY | DEFAULT } ]
+''')
 
     def TemplateDropTable(self):
         return Template('''DROP TABLE #table_name#

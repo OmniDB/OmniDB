@@ -202,10 +202,18 @@ function getTreeOracle(p_div) {
                     }
                 }
             }, {
-                text: 'Create Table',
+                text: 'Create Table (GUI)',
                 icon: '/static/OmniDB_app/images/new_table.png',
                 action: function(node) {
                     startAlterTable(true, 'new', null, node.tree.tag.v_username);
+                }
+            }, {
+                text: 'Create Table (SQL)',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Table', node.tree.tag
+                        .create_table.replace(
+                            '#schema_name#', node.tree.tag.v_username));
                 }
             }/*, {
                 text: 'Doc: Basics',
@@ -337,6 +345,15 @@ function getTreeOracle(p_div) {
                                 'alter', node.text,
                                 node.tree.tag.v_username
                             );
+                        }
+                    }, {
+                        text: 'Alter Table (SQL)',
+                        icon: '/static/OmniDB_app/images/text_edit.png',
+                        action: function(node) {
+                            tabSQLTemplate('Alter Table', node.tree.tag
+                                .alter_table.replace(
+                                    '#table_name#', node.tree.tag.v_username
+                                    + '.' + node.text));
                         }
                     }, {
                         text: 'Drop Table',
@@ -1530,8 +1547,8 @@ function getTreeDetailsOracle(node) {
                 //create_mview: p_return.v_data.v_database_return.create_mview,
                 //refresh_mview: p_return.v_data.v_database_return.refresh_mview,
                 //drop_mview: p_return.v_data.v_database_return.drop_mview,
-                //create_table
-                //alter_table
+                create_table: p_return.v_data.v_database_return.create_table,
+                alter_table: p_return.v_data.v_database_return.alter_table,
                 drop_table: p_return.v_data.v_database_return.drop_table,
                 create_column: p_return.v_data.v_database_return.create_column,
                 alter_column: p_return.v_data.v_database_return.alter_column,

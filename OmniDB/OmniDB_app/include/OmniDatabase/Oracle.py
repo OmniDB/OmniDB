@@ -828,10 +828,127 @@ END;
         return Template('DROP PROCEDURE #function_name#')
 
     def TemplateCreateTable(self):
-        pass
+        return Template('''CREATE
+--GLOBAL TEMPORARY
+TABLE #schema_name#.table_name
+--AS query
+(
+    column_name data_type
+    --SORT
+    --DEFAULT expr
+    --ENCRYPT [ USING 'encrypt_algorithm' ] [ IDENTIFIED BY password ] [ [NO] SALT ]
+    --CONSTRAINT constraint_name
+    --NOT NULL
+    --NULL
+    --UNIQUE
+    --PRIMARY KEY
+    --REFERENCES reftable [ ( refcolumn ) ] [ ON DELETE { CASCADE | SET NULL } ]
+    --CHECK ( condition )
+    --DEFERRABLE
+    --NOT DEFERRABLE
+    --INITIALLY IMMEDIATE
+    --INITIALLY DEFERRED
+    --ENABLE
+    --DISABLE
+    --VALIDATE
+    --NOVALIDATE
+    --RELY
+    --NORELY
+    --USING INDEX index_name
+)
+--ON COMMIT DELETE ROWS
+--ON COMMIT PRESERVE ROWS
+--PCTFREE integer
+--PCTUSED integer
+--INITRANS integer
+--STORAGE ( { [ INITIAL size_clause ] | [ NEXT size_clause ] | [ MINEXTENTS integer ] | [ MAXEXTENTS { integer | UNLIMITED } ] } )
+--TABLESPACE tablespace
+--LOGGING
+--NOLOGGING
+--COMPRESS
+--NOCOMPRESS
+--SCOPE IS scope_table
+--WITH ROWID
+--SCOPE FOR ( { refcol | refattr } ) IS scope_table
+--REF ( { refcol | refattr } ) WITH ROWID
+--GROUP log_group ( column [ NO LOG ] ) [ ALWAYS ]
+--DATA ( { ALL | PRIMARY KEY | UNIQUE | FOREIGN KEY } ) COLUMNS
+''')
 
     def TemplateAlterTable(self):
-        pass
+        return Template('''ALTER TABLE #table_name#
+--ADD column_name data_type
+--MODIFY (column_name [ data_type ] )
+--SORT
+--DEFAULT expr
+--ENCRYPT [ USING 'encrypt_algorithm' ] [ IDENTIFIED BY password ] [ [NO] SALT ]
+--CONSTRAINT constraint_name
+--NOT NULL
+--NULL
+--UNIQUE
+--PRIMARY KEY
+--REFERENCES reftable [ ( refcolumn ) ] [ ON DELETE { CASCADE | SET NULL } ]
+--CHECK ( condition )
+--DEFERRABLE
+--NOT DEFERRABLE
+--INITIALLY IMMEDIATE
+--INITIALLY DEFERRED
+--ENABLE
+--DISABLE
+--VALIDATE
+--NOVALIDATE
+--RELY
+--NORELY
+--USING INDEX index_name
+--SET UNUSED COLUMN column [ { CASCADE CONSTRAINTS | INVALIDADE } ]
+--DROP COLUMN column [ { CASCADE CONSTRAINTS | INVALIDADE } ] [ CHECKPOINT integer ]
+--DROP { UNUSED COLUMNS | COLUMNS CONTINUE } [ CHECKPOINT integer ]
+--RENAME COLUMN old_name TO new_name
+--ADD CONSTRAINT constraint_name
+--NOT NULL
+--NULL
+--UNIQUE
+--PRIMARY KEY
+--REFERENCES reftable [ ( refcolumn ) ] [ ON DELETE { CASCADE | SET NULL } ]
+--CHECK ( condition )
+--MODIFY [ CONSTRAINT constraint_name ] [ PRIMARY KEY ] [ UNIQUE ( column ) ]
+--DEFERRABLE
+--NOT DEFERRABLE
+--INITIALLY IMMEDIATE
+--INITIALLY DEFERRED
+--ENABLE
+--DISABLE
+--VALIDATE
+--NOVALIDATE
+--RELY
+--NORELY
+--USING INDEX index_name
+--RENAME CONSTRAINT old_name TO new_name
+--DROP PRIMARY KEY [ CASCADE ] [ { KEEP | DROP } INDEX ]
+--DROP UNIQUE ( column ) [ CASCADE ] [ { KEEP | DROP } INDEX ]
+--DROP CONSTRAINT constraint_name [ CASCADE ]
+--PCTFREE integer
+--PCTUSED integer
+--INITRANS integer
+--STORAGE ( { [ INITIAL size_clause ] | [ NEXT size_clause ] | [ MINEXTENTS integer ] | [ MAXEXTENTS { integer | UNLIMITED } ] } )
+--TABLESPACE tablespace
+--LOGGING
+--NOLOGGING
+--COMPRESS
+--NOCOMPRESS
+--CACHE
+--NOCACHE
+--READ ONLY
+--READ WRITE
+--SCOPE IS scope_table
+--WITH ROWID
+--SCOPE FOR ( { refcol | refattr } ) IS scope_table
+--REF ( { refcol | refattr } ) WITH ROWID
+--GROUP log_group ( column [ NO LOG ] ) [ ALWAYS ]
+--DATA ( { ALL | PRIMARY KEY | UNIQUE | FOREIGN KEY } ) COLUMNS
+--NOPARALLEL
+--PARALLEL integer
+''')
 
     def TemplateDropTable(self):
         return Template('''DROP TABLE #table_name#

@@ -256,35 +256,8 @@ function getTreeMariadb(p_div) {
                         text: 'Query Data',
                         icon: '/static/OmniDB_app/images/query.png',
                         action: function(node) {
-
-                            var v_table_name = '';
-                            v_table_name = node.parent.parent.text + '.' + node.text;
-
-                            v_connTabControl.tag.createQueryTab(
-                                node.text);
-
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.sel_filtered_data.value =
-                                1;
-
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.setValue(
-                                    '-- Querying Data\nselect t.*\nfrom ' +
-                                    v_table_name + ' t'
-                                );
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.clearSelection();
-                            renameTabConfirm(
-                                v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab,
-                                node.text);
-
-                            //minimizeEditor();
-
-                            querySQL(0);
+                            TemplateSelectPostgresql(node.parent
+                              .parent.text, node.text);
                         }
                     }, {
                         text: 'Edit Data',
@@ -293,6 +266,20 @@ function getTreeMariadb(p_div) {
                             startEditData(node.text,
                                 node.parent.parent.text
                             );
+                        }
+                    }, {
+                        text: 'Insert Record',
+                        icon: '/static/OmniDB_app/images/insert.png',
+                        action: function(node) {
+                            TemplateInsertPostgresql(node.parent
+                              .parent.text, node.text);
+                        }
+                    }, {
+                        text: 'Update Records',
+                        icon: '/static/OmniDB_app/images/update.png',
+                        action: function(node) {
+                            TemplateUpdatePostgresql(node.parent
+                              .parent.text, node.text);
                         }
                     }, {
                         text: 'Count Records',
@@ -325,24 +312,14 @@ function getTreeMariadb(p_div) {
                         text: 'Delete Records',
                         icon: '/static/OmniDB_app/images/tab_close.png',
                         action: function(node) {
-                            v_connTabControl.tag.createQueryTab(
-                                'Delete Records');
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.setValue(
-                                    'DELETE FROM ' +
-                                    node.parent.parent.text + '.' + node.text);
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.clearSelection();
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.gotoLine(0,
-                                    0, true);
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.sel_filtered_data.value =
-                                1;
+                          tabSQLTemplate(
+                              'Delete Records',
+                              node.tree.tag.delete
+                              .replace(
+                                  '#table_name#',
+                                  node.parent.parent
+                                  .text + '.' +
+                                  node.text));
                         }
                     }]
                 }
@@ -1100,6 +1077,21 @@ function getTreeMariadb(p_div) {
         getPropertiesMariadb(node);
     }
 
+    tree.beforeContextMenuEvent = function(node, callback) {
+
+        var v_elements = [];
+        //Hooks
+        if (v_connTabControl.tag.hooks.mariadbTreeContextMenu.length>0) {
+          for (var i=0; i<v_connTabControl.tag.hooks.mariadbTreeContextMenu.length; i++)
+            v_elements = v_elements.concat(v_connTabControl.tag.hooks.mariadbTreeContextMenu[i](node));
+        }
+
+        var v_customCallback = function() {
+          callback(v_elements);
+        }
+        v_customCallback();
+    }
+
     var node_server = tree.createNode('MariaDB', false,
         '/static/OmniDB_app/images/mariadb_medium.png', null, {
             type: 'server'
@@ -1151,6 +1143,12 @@ function getPropertiesMariadb(node) {
           });
       } else {
         clearProperties();
+      }
+
+      //Hooks
+      if (v_connTabControl.tag.hooks.mariadbTreeNodeClick.length>0) {
+        for (var i=0; i<v_connTabControl.tag.hooks.mariadbTreeNodeClick.length; i++)
+          v_connTabControl.tag.hooks.mariadbTreeNodeClick[i](node);
       }
 }
 
@@ -1207,6 +1205,17 @@ function refreshTreeMariadb(node) {
     } */else if (node.tag.type == 'server') {
         getTreeDetailsMariadb(node);
     }
+    else {
+      afterNodeOpenedCallbackMariaDB(node);
+    }
+}
+
+function afterNodeOpenedCallbackMariaDB(node) {
+  //Hooks
+  if (v_connTabControl.tag.hooks.mariadbTreeNodeOpen.length>0) {
+    for (var i=0; i<v_connTabControl.tag.hooks.mariadbTreeNodeOpen.length; i++)
+      v_connTabControl.tag.hooks.mariadbTreeNodeOpen[i](node);
+  }
 }
 
 /// <summary>
@@ -1311,7 +1320,7 @@ function getTreeDetailsMariadb(node) {
                 create_foreignkey: p_return.v_data.v_database_return.create_foreignkey,
                 drop_foreignkey: p_return.v_data.v_database_return.drop_foreignkey,
                 create_index: p_return.v_data.v_database_return.create_index,
-                drop_index: p_return.v_data.v_database_return.drop_index//,
+                drop_index: p_return.v_data.v_database_return.drop_index,
                 //create_trigger: p_return.v_data.v_database_return.create_trigger,
                 //create_view_trigger: p_return.v_data.v_database_return.create_view_trigger,
                 //alter_trigger: p_return.v_data.v_database_return.alter_trigger,
@@ -1321,6 +1330,7 @@ function getTreeDetailsMariadb(node) {
                 //create_partition: p_return.v_data.v_database_return.create_partition,
                 //noinherit_partition: p_return.v_data.v_database_return.noinherit_partition,
                 //drop_partition: p_return.v_data.v_database_return.drop_partition
+                delete: p_return.v_data.v_database_return.delete
             }
 
             node.tree.contextMenu.cm_server.elements.push({
@@ -1377,6 +1387,8 @@ function getTreeDetailsMariadb(node) {
               //startMonitorDashboard();
             }
 
+            afterNodeOpenedCallbackMariaDB(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1429,6 +1441,8 @@ function getDatabaseObjectsMariadb(node) {
         }, 'cm_procedures');
     node_functions.createChildNode('', true,
         '/static/OmniDB_app/images/spin.svg', null, null);
+
+    afterNodeOpenedCallbackMariaDB(node);
 }
 
 /// <summary>
@@ -1476,6 +1490,8 @@ function getDatabasesMariadb(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMariaDB(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1519,6 +1535,8 @@ function getRolesMariadb(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMariaDB(node);
 
         },
         function(p_return) {
@@ -1580,6 +1598,8 @@ function getTablesMariadb(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMariaDB(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1629,6 +1649,8 @@ function getViewsMariadb(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMariaDB(node);
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1697,6 +1719,8 @@ function getViewsColumnsMariadb(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMariaDB(node);
 
         },
         function(p_return) {
@@ -1863,6 +1887,8 @@ function getColumnsMariadb(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMariaDB(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1912,6 +1938,8 @@ function getPKMariadb(node) {
                     }, null);
             }
 
+            afterNodeOpenedCallbackMariaDB(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1951,6 +1979,8 @@ function getPKColumnsMariadb(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMariaDB(node);
 
         },
         function(p_return) {
@@ -2007,6 +2037,8 @@ function getUniquesMariadb(node) {
 
             }
 
+            afterNodeOpenedCallbackMariaDB(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2051,6 +2083,8 @@ function getUniquesColumnsMariadb(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackMariaDB(node);
 
         },
         function(p_return) {
@@ -2108,6 +2142,8 @@ function getIndexesMariadb(node) {
 
             }
 
+            afterNodeOpenedCallbackMariaDB(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2153,6 +2189,8 @@ function getIndexesColumnsMariadb(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackMariaDB(node);
 
         },
         function(p_return) {
@@ -2213,6 +2251,8 @@ function getFKsMariadb(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMariaDB(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2267,6 +2307,8 @@ function getFKsColumnsMariadb(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMariaDB(node);
 
         },
         function(p_return) {
@@ -2426,6 +2468,8 @@ function getFunctionsMariadb(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMariaDB(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2479,6 +2523,8 @@ function getFunctionFieldsMariadb(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMariaDB(node);
 
         },
         function(p_return) {
@@ -2612,6 +2658,8 @@ function getProceduresMariadb(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMariaDB(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2665,6 +2713,8 @@ function getProcedureFieldsMariadb(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMariaDB(node);
 
         },
         function(p_return) {
@@ -2850,6 +2900,100 @@ function getTriggerFunctionDefinitionMariadb(node) {
 
 }
 */
+
+/// <summary>
+/// Retrieving SELECT SQL template.
+/// </summary>
+function TemplateSelectMariadb(p_schema, p_table) {
+
+    execAjax('/template_select_mariadb/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": p_table,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+            v_connTabControl.tag.createQueryTab(
+                p_schema + '.' + p_table);
+
+            v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab
+                .tag.sel_filtered_data.value =
+                1;
+
+            v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab
+                .tag.editor.setValue(p_return.v_data.v_template);
+            v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab
+                .tag.editor.clearSelection();
+            renameTabConfirm(
+                v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab,
+                p_schema + '.' + p_table);
+
+            //minimizeEditor();
+
+            querySQL(0);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true);
+}
+
+/// <summary>
+/// Retrieving INSERT SQL template.
+/// </summary>
+function TemplateInsertMariadb(p_schema, p_table) {
+
+    execAjax('/template_insert_mariadb/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": p_table,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Insert ' + p_schema + '.' + p_table,
+              p_return.v_data.v_template);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true);
+}
+
+/// <summary>
+/// Retrieving UPDATE SQL template.
+/// </summary>
+function TemplateUpdateMariadb(p_schema, p_table) {
+
+    execAjax('/template_update_mariadb/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": p_table,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Update ' + p_schema + '.' + p_table,
+              p_return.v_data.v_template);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true);
+}
 
 function nodeOpenError(p_return, p_node) {
 

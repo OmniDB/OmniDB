@@ -60,7 +60,10 @@ urlpatterns = [
     url(r'^get_console_history/', views.workspace.get_console_history, name='get_console_history'),
     url(r'^get_console_history_clean/', views.workspace.get_console_history_clean, name='get_console_history_clean'),
 
-    url(r'^test_ws/', views.workspace.test_ws, name='test_ws'),
+    #HOOKS
+    url(r'^get_plugins/', views.plugins.get_plugins, name='get_plugins'),
+    url(r'^list_plugins/', views.plugins.list_plugins, name='list_plugins'),
+    url(r'^exec_plugin_function/', views.plugins.exec_plugin_function, name='exec_plugin_function'),
 
     #TREE_SNIPPETS
     url(r'^get_node_children/', views.tree_snippets.get_node_children, name='get_node_children'),

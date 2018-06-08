@@ -496,6 +496,12 @@ function refreshHeights(p_all) {
 		}
 	}
 
+	//Hooks
+  if (v_connTabControl.tag.hooks.windowResize.length>0) {
+    for (var i=0; i<v_connTabControl.tag.hooks.windowResize.length; i++)
+      v_connTabControl.tag.hooks.windowResize[i]();
+  }
+
 }
 
 /// <summary>
@@ -851,6 +857,12 @@ function resizeHorizontalEnd(event) {
 		}
 	}
 
+	//Hooks
+  if (v_connTabControl.tag.hooks.windowResize.length>0) {
+    for (var i=0; i<v_connTabControl.tag.hooks.windowResize.length; i++)
+      v_connTabControl.tag.hooks.windowResize[i]();
+  }
+
 }
 
 
@@ -1201,6 +1213,40 @@ function adjustQueryTabObjects(p_all_tabs) {
 
 }
 
+function showMenuNewTabOuter(e) {
+
+	var v_option_list = [];
+	//Hooks
+	if (v_connTabControl.tag.hooks.outerTabMenu.length>0) {
+		for (var i=0; i<v_connTabControl.tag.hooks.outerTabMenu.length; i++)
+			v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.outerTabMenu[i]());
+	}
+
+	if (v_option_list.length>0) {
+		v_option_list.unshift({
+			text: 'New Connection',
+			icon: '/static/OmniDB_app/images/test.png',
+			action: function() {
+				startLoading();
+				setTimeout(function() { v_connTabControl.tag.createConnTab(); },0);
+			}
+		});
+
+		customMenu(
+			{
+				x:e.clientX+5,
+				y:e.clientY+5
+			},
+			v_option_list,
+			null);
+	}
+	else {
+		startLoading();
+		setTimeout(function() { v_connTabControl.tag.createConnTab(); },0);
+	}
+
+}
+
 function showMenuNewTab(e) {
 	var v_option_list = [
 		{
@@ -1263,6 +1309,12 @@ function showMenuNewTab(e) {
 				}
 			}
 		);
+	}
+
+	//Hooks
+	if (v_connTabControl.tag.hooks.innerTabMenu.length>0) {
+		for (var i=0; i<v_connTabControl.tag.hooks.innerTabMenu.length; i++)
+			v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.innerTabMenu[i]());
 	}
 
 	customMenu(

@@ -74,6 +74,12 @@ function changeTheme(p_option) {
 	Chart.helpers.each(Chart.instances, function(instance){
 		adjustChartTheme(instance.chart);
 	})
+
+	//Hooks
+	if (v_connTabControl.tag.hooks.changeTheme.length>0) {
+		for (var i=0; i<v_connTabControl.tag.hooks.changeTheme.length; i++)
+			v_connTabControl.tag.hooks.changeTheme[i](v_editor_theme,v_theme_type);
+	}
 }
 
 function changeFontSize(p_option) {

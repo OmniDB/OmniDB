@@ -1094,6 +1094,21 @@ function getTreeMysql(p_div) {
         getPropertiesMysql(node);
     }
 
+    tree.beforeContextMenuEvent = function(node, callback) {
+
+        var v_elements = [];
+        //Hooks
+        if (v_connTabControl.tag.hooks.mysqlTreeContextMenu.length>0) {
+          for (var i=0; i<v_connTabControl.tag.hooks.mysqlTreeContextMenu.length; i++)
+            v_elements = v_elements.concat(v_connTabControl.tag.hooks.mysqlTreeContextMenu[i](node));
+        }
+
+        var v_customCallback = function() {
+          callback(v_elements);
+        }
+        v_customCallback();
+    }
+
     var node_server = tree.createNode('MySQL', false,
         '/static/OmniDB_app/images/mysql_medium.png', null, {
             type: 'server'
@@ -1145,6 +1160,12 @@ function getPropertiesMysql(node) {
           });
       } else {
         clearProperties();
+      }
+
+      //Hooks
+      if (v_connTabControl.tag.hooks.mysqlTreeNodeClick.length>0) {
+        for (var i=0; i<v_connTabControl.tag.hooks.mysqlTreeNodeClick.length; i++)
+          v_connTabControl.tag.hooks.mysqlTreeNodeClick[i](node);
       }
 }
 
@@ -1201,6 +1222,17 @@ function refreshTreeMysql(node) {
     } */else if (node.tag.type == 'server') {
         getTreeDetailsMysql(node);
     }
+    else {
+      afterNodeOpenedCallbackMysql(node);
+    }
+}
+
+function afterNodeOpenedCallbackMysql(node) {
+  //Hooks
+  if (v_connTabControl.tag.hooks.mysqlTreeNodeOpen.length>0) {
+    for (var i=0; i<v_connTabControl.tag.hooks.mysqlTreeNodeOpen.length; i++)
+      v_connTabControl.tag.hooks.mysqlTreeNodeOpen[i](node);
+  }
 }
 
 /// <summary>
@@ -1372,6 +1404,8 @@ function getTreeDetailsMysql(node) {
               //startMonitorDashboard();
             }
 
+            afterNodeOpenedCallbackMysql(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1424,6 +1458,8 @@ function getDatabaseObjectsMysql(node) {
         }, 'cm_procedures');
     node_functions.createChildNode('', true,
         '/static/OmniDB_app/images/spin.svg', null, null);
+
+    afterNodeOpenedCallbackMysql(node);
 }
 
 /// <summary>
@@ -1471,6 +1507,8 @@ function getDatabasesMysql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMysql(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1514,6 +1552,8 @@ function getRolesMysql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMysql(node);
 
         },
         function(p_return) {
@@ -1575,6 +1615,8 @@ function getTablesMysql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMysql(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1624,6 +1666,8 @@ function getViewsMysql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMysql(node);
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1692,6 +1736,8 @@ function getViewsColumnsMysql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMysql(node);
 
         },
         function(p_return) {
@@ -1858,6 +1904,8 @@ function getColumnsMysql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMysql(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1907,6 +1955,8 @@ function getPKMysql(node) {
                     }, null);
             }
 
+            afterNodeOpenedCallbackMysql(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1946,6 +1996,8 @@ function getPKColumnsMysql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMysql(node);
 
         },
         function(p_return) {
@@ -2002,6 +2054,8 @@ function getUniquesMysql(node) {
 
             }
 
+            afterNodeOpenedCallbackMysql(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2046,6 +2100,8 @@ function getUniquesColumnsMysql(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackMysql(node);
 
         },
         function(p_return) {
@@ -2103,6 +2159,8 @@ function getIndexesMysql(node) {
 
             }
 
+            afterNodeOpenedCallbackMysql(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2148,6 +2206,8 @@ function getIndexesColumnsMysql(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackMysql(node);
 
         },
         function(p_return) {
@@ -2208,6 +2268,8 @@ function getFKsMysql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMysql(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2262,6 +2324,8 @@ function getFKsColumnsMysql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMysql(node);
 
         },
         function(p_return) {
@@ -2421,6 +2485,8 @@ function getFunctionsMysql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMysql(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2474,6 +2540,8 @@ function getFunctionFieldsMysql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMysql(node);
 
         },
         function(p_return) {
@@ -2607,6 +2675,8 @@ function getProceduresMysql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackMysql(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2660,6 +2730,8 @@ function getProcedureFieldsMysql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackMysql(node);
 
         },
         function(p_return) {
@@ -2887,7 +2959,7 @@ function TemplateSelectMysql(p_schema, p_table) {
             return '';
         },
         'box',
-        false);
+        true);
 }
 
 /// <summary>
@@ -2912,7 +2984,7 @@ function TemplateInsertMysql(p_schema, p_table) {
             return '';
         },
         'box',
-        false);
+        true);
 }
 
 /// <summary>
@@ -2937,7 +3009,7 @@ function TemplateUpdateMysql(p_schema, p_table) {
             return '';
         },
         'box',
-        false);
+        true);
 }
 
 function nodeOpenError(p_return, p_node) {

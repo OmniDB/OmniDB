@@ -264,7 +264,7 @@ function getTreeMariadb(p_div) {
                         text: 'Query Data',
                         icon: '/static/OmniDB_app/images/query.png',
                         action: function(node) {
-                            TemplateSelectPostgresql(node.parent
+                            TemplateSelectMariadb(node.parent
                               .parent.text, node.text);
                         }
                     }, {
@@ -279,14 +279,14 @@ function getTreeMariadb(p_div) {
                         text: 'Insert Record',
                         icon: '/static/OmniDB_app/images/insert.png',
                         action: function(node) {
-                            TemplateInsertPostgresql(node.parent
+                            TemplateInsertMariadb(node.parent
                               .parent.text, node.text);
                         }
                     }, {
                         text: 'Update Records',
                         icon: '/static/OmniDB_app/images/update.png',
                         action: function(node) {
-                            TemplateUpdatePostgresql(node.parent
+                            TemplateUpdateMariadb(node.parent
                               .parent.text, node.text);
                         }
                     }, {
@@ -431,7 +431,7 @@ function getTreeMariadb(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -479,7 +479,7 @@ function getTreeMariadb(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -527,7 +527,7 @@ function getTreeMariadb(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -585,7 +585,7 @@ function getTreeMariadb(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeMariadb(node);
                     else {
                         node.collapseNode();
                         node.expandNode();

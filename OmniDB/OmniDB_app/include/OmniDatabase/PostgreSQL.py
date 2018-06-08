@@ -4371,7 +4371,7 @@ TO NODE ( nodename [, ... ] )
                                 ('c','TYPE'),
                                 ('t','TOAST'),
                                 ('f','FOREIGN TABLE'),
-                                ('p','TABLE')
+                                ('p','PARTITIONED TABLE')
                     ) as cc on cc.column1 = c.relkind
                    WHERE c.oid = '{0}.{1}'::regclass
                 ),

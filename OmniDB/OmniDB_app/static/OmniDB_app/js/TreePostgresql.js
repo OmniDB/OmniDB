@@ -3521,6 +3521,14 @@ function getPropertiesPostgresqlConfirm(node) {
             p_object: node.tag.id,
             p_type: node.tag.type
         });
+    } else if (node.tag.type == 'index') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.parent.parent.text,
+            p_table: node.parent.parent.text,
+            p_object: node.text.replace(' (Non Unique)', '').replace(
+                ' (Unique)', ''),
+            p_type: node.tag.type
+        });
     } else {
         clearProperties();
     }

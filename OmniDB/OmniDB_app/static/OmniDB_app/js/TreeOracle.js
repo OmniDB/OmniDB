@@ -267,7 +267,7 @@ function getTreeOracle(p_div) {
                         text: 'Query Data',
                         icon: '/static/OmniDB_app/images/query.png',
                         action: function(node) {
-                            TemplateSelectPostgresql(node.tree
+                            TemplateSelectOracle(node.tree
                               .tag.v_username, node.text);
                         }
                     }, {
@@ -282,14 +282,14 @@ function getTreeOracle(p_div) {
                         text: 'Insert Record',
                         icon: '/static/OmniDB_app/images/insert.png',
                         action: function(node) {
-                            TemplateInsertPostgresql(node.tree
+                            TemplateInsertOracle(node.tree
                               .tag.v_username, node.text);
                         }
                     }, {
                         text: 'Update Records',
                         icon: '/static/OmniDB_app/images/update.png',
                         action: function(node) {
-                            TemplateUpdatePostgresql(node.tree
+                            TemplateUpdateOracle(node.tree
                               .tag.v_username, node.text);
                         }
                     }, {
@@ -433,7 +433,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeOracle(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -481,7 +481,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeOracle(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -529,7 +529,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeOracle(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -587,7 +587,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeOracle(node);
                     else {
                         node.collapseNode();
                         node.expandNode();

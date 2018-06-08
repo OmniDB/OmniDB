@@ -264,7 +264,7 @@ select {
 /* -------------------------
 				Modal
 --------------------------*/
-.white_box, .config_box, .connection_list, .dashboard_unit_list, .dashboard_unit, .dashboard_unit_test, .console_command_history {
+.white_box, .config_box, .plugin_box, .connection_list, .dashboard_unit_list, .dashboard_unit, .dashboard_unit_test, .console_command_history {
   border: 1px solid #6d6d6d !important;
   background-color: #25282c !important;
   box-shadow: none !important;

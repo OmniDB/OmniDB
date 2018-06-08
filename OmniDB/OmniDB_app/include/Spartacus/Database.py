@@ -46,47 +46,66 @@ class DataTable(object):
     def AddRow(self, p_row):
         if len(self.Columns) > 0 and len(p_row) > 0:
             if len(self.Columns) == len(p_row):
-                v_rowtmp2 = p_row
-                if self.AllTypesStr:
-                    for j in range(0, len(v_rowtmp2)):
-                        if v_rowtmp2[j] != None:
-                            v_rowtmp2[j] = str(v_rowtmp2[j])
-                        else:
-                            v_rowtmp2[j] = ''
-                v_rowtmp = OrderedDict(zip(self.Columns, tuple(v_rowtmp2)))
-                if self.Simple:
-                    v_row = []
-                    for c in self.Columns:
-                        v_row.append(v_rowtmp[c])
+                if not isinstance(p_row, OrderedDict):
+                    v_rowtmp2 = p_row
+                    if self.AllTypesStr:
+                        for j in range(0, len(v_rowtmp2)):
+                            if v_rowtmp2[j] != None:
+                                v_rowtmp2[j] = str(v_rowtmp2[j])
+                            else:
+                                v_rowtmp2[j] = ''
+                    v_rowtmp = OrderedDict(zip(self.Columns, tuple(v_rowtmp2)))
+                    if self.Simple:
+                        v_row = []
+                        for c in self.Columns:
+                            v_row.append(v_rowtmp[c])
+                    else:
+                        v_row = v_rowtmp
                 else:
-                    v_row = v_rowtmp
+                    v_row = p_row
                 self.Rows.append(v_row)
             else:
                 raise Spartacus.Database.Exception('Can not add row to a table with different columns.')
         else:
             raise Spartacus.Database.Exception('Can not add row to a table with no columns.')
     def Select(self, p_key, p_value):
-        try:
-            v_table = Spartacus.Database.DataTable(None, p_alltypesstr=self.AllTypesStr, p_simple=self.Simple)
-            k = 0
-            found = False
-            for c in self.Columns:
-                v_table.AddColumn(c)
-                if not found and c == p_key:
-                    found = True
-                elif not found:
-                    k = k + 1
-            if self.Simple:
+        if isinstance(p_key, list):
+            v_key = p_key
+        else:
+            v_key = [p_key]
+        if isinstance(p_value, list):
+            v_value = p_value
+        else:
+            v_value = [p_value]
+        if len(v_key) == len(v_value):
+            try:
+                v_table = Spartacus.Database.DataTable(None, p_alltypesstr=self.AllTypesStr, p_simple=self.Simple)
+                for c in self.Columns:
+                    v_table.AddColumn(c)
+                if self.Simple:
+                    v_keytmp = v_key
+                    v_key = []
+                    for x in v_keytmp:
+                        k = 0
+                        found = False
+                        while not found and k < len(self.Columns):
+                            if self.Columns[k] == x:
+                                found = True
+                                v_key.append(k)
+                            else:
+                                k = k + 1
                 for r in self.Rows:
-                    if r[k] == p_value:
+                    v_match = True
+                    for k in range(len(v_key)):
+                        if not self.Equal(r[v_key[k]], v_value[k]):
+                            v_match = False
+                    if v_match:
                         v_table.Rows.append(r)
-            else:
-                for r in self.Rows:
-                    if r[p_key] == p_value:
-                        v_table.Rows.append(r)
-            return v_table
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
+                return v_table
+            except Exception as exc:
+                raise Spartacus.Database.Exception(str(exc))
+        else:
+            raise Spartacus.Database.Exception('Can not select with different key-value dimension.')
     def Merge(self, p_datatable):
         if len(self.Columns) > 0 and len(p_datatable.Columns) > 0:
             if self.Columns == p_datatable.Columns:
@@ -96,7 +115,21 @@ class DataTable(object):
                 raise Spartacus.Database.Exception('Can not merge tables with different columns.')
         else:
             raise Spartacus.Database.Exception('Can not merge tables with no columns.')
-    def Compare(self, p_datatable, p_pkcols, p_statuscolname, p_diffcolname, p_ordered=False, p_keepequal=False):
+    def Equal(self, p_val1, p_val2):
+        if type(p_val1) is float:
+            v_val1 = decimal.Decimal(repr(p_val1))
+        else:
+            v_val1 = p_val1
+        if type(p_val2) is float:
+            v_val2 = decimal.Decimal(repr(p_val2))
+        else:
+            v_val2 = p_val2
+        if v_val1 is None and v_val2 == '':
+            v_val1 = ''
+        elif v_val1 == '' and v_val2 is None:
+            v_val2 = ''
+        return v_val1 == v_val2
+    def Compare(self, p_datatable, p_pkcols, p_statuscolname, p_diffcolname, p_ordered=False, p_keepequal=False, p_debugupdates=False):
         if len(self.Columns) > 0 and len(p_datatable.Columns) > 0:
             if self.Columns == p_datatable.Columns:
                 v_table = DataTable()
@@ -104,15 +137,22 @@ class DataTable(object):
                     v_table.AddColumn(c)
                 v_table.AddColumn(p_statuscolname)
                 v_table.AddColumn(p_diffcolname)
+                v_pkcols = []
+                if len(p_pkcols) > 0:
+                    for c in p_pkcols:
+                        v_pkcols.append(c)
+                else:
+                    for c in self.Columns:
+                        v_pkcols.append(c)
                 if p_ordered:
                     k1 = 0
                     k2 = 0
                     while k1 < len(self.Rows) and k2 < len(p_datatable.Rows):
                         r1 = self.Rows[k1]
-                        r2 = self.Rows[k2]
+                        r2 = p_datatable.Rows[k2]
                         pklist1 = []
                         pklist2 = []
-                        for pkcol in p_pkcols:
+                        for pkcol in v_pkcols:
                             pklist1.append(str(r1[pkcol]))
                             pklist2.append(str(r2[pkcol]))
                         pk1 = '_'.join(pklist1)
@@ -122,8 +162,11 @@ class DataTable(object):
                             v_row = []
                             v_diff = []
                             for c in self.Columns:
-                                if r1[c] != r2[c]:
-                                    v_row.append('{0} --> {1}'.format(r1[c], r2[c]))
+                                if not self.Equal(r1[c], r2[c]):
+                                    if p_debugupdates:
+                                        v_row.append('[{0}]({1}) --> [{2}]({3})'.format(repr(r1[c]), type(r1[c]), repr(r2[c]), type(r2[c])))
+                                    else:
+                                        v_row.append('{0} --> {1}'.format(repr(r1[c]), repr(r2[c])))
                                     v_diff.append(c)
                                     v_allmatch = False
                                 else:
@@ -165,7 +208,7 @@ class DataTable(object):
                         v_table.AddRow(v_row)
                         k1 = k1 + 1
                     while k2 < len(p_datatable.Rows):
-                        r2 = self.Rows[k2]
+                        r2 = p_datatable.Rows[k2]
                         v_row = []
                         for c in p_datatable.Columns:
                             v_row.append(r2[c])
@@ -178,8 +221,8 @@ class DataTable(object):
                         v_pkmatch = False
                         for r2 in p_datatable.Rows:
                             v_pkmatch = True
-                            for pkcol in p_pkcols:
-                                if r1[pkcol] != r2[pkcol]:
+                            for pkcol in v_pkcols:
+                                if not self.Equal(r1[pkcol], r2[pkcol]):
                                     v_pkmatch = False
                                     break
                             if v_pkmatch:
@@ -189,7 +232,7 @@ class DataTable(object):
                             v_row = []
                             v_diff = []
                             for c in self.Columns:
-                                if r1[c] != r2[c]:
+                                if not self.Equal(r1[c], r2[c]):
                                     v_row.append('{0} --> {1}'.format(r1[c], r2[c]))
                                     v_diff.append(c)
                                     v_allmatch = False
@@ -215,8 +258,8 @@ class DataTable(object):
                         v_pkmatch = False
                         for r1 in self.Rows:
                             v_pkmatch = True
-                            for pkcol in p_pkcols:
-                                if r1[pkcol] != r2[pkcol]:
+                            for pkcol in v_pkcols:
+                                if not self.Equal(r1[pkcol], r2[pkcol]):
                                     v_pkmatch = False
                                     break
                             if v_pkmatch:
@@ -372,6 +415,31 @@ class DataTable(object):
             return v_table
         else:
             raise Spartacus.Database.Exception('Can only transpose a table with a single row.')
+    def Distinct(self, p_pkcols):
+        v_table = Spartacus.Database.DataTable(None, p_alltypesstr=self.AllTypesStr, p_simple=self.Simple)
+        for c in self.Columns:
+            v_table.AddColumn(c)
+        a = 0
+        for r in self.Rows:
+            v_value = []
+            if self.Simple:
+                for x in p_pkcols:
+                    k = 0
+                    found = False
+                    while not found and k < len(self.Columns):
+                        if self.Columns[k] == x:
+                            found = True
+                            v_value.append(r[k])
+                        else:
+                            k = k + 1
+            else:
+                for x in p_pkcols:
+                    v_value.append(r[x])
+            v_tmp = v_table.Select(p_pkcols, v_value)
+            if len(v_tmp.Rows) == 0:
+                v_table.AddRow(r)
+            a = a + 1
+        return v_table
 
 class DataField(object):
     def __init__(self, p_name, p_type=None, p_dbtype=None, p_mask='#'):
@@ -1018,12 +1086,14 @@ class PostgreSQL(Generic):
             self.v_types = None
             psycopg2.extras.register_default_json(loads=lambda x: x)
             psycopg2.extras.register_default_jsonb(loads=lambda x: x)
+            psycopg2.extensions.register_type(
+            psycopg2.extensions.new_type(psycopg2.extensions.INTERVAL.values, 'INTERVAL_STR', psycopg2.STRING), self.v_cur)
         else:
             raise Spartacus.Database.Exception("PostgreSQL is not supported. Please install it with 'pip install Spartacus[postgresql]'.")
     def GetConnectionString(self):
         if self.v_host is None or self.v_host == '':
             if self.v_password is None or self.v_password == '':
-                return "port={0} dbname='{1}' user='{2}' application_name='{3}'".format(
+                return """port={0} dbname='{1}' user='{2}' application_name='{3}'""".format(
                     self.v_port,
                     self.v_service.replace("'","\\'"),
                     self.v_user.replace("'","\\'"),
@@ -2434,26 +2504,26 @@ class Oracle(Generic):
     def GetConnectionString(self):
         if self.v_host is None and self.v_port is None: # tnsnames.ora
             if self.v_password is None or self.v_password == '':
-                return '{0}/@{1}'.format(
+                return """{0}/@{1}""".format(
                     self.v_user.replace("'","\\'"),
                     self.v_service.replace("'","\\'")
                 )
             else:
-                return '{0}/{1}@{2}'.format(
+                return """{0}/{1}@{2}""".format(
                     self.v_user.replace("'","\\'"),
                     self.v_password.replace("'","\\'"),
                     self.v_service.replace("'","\\'")
                 )
         else:
             if self.v_password is None or self.v_password == '':
-                return '{0}/@{1}:{2}/{3}'.format(
+                return """{0}/@{1}:{2}/{3}""".format(
                     self.v_user.replace("'","\\'"),
                     self.v_host.replace("'","\\'"),
                     self.v_port,
                     self.v_service.replace("'","\\'")
                 )
             else:
-                return '{0}/{1}@{2}:{3}/{4}'.format(
+                return """{0}/{1}@{2}:{3}/{4}""".format(
                     self.v_user.replace("'","\\'"),
                     self.v_password.replace("'","\\'"),
                     self.v_host.replace("'","\\'"),
@@ -2462,7 +2532,11 @@ class Oracle(Generic):
                 )
     def Handler(self, p_cursor, p_name, p_type, p_size, p_precision, p_scale):
         if p_type == cx_Oracle.NUMBER:
-            return p_cursor.var(str, 100, p_cursor.arraysize, outconverter = decimal.Decimal)
+            return p_cursor.var(str, size = 100, arraysize = p_cursor.arraysize, outconverter = decimal.Decimal)
+        elif p_type == cx_Oracle.CLOB:
+            return p_cursor.var(cx_Oracle.LONG_STRING, arraysize = p_cursor.arraysize)
+        elif p_type == cx_Oracle.BLOB:
+            return p_cursor.var(cx_Oracle.LONG_BINARY, arraysize = p_cursor.arraysize)
     def Open(self, p_autocommit=True):
         try:
             self.v_con = cx_Oracle.connect(self.GetConnectionString())
@@ -3020,12 +3094,12 @@ class IBMDB2(Generic):
         else:
             raise Spartacus.Database.Exception("IBM DB2 is not supported. Please install it with 'pip install Spartacus[ibmdb2]'.")
     def GetConnectionString(self):
-        return 'DATABASE={0};HOSTNAME={1};PORT={2};PROTOCOL=TCPIP;UID={3};PWD={4}'.format(
-            self.v_service,
-            self.v_host,
+        return """DATABASE={0};HOSTNAME={1};PORT={2};PROTOCOL=TCPIP;UID={3};PWD={4}""".format(
+            self.v_service.replace("'","\\'"),
+            self.v_host.replace("'","\\'"),
             self.v_port,
-            self.v_user,
-            self.v_password
+            self.v_user.replace("'","\\'"),
+            self.v_password.replace("'","\\'")
         )
     def Open(self, p_autocommit=True):
         try:
@@ -3242,3 +3316,4 @@ class IBMDB2(Generic):
         return v_return
     def Special(self, p_sql):
         return self.Query(p_sql).Pretty()
+        

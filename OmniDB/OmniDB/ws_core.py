@@ -179,9 +179,7 @@ def thread_dispatcher(self,args,ws_object):
 
                     #Check database prompt timeout
                     v_timeout = v_session.DatabaseReachPasswordTimeout(v_data['v_db_index'])
-                    print('debug 1')
                     if v_timeout['timeout']:
-                        print('TIMEOUT')
                         v_response['v_code'] = response.PasswordRequired
                         v_response['v_data'] = v_timeout['message']
                         ws_object.write_message(json.dumps(v_response))

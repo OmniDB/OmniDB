@@ -196,9 +196,9 @@ def list_extensions(cur, pattern, verbose):
       '''
 
     if name_pattern:
-        sql = cur.mogrify(sql + ' WHERE e.extname ~ %s', [name_pattern])
-
-    sql += ' ORDER BY 1'
+        sql = cur.mogrify(sql + ' WHERE e.extname ~ %s ORDER BY 1', [name_pattern])
+    else:
+        sql += ' ORDER BY 1'
 
     log.debug(sql)
     cur.execute(sql)
@@ -621,7 +621,7 @@ def describe_one_table_details(cur, schema_name, relation_name, oid, verbose):
                         ELSE c.reloftype::pg_catalog.regtype::pg_catalog.text
                     END,
                     c.relpersistence,
-                    f as relispartition
+                    false as relispartition
                  FROM pg_catalog.pg_class c
                  LEFT JOIN pg_catalog.pg_class tc ON (c.reltoastrelid = tc.oid)
                  WHERE c.oid = '%s'""" % (suffix, oid)
@@ -636,7 +636,7 @@ def describe_one_table_details(cur, schema_name, relation_name, oid, verbose):
                     c.reltablespace,
                     0 AS reloftype,
                     'p' AS relpersistence,
-                    f as relispartition
+                    false as relispartition
                  FROM pg_catalog.pg_class c
                  LEFT JOIN pg_catalog.pg_class tc ON (c.reltoastrelid = tc.oid)
                  WHERE c.oid = '%s'""" % (suffix, oid)
@@ -651,7 +651,7 @@ def describe_one_table_details(cur, schema_name, relation_name, oid, verbose):
                     c.reltablespace,
                     0 AS reloftype,
                     'p' AS relpersistence,
-                    f as relispartition
+                    false as relispartition
                  FROM pg_catalog.pg_class c
                  LEFT JOIN pg_catalog.pg_class tc ON (c.reltoastrelid = tc.oid)
                  WHERE c.oid = '%s'""" % (suffix, oid)

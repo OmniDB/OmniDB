@@ -3319,7 +3319,18 @@ function getTreePostgresql(p_div) {
     }
 
     tree.beforeContextMenuEvent = function(node, callback) {
-        checkCurrentDatabase(node, false, callback);
+
+        var v_elements = [];
+        //Hooks
+        if (v_connTabControl.tag.hooks.postgresqlTreeContextMenu.length>0) {
+          for (var i=0; i<v_connTabControl.tag.hooks.postgresqlTreeContextMenu.length; i++)
+            v_elements = v_elements.concat(v_connTabControl.tag.hooks.postgresqlTreeContextMenu[i](node));
+        }
+
+        var v_customCallback = function() {
+          callback(v_elements);
+        }
+        checkCurrentDatabase(node, false, v_customCallback);
     }
 
     var node_server = tree.createNode('PostgreSQL', false,
@@ -3524,6 +3535,12 @@ function getPropertiesPostgresqlConfirm(node) {
     } else {
         clearProperties();
     }
+
+    //Hooks
+    if (v_connTabControl.tag.hooks.postgresqlTreeNodeClick.length>0) {
+      for (var i=0; i<v_connTabControl.tag.hooks.postgresqlTreeNodeClick.length; i++)
+        v_connTabControl.tag.hooks.postgresqlTreeNodeClick[i](node);
+    }
 }
 
 /// <summary>
@@ -3531,10 +3548,10 @@ function getPropertiesPostgresqlConfirm(node) {
 /// </summary>
 /// <param name="node">Node object.</param>
 function refreshTreePostgresqlConfirm(node) {
-    if (node.tag != undefined)
-        if (node.tag.type == 'schema_list') {
-            getSchemasPostgresql(node);
-        } else if (node.tag.type == 'table_list') {
+  if (node.tag != undefined)
+    if (node.tag.type == 'schema_list') {
+        getSchemasPostgresql(node);
+    } else if (node.tag.type == 'table_list') {
         getTablesPostgresql(node);
     } else if (node.tag.type == 'table') {
         getColumnsPostgresql(node);
@@ -3647,6 +3664,17 @@ function refreshTreePostgresqlConfirm(node) {
     } else if (node.tag.type == 'xl_table_node_list') {
         getXLTableNodesPostgresql(node);
     }
+    else {
+      afterNodeOpenedCallbackPostgreSQL(node);
+    }
+}
+
+function afterNodeOpenedCallbackPostgreSQL(node) {
+  //Hooks
+  if (v_connTabControl.tag.hooks.postgresqlTreeNodeOpen.length>0) {
+    for (var i=0; i<v_connTabControl.tag.hooks.postgresqlTreeNodeOpen.length; i++)
+      v_connTabControl.tag.hooks.postgresqlTreeNodeOpen[i](node);
+  }
 }
 
 /// <summary>
@@ -3996,6 +4024,8 @@ function getTreeDetailsPostgresql(node) {
                 //startMonitorDashboard();
             }
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -4113,6 +4143,8 @@ function getDatabaseObjectsPostgresql(node) {
                     '/static/OmniDB_app/images/spin.svg', null, null);
             }
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -4170,6 +4202,8 @@ function getDatabasesPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -4214,6 +4248,8 @@ function getTablespacesPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -4256,6 +4292,8 @@ function getRolesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -4300,6 +4338,8 @@ function getExtensionsPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -4359,6 +4399,8 @@ function getTablesPostgresql(node) {
 
             }
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -4476,6 +4518,8 @@ function getSchemasPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -4520,6 +4564,8 @@ function getSequencesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -4569,6 +4615,8 @@ function getViewsPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -4642,6 +4690,8 @@ function getViewsColumnsPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -4742,6 +4792,8 @@ function getMaterializedViewsPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -4787,6 +4839,8 @@ function getMaterializedViewsColumnsPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -5045,6 +5099,8 @@ function getColumnsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -5093,6 +5149,8 @@ function getPKPostgresql(node) {
                     }, null);
             }
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -5134,6 +5192,8 @@ function getPKColumnsPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -5189,6 +5249,8 @@ function getUniquesPostgresql(node) {
 
             }
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -5235,6 +5297,8 @@ function getUniquesColumnsPostgresql(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -5293,6 +5357,8 @@ function getIndexesPostgresql(node) {
 
             }
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -5340,6 +5406,8 @@ function getIndexesColumnsPostgresql(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -5404,6 +5472,8 @@ function getFKsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -5465,6 +5535,8 @@ function getFKsColumnsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -5519,6 +5591,8 @@ function getChecksPostgresql(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -5582,6 +5656,8 @@ function getExcludesPostgresql(node) {
 
             }
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -5631,6 +5707,8 @@ function getRulesPostgresql(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -5742,6 +5820,8 @@ function getTriggersPostgresql(node) {
 
             }
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -5794,6 +5874,8 @@ function getInheritedsPostgresql(node) {
 
             }
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -5845,6 +5927,8 @@ function getPartitionsPostgresql(node) {
 
             }
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -5893,6 +5977,8 @@ function getFunctionsPostgresql(node) {
 
             }
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -5951,6 +6037,8 @@ function getFunctionFieldsPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -6079,6 +6167,8 @@ function getTriggerFunctionsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -6174,6 +6264,8 @@ function getPhysicalReplicationSlotsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -6218,6 +6310,8 @@ function getLogicalReplicationSlotsPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -6290,6 +6384,8 @@ function getPublicationsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -6334,6 +6430,8 @@ function getPublicationTablesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -6410,6 +6508,8 @@ function getSubscriptionsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -6454,6 +6554,8 @@ function getSubscriptionTablesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -6502,6 +6604,8 @@ function getPglogicalNodesPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -6546,6 +6650,8 @@ function getPglogicalInterfacesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -6627,6 +6733,8 @@ function getPglogicalReplicationSetsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -6671,6 +6779,8 @@ function getPglogicalReplicationSetTablesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -6717,6 +6827,8 @@ function getPglogicalReplicationSetSequencesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -6787,6 +6899,8 @@ function getPglogicalSubscriptionsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -6833,6 +6947,8 @@ function getPglogicalSubscriptionReplicationSetsPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -7139,6 +7255,8 @@ function getBDRPropertiesPostgresql(node) {
 
             }
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -7190,6 +7308,8 @@ function getBDRNodesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -7255,6 +7375,8 @@ function getBDRReplicationSetsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -7301,6 +7423,8 @@ function getBDRTableReplicationSetsPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -7361,6 +7485,8 @@ function getBDRTableConflictHandlersPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -7425,6 +7551,8 @@ function getBDRGroupsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -7484,6 +7612,8 @@ function getBDRGroupNodesPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -7528,6 +7658,8 @@ function getBDRGroupTablesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -7603,6 +7735,8 @@ function getXLNodesPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -7650,6 +7784,8 @@ function getXLGroupsPostgresql(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackPostgreSQL(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -7695,6 +7831,8 @@ function getXLGroupNodesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -7755,6 +7893,7 @@ function getXLTablePropertiesPostgresql(node) {
                     }, null);
 
             }
+            afterNodeOpenedCallbackPostgreSQL(node);
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -7801,6 +7940,8 @@ function getXLTableNodesPostgresql(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
 
         },
         function(p_return) {
@@ -7851,7 +7992,7 @@ function TemplateSelectPostgresql(p_schema, p_table) {
             return '';
         },
         'box',
-        false);
+        true);
 }
 
 /// <summary>
@@ -7876,7 +8017,7 @@ function TemplateInsertPostgresql(p_schema, p_table) {
             return '';
         },
         'box',
-        false);
+        true);
 }
 
 /// <summary>
@@ -7901,7 +8042,7 @@ function TemplateUpdatePostgresql(p_schema, p_table) {
             return '';
         },
         'box',
-        false);
+        true);
 }
 
 function nodeOpenError(p_return, p_node) {

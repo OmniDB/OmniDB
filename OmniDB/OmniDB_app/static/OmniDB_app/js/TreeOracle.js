@@ -1261,6 +1261,21 @@ function getTreeOracle(p_div) {
         getPropertiesOracle(node);
     }
 
+    tree.beforeContextMenuEvent = function(node, callback) {
+
+        var v_elements = [];
+        //Hooks
+        if (v_connTabControl.tag.hooks.oracleTreeContextMenu.length>0) {
+          for (var i=0; i<v_connTabControl.tag.hooks.oracleTreeContextMenu.length; i++)
+            v_elements = v_elements.concat(v_connTabControl.tag.hooks.oracleTreeContextMenu[i](node));
+        }
+
+        var v_customCallback = function() {
+          callback(v_elements);
+        }
+        v_customCallback();
+    }
+
     var node_server = tree.createNode('Oracle', false,
         '/static/OmniDB_app/images/oracle_medium.png', null, {
             type: 'server'
@@ -1360,6 +1375,12 @@ function getPropertiesOracle(node) {
       } else {
         clearProperties();
       }
+
+      //Hooks
+      if (v_connTabControl.tag.hooks.oracleTreeNodeClick.length>0) {
+        for (var i=0; i<v_connTabControl.tag.hooks.oracleTreeNodeClick.length; i++)
+          v_connTabControl.tag.hooks.oracleTreeNodeClick[i](node);
+      }
 }
 
 /// <summary>
@@ -1419,6 +1440,17 @@ function refreshTreeOracle(node) {
     } */else if (node.tag.type == 'server') {
         getTreeDetailsOracle(node);
     }
+    else {
+      afterNodeOpenedCallbackOracle(node);
+    }
+}
+
+function afterNodeOpenedCallbackOracle(node) {
+  //Hooks
+  if (v_connTabControl.tag.hooks.oracleTreeNodeOpen.length>0) {
+    for (var i=0; i<v_connTabControl.tag.hooks.oracleTreeNodeOpen.length; i++)
+      v_connTabControl.tag.hooks.oracleTreeNodeOpen[i](node);
+  }
 }
 
 /// <summary>
@@ -1668,6 +1700,8 @@ function getTreeDetailsOracle(node) {
               //startMonitorDashboard();
             }
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1711,6 +1745,8 @@ function getTablespacesOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1752,6 +1788,8 @@ function getRolesOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -1810,6 +1848,8 @@ function getTablesOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1852,6 +1892,8 @@ function getSequencesOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -1899,6 +1941,8 @@ function getViewsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1963,6 +2007,8 @@ function getViewsColumnsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2256,6 +2302,8 @@ function getColumnsOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2302,6 +2350,8 @@ function getPKOracle(node) {
                     }, null);
             }
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2340,6 +2390,8 @@ function getPKColumnsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2393,6 +2445,8 @@ function getUniquesOracle(node) {
 
             }
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2436,6 +2490,8 @@ function getUniquesColumnsOracle(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2491,6 +2547,8 @@ function getIndexesOracle(node) {
 
             }
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2535,6 +2593,8 @@ function getIndexesColumnsOracle(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2593,6 +2653,8 @@ function getFKsOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2646,6 +2708,8 @@ function getFKsColumnsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2799,6 +2863,8 @@ function getFunctionsOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2851,6 +2917,8 @@ function getFunctionFieldsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2979,6 +3047,8 @@ function getProceduresOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -3031,6 +3101,8 @@ function getProcedureFieldsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -3254,7 +3326,7 @@ function TemplateSelectOracle(p_schema, p_table) {
             return '';
         },
         'box',
-        false);
+        true);
 }
 
 /// <summary>
@@ -3279,7 +3351,7 @@ function TemplateInsertOracle(p_schema, p_table) {
             return '';
         },
         'box',
-        false);
+        true);
 }
 
 /// <summary>
@@ -3304,7 +3376,7 @@ function TemplateUpdateOracle(p_schema, p_table) {
             return '';
         },
         'box',
-        false);
+        true);
 }
 
 function nodeOpenError(p_return, p_node) {

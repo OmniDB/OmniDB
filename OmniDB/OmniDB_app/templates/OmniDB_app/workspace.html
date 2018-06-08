@@ -75,46 +75,47 @@
 
 {% endblock %}
 {% block include_css %}
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/aimaraJS/css/Aimara.css?v2.8.0.8"           />
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/chartist.min.css?v2.8.0.8"                  />
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/jquery-ui.min.css?v2.8.0.8"                 />
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/jquery-ui.structure.min.css?v2.8.0.8"       />
-	<!--<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/popupJS/popupJS.css?v2.8.0.8"               />-->
-	<!--<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/emojionearea/emojionearea.min.css?v2.8.0.8" />-->
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/ChatClient.css?v2.8.0.8"                    />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/aimaraJS/css/Aimara.css?v2.9.0.0"           />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/chartist.min.css?v2.9.0.0"                  />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/jquery-ui.min.css?v2.9.0.0"                 />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/jquery-ui.structure.min.css?v2.9.0.0"       />
+	<!--<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/popupJS/popupJS.css?v2.9.0.0"               />-->
+	<!--<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/emojionearea/emojionearea.min.css?v2.9.0.0" />-->
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/ChatClient.css?v2.9.0.0"                    />
 {% endblock %}
 {% block include %}
-<script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape.min.js?v2.8.0.8"                         ></script>
-<script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js?v2.8.0.8"                      ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Chart.bundle.min.js?v2.8.0.8"                                 ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/chartist.min.js?v2.8.0.8"                                     ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/chartist-plugin-axistitle.min.js?v2.8.0.8"                    ></script>
-<script type="text/javascript" src="/static/OmniDB_app/lib/aimaraJS/lib/Aimara.js?v2.8.0.8"                             ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/QueryClient.js?v2.8.0.8"                                      ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Query.js?v2.8.0.8"                                            ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/dataMining.js?v2.8.0.8"                                       ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Debug.js?v2.8.0.8"                                            ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Workspace.js?v2.8.0.8"	      	                            ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/EditData.js?v2.8.0.8"				                            ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/AlterTable.js?v2.8.0.8"			                            ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/CreateTabFunctions.js?v2.8.0.8"                               ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Tree.js?v2.8.0.8"                                             ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/TreeSnippets.js?v2.8.0.8"                                     ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/TreeMonitor.js?v2.8.0.8"                                      ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/TreePostgresql.js?v2.8.0.8"                                   ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/TreeOracle.js?v2.8.0.8"                                       ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/TreeMariadb.js?v2.8.0.8"                                      ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/TreeMysql.js?v2.8.0.8"                                        ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/CommandHistory.js?v2.8.0.8"                                   ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/MonitorDashboard.js?v2.8.0.8"                                 ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Connections.js?v2.8.0.8"                                      ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/jquery-ui.min.js?v2.8.0.8"                                    ></script>
-<!--<script type="text/javascript" src="/static/OmniDB_app/lib/popupJS/popupJS.js?v2.8.0.8"                                 ></script>-->
-<!--<script type="text/javascript" src="/static/OmniDB_app/lib/emojionearea/emojionearea.min.js?v2.8.0.8"                   ></script>-->
-<script type="text/javascript" src="/static/OmniDB_app/js/Properties.js?v2.8.0.8"                                       ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Shortcuts.js?v2.8.0.8"                                        ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/Console.js?v2.8.0.8"                                          ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/CustomMenu.js?v2.8.0.8"                                       ></script>
+<script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape.min.js?v2.9.0.0"                         ></script>
+<script type="text/javascript" src="/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js?v2.9.0.0"                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Chart.bundle.min.js?v2.9.0.0"                                 ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/chartist.min.js?v2.9.0.0"                                     ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/chartist-plugin-axistitle.min.js?v2.9.0.0"                    ></script>
+<script type="text/javascript" src="/static/OmniDB_app/lib/aimaraJS/lib/Aimara.js?v2.9.0.0"                             ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/QueryClient.js?v2.9.0.0"                                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Query.js?v2.9.0.0"                                            ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/dataMining.js?v2.9.0.0"                                       ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Debug.js?v2.9.0.0"                                            ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Workspace.js?v2.9.0.0"	      	                            ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/EditData.js?v2.9.0.0"				                            ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/AlterTable.js?v2.9.0.0"			                            ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/CreateTabFunctions.js?v2.9.0.0"                               ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Tree.js?v2.9.0.0"                                             ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreeSnippets.js?v2.9.0.0"                                     ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreeMonitor.js?v2.9.0.0"                                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreePostgresql.js?v2.9.0.0"                                   ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreeOracle.js?v2.9.0.0"                                       ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreeMariadb.js?v2.9.0.0"                                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/TreeMysql.js?v2.9.0.0"                                        ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/CommandHistory.js?v2.9.0.0"                                   ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/MonitorDashboard.js?v2.9.0.0"                                 ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Connections.js?v2.9.0.0"                                      ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/jquery-ui.min.js?v2.9.0.0"                                    ></script>
+<!--<script type="text/javascript" src="/static/OmniDB_app/lib/popupJS/popupJS.js?v2.9.0.0"                                 ></script>-->
+<!--<script type="text/javascript" src="/static/OmniDB_app/lib/emojionearea/emojionearea.min.js?v2.9.0.0"                   ></script>-->
+<script type="text/javascript" src="/static/OmniDB_app/js/Properties.js?v2.9.0.0"                                       ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Shortcuts.js?v2.9.0.0"                                        ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/Console.js?v2.9.0.0"                                          ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/CustomMenu.js?v2.9.0.0"                                       ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/PluginHook.js?v2.9.0.0"                                       ></script>
 
 <script>
 	var v_query_port = {{ query_port }};

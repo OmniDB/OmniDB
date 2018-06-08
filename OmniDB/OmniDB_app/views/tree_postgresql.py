@@ -74,8 +74,8 @@ def get_tree_info(request):
                 'create_mview': v_database.TemplateCreateMaterializedView().v_text,
                 'refresh_mview': v_database.TemplateRefreshMaterializedView().v_text,
                 'drop_mview': v_database.TemplateDropMaterializedView().v_text,
-                #create_table
-                #alter_table
+                'create_table': v_database.TemplateCreateTable().v_text,
+                'alter_table': v_database.TemplateAlterTable().v_text,
                 'drop_table': v_database.TemplateDropTable().v_text,
                 'create_column': v_database.TemplateCreateColumn().v_text,
                 'alter_column': v_database.TemplateAlterColumn().v_text,

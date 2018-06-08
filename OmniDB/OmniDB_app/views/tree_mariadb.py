@@ -68,8 +68,8 @@ def get_tree_info(request):
                 #'drop_triggerfunction': v_database.TemplateDropTriggerFunction().v_text,
                 'create_view': v_database.TemplateCreateView().v_text,
                 'drop_view': v_database.TemplateDropView().v_text,
-                #create_table
-                #alter_table
+                'create_table': v_database.TemplateCreateTable().v_text,
+                'alter_table': v_database.TemplateAlterTable().v_text,
                 'drop_table': v_database.TemplateDropTable().v_text,
                 'create_column': v_database.TemplateCreateColumn().v_text,
                 'alter_column': v_database.TemplateAlterColumn().v_text,

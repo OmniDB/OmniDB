@@ -95,7 +95,11 @@ function activateHook(p_hook,p_function) {
 
 function getPluginPath(p_name) {
   try {
-    return v_plugins[p_name].folder;
+    if (p_name == 'OmniDB') {
+      return '/static/OmniDB_app/'
+    } else {
+      return v_plugins[p_name].folder;
+    }
   }
   catch(err) {
     return ''

@@ -593,4 +593,4 @@ CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)
 );--omnidb--
-INSERT INTO version VALUES('2.8.0');--omnidb--
+INSERT INTO version VALUES('2.9.0');--omnidb--

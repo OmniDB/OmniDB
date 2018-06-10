@@ -196,9 +196,9 @@ def list_extensions(cur, pattern, verbose):
       '''
 
     if name_pattern:
-        sql = cur.mogrify(sql + ' WHERE e.extname ~ %s', [name_pattern])
-
-    sql += ' ORDER BY 1'
+        sql = cur.mogrify(sql + ' WHERE e.extname ~ %s ORDER BY 1', [name_pattern])
+    else:
+        sql += ' ORDER BY 1'
 
     log.debug(sql)
     cur.execute(sql)

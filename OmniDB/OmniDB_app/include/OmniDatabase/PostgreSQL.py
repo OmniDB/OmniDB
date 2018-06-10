@@ -51,7 +51,7 @@ PostgreSQL
 ------------------------------------------------------------------------
 '''
 class PostgreSQL:
-    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias=''):
+    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias='', p_application_name='OmniDB'):
         self.v_alias = p_alias
         self.v_db_type = 'postgresql'
         self.v_conn_id = p_conn_id
@@ -68,7 +68,7 @@ class PostgreSQL:
         self.v_server = p_server
         self.v_user = p_user
         self.v_schema = 'public'
-        self.v_connection = Spartacus.Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password, 'OmniDB')
+        self.v_connection = Spartacus.Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password, p_application_name)
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -2314,10 +2314,103 @@ SELECT ...
 ''')
 
     def TemplateCreateTable(self):
-        pass
+        return Template('''CREATE
+--TEMPORARY
+--UNLOGGED
+TABLE #schema_name#.table_name
+--OF type_name
+--AS query [ WITH [ NO ] DATA ]
+--PARTITION OF parent_table
+(
+    column_name data_type
+    --COLLATE collation
+    --CONSTRAINT constraint_name
+    --NOT NULL
+    --NULL
+    --CHECK ( expression ) [ NO INHERIT ]
+    --DEFAULT default_expr
+    --GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ]
+    --UNIQUE [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --PRIMARY KEY [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ] [ ON UPDATE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ]
+    --CHECK ( expression ) [ NO INHERIT ]
+    --UNIQUE ( column_name [, ... ] ) [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --PRIMARY KEY ( column_name [, ... ] ) [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --EXCLUDE [ USING index_method ] ( { column_name | ( expression ) } [ opclass ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] WITH operator [, ... ] ) [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ] [ WHERE ( predicate ) ]
+    --FOREIGN KEY ( column_name [, ... ] ) REFERENCES reftable [ ( refcolumn [, ... ] ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ] [ ON UPDATE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ]
+    --DEFERRABLE
+    --NOT DEFERRABLE
+    --INITIALLY DEFERRED
+    --INITIALLY IMMEDIATE
+    --LIKE source_table [ { INCLUDING | EXCLUDING } { COMMENTS | CONSTRAINTS | DEFAULTS | IDENTITY | INDEXES | STATISTICS | STORAGE | ALL } ... ]
+)
+--FOR VALUES IN ( { numeric_literal | string_literal | TRUE | FALSE | NULL } [, ...] )
+--FOR VALUES FROM ( { numeric_literal | string_literal | TRUE | FALSE | MINVALUE | MAXVALUE } [, ...] ) TO ( { numeric_literal | string_literal | TRUE | FALSE | MINVALUE | MAXVALUE } [, ...] )
+--INHERITS ( parent_table [, ... ] )
+--PARTITION BY { RANGE | LIST } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] )
+--WITH ( storage_parameter [= value] [, ... ] )
+--WITH OIDS
+--WITHOUT OIDS
+--ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP }
+--TABLESPACE tablespace_name
+''')
 
     def TemplateAlterTable(self):
-        pass
+        return Template('''ALTER TABLE
+--ONLY
+#table_name#
+--ADD [ COLUMN ] [ IF NOT EXISTS ] column_name data_type [ COLLATE collation ] [ column_constraint [ ... ] ]
+--DROP [ COLUMN ] [ IF EXISTS ] column_name [ RESTRICT | CASCADE ]
+--ALTER [ COLUMN ] column_name [ SET DATA ] TYPE data_type [ COLLATE collation ] [ USING expression ]
+--ALTER [ COLUMN ] column_name SET DEFAULT expression
+--ALTER [ COLUMN ] column_name DROP DEFAULT
+--ALTER [ COLUMN ] column_name { SET | DROP } NOT NULL
+--ALTER [ COLUMN ] column_name ADD GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ]
+--ALTER [ COLUMN ] column_name { SET GENERATED { ALWAYS | BY DEFAULT } | SET sequence_option | RESTART [ [ WITH ] restart ] } [...]
+--ALTER [ COLUMN ] column_name DROP IDENTITY [ IF EXISTS ]
+--ALTER [ COLUMN ] column_name SET STATISTICS integer
+--ALTER [ COLUMN ] column_name SET ( attribute_option = value [, ... ] )
+--ALTER [ COLUMN ] column_name RESET ( attribute_option [, ... ] )
+--ALTER [ COLUMN ] column_name SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+--ADD table_constraint [ NOT VALID ]
+--ADD CONSTRAINT constraint_name { UNIQUE | PRIMARY KEY } USING INDEX index_name [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+--ALTER CONSTRAINT constraint_name [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+--VALIDATE CONSTRAINT constraint_name
+--DROP CONSTRAINT [ IF EXISTS ]  constraint_name [ RESTRICT | CASCADE ]
+--DISABLE TRIGGER [ trigger_name | ALL | USER ]
+--ENABLE TRIGGER [ trigger_name | ALL | USER ]
+--ENABLE REPLICA TRIGGER trigger_name
+--ENABLE ALWAYS TRIGGER trigger_name
+--DISABLE RULE rewrite_rule_name
+--ENABLE RULE rewrite_rule_name
+--ENABLE REPLICA RULE rewrite_rule_name
+--ENABLE ALWAYS RULE rewrite_rule_name
+--DISABLE ROW LEVEL SECURITY
+--ENABLE ROW LEVEL SECURITY
+--FORCE ROW LEVEL SECURITY
+--NO FORCE ROW LEVEL SECURITY
+--CLUSTER ON index_name
+--SET WITHOUT CLUSTER
+--SET WITH OIDS
+--SET WITHOUT OIDS
+--SET TABLESPACE new_tablespace
+--SET { LOGGED | UNLOGGED }
+--SET ( storage_parameter = value [, ... ] )
+--RESET ( storage_parameter [, ... ] )
+--INHERIT parent_table
+--NO INHERIT parent_table
+--OF type_name
+--NOT OF
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--REPLICA IDENTITY { DEFAULT | USING INDEX index_name | FULL | NOTHING }
+--RENAME [ COLUMN ] column_name TO new_column_name
+--RENAME CONSTRAINT constraint_name TO new_constraint_name
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--ALL IN TABLESPACE name [ OWNED BY role_name [, ... ] ] SET TABLESPACE new_tablespace [ NOWAIT ]
+--ATTACH PARTITION partition_name FOR VALUES partition_bound_spec
+--DETACH PARTITION partition_name
+''')
 
     def TemplateDropTable(self):
         return Template('''DROP TABLE #table_name#
@@ -2553,6 +2646,128 @@ ON #table_name#
     def TemplateAnalyzeTable(self):
         return Template('''ANALYZE #table_name#
 --(column_name, [, ...])
+''')
+
+    def TemplateSelect(self, p_schema, p_table):
+        v_sql = 'SELECT t.'
+        v_fields = self.QueryTablesFields(p_table, False, p_schema)
+        if len(v_fields.Rows) > 0:
+            v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+        v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+        v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
+        if len(v_pk.Rows) > 0:
+            v_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+            if len(v_fields.Rows) > 0:
+                v_sql += '\nORDER BY t.'
+                v_sql += '\n       , t.'.join([r['column_name'] for r in v_fields.Rows])
+        return Template(v_sql)
+
+    def TemplateInsert(self, p_schema, p_table):
+        v_fields = self.QueryTablesFields(p_table, False, p_schema)
+        if len(v_fields.Rows) > 0:
+            v_sql = 'INSERT INTO {0}.{1} (\n'.format(p_schema, p_table)
+            v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
+            if len(v_pk.Rows) > 0:
+                v_table_pk_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+                v_pk_fields = [r['column_name'] for r in v_table_pk_fields.Rows]
+                v_values = []
+                v_first = True
+                for r in v_fields.Rows:
+                    if v_first:
+                        v_sql += '      {0}'.format(r['column_name'])
+                        if r['column_name'] in v_pk_fields:
+                            v_values.append('      ? -- {0} {1} PRIMARY KEY'.format(r['column_name'], r['data_type']))
+                        elif r['nullable'] == 'YES':
+                            v_values.append('      ? -- {0} {1} NULLABLE'.format(r['column_name'], r['data_type']))
+                        else:
+                            v_values.append('      ? -- {0} {1}'.format(r['column_name'], r['data_type']))
+                        v_first = False
+                    else:
+                        v_sql += '\n    , {0}'.format(r['column_name'])
+                        if r['column_name'] in v_pk_fields:
+                            v_values.append('\n    , ? -- {0} {1} PRIMARY KEY'.format(r['column_name'], r['data_type']))
+                        elif r['nullable'] == 'YES':
+                            v_values.append('\n    , ? -- {0} {1} NULLABLE'.format(r['column_name'], r['data_type']))
+                        else:
+                            v_values.append('\n    , ? -- {0} {1}'.format(r['column_name'], r['data_type']))
+            else:
+                v_values = []
+                v_first = True
+                for r in v_fields.Rows:
+                    if v_first:
+                        v_sql += '      {0}'.format(r['column_name'])
+                        if r['nullable'] == 'YES':
+                            v_values.append('      ? -- {0} {1} NULLABLE'.format(r['column_name'], r['data_type']))
+                        else:
+                            v_values.append('      ? -- {0} {1}'.format(r['column_name'], r['data_type']))
+                        v_first = False
+                    else:
+                        v_sql += '\n    , {0}'.format(r['column_name'])
+                        if r['nullable'] == 'YES':
+                            v_values.append('\n    , ? -- {0} {1} NULLABLE'.format(r['column_name'], r['data_type']))
+                        else:
+                            v_values.append('\n    , ? -- {0} {1}'.format(r['column_name'], r['data_type']))
+            v_sql += '\n) VALUES (\n'
+            for v in v_values:
+                v_sql += v
+            v_sql += '\n)'
+        else:
+            v_sql = ''
+        return Template(v_sql)
+
+    def TemplateUpdate(self, p_schema, p_table):
+        v_fields = self.QueryTablesFields(p_table, False, p_schema)
+        if len(v_fields.Rows) > 0:
+            v_sql = 'UPDATE {0}.{1}\nSET '.format(p_schema, p_table)
+            v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
+            if len(v_pk.Rows) > 0:
+                v_table_pk_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+                v_pk_fields = [r['column_name'] for r in v_table_pk_fields.Rows]
+                v_values = []
+                v_first = True
+                for r in v_fields.Rows:
+                    if v_first:
+                        if r['column_name'] in v_pk_fields:
+                            v_sql += '{0} = ? -- {1} PRIMARY KEY'.format(r['column_name'], r['data_type'])
+                        elif r['nullable'] == 'YES':
+                            v_sql += '{0} = ? -- {1} NULLABLE'.format(r['column_name'], r['data_type'])
+                        else:
+                            v_sql += '{0} = ? -- {1}'.format(r['column_name'], r['data_type'])
+                        v_first = False
+                    else:
+                        if r['column_name'] in v_pk_fields:
+                            v_sql += '\n    , {0} = ? -- {1} PRIMARY KEY'.format(r['column_name'], r['data_type'])
+                        elif r['nullable'] == 'YES':
+                            v_sql += '\n    , {0} = ? -- {1} NULLABLE'.format(r['column_name'], r['data_type'])
+                        else:
+                            v_sql += '\n    , {0} = ? -- {1}'.format(r['column_name'], r['data_type'])
+            else:
+                v_values = []
+                v_first = True
+                for r in v_fields.Rows:
+                    if v_first:
+                        if r['nullable'] == 'YES':
+                            v_sql += '{0} = ? -- {1} NULLABLE'.format(r['column_name'], r['data_type'])
+                        else:
+                            v_sql += '{0} = ? -- {1}'.format(r['column_name'], r['data_type'])
+                        v_first = False
+                    else:
+                        if r['nullable'] == 'YES':
+                            v_sql += '\n    , {0} = ? -- {1} NULLABLE'.format(r['column_name'], r['data_type'])
+                        else:
+                            v_sql += '\n    , {0} = ? -- {1}'.format(r['column_name'], r['data_type'])
+            v_sql += '\nWHERE condition'
+        else:
+            v_sql = ''
+        return Template(v_sql)
+
+    def TemplateDelete(self):
+        return Template('''DELETE FROM
+--ONLY
+#table_name#
+WHERE condition
+--WHERE CURRENT OF cursor_name
+--RETURNING *
 ''')
 
     def TemplateTruncate(self):
@@ -2874,86 +3089,40 @@ replication_set := '#set_name#'
         ''')
 
     def GetBDRNodeName(self):
-        if int(self.GetBDRVersion()[0]) >= 3:
-            return self.v_connection.ExecuteScalar('''
-                select quote_ident(n.node_name) as node_name
-                from bdr.node b
-                inner join pglogical.node n
-                on n.node_id = b.pglogical_node_id
-                inner join pglogical.local_node l
-                on l.node_id = n.node_id
-                where bdr.peer_state_name(b.local_state) not like '%PART%'
-                limit 1
-            ''')
-        else:
-            return self.v_connection.ExecuteScalar('select bdr.bdr_get_local_node_name()')
+        return self.v_connection.ExecuteScalar('select bdr.bdr_get_local_node_name()')
 
     def QueryBDRProperties(self):
-        if int(self.GetBDRVersion()[0]) >= 3:
+        try:
+            v_tmp = self.v_connection.ExecuteScalar('select bdr.bdr_is_active_in_db()')
+            v_test = True
+        except Spartacus.Database.Exception as exc:
+            v_test = False
+        if v_test:
             return self.v_connection.Query('''
-                select (select extversion
-                        from pg_extension
-                        where extname = 'bdr') as version,
-                       (select count(*)
-                        from bdr.node b
-                        inner join bdr.node_group g
-                        on g.node_group_id = b.node_group_id
-                        inner join pglogical.node n
-                        on n.node_id = b.pglogical_node_id
-                        inner join pglogical.local_node l
-                        on l.node_id = n.node_id
-                        where bdr.peer_state_name(b.local_state) not like '%PART%'
-                        limit 1) >= 1 as active,
-                       coalesce((select quote_ident(n.node_name)
-                                 from bdr.node b
-                                 inner join pglogical.node n
-                                 on n.node_id = b.pglogical_node_id
-                                 inner join pglogical.local_node l
-                                 on l.node_id = n.node_id
-                                 where bdr.peer_state_name(b.local_state) not like '%PART%'), 'Not set') as node_name,
-                       False as paused,
-                       (select bdr.peer_state_name(b.local_state)
-                        from bdr.node b
-                        inner join pglogical.node n
-                        on n.node_id = b.pglogical_node_id
-                        inner join pglogical.local_node l
-                        on l.node_id = n.node_id
-                        where bdr.peer_state_name(b.local_state) not like '%PART%') as node_state
+                select bdr.bdr_version() as version,
+                       bdr.bdr_is_active_in_db() as active,
+                       coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
+                       bdr.bdr_apply_is_paused() as paused,
+                       null as node_state
             ''')
         else:
-            try:
-                v_tmp = self.v_connection.ExecuteScalar('select bdr.bdr_is_active_in_db()')
-                v_test = True
-            except Spartacus.Database.Exception as exc:
-                v_test = False
-            if v_test:
-                return self.v_connection.Query('''
-                    select bdr.bdr_version() as version,
-                           bdr.bdr_is_active_in_db() as active,
-                           coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
-                           bdr.bdr_apply_is_paused() as paused,
-                           null as node_state
-                ''')
-            else:
-                return self.v_connection.Query('''
-                    select bdr.bdr_version() as version,
-                           (coalesce(bdr.bdr_get_local_node_name(), 'Not set') != 'Not set') as active,
-                           coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
-                           bdr.bdr_apply_is_paused() as paused,
-                           null as node_state
-                ''')
+            return self.v_connection.Query('''
+                select bdr.bdr_version() as version,
+                       (coalesce(bdr.bdr_get_local_node_name(), 'Not set') != 'Not set') as active,
+                       coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
+                       bdr.bdr_apply_is_paused() as paused,
+                       null as node_state
+            ''')
 
-    # only in BDR < 3
     def QueryBDRNodes(self):
         return self.v_connection.Query('''
             select quote_ident(node_name) as node_name,
-                   bdr.bdr_get_local_node_name() == node_name as node_is_local
+                   bdr.bdr_get_local_node_name() = node_name as node_is_local
             from bdr.bdr_nodes
             where node_status <> 'k'
             order by 1
         ''')
 
-    # only in BDR < 3
     def QueryBDRReplicationSets(self):
         return self.v_connection.Query('''
             select quote_ident(set_name) as set_name,
@@ -2964,11 +3133,9 @@ replication_set := '#set_name#'
             order by 1
         ''')
 
-    # only in BDR < 3
     def QueryBDRTableReplicationSets(self, p_table):
         return self.v_connection.Query("select unnest(bdr.table_get_replication_sets('{0}')) as set_name".format(p_table))
 
-    # only in BDR < 3
     def QueryBDRTableConflictHandlers(self, p_table, p_schema):
         return self.v_connection.Query('''
             select quote_ident(t.ch_name) as ch_name,
@@ -2983,65 +3150,8 @@ replication_set := '#set_name#'
               and c.relname = '{1}'
         '''.format(p_schema, p_table))
 
-    # only in BDR >= 3
-    def QueryBDRGroups(self):
-        return self.v_connection.Query('''
-            select quote_ident(node_group_name) as group_name
-            from bdr.node_group
-            order by 1
-        ''')
-
-    # only in BDR >= 3
-    def QueryBDRGroupNodes(self, p_group):
-        return self.v_connection.Query('''
-            select quote_ident(n.node_name) || (case when l.node_id is not null then ' (local)' else '' end) as node_name,
-                   bdr.peer_state_name(b.local_state) as node_state,
-                   l.node_id is not null as node_is_local
-            from bdr.node b
-            inner join bdr.node_group g
-            on g.node_group_id = b.node_group_id
-            inner join pglogical.node n
-            on n.node_id = b.pglogical_node_id
-            left join pglogical.local_node l
-            on l.node_id = n.node_id
-            where bdr.peer_state_name(b.local_state) not like '%PART%'
-              and g.node_group_name = '{0}'
-            order by 1
-        '''.format(p_group))
-
-    # only in BDR >= 3
-    def QueryBDRGroupTables(self, p_group):
-        return self.v_connection.Query('''
-            select quote_ident(n.nspname) || '.' || quote_ident(c.relname) as table_name
-            from pglogical.replication_set_table t
-            inner join pglogical.replication_set r
-            on r.set_id = t.set_id
-            inner join pg_class c
-            on c.oid = t.set_reloid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            where quote_ident(r.set_name) = '{0}'
-            order by 1
-        '''.format(p_group))
-
-    # only in BDR >= 3
-    def TemplateBDRCreateLocalNode(self):
-        return Template('''select bdr.create_node(
-'node_name'
-, 'host={0} port={1} dbname={2}'
-)
-'''.format(self.v_server, self.v_port, self.v_service))
-
-    # only in BDR >= 3
-    def TemplateBDRPromoteLocalNode(self):
-        return Template('select bdr.promote_node()')
-
     def TemplateBDRCreateGroup(self):
-        v_version = self.GetBDRVersion()
-        if v_version is not None and int(v_version[0]) >= 3:
-            return Template('''select bdr.create_node_group('group_name')''')
-        else:
-            return Template('''select bdr.bdr_group_create(
+        return Template('''select bdr.bdr_group_create(
 local_node_name := 'node_name'
 , node_external_dsn := 'host={0} port={1} dbname={2}'
 , node_local_dsn := 'dbname={2}'
@@ -3051,16 +3161,7 @@ local_node_name := 'node_name'
 '''.format(self.v_server, self.v_port, self.v_service))
 
     def TemplateBDRJoinGroup(self):
-        v_version = self.GetBDRVersion()
-        if v_version is not None and int(v_version[0]) >= 3:
-            return Template('''select bdr.join_node_group(
-join_target_dsn := 'host= port= dbname='
-, node_group_name := 'group_name'
---, pause_in_standby := false
-)
-''')
-        else:
-            return Template('''select bdr.bdr_group_join(
+        return Template('''select bdr.bdr_group_join(
 local_node_name := 'node_name'
 , node_external_dsn := 'host={0} port={1} dbname={2}'
 , join_using_dsn := 'host= port= dbname='
@@ -3071,52 +3172,25 @@ local_node_name := 'node_name'
 '''.format(self.v_server, self.v_port, self.v_service))
 
     def TemplateBDRJoinWait(self):
-        v_version = self.GetBDRVersion()
-        if v_version is not None and int(v_version[0]) >= 3:
-            return Template('''select bdr.wait_for_join_completion(
--- verbose_progress := false
-)
-''')
-        else:
-            return Template('select bdr.bdr_node_join_wait_for_ready()')
+        return Template('select bdr.bdr_node_join_wait_for_ready()')
 
-    # only in BDR < 3
     def TemplateBDRPause(self):
         return Template('select bdr.bdr_apply_pause()')
 
-    # only in BDR < 3
     def TemplateBDRResume(self):
         return Template('select bdr.bdr_apply_resume()')
 
     def TemplateBDRReplicateDDLCommand(self):
-        v_version = self.GetBDRVersion()
-        if v_version is not None and int(v_version[0]) >= 3:
-            return Template('''select bdr.replicate_ddl_command(
-$$ DDL command here... $$
---, replication_sets := null:text[]
-)
-''')
-        else:
-            return Template("select bdr.bdr_replicate_ddl_command('DDL command here...')")
+        return Template("select bdr.bdr_replicate_ddl_command('DDL command here...')")
 
     def TemplateBDRPartNode(self):
-        v_version = self.GetBDRVersion()
-        if v_version is not None and int(v_version[0]) >= 3:
-            return Template('''select bdr.part_node(
-node_name := '#node_name#'
---, wait_for_completion := true
-)
-''')
-        else:
-            return Template("select bdr.bdr_part_by_node_names('{#node_name#}')")
+        return Template("select bdr.bdr_part_by_node_names('{#node_name#}')")
 
-    # only in BDR < 3
     def TemplateBDRInsertReplicationSet(self):
         return Template('''INSERT INTO bdr.bdr_replication_set_config (set_name, replicate_inserts, replicate_updates, replicate_deletes)
 VALUES ('set_name', 't', 't', 't')
 ''')
 
-    # only in BDR < 3
     def TemplateBDRUpdateReplicationSet(self):
         return Template('''UPDATE bdr.bdr_replication_set_config SET
 --replicate_inserts = { 't' | 'f' }
@@ -3125,18 +3199,15 @@ VALUES ('set_name', 't', 't', 't')
 WHERE set_name = '#set_name#'
 ''')
 
-    # only in BDR < 3
     def TemplateBDRDeleteReplicationSet(self):
         return Template('''DELETE
 FROM bdr.bdr_replication_set_config
 WHERE set_name = '#set_name#'
 ''')
 
-    # only in BDR < 3
     def TemplateBDRSetTableReplicationSets(self):
         return Template("select bdr.table_set_replication_sets('#table_name#', '{repset1,repset2,...}')")
 
-    # only in BDR < 3
     def TemplateBDRCreateConflictHandler(self):
         return Template('''CREATE OR REPLACE FUNCTION #table_name#_fnc_conflict_handler (
   row1 #table_name#,
@@ -3167,42 +3238,24 @@ from bdr.bdr_create_conflict_handler(
 )
 ''')
 
-    # only in BDR < 3
     def TemplateBDRDropConflictHandler(self):
         return Template("select bdr.bdr_drop_conflict_handler('#table_name#', '#ch_name#')")
 
-    # only in BDR >= 1 and BDR < 3
+    # only in BDR >= 1
     def TemplateBDRTerminateApplyWorkers(self):
         return Template("select bdr.terminate_apply_workers('{#node_name#}')")
 
-    # only in BDR >= 1 and BDR < 3
+    # only in BDR >= 1
     def TemplateBDRTerminateWalsenderWorkers(self):
         return Template("select bdr.terminate_walsender_workers('{#node_name#}')")
 
-    # only in BDR >= 1 and BDR < 3
+    # only in BDR >= 1
     def TemplateBDRRemove(self):
         return Template('''select bdr.remove_bdr_from_local_node(
 force := False
 , convert_global_sequences := True
 )
 ''')
-
-    # only in BDR >= 3
-    def TemplateBDRGroupAddTable(self):
-        return Template('''select bdr.replication_set_add_table(
-relation := 'schema.table'::regclass
---, set_name := '#group_name#'
---, synchronize_data := true
---, columns := null::text[]
---, row_filter := null
-)''')
-
-    # only in BDR >= 3
-    def TemplateBDRGroupRemoveTable(self):
-        return Template('''select bdr.replication_set_remove_table(
-relation := '#table_name#'::regclass
---, set_name := '#group_name#'
-)''')
 
     def QueryXLNodes(self):
         return self.v_connection.Query('''
@@ -4419,7 +4472,7 @@ TO NODE ( nodename [, ... ] )
                                 ('c','TYPE'),
                                 ('t','TOAST'),
                                 ('f','FOREIGN TABLE'),
-                                ('p','TABLE')
+                                ('p','PARTITIONED TABLE')
                     ) as cc on cc.column1 = c.relkind
                    WHERE c.oid = '{0}.{1}'::regclass
                 ),

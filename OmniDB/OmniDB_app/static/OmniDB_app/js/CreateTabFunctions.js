@@ -264,7 +264,7 @@ function initCreateTabFunctions() {
     	   v_connTabControl.tag.createQueryTab();
       }
 
-      v_connTabControl.createTab('+',false,function() { startLoading(); setTimeout(function() { v_createConnTabFunction(); },0); });
+      v_connTabControl.createTab('+',false,function(e) {showMenuNewTabOuter(e); },null,null,null,null,null,false);
 
       setTimeout(function() {
         refreshTreeHeight();
@@ -1165,7 +1165,7 @@ function initCreateTabFunctions() {
 
 		v_tab.tag = v_tag;
 
-    v_connTabControl.createTab('+',false,function() { startLoading(); setTimeout(function() { v_createConnTabFunction(); },0); });
+    v_connTabControl.createTab('+',false,function(e) {showMenuNewTabOuter(e); },null,null,null,null,null,false);
 
     setTimeout(function() {
       refreshHeights();
@@ -2307,37 +2307,6 @@ function initCreateTabFunctions() {
 
 	};
 
-  function beforeCloseTab(e,p_confirm_function) {
-    if (e.clientX==0 && e.clientY==0)
-      showConfirm('Are you sure you want to remove this tab?',
-      function() {
-        p_confirm_function();
-      });
-    else
-      customMenu(
-        {
-          x:e.clientX+5,
-          y:e.clientY+5
-        },
-        [
-          {
-            text: 'Confirm',
-            icon: '/static/OmniDB_app/images/check.png',
-            action: function() {
-              p_confirm_function();
-            }
-          },
-          {
-            text: 'No',
-            icon: '/static/OmniDB_app/images/tab_close.png',
-            action: function() {
-            }
-          }
-        ],
-        null);
-
-  }
-
   //Functions to create tabs globally
   v_connTabControl.tag.createConnTab = v_createConnTabFunction;
   v_connTabControl.tag.createSnippetTab = v_createSnippetTabFunction;
@@ -2363,4 +2332,35 @@ function initCreateTabFunctions() {
 
   //Functions to create tabs inside monitor tab
   //v_connTabControl.tag.createNewMonitorNodeTab = v_createNewMonitorNodeTabFunction;
+}
+
+function beforeCloseTab(e,p_confirm_function) {
+  if (e.clientX==0 && e.clientY==0)
+    showConfirm('Are you sure you want to remove this tab?',
+    function() {
+      p_confirm_function();
+    });
+  else
+    customMenu(
+      {
+        x:e.clientX+5,
+        y:e.clientY+5
+      },
+      [
+        {
+          text: 'Confirm',
+          icon: '/static/OmniDB_app/images/check.png',
+          action: function() {
+            p_confirm_function();
+          }
+        },
+        {
+          text: 'No',
+          icon: '/static/OmniDB_app/images/tab_close.png',
+          action: function() {
+          }
+        }
+      ],
+      null);
+
 }

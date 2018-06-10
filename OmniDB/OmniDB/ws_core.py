@@ -581,7 +581,8 @@ def thread_datamining(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
                 ) x
                 '''.format(p_sql)
             ),
-            'sql': sqlparse.format(v_sql, reindent=True)
+            'sql': sqlparse.format(v_sql, reindent=True),
+            'exception': None
         }
 
         v_database.v_connection.Close()
@@ -591,21 +592,52 @@ def thread_datamining(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
             self.tag['activeConnections'].remove(v_database.v_connection)
 
             if p_key1 is not None:
-                if p_key2 is not None:
-                    if p_key1 not in self.tag['result']:
-                        self.tag['result'][p_key1] = {}
+                if p_key2 is not None: #Data category on
+                    if p_key1 not in self.tag['result']: #If data not in result
+                        self.tag['result'][p_key1] = {
+                            'count': 0,
+                            'result': {},
+                            'exception': None
+                        }
 
-                    self.tag['result'][p_key1][p_key2] = v_result
+                    self.tag['result'][p_key1]['count'] += v_result['count']
+                    self.tag['result'][p_key1]['result'][p_key2] = v_result
                 else:
                     self.tag['result'][p_key1] = v_result
         finally:
             self.tag['lock'].release()
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
-        v_response['v_error'] = True
-        v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
-        if not self.cancel:
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+        v_result = {
+            'count': 0,
+            'sql': '',
+            'exception': traceback.format_exc().replace('\n', '<br />')
+        }
+
+        try:
+            self.tag['lock'].acquire()
+
+            if v_database is not None and v_database.v_connection is not None and v_database.v_connection in self.tag['activeConnections']:
+                v_database.v_connection.Close()
+                self.tag['activeConnections'].remove(v_database.v_connection)
+
+            if p_key1 is not None:
+                if p_key2 is not None: #Data category on
+                    if p_key1 not in self.tag['result']: #If data not in result
+                        self.tag['result'][p_key1] = {
+                            'count': 0,
+                            'result': {},
+                            'exception': ''
+                        }
+
+                    self.tag['result'][p_key1]['count'] += v_result['count']
+                    self.tag['result'][p_key1]['exception'] += '<br />{0}'.format(v_result['exception'])
+                    self.tag['result'][p_key1]['result'][p_key2] = v_result
+                else:
+                    self.tag['result'][p_key1] = v_result
+        finally:
+            self.tag['lock'].release()
 
 def thread_query(self,args,ws_object):
     v_response = {

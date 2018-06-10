@@ -60,7 +60,10 @@ urlpatterns = [
     url(r'^get_console_history/', views.workspace.get_console_history, name='get_console_history'),
     url(r'^get_console_history_clean/', views.workspace.get_console_history_clean, name='get_console_history_clean'),
 
-    url(r'^test_ws/', views.workspace.test_ws, name='test_ws'),
+    #HOOKS
+    url(r'^get_plugins/', views.plugins.get_plugins, name='get_plugins'),
+    url(r'^list_plugins/', views.plugins.list_plugins, name='list_plugins'),
+    url(r'^exec_plugin_function/', views.plugins.exec_plugin_function, name='exec_plugin_function'),
 
     #TREE_SNIPPETS
     url(r'^get_node_children/', views.tree_snippets.get_node_children, name='get_node_children'),
@@ -142,8 +145,6 @@ urlpatterns = [
     url(r'^get_bdr_table_replicationsets_postgresql/', views.tree_postgresql.get_bdr_table_replicationsets, name='get_bdr_table_replicationsets'),
     url(r'^get_bdr_table_conflicthandlers_postgresql/', views.tree_postgresql.get_bdr_table_conflicthandlers, name='get_bdr_table_conflicthandlers'),
     url(r'^get_bdr_groups_postgresql/', views.tree_postgresql.get_bdr_groups, name='get_bdr_groups'),
-    url(r'^get_bdr_group_nodes_postgresql/', views.tree_postgresql.get_bdr_group_nodes, name='get_bdr_group_nodes'),
-    url(r'^get_bdr_group_tables_postgresql/', views.tree_postgresql.get_bdr_group_tables, name='get_bdr_group_tables'),
     url(r'^get_xl_nodes_postgresql/', views.tree_postgresql.get_xl_nodes, name='get_xl_nodes'),
     url(r'^get_xl_groups_postgresql/', views.tree_postgresql.get_xl_groups, name='get_xl_groups'),
     url(r'^get_xl_group_nodes_postgresql/', views.tree_postgresql.get_xl_group_nodes, name='get_xl_group_nodes'),
@@ -151,6 +152,9 @@ urlpatterns = [
     url(r'^get_xl_table_nodes_postgresql/', views.tree_postgresql.get_xl_table_nodes, name='get_xl_table_nodes'),
     url(r'^get_properties_postgresql/', views.tree_postgresql.get_properties, name='get_properties'),
     url(r'^get_database_objects_postgresql/', views.tree_postgresql.get_database_objects, name='get_database_objects'),
+    url(r'^template_select_postgresql/', views.tree_postgresql.template_select, name='template_select'),
+    url(r'^template_insert_postgresql/', views.tree_postgresql.template_insert, name='template_insert'),
+    url(r'^template_update_postgresql/', views.tree_postgresql.template_update, name='template_update'),
     url(r'^change_active_database/', views.workspace.change_active_database, name='change_active_database'),
 
     #TREE_ORACLE
@@ -187,6 +191,9 @@ urlpatterns = [
     url(r'^get_roles_oracle/', views.tree_oracle.get_roles, name='get_roles'),
     url(r'^kill_backend_oracle/', views.tree_oracle.kill_backend, name='kill_backend'),
     url(r'^get_properties_oracle/', views.tree_oracle.get_properties, name='get_properties'),
+    url(r'^template_select_oracle/', views.tree_oracle.template_select, name='template_select'),
+    url(r'^template_insert_oracle/', views.tree_oracle.template_insert, name='template_insert'),
+    url(r'^template_update_oracle/', views.tree_oracle.template_update, name='template_update'),
 
     #TREE_MYSQL
     url(r'^get_tree_info_mysql/', views.tree_mysql.get_tree_info, name='get_tree_info'),
@@ -219,6 +226,9 @@ urlpatterns = [
     url(r'^get_roles_mysql/', views.tree_mysql.get_roles, name='get_roles'),
     url(r'^kill_backend_mysql/', views.tree_mysql.kill_backend, name='kill_backend'),
     url(r'^get_properties_mysql/', views.tree_mysql.get_properties, name='get_properties'),
+    url(r'^template_select_mysql/', views.tree_mysql.template_select, name='template_select'),
+    url(r'^template_insert_mysql/', views.tree_mysql.template_insert, name='template_insert'),
+    url(r'^template_update_mysql/', views.tree_mysql.template_update, name='template_update'),
 
     #TREE_MARIADB
     url(r'^get_tree_info_mariadb/', views.tree_mariadb.get_tree_info, name='get_tree_info'),
@@ -251,6 +261,9 @@ urlpatterns = [
     url(r'^get_roles_mariadb/', views.tree_mariadb.get_roles, name='get_roles'),
     url(r'^kill_backend_mariadb/', views.tree_mariadb.kill_backend, name='kill_backend'),
     url(r'^get_properties_mariadb/', views.tree_mariadb.get_properties, name='get_properties'),
+    url(r'^template_select_mariadb/', views.tree_mariadb.template_select, name='template_select'),
+    url(r'^template_insert_mariadb/', views.tree_mariadb.template_insert, name='template_insert'),
+    url(r'^template_update_mariadb/', views.tree_mariadb.template_update, name='template_update'),
 
     #MONITORING SYSTEM
     url(r'^get_monitor_nodes/', views.monitor_dashboard.get_monitor_nodes, name='get_monitor_nodes'),

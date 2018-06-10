@@ -108,6 +108,7 @@ function dataMiningReturnRender(p_message, p_context) {
 	p_context.tab_tag.state = v_queryState.Idle;
 	p_context.tab_tag.context = null;
 	p_context.tab_tag.data = null;
+	console.log(p_message);
 
 	var v_div_result = p_context.tab_tag.div_result;
 	var v_query_info = p_context.tab_tag.query_info;
@@ -120,6 +121,40 @@ function dataMiningReturnRender(p_message, p_context) {
 		v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 		v_div_result.innerHTML = '';
 
+		var v_sortable = [];
+
+		for(v_key in p_message.v_data.v_result) {
+			v_sortable.push([v_key, p_message.v_data.v_result[v_key]]);
+		}
+
+		v_sortable.sort(function(a, b) {
+			return b[1]['count'] - a[1]['count'];
+		});
+
+		p_message.v_data.v_result = {};
+
+		for(var i = 0; i < v_sortable.length; i++) {
+			p_message.v_data.v_result[v_sortable[i][0]] = v_sortable[i][1];
+		}
+
+		if('Data' in p_message.v_data.v_result) {
+			var v_sortable2 = [];
+
+			for(v_key in p_message.v_data.v_result['Data']['result']) {
+				v_sortable2.push([v_key, p_message.v_data.v_result['Data']['result'][v_key]]);
+			}
+
+			v_sortable2.sort(function(a, b) {
+				return b[1]['count'] - a[1]['count'];
+			});
+
+			p_message.v_data.v_result['Data']['result'] = {};
+
+			for(var i = 0; i < v_sortable2.length; i++) {
+				p_message.v_data.v_result['Data']['result'][v_sortable2[i][0]] = v_sortable2[i][1];
+			}
+		}
+
 		var v_context_menu = {
 	        'cm_see_details': {
 	            elements: [{
@@ -129,55 +164,93 @@ function dataMiningReturnRender(p_message, p_context) {
 						tabSQLTemplate('Data Mining - ' + p_node.tag.key, p_node.tag.sql, false);
 	                }
 	            }]
-	        }
+	        },
+			'cm_see_error': {
+				elements: [{
+					text: 'See Errors',
+					icon: '/static/OmniDB_app/images/explain.png',
+					action: function(p_node) {
+						showError(p_node.tag.exception);
+					}
+				}]
+			}
 		};
 
 		var v_tree = createTree(v_div_result.id, '#fcfdfd', v_context_menu);
 
 		for(v_key in p_message.v_data.v_result) {
 			if(v_key == 'Data') {
-				var v_count = 0;
+				//var v_count = 0;
+
+				var v_dataMatches = '';
+				var v_data_cm = null;
+
+				switch(p_message.v_data.v_result[v_key]['count']) {
+					case 0: {
+						v_dataMatches = v_key + ' (No match)';
+						break;
+					}
+					case 1: {
+						v_dataMatches = v_key + ' (1 match)';
+						break;
+					}
+					default: {
+						v_dataMatches = v_key + ' (' + p_message.v_data.v_result[v_key]['count'] + ' matches)';
+						break;
+					}
+				}
+
+				if(p_message.v_data.v_result[v_key]['exception'] != null) {
+					v_data_cm = 'cm_see_error';
+					v_dataMatches = '<span style="color:red;">' + v_dataMatches + ' (Error)</span>';
+				}
 
 				var v_node = v_tree.createNode(
-					v_key,
+					v_dataMatches,
 					false,
 					'/static/OmniDB_app/images/data_mining.png',
 					null,
 					p_message.v_data.v_result[v_key],
-					null
+					v_data_cm
 				);
 
 				v_node.tag.key = v_key;
 
-				for(v_key2 in p_message.v_data.v_result[v_key]) {
-					if(p_message.v_data.v_result[v_key][v_key2].count > 0) {
+				for(v_key2 in p_message.v_data.v_result[v_key]['result']) {
+					if(p_message.v_data.v_result[v_key]['result'][v_key2].count > 0) {
 						var v_matches = '';
-						v_count += p_message.v_data.v_result[v_key][v_key2].count;
+						//v_count += p_message.v_data.v_result[v_key][v_key2].count;
+						var v_cm = 'cm_see_details';
 
-						switch(p_message.v_data.v_result[v_key][v_key2].count) {
+						switch(p_message.v_data.v_result[v_key]['result'][v_key2].count) {
 							case 1: {
-								v_matches = '(1 match)';
+								v_matches = v_key2 + ' (1 match)';
 								break;
 							}
 							default: {
-								v_matches = '(' + p_message.v_data.v_result[v_key][v_key2].count + ' matches)';
+								v_matches = v_key2 + ' (' + p_message.v_data.v_result[v_key]['result'][v_key2].count + ' matches)';
 								break;
 							}
 						}
 
+						if(p_message.v_data.v_result[v_key]['result'][v_key2]['exception'] != null) {
+							v_cm = 'cm_see_error';
+							v_matches = '<span style="color:red;">' + v_matches + ' (Error)</span>';
+						}
+
 						var v_childNode = v_node.createChildNode(
-							v_key2 + ' ' + v_matches,
+							v_matches,
 							false,
 							'/static/OmniDB_app/images/data_mining.png',
-							p_message.v_data.v_result[v_key][v_key2],
-							'cm_see_details'
+							p_message.v_data.v_result[v_key]['result'][v_key2],
+							v_cm
 						);
 
 						v_childNode.tag.key = v_key2;
 					}
 				}
 
-				var v_dataMatches = '';
+				/*var v_dataMatches = '';
 
 				switch(v_count) {
 					case 0: {
@@ -189,36 +262,43 @@ function dataMiningReturnRender(p_message, p_context) {
 						break;
 					}
 					default: {
-						v_dataMatches = '(' + v_count + ' matches)';
+						v_dataMatches = '(' + v_co
+
+				v_node.tag.key = v_key;unt + ' matches)';
 						break;
 					}
 				}
 
-				v_node.text = v_key + ' ' + v_dataMatches;
+				v_node.text = v_key + ' ' + v_dataMatches;*/
 			}
 			else {
 				var v_matches = '';
-				var v_cm = null
+				var v_cm = null;
 
 				switch(p_message.v_data.v_result[v_key].count) {
 					case 0: {
-						v_matches = '(No match)';
+						v_matches = v_key + ' (No match)';
 						break;
 					}
 					case 1: {
-						v_matches = '(1 match)';
+						v_matches = v_key + ' (1 match)';
 						v_cm = 'cm_see_details';
 						break;
 					}
 					default: {
-						v_matches = '(' + p_message.v_data.v_result[v_key].count + ' matches)';
+						v_matches = v_key + ' (' + p_message.v_data.v_result[v_key].count + ' matches)';
 						v_cm = 'cm_see_details';
 						break;
 					}
 				}
 
+				if(p_message.v_data.v_result[v_key]['exception'] != null) {
+					v_cm = 'cm_see_error';
+					v_matches = '<span style="color:red;">' + v_matches + ' (Error)</span>';
+				}
+
 				var v_node = v_tree.createNode(
-					v_key + ' ' + v_matches,
+					v_matches,
 					false,
 					'/static/OmniDB_app/images/data_mining.png',
 					null,

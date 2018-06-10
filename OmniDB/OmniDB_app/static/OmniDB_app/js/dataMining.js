@@ -128,7 +128,23 @@ function dataMiningReturnRender(p_message, p_context) {
 		}
 
 		v_sortable.sort(function(a, b) {
-			return b[1]['count'] - a[1]['count'];
+			if(b[1]['count'] != a[1]['count']) {
+				return b[1]['count'] - a[1]['count'];
+			}
+			else {
+				var v_string1 = a[0].toLowerCase();
+				var v_string2 = b[0].toLowerCase();
+
+				if(v_string1 < v_string2) {
+					return -1;
+				}
+				else if(v_string1 > v_string2) {
+					return 1;
+				}
+				else {
+					return 0;
+				}
+			}
 		});
 
 		p_message.v_data.v_result = {};
@@ -145,7 +161,23 @@ function dataMiningReturnRender(p_message, p_context) {
 			}
 
 			v_sortable2.sort(function(a, b) {
-				return b[1]['count'] - a[1]['count'];
+				if(b[1]['count'] != a[1]['count']) {
+					return b[1]['count'] - a[1]['count'];
+				}
+				else {
+					var v_string1 = a[0].toLowerCase();
+					var v_string2 = b[0].toLowerCase();
+
+					if(v_string1 < v_string2) {
+						return -1;
+					}
+					else if(v_string1 > v_string2) {
+						return 1;
+					}
+					else {
+						return 0;
+					}
+				}
 			});
 
 			p_message.v_data.v_result['Data']['result'] = {};

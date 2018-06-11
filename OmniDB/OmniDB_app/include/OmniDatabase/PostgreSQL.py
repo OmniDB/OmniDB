@@ -4415,9 +4415,61 @@ TO NODE ( nodename [, ... ] )
                        case
                          when obj.kind = 'INDEX' then ''
                          else 'ALTER '||sql_kind||' '||sql_identifier||
-                              ' OWNER TO '||quote_ident(owner)||E';\n'
+                              ' OWNER TO '||quote_ident(owner)||E';\n\n'
                        end as text
                       from obj
+                ),
+                privileges as (
+                    SELECT (u_grantor.rolname)::information_schema.sql_identifier AS grantor,
+                            (grantee.rolname)::information_schema.sql_identifier AS grantee,
+                            (current_database())::information_schema.sql_identifier AS table_catalog,
+                            (nc.nspname)::information_schema.sql_identifier AS table_schema,
+                            (c.relname)::information_schema.sql_identifier AS table_name,
+                            (c.prtype)::information_schema.character_data AS privilege_type,
+                            (
+                                CASE
+                                    WHEN (pg_has_role(grantee.oid, c.relowner, 'USAGE'::text) OR c.grantable) THEN 'YES'::text
+                                    ELSE 'NO'::text
+                                END)::information_schema.yes_or_no AS is_grantable,
+                            (
+                                CASE
+                                    WHEN (c.prtype = 'SELECT'::text) THEN 'YES'::text
+                                    ELSE 'NO'::text
+                                END)::information_schema.yes_or_no AS with_hierarchy
+                           FROM ( SELECT pg_class.oid,
+                                         pg_class.relname,
+                                         pg_class.relnamespace,
+                                         pg_class.relkind,
+                                         pg_class.relowner,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('r', pg_class.relowner)))).grantor AS grantor,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('r', pg_class.relowner)))).grantee AS grantee,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('r', pg_class.relowner)))).privilege_type AS privilege_type,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('r', pg_class.relowner)))).is_grantable AS is_grantable
+                                  FROM pg_class
+                                  WHERE pg_class.relkind <> 'S'
+                                  UNION
+                                  SELECT pg_class.oid,
+                                         pg_class.relname,
+                                         pg_class.relnamespace,
+                                         pg_class.relkind,
+                                         pg_class.relowner,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('S', pg_class.relowner)))).grantor AS grantor,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('S', pg_class.relowner)))).grantee AS grantee,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('S', pg_class.relowner)))).privilege_type AS privilege_type,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('S', pg_class.relowner)))).is_grantable AS is_grantable
+                                  FROM pg_class
+                                  WHERE pg_class.relkind = 'S') c(oid, relname, relnamespace, relkind, relowner, grantor, grantee, prtype, grantable),
+                            pg_namespace nc,
+                            pg_authid u_grantor,
+                            ( SELECT pg_authid.oid,
+                                    pg_authid.rolname
+                                   FROM pg_authid
+                                UNION ALL
+                                 SELECT (0)::oid AS oid,
+                                    'PUBLIC'::name) grantee(oid, rolname)
+                          WHERE ((c.relnamespace = nc.oid) AND (c.grantee = grantee.oid) AND (c.grantor = u_grantor.oid)
+                            AND (c.prtype = ANY (ARRAY['INSERT'::text, 'SELECT'::text, 'UPDATE'::text, 'DELETE'::text, 'TRUNCATE'::text, 'REFERENCES'::text, 'TRIGGER'::text]))
+                            AND (pg_has_role(u_grantor.oid, 'USAGE'::text) OR pg_has_role(grantee.oid, 'USAGE'::text) OR (grantee.rolname = 'PUBLIC'::name)))
                 ),
                 grants as (
                     select
@@ -4435,7 +4487,7 @@ TO NODE ( nodename [, ... ] )
                               else ''
                             end), ''),
                         '') as text
-                     FROM information_schema.table_privileges g
+                     FROM privileges g
                      join obj on (true)
                      WHERE table_schema=obj.namespace
                        AND table_name=obj.name
@@ -4806,9 +4858,61 @@ TO NODE ( nodename [, ... ] )
                        case
                          when obj.kind = 'INDEX' then ''
                          else 'ALTER '||sql_kind||' '||sql_identifier||
-                              ' OWNER TO '||quote_ident(owner)||E';\n'
+                              ' OWNER TO '||quote_ident(owner)||E';\n\n'
                        end as text
                       from obj
+                ),
+                privileges as (
+                    SELECT (u_grantor.rolname)::information_schema.sql_identifier AS grantor,
+                            (grantee.rolname)::information_schema.sql_identifier AS grantee,
+                            (current_database())::information_schema.sql_identifier AS table_catalog,
+                            (nc.nspname)::information_schema.sql_identifier AS table_schema,
+                            (c.relname)::information_schema.sql_identifier AS table_name,
+                            (c.prtype)::information_schema.character_data AS privilege_type,
+                            (
+                                CASE
+                                    WHEN (pg_has_role(grantee.oid, c.relowner, 'USAGE'::text) OR c.grantable) THEN 'YES'::text
+                                    ELSE 'NO'::text
+                                END)::information_schema.yes_or_no AS is_grantable,
+                            (
+                                CASE
+                                    WHEN (c.prtype = 'SELECT'::text) THEN 'YES'::text
+                                    ELSE 'NO'::text
+                                END)::information_schema.yes_or_no AS with_hierarchy
+                           FROM ( SELECT pg_class.oid,
+                                         pg_class.relname,
+                                         pg_class.relnamespace,
+                                         pg_class.relkind,
+                                         pg_class.relowner,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('r', pg_class.relowner)))).grantor AS grantor,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('r', pg_class.relowner)))).grantee AS grantee,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('r', pg_class.relowner)))).privilege_type AS privilege_type,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('r', pg_class.relowner)))).is_grantable AS is_grantable
+                                  FROM pg_class
+                                  WHERE pg_class.relkind <> 'S'
+                                  UNION
+                                  SELECT pg_class.oid,
+                                         pg_class.relname,
+                                         pg_class.relnamespace,
+                                         pg_class.relkind,
+                                         pg_class.relowner,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('S', pg_class.relowner)))).grantor AS grantor,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('S', pg_class.relowner)))).grantee AS grantee,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('S', pg_class.relowner)))).privilege_type AS privilege_type,
+                                         (aclexplode(COALESCE(pg_class.relacl, acldefault('S', pg_class.relowner)))).is_grantable AS is_grantable
+                                  FROM pg_class
+                                  WHERE pg_class.relkind = 'S') c(oid, relname, relnamespace, relkind, relowner, grantor, grantee, prtype, grantable),
+                            pg_namespace nc,
+                            pg_authid u_grantor,
+                            ( SELECT pg_authid.oid,
+                                    pg_authid.rolname
+                                   FROM pg_authid
+                                UNION ALL
+                                 SELECT (0)::oid AS oid,
+                                    'PUBLIC'::name) grantee(oid, rolname)
+                          WHERE ((c.relnamespace = nc.oid) AND (c.grantee = grantee.oid) AND (c.grantor = u_grantor.oid)
+                            AND (c.prtype = ANY (ARRAY['INSERT'::text, 'SELECT'::text, 'UPDATE'::text, 'DELETE'::text, 'TRUNCATE'::text, 'REFERENCES'::text, 'TRIGGER'::text]))
+                            AND (pg_has_role(u_grantor.oid, 'USAGE'::text) OR pg_has_role(grantee.oid, 'USAGE'::text) OR (grantee.rolname = 'PUBLIC'::name)))
                 ),
                 grants as (
                     select
@@ -4826,7 +4930,7 @@ TO NODE ( nodename [, ... ] )
                               else ''
                             end), ''),
                         '') as text
-                     FROM information_schema.table_privileges g
+                     FROM privileges g
                      join obj on (true)
                      WHERE table_schema=obj.namespace
                        AND table_name=obj.name

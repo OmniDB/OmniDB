@@ -184,7 +184,7 @@ function startQueryWebSocket(p_port) {
 				case parseInt(v_queryResponseCodes.DataMiningResult): {
 					if (p_context) {
 						SetAcked(p_context);
-						querySQLReturn(v_message,p_context);
+						dataMiningReturn(v_message, p_context);
 						//Remove context
 						removeContext(v_queryWebSocket,p_context_code);
 					}

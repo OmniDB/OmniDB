@@ -47,6 +47,10 @@ You should have received a copy of the GNU General Public License along with Omn
 
 //showError(): shows a popup with the specific error message
 
+//setDDL()
+
+//setProperties
+
 var v_plugins = {}
 
 $(function () {
@@ -93,14 +97,125 @@ function activateHook(p_hook,p_function) {
   }
 }
 
+function reloadPlugins() {
+  showConfirm('This operation will reload all plugins, are you sure you want to continue?',
+              function() {
+                execAjax('/reload_plugins/',
+              			JSON.stringify({}),
+              			function(p_return) {
+                      showPlugins();
+              			},
+              			null,
+              			'box');
+
+              });
+
+}
+
 function getPluginPath(p_name) {
   try {
-    return v_plugins[p_name].folder;
+    if (p_name == 'OmniDB') {
+      return '/static/OmniDB_app/'
+    } else {
+      return v_plugins[p_name].folder;
+    }
   }
   catch(err) {
     return ''
   }
 }
+
+function hidePlugins() {
+  document.getElementById('div_plugins').style.display = 'none';
+  v_connTabControl.tag.plugin_ht.destroy();
+  v_connTabControl.tag.plugin_ht = null;
+}
+
+function showPlugins() {
+
+  document.getElementById('div_plugins').style.display = 'block';
+
+	execAjax('/list_plugins/',
+			JSON.stringify({}),
+			function(p_return) {
+
+				var columnProperties = [];
+
+				var col = new Object();
+
+				var col = new Object();
+				col.title =  'Folder';
+				col.width = '120';
+        col.readOnly = true;
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Plugin Name';
+        col.width = '120';
+        col.readOnly = true;
+				columnProperties.push(col);
+
+        var col = new Object();
+				col.title =  'Version';
+        col.width = '60';
+        col.readOnly = true;
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Config file';
+        col.width = '80';
+        col.readOnly = true;
+				columnProperties.push(col);
+
+				var col = new Object();
+				col.title =  'Javascript File';
+        col.width = '80';
+        col.readOnly = true;
+				columnProperties.push(col);
+
+        var col = new Object();
+				col.title =  'Python File';
+        col.width = '80';
+        col.readOnly = true;
+				columnProperties.push(col);
+
+        var col = new Object();
+				col.title =  'Enabled';
+        col.width = '50';
+        col.readOnly = true;
+				columnProperties.push(col);
+
+				var v_div_result = document.getElementById('plugin_grid');
+
+				if (v_div_result.innerHTML!='') {
+					v_connTabControl.tag.plugin_ht.destroy();
+				}
+
+				v_connTabControl.tag.plugin_ht = new Handsontable(v_div_result,
+														{
+															data: p_return.v_data,
+															columns : columnProperties,
+															colHeaders : true,
+															manualColumnResize: true,
+															minSpareCols :0,
+															minSpareRows :0,
+															fillHandle:false,
+															cells: function (row, col, prop) {
+
+																var cellProperties = {};
+																cellProperties.renderer = grayHtmlRenderer;
+
+																return cellProperties;
+
+															}
+														});
+
+				},
+				null,
+				'box');
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 function callPluginFunction({ p_plugin_name, p_function_name, p_data = null, p_callback = null, p_loading = true, p_check_database_connection = true }) {
   var v_database_index = null;
@@ -223,85 +338,24 @@ function createOuterTab({ p_name = '', p_image = '', p_select_function = null, p
     return v_tab.tag;
 }
 
-function hidePlugins() {
-  document.getElementById('div_plugins').style.display = 'none';
-  v_connTabControl.tag.plugin_ht.destroy();
-  v_connTabControl.tag.plugin_ht = null;
+function setDDL({ p_ddl = '', p_select = true}) {
+  if (v_connTabControl.selectedTab.tag.mode=='connection') {
+    var v_tab_tag = v_connTabControl.selectedTab.tag;
+    v_tab_tag.ddlEditor.setValue(p_ddl);
+    v_tab_tag.ddlEditor.clearSelection();
+    v_tab_tag.ddlEditor.gotoLine(0, 0, true);
+    if (p_select) {
+      v_connTabControl.selectedTab.tag.selectDDLTabFunc();
+    }
+  }
 }
 
-function showPlugins() {
-
-  document.getElementById('div_plugins').style.display = 'block';
-
-	execAjax('/list_plugins/',
-			JSON.stringify({}),
-			function(p_return) {
-
-				var columnProperties = [];
-
-				var col = new Object();
-
-				var col = new Object();
-				col.title =  'Folder';
-				col.width = '120'
-				columnProperties.push(col);
-
-				var col = new Object();
-				col.title =  'Plugin Name';
-        col.width = '120'
-				columnProperties.push(col);
-
-        var col = new Object();
-				col.title =  'Version';
-        col.width = '60'
-				columnProperties.push(col);
-
-				var col = new Object();
-				col.title =  'Config file';
-        col.width = '80'
-				columnProperties.push(col);
-
-				var col = new Object();
-				col.title =  'Javascript File';
-        col.width = '80'
-				columnProperties.push(col);
-
-        var col = new Object();
-				col.title =  'Python File';
-        col.width = '80'
-				columnProperties.push(col);
-
-        var col = new Object();
-				col.title =  'Enabled';
-        col.width = '50'
-				columnProperties.push(col);
-
-				var v_div_result = document.getElementById('plugin_grid');
-
-				if (v_div_result.innerHTML!='') {
-					v_connTabControl.tag.plugin_ht.destroy();
-				}
-
-				v_connTabControl.tag.plugin_ht = new Handsontable(v_div_result,
-														{
-															data: p_return.v_data,
-															columns : columnProperties,
-															colHeaders : true,
-															manualColumnResize: true,
-															minSpareCols :0,
-															minSpareRows :0,
-															fillHandle:false,
-															cells: function (row, col, prop) {
-
-																var cellProperties = {};
-																cellProperties.renderer = grayHtmlRenderer;
-
-																return cellProperties;
-
-															}
-														});
-
-				},
-				null,
-				'box');
+function setProperties({ p_properties = [], p_select = true}) {
+  if (v_connTabControl.selectedTab.tag.mode=='connection') {
+    var v_tab_tag = v_connTabControl.selectedTab.tag;
+    v_tab_tag.gridProperties.loadData(p_properties);
+    if (p_select) {
+      v_connTabControl.selectedTab.tag.selectPropertiesTabFunc();
+    }
+  }
 }

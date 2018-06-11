@@ -10,7 +10,7 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
-function tabSQLTemplate(p_tab_name, p_template) {
+function tabSQLTemplate(p_tab_name, p_template, p_showQtip=true) {
     v_connTabControl.tag.createQueryTab(p_tab_name);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
         p_template);
@@ -20,24 +20,26 @@ function tabSQLTemplate(p_tab_name, p_template) {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
         .value = 1;
 
-    var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
-        content: {
-            text: 'Adjust command and run!'
-        },
-        position: {
-            my: 'bottom center',
-            at: 'top center'
-        },
-        style: {
-            classes: 'qtip-bootstrap'
-        },
-        show: {
-            ready: true
-        }
-    })
-    window.setTimeout(function() {
-        qtip.qtip('api').destroy();
-    }, 4000);
+    if(p_showQtip) {
+        var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
+            content: {
+                text: 'Adjust command and run!'
+            },
+            position: {
+                my: 'bottom center',
+                at: 'top center'
+            },
+            style: {
+                classes: 'qtip-bootstrap'
+            },
+            show: {
+                ready: true
+            }
+        })
+        window.setTimeout(function() {
+            qtip.qtip('api').destroy();
+        }, 4000);
+    }
 }
 
 function tabDataMining() {
@@ -60,9 +62,8 @@ function tabDataMining() {
                 refreshHeights();
             }
 
-            if (this.tag != null && this.tag.editor != null) {
-                this.tag.editor.focus();
-                checkQueryStatus(this);
+            if (this.tag != null) {
+                checkDataMiningStatus(this);
             }
         }
     );
@@ -217,69 +218,70 @@ function tabDataMining() {
     v_containerDiv.appendChild(v_optionsContainerDiv);
 
     var v_optionList = [{
-        'text': 'Data',
-        'value': 1
-    }, {
-        'text': 'FK Name',
-        'value': 2
-    }, {
-        'text': 'Function Definition',
-        'value': 3
-    }, {
-        'text': 'Function Name',
-        'value': 4
-    }, {
-        'text': 'Index Name',
-        'value': 5
-    }, {
-        'text': 'Materialized View Column Name',
-        'value': 6
-    }, {
-        'text': 'Materialized View Name',
-        'value': 7
-    }, {
-        'text': 'PK Name',
-        'value': 8
-    }, {
-        'text': 'Schema Name',
-        'value': 9
-    }, {
-        'text': 'Sequence Name',
-        'value': 10
-    }, {
-        'text': 'Table Column Name',
-        'value': 11
-    }, {
-        'text': 'Table Name',
-        'value': 12
-    }, {
-        'text': 'Trigger Name',
-        'value': 13
-    }, {
-        'text': 'Trigger Source',
-        'value': 14
-    }, {
-        'text': 'Unique Name',
-        'value': 15
-    }, {
-        'text': 'View Column Name',
-        'value': 16
-    }, {
-        'text': 'View Name',
-        'value': 17
-    }, {
-        'text': 'Check Name',
-        'value': 18
-    }, {
-        'text': 'Rule Name',
-        'value': 19
-    }, {
-        'text': 'Rule Definition',
-        'value': 20
-    }, {
-        'text': 'Partition Name',
-        'value': 21
-    }, ];
+            'text': 'Data',
+            'value': 1
+        }, {
+            'text': 'FK Name',
+            'value': 2
+        }, {
+            'text': 'Function Definition',
+            'value': 3
+        }, {
+            'text': 'Function Name',
+            'value': 4
+        }, {
+            'text': 'Index Name',
+            'value': 5
+        }, {
+            'text': 'Materialized View Column Name',
+            'value': 6
+        }, {
+            'text': 'Materialized View Name',
+            'value': 7
+        }, {
+            'text': 'PK Name',
+            'value': 8
+        }, {
+            'text': 'Schema Name',
+            'value': 9
+        }, {
+            'text': 'Sequence Name',
+            'value': 10
+        }, {
+            'text': 'Table Column Name',
+            'value': 11
+        }, {
+            'text': 'Table Name',
+            'value': 12
+        }, {
+            'text': 'Trigger Name',
+            'value': 13
+        }, {
+            'text': 'Trigger Source',
+            'value': 14
+        }, {
+            'text': 'Unique Name',
+            'value': 15
+        }, {
+            'text': 'View Column Name',
+            'value': 16
+        }, {
+            'text': 'View Name',
+            'value': 17
+        }, {
+            'text': 'Check Name',
+            'value': 18
+        }, {
+            'text': 'Rule Name',
+            'value': 19
+        }, {
+            'text': 'Rule Definition',
+            'value': 20
+        }, {
+            'text': 'Partition Name',
+            'value': 21
+        }
+    ];
 
     var v_compare = function(a, b) {
         if (a.text < b.text) {
@@ -467,121 +469,89 @@ function tabDataMining() {
 
     v_schemasButtonsContainer.appendChild(v_buttonUnselectAllSchemas);
 
-    var v_summarizeHeader = document.createElement('h3');
-    v_summarizeHeader.innerHTML = 'Summarize Results';
-    v_summarizeHeader.style.marginLeft = '10px';
-    v_summarizeHeader.style.marginBottom = '0px';
-    v_summarizeHeader.style.flex = '0 0 auto';
-    v_containerDiv.appendChild(v_summarizeHeader);
-
-    var v_summarizeContainerDiv = document.createElement('div');
-    v_summarizeContainerDiv.style.display = 'grid';
-    v_summarizeContainerDiv.style.gridTemplateColumns = '1fr';
-    v_summarizeContainerDiv.style.gridRowGap = '10px';
-    v_summarizeContainerDiv.style.gridColumnGap = '10px';
-    v_summarizeContainerDiv.style.justifyItems = 'start';
-    v_summarizeContainerDiv.style.boxSizing = 'border-box';
-    v_summarizeContainerDiv.style.padding = '10px';
-    v_containerDiv.appendChild(v_summarizeContainerDiv);
-
-    var v_divSummarize = document.createElement('div');
-    v_summarizeContainerDiv.appendChild(v_divSummarize);
-
-    var v_inputSummarize = document.createElement('input');
-    v_inputSummarize.type = 'checkbox';
-    v_inputSummarize.classList.add('data-mining-input-summarize');
-    v_divSummarize.appendChild(v_inputSummarize);
-
-    var v_spanSummarize = document.createElement('span');
-    v_spanSummarize.innerHTML = 'Summarize';
-    v_divSummarize.appendChild(v_spanSummarize);
-
     var v_buttonStart = document.getElementById('bt_start_' + v_tab.id);
 
     v_buttonStart.addEventListener(
         'click',
         function(p_event) {
-            var v_parent = this.parentElement;
+            if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state != v_queryState.Idle) {
+        		showAlert('Tab with activity in progress.');
+        	}
+            else {
+                var v_parent = this.parentElement;
 
-            var v_data = {
-                text: '',
-                regex: false,
-                caseSensitive: false,
-                categoryList: [],
-                schemaList: [],
-                summarizeResults: false
-            };
+                var v_data = {
+                    text: '',
+                    regex: false,
+                    caseSensitive: false,
+                    categoryList: [],
+                    schemaList: []
+                };
 
-            var v_inputFilter = v_parent.querySelector(
-                '.data-mining-input-text');
+                var v_inputFilter = v_parent.querySelector(
+                    '.data-mining-input-text');
 
-            if (v_inputFilter != null) {
-                v_data.text = v_inputFilter.value;
-            }
-
-            if (v_data.text.trim() == '') {
-                showAlert('Please, provide a string in order to search.');
-                return;
-            }
-
-            var v_inputCase = v_parent.querySelector(
-                '.data-mining-input-case');
-
-            if (v_inputCase != null) {
-                v_data.caseSensitive = v_inputCase.checked;
-            }
-
-            var v_inputRegex = v_parent.querySelector(
-                '.data-mining-input-regex');
-
-            if (v_inputRegex != null) {
-                v_data.regex = v_inputRegex.checked;
-            }
-
-            var v_categoryList = v_parent.querySelectorAll(
-                '.data-mining-input-option');
-
-            for (var i = 0; i < v_categoryList.length; i++) {
-                if (v_categoryList[i].checked) {
-                    v_data.categoryList.push(v_categoryList[i].value);
+                if (v_inputFilter != null) {
+                    v_data.text = v_inputFilter.value;
                 }
-            }
 
-            if (v_data.categoryList.length == 0) {
-                showAlert('Please, select at least one category to search.');
-                return;
-            }
-
-            var v_schemaList = v_parent.querySelectorAll(
-                '.data-mining-input-schema');
-
-            for (var i = 0; i < v_schemaList.length; i++) {
-                if (v_schemaList[i].checked) {
-                    v_data.schemaList.push(v_schemaList[i].value);
+                if (v_data.text.trim() == '') {
+                    showAlert('Please, provide a string in order to search.');
+                    return;
                 }
-            }
 
-            if (v_data.schemaList.length == 0) {
-                showAlert('Please, select at least one schema to search.');
-                return;
-            }
+                var v_inputCase = v_parent.querySelector(
+                    '.data-mining-input-case');
 
-            var v_inputSummarize = v_parent.querySelector(
-                '.data-mining-input-summarize');
+                if (v_inputCase != null) {
+                    v_data.caseSensitive = v_inputCase.checked;
+                }
 
-            if (v_inputSummarize != null) {
-                v_data.summarizeResults = v_inputSummarize.checked;
-            }
+                var v_inputRegex = v_parent.querySelector(
+                    '.data-mining-input-regex');
 
-            if (v_data.categoryList.indexOf('Data') != -1) {
-                showConfirm(
-                    'You have selected the category "Data". Please, be aware that it can consume a considerable amount of time and resources, depending on selected schemas size. Do you want to proceed?',
-                    function(p_data) {
-                        queryDataMining(p_data);
-                    }.bind(null, v_data)
-                );
-            } else {
-                queryDataMining(v_data);
+                if (v_inputRegex != null) {
+                    v_data.regex = v_inputRegex.checked;
+                }
+
+                var v_categoryList = v_parent.querySelectorAll(
+                    '.data-mining-input-option');
+
+                for (var i = 0; i < v_categoryList.length; i++) {
+                    if (v_categoryList[i].checked) {
+                        v_data.categoryList.push(v_categoryList[i].value);
+                    }
+                }
+
+                if (v_data.categoryList.length == 0) {
+                    showAlert('Please, select at least one category to search.');
+                    return;
+                }
+
+                var v_schemaList = v_parent.querySelectorAll(
+                    '.data-mining-input-schema');
+
+                for (var i = 0; i < v_schemaList.length; i++) {
+                    if (v_schemaList[i].checked) {
+                        v_data.schemaList.push(v_schemaList[i].value);
+                    }
+                }
+
+                if (v_data.schemaList.length == 0) {
+                    showAlert('Please, select at least one schema to search.');
+                    return;
+                }
+
+                if (v_data.categoryList.indexOf('Data') != -1) {
+                    showConfirm(
+                        'You have selected the category "Data". Please, be aware that it can consume a considerable amount of time, depending on selected schemas size. Do you want to proceed?',
+                        function(p_data) {
+                            queryDataMining(p_data);
+                        }.bind(null, v_data)
+                    );
+                } else {
+                    queryDataMining(v_data);
+                }
             }
         }
     );
@@ -714,13 +684,6 @@ function getTreePostgresql(p_div) {
                             .tag.create_database);
                     }
                 }
-                /*, {
-                                text: 'Data Mining',
-                                icon: '/static/OmniDB_app/images/data_mining.png',
-                                action: function(node) {
-                                    tabDataMining();
-                                }
-                            }*/
                 , {
                     text: 'Doc: Databases',
                     icon: '/static/OmniDB_app/images/globe.png',
@@ -750,6 +713,12 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Drop Database', node.tree.tag
                         .drop_database.replace(
                             '#database_name#', node.text));
+                }
+            }, {
+                text: 'Data Mining',
+                icon: '/static/OmniDB_app/images/data_mining.png',
+                action: function(node) {
+                    tabDataMining();
                 }
             }]
         },

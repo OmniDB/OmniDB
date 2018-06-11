@@ -1157,6 +1157,20 @@ h2 {
   box-shadow: 2px 2px 2px #cecece;
 }
 
+.users_box {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin-top: 30px;
+  margin-right: 13px;
+  width: 400px;
+  padding: 5px 5px;
+  border-radius: 3px;
+  background-color: #f9f9f9;
+  z-index: 1000;
+  background-color: #f9f9f9;
+}
+
 .plugin_box {
   position: absolute;
   right: 0;

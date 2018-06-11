@@ -54,13 +54,17 @@ activateHook('changeTheme',function(p_new_theme, p_new_type) {
 });
 
 activateHook('postgresqlTreeContextMenu',function(p_node) {
-  return v_elements = [{
-      text: 'Test',
-      icon: getPluginPath('test_plugin') + 'images/refresh.png',
-      action: function(node) {
-        console.log(node);
-      }
-  }];
+  if (p_node.tag.type == 'server') {
+    return v_elements = [{
+        text: 'Test',
+        icon: getPluginPath('test_plugin') + 'images/refresh.png',
+        action: function(node) {
+          console.log(node);
+        }
+    }];
+  } else {
+    return v_elements = [];
+  }
 });
 
 activateHook('postgresqlTreeNodeClick',function(p_node) {

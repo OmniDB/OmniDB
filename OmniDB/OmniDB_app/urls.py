@@ -63,6 +63,7 @@ urlpatterns = [
     #HOOKS
     url(r'^get_plugins/', views.plugins.get_plugins, name='get_plugins'),
     url(r'^list_plugins/', views.plugins.list_plugins, name='list_plugins'),
+    url(r'^reload_plugins/', views.plugins.reload_plugins, name='reload_plugins'),
     url(r'^exec_plugin_function/', views.plugins.exec_plugin_function, name='exec_plugin_function'),
 
     #TREE_SNIPPETS
@@ -145,8 +146,6 @@ urlpatterns = [
     url(r'^get_bdr_table_replicationsets_postgresql/', views.tree_postgresql.get_bdr_table_replicationsets, name='get_bdr_table_replicationsets'),
     url(r'^get_bdr_table_conflicthandlers_postgresql/', views.tree_postgresql.get_bdr_table_conflicthandlers, name='get_bdr_table_conflicthandlers'),
     url(r'^get_bdr_groups_postgresql/', views.tree_postgresql.get_bdr_groups, name='get_bdr_groups'),
-    url(r'^get_bdr_group_nodes_postgresql/', views.tree_postgresql.get_bdr_group_nodes, name='get_bdr_group_nodes'),
-    url(r'^get_bdr_group_tables_postgresql/', views.tree_postgresql.get_bdr_group_tables, name='get_bdr_group_tables'),
     url(r'^get_xl_nodes_postgresql/', views.tree_postgresql.get_xl_nodes, name='get_xl_nodes'),
     url(r'^get_xl_groups_postgresql/', views.tree_postgresql.get_xl_groups, name='get_xl_groups'),
     url(r'^get_xl_group_nodes_postgresql/', views.tree_postgresql.get_xl_group_nodes, name='get_xl_group_nodes'),

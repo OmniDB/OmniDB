@@ -10,7 +10,7 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
-function tabSQLTemplate(p_tab_name, p_template) {
+function tabSQLTemplate(p_tab_name, p_template, p_showQtip=true) {
     v_connTabControl.tag.createQueryTab(p_tab_name);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
         p_template);
@@ -20,24 +20,26 @@ function tabSQLTemplate(p_tab_name, p_template) {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
         .value = 1;
 
-    var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
-        content: {
-            text: 'Adjust command and run!'
-        },
-        position: {
-            my: 'bottom center',
-            at: 'top center'
-        },
-        style: {
-            classes: 'qtip-bootstrap'
-        },
-        show: {
-            ready: true
-        }
-    })
-    window.setTimeout(function() {
-        qtip.qtip('api').destroy();
-    }, 4000);
+    if(p_showQtip) {
+        var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
+            content: {
+                text: 'Adjust command and run!'
+            },
+            position: {
+                my: 'bottom center',
+                at: 'top center'
+            },
+            style: {
+                classes: 'qtip-bootstrap'
+            },
+            show: {
+                ready: true
+            }
+        })
+        window.setTimeout(function() {
+            qtip.qtip('api').destroy();
+        }, 4000);
+    }
 }
 
 /// <summary>
@@ -264,7 +266,7 @@ function getTreeMysql(p_div) {
                         text: 'Query Data',
                         icon: '/static/OmniDB_app/images/query.png',
                         action: function(node) {
-                            TemplateSelectPostgresql(node.parent
+                            TemplateSelectMysql(node.parent
                               .parent.text, node.text);
                         }
                     }, {
@@ -279,14 +281,14 @@ function getTreeMysql(p_div) {
                         text: 'Insert Record',
                         icon: '/static/OmniDB_app/images/insert.png',
                         action: function(node) {
-                            TemplateInsertPostgresql(node.parent
+                            TemplateInsertMysql(node.parent
                               .parent.text, node.text);
                         }
                     }, {
                         text: 'Update Records',
                         icon: '/static/OmniDB_app/images/update.png',
                         action: function(node) {
-                            TemplateUpdatePostgresql(node.parent
+                            TemplateUpdateMysql(node.parent
                               .parent.text, node.text);
                         }
                     }, {
@@ -431,7 +433,7 @@ function getTreeMysql(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeMysql(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -479,7 +481,7 @@ function getTreeMysql(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeMysql(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -527,7 +529,7 @@ function getTreeMysql(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeMysql(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -585,7 +587,7 @@ function getTreeMysql(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeMysql(node);
                     else {
                         node.collapseNode();
                         node.expandNode();

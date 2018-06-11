@@ -59,7 +59,9 @@
   <div id="div_plugins" style="display: none;">
 	        <div class ="plugin_box">
 	            <a class="modal-closer" onclick="hidePlugins()">x</a>
-
+              {% if session.v_super_user == 1 %}
+                <button onclick="reloadPlugins()">Reload Plugins</button>
+              {% endif %}
 	            <div id="plugin_grid"></div>
 	</div>
   </div>
@@ -285,7 +287,7 @@
 
     <div id="div_users" style="display:none;">
         <div class="modal_background_dark">
-            <div class ="white_box" style="width: 50%; left: 25%; top: 20%; font-size: 11px; font-family: sans-serif;">
+            <div class ="users_box">
               <a class="modal-closer" onclick="hideUsers()">x</a>
               <div style='margin-left:10px; margin-top: 10px; display:inline-block;'>
             		<button onclick="newUser()">New User</button>

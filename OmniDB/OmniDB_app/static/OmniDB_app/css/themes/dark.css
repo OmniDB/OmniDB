@@ -191,16 +191,23 @@ select {
 .div_left ul.tree li.last {
   background-color: #484a55 !important;
 }
-.div_left .node:hover {
+.div_right ul.tree {
+  background-color: #373b41 !important;
+  font-weight: bold;
+}
+.div_right ul.tree li.last {
+  background-color: #373b41 !important;
+}
+.node:hover {
   background-color: #1e90ff !important;
 }
-.div_left .node:hover a {
+.node:hover a {
   color: white !important;
 }
-.div_left .node a {
+.node a {
   color: #d7d7d7 !important;
 }
-.div_left span.node_selected {
+span.node_selected {
   background-color: #1e90ff !important;
   border: 1px solid #1e90ff !important;
   color: white !important;
@@ -264,7 +271,7 @@ select {
 /* -------------------------
 				Modal
 --------------------------*/
-.white_box, .config_box, .plugin_box, .connection_list, .dashboard_unit_list, .dashboard_unit, .dashboard_unit_test, .console_command_history {
+.white_box, .config_box, .plugin_box, .users_box, .connection_list, .dashboard_unit_list, .dashboard_unit, .dashboard_unit_test, .console_command_history {
   border: 1px solid #6d6d6d !important;
   background-color: #25282c !important;
   box-shadow: none !important;

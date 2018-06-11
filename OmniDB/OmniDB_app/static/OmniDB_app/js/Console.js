@@ -186,6 +186,7 @@ function clearConsole() {
 
 function consoleSQL(p_check_command = true) {
   var v_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+	v_tag.tempData = '';
   var v_content = v_tag.editor_input.getValue().trim();
   //var v_cursor_position = v_tag.editor_input.getCursorPosition();
   //var v_last_row = v_tag.editor_input.session.getLength() - 1;
@@ -333,7 +334,7 @@ function consoleReturnRender(p_message,p_context) {
 
   v_tag.editor_input.setReadOnly(false);
 
-  appendToEditor(v_tag.editor_console,p_message.v_data.v_data);
+  appendToEditor(v_tag.editor_console,v_tag.tempData);
 
   v_tag.editor_input.setValue('');
   v_tag.editor_input.clearSelection();

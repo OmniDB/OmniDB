@@ -132,14 +132,18 @@ function tabDataMining() {
     var v_div = document.getElementById('div_' + v_tab.id);
     v_div.innerHTML = v_html;
 
+    var v_ = document.createElement('div');
+
     var v_containerDiv = document.getElementById('txt_query_' + v_tab.id);
     v_containerDiv.style.display = 'flex';
+    v_containerDiv.className = 'query_info';
     v_containerDiv.style.flexDirection = 'column';
     v_containerDiv.style.overflow = 'auto';
 
     var v_filterHeader = document.createElement('h3');
     v_filterHeader.innerHTML = 'Text Filter';
     v_filterHeader.style.marginLeft = '10px';
+    v_filterHeader.className = 'query_info';
     v_filterHeader.style.marginBottom = '0px';
     v_filterHeader.style.flex = '0 0 auto';
     v_containerDiv.appendChild(v_filterHeader);
@@ -170,6 +174,7 @@ function tabDataMining() {
 
     var v_spanCase = document.createElement('span');
     v_spanCase.innerHTML = 'Case-sensitive';
+    v_spanCase.className = 'query_info';
     v_divCase.appendChild(v_spanCase);
 
     var v_divRegex = document.createElement('div');
@@ -610,8 +615,7 @@ function tabDataMining() {
 
     v_selectDataTabFunc();
 
-    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',
-        false, v_connTabControl.tag.createQueryTab);
+    var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,function(e) {showMenuNewTab(e); },null,null,null,null,null,false);
 
     v_add_tab.tag = {
         mode: 'add'
@@ -718,7 +722,12 @@ function getTreePostgresql(p_div) {
                 text: 'Data Mining',
                 icon: '/static/OmniDB_app/images/data_mining.png',
                 action: function(node) {
-                    tabDataMining();
+                  checkCurrentDatabase(node, true, function() {
+                      tabDataMining();
+                  }, function() {
+                      node.collapseNode();
+                  })
+
                 }
             }]
         },

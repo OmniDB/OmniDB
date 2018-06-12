@@ -163,11 +163,13 @@ function listUsers() {
 
 				var col = new Object();
 				col.title =  'Username';
+				col.width = '130';
 				columnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Password';
 				col.type = 'password';
+				col.width = '130';
 				col.hashLength = 10;
 				columnProperties.push(col);
 
@@ -201,6 +203,7 @@ function listUsers() {
 														colHeaders : true,
 														manualColumnResize: true,
 														maxRows: p_return.v_data.v_data.length,
+														fillHandle:false,
 														beforeChange: function (changes, source) {
 
 														    if (!changes)

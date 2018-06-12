@@ -21,56 +21,88 @@ PLUGINS_STATIC_ROOT = 'OmniDB_app/static/plugins'
 #loading python plugins
 plugins = {}
 plugins_folders = listdir(PLUGINS_ROOT)
-for plugin_folder in plugins_folders:
-    plugin_name = ''
-    plugin_version = ''
-    if isfile(join(PLUGINS_ROOT,plugin_folder,'plugin.conf')):
-        conf_exists = True
-    else:
-        conf_exists = False
-    if isfile(join(PLUGINS_STATIC_ROOT,plugin_folder,'plugin.js')):
-        js_exists = True
-    else:
-        js_exists = False
-    if isfile(join(PLUGINS_ROOT,plugin_folder,'plugin.py')):
-        py_exists = True
-    else:
-        py_exists = False
-    #if is directory, try to import plugin.py inside it
-    if isdir(join(PLUGINS_ROOT,plugin_folder)):
-        try:
-            parser = ConfigParser()
-            with open(join(PLUGINS_ROOT,plugin_folder,'plugin.conf')) as lines:
-                lines = chain(("[top]",), lines)
-                parser.read_file(lines)
-                plugin_name = parser.get('top', 'name')
-                plugin_version = parser.get('top', 'version')
 
-            plugins[plugin_name] = {
-                'module'         : importlib.import_module('OmniDB_app.plugins.{0}.plugin'.format(plugin_folder)),
-                'folder'         : plugin_folder,
-                'name'           : plugin_name,
-                'version'        : plugin_version,
-                'conf_exists'    : conf_exists,
-                'js_exists'      : js_exists,
-                'py_exists'      : py_exists,
-                'javascript_file': '/static/plugins/{0}/plugin.js'.format(plugin_folder),
-                'plugin_folder'  : '/static/plugins/{0}/'.format(plugin_folder)
-            }
-            print('Loaded plugin {0}'.format(plugin_name))
-        except Exception as exc:
-            print('Failed to load plugin {0}: {1}'.format(plugin_name, str(exc)))
-            plugins[plugin_name] = {
-                'module'         : None,
-                'folder'         : plugin_folder,
-                'name'           : plugin_name,
-                'version'        : plugin_version,
-                'conf_exists'    : conf_exists,
-                'js_exists'      : js_exists,
-                'py_exists'      : py_exists,
-                'javascript_file': '/static/plugins/{0}/plugin.js'.format(plugin_folder),
-                'plugin_folder'  : '/static/plugins/{0}/'.format(plugin_folder)
-            }
+def load_plugins():
+    for plugin_folder in plugins_folders:
+        plugin_name = ''
+        plugin_version = ''
+        enabled = True
+        if isfile(join(PLUGINS_ROOT,plugin_folder,'plugin.conf')):
+            conf_exists = True
+        else:
+            conf_exists = False
+            enabled = False
+        if isfile(join(PLUGINS_STATIC_ROOT,plugin_folder,'plugin.js')):
+            js_exists = True
+        else:
+            js_exists = False
+            enabled = False
+        if isfile(join(PLUGINS_ROOT,plugin_folder,'plugin.py')):
+            py_exists = True
+        else:
+            py_exists = False
+            enabled = False
+        #if is directory, try to import plugin.py inside it
+        if isdir(join(PLUGINS_ROOT,plugin_folder)):
+            try:
+                parser = ConfigParser()
+                with open(join(PLUGINS_ROOT,plugin_folder,'plugin.conf')) as lines:
+                    lines = chain(("[top]",), lines)
+                    parser.read_file(lines)
+                    plugin_name = parser.get('top', 'name')
+                    plugin_version = parser.get('top', 'version')
+
+                plugins[plugin_name] = {
+                    'module'         : importlib.import_module('OmniDB_app.plugins.{0}.plugin'.format(plugin_folder)),
+                    'folder'         : plugin_folder,
+                    'name'           : plugin_name,
+                    'version'        : plugin_version,
+                    'conf_exists'    : conf_exists,
+                    'js_exists'      : js_exists,
+                    'py_exists'      : py_exists,
+                    'enabled'        : enabled,
+                    'javascript_file': '/static/plugins/{0}/plugin.js'.format(plugin_folder),
+                    'plugin_folder'  : '/static/plugins/{0}/'.format(plugin_folder)
+                }
+                print('Loaded plugin {0}'.format(plugin_name))
+            except Exception as exc:
+                print('Failed to load plugin {0}: {1}'.format(plugin_name, str(exc)))
+                plugins[plugin_name] = {
+                    'module'         : None,
+                    'folder'         : plugin_folder,
+                    'name'           : plugin_name,
+                    'version'        : plugin_version,
+                    'conf_exists'    : conf_exists,
+                    'js_exists'      : js_exists,
+                    'py_exists'      : py_exists,
+                    'enabled'        : enabled,
+                    'javascript_file': '/static/plugins/{0}/plugin.js'.format(plugin_folder),
+                    'plugin_folder'  : '/static/plugins/{0}/'.format(plugin_folder)
+                }
+
+load_plugins()
+
+#reloading plugins
+def reload_plugins(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    load_plugins()
+
+    v_return['v_data'] = True
+
+    return JsonResponse(v_return)
 
 #loading javascript plugins
 def get_plugins(request):
@@ -91,7 +123,8 @@ def get_plugins(request):
     json_object = json.loads(request.POST.get('data', None))
     plugin_list = []
     for key, plugin in plugins.items():
-        plugin_list.append({ 'name': plugin['name'], 'file': plugin['javascript_file'], 'folder': plugin['plugin_folder']})
+        if plugin['enabled']:
+            plugin_list.append({ 'name': plugin['name'], 'file': plugin['javascript_file'], 'folder': plugin['plugin_folder']})
 
     v_return['v_data'] = plugin_list
 
@@ -128,7 +161,7 @@ def list_plugins(request):
             py_html = '<img title="File exists" src="/static/OmniDB_app/images/select.png">'
         else:
             py_html = '<img title="File not found" src="/static/OmniDB_app/images/tab_close.png">'
-        if plugin['conf_exists'] and plugin['js_exists'] and plugin['py_exists']:
+        if plugin['enabled']:
             plugin_enabled = '<img title="File exists" src="/static/OmniDB_app/images/select.png">'
         else:
             plugin_enabled = '<img title="File not found" src="/static/OmniDB_app/images/tab_close.png">'

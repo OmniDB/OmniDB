@@ -63,6 +63,7 @@ urlpatterns = [
     #HOOKS
     url(r'^get_plugins/', views.plugins.get_plugins, name='get_plugins'),
     url(r'^list_plugins/', views.plugins.list_plugins, name='list_plugins'),
+    url(r'^reload_plugins/', views.plugins.reload_plugins, name='reload_plugins'),
     url(r'^exec_plugin_function/', views.plugins.exec_plugin_function, name='exec_plugin_function'),
 
     #TREE_SNIPPETS

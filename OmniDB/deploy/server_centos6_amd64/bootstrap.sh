@@ -25,6 +25,6 @@ git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 echo "Done"
 
 echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/server_centos_amd64/
+cd ~/OmniDB/OmniDB/deploy/server_centos6_amd64/
 ./build.sh
 echo "Done"

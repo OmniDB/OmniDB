@@ -6,6 +6,9 @@ import uuid
 from datetime import datetime,timedelta
 from django.contrib.sessions.backends.db import SessionStore
 from OmniDB import settings
+import sys
+sys.path.append('OmniDB_app/include')
+import paramiko
 from sshtunnel import SSHTunnelForwarder
 import socket
 import time

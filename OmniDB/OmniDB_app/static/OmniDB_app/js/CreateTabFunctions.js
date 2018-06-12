@@ -1517,7 +1517,8 @@ function initCreateTabFunctions() {
 			connTab: v_connTabControl.selectedTab,
       currDatabaseIndex: null,
       tab_db_id: v_tab_db_id,
-      tabCloseSpan: v_tab_close_span
+      tabCloseSpan: v_tab_close_span,
+      tempData: []
 		};
 
 		v_tab.tag = v_tag;
@@ -1767,7 +1768,8 @@ function initCreateTabFunctions() {
       console_history_div: document.getElementById('console_history_div_' + v_tab.id),
       console_history_grid_div: document.getElementById('console_history_grid_' + v_tab.id),
       console_history_grid: null,
-      console_history_cmd_index: -1
+      console_history_cmd_index: -1,
+      tempData: []
 		};
 
 		v_tab.tag = v_tag;

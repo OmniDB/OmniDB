@@ -4055,22 +4055,70 @@ TO NODE ( nodename [, ... ] )
             ),
             comment as (
                 select format(
-                       E'COMMENT ON %s %s IS %L;\n',
+                       E'COMMENT ON %s %s IS %L;\n\n',
                        obj.sql_kind, sql_identifier, obj_description(oid)) as text
                 from obj
             ),
             alterowner as (
                 select format(
-                       E'ALTER %s %s OWNER TO %s;\n',
+                       E'ALTER %s %s OWNER TO %s;\n\n',
                        obj.sql_kind, sql_identifier, quote_ident(owner)) as text
                 from obj
+            ),
+            privileges as (
+                select (u_grantor.rolname)::information_schema.sql_identifier as grantor,
+                       (grantee.rolname)::information_schema.sql_identifier as grantee,
+                       (n.privilege_type)::information_schema.character_data as privilege_type,
+                       (case when (pg_has_role(grantee.oid, n.nspowner, 'USAGE'::text) or n.is_grantable)
+                             then 'YES'::text
+                             else 'NO'::text
+                        end)::information_schema.yes_or_no AS is_grantable
+                from (
+                    select n.nspname,
+                           n.nspowner,
+                           (aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner)))).grantor as grantor,
+                           (aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner)))).grantee as grantee,
+                           (aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner)))).privilege_type as privilege_type,
+                           (aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner)))).is_grantable as is_grantable
+                    from pg_namespace n
+                    where n.oid = '{0}'::regnamespace
+                ) n
+                inner join pg_roles u_grantor
+                on u_grantor.oid = n.grantor
+                inner join (
+                    select r.oid,
+                           r.rolname
+                    from pg_roles r
+                    union all
+                    select (0)::oid AS oid,
+                           'PUBLIC'::name
+                ) grantee
+                on grantee.oid = n.grantee
+            ),
+            grants as (
+                select coalesce(
+                        string_agg(format(
+                    	E'GRANT %s ON SCHEMA public TO %s%s;\n',
+                        privilege_type,
+                        case grantee
+                          when 'PUBLIC' then 'PUBLIC'
+                          else quote_ident(grantee)
+                        end,
+                    	case is_grantable
+                          when 'YES' then ' WITH GRANT OPTION'
+                          else ''
+                        end), ''),
+                       '') as text
+                from privileges
             )
-            select format(E'CREATE SCHEMA %s;\n',quote_ident(n.nspname))
+            select format(E'CREATE SCHEMA %s;\n\n',quote_ident(n.nspname))
             	   || comment.text
                    || alterowner.text
+                   || grants.text
               from pg_namespace n
               inner join comment on 1=1
               inner join alterowner on 1=1
+              inner join grants on 1=1
              where quote_ident(n.nspname) = '{0}'
         '''.format(p_object))
 
@@ -4460,10 +4508,10 @@ TO NODE ( nodename [, ... ] )
                                   FROM pg_class
                                   WHERE pg_class.relkind = 'S') c(oid, relname, relnamespace, relkind, relowner, grantor, grantee, prtype, grantable),
                             pg_namespace nc,
-                            pg_authid u_grantor,
-                            ( SELECT pg_authid.oid,
-                                    pg_authid.rolname
-                                   FROM pg_authid
+                            pg_roles u_grantor,
+                            ( SELECT pg_roles.oid,
+                                    pg_roles.rolname
+                                   FROM pg_roles
                                 UNION ALL
                                  SELECT (0)::oid AS oid,
                                     'PUBLIC'::name) grantee(oid, rolname)
@@ -4903,10 +4951,10 @@ TO NODE ( nodename [, ... ] )
                                   FROM pg_class
                                   WHERE pg_class.relkind = 'S') c(oid, relname, relnamespace, relkind, relowner, grantor, grantee, prtype, grantable),
                             pg_namespace nc,
-                            pg_authid u_grantor,
-                            ( SELECT pg_authid.oid,
-                                    pg_authid.rolname
-                                   FROM pg_authid
+                            pg_roles u_grantor,
+                            ( SELECT pg_roles.oid,
+                                    pg_roles.rolname
+                                   FROM pg_roles
                                 UNION ALL
                                  SELECT (0)::oid AS oid,
                                     'PUBLIC'::name) grantee(oid, rolname)
@@ -4946,6 +4994,81 @@ TO NODE ( nodename [, ... ] )
                        (select text from grants)
             '''.format(p_schema, p_object))
 
+    def GetDDLFunction(self, p_function):
+        return self.v_connection.ExecuteScalar('''
+            with obj as (
+                SELECT p.oid,
+                       p.proname AS name,
+                       n.nspname AS namespace,
+                       pg_get_userbyid(p.proowner) AS owner,
+                       '{0}' AS sql_identifier
+                FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+                WHERE p.oid = '{0}'::regprocedure
+            ),
+            createfunction as (
+                select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
+                from obj
+            ),
+            alterowner as (
+                select
+                   'ALTER FUNCTION '||sql_identifier||
+                          ' OWNER TO '||quote_ident(owner)||E';\n\n' as text
+                  from obj
+            ),
+            privileges as (
+            select (u_grantor.rolname)::information_schema.sql_identifier as grantor,
+                   (grantee.rolname)::information_schema.sql_identifier as grantee,
+                   (p.privilege_type)::information_schema.character_data as privilege_type,
+                   (case when (pg_has_role(grantee.oid, p.proowner, 'USAGE'::text) or p.is_grantable)
+                         then 'YES'::text
+                         else 'NO'::text
+                    end)::information_schema.yes_or_no AS is_grantable
+            from (
+                select p.pronamespace,
+                       p.proowner,
+                       (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantor as grantor,
+                       (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantee as grantee,
+                       (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type as privilege_type,
+                       (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable as is_grantable
+                from pg_proc p
+                where not p.proisagg
+                  and p.oid = '{0}'::regprocedure
+            ) p
+            inner join pg_namespace n
+            on n.oid = p.pronamespace
+            inner join pg_roles u_grantor
+            on u_grantor.oid = p.grantor
+            inner join (
+                select r.oid,
+                       r.rolname
+                from pg_roles r
+                union all
+                select (0)::oid AS oid,
+                       'PUBLIC'::name
+            ) grantee
+            on grantee.oid = p.grantee
+            ),
+            grants as (
+            select coalesce(
+                    string_agg(format(
+                	E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                    privilege_type,
+                    case grantee
+                      when 'PUBLIC' then 'PUBLIC'
+                      else quote_ident(grantee)
+                    end,
+                	case is_grantable
+                      when 'YES' then ' WITH GRANT OPTION'
+                      else ''
+                    end), ''),
+                   '') as text
+            from privileges
+            )
+            select (select text from createfunction) ||
+                   (select text from alterowner) ||
+                   (select text from grants)
+'''.format(p_function))
+
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetDDLRole(p_object)
@@ -4968,10 +5091,10 @@ TO NODE ( nodename [, ... ] )
         elif p_type == 'mview':
             return self.GetDDLClass(p_schema, p_object)
         elif p_type == 'function':
-            return self.GetFunctionDefinition(p_object)
+            return self.GetDDLFunction(p_object)
         elif p_type == 'trigger':
             return self.GetTriggerDefinition(p_object, p_table, p_schema)
         elif p_type == 'triggerfunction':
-            return self.GetTriggerFunctionDefinition(p_object)
+            return self.GetDDLFunction(p_object)
         else:
             return ''

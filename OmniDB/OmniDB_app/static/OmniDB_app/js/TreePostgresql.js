@@ -689,6 +689,54 @@ function tabDataMining() {
     window.setTimeout(function() {
         qtip.qtip('api').destroy();
     }, 4000);
+
+    var qtip2 = $('.data-mining-input-text').qtip({
+        content: {
+            text:
+                '<pre>' +
+                'If Regular Expression is not selected, the pattern will work as follows:<br /><br />' +
+                '    if it does not contain sql % wildcard, it will put your pattern between two % <br /><br />' +
+                '    else it will consider you pattern as it is.' +
+                '</pre>'
+        },
+        position: {
+            my: 'top center',
+            at: 'bottom center'
+        },
+        style: {
+            classes: 'qtip-bootstrap'
+        },
+        show: {
+            event: 'mouseover'
+        },
+        hide: {
+            event: 'mouseout'
+        }
+    });
+
+    var qtip3 = $('.data-mining-data-input-text').qtip({
+        content: {
+            text:
+                '<pre>' +
+                'If Data category is selected, you can use it to filter search space and get a faster response:<br /><br />' +
+                'If you want to filter, you must fill it with a | separeted list of patterns, that may use % wildcard.<br /><br />' +
+                'For example: public.%mytable%|mysch%ema.% will search for data juts in tables that matche given patterns.' +
+                '</pre>'
+        },
+        position: {
+            my: 'bottom center',
+            at: 'top center'
+        },
+        style: {
+            classes: 'qtip-bootstrap'
+        },
+        show: {
+            event: 'mouseover'
+        },
+        hide: {
+            event: 'mouseout'
+        }
+    });
 }
 
 /// <summary>

@@ -420,7 +420,6 @@ def thread_dispatcher(self,args,ws_object):
                         t.start()
 
                 except Exception as exc:
-                    print(traceback.format_exc())
                     v_response['v_code'] = response.SessionMissing
                     #ws_object.write_message(json.dumps(v_response))
                     tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))

@@ -188,7 +188,7 @@ function tabDataMining() {
     v_inputRegex.classList.add('data-mining-input-regex');
     v_divRegex.appendChild(v_inputRegex);
 
-    v_inputRegex.addEventListener(
+    /*v_inputRegex.addEventListener(
         'click',
         function(p_inputCase, p_spanCase, p_event) {
             p_inputCase.disabled = this.checked;
@@ -199,7 +199,7 @@ function tabDataMining() {
                 p_spanCase.style.opacity = '';
             }
         }.bind(v_inputRegex, v_inputCase, v_spanCase)
-    );
+    );*/
 
     var v_spanRegex = document.createElement('span');
     v_spanRegex.innerHTML = 'Regular Expression';
@@ -300,6 +300,9 @@ function tabDataMining() {
 
     v_optionList.sort(v_compare);
 
+    var v_inputDataFilter = document.createElement('input');
+    var v_dataFilterHeader = document.createElement('h3');
+
     for (var i = 0; i < v_optionList.length; i++) {
         var v_divOption = document.createElement('div');
         v_optionsContainerDiv.appendChild(v_divOption);
@@ -309,6 +312,22 @@ function tabDataMining() {
         v_inputOption.value = v_optionList[i].text;
         v_inputOption.classList.add('data-mining-input-option');
         v_divOption.appendChild(v_inputOption);
+
+        if(v_optionList[i].text == 'Data') {
+            v_inputOption.addEventListener(
+                'click',
+                function(p_inputDataFilter, p_dataFilterHeader, p_event) {
+                    p_inputDataFilter.disabled = !this.checked;
+
+                    if(!this.checked) {
+                        p_dataFilterHeader.style.opacity = '0.5';
+                    }
+                    else {
+                        p_dataFilterHeader.style.opacity = '';
+                    }
+                }.bind(v_inputOption, v_inputDataFilter, v_dataFilterHeader)
+            );
+        }
 
         var v_spanOption = document.createElement('span');
         v_spanOption.innerHTML = v_optionList[i].text;
@@ -474,6 +493,26 @@ function tabDataMining() {
 
     v_schemasButtonsContainer.appendChild(v_buttonUnselectAllSchemas);
 
+    v_dataFilterHeader.innerHTML = 'Data Category Filter';
+    v_dataFilterHeader.style.opacity = '0.5'
+    v_dataFilterHeader.style.marginLeft = '10px';
+    v_dataFilterHeader.style.marginBottom = '0px';
+    v_dataFilterHeader.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_dataFilterHeader);
+
+    var v_dataFilterContainerDiv = document.createElement('div');
+    v_dataFilterContainerDiv.style.display = 'flex';
+    v_dataFilterContainerDiv.style.flex = '0 0 auto';
+    v_containerDiv.appendChild(v_dataFilterContainerDiv);
+
+    v_inputDataFilter.type = 'text';
+    v_inputDataFilter.disabled = true;
+    v_inputDataFilter.placeholder = 'Type the filter to be applied to data category...';
+    v_inputDataFilter.style.margin = '10px';
+    v_inputDataFilter.style.flex = '1 0 auto';
+    v_inputDataFilter.classList.add('data-mining-data-input-text');
+    v_dataFilterContainerDiv.appendChild(v_inputDataFilter);
+
     var v_buttonStart = document.getElementById('bt_start_' + v_tab.id);
 
     v_buttonStart.addEventListener(
@@ -490,11 +529,11 @@ function tabDataMining() {
                     regex: false,
                     caseSensitive: false,
                     categoryList: [],
-                    schemaList: []
+                    schemaList: [],
+                    dataCategoryFilter: ''
                 };
 
-                var v_inputFilter = v_parent.querySelector(
-                    '.data-mining-input-text');
+                var v_inputFilter = v_parent.querySelector('.data-mining-input-text');
 
                 if (v_inputFilter != null) {
                     v_data.text = v_inputFilter.value;
@@ -505,26 +544,31 @@ function tabDataMining() {
                     return;
                 }
 
-                var v_inputCase = v_parent.querySelector(
-                    '.data-mining-input-case');
+                var v_inputCase = v_parent.querySelector('.data-mining-input-case');
 
                 if (v_inputCase != null) {
                     v_data.caseSensitive = v_inputCase.checked;
                 }
 
-                var v_inputRegex = v_parent.querySelector(
-                    '.data-mining-input-regex');
+                var v_inputRegex = v_parent.querySelector('.data-mining-input-regex');
 
                 if (v_inputRegex != null) {
                     v_data.regex = v_inputRegex.checked;
                 }
 
-                var v_categoryList = v_parent.querySelectorAll(
-                    '.data-mining-input-option');
+                var v_categoryList = v_parent.querySelectorAll('.data-mining-input-option');
 
                 for (var i = 0; i < v_categoryList.length; i++) {
                     if (v_categoryList[i].checked) {
                         v_data.categoryList.push(v_categoryList[i].value);
+
+                        if (v_categoryList[i].value == 'Data') {
+                            var v_dataInputFilter = v_parent.querySelector('.data-mining-data-input-text');
+
+                            if (v_dataInputFilter != null) {
+                                v_data.dataCategoryFilter = v_dataInputFilter.value;
+                            }
+                        }
                     }
                 }
 
@@ -533,8 +577,7 @@ function tabDataMining() {
                     return;
                 }
 
-                var v_schemaList = v_parent.querySelectorAll(
-                    '.data-mining-input-schema');
+                var v_schemaList = v_parent.querySelectorAll('.data-mining-input-schema');
 
                 for (var i = 0; i < v_schemaList.length; i++) {
                     if (v_schemaList[i].checked) {

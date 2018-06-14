@@ -4071,6 +4071,401 @@ TO NODE ( nodename [, ... ] )
               and quote_ident(c.conname) = '{2}'
         '''.format(p_schema, p_table, p_object))
 
+    def GetPropertiesFK(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'f'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_rconstraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.confkey) as confkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'f'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.confkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_pfconstraint_ops(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select oprname
+            from (
+            select o.oprname
+            from (
+            select unnest(c.conpfeqop) as conpfeqop
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_operator o
+            on o.oid = x.conpfeqop
+            ) t
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_ppconstraint_ops(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select oprname
+            from (
+            select o.oprname
+            from (
+            select unnest(c.conppeqop) as conppeqop
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_operator o
+            on o.oid = x.conppeqop
+            ) t
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_ffconstraint_ops(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select oprname
+            from (
+            select o.oprname
+            from (
+            select unnest(c.conffeqop) as conffeqop
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_operator o
+            on o.oid = x.conffeqop
+            ) t
+            ), ',')
+            $$ language sql;
+            select current_database() as "Database",
+                   quote_ident(n.nspname) as "Schema",
+                   quote_ident(t.relname) as "Table",
+                   quote_ident(c.conname) as "Constraint Name",
+                   c.oid as "OID",
+                   (case c.contype when 'c' then 'Check' when 'f' then 'Foreign Key' when 'p' then 'Primary Key' when 'u' then 'Unique' when 'x' then 'Exclusion' end) as "Constraint Type",
+                   pg_temp.fnc_omnidb_constraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Constrained Columns",
+                   quote_ident(i.relname) as "Index",
+                   quote_ident(nr.nspname) as "Referenced Schema",
+                   quote_ident(tr.relname) as "Referenced Table",
+                   pg_temp.fnc_omnidb_rconstraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Referenced Columns",
+                   (case c.confupdtype when 'a' then 'No Action' when 'r' then 'Restrict' when 'c' then 'Cascade' when 'n' then 'Set Null' when 'd' then 'Set Default' end) as "Update Action",
+                   (case c.confdeltype when 'a' then 'No Action' when 'r' then 'Restrict' when 'c' then 'Cascade' when 'n' then 'Set Null' when 'd' then 'Set Default' end) as "Delete Action",
+                   (case c.confmatchtype when 'f' then 'Full' when 'p' then 'Partial' when 's' then 'Simple' end) as "Match Type",
+                   c.condeferrable as "Deferrable",
+                   c.condeferred as "Deferred by Default",
+                   c.convalidated as "Validated",
+                   c.conislocal as "Is Local",
+                   c.coninhcount as "Number of Ancestors",
+                   c.connoinherit as "Non-Inheritable",
+                   pg_temp.fnc_omnidb_pfconstraint_ops(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "PK=FK Equality Operators",
+                   pg_temp.fnc_omnidb_ppconstraint_ops(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "PK=PK Equality Operators",
+                   pg_temp.fnc_omnidb_ffconstraint_ops(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "FK=FK Equality Operators"
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            join pg_class i
+            on i.oid = c.conindid
+            join pg_class tr
+            on tr.oid = c.confrelid
+            join pg_namespace nr
+            on tr.relnamespace = nr.oid
+            where contype = 'f'
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.relname) = '{1}'
+              and quote_ident(c.conname) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
+    def GetPropertiesUnique(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'u'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            select current_database() as "Database",
+                   quote_ident(n.nspname) as "Schema",
+                   quote_ident(t.relname) as "Table",
+                   quote_ident(c.conname) as "Constraint Name",
+                   c.oid as "OID",
+                   (case c.contype when 'c' then 'Check' when 'f' then 'Foreign Key' when 'p' then 'Primary Key' when 'u' then 'Unique' when 'x' then 'Exclusion' end) as "Constraint Type",
+                   pg_temp.fnc_omnidb_constraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Constrained Columns",
+                   quote_ident(i.relname) as "Index",
+                   c.condeferrable as "Deferrable",
+                   c.condeferred as "Deferred by Default",
+                   c.convalidated as "Validated",
+                   c.conislocal as "Is Local",
+                   c.coninhcount as "Number of Ancestors",
+                   c.connoinherit as "Non-Inheritable"
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            join pg_class i
+            on i.oid = c.conindid
+            where contype = 'u'
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.relname) = '{1}'
+              and quote_ident(c.conname) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
+    def GetPropertiesCheck(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'c'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            select current_database() as "Database",
+                   quote_ident(n.nspname) as "Schema",
+                   quote_ident(t.relname) as "Table",
+                   quote_ident(c.conname) as "Constraint Name",
+                   c.oid as "OID",
+                   (case c.contype when 'c' then 'Check' when 'f' then 'Foreign Key' when 'p' then 'Primary Key' when 'u' then 'Unique' when 'x' then 'Exclusion' end) as "Constraint Type",
+                   pg_temp.fnc_omnidb_constraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Constrained Columns",
+                   c.condeferrable as "Deferrable",
+                   c.condeferred as "Deferred by Default",
+                   c.convalidated as "Validated",
+                   c.conislocal as "Is Local",
+                   c.coninhcount as "Number of Ancestors",
+                   c.connoinherit as "Non-Inheritable",
+                   c.consrc as "Constraint Source"
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'c'
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.relname) = '{1}'
+              and quote_ident(c.conname) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
+    def GetPropertiesExclude(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_constraint_ops(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select oprname
+            from (
+            select o.oprname
+            from (
+            select unnest(c.conexclop) as conexclop
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_operator o
+            on o.oid = x.conexclop
+            ) t
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            select current_database() as "Database",
+                   quote_ident(n.nspname) as "Schema",
+                   quote_ident(t.relname) as "Table",
+                   quote_ident(c.conname) as "Constraint Name",
+                   c.oid as "OID",
+                   (case c.contype when 'c' then 'Check' when 'f' then 'Foreign Key' when 'p' then 'Primary Key' when 'u' then 'Unique' when 'x' then 'Exclusion' end) as "Constraint Type",
+                   pg_temp.fnc_omnidb_constraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Constrained Columns",
+                   pg_temp.fnc_omnidb_constraint_ops(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Exclusion Operators",
+                   c.condeferrable as "Deferrable",
+                   c.condeferred as "Deferred by Default",
+                   c.convalidated as "Validated",
+                   c.conislocal as "Is Local",
+                   c.coninhcount as "Number of Ancestors",
+                   c.connoinherit as "Non-Inheritable"
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.relname) = '{1}'
+              and quote_ident(c.conname) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
+    def GetPropertiesRule(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   quote_ident(schemaname) as "Schema",
+                   quote_ident(tablename) as "Table",
+                   quote_ident(rulename) as "Rule Name"
+            from pg_rules
+            where quote_ident(schemaname) = '{0}'
+              and quote_ident(tablename) = '{1}'
+              and quote_ident(rulename) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
     def GetProperties(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
@@ -4100,6 +4495,16 @@ TO NODE ( nodename [, ... ] )
             return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
         elif p_type == 'pk':
             return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
+        elif p_type == 'foreign_key':
+            return self.GetPropertiesFK(p_schema, p_table, p_object).Transpose('Property', 'Value')
+        elif p_type == 'unique':
+            return self.GetPropertiesUnique(p_schema, p_table, p_object).Transpose('Property', 'Value')
+        elif p_type == 'check':
+            return self.GetPropertiesCheck(p_schema, p_table, p_object).Transpose('Property', 'Value')
+        elif p_type == 'exclude':
+            return self.GetPropertiesExclude(p_schema, p_table, p_object).Transpose('Property', 'Value')
+        elif p_type == 'rule':
+            return self.GetPropertiesRule(p_schema, p_table, p_object).Transpose('Property', 'Value')
         else:
             return None
 
@@ -5234,8 +5639,7 @@ TO NODE ( nodename [, ... ] )
                on t.oid = c.conrelid
                join pg_namespace n
                on t.relnamespace = n.oid
-               where contype = 'p'
-                 and quote_ident(n.nspname) = '{0}'
+               where quote_ident(n.nspname) = '{0}'
                  and quote_ident(t.relname) = '{1}'
                  and quote_ident(c.conname) = '{2}'
             )
@@ -5272,5 +5676,15 @@ TO NODE ( nodename [, ... ] )
             return self.GetDDLFunction(p_object)
         elif p_type == 'pk':
             return self.GetDDLConstraint(p_schema, p_table, p_object)
+        elif p_type == 'foreign_key':
+            return self.GetDDLConstraint(p_schema, p_table, p_object)
+        elif p_type == 'unique':
+            return self.GetDDLConstraint(p_schema, p_table, p_object)
+        elif p_type == 'check':
+            return self.GetDDLConstraint(p_schema, p_table, p_object)
+        elif p_type == 'exclude':
+            return self.GetDDLConstraint(p_schema, p_table, p_object)
+        elif p_type == 'rule':
+            return self.GetRuleDefinition(p_object, p_table, p_schema)
         else:
             return ''

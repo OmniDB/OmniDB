@@ -13,6 +13,7 @@ You should have received a copy of the GNU General Public License along with Omn
 function closeMonitorUnit(p_div) {
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
   for (var i=0; i<v_tab_tag.units.length; i++) {
+
     var v_unit = v_tab_tag.units[i];
     if (v_unit.div == p_div) {
 
@@ -637,7 +638,12 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                     if (v_return_unit.v_type=='chart') {
                       v_unit.object.data.labels = v_return_unit.v_object.labels;
                       v_unit.object.data.datasets = v_return_unit.v_object.datasets;
-                      v_unit.object.update();
+                      try {
+                        v_unit.object.update();
+                      }
+                      catch (err) {
+
+                      }
                     }
                     // Append data
                     else {
@@ -697,8 +703,12 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                           v_unit.object.data.datasets.push(return_dataset);
                         }
                       };
+                      try {
+                        v_unit.object.update();
+                      }
+                      catch (err) {
 
-                      v_unit.object.update();
+                      }
                     }
                   }
                 }

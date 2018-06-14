@@ -13,7 +13,6 @@ You should have received a copy of the GNU General Public License along with Omn
 function closeMonitorUnit(p_div) {
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
   for (var i=0; i<v_tab_tag.units.length; i++) {
-    console.log('closing');
 
     var v_unit = v_tab_tag.units[i];
     if (v_unit.div == p_div) {

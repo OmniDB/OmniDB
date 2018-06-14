@@ -42,7 +42,7 @@ function tabSQLTemplate(p_tab_name, p_template, p_showQtip=true) {
     }
 }
 
-function tabDataMining() {
+function tabDataMining(node) {
     var v_name = 'Data Mining';
 
     v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl
@@ -222,71 +222,142 @@ function tabDataMining() {
     v_optionsContainerDiv.style.padding = '10px';
     v_containerDiv.appendChild(v_optionsContainerDiv);
 
-    var v_optionList = [{
-            'text': 'Data',
-            'value': 1
-        }, {
-            'text': 'FK Name',
-            'value': 2
-        }, {
-            'text': 'Function Definition',
-            'value': 3
-        }, {
-            'text': 'Function Name',
-            'value': 4
-        }, {
-            'text': 'Index Name',
-            'value': 5
-        }, {
-            'text': 'Materialized View Column Name',
-            'value': 6
-        }, {
-            'text': 'Materialized View Name',
-            'value': 7
-        }, {
-            'text': 'PK Name',
-            'value': 8
-        }, {
-            'text': 'Schema Name',
-            'value': 9
-        }, {
-            'text': 'Sequence Name',
-            'value': 10
-        }, {
-            'text': 'Table Column Name',
-            'value': 11
-        }, {
-            'text': 'Table Name',
-            'value': 12
-        }, {
-            'text': 'Trigger Name',
-            'value': 13
-        }, {
-            'text': 'Trigger Source',
-            'value': 14
-        }, {
-            'text': 'Unique Name',
-            'value': 15
-        }, {
-            'text': 'View Column Name',
-            'value': 16
-        }, {
-            'text': 'View Name',
-            'value': 17
-        }, {
-            'text': 'Check Name',
-            'value': 18
-        }, {
-            'text': 'Rule Name',
-            'value': 19
-        }, {
-            'text': 'Rule Definition',
-            'value': 20
-        }, {
-            'text': 'Partition Name',
-            'value': 21
-        }
-    ];
+    if (parseInt(getMajorVersion(node.tree.tag.version)) >= 10) {
+      var v_optionList = [{
+              'text': 'Data',
+              'value': 1
+          }, {
+              'text': 'FK Name',
+              'value': 2
+          }, {
+              'text': 'Function Definition',
+              'value': 3
+          }, {
+              'text': 'Function Name',
+              'value': 4
+          }, {
+              'text': 'Index Name',
+              'value': 5
+          }, {
+              'text': 'Materialized View Column Name',
+              'value': 6
+          }, {
+              'text': 'Materialized View Name',
+              'value': 7
+          }, {
+              'text': 'PK Name',
+              'value': 8
+          }, {
+              'text': 'Schema Name',
+              'value': 9
+          }, {
+              'text': 'Sequence Name',
+              'value': 10
+          }, {
+              'text': 'Table Column Name',
+              'value': 11
+          }, {
+              'text': 'Table Name',
+              'value': 12
+          }, {
+              'text': 'Trigger Name',
+              'value': 13
+          }, {
+              'text': 'Trigger Source',
+              'value': 14
+          }, {
+              'text': 'Unique Name',
+              'value': 15
+          }, {
+              'text': 'View Column Name',
+              'value': 16
+          }, {
+              'text': 'View Name',
+              'value': 17
+          }, {
+              'text': 'Check Name',
+              'value': 18
+          }, {
+              'text': 'Rule Name',
+              'value': 19
+          }, {
+              'text': 'Rule Definition',
+              'value': 20
+          }, {
+              'text': 'Inherited Table Name',
+              'value': 21
+          }, {
+              'text': 'Partition Name',
+              'value': 22
+          }
+      ];
+    } else {
+      var v_optionList = [{
+              'text': 'Data',
+              'value': 1
+          }, {
+              'text': 'FK Name',
+              'value': 2
+          }, {
+              'text': 'Function Definition',
+              'value': 3
+          }, {
+              'text': 'Function Name',
+              'value': 4
+          }, {
+              'text': 'Index Name',
+              'value': 5
+          }, {
+              'text': 'Materialized View Column Name',
+              'value': 6
+          }, {
+              'text': 'Materialized View Name',
+              'value': 7
+          }, {
+              'text': 'PK Name',
+              'value': 8
+          }, {
+              'text': 'Schema Name',
+              'value': 9
+          }, {
+              'text': 'Sequence Name',
+              'value': 10
+          }, {
+              'text': 'Table Column Name',
+              'value': 11
+          }, {
+              'text': 'Table Name',
+              'value': 12
+          }, {
+              'text': 'Trigger Name',
+              'value': 13
+          }, {
+              'text': 'Trigger Source',
+              'value': 14
+          }, {
+              'text': 'Unique Name',
+              'value': 15
+          }, {
+              'text': 'View Column Name',
+              'value': 16
+          }, {
+              'text': 'View Name',
+              'value': 17
+          }, {
+              'text': 'Check Name',
+              'value': 18
+          }, {
+              'text': 'Rule Name',
+              'value': 19
+          }, {
+              'text': 'Rule Definition',
+              'value': 20
+          }, {
+              'text': 'Inherited Table Name',
+              'value': 21
+          }
+      ];
+    }
 
     var v_compare = function(a, b) {
         if (a.text < b.text) {
@@ -694,8 +765,8 @@ function tabDataMining() {
         content: {
             text:
                 'If Regular Expression is not selected, the pattern will work as follows:<br /><br />' +
-                '    if it does not contain sql % wildcard, it will put your pattern between two % <br /><br />' +
-                '    else it will consider you pattern as it is.'
+                '- if it does not contain sql % wildcard, it will put your pattern between two % <br /><br />' +
+                '- else it will consider your pattern as it is.'
         },
         position: {
             my: 'top center',
@@ -715,11 +786,9 @@ function tabDataMining() {
     var qtip3 = $('.data-mining-data-input-text').qtip({
         content: {
             text:
-                '<pre>' +
-                'If Data category is selected, you can use it to filter search space and get a faster response:<br /><br />' +
-                'If you want to filter, you must fill it with a | separeted list of patterns, that may use % wildcard.<br /><br />' +
-                'For example: public.%mytable%|mysch%ema.% will search for data juts in tables that matche given patterns.' +
-                '</pre>'
+                'If Data category is selected you can use it to filter search space and get a faster response.<br /><br />' +
+                'If you want to filter you must fill it with a | separeted list of patterns that may use % wildcard.<br /><br />' +
+                'For example: public.%mytable%|mysch%ema.% will search for data just in tables that match given patterns.'
         },
         position: {
             my: 'bottom center',
@@ -812,7 +881,7 @@ function getTreePostgresql(p_div) {
                 icon: '/static/OmniDB_app/images/data_mining.png',
                 action: function(node) {
                   checkCurrentDatabase(node, true, function() {
-                      tabDataMining();
+                      tabDataMining(node);
                   }, function() {
                       node.collapseNode();
                   })

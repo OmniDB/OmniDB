@@ -3440,6 +3440,13 @@ function getPropertiesPostgresqlConfirm(node) {
                 ' (Unique)', ''),
             p_type: node.tag.type
         });
+    } else if (node.tag.type == 'pk') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.parent.parent.text,
+            p_table: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
     } else {
         clearProperties();
     }

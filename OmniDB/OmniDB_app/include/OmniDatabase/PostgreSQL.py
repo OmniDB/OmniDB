@@ -3920,6 +3920,65 @@ TO NODE ( nodename [, ... ] )
             and y.trigger_name = x.trigger_name
         '''.format(p_schema, p_table, p_object))
 
+    def GetPropertiesPK(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'p'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            select current_database() as "Database",
+                   quote_ident(n.nspname) as "Schema",
+                   quote_ident(t.relname) as "Table",
+                   quote_ident(c.conname) as "Constraint Name",
+                   c.oid as "OID",
+                   (case c.contype when 'c' then 'Check' when 'f' then 'Foreign Key' when 'p' then 'Primary Key' when 'u' then 'Unique' when 'x' then 'Exclusion' end) as "Constraint Type",
+                   pg_temp.fnc_omnidb_constraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Constrained Columns",
+                   quote_ident(i.relname) as "Index",
+                   c.condeferrable as "Deferrable",
+                   c.condeferred as "Deferred by Default",
+                   c.convalidated as "Validated",
+                   c.conislocal as "Is Local",
+                   c.coninhcount as "Number of Ancestors",
+                   c.connoinherit as "Non-Inheritable"
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            join pg_class i
+            on i.oid = c.conindid
+            where contype = 'p'
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.relname) = '{1}'
+              and quote_ident(c.conname) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
     def GetProperties(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
@@ -3947,6 +4006,8 @@ TO NODE ( nodename [, ... ] )
             return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
         elif p_type == 'triggerfunction':
             return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+        elif p_type == 'pk':
+            return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
         else:
             return None
 
@@ -5069,6 +5130,27 @@ TO NODE ( nodename [, ... ] )
                    (select text from grants)
 '''.format(p_function))
 
+    def GetDDLConstraint(self, p_schema, p_table, p_object):
+        return self.v_connection.ExecuteScalar('''
+            with cs as (
+              select
+               'ALTER TABLE ' || text(regclass(c.conrelid)) ||
+               ' ADD CONSTRAINT ' || quote_ident(c.conname) ||
+               E'\n  ' || pg_get_constraintdef(c.oid, true) as sql
+                from pg_constraint c
+               join pg_class t
+               on t.oid = c.conrelid
+               join pg_namespace n
+               on t.relnamespace = n.oid
+               where contype = 'p'
+                 and quote_ident(n.nspname) = '{0}'
+                 and quote_ident(t.relname) = '{1}'
+                 and quote_ident(c.conname) = '{2}'
+            )
+            select coalesce(string_agg(sql,E';\n') || E';\n\n','') as text
+            from cs
+        '''.format(p_schema, p_table, p_object))
+
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetDDLRole(p_object)
@@ -5096,5 +5178,7 @@ TO NODE ( nodename [, ... ] )
             return self.GetTriggerDefinition(p_object, p_table, p_schema)
         elif p_type == 'triggerfunction':
             return self.GetDDLFunction(p_object)
+        elif p_type == 'pk':
+            return self.GetDDLConstraint(p_schema, p_table, p_object)
         else:
             return ''

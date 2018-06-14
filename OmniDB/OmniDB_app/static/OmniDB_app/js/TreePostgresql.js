@@ -423,7 +423,9 @@ function tabDataMining(node) {
                 '.data-mining-input-option');
 
             for (var i = 0; i < v_categoryList.length; i++) {
-                v_categoryList[i].checked = true;
+                if (!v_categoryList[i].checked) {
+                    v_categoryList[i].click();
+                }
             }
         }
     );
@@ -443,7 +445,9 @@ function tabDataMining(node) {
                 '.data-mining-input-option');
 
             for (var i = 0; i < v_categoryList.length; i++) {
-                v_categoryList[i].checked = false;
+                if (v_categoryList[i].checked) {
+                    v_categoryList[i].click();
+                }
             }
         }
     );
@@ -537,7 +541,9 @@ function tabDataMining(node) {
                 '.data-mining-input-schema');
 
             for (var i = 0; i < v_schemaList.length; i++) {
-                v_schemaList[i].checked = true;
+                if (!v_schemaList[i].checked) {
+                    v_schemaList[i].click();
+                }
             }
         }
     );
@@ -557,7 +563,9 @@ function tabDataMining(node) {
                 '.data-mining-input-schema');
 
             for (var i = 0; i < v_schemaList.length; i++) {
-                v_schemaList[i].checked = false;
+                if (v_schemaList[i].checked) {
+                    v_schemaList[i].click();
+                }
             }
         }
     );

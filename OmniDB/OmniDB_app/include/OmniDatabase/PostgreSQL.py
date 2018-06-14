@@ -1320,7 +1320,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         '''.format(self.v_service, p_sub), True)
 
-    def DataMiningData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def DataMiningData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas, p_dataCategoryFilter):
         v_sqlDict = {}
 
         if p_inSchemas != '': #At least one schema must be selected
@@ -1339,7 +1339,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                   and attnum > 0
                   and not a.attisdropped
                   and n.nspname in ({0})
+                  --#FILTER_DATA_CATEGORY_FILTER# and n.nspname || '.' || c.relname like any (string_to_array('#VALUE_DATA_CATEGORY_FILTER#', '|'))
             '''.format(p_inSchemas)
+
+            if p_dataCategoryFilter.strip() != '':
+                v_columnsSql = v_columnsSql.replace('--#FILTER_DATA_CATEGORY_FILTER#', '').replace('#VALUE_DATA_CATEGORY_FILTER#', p_dataCategoryFilter)
 
             v_columnsTable = self.v_connection.Query(v_columnsSql)
 
@@ -1356,7 +1360,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                         where 1 = 1
                         --#FILTER_PATTERN_CASE_SENSITIVE#  and t.{2}::text like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
                         --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.{2}::text) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-                        --#FILTER_PATTERN_REGEX# and t.{2}::text ~ '#VALUE_PATTERN_REGEX#'
+                        --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and t.{2}::text ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+                        --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and t.{2}::text ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
                     ) t
                 '''.format(
                     v_columnRow['schema_name'],
@@ -1368,7 +1373,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                     v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
                 if p_regex:
-                    v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+                    if p_caseSentive:
+                        v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+                    else:
+                        v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
                 else:
                     if p_caseSentive:
                         v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1402,7 +1410,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and tc.constraint_type = 'FOREIGN KEY'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and tc.constraint_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1410,7 +1419,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1445,14 +1457,18 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             where 1 = 1
             --#FILTER_PATTERN_CASE_SENSITIVE#  and y.function_definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.function_definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and y.function_definition ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and y.function_definition ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and y.function_definition ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
         '''
 
         if p_inSchemas != '':
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1476,7 +1492,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and format_type(p.prorettype, null) <> 'trigger'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and p.proname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and p.proname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and p.proname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1484,7 +1501,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1505,7 +1525,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and i.schemaname not like 'pg%%temp%%'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and i.indexname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(i.indexname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and i.indexname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and i.indexname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and i.indexname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(i.schemaname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1513,7 +1534,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1543,7 +1567,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and c.relkind = 'm'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and a.attname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(a.attname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and a.attname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and a.attname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and a.attname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1551,7 +1576,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1575,7 +1603,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and c.relkind = 'm'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and c.relname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.relname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and c.relname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and c.relname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and c.relname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1583,7 +1612,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1605,7 +1637,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and tc.constraint_type = 'PRIMARY KEY'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and tc.constraint_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1613,7 +1646,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1634,14 +1670,18 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and n.nspname not like 'pg%%temp%%'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and n.nspname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(n.nspname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and n.nspname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and n.nspname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and n.nspname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
         '''
 
         if p_inSchemas != '':
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1662,7 +1702,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and s.sequence_schema not like 'pg%%temp%%'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and s.sequence_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(s.sequence_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and s.sequence_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and s.sequence_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and s.sequence_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(s.sequence_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1670,7 +1711,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1694,7 +1738,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and t.table_type = 'BASE TABLE'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and c.column_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and c.column_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1702,7 +1747,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1724,7 +1772,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and t.table_type = 'BASE TABLE'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and t.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and t.table_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and t.table_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and t.table_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(t.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1732,7 +1781,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1756,7 +1808,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and format_type(p.prorettype, null) = 'trigger'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and p.proname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and p.proname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and p.proname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1764,7 +1817,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1788,7 +1844,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and format_type(p.prorettype, null) = 'trigger'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and p.prosrc like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.prosrc) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and p.prosrc ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and p.prosrc ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and p.prosrc ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1796,7 +1853,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1818,7 +1878,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and tc.constraint_type = 'UNIQUE'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and tc.constraint_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1826,7 +1887,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1849,7 +1913,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and v.table_schema not like 'pg%%temp%%'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and c.column_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and c.column_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1857,7 +1922,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1878,7 +1946,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and v.table_schema not like 'pg%%temp%%'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and v.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(v.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and v.table_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and v.table_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and v.table_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(v.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1886,7 +1955,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1910,7 +1982,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             where contype = 'c'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(c.conname) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(c.conname)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and quote_ident(c.conname) ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(c.conname) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(c.conname) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(quote_ident(n.nspname)) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1918,7 +1991,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1938,7 +2014,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             where 1 = 1
             --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(rulename) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(rulename)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and quote_ident(rulename) ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(rulename) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(rulename) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(quote_ident(schemaname)) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1946,7 +2023,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1966,7 +2046,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             where 1 = 1
             --#FILTER_PATTERN_CASE_SENSITIVE#  and definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and definition ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and definition ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and definition ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(quote_ident(schemaname)) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1974,7 +2055,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -2002,7 +2086,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             where 1 = 1
             --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(cc.relname) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(cc.relname)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and quote_ident(cc.relname) ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(cc.relname) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(cc.relname) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(quote_ident(np.nspname)) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -2010,7 +2095,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -2019,7 +2107,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList):
+    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_dataCategoryFilter):
         v_sqlDict = {}
 
         v_inSchemas = ''
@@ -2030,9 +2118,13 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
             v_inSchemas = v_inSchemas[:-2]
 
+        if not p_regex:
+            if '%' not in p_textPattern.replace('\%', ''):
+                p_textPattern = '%{0}%'.format(p_textPattern)
+
         for v_category in p_categoryList:
             if v_category == 'Data':
-                v_sqlDict[v_category] = self.DataMiningData(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.DataMiningData(p_textPattern, p_caseSentive, p_regex, v_inSchemas, p_dataCategoryFilter)
             elif v_category == 'FK Name':
                 v_sqlDict[v_category] = self.DataMiningFKName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Function Definition':

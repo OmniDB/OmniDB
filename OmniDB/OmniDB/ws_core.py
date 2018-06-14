@@ -312,7 +312,7 @@ def thread_dispatcher(self,args,ws_object):
 
                             tab_object['tab_db_id'] = v_data['v_tab_db_id']
                             v_data['v_tab_object'] = tab_object
-                            v_data['v_sql_dict'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'])
+                            v_data['v_sql_dict'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'], v_data['dataCategoryFilter'])
 
                             t = StoppableThreadPool(
                                 p_tag = {
@@ -570,7 +570,9 @@ def thread_datamining(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
 
         v_sql = re.sub(r'--#FILTER_PATTERN_CASE_SENSITIVE#.*\n', '', p_sql)
         v_sql = re.sub(r'--#FILTER_PATTERN_CASE_INSENSITIVE#.*\n', '', v_sql)
-        v_sql = re.sub(r'--#FILTER_PATTERN_REGEX#.*\n', '', v_sql)
+        v_sql = re.sub(r'--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#.*\n', '', v_sql)
+        v_sql = re.sub(r'--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#.*\n', '', v_sql)
+        v_sql = re.sub(r'--#FILTER_DATA_CATEGORY_FILTER#.*\n', '', v_sql)
         v_sql = re.sub(r'--#FILTER_BY_SCHEMA#.*\n', '', v_sql)
 
         v_result = {

@@ -12,9 +12,10 @@ data_files = [
 ]
 
 a = Analysis(['omnidb-server.py'],
+             pathex=['OmniDB_app/include/paramiko/'],
              binaries=[],
              datas=data_files,
-             hiddenimports=['cheroot.ssl','cheroot.ssl.builtin','psycopg2'],
+             hiddenimports=['cheroot.ssl','cheroot.ssl.builtin','psycopg2','paramiko'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

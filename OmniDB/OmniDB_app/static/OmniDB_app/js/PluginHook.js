@@ -76,9 +76,10 @@ $(function () {
   execAjax('/get_plugins/',
 			JSON.stringify({}),
 			function(p_return) {
+        var timestamp = new Date().getTime();
         for (var i=0; i<p_return.v_data.length; i++) {
           var imported = document.createElement('script');
-          imported.src = p_return.v_data[i].file;
+          imported.src = p_return.v_data[i].file + '?v' + timestamp;
           document.head.appendChild(imported);
           v_plugins[p_return.v_data[i].name] = p_return.v_data[i]
         }
@@ -104,6 +105,7 @@ function reloadPlugins() {
               			JSON.stringify({}),
               			function(p_return) {
                       showPlugins();
+                      showAlert('Plugins reloaded, please reload this page to reload client changes.<br><br><button onclick="location.reload();">Reload now</button>')
               			},
               			null,
               			'box');

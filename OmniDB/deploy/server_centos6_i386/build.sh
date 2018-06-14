@@ -1,11 +1,12 @@
 #!/bin/sh -e
 
 VERSION=2.9.0
-ARCH=centos-amd64
+ARCH=centos6-i386
 
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install -r ~/OmniDB/requirements.txt --upgrade
+pip uninstall paramiko
 pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt --upgrade
 echo "Done"
 
@@ -61,19 +62,17 @@ cat > SPECS/omnidb-server.spec <<EOF
 %global _enable_debug_package 0
 %global debug_package %{nil}
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
-
 %define _unpackaged_files_terminate_build 0
 %define _topdir /root/OmniDB/OmniDB/deploy/packages/omnidb-server
 %define _bindir /usr/bin
 %define name omnidb-server
 %define version $VERSION
-%define arch $ARCH
+%define arch centos-i386
 %define longname %{name}_%{version}-%{arch}
 %define configname omnidb-config-server
 %define buildroot %{_topdir}/%{longname}-root
-
 BuildRoot: %{buildroot}
-BuildArch: x86_64
+BuildArch: i686
 Summary: Server to manage multiple databases
 License: MIT
 Name: %{name}
@@ -84,15 +83,11 @@ Prefix: /opt
 Group: Development/Tools
 Vendor: The OmniDB Team
 AutoReqProv: no
-
 %description
 OmniDB is a web tool that simplifies database management focusing on interactivity, designed to be powerful and lightweight. OmniDB is supported by 2ndQuadrant (https://www.2ndquadrant.com)
-
 %prep
 %setup -n %{longname}
-
 %build
-
 %install
 mkdir -p %{buildroot}/opt/%{name}
 chmod 777 %{buildroot}/opt/%{name}
@@ -101,7 +96,6 @@ mkdir -p %{buildroot}/%{_bindir}
 cp ../../SOURCES/%{name}.sh %{buildroot}/%{_bindir}/%{name}
 chmod 777 %{buildroot}/%{_bindir}/%{name}
 ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
-
 %files
 %defattr(0777,root,root,0777)
 /opt/%{name}
@@ -111,7 +105,7 @@ ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-server.spec
-cp RPMS/x86_64/omnidb-server-$VERSION-0.x86_64.rpm ../omnidb-server_$VERSION-$ARCH.rpm
+cp RPMS/i686/omnidb-server-$VERSION-0.i686.rpm ../omnidb-server_$VERSION-$ARCH.rpm
 cd ..
 echo "Done"
 

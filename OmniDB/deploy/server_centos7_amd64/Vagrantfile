@@ -1,0 +1,19 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+echo I am provisioning...
+date > /etc/vagrant_provisioned_at
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: $script
+  config.vm.box = "centos/7"
+  config.vm.box_url = "https://app.vagrantup.com/centos/boxes/7"
+  config.vm.host_name = "deployserver64"
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "omnidb_centos7_deployserver64"
+  end
+  config.vm.synced_folder ".", "/mnt/bootstrap"
+  config.vm.provision :shell, :path => "bootstrap.sh"
+end

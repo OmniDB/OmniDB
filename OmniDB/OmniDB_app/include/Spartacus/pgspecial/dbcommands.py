@@ -210,9 +210,9 @@ def _find_extensions(cur, pattern):
     sql = 'SELECT e.extname, e.oid FROM pg_catalog.pg_extension e'
 
     if pattern:
-        sql = cur.mogrify(sql + ' WHERE e.extname ~ %s', [pattern])
-
-    sql += ' ORDER BY 1'
+        sql = cur.mogrify(sql + ' WHERE e.extname ~ %s ORDER BY 1', [pattern])
+    else:
+        sql += ' ORDER BY 1'
 
     log.debug(sql)
     cur.execute(sql)

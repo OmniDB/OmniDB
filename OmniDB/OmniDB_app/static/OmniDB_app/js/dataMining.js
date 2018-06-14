@@ -26,7 +26,8 @@ function queryDataMining(p_data, p_callback = null) {
             regex: p_data.regex,
             caseSensitive: p_data.caseSensitive,
             categoryList: p_data.categoryList,
-            schemaList: p_data.schemaList
+            schemaList: p_data.schemaList,
+			dataCategoryFilter: p_data.dataCategoryFilter
 		};
 
 		v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state = v_queryState.Executing;
@@ -108,7 +109,6 @@ function dataMiningReturnRender(p_message, p_context) {
 	p_context.tab_tag.state = v_queryState.Idle;
 	p_context.tab_tag.context = null;
 	p_context.tab_tag.data = null;
-	console.log(p_message);
 
 	var v_div_result = p_context.tab_tag.div_result;
 	var v_query_info = p_context.tab_tag.query_info;

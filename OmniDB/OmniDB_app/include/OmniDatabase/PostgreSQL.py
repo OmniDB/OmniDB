@@ -1320,7 +1320,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         '''.format(self.v_service, p_sub), True)
 
-    def DataMiningData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def DataMiningData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas, p_dataCategoryFilter):
         v_sqlDict = {}
 
         if p_inSchemas != '': #At least one schema must be selected
@@ -1339,7 +1339,11 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                   and attnum > 0
                   and not a.attisdropped
                   and n.nspname in ({0})
+                  --#FILTER_DATA_CATEGORY_FILTER# and n.nspname || '.' || c.relname like any (string_to_array('#VALUE_DATA_CATEGORY_FILTER#', '|'))
             '''.format(p_inSchemas)
+
+            if p_dataCategoryFilter.strip() != '':
+                v_columnsSql = v_columnsSql.replace('--#FILTER_DATA_CATEGORY_FILTER#', '').replace('#VALUE_DATA_CATEGORY_FILTER#', p_dataCategoryFilter)
 
             v_columnsTable = self.v_connection.Query(v_columnsSql)
 
@@ -1356,7 +1360,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                         where 1 = 1
                         --#FILTER_PATTERN_CASE_SENSITIVE#  and t.{2}::text like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
                         --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.{2}::text) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-                        --#FILTER_PATTERN_REGEX# and t.{2}::text ~ '#VALUE_PATTERN_REGEX#'
+                        --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and t.{2}::text ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+                        --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and t.{2}::text ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
                     ) t
                 '''.format(
                     v_columnRow['schema_name'],
@@ -1368,7 +1373,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                     v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
                 if p_regex:
-                    v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+                    if p_caseSentive:
+                        v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+                    else:
+                        v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
                 else:
                     if p_caseSentive:
                         v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1402,7 +1410,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and tc.constraint_type = 'FOREIGN KEY'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and tc.constraint_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1410,7 +1419,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1445,14 +1457,18 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             where 1 = 1
             --#FILTER_PATTERN_CASE_SENSITIVE#  and y.function_definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.function_definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and y.function_definition ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and y.function_definition ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and y.function_definition ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
         '''
 
         if p_inSchemas != '':
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1476,7 +1492,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and format_type(p.prorettype, null) <> 'trigger'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and p.proname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and p.proname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and p.proname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1484,7 +1501,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1505,7 +1525,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and i.schemaname not like 'pg%%temp%%'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and i.indexname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(i.indexname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and i.indexname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and i.indexname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and i.indexname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(i.schemaname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1513,7 +1534,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1543,7 +1567,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and c.relkind = 'm'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and a.attname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(a.attname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and a.attname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and a.attname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and a.attname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1551,7 +1576,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1575,7 +1603,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and c.relkind = 'm'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and c.relname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.relname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and c.relname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and c.relname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and c.relname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1583,7 +1612,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1605,7 +1637,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and tc.constraint_type = 'PRIMARY KEY'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and tc.constraint_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1613,7 +1646,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1634,14 +1670,18 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and n.nspname not like 'pg%%temp%%'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and n.nspname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(n.nspname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and n.nspname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and n.nspname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and n.nspname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
         '''
 
         if p_inSchemas != '':
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1662,7 +1702,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and s.sequence_schema not like 'pg%%temp%%'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and s.sequence_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(s.sequence_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and s.sequence_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and s.sequence_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and s.sequence_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(s.sequence_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1670,7 +1711,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1694,7 +1738,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and t.table_type = 'BASE TABLE'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and c.column_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and c.column_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1702,7 +1747,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1724,7 +1772,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and t.table_type = 'BASE TABLE'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and t.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and t.table_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and t.table_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and t.table_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(t.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1732,7 +1781,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1756,7 +1808,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and format_type(p.prorettype, null) = 'trigger'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and p.proname ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and p.proname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and p.proname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1764,7 +1817,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1788,7 +1844,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and format_type(p.prorettype, null) = 'trigger'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and p.prosrc like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.prosrc) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and p.prosrc ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and p.prosrc ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and p.prosrc ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1796,7 +1853,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1818,7 +1878,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and tc.constraint_type = 'UNIQUE'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and tc.constraint_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(tc.constraint_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and tc.constraint_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and tc.constraint_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(tc.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1826,7 +1887,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1849,7 +1913,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and v.table_schema not like 'pg%%temp%%'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and c.column_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.column_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and c.column_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and c.column_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and c.column_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(c.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1857,7 +1922,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1878,7 +1946,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
               and v.table_schema not like 'pg%%temp%%'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and v.table_name like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(v.table_name) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and v.table_name ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and v.table_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and v.table_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(v.table_schema) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1886,7 +1955,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1910,7 +1982,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             where contype = 'c'
             --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(c.conname) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(c.conname)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and quote_ident(c.conname) ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(c.conname) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(c.conname) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(quote_ident(n.nspname)) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1918,7 +1991,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1938,7 +2014,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             where 1 = 1
             --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(rulename) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(rulename)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and quote_ident(rulename) ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(rulename) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(rulename) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(quote_ident(schemaname)) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1946,7 +2023,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -1966,7 +2046,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             where 1 = 1
             --#FILTER_PATTERN_CASE_SENSITIVE#  and definition like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(definition) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and definition ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and definition ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and definition ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(quote_ident(schemaname)) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -1974,7 +2055,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -2002,7 +2086,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             where 1 = 1
             --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(cc.relname) like '%#VALUE_PATTERN_CASE_SENSITIVE#%'
             --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(cc.relname)) like lower('%#VALUE_PATTERN_CASE_INSENSITIVE#%')
-            --#FILTER_PATTERN_REGEX# and quote_ident(cc.relname) ~ '#VALUE_PATTERN_REGEX#'
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(cc.relname) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(cc.relname) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
             --#FILTER_BY_SCHEMA#  and lower(quote_ident(np.nspname)) in (#VALUE_BY_SCHEMA#)
         '''
 
@@ -2010,7 +2095,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
 
         if p_regex:
-            v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX#', '').replace('#VALUE_PATTERN_REGEX#', p_textPattern.replace("'", "''"))
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
         else:
             if p_caseSentive:
                 v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
@@ -2019,7 +2107,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList):
+    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_dataCategoryFilter):
         v_sqlDict = {}
 
         v_inSchemas = ''
@@ -2030,9 +2118,13 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
             v_inSchemas = v_inSchemas[:-2]
 
+        if not p_regex:
+            if '%' not in p_textPattern.replace('\%', ''):
+                p_textPattern = '%{0}%'.format(p_textPattern)
+
         for v_category in p_categoryList:
             if v_category == 'Data':
-                v_sqlDict[v_category] = self.DataMiningData(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.DataMiningData(p_textPattern, p_caseSentive, p_regex, v_inSchemas, p_dataCategoryFilter)
             elif v_category == 'FK Name':
                 v_sqlDict[v_category] = self.DataMiningFKName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Function Definition':
@@ -3920,6 +4012,460 @@ TO NODE ( nodename [, ... ] )
             and y.trigger_name = x.trigger_name
         '''.format(p_schema, p_table, p_object))
 
+    def GetPropertiesPK(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'p'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            select current_database() as "Database",
+                   quote_ident(n.nspname) as "Schema",
+                   quote_ident(t.relname) as "Table",
+                   quote_ident(c.conname) as "Constraint Name",
+                   c.oid as "OID",
+                   (case c.contype when 'c' then 'Check' when 'f' then 'Foreign Key' when 'p' then 'Primary Key' when 'u' then 'Unique' when 'x' then 'Exclusion' end) as "Constraint Type",
+                   pg_temp.fnc_omnidb_constraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Constrained Columns",
+                   quote_ident(i.relname) as "Index",
+                   c.condeferrable as "Deferrable",
+                   c.condeferred as "Deferred by Default",
+                   c.convalidated as "Validated",
+                   c.conislocal as "Is Local",
+                   c.coninhcount as "Number of Ancestors",
+                   c.connoinherit as "Non-Inheritable"
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            join pg_class i
+            on i.oid = c.conindid
+            where contype = 'p'
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.relname) = '{1}'
+              and quote_ident(c.conname) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
+    def GetPropertiesFK(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'f'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_rconstraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.confkey) as confkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'f'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.confkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_pfconstraint_ops(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select oprname
+            from (
+            select o.oprname
+            from (
+            select unnest(c.conpfeqop) as conpfeqop
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_operator o
+            on o.oid = x.conpfeqop
+            ) t
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_ppconstraint_ops(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select oprname
+            from (
+            select o.oprname
+            from (
+            select unnest(c.conppeqop) as conppeqop
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_operator o
+            on o.oid = x.conppeqop
+            ) t
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_ffconstraint_ops(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select oprname
+            from (
+            select o.oprname
+            from (
+            select unnest(c.conffeqop) as conffeqop
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_operator o
+            on o.oid = x.conffeqop
+            ) t
+            ), ',')
+            $$ language sql;
+            select current_database() as "Database",
+                   quote_ident(n.nspname) as "Schema",
+                   quote_ident(t.relname) as "Table",
+                   quote_ident(c.conname) as "Constraint Name",
+                   c.oid as "OID",
+                   (case c.contype when 'c' then 'Check' when 'f' then 'Foreign Key' when 'p' then 'Primary Key' when 'u' then 'Unique' when 'x' then 'Exclusion' end) as "Constraint Type",
+                   pg_temp.fnc_omnidb_constraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Constrained Columns",
+                   quote_ident(i.relname) as "Index",
+                   quote_ident(nr.nspname) as "Referenced Schema",
+                   quote_ident(tr.relname) as "Referenced Table",
+                   pg_temp.fnc_omnidb_rconstraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Referenced Columns",
+                   (case c.confupdtype when 'a' then 'No Action' when 'r' then 'Restrict' when 'c' then 'Cascade' when 'n' then 'Set Null' when 'd' then 'Set Default' end) as "Update Action",
+                   (case c.confdeltype when 'a' then 'No Action' when 'r' then 'Restrict' when 'c' then 'Cascade' when 'n' then 'Set Null' when 'd' then 'Set Default' end) as "Delete Action",
+                   (case c.confmatchtype when 'f' then 'Full' when 'p' then 'Partial' when 's' then 'Simple' end) as "Match Type",
+                   c.condeferrable as "Deferrable",
+                   c.condeferred as "Deferred by Default",
+                   c.convalidated as "Validated",
+                   c.conislocal as "Is Local",
+                   c.coninhcount as "Number of Ancestors",
+                   c.connoinherit as "Non-Inheritable",
+                   pg_temp.fnc_omnidb_pfconstraint_ops(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "PK=FK Equality Operators",
+                   pg_temp.fnc_omnidb_ppconstraint_ops(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "PK=PK Equality Operators",
+                   pg_temp.fnc_omnidb_ffconstraint_ops(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "FK=FK Equality Operators"
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            join pg_class i
+            on i.oid = c.conindid
+            join pg_class tr
+            on tr.oid = c.confrelid
+            join pg_namespace nr
+            on tr.relnamespace = nr.oid
+            where contype = 'f'
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.relname) = '{1}'
+              and quote_ident(c.conname) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
+    def GetPropertiesUnique(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'u'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            select current_database() as "Database",
+                   quote_ident(n.nspname) as "Schema",
+                   quote_ident(t.relname) as "Table",
+                   quote_ident(c.conname) as "Constraint Name",
+                   c.oid as "OID",
+                   (case c.contype when 'c' then 'Check' when 'f' then 'Foreign Key' when 'p' then 'Primary Key' when 'u' then 'Unique' when 'x' then 'Exclusion' end) as "Constraint Type",
+                   pg_temp.fnc_omnidb_constraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Constrained Columns",
+                   quote_ident(i.relname) as "Index",
+                   c.condeferrable as "Deferrable",
+                   c.condeferred as "Deferred by Default",
+                   c.convalidated as "Validated",
+                   c.conislocal as "Is Local",
+                   c.coninhcount as "Number of Ancestors",
+                   c.connoinherit as "Non-Inheritable"
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            join pg_class i
+            on i.oid = c.conindid
+            where contype = 'u'
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.relname) = '{1}'
+              and quote_ident(c.conname) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
+    def GetPropertiesCheck(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'c'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            select current_database() as "Database",
+                   quote_ident(n.nspname) as "Schema",
+                   quote_ident(t.relname) as "Table",
+                   quote_ident(c.conname) as "Constraint Name",
+                   c.oid as "OID",
+                   (case c.contype when 'c' then 'Check' when 'f' then 'Foreign Key' when 'p' then 'Primary Key' when 'u' then 'Unique' when 'x' then 'Exclusion' end) as "Constraint Type",
+                   pg_temp.fnc_omnidb_constraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Constrained Columns",
+                   c.condeferrable as "Deferrable",
+                   c.condeferred as "Deferred by Default",
+                   c.convalidated as "Validated",
+                   c.conislocal as "Is Local",
+                   c.coninhcount as "Number of Ancestors",
+                   c.connoinherit as "Non-Inheritable",
+                   c.consrc as "Constraint Source"
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'c'
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.relname) = '{1}'
+              and quote_ident(c.conname) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
+    def GetPropertiesExclude(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            create or replace function pg_temp.fnc_omnidb_constraint_ops(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select oprname
+            from (
+            select o.oprname
+            from (
+            select unnest(c.conexclop) as conexclop
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_operator o
+            on o.oid = x.conexclop
+            ) t
+            ), ',')
+            $$ language sql;
+            create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
+            returns text as $$
+            select array_to_string(array(
+            select a.attname
+            from (
+            select unnest(c.conkey) as conkey
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = $1
+              and quote_ident(t.relname) = $2
+              and quote_ident(c.conname) = $3
+            ) x
+            inner join pg_attribute a
+            on a.attnum = x.conkey
+            inner join pg_class r
+            on r.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = r.relnamespace
+            where quote_ident(n.nspname) = $1
+              and quote_ident(r.relname) = $2
+            ), ',')
+            $$ language sql;
+            select current_database() as "Database",
+                   quote_ident(n.nspname) as "Schema",
+                   quote_ident(t.relname) as "Table",
+                   quote_ident(c.conname) as "Constraint Name",
+                   c.oid as "OID",
+                   (case c.contype when 'c' then 'Check' when 'f' then 'Foreign Key' when 'p' then 'Primary Key' when 'u' then 'Unique' when 'x' then 'Exclusion' end) as "Constraint Type",
+                   pg_temp.fnc_omnidb_constraint_attrs(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Constrained Columns",
+                   pg_temp.fnc_omnidb_constraint_ops(
+                       quote_ident(n.nspname),
+                       quote_ident(t.relname),
+                       quote_ident(c.conname)
+                   ) as "Exclusion Operators",
+                   c.condeferrable as "Deferrable",
+                   c.condeferred as "Deferred by Default",
+                   c.convalidated as "Validated",
+                   c.conislocal as "Is Local",
+                   c.coninhcount as "Number of Ancestors",
+                   c.connoinherit as "Non-Inheritable"
+            from pg_constraint c
+            join pg_class t
+            on t.oid = c.conrelid
+            join pg_namespace n
+            on t.relnamespace = n.oid
+            where contype = 'x'
+              and quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.relname) = '{1}'
+              and quote_ident(c.conname) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
+    def GetPropertiesRule(self, p_schema, p_table, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   quote_ident(schemaname) as "Schema",
+                   quote_ident(tablename) as "Table",
+                   quote_ident(rulename) as "Rule Name"
+            from pg_rules
+            where quote_ident(schemaname) = '{0}'
+              and quote_ident(tablename) = '{1}'
+              and quote_ident(rulename) = '{2}'
+        '''.format(p_schema, p_table, p_object))
+
     def GetProperties(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
@@ -3947,6 +4493,18 @@ TO NODE ( nodename [, ... ] )
             return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
         elif p_type == 'triggerfunction':
             return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+        elif p_type == 'pk':
+            return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
+        elif p_type == 'foreign_key':
+            return self.GetPropertiesFK(p_schema, p_table, p_object).Transpose('Property', 'Value')
+        elif p_type == 'unique':
+            return self.GetPropertiesUnique(p_schema, p_table, p_object).Transpose('Property', 'Value')
+        elif p_type == 'check':
+            return self.GetPropertiesCheck(p_schema, p_table, p_object).Transpose('Property', 'Value')
+        elif p_type == 'exclude':
+            return self.GetPropertiesExclude(p_schema, p_table, p_object).Transpose('Property', 'Value')
+        elif p_type == 'rule':
+            return self.GetPropertiesRule(p_schema, p_table, p_object).Transpose('Property', 'Value')
         else:
             return None
 
@@ -4055,22 +4613,70 @@ TO NODE ( nodename [, ... ] )
             ),
             comment as (
                 select format(
-                       E'COMMENT ON %s %s IS %L;\n',
+                       E'COMMENT ON %s %s IS %L;\n\n',
                        obj.sql_kind, sql_identifier, obj_description(oid)) as text
                 from obj
             ),
             alterowner as (
                 select format(
-                       E'ALTER %s %s OWNER TO %s;\n',
+                       E'ALTER %s %s OWNER TO %s;\n\n',
                        obj.sql_kind, sql_identifier, quote_ident(owner)) as text
                 from obj
+            ),
+            privileges as (
+                select (u_grantor.rolname)::information_schema.sql_identifier as grantor,
+                       (grantee.rolname)::information_schema.sql_identifier as grantee,
+                       (n.privilege_type)::information_schema.character_data as privilege_type,
+                       (case when (pg_has_role(grantee.oid, n.nspowner, 'USAGE'::text) or n.is_grantable)
+                             then 'YES'::text
+                             else 'NO'::text
+                        end)::information_schema.yes_or_no AS is_grantable
+                from (
+                    select n.nspname,
+                           n.nspowner,
+                           (aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner)))).grantor as grantor,
+                           (aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner)))).grantee as grantee,
+                           (aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner)))).privilege_type as privilege_type,
+                           (aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner)))).is_grantable as is_grantable
+                    from pg_namespace n
+                    where n.oid = '{0}'::regnamespace
+                ) n
+                inner join pg_roles u_grantor
+                on u_grantor.oid = n.grantor
+                inner join (
+                    select r.oid,
+                           r.rolname
+                    from pg_roles r
+                    union all
+                    select (0)::oid AS oid,
+                           'PUBLIC'::name
+                ) grantee
+                on grantee.oid = n.grantee
+            ),
+            grants as (
+                select coalesce(
+                        string_agg(format(
+                    	E'GRANT %s ON SCHEMA public TO %s%s;\n',
+                        privilege_type,
+                        case grantee
+                          when 'PUBLIC' then 'PUBLIC'
+                          else quote_ident(grantee)
+                        end,
+                    	case is_grantable
+                          when 'YES' then ' WITH GRANT OPTION'
+                          else ''
+                        end), ''),
+                       '') as text
+                from privileges
             )
-            select format(E'CREATE SCHEMA %s;\n',quote_ident(n.nspname))
+            select format(E'CREATE SCHEMA %s;\n\n',quote_ident(n.nspname))
             	   || comment.text
                    || alterowner.text
+                   || grants.text
               from pg_namespace n
               inner join comment on 1=1
               inner join alterowner on 1=1
+              inner join grants on 1=1
              where quote_ident(n.nspname) = '{0}'
         '''.format(p_object))
 
@@ -4460,10 +5066,10 @@ TO NODE ( nodename [, ... ] )
                                   FROM pg_class
                                   WHERE pg_class.relkind = 'S') c(oid, relname, relnamespace, relkind, relowner, grantor, grantee, prtype, grantable),
                             pg_namespace nc,
-                            pg_authid u_grantor,
-                            ( SELECT pg_authid.oid,
-                                    pg_authid.rolname
-                                   FROM pg_authid
+                            pg_roles u_grantor,
+                            ( SELECT pg_roles.oid,
+                                    pg_roles.rolname
+                                   FROM pg_roles
                                 UNION ALL
                                  SELECT (0)::oid AS oid,
                                     'PUBLIC'::name) grantee(oid, rolname)
@@ -4903,10 +5509,10 @@ TO NODE ( nodename [, ... ] )
                                   FROM pg_class
                                   WHERE pg_class.relkind = 'S') c(oid, relname, relnamespace, relkind, relowner, grantor, grantee, prtype, grantable),
                             pg_namespace nc,
-                            pg_authid u_grantor,
-                            ( SELECT pg_authid.oid,
-                                    pg_authid.rolname
-                                   FROM pg_authid
+                            pg_roles u_grantor,
+                            ( SELECT pg_roles.oid,
+                                    pg_roles.rolname
+                                   FROM pg_roles
                                 UNION ALL
                                  SELECT (0)::oid AS oid,
                                     'PUBLIC'::name) grantee(oid, rolname)
@@ -4946,6 +5552,101 @@ TO NODE ( nodename [, ... ] )
                        (select text from grants)
             '''.format(p_schema, p_object))
 
+    def GetDDLFunction(self, p_function):
+        return self.v_connection.ExecuteScalar('''
+            with obj as (
+                SELECT p.oid,
+                       p.proname AS name,
+                       n.nspname AS namespace,
+                       pg_get_userbyid(p.proowner) AS owner,
+                       '{0}' AS sql_identifier
+                FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+                WHERE p.oid = '{0}'::regprocedure
+            ),
+            createfunction as (
+                select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
+                from obj
+            ),
+            alterowner as (
+                select
+                   'ALTER FUNCTION '||sql_identifier||
+                          ' OWNER TO '||quote_ident(owner)||E';\n\n' as text
+                  from obj
+            ),
+            privileges as (
+            select (u_grantor.rolname)::information_schema.sql_identifier as grantor,
+                   (grantee.rolname)::information_schema.sql_identifier as grantee,
+                   (p.privilege_type)::information_schema.character_data as privilege_type,
+                   (case when (pg_has_role(grantee.oid, p.proowner, 'USAGE'::text) or p.is_grantable)
+                         then 'YES'::text
+                         else 'NO'::text
+                    end)::information_schema.yes_or_no AS is_grantable
+            from (
+                select p.pronamespace,
+                       p.proowner,
+                       (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantor as grantor,
+                       (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantee as grantee,
+                       (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type as privilege_type,
+                       (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable as is_grantable
+                from pg_proc p
+                where not p.proisagg
+                  and p.oid = '{0}'::regprocedure
+            ) p
+            inner join pg_namespace n
+            on n.oid = p.pronamespace
+            inner join pg_roles u_grantor
+            on u_grantor.oid = p.grantor
+            inner join (
+                select r.oid,
+                       r.rolname
+                from pg_roles r
+                union all
+                select (0)::oid AS oid,
+                       'PUBLIC'::name
+            ) grantee
+            on grantee.oid = p.grantee
+            ),
+            grants as (
+            select coalesce(
+                    string_agg(format(
+                	E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                    privilege_type,
+                    case grantee
+                      when 'PUBLIC' then 'PUBLIC'
+                      else quote_ident(grantee)
+                    end,
+                	case is_grantable
+                      when 'YES' then ' WITH GRANT OPTION'
+                      else ''
+                    end), ''),
+                   '') as text
+            from privileges
+            )
+            select (select text from createfunction) ||
+                   (select text from alterowner) ||
+                   (select text from grants)
+'''.format(p_function))
+
+    def GetDDLConstraint(self, p_schema, p_table, p_object):
+        return self.v_connection.ExecuteScalar('''
+            with cs as (
+              select
+               'ALTER TABLE ' || text(regclass(c.conrelid)) ||
+               ' ADD CONSTRAINT ' || quote_ident(c.conname) ||
+               E'\n  ' || pg_get_constraintdef(c.oid, true) as sql
+                from pg_constraint c
+               join pg_class t
+               on t.oid = c.conrelid
+               join pg_namespace n
+               on t.relnamespace = n.oid
+               where quote_ident(n.nspname) = '{0}'
+                 and quote_ident(t.relname) = '{1}'
+                 and quote_ident(c.conname) = '{2}'
+            )
+            select coalesce(string_agg(sql,E';\n') || E';\n\n','') as text
+            from cs
+        '''.format(p_schema, p_table, p_object))
+
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetDDLRole(p_object)
@@ -4968,10 +5669,22 @@ TO NODE ( nodename [, ... ] )
         elif p_type == 'mview':
             return self.GetDDLClass(p_schema, p_object)
         elif p_type == 'function':
-            return self.GetFunctionDefinition(p_object)
+            return self.GetDDLFunction(p_object)
         elif p_type == 'trigger':
             return self.GetTriggerDefinition(p_object, p_table, p_schema)
         elif p_type == 'triggerfunction':
-            return self.GetTriggerFunctionDefinition(p_object)
+            return self.GetDDLFunction(p_object)
+        elif p_type == 'pk':
+            return self.GetDDLConstraint(p_schema, p_table, p_object)
+        elif p_type == 'foreign_key':
+            return self.GetDDLConstraint(p_schema, p_table, p_object)
+        elif p_type == 'unique':
+            return self.GetDDLConstraint(p_schema, p_table, p_object)
+        elif p_type == 'check':
+            return self.GetDDLConstraint(p_schema, p_table, p_object)
+        elif p_type == 'exclude':
+            return self.GetDDLConstraint(p_schema, p_table, p_object)
+        elif p_type == 'rule':
+            return self.GetRuleDefinition(p_object, p_table, p_schema)
         else:
             return ''

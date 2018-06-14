@@ -2,24 +2,25 @@
 
 # OmniDB 2.9.0
 
-## Release Date: *June 13, 2018*
+## Release Date: *June 19, 2018*
 
 ## Release Notes
 
 - New features:
-  - Connection to any database via SSH tunnels
-  - Support for BDR 3.0
-  - Support for pglogical 3.0
+  - Plugin system. Develop and share custom features
+  - Data mining, an advanced text pattern search over database objects and tables data
 - Improvements:
-  - Improvements to the OmniDB app window container
-    - **IMPORTANT** - Oracle Management with OmniDB-app on **WINDOWS**: Oracle Instant Client ([32-bit](http://www.oracle.com/technetwork/topics/winsoft-085727.html)) ([64-bit](http://www.oracle.com/technetwork/topics/winx64soft-089540.html)) must be extracted into [OmniDB's folder]/resources/app/omnidb-server OR PATH environment variable must be adjusted to point to OIC's location.
-  - Backslash commands supporting PostgreSQL 10 partitioned tables and partitions
-  - DDL for PostgreSQL 10 partitioned tables and partitions
-  - Tree view shows PostgreSQL 10 partitioned tables and partitions with different icons
+  - Included SQL Template for CREATE TABLE and ALTER TABLE
+  - Included SQL Template for inserting and updating records
+  - Included DDL/Properties for all remaining elements in the tree (PostgreSQL)
+  - DDL tab now show grants for all supported objects (PostgreSQL)
+  - Query Data action now creates a SQL Template including all columns and ORDER BY primary key
+  - BDR 3.0 removed from OmniDB core, it is now a plugin
 - Bug fixes:
-  - Fixed displaying table data in treeview when using MySQL 5.7
-  - Fixed column autocomplete when using MySQL and MariaDB
-  - Fixed JSON and JSONB editing
+  - Debugger can now be used when connecting via SSH tunnel
+  - Queries that return very large sets of data no longer block the query server
+  - Fixed SSH tunnel connection issue when using the monitoring dashboard
+  - Fixed \dx+ EXTENSION command in console tab
 
 # 1- Installation
 

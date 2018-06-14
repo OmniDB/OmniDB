@@ -3538,6 +3538,41 @@ function getPropertiesPostgresqlConfirm(node) {
             p_object: node.text,
             p_type: node.tag.type
         });
+    } else if (node.tag.type == 'foreign_key') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.parent.parent.text,
+            p_table: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
+    } else if (node.tag.type == 'unique') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.parent.parent.text,
+            p_table: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
+    } else if (node.tag.type == 'check') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.parent.parent.text,
+            p_table: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
+    } else if (node.tag.type == 'exclude') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.parent.parent.text,
+            p_table: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
+    } else if (node.tag.type == 'rule') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.parent.parent.text,
+            p_table: node.parent.parent.text,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
     } else {
         clearProperties();
     }

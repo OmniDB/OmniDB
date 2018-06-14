@@ -198,6 +198,10 @@ function querySQLReturn(p_data,p_context) {
 		p_context.tab_tag.tab_db_id = p_data.v_data.v_inserted_id;
 	}
 
+	p_data.v_data.v_data = p_context.tab_tag.tempData;
+
+	p_context.tab_tag.tempData = [];
+
 	//If query wasn't canceled already
 	if (p_context.tab_tag.state!=v_queryState.Idle) {
 
@@ -280,7 +284,7 @@ function querySQLReturnRender(p_message,p_context) {
 				}
 
 				//Show fetch buttons if data has 50 rows
-				if (p_context.tab_tag.tempData.length>=50 && p_context.mode!=2) {
+				if (v_data.v_data.length>=50 && p_context.mode!=2) {
 					if(p_context.tab_tag.bt_fetch_more) {
 						p_context.tab_tag.bt_fetch_more.style.display = '';
 					}
@@ -305,13 +309,13 @@ function querySQLReturnRender(p_message,p_context) {
 
 					window.scrollTo(0,0);
 
-					if (p_context.tab_tag.tempData.length==0 && v_data.v_col_names.length==0) {
+					if (v_data.v_data.length==0 && v_data.v_col_names.length==0) {
 						v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 						v_div_result.innerHTML = '<div class="query_info">Done.</div>';
 					}
 					else {
 
-						v_query_info.innerHTML = "Number of records: " + p_context.tab_tag.tempData.length + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+						v_query_info.innerHTML = "Number of records: " + v_data.v_data.length + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 
 						var columnProperties = [];
 
@@ -329,7 +333,7 @@ function querySQLReturnRender(p_message,p_context) {
 						var container = v_div_result;
 						p_context.tab_tag.ht = new Handsontable(container,
 						{
-							data: p_context.tab_tag.tempData,
+							data: v_data.v_data,
 							columns : columnProperties,
 							colHeaders : true,
 							rowHeaders : true,
@@ -360,21 +364,17 @@ function querySQLReturnRender(p_message,p_context) {
 
 					}
 
-					p_context.tab_tag.tempData = [];
-
 				}
 				//Adding fetched data
 				else {
 					v_new_data = p_context.tab_tag.ht.getSourceData();
-					v_query_info.innerHTML = "Number of records: " + (v_new_data.length+p_context.tab_tag.tempData.length) + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-					for (var i = 0; i < p_context.tab_tag.tempData.length; i ++) {
-	            v_new_data.push(p_context.tab_tag.tempData[i]);
+					v_query_info.innerHTML = "Number of records: " + (v_new_data.length+v_data.v_data.length) + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+					for (var i = 0; i < v_data.v_data.length; i ++) {
+	            v_new_data.push(v_data.v_data[i]);
 	        }
 					p_context.tab_tag.ht.loadData(v_new_data);
 					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.childNodes[0].childNodes[0].scrollTop = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.childNodes[0].childNodes[0].scrollHeight;
 				}
-
-				p_context.tab_tag.tempData = [];
 
 			}
 

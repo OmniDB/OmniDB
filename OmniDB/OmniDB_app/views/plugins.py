@@ -64,9 +64,9 @@ def load_plugins():
                     'javascript_file': '/static/plugins/{0}/plugin.js'.format(plugin_folder),
                     'plugin_folder'  : '/static/plugins/{0}/'.format(plugin_folder)
                 }
-                print('Loaded plugin {0}'.format(plugin_name))
+                print('Loaded plugin {0}.'.format(plugin_name),flush=True)
             except Exception as exc:
-                print('Failed to load plugin {0}: {1}'.format(plugin_name, str(exc)))
+                print('Failed to load plugin {0}: {1}.'.format(plugin_name, str(exc)),flush=True)
                 plugins[plugin_name] = {
                     'module'         : None,
                     'folder'         : plugin_folder,

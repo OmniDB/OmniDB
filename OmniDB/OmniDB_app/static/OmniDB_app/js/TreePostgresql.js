@@ -764,11 +764,9 @@ function tabDataMining(node) {
     var qtip2 = $('.data-mining-input-text').qtip({
         content: {
             text:
-                '<pre>' +
                 'If Regular Expression is not selected, the pattern will work as follows:<br /><br />' +
                 '- if it does not contain sql % wildcard, it will put your pattern between two % <br /><br />' +
-                '- else it will consider your pattern as it is.' +
-                '</pre>'
+                '- else it will consider your pattern as it is.'
         },
         position: {
             my: 'top center',
@@ -788,11 +786,9 @@ function tabDataMining(node) {
     var qtip3 = $('.data-mining-data-input-text').qtip({
         content: {
             text:
-                '<pre>' +
-                'If Data category is selected, you can use it to filter search space and get a faster response:<br /><br />' +
-                'If you want to filter, you must fill it with a | separeted list of patterns, that may use % wildcard.<br /><br />' +
-                'For example: public.%mytable%|mysch%ema.% will search for data juts in tables that matche given patterns.' +
-                '</pre>'
+                'If Data category is selected you can use it to filter search space and get a faster response.<br /><br />' +
+                'If you want to filter you must fill it with a | separeted list of patterns that may use % wildcard.<br /><br />' +
+                'For example: public.%mytable%|mysch%ema.% will search for data just in tables that match given patterns.'
         },
         position: {
             my: 'bottom center',

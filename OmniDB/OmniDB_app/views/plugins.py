@@ -17,33 +17,33 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 #loading python plugins
 plugins = {}
-plugins_folders = listdir(PLUGINS_DIR)
+plugins_folders = listdir(settings.PLUGINS_DIR)
 
 def load_plugins():
     for plugin_folder in plugins_folders:
         plugin_name = ''
         plugin_version = ''
         enabled = True
-        if isfile(join(PLUGINS_DIR,plugin_folder,'plugin.conf')):
+        if isfile(join(settings.PLUGINS_DIR,plugin_folder,'plugin.conf')):
             conf_exists = True
         else:
             conf_exists = False
             enabled = False
-        if isfile(join(PLUGINS_STATIC_DIR,plugin_folder,'plugin.js')):
+        if isfile(join(settings.PLUGINS_STATIC_DIR,plugin_folder,'plugin.js')):
             js_exists = True
         else:
             js_exists = False
             enabled = False
-        if isfile(join(PLUGINS_DIR,plugin_folder,'plugin.py')):
+        if isfile(join(settings.PLUGINS_DIR,plugin_folder,'plugin.py')):
             py_exists = True
         else:
             py_exists = False
             enabled = False
         #if is directory, try to import plugin.py inside it
-        if isdir(join(PLUGINS_DIR,plugin_folder)):
+        if isdir(join(settings.PLUGINS_DIR,plugin_folder)):
             try:
                 parser = ConfigParser()
-                with open(join(PLUGINS_DIR,plugin_folder,'plugin.conf')) as lines:
+                with open(join(settings.PLUGINS_DIR,plugin_folder,'plugin.conf')) as lines:
                     lines = chain(("[top]",), lines)
                     parser.read_file(lines)
                     plugin_name = parser.get('top', 'name')

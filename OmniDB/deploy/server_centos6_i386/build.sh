@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 VERSION=2.9.0
-ARCH=centos6-i386
+ARCH=centos-i386
 
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
@@ -67,7 +67,7 @@ cat > SPECS/omnidb-server.spec <<EOF
 %define _bindir /usr/bin
 %define name omnidb-server
 %define version $VERSION
-%define arch centos-i386
+%define arch $ARCH
 %define longname %{name}_%{version}-%{arch}
 %define configname omnidb-config-server
 %define buildroot %{_topdir}/%{longname}-root
@@ -105,7 +105,7 @@ ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-server.spec
-cp RPMS/i686/omnidb-server-$VERSION-0.i686.rpm ../omnidb-server_$VERSION-$ARCH.rpm
+cp RPMS/i686/omnidb-server-$VERSION-0.i686.rpm ../omnidb-server_$VERSION-centos6-i386.rpm
 cd ..
 echo "Done"
 

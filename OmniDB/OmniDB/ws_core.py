@@ -735,7 +735,8 @@ def thread_query(self,args,ws_object):
                     'v_filename': '/static/temp/{0}'.format(v_file_name),
                     'v_downloadname': 'omnidb_exported.{0}'.format(v_extension),
                     'v_duration': v_duration,
-                    'v_inserted_id': v_inserted_id
+                    'v_inserted_id': v_inserted_id,
+                    'v_chunks': False
                 }
 
                 if not self.cancel:
@@ -774,7 +775,8 @@ def thread_query(self,args,ws_object):
                     'v_duration': v_duration,
                     'v_notices': v_notices_text,
                     'v_notices_length': len(v_notices),
-                    'v_inserted_id': v_inserted_id
+                    'v_inserted_id': v_inserted_id,
+                    'v_chunks': True
                 }
 
                 #send data in chunks to avoid blocking the websocket server
@@ -792,7 +794,8 @@ def thread_query(self,args,ws_object):
                                 'v_duration': v_duration,
                                 'v_notices': v_notices_text,
                                 'v_notices_length': len(v_notices),
-                                'v_inserted_id': v_inserted_id
+                                'v_inserted_id': v_inserted_id,
+                                'v_chunks': True
                             }
                         else:
                             v_response['v_data'] = {
@@ -803,7 +806,8 @@ def thread_query(self,args,ws_object):
                                 'v_duration': v_duration,
                                 'v_notices': v_notices_text,
                                 'v_notices_length': len(v_notices),
-                                'v_inserted_id': v_inserted_id
+                                'v_inserted_id': v_inserted_id,
+                                'v_chunks': True
                             }
                         if not self.cancel:
                             tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
@@ -823,7 +827,8 @@ def thread_query(self,args,ws_object):
                 'position': v_database.GetErrorPosition(str(exc)),
                 'message' : str(exc).replace('\n','<br>'),
                 'v_duration': v_duration,
-                'v_inserted_id': v_inserted_id
+                'v_inserted_id': v_inserted_id,
+                'v_chunks': False
             }
             v_response['v_error'] = True
 

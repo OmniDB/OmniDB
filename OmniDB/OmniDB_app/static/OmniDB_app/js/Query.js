@@ -198,7 +198,8 @@ function querySQLReturn(p_data,p_context) {
 		p_context.tab_tag.tab_db_id = p_data.v_data.v_inserted_id;
 	}
 
-	p_data.v_data.v_data = p_context.tab_tag.tempData;
+	if (!p_data.v_error)
+		p_data.v_data.v_data = p_context.tab_tag.tempData;
 
 	p_context.tab_tag.tempData = [];
 

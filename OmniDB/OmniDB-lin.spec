@@ -9,6 +9,7 @@ data_files = [
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates'),
   ('OmniDB/migrations','OmniDB/migrations'),
+  ('OmniDB/plugins','OmniDB/plugins'),
 ]
 
 a = Analysis(['omnidb-server.py'],

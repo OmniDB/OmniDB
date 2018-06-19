@@ -8,7 +8,7 @@
 
 - New features:
   - [Plugin System](https://github.com/OmniDB/plugins). Develop and share custom features
-  - Data mining, an advanced text pattern search over database objects and tables data
+  - Data mining, an advanced pattern matching search over database objects and tables data
 - Improvements:
   - SQL Template now available for CREATE TABLE and ALTER TABLE
   - SQL Template now available for inserting and updating records

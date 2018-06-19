@@ -232,7 +232,10 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				v_tree.selectNode(p_node);
 
 				if (e.ctrlKey) {
-					if (p_node.contextMenu!=null) {
+					if (v_tree.beforeContextMenuEvent!=null) {
+						v_tree.beforeContextMenuEvent(p_node,function(p_items) { v_tree.nodeContextMenu(e,p_node,p_items); })
+					}
+					else {
 						v_tree.nodeContextMenu(e,p_node);
 					}
 				}
@@ -248,14 +251,12 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 					e.stopPropagation();
 				}
 
-				if (p_node.contextMenu!=null) {
-						//v_tree.selectNode(p_node);
-						if (v_tree.beforeContextMenuEvent!=null) {
-							v_tree.beforeContextMenuEvent(p_node,function() { v_tree.nodeContextMenu(e,p_node); })
-						}
-						else {
-							v_tree.nodeContextMenu(e,p_node);
-						}
+				//v_tree.selectNode(p_node);
+				if (v_tree.beforeContextMenuEvent!=null) {
+					v_tree.beforeContextMenuEvent(p_node,function(p_items) { v_tree.nodeContextMenu(e,p_node,p_items); })
+				}
+				else {
+					v_tree.nodeContextMenu(e,p_node);
 				}
 			};
 
@@ -445,12 +446,23 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		///// Rendering context menu when mouse right button is pressed over a node. This function should no be called directly
 		// p_event: Event triggered when right clicking;
 		// p_node: Reference to the node;
-		nodeContextMenu: function(p_event,p_node) {
-				if (p_node.contextMenu!=undefined) {
+		nodeContextMenu: function(p_event,p_node, p_items) {
+			var v_items_list = [];
+			if (p_node.contextMenu!=undefined) {
+				try {
+						var v_menu_list = this.contextMenu[p_node.contextMenu].elements;
+						v_items_list = v_items_list.concat(v_menu_list);
+				}
+				catch(err) {
+				}
+			}
+			if (p_items!=null) {
+				v_items_list = v_items_list.concat(p_items);
+			}
+
+				if (v_items_list.length>0) {
 
 					var v_tree = this;
-
-					var v_menu = this.contextMenu[p_node.contextMenu];
 
 					var v_div;
 					if (this.contextMenuDiv==null) {
@@ -491,7 +503,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 					v_div.style.left = v_left + 'px';
 					v_div.style.top = v_right + 'px';
 
-					for (var i=0; i<v_menu.elements.length; i++) (function(i){
+					for (var i=0; i<v_items_list.length; i++) (function(i){
 
 						var v_li = createSimpleElement('li',null,null);
 						v_li.aimara_level = 0;
@@ -505,20 +517,20 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 							}
 							v_closediv.parentNode.removeChild(v_closediv);
 
-							if (v_menu.elements[i].action!=null)
-								v_menu.elements[i].action(p_node);
+							if (v_items_list[i].action!=null)
+								v_items_list[i].action(p_node);
 						};
 
 						var v_a = createSimpleElement('a',null,null);
 						var v_ul = createSimpleElement('ul',null,'aimara_sub-menu');
 						v_ul.aimara_level = 0;
 
-						v_a.appendChild(document.createTextNode(v_menu.elements[i].text));
+						v_a.appendChild(document.createTextNode(v_items_list[i].text));
 
 						v_li.appendChild(v_span);
 
-						if (v_menu.elements[i].icon!=undefined) {
-							var v_img = createImgElement('null','null',v_menu.elements[i].icon);
+						if (v_items_list[i].icon!=undefined) {
+							var v_img = createImgElement('null','null',v_items_list[i].icon);
 							v_li.appendChild(v_img);
 						}
 
@@ -526,7 +538,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 						v_div.appendChild(v_li);
 
-						if (v_menu.elements[i].submenu!=undefined) {
+						if (v_items_list[i].submenu!=undefined) {
 
 							v_li.onmouseenter = function() {
 								var v_submenus = document.getElementsByClassName("aimara_sub-menu");
@@ -541,7 +553,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 							var v_span_more = createSimpleElement('div',null,null);
 							v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
 							v_li.appendChild(v_span_more);
-							v_tree.contextMenuLi(v_menu.elements[i].submenu,v_ul,p_node,v_closediv, 1);
+							v_tree.contextMenuLi(v_items_list[i].submenu,v_ul,p_node,v_closediv, 1);
 						}
 
 					})(i);

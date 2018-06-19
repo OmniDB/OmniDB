@@ -66,7 +66,6 @@ function setStatusIcon(p_mode) {
 		v_ws_connecting.style.display = '';
 	else if (p_mode == 2)
 		v_ws_online.style.display = '';
-
 }
 
 /// <summary>
@@ -132,18 +131,30 @@ function startQueryWebSocket(p_port) {
 				case parseInt(v_queryResponseCodes.QueryResult): {
 					if (p_context) {
 						SetAcked(p_context);
-						querySQLReturn(v_message,p_context);
-						//Remove context
-						removeContext(v_queryWebSocket,p_context_code);
+						if (!v_message.v_error || v_message.v_data.v_chunks) {
+							p_context.tab_tag.tempData = p_context.tab_tag.tempData.concat(v_message.v_data.v_data);
+						}
+						if (!v_message.v_data.v_chunks || v_message.v_data.v_last_block || v_message.v_error) {
+							v_message.v_data.v_data = [];
+							querySQLReturn(v_message,p_context);
+							//Remove context
+							removeContext(v_queryWebSocket,p_context_code);
+						}
+
 					}
 					break;
 				}
 				case parseInt(v_queryResponseCodes.ConsoleResult): {
 					if (p_context) {
-						SetAcked(p_context);
-						consoleReturn(v_message,p_context);
-						//Remove context
-						removeContext(v_queryWebSocket,p_context_code);
+						if (!v_message.v_error) {
+							p_context.tab_tag.tempData = p_context.tab_tag.tempData += v_message.v_data.v_data;
+						}
+						if (v_message.v_data.v_last_block || v_message.v_error) {
+							v_message.v_data.v_data = [];
+							consoleReturn(v_message,p_context);
+							//Remove context
+							removeContext(v_queryWebSocket,p_context_code);
+						}
 					}
 					break;
 				}
@@ -184,7 +195,7 @@ function startQueryWebSocket(p_port) {
 				case parseInt(v_queryResponseCodes.DataMiningResult): {
 					if (p_context) {
 						SetAcked(p_context);
-						querySQLReturn(v_message,p_context);
+						dataMiningReturn(v_message, p_context);
 						//Remove context
 						removeContext(v_queryWebSocket,p_context_code);
 					}

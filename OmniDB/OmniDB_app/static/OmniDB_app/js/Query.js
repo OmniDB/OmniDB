@@ -91,6 +91,7 @@ function querySQL(p_mode,
 	else {
 
 		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+		v_tab_tag.tempData = [];
 		var v_sql_value = p_query;
 		var v_db_index  = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
 		var v_tab_loading_span = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_loading_span;
@@ -196,6 +197,11 @@ function querySQLReturn(p_data,p_context) {
 	if (p_data.v_data.v_inserted_id) {
 		p_context.tab_tag.tab_db_id = p_data.v_data.v_inserted_id;
 	}
+
+	if (!p_data.v_error)
+		p_data.v_data.v_data = p_context.tab_tag.tempData;
+
+	p_context.tab_tag.tempData = [];
 
 	//If query wasn't canceled already
 	if (p_context.tab_tag.state!=v_queryState.Idle) {

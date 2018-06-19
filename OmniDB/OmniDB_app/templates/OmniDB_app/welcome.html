@@ -2,7 +2,7 @@
 <head>
   <title>OmniDB</title>
   <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/welcome.css?v2.8.0.8"/>
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/welcome.css?v2.9.0.3"/>
   <style>
     img {
       margin-top: 20px;
@@ -18,16 +18,19 @@
     <h2>Release notes</h2>
     <div class="welcome_release_container">
       <ul class="welcome_release_list">
-        <li class="welcome_release_item"><span>Connection to any database via SSH tunnels</span></li>
-        <li class="welcome_release_item"><span>Support for BDR 3.0</span></li>
-        <li class="welcome_release_item"><span>Support for pglogical 3.0</span></li>
-        <li class="welcome_release_item"><span>Improvements to the OmniDB app window container</span></li>
-        <li class="welcome_release_item"><span>Backslash commands supporting PostgreSQL 10 partitioned tables and partitions</span></li>
-        <li class="welcome_release_item"><span>DDL for PostgreSQL 10 partitioned tables and partitions</span></li>
-        <li class="welcome_release_item"><span>Tree view shows PostgreSQL 10 partitioned tables and partitions with different icons</span></li>
-        <li class="welcome_release_item"><span>Fixed displaying table data in treeview when using MySQL 5.7</span></li>
-        <li class="welcome_release_item"><span>Fixed column autocomplete when using MySQL and MariaDB</span></li>
-        <li class="welcome_release_item"><span>Fixed JSON and JSONB editing</span></li>
+        <li class="welcome_release_item"><span>Plugin system. Develop and share custom features</span></li>
+        <li class="welcome_release_item"><span>Data mining, an advanced text pattern search over database objects and tables data</span></li>
+        <li class="welcome_release_item"><span>Included SQL Template for CREATE TABLE and ALTER TABLE</span></li>
+        <li class="welcome_release_item"><span>Included SQL Template for inserting and updating records</span></li>
+        <li class="welcome_release_item"><span>Included DDL/Properties for all remaining elements in the tree (PostgreSQL)</span></li>
+        <li class="welcome_release_item"><span>DDL tab now show grants for all supported objects (PostgreSQL)</span></li>
+        <li class="welcome_release_item"><span>Query Data action now creates a SQL Template including all columns and ORDER BY primary key</span></li>
+        <li class="welcome_release_item"><span>BDR 3.0 removed from OmniDB core, it is now a plugin</span></li>
+        <li class="welcome_release_item"><span>Debugger can now be used when connecting via SSH tunnel</span></li>
+        <li class="welcome_release_item"><span>Queries that return very large sets of data no longer block the query server</span></li>
+        <li class="welcome_release_item"><span>Fixed SSH tunnel connection issue when using the monitoring dashboard</span></li>
+        <li class="welcome_release_item"><span>Fixed \dx+ EXTENSION command in console tab</span></li>
+
       </ul>
     </div>
   </section>

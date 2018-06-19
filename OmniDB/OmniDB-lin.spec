@@ -8,13 +8,15 @@ data_files = [
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates'),
+  ('OmniDB_app/plugins','OmniDB_app/plugins'),
   ('OmniDB/migrations','OmniDB/migrations'),
 ]
 
 a = Analysis(['omnidb-server.py'],
+             pathex=['OmniDB_app/include/'],
              binaries=[],
              datas=data_files,
-             hiddenimports=['cheroot.ssl','cheroot.ssl.builtin','psycopg2'],
+             hiddenimports=['cheroot.ssl','cheroot.ssl.builtin','psycopg2','paramiko'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

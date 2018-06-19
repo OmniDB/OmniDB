@@ -26,6 +26,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 TEMP_DIR = os.path.join(BASE_DIR,'OmniDB_app','static','temp')
 
+PLUGINS_DIR = os.path.join(BASE_DIR,'OmniDB_app','plugins')
+PLUGINS_STATIC_DIR = os.path.join(BASE_DIR,'OmniDB_app','static','plugins')
+
 # OmniDB User Folder
 DESKTOP_MODE = custom_settings.DESKTOP_MODE
 if DEV_MODE:
@@ -224,3 +227,4 @@ SSL_KEY                        = ""
 CH_CMDS_PER_PAGE               = 20
 PWD_TIMEOUT_TOTAL              = 1800
 PWD_TIMEOUT_REFRESH            = 300
+THREAD_POOL_MAX_WORKERS        = 2

@@ -722,10 +722,121 @@ END;
         return Template('DROP PROCEDURE #function_name#')
 
     def TemplateCreateTable(self):
-        pass
+        return Template('''CREATE
+-- TEMPORARY
+TABLE #schema_name#.table_name
+-- AS query
+(
+    column_name data_type
+    -- NOT NULL
+    -- NULL
+    -- DEFAULT default_value
+    -- AUTO_INCREMENT
+    -- UNIQUE
+    -- PRIMARY KEY
+    -- COMMENT 'string'
+    -- COLUMN_FORMAT { FIXED | DYNAMIC | DEFAULT }
+    -- STORAGE { DISK | MEMORY | DEFAULT }
+    -- [ GENERATED ALWAYS ] AS (expression) [ VIRTUAL | STORED ]
+    -- [ CONSTRAINT [ symbol ] ] PRIMARY KEY [ USING { BTREE | HASH } ] ( column_name, ... )
+    -- { INDEX | KEY } [ index_name ] [ USING { BTREE | HASH } ] ( column_name, ... )
+    -- [ CONSTRAINT [ symbol ] ] UNIQUE [ INDEX | KEY ] [ index_name ] [ USING { BTREE | HASH } ] ( column_name, ... )
+    -- { FULLTEXT | SPATIAL } [ INDEX | KEY ] [ index_name ] [ USING { BTREE | HASH } ] ( column_name, ... )
+    -- [ CONSTRAINT [ symbol ] ] FOREIGN KEY [ index_name ]  ( column_name, ... ) REFERENCES reftable ( refcolumn, ... ) [MATCH FULL | MATCH PARTIAL | MATCH SIMPLE] [ON DELETE { RESTRICT | CASCADE | SET NULL | NO ACTION | SET DEFAULT }] [ON UPDATE { RESTRICT | CASCADE | SET NULL | NO ACTION | SET DEFAULT }]
+    -- CHECK ( expr )
+)
+-- AUTO_INCREMENT value
+-- AVG_ROW_LENGTH value
+-- [ DEFAULT ] CHARACTER SET charset_name
+-- CHECKSUM { 0 | 1 }
+-- [ DEFAULT ] COLLATE collation_name
+-- COMMENT 'string'
+-- COMPRESSION { 'ZLIB' | 'LZ4' | 'NONE' }
+-- CONNECTION 'connect_string'
+-- { DATA | INDEX } DIRECTORY 'absolute path to directory'
+-- DELAY_KEY_WRITE { 0 | 1 }
+-- ENCRYPTION { 'Y' | 'N' }
+-- ENGINE engine_name
+-- INSERT_METHOD { NO | FIRST | LAST }
+-- KEY_BLOCK_SIZE value
+-- MAX_ROWS value
+-- MIN_ROWS value
+-- PACK_KEYS { 0 | 1 | DEFAULT }
+-- PASSWORD 'string'
+-- ROW_FORMAT { DEFAULT | DYNAMIC | FIXED | COMPRESSED | REDUNDANT | COMPACT }
+-- STATS_AUTO_RECALC { DEFAULT | 0 | 1 }
+-- STATS_PERSISTENT { DEFAULT | 0 | 1 }
+-- STATS_SAMPLE_PAGES value
+-- TABLESPACE tablespace_name [STORAGE { DISK | MEMORY | DEFAULT } ]
+''')
 
     def TemplateAlterTable(self):
-        pass
+        return Template('''ALTER TABLE #table_name#
+-- ADD [ COLUMN ] col_name column_definition  [ FIRST | AFTER col_name ]
+-- ADD [ COLUMN ] ( col_name column_definition , ... )
+-- ADD { INDEX | KEY } [ index_name ] USING { BTREE | HASH } (index_col_name , ... )
+-- ADD [ CONSTRAINT [ symbol ] ] PRIMARY KEY USING { BTREE | HASH } ( index_col_name , ... )
+-- ADD [ CONSTRAINT [ symbol ] ] UNIQUE [ INDEX | KEY ] [ index_name ] USING { BTREE | HASH } ( index_col_name , ... )
+-- ADD FULLTEXT [ INDEX | KEY ] ( index_col_name , ... )
+-- ADD SPATIAL [ INDEX | KEY ] [ index_name ] (index_col_name , ... )
+-- ADD [ CONSTRAINT [ symbol ] ] FOREIGN KEY [ index_name ] ( index_col_name , ... ) reference_definition
+-- ALGORITHM { DEFAULT | INPLACE | COPY }
+-- ALTER [ COLUMN ] col_name { SET DEFAULT literal | DROP DEFAULT }
+-- CHANGE [ COLUMN ] old_col_name new_col_name column_definition [ FIRST | AFTER col_name ]
+-- [DEFAULT] CHARACTER SET charset_name [ COLLATE collation_name ]
+-- CONVERT TO CHARACTER SET charset_name [ COLLATE collation_name ]
+-- { DISABLE | ENABLE } KEYS
+-- { DISCARD | IMPORT } TABLESPACE
+-- DROP [ COLUMN ] col_name
+-- DROP { INDEX | KEY } index_name
+-- DROP PRIMARY KEY
+-- DROP FOREIGN KEY fk_symbol
+-- FORCE
+-- LOCK { DEFAULT | NONE | SHARED | EXCLUSIVE }
+-- MODIFY [ COLUMN ] col_name column_definition [ FIRST | AFTER col_name ]
+-- ORDER BY col_name [, col_name] ...
+-- RENAME { INDEX | KEY } old_index_name TO new_index_name
+-- RENAME [ TO | AS ] new_tbl_name
+-- { WITHOUT | WITH } VALIDATION
+-- ADD PARTITION ( partition_definition )
+-- DROP PARTITION partition_names
+-- DISCARD PARTITION { partition_names | ALL } TABLESPACE
+-- IMPORT PARTITION { partition_names | ALL } TABLESPACE
+-- TRUNCATE PARTITION { partition_names | ALL }
+-- COALESCE PARTITION number
+-- REORGANIZE PARTITION partition_names INTO ( partition_definitions )
+-- EXCHANGE PARTITION partition_name WITH TABLE tbl_name [ { WITH | WITHOUT } VALIDATION ]
+-- ANALYZE PARTITION { partition_names | ALL }
+-- CHECK PARTITION { partition_names | ALL }
+-- OPTIMIZE PARTITION { partition_names | ALL }
+-- REBUILD PARTITION { partition_names | ALL }
+-- REPAIR PARTITION { partition_names | ALL }
+-- REMOVE PARTITIONING
+-- UPGRADE PARTITIONING
+-- AUTO_INCREMENT value
+-- AVG_ROW_LENGTH value
+-- [ DEFAULT ] CHARACTER SET charset_name
+-- CHECKSUM { 0 | 1 }
+-- [ DEFAULT ] COLLATE collation_name
+-- COMMENT 'string'
+-- COMPRESSION { 'ZLIB' | 'LZ4' | 'NONE' }
+-- CONNECTION 'connect_string'
+-- { DATA | INDEX } DIRECTORY 'absolute path to directory'
+-- DELAY_KEY_WRITE { 0 | 1 }
+-- ENCRYPTION { 'Y' | 'N' }
+-- ENGINE engine_name
+-- INSERT_METHOD { NO | FIRST | LAST }
+-- KEY_BLOCK_SIZE value
+-- MAX_ROWS value
+-- MIN_ROWS value
+-- PACK_KEYS { 0 | 1 | DEFAULT }
+-- PASSWORD 'string'
+-- ROW_FORMAT { DEFAULT | DYNAMIC | FIXED | COMPRESSED | REDUNDANT | COMPACT }
+-- STATS_AUTO_RECALC { DEFAULT | 0 | 1 }
+-- STATS_PERSISTENT { DEFAULT | 0 | 1 }
+-- STATS_SAMPLE_PAGES value
+-- TABLESPACE tablespace_name [STORAGE { DISK | MEMORY | DEFAULT } ]
+''')
 
     def TemplateDropTable(self):
         return Template('''DROP TABLE #table_name#
@@ -805,6 +916,124 @@ SELECT ...
         return Template('''DROP VIEW #view_name#
 -- RESTRICT
 -- CASCADE
+''')
+
+    def TemplateSelect(self, p_schema, p_table):
+        v_sql = 'SELECT t.'
+        v_fields = self.QueryTablesFields(p_table, False, p_schema)
+        if len(v_fields.Rows) > 0:
+            v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+        v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+        v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
+        if len(v_pk.Rows) > 0:
+            v_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+            if len(v_fields.Rows) > 0:
+                v_sql += '\nORDER BY t.'
+                v_sql += '\n       , t.'.join([r['column_name'] for r in v_fields.Rows])
+        return Template(v_sql)
+
+    def TemplateInsert(self, p_schema, p_table):
+        v_fields = self.QueryTablesFields(p_table, False, p_schema)
+        if len(v_fields.Rows) > 0:
+            v_sql = 'INSERT INTO {0}.{1} (\n'.format(p_schema, p_table)
+            v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
+            if len(v_pk.Rows) > 0:
+                v_table_pk_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+                v_pk_fields = [r['column_name'] for r in v_table_pk_fields.Rows]
+                v_values = []
+                v_first = True
+                for r in v_fields.Rows:
+                    if v_first:
+                        v_sql += '      {0}'.format(r['column_name'])
+                        if r['column_name'] in v_pk_fields:
+                            v_values.append('      ? -- {0} {1} PRIMARY KEY'.format(r['column_name'], r['data_type']))
+                        elif r['nullable'] == 'YES':
+                            v_values.append('      ? -- {0} {1} NULLABLE'.format(r['column_name'], r['data_type']))
+                        else:
+                            v_values.append('      ? -- {0} {1}'.format(r['column_name'], r['data_type']))
+                        v_first = False
+                    else:
+                        v_sql += '\n    , {0}'.format(r['column_name'])
+                        if r['column_name'] in v_pk_fields:
+                            v_values.append('\n    , ? -- {0} {1} PRIMARY KEY'.format(r['column_name'], r['data_type']))
+                        elif r['nullable'] == 'YES':
+                            v_values.append('\n    , ? -- {0} {1} NULLABLE'.format(r['column_name'], r['data_type']))
+                        else:
+                            v_values.append('\n    , ? -- {0} {1}'.format(r['column_name'], r['data_type']))
+            else:
+                v_values = []
+                v_first = True
+                for r in v_fields.Rows:
+                    if v_first:
+                        v_sql += '      {0}'.format(r['column_name'])
+                        if r['nullable'] == 'YES':
+                            v_values.append('      ? -- {0} {1} NULLABLE'.format(r['column_name'], r['data_type']))
+                        else:
+                            v_values.append('      ? -- {0} {1}'.format(r['column_name'], r['data_type']))
+                        v_first = False
+                    else:
+                        v_sql += '\n    , {0}'.format(r['column_name'])
+                        if r['nullable'] == 'YES':
+                            v_values.append('\n    , ? -- {0} {1} NULLABLE'.format(r['column_name'], r['data_type']))
+                        else:
+                            v_values.append('\n    , ? -- {0} {1}'.format(r['column_name'], r['data_type']))
+            v_sql += '\n) VALUES (\n'
+            for v in v_values:
+                v_sql += v
+            v_sql += '\n)'
+        else:
+            v_sql = ''
+        return Template(v_sql)
+
+    def TemplateUpdate(self, p_schema, p_table):
+        v_fields = self.QueryTablesFields(p_table, False, p_schema)
+        if len(v_fields.Rows) > 0:
+            v_sql = 'UPDATE {0}.{1}\nSET '.format(p_schema, p_table)
+            v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
+            if len(v_pk.Rows) > 0:
+                v_table_pk_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+                v_pk_fields = [r['column_name'] for r in v_table_pk_fields.Rows]
+                v_values = []
+                v_first = True
+                for r in v_fields.Rows:
+                    if v_first:
+                        if r['column_name'] in v_pk_fields:
+                            v_sql += '{0} = ? -- {1} PRIMARY KEY'.format(r['column_name'], r['data_type'])
+                        elif r['nullable'] == 'YES':
+                            v_sql += '{0} = ? -- {1} NULLABLE'.format(r['column_name'], r['data_type'])
+                        else:
+                            v_sql += '{0} = ? -- {1}'.format(r['column_name'], r['data_type'])
+                        v_first = False
+                    else:
+                        if r['column_name'] in v_pk_fields:
+                            v_sql += '\n    , {0} = ? -- {1} PRIMARY KEY'.format(r['column_name'], r['data_type'])
+                        elif r['nullable'] == 'YES':
+                            v_sql += '\n    , {0} = ? -- {1} NULLABLE'.format(r['column_name'], r['data_type'])
+                        else:
+                            v_sql += '\n    , {0} = ? -- {1}'.format(r['column_name'], r['data_type'])
+            else:
+                v_values = []
+                v_first = True
+                for r in v_fields.Rows:
+                    if v_first:
+                        if r['nullable'] == 'YES':
+                            v_sql += '{0} = ? -- {1} NULLABLE'.format(r['column_name'], r['data_type'])
+                        else:
+                            v_sql += '{0} = ? -- {1}'.format(r['column_name'], r['data_type'])
+                        v_first = False
+                    else:
+                        if r['nullable'] == 'YES':
+                            v_sql += '\n    , {0} = ? -- {1} NULLABLE'.format(r['column_name'], r['data_type'])
+                        else:
+                            v_sql += '\n    , {0} = ? -- {1}'.format(r['column_name'], r['data_type'])
+            v_sql += '\nWHERE condition'
+        else:
+            v_sql = ''
+        return Template(v_sql)
+
+    def TemplateDelete(self):
+        return Template('''DELETE FROM #table_name#
+WHERE condition
 ''')
 
     def GetProperties(self, p_schema, p_table, p_object, p_type):

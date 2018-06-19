@@ -3316,4 +3316,3 @@ class IBMDB2(Generic):
         return v_return
     def Special(self, p_sql):
         return self.Query(p_sql).Pretty()
-        

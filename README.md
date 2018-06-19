@@ -7,7 +7,7 @@
 ## Release Notes
 
 - New features:
-  - Plugin system. Develop and share custom features
+  - [Plugin System](https://github.com/OmniDB/plugins). Develop and share custom features
   - Data mining, an advanced text pattern search over database objects and tables data
 - Improvements:
   - SQL Template now available for CREATE TABLE and ALTER TABLE

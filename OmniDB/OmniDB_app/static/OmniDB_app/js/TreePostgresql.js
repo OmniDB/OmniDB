@@ -43,7 +43,7 @@ function tabSQLTemplate(p_tab_name, p_template, p_showQtip=true) {
 }
 
 function tabDataMining(node) {
-    var v_name = 'Data Mining';
+    var v_name = 'Advanced Object Search';
 
     v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl
         .selectedTab.tag.tabControl.tabList.length - 1);
@@ -885,7 +885,7 @@ function getTreePostgresql(p_div) {
                             '#database_name#', node.text));
                 }
             }, {
-                text: 'Data Mining',
+                text: 'Advanced Object Search',
                 icon: '/static/OmniDB_app/images/data_mining.png',
                 action: function(node) {
                   checkCurrentDatabase(node, true, function() {
@@ -893,7 +893,6 @@ function getTreePostgresql(p_div) {
                   }, function() {
                       node.collapseNode();
                   })
-
                 }
             }]
         },

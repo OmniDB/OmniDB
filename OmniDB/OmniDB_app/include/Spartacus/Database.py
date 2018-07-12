@@ -1086,6 +1086,8 @@ class PostgreSQL(Generic):
             self.v_types = None
             psycopg2.extras.register_default_json(loads=lambda x: x)
             psycopg2.extras.register_default_jsonb(loads=lambda x: x)
+            psycopg2.extensions.register_type(
+            psycopg2.extensions.new_type(psycopg2.extensions.INTERVAL.values, 'INTERVAL_STR', psycopg2.STRING), self.v_cur)
         else:
             raise Spartacus.Database.Exception("PostgreSQL is not supported. Please install it with 'pip install Spartacus[postgresql]'.")
     def GetConnectionString(self):

@@ -44,10 +44,11 @@ class Generic(object):
                             p_password,
                             p_conn_id=0,
                             p_alias='',
-                            p_foreignkeys=True):
+                            p_foreignkeys=True,
+                            p_application_name='OmniDB'):
 
         if p_db_type == 'postgresql':
-            return PostgreSQL(p_server, p_port, p_service, p_user, p_password, p_conn_id, p_alias)
+            return PostgreSQL(p_server, p_port, p_service, p_user, p_password, p_conn_id, p_alias, p_application_name)
         if p_db_type == 'oracle':
             return Oracle(p_server, p_port, p_service, p_user, p_password, p_conn_id, p_alias)
         if p_db_type == 'mariadb':

@@ -179,8 +179,8 @@ function checkBeforeChangeDatabase(p_cancel_function, p_ok_function) {
 
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
 		if (v_tab.tag!=null)
-			if (v_tab.tag.mode=='edit' || v_tab.tag.mode=='alter' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='monitor_dashboard') {
-				showAlert('Before changing connection please close any tab that belongs to the following types: <br/><br/><b>Edit Data<br/><br/>Alter Table<br/><br/>Function Debugging<br/><br/>Monitoring Dashboard');
+			if (v_tab.tag.mode=='edit' || v_tab.tag.mode=='alter' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='monitor_dashboard' || v_tab.tag.mode=='data_mining') {
+				showAlert('Before changing connection please close any tab that belongs to the following types: <br/><br/><b>Edit Data<br/><br/>Alter Table<br/><br/>Function Debugging<br/><br/>Monitoring Dashboard<br/><br/>Data Mining');
 				v_connTabControl.selectedTab.tag.dd_object.set("selectedIndex",v_connTabControl.selectedTab.tag.dd_selected_index);
 				if (p_cancel_function!=null)
 					p_cancel_function();
@@ -485,16 +485,15 @@ function refreshHeights(p_all) {
 		else if(v_tab_tag.mode == 'data_mining') {
 			if(v_tab_tag.currQueryTab == 'data') {
 				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
-
-				if(v_tab_tag.ht != null) {
-					v_tab_tag.ht.render();
-				}
-			}
-			else if(v_tab_tag.currQueryTab == 'message') {
-				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
 			}
 		}
 	}
+
+	//Hooks
+  if (v_connTabControl.tag.hooks.windowResize.length>0) {
+    for (var i=0; i<v_connTabControl.tag.hooks.windowResize.length; i++)
+      v_connTabControl.tag.hooks.windowResize[i]();
+  }
 
 }
 
@@ -603,13 +602,6 @@ function resizeVerticalEnd(event) {
 	else if(v_tab_tag.mode == 'data_mining') {
 		if(v_tab_tag.currQueryTab == 'data') {
 			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
-
-			if(v_tab_tag.ht != null) {
-				v_tab_tag.ht.render();
-			}
-		}
-		else if(v_tab_tag.currQueryTab == 'message') {
-			v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
 		}
 	}
 }
@@ -830,13 +822,6 @@ function resizeHorizontalEnd(event) {
 		else if (v_tab_tag.mode=='alter') {
 	        v_tab_tag.tabControl.selectedTab.tag.ht.render();
 		}
-		else if(v_tab_tag.mode == 'data_mining') {
-			if(v_tab_tag.currQueryTab == 'data') {
-				if(v_tab_tag.ht != null) {
-					v_tab_tag.ht.render();
-				}
-			}
-		}
 
 	}
 
@@ -850,6 +835,12 @@ function resizeHorizontalEnd(event) {
 			v_conn_tab_tag.ddlEditor.resize();
 		}
 	}
+
+	//Hooks
+  if (v_connTabControl.tag.hooks.windowResize.length>0) {
+    for (var i=0; i<v_connTabControl.tag.hooks.windowResize.length; i++)
+      v_connTabControl.tag.hooks.windowResize[i]();
+  }
 
 }
 
@@ -1201,6 +1192,40 @@ function adjustQueryTabObjects(p_all_tabs) {
 
 }
 
+function showMenuNewTabOuter(e) {
+
+	var v_option_list = [];
+	//Hooks
+	if (v_connTabControl.tag.hooks.outerTabMenu.length>0) {
+		for (var i=0; i<v_connTabControl.tag.hooks.outerTabMenu.length; i++)
+			v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.outerTabMenu[i]());
+	}
+
+	if (v_option_list.length>0) {
+		v_option_list.unshift({
+			text: 'New Connection',
+			icon: '/static/OmniDB_app/images/test.png',
+			action: function() {
+				startLoading();
+				setTimeout(function() { v_connTabControl.tag.createConnTab(); },0);
+			}
+		});
+
+		customMenu(
+			{
+				x:e.clientX+5,
+				y:e.clientY+5
+			},
+			v_option_list,
+			null);
+	}
+	else {
+		startLoading();
+		setTimeout(function() { v_connTabControl.tag.createConnTab(); },0);
+	}
+
+}
+
 function showMenuNewTab(e) {
 	var v_option_list = [
 		{
@@ -1263,6 +1288,12 @@ function showMenuNewTab(e) {
 				}
 			}
 		);
+	}
+
+	//Hooks
+	if (v_connTabControl.tag.hooks.innerTabMenu.length>0) {
+		for (var i=0; i<v_connTabControl.tag.hooks.innerTabMenu.length; i++)
+			v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.innerTabMenu[i]());
 	}
 
 	customMenu(

@@ -1,11 +1,12 @@
 #!/bin/sh -e
 
-VERSION=2.8.0
+VERSION=2.9.0
 ARCH=centos-amd64
 
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install -r ~/OmniDB/requirements.txt --upgrade
+pip uninstall paramiko
 pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt --upgrade
 echo "Done"
 
@@ -111,7 +112,7 @@ ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-server.spec
-cp RPMS/x86_64/omnidb-server-$VERSION-0.x86_64.rpm ../omnidb-server_$VERSION-$ARCH.rpm
+cp RPMS/x86_64/omnidb-server-$VERSION-0.x86_64.rpm ../omnidb-server_$VERSION-centos6-amd64.rpm
 cd ..
 echo "Done"
 

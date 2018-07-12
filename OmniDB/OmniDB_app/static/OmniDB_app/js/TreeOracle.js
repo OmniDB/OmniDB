@@ -10,7 +10,7 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
-function tabSQLTemplate(p_tab_name, p_template) {
+function tabSQLTemplate(p_tab_name, p_template, p_showQtip=true) {
     v_connTabControl.tag.createQueryTab(p_tab_name);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
         p_template);
@@ -20,24 +20,26 @@ function tabSQLTemplate(p_tab_name, p_template) {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
         .value = 1;
 
-    var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
-        content: {
-            text: 'Adjust command and run!'
-        },
-        position: {
-            my: 'bottom center',
-            at: 'top center'
-        },
-        style: {
-            classes: 'qtip-bootstrap'
-        },
-        show: {
-            ready: true
-        }
-    })
-    window.setTimeout(function() {
-        qtip.qtip('api').destroy();
-    }, 4000);
+    if(p_showQtip) {
+        var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
+            content: {
+                text: 'Adjust command and run!'
+            },
+            position: {
+                my: 'bottom center',
+                at: 'top center'
+            },
+            style: {
+                classes: 'qtip-bootstrap'
+            },
+            show: {
+                ready: true
+            }
+        })
+        window.setTimeout(function() {
+            qtip.qtip('api').destroy();
+        }, 4000);
+    }
 }
 
 /// <summary>
@@ -202,10 +204,18 @@ function getTreeOracle(p_div) {
                     }
                 }
             }, {
-                text: 'Create Table',
+                text: 'Create Table (GUI)',
                 icon: '/static/OmniDB_app/images/new_table.png',
                 action: function(node) {
                     startAlterTable(true, 'new', null, node.tree.tag.v_username);
+                }
+            }, {
+                text: 'Create Table (SQL)',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Table', node.tree.tag
+                        .create_table.replace(
+                            '#schema_name#', node.tree.tag.v_username));
                 }
             }/*, {
                 text: 'Doc: Basics',
@@ -259,35 +269,8 @@ function getTreeOracle(p_div) {
                         text: 'Query Data',
                         icon: '/static/OmniDB_app/images/query.png',
                         action: function(node) {
-
-                            var v_table_name = '';
-                            v_table_name = node.tree.tag.v_username + '.' + node.text;
-
-                            v_connTabControl.tag.createQueryTab(
-                                node.text);
-
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.sel_filtered_data.value =
-                                1;
-
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.setValue(
-                                    '-- Querying Data\nselect t.*\nfrom ' +
-                                    v_table_name + ' t'
-                                );
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.clearSelection();
-                            renameTabConfirm(
-                                v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab,
-                                node.text);
-
-                            //minimizeEditor();
-
-                            querySQL(0);
+                            TemplateSelectOracle(node.tree
+                              .tag.v_username, node.text);
                         }
                     }, {
                         text: 'Edit Data',
@@ -296,6 +279,20 @@ function getTreeOracle(p_div) {
                             startEditData(node.text,
                                 node.tree.tag.v_username
                             );
+                        }
+                    }, {
+                        text: 'Insert Record',
+                        icon: '/static/OmniDB_app/images/insert.png',
+                        action: function(node) {
+                            TemplateInsertOracle(node.tree
+                              .tag.v_username, node.text);
+                        }
+                    }, {
+                        text: 'Update Records',
+                        icon: '/static/OmniDB_app/images/update.png',
+                        action: function(node) {
+                            TemplateUpdateOracle(node.tree
+                              .tag.v_username, node.text);
                         }
                     }, {
                         text: 'Count Records',
@@ -328,24 +325,13 @@ function getTreeOracle(p_div) {
                         text: 'Delete Records',
                         icon: '/static/OmniDB_app/images/tab_close.png',
                         action: function(node) {
-                            v_connTabControl.tag.createQueryTab(
-                                'Delete Records');
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.setValue(
-                                    'DELETE FROM ' +
-                                    node.tree.tag.v_username + '.' + node.text);
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.clearSelection();
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.gotoLine(0,
-                                    0, true);
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.sel_filtered_data.value =
-                                1;
+                          tabSQLTemplate(
+                              'Delete Records',
+                              node.tree.tag.delete
+                              .replace(
+                                  '#table_name#',
+                                  node.tree.tag.v_username + '.' +
+                                  node.text));
                         }
                     }]
                 }
@@ -361,6 +347,15 @@ function getTreeOracle(p_div) {
                                 'alter', node.text,
                                 node.tree.tag.v_username
                             );
+                        }
+                    }, {
+                        text: 'Alter Table (SQL)',
+                        icon: '/static/OmniDB_app/images/text_edit.png',
+                        action: function(node) {
+                            tabSQLTemplate('Alter Table', node.tree.tag
+                                .alter_table.replace(
+                                    '#table_name#', node.tree.tag.v_username
+                                    + '.' + node.text));
                         }
                     }, {
                         text: 'Drop Table',
@@ -440,7 +435,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeOracle(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -488,7 +483,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeOracle(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -536,7 +531,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeOracle(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -594,7 +589,7 @@ function getTreeOracle(p_div) {
                 icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
                     if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
+                        refreshTreeOracle(node);
                     else {
                         node.collapseNode();
                         node.expandNode();
@@ -1268,6 +1263,21 @@ function getTreeOracle(p_div) {
         getPropertiesOracle(node);
     }
 
+    tree.beforeContextMenuEvent = function(node, callback) {
+
+        var v_elements = [];
+        //Hooks
+        if (v_connTabControl.tag.hooks.oracleTreeContextMenu.length>0) {
+          for (var i=0; i<v_connTabControl.tag.hooks.oracleTreeContextMenu.length; i++)
+            v_elements = v_elements.concat(v_connTabControl.tag.hooks.oracleTreeContextMenu[i](node));
+        }
+
+        var v_customCallback = function() {
+          callback(v_elements);
+        }
+        v_customCallback();
+    }
+
     var node_server = tree.createNode('Oracle', false,
         '/static/OmniDB_app/images/oracle_medium.png', null, {
             type: 'server'
@@ -1367,6 +1377,12 @@ function getPropertiesOracle(node) {
       } else {
         clearProperties();
       }
+
+      //Hooks
+      if (v_connTabControl.tag.hooks.oracleTreeNodeClick.length>0) {
+        for (var i=0; i<v_connTabControl.tag.hooks.oracleTreeNodeClick.length; i++)
+          v_connTabControl.tag.hooks.oracleTreeNodeClick[i](node);
+      }
 }
 
 /// <summary>
@@ -1426,6 +1442,17 @@ function refreshTreeOracle(node) {
     } */else if (node.tag.type == 'server') {
         getTreeDetailsOracle(node);
     }
+    else {
+      afterNodeOpenedCallbackOracle(node);
+    }
+}
+
+function afterNodeOpenedCallbackOracle(node) {
+  //Hooks
+  if (v_connTabControl.tag.hooks.oracleTreeNodeOpen.length>0) {
+    for (var i=0; i<v_connTabControl.tag.hooks.oracleTreeNodeOpen.length; i++)
+      v_connTabControl.tag.hooks.oracleTreeNodeOpen[i](node);
+  }
 }
 
 /// <summary>
@@ -1522,8 +1549,8 @@ function getTreeDetailsOracle(node) {
                 //create_mview: p_return.v_data.v_database_return.create_mview,
                 //refresh_mview: p_return.v_data.v_database_return.refresh_mview,
                 //drop_mview: p_return.v_data.v_database_return.drop_mview,
-                //create_table
-                //alter_table
+                create_table: p_return.v_data.v_database_return.create_table,
+                alter_table: p_return.v_data.v_database_return.alter_table,
                 drop_table: p_return.v_data.v_database_return.drop_table,
                 create_column: p_return.v_data.v_database_return.create_column,
                 alter_column: p_return.v_data.v_database_return.alter_column,
@@ -1536,7 +1563,7 @@ function getTreeDetailsOracle(node) {
                 drop_foreignkey: p_return.v_data.v_database_return.drop_foreignkey,
                 create_index: p_return.v_data.v_database_return.create_index,
                 alter_index: p_return.v_data.v_database_return.alter_index,
-                drop_index: p_return.v_data.v_database_return.drop_index//,
+                drop_index: p_return.v_data.v_database_return.drop_index,
                 //create_trigger: p_return.v_data.v_database_return.create_trigger,
                 //create_view_trigger: p_return.v_data.v_database_return.create_view_trigger,
                 //alter_trigger: p_return.v_data.v_database_return.alter_trigger,
@@ -1546,6 +1573,7 @@ function getTreeDetailsOracle(node) {
                 //create_partition: p_return.v_data.v_database_return.create_partition,
                 //noinherit_partition: p_return.v_data.v_database_return.noinherit_partition,
                 //drop_partition: p_return.v_data.v_database_return.drop_partition
+                delete: p_return.v_data.v_database_return.delete
             }
 
             if (node.tree.tag.superuser) {
@@ -1674,6 +1702,8 @@ function getTreeDetailsOracle(node) {
               //startMonitorDashboard();
             }
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1717,6 +1747,8 @@ function getTablespacesOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1758,6 +1790,8 @@ function getRolesOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -1816,6 +1850,8 @@ function getTablesOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1858,6 +1894,8 @@ function getSequencesOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -1905,6 +1943,8 @@ function getViewsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -1969,6 +2009,8 @@ function getViewsColumnsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2262,6 +2304,8 @@ function getColumnsOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2308,6 +2352,8 @@ function getPKOracle(node) {
                     }, null);
             }
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2346,6 +2392,8 @@ function getPKColumnsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2399,6 +2447,8 @@ function getUniquesOracle(node) {
 
             }
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2442,6 +2492,8 @@ function getUniquesColumnsOracle(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2497,6 +2549,8 @@ function getIndexesOracle(node) {
 
             }
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2541,6 +2595,8 @@ function getIndexesColumnsOracle(node) {
                 node.drawChildNodes();
 
             }
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2599,6 +2655,8 @@ function getFKsOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2652,6 +2710,8 @@ function getFKsColumnsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2805,6 +2865,8 @@ function getFunctionsOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -2857,6 +2919,8 @@ function getFunctionFieldsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -2985,6 +3049,8 @@ function getProceduresOracle(node) {
 
             node.drawChildNodes();
 
+            afterNodeOpenedCallbackOracle(node);
+
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -3037,6 +3103,8 @@ function getProcedureFieldsOracle(node) {
             }
 
             node.drawChildNodes();
+
+            afterNodeOpenedCallbackOracle(node);
 
         },
         function(p_return) {
@@ -3218,6 +3286,100 @@ function getTriggerFunctionDefinitionOracle(node) {
 
 }
 */
+
+/// <summary>
+/// Retrieving SELECT SQL template.
+/// </summary>
+function TemplateSelectOracle(p_schema, p_table) {
+
+    execAjax('/template_select_oracle/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": p_table,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+            v_connTabControl.tag.createQueryTab(
+                p_schema + '.' + p_table);
+
+            v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab
+                .tag.sel_filtered_data.value =
+                1;
+
+            v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab
+                .tag.editor.setValue(p_return.v_data.v_template);
+            v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab
+                .tag.editor.clearSelection();
+            renameTabConfirm(
+                v_connTabControl.selectedTab
+                .tag.tabControl.selectedTab,
+                p_schema + '.' + p_table);
+
+            //minimizeEditor();
+
+            querySQL(0);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true);
+}
+
+/// <summary>
+/// Retrieving INSERT SQL template.
+/// </summary>
+function TemplateInsertOracle(p_schema, p_table) {
+
+    execAjax('/template_insert_oracle/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": p_table,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Insert ' + p_schema + '.' + p_table,
+              p_return.v_data.v_template);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true);
+}
+
+/// <summary>
+/// Retrieving UPDATE SQL template.
+/// </summary>
+function TemplateUpdateOracle(p_schema, p_table) {
+
+    execAjax('/template_update_oracle/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": p_table,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Update ' + p_schema + '.' + p_table,
+              p_return.v_data.v_template);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true);
+}
 
 function nodeOpenError(p_return, p_node) {
 

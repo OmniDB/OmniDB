@@ -1,25 +1,26 @@
-## Next Release: *2.9.0 - June 14, 2018*
+## Next Release: *2.10.0 - July 19, 2018*
 
-# OmniDB 2.8.0
+# OmniDB 2.9.0
 
-## Release Date: *May 17, 2018*
+## Release Date: *June 19, 2018*
 
 ## Release Notes
 
 - New features:
-  - Connection to any database via SSH tunnels
-  - Support for BDR 3.0
-  - Support for pglogical 3.0
+  - [Plugin System](https://github.com/OmniDB/plugins). Develop and share custom features
+  - [Data Mining](https://omnidb.org/en/documentation-en/22-data-mining), an advanced pattern matching search over database objects and tables data
 - Improvements:
-  - Improvements to the OmniDB app window container
-    - **IMPORTANT** - Oracle Management with OmniDB-app on **WINDOWS**: Oracle Instant Client ([32-bit](http://www.oracle.com/technetwork/topics/winsoft-085727.html)) ([64-bit](http://www.oracle.com/technetwork/topics/winx64soft-089540.html)) must be extracted into [OmniDB's folder]/resources/app/omnidb-server OR PATH environment variable must be adjusted to point to OIC's location.
-  - Backslash commands supporting PostgreSQL 10 partitioned tables and partitions
-  - DDL for PostgreSQL 10 partitioned tables and partitions
-  - Tree view shows PostgreSQL 10 partitioned tables and partitions with different icons
+  - SQL Template now available for CREATE TABLE and ALTER TABLE
+  - SQL Template now available for inserting and updating records
+  - Query Data action now creates a SQL Template including all columns and ORDER BY primary key
+  - DDL/Properties are now available for all elements in the tree for PostgreSQL databases
+  - DDL tab now shows GRANT for all supported objects for PostgreSQL databases
+  - BDR3 is now available as a plugin
 - Bug fixes:
-  - Fixed displaying table data in treeview when using MySQL 5.7
-  - Fixed column autocomplete when using MySQL and MariaDB
-  - Fixed JSON and JSONB editing
+  - Debugger can now be used when connecting via SSH tunnel
+  - Queries that return very large sets of data no longer block the query server
+  - Fixed SSH tunnel connection issue when using the monitoring dashboard
+  - Fixed \dx+ EXTENSION command in console tab
 
 # 1- Installation
 

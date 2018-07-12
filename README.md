@@ -7,15 +7,15 @@
 ## Release Notes
 
 - New features:
-  - Plugin system. Develop and share custom features
-  - Data mining, an advanced text pattern search over database objects and tables data
+  - [Plugin System](https://github.com/OmniDB/plugins). Develop and share custom features
+  - Data mining, an advanced pattern matching search over database objects and tables data
 - Improvements:
-  - Included SQL Template for CREATE TABLE and ALTER TABLE
-  - Included SQL Template for inserting and updating records
-  - Included DDL/Properties for all remaining elements in the tree (PostgreSQL)
-  - DDL tab now show grants for all supported objects (PostgreSQL)
+  - SQL Template now available for CREATE TABLE and ALTER TABLE
+  - SQL Template now available for inserting and updating records
   - Query Data action now creates a SQL Template including all columns and ORDER BY primary key
-  - BDR 3.0 removed from OmniDB core, it is now a plugin
+  - DDL/Properties are now available for all elements in the tree for PostgreSQL databases
+  - DDL tab now shows GRANT for all supported objects for PostgreSQL databases
+  - BDR3 is now available as a plugin
 - Bug fixes:
   - Debugger can now be used when connecting via SSH tunnel
   - Queries that return very large sets of data no longer block the query server

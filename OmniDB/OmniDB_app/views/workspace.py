@@ -941,6 +941,7 @@ def save_alter_table(request):
 
     json_object = json.loads(request.POST.get('data', None))
     p_database_index = json_object['p_database_index']
+    p_tab_id = json_object['p_tab_id']
     p_schema_name = json_object['p_schema_name']
     p_original_table_name = json_object['p_original_table_name']
     p_new_table_name = json_object['p_new_table_name']
@@ -952,7 +953,7 @@ def save_alter_table(request):
     p_data_indexes = json_object['p_data_indexes']
     p_row_indexes_info = json_object['p_row_indexes_info']
 
-    v_database = v_session.v_databases[p_database_index]['database']
+    v_database = v_session.v_tab_connections[p_tab_id]
 
     v_return['v_data'] = {
         'v_columns_simple_commands_return': [],

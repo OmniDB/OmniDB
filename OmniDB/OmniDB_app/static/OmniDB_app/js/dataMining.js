@@ -193,7 +193,7 @@ function dataMiningReturnRender(p_message, p_context) {
 	                text: 'See More',
 	                icon: '/static/OmniDB_app/images/explain.png',
 	                action: function(p_node) {
-						tabSQLTemplate('Data Mining - ' + p_node.tag.key, p_node.tag.sql, false);
+						tabSQLTemplate('Search - ' + p_node.tag.key, p_node.tag.sql, false);
 	                }
 	            }]
 	        },
@@ -209,137 +209,101 @@ function dataMiningReturnRender(p_message, p_context) {
 		};
 
 		var v_tree = createTree(v_div_result.id, '#fcfdfd', v_context_menu);
+		var v_num_nodes = 0;
 
 		for(v_key in p_message.v_data.v_result) {
-			if(v_key == 'Data') {
-				//var v_count = 0;
+			if (p_message.v_data.v_result[v_key]['count'] > 0) {
+				if(v_key == 'Data') {
+					var v_dataMatches = '';
+					var v_data_cm = null;
 
-				var v_dataMatches = '';
-				var v_data_cm = null;
-
-				switch(p_message.v_data.v_result[v_key]['count']) {
-					case 0: {
-						v_dataMatches = v_key + ' (No match)';
-						break;
-					}
-					case 1: {
+					if (p_message.v_data.v_result[v_key]['count'] == 1)
 						v_dataMatches = v_key + ' (1 match)';
-						break;
-					}
-					default: {
+					else
 						v_dataMatches = v_key + ' (' + p_message.v_data.v_result[v_key]['count'] + ' matches)';
-						break;
+
+					if(p_message.v_data.v_result[v_key]['exception'] != null) {
+						v_data_cm = 'cm_see_error';
+						v_dataMatches = '<span style="color:red;">' + v_dataMatches + ' (Error)</span>';
 					}
-				}
 
-				if(p_message.v_data.v_result[v_key]['exception'] != null) {
-					v_data_cm = 'cm_see_error';
-					v_dataMatches = '<span style="color:red;">' + v_dataMatches + ' (Error)</span>';
-				}
+					var v_node = v_tree.createNode(
+						v_dataMatches,
+						false,
+						'/static/OmniDB_app/images/data_mining.png',
+						null,
+						p_message.v_data.v_result[v_key],
+						v_data_cm
+					);
 
-				var v_node = v_tree.createNode(
-					v_dataMatches,
-					false,
-					'/static/OmniDB_app/images/data_mining.png',
-					null,
-					p_message.v_data.v_result[v_key],
-					v_data_cm
-				);
+					v_node.tag.key = v_key;
 
-				v_node.tag.key = v_key;
+					for(v_key2 in p_message.v_data.v_result[v_key]['result']) {
+						if(p_message.v_data.v_result[v_key]['result'][v_key2].count > 0) {
+							var v_matches = '';
+							var v_cm = 'cm_see_details';
 
-				for(v_key2 in p_message.v_data.v_result[v_key]['result']) {
-					if(p_message.v_data.v_result[v_key]['result'][v_key2].count > 0) {
-						var v_matches = '';
-						//v_count += p_message.v_data.v_result[v_key][v_key2].count;
-						var v_cm = 'cm_see_details';
-
-						switch(p_message.v_data.v_result[v_key]['result'][v_key2].count) {
-							case 1: {
+							if (p_message.v_data.v_result[v_key]['result'][v_key2].count == 1)
 								v_matches = v_key2 + ' (1 match)';
-								break;
-							}
-							default: {
+							else
 								v_matches = v_key2 + ' (' + p_message.v_data.v_result[v_key]['result'][v_key2].count + ' matches)';
-								break;
+
+							if(p_message.v_data.v_result[v_key]['result'][v_key2]['exception'] != null) {
+								v_cm = 'cm_see_error';
+								v_matches = '<span style="color:red;">' + v_matches + ' (Error)</span>';
 							}
+
+							var v_childNode = v_node.createChildNode(
+								v_matches,
+								false,
+								'/static/OmniDB_app/images/data_mining.png',
+								p_message.v_data.v_result[v_key]['result'][v_key2],
+								v_cm
+							);
+							v_num_nodes++;
+
+							v_childNode.tag.key = v_key2;
 						}
-
-						if(p_message.v_data.v_result[v_key]['result'][v_key2]['exception'] != null) {
-							v_cm = 'cm_see_error';
-							v_matches = '<span style="color:red;">' + v_matches + ' (Error)</span>';
-						}
-
-						var v_childNode = v_node.createChildNode(
-							v_matches,
-							false,
-							'/static/OmniDB_app/images/data_mining.png',
-							p_message.v_data.v_result[v_key]['result'][v_key2],
-							v_cm
-						);
-
-						v_childNode.tag.key = v_key2;
 					}
 				}
+				else {
+					var v_matches = '';
+					var v_cm = 'cm_see_details';
 
-				/*var v_dataMatches = '';
-
-				switch(v_count) {
-					case 0: {
-						v_dataMatches = '(No match)';
-						break;
-					}
-					case 1: {
-						v_dataMatches = '(1 match)';
-						break;
-					}
-					default: {
-						v_dataMatches = '(' + v_co
-
-				v_node.tag.key = v_key;unt + ' matches)';
-						break;
-					}
-				}
-
-				v_node.text = v_key + ' ' + v_dataMatches;*/
-			}
-			else {
-				var v_matches = '';
-				var v_cm = null;
-
-				switch(p_message.v_data.v_result[v_key].count) {
-					case 0: {
-						v_matches = v_key + ' (No match)';
-						break;
-					}
-					case 1: {
+					if (p_message.v_data.v_result[v_key].count == 1)
 						v_matches = v_key + ' (1 match)';
-						v_cm = 'cm_see_details';
-						break;
-					}
-					default: {
+					else
 						v_matches = v_key + ' (' + p_message.v_data.v_result[v_key].count + ' matches)';
-						v_cm = 'cm_see_details';
-						break;
+
+					if(p_message.v_data.v_result[v_key]['exception'] != null) {
+						v_cm = 'cm_see_error';
+						v_matches = '<span style="color:red;">' + v_matches + ' (Error)</span>';
 					}
+
+					var v_node = v_tree.createNode(
+						v_matches,
+						false,
+						'/static/OmniDB_app/images/data_mining.png',
+						null,
+						p_message.v_data.v_result[v_key],
+						v_cm
+					);
+					v_num_nodes++;
+
+					v_node.tag.key = v_key;
 				}
-
-				if(p_message.v_data.v_result[v_key]['exception'] != null) {
-					v_cm = 'cm_see_error';
-					v_matches = '<span style="color:red;">' + v_matches + ' (Error)</span>';
-				}
-
-				var v_node = v_tree.createNode(
-					v_matches,
-					false,
-					'/static/OmniDB_app/images/data_mining.png',
-					null,
-					p_message.v_data.v_result[v_key],
-					v_cm
-				);
-
-				v_node.tag.key = v_key;
 			}
+		}
+
+		if (v_num_nodes == 0) {
+			var v_node = v_tree.createNode(
+				'Advanced Object Search found no matches.',
+				false,
+				'/static/OmniDB_app/images/data_mining.png',
+				null,
+				'no_matches',
+				null
+			);
 		}
 
 		v_tree.drawTree();

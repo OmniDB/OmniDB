@@ -4705,7 +4705,7 @@ TO NODE ( nodename [, ... ] )
                            (aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner)))).privilege_type as privilege_type,
                            (aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner)))).is_grantable as is_grantable
                     from pg_namespace n
-                    where n.oid = '{0}'::regnamespace
+                    where quote_ident(n.nspname) = '{0}'
                 ) n
                 inner join pg_roles u_grantor
                 on u_grantor.oid = n.grantor
@@ -5625,9 +5625,9 @@ TO NODE ( nodename [, ... ] )
                        p.proname AS name,
                        n.nspname AS namespace,
                        pg_get_userbyid(p.proowner) AS owner,
-                       '{0}' AS sql_identifier
+                       '{0}'::text AS sql_identifier
                 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
-                WHERE p.oid = '{0}'::regprocedure
+                WHERE p.oid = '{0}'::text::regprocedure
             ),
             createfunction as (
                 select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text

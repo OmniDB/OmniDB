@@ -7188,12 +7188,16 @@ function getForeignServersPostgresql(node) {
                       }, null, null, false);
               }
 
-              v_options = p_return.v_data[i].v_options.split(',');
-              for (j = 0; j < v_options.length; j++) {
-                  v_node.createChildNode(v_options[j],
-                      true, '/static/OmniDB_app/images/bullet_red.png', {
-                          database: v_connTabControl.selectedTab.tag.selectedDatabase
-                      }, null, null, false);
+              if (p_return.v_data[i].v_options != null) {
+                v_options = p_return.v_data[i].v_options.split(',');
+                if (v_options[0] != '') {
+                  for (j = 0; j < v_options.length; j++) {
+                      v_node.createChildNode(v_options[j],
+                          true, '/static/OmniDB_app/images/bullet_red.png', {
+                              database: v_connTabControl.selectedTab.tag.selectedDatabase
+                          }, null, null, false);
+                  }
+                }
               }
 
               v_node = v_node.createChildNode('User Mappings',
@@ -7251,12 +7255,16 @@ function getUserMappingsPostgresql(node) {
                       database: v_connTabControl.selectedTab.tag.selectedDatabase
                   }, 'cm_user_mapping', null, false);
 
-              v_options = p_return.v_data[i].v_options.split(',');
-              for (j = 0; j < v_options.length; j++) {
-                  v_node.createChildNode(v_options[j],
-                      true, '/static/OmniDB_app/images/bullet_red.png', {
-                          database: v_connTabControl.selectedTab.tag.selectedDatabase
-                      }, null, null, false);
+              if (p_return.v_data[i].v_options != null) {
+                v_options = p_return.v_data[i].v_options.split(',');
+                if (v_options[0] != '') {
+                  for (j = 0; j < v_options.length; j++) {
+                      v_node.createChildNode(v_options[j],
+                          true, '/static/OmniDB_app/images/bullet_red.png', {
+                              database: v_connTabControl.selectedTab.tag.selectedDatabase
+                          }, null, null, false);
+                  }
+                }
               }
 
             }
@@ -7368,22 +7376,30 @@ function getForeignColumnsPostgresql(node) {
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null, null, false);
 
-                v_options = p_return.v_data[0].v_options.split(',');
-                for (j = 0; j < v_options.length; j++) {
-                    v_node.createChildNode(v_options[j],
-                        true, '/static/OmniDB_app/images/bullet_red.png', {
-                            database: v_connTabControl.selectedTab.tag.selectedDatabase
-                        }, null, null, false);
+                if (p_return.v_data[0].v_options != null) {
+                  v_options = p_return.v_data[0].v_options.split(',');
+                  if (v_options[0] != '') {
+                    for (j = 0; j < v_options.length; j++) {
+                        v_node.createChildNode(v_options[j],
+                            true, '/static/OmniDB_app/images/bullet_red.png', {
+                                database: v_connTabControl.selectedTab.tag.selectedDatabase
+                            }, null, null, false);
+                    }
+                  }
                 }
 
             }
 
-            v_options = p_return.v_data[0].v_tableoptions.split(',');
-            for (j = 0; j < v_options.length; j++) {
-                node.createChildNode(v_options[j],
-                    true, '/static/OmniDB_app/images/bullet_red.png', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, null, null, false);
+            if (p_return.v_data[0].v_tableoptions != null) {
+              v_options = p_return.v_data[0].v_tableoptions.split(',');
+              if (v_options[0] != '') {
+                for (j = 0; j < v_options.length; j++) {
+                    node.createChildNode(v_options[j],
+                        true, '/static/OmniDB_app/images/bullet_red.png', {
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        }, null, null, false);
+                }
+              }
             }
 
             node.createChildNode(p_return.v_data[0].v_server,

@@ -1356,7 +1356,7 @@ function getTreePostgresql(p_div) {
                 text: 'Create Column',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
-                    tabSQLTemplate('Create Field', node.tree.tag
+                    tabSQLTemplate('Create Column', node.tree.tag
                         .create_column.replace(
                             '#table_name#', node.parent.parent
                             .parent.text + '.' + node.parent
@@ -2622,6 +2622,230 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
+        'cm_fdws': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Foreign Data Wrapper',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Foreign Data Wrapper', node.tree
+                        .tag.create_fdw);
+                }
+            }, {
+                text: 'Doc: Foreign Data Wrappers',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Foreign Data Wrappers',
+                        'https://www.postgresql.org/docs/' +
+                        getMajorVersion(node.tree.tag.version) +
+                        '/static/postgres-fdw.html'
+                    );
+                }
+            }]
+        },
+        'cm_fdw': {
+            elements: [{
+                text: 'Alter Foreign Data Wrapper',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter Foreign Data Wrapper', node.tree
+                        .tag.alter_fdw
+                        .replace('#fdwname#', node.text));
+                }
+            }, {
+                text: 'Drop Foreign Data Wrapper',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Foreign Data Wrapper', node.tree
+                        .tag.drop_fdw
+                        .replace('#fdwname#', node.text));
+                }
+            }]
+        },
+        'cm_foreign_servers': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Foreign Server',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Foreign Server', node.tree
+                        .tag.create_foreign_server
+                        .replace('#fdwname#', node.parent.text));
+                }
+            }]
+        },
+        'cm_foreign_server': {
+            elements: [{
+                text: 'Alter Foreign Server',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter Foreign Server', node.tree
+                        .tag.alter_foreign_server
+                        .replace('#srvname#', node.text));
+                }
+            }, {
+                text: 'Import Foreign Schema',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Import Foreign Schema', node.tree
+                        .tag.import_foreign_schema
+                        .replace('#srvname#', node.text));
+                }
+            }, {
+                text: 'Drop Foreign Server',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Foreign Server', node.tree
+                        .tag.drop_foreign_server
+                        .replace('#srvname#', node.text));
+                }
+            }]
+        },
+        'cm_user_mappings': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create User Mapping',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create User Mapping', node.tree
+                        .tag.create_user_mapping
+                        .replace('#srvname#', node.parent.text));
+                }
+            }]
+        },
+        'cm_user_mapping': {
+            elements: [{
+                text: 'Alter User Mapping',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter User Mapping', node.tree
+                        .tag.alter_user_mapping
+                        .replace('#user_name#', node.text)
+                        .replace('#srvname#', node.parent.parent.text));
+                }
+            }, {
+                text: 'Drop User Mapping',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop User Mapping', node.tree
+                        .tag.drop_user_mapping
+                        .replace('#user_name#', node.text)
+                        .replace('#srvname#', node.parent.parent.text));
+                }
+            }]
+        },
+        'cm_foreign_tables': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Foreign Table',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Foreign Table', node.tree
+                        .tag.create_foreign_table
+                        .replace('#schema_name#', node.parent.text));
+                }
+            }]
+        },
+        'cm_foreign_table': {
+            elements: [{
+                text: 'Alter Foreign Table',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter Foreign Table', node.tree
+                        .tag.alter_foreign_table
+                        .replace('#table_name#', node.parent.parent
+                          .text + '.' + node.text));
+                }
+            }, {
+                text: 'Drop Foreign Table',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Foreign Table', node.tree
+                        .tag.drop_foreign_table
+                        .replace('#table_name#', node.parent.parent
+                          .text + '.' + node.text));
+                }
+            }]
+        },
+        'cm_foreign_columns': {
+            elements: [{
+                text: 'Create Foreign Column',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Foreign Column', node.tree.tag
+                        .create_foreign_column.replace(
+                            '#table_name#', node.parent.parent
+                            .parent.text + '.' + node.parent
+                            .text));
+                }
+            }]
+        },
+        'cm_foreign_column': {
+            elements: [{
+                text: 'Alter Foreign Column',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Alter Foreign Column', node.tree.tag
+                        .alter_foreign_column.replace(
+                            '#table_name#', node.parent.parent
+                            .parent.parent.text + '.' +
+                            node.parent.parent.text).replace(
+                            /#column_name#/g, node.text));
+                }
+            }, {
+                text: 'Drop Foreign Column',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Foreign Column', node.tree.tag
+                        .drop_foreign_column.replace('#table_name#',
+                            node.parent.parent.parent.parent
+                            .text + '.' + node.parent.parent
+                            .text).replace(/#column_name#/g,
+                            node.text));
+                }
+            }]
+        },
         'cm_pglogical': {
             elements: [{
                 text: 'Doc: pglogical',
@@ -3647,6 +3871,34 @@ function getPropertiesPostgresqlConfirm(node) {
             p_object: node.text,
             p_type: node.tag.type
         });
+    } else if (node.tag.type == 'foreign_table') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
+    } else if (node.tag.type == 'user_mapping') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: null,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
+    } else if (node.tag.type == 'foreign_server') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: null,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
+    } else if (node.tag.type == 'fdw') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: null,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
     } else {
         clearProperties();
     }
@@ -3738,6 +3990,16 @@ function refreshTreePostgresqlConfirm(node) {
         getPublicationTablesPostgresql(node);
     } else if (node.tag.type == 'subscription_table_list') {
         getSubscriptionTablesPostgresql(node);
+    } else if (node.tag.type == 'fdw_list') {
+        getForeignDataWrappersPostgresql(node);
+    } else if (node.tag.type == 'foreign_server_list') {
+        getForeignServersPostgresql(node);
+    } else if (node.tag.type == 'user_mapping_list') {
+        getUserMappingsPostgresql(node);
+    } else if (node.tag.type == 'foreign_table_list') {
+        getForeignTablesPostgresql(node);
+    } else if (node.tag.type == 'foreign_table') {
+        getForeignColumnsPostgresql(node);
     } else if (node.tag.type == 'pglogical_node_list') {
         getPglogicalNodesPostgresql(node);
     } else if (node.tag.type == 'pglogical_node') {
@@ -3976,6 +4238,22 @@ function getTreeDetailsPostgresql(node) {
                 create_subscription: p_return.v_data.v_database_return.create_subscription,
                 alter_subscription: p_return.v_data.v_database_return.alter_subscription,
                 drop_subscription: p_return.v_data.v_database_return.drop_subscription,
+                create_fdw: p_return.v_data.v_database_return.create_fdw,
+                alter_fdw: p_return.v_data.v_database_return.alter_fdw,
+                drop_fdw: p_return.v_data.v_database_return.drop_fdw,
+                create_foreign_server: p_return.v_data.v_database_return.create_foreign_server,
+                alter_foreign_server: p_return.v_data.v_database_return.alter_foreign_server,
+                import_foreign_schema: p_return.v_data.v_database_return.import_foreign_schema,
+                drop_foreign_server: p_return.v_data.v_database_return.drop_foreign_server,
+                create_foreign_table: p_return.v_data.v_database_return.create_foreign_table,
+                alter_foreign_table: p_return.v_data.v_database_return.alter_foreign_table,
+                drop_foreign_table: p_return.v_data.v_database_return.drop_foreign_table,
+                create_foreign_column: p_return.v_data.v_database_return.create_foreign_column,
+                alter_foreign_column: p_return.v_data.v_database_return.alter_foreign_column,
+                drop_foreign_column: p_return.v_data.v_database_return.drop_foreign_column,
+                create_user_mapping: p_return.v_data.v_database_return.create_user_mapping,
+                alter_user_mapping: p_return.v_data.v_database_return.alter_user_mapping,
+                drop_user_mapping: p_return.v_data.v_database_return.drop_user_mapping,
                 pglogical_create_node: p_return.v_data.v_database_return
                     .pglogical_create_node,
                 pglogical_drop_node: p_return.v_data.v_database_return.pglogical_drop_node,
@@ -4174,6 +4452,15 @@ function getDatabaseObjectsPostgresql(node) {
                     database: v_connTabControl.selectedTab.tag.selectedDatabase
                 }, 'cm_extensions');
             node_extensions.createChildNode('', true,
+                '/static/OmniDB_app/images/spin.svg', null, null);
+            var node_fdws = node.createChildNode(
+                'Foreign Data Wrappers', false,
+                '/static/OmniDB_app/images/foreign_wrapper.png', {
+                    type: 'fdw_list',
+                    num_fdws: 0,
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
+                }, 'cm_fdws');
+            node_fdws.createChildNode('', true,
                 '/static/OmniDB_app/images/spin.svg', null, null);
             if (parseInt(getMajorVersion(node.tree.tag.version)) >= 10) {
                 var node_replication = node.createChildNode(
@@ -4461,7 +4748,6 @@ function getTablesPostgresql(node) {
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-
     execAjax('/get_tables_postgresql/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
@@ -4553,6 +4839,17 @@ function getSchemasPostgresql(node) {
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_tables', null, false);
                 node_tables.createChildNode('', true,
+                    '/static/OmniDB_app/images/spin.svg', null, null,
+                    null, false);
+
+                var node_foreign_tables = v_node.createChildNode('Foreign Tables', false,
+                    '/static/OmniDB_app/images/table_multiple.png', {
+                        type: 'foreign_table_list',
+                        schema: p_return.v_data[i].v_name,
+                        num_tables: 0,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_foreign_tables', null, false);
+                node_foreign_tables.createChildNode('', true,
                     '/static/OmniDB_app/images/spin.svg', null, null,
                     null, false);
 
@@ -6654,6 +6951,326 @@ function getSubscriptionTablesPostgresql(node) {
                     }, null, null, false);
 
             }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving Foreign Data Wrappers.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getForeignDataWrappersPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_foreign_data_wrappers_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Foreign Data Wrappers (' + p_return.v_data.length + ')');
+
+            node.tag.num_fdws = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+              v_node = node.createChildNode(p_return.v_data[i].v_name,
+                  false, '/static/OmniDB_app/images/foreign_wrapper.png', {
+                      type: 'fdw',
+                      database: v_connTabControl.selectedTab.tag.selectedDatabase
+                  }, 'cm_fdw', null, false);
+              v_node = v_node.createChildNode('Foreign Servers',
+                  false, '/static/OmniDB_app/images/foreign_server.png', {
+                      type: 'foreign_server_list',
+                      database: v_connTabControl.selectedTab.tag.selectedDatabase
+                  }, 'cm_foreign_servers', null, false);
+              v_node.createChildNode('', true,
+                  '/static/OmniDB_app/images/spin.svg', null, null, null, false);
+
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving Foreign Servers.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getForeignServersPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_foreign_servers_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_fdw": node.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Foreign Servers (' + p_return.v_data.length + ')');
+
+            node.tag.num_foreign_servers = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+              v_node = node.createChildNode(p_return.v_data[i].v_name,
+                  false, '/static/OmniDB_app/images/foreign_server.png', {
+                      type: 'foreign_server',
+                      database: v_connTabControl.selectedTab.tag.selectedDatabase
+                  }, 'cm_foreign_server', null, false);
+
+              if (p_return.v_data[i].v_type != null) {
+                  v_node.createChildNode('Type: ' + p_return.v_data[i].v_type,
+                      true, '/static/OmniDB_app/images/bullet_red.png', {
+                          database: v_connTabControl.selectedTab.tag.selectedDatabase
+                      }, null, null, false);
+              }
+
+              if (p_return.v_data[i].v_version != null) {
+                  v_node.createChildNode('Version: ' + p_return.v_data[i].v_version,
+                      true, '/static/OmniDB_app/images/bullet_red.png', {
+                          database: v_connTabControl.selectedTab.tag.selectedDatabase
+                      }, null, null, false);
+              }
+
+              v_options = p_return.v_data[i].v_options.split(',');
+              for (j = 0; j < v_options.length; j++) {
+                  v_node.createChildNode(v_options[j],
+                      true, '/static/OmniDB_app/images/bullet_red.png', {
+                          database: v_connTabControl.selectedTab.tag.selectedDatabase
+                      }, null, null, false);
+              }
+
+              v_node = v_node.createChildNode('User Mappings',
+                  false, '/static/OmniDB_app/images/usermap.png', {
+                      type: 'user_mapping_list',
+                      database: v_connTabControl.selectedTab.tag.selectedDatabase
+                  }, 'cm_user_mappings', null, false);
+              v_node.createChildNode('', true,
+                  '/static/OmniDB_app/images/spin.svg', null, null, null, false);
+
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving User Mappings.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getUserMappingsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_user_mappings_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_foreign_server": node.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('User Mappings (' + p_return.v_data.length + ')');
+
+            node.tag.num_user_mappings = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+              v_node = node.createChildNode(p_return.v_data[i].v_name,
+                  false, '/static/OmniDB_app/images/usermap.png', {
+                      type: 'user_mapping',
+                      database: v_connTabControl.selectedTab.tag.selectedDatabase
+                  }, 'cm_user_mapping', null, false);
+
+              v_options = p_return.v_data[i].v_options.split(',');
+              for (j = 0; j < v_options.length; j++) {
+                  v_node.createChildNode(v_options[j],
+                      true, '/static/OmniDB_app/images/bullet_red.png', {
+                          database: v_connTabControl.selectedTab.tag.selectedDatabase
+                      }, null, null, false);
+              }
+
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving foreign tables.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getForeignTablesPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_foreign_tables_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_schema": node.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Foreign Tables (' + p_return.v_data.length + ')');
+
+            node.tag.num_tables = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/' + p_return.v_data[i].v_icon, {
+                        type: 'foreign_table',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_foreign_table', null, false);
+
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', {
+                        type: 'foreign_table_field'
+                    }, null, null, false);
+
+            }
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getForeignColumnsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_foreign_columns_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": node.text,
+            "p_schema": node.parent.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            v_list = node.createChildNode('Columns (' + p_return.v_data.length +
+                ')', false, '/static/OmniDB_app/images/add.png', {
+                    type: 'foreign_column_list',
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
+                }, 'cm_foreign_columns', null, false);
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = v_list.createChildNode(p_return.v_data[i].v_column_name,
+                    false, '/static/OmniDB_app/images/add.png', {
+                        type: 'foreign_table_field',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_foreign_column', null, false);
+                v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
+                    false, '/static/OmniDB_app/images/bullet_red.png', {
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, null, null, false);
+                v_node.createChildNode('Nullable: ' + p_return.v_data[i].v_nullable,
+                    false, '/static/OmniDB_app/images/bullet_red.png', {
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, null, null, false);
+
+                v_options = p_return.v_data[0].v_options.split(',');
+                for (j = 0; j < v_options.length; j++) {
+                    v_node.createChildNode(v_options[j],
+                        true, '/static/OmniDB_app/images/bullet_red.png', {
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        }, null, null, false);
+                }
+
+            }
+
+            v_options = p_return.v_data[0].v_tableoptions.split(',');
+            for (j = 0; j < v_options.length; j++) {
+                node.createChildNode(v_options[j],
+                    true, '/static/OmniDB_app/images/bullet_red.png', {
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, null, null, false);
+            }
+
+            node.createChildNode(p_return.v_data[0].v_server,
+                true, '/static/OmniDB_app/images/foreign_server.png', {
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
+                }, null, null, false);
+
+            node.createChildNode(p_return.v_data[0].v_fdw,
+                true, '/static/OmniDB_app/images/foreign_wrapper.png', {
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
+                }, null, null, false);
 
             node.drawChildNodes();
 

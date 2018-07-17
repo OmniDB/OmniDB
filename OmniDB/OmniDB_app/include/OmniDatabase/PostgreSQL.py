@@ -4965,6 +4965,79 @@ TO NODE ( nodename [, ... ] )
                   and quote_ident(c.relname) = '{1}'
             '''.format(p_schema, p_object))
 
+    def GetPropertiesUserMapping(self, p_server, p_object):
+        if p_object == 'PUBLIC':
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       u.oid as "OID",
+                       'PUBLIC' as "User",
+                       array_to_string(u.umoptions, ',') as "Options",
+                       s.srvname as "Foreign Server",
+                       w.fdwname as "Foreign Wrapper"
+                from pg_user_mapping u
+                inner join pg_foreign_server s
+                on s.oid = u.umserver
+                inner join pg_foreign_data_wrapper w
+                on w.oid = s.srvfdw
+                where u.umuser = 0
+                  and s.srvname = '{0}'
+            '''.format(p_server))
+        else:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       u.oid as "OID",
+                       r.rolname as "User",
+                       array_to_string(u.umoptions, ',') as "Options",
+                       s.srvname as "Foreign Server",
+                       w.fdwname as "Foreign Wrapper"
+                from pg_user_mapping u
+                inner join pg_foreign_server s
+                on s.oid = u.umserver
+                inner join pg_foreign_data_wrapper w
+                on w.oid = s.srvfdw
+                inner join pg_roles r
+                on r.oid = u.umuser
+                where s.srvname = '{0}'
+                  and r.rolname = '{1}'
+            '''.format(p_server, p_object))
+
+    def GetPropertiesForeignServer(self, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   s.srvname as "Name",
+                   s.oid as "OID",
+                   r.rolname as "Owner",
+                   s.srvtype as "Type",
+                   s.srvversion as "Version",
+                   array_to_string(srvoptions, ',') as "Options",
+                   w.fdwname as "Foreign Wrapper"
+            from pg_foreign_server s
+            inner join pg_foreign_data_wrapper w
+            on w.oid = s.srvfdw
+            inner join pg_roles r
+            on r.oid = s.srvowner
+            where s.srvname = '{0}'
+        '''.format(p_object))
+
+    def GetPropertiesForeignDataWrapper(self, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   w.fdwname as "Name",
+                   w.oid as "OID",
+                   r.rolname as "Owner",
+                   h.proname as "Handler",
+                   v.proname as "Validator",
+                   array_to_string(w.fdwoptions, ',') as "Options"
+            from pg_foreign_data_wrapper w
+            inner join pg_roles r
+            on r.oid = w.fdwowner
+            left join pg_proc h
+            on h.oid = w.fdwhandler
+            left join pg_proc v
+            on v.oid = w.fdwvalidator
+            where w.fdwname = '{0}'
+        '''.format(p_object))
+
     def GetProperties(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
@@ -5006,6 +5079,12 @@ TO NODE ( nodename [, ... ] )
             return self.GetPropertiesRule(p_schema, p_table, p_object).Transpose('Property', 'Value')
         elif p_type == 'foreign_table':
             return self.GetPropertiesForeignTable(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'user_mapping':
+            return self.GetPropertiesUserMapping(p_schema, p_object).Transpose('Property', 'Value')
+        elif p_type == 'foreign_server':
+            return self.GetPropertiesForeignServer(p_object).Transpose('Property', 'Value')
+        elif p_type == 'fdw':
+            return self.GetPropertiesForeignDataWrapper(p_object).Transpose('Property', 'Value')
         else:
             return None
 
@@ -6148,6 +6227,259 @@ TO NODE ( nodename [, ... ] )
             from cs
         '''.format(p_schema, p_table, p_object))
 
+    def GetDDLUserMapping(self, p_server, p_object):
+        if p_object == 'PUBLIC':
+            return self.v_connection.ExecuteScalar('''
+                select format(E'CREATE USER MAPPING FOR PUBLIC\n  SERVER %s\n  OPTIONS ( %s );\n',
+                         s.srvname,
+                         (select array_to_string(array(
+                          select format('%s %s', a[1], quote_literal(a[2]))
+                          from (
+                          select string_to_array(unnest(u.umoptions), '=') as a
+                          from pg_user_mapping u
+                          inner join pg_foreign_server s
+                          on s.oid = u.umserver
+                          where u.umuser = 0
+                            and s.srvname = '{0}'
+                          ) x
+                          ), ', ')))
+                from pg_user_mapping u
+                inner join pg_foreign_server s
+                on s.oid = u.umserver
+                where u.umuser = 0
+                  and s.srvname = '{0}'
+            '''.format(p_server))
+        else:
+            return self.v_connection.ExecuteScalar('''
+                select format(E'CREATE USER MAPPING FOR %s\n  SERVER %s\n  OPTIONS ( %s );\n',
+                         r.rolname,
+                         s.srvname,
+                         (select array_to_string(array(
+                          select format('%s %s', a[1], quote_literal(a[2]))
+                          from (
+                          select string_to_array(unnest(u.umoptions), '=') as a
+                          from pg_user_mapping u
+                          inner join pg_foreign_server s
+                          on s.oid = u.umserver
+                          inner join pg_roles r
+                          on r.oid = u.umuser
+                          where s.srvname = '{0}'
+                            and r.rolname = '{1}'
+                          ) x
+                          ), ', ')))
+                from pg_user_mapping u
+                inner join pg_foreign_server s
+                on s.oid = u.umserver
+                inner join pg_roles r
+                on r.oid = u.umuser
+                where s.srvname = '{0}'
+                  and r.rolname = '{1}'
+            '''.format(p_server, p_object))
+
+    def GetDDLForeignServer(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            WITH privileges AS (
+                SELECT (u_grantor.rolname)::information_schema.sql_identifier AS grantor,
+                       (grantee.rolname)::information_schema.sql_identifier AS grantee,
+                       (current_database())::information_schema.sql_identifier AS srv_catalog,
+                       (c.srvname)::information_schema.sql_identifier AS srv_name,
+                       (c.prtype)::information_schema.character_data AS privilege_type,
+                       (
+                           CASE
+                               WHEN (pg_has_role(grantee.oid, c.srvowner, 'USAGE'::text) OR c.grantable) THEN 'YES'::text
+                               ELSE 'NO'::text
+                           END)::information_schema.yes_or_no AS is_grantable,
+                       (
+                           CASE
+                               WHEN (c.prtype = 'SELECT'::text) THEN 'YES'::text
+                               ELSE 'NO'::text
+                           END)::information_schema.yes_or_no AS with_hierarchy
+                FROM ( SELECT s.oid,
+                              s.srvname,
+                              s.srvowner,
+                              (aclexplode(COALESCE(s.srvacl, acldefault('r', s.srvowner)))).grantor AS grantor,
+                              (aclexplode(COALESCE(s.srvacl, acldefault('r', s.srvowner)))).grantee AS grantee,
+                              (aclexplode(COALESCE(s.srvacl, acldefault('r', s.srvowner)))).privilege_type AS privilege_type,
+                              (aclexplode(COALESCE(s.srvacl, acldefault('r', s.srvowner)))).is_grantable AS is_grantable
+                      FROM pg_foreign_server s
+                      WHERE s.srvname = '{0}') c(oid, srvname, srvowner, grantor, grantee, prtype, grantable),
+                     pg_roles u_grantor,
+                     ( SELECT pg_roles.oid,
+                              pg_roles.rolname
+                       FROM pg_roles
+                       UNION ALL
+                       SELECT (0)::oid AS oid,
+                              'PUBLIC'::name) grantee(oid, rolname)
+                WHERE (c.grantee = grantee.oid) AND (c.grantor = u_grantor.oid)
+                  AND (pg_has_role(u_grantor.oid, 'USAGE'::text) OR pg_has_role(grantee.oid, 'USAGE'::text) OR (grantee.rolname = 'PUBLIC'::name))
+            ),
+            grants as (
+                SELECT
+                  coalesce(
+                   string_agg(format(
+                   	E'GRANT %s ON %s TO %s%s;\n',
+                       privilege_type,
+                       'FOREIGN SERVER {0}',
+                       case grantee
+                         when 'PUBLIC' then 'PUBLIC'
+                         else quote_ident(grantee)
+                       end,
+                	   case is_grantable
+                         when 'YES' then ' WITH GRANT OPTION'
+                         else ''
+                       end), ''),
+                    '') as text
+                FROM privileges g
+                INNER JOIN pg_foreign_server s
+                ON s.srvname = g.srv_name
+                INNER JOIN pg_roles r
+                ON r.oid = s.srvowner
+                WHERE g.grantee <> r.rolname
+            )
+            select format(E'CREATE SERVER %s\n%s%s  FOREIGN DATA WRAPPER %s\n  OPTIONS ( %s );\n\nALTER SERVER %s OWNER TO %s;\n\n%s',
+                     s.srvname,
+                     (case when s.srvtype is not null
+                           then format(E'  TYPE %s\n', quote_literal(s.srvtype))
+                           else ''
+                      end),
+                     (case when s.srvversion is not null
+                           then format(E'  VERSION %s\n', quote_literal(s.srvversion))
+                           else ''
+                      end),
+                     w.fdwname,
+                     (select array_to_string(array(
+                      select format('%s %s', a[1], quote_literal(a[2]))
+                      from (
+                      select string_to_array(unnest(s.srvoptions), '=') as a
+                      from pg_foreign_server s
+                      inner join pg_foreign_data_wrapper w
+                      on w.oid = s.srvfdw
+                      inner join pg_roles r
+                      on r.oid = s.srvowner
+                      where s.srvname = '{0}'
+                      ) x
+                      ), ', ')),
+                     s.srvname,
+                     r.rolname,
+                     g.text
+                   )
+            from pg_foreign_server s
+            inner join pg_foreign_data_wrapper w
+            on w.oid = s.srvfdw
+            inner join pg_roles r
+            on r.oid = s.srvowner
+            inner join grants g on 1=1
+            where s.srvname = '{0}'
+        '''.format(p_object))
+
+    def GetDDLForeignDataWrapper(self, p_object):
+        return self.v_connection.ExecuteScalar('''
+            WITH privileges AS (
+                SELECT (u_grantor.rolname)::information_schema.sql_identifier AS grantor,
+                       (grantee.rolname)::information_schema.sql_identifier AS grantee,
+                       (current_database())::information_schema.sql_identifier AS fdw_catalog,
+                       (c.fdwname)::information_schema.sql_identifier AS fdw_name,
+                       (c.prtype)::information_schema.character_data AS privilege_type,
+                       (
+                           CASE
+                               WHEN (pg_has_role(grantee.oid, c.fdwowner, 'USAGE'::text) OR c.grantable) THEN 'YES'::text
+                               ELSE 'NO'::text
+                           END)::information_schema.yes_or_no AS is_grantable,
+                       (
+                           CASE
+                               WHEN (c.prtype = 'SELECT'::text) THEN 'YES'::text
+                               ELSE 'NO'::text
+                           END)::information_schema.yes_or_no AS with_hierarchy
+                FROM ( SELECT w.oid,
+                              w.fdwname,
+                              w.fdwowner,
+                              (aclexplode(COALESCE(w.fdwacl, acldefault('r', w.fdwowner)))).grantor AS grantor,
+                              (aclexplode(COALESCE(w.fdwacl, acldefault('r', w.fdwowner)))).grantee AS grantee,
+                              (aclexplode(COALESCE(w.fdwacl, acldefault('r', w.fdwowner)))).privilege_type AS privilege_type,
+                              (aclexplode(COALESCE(w.fdwacl, acldefault('r', w.fdwowner)))).is_grantable AS is_grantable
+                      FROM pg_foreign_data_wrapper w
+                      WHERE w.fdwname = '{0}') c(oid, fdwname, fdwowner, grantor, grantee, prtype, grantable),
+                     pg_roles u_grantor,
+                     ( SELECT pg_roles.oid,
+                              pg_roles.rolname
+                       FROM pg_roles
+                       UNION ALL
+                       SELECT (0)::oid AS oid,
+                              'PUBLIC'::name) grantee(oid, rolname)
+                WHERE (c.grantee = grantee.oid) AND (c.grantor = u_grantor.oid)
+                  AND (pg_has_role(u_grantor.oid, 'USAGE'::text) OR pg_has_role(grantee.oid, 'USAGE'::text) OR (grantee.rolname = 'PUBLIC'::name))
+            ),
+            grants as (
+                SELECT
+                  coalesce(
+                   string_agg(format(
+                   	E'GRANT %s ON %s TO %s%s;\n',
+                       privilege_type,
+                       'FOREIGN DATA WRAPPER {0}',
+                       case grantee
+                         when 'PUBLIC' then 'PUBLIC'
+                         else quote_ident(grantee)
+                       end,
+                	   case is_grantable
+                         when 'YES' then ' WITH GRANT OPTION'
+                         else ''
+                       end), ''),
+                    '') as text
+                FROM privileges g
+                INNER JOIN pg_foreign_data_wrapper w
+                ON w.fdwname = g.fdw_name
+                INNER JOIN pg_roles r
+                ON r.oid = w.fdwowner
+                WHERE g.grantee <> r.rolname
+            )
+            select format(E'CREATE FOREIGN DATA WRAPPER %s%s%s%s;\n\nALTER FOREIGN DATA WRAPPER %s OWNER TO %s;\n\n%s',
+                     w.fdwname,
+                     (case when w.fdwhandler is not null
+                           then format(E'\n  HANDLER %s', quote_literal(h.proname))
+                           else E'\n  NO HANDLER\n'
+                      end),
+                     (case when w.fdwvalidator is not null
+                           then format(E'\n  VALIDATOR %s', quote_literal(v.proname))
+                           else E'\n  NO VALIDATOR'
+                      end),
+                     (case when (select array_to_string(array(
+                                 select format('%s %s', a[1], quote_literal(a[2]))
+                                 from (
+                                 select string_to_array(unnest(w.fdwoptions), '=') as a
+                                 from pg_foreign_data_wrapper w
+                                 inner join pg_roles r
+                                 on r.oid = w.fdwowner
+                                 where w.fdwname = '{0}'
+                                 ) x
+                                 ), ', ')) <> ''::text
+                           then format('\n  OPTIONS ( %s )',
+                                (select array_to_string(array(
+                                 select format('%s %s', a[1], quote_literal(a[2]))
+                                 from (
+                                 select string_to_array(unnest(w.fdwoptions), '=') as a
+                                 from pg_foreign_data_wrapper w
+                                 inner join pg_roles r
+                                 on r.oid = w.fdwowner
+                                 where w.fdwname = '{0}'
+                                 ) x
+                                 ), ', ')))
+                           else ''
+                      end),
+                     w.fdwname,
+                     r.rolname,
+                     g.text
+                   )
+            from pg_foreign_data_wrapper w
+            left join pg_proc h
+            on h.oid = w.fdwhandler
+            left join pg_proc v
+            on v.oid = w.fdwvalidator
+            inner join pg_roles r
+            on r.oid = w.fdwowner
+            inner join grants g on 1=1
+            where w.fdwname = '{0}'
+        '''.format(p_object))
+
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetDDLRole(p_object)
@@ -6189,5 +6521,11 @@ TO NODE ( nodename [, ... ] )
             return self.GetRuleDefinition(p_object, p_table, p_schema)
         elif p_type == 'foreign_table':
             return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'user_mapping':
+            return self.GetDDLUserMapping(p_schema, p_object)
+        elif p_type == 'foreign_server':
+            return self.GetDDLForeignServer(p_object)
+        elif p_type == 'fdw':
+            return self.GetDDLForeignDataWrapper(p_object)
         else:
             return ''

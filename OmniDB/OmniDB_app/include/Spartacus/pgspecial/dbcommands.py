@@ -299,7 +299,7 @@ def list_objects(cur, pattern, verbose, relkinds):
 
 @special_command('\\dt', '\\dt[+] [pattern]', 'List tables.')
 def list_tables(cur, pattern, verbose):
-    return list_objects(cur, pattern, verbose, ['r', 'p', ''])
+    return list_objects(cur, pattern, verbose, ['r', 'p', 'f', ''])
 
 
 @special_command('\\dv', '\\dv[+] [pattern]', 'List views.')

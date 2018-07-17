@@ -3249,7 +3249,7 @@ INTO local_schema
         return Template('DROP USER MAPPING #user_name# SERVER #srvname#')
 
     def TemplateCreateForeignTable(self):
-        return Template('''CREATE FOREIGN TABLE #table_name
+        return Template('''CREATE FOREIGN TABLE table_name
 --PARTITION OF parent_table
 (
     column_name data_type
@@ -6336,29 +6336,44 @@ TO NODE ( nodename [, ... ] )
                 ON r.oid = s.srvowner
                 WHERE g.grantee <> r.rolname
             )
-            select format(E'CREATE SERVER %s\n%s%s  FOREIGN DATA WRAPPER %s\n  OPTIONS ( %s );\n\nALTER SERVER %s OWNER TO %s;\n\n%s',
+            select format(E'CREATE SERVER %s%s%s\n  FOREIGN DATA WRAPPER %s%s;\n\nALTER SERVER %s OWNER TO %s;\n\n%s',
                      s.srvname,
                      (case when s.srvtype is not null
-                           then format(E'  TYPE %s\n', quote_literal(s.srvtype))
+                           then format(E'\n  TYPE %s\n', quote_literal(s.srvtype))
                            else ''
                       end),
                      (case when s.srvversion is not null
-                           then format(E'  VERSION %s\n', quote_literal(s.srvversion))
+                           then format(E'\n  VERSION %s\n', quote_literal(s.srvversion))
                            else ''
                       end),
                      w.fdwname,
-                     (select array_to_string(array(
-                      select format('%s %s', a[1], quote_literal(a[2]))
-                      from (
-                      select string_to_array(unnest(s.srvoptions), '=') as a
-                      from pg_foreign_server s
-                      inner join pg_foreign_data_wrapper w
-                      on w.oid = s.srvfdw
-                      inner join pg_roles r
-                      on r.oid = s.srvowner
-                      where s.srvname = '{0}'
-                      ) x
-                      ), ', ')),
+                     (case when (select array_to_string(array(
+                                 select format('%s %s', a[1], quote_literal(a[2]))
+                                 from (
+                                 select string_to_array(unnest(s.srvoptions), '=') as a
+                                 from pg_foreign_server s
+                                 inner join pg_foreign_data_wrapper w
+                                 on w.oid = s.srvfdw
+                                 inner join pg_roles r
+                                 on r.oid = s.srvowner
+                                 where s.srvname = '{0}'
+                                 ) x
+                                 ), ', ')) != ''
+                           then format('\n  OPTIONS ( %s )',
+                                (select array_to_string(array(
+                                 select format('%s %s', a[1], quote_literal(a[2]))
+                                 from (
+                                 select string_to_array(unnest(s.srvoptions), '=') as a
+                                 from pg_foreign_server s
+                                 inner join pg_foreign_data_wrapper w
+                                 on w.oid = s.srvfdw
+                                 inner join pg_roles r
+                                 on r.oid = s.srvowner
+                                 where s.srvname = '{0}'
+                                 ) x
+                                 ), ', ')))
+                           else ''
+                      end),
                      s.srvname,
                      r.rolname,
                      g.text

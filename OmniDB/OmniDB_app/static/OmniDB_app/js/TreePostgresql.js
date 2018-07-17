@@ -2789,22 +2789,146 @@ function getTreePostgresql(p_div) {
         },
         'cm_foreign_table': {
             elements: [{
-                text: 'Alter Foreign Table',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
                 action: function(node) {
-                    tabSQLTemplate('Alter Foreign Table', node.tree
-                        .tag.alter_foreign_table
-                        .replace('#table_name#', node.parent.parent
-                          .text + '.' + node.text));
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
                 }
             }, {
-                text: 'Drop Foreign Table',
-                icon: '/static/OmniDB_app/images/tab_close.png',
-                action: function(node) {
-                    tabSQLTemplate('Drop Foreign Table', node.tree
-                        .tag.drop_foreign_table
-                        .replace('#table_name#', node.parent.parent
-                          .text + '.' + node.text));
+                text: 'Data Actions',
+                icon: '/static/OmniDB_app/images/list.png',
+                submenu: {
+                    elements: [{
+                        text: 'Query Data',
+                        icon: '/static/OmniDB_app/images/query.png',
+                        action: function(node) {
+                            TemplateSelectPostgresql(node.parent
+                              .parent.text, node.text);
+                        }
+                    }, {
+                        text: 'Edit Data',
+                        icon: '/static/OmniDB_app/images/edit_data.png',
+                        action: function(node) {
+                            startEditData(node.text,
+                                node.parent.parent.text
+                            );
+                        }
+                    }, {
+                        text: 'Insert Record',
+                        icon: '/static/OmniDB_app/images/insert.png',
+                        action: function(node) {
+                            TemplateInsertPostgresql(node.parent
+                              .parent.text, node.text);
+                        }
+                    }, {
+                        text: 'Update Records',
+                        icon: '/static/OmniDB_app/images/update.png',
+                        action: function(node) {
+                            TemplateUpdatePostgresql(node.parent
+                              .parent.text, node.text);
+                        }
+                    }, {
+                        text: 'Count Records',
+                        icon: '/static/OmniDB_app/images/counter.png',
+                        action: function(node) {
+
+                            var v_table_name = '';
+                            if (node.parent.parent.parent
+                                .parent != null)
+                                v_table_name = node.parent
+                                .parent.text + '.' +
+                                node.text;
+                            else
+                                v_table_name = node.text;
+
+                            v_connTabControl.tag.createQueryTab(
+                                node.text);
+
+                            v_connTabControl.selectedTab
+                                .tag.tabControl.selectedTab
+                                .tag.editor.setValue(
+                                    "-- Counting Records\nselect count(*) as count\nfrom " +
+                                    v_table_name + " t"
+                                );
+                            v_connTabControl.selectedTab
+                                .tag.tabControl.selectedTab
+                                .tag.editor.clearSelection();
+                            renameTabConfirm(
+                                v_connTabControl.selectedTab
+                                .tag.tabControl.selectedTab,
+                                node.text);
+
+                            querySQL(0);
+                        }
+                    }, {
+                        text: 'Delete Records',
+                        icon: '/static/OmniDB_app/images/tab_close.png',
+                        action: function(node) {
+                          tabSQLTemplate(
+                              'Delete Records',
+                              node.tree.tag.delete
+                              .replace(
+                                  '#table_name#',
+                                  node.parent.parent
+                                  .text + '.' +
+                                  node.text));
+                        }
+                    }, {
+                        text: 'Truncate Foreign Table',
+                        icon: '/static/OmniDB_app/images/truncate.png',
+                        action: function(node) {
+                            tabSQLTemplate(
+                                'Truncate Foreign Table',
+                                node.tree.tag.truncate
+                                .replace(
+                                    '#table_name#',
+                                    node.parent.parent
+                                    .text + '.' +
+                                    node.text));
+                        }
+                    }]
+                }
+            }, {
+                text: 'Table Actions',
+                icon: '/static/OmniDB_app/images/list.png',
+                submenu: {
+                    elements: [{
+                        text: 'Analyze Foreign Table',
+                        icon: '/static/OmniDB_app/images/analyze.png',
+                        action: function(node) {
+                            tabSQLTemplate(
+                                'Analyze Foreign Table',
+                                node.tree.tag.analyze_table
+                                .replace(
+                                    '#table_name#',
+                                    node.parent.parent
+                                    .text + '.' +
+                                    node.text));
+                        }
+                    }, {
+                        text: 'Alter Foreign Table',
+                        icon: '/static/OmniDB_app/images/text_edit.png',
+                        action: function(node) {
+                            tabSQLTemplate('Alter Foreign Table', node.tree
+                                .tag.alter_foreign_table
+                                .replace('#table_name#', node.parent.parent
+                                  .text + '.' + node.text));
+                        }
+                    }, {
+                        text: 'Drop Foreign Table',
+                        icon: '/static/OmniDB_app/images/tab_close.png',
+                        action: function(node) {
+                            tabSQLTemplate('Drop Foreign Table', node.tree
+                                .tag.drop_foreign_table
+                                .replace('#table_name#', node.parent.parent
+                                  .text + '.' + node.text));
+                        }
+                    }]
                 }
             }]
         },
@@ -3880,7 +4004,7 @@ function getPropertiesPostgresqlConfirm(node) {
         });
     } else if (node.tag.type == 'user_mapping') {
         getProperties('/get_properties_postgresql/', {
-            p_schema: null,
+            p_schema: node.parent.parent.text,
             p_table: null,
             p_object: node.text,
             p_type: node.tag.type

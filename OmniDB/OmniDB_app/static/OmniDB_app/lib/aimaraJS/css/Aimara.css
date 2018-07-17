@@ -166,7 +166,7 @@ span.node_selected a {
 .aimara_sub-menu {
 	display: none;
 	position: absolute;
-	min-width: 150px;
+	min-width: 200px;
 	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
   border: 1px solid #A0A0A0;
   border-radius: 2px;

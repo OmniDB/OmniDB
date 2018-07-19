@@ -369,12 +369,13 @@ class Oracle:
             if p_table:
                 v_filter = "and (case when upper(replace(\"table_name\", ' ', '')) <> \"table_name\" then '"' || \"table_name\" || '"' else \"table_name\" end) = '{0}' ".format(p_table)
         v_filter = v_filter + "and (case when upper(replace(\"constraint_name\", ' ', '')) <> \"constraint_name\" then '"' || \"constraint_name\" || '"' else \"constraint_name\" end) = '{0}' ".format(p_pkey)
+        print(v_filter)
         return self.v_connection.Query('''
             select "column_name"
             from (
                 select (case when upper(replace(cons.constraint_name, ' ', '')) <> cons.constraint_name then '"' || cons.constraint_name || '"' else cons.constraint_name end) as "constraint_name",
                        (case when upper(replace(cols.table_name, ' ', '')) <> cols.table_name then '"' || cols.table_name || '"' else cols.table_name end) as "table_name",
-                       (case when upper(replace(cons.owner, ' ', '')) <> cons.owner then '"' || cons.owner || '"' else cons.owner end) as "table_schema",
+                       (case when upper(replace(cols.column_name, ' ', '')) <> cols.column_name then '"' || cols.column_name || '"' else cols.column_name end) as "column_name",
                        (case when upper(replace(cons.owner, ' ', '')) <> cons.owner then '"' || cons.owner || '"' else cons.owner end) as "table_schema"
                 from all_constraints cons,
                      all_cons_columns cols,
@@ -447,7 +448,7 @@ class Oracle:
             from (
                 select (case when upper(replace(cons.constraint_name, ' ', '')) <> cons.constraint_name then '"' || cons.constraint_name || '"' else cons.constraint_name end) as "constraint_name",
                        (case when upper(replace(cols.table_name, ' ', '')) <> cols.table_name then '"' || cols.table_name || '"' else cols.table_name end) as "table_name",
-                       (case when upper(replace(cons.owner, ' ', '')) <> cons.owner then '"' || cons.owner || '"' else cons.owner end) as "table_schema",
+                       (case when upper(replace(cols.column_name, ' ', '')) <> cols.column_name then '"' || cols.column_name || '"' else cols.column_name end) as "column_name",
                        (case when upper(replace(cons.owner, ' ', '')) <> cons.owner then '"' || cons.owner || '"' else cons.owner end) as "table_schema"
                 from all_constraints cons,
                      all_cons_columns cols,
@@ -508,7 +509,7 @@ class Oracle:
                 v_filter = "and (case when upper(replace(t.table_name, ' ', '')) <> t.table_name then '"' || t.table_name || '"' else t.table_name end) = '{0}' ".format(p_table)
         v_filter = v_filter + "and (case when upper(replace(t.index_name, ' ', '')) <> t.index_name then '"' || t.index_name || '"' else t.index_name end) = '{0}' ".format(p_index)
         return self.v_connection.Query('''
-            select c.column_name as "column_name"
+            select (case when upper(replace(c.column_name, ' ', '')) <> c.column_name then '"' || c.column_name || '"' else c.column_name end) as "column_name"
             from all_indexes t,
                  all_ind_columns c
             where t.table_name = c.table_name

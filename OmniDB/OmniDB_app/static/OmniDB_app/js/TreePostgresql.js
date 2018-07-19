@@ -7376,8 +7376,8 @@ function getForeignColumnsPostgresql(node) {
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null, null, false);
 
-                if (p_return.v_data[0].v_options != null) {
-                  v_options = p_return.v_data[0].v_options.split(',');
+                if (p_return.v_data[i].v_options != null) {
+                  v_options = p_return.v_data[i].v_options.split(',');
                   if (v_options[0] != '') {
                     for (j = 0; j < v_options.length; j++) {
                         v_node.createChildNode(v_options[j],

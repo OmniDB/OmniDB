@@ -1343,11 +1343,26 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
     def QueryUserMappings(self, v_foreign_server):
         return self.v_connection.Query('''
             select rolname,
-                   array_to_string(umoptions, ',') as umoptions
+                   umoptions
+            from (
+            select seq,
+                   rolname,
+                   string_agg(umoption, ','::text) as umoptions
+            from (
+            select seq,
+                   rolname,
+                   (case when lower(umoption[1]) in ('password', 'passwd', 'passw', 'pass', 'pwd')
+                         then umoption[1] || '=' || '*****'
+                         else umoption[1] || '=' || umoption[2]
+                    end) as umoption
+            from (
+            select seq,
+                   rolname,
+                   string_to_array(umoption, '=') as umoption
             from (
             select 1 as seq,
                    'PUBLIC' as rolname,
-                   u.umoptions
+                   unnest(u.umoptions) as umoption
             from pg_user_mapping u
             inner join pg_foreign_server s
             on s.oid = u.umserver
@@ -1356,13 +1371,18 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             union
             select 1 + row_number() over(order by r.rolname) as seq,
                    r.rolname,
-                   u.umoptions
+                   unnest(u.umoptions) as umoption
             from pg_user_mapping u
             inner join pg_foreign_server s
             on s.oid = u.umserver
             inner join pg_roles r
             on r.oid = u.umuser
             where s.srvname = '{0}'
+            ) x
+            ) x
+            ) x
+            group by seq,
+                     rolname
             ) x
             order by seq
 '''.format(v_foreign_server))

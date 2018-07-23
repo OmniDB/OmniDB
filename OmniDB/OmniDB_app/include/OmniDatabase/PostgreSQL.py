@@ -6469,11 +6469,11 @@ TO NODE ( nodename [, ... ] )
             )
             select format(E'CREATE FOREIGN DATA WRAPPER %s%s%s%s;\n\nALTER FOREIGN DATA WRAPPER %s OWNER TO %s;\n\n%s',
                      w.fdwname,
-                     (case when w.fdwhandler is not null
+                     (case when w.fdwhandler <> 0
                            then format(E'\n  HANDLER %s', quote_literal(h.proname))
-                           else E'\n  NO HANDLER\n'
+                           else E'\n  NO HANDLER'
                       end),
-                     (case when w.fdwvalidator is not null
+                     (case when w.fdwvalidator <> 0
                            then format(E'\n  VALIDATOR %s', quote_literal(v.proname))
                            else E'\n  NO VALIDATOR'
                       end),

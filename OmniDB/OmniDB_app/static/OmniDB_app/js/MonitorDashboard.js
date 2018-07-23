@@ -38,7 +38,6 @@ function closeMonitorUnit(p_div) {
 }
 
 function updateUnitSavedInterval(p_div) {
-  console.log('X')
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
   for (var i=0; i<v_tab_tag.units.length; i++) {
     var v_unit = v_tab_tag.units[i];
@@ -524,16 +523,19 @@ function showMonitorUnitList() {
           var col = new Object();
           col.readOnly = true;
           col.title =  'Title';
+          col.width = '210px;'
           columnProperties.push(col);
 
           var col = new Object();
           col.readOnly = true;
           col.title =  'Type';
+          col.width = '105px;'
           columnProperties.push(col);
 
           var col = new Object();
           col.readOnly = true;
           col.title =  'Interval(s)';
+          col.width = '60px;'
           columnProperties.push(col);
 
           v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_div.style.display = 'block';

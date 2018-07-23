@@ -369,7 +369,6 @@ class Oracle:
             if p_table:
                 v_filter = "and (case when upper(replace(\"table_name\", ' ', '')) <> \"table_name\" then '"' || \"table_name\" || '"' else \"table_name\" end) = '{0}' ".format(p_table)
         v_filter = v_filter + "and (case when upper(replace(\"constraint_name\", ' ', '')) <> \"constraint_name\" then '"' || \"constraint_name\" || '"' else \"constraint_name\" end) = '{0}' ".format(p_pkey)
-        print(v_filter)
         return self.v_connection.Query('''
             select "column_name"
             from (

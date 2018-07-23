@@ -1352,10 +1352,7 @@ def save_alter_table(request):
 
         if p_original_table_name != p_new_table_name:
 
-            if v_database.v_has_schema:
-                v_new_table_name = p_schema_name + "." + p_new_table_name
-            else:
-                v_new_table_name = p_new_table_name
+            v_new_table_name = p_new_table_name
 
             v_command = v_database.v_rename_table_command
             v_command = v_command.replace ("#p_table_name#", v_table_name)

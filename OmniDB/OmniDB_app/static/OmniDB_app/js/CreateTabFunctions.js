@@ -836,7 +836,7 @@ function initCreateTabFunctions() {
 
 		};
 
-		var v_html = "<div>" +
+		var v_html = "<div id='monitor_dashboard_buttons_div'>" +
     "<button onclick='refreshMonitorDashboard(true)'>Refresh All</button>" +
     "<span style='position: relative; margin-left: 5px;'><button onclick='showMonitorUnitList()'>Manage Units</button>" +
     "<div id='unit_list_div_" + v_tab.id + "' class='dashboard_unit_list'><a class='modal-closer' onclick='closeMonitorUnitList()'>x</a>" +

@@ -125,6 +125,22 @@ def get_tree_info(request):
                 'create_subscription': v_database.TemplateCreateSubscription().v_text,
                 'alter_subscription': v_database.TemplateAlterSubscription().v_text,
                 'drop_subscription': v_database.TemplateDropSubscription().v_text,
+                'create_fdw': v_database.TemplateCreateForeignDataWrapper().v_text,
+                'alter_fdw': v_database.TemplateAlterForeignDataWrapper().v_text,
+                'drop_fdw': v_database.TemplateDropForeignDataWrapper().v_text,
+                'create_foreign_server': v_database.TemplateCreateForeignServer().v_text,
+                'alter_foreign_server': v_database.TemplateAlterForeignServer().v_text,
+                'import_foreign_schema': v_database.TemplateImportForeignSchema().v_text,
+                'drop_foreign_server': v_database.TemplateDropForeignServer().v_text,
+                'create_foreign_table': v_database.TemplateCreateForeignTable().v_text,
+                'alter_foreign_table': v_database.TemplateAlterForeignTable().v_text,
+                'drop_foreign_table': v_database.TemplateDropForeignTable().v_text,
+                'create_foreign_column': v_database.TemplateCreateForeignColumn().v_text,
+                'alter_foreign_column': v_database.TemplateAlterForeignColumn().v_text,
+                'drop_foreign_column': v_database.TemplateDropForeignColumn().v_text,
+                'create_user_mapping': v_database.TemplateCreateUserMapping().v_text,
+                'alter_user_mapping': v_database.TemplateAlterUserMapping().v_text,
+                'drop_user_mapping': v_database.TemplateDropUserMapping().v_text,
                 'pglogical_create_node': v_database.TemplatePglogicalCreateNode().v_text,
                 'pglogical_drop_node': v_database.TemplatePglogicalDropNode().v_text,
                 'pglogical_add_interface': v_database.TemplatePglogicalNodeAddInterface().v_text,
@@ -2194,6 +2210,262 @@ def get_subscription_tables(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_tables
+
+    return JsonResponse(v_return)
+
+def get_foreign_data_wrappers(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_fdws = []
+
+    try:
+        v_fdws = v_database.QueryForeignDataWrappers()
+        for v_fdw in v_fdws.Rows:
+            v_fdw_data = {
+                'v_name': v_fdw['fdwname']
+            }
+            v_list_fdws.append(v_fdw_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_fdws
+
+    return JsonResponse(v_return)
+
+def get_foreign_servers(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_fdw = json_object['p_fdw']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_servers = []
+
+    try:
+        v_servers = v_database.QueryForeignServers(v_fdw)
+        for v_server in v_servers.Rows:
+            v_server_data = {
+                'v_name': v_server['srvname'],
+                'v_type': v_server['srvtype'],
+                'v_version': v_server['srvversion'],
+                'v_options': v_server['srvoptions']
+            }
+            v_list_servers.append(v_server_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_servers
+
+    return JsonResponse(v_return)
+
+def get_user_mappings(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_foreign_server = json_object['p_foreign_server']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_mappings = []
+
+    try:
+        v_mappings = v_database.QueryUserMappings(v_foreign_server)
+        for v_mapping in v_mappings.Rows:
+            v_mapping_data = {
+                'v_name': v_mapping['rolname'],
+                'v_options': v_mapping['umoptions']
+            }
+            v_list_mappings.append(v_mapping_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_mappings
+
+    return JsonResponse(v_return)
+
+def get_foreign_tables(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QueryForeignTables(False,v_schema)
+        for v_table in v_tables.Rows:
+            if v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'False':
+                v_icon = 'table.png'
+            elif v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'True':
+                v_icon = 'table_partitioned.png'
+            elif v_table['is_partition'] == 'True' and v_table['is_partitioned'] == 'False':
+                v_icon = 'table_partition.png'
+            else:
+                v_icon = 'table_partitioned_partition.png'
+
+            v_table_data = {
+                'v_name': v_table['table_name'],
+                'v_icon': v_icon
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
+
+    return JsonResponse(v_return)
+
+def get_foreign_columns(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_columns = []
+
+    try:
+        v_columns = v_database.QueryForeignTablesFields(v_table,False,v_schema)
+        for v_column in v_columns.Rows:
+            v_column_data = {
+                'v_column_name': v_column['column_name'],
+                'v_data_type': v_column['data_type'],
+                'v_data_length': v_column['data_length'],
+                'v_nullable': v_column['nullable'],
+                'v_options': v_column['attfdwoptions'],
+                'v_tableoptions': v_column['ftoptions'],
+                'v_server': v_column['srvname'],
+                'v_fdw': v_column['fdwname']
+            }
+            v_list_columns.append(v_column_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_columns
 
     return JsonResponse(v_return)
 

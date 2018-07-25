@@ -8,6 +8,7 @@ data_files_app = [
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates'),
+  ('OmniDB_app/plugins','OmniDB_app/plugins'),
   ('OmniDB/migrations','OmniDB/migrations')
 ]
 data_files_server = [
@@ -16,6 +17,7 @@ data_files_server = [
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates'),
+  ('OmniDB_app/plugins','OmniDB_app/plugins'),
   ('OmniDB/migrations','OmniDB/migrations'),
 ]
 
@@ -23,7 +25,7 @@ b = Analysis(['omnidb-server.py'],
              binaries=[],
              datas=data_files_server,
              hiddenimports=['cheroot.ssl','cheroot.ssl.builtin'],
-             hookspath=[],
+             pathex=['C:/OmniDB/OmniDB-dev/OmniDB/OmniDB_app/include/'],
              runtime_hooks=[],
              excludes=[],
              win_no_prefer_redirects=False,

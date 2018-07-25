@@ -1476,8 +1476,9 @@ function initCreateTabFunctions() {
       }
 		}
 
-		langTools.setCompleters([qtags]);
-		v_editor.setOptions({enableBasicAutocompletion: true});
+    langTools.addCompleter([qtags]);
+    v_editor.completers = [qtags];
+    v_editor.setOptions({enableBasicAutocompletion: true});
 
     var v_tab_db_id = null;
     if (p_tab_db_id)
@@ -1698,8 +1699,9 @@ function initCreateTabFunctions() {
       }
 		}
 
-		langTools.setCompleters([qtags]);
-		v_editor1.setOptions({enableBasicAutocompletion: true});
+    langTools.addCompleter([qtags]);
+    v_editor1.completers = [qtags];
+    v_editor1.setOptions({enableBasicAutocompletion: true});
     v_editor1.focus();
 
     var v_editor2 = ace.edit('txt_console_' + v_tab.id);
@@ -1920,8 +1922,8 @@ function initCreateTabFunctions() {
         }
       }
     }
-
-    langTools.setCompleters([qtags]);
+    langTools.addCompleter([qtags]);
+    v_editor.completers = [qtags];
     v_editor.setOptions({enableBasicAutocompletion: true});
 
     var v_tag = {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2.9.0
+VERSION=2.10.0
 ARCH=debian-i386
 
 echo "Installing OmniDB dependencies..."

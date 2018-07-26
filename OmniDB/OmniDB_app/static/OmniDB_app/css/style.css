@@ -1012,6 +1012,7 @@ iframe {
   border-radius: 3px;
   background-color: #f9f9f9;
   border: 1px solid #e6e6e6;
+  overflow: auto;
 }
 
 .dashboard_unit_test {
@@ -1028,8 +1029,8 @@ iframe {
   display: none;
   position: absolute;
   margin-top: 5px;
-  width: 400px;
-  height: 300px;
+  width: 500px;
+  height: 400px;
   padding: 5px 5px;
   border-radius: 3px;
   background-color: #f9f9f9;
@@ -1086,8 +1087,8 @@ iframe {
 
 .unit_list_grid {
   position: relative;
-  width: 400px;
-  height: 250px;
+  width: 500px;
+  height: 350px;
   overflow: auto;
   margin-top: 5px;
 }
@@ -1236,4 +1237,9 @@ h2 {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+#monitor_dashboard_buttons_div {
+  padding-bottom: 5px;
+  border-bottom: 1px dashed #c3c3c3;
 }

@@ -1,26 +1,23 @@
-## Next Release: *2.10.0 - July 12, 2018*
+## Next Release: *2.11.0 - August 16, 2018*
 
-# OmniDB 2.9.0
+# OmniDB 2.10.0
 
-## Release Date: *June 19, 2018*
+## Release Date: *July 26, 2018*
 
 ## Release Notes
 
-- New features:
-  - [Plugin System](https://github.com/OmniDB/plugins). Develop and share custom features
-  - [Data Mining](https://omnidb.org/en/documentation-en/22-data-mining), an advanced pattern matching search over database objects and tables data
+- New feature:
+  - Support to Foreign Data Wrappers, Foreign Servers, User Mappings and Foreign Tables (PostgreSQL)
 - Improvements:
-  - SQL Template now available for CREATE TABLE and ALTER TABLE
-  - SQL Template now available for inserting and updating records
-  - Query Data action now creates a SQL Template including all columns and ORDER BY primary key
-  - DDL/Properties are now available for all elements in the tree for PostgreSQL databases
-  - DDL tab now shows GRANT for all supported objects for PostgreSQL databases
-  - BDR3 is now available as a plugin
+  - Monitoring Dashboard: Save current chart disposition per connection
+  - Monitoring Dashboard: Monitoring units that require plpythonu no longer have this requirement (PostgreSQL)
+  - Monitoring Dashboard: Improved current charts and added new ones (PostgreSQL)
+  - Renamed "Data Mining" feature with "Advanced Object Search" (PostgreSQL)
+  - Advanced Object Search: Only shows a line when finds something, does not show "No match" (PostgreSQL)
 - Bug fixes:
-  - Debugger can now be used when connecting via SSH tunnel
-  - Queries that return very large sets of data no longer block the query server
-  - Fixed SSH tunnel connection issue when using the monitoring dashboard
-  - Fixed \dx+ EXTENSION command in console tab
+  - Fixed "Failed to find conversion function from unknown to regprocedure" (PostgreSQL, [#591](https://github.com/OmniDB/OmniDB/issues/591))
+  - Fixed "Unsupported regnamespace type" (PostgreSQL, [#605](https://github.com/OmniDB/OmniDB/issues/605))
+  - Fixed "Object object" error message when using Query Data (Oracle, [#611](https://github.com/OmniDB/OmniDB/issues/611))
 
 # 1- Installation
 

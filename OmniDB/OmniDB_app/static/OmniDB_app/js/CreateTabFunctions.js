@@ -836,7 +836,7 @@ function initCreateTabFunctions() {
 
 		};
 
-		var v_html = "<div>" +
+		var v_html = "<div id='monitor_dashboard_buttons_div'>" +
     "<button onclick='refreshMonitorDashboard(true)'>Refresh All</button>" +
     "<span style='position: relative; margin-left: 5px;'><button onclick='showMonitorUnitList()'>Manage Units</button>" +
     "<div id='unit_list_div_" + v_tab.id + "' class='dashboard_unit_list'><a class='modal-closer' onclick='closeMonitorUnitList()'>x</a>" +
@@ -1476,8 +1476,9 @@ function initCreateTabFunctions() {
       }
 		}
 
-		langTools.setCompleters([qtags]);
-		v_editor.setOptions({enableBasicAutocompletion: true});
+    langTools.addCompleter([qtags]);
+    v_editor.completers = [qtags];
+    v_editor.setOptions({enableBasicAutocompletion: true});
 
     var v_tab_db_id = null;
     if (p_tab_db_id)
@@ -1698,8 +1699,9 @@ function initCreateTabFunctions() {
       }
 		}
 
-		langTools.setCompleters([qtags]);
-		v_editor1.setOptions({enableBasicAutocompletion: true});
+    langTools.addCompleter([qtags]);
+    v_editor1.completers = [qtags];
+    v_editor1.setOptions({enableBasicAutocompletion: true});
     v_editor1.focus();
 
     var v_editor2 = ace.edit('txt_console_' + v_tab.id);
@@ -1920,8 +1922,8 @@ function initCreateTabFunctions() {
         }
       }
     }
-
-    langTools.setCompleters([qtags]);
+    langTools.addCompleter([qtags]);
+    v_editor.completers = [qtags];
     v_editor.setOptions({enableBasicAutocompletion: true});
 
     var v_tag = {

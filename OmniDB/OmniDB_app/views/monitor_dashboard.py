@@ -187,19 +187,66 @@ def get_monitor_units(request):
 
     v_database = v_session.v_tab_connections[v_tab_id]
 
-    v_query = '''
-        select unit_id, title, interval
-        from mon_units where dbt_st_name = '{0}'
-        and is_default = 1
-    '''.format(v_database.v_db_type)
-
-
     v_return['v_data'] = []
+
+    #saving units for current user/connection if there is none
+    v_query = '''
+        select count(*)
+        from mon_units mu,units_users_connections uuc
+        where mu.dbt_st_name = '{0}'
+          and uuc.unit_id = mu.unit_id
+          and uuc.user_id = {1}
+          and uuc.conn_id = {2}
+    '''.format(v_database.v_db_type,v_session.v_user_id,v_database.v_conn_id)
+
+    try:
+        v_count = v_session.v_omnidb_database.v_connection.ExecuteScalar(v_query)
+
+        #save default units
+        if v_count == 0:
+            v_query = '''
+                select mu.unit_id, mu.interval
+                from mon_units mu
+                where mu.dbt_st_name = '{0}'
+                  and mu.is_default = 1
+            '''.format(v_database.v_db_type)
+
+            v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
+            v_session.v_omnidb_database.v_connection.Open();
+            v_session.v_omnidb_database.v_connection.Execute('BEGIN TRANSACTION;');
+            for v_unit in v_units.Rows:
+                v_session.v_omnidb_database.v_connection.Execute('''
+                    insert into units_users_connections values
+                        ((select coalesce(max(uuc_id), 0) + 1 from units_users_connections),
+                        {0},
+                        {1},
+                        {2},
+                        {3});
+                '''.format(v_unit['unit_id'],v_session.v_user_id,v_database.v_conn_id,v_unit['interval']));
+
+            v_session.v_omnidb_database.v_connection.Execute('COMMIT;');
+            v_session.v_omnidb_database.v_connection.Close();
+
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_query = '''
+        select uuc.uuc_id,mu.unit_id, mu.title, uuc.interval
+        from mon_units mu,units_users_connections uuc
+        where mu.dbt_st_name = '{0}'
+          and uuc.unit_id = mu.unit_id
+          and uuc.user_id = {1}
+          and uuc.conn_id = {2}
+        order by uuc_id desc
+    '''.format(v_database.v_db_type,v_session.v_user_id,v_database.v_conn_id)
 
     try:
         v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
         for v_unit in v_units.Rows:
             v_unit_data = {
+                'v_saved_id': v_unit['uuc_id'],
                 'v_id': v_unit['unit_id'],
                 'v_title': v_unit['title'],
                 'v_interval': v_unit['interval']
@@ -352,6 +399,72 @@ def delete_monitor_unit(request):
 
     return JsonResponse(v_return)
 
+def remove_saved_monitor_unit(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_saved_id = json_object['p_saved_id']
+
+    try:
+        v_session.v_omnidb_database.v_connection.Execute('''
+                delete from units_users_connections
+                where uuc_id = {0}
+            '''.format(v_saved_id))
+
+
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def update_saved_monitor_unit_interval(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_saved_id = json_object['p_saved_id']
+    v_interval = json_object['p_interval']
+
+    try:
+        v_session.v_omnidb_database.v_connection.Execute('''
+                update units_users_connections
+                    set interval = {0}
+                where uuc_id = {1}
+            '''.format(v_interval,v_saved_id))
+
+
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
 def refresh_monitor_units(request):
 
     v_return = {}
@@ -388,13 +501,37 @@ def refresh_monitor_units(request):
         v_first = True
         v_query = ''
         for v_id in v_ids:
+
+            #save new user/connection unit
+            if v_id['saved_id'] == -1:
+                try:
+                    v_session.v_omnidb_database.v_connection.Open()
+                    v_session.v_omnidb_database.v_connection.Execute('BEGIN TRANSACTION;')
+                    v_session.v_omnidb_database.v_connection.Execute('''
+                        insert into units_users_connections values
+                            ((select coalesce(max(uuc_id), 0) + 1 from units_users_connections),
+                            {0},
+                            {1},
+                            {2},
+                            {3});
+                    '''.format(v_id['id'],v_session.v_user_id,v_database_orig.v_conn_id,v_id['interval']));
+                    v_id['saved_id'] =  v_session.v_omnidb_database.v_connection.ExecuteScalar('''
+                    select coalesce(max(uuc_id), 0) from units_users_connections
+                    ''')
+                    v_session.v_omnidb_database.v_connection.Execute('COMMIT;')
+                    v_session.v_omnidb_database.v_connection.Close()
+                except Exception as exc:
+                    v_return['v_data'] = str(exc)
+                    v_return['v_error'] = True
+                    return JsonResponse(v_return)
+
             if not v_first:
                 v_query += ' union all '
             v_first = False
             v_query += '''
-                select unit_id, {0} as 'sequence', {1} as rendered, script_chart, script_data, type, title, interval
-                from mon_units where unit_id = '{2}'
-            '''.format(v_id['sequence'], v_id['rendered'], v_id['id'])
+                select unit_id, {0} as 'sequence', {1} as rendered, {2} as saved_id, script_chart, script_data, type, title, interval
+                from mon_units where unit_id = '{3}'
+            '''.format(v_id['sequence'], v_id['rendered'], v_id['saved_id'], v_id['id'])
 
     v_return['v_data'] = []
 
@@ -404,6 +541,7 @@ def refresh_monitor_units(request):
 
             try:
                 v_unit_data = {
+                    'v_saved_id': v_unit['saved_id'],
                     'v_id': v_unit['unit_id'],
                     'v_sequence': v_unit['sequence'],
                     'v_type': v_unit['type'],
@@ -436,6 +574,7 @@ def refresh_monitor_units(request):
                 v_return['v_data'].append(v_unit_data)
             except Exception as exc:
                 v_unit_data = {
+                    'v_saved_id': v_unit['saved_id'],
                     'v_id': v_unit['unit_id'],
                     'v_sequence': v_unit['sequence'],
                     'v_type': v_unit['type'],

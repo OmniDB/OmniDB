@@ -22,6 +22,35 @@ function closeMonitorUnit(p_div) {
 
       v_unit.div.parentElement.removeChild(v_unit.div);
       v_tab_tag.units.splice(i,1);
+
+      //Removing saved unit
+      execAjax('/remove_saved_monitor_unit/',
+    				JSON.stringify({"p_saved_id": v_unit.saved_id}),
+    				function(p_return) {
+            },
+            null,
+            'box',
+            false);
+
+      break;
+    }
+  }
+}
+
+function updateUnitSavedInterval(p_div) {
+  var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+  for (var i=0; i<v_tab_tag.units.length; i++) {
+    var v_unit = v_tab_tag.units[i];
+    if (v_unit.div == p_div) {
+      //Removing saved unit
+      execAjax('/update_saved_monitor_unit_interval/',
+    				JSON.stringify({"p_saved_id": v_unit.saved_id, "p_interval": v_unit.input_interval.value}),
+    				function(p_return) {
+            },
+            null,
+            'box',
+            false);
+
       break;
     }
   }
@@ -111,12 +140,12 @@ function buildMonitorUnit(p_unit, p_first) {
   interval.onkeypress= function() {
     return event.charCode >= 48 && event.charCode <= 57;
   }
-  interval.onblur= function() {
+  interval.onchange= function() {
     var v_value = interval.value;
     if (v_value == '' || v_value == '0') {
       interval.value = 30;
     }
-
+    updateUnitSavedInterval(div);
   }
   var interval_text = document.createElement('span');
   interval_text.classList.add('unit_header_element');
@@ -160,6 +189,7 @@ function buildMonitorUnit(p_unit, p_first) {
   v_unit = {
     'type': '',
     'object': null,
+    'saved_id': v_return_unit.v_saved_id,
     'id': v_return_unit.v_id,
     'div': div,
     'div_loading': div_loading,
@@ -205,7 +235,7 @@ function includeMonitorUnit(p_id) {
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
   var v_row_data = v_grid.getDataAtRow(v_grid.getSelected()[0][0]);
 
-  var div = buildMonitorUnit({'v_id': p_id, 'v_title': v_row_data[1], 'v_interval': v_row_data[3]},true);
+  var div = buildMonitorUnit({'v_saved_id': -1, 'v_id': p_id, 'v_title': v_row_data[1], 'v_interval': v_row_data[3]},true);
   refreshMonitorDashboard(true,v_tab_tag,div);
 }
 
@@ -493,16 +523,19 @@ function showMonitorUnitList() {
           var col = new Object();
           col.readOnly = true;
           col.title =  'Title';
+          col.width = '210px;'
           columnProperties.push(col);
 
           var col = new Object();
           col.readOnly = true;
           col.title =  'Type';
+          col.width = '105px;'
           columnProperties.push(col);
 
           var col = new Object();
           col.readOnly = true;
           col.title =  'Interval(s)';
+          col.width = '60px;'
           columnProperties.push(col);
 
           v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_div.style.display = 'block';
@@ -568,13 +601,13 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
       if (!p_div) {
         if (p_loading)
           v_tab_tag.units[i].div_loading.style.display = 'block';
-        v_units.push({ 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered })
+        v_units.push({ 'saved_id': v_tab_tag.units[i].saved_id, 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered, 'interval': v_tab_tag.units[i].input_interval.value })
         clearTimeout(v_tab_tag.units[i].timeout_object);
       }
       else if (p_div == v_tab_tag.units[i].div) {
         if (p_loading)
           v_tab_tag.units[i].div_loading.style.display = 'block';
-        v_units.push({ 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered })
+        v_units.push({ 'saved_id': v_tab_tag.units[i].saved_id, 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered, 'interval': v_tab_tag.units[i].input_interval.value })
         clearTimeout(v_tab_tag.units[i].timeout_object);
         break;
       }
@@ -596,6 +629,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
               //find corresponding object
               for (var i=0; i<v_tab_tag.units.length; i++) {
                 if (v_return_unit.v_sequence == v_tab_tag.units[i].unit_sequence) {
+                  v_tab_tag.units[i].saved_id = v_return_unit.v_saved_id;
                   v_unit = v_tab_tag.units[i];
                   break;
                 }

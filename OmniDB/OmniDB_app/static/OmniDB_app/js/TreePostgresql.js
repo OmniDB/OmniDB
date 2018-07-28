@@ -289,6 +289,33 @@ function tabDataMining(node) {
           }, {
               'text': 'Partition Name',
               'value': 22
+          }, {
+              'text': 'Role Name',
+              'value': 23
+          }, {
+              'text': 'Tablespace Name',
+              'value': 24
+          }, {
+              'text': 'Extension Name',
+              'value': 25
+          }, {
+              'text': 'FK Column Name',
+              'value': 26
+          }, {
+              'text': 'PK Column Name',
+              'value': 27
+          }, {
+              'text': 'Unique Column Name',
+              'value': 28
+          }, {
+              'text': 'Index Column Name',
+              'value': 29
+          }, {
+              'text': 'Check Definition',
+              'value': 30
+          }, {
+              'text': 'Table Trigger Name',
+              'value': 31
           }
       ];
     } else {
@@ -355,6 +382,33 @@ function tabDataMining(node) {
           }, {
               'text': 'Inherited Table Name',
               'value': 21
+          }, {
+              'text': 'Role Name',
+              'value': 22
+          }, {
+              'text': 'Tablespace Name',
+              'value': 23
+          }, {
+              'text': 'Extension Name',
+              'value': 24
+          }, {
+              'text': 'FK Column Name',
+              'value': 25
+          }, {
+              'text': 'PK Column Name',
+              'value': 26
+          }, {
+              'text': 'Unique Column Name',
+              'value': 27
+          }, {
+              'text': 'Index Column Name',
+              'value': 28
+          }, {
+              'text': 'Check Definition',
+              'value': 29
+          }, {
+              'text': 'Table Trigger Name',
+              'value': 30
           }
       ];
     }

@@ -20,6 +20,7 @@ from datetime import datetime
 import sys
 
 from . import settings
+from . import custom_settings
 
 from django.contrib.sessions.backends.db import SessionStore
 
@@ -44,7 +45,7 @@ class StoppableThread(threading.Thread):
         self.cancel = True
 
 class StoppableThreadPool(ThreadPoolExecutor):
-    def __init__(self, p_max_workers=settings.THREAD_POOL_MAX_WORKERS, p_tag={}):
+    def __init__(self, p_max_workers=custom_settings.THREAD_POOL_MAX_WORKERS, p_tag={}):
         super(StoppableThreadPool, self).__init__(max_workers=p_max_workers)
         self.tag = p_tag
         self.cancel = False

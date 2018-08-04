@@ -1078,7 +1078,7 @@ def save_alter_table(request):
 
                 if v_row['originalNullable'] != p_data_columns [i] [2]:
 
-                    v_command;
+                    v_command = ''
 
                     if p_data_columns [i] [2] == "YES":
                         v_command = v_database.v_set_nullable_command

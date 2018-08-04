@@ -301,7 +301,20 @@ class PostgreSQL:
         return self.v_connection.Query('''
             select quote_ident(c.relname) as table_name,
                    quote_ident(a.attname) as column_name,
-                   t.typname as data_type,
+                   (case when t.typtype = 'd'::"char"
+                         then case when bt.typelem <> 0::oid and bt.typlen = '-1'::integer
+                                   then 'ARRAY'::text
+                                   when nbt.nspname = 'pg_catalog'::name
+                                   then format_type(t.typbasetype, NULL::integer)
+                                   else 'USER-DEFINED'::text
+                              end
+                         else case when t.typelem <> 0::oid and t.typlen = '-1'::integer
+                                   then 'ARRAY'::text
+                                   when nt.nspname = 'pg_catalog'::name
+                                   then format_type(a.atttypid, NULL::integer)
+                                   else 'USER-DEFINED'::text
+                              end
+                    end) as data_type,
                    (case when a.attnotnull or t.typtype = 'd'::char and t.typnotnull
                          then 'NO'
                          else 'YES'
@@ -335,8 +348,16 @@ class PostgreSQL:
             on c.oid = a.attrelid
             inner join pg_namespace n
             on n.oid = c.relnamespace
-            inner join pg_type t
-            on t.oid = a.atttypid
+            inner join (
+                pg_type t
+                inner join pg_namespace nt
+                on t.typnamespace = nt.oid
+            ) on a.atttypid = t.oid
+            left join (
+                pg_type bt
+                inner join pg_namespace nbt
+                on bt.typnamespace = nbt.oid
+            ) on t.typtype = 'd'::"char" and t.typbasetype = bt.oid
             where a.attnum > 0
               and not a.attisdropped
               and c.relkind in ('r', 'f', 'p')

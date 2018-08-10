@@ -112,7 +112,7 @@ Datum omnidb_enable_debugger(PG_FUNCTION_ARGS)
 {
     omnidb_plugin_active = true;
     sprintf(omnidb_plugin_conninfo, "%s", text_to_cstring(PG_GETARG_TEXT_P(0)));
-	PG_RETURN_VOID();
+		PG_RETURN_VOID();
 }
 
 /* -------------------------------------------------------------------
@@ -138,54 +138,54 @@ static void profiler_func_beg( PLpgSQL_execstate * estate, PLpgSQL_function * fu
 
     if (omnidb_plugin_active)
     {
-		omnidb_plugin_depth++;
+				omnidb_plugin_depth++;
 
-		//First call
-		if (omnidb_plugin_depth == 0)
-        {
-            omnidb_plugin_conn = PQconnectdb(omnidb_plugin_conninfo);
-            if (PQstatus(omnidb_plugin_conn) != CONNECTION_BAD)
-            {
-                #ifdef DEBUG
-                    elog(LOG, "omnidb: Connected to (%s)", omnidb_plugin_conninfo);
-                #endif
+				//First call
+				if (omnidb_plugin_depth == 0)
+		    {
+		        omnidb_plugin_conn = PQconnectdb(omnidb_plugin_conninfo);
+		        if (PQstatus(omnidb_plugin_conn) != CONNECTION_BAD)
+		        {
+		            #ifdef DEBUG
+		                elog(LOG, "omnidb: Connected to (%s)", omnidb_plugin_conninfo);
+		            #endif
 
-                char select_context[256];
-                sprintf(select_context, "SELECT pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
-                PGresult *res = PQexec(omnidb_plugin_conn, select_context);
-                if (PQresultStatus(res) == PGRES_TUPLES_OK && PQntuples(res) == 1)
-                {
-                    char update_context[1024];
-                    sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'func_beg', stmttype = 'BEGIN', lineno = NULL where pid = %i", findProcName(func->fn_oid), MyProcPid);
-                    PQexec(omnidb_plugin_conn, update_context);
+		            char select_context[256];
+		            sprintf(select_context, "SELECT pid FROM omnidb.contexts WHERE pid = %i", MyProcPid);
+		            PGresult *res = PQexec(omnidb_plugin_conn, select_context);
+		            if (PQresultStatus(res) == PGRES_TUPLES_OK && PQntuples(res) == 1)
+		            {
+		                char update_context[1024];
+		                sprintf(update_context, "UPDATE omnidb.contexts SET function = '%s', hook = 'func_beg', stmttype = 'BEGIN', lineno = NULL where pid = %i", findProcName(func->fn_oid), MyProcPid);
+		                PQexec(omnidb_plugin_conn, update_context);
 
-                    #ifdef DEBUG
-                        elog(LOG, "omnidb: Debugger active for PID %i", MyProcPid);
-                    #endif
+		                #ifdef DEBUG
+		                    elog(LOG, "omnidb: Debugger active for PID %i", MyProcPid);
+		                #endif
 
-                    omnidb_plugin_active = true;
-                    omnidb_plugin_step = 0;
-                }
-                else
-                {
-                    omnidb_plugin_active = false;
-                    #ifdef DEBUG
-                        elog(LOG, "omnidb: Debugger not active for PID %i", MyProcPid);
-                    #endif
-                }
-            }
-            else
-            {
-                omnidb_plugin_active = false;
-                elog(ERROR, "omnidb: Connection to database failed: %s", PQerrorMessage(omnidb_plugin_conn));
-            }
-		}
-		else
-		{
-			#ifdef DEBUG
-					elog(LOG, "omnidb: Debugger not active for subcall in PID %i", MyProcPid);
-			#endif
-		}
+		                omnidb_plugin_active = true;
+		                omnidb_plugin_step = 0;
+		            }
+		            else
+		            {
+		                omnidb_plugin_active = false;
+		                #ifdef DEBUG
+		                    elog(LOG, "omnidb: Debugger not active for PID %i", MyProcPid);
+		                #endif
+		            }
+		        }
+		        else
+		        {
+		            omnidb_plugin_active = false;
+		            elog(ERROR, "omnidb: Connection to database failed: %s", PQerrorMessage(omnidb_plugin_conn));
+		        }
+				}
+				else
+				{
+					#ifdef DEBUG
+							elog(LOG, "omnidb: Debugger not active for subcall in PID %i", MyProcPid);
+					#endif
+				}
     }
     else
     {
@@ -511,12 +511,19 @@ static void update_variables( PLpgSQL_execstate * estate )
 
                 break;
             }
+
             case PLPGSQL_DTYPE_REC:
             {
                 PLpgSQL_rec * rec = (PLpgSQL_rec *) estate->datums[i];
                 int		      att;
                 char        * typeName;
                 char        * val;
+
+								#ifdef PG11PLUS
+
+								//TODO: Handle record attributes in PG >= 11
+
+								#else
 
                 if (rec->tupdesc != NULL)
                 {
@@ -544,7 +551,10 @@ static void update_variables( PLpgSQL_execstate * estate )
                             pfree( typeName );
                     }
                 }
-                break;
+
+								#endif
+
+								break;
             }
         }
     }

@@ -258,8 +258,6 @@ def thread_dispatcher(self,args,ws_object):
                             v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
                             ws_object.write_message(json.dumps(v_response))
 
-
-
                         v_data['v_context_code'] = v_context_code
                         v_data['v_database'] = tab_object['omnidatabase']
 
@@ -413,7 +411,10 @@ def thread_dispatcher(self,args,ws_object):
 
                         v_data['v_context_code'] = v_context_code
                         v_data['v_tab_object'] = tab_object
-                        v_data['v_port'] = v_session.v_databases[v_data['v_db_index']]['database'].v_port
+
+                        # Instead of getting the connection port which can be forwarded, we get the local PostgreSQL port
+                        #v_data['v_port'] = v_session.v_databases[v_data['v_db_index']]['database'].v_port
+                        v_data['v_port'] = v_session.v_databases[v_data['v_db_index']]['database'].v_connection.ExecuteScalar('show port')
 
                         t = StoppableThread(thread_debug,v_data,ws_object)
                         #tab_object['thread'] = t
@@ -1315,7 +1316,10 @@ def thread_debug_run_func(self,args,ws_object):
         v_database_debug.v_connection.Execute("select omnidb.omnidb_enable_debugger('{0}')".format(v_conn_string))
 
         #run function it will lock until the function ends
-        v_func_return = v_database_debug.v_connection.Query('select * from {0} limit 1000'.format(args['v_function']),True)
+        if args['v_type'] == 'f':
+            v_func_return = v_database_debug.v_connection.Query('select * from {0} limit 1000'.format(args['v_function']),True)
+        else:
+            v_func_return = v_database_debug.v_connection.Query('call {0}'.format(args['v_function']),True)
 
         #Not cancelled, return all data
         if not v_tab_object['cancelled']:
@@ -1329,11 +1333,10 @@ def thread_debug_run_func(self,args,ws_object):
             #retrieve statistics summary
             v_statistics_summary = v_database_debug.v_connection.Query('''
             select lineno, max(msec) as msec
-            from (select lineno,coalesce(trunc((extract("epoch" from tend)  - extract("epoch" from tstart))::numeric,4),0) as msec from omnidb.statistics where pid = {0}) t
+            from (select lineno,coalesce(trunc((extract("epoch" from tend) - extract("epoch" from tstart))::numeric,4),0) as msec from omnidb.statistics where pid = {0}) t
             group by lineno
             order by lineno
             '''.format(v_tab_object['debug_pid']),True)
-
 
             #retrieve notices
             v_notices = v_database_debug.v_connection.GetNotices()
@@ -1437,7 +1440,7 @@ def thread_debug(self,args,ws_object):
             v_tab_object['debug_pid'] = pid
 
             #Run thread that will execute the function
-            t = StoppableThread(thread_debug_run_func,{ 'v_tab_object': v_tab_object, 'v_context_code': args['v_context_code'], 'v_function': args['v_function'], 'v_port': args['v_port']},ws_object)
+            t = StoppableThread(thread_debug_run_func,{ 'v_tab_object': v_tab_object, 'v_context_code': args['v_context_code'], 'v_function': args['v_function'], 'v_type': args['v_type'], 'v_port': args['v_port']},ws_object)
             v_tab_object['thread'] = t
             #t.setDaemon(True)
             t.start()
@@ -1502,7 +1505,6 @@ def thread_debug(self,args,ws_object):
             v_database_control.v_connection.Cancel(False)
             v_database_control.v_connection.Terminate(v_tab_object['debug_pid'])
             v_database_control.v_connection.Close()
-
 
     except Exception as exc:
         v_response['v_code'] = response.DebugResponse

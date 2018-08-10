@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2.10.0
+VERSION=2.11.0
 ARCH=centos-i386
 
 cd ~/OmniDB/omnidb_plugin

@@ -31,6 +31,7 @@ function dropConnection() {
 
 	var v_data = v_connections_data.ht.getData();
 	var v_row = v_connections_data.ht.getSelected()[0][0];
+	v_row = v_connections_data.v_conn_ids.getConnIndexById(v_connections_data.ht.getCellMeta(v_row, 0).v_conn_id);
 
 	//New connection, just remove from grid
 	if (v_connections_data.v_conn_ids[v_row].mode==2) {
@@ -60,9 +61,11 @@ function dropConnection() {
 function newConnection() {
 
 	var v_data = v_connections_data.ht.getData();
+	var v_conn_id = v_connections_data.v_next_conn_id;
+	v_connections_data.v_next_conn_id--;
 	v_data.push(['postgresql','','','','','',false,'','22','','','','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
 	v_connections_data.v_conn_ids.push({
-		'id': -1,
+		'id': v_conn_id,
 		'mode': 2,
 		'old_mode': 2,
 		'ssh_server': '',
@@ -73,6 +76,9 @@ function newConnection() {
 		'ssh_enabled': false
 	})
 	v_connections_data.ht.loadData(v_data);
+	var v_cellMeta = v_connections_data.ht.getCellMeta(v_connections_data.v_conn_ids.length - 1, 0);
+	v_cellMeta.v_conn_id = v_conn_id;
+	v_connections_data.v_conn_ids[v_connections_data.v_conn_ids.length - 1].v_cellMeta = v_cellMeta
 
 	var v_div_result = document.getElementById('connection_list_div_grid');
 
@@ -231,8 +237,10 @@ function saveConnections(p_callback) {
 
 	for (var i=0; i < v_connections_data.v_conn_ids.length; i++) {
 		if (v_connections_data.v_conn_ids[i].mode!=0) {
-			v_conn_id_list.push(v_connections_data.v_conn_ids[i])
-			var v_temp_row = v_connections_data.ht.getDataAtRow(i)
+			var v_clone = jQuery.extend(true, {}, v_connections_data.v_conn_ids[i]);
+			delete v_clone['v_cellMeta'];
+			v_conn_id_list.push(v_clone)
+			var v_temp_row = v_connections_data.ht.getDataAtRow(v_connections_data.v_conn_ids[i].v_cellMeta.visualRow);
 			v_data_list.push([v_temp_row[0],v_temp_row[1],v_temp_row[2],v_temp_row[3],v_temp_row[4],v_temp_row[5],v_temp_row[6],v_temp_row[7],v_temp_row[8],v_temp_row[9],v_temp_row[10],v_temp_row[11]])
 		}
 	}
@@ -286,6 +294,7 @@ function showConnectionList() {
 				col.type = 'dropdown';
 				col.allowInvalid = false,
 				col.source = p_return.v_data.v_technologies;
+				col.renderer = myRenderer;
 				columnProperties.push(col);
 
 				var col = new Object();
@@ -313,7 +322,7 @@ function showConnectionList() {
 				col.title =  'SSH Tunnel';
 				col.type = "checkbox",
 				col.checkedTemplate = true,
-        col.uncheckedTemplate = false
+        		col.uncheckedTemplate = false
 				col.width = '80'
 				columnProperties.push(col);
 
@@ -352,104 +361,121 @@ function showConnectionList() {
 				}
 
 				v_connections_data = new Object();
+				v_connections_data.v_next_conn_id = -1;
 				v_connections_data.v_conn_ids = p_return.v_data.v_conn_ids;
+
+				v_connections_data.v_conn_ids.getConnIndexById = function(p_conn_id) {
+					for(var i = 0; i < this.length; i++) {
+						if(this[i].id == p_conn_id) {
+							return i;
+						}
+					}
+
+					return -1;
+				};
+
 				v_connections_data.v_active = true;
 
 				var container = v_div_result;
 				v_connections_data.ht = new Handsontable(container,
-														{
-															data: p_return.v_data.v_data,
-															columns : columnProperties,
-															colHeaders : true,
-															manualColumnResize: true,
-															minSpareCols :0,
-															minSpareRows :0,
-															fillHandle:false,
-															contextMenu: {
-																callback: function (key, options) {
-																	if (key === 'view_data') {
-																		if (options[0].start.col!=6 && options[0].start.col!=10 && options[0].start.col!=12) {
-																			if (v_connections_data.v_conn_ids[options[0].start.row].locked)
-																		  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
-																			else
-																				editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),true);
-																		}
-																	}
-																},
-																items: {
-																	"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
-																}
-													    },
-															beforeChange: function (changes, source) {
+					{
+						data: p_return.v_data.v_data,
+						columns : columnProperties,
+						colHeaders : true,
+						manualColumnResize: true,
+						minSpareCols :0,
+						minSpareRows :0,
+						fillHandle:false,
+						columnSorting: true,
+						sortIndicator: true,
+						contextMenu: {
+							callback: function (key, options) {
+								if (key === 'view_data') {
+									if (options[0].start.col!=6 && options[0].start.col!=10 && options[0].start.col!=12) {
+										var v_row = v_connections_data.v_conn_ids.getConnIndexById(v_connections_data.ht.getCellMeta(options[0].start.row, 0).v_conn_id);
 
-																if (!changes)
-																    return;
+										if (v_connections_data.v_conn_ids[v_row].locked)
+									  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
+										else
+											editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),true);
+									}
+								}
+							},
+							items: {
+								"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+							}
+				    },
+						beforeChange: function (changes, source) {
 
-																$.each(changes, function (index, element) {
-																    var change = element;
-																    var rowIndex = change[0];
-																    var columnIndex = change[1];
-																    var oldValue = change[2];
-																    var newValue = change[3];
+							if (!changes)
+							    return;
 
-																    var cellChange = {
-																        'rowIndex': rowIndex,
-																        'columnIndex': columnIndex
-																    };
+							$.each(changes, function (index, element) {
+							    var change = element;
+							    var rowIndex = change[0];
+								var rowIndex = v_connections_data.v_conn_ids.getConnIndexById(v_connections_data.ht.getCellMeta(rowIndex, 0).v_conn_id);
+							    var columnIndex = change[1];
+							    var oldValue = change[2];
+							    var newValue = change[3];
 
-																    if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2) {
+							    if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2) {
 
-																				if (v_connections_data.v_conn_ids[rowIndex].mode!=-1)
-																					v_connections_data.v_conn_ids[rowIndex].mode = 1;
-																				else
-																					v_connections_data.v_conn_ids[rowIndex].old_mode = 1;
+											if (v_connections_data.v_conn_ids[rowIndex].mode!=-1)
+												v_connections_data.v_conn_ids[rowIndex].mode = 1;
+											else
+												v_connections_data.v_conn_ids[rowIndex].old_mode = 1;
 
-																        document.getElementById('div_save').style.visibility = 'visible';
+							        document.getElementById('div_save').style.visibility = 'visible';
 
-																    }
-																});
+							    }
+							});
 
-															},
-															cells: function (row, col, prop) {
+						},
+						cells: function (row, col, prop) {
 
-																if (v_connections_data.v_conn_ids.length!=0) {
-																	var cellProperties = {};
+							if (v_connections_data.v_conn_ids.length!=0 && row < v_connections_data.v_conn_ids.length) {
+								var v_even = row % 2 == 0;
 
-																	var v_read_only = false;
+								var cellProperties = {};
 
-																	if (v_connections_data.v_conn_ids[row].locked) {
-																		cellProperties.renderer = grayHtmlRenderer;
-																		cellProperties.readOnly = true;
-																		v_read_only = true;
-																	}
+								var v_read_only = false;
 
-																	if (!v_read_only) {
+								if (v_connections_data.v_conn_ids[row].locked) {
+									cellProperties.renderer = grayHtmlRenderer;
+									cellProperties.readOnly = true;
+									v_read_only = true;
+								}
 
-																		if (v_connections_data.v_conn_ids[row].mode==2)
-																			cellProperties.renderer = greenHtmlRenderer;
-																		else if (v_connections_data.v_conn_ids[row].mode==-1)
-																			cellProperties.renderer = redHtmlRenderer;
-																		else if (v_connections_data.v_conn_ids[row].mode==1)
-																			cellProperties.renderer = yellowHtmlRenderer;
-																		else if (row % 2 == 0)
-																			cellProperties.renderer = blueHtmlRenderer;
-																		else
-																			cellProperties.renderer =whiteHtmlRenderer;
+								if (!v_read_only) {
 
-																	}
+									if (v_connections_data.v_conn_ids[row].mode==2)
+										cellProperties.renderer = greenHtmlRenderer;
+									else if (v_connections_data.v_conn_ids[row].mode==-1)
+										cellProperties.renderer = redHtmlRenderer;
+									else if (v_connections_data.v_conn_ids[row].mode==1)
+										cellProperties.renderer = yellowHtmlRenderer;
+									else if (v_even % 2 == 0)
+										cellProperties.renderer = blueHtmlRenderer;
+									else
+										cellProperties.renderer =whiteHtmlRenderer;
 
-																	return cellProperties;
-																}
+								}
 
-															}
-														});
+								return cellProperties;
+							}
 
+						}
+					}
+				);
 
-
-
-				},
-				null,
-				'box');
+				for(var i = 0; i < v_connections_data.v_conn_ids.length; i++) {
+					var v_cellMeta = v_connections_data.ht.getCellMeta(i, 0);
+					v_cellMeta.v_conn_id = v_connections_data.v_conn_ids[i].id;
+					v_connections_data.v_conn_ids[i].v_cellMeta = v_cellMeta
+				}
+			},
+			null,
+			'box');
 
 }
 
@@ -484,128 +510,5 @@ function closeConnectionListFinish(p_index) {
 
 		if (p_index)
 			v_connTabControl.tag.createConnTab(p_index);
-
-}
-
-/// <summary>
-/// Retrieving and displaying connections.
-/// </summary>
-function listConnections() {
-
-	execAjax('/get_connections/',
-			JSON.stringify({}),
-			function(p_return) {
-
-				window.scrollTo(0,0);
-
-				var columnProperties = [];
-
-				var col = new Object();
-				col.title =  'Technology';
-				col.type = 'dropdown';
-				col.source = p_return.v_data.v_technologies;
-				columnProperties.push(col);
-
-				var col = new Object();
-				col.title =  'Server';
-				columnProperties.push(col);
-
-				var col = new Object();
-				col.title =  'Port';
-				columnProperties.push(col);
-
-				var col = new Object();
-				col.title =  'Database';
-				columnProperties.push(col);
-
-				var col = new Object();
-				col.title =  'User';
-				columnProperties.push(col);
-
-				var col = new Object();
-				col.title =  'Title';
-				columnProperties.push(col);
-
-				var col = new Object();
-				col.title =  'Actions';
-				col.renderer = 'html';
-				col.readOnly = true;
-				col.width = '80'
-				columnProperties.push(col);
-
-				var v_div_result = document.getElementById('div_conn_list');
-
-				if (v_div_result.innerHTML!='') {
-					v_connections_data.ht.destroy();
-				}
-
-				v_connections_data = new Object();
-				v_connections_data.v_conn_ids = p_return.v_data.v_conn_ids;
-
-				var container = v_div_result;
-				v_connections_data.ht = new Handsontable(container,
-														{
-															data: p_return.v_data.v_data,
-															columns : columnProperties,
-															colHeaders : true,
-															manualColumnResize: true,
-															minSpareCols :0,
-															minSpareRows :0,
-															fillHandle:false,
-															beforeChange: function (changes, source) {
-
-																if (!changes)
-																    return;
-
-																$.each(changes, function (index, element) {
-																    var change = element;
-																    var rowIndex = change[0];
-																    var columnIndex = change[1];
-																    var oldValue = change[2];
-																    var newValue = change[3];
-
-																    var cellChange = {
-																        'rowIndex': rowIndex,
-																        'columnIndex': columnIndex
-																    };
-
-																    if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2) {
-
-																				if (v_connections_data.v_conn_ids[rowIndex].mode!=-1)
-																					v_connections_data.v_conn_ids[rowIndex].mode = 1;
-																				else
-																					v_connections_data.v_conn_ids[rowIndex].old_mode = 1;
-
-																        document.getElementById('div_save').style.visibility = 'visible';
-
-																    }
-																});
-
-															},
-															cells: function (row, col, prop) {
-
-																if (v_connections_data.v_conn_ids.length!=0) {
-																	var cellProperties = {};
-																	if (v_connections_data.v_conn_ids[row].mode==2)
-																		cellProperties.renderer = greenHtmlRenderer;
-																	else if (v_connections_data.v_conn_ids[row].mode==-1)
-																		cellProperties.renderer = redHtmlRenderer;
-																	else if (v_connections_data.v_conn_ids[row].mode==1)
-																		cellProperties.renderer = yellowHtmlRenderer;
-																	else if (row % 2 == 0)
-																		cellProperties.renderer = blueHtmlRenderer;
-																	else
-																		cellProperties.renderer =whiteHtmlRenderer;
-
-																	return cellProperties;
-																}
-
-															}
-														});
-
-
-				},
-				null,
-				'box');
 
 }

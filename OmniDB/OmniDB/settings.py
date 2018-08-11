@@ -225,6 +225,6 @@ IS_SSL                         = False
 SSL_CERTIFICATE                = ""
 SSL_KEY                        = ""
 CH_CMDS_PER_PAGE               = 20
-PWD_TIMEOUT_TOTAL              = 1800
+PWD_TIMEOUT_TOTAL              = custom_settings.PWD_TIMEOUT_TOTAL
 PWD_TIMEOUT_REFRESH            = 300
 THREAD_POOL_MAX_WORKERS        = custom_settings.THREAD_POOL_MAX_WORKERS

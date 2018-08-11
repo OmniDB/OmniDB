@@ -131,6 +131,11 @@ try:
 except:
     pass
 
+try:
+    OmniDB.custom_settings.PWD_TIMEOUT_TOTAL = Config.getint('queryserver', 'pwd_timeout_total')
+except:
+    pass
+
 #Configuring Django settings before loading them
 if is_ssl:
     OmniDB.settings.SESSION_COOKIE_SECURE = True

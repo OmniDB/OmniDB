@@ -22,12 +22,13 @@ var v_debugState = {
 	Cancel: 5
 }
 
-function setupDebug(p_node) {
+function setupDebug(p_node, p_type) {
 	getDebugFunctionDefinitionPostgresql(p_node);
 
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 	v_tab_tag.database_index = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
 	v_tab_tag.function = p_node.parent.parent.text + '.' + p_node.text;
+	v_tab_tag.type = p_type;
 
 	v_tab_tag.bt_reload.onclick = function() {
 		if (v_tab_tag.state!=v_debugState.Initial && v_tab_tag.state!=v_debugState.Finished && v_tab_tag.state!=v_debugState.Cancel)
@@ -37,7 +38,6 @@ function setupDebug(p_node) {
 		}
 	};
 	v_tab_tag.selectParameterTabFunc();
-
 
 	//Customize editor to enable adding breakpoints
 	//Creating breakpoint options
@@ -230,7 +230,8 @@ function startDebug() {
 	    v_state: v_tab_tag.state,
 			v_conn_tab_id: v_connTabControl.selectedTab.id,
 	    v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
-	    v_function: v_function
+	    v_function: v_function,
+			v_type: v_tab_tag.type
 	  }
 
 	  var v_context = {
@@ -330,7 +331,8 @@ function stepDebug(p_mode) {
       v_db_index: v_tab_tag.database_index,
       v_state: v_tab_tag.state,
       v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
-			v_next_breakpoint: v_next_breakpoint
+			v_next_breakpoint: v_next_breakpoint,
+			v_type: v_tab_tag.type
     }
 
     var v_context = {
@@ -398,7 +400,8 @@ function cancelDebug() {
 		var v_message_data = {
 			v_db_index: v_tab_tag.database_index,
 			v_state: v_debugState.Cancel,
-			v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id
+			v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
+			v_type: v_tab_tag.type
 		}
 
 		var v_context = {

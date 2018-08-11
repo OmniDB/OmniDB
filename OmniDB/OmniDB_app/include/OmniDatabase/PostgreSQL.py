@@ -962,18 +962,32 @@ class PostgreSQL:
                 v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
-                   quote_ident(p.proname) as name,
-                   quote_ident(n.nspname) as schema_name
-            from pg_proc p
-            join pg_namespace n
-            on p.pronamespace = n.oid
-            where not p.proisagg
-              and format_type(p.prorettype, null) <> 'trigger'
-            {0}
-            order by 1
-        '''.format(v_filter), True)
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return self.v_connection.Query('''
+                select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                       quote_ident(p.proname) as name,
+                       quote_ident(n.nspname) as schema_name
+                from pg_proc p
+                join pg_namespace n
+                on p.pronamespace = n.oid
+                where not p.proisagg
+                  and format_type(p.prorettype, null) <> 'trigger'
+                {0}
+                order by 1
+            '''.format(v_filter), True)
+        else:
+            return self.v_connection.Query('''
+                select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                       quote_ident(p.proname) as name,
+                       quote_ident(n.nspname) as schema_name
+                from pg_proc p
+                join pg_namespace n
+                on p.pronamespace = n.oid
+                where p.prokind = 'f'
+                  and format_type(p.prorettype, null) <> 'trigger'
+                {0}
+                order by 1
+            '''.format(v_filter), True)
 
     def QueryFunctionFields(self, p_function, p_schema):
         if p_schema:
@@ -1045,6 +1059,72 @@ class PostgreSQL:
             where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
         '''.format(p_function))
 
+    def QueryProcedures(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                   quote_ident(p.proname) as name,
+                   quote_ident(n.nspname) as schema_name
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            where p.prokind = 'p'
+              and format_type(p.prorettype, null) <> 'trigger'
+            {0}
+            order by 1
+        '''.format(v_filter), True)
+
+    def QueryProcedureFields(self, p_procedure, p_schema):
+        if p_schema:
+            return self.v_connection.Query('''
+                select (case trim(substring((trim(x.name) || ' ') from 1 for position(' ' in (trim(x.name) || ' '))))
+                          when 'OUT' then 'O'
+                          when 'INOUT' then 'X'
+                          else 'I'
+                        end) as type,
+                       trim(x.name) as name,
+                       row_number() over() as seq
+                from (
+                    select unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
+                ) x
+                where length(trim(x.name)) > 0
+                order by 3
+            '''.format(p_schema, p_procedure), True)
+        else:
+            return self.v_connection.Query('''
+                select (case trim(substring((trim(x.name) || ' ') from 1 for position(' ' in (trim(x.name) || ' '))))
+                          when 'OUT' then 'O'
+                          when 'INOUT' then 'X'
+                          else 'I'
+                        end) as type,
+                       trim(x.name) as name,
+                       row_number() over() as seq
+                from (
+                    select unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
+                ) x
+                where length(trim(x.name)) > 0
+                order by 3
+            '''.format(self.v_schema, p_procedure), True)
+
+    def GetProcedureDefinition(self, p_procedure):
+        return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_procedure))
+
+    def GetProcedureDebug(self, p_procedure):
+        return self.v_connection.ExecuteScalar('''
+            select p.prosrc
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+        '''.format(p_procedure))
+
     def QueryTriggerFunctions(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1061,8 +1141,7 @@ class PostgreSQL:
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
-            where not p.proisagg
-              and format_type(p.prorettype, null) = 'trigger'
+            where format_type(p.prorettype, null) = 'trigger'
             {0}
             order by 1
         '''.format(v_filter), True)
@@ -2984,6 +3063,28 @@ $function$
 --CASCADE
 ''')
 
+    def TemplateCreateProcedure(self):
+        return Template('''CREATE OR REPLACE PROCEDURE #schema_name#.name
+--(
+--    [ argmode ] [ argname ] argtype [ { DEFAULT | = } default_expr ]
+--)
+LANGUAGE plpgsql
+--SECURITY DEFINER
+AS
+$procedure$
+--DECLARE
+-- variables
+BEGIN
+-- definition
+END;
+$procedure$
+''')
+
+    def TemplateDropProcedure(self):
+        return Template('''DROP PROCEDURE #procedure_name#
+--CASCADE
+''')
+
     def TemplateCreateTriggerFunction(self):
         return Template('''CREATE OR REPLACE FUNCTION #schema_name#.name()
 RETURNS trigger
@@ -4708,7 +4809,7 @@ TO NODE ( nodename [, ... ] )
                 on l.oid = p.prolang
                 where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
             '''.format(p_object))
-        else:
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
             return self.v_connection.Query('''
                 select current_database() as "Database",
                        n.nspname as "Schema",
@@ -4741,6 +4842,71 @@ TO NODE ( nodename [, ... ] )
                 on l.oid = p.prolang
                 where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
             '''.format(p_object))
+        else:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       n.nspname as "Schema",
+                       p.proname as "Function",
+                       quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as "Function ID",
+                       p.oid as "OID",
+                       r.rolname as "Owner",
+                       (case p.prokind when 'f' then 'Normal' when 'a' then 'Aggregate' when 'w' then 'Window' end) as "Function Kind",
+                       l.lanname as "Language",
+                       p.procost as "Estimated Execution Cost",
+                       p.prorows as "Estimated Returned Rows",
+                       p.prosecdef as "Security Definer",
+                       p.proleakproof as "Leak Proof",
+                       p.proisstrict as "Is Strict",
+                       p.proretset as "Returns Set",
+                       (case p.provolatile when 'i' then 'Immutable' when 's' then 'Stable' when 'v' then 'Volatile' end) as "Volatile",
+                       (case p.proparallel when 's' then 'Safe' when 'r' then 'Restricted' when 'u' then 'Unsafe' end) as "Parallel",
+                       p.pronargs as "Number of Arguments",
+                       p.pronargdefaults as "Number of Default Arguments",
+                       p.probin as "Invoke",
+                       p.proconfig as "Configuration",
+                       p.proacl as "ACL"
+                from pg_proc p
+                join pg_namespace n
+                on p.pronamespace = n.oid
+                inner join pg_roles r
+                on r.oid = p.proowner
+                inner join pg_language l
+                on l.oid = p.prolang
+                where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+                  and p.prokind = 'f'
+            '''.format(p_object))
+
+    def GetPropertiesProcedure(self, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   p.proname as "Procedure",
+                   quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as "Procedure ID",
+                   p.oid as "OID",
+                   r.rolname as "Owner",
+                   l.lanname as "Language",
+                   p.procost as "Estimated Execution Cost",
+                   p.prorows as "Estimated Returned Rows",
+                   p.prosecdef as "Security Definer",
+                   p.proleakproof as "Leak Proof",
+                   p.proisstrict as "Is Strict",
+                   (case p.provolatile when 'i' then 'Immutable' when 's' then 'Stable' when 'v' then 'Volatile' end) as "Volatile",
+                   (case p.proparallel when 's' then 'Safe' when 'r' then 'Restricted' when 'u' then 'Unsafe' end) as "Parallel",
+                   p.pronargs as "Number of Arguments",
+                   p.pronargdefaults as "Number of Default Arguments",
+                   p.probin as "Invoke",
+                   p.proconfig as "Configuration",
+                   p.proacl as "ACL"
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            inner join pg_roles r
+            on r.oid = p.proowner
+            inner join pg_language l
+            on l.oid = p.prolang
+            where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+              and p.prokind = 'p'
+        '''.format(p_object))
 
     def GetPropertiesTrigger(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
@@ -5466,6 +5632,8 @@ TO NODE ( nodename [, ... ] )
             return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
         elif p_type == 'function':
             return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+        elif p_type == 'procedure':
+            return self.GetPropertiesProcedure(p_object).Transpose('Property', 'Value')
         elif p_type == 'trigger':
             return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
         elif p_type == 'triggerfunction':
@@ -5641,7 +5809,7 @@ TO NODE ( nodename [, ... ] )
             grants as (
                 select coalesce(
                         string_agg(format(
-                    	E'GRANT %s ON SCHEMA public TO %s%s;\n',
+                    	E'GRANT %s ON SCHEMA {0} TO %s%s;\n',
                         privilege_type,
                         case grantee
                           when 'PUBLIC' then 'PUBLIC'
@@ -6538,6 +6706,156 @@ TO NODE ( nodename [, ... ] )
             '''.format(p_schema, p_object))
 
     def GetDDLFunction(self, p_function):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return self.v_connection.ExecuteScalar('''
+                with obj as (
+                    SELECT p.oid,
+                           p.proname AS name,
+                           n.nspname AS namespace,
+                           pg_get_userbyid(p.proowner) AS owner,
+                           '{0}'::text AS sql_identifier
+                    FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+                    WHERE p.oid = '{0}'::text::regprocedure
+                ),
+                createfunction as (
+                    select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
+                    from obj
+                ),
+                alterowner as (
+                    select
+                       'ALTER FUNCTION '||sql_identifier||
+                              ' OWNER TO '||quote_ident(owner)||E';\n\n' as text
+                      from obj
+                ),
+                privileges as (
+                select (u_grantor.rolname)::information_schema.sql_identifier as grantor,
+                       (grantee.rolname)::information_schema.sql_identifier as grantee,
+                       (p.privilege_type)::information_schema.character_data as privilege_type,
+                       (case when (pg_has_role(grantee.oid, p.proowner, 'USAGE'::text) or p.is_grantable)
+                             then 'YES'::text
+                             else 'NO'::text
+                        end)::information_schema.yes_or_no AS is_grantable
+                from (
+                    select p.pronamespace,
+                           p.proowner,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantor as grantor,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantee as grantee,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type as privilege_type,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable as is_grantable
+                    from pg_proc p
+                    where not p.proisagg
+                      and p.oid = '{0}'::regprocedure
+                ) p
+                inner join pg_namespace n
+                on n.oid = p.pronamespace
+                inner join pg_roles u_grantor
+                on u_grantor.oid = p.grantor
+                inner join (
+                    select r.oid,
+                           r.rolname
+                    from pg_roles r
+                    union all
+                    select (0)::oid AS oid,
+                           'PUBLIC'::name
+                ) grantee
+                on grantee.oid = p.grantee
+                ),
+                grants as (
+                select coalesce(
+                        string_agg(format(
+                    	E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                        privilege_type,
+                        case grantee
+                          when 'PUBLIC' then 'PUBLIC'
+                          else quote_ident(grantee)
+                        end,
+                    	case is_grantable
+                          when 'YES' then ' WITH GRANT OPTION'
+                          else ''
+                        end), ''),
+                       '') as text
+                from privileges
+                )
+                select (select text from createfunction) ||
+                       (select text from alterowner) ||
+                       (select text from grants)
+'''.format(p_function))
+        else:
+            return self.v_connection.ExecuteScalar('''
+                with obj as (
+                    SELECT p.oid,
+                           p.proname AS name,
+                           n.nspname AS namespace,
+                           pg_get_userbyid(p.proowner) AS owner,
+                           '{0}'::text AS sql_identifier
+                    FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+                    WHERE p.prokind = 'f' AND p.oid = '{0}'::text::regprocedure
+                ),
+                createfunction as (
+                    select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
+                    from obj
+                ),
+                alterowner as (
+                    select
+                       'ALTER FUNCTION '||sql_identifier||
+                              ' OWNER TO '||quote_ident(owner)||E';\n\n' as text
+                      from obj
+                ),
+                privileges as (
+                select (u_grantor.rolname)::information_schema.sql_identifier as grantor,
+                       (grantee.rolname)::information_schema.sql_identifier as grantee,
+                       (p.privilege_type)::information_schema.character_data as privilege_type,
+                       (case when (pg_has_role(grantee.oid, p.proowner, 'USAGE'::text) or p.is_grantable)
+                             then 'YES'::text
+                             else 'NO'::text
+                        end)::information_schema.yes_or_no AS is_grantable
+                from (
+                    select p.pronamespace,
+                           p.proowner,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantor as grantor,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantee as grantee,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type as privilege_type,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable as is_grantable
+                    from pg_proc p
+                    where p.prokind = 'f'
+                      and p.oid = '{0}'::regprocedure
+                ) p
+                inner join pg_namespace n
+                on n.oid = p.pronamespace
+                inner join pg_roles u_grantor
+                on u_grantor.oid = p.grantor
+                inner join (
+                    select r.oid,
+                           r.rolname
+                    from pg_roles r
+                    union all
+                    select (0)::oid AS oid,
+                           'PUBLIC'::name
+                ) grantee
+                on grantee.oid = p.grantee
+                ),
+                grants as (
+                select coalesce(
+                        string_agg(format(
+                    	E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                        privilege_type,
+                        case grantee
+                          when 'PUBLIC' then 'PUBLIC'
+                          else quote_ident(grantee)
+                        end,
+                    	case is_grantable
+                          when 'YES' then ' WITH GRANT OPTION'
+                          else ''
+                        end), ''),
+                       '') as text
+                from privileges
+                )
+                select (select text from createfunction) ||
+                       (select text from alterowner) ||
+                       (select text from grants)
+'''.format(p_function))
+
+    def GetDDLProcedure(self, p_procedure):
         return self.v_connection.ExecuteScalar('''
             with obj as (
                 SELECT p.oid,
@@ -6546,7 +6864,7 @@ TO NODE ( nodename [, ... ] )
                        pg_get_userbyid(p.proowner) AS owner,
                        '{0}'::text AS sql_identifier
                 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
-                WHERE p.oid = '{0}'::text::regprocedure
+                WHERE p.prokind = 'p' AND p.oid = '{0}'::text::regprocedure
             ),
             createfunction as (
                 select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
@@ -6554,7 +6872,7 @@ TO NODE ( nodename [, ... ] )
             ),
             alterowner as (
                 select
-                   'ALTER FUNCTION '||sql_identifier||
+                   'ALTER PROCEDURE '||sql_identifier||
                           ' OWNER TO '||quote_ident(owner)||E';\n\n' as text
                   from obj
             ),
@@ -6574,7 +6892,7 @@ TO NODE ( nodename [, ... ] )
                        (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type as privilege_type,
                        (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable as is_grantable
                 from pg_proc p
-                where not p.proisagg
+                where p.prokind = 'p'
                   and p.oid = '{0}'::regprocedure
             ) p
             inner join pg_namespace n
@@ -6610,7 +6928,7 @@ TO NODE ( nodename [, ... ] )
             select (select text from createfunction) ||
                    (select text from alterowner) ||
                    (select text from grants)
-'''.format(p_function))
+'''.format(p_procedure))
 
     def GetDDLConstraint(self, p_schema, p_table, p_object):
         return self.v_connection.ExecuteScalar('''
@@ -6923,6 +7241,8 @@ TO NODE ( nodename [, ... ] )
             return self.GetDDLClass(p_schema, p_object)
         elif p_type == 'function':
             return self.GetDDLFunction(p_object)
+        elif p_type == 'procedure':
+            return self.GetDDLProcedure(p_object)
         elif p_type == 'trigger':
             return self.GetTriggerDefinition(p_object, p_table, p_schema)
         elif p_type == 'triggerfunction':

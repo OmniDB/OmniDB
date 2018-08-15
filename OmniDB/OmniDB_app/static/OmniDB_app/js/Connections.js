@@ -294,7 +294,6 @@ function showConnectionList() {
 				col.type = 'dropdown';
 				col.allowInvalid = false,
 				col.source = p_return.v_data.v_technologies;
-				col.renderer = myRenderer;
 				columnProperties.push(col);
 
 				var col = new Object();

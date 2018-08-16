@@ -3667,7 +3667,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Execute Direct',
                         node.tree.tag.xl_execute_direct
-                        .replace(/'#node_name#'/g, node.text)
+                        .replace(/#node_name#/g, node.text)
                     );
                 }
             }, {
@@ -3676,7 +3676,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Pool Reload',
                         node.tree.tag.xl_pool_reload
-                        .replace(/'#node_name#'/g, node.text)
+                        .replace(/#node_name#/g, node.text)
                     );
                 }
             }, {
@@ -3685,7 +3685,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Node',
                         node.tree.tag.xl_alter_node
-                        .replace(/'#node_name#'/g, node.text)
+                        .replace(/#node_name#/g, node.text)
                     );
                 }
             }, {
@@ -3694,7 +3694,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Node',
                         node.tree.tag.xl_drop_node
-                        .replace(/'#node_name#'/g, node.text)
+                        .replace(/#node_name#/g, node.text)
                     );
                 }
             }]
@@ -3738,7 +3738,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Group',
                         node.tree.tag.xl_drop_group
-                        .replace(/'#group_name#'/g, node.text)
+                        .replace(/#group_name#/g, node.text)
                     );
                 }
             }]

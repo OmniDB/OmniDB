@@ -8,8 +8,8 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-  config.vm.box = "debian/wheezy64"
-  config.vm.box_url = "https://app.vagrantup.com/debian/boxes/wheezy64"
+  config.vm.box = "debian/jessie64"
+  config.vm.box_url = "https://app.vagrantup.com/debian/boxes/jessie64"
   config.vm.host_name = "deployserver64"
   config.vm.provider :virtualbox do |vb|
     vb.name = "omnidb_debian_deployserver64"

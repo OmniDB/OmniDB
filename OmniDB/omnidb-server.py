@@ -126,6 +126,16 @@ try:
 except:
     csrf_trusted_origins = ''
 
+try:
+    OmniDB.custom_settings.THREAD_POOL_MAX_WORKERS = Config.getint('queryserver', 'thread_pool_max_workers')
+except:
+    pass
+
+try:
+    OmniDB.custom_settings.PWD_TIMEOUT_TOTAL = Config.getint('queryserver', 'pwd_timeout_total')
+except:
+    pass
+
 #Configuring Django settings before loading them
 OmniDB.settings.DEBUG = False
 if is_ssl:

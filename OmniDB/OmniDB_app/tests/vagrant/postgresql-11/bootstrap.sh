@@ -56,7 +56,7 @@ PG_REPO_APT_SOURCE=/etc/apt/sources.list.d/pgdg.list
 if [ ! -f "$PG_REPO_APT_SOURCE" ]
 then
   # Add PG apt repo:
-  echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg-testing main 11" > "$PG_REPO_APT_SOURCE"
+  echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main 11" > "$PG_REPO_APT_SOURCE"
 
   # Add PGDG repo key:
   wget --quiet -O - https://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | apt-key add -
@@ -67,7 +67,7 @@ apt-get update
 apt-get -y upgrade
 
 #apt-get -y install "postgresql-$PG_VERSION"
-apt-get -y install postgresql-11 postgresql-client-11 postgresql-common=192.pgdg90+1 postgresql-client-common=192.pgdg90+1 libpq5=11~beta3-1.pgdg90+1
+apt-get -y install postgresql-11 postgresql-client-11 postgresql-common=192.pgdg90+1 postgresql-client-common=192.pgdg90+1 libpq5=11~beta3-1.pgdg90+2
 
 PG_CONF="/etc/postgresql/$PG_VERSION/main/postgresql.conf"
 PG_HBA="/etc/postgresql/$PG_VERSION/main/pg_hba.conf"

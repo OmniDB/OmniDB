@@ -27,6 +27,24 @@ gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-9.5/lib -lpq -I /u
 gcc -fPIC -o omnidb_plugin_95.so omnidb_plugin.o -L /usr/pgsql-9.5/lib -lpq -shared
 echo "Done."
 
+echo "Compiling for 9.6... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-9.6/lib -lpq -I /usr/pgsql-9.6/include -I /usr/pgsql-9.6/include/server
+gcc -fPIC -o omnidb_plugin_96.so omnidb_plugin.o -L /usr/pgsql-9.6/lib -lpq -shared
+echo "Done."
+
+echo "Compiling for 10... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-10/lib -lpq -I /usr/pgsql-10/include -I /usr/pgsql-10/include/server
+gcc -fPIC -o omnidb_plugin_10.so omnidb_plugin.o -L /usr/pgsql-10/lib -lpq -shared
+echo "Done."
+
+echo "Compiling for 11... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-11/lib -lpq -I /usr/pgsql-11/include -I /usr/pgsql-11/include/server
+gcc -fPIC -o omnidb_plugin_11.so omnidb_plugin.o -L /usr/pgsql-11/lib -lpq -shared
+echo "Done."
+
 echo -n "Cleaning... "
 rm -f *.o
 echo "Done."

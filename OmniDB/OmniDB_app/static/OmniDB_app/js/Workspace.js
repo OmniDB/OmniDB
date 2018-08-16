@@ -223,8 +223,13 @@ function changeDatabase(p_value) {
 			v_connTabControl.selectedTab.tag.consoleHelp = v_conn_object.v_console_help;
 			v_connTabControl.selectedTab.tag.selectedDatabase = v_conn_object.v_database;
 			v_connTabControl.selectedTab.tag.dd_selected_index = v_connTabControl.selectedTab.tag.dd_object.selectedIndex;
+			v_connTabControl.selectedTab.tag.selectedTitle = v_conn_object.v_alias;
 
-			v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_conn_object.v_db_type + '_medium.png"/> ' + v_conn_object.v_alias;
+			if (v_connTabControl.selectedTab.tag.selectedTitle!='')
+				v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedTitle + ' - ' + v_connTabControl.selectedTab.tag.selectedDatabase;
+			else
+				v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedDatabase;
+
 
 			queueChangeActiveDatabaseThreadSafe({
 					"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,

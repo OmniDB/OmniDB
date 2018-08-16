@@ -137,6 +137,7 @@ except:
     pass
 
 #Configuring Django settings before loading them
+OmniDB.settings.DEBUG = False
 if is_ssl:
     OmniDB.settings.SESSION_COOKIE_SECURE = True
     OmniDB.settings.CSRF_COOKIE_SECURE = True

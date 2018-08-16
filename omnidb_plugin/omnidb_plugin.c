@@ -35,6 +35,9 @@
 #include "access/htup_details.h"
 #endif
 #include "utils/syscache.h"
+#if PG_VERSION_NUM >= 110000
+#include "utils/expandedrecord.h"
+#endif
 #include "catalog/pg_proc.h"
 #include "catalog/pg_type.h"
 #include "plpgsql.h"
@@ -515,42 +518,77 @@ static void update_variables( PLpgSQL_execstate * estate )
             case PLPGSQL_DTYPE_REC:
             {
                 PLpgSQL_rec * rec = (PLpgSQL_rec *) estate->datums[i];
-                int		      att;
-                char        * typeName;
+								char        * typeName;
+								int		      att;
                 char        * val;
 
-								#ifdef PG11PLUS
+								#if PG_VERSION_NUM >= 110000
 
-								//TODO: Handle record attributes in PG >= 11
+										HeapTuple   tup;
+										TupleDesc   tupdesc;
+
+										if (rec->erh != NULL)
+										{
+												ExpandedRecordHeader * erh = (ExpandedRecordHeader *) rec->erh;
+												tup = expanded_record_get_tuple(erh);
+												tupdesc = expanded_record_get_tupdesc(erh);
+
+												if (tupdesc != NULL)
+												{
+														for( att = 0; att < tupdesc->natts; ++att )
+														{
+																typeName = SPI_gettype( tupdesc, att + 1 );
+
+																val = SPI_getvalue( tup, tupdesc, att + 1 );
+																if (!val)
+																		val = "NULL";
+
+																#ifdef DEBUG
+																		elog(LOG, "omnidb, REC, (%s.%s %s %s)",
+																							rec->refname,
+																							NameStr( tupdesc->attrs[att].attname ),
+																							typeName,
+																							val );
+																#endif
+
+																char insert_variable[1024];
+																sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', '%s', '%s', '%s')", MyProcPid, rec->refname, NameStr( tupdesc->attrs[att].attname ), typeName, val);
+																PQexec(omnidb_plugin_conn, insert_variable);
+
+																if( typeName )
+																		pfree( typeName );
+														}
+												}
+										}
 
 								#else
 
-                if (rec->tupdesc != NULL)
-                {
-                    for( att = 0; att < rec->tupdesc->natts; ++att )
-                    {
-                        typeName = SPI_gettype( rec->tupdesc, att + 1 );
+										if (rec->tupdesc != NULL)
+										{
+												for( att = 0; att < rec->tupdesc->natts; ++att )
+												{
+														typeName = SPI_gettype( rec->tupdesc, att + 1 );
 
-                        val = SPI_getvalue( rec->tup, rec->tupdesc, att + 1 );
-                        if (!val)
-                            val = "NULL";
+														val = SPI_getvalue( rec->tup, rec->tupdesc, att + 1 );
+														if (!val)
+																val = "NULL";
 
-                        #ifdef DEBUG
-                            elog(LOG, "omnidb, REC, (%s.%s %s %s)",
-                                      rec->refname,
-                                      NameStr( rec->tupdesc->attrs[att]->attname ),
-                                      typeName,
-                                      val );
-                        #endif
+														#ifdef DEBUG
+																elog(LOG, "omnidb, REC, (%s.%s %s %s)",
+																					rec->refname,
+																					NameStr( rec->tupdesc->attrs[att]->attname ),
+																					typeName,
+																					val );
+														#endif
 
-                        char insert_variable[1024];
-                        sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', '%s', '%s', '%s')", MyProcPid, rec->refname, NameStr( rec->tupdesc->attrs[att]->attname ), typeName, val);
-                        PQexec(omnidb_plugin_conn, insert_variable);
+														char insert_variable[1024];
+														sprintf(insert_variable, "INSERT INTO omnidb.variables (pid, name, attribute, vartype, value) VALUES (%i, '%s', '%s', '%s', '%s')", MyProcPid, rec->refname, NameStr( rec->tupdesc->attrs[att]->attname ), typeName, val);
+														PQexec(omnidb_plugin_conn, insert_variable);
 
-                        if( typeName )
-                            pfree( typeName );
-                    }
-                }
+														if( typeName )
+																pfree( typeName );
+												}
+										}
 
 								#endif
 

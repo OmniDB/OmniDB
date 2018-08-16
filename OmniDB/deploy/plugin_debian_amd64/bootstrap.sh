@@ -12,7 +12,7 @@ PG_REPO_APT_SOURCE=/etc/apt/sources.list.d/pgdg.list
 if [ ! -f "$PG_REPO_APT_SOURCE" ]
 then
   # Add PG apt repo:
-  echo "deb http://apt.postgresql.org/pub/repos/apt/ wheezy-pgdg main" > "$PG_REPO_APT_SOURCE"
+  echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main" > "$PG_REPO_APT_SOURCE"
 
   # Add PGDG repo key:
   wget --quiet -O - https://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | apt-key add -
@@ -30,14 +30,14 @@ PG_REPO_APT_SOURCE_TESTING=/etc/apt/sources.list.d/pgdg_testing.list
 if [ ! -f "$PG_REPO_APT_SOURCE_TESTING" ]
 then
   # Add PG apt repo testing:
-  echo "deb http://apt.postgresql.org/pub/repos/apt/ wheezy-pgdg-testing main 11" > "$PG_REPO_APT_SOURCE_BETA"
+  echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg-testing main 11" > "$PG_REPO_APT_SOURCE_TESTING"
 fi
 
 # Update package list and upgrade all packages
 apt-get update
 apt-get -y upgrade
 
-apt-get -y install postgresql-server-dev-9.5 libpq-dev=11~beta3-1.pgdg90+1
+apt-get -y install postgresql-server-dev-11 libpq-dev=11~beta3-1.pgdg80+1 libpq5=11~beta3-1.pgdg80+1
 
 echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB

@@ -39,6 +39,12 @@ gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql 
 gcc -fPIC -o omnidb_plugin_10.so omnidb_plugin.o -lpq -shared
 echo "Done."
 
+echo "Compiling for 11... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/11/server
+gcc -fPIC -o omnidb_plugin_11.so omnidb_plugin.o -lpq -shared
+echo "Done."
+
 echo -n "Cleaning... "
 rm -f *.o
 echo "Done."

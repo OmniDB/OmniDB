@@ -29,7 +29,6 @@ function newConnectionConfirm() {
 
 function dropConnection() {
 
-	var v_data = v_connections_data.ht.getData();
 	var v_row = v_connections_data.ht.getSelected()[0][0];
 	v_row = v_connections_data.v_conn_ids.getConnIndexById(v_connections_data.ht.getCellMeta(v_row, 0).v_conn_id);
 
@@ -37,9 +36,8 @@ function dropConnection() {
 	if (v_connections_data.v_conn_ids[v_row].mode==2) {
 
 		v_connections_data.v_conn_ids.splice(v_row,1);
-		v_data.splice(v_row,1);
+		v_connections_data.ht.alter('remove_row',v_row);
 
-		v_connections_data.ht.loadData(v_data);
 
 	}
 	else {
@@ -48,7 +46,7 @@ function dropConnection() {
 		v_connections_data.v_conn_ids[v_row].mode = v_connections_data.v_conn_ids[v_row].old_mode;
 		v_connections_data.v_conn_ids[v_row].old_mode = v_mode;
 
-		v_connections_data.ht.loadData(v_data);
+		v_connections_data.ht.render()
 
 	}
 
@@ -60,10 +58,8 @@ function dropConnection() {
 /// </summary>
 function newConnection() {
 
-	var v_data = v_connections_data.ht.getData();
 	var v_conn_id = v_connections_data.v_next_conn_id;
 	v_connections_data.v_next_conn_id--;
-	v_data.push(['postgresql','','','','','',false,'','22','','','','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
 	v_connections_data.v_conn_ids.push({
 		'id': v_conn_id,
 		'mode': 2,
@@ -75,7 +71,8 @@ function newConnection() {
 		'ssh_key': '',
 		'ssh_enabled': false
 	})
-	v_connections_data.ht.loadData(v_data);
+	v_connections_data.ht.getSourceData().push(['postgresql','','','','','',false,'','22','','','','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
+	v_connections_data.ht.render();
 	var v_cellMeta = v_connections_data.ht.getCellMeta(v_connections_data.v_conn_ids.length - 1, 0);
 	v_cellMeta.v_conn_id = v_conn_id;
 	v_connections_data.v_conn_ids[v_connections_data.v_conn_ids.length - 1].v_cellMeta = v_cellMeta

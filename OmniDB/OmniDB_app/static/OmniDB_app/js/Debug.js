@@ -34,7 +34,7 @@ function setupDebug(p_node, p_type) {
 		if (v_tab_tag.state!=v_debugState.Initial && v_tab_tag.state!=v_debugState.Finished && v_tab_tag.state!=v_debugState.Cancel)
 			showAlert('Not ready reload function attributes.');
 		else {
-			setupDebug(p_node);
+			setupDebug(p_node,v_tab_tag.type);
 		}
 	};
 	v_tab_tag.selectParameterTabFunc();

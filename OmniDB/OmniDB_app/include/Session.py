@@ -14,6 +14,7 @@ from sshtunnel import SSHTunnelForwarder
 import socket
 import time
 import os
+from collections import OrderedDict
 
 tunnels = dict([])
 
@@ -46,7 +47,7 @@ class Session(object):
         self.v_super_user = p_super_user
         self.v_cryptor = p_cryptor
         self.v_database_index = -1
-        self.v_databases = {}
+        self.v_databases = OrderedDict()
         self.v_user_key = p_user_key
         self.v_tab_connections = dict([])
 

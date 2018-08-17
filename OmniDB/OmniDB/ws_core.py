@@ -819,6 +819,15 @@ def thread_query(self,args,ws_object):
 
         except Exception as exc:
             try:
+                v_notices = v_database.v_connection.GetNotices()
+                v_notices_text = ''
+                if len(v_notices) > 0:
+                    for v_notice in v_notices:
+                        v_notices_text += v_notice.replace('\n','<br/>')
+            except:
+                v_notices = []
+                v_notices_text = ''
+            try:
                 v_database.v_connection.Close()
             except:
                 pass
@@ -829,6 +838,8 @@ def thread_query(self,args,ws_object):
                 'position': v_database.GetErrorPosition(str(exc)),
                 'message' : str(exc).replace('\n','<br>'),
                 'v_duration': v_duration,
+                'v_notices': v_notices_text,
+                'v_notices_length': len(v_notices),
                 'v_inserted_id': v_inserted_id,
                 'v_chunks': False
             }
@@ -929,6 +940,15 @@ def thread_console(self,args,ws_object):
 
                     v_data_return += v_data1
                 except Exception as exc:
+                    try:
+                        v_notices = v_database.v_connection.GetNotices()
+                        v_notices_text = ''
+                        if len(v_notices) > 0:
+                            for v_notice in v_notices:
+                                v_notices_text += v_notice
+                            v_data_return += v_notices_text
+                    except Exception as exc:
+                        None
                     v_data_return += str(exc)
 
 

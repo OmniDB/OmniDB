@@ -3544,7 +3544,6 @@ ON #table_name#
             if len(v_pk.Rows) > 0:
                 v_table_pk_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
                 v_pk_fields = [r['column_name'] for r in v_table_pk_fields.Rows]
-                v_values = []
                 v_first = True
                 for r in v_fields.Rows:
                     if v_first:
@@ -3563,7 +3562,6 @@ ON #table_name#
                         else:
                             v_sql += '\n    , {0} = ? -- {1}'.format(r['column_name'], r['data_type'])
             else:
-                v_values = []
                 v_first = True
                 for r in v_fields.Rows:
                     if v_first:
@@ -3598,6 +3596,69 @@ WHERE condition
 --RESTART IDENTITY
 --CASCADE
 ''')
+
+    def TemplateSelectFunction(self, p_schema, p_function, p_functionid):
+        v_table = self.v_connection.Query('''
+            select p.proretset
+            from pg_proc p,
+                 pg_namespace n
+            where p.pronamespace = n.oid
+              and n.nspname = '{0}'
+              and n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' = '{1}'
+        '''.format(p_schema, p_functionid))
+        if len(v_table.Rows) > 0:
+            v_retset = v_table.Rows[0][0]
+        else:
+            v_retset = False
+        v_fields = self.QueryFunctionFields(p_functionid, p_schema)
+        if len(v_fields.Rows) > 1:
+            if v_retset:
+                v_sql = 'SELECT * FROM {0}.{1}(\n    '.format(p_schema, p_function)
+            else:
+                v_sql = 'SELECT {0}.{1}(\n    '.format(p_schema, p_function)
+            v_first = True
+            for r in v_fields.Rows:
+                if r['name'].split(' ')[0] != '"returns':
+                    if r['type'] == 'I':
+                        v_type = 'IN'
+                    elif r['type'] == 'O':
+                        v_type = 'OUT'
+                    else:
+                        v_type = 'INOUT'
+                    if v_first:
+                        v_sql += '? -- {0} {1}'.format(r['name'], v_type)
+                        v_first = False
+                    else:
+                        v_sql += '\n  , ? -- {0} {1}'.format(r['name'], v_type)
+            v_sql += '\n)'
+        else:
+            if v_retset:
+                v_sql = 'SELECT * FROM {0}.{1}()'.format(p_schema, p_function)
+            else:
+                v_sql = 'SELECT {0}.{1}()'.format(p_schema, p_function)
+        return Template(v_sql)
+
+    def TemplateCallProcedure(self, p_schema, p_procedure, p_procedureid):
+        v_fields = self.QueryProcedureFields(p_procedureid, p_schema)
+        if len(v_fields.Rows) > 0:
+            v_sql = 'CALL {0}.{1}(\n    '.format(p_schema, p_procedure)
+            v_first = True
+            for r in v_fields.Rows:
+                if r['type'] == 'I':
+                    v_type = 'IN'
+                elif r['type'] == 'O':
+                    v_type = 'OUT'
+                else:
+                    v_type = 'INOUT'
+                if v_first:
+                    v_sql += '? -- {0} {1}'.format(r['name'], v_type)
+                    v_first = False
+                else:
+                    v_sql += '\n  , ? -- {0} {1}'.format(r['name'], v_type)
+            v_sql += '\n)'
+        else:
+            v_sql = 'CALL {0}.{1}()'.format(p_schema, p_procedure)
+        return Template(v_sql)
 
     def TemplateCreatePhysicalReplicationSlot(self):
         return Template('''SELECT * FROM pg_create_physical_replication_slot('slot_name')''')

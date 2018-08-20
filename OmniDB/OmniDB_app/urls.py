@@ -165,6 +165,8 @@ urlpatterns = [
     url(r'^template_select_postgresql/', views.tree_postgresql.template_select, name='template_select'),
     url(r'^template_insert_postgresql/', views.tree_postgresql.template_insert, name='template_insert'),
     url(r'^template_update_postgresql/', views.tree_postgresql.template_update, name='template_update'),
+    url(r'^template_select_function_postgresql/', views.tree_postgresql.template_select_function, name='template_select_function'),
+    url(r'^template_call_procedure_postgresql/', views.tree_postgresql.template_call_procedure, name='template_call_procedure'),
     url(r'^change_active_database/', views.workspace.change_active_database, name='change_active_database'),
 
     #TREE_ORACLE

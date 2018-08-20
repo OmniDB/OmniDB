@@ -2078,6 +2078,13 @@ function getTreePostgresql(p_div) {
                     }
                 }
             }, {
+                text: 'Select Function',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    TemplateSelectFunctionPostgresql(node.parent
+                      .parent.text, node.text, node.tag.id);
+                }
+            }, {
                 text: 'Edit Function',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
@@ -2148,6 +2155,13 @@ function getTreePostgresql(p_div) {
                         node.collapseNode();
                         node.expandNode();
                     }
+                }
+            }, {
+                text: 'Call Procedure',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    TemplateCallProcedurePostgresql(node.parent
+                      .parent.text, node.text, node.tag.id);
                 }
             }, {
                 text: 'Edit Procedure',
@@ -5284,6 +5298,7 @@ function getViewsPostgresql(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/view.png', {
                         type: 'view',
+                        has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_view', null, false);
@@ -5462,6 +5477,7 @@ function getMaterializedViewsPostgresql(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/view.png', {
                         type: 'mview',
+                        has_indexes: p_return.v_data[i].v_has_indexes,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_mview', null, false);
                 v_node.createChildNode('', false,
@@ -5503,9 +5519,15 @@ function getMaterializedViewsColumnsPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
+            v_list = node.createChildNode('Columns (' + p_return.v_data.length +
+                ')', false, '/static/OmniDB_app/images/add.png', {
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
+                },
+                null, null, false);
+
             for (i = 0; i < p_return.v_data.length; i++) {
 
-                v_node = node.createChildNode(p_return.v_data[i].v_column_name,
+                v_node = v_list.createChildNode(p_return.v_data[i].v_column_name,
                     false, '/static/OmniDB_app/images/add.png', {
                         type: 'table_field',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
@@ -5515,6 +5537,17 @@ function getMaterializedViewsColumnsPostgresql(node) {
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null, null, false);
 
+            }
+
+            if (node.tag.has_indexes) {
+                v_node = node.createChildNode('Indexes', false,
+                    '/static/OmniDB_app/images/index.png', {
+                        type: 'indexes',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_indexes', null, false);
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', null, null,
+                    null, false);
             }
 
             node.drawChildNodes();
@@ -5527,6 +5560,7 @@ function getMaterializedViewsColumnsPostgresql(node) {
         },
         'box',
         false);
+        
 }
 
 /// <summary>
@@ -8939,6 +8973,58 @@ function TemplateUpdatePostgresql(p_schema, p_table) {
         function(p_return) {
           tabSQLTemplate(
               'Update ' + p_schema + '.' + p_table,
+              p_return.v_data.v_template);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true);
+}
+
+/// <summary>
+/// Retrieving SELECT FUNCTION SQL template.
+/// </summary>
+function TemplateSelectFunctionPostgresql(p_schema, p_function, p_functionid) {
+
+    execAjax('/template_select_function_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_function": p_function,
+            "p_functionid": p_functionid,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Select ' + p_schema + '.' + p_function,
+              p_return.v_data.v_template);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true);
+}
+
+/// <summary>
+/// Retrieving CALL PROCEDURE SQL template.
+/// </summary>
+function TemplateCallProcedurePostgresql(p_schema, p_procedure, p_procedureid) {
+
+    execAjax('/template_call_procedure_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_procedure": p_procedure,
+            "p_procedureid": p_procedureid,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Call ' + p_schema + '.' + p_procedure,
               p_return.v_data.v_template);
         },
         function(p_return) {

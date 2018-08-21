@@ -11,7 +11,9 @@ cat > /etc/systemd/system/omnidb.service << EOF
 After=network.target
 
 [Service]
-ExecStart=/opt/omnidb-server/omnidb-server
+Type=forking
+ExecStart=/bin/bash -c "/opt/omnidb-server/omnidb-server &"
+RemainAfterExit=yes
 
 [Install]
 WantedBy=default.target

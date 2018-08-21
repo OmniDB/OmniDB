@@ -101,7 +101,10 @@ EOF
 cat > DEBIAN/preinst << EOF
 #!/bin/bash
 if [ -f /etc/systemd/system/omnidb.service ]; then
-  systemctl is-active --quiet omnidb && systemctl stop omnidb
+  systemctl is-active --quiet omnidb
+  if [ $? -eq 0 ]; then
+    systemctl stop omnidb
+  fi
 fi
 EOF
 chmod 755 DEBIAN/preinst

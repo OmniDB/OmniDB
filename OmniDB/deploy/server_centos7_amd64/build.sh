@@ -82,8 +82,8 @@ cat > SPECS/omnidb-server.spec << EOF
 %define _topdir /root/OmniDB/OmniDB/deploy/packages/omnidb-server
 %define _bindir /usr/bin
 %define _systemddir /etc/systemd/system
+%define _servicename omnidb
 %define name omnidb-server
-$define servicename omnidb
 %define version $VERSION
 %define arch $ARCH
 %define longname %{name}_%{version}-%{arch}
@@ -119,8 +119,8 @@ mkdir -p %{buildroot}/%{_bindir}
 cp ../../SOURCES/%{name}.sh %{buildroot}/%{_bindir}/%{name}
 chmod 777 %{buildroot}/%{_bindir}/%{name}
 ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
-cp ../../SOURCES/%{servicename}.service %{buildroot}/%{_systemddir}
-chmod 644 %{buildroot}/%{_systemddir}/%{servicename}.service
+cp ../../SOURCES/%{_servicename}.service %{buildroot}/%{_systemddir}
+chmod 644 %{buildroot}/%{_systemddir}/%{_servicename}.service
 
 %files
 %defattr(0777,root,root,0777)
@@ -128,7 +128,7 @@ chmod 644 %{buildroot}/%{_systemddir}/%{servicename}.service
 /opt/%{name}/*
 %{_bindir}/%{name}
 %{_bindir}/%{configname}
-%{_systemddir}/%{servicename}.service
+%{_systemddir}/%{_servicename}.service
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-server.spec

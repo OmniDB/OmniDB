@@ -1,4 +1,4 @@
-Django>=1.10
+Django==1.11
 cherrypy
 tornado==4.5.1
 click

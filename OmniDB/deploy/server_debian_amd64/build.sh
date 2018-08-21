@@ -100,7 +100,9 @@ Description: OmniDB is a web tool that simplifies database management focusing o
 EOF
 cat > DEBIAN/preinst << EOF
 #!/bin/bash
-systemctl is-active --quiet omnidb && systemctl stop omnidb
+if [ -f /etc/systemd/system/omnidb.service ]; then
+  systemctl is-active --quiet omnidb && systemctl stop omnidb
+fi
 EOF
 chmod 755 DEBIAN/preinst
 cat > DEBIAN/postinst << EOF

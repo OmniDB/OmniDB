@@ -119,6 +119,7 @@ mkdir -p %{buildroot}/%{_bindir}
 cp ../../SOURCES/%{name}.sh %{buildroot}/%{_bindir}/%{name}
 chmod 777 %{buildroot}/%{_bindir}/%{name}
 ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
+mkdir -p %{buildroot}/%{_systemddir}
 cp ../../SOURCES/%{_servicename}.service %{buildroot}/%{_systemddir}
 chmod 644 %{buildroot}/%{_systemddir}/%{_servicename}.service
 

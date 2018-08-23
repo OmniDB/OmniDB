@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2.10.0
+VERSION=2.11.0
 ARCH=debian-i386
 
 cd ~/OmniDB/omnidb_plugin
@@ -37,6 +37,12 @@ echo "Compiling for 10... "
 rm -f *.o
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/10/server
 gcc -fPIC -o omnidb_plugin_10.so omnidb_plugin.o -lpq -shared
+echo "Done."
+
+echo "Compiling for 11... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/11/server
+gcc -fPIC -o omnidb_plugin_11.so omnidb_plugin.o -lpq -shared
 echo "Done."
 
 echo -n "Cleaning... "
@@ -78,7 +84,6 @@ Description: OmniDB is a web tool that simplifies database management focusing o
  Server package includes web server and requires a web browser to be used. Ideal for network and server usage.
  App package includes everything, even a simple web browser.
  Plugin package includes a PostgreSQL plugin to enable PLpgSQL function debugger.
- OIC package includes Oracle Instant Client required for OmniDB to access Oracle databases.
  OmniDB is supported by 2ndQuadrant (http://www.2ndquadrant.com)
 EOF
 cd ..

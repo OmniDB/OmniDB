@@ -301,7 +301,20 @@ class PostgreSQL:
         return self.v_connection.Query('''
             select quote_ident(c.relname) as table_name,
                    quote_ident(a.attname) as column_name,
-                   t.typname as data_type,
+                   (case when t.typtype = 'd'::"char"
+                         then case when bt.typelem <> 0::oid and bt.typlen = '-1'::integer
+                                   then 'ARRAY'::text
+                                   when nbt.nspname = 'pg_catalog'::name
+                                   then format_type(t.typbasetype, NULL::integer)
+                                   else 'USER-DEFINED'::text
+                              end
+                         else case when t.typelem <> 0::oid and t.typlen = '-1'::integer
+                                   then 'ARRAY'::text
+                                   when nt.nspname = 'pg_catalog'::name
+                                   then format_type(a.atttypid, NULL::integer)
+                                   else 'USER-DEFINED'::text
+                              end
+                    end) as data_type,
                    (case when a.attnotnull or t.typtype = 'd'::char and t.typnotnull
                          then 'NO'
                          else 'YES'
@@ -335,8 +348,16 @@ class PostgreSQL:
             on c.oid = a.attrelid
             inner join pg_namespace n
             on n.oid = c.relnamespace
-            inner join pg_type t
-            on t.oid = a.atttypid
+            inner join (
+                pg_type t
+                inner join pg_namespace nt
+                on t.typnamespace = nt.oid
+            ) on a.atttypid = t.oid
+            left join (
+                pg_type bt
+                inner join pg_namespace nbt
+                on bt.typnamespace = nbt.oid
+            ) on t.typtype = 'd'::"char" and t.typbasetype = bt.oid
             where a.attnum > 0
               and not a.attisdropped
               and c.relkind in ('r', 'f', 'p')
@@ -941,18 +962,32 @@ class PostgreSQL:
                 v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
-                   quote_ident(p.proname) as name,
-                   quote_ident(n.nspname) as schema_name
-            from pg_proc p
-            join pg_namespace n
-            on p.pronamespace = n.oid
-            where not p.proisagg
-              and format_type(p.prorettype, null) <> 'trigger'
-            {0}
-            order by 1
-        '''.format(v_filter), True)
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return self.v_connection.Query('''
+                select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                       quote_ident(p.proname) as name,
+                       quote_ident(n.nspname) as schema_name
+                from pg_proc p
+                join pg_namespace n
+                on p.pronamespace = n.oid
+                where not p.proisagg
+                  and format_type(p.prorettype, null) <> 'trigger'
+                {0}
+                order by 1
+            '''.format(v_filter), True)
+        else:
+            return self.v_connection.Query('''
+                select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                       quote_ident(p.proname) as name,
+                       quote_ident(n.nspname) as schema_name
+                from pg_proc p
+                join pg_namespace n
+                on p.pronamespace = n.oid
+                where p.prokind = 'f'
+                  and format_type(p.prorettype, null) <> 'trigger'
+                {0}
+                order by 1
+            '''.format(v_filter), True)
 
     def QueryFunctionFields(self, p_function, p_schema):
         if p_schema:
@@ -1024,6 +1059,72 @@ class PostgreSQL:
             where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
         '''.format(p_function))
 
+    def QueryProcedures(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                   quote_ident(p.proname) as name,
+                   quote_ident(n.nspname) as schema_name
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            where p.prokind = 'p'
+              and format_type(p.prorettype, null) <> 'trigger'
+            {0}
+            order by 1
+        '''.format(v_filter), True)
+
+    def QueryProcedureFields(self, p_procedure, p_schema):
+        if p_schema:
+            return self.v_connection.Query('''
+                select (case trim(substring((trim(x.name) || ' ') from 1 for position(' ' in (trim(x.name) || ' '))))
+                          when 'OUT' then 'O'
+                          when 'INOUT' then 'X'
+                          else 'I'
+                        end) as type,
+                       trim(x.name) as name,
+                       row_number() over() as seq
+                from (
+                    select unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
+                ) x
+                where length(trim(x.name)) > 0
+                order by 3
+            '''.format(p_schema, p_procedure), True)
+        else:
+            return self.v_connection.Query('''
+                select (case trim(substring((trim(x.name) || ' ') from 1 for position(' ' in (trim(x.name) || ' '))))
+                          when 'OUT' then 'O'
+                          when 'INOUT' then 'X'
+                          else 'I'
+                        end) as type,
+                       trim(x.name) as name,
+                       row_number() over() as seq
+                from (
+                    select unnest(regexp_split_to_array(pg_get_function_identity_arguments('{1}'::regprocedure), ',')) as name
+                ) x
+                where length(trim(x.name)) > 0
+                order by 3
+            '''.format(self.v_schema, p_procedure), True)
+
+    def GetProcedureDefinition(self, p_procedure):
+        return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_procedure))
+
+    def GetProcedureDebug(self, p_procedure):
+        return self.v_connection.ExecuteScalar('''
+            select p.prosrc
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+        '''.format(p_procedure))
+
     def QueryTriggerFunctions(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1040,8 +1141,7 @@ class PostgreSQL:
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
-            where not p.proisagg
-              and format_type(p.prorettype, null) = 'trigger'
+            where format_type(p.prorettype, null) = 'trigger'
             {0}
             order by 1
         '''.format(v_filter), True)
@@ -2347,6 +2447,352 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
+    def DataMiningRoleName(self, p_textPattern, p_caseSentive, p_regex):
+        v_sql = '''
+            select 'Role Name'::text as category,
+                   ''::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   quote_ident(rolname)::text as match_value
+            from pg_roles
+            where 1 = 1
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(rolname) like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(rolname)) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(rolname) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(rolname) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+        '''
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningTablespaceName(self, p_textPattern, p_caseSentive, p_regex):
+        v_sql = '''
+            select 'Tablespace Name'::text as category,
+                   ''::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   quote_ident(spcname)::text as match_value
+            from pg_tablespace
+            where 1 = 1
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(spcname) like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(spcname)) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(spcname) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(spcname) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+        '''
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningExtensionName(self, p_textPattern, p_caseSentive, p_regex):
+        v_sql = '''
+            select 'Extension Name'::text as category,
+                   ''::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   quote_ident(extname)::text as match_value
+            from pg_extension
+            where 1 = 1
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(extname) like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(extname)) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(extname) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(extname) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+        '''
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningFKColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            with select_fks as (
+                select distinct
+                       quote_ident(kcu1.constraint_schema) as table_schema,
+                       quote_ident(kcu1.table_name) as table_name,
+                       quote_ident(kcu1.column_name) as column_name,
+                       quote_ident(kcu2.constraint_schema) as r_table_schema,
+                       quote_ident(kcu2.table_name) as r_table_name,
+                       quote_ident(kcu2.column_name) as r_column_name
+                from information_schema.referential_constraints rc
+                inner join information_schema.key_column_usage kcu1
+                           on  kcu1.constraint_catalog = rc.constraint_catalog
+                           and kcu1.constraint_schema = rc.constraint_schema
+                           and kcu1.constraint_name = rc.constraint_name
+                inner join information_schema.key_column_usage kcu2
+                           on  kcu2.constraint_catalog = rc.unique_constraint_catalog
+                           and kcu2.constraint_schema = rc.unique_constraint_schema
+                           and kcu2.constraint_name = rc.unique_constraint_name
+                           and kcu2.ordinal_position = kcu1.ordinal_position
+                where 1 = 1
+                  --#FILTER_BY_SCHEMA#  and lower(quote_ident(kcu1.constraint_schema)) in (#VALUE_BY_SCHEMA#) or lower(quote_ident(kcu2.constraint_schema)) in (#VALUE_BY_SCHEMA#)
+            )
+            select 'FK Column Name'::text as category,
+                   sf.table_schema::text as schema_name,
+                   sf.table_name::text as table_name,
+                   ''::text as column_name,
+                   sf.column_name::text as match_value
+            from select_fks sf
+            where sf.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and sf.table_schema not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and sf.column_name like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(sf.column_name) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and sf.column_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and sf.column_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(sf.table_schema) in (#VALUE_BY_SCHEMA#)
+
+            union
+
+            select 'FK Column Name'::text as category,
+                   (sf.r_table_schema || ' (referenced)')::text as schema_name,
+                   (sf.r_table_name || ' (referenced)')::text as table_name,
+                   ''::text as column_name,
+                   (sf.r_column_name || ' (referenced)')::text as match_value
+            from select_fks sf
+            where sf.r_table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and sf.r_table_schema not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and sf.r_column_name like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(sf.r_column_name) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and sf.r_column_name ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and sf.r_column_name ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(sf.r_table_schema) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningPKColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'PK Column Name'::text as category,
+                   quote_ident(tc.table_schema)::text as schema_name,
+                   quote_ident(tc.table_name)::text as table_name,
+                   ''::text as column_name,
+                   quote_ident(kc.column_name) as match_value
+            from information_schema.table_constraints tc
+            inner join information_schema.key_column_usage kc
+                       on  kc.table_name = tc.table_name
+                       and kc.table_schema = tc.table_schema
+                       and kc.constraint_name = tc.constraint_name
+            where tc.constraint_type = 'PRIMARY KEY'
+              and quote_ident(tc.table_schema) not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and quote_ident(tc.table_schema) not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(kc.column_name) like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(kc.column_name)) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(kc.column_name) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(kc.column_name) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(quote_ident(tc.table_schema)) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningUniqueColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Unique Column Name'::text as category,
+                   quote_ident(tc.table_schema)::text as schema_name,
+                   quote_ident(tc.table_name)::text as table_name,
+                   ''::text as column_name,
+                   quote_ident(kc.column_name) as match_value
+            from information_schema.table_constraints tc
+            inner join information_schema.key_column_usage kc
+                       on  kc.table_name = tc.table_name
+                       and kc.table_schema = tc.table_schema
+                       and kc.constraint_name = tc.constraint_name
+            where tc.constraint_type = 'UNIQUE'
+              and quote_ident(tc.table_schema) not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and quote_ident(tc.table_schema) not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(kc.column_name) like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(kc.column_name)) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(kc.column_name) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(kc.column_name) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(quote_ident(tc.table_schema)) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningIndexColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select *
+            from (
+                select 'Index Column Name'::text as category,
+                       quote_ident(t.schemaname)::text as schema_name,
+                       quote_ident(t.tablename)::text as table_name,
+                       ''::text as column_name,
+                       unnest(string_to_array(replace(substr(t.indexdef, strpos(t.indexdef, '(')+1, strpos(t.indexdef, ')')-strpos(t.indexdef, '(')-1), ' ', ''),',')) as match_value
+                from pg_indexes t
+            ) t
+            where quote_ident(t.schemaname) not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and quote_ident(t.schemaname) not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(t.match_value) like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(t.match_value)) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(t.match_value) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(t.match_value) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(quote_ident(t.schema_name)) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningCheckDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Check Definition'::text as category,
+                   quote_ident(n.nspname)::text as schema_name,
+                   quote_ident(t.relname)::text as table_name,
+                   ''::text as column_name,
+                   c.consrc as match_value
+            from pg_constraint c
+            inner join pg_class t
+                  on t.oid = c.conrelid
+            inner join pg_namespace n
+                  on t.relnamespace = n.oid
+            where contype = 'c'
+              and quote_ident(n.nspname) not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and quote_ident(n.nspname) not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and c.consrc like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(c.consrc) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and c.consrc ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and c.consrc ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(quote_ident(n.nspname)) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningTableTriggerName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Table Trigger Name'::text as category,
+                   quote_ident(n.nspname)::text as schema_name,
+                   quote_ident(c.relname)::text as table_name,
+                   ''::text as column_name,
+                   quote_ident(t.tgname) as match_value
+            from pg_trigger t
+            inner join pg_class c
+                  on c.oid = t.tgrelid
+            inner join pg_namespace n
+                  on n.oid = c.relnamespace
+            inner join pg_proc p
+                  on p.oid = t.tgfoid
+            inner join pg_namespace np
+                  on np.oid = p.pronamespace
+            where not t.tgisinternal
+              and quote_ident(n.nspname) not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and quote_ident(n.nspname) not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and quote_ident(t.tgname) like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(quote_ident(t.tgname)) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and quote_ident(t.tgname) ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and quote_ident(t.tgname) ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(quote_ident(n.nspname)) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
     def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_dataCategoryFilter):
         v_sqlDict = {}
 
@@ -2407,6 +2853,24 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 v_sqlDict[v_category] = self.DataMiningInheritedTableName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Partition Name':
                 v_sqlDict[v_category] = self.DataMiningPartitionName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Role Name':
+                v_sqlDict[v_category] = self.DataMiningRoleName(p_textPattern, p_caseSentive, p_regex)
+            elif v_category == 'Tablespace Name':
+                v_sqlDict[v_category] = self.DataMiningTablespaceName(p_textPattern, p_caseSentive, p_regex)
+            elif v_category == 'Extension Name':
+                v_sqlDict[v_category] = self.DataMiningExtensionName(p_textPattern, p_caseSentive, p_regex)
+            elif v_category == 'FK Column Name':
+                v_sqlDict[v_category] = self.DataMiningFKColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'PK Column Name':
+                v_sqlDict[v_category] = self.DataMiningPKColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Unique Column Name':
+                v_sqlDict[v_category] = self.DataMiningUniqueColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Index Column Name':
+                v_sqlDict[v_category] = self.DataMiningIndexColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Check Definition':
+                v_sqlDict[v_category] = self.DataMiningCheckDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Table Trigger Name':
+                v_sqlDict[v_category] = self.DataMiningTableTriggerName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
 
         return v_sqlDict
 
@@ -2599,6 +3063,28 @@ $function$
 --CASCADE
 ''')
 
+    def TemplateCreateProcedure(self):
+        return Template('''CREATE OR REPLACE PROCEDURE #schema_name#.name
+--(
+--    [ argmode ] [ argname ] argtype [ { DEFAULT | = } default_expr ]
+--)
+LANGUAGE plpgsql
+--SECURITY DEFINER
+AS
+$procedure$
+--DECLARE
+-- variables
+BEGIN
+-- definition
+END;
+$procedure$
+''')
+
+    def TemplateDropProcedure(self):
+        return Template('''DROP PROCEDURE #procedure_name#
+--CASCADE
+''')
+
     def TemplateCreateTriggerFunction(self):
         return Template('''CREATE OR REPLACE FUNCTION #schema_name#.name()
 RETURNS trigger
@@ -2637,8 +3123,9 @@ SELECT ...
 ''')
 
     def TemplateRefreshMaterializedView(self):
-        return Template('''REFRESH MATERIALIZED VIEW #view_name#
+        return Template('''REFRESH MATERIALIZED VIEW
 --CONCURRENTLY
+#view_name#
 --WITH NO DATA
 ''')
 
@@ -3057,7 +3544,6 @@ ON #table_name#
             if len(v_pk.Rows) > 0:
                 v_table_pk_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
                 v_pk_fields = [r['column_name'] for r in v_table_pk_fields.Rows]
-                v_values = []
                 v_first = True
                 for r in v_fields.Rows:
                     if v_first:
@@ -3076,7 +3562,6 @@ ON #table_name#
                         else:
                             v_sql += '\n    , {0} = ? -- {1}'.format(r['column_name'], r['data_type'])
             else:
-                v_values = []
                 v_first = True
                 for r in v_fields.Rows:
                     if v_first:
@@ -3111,6 +3596,69 @@ WHERE condition
 --RESTART IDENTITY
 --CASCADE
 ''')
+
+    def TemplateSelectFunction(self, p_schema, p_function, p_functionid):
+        v_table = self.v_connection.Query('''
+            select p.proretset
+            from pg_proc p,
+                 pg_namespace n
+            where p.pronamespace = n.oid
+              and n.nspname = '{0}'
+              and n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' = '{1}'
+        '''.format(p_schema, p_functionid))
+        if len(v_table.Rows) > 0:
+            v_retset = v_table.Rows[0][0]
+        else:
+            v_retset = False
+        v_fields = self.QueryFunctionFields(p_functionid, p_schema)
+        if len(v_fields.Rows) > 1:
+            if v_retset:
+                v_sql = 'SELECT * FROM {0}.{1}(\n    '.format(p_schema, p_function)
+            else:
+                v_sql = 'SELECT {0}.{1}(\n    '.format(p_schema, p_function)
+            v_first = True
+            for r in v_fields.Rows:
+                if r['name'].split(' ')[0] != '"returns':
+                    if r['type'] == 'I':
+                        v_type = 'IN'
+                    elif r['type'] == 'O':
+                        v_type = 'OUT'
+                    else:
+                        v_type = 'INOUT'
+                    if v_first:
+                        v_sql += '? -- {0} {1}'.format(r['name'], v_type)
+                        v_first = False
+                    else:
+                        v_sql += '\n  , ? -- {0} {1}'.format(r['name'], v_type)
+            v_sql += '\n)'
+        else:
+            if v_retset:
+                v_sql = 'SELECT * FROM {0}.{1}()'.format(p_schema, p_function)
+            else:
+                v_sql = 'SELECT {0}.{1}()'.format(p_schema, p_function)
+        return Template(v_sql)
+
+    def TemplateCallProcedure(self, p_schema, p_procedure, p_procedureid):
+        v_fields = self.QueryProcedureFields(p_procedureid, p_schema)
+        if len(v_fields.Rows) > 0:
+            v_sql = 'CALL {0}.{1}(\n    '.format(p_schema, p_procedure)
+            v_first = True
+            for r in v_fields.Rows:
+                if r['type'] == 'I':
+                    v_type = 'IN'
+                elif r['type'] == 'O':
+                    v_type = 'OUT'
+                else:
+                    v_type = 'INOUT'
+                if v_first:
+                    v_sql += '? -- {0} {1}'.format(r['name'], v_type)
+                    v_first = False
+                else:
+                    v_sql += '\n  , ? -- {0} {1}'.format(r['name'], v_type)
+            v_sql += '\n)'
+        else:
+            v_sql = 'CALL {0}.{1}()'.format(p_schema, p_procedure)
+        return Template(v_sql)
 
     def TemplateCreatePhysicalReplicationSlot(self):
         return Template('''SELECT * FROM pg_create_physical_replication_slot('slot_name')''')
@@ -4131,7 +4679,7 @@ TO NODE ( nodename [, ... ] )
                 where quote_ident(n.nspname) = '{0}'
                   and quote_ident(c.relname) = '{1}'
             '''.format(p_schema, p_object))
-        else:
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000 and int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
             return self.v_connection.Query('''
                 select current_database() as "Database",
                        n.nspname as "Schema",
@@ -4150,6 +4698,58 @@ TO NODE ( nodename [, ... ] )
                        c.relchecks as "Number of Checks",
                        c.relhasoids as "Has OIDs",
                        c.relhaspkey as "Has Primary Key",
+                       c.relhasrules as "Has Rules",
+                       c.relhastriggers as "Has Triggers",
+                       c.relhassubclass as "Has Subclass",
+                       c.relkind = 'p' as "Is Partitioned",
+                       c.relispartition as "Is Partition",
+                       (case when c.relispartition then po.parent_table else '' end) as "Partition Of"
+                from pg_class c
+                inner join pg_namespace n
+                on n.oid = c.relnamespace
+                inner join pg_roles r
+                on r.oid = c.relowner
+                left join pg_tablespace t1
+                on t1.oid = c.reltablespace
+                inner join (
+                select t.spcname
+                from pg_database d
+                inner join pg_tablespace t
+                on t.oid = d.dattablespace
+                where d.datname = current_database()
+                ) t2
+                on 1 = 1
+                left join (
+                select quote_ident(n2.nspname) || '.' || quote_ident(c2.relname) as parent_table
+                from pg_inherits i
+                inner join pg_class c2
+                on c2.oid = i.inhparent
+                inner join pg_namespace n2
+                on n2.oid = c2.relnamespace
+                where i.inhrelid = '{0}.{1}'::regclass
+                ) po
+                on 1 = 1
+                where quote_ident(n.nspname) = '{0}'
+                  and quote_ident(c.relname) = '{1}'
+            '''.format(p_schema, p_object))
+        else:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       n.nspname as "Schema",
+                       c.relname as "Table",
+                       c.oid as "OID",
+                       r.rolname as "Owner",
+                       pg_size_pretty(pg_relation_size(c.oid)) as "Size",
+                       coalesce(t1.spcname, t2.spcname) as "Tablespace",
+                       c.relacl as "ACL",
+                       c.reloptions as "Options",
+                       pg_relation_filepath(c.oid) as "Filenode",
+                       c.reltuples as "Estimate Count",
+                       c.relhasindex as "Has Index",
+                       (case c.relpersistence when 'p' then 'Permanent' when 'u' then 'Unlogged' when 't' then 'Temporary' end) as "Persistence",
+                       c.relnatts as "Number of Attributes",
+                       c.relchecks as "Number of Checks",
+                       c.relhasoids as "Has OIDs",
                        c.relhasrules as "Has Rules",
                        c.relhastriggers as "Has Triggers",
                        c.relhassubclass as "Has Subclass",
@@ -4323,7 +4923,7 @@ TO NODE ( nodename [, ... ] )
                 on l.oid = p.prolang
                 where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
             '''.format(p_object))
-        else:
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
             return self.v_connection.Query('''
                 select current_database() as "Database",
                        n.nspname as "Schema",
@@ -4356,6 +4956,71 @@ TO NODE ( nodename [, ... ] )
                 on l.oid = p.prolang
                 where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
             '''.format(p_object))
+        else:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       n.nspname as "Schema",
+                       p.proname as "Function",
+                       quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as "Function ID",
+                       p.oid as "OID",
+                       r.rolname as "Owner",
+                       (case p.prokind when 'f' then 'Normal' when 'a' then 'Aggregate' when 'w' then 'Window' end) as "Function Kind",
+                       l.lanname as "Language",
+                       p.procost as "Estimated Execution Cost",
+                       p.prorows as "Estimated Returned Rows",
+                       p.prosecdef as "Security Definer",
+                       p.proleakproof as "Leak Proof",
+                       p.proisstrict as "Is Strict",
+                       p.proretset as "Returns Set",
+                       (case p.provolatile when 'i' then 'Immutable' when 's' then 'Stable' when 'v' then 'Volatile' end) as "Volatile",
+                       (case p.proparallel when 's' then 'Safe' when 'r' then 'Restricted' when 'u' then 'Unsafe' end) as "Parallel",
+                       p.pronargs as "Number of Arguments",
+                       p.pronargdefaults as "Number of Default Arguments",
+                       p.probin as "Invoke",
+                       p.proconfig as "Configuration",
+                       p.proacl as "ACL"
+                from pg_proc p
+                join pg_namespace n
+                on p.pronamespace = n.oid
+                inner join pg_roles r
+                on r.oid = p.proowner
+                inner join pg_language l
+                on l.oid = p.prolang
+                where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+                  and p.prokind = 'f'
+            '''.format(p_object))
+
+    def GetPropertiesProcedure(self, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   p.proname as "Procedure",
+                   quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as "Procedure ID",
+                   p.oid as "OID",
+                   r.rolname as "Owner",
+                   l.lanname as "Language",
+                   p.procost as "Estimated Execution Cost",
+                   p.prorows as "Estimated Returned Rows",
+                   p.prosecdef as "Security Definer",
+                   p.proleakproof as "Leak Proof",
+                   p.proisstrict as "Is Strict",
+                   (case p.provolatile when 'i' then 'Immutable' when 's' then 'Stable' when 'v' then 'Volatile' end) as "Volatile",
+                   (case p.proparallel when 's' then 'Safe' when 'r' then 'Restricted' when 'u' then 'Unsafe' end) as "Parallel",
+                   p.pronargs as "Number of Arguments",
+                   p.pronargdefaults as "Number of Default Arguments",
+                   p.probin as "Invoke",
+                   p.proconfig as "Configuration",
+                   p.proacl as "ACL"
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            inner join pg_roles r
+            on r.oid = p.proowner
+            inner join pg_language l
+            on l.oid = p.prolang
+            where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
+              and p.prokind = 'p'
+        '''.format(p_object))
 
     def GetPropertiesTrigger(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
@@ -4922,6 +5587,67 @@ TO NODE ( nodename [, ... ] )
                 where quote_ident(n.nspname) = '{0}'
                   and quote_ident(c.relname) = '{1}'
             '''.format(p_schema, p_object))
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000 and int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return self.v_connection.Query('''
+                select current_database() as "Database",
+                       n.nspname as "Schema",
+                       c.relname as "Table",
+                       c.oid as "OID",
+                       r.rolname as "Owner",
+                       pg_size_pretty(pg_relation_size(c.oid)) as "Size",
+                       coalesce(t1.spcname, t2.spcname) as "Tablespace",
+                       c.relacl as "ACL",
+                       c.reloptions as "Options",
+                       pg_relation_filepath(c.oid) as "Filenode",
+                       c.reltuples as "Estimate Count",
+                       c.relhasindex as "Has Index",
+                       (case c.relpersistence when 'p' then 'Permanent' when 'u' then 'Unlogged' when 't' then 'Temporary' end) as "Persistence",
+                       c.relnatts as "Number of Attributes",
+                       c.relchecks as "Number of Checks",
+                       c.relhasoids as "Has OIDs",
+                       c.relhasrules as "Has Rules",
+                       c.relhastriggers as "Has Triggers",
+                       c.relhassubclass as "Has Subclass",
+                       c.relkind = 'p' as "Is Partitioned",
+                       c.relispartition as "Is Partition",
+                       (case when c.relispartition then po.parent_table else '' end) as "Partition Of",
+                       array_to_string(f.ftoptions, ',') as "Foreign Table Options",
+                       s.srvname as "Foreign Server",
+                       w.fdwname as "Foreign Data Wrapper"
+                from pg_class c
+                inner join pg_namespace n
+                on n.oid = c.relnamespace
+                inner join pg_roles r
+                on r.oid = c.relowner
+                left join pg_tablespace t1
+                on t1.oid = c.reltablespace
+                inner join (
+                select t.spcname
+                from pg_database d
+                inner join pg_tablespace t
+                on t.oid = d.dattablespace
+                where d.datname = current_database()
+                ) t2
+                on 1 = 1
+                left join (
+                select quote_ident(n2.nspname) || '.' || quote_ident(c2.relname) as parent_table
+                from pg_inherits i
+                inner join pg_class c2
+                on c2.oid = i.inhparent
+                inner join pg_namespace n2
+                on n2.oid = c2.relnamespace
+                where i.inhrelid = '{0}.{1}'::regclass
+                ) po
+                on 1 = 1
+                inner join pg_foreign_table f
+                on f.ftrelid = c.oid
+                inner join pg_foreign_server s
+                on s.oid = f.ftserver
+                inner join pg_foreign_data_wrapper w
+                on w.oid = s.srvfdw
+                where quote_ident(n.nspname) = '{0}'
+                  and quote_ident(c.relname) = '{1}'
+            '''.format(p_schema, p_object))
         else:
             return self.v_connection.Query('''
                 select current_database() as "Database",
@@ -5081,6 +5807,8 @@ TO NODE ( nodename [, ... ] )
             return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
         elif p_type == 'function':
             return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+        elif p_type == 'procedure':
+            return self.GetPropertiesProcedure(p_object).Transpose('Property', 'Value')
         elif p_type == 'trigger':
             return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
         elif p_type == 'triggerfunction':
@@ -5256,7 +5984,7 @@ TO NODE ( nodename [, ... ] )
             grants as (
                 select coalesce(
                         string_agg(format(
-                    	E'GRANT %s ON SCHEMA public TO %s%s;\n',
+                    	E'GRANT %s ON SCHEMA {0} TO %s%s;\n',
                         privilege_type,
                         case grantee
                           when 'PUBLIC' then 'PUBLIC'
@@ -6153,6 +6881,156 @@ TO NODE ( nodename [, ... ] )
             '''.format(p_schema, p_object))
 
     def GetDDLFunction(self, p_function):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return self.v_connection.ExecuteScalar('''
+                with obj as (
+                    SELECT p.oid,
+                           p.proname AS name,
+                           n.nspname AS namespace,
+                           pg_get_userbyid(p.proowner) AS owner,
+                           '{0}'::text AS sql_identifier
+                    FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+                    WHERE p.oid = '{0}'::text::regprocedure
+                ),
+                createfunction as (
+                    select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
+                    from obj
+                ),
+                alterowner as (
+                    select
+                       'ALTER FUNCTION '||sql_identifier||
+                              ' OWNER TO '||quote_ident(owner)||E';\n\n' as text
+                      from obj
+                ),
+                privileges as (
+                select (u_grantor.rolname)::information_schema.sql_identifier as grantor,
+                       (grantee.rolname)::information_schema.sql_identifier as grantee,
+                       (p.privilege_type)::information_schema.character_data as privilege_type,
+                       (case when (pg_has_role(grantee.oid, p.proowner, 'USAGE'::text) or p.is_grantable)
+                             then 'YES'::text
+                             else 'NO'::text
+                        end)::information_schema.yes_or_no AS is_grantable
+                from (
+                    select p.pronamespace,
+                           p.proowner,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantor as grantor,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantee as grantee,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type as privilege_type,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable as is_grantable
+                    from pg_proc p
+                    where not p.proisagg
+                      and p.oid = '{0}'::regprocedure
+                ) p
+                inner join pg_namespace n
+                on n.oid = p.pronamespace
+                inner join pg_roles u_grantor
+                on u_grantor.oid = p.grantor
+                inner join (
+                    select r.oid,
+                           r.rolname
+                    from pg_roles r
+                    union all
+                    select (0)::oid AS oid,
+                           'PUBLIC'::name
+                ) grantee
+                on grantee.oid = p.grantee
+                ),
+                grants as (
+                select coalesce(
+                        string_agg(format(
+                    	E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                        privilege_type,
+                        case grantee
+                          when 'PUBLIC' then 'PUBLIC'
+                          else quote_ident(grantee)
+                        end,
+                    	case is_grantable
+                          when 'YES' then ' WITH GRANT OPTION'
+                          else ''
+                        end), ''),
+                       '') as text
+                from privileges
+                )
+                select (select text from createfunction) ||
+                       (select text from alterowner) ||
+                       (select text from grants)
+'''.format(p_function))
+        else:
+            return self.v_connection.ExecuteScalar('''
+                with obj as (
+                    SELECT p.oid,
+                           p.proname AS name,
+                           n.nspname AS namespace,
+                           pg_get_userbyid(p.proowner) AS owner,
+                           '{0}'::text AS sql_identifier
+                    FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+                    WHERE p.prokind = 'f' AND p.oid = '{0}'::text::regprocedure
+                ),
+                createfunction as (
+                    select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
+                    from obj
+                ),
+                alterowner as (
+                    select
+                       'ALTER FUNCTION '||sql_identifier||
+                              ' OWNER TO '||quote_ident(owner)||E';\n\n' as text
+                      from obj
+                ),
+                privileges as (
+                select (u_grantor.rolname)::information_schema.sql_identifier as grantor,
+                       (grantee.rolname)::information_schema.sql_identifier as grantee,
+                       (p.privilege_type)::information_schema.character_data as privilege_type,
+                       (case when (pg_has_role(grantee.oid, p.proowner, 'USAGE'::text) or p.is_grantable)
+                             then 'YES'::text
+                             else 'NO'::text
+                        end)::information_schema.yes_or_no AS is_grantable
+                from (
+                    select p.pronamespace,
+                           p.proowner,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantor as grantor,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantee as grantee,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type as privilege_type,
+                           (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable as is_grantable
+                    from pg_proc p
+                    where p.prokind = 'f'
+                      and p.oid = '{0}'::regprocedure
+                ) p
+                inner join pg_namespace n
+                on n.oid = p.pronamespace
+                inner join pg_roles u_grantor
+                on u_grantor.oid = p.grantor
+                inner join (
+                    select r.oid,
+                           r.rolname
+                    from pg_roles r
+                    union all
+                    select (0)::oid AS oid,
+                           'PUBLIC'::name
+                ) grantee
+                on grantee.oid = p.grantee
+                ),
+                grants as (
+                select coalesce(
+                        string_agg(format(
+                    	E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                        privilege_type,
+                        case grantee
+                          when 'PUBLIC' then 'PUBLIC'
+                          else quote_ident(grantee)
+                        end,
+                    	case is_grantable
+                          when 'YES' then ' WITH GRANT OPTION'
+                          else ''
+                        end), ''),
+                       '') as text
+                from privileges
+                )
+                select (select text from createfunction) ||
+                       (select text from alterowner) ||
+                       (select text from grants)
+'''.format(p_function))
+
+    def GetDDLProcedure(self, p_procedure):
         return self.v_connection.ExecuteScalar('''
             with obj as (
                 SELECT p.oid,
@@ -6161,7 +7039,7 @@ TO NODE ( nodename [, ... ] )
                        pg_get_userbyid(p.proowner) AS owner,
                        '{0}'::text AS sql_identifier
                 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
-                WHERE p.oid = '{0}'::text::regprocedure
+                WHERE p.prokind = 'p' AND p.oid = '{0}'::text::regprocedure
             ),
             createfunction as (
                 select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
@@ -6169,7 +7047,7 @@ TO NODE ( nodename [, ... ] )
             ),
             alterowner as (
                 select
-                   'ALTER FUNCTION '||sql_identifier||
+                   'ALTER PROCEDURE '||sql_identifier||
                           ' OWNER TO '||quote_ident(owner)||E';\n\n' as text
                   from obj
             ),
@@ -6189,7 +7067,7 @@ TO NODE ( nodename [, ... ] )
                        (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type as privilege_type,
                        (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable as is_grantable
                 from pg_proc p
-                where not p.proisagg
+                where p.prokind = 'p'
                   and p.oid = '{0}'::regprocedure
             ) p
             inner join pg_namespace n
@@ -6225,7 +7103,7 @@ TO NODE ( nodename [, ... ] )
             select (select text from createfunction) ||
                    (select text from alterowner) ||
                    (select text from grants)
-'''.format(p_function))
+'''.format(p_procedure))
 
     def GetDDLConstraint(self, p_schema, p_table, p_object):
         return self.v_connection.ExecuteScalar('''
@@ -6538,6 +7416,8 @@ TO NODE ( nodename [, ... ] )
             return self.GetDDLClass(p_schema, p_object)
         elif p_type == 'function':
             return self.GetDDLFunction(p_object)
+        elif p_type == 'procedure':
+            return self.GetDDLProcedure(p_object)
         elif p_type == 'trigger':
             return self.GetTriggerDefinition(p_object, p_table, p_schema)
         elif p_type == 'triggerfunction':

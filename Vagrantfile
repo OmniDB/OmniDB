@@ -4,14 +4,16 @@
 $script = <<SCRIPT
 echo "I am provisioning..."
 apt-get update
-wget -q https://omnidb.org/dist/2.10.0/omnidb-server_2.10.0-debian-amd64.deb
-dpkg -i omnidb-server_2.10.0-debian-amd64.deb
+wget -q https://omnidb.org/dist/2.11.0/omnidb-server_2.11.0-debian-amd64.deb
+dpkg -i omnidb-server_2.11.0-debian-amd64.deb
 cat > /etc/systemd/system/omnidb.service << EOF
 [Unit]
 After=network.target
 
 [Service]
-ExecStart=/opt/omnidb-server/omnidb-server
+Type=forking
+ExecStart=/bin/bash -c "/opt/omnidb-server/omnidb-server &"
+RemainAfterExit=yes
 
 [Install]
 WantedBy=default.target

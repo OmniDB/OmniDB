@@ -126,7 +126,18 @@ try:
 except:
     csrf_trusted_origins = ''
 
+try:
+    OmniDB.custom_settings.THREAD_POOL_MAX_WORKERS = Config.getint('queryserver', 'thread_pool_max_workers')
+except:
+    pass
+
+try:
+    OmniDB.custom_settings.PWD_TIMEOUT_TOTAL = Config.getint('queryserver', 'pwd_timeout_total')
+except:
+    pass
+
 #Configuring Django settings before loading them
+OmniDB.settings.DEBUG = False
 if is_ssl:
     OmniDB.settings.SESSION_COOKIE_SECURE = True
     OmniDB.settings.CSRF_COOKIE_SECURE = True
@@ -170,6 +181,8 @@ import django.contrib.sessions.serializers
 import django.template.loaders
 import django.contrib.auth.context_processors
 import django.contrib.messages.context_processors
+import django.views.defaults
+import django.contrib.auth.password_validation
 
 from django.core.handlers.wsgi import WSGIHandler
 from OmniDB import startup, ws_core

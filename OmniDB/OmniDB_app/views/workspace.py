@@ -268,7 +268,10 @@ def get_database_list(request):
 
         v_databases.append(v_database_data)
 
-        v_alias = '({0}) '.format(v_database.v_alias)
+        if v_database.v_alias=='':
+            v_alias = ''
+        else:
+            v_alias = '({0}) '.format(v_database.v_alias)
         if not v_database_object['tunnel']['enabled']:
             v_details = v_database.PrintDatabaseDetails()
         else:
@@ -1078,7 +1081,7 @@ def save_alter_table(request):
 
                 if v_row['originalNullable'] != p_data_columns [i] [2]:
 
-                    v_command;
+                    v_command = ''
 
                     if p_data_columns [i] [2] == "YES":
                         v_command = v_database.v_set_nullable_command

@@ -113,6 +113,10 @@ urlpatterns = [
     url(r'^get_function_fields_postgresql/', views.tree_postgresql.get_function_fields, name='get_function_fields'),
     url(r'^get_function_definition_postgresql/', views.tree_postgresql.get_function_definition, name='get_function_definition'),
     url(r'^get_function_debug_postgresql/', views.tree_postgresql.get_function_debug, name='get_function_debug'),
+    url(r'^get_procedures_postgresql/', views.tree_postgresql.get_procedures, name='get_procedures'),
+    url(r'^get_procedure_fields_postgresql/', views.tree_postgresql.get_procedure_fields, name='get_procedure_fields'),
+    url(r'^get_procedure_definition_postgresql/', views.tree_postgresql.get_procedure_definition, name='get_procedure_definition'),
+    url(r'^get_procedure_debug_postgresql/', views.tree_postgresql.get_procedure_debug, name='get_procedure_debug'),
     url(r'^get_triggerfunctions_postgresql/', views.tree_postgresql.get_triggerfunctions, name='get_triggerfunctions'),
     url(r'^get_triggerfunction_definition_postgresql/', views.tree_postgresql.get_triggerfunction_definition, name='get_triggerfunction_definition'),
     url(r'^get_sequences_postgresql/', views.tree_postgresql.get_sequences, name='get_sequences'),
@@ -161,6 +165,8 @@ urlpatterns = [
     url(r'^template_select_postgresql/', views.tree_postgresql.template_select, name='template_select'),
     url(r'^template_insert_postgresql/', views.tree_postgresql.template_insert, name='template_insert'),
     url(r'^template_update_postgresql/', views.tree_postgresql.template_update, name='template_update'),
+    url(r'^template_select_function_postgresql/', views.tree_postgresql.template_select_function, name='template_select_function'),
+    url(r'^template_call_procedure_postgresql/', views.tree_postgresql.template_call_procedure, name='template_call_procedure'),
     url(r'^change_active_database/', views.workspace.change_active_database, name='change_active_database'),
 
     #TREE_ORACLE

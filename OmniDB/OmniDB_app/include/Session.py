@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime,timedelta
 from django.contrib.sessions.backends.db import SessionStore
 from OmniDB import settings
+from OmniDB import custom_settings
 import sys
 sys.path.append('OmniDB_app/include')
 import paramiko
@@ -13,6 +14,7 @@ from sshtunnel import SSHTunnelForwarder
 import socket
 import time
 import os
+from collections import OrderedDict
 
 tunnels = dict([])
 
@@ -45,7 +47,7 @@ class Session(object):
         self.v_super_user = p_super_user
         self.v_cryptor = p_cryptor
         self.v_database_index = -1
-        self.v_databases = {}
+        self.v_databases = OrderedDict()
         self.v_user_key = p_user_key
         self.v_tab_connections = dict([])
 
@@ -129,7 +131,7 @@ class Session(object):
                     except Exception as exc:
                         return { 'timeout': True, 'message': str(exc)}
             #Reached timeout, must request password
-            if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_TOTAL):
+            if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,custom_settings.PWD_TIMEOUT_TOTAL):
                 #Try passwordless connection
                 self.v_databases[p_database_index]['database'].v_connection.v_password = ''
                 v_test = self.v_databases[p_database_index]['database'].TestConnection()

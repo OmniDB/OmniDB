@@ -1370,9 +1370,14 @@ function initCreateTabFunctions() {
 		var v_html = "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
 
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+                    "<div id='command_history_div_" + v_tab.id + "' class='query_command_history'><a class='modal-closer' onclick='closeCommandHistory()'>x</a>" +
+                    "<div id='command_history_header_" + v_tab.id + "' class='query_command_history_header'></div>" +
+                    "<div id='command_history_grid_" + v_tab.id + "' class='query_command_history_grid'></div>" +
+                    "</div>" +
 					"<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='querySQL(0);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_indent_" + v_tab.id + "' class='bt_execute' title='Indent SQL' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='indentSQL();'><img src='/static/OmniDB_app/images/indent.png' style='vertical-align: middle;'/></button>" +
 					"<select id='sel_filtered_data_" + v_tab.id + "' style='display: none;'><option value='0' >Script</option><option selected='selected' value='1' >Query</option></select>" +
+          "<button id='bt_history_" + v_tab.id + "' class='bt_execute' title='Command History' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='showCommandList();'><img src='/static/OmniDB_app/images/command_list.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_explain_" + v_tab.id + "' class='dbms_object postgresql_object' onclick='getExplain(0)' title='Explain' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle; display: none;'><img src='/static/OmniDB_app/images/explain.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_analyze_" + v_tab.id + "' class='dbms_object postgresql_object' onclick='getExplain(1)' title='Explain Analyze' style='margin-bottom: 5px; display: inline-block; vertical-align: middle; display: none;'><img src='/static/OmniDB_app/images/analyze.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='querySQL(1);'>Fetch more</button>" +
@@ -1484,43 +1489,54 @@ function initCreateTabFunctions() {
     if (p_tab_db_id)
       v_tab_db_id = p_tab_db_id;
 
-		var v_tag = {
-			tab_id: v_tab.id,
-			mode: 'query',
-			editor: v_editor,
-			editorDivId: 'txt_query_' + v_tab.id,
-			query_info: document.getElementById('div_query_info_' + v_tab.id),
-			div_result: document.getElementById('div_result_' + v_tab.id),
-      div_notices: document.getElementById('div_notices_' + v_tab.id),
-      div_explain: document.getElementById('div_explain_' + v_tab.id),
-      div_count_notices: document.getElementById('query_result_tabs_count_notices_' + v_tab.id),
-			sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id),
-			sel_export_type : document.getElementById('sel_export_type_' + v_tab.id),
-			tab_title_span : v_tab_title_span,
-			tab_loading_span : v_tab_loading_span,
-			tab_close_span : v_tab_close_span,
-			tab_check_span : v_tab_check_span,
-      tab_stub_span : v_tab_stub_span,
-			bt_start: document.getElementById('bt_start_' + v_tab.id),
-      bt_fetch_more: document.getElementById('bt_fetch_more_' + v_tab.id),
-      bt_fetch_all: document.getElementById('bt_fetch_all_' + v_tab.id),
-      bt_start: document.getElementById('bt_start_' + v_tab.id),
-      bt_indent: document.getElementById('bt_indent_' + v_tab.id),
-      bt_explain: document.getElementById('bt_explain_' + v_tab.id),
-      bt_analyze: document.getElementById('bt_analyze_' + v_tab.id),
-      bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
-      bt_export: document.getElementById('bt_export_' + v_tab.id),
-			state : 0,
-      context: null,
-			tabControl: v_connTabControl.selectedTab.tag.tabControl,
-      queryTabControl: v_curr_tabs,
-      currQueryTab: null,
-			connTab: v_connTabControl.selectedTab,
-      currDatabaseIndex: null,
-      tab_db_id: v_tab_db_id,
-      tabCloseSpan: v_tab_close_span,
-      tempData: []
-		};
+    var v_tag = {
+        tab_id: v_tab.id,
+        mode: 'query',
+        editor: v_editor,
+        editorDivId: 'txt_query_' + v_tab.id,
+        query_info: document.getElementById('div_query_info_' + v_tab.id),
+        div_result: document.getElementById('div_result_' + v_tab.id),
+        div_notices: document.getElementById('div_notices_' + v_tab.id),
+        div_explain: document.getElementById('div_explain_' + v_tab.id),
+        div_count_notices: document.getElementById('query_result_tabs_count_notices_' + v_tab.id),
+        sel_filtered_data : document.getElementById('sel_filtered_data_' + v_tab.id),
+        sel_export_type : document.getElementById('sel_export_type_' + v_tab.id),
+        tab_title_span : v_tab_title_span,
+        tab_loading_span : v_tab_loading_span,
+        tab_close_span : v_tab_close_span,
+        tab_check_span : v_tab_check_span,
+        tab_stub_span : v_tab_stub_span,
+        bt_start: document.getElementById('bt_start_' + v_tab.id),
+        bt_fetch_more: document.getElementById('bt_fetch_more_' + v_tab.id),
+        bt_fetch_all: document.getElementById('bt_fetch_all_' + v_tab.id),
+        bt_start: document.getElementById('bt_start_' + v_tab.id),
+        bt_indent: document.getElementById('bt_indent_' + v_tab.id),
+        bt_explain: document.getElementById('bt_explain_' + v_tab.id),
+        bt_analyze: document.getElementById('bt_analyze_' + v_tab.id),
+        bt_history: document.getElementById('bt_history_' + v_tab.id),
+        bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
+        bt_export: document.getElementById('bt_export_' + v_tab.id),
+        state : 0,
+        context: null,
+        tabControl: v_connTabControl.selectedTab.tag.tabControl,
+        queryTabControl: v_curr_tabs,
+        currQueryTab: null,
+        connTab: v_connTabControl.selectedTab,
+        currDatabaseIndex: null,
+        tab_db_id: v_tab_db_id,
+        tabCloseSpan: v_tab_close_span,
+        tempData: [],
+        commandHistory: {
+            div: document.getElementById('command_history_div_' + v_tab.id),
+            headerDiv: document.getElementById('command_history_header_' + v_tab.id),
+            gridDiv: document.getElementById('command_history_grid_' + v_tab.id),
+            grid: null,
+            currentPage: 1,
+            pages: 1,
+            spanNumPages: null,
+            spanCurrPage: null
+        }
+    };
 
 		v_tab.tag = v_tag;
 
@@ -1618,7 +1634,7 @@ function initCreateTabFunctions() {
           "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='consoleSQL(false);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_indent_" + v_tab.id + "' class='bt_execute' title='Indent SQL' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='indentSQL();'><img src='/static/OmniDB_app/images/indent.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_clear_" + v_tab.id + "' class='bt_execute' title='Clear Console' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='clearConsole();'><img src='/static/OmniDB_app/images/vacuum.png' style='vertical-align: middle;'/></button>" +
-          "<button id='bt_clear_" + v_tab.id + "' class='bt_execute' title='Command History' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='showConsoleHistory();'><img src='/static/OmniDB_app/images/command_list.png' style='vertical-align: middle;'/></button>" +
+          "<button id='bt_history_" + v_tab.id + "' class='bt_execute' title='Command History' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='showConsoleHistory();'><img src='/static/OmniDB_app/images/command_list.png' style='vertical-align: middle;'/></button>" +
           "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='cancelConsole();'>Cancel</button>" +
 					"<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
           "<div id='txt_input_" + v_tab.id + "' style=' width: 100%; height: 150px; border: 1px solid #c3c3c3;'></div>";

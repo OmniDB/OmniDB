@@ -508,7 +508,8 @@ def LogHistory(p_omnidb_database,
                p_start,
                p_end,
                p_duration,
-               p_status):
+               p_status,
+               p_conn_id):
 
     try:
 
@@ -533,13 +534,15 @@ COMMAND: {5}'''.format(p_user_name,
             '{2}',
             '{3}',
             '{4}',
-            '{5}')
+            '{5}',
+            {6})
         '''.format(p_user_id,
                    p_sql.replace("'","''"),
                    p_start.strftime('%Y-%m-%d %H:%M:%S.%f'),
                    p_end.strftime('%Y-%m-%d %H:%M:%S.%f'),
                    p_status,
-                   p_duration))
+                   p_duration,
+                   p_conn_id))
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
@@ -857,7 +860,8 @@ def thread_query(self,args,ws_object):
                     log_start_time,
                     log_end_time,
                     v_duration,
-                    log_status)
+                    log_status,
+                    ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id)
 
         #if mode=0 save tab
         if v_mode==0 and v_tab_object['tab_db_id'] and v_log_query:
@@ -1044,7 +1048,8 @@ def thread_console(self,args,ws_object):
                 log_start_time,
                 log_end_time,
                 v_duration,
-                log_status)
+                log_status,
+                v_database.v_conn_id)
         v_omnidb_database.v_connection.Close()
 
     except Exception as exc:

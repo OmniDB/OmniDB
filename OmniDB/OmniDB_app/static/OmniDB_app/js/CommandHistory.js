@@ -15,11 +15,16 @@ You should have received a copy of the GNU General Public License along with Omn
 /// </summary>
 function deleteCommandList() {
 	showConfirm(
-		'Are you sure you want to clear command history?',
+		'Are you sure you want to clear command history corresponding to applied filters?',
 		function() {
 			execAjax(
 				'/clear_command_list/',
-				JSON.stringify({}),
+				JSON.stringify({
+					'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					'p_command_from': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedFrom.value,
+					'p_command_to': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedTo.value,
+					'p_command_contains': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputCommandContains.value
+				}),
 				function(p_return) {
 					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.currentPage = 1;
 					refreshCommandList();
@@ -132,13 +137,23 @@ function showCommandList() {
 	v_tabTag.commandHistory.grid.render();
 
 	v_tabTag.commandHistory.headerDiv.innerHTML =
-		"<button id='bt_first_" + v_tabTag.tab_id + "' onclick='commandHistoryFirstPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='First'>First</button>" +
-		"<button id='bt_previous_" + v_tabTag.tab_id + "' onclick='commandHistoryPreviousPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Previous'>Previous</button>" +
-		"<span id='cl_curr_page_" + v_tabTag.tab_id + "'></span> / <span id='cl_num_pages_" + v_tabTag.tab_id + "'></span>" +
-		"<button id='bt_next_" + v_tabTag.tab_id + "' onclick='commandHistoryNextPage()' class='bt_execute' style='margin: 0 5px 5px 5px;' title='Next'>Next</button>" +
-		"<button id='bt_last_" + v_tabTag.tab_id + "' onclick='commandHistoryLastPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Last'>Last</button>" +
-		"<button id='bt_refresh_" + v_tabTag.tab_id + "' onclick='refreshCommandList()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Refresh'>Refresh</button>" +
-		"<button id='bt_clear_" + v_tabTag.tab_id + "' onclick='deleteCommandList()' class='bt_execute bt_red' style='margin: 0 0px 5px 0px;' title='Clear List'>Clear List</button>";
+		"<div>" +
+		"    <button id='bt_first_" + v_tabTag.tab_id + "' onclick='commandHistoryFirstPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='First'>First</button>" +
+		"    <button id='bt_previous_" + v_tabTag.tab_id + "' onclick='commandHistoryPreviousPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Previous'>Previous</button>" +
+		"    <span id='cl_curr_page_" + v_tabTag.tab_id + "'></span> / <span id='cl_num_pages_" + v_tabTag.tab_id + "'></span>" +
+		"    <button id='bt_next_" + v_tabTag.tab_id + "' onclick='commandHistoryNextPage()' class='bt_execute' style='margin: 0 5px 5px 5px;' title='Next'>Next</button>" +
+		"    <button id='bt_last_" + v_tabTag.tab_id + "' onclick='commandHistoryLastPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Last'>Last</button>" +
+		"    <button id='bt_refresh_" + v_tabTag.tab_id + "' onclick='refreshCommandList()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Refresh'>Refresh</button>" +
+		"    <button id='bt_clear_" + v_tabTag.tab_id + "' onclick='deleteCommandList()' class='bt_execute bt_red' style='margin: 0 0px 5px 0px;' title='Clear List'>Clear List</button>" +
+		"</div>" +
+		"<div>" +
+		"    <label>Started from:</label>" +
+		"    <input type='date' id='cl_input_from_" + v_tabTag.tab_id + "' style='margin: 0 5px 5px 5px;' onchange='refreshCommandList();'  onchange='refreshCommandList();'/>" +
+		"    <label>to:</label>" +
+		"    <input type='date' id='cl_input_to_" + v_tabTag.tab_id + "' style='margin: 0 5px 5px 5px;' onchange='refreshCommandList(); '/>" +
+		"    <label>Command contains:</label>" +
+		"    <input type='text' id='cl_input_contains_" + v_tabTag.tab_id + "' style='margin: 0 5px 5px 5px;' onchange='refreshCommandList();' />" +
+		"</div>";
 
 	v_tabTag.commandHistory.currentPage = 1;
 	v_tabTag.commandHistory.pages = 1;
@@ -146,6 +161,12 @@ function showCommandList() {
 	v_tabTag.commandHistory.spanNumPages.innerHTML = 1;
 	v_tabTag.commandHistory.spanCurrPage = document.getElementById('cl_curr_page_' + v_tabTag.tab_id);
 	v_tabTag.commandHistory.spanCurrPage.innerHTML = 1;
+	v_tabTag.commandHistory.inputStartedFrom = document.getElementById('cl_input_from_' + v_tabTag.tab_id);
+	v_tabTag.commandHistory.inputStartedFrom.value = v_tabTag.commandHistory.inputStartedFromLastValue;
+	v_tabTag.commandHistory.inputStartedTo = document.getElementById('cl_input_to_' + v_tabTag.tab_id);
+	v_tabTag.commandHistory.inputStartedTo.value = v_tabTag.commandHistory.inputStartedToLastValue;
+	v_tabTag.commandHistory.inputCommandContains = document.getElementById('cl_input_contains_' + v_tabTag.tab_id);
+	v_tabTag.commandHistory.inputCommandContains.value = v_tabTag.commandHistory.inputCommandContainsLastValue;
 
 	refreshCommandList();
 }
@@ -180,21 +201,28 @@ function commandHistoryLastPage() {
 
 function commandHistoryOpenCmd(p_index) {
 	var v_command = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.grid.getDataAtRow(p_index)[4];
-	v_connTabControl.tag.createQueryTab('Query');
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(v_command);
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+	closeCommandHistory();
 }
 
 /// <summary>
 /// Retrieves and displays command history.
 /// </summary>
 function refreshCommandList() {
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedFromLastValue = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedFrom.value;
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedToLastValue = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedTo.value;
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputCommandContainsLastValue = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputCommandContains.value;
+
 	execAjax(
 		'/get_command_list/',
 		JSON.stringify({
 			'p_current_page': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.currentPage,
-			'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+			'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+			'p_command_from': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedFrom.value,
+			'p_command_to': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedTo.value,
+			'p_command_contains': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputCommandContains.value
 		}),
 		function(p_return) {
 			if(p_return.v_data.commandList.length == 0) {
@@ -204,6 +232,8 @@ function refreshCommandList() {
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.pages = p_return.v_data.pages;
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.spanNumPages.innerHTML = p_return.v_data.pages;
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.spanCurrPage.innerHTML = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.currentPage;
+
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.grid.loadData(p_return.v_data.commandList);
 		},
 		null,
 		'box'
@@ -220,4 +250,7 @@ function closeCommandHistory() {
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.pages = 1;
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.spanNumPages = null;
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.spanCurrPages = null;
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedFrom = null;
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedTo = null;
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputCommandContains = null;
 }

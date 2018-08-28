@@ -509,8 +509,10 @@ CREATE TABLE command_list (
     cl_st_end text,
     cl_st_status text,
     cl_st_duration text,
+    conn_id integer not null,
     constraint pk_command_list primary key (cl_in_codigo),
-    constraint command_list_fk_0 foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE
+    constraint command_list_fk_0 foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE,
+    constraint fk_cl_conn foreign key (conn_id) references connections (conn_id) on update CASCADE on delete CASCADE
 );--omnidb--
 
 CREATE TABLE tabs (

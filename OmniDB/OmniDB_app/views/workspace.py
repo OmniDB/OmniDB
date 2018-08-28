@@ -1819,28 +1819,75 @@ def get_command_list(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_current_page = json_object['p_current_page']
+    v_database_index = json_object['p_database_index']
+    v_command_contains = json_object['p_command_contains']
+    v_command_from = json_object['p_command_from']
+    v_command_to = json_object['p_command_to']
 
     v_session = request.session.get('omnidb_session')
 
+    v_database = v_session.v_databases[v_database_index]['database']
 
     try:
-        v_count = v_session.v_omnidb_database.v_connection.ExecuteScalar ('''
-            select count(*)
-            from command_list
+        v_filter = '''\
             where user_id = {0}
-        '''.format(str(v_session.v_user_id)))
+              and conn_id = {1}
+        '''.format(
+            str(v_session.v_user_id),
+            str(v_database.v_conn_id)
+        )
+
+        if v_command_contains is not None and v_command_contains != '':
+            v_filter = '''\
+                {0}
+                  and cl_st_command like '%{1}%'
+            '''.format(
+                v_filter,
+                v_command_contains
+            )
+
+        if v_command_from is not None and v_command_from != '':
+            v_filter = '''\
+                {0}
+                  and date(cl_st_start) >= date('{1}')
+            '''.format(
+                v_filter,
+                v_command_from
+            )
+
+        if v_command_to is not None and v_command_to != '':
+            v_filter = '''\
+                {0}
+                  and date(cl_st_start) <= date('{1}')
+            '''.format(
+                v_filter,
+                v_command_to
+            )
+
+        v_count = v_session.v_omnidb_database.v_connection.ExecuteScalar ('''
+                select count(*)
+                from command_list
+                {0}
+            '''.format(v_filter)
+        )
 
         v_commands = v_session.v_omnidb_database.v_connection.Query ('''
-            select cl_st_start,
-                   cl_st_end,
-                   cl_st_duration,
-                   cl_st_status,
-                   cl_st_command
-            from command_list
-            where user_id = {0}
-            order by cl_in_codigo desc
-            limit {1},{2}
-        '''.format(str(v_session.v_user_id),str((v_current_page-1)*settings.CH_CMDS_PER_PAGE),settings.CH_CMDS_PER_PAGE),True)
+                select cl_st_start,
+                       cl_st_end,
+                       cl_st_duration,
+                       cl_st_status,
+                       cl_st_command
+                from command_list
+                {0}
+                order by cl_in_codigo desc
+                limit {1},{2}
+            '''.format(
+                v_filter,
+                str((v_current_page-1) * settings.CH_CMDS_PER_PAGE),
+                settings.CH_CMDS_PER_PAGE
+            ),
+            True
+        )
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -1852,25 +1899,31 @@ def get_command_list(request):
 
     for v_command in v_commands.Rows:
         v_command_data_list = []
+
         v_command_data_list.append(v_command["cl_st_start"])
         v_command_data_list.append(v_command["cl_st_end"])
         v_command_data_list.append(v_command["cl_st_duration"])
+
         if v_command["cl_st_status"]=='success':
             v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_F.png" title="Success"/>')
         else:
             v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_X.png" title="Error"/>')
+
         v_command_data_list.append(v_command["cl_st_command"])
-        v_command_data_list.append('<img src="/static/OmniDB_app/images/trigger.png" class="img_ht" title="Open command in new tab" onclick="commandHistoryOpenCmd({0})"/>'.format(index))
+        v_command_data_list.append('<img src="/static/OmniDB_app/images/trigger.png" class="img_ht" title="Open command in the current tab" onclick="commandHistoryOpenCmd({0})"/>'.format(index))
+
         v_command_list.append(v_command_data_list)
+
         index = index + 1
 
     v_page = ceil(v_count/settings.CH_CMDS_PER_PAGE)
     if v_page==0:
         v_page=1
 
-    v_return['v_data'] = { 'command_list': v_command_list,
-                           'pages': v_page
-                         }
+    v_return['v_data'] = {
+        'commandList': v_command_list,
+        'pages': v_page
+    }
 
     return JsonResponse(v_return)
 
@@ -1887,11 +1940,58 @@ def clear_command_list(request):
         v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
+    json_object = json.loads(request.POST.get('data', None))
+
+    v_database_index = json_object['p_database_index']
+    v_command_contains = json_object['p_command_contains']
+    v_command_from = json_object['p_command_from']
+    v_command_to = json_object['p_command_to']
+
     v_session = request.session.get('omnidb_session')
 
+    v_database = v_session.v_databases[v_database_index]['database']
 
     try:
-        v_session.v_omnidb_database.v_connection.Execute ("delete from command_list where user_id={0}".format(v_session.v_user_id))
+        v_filter = '''\
+            where user_id = {0}
+              and conn_id = {1}
+        '''.format(
+            str(v_session.v_user_id),
+            str(v_database.v_conn_id)
+        )
+
+        if v_command_contains is not None and v_command_contains != '':
+            v_filter = '''\
+                {0}
+                  and cl_st_command like '%{1}%'
+            '''.format(
+                v_filter,
+                v_command_contains
+            )
+
+        if v_command_from is not None and v_command_from != '':
+            v_filter = '''\
+                {0}
+                  and date(cl_st_start) >= date('{1}')
+            '''.format(
+                v_filter,
+                v_command_from
+            )
+
+        if v_command_to is not None and v_command_to != '':
+            v_filter = '''\
+                {0}
+                  and date(cl_st_start) <= date('{1}')
+            '''.format(
+                v_filter,
+                v_command_to
+            )
+
+        v_session.v_omnidb_database.v_connection.Execute('''
+                delete from command_list
+                {0}
+            '''.format(v_filter)
+        )
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True

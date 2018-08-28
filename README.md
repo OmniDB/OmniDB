@@ -1,23 +1,32 @@
-## Next Release: *2.11.0 - August 16, 2018*
+## Next Release: *2.12.0 - September 20, 2018*
 
-# OmniDB 2.10.0
+# OmniDB 2.11.0
 
-## Release Date: *July 26, 2018*
+## Release Date: *August 23, 2018*
 
 ## Release Notes
 
-- New feature:
-  - Support to Foreign Data Wrappers, Foreign Servers, User Mappings and Foreign Tables (PostgreSQL)
+- New features:
+  - Support to PostgreSQL 11
+    - Tables, functions and stored procedures can be managed in Console Tab and Tree View
+    - Debugger can work with PostgreSQL 11 functions and procedures
 - Improvements:
-  - Monitoring Dashboard: Save current chart disposition per connection
-  - Monitoring Dashboard: Monitoring units that require plpythonu no longer have this requirement (PostgreSQL)
-  - Monitoring Dashboard: Improved current charts and added new ones (PostgreSQL)
-  - Renamed "Data Mining" feature with "Advanced Object Search" (PostgreSQL)
-  - Advanced Object Search: Only shows a line when finds something, does not show "No match" (PostgreSQL)
+  - Server packages now install a service in systemd
+  - SQL Template for calling functions and procedures (PostgreSQL)
+  - Support for indexes for materialized views in the Tree View (PostgreSQL)
+  - Support for rules for views in the Tree View (PostgreSQL)
+  - Debugger version for FreeBSD (PostgreSQL)
+  - Connection Grid now allows sorting by clicking in the column name
+  - Improvements to Django security
 - Bug fixes:
-  - Fixed "Failed to find conversion function from unknown to regprocedure" (PostgreSQL, [#591](https://github.com/OmniDB/OmniDB/issues/591))
-  - Fixed "Unsupported regnamespace type" (PostgreSQL, [#605](https://github.com/OmniDB/OmniDB/issues/605))
-  - Fixed "Object object" error message when using Query Data (Oracle, [#611](https://github.com/OmniDB/OmniDB/issues/611))
+  - Fixed MESSAGES from a DO block / function / procedure not being shown if an EXCEPTION happens (PostgreSQL)
+  - Fixed Alter Table GUI not handling NULL values (PostgreSQL)
+  - Fixed column type names not being displayed correctly in Alter Table GUI (PostgreSQL)
+  - Fixed DDL for GRANTs for schema (PostgreSQL)
+  - Fixed SQL Template for REFRESH MATERIALIZED VIEW (PostgreSQL)
+  - Fixed Postgres-XL tree not replacing node name
+- Deprecation notice:
+  - Debian 7 is not supported anymore, server packages are built on Debian 8
 
 # 1- Installation
 

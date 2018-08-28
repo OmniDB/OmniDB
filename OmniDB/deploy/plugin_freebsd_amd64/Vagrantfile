@@ -1,0 +1,21 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+echo I am provisioning...
+date > /etc/vagrant_provisioned_at
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: $script
+  config.vm.box = "freebsd/FreeBSD-10.4-STABLE"
+  config.vm.box_url = "https://app.vagrantup.com/freebsd/boxes/FreeBSD-10.4-STABLE"
+  config.vm.host_name = "deployplugin64"
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "omnidb_freebsd_deployplugin64"
+  end
+  config.vm.base_mac = "080027000000"
+  config.vm.guest = :freebsd
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.ssh.shell = "sh"
+end

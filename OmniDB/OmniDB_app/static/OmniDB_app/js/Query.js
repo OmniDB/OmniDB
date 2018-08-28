@@ -250,6 +250,16 @@ function querySQLReturnRender(p_message,p_context) {
 			p_context.tab_tag.div_count_notices.style.display = 'none';
 		}
 
+		var v_data = p_message.v_data;
+
+		if (v_data.v_notices_length>0) {
+			if(p_context.tab_tag.div_count_notices) {
+				p_context.tab_tag.div_count_notices.innerHTML = v_data.v_notices_length;
+				p_context.tab_tag.div_count_notices.style.display = 'inline-block';
+				p_context.tab_tag.div_notices.innerHTML = v_data.v_notices;
+			}
+		}
+
 		if (p_message.v_error) {
 			v_div_result.innerHTML = '<div class="error_text">' + p_message.v_data.message + '</div>';
 			v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
@@ -273,16 +283,6 @@ function querySQLReturnRender(p_message,p_context) {
 			}
 			//Query
 			else {
-
-				var v_data = p_message.v_data;
-
-				if (v_data.v_notices_length>0) {
-					if(p_context.tab_tag.div_count_notices) {
-						p_context.tab_tag.div_count_notices.innerHTML = v_data.v_notices_length;
-						p_context.tab_tag.div_count_notices.style.display = 'inline-block';
-						p_context.tab_tag.div_notices.innerHTML = v_data.v_notices;
-					}
-				}
 
 				//Show fetch buttons if data has 50 rows
 				if (v_data.v_data.length>=50 && p_context.mode!=2) {

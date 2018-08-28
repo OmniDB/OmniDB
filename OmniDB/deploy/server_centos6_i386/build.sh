@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.10.0
+VERSION=2.11.0
 ARCH=centos-i386
 
 echo "Installing OmniDB dependencies..."
@@ -53,24 +53,43 @@ mkdir omnidb-server
 cd omnidb-server
 mkdir -p BUILD RPMS SOURCES SPECS
 cp ../omnidb-server_$VERSION-$ARCH.tar.gz SOURCES/
-cat > SOURCES/omnidb-server.sh <<EOF
+cat > SOURCES/omnidb-server.sh << EOF
 #!/bin/bash
 LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:.:/opt/omnidb-server/ /opt/omnidb-server/omnidb-server \$@
 EOF
+cat > SOURCES/omnidb.service << EOF
+[Unit]
+Description=OmniDB server daemon
+After=network.target
 
-cat > SPECS/omnidb-server.spec <<EOF
+[Service]
+Type=forking
+ExecStart=/bin/bash -c "/opt/omnidb-server/omnidb-server &"
+RemainAfterExit=yes
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat > SPECS/omnidb-server.spec << EOF
 %global _enable_debug_package 0
 %global debug_package %{nil}
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
+
 %define _unpackaged_files_terminate_build 0
 %define _topdir /root/OmniDB/OmniDB/deploy/packages/omnidb-server
 %define _bindir /usr/bin
+%define _systemddir /etc/systemd/system
+%define _servicename omnidb
 %define name omnidb-server
 %define version $VERSION
 %define arch $ARCH
 %define longname %{name}_%{version}-%{arch}
 %define configname omnidb-config-server
 %define buildroot %{_topdir}/%{longname}-root
+
 BuildRoot: %{buildroot}
 BuildArch: i686
 Summary: Server to manage multiple databases
@@ -83,11 +102,15 @@ Prefix: /opt
 Group: Development/Tools
 Vendor: The OmniDB Team
 AutoReqProv: no
+
 %description
 OmniDB is a web tool that simplifies database management focusing on interactivity, designed to be powerful and lightweight. OmniDB is supported by 2ndQuadrant (https://www.2ndquadrant.com)
+
 %prep
 %setup -n %{longname}
+
 %build
+
 %install
 mkdir -p %{buildroot}/opt/%{name}
 chmod 777 %{buildroot}/opt/%{name}
@@ -96,12 +119,17 @@ mkdir -p %{buildroot}/%{_bindir}
 cp ../../SOURCES/%{name}.sh %{buildroot}/%{_bindir}/%{name}
 chmod 777 %{buildroot}/%{_bindir}/%{name}
 ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
+mkdir -p %{buildroot}/%{_systemddir}
+cp ../../SOURCES/%{_servicename}.service %{buildroot}/%{_systemddir}
+chmod 644 %{buildroot}/%{_systemddir}/%{_servicename}.service
+
 %files
 %defattr(0777,root,root,0777)
 /opt/%{name}
 /opt/%{name}/*
 %{_bindir}/%{name}
 %{_bindir}/%{configname}
+%{_systemddir}/%{_servicename}.service
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-server.spec

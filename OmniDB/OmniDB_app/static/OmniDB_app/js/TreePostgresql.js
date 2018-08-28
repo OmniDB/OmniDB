@@ -289,6 +289,33 @@ function tabDataMining(node) {
           }, {
               'text': 'Partition Name',
               'value': 22
+          }, {
+              'text': 'Role Name',
+              'value': 23
+          }, {
+              'text': 'Tablespace Name',
+              'value': 24
+          }, {
+              'text': 'Extension Name',
+              'value': 25
+          }, {
+              'text': 'FK Column Name',
+              'value': 26
+          }, {
+              'text': 'PK Column Name',
+              'value': 27
+          }, {
+              'text': 'Unique Column Name',
+              'value': 28
+          }, {
+              'text': 'Index Column Name',
+              'value': 29
+          }, {
+              'text': 'Check Definition',
+              'value': 30
+          }, {
+              'text': 'Table Trigger Name',
+              'value': 31
           }
       ];
     } else {
@@ -355,6 +382,33 @@ function tabDataMining(node) {
           }, {
               'text': 'Inherited Table Name',
               'value': 21
+          }, {
+              'text': 'Role Name',
+              'value': 22
+          }, {
+              'text': 'Tablespace Name',
+              'value': 23
+          }, {
+              'text': 'Extension Name',
+              'value': 24
+          }, {
+              'text': 'FK Column Name',
+              'value': 25
+          }, {
+              'text': 'PK Column Name',
+              'value': 26
+          }, {
+              'text': 'Unique Column Name',
+              'value': 27
+          }, {
+              'text': 'Index Column Name',
+              'value': 28
+          }, {
+              'text': 'Check Definition',
+              'value': 29
+          }, {
+              'text': 'Table Trigger Name',
+              'value': 30
           }
       ];
     }
@@ -2024,6 +2078,13 @@ function getTreePostgresql(p_div) {
                     }
                 }
             }, {
+                text: 'Select Function',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    TemplateSelectFunctionPostgresql(node.parent
+                      .parent.text, node.text, node.tag.id);
+                }
+            }, {
                 text: 'Edit Function',
                 icon: '/static/OmniDB_app/images/text_edit.png',
                 action: function(node) {
@@ -2037,7 +2098,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     v_connTabControl.tag.createDebuggerTab(
                         node.text);
-                    setupDebug(node);
+                    setupDebug(node, 'f');
                 }
             }, {
                 text: 'Drop Function',
@@ -2046,6 +2107,85 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Drop Function', node.tree.tag
                         .drop_function.replace(
                             '#function_name#', node.tag.id)
+                    );
+                }
+            }]
+        },
+        'cm_procedures': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Procedure',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    tabSQLTemplate('Create Procedure', node.tree
+                        .tag.create_procedure.replace(
+                            '#schema_name#', node.parent.text
+                        ));
+                }
+            }, {
+                text: 'Doc: Procedures',
+                icon: '/static/OmniDB_app/images/globe.png',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Procedures',
+                        'https://www.postgresql.org/docs/' +
+                        getMajorVersion(node.tree.tag.version) +
+                        '/static/sql-createprocedure.html');
+                }
+            }]
+        },
+        'cm_procedure': {
+            elements: [{
+                text: 'Refresh',
+                icon: '/static/OmniDB_app/images/refresh.png',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Call Procedure',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    TemplateCallProcedurePostgresql(node.parent
+                      .parent.text, node.text, node.tag.id);
+                }
+            }, {
+                text: 'Edit Procedure',
+                icon: '/static/OmniDB_app/images/text_edit.png',
+                action: function(node) {
+                    v_connTabControl.tag.createQueryTab(
+                        node.text);
+                    getProcedureDefinitionPostgresql(node);
+                }
+            }, {
+                text: 'Debug Procedure',
+                icon: '/static/OmniDB_app/images/debug.png',
+                action: function(node) {
+                    v_connTabControl.tag.createDebuggerTab(
+                        node.text);
+                    setupDebug(node, 'p');
+                }
+            }, {
+                text: 'Drop Procedure',
+                icon: '/static/OmniDB_app/images/tab_close.png',
+                action: function(node) {
+                    tabSQLTemplate('Drop Procedure', node.tree.tag
+                        .drop_procedure.replace(
+                            '#procedure_name#', node.tag.id)
                     );
                 }
             }]
@@ -3541,7 +3681,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Execute Direct',
                         node.tree.tag.xl_execute_direct
-                        .replace(/'#node_name#'/g, node.text)
+                        .replace(/#node_name#/g, node.text)
                     );
                 }
             }, {
@@ -3550,7 +3690,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Pool Reload',
                         node.tree.tag.xl_pool_reload
-                        .replace(/'#node_name#'/g, node.text)
+                        .replace(/#node_name#/g, node.text)
                     );
                 }
             }, {
@@ -3559,7 +3699,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Alter Node',
                         node.tree.tag.xl_alter_node
-                        .replace(/'#node_name#'/g, node.text)
+                        .replace(/#node_name#/g, node.text)
                     );
                 }
             }, {
@@ -3568,7 +3708,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Node',
                         node.tree.tag.xl_drop_node
-                        .replace(/'#node_name#'/g, node.text)
+                        .replace(/#node_name#/g, node.text)
                     );
                 }
             }]
@@ -3612,7 +3752,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Drop Group',
                         node.tree.tag.xl_drop_group
-                        .replace(/'#group_name#'/g, node.text)
+                        .replace(/#group_name#/g, node.text)
                     );
                 }
             }]
@@ -3809,6 +3949,11 @@ function checkCurrentDatabase(p_node, p_complete_check, p_callback_continue,
                                         v_connTabControl.selectedTab
                                             .tag.selectedDatabaseNode =
                                             v_list_database_nodes[i];
+
+                                        if (v_connTabControl.selectedTab.tag.selectedTitle!='')
+                                  				v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedTitle + ' - ' + v_connTabControl.selectedTab.tag.selectedDatabase;
+                                  			else
+                                  				v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedDatabase;
                                     }
 
                                 }
@@ -3925,6 +4070,13 @@ function getPropertiesPostgresqlConfirm(node) {
             p_type: node.tag.type
         });
     } else if (node.tag.type == 'function') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.tag.id,
+            p_type: node.tag.type
+        });
+    } else if (node.tag.type == 'procedure') {
         getProperties('/get_properties_postgresql/', {
             p_schema: node.parent.parent.text,
             p_table: null,
@@ -4074,6 +4226,10 @@ function refreshTreePostgresqlConfirm(node) {
         getFunctionsPostgresql(node);
     } else if (node.tag.type == 'function') {
         getFunctionFieldsPostgresql(node);
+    } else if (node.tag.type == 'procedure_list') {
+        getProceduresPostgresql(node);
+    } else if (node.tag.type == 'procedure') {
+        getProcedureFieldsPostgresql(node);
     } else if (node.tag.type == 'sequence_list') {
         getSequencesPostgresql(node);
     } else if (node.tag.type == 'database_list') {
@@ -4298,6 +4454,8 @@ function getTreeDetailsPostgresql(node) {
                 drop_sequence: p_return.v_data.v_database_return.drop_sequence,
                 create_function: p_return.v_data.v_database_return.create_function,
                 drop_function: p_return.v_data.v_database_return.drop_function,
+                create_procedure: p_return.v_data.v_database_return.create_procedure,
+                drop_procedure: p_return.v_data.v_database_return.drop_procedure,
                 create_triggerfunction: p_return.v_data.v_database_return
                     .create_triggerfunction,
                 drop_triggerfunction: p_return.v_data.v_database_return
@@ -4676,7 +4834,6 @@ function getDatabasesPostgresql(node) {
     node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
         null);
 
-
     execAjax('/get_databases_postgresql/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
@@ -5037,6 +5194,19 @@ function getSchemasPostgresql(node) {
                 node_triggerfunctions.createChildNode('', true,
                     '/static/OmniDB_app/images/spin.svg', null, null,
                     null, false);
+
+                if (parseInt(getMajorVersion(node.tree.tag.version)) >= 11) {
+                    var node_procedures = v_node.createChildNode('Procedures',
+                        false, '/static/OmniDB_app/images/gear2.png', {
+                            type: 'procedure_list',
+                            schema: p_return.v_data[i].v_name,
+                            num_procedures: 0,
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        }, 'cm_procedures', null, false);
+                    node_procedures.createChildNode('', true,
+                        '/static/OmniDB_app/images/spin.svg', null, null,
+                        null, false);
+                }
             }
 
             node.drawChildNodes();
@@ -5128,6 +5298,7 @@ function getViewsPostgresql(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/view.png', {
                         type: 'view',
+                        has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_view', null, false);
@@ -5306,6 +5477,7 @@ function getMaterializedViewsPostgresql(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, '/static/OmniDB_app/images/view.png', {
                         type: 'mview',
+                        has_indexes: p_return.v_data[i].v_has_indexes,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_mview', null, false);
                 v_node.createChildNode('', false,
@@ -5347,9 +5519,15 @@ function getMaterializedViewsColumnsPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
+            v_list = node.createChildNode('Columns (' + p_return.v_data.length +
+                ')', false, '/static/OmniDB_app/images/add.png', {
+                    database: v_connTabControl.selectedTab.tag.selectedDatabase
+                },
+                null, null, false);
+
             for (i = 0; i < p_return.v_data.length; i++) {
 
-                v_node = node.createChildNode(p_return.v_data[i].v_column_name,
+                v_node = v_list.createChildNode(p_return.v_data[i].v_column_name,
                     false, '/static/OmniDB_app/images/add.png', {
                         type: 'table_field',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
@@ -5359,6 +5537,17 @@ function getMaterializedViewsColumnsPostgresql(node) {
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null, null, false);
 
+            }
+
+            if (node.tag.has_indexes) {
+                v_node = node.createChildNode('Indexes', false,
+                    '/static/OmniDB_app/images/index.png', {
+                        type: 'indexes',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_indexes', null, false);
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', null, null,
+                    null, false);
             }
 
             node.drawChildNodes();
@@ -5371,6 +5560,7 @@ function getMaterializedViewsColumnsPostgresql(node) {
         },
         'box',
         false);
+        
 }
 
 /// <summary>
@@ -6612,6 +6802,197 @@ function getFunctionDefinitionPostgresql(node) {
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id
+        }),
+        function(p_return) {
+
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .setValue(p_return.v_data);
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .clearSelection();
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .gotoLine(0, 0, true);
+            //v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
+            renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
+                node.text);
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
+                .value = 1;
+
+            var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
+                .tag.div_result;
+
+            if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                .ht != null) {
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                    .ht.destroy();
+                v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag
+                    .ht = null;
+            }
+
+            v_div_result.innerHTML = '';
+
+            maximizeEditor();
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        true);
+
+}
+
+/// <summary>
+/// Retrieving procedures.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getProceduresPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_procedures_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_schema": node.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.setText('Procedures (' + p_return.v_data.length + ')');
+
+            node.tag.num_procedures = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_name,
+                    false, '/static/OmniDB_app/images/gear2.png', {
+                        type: 'procedure',
+                        id: p_return.v_data[i].v_id,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_procedure', null, false);
+                v_node.createChildNode('', false,
+                    '/static/OmniDB_app/images/spin.svg', {
+                        type: 'procedure_field'
+                    }, null, null, false);
+
+            }
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving procedure fields.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getProcedureFieldsPostgresql(node) {
+
+    node.removeChildNodes();
+    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+        null);
+
+    execAjax('/get_procedure_fields_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_procedure": node.tag.id,
+            "p_schema": node.parent.parent.text
+        }),
+        function(p_return) {
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            node.tag.num_fields = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                if (p_return.v_data[i].v_type == 'O')
+                    v_node = node.createChildNode(p_return.v_data[i].v_name,
+                        false, '/static/OmniDB_app/images/output.png', {
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        },
+                        null, null, false);
+                else {
+                    if (p_return.v_data[i].v_type == 'I')
+                        v_node = node.createChildNode(p_return.v_data[i].v_name,
+                            false, '/static/OmniDB_app/images/input.png', {
+                                database: v_connTabControl.selectedTab.tag.selectedDatabase
+                            }, null, null, false);
+                    else
+                        v_node = node.createChildNode(p_return.v_data[i].v_name,
+                            false,
+                            '/static/OmniDB_app/images/input_output.png', {
+                                database: v_connTabControl.selectedTab.tag.selectedDatabase
+                            }, null, null, false);
+                }
+
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving procedure definition.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getDebugProcedureDefinitionPostgresql(node) {
+
+    execAjax('/get_procedure_debug_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_procedure": node.tag.id
+        }),
+        function(p_return) {
+
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .setValue(p_return.v_data);
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .clearSelection();
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+                .gotoLine(0, 0, true);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        true);
+
+}
+
+/// <summary>
+/// Retrieving procedure definition.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getProcedureDefinitionPostgresql(node) {
+
+    execAjax('/get_procedure_definition_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_procedure": node.tag.id
         }),
         function(p_return) {
 
@@ -8592,6 +8973,58 @@ function TemplateUpdatePostgresql(p_schema, p_table) {
         function(p_return) {
           tabSQLTemplate(
               'Update ' + p_schema + '.' + p_table,
+              p_return.v_data.v_template);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true);
+}
+
+/// <summary>
+/// Retrieving SELECT FUNCTION SQL template.
+/// </summary>
+function TemplateSelectFunctionPostgresql(p_schema, p_function, p_functionid) {
+
+    execAjax('/template_select_function_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_function": p_function,
+            "p_functionid": p_functionid,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Select ' + p_schema + '.' + p_function,
+              p_return.v_data.v_template);
+        },
+        function(p_return) {
+            showError(p_return.v_data);
+            return '';
+        },
+        'box',
+        true);
+}
+
+/// <summary>
+/// Retrieving CALL PROCEDURE SQL template.
+/// </summary>
+function TemplateCallProcedurePostgresql(p_schema, p_procedure, p_procedureid) {
+
+    execAjax('/template_call_procedure_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_procedure": p_procedure,
+            "p_procedureid": p_procedureid,
+            "p_schema": p_schema
+        }),
+        function(p_return) {
+          tabSQLTemplate(
+              'Call ' + p_schema + '.' + p_procedure,
               p_return.v_data.v_template);
         },
         function(p_return) {

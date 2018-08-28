@@ -3817,7 +3817,7 @@ INTO local_schema
         return Template('DROP USER MAPPING #user_name# SERVER #srvname#')
 
     def TemplateCreateForeignTable(self):
-        return Template('''CREATE FOREIGN TABLE table_name
+        return Template('''CREATE FOREIGN TABLE #schema_name#.table_name
 --PARTITION OF parent_table
 (
     column_name data_type

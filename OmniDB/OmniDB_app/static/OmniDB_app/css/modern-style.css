@@ -1,0 +1,237 @@
+/*
+Copyright 2015-2017 The OmniDB Team
+
+This file is part of OmniDB.
+
+OmniDB is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
+*/
+
+/* TYPOGRAPHY */
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto/Roboto-Regular.ttf'), /* IE9 Compat Modes */
+       url('../fonts/Roboto/Roboto-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Roboto Mono';
+  src: url('../fonts/RobotoMono/RobotoMono-Regular.ttf'), /* IE9 Compat Modes */
+       url('../fonts/RobotoMono/RobotoMono-Regular.ttf') format('truetype');
+}
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Worskpace HEADER */
+div.header {
+  margin-bottom:0px;
+}
+div.header_menu a {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Workspace container */
+div.div_tabs {
+  padding: 0px;
+  border: none;
+  border-radius: 0px;
+}
+
+/* Workspace TABS */
+ul.tabs {
+    font-family: 'Roboto', sans-serif;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+ul.tabs li {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+span.tab_close_icon {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 13px;
+    transform: scaleY(0.77);
+    color: #d85656;
+    vertical-align: middle;
+    content: "x";
+}
+
+/* Workspace Connection Info */
+.connection_details.query_info {
+    margin-top: 0px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    text-align: center;
+    color: #FFFFFF;
+    background-color: #4e72ab;
+    border-bottom: none;
+}
+.borderRadius,
+div.borderRadius,
+.borderRadiusTp,
+div.borderRadiusTp {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+.dd .ddTitle,
+.dd div.ddTitle {
+    background: #F2F2F2;
+    background-color: #F2F2F2;
+    background-image: none;
+}
+.dd .ddTitle span.ddTitleText {
+    padding: 5px 5px 5px 5px;
+    border-right: 24px solid #a9aeb5;
+    transition: 0.45s;
+}
+.dd span.divider {
+    border-color: transparent;
+}
+.dd span.ddArrow {
+    width: 8px;
+    height: 8px;
+    transform: rotate(45deg);
+    right: 6px;
+    background: none;
+    background-image: none;
+    background-color: #a9aeb5;
+    border-color: #FFFFFF;
+    border-style: solid;
+    border-width: 0 3px 3px 0;
+    transition: 0.45s;
+}
+
+/* Workspace Connection Info Interaction */
+.dd div.ddTitle:hover span.ddArrow {
+    border-color: #a9aeb5;
+    background-color: #e2e2e2;
+}
+.dd div.ddTitle:hover span.ddTitleText {
+    border-color: #e2e2e2;
+}
+.dd .ddChild ul li.selected {
+    background-color: #e2e2e2;
+}
+
+/* Connection Tree */
+ul span.node {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+ul span.node_selected {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+/* Modals */
+div.connection_list {
+    margin-left: auto;
+    margin-right: auto;
+    left: 5px;
+    right: 5px;
+}
+.modal_background_dark button {
+    color: #FFFFFF;
+    background: #177ce0;
+    background-color: #177ce0;
+    border-radius: 0px;
+    border: 1px solid #177ce0;
+    transition: 0.45s;
+}
+.modal_background_dark button:hover {
+    color: #177ce0;
+    background: #FFFFFF;
+    background-color: #FFFFFF;
+}
+.modal_background_dark a.modal-closer {
+    top: 0px;
+    right: 0px;
+    background-color: #ff4d4d;
+    border-radius: 0px;
+    border: 1px solid #ff4d4d;
+    transition: 0.45s;
+    transform: scaleY(0.9) translateY(-1px);
+    padding: 2px;
+    line-height: 16px;
+}
+.modal_background_dark a.modal-closer:hover {
+    color: #ff4d4d;
+    background-color: #FFFFFF;
+}
+
+/* Handson Tables */
+.handsontable thead th {
+    background-color: #4e73ab;
+    color: #FFFFFF;
+}
+.handsontable tbody th.ht__highlight,
+.handsontable thead th.ht__highlight {
+    color: #000000;
+}
+
+/* BUTTONS WITH ICONS ONLY */
+button.bt_icon_only,
+button.bt_export {
+    background: transparent;
+    background-color: transparent;
+    border: none;
+    transition: 0.45s;
+}
+button.bt_icon_only:hover,
+button.bt_export:hover {
+  background-color: #E2E2E2;
+}
+
+select.sel_export_file_type {
+  background: #f2f2f2;
+  border-color: #a9aeb5;
+  border-radius: 0px;
+}
+
+/* QUERY INFO */
+button.bt_fetch {
+    font-family: 'Roboto', sans-serif;
+    color: #FFFFFF;
+    background: #177ce0;
+    border-radius: 0px;
+    border: 1px solid #177ce0;
+    transition: 0.45s;
+}
+button.bt_fetch:hover {
+    color: #177ce0;
+    background-color: #FFFFFF;
+}
+button.bt_red {
+    font-family: 'Roboto', sans-serif;
+    border-radius: 0px;
+    background: #FF4040;
+    border: 1px solid #FF4040;
+    transition: 0.45s;
+}
+button.bt_red:hover {
+    color: #FF4040;
+    background: #FFFFFF;
+}
+
+div.query_info_summary .query_info_row {
+    line-height: 14px;
+}
+div.query_info_summary {
+    margin-bottom: 5px;
+}
+div.query_info_summary strong {
+    color: #4a6796;
+}
+
+/*Workspace Ace-Editor */
+ div.ace_editor.ace-omnidb {
+   font-family: 'Roboto Mono', monospace;
+ }

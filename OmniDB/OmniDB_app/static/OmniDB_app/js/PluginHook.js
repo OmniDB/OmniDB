@@ -230,14 +230,14 @@ function getPluginPath(p_name) {
 }
 
 function hidePlugins() {
-  document.getElementById('div_plugins').style.display = 'none';
+  document.getElementById('div_plugins').classList.remove('isActive');
   v_connTabControl.tag.plugin_ht.destroy();
   v_connTabControl.tag.plugin_ht = null;
 }
 
 function showPlugins() {
 
-  document.getElementById('div_plugins').style.display = 'block';
+  document.getElementById('div_plugins').classList.add('isActive');
 
 	execAjax('/list_plugins/',
 			JSON.stringify({}),

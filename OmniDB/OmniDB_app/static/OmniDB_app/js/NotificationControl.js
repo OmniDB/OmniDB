@@ -25,11 +25,11 @@ function checkSessionMessage() {
 
 function showError(p_message) {
 	document.getElementById('div_error_msg').innerHTML = '<img src="/static/OmniDB_app/images/error.png"/ style="display: block; margin-left: auto; margin-right: auto;"><br/>' + p_message;
-	$('#div_error').show();
+	$('#div_error').addClass('isActive');
 }
 
 function hideError() {
-	$('#div_error').hide();
+	$('#div_error').removeClass('isActive');
 	document.getElementById('div_error_msg').innerHTML = '';
 }
 
@@ -47,7 +47,7 @@ function showAlert(p_info, p_funcYes = null)
 	v_button.innerHTML = 'Ok';
 	v_button.onclick = function() {
 		document.getElementById('div_alert_content').innerHTML = '';
-		$('#div_alert').hide();
+		$('#div_alert').removeClass('isActive');
 		if (p_funcYes!=null)
 			p_funcYes();
 	};
@@ -59,7 +59,7 @@ function showAlert(p_info, p_funcYes = null)
 	document.getElementById('div_alert_content').appendChild(v_div_text);
 	document.getElementById('div_alert_content').appendChild(v_div_buttons);
 
-	$('#div_alert').show();
+	$('#div_alert').addClass('isActive');
 
 	v_button.focus();
 }
@@ -67,7 +67,7 @@ function showAlert(p_info, p_funcYes = null)
 
 function clickConfirmCancel() {
 
-        $('#div_alert').hide();
+        $('#div_alert').removeClass('isActive');
 
 }
 
@@ -100,7 +100,7 @@ function showConfirm(p_info,p_funcYes)
 	document.getElementById('div_alert_content').appendChild(v_div_text);
 	document.getElementById('div_alert_content').appendChild(v_div_buttons);
 
-	$('#div_alert').show();
+	$('#div_alert').addClass('isActive');
 
 	v_button_ok.focus();
 
@@ -144,7 +144,7 @@ function showConfirm2(p_info,p_funcYes,p_funcNo)
 	document.getElementById('div_alert_content').appendChild(v_div_text);
 	document.getElementById('div_alert_content').appendChild(v_div_buttons);
 
-	$('#div_alert').show();
+	$('#div_alert').addClass('isActive');
 
 }
 
@@ -179,6 +179,6 @@ function showConfirm3(p_info,p_funcYes,p_funcNo)
 	document.getElementById('div_alert_content').appendChild(v_div_text);
 	document.getElementById('div_alert_content').appendChild(v_div_buttons);
 
-	$('#div_alert').show();
+	$('#div_alert').addClass('isActive');
 
 }

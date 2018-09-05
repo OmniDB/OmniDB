@@ -1050,7 +1050,7 @@ function drawGraph(p_all, p_schema) {
 /// </summary>
 function hideCommandsLog() {
 
-	$('#div_commands_log').hide();
+	$('#div_commands_log').removeClass('isActive');
 
 }
 

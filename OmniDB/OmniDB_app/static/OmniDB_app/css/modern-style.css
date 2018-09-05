@@ -151,6 +151,7 @@ div.connection_list {
     background: #FFFFFF;
     background-color: #FFFFFF;
 }
+a.modal-closer,
 .modal_background_dark a.modal-closer {
     top: 0px;
     right: 0px;
@@ -162,9 +163,14 @@ div.connection_list {
     padding: 2px;
     line-height: 16px;
 }
+a.modal-closer:hover,
 .modal_background_dark a.modal-closer:hover {
     color: #ff4d4d;
     background-color: #FFFFFF;
+}
+.config_box {
+  border: none;
+  box-shadow: none;
 }
 
 /* Handson Tables */

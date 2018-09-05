@@ -104,7 +104,7 @@ function showConfigUser() {
 
 	document.getElementById('chk_enable_chat').checked = ((v_enable_omnichat == 1) ? true : false);
 
-	$('#div_config_user').show();
+	$('#div_config_user').addClass('isActive');
 
 }
 
@@ -113,7 +113,7 @@ function showConfigUser() {
 /// </summary>
 function showAbout() {
 
-	$('#div_about').show();
+	$('#div_about').addClass('isActive');
 
 }
 
@@ -122,7 +122,7 @@ function showAbout() {
 /// </summary>
 function hideAbout() {
 
-	$('#div_about').hide();
+	$('#div_about').removeClass('isActive');
 
 }
 
@@ -184,7 +184,7 @@ function showWebsite(p_name, p_url) {
 /// </summary>
 function hideConfigUser() {
 
-	$('#div_config_user').hide();
+	$('#div_config_user').removeClass('isActive');
 
 }
 
@@ -211,7 +211,7 @@ function saveConfigUser() {
 				function(p_return) {
 					v_editor_theme = p_return.v_data.v_theme_name;
 					v_theme_type = p_return.v_data.v_theme_type;
-					$('#div_config_user').hide();
+					$('#div_config_user').removeClass('isActive');
 					showAlert('Configuration saved.');
 
 				});
@@ -297,7 +297,7 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 	v_editContentObject.col = p_col;
 	v_editContentObject.ht = p_ht;
 
-	$('#div_edit_content').show();
+	$('#div_edit_content').addClass('isActive');
 
 }
 
@@ -306,7 +306,7 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 /// </summary>
 function hideEditContent() {
 
-	$('#div_edit_content').hide();
+	$('#div_edit_content').removeClass('isActive');
 
 	if (v_canEditContent)
 		v_editContentObject.ht.setDataAtCell(v_editContentObject.row, v_editContentObject.col, v_editContentObject.editor.getValue());

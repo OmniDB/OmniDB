@@ -59,14 +59,14 @@
   {% block content %}
   {% endblock %}
 
-  <div id="div_plugins" style="display: none;">
+  <div id="div_plugins" class="isModal modal_background_dark">
 	        <div class ="plugin_box">
 	            <a class="modal-closer" onclick="hidePlugins()">x</a>
 	            <div id="plugin_grid"></div>
 	</div>
   </div>
 
-	<div id="div_config_user" style="display: none;">
+	<div id="div_config_user" class="isModal modal_background_dark">
 	        <div class ="config_box">
 	            <a class="modal-closer" onclick="hideConfigUser()">x</a>
 
@@ -259,7 +259,7 @@
 	    </div>
 	</div>
 
-    <div id="div_about" style="display: none;">
+    <div id="div_about" class="isModal">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
                 <a class="modal-closer" onclick="hideAbout()">x</a>
@@ -285,7 +285,7 @@
         </div>
     </div>
 
-    <div id="div_users" style="display:none;">
+    <div id="div_users" class="isModal">
         <div class="modal_background_dark">
             <div class ="users_box">
               <a class="modal-closer" onclick="hideUsers()">x</a>
@@ -302,7 +302,7 @@
         </div>
     </div>
 
-    <div id="div_edit_content" style="display: none;">
+    <div id="div_edit_content" class="isModal">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
                 <a class="modal-closer" onclick="hideEditContent()">x</a>
@@ -317,7 +317,7 @@
     </div>
 
 
-  <div id="div_error" style="display:none;">
+  <div id="div_error" class="isModal">
       <div class="modal_background_dark" style="z-index: 2000">
           <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%; z-index: 2000;">
               <a class="modal-closer" onclick="hideError()">x</a>
@@ -326,7 +326,7 @@
       </div>
   </div>
 
-  <div id="div_alert" style="display:none;">
+  <div id="div_alert" class="isModal">
       <div class="modal_background_dark">
           <div class ="white_box" style="width: 40%; left: 30%; top: 50%;  transform: translate(0px, -50%); -webkit-transform: translate(0px, -50%);">
               <div id="div_alert_content" style="height:100%; width:100%;"></div>
@@ -334,7 +334,7 @@
       </div>
   </div>
 
-  <div id="div_password_prompt" style="display: none;">
+  <div id="div_password_prompt" class="isModal">
       <div class="modal_background_dark">
           <div class ="white_box" style="width: 50%; left: 25%; top: 20%; z-index: 2000; text-align: center;">
               <a id="bt2_password_prompt_cancel" class="modal-closer">x</a>

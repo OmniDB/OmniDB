@@ -864,7 +864,7 @@ function saveAlterTable() {
 
 				if (v_has_error) {
 					v_div_commands_log.innerHTML = v_commands_log;
-					$('#div_commands_log').show();
+					$('#div_commands_log').addClass('isActive');
 
 				}
 				else {
@@ -1141,7 +1141,7 @@ function hideColumnSelection() {
 		v_column_string = "<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_string;
 		v_currTabTag.alterTableObject.htIndexes.setDataAtCell(v_currTabTag.alterTableObject.selectedIndexRow, 2, v_column_string);
 	}
-	$('#div_column_selection').hide();
+	$('#div_column_selection').removeClass('isActive');
 
 }
 
@@ -1194,7 +1194,7 @@ function showColumnSelectionConstraints() {
 				}
 			}
 
-			$('#div_column_selection').show();
+			$('#div_column_selection').addClass('isActive');
 
 		}
 
@@ -1250,7 +1250,7 @@ function showColumnSelectionIndexes() {
 			}
 		}
 
-		$('#div_column_selection').show();
+		$('#div_column_selection').addClass('isActive');
 
 	}
 

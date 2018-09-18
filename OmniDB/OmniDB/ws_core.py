@@ -764,72 +764,110 @@ def thread_query(self,args,ws_object):
                     v_database.v_connection.Open()
 
                 if (v_mode==0 or v_mode==1) and not v_all_data:
+
                     v_data1 = v_database.v_connection.QueryBlock(v_sql, 50, True, True)
+
+                    v_notices = v_database.v_connection.GetNotices()
+                    v_notices_text = ''
+                    if len(v_notices) > 0:
+                        for v_notice in v_notices:
+                            v_notices_text += v_notice.replace('\n','<br/>')
+
+                    log_end_time = datetime.now()
+                    v_duration = GetDuration(log_start_time,log_end_time)
+
+                    v_response['v_data'] = {
+                        'v_col_names' : v_data1.Columns,
+                        'v_data' : v_data1.Rows,
+                        'v_last_block': True,
+                        'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
+                        'v_duration': v_duration,
+                        'v_notices': v_notices_text,
+                        'v_notices_length': len(v_notices),
+                        'v_inserted_id': v_inserted_id,
+                        'v_chunks': True
+                    }
+
+                    if not self.cancel:
+                        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+                    if len(v_data1.Rows) < 50:
+                        try:
+                            v_database.v_connection.Close()
+                        except:
+                            pass
+
                 elif v_mode==2 or v_all_data:
-                    v_data1 = v_database.v_connection.QueryBlock(v_sql, -1, True, True)
 
-                v_notices = v_database.v_connection.GetNotices()
-                v_notices_text = ''
-                if len(v_notices) > 0:
-                    for v_notice in v_notices:
-                        v_notices_text += v_notice.replace('\n','<br/>')
+                    v_hasmorerecords = True
+                    k = 0
+                    while v_hasmorerecords:
 
-                if v_mode==2 or v_all_data or len(v_data1.Rows)<50:
+                        print(k)
+                        k = k + 1
+
+                        v_data1 = v_database.v_connection.QueryBlock(v_sql, 10000, True, True)
+
+                        v_notices = v_database.v_connection.GetNotices()
+                        v_notices_text = ''
+                        if len(v_notices) > 0:
+                            for v_notice in v_notices:
+                                v_notices_text += v_notice.replace('\n','<br/>')
+
+                        log_end_time = datetime.now()
+                        v_duration = GetDuration(log_start_time,log_end_time)
+
+                        v_response['v_data'] = {
+                            'v_col_names' : v_data1.Columns,
+                            'v_data' : v_data1.Rows,
+                            'v_last_block': True,
+                            'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
+                            'v_duration': v_duration,
+                            'v_notices': v_notices_text,
+                            'v_notices_length': len(v_notices),
+                            'v_inserted_id': v_inserted_id,
+                            'v_chunks': True
+                        }
+
+                        if self.cancel:
+                            break
+                        else:
+                            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+                        if len(v_data1.Rows) > 0:
+                            v_hasmorerecords = True
+                        else:
+                            v_hasmorerecords = False
+
+                    if not self.cancel:
+
+                        v_notices = v_database.v_connection.GetNotices()
+                        v_notices_text = ''
+                        if len(v_notices) > 0:
+                            for v_notice in v_notices:
+                                v_notices_text += v_notice.replace('\n','<br/>')
+
+                        log_end_time = datetime.now()
+                        v_duration = GetDuration(log_start_time,log_end_time)
+
+                        v_response['v_data'] = {
+                            'v_col_names' : v_data1.Columns,
+                            'v_data' : v_data1.Rows,
+                            'v_last_block': True,
+                            'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
+                            'v_duration': v_duration,
+                            'v_notices': v_notices_text,
+                            'v_notices_length': len(v_notices),
+                            'v_inserted_id': v_inserted_id,
+                            'v_chunks': True
+                        }
+
+                        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
                     try:
                         v_database.v_connection.Close()
                     except:
                         pass
-
-                log_end_time = datetime.now()
-                v_duration = GetDuration(log_start_time,log_end_time)
-
-                v_response['v_data'] = {
-                    'v_col_names' : v_data1.Columns,
-                    'v_data' : v_data1.Rows,
-                    'v_last_block': True,
-                    'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
-                    'v_duration': v_duration,
-                    'v_notices': v_notices_text,
-                    'v_notices_length': len(v_notices),
-                    'v_inserted_id': v_inserted_id,
-                    'v_chunks': True
-                }
-
-                #send data in chunks to avoid blocking the websocket server
-                chunks = [v_data1.Rows[x:x+1000] for x in range(0, len(v_data1.Rows), 1000)]
-                if len(chunks)>0:
-                    for count in range(0,len(chunks)):
-                        if self.cancel:
-                            break
-                        if not count==len(chunks)-1:
-                            v_response['v_data'] = {
-                                'v_col_names' : v_data1.Columns,
-                                'v_data' : chunks[count],
-                                'v_last_block': False,
-                                'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
-                                'v_duration': v_duration,
-                                'v_notices': v_notices_text,
-                                'v_notices_length': len(v_notices),
-                                'v_inserted_id': v_inserted_id,
-                                'v_chunks': True
-                            }
-                        else:
-                            v_response['v_data'] = {
-                                'v_col_names' : v_data1.Columns,
-                                'v_data' : chunks[count],
-                                'v_last_block': True,
-                                'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
-                                'v_duration': v_duration,
-                                'v_notices': v_notices_text,
-                                'v_notices_length': len(v_notices),
-                                'v_inserted_id': v_inserted_id,
-                                'v_chunks': True
-                            }
-                        if not self.cancel:
-                            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
-                else:
-                    if not self.cancel:
-                        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
         except Exception as exc:
             try:

@@ -1655,7 +1655,7 @@ function initCreateTabFunctions() {
     var v_editor2 = ace.edit('txt_console_' + v_tab.id);
     v_editor2.renderer.setOption('showLineNumbers', false);
     v_editor2.setOptions({
-      fontFamily: '"Poppins", sans-serif'
+      //fontFamily: '"Poppins", sans-serif'
     });
     v_editor2.$blockScrolling = Infinity;
 		v_editor2.setTheme("ace/theme/" + v_editor_theme);

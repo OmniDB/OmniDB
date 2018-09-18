@@ -472,6 +472,9 @@ try:
     from psycopg2 import extras
     from OmniDB_app.include.Spartacus.pgspecial.main import PGSpecial
     from OmniDB_app.include.Spartacus.pgspecial.namedqueries import NamedQueries
+    import uuid
+    import sqlparse
+    import psqlparse
     v_supported_rdbms.append('PostgreSQL')
 except ImportError:
     pass
@@ -1212,10 +1215,13 @@ class PostgreSQL(Generic):
         finally:
             if not v_keep:
                 self.Close()
-    def Close(self):
+    def Close(self, p_commit=True):
         try:
             if self.v_con:
-                self.v_con.commit()
+                if p_commit:
+                    self.v_con.commit()
+                else:
+                    self.v_con.rollback()
                 if self.v_cur:
                     self.v_cur.close()
                     self.v_cur = None
@@ -1225,6 +1231,10 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -1351,14 +1361,58 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Parse(self, p_sql):
+        try:
+            v_analysis = psqlparse.parse(p_sql)
+            v_statement = sqlparse.split(p_sql)
+            if len(v_statement) == len(v_analysis):
+                v_cursors = []
+                for i in range(0, len(v_analysis)):
+                    if v_analysis[i].type == 'SelectStmt':
+                        v_cursors.append('{0}_{1}'.format(self.v_application_name, uuid.uuid4().hex))
+                if len(v_cursors) > 0:
+                    v_sql = 'BEGIN;'
+                    j = 0
+                    for i in range(0, len(v_statement)):
+                        if v_analysis[i].type == 'SelectStmt':
+                            if j < len(v_cursors)-1:
+                                if v_statement[i][-1] == ';':
+                                    v_sql = v_sql + ' DECLARE {0} CURSOR WITHOUT HOLD FOR {1} FETCH {0};'.format(v_cursors[j], v_statement[i])
+                                else:
+                                    v_sql = v_sql + ' DECLARE {0} CURSOR WITHOUT HOLD FOR {1}; FETCH {0};'.format(v_cursors[j], v_statement[i])
+                            else:
+                                v_sql = v_sql + ' DECLARE {0} CURSOR WITHOUT HOLD FOR {1}'.format(v_cursors[j], v_statement[i])
+                                self.v_cursor = v_cursors[j]
+                            j = j + 1
+                        else:
+                            v_sql = v_sql + v_statement[i]
+                    return v_sql
+                else:
+                    self.v_cursor = None
+                    return p_sql
+            else:
+                self.v_cursor = None
+                return p_sql
+        except Exception as exc:
+            self.v_cursor = None
+            return p_sql
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
             else:
                 if self.v_start:
-                    self.v_cur.execute(p_sql)
+                    v_sql = self.Parse(p_sql)
+                    print(v_sql)
+                    self.v_cur.execute(v_sql)
                 v_table = DataTable()
+                if self.v_cursor is not None:
+                    if p_blocksize > 0:
+                        print('FETCH {0} {1}'.format(p_blocksize, self.v_cursor))
+                        self.v_cur.execute('FETCH {0} {1}'.format(p_blocksize, self.v_cursor))
+                    else:
+                        print('FETCH ALL {0}'.format(self.v_cursor))
+                        self.v_cur.execute('FETCH ALL {0}'.format(self.v_cursor))
                 if self.v_cur.description:
                     for c in self.v_cur.description:
                         v_table.AddColumn(c[0])
@@ -3323,4 +3377,3 @@ class IBMDB2(Generic):
         return v_return
     def Special(self, p_sql):
         return self.Query(p_sql).Pretty()
-        

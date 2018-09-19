@@ -15,7 +15,7 @@
 		</div>
 	</div>
 
-    <div id="div_column_selection" style="display: none;">
+    <div id="div_column_selection" class="isModal">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 40%; height: 40%; left: 30%; top: 30%;">
                 <a class="modal-closer" onclick="hideColumnSelection()">x</a>
@@ -47,7 +47,7 @@
         </div>
     </div>
 
-		<div id="div_commands_log" style="display: none;">
+		<div id="div_commands_log" class="isModal">
         <div class="modal_background_dark">
             <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
                 <a class="modal-closer" onclick="hideCommandsLog()">x</a>
@@ -60,7 +60,7 @@
         </div>
     </div>
 
-		<div class="modal_background_dark" id="connection_list_div" style="display: none;">
+		<div id="connection_list_div" class="isModal modal_background_dark">
 			<div class='connection_list'><a class='modal-closer' onclick='closeConnectionList()'>x</a>
 				<div style='display:inline-block;'>
 					<button onclick="newConnection()">New Connection</button>

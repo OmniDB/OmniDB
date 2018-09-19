@@ -1,3 +1,5 @@
+BEGIN TRANSACTION;--omnidb--
+
 CREATE TABLE db_type (
     dbt_st_name varchar(40),
     dbt_in_enabled integer,
@@ -609,4 +611,6 @@ CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)
 );--omnidb--
-INSERT INTO version VALUES('2.11.0');--omnidb--
+INSERT INTO version VALUES('2.12.0');--omnidb--
+
+COMMIT;--omnidb--

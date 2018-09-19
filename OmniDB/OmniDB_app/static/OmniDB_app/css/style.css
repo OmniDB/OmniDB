@@ -1264,3 +1264,11 @@ h2 {
   padding-bottom: 5px;
   border-bottom: 1px dashed #c3c3c3;
 }
+
+/* MODAL State controls */
+.isModal {
+  display: none;
+}
+.isModal.isActive {
+  display: block;
+}

@@ -138,7 +138,7 @@ function saveUsers() {
 /// </summary>
 function hideUsers() {
 
-	$('#div_users').hide();
+	$('#div_users').removeClass('isActive');
 
 	v_usersObject.ht.destroy();
 
@@ -155,7 +155,7 @@ function listUsers() {
 			JSON.stringify({}),
 			function(p_return) {
 
-				$('#div_users').show();
+				$('#div_users').addClass('isActive');
 
 				window.scrollTo(0,0);
 

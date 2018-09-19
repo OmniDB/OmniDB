@@ -265,7 +265,7 @@ function showConnectionList() {
 
   var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
 
-  document.getElementById('connection_list_div').style.display = 'block';
+	document.getElementById('connection_list_div').classList.add('isActive');
 
 	var v_conn_id_list = [];
 
@@ -481,7 +481,7 @@ function showConnectionLocked() {
 
 function closeConnectionList(p_index) {
   document.getElementById('connection_list_div_grid').innerHTML = '';
-  document.getElementById('connection_list_div').style.display = 'none';
+	document.getElementById('connection_list_div').classList.remove('isActive');
 	document.getElementById('div_save').style.visibility = 'hidden';
   v_connections_data.ht.destroy();
   v_connections_data.ht = null;

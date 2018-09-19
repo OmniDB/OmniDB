@@ -869,7 +869,7 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 	v_editContentObject.col = p_col;
 	v_editContentObject.ht = p_ht;
 
-	$('#div_edit_content').show();
+	$('#div_edit_content').addClass('isActive');
 
 }
 
@@ -878,7 +878,7 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 /// </summary>
 function hideEditContent() {
 
-	$('#div_edit_content').hide();
+	$('#div_edit_content').removeClass('isActive');
 
 	v_editContentObject.editor.setValue('');
 

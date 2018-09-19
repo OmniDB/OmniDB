@@ -722,15 +722,26 @@ def thread_query(self,args,ws_object):
                     os.makedirs(v_export_dir)
 
                 v_database.v_connection.Open()
-                v_data1 = v_database.v_connection.QueryBlock(v_sql, -1, True, False)
-                v_database.v_connection.Close()
                 v_file_name = '{0}.{1}'.format(str(time.time()).replace('.','_'),v_extension)
+                v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, True, False)
                 if platform.system() == 'Windows':
                     f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns, 'windows-1252')
                 else:
                     f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns)
                 f.Open()
-                f.Write(v_data1)
+                if len(v_data1.Rows) > 0:
+                    f.Write(v_data1)
+                    v_hasmorerecords = True
+                else:
+                    v_hasmorerecords = False
+                while v_hasmorerecords:
+                    v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, True, False)
+                    if len(v_data1.Rows) > 0:
+                        f.Write(v_data1)
+                        v_hasmorerecords = True
+                    else:
+                        v_hasmorerecords = False
+                v_database.v_connection.Close()
                 f.Flush()
 
                 log_end_time = datetime.now()

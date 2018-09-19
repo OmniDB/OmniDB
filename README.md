@@ -1,6 +1,6 @@
 ## Next Release: *2.12.0 - September 20, 2018*
 
-# OmniDB 2.11.0
+# OmniDB 2.12.0
 
 ## Release Date: *August 23, 2018*
 

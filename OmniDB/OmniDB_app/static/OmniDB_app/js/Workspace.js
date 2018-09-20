@@ -1209,7 +1209,7 @@ function showMenuNewTabOuter(e) {
 	if (v_option_list.length>0) {
 		v_option_list.unshift({
 			text: 'New Connection',
-			icon: '/static/OmniDB_app/images/test.png',
+			icon: 'fas cm-all fa-plug',
 			action: function() {
 				startLoading();
 				setTimeout(function() { v_connTabControl.tag.createConnTab(); },0);
@@ -1235,14 +1235,14 @@ function showMenuNewTab(e) {
 	var v_option_list = [
 		{
 			text: 'Query Tab',
-			icon: '/static/OmniDB_app/images/text_edit.png',
+			icon: 'fas cm-all fa-search',
 			action: function() {
 				v_connTabControl.tag.createQueryTab();
 			}
 		},
 		{
 			text: 'Console Tab',
-			icon: '/static/OmniDB_app/images/console.png',
+			icon: 'fas cm-all fa-terminal',
 			action: function() {
 				v_connTabControl.tag.createConsoleTab();
 			}
@@ -1253,7 +1253,7 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Monitoring Dashboard',
-				icon: '/static/OmniDB_app/images/monitoring.png',
+				icon: 'fas cm-all fa-chart-line',
 				action: function() {
 					v_connTabControl.tag.createMonitorDashboardTab();
 					startMonitorDashboard();
@@ -1264,7 +1264,7 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Backends',
-				icon: '/static/OmniDB_app/images/monitoring.png',
+				icon: 'fas cm-all fa-chart-line',
 				action: function() {
 					v_connTabControl.tag.createMonitoringTab(
 							'Backends',
@@ -1281,7 +1281,7 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Process List',
-				icon: '/static/OmniDB_app/images/monitoring.png',
+				icon: 'fas cm-all fa-chart-line',
 				action: function() {
 					v_connTabControl.tag.createMonitoringTab(
 							'Process List',

@@ -326,13 +326,13 @@ def get_tables(request):
         v_tables = v_database.QueryTables(False,v_schema)
         for v_table in v_tables.Rows:
             if v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'False':
-                v_icon = 'table.png'
+                v_icon = 'table'
             elif v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'True':
-                v_icon = 'table_partitioned.png'
+                v_icon = 'table_partitioned'
             elif v_table['is_partition'] == 'True' and v_table['is_partitioned'] == 'False':
-                v_icon = 'table_partition.png'
+                v_icon = 'table_partition'
             else:
-                v_icon = 'table_partitioned_partition.png'
+                v_icon = 'table_partitioned_partition'
 
             v_table_data = {
                 'v_name': v_table['table_name'],
@@ -2569,13 +2569,13 @@ def get_foreign_tables(request):
         v_tables = v_database.QueryForeignTables(False,v_schema)
         for v_table in v_tables.Rows:
             if v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'False':
-                v_icon = 'table.png'
+                v_icon = 'table'
             elif v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'True':
-                v_icon = 'table_partitioned.png'
+                v_icon = 'table_partitioned'
             elif v_table['is_partition'] == 'True' and v_table['is_partitioned'] == 'False':
-                v_icon = 'table_partition.png'
+                v_icon = 'table_partition'
             else:
-                v_icon = 'table_partitioned_partition.png'
+                v_icon = 'table_partitioned_partition'
 
             v_table_data = {
                 'v_name': v_table['table_name'],

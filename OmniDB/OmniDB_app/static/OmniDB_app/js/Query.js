@@ -338,6 +338,7 @@ function querySQLReturnRender(p_message,p_context) {
 							columns : columnProperties,
 							colHeaders : true,
 							rowHeaders : true,
+							autoRowSize: false,
 							//copyRowsLimit : 1000000000,
 							//copyColsLimit : 1000000000,
                             copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},

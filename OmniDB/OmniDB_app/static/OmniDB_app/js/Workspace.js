@@ -408,6 +408,7 @@ function refreshHeights(p_all) {
 		else if (v_tab_tag.mode=='console') {
 			v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 70 + 'px';
 			v_tab_tag.editor_console.resize();
+			v_tab_tag.editor_input.resize();
 
 		}
 		else if (v_tab_tag.mode=='debug') {
@@ -1126,7 +1127,7 @@ function refreshMonitoring(p_tab_tag) {
 							}
 						},
 						items: {
-							"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+							"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
 						}
 				    },
 			        cells: function (row, col, prop) {
@@ -1209,7 +1210,7 @@ function showMenuNewTabOuter(e) {
 	if (v_option_list.length>0) {
 		v_option_list.unshift({
 			text: 'New Connection',
-			icon: '/static/OmniDB_app/images/test.png',
+			icon: 'fas cm-all fa-plug',
 			action: function() {
 				startLoading();
 				setTimeout(function() { v_connTabControl.tag.createConnTab(); },0);
@@ -1235,14 +1236,14 @@ function showMenuNewTab(e) {
 	var v_option_list = [
 		{
 			text: 'Query Tab',
-			icon: '/static/OmniDB_app/images/text_edit.png',
+			icon: 'fas cm-all fa-search',
 			action: function() {
 				v_connTabControl.tag.createQueryTab();
 			}
 		},
 		{
 			text: 'Console Tab',
-			icon: '/static/OmniDB_app/images/console.png',
+			icon: 'fas cm-all fa-terminal',
 			action: function() {
 				v_connTabControl.tag.createConsoleTab();
 			}
@@ -1253,7 +1254,7 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Monitoring Dashboard',
-				icon: '/static/OmniDB_app/images/monitoring.png',
+				icon: 'fas cm-all fa-chart-line',
 				action: function() {
 					v_connTabControl.tag.createMonitorDashboardTab();
 					startMonitorDashboard();
@@ -1264,7 +1265,7 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Backends',
-				icon: '/static/OmniDB_app/images/monitoring.png',
+				icon: 'fas cm-all fa-chart-line',
 				action: function() {
 					v_connTabControl.tag.createMonitoringTab(
 							'Backends',
@@ -1281,7 +1282,7 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Process List',
-				icon: '/static/OmniDB_app/images/monitoring.png',
+				icon: 'fas cm-all fa-chart-line',
 				action: function() {
 					v_connTabControl.tag.createMonitoringTab(
 							'Process List',

@@ -61,7 +61,7 @@ function customMenu(p_position,p_menu,p_object) {
         v_li.appendChild(v_span);
 
         if (p_menu[i].icon!=undefined) {
-          var v_img = createImgElement('null','null',p_menu[i].icon);
+          var v_img = createSimpleElement('i',null,p_menu[i].icon);
           v_li.appendChild(v_img);
         }
 
@@ -115,7 +115,7 @@ function customMenuRecursive(p_submenu,p_ul,p_object,p_closediv, p_cm_div, p_lev
     v_li.appendChild(v_span);
 
     if (p_submenu[i].icon!=undefined) {
-      var v_img = createImgElement('null','null',p_submenu[i].icon);
+      var v_img = createSimpleElement('i',null,p_submenu[i].icon);
       v_li.appendChild(v_img);
     }
 

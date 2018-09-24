@@ -114,7 +114,7 @@ function showCommandList() {
 				},
 				items: {
 					'view_data': {
-						name: '<div style="position: absolute;"><img class="img_ht" src="/static/OmniDB_app/images/rename.png"></div><div style="padding-left: 30px;">View Content</div>'
+						name: '<div style="position: absolute;"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style="padding-left: 30px;">View Content</div>'
 					}
 				}
 			},

@@ -196,8 +196,9 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			var v_icon = null;
 
 			if (p_node.icon!=null)
-				v_icon = createSimpleElement('span',null,'icon_tree');
-				v_icon.style.backgroundImage = 'url(' + p_node.icon + ')';
+				v_icon = createSimpleElement('i',null,'icon_tree ' + p_node.icon);
+				//v_icon.innerHTML = '<i class="' + p_node.icon + '" style="display: block;"></i>';
+				//v_icon.style.backgroundImage = 'url(' + p_node.icon + ')';
 
 			var v_li = document.createElement('li');
 			p_node.elementLi = v_li;
@@ -528,9 +529,8 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 						v_a.appendChild(document.createTextNode(v_items_list[i].text));
 
 						v_li.appendChild(v_span);
-
 						if (v_items_list[i].icon!=undefined) {
-							var v_img = createImgElement('null','null',v_items_list[i].icon);
+							var v_img = createSimpleElement('i',null,v_items_list[i].icon);
 							v_li.appendChild(v_img);
 						}
 
@@ -597,7 +597,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				v_li.appendChild(v_span);
 
 				if (p_submenu.elements[i].icon!=undefined) {
-					var v_img = createImgElement('null','null',p_submenu.elements[i].icon);
+					var v_img = createSimpleElement('i',null,p_submenu.elements[i].icon);
 					v_li.appendChild(v_img);
 				}
 

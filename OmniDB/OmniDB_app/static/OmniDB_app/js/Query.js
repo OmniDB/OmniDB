@@ -338,6 +338,7 @@ function querySQLReturnRender(p_message,p_context) {
 							columns : columnProperties,
 							colHeaders : true,
 							rowHeaders : true,
+							autoRowSize: false,
 							//copyRowsLimit : 1000000000,
 							//copyColsLimit : 1000000000,
                             copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
@@ -350,7 +351,7 @@ function querySQLReturnRender(p_message,p_context) {
 									}
 								},
 								items: {
-									"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+									"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
 								}
 						    },
 					        cells: function (row, col, prop) {

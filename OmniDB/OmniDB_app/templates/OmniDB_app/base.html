@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/bootstrap.css">
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/main.css">
 
+  <link rel="stylesheet" href="/static/OmniDB_app/fa/css/all.css">
+
   <link id="ss_theme" rel="stylesheet" type="text/css">
 
   {% block include_css %}
@@ -40,14 +42,14 @@
           {% if not desktop_mode %}
   					<li style="color: #F1F7FF; padding-right: 10px;">{{ session.v_user_name }}</li>
             {% if session.v_super_user == 1 %}
-    					<li style="padding-right: 10px;"><img title="Manage users" style="vertical-align: middle; cursor: pointer;" onclick="listUsers();" src="/static/OmniDB_app/images/users.png"/></li>
+    					<li style="padding-right: 10px;"><i class="fas fa-user" title="Manage users" style="vertical-align: middle; cursor: pointer;" onclick="listUsers();"></i></li>
     				{% endif %}
           {% endif %}
-					<li style="padding-right: 10px;"><img title="User settings" style="vertical-align: middle; cursor: pointer;" onclick="showConfigUser();" src="/static/OmniDB_app/images/gear.png"/></li>
-          <li style="padding-right: 10px;"><img title="View plugins" style="vertical-align: middle; cursor: pointer;" onclick="showPlugins();" src="/static/OmniDB_app/images/puzzle.png"/></li>
+					<li style="padding-right: 10px;"><i class="fas fa-cog" title="User settings" style="vertical-align: middle; cursor: pointer;" onclick="showConfigUser();"></i></li>
+          <li style="padding-right: 10px;"><i class="fas fa-cube" title="View plugins" style="vertical-align: middle; cursor: pointer;" onclick="showPlugins();"></i></li>
           {% block header_actions %}
           {% endblock %}
-					<li style="padding-right: 10px;"><img title="About" style="vertical-align: middle; cursor: pointer;" onclick="showAbout();" src="/static/OmniDB_app/images/about.png"/></li>
+					<li style="padding-right: 10px;"><i class="fas fa-info-circle" title="About" style="vertical-align: middle; cursor: pointer;" onclick="showAbout();"></i></li>
           {% if not desktop_mode %}
           <li><a onclick="confirmSignout()">Sign out</a></li>
           {% endif %}
@@ -338,7 +340,7 @@
       <div class="modal_background_dark">
           <div class ="white_box" style="width: 50%; left: 25%; top: 20%; z-index: 2000; text-align: center;">
               <a id="bt2_password_prompt_cancel" class="modal-closer">x</a>
-              <img src="/static/OmniDB_app/images/keys.png" style='margin-top: 20px;'/>
+              <i class="fas fa-key icon-key-large"></i>
               <div id="div_password_prompt_msg" class="error_text" style="margin:20px 0px 20px 0px; padding: 0px 20px 0px 20px; max-height: 50px; overflow-y: auto;"></div>
               <div>
                 <input id="txt_password_prompt" type="password" placeholder="Password" style="margin-bottom:20px; text-align: center;"/>

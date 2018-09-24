@@ -301,7 +301,7 @@ function queryEditDataReturnRender(p_message,p_context) {
 				if (!v_currTabTag.editDataObject.columns[i].v_is_pk)
 					col.title =  '<b>' + v_currTabTag.editDataObject.columns[i].v_column + '</b> (' + v_currTabTag.editDataObject.columns[i].v_type + ')';
 				else
-					col.title = '<img src="/static/OmniDB_app/images/key.png" style="vertical-align: middle;"/> <b>' + v_currTabTag.editDataObject.columns[i].v_column + '</b> (' + v_currTabTag.editDataObject.columns[i].v_type + ')';
+					col.title = '<i class="fas fa-key action-key"></i> <b>' + v_currTabTag.editDataObject.columns[i].v_column + '</b> (' + v_currTabTag.editDataObject.columns[i].v_type + ')';
 
 				col.renderer = 'text';
 			columnProperties.push(col);
@@ -349,7 +349,7 @@ function queryEditDataReturnRender(p_message,p_context) {
 						}
 					},
 					items: {
-						"edit_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">Edit Content</div>'}
+						"edit_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Edit Content</div>'}
 					}
 				},
 			beforeChange: function (changes, source) {

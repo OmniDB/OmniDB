@@ -41,7 +41,7 @@ function showConsoleHistory() {
           var col = new Object();
           col.readOnly = true;
           col.title =  ' ';
-          col.width = '25px';
+          col.width = '50px';
           columnProperties.push(col);
 
           var col = new Object();
@@ -53,7 +53,7 @@ function showConsoleHistory() {
           var col = new Object();
           col.readOnly = true;
           col.title =  'Command';
-          col.width = '420px';
+          col.width = '400px';
           columnProperties.push(col);
 
           v_tab_tag.console_history_div.style.display = 'block';
@@ -80,7 +80,7 @@ function showConsoleHistory() {
                 }
               },
               items: {
-                "view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+                "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
               }
               },
                 cells: function (row, col, prop) {

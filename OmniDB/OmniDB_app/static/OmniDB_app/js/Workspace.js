@@ -408,6 +408,7 @@ function refreshHeights(p_all) {
 		else if (v_tab_tag.mode=='console') {
 			v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 70 + 'px';
 			v_tab_tag.editor_console.resize();
+			v_tab_tag.editor_input.resize();
 
 		}
 		else if (v_tab_tag.mode=='debug') {
@@ -1126,7 +1127,7 @@ function refreshMonitoring(p_tab_tag) {
 							}
 						},
 						items: {
-							"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+							"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
 						}
 				    },
 			        cells: function (row, col, prop) {

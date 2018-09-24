@@ -667,7 +667,7 @@ def alter_table_data(request):
                 v_row_data.append("")
 
                 if v_database.v_can_drop_constraint:
-                    v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                    v_row_data.append("<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConstraintAlterTable()'></i>")
                 else:
                     v_row_data.append("")
 
@@ -716,7 +716,7 @@ def alter_table_data(request):
                             v_row_data.append(v_update_rule)
 
                             if v_database.v_can_drop_constraint:
-                                v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                                v_row_data.append("<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConstraintAlterTable()'></i>")
                             else:
                                 v_row_data.append("")
 
@@ -755,7 +755,7 @@ def alter_table_data(request):
                         v_row_data.append(v_update_rule)
 
                         if v_database.v_can_drop_constraint:
-                            v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                            v_row_data.append("<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConstraintAlterTable()'></i>")
                         else:
                             v_row_data.append("")
 
@@ -795,7 +795,7 @@ def alter_table_data(request):
                             v_row_data.append("")
 
                             if v_database.v_can_drop_constraint:
-                                v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                                v_row_data.append("<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConstraintAlterTable()'></i>")
                             else:
                                 v_row_data.append("")
 
@@ -823,7 +823,7 @@ def alter_table_data(request):
                         v_row_data.append("")
 
                         if v_database.v_can_drop_constraint:
-                            v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConstraintAlterTable()'/>")
+                            v_row_data.append("<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConstraintAlterTable()'></i>")
                         else:
                             v_row_data.append("")
 
@@ -860,7 +860,7 @@ def alter_table_data(request):
                             v_row_data.append(v_index_name)
                             v_row_data.append(v_uniqueness)
                             v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_list)
-                            v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropIndexAlterTable()'/>")
+                            v_row_data.append("<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropIndexAlterTable()'></i>")
 
                             v_table_indexes.append(v_row_data)
 
@@ -881,7 +881,7 @@ def alter_table_data(request):
                         v_row_data.append(v_index_name)
                         v_row_data.append(v_uniqueness)
                         v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_list)
-                        v_row_data.append("<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropIndexAlterTable()'/>")
+                        v_row_data.append("<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropIndexAlterTable()'></i>")
 
                         v_table_indexes.append(v_row_data)
 
@@ -2132,7 +2132,7 @@ def get_console_history(request):
     try:
         v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
         for v_unit in v_units.Rows:
-            v_actions = '<img src="/static/OmniDB_app/images/select.png" class="img_ht" onclick="consoleHistorySelectCommand()"/>'
+            v_actions = "<i title='Select' class='fas fa-check-circle action-grid action-check' onclick='consoleHistorySelectCommand()'></i>"
 
             v_data.append([v_actions,v_unit['command_date'],v_unit['command_text']])
             v_data_clean.append(v_unit['command_text'])

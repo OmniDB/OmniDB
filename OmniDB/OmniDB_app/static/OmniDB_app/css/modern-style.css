@@ -167,9 +167,6 @@ button.bt_export {
     border: none;
     transition: 0.45s;
 }
-.fa-light {
-  color: #177ce0;
-}
 button.bt_icon_only:hover,
 button.bt_export:hover {
   background-color: #E2E2E2;

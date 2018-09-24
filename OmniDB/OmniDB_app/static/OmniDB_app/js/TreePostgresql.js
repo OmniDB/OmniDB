@@ -908,7 +908,7 @@ function getTreePostgresql(p_div) {
                 }
                 , {
                     text: 'Doc: Databases',
-                    icon: 'fas cm-all fa-globe',
+                    icon: 'fas cm-all fa-globe-americas',
                     action: function(node) {
                         v_connTabControl.tag.createWebsiteTab(
                             'Documentation: Databases',
@@ -969,7 +969,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Tablespaces',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Tablespaces',
@@ -1022,7 +1022,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Roles',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Roles',
@@ -1070,7 +1070,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Extensions',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Extensions',
@@ -1120,7 +1120,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Schemas',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Schemas',
@@ -1203,7 +1203,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Basics',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Basics',
@@ -1213,7 +1213,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Constraints',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Constraints',
@@ -1223,7 +1223,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Modifying',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Modifying Tables',
@@ -1615,7 +1615,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Indexes',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Indexes',
@@ -1762,7 +1762,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Rules',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Rules',
@@ -1827,7 +1827,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Triggers',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
@@ -1861,7 +1861,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Triggers',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
@@ -1942,7 +1942,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Partitioning',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Partitioning',
@@ -1998,7 +1998,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Partitioning',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Partitioning',
@@ -2053,7 +2053,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Functions',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Functions',
@@ -2132,7 +2132,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Procedures',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Procedures',
@@ -2211,7 +2211,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Trigger Functions',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Trigger Functions',
@@ -2275,7 +2275,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Sequences',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Sequences',
@@ -2329,7 +2329,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Views',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Views',
@@ -2424,7 +2424,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Mat. Views',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Materialized Views',
@@ -2544,7 +2544,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Replication Slots',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Physical Replication Slots',
@@ -2591,7 +2591,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Replication Slots',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Logical Replication Slots',
@@ -2636,7 +2636,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Publications',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Publications',
@@ -2722,7 +2722,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Subscriptions',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Subscriptions',
@@ -2773,7 +2773,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Foreign Data Wrappers',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Foreign Data Wrappers',
@@ -3103,7 +3103,7 @@ function getTreePostgresql(p_div) {
         'cm_pglogical': {
             elements: [{
                 text: 'Doc: pglogical',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: pglogical',
@@ -3623,7 +3623,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Doc: Postgres-XL',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Postgres-XL',
@@ -4386,7 +4386,7 @@ function getTreeDetailsPostgresql(node) {
             });
             node.tree.contextMenu.cm_server.elements.push({
                 text: 'Doc: PostgreSQL',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: PostgreSQL',
@@ -4397,7 +4397,7 @@ function getTreeDetailsPostgresql(node) {
             });
             node.tree.contextMenu.cm_server.elements.push({
                 text: 'Doc: SQL Language',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Language',
@@ -4408,7 +4408,7 @@ function getTreeDetailsPostgresql(node) {
             });
             node.tree.contextMenu.cm_server.elements.push({
                 text: 'Doc: SQL Commands',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Commands',
@@ -6662,7 +6662,7 @@ function getFunctionsPostgresql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/gear2.png', {
+                    false, 'fas node-all fa-cog node-function', {
                         type: 'function',
                         id: p_return.v_data[i].v_id,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
@@ -6851,7 +6851,7 @@ function getProceduresPostgresql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/gear2.png', {
+                    false, 'fas node-all fa-cog node-procedure', {
                         type: 'procedure',
                         id: p_return.v_data[i].v_id,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
@@ -7041,7 +7041,7 @@ function getTriggerFunctionsPostgresql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 node.createChildNode(p_return.v_data[i].v_name, false,
-                    '/static/OmniDB_app/images/gear2.png', {
+                    'fas node-all fa-cog node-tfunction', {
                         type: 'triggerfunction',
                         id: p_return.v_data[i].v_id,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
@@ -8295,7 +8295,7 @@ function getBDRPropertiesPostgresql(node) {
 
             node.tree.contextMenu.cm_bdr.elements.push({
                 text: 'Doc: BDR',
-                icon: 'fas cm-all fa-globe',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: BDR',

@@ -384,7 +384,6 @@ body.loading .div_loading {
 
 .white_box {
     border-radius: 3px;
-    border: 1px solid #FFFFFF;
     background-color: #FFFFFF;
     position: fixed;
     font-size: 12px;
@@ -1185,8 +1184,6 @@ h2 {
   background-color: #f9f9f9;
   z-index: 1000;
   background-color: #f9f9f9;
-  border: 1px solid #cdcdcd;
-  box-shadow: 2px 2px 2px #cecece;
 }
 
 .console_command_history {

@@ -50,17 +50,6 @@ ul.tabs li {
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
 }
-span.tab_close_icon {
-    display: inline-block;
-    margin-left: 5px;
-    font-size: 18px;
-    font-weight: 500;
-    line-height: 13px;
-    transform: scaleY(0.77);
-    color: #d85656;
-    vertical-align: middle;
-    content: "x";
-}
 
 /* Workspace Connection Info */
 .connection_details.query_info {
@@ -127,8 +116,8 @@ ul span.node {
   padding-bottom: 1px;
 }
 ul span.node_selected {
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 /* Modals */
@@ -137,19 +126,6 @@ div.connection_list {
     margin-right: auto;
     left: 5px;
     right: 5px;
-}
-.modal_background_dark button {
-    color: #FFFFFF;
-    background: #177ce0;
-    background-color: #177ce0;
-    border-radius: 0px;
-    border: 1px solid #177ce0;
-    transition: 0.45s;
-}
-.modal_background_dark button:hover {
-    color: #177ce0;
-    background: #FFFFFF;
-    background-color: #FFFFFF;
 }
 a.modal-closer,
 .modal_background_dark a.modal-closer {
@@ -203,7 +179,7 @@ select.sel_export_file_type {
 }
 
 /* QUERY INFO */
-button.bt_fetch {
+button {
     font-family: 'Roboto', sans-serif;
     color: #FFFFFF;
     background: #177ce0;
@@ -211,7 +187,7 @@ button.bt_fetch {
     border: 1px solid #177ce0;
     transition: 0.45s;
 }
-button.bt_fetch:hover {
+button:hover {
     color: #177ce0;
     background-color: #FFFFFF;
 }
@@ -229,9 +205,6 @@ button.bt_red:hover {
 
 div.query_info_summary .query_info_row {
     line-height: 14px;
-}
-div.query_info_summary {
-    margin-bottom: 5px;
 }
 div.query_info_summary strong {
     color: #4a6796;

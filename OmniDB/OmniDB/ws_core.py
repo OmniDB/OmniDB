@@ -820,7 +820,7 @@ def thread_query(self,args,ws_object):
                         v_response['v_data'] = {
                             'v_col_names' : v_data1.Columns,
                             'v_data' : v_data1.Rows,
-                            'v_last_block': True,
+                            'v_last_block': False,
                             'v_query_info' : "Number of records: {0}".format(len(v_data1.Rows)),
                             'v_duration': v_duration,
                             'v_notices': v_notices_text,

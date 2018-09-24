@@ -48,8 +48,9 @@ img.exp_col_empty {
   margin-left: 3px;
 	margin-right: 3px;
   display: inline-block;
-  width: 16px;
+  width: 20px;
   height: 16px;
+	font-size: 16px;
   background-repeat: no-repeat;
 	vertical-align: middle;
 
@@ -94,7 +95,7 @@ span.node_selected a {
 .aimara_menu,.aimara_sub-menu {
   margin: 0;
   padding: 0;
-	font: 10px Verdana, sans-serif;
+	font: 10px;
 }
 
 .aimara_menu,
@@ -129,11 +130,11 @@ span.node_selected a {
 	vertical-align: middle;
 }
 
-.aimara_menu img {
-  text-decoration: none;
-  display: inline-block;
-	vertical-align: sub;
+.aimara_menu i {
   padding-left: 5px;
+	vertical-align: middle;
+	font-size: 16px;
+	width: 16px;
 }
 .aimara_menu li {
   position: relative;

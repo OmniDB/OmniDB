@@ -17,8 +17,6 @@ function tabSQLTemplate(p_tab_name, p_template, p_showQtip=true) {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(
         0, 0, true);
-    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
-        .value = 1;
 
     if(p_showQtip) {
         var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
@@ -659,10 +657,6 @@ function getTreeMysql(p_div) {
 
                     v_connTabControl.tag.createQueryTab(
                         node.text);
-
-                    v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.sel_filtered_data.value =
-                        1;
 
                     v_connTabControl.selectedTab.tag.tabControl
                         .selectedTab.tag.editor.setValue(
@@ -1773,8 +1767,6 @@ function getViewDefinitionMysql(node) {
             //v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
             renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
                 node.text);
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
-                .value = 1;
 
             var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
                 .tag.div_result;
@@ -2606,8 +2598,6 @@ function getFunctionDefinitionMysql(node) {
             //v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
             renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
                 node.text);
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
-                .value = 1;
 
             var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
                 .tag.div_result;
@@ -2796,8 +2786,6 @@ function getProcedureDefinitionMysql(node) {
             //v_connTabControl.selectedTab.tag.tabControl.selectedTab.renameTab(node.text);
             renameTabConfirm(v_connTabControl.selectedTab.tag.tabControl.selectedTab,
                 node.text);
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_filtered_data
-                .value = 1;
 
             var v_div_result = v_connTabControl.selectedTab.tag.tabControl.selectedTab
                 .tag.div_result;
@@ -2936,10 +2924,6 @@ function TemplateSelectMysql(p_schema, p_table) {
             v_connTabControl.tag.createQueryTab(
                 p_schema + '.' + p_table);
 
-            v_connTabControl.selectedTab
-                .tag.tabControl.selectedTab
-                .tag.sel_filtered_data.value =
-                1;
 
             v_connTabControl.selectedTab
                 .tag.tabControl.selectedTab

@@ -10,6 +10,10 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
+.fa-light {
+  color: #177ce0;
+}
+
 i.tab-icon {
   display: inline-block;
   margin-left: 6px;
@@ -18,8 +22,20 @@ i.tab-icon {
   vertical-align: middle;
 }
 
+i.icon-key-large {
+  color: #177ce0;
+  font-size: 40px;
+  margin-top: 20px;
+}
+
 i.icon-tab-title {
   color: #177ce0;
+  line-height: 16px;
+  font-size: 12px;
+  line-height: 16px;
+  vertical-align: middle;
+  display: inline-block;
+  margin-right: 6px;
 }
 
 i.icon-close {

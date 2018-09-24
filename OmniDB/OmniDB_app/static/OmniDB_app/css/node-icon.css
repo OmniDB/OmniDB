@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License along with Omn
 
 .cm-all {
   color: #177ce0;
+  font-size: 16px;
 }
 
 .node-spin {
@@ -125,11 +126,23 @@ You should have received a copy of the GNU General Public License along with Omn
   color: #1f8e79;
 }
 
+.node-function {
+  color: #1f8e79;
+}
+
 .node-tfunction-list {
   color: #344E75;
 }
 
+.node-tfunction {
+  color: #344E75;
+}
+
 .node-procedure-list {
+  color: #177ce0;
+}
+
+.node-procedure {
   color: #177ce0;
 }
 

@@ -180,7 +180,7 @@ function initCreateTabFunctions() {
                   							}
                   						},
                   						items: {
-                  							"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+                  							"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
                   						}
                 				    },
                             cells: function (row, col, prop) {
@@ -279,7 +279,7 @@ function initCreateTabFunctions() {
   var v_createSnippetTabFunction = function() {
 
   	var v_tab = v_connTabControl.createTab(
-        '<img src="/static/OmniDB_app/images/snippet_medium.png"/> Snippets',
+        '<i class="fas fa-align-left icon-tab-title"></i> Snippets',
         false,
         null,
         null,
@@ -350,327 +350,12 @@ function initCreateTabFunctions() {
 
   }
 
-  /*var v_createChatTabFunction = function() {
-
-    var v_img =
-        '<div>' +
-        '    <img id="chat_icon" style="height: 16px; width: 16px;" src="/static/OmniDB_app/images/icons/header_chat_icon_inactive.png">' +
-        '    <span>Chat</span>' +
-        '    <span id="chat_status" class="badge">0</span>' +
-        '</div>';
-
-    var v_img =
-        '<div>' +
-        '    <img id="chat_icon" style="height: 16px; width: 16px;" src="/static/OmniDB_app/images/icons/header_chat_icon_inactive.png">' +
-        '    <span>Chat</span>' +
-        '    <span id="chat_status" class="badge">0</span>' +
-        '</div>';
-
-  	var v_tab = v_connTabControl.createTab(
-        //'<img style="width: 16px; height: 16px;" src="/static/OmniDB_app/images/icons/header_chat_icon_inactive.png"/> Chat',
-        v_img,
-        false,
-        null,
-        null,
-        null,
-        null,
-        true,
-        null
-    );
-
-  	v_connTabControl.selectTab(v_tab);
-
-  	var v_div = document.getElementById('div_' + v_tab.id);
-  	v_div.innerHTML = '';
-
-  	var v_tag = {
-  		connTabControl: v_connTabControl,
-        mode: 'chat'
-  	};
-
-    v_tab.tag = v_tag;
-  }*/
-
-  /*var v_createServerMonitoringTabFunction = function() {
-
-  	var v_tab = v_connTabControl.createTab(
-        '<img src="/static/OmniDB_app/images/monitoring.png"/> Monitoring',
-        false,
-        null,
-        null,
-        null,
-        null,
-        true,
-        function() {
-          if(this.tag != null) {
-            refreshHeights(true);
-          }
-        }
-    );
-
-  	v_connTabControl.selectTab(v_tab);
-
-  	var v_html = "<div id='" + v_tab.id + "_div_left' class='div_left' style='float:left; position: relative; width:15%; '>" +
-  	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
-  	"<div style='width: 97%;'><div id='" + v_tab.id + "_tree' style='margin-top: 10px; overflow: auto; font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;'></div>" +
-  	"</div>" +
-  	"<div id='html1'>" +
-  	"</div>" +
-  	"</div>" +
-  	"<div id='" + v_tab.id + "_div_right' class='div_right' style='float:left; width:85%;'>" +
-  	"<div id='" + v_tab.id + "_tabs'>" +
-  	"<ul>" +
-  	"</ul>" +
-  	"</div>" +
-  	"</div>";
-
-  	var v_div = document.getElementById('div_' + v_tab.id);
-  	v_div.innerHTML = v_html;
-
-  	var v_height  = window.innerHeight - $('#' + v_tab.id + '_tree').offset().top - 20;
-  	document.getElementById(v_tab.id + '_tree').style.height = v_height + "px";
-
-  	var v_currTabControl = createTabControl(v_tab.id + '_tabs',0,null);
-
-  	var v_tag = {
-  		tabControl: v_currTabControl,
-      tabControlDiv: document.getElementById(v_tab.id + '_tabs'),
-  		divTree: document.getElementById(v_tab.id + '_tree'),
-  		divLeft: document.getElementById(v_tab.id + '_div_left'),
-  		divRight: document.getElementById(v_tab.id + '_div_right'),
-  		connTabControl: v_connTabControl,
-      mode: 'monitor_all'
-  	};
-
-    v_tab.tag = v_tag;
-
-    getTreeMonitor(v_tag.divTree.id);
-
-    //v_connTabControl.tag.createNewMonitorNodeTab();
-
-    setTimeout(function() {
-      refreshTreeHeight();
-    },10);
-
-  }*/
-
-/*  var v_createNewMonitorNodeTabFunction = function(p_node) {
-
-		var v_name = 'New Node';
-		if (p_node)
-			v_name = p_node;
-
-		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-            '<span id="tab_title">' + v_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
-            false,
-            null,
-            null,
-            null,
-            null,
-            true,
-            function() {
-              if(this.tag != null) {
-                refreshHeights();
-              }
-            }
-        );
-		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
-
-		//Adding unique names to spans
-		var v_tab_title_span = document.getElementById('tab_title');
-		v_tab_title_span.id = 'tab_title_' + v_tab.id;
-		var v_tab_close_span = document.getElementById('tab_close');
-		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function() {
-			closeSnippetTab(v_tab);
-		};
-
-		var v_html = "<div><h2>Connection</h2>" +
-    "<div id='conn_grid_" + v_tab.id + "' style='width: 100%; height: 50px; overflow: auto;'></div>" +
-    "<h2 style='margin-top: 10px;'>Units</h2>" +
-    "<div id='alert_grid_" + v_tab.id + "' style='width: 100%; height: 200px; overflow: auto;'></div>" +
-		"<button id='bt_save_" + v_tab.id + "' class='bt_execute' title='Save' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='saveSnippetText();'><img src='/static/OmniDB_app/images/save.png' style='vertical-align: middle;'/></button>" +
-    "</div>";
-		var v_div = document.getElementById('div_' + v_tab.id);
-		v_div.innerHTML = v_html;
-
-    var columnProperties = [];
-
-    var col = new Object();
-    col.title =  'Technology';
-    col.type = 'dropdown';
-    col.source = ['test'];
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Server';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Port';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Database';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'User';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Title';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Actions';
-    col.renderer = 'html';
-    col.readOnly = true;
-    col.width = '60'
-    columnProperties.push(col);
-
-    var v_div_result_conn = document.getElementById('conn_grid_' + v_tab.id);
-
-    var ht_conn = new Handsontable(v_div_result_conn,
-                        {
-                          data: [['','','','','','',"<img title='Test Connection' src='/static/OmniDB_app/images/test.png' class='img_ht' onclick='pmonTestConnection()'/>"]],
-                          columns : columnProperties,
-                          colHeaders : true,
-                          manualColumnResize: true,
-                          minSpareCols :0,
-                          minSpareRows :0,
-                          fillHandle:false,
-                          cells: function (row, col, prop) {
-
-                            var cellProperties = {};
-                            cellProperties.renderer = whiteHtmlRenderer;
-
-                            return cellProperties;
-
-                          }
-                        });
-
-    var columnProperties = [];
-
-    var col = new Object();
-    col.title =  'Name';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Description';
-    col.width = '300px';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Enabled';
-    col.type = 'checkbox';
-    col.checkedTemplate = '1';
-    col.uncheckedTemplate = '0';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Interval';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Timeout';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Min Value';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Max Value';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Status';
-    col.readOnly = true;
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Acknowledge';
-    col.type = 'checkbox';
-    col.checkedTemplate = '1';
-    col.uncheckedTemplate = '0';
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Last Received Data';
-    col.readOnly = true;
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Monitor Count';
-    col.readOnly = true;
-    columnProperties.push(col);
-
-    var col = new Object();
-    col.title =  'Actions';
-    col.renderer = 'html';
-    col.readOnly = true;
-    col.width = '60px';
-    columnProperties.push(col);
-
-    var v_div_result_alert = document.getElementById('alert_grid_' + v_tab.id);
-
-    var ht_alert = new Handsontable(v_div_result_alert,
-                        {
-                          data: [['','',0,'','','','','',0,'','',''],
-                        ['','',0,'','','','','',0,'','',''],
-                      ['','',0,'','','','','',0,'','',''],
-                    ['','',0,'','','','','',0,'','','']],
-                          columns : columnProperties,
-                          colHeaders : true,
-                          manualColumnResize: true,
-                          minSpareCols :0,
-                          minSpareRows :0,
-                          fillHandle:false,
-                          cells: function (row, col, prop) {
-
-                            var cellProperties = {};
-                            if (row % 2 == 0)
-                              cellProperties.renderer = blueHtmlRenderer;
-
-                            if (col == 7)
-                              cellProperties.renderer = monitorStatusRenderer;
-
-                            if (col == 9 || col == 10 || col == 11)
-                              cellProperties.renderer = grayHtmlRenderer;
-
-                            return cellProperties;
-
-                          }
-                        });
-
-    var v_tag = {
-    	tab_id: v_tab.id,
-    	mode: 'monitor_node',
-    	tab_title_span : v_tab_title_span,
-    	tab_close_span : v_tab_close_span,
-      bt_save: document.getElementById('bt_save_' + v_tab.id),
-      conn_grid_did: v_div_result_conn,
-      conn_grid: ht_conn,
-    	tabControl: v_connTabControl.selectedTab.tag.tabControl,
-    };
-
-		v_tab.tag = v_tag;
-
-		v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,v_connTabControl.tag.createNewMonitorNodeTab);
-
-    setTimeout(function() {
-      refreshHeights();
-    },10);
-
-	};*/
-
   var v_createNewMonitorUnitTabFunction = function() {
 
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-            '<img src="/static/OmniDB_app/images/snippet_medium.png"/> <span id="tab_title">Monitor Unit</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
+            '<i class="fas fa-align-left icon-tab-title"></i> <span id="tab_title">Monitor Unit</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
             false,
             null,
             null,
@@ -1062,7 +747,7 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-      '<i class="fas fa-globe icon-tab-title"></i><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
+      '<i class="fas fa-globe-americas icon-tab-title"></i><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
       false,
       null,
       null,
@@ -1121,7 +806,7 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
 		var v_tab = v_connTabControl.createTab(
-      '<i class="fas fa-globe icon-tab-title"></i><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
+      '<i class="fas fa-globe-americas icon-tab-title"></i><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
       false,
       null,
       null,
@@ -1740,7 +1425,7 @@ function initCreateTabFunctions() {
 
     v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
     var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-        '<img src="/static/OmniDB_app/images/edit_data.png"/><span id="tab_title"> ' + p_table + '</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
+        '<i class="fas fa-table icon-tab-title"></i><span id="tab_title"> ' + p_table + '</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
         false,
         null,
         null,
@@ -2041,7 +1726,7 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-            '<img src="/static/OmniDB_app/images/debug.png"/><span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
+            '<i class="fas fa-code-branch icon-tab-title"></i><span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
             false,
             null,
             renameTab,
@@ -2087,12 +1772,14 @@ function initCreateTabFunctions() {
 		var v_html = "<div id='txt_func_body_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
 
 					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
-          "<button id='bt_start_" + v_tab.id + "' class='bt_execute' title='Start' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;' onclick='startDebug();'><img src='/static/OmniDB_app/images/trigger.png' style='vertical-align: middle;'/></button>" +
-          "<button id='bt_reload_" + v_tab.id + "' class='bt_execute' title='Reload Function Attributes' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;'><img src='/static/OmniDB_app/images/refresh.png' style='vertical-align: middle;'/></button>" +
-					"<button id='bt_step_over_" + v_tab.id + "' class='bt_execute' title='Step Over (Next Statement)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(0);'><img src='/static/OmniDB_app/images/step_over.png' style='vertical-align: middle;'/></button>" +
-          "<button id='bt_step_out_" + v_tab.id + "' class='bt_execute' title='Resume (Next Breakpoint)' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='stepDebug(1);'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
-          "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-right: 5px; display: none; vertical-align: middle;' onclick='cancelDebug();'>Cancel</button>" +
+          "<div style='margin-bottom: 5px;'>" +
+          "<button id='bt_start_" + v_tab.id + "' class='bt_icon_only' title='Start' onclick='startDebug();'><i class='fas fa-bolt fa-light'></i></button>" +
+          "<button id='bt_reload_" + v_tab.id + "' class='bt_icon_only' title='Reload Function Attributes'><i class='fas fa-sync-alt fa-light'></i></button>" +
+					"<button id='bt_step_over_" + v_tab.id + "' class='bt_icon_only' title='Step Over (Next Statement)' style='display: none;' onclick='stepDebug(0);'><i class='fas fa-angle-right fa-light'></i></button>" +
+          "<button id='bt_step_out_" + v_tab.id + "' class='bt_icon_only' title='Resume (Next Breakpoint)' style='display: none;' onclick='stepDebug(1);'><i class='fas fa-angle-double-right fa-light'></i></button>" +
+          "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='display: none; vertical-align: middle;' onclick='cancelDebug();'>Cancel</button>" +
 					"<div id='div_debug_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
+          "</div>" +
           "        <div id='debug_result_tabs_" + v_tab.id + "'>" +
           "            <ul>" +
           "            <li id='debug_result_tabs_" + v_tab.id + "_tab1'>Parameters</li>" +

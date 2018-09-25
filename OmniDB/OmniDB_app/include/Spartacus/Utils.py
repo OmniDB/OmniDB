@@ -29,6 +29,8 @@ import os
 import csv
 import openpyxl
 from collections import OrderedDict
+import tempfile
+import formulas
 
 import OmniDB_app.include.Spartacus as Spartacus
 
@@ -63,7 +65,7 @@ class Cryptor(object):
             raise Spartacus.Utils.Exception(str(exc))
 
 class DataFileReader(object):
-    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8', p_delimiter=None):
+    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8', p_delimiter=None, p_resolveFormulas=False):
         v_tmp = p_filename.split('.')
         if len(v_tmp) > 1:
             self.v_extension = v_tmp[-1].lower()
@@ -76,6 +78,7 @@ class DataFileReader(object):
         self.v_header = p_fieldnames
         self.v_encoding = p_encoding
         self.v_delimiter = p_delimiter
+        self.v_resolveFormulas = p_resolveFormulas
         self.v_open = False
     def Open(self):
         try:
@@ -94,7 +97,18 @@ class DataFileReader(object):
                 self.v_object = csv.DictReader(self.v_file, self.v_header, None, None, v_dialect)
                 self.v_open = True
             elif self.v_extension == 'xlsx':
-                self.v_object = openpyxl.load_workbook(self.v_filename, read_only=True)
+                if self.v_resolveFormulas:
+                    v_tempFile = tempfile.NamedTemporaryFile(suffix=".xlsx")
+                    v_tempFile.file.close()
+                    v_excelModel = formulas.ExcelModel().loads(self.v_filename).finish()
+                    v_excelModel.calculate()
+                    v_written = v_excelModel.write()
+                    v_written = v_written[list(v_written.keys())[0]]
+                    v_written[list(v_written.keys())[0]].save(v_tempFile.name)
+                    self.v_object = openpyxl.load_workbook(v_tempFile.name, read_only=True)
+                else:
+                    self.v_object = openpyxl.load_workbook(self.v_filename, read_only=True)
+
                 self.v_open = True
             else:
                 raise Spartacus.Utils.Exception('File extension "{0}" not supported.'.format(self.v_extension))

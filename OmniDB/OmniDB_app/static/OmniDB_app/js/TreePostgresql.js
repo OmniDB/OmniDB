@@ -7250,6 +7250,10 @@ function getPublicationsPostgresql(node) {
                     false, 'fas node-all fa-ellipsis-h node-bullet', {
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null, null, false);
+                v_node.createChildNode('Truncate: ' + p_return.v_data[i].v_truncate,
+                    false, 'fas node-all fa-ellipsis-h node-bullet', {
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, null, null, false);
                 if (p_return.v_data[i].v_alltables == 'False') {
                     v_tables = v_node.createChildNode('Tables',
                         false,

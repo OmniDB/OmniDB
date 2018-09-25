@@ -2235,7 +2235,8 @@ def get_publications(request):
                 'v_alltables': v_pub['puballtables'],
                 'v_insert': v_pub['pubinsert'],
                 'v_update': v_pub['pubupdate'],
-                'v_delete': v_pub['pubdelete']
+                'v_delete': v_pub['pubdelete'],
+                'v_truncate': v_pub['pubtruncate']
             }
             v_list_pubs.append(v_pub_data)
     except Exception as exc:

@@ -10,4 +10,7 @@ openpyxl
 RestrictedPython>=4.0b2
 cx_Oracle>=6.1
 pymysql
+pgspecial
 sshtunnel
+psqlparse
+formulas[all]

@@ -4050,16 +4050,6 @@ function refreshTreePostgresqlConfirm(node) {
         getBDRTableReplicationSetsPostgresql(node);
     } else if (node.tag.type == 'bdr_table_confhand_list') {
         getBDRTableConflictHandlersPostgresql(node);
-    } else if (node.tag.type == 'xl_node_list') {
-        getXLNodesPostgresql(node);
-    } else if (node.tag.type == 'xl_group_list') {
-        getXLGroupsPostgresql(node);
-    } else if (node.tag.type == 'xl_group') {
-        getXLGroupNodesPostgresql(node);
-    } else if (node.tag.type == 'xl_table') {
-        getXLTablePropertiesPostgresql(node);
-    } else if (node.tag.type == 'xl_table_node_list') {
-        getXLTableNodesPostgresql(node);
     }
     else {
       afterNodeOpenedCallbackPostgreSQL(node);
@@ -4385,25 +4375,6 @@ function getTreeDetailsPostgresql(node) {
                         num_repslots: 0
                     }, 'cm_logicalreplicationslots');
                 node_logrepslots.createChildNode('', true,
-                    'node-spin', null, null);
-            }
-            if (node.tree.tag.version.indexOf('XL') !== -1) {
-                var node_xl = node.createChildNode('Postgres-XL', false,
-                    '/static/OmniDB_app/images/xl.png', {
-                        type: 'xl',
-                    }, 'cm_xl');
-                var node_xl_nodes = node_xl.createChildNode('Nodes', false,
-                    '/static/OmniDB_app/images/xlnode.png', {
-                        type: 'xl_node_list',
-                    }, 'cm_xlnodes');
-                node_xl_nodes.createChildNode('', true,
-                    'node-spin', null, null);
-                var node_xl_groups = node_xl.createChildNode('Groups',
-                    false,
-                    '/static/OmniDB_app/images/xlgroup.png', {
-                        type: 'xl_group_list',
-                    }, 'cm_xlgroups');
-                node_xl_groups.createChildNode('', true,
                     'node-spin', null, null);
             }
 
@@ -5519,17 +5490,6 @@ function getColumnsPostgresql(node) {
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_bdr_table_confhands', null, false);
                 node_bdr_confhands.createChildNode('', true,
-                    'node-spin', null, null,
-                    null, false);
-            }
-
-            if (node.tree.tag.version.indexOf('XL') !== -1) {
-                var node_xl = node.createChildNode('Postgres-XL', false,
-                    '/static/OmniDB_app/images/xl.png', {
-                        type: 'xl_table',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, 'cm_xl_table', null, false);
-                node_xl.createChildNode('', true,
                     'node-spin', null, null,
                     null, false);
             }
@@ -7270,7 +7230,7 @@ function getForeignServersPostgresql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
               v_node = node.createChildNode(p_return.v_data[i].v_name,
-                  false, '/static/OmniDB_app/images/foreign_server.png', {
+                  false, 'fas node-all fa-server node-server', {
                       type: 'foreign_server',
                       database: v_connTabControl.selectedTab.tag.selectedDatabase
                   }, 'cm_foreign_server', null, false);
@@ -8312,288 +8272,6 @@ function getBDRTableConflictHandlersPostgresql(node) {
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     },
                     null, null, false);
-
-            }
-
-            node.drawChildNodes();
-
-            afterNodeOpenedCallbackPostgreSQL(node);
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving XL Nodes.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getXLNodesPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, 'node-spin', null,
-        null);
-
-    execAjax('/get_xl_nodes_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_tab_id": v_connTabControl.selectedTab.id
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            node.setText('Nodes (' + p_return.v_data.length + ')');
-
-            node.tag.num_nodes = p_return.v_data.length;
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/xlnode.png', {
-                        type: 'xlnode',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, 'cm_xlnode', null, false);
-                v_node.createChildNode('Type: ' + p_return.v_data[i]
-                    .v_type, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-                v_node.createChildNode('Host: ' + p_return.v_data[i]
-                    .v_host, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-                v_node.createChildNode('Port: ' + p_return.v_data[i]
-                    .v_port, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-                v_node.createChildNode('Primary: ' + p_return.v_data[i]
-                    .v_primary, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-                v_node.createChildNode('Preferred: ' + p_return.v_data[i]
-                    .v_preferred, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-
-            }
-
-            node.drawChildNodes();
-
-            afterNodeOpenedCallbackPostgreSQL(node);
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving XL Groups.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getXLGroupsPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, 'node-spin', null,
-        null);
-
-    execAjax('/get_xl_groups_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_tab_id": v_connTabControl.selectedTab.id
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            node.setText('Groups (' + p_return.v_data.length + ')');
-
-            node.tag.num_groups = p_return.v_data.length;
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/xlgroup.png', {
-                        type: 'xl_group',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, 'cm_xlgroup', null, false);
-                v_node.createChildNode('', false,
-                    'node-spin', null,
-                    null, null, false);
-
-            }
-
-            node.drawChildNodes();
-
-            afterNodeOpenedCallbackPostgreSQL(node);
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving XL Group Nodes.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getXLGroupNodesPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, 'node-spin', null,
-        null);
-
-    execAjax('/get_xl_group_nodes_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_tab_id": v_connTabControl.selectedTab.id,
-            "p_group": node.text,
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            node.setText(node.text + ' (' + p_return.v_data.length +
-                ' nodes)');
-
-            node.tag.num_nodes = p_return.v_data.length;
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/xlnode.png', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-
-            }
-
-            node.drawChildNodes();
-
-            afterNodeOpenedCallbackPostgreSQL(node);
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving XL Table Properties.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getXLTablePropertiesPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, 'node-spin', null,
-        null);
-
-    execAjax('/get_xl_table_properties_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_tab_id": v_connTabControl.selectedTab.id,
-            "p_table": node.parent.text,
-            "p_schema": node.parent.parent.parent.text
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            if (p_return.v_data.length > 0) {
-
-                node.createChildNode('Distributed by: ' + p_return.v_data[0]
-                    .v_distributed_by, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null);
-                node.createChildNode('Located in all nodes: ' + p_return.v_data[
-                        0]
-                    .v_all_nodes, false,
-                    'fas node-all fa-ellipsis-h node-bullet', null,
-                    null);
-                v_node = node.createChildNode('Located in nodes', false,
-                    '/static/OmniDB_app/images/xlnode.png', {
-                        type: 'xl_table_node_list',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, 'cm_xl_table_nodes');
-                v_node.createChildNode('', false,
-                    'node-spin', null, null);
-
-            } else {
-
-                node.createChildNode('Exists only in coordinator',
-                    false, 'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, null);
-
-            }
-            afterNodeOpenedCallbackPostgreSQL(node);
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving XL Table Nodes.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getXLTableNodesPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, 'node-spin', null,
-        null);
-
-    execAjax('/get_xl_table_nodes_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_tab_id": v_connTabControl.selectedTab.id,
-            "p_table": node.parent.parent.text,
-            "p_schema": node.parent.parent.parent.parent.text
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            node.setText('Located in nodes (' + p_return.v_data.length +
-                ')');
-
-            node.tag.num_nodes = p_return.v_data.length;
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/xlnode.png', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    'cm_xl_table_node', null, false);
 
             }
 

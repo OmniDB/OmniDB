@@ -39,7 +39,7 @@ def load_plugins():
         else:
             py_exists = False
             enabled = False
-        if isfile(join(settings.PLUGINS_DIR,plugin_folder,'plugin.css')):
+        if isfile(join(settings.PLUGINS_STATIC_DIR,plugin_folder,'plugin.css')):
             css_exists = True
         else:
             css_exists = False

@@ -181,11 +181,6 @@ $(function () {
         var timestamp = new Date().getTime();
         for (var i=0; i<p_return.v_data.length; i++) {
 
-          // loading JS
-          var importedjs = document.createElement('script');
-          importedjs.src = p_return.v_data[i].file + '?v' + timestamp;
-          document.head.appendChild(importedjs);
-
           // loading CSS
           if (p_return.v_data[i].cssfile) {
             var importedcss = document.createElement('link');
@@ -193,6 +188,11 @@ $(function () {
             importedcss.href = p_return.v_data[i].cssfile + '?v' + timestamp;
             document.head.appendChild(importedcss);
           }
+
+          // loading JS
+          var importedjs = document.createElement('script');
+          importedjs.src = p_return.v_data[i].file + '?v' + timestamp;
+          document.head.appendChild(importedjs);
 
           v_plugins[p_return.v_data[i].name] = p_return.v_data[i];
         }

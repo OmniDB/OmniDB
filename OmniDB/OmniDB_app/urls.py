@@ -74,21 +74,6 @@ urlpatterns = [
     url(r'^save_snippet_text/', views.tree_snippets.save_snippet_text, name='save_snippet_text'),
     url(r'^rename_node_snippet/', views.tree_snippets.rename_node_snippet, name='rename_node_snippet'),
 
-    #TREE
-    #url(r'^get_tree_info/', views.tree.get_tree_info, name='get_tree_info'),
-    #url(r'^get_tables/', views.tree.get_tables, name='get_tables'),
-    #url(r'^get_columns/', views.tree.get_columns, name='get_columns'),
-    #url(r'^get_pk/', views.tree.get_pk, name='get_pk'),
-    #url(r'^get_fks/', views.tree.get_fks, name='get_fks'),
-    #url(r'^get_uniques/', views.tree.get_uniques, name='get_uniques'),
-    #url(r'^get_indexes/', views.tree.get_indexes, name='get_indexes'),
-    #url(r'^get_functions/', views.tree.get_functions, name='get_functions'),
-    #url(r'^get_function_fields/', views.tree.get_function_fields, name='get_function_fields'),
-    #url(r'^get_function_definition/', views.tree.get_function_definition, name='get_function_definition'),
-    #url(r'^get_procedures/', views.tree.get_procedures, name='get_procedures'),
-    #url(r'^get_procedure_fields/', views.tree.get_procedure_fields, name='get_procedure_fields'),
-    #url(r'^get_procedure_definition/', views.tree.get_procedure_definition, name='get_procedure_definition'),
-
     #TREE_POSTGRESQL
     url(r'^get_tree_info_postgresql/', views.tree_postgresql.get_tree_info, name='get_tree_info'),
     url(r'^get_tables_postgresql/', views.tree_postgresql.get_tables, name='get_tables'),
@@ -155,11 +140,6 @@ urlpatterns = [
     url(r'^get_bdr_table_replicationsets_postgresql/', views.tree_postgresql.get_bdr_table_replicationsets, name='get_bdr_table_replicationsets'),
     url(r'^get_bdr_table_conflicthandlers_postgresql/', views.tree_postgresql.get_bdr_table_conflicthandlers, name='get_bdr_table_conflicthandlers'),
     url(r'^get_bdr_groups_postgresql/', views.tree_postgresql.get_bdr_groups, name='get_bdr_groups'),
-    url(r'^get_xl_nodes_postgresql/', views.tree_postgresql.get_xl_nodes, name='get_xl_nodes'),
-    url(r'^get_xl_groups_postgresql/', views.tree_postgresql.get_xl_groups, name='get_xl_groups'),
-    url(r'^get_xl_group_nodes_postgresql/', views.tree_postgresql.get_xl_group_nodes, name='get_xl_group_nodes'),
-    url(r'^get_xl_table_properties_postgresql/', views.tree_postgresql.get_xl_table_properties, name='get_xl_table_properties'),
-    url(r'^get_xl_table_nodes_postgresql/', views.tree_postgresql.get_xl_table_nodes, name='get_xl_table_nodes'),
     url(r'^get_properties_postgresql/', views.tree_postgresql.get_properties, name='get_properties'),
     url(r'^get_database_objects_postgresql/', views.tree_postgresql.get_database_objects, name='get_database_objects'),
     url(r'^template_select_postgresql/', views.tree_postgresql.template_select, name='template_select'),

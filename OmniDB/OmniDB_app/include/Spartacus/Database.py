@@ -532,12 +532,12 @@ class Generic(ABC):
     @abstractmethod
     def Close(self, p_commit=True):
         pass
-    @classmethod
+    @abstractmethod
     def Commit(self):
-        self.Close(True)
-    @classmethod
+        pass
+    @abstractmethod
     def Rollback(self):
-        self.Close(False)
+        pass
     @abstractmethod
     def Cancel(self, p_usesameconn=True):
         pass
@@ -558,6 +558,9 @@ class Generic(ABC):
         pass
     @abstractmethod
     def GetStatus(self):
+        pass
+    @abstractmethod
+    def GetConStatus(self):
         pass
     @abstractmethod
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
@@ -731,6 +734,10 @@ class SQLite(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -785,6 +792,18 @@ class SQLite(Generic):
         pass
     def GetStatus(self):
         return None
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except sqlite3.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -940,6 +959,10 @@ class Memory(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -988,6 +1011,18 @@ class Memory(Generic):
         pass
     def GetStatus(self):
         return None
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except sqlite3.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -1068,6 +1103,8 @@ class PostgreSQL(Generic):
             self.v_application_name = p_application_name
             self.v_con = None
             self.v_cur = None
+            self.v_start = True
+            self.v_cursor = None
             self.v_special = PGSpecial()
             self.v_help = Spartacus.Database.DataTable()
             self.v_help.Columns = ['Command', 'Syntax', 'Description']
@@ -1135,6 +1172,7 @@ class PostgreSQL(Generic):
             self.v_con.autocommit = p_autocommit
             self.v_cur = self.v_con.cursor()
             self.v_start = True
+            self.v_cursor = None
             # PostgreSQL types
             if self.v_types is None:
                 self.v_cur.execute('select oid, typname from pg_type')
@@ -1233,6 +1271,26 @@ class PostgreSQL(Generic):
                     self.v_cur = None
                 self.v_con.close()
                 self.v_con = None
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                return self.v_con.commit()
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+    def Rollback(self):
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                return self.v_con.rollback()
         except psycopg2.Error as exc:
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
@@ -1363,6 +1421,21 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                if self.v_con.closed == 0:
+                    return self.v_con.status
+                else:
+                    return 0
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def Parse(self, p_sql):
         try:
             v_analysis = psqlparse.parse(p_sql)
@@ -1407,6 +1480,8 @@ class PostgreSQL(Generic):
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
             else:
                 if self.v_start:
+                    if self.v_cursor and self.v_con.autocommit:
+                        self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
                     v_sql = self.Parse(p_sql)
                     self.v_cur.execute(v_sql)
                 v_table = DataTable()
@@ -1432,6 +1507,8 @@ class PostgreSQL(Generic):
                 if self.v_start:
                     self.v_start = False
                 if self.v_cursor is not None and len(v_table.Rows) < p_blocksize:
+                    if self.v_con.autocommit:
+                        self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
                     self.v_start = True
                     self.v_cursor = None
                 return v_table
@@ -1694,6 +1771,10 @@ class MySQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -1768,6 +1849,18 @@ class MySQL(Generic):
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
             else:
                 return self.v_status
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except pymysql.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
         except Spartacus.Database.Exception as exc:
             raise exc
         except pymysql.Error as exc:
@@ -2055,6 +2148,10 @@ class MariaDB(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -2129,6 +2226,18 @@ class MariaDB(Generic):
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
             else:
                 return self.v_status
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except pymysql.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
         except Spartacus.Database.Exception as exc:
             raise exc
         except pymysql.Error as exc:
@@ -2375,6 +2484,10 @@ class Firebird(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -2429,6 +2542,18 @@ class Firebird(Generic):
         pass
     def GetStatus(self):
         return None
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except fdb.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -2644,6 +2769,10 @@ class Oracle(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -2709,6 +2838,18 @@ class Oracle(Generic):
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
             else:
                 return self.v_cur.rowcount
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except cx_Oracle.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
         except Spartacus.Database.Exception as exc:
             raise exc
         except cx_Oracle.Error as exc:
@@ -2955,6 +3096,10 @@ class MSSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -3009,6 +3154,18 @@ class MSSQL(Generic):
         pass
     def GetStatus(self):
         return None
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except pymssql.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -3188,6 +3345,10 @@ class IBMDB2(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -3242,6 +3403,18 @@ class IBMDB2(Generic):
         pass
     def GetStatus(self):
         return None
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except ibm_db_dbi.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:

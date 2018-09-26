@@ -3588,250 +3588,6 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
-        'cm_xl': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Pause Cluster',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Pause Cluster',
-                        node.tree.tag.xl_pause_cluster);
-                }
-            }, {
-                text: 'Unpause Cluster',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Unpause Cluster',
-                        node.tree.tag.xl_unpause_cluster);
-                }
-            }, {
-                text: 'Clean Connection',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Clean Connection',
-                        node.tree.tag.xl_clean_connection);
-                }
-            }, {
-                text: 'Doc: Postgres-XL',
-                icon: 'fas cm-all fa-globe-americas',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Postgres-XL',
-                        'https://www.postgres-xl.org/documentation/'
-                    );
-                }
-            }]
-        },
-        'cm_xlnodes': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Create Node',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Create Node',
-                        node.tree.tag.xl_create_node);
-                }
-            }]
-        },
-        'cm_xlnode': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Execute Direct',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Execute Direct',
-                        node.tree.tag.xl_execute_direct
-                        .replace(/#node_name#/g, node.text)
-                    );
-                }
-            }, {
-                text: 'Pool Reload',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Pool Reload',
-                        node.tree.tag.xl_pool_reload
-                        .replace(/#node_name#/g, node.text)
-                    );
-                }
-            }, {
-                text: 'Alter Node',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Alter Node',
-                        node.tree.tag.xl_alter_node
-                        .replace(/#node_name#/g, node.text)
-                    );
-                }
-            }, {
-                text: 'Drop Node',
-                icon: 'fas cm-all fa-times',
-                action: function(node) {
-                    tabSQLTemplate('Drop Node',
-                        node.tree.tag.xl_drop_node
-                        .replace(/#node_name#/g, node.text)
-                    );
-                }
-            }]
-        },
-        'cm_xlgroups': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Create Group',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Create Group',
-                        node.tree.tag.xl_create_group);
-                }
-            }]
-        },
-        'cm_xlgroup': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Drop Group',
-                icon: 'fas cm-all fa-times',
-                action: function(node) {
-                    tabSQLTemplate('Drop Group',
-                        node.tree.tag.xl_drop_group
-                        .replace(/#group_name#/g, node.text)
-                    );
-                }
-            }]
-        },
-        'cm_xl_table': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Alter Distribution',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Alter Table Distribution',
-                        node.tree.tag.xl_altertable_distribution
-                        .replace('#table_name#',
-                            node.parent.parent.parent.text +
-                            '.' + node.parent.text));
-                }
-            }, {
-                text: 'Alter Location',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Alter Table Distribution',
-                        node.tree.tag.xl_altertable_location
-                        .replace('#table_name#',
-                            node.parent.parent.parent.text +
-                            '.' + node.parent.text));
-                }
-            }]
-        },
-        'cm_xl_table_nodes': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Add Node',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Alter Table Add Node',
-                        node.tree.tag.xl_altertable_addnode
-                        .replace('#table_name#',
-                            node.parent.parent.parent.parent
-                            .text + '.' +
-                            node.parent.parent.text));
-                }
-            }]
-        },
-        'cm_xl_table_node': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Delete Node',
-                icon: 'fas cm-all fa-times',
-                action: function(node) {
-                    tabSQLTemplate('Alter Table Delete Node',
-                        node.tree.tag.xl_altertable_deletenode
-                        .replace('#table_name#',
-                            node.parent.parent.parent.parent
-                            .parent.text + '.' +
-                            node.parent.parent.parent.text)
-                        .replace('#node_name#', node.text));
-                }
-            }]
-        },
         'cm_refresh': {
             elements: [{
                 text: 'Refresh',
@@ -4362,7 +4118,7 @@ function getTreeDetailsPostgresql(node) {
                         }
                     }, {
                         text: 'Backends',
-                        icon: 'fas cm-all fa-chart-line',
+                        icon: 'fas cm-all fa-tasks',
                         action: function(node) {
                             v_connTabControl.tag.createMonitoringTab(
                                 'Backends',
@@ -4374,7 +4130,7 @@ function getTreeDetailsPostgresql(node) {
                         }
                     }, {
                         text: 'Replication',
-                        icon: 'fas cm-all fa-chart-line',
+                        icon: 'fas cm-all fa-tasks',
                         action: function(node) {
                             v_connTabControl.tag.createMonitoringTab(
                                 'Replication',
@@ -4582,25 +4338,7 @@ function getTreeDetailsPostgresql(node) {
                 bdr_terminate_apply: p_return.v_data.v_database_return.bdr_terminate_apply,
                 bdr_terminate_walsender: p_return.v_data.v_database_return
                     .bdr_terminate_walsender,
-                bdr_remove: p_return.v_data.v_database_return.bdr_remove,
-                xl_pause_cluster: p_return.v_data.v_database_return.xl_pause_cluster,
-                xl_unpause_cluster: p_return.v_data.v_database_return.xl_unpause_cluster,
-                xl_clean_connection: p_return.v_data.v_database_return.xl_clean_connection,
-                xl_create_group: p_return.v_data.v_database_return.xl_create_group,
-                xl_drop_group: p_return.v_data.v_database_return.xl_drop_group,
-                xl_create_node: p_return.v_data.v_database_return.xl_create_node,
-                xl_alter_node: p_return.v_data.v_database_return.xl_alter_node,
-                xl_drop_node: p_return.v_data.v_database_return.xl_drop_node,
-                xl_execute_direct: p_return.v_data.v_database_return.xl_execute_direct,
-                xl_pool_reload: p_return.v_data.v_database_return.xl_pool_reload,
-                xl_altertable_distribution: p_return.v_data.v_database_return
-                    .xl_altertable_distribution,
-                xl_altertable_location: p_return.v_data.v_database_return
-                    .xl_altertable_location,
-                xl_altertable_addnode: p_return.v_data.v_database_return
-                    .xl_altertable_addnode,
-                xl_altertable_deletenode: p_return.v_data.v_database_return
-                    .xl_altertable_deletenode
+                bdr_remove: p_return.v_data.v_database_return.bdr_remove
             }
 
             node.setText(p_return.v_data.v_database_return.version);

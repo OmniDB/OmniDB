@@ -1265,7 +1265,7 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Backends',
-				icon: 'fas cm-all fa-chart-line',
+				icon: 'fas cm-all fa-tasks',
 				action: function() {
 					v_connTabControl.tag.createMonitoringTab(
 							'Backends',
@@ -1282,7 +1282,7 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Process List',
-				icon: 'fas cm-all fa-chart-line',
+				icon: 'fas cm-all fa-tasks',
 				action: function() {
 					v_connTabControl.tag.createMonitoringTab(
 							'Process List',

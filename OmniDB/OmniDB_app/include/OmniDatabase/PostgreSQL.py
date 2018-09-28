@@ -5547,56 +5547,62 @@ force := False
         '''.format(p_object))
 
     def GetProperties(self, p_schema, p_table, p_object, p_type):
-        if p_type == 'role':
-            return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
-        elif p_type == 'tablespace':
-            return self.GetPropertiesTablespace(p_object).Transpose('Property', 'Value')
-        elif p_type == 'database':
-            return self.GetPropertiesDatabase(p_object).Transpose('Property', 'Value')
-        elif p_type == 'extension':
-            return self.GetPropertiesExtension(p_object).Transpose('Property', 'Value')
-        elif p_type == 'schema':
-            return self.GetPropertiesSchema(p_object).Transpose('Property', 'Value')
-        elif p_type == 'table':
-            return self.GetPropertiesTable(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'index':
-            return self.GetPropertiesIndex(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'sequence':
-            return self.GetPropertiesSequence(p_schema, p_object)
-        elif p_type == 'view':
-            return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'mview':
-            return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'function':
-            return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
-        elif p_type == 'procedure':
-            return self.GetPropertiesProcedure(p_object).Transpose('Property', 'Value')
-        elif p_type == 'trigger':
-            return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'triggerfunction':
-            return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
-        elif p_type == 'pk':
-            return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'foreign_key':
-            return self.GetPropertiesFK(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'unique':
-            return self.GetPropertiesUnique(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'check':
-            return self.GetPropertiesCheck(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'exclude':
-            return self.GetPropertiesExclude(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'rule':
-            return self.GetPropertiesRule(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'foreign_table':
-            return self.GetPropertiesForeignTable(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'user_mapping':
-            return self.GetPropertiesUserMapping(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'foreign_server':
-            return self.GetPropertiesForeignServer(p_object).Transpose('Property', 'Value')
-        elif p_type == 'fdw':
-            return self.GetPropertiesForeignDataWrapper(p_object).Transpose('Property', 'Value')
-        else:
-            return None
+        try:
+            if p_type == 'role':
+                return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
+            elif p_type == 'tablespace':
+                return self.GetPropertiesTablespace(p_object).Transpose('Property', 'Value')
+            elif p_type == 'database':
+                return self.GetPropertiesDatabase(p_object).Transpose('Property', 'Value')
+            elif p_type == 'extension':
+                return self.GetPropertiesExtension(p_object).Transpose('Property', 'Value')
+            elif p_type == 'schema':
+                return self.GetPropertiesSchema(p_object).Transpose('Property', 'Value')
+            elif p_type == 'table':
+                return self.GetPropertiesTable(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'index':
+                return self.GetPropertiesIndex(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'sequence':
+                return self.GetPropertiesSequence(p_schema, p_object)
+            elif p_type == 'view':
+                return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'mview':
+                return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'function':
+                return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+            elif p_type == 'procedure':
+                return self.GetPropertiesProcedure(p_object).Transpose('Property', 'Value')
+            elif p_type == 'trigger':
+                return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'triggerfunction':
+                return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+            elif p_type == 'pk':
+                return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'foreign_key':
+                return self.GetPropertiesFK(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'unique':
+                return self.GetPropertiesUnique(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'check':
+                return self.GetPropertiesCheck(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'exclude':
+                return self.GetPropertiesExclude(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'rule':
+                return self.GetPropertiesRule(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'foreign_table':
+                return self.GetPropertiesForeignTable(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'user_mapping':
+                return self.GetPropertiesUserMapping(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'foreign_server':
+                return self.GetPropertiesForeignServer(p_object).Transpose('Property', 'Value')
+            elif p_type == 'fdw':
+                return self.GetPropertiesForeignDataWrapper(p_object).Transpose('Property', 'Value')
+            else:
+                return None
+        except Spartacus.Database.Exception as exc:
+            if str(exc) == 'Can only transpose a table with a single row.':
+                raise Exception('Object {0} does not exist anymore. Please refresh the tree view.'.format(p_object))
+            else:
+                raise exc
 
     def GetDDLRole(self, p_object):
         return self.v_connection.ExecuteScalar('''
@@ -5657,9 +5663,9 @@ force := False
     def GetDDLTablespace(self, p_object):
         return self.v_connection.ExecuteScalar('''
             select format(E'CREATE TABLESPACE %s\nLOCATION %s\nOWNER %s;',
-                         t.spcname,
+                         quote_ident(t.spcname),
                          chr(39) || pg_tablespace_location(t.oid) || chr(39),
-                         r.rolname)
+                         quote_ident(r.rolname))
             from pg_tablespace t
             inner join pg_roles r
             on r.oid = t.spcowner
@@ -5669,9 +5675,9 @@ force := False
     def GetDDLDatabase(self, p_object):
         return self.v_connection.ExecuteScalar('''
             select format(E'CREATE DATABASE %s\nOWNER %s\nTABLESPACE %s;',
-                          d.datname,
-                          r.rolname,
-                          t.spcname)
+                          quote_ident(d.datname),
+                          quote_ident(r.rolname),
+                          quote_ident(t.spcname))
             from pg_database d
             inner join pg_roles r
             on r.oid = d.datdba
@@ -6899,7 +6905,7 @@ force := False
         if p_object == 'PUBLIC':
             return self.v_connection.ExecuteScalar('''
                 select format(E'CREATE USER MAPPING FOR PUBLIC\n  SERVER %s\n  OPTIONS ( %s );\n',
-                         s.srvname,
+                         quote_ident(s.srvname),
                          (select array_to_string(array(
                           select format('%s %s', a[1], quote_literal(a[2]))
                           from (
@@ -6908,20 +6914,20 @@ force := False
                           inner join pg_foreign_server s
                           on s.oid = u.umserver
                           where u.umuser = 0
-                            and s.srvname = '{0}'
+                            and quote_ident(s.srvname) = '{0}'
                           ) x
                           ), ', ')))
                 from pg_user_mapping u
                 inner join pg_foreign_server s
                 on s.oid = u.umserver
                 where u.umuser = 0
-                  and s.srvname = '{0}'
+                  and quote_ident(s.srvname) = '{0}'
             '''.format(p_server))
         else:
             return self.v_connection.ExecuteScalar('''
                 select format(E'CREATE USER MAPPING FOR %s\n  SERVER %s\n  OPTIONS ( %s );\n',
-                         r.rolname,
-                         s.srvname,
+                         quote_ident(r.rolname),
+                         quote_ident(s.srvname),
                          (select array_to_string(array(
                           select format('%s %s', a[1], quote_literal(a[2]))
                           from (
@@ -6931,8 +6937,8 @@ force := False
                           on s.oid = u.umserver
                           inner join pg_roles r
                           on r.oid = u.umuser
-                          where s.srvname = '{0}'
-                            and r.rolname = '{1}'
+                          where quote_ident(s.srvname) = '{0}'
+                            and quote_ident(r.rolname) = '{1}'
                           ) x
                           ), ', ')))
                 from pg_user_mapping u
@@ -6940,8 +6946,8 @@ force := False
                 on s.oid = u.umserver
                 inner join pg_roles r
                 on r.oid = u.umuser
-                where s.srvname = '{0}'
-                  and r.rolname = '{1}'
+                where quote_ident(s.srvname) = '{0}'
+                  and quote_ident(r.rolname) = '{1}'
             '''.format(p_server, p_object))
 
     def GetDDLForeignServer(self, p_object):
@@ -7005,7 +7011,7 @@ force := False
                 WHERE g.grantee <> r.rolname
             )
             select format(E'CREATE SERVER %s%s%s\n  FOREIGN DATA WRAPPER %s%s;\n\nALTER SERVER %s OWNER TO %s;\n\n%s',
-                     s.srvname,
+                     quote_ident(s.srvname),
                      (case when s.srvtype is not null
                            then format(E'\n  TYPE %s\n', quote_literal(s.srvtype))
                            else ''
@@ -7024,7 +7030,7 @@ force := False
                                  on w.oid = s.srvfdw
                                  inner join pg_roles r
                                  on r.oid = s.srvowner
-                                 where s.srvname = '{0}'
+                                 where quote_ident(s.srvname) = '{0}'
                                  ) x
                                  ), ', ')) != ''
                            then format('\n  OPTIONS ( %s )',
@@ -7037,13 +7043,13 @@ force := False
                                  on w.oid = s.srvfdw
                                  inner join pg_roles r
                                  on r.oid = s.srvowner
-                                 where s.srvname = '{0}'
+                                 where quote_ident(s.srvname) = '{0}'
                                  ) x
                                  ), ', ')))
                            else ''
                       end),
-                     s.srvname,
-                     r.rolname,
+                     quote_ident(s.srvname),
+                     quote_ident(r.rolname),
                      g.text
                    )
             from pg_foreign_server s
@@ -7149,7 +7155,7 @@ force := False
                            else ''
                       end),
                      w.fdwname,
-                     r.rolname,
+                     quote_ident(r.rolname),
                      g.text
                    )
             from pg_foreign_data_wrapper w

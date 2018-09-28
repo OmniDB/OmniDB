@@ -389,12 +389,11 @@ CREATE TABLE users (user_id integer not null,
     editor_font_size varchar(10),
     chat_enabled integer,
     super_user integer,
-    user_key text,
     constraint pk_users primary key (user_id),
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)
 );--omnidb--
-INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'0c4a137f-9918-4c0b-af45-480deef6f760');--omnidb--
+INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1);--omnidb--
 
 CREATE TABLE messages (
     mes_in_code integer not null,

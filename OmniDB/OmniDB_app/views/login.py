@@ -96,8 +96,7 @@ def sign_in_automatic(request, username, pwd):
                t.theme_type,
                u.editor_font_size,
                (case when u.chat_enabled is null then 1 else u.chat_enabled end) as chat_enabled,
-               (case when u.super_user is null then 0 else u.super_user end) as super_user,
-               u.user_key
+               (case when u.super_user is null then 0 else u.super_user end) as super_user
         from users u,
              themes t
          where u.theme_id = t.theme_id
@@ -181,8 +180,7 @@ def sign_in(request):
                t.theme_type,
                u.editor_font_size,
                (case when u.chat_enabled is null then 1 else u.chat_enabled end) as chat_enabled,
-               (case when u.super_user is null then 0 else u.super_user end) as super_user,
-               u.user_key
+               (case when u.super_user is null then 0 else u.super_user end) as super_user
         from users u,
              themes t
          where u.theme_id = t.theme_id

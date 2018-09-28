@@ -113,12 +113,12 @@ You should have received a copy of the GNU General Public License along with Omn
   - **DESCRIPTION**: Gets the tag of the selected external tab, allowing to store information there.
   - **RETURNS**: Selected external tab tag.
 
-- ```createSQLTab({ p_name: '', p_template: '', p_show_qtip: true })```
+- ```createSQLTab({ p_name: '', p_template: '', p_show_tip: true })```
   - **DESCRIPTION**: Creates an internal Query Tab with a specific SQL passed as a parameter.
   - **PARAMETERS**:
     - p_name: the name of the tab.
     - p_template: the SQL to be filled in the editor.
-    - p_show_qtip: whether to show a tip with the message "Adjust command and run!"
+    - p_show_tip: whether to show a tip with the message "Adjust command and run!"
 
 - ```getPluginPath(p_plugin_name)```
   - **DESCRIPTION**: Get the path of the specific plugin to use reference static files.
@@ -371,8 +371,8 @@ function callPluginFunction({ p_plugin_name, p_function_name, p_data = null, p_c
       p_loading);
 }
 
-function createSQLTab({ p_name = '', p_template = '', p_show_qtip = true }) {
-  tabSQLTemplate(p_name, p_template, p_show_qtip);
+function createSQLTab({ p_name = '', p_template = '', p_show_tip = true }) {
+  tabSQLTemplate(p_name, p_template, p_show_tip);
 }
 
 function createInnerTab({ p_name = '', p_image = '', p_select_function = null, p_before_close_function = null }) {

@@ -180,10 +180,21 @@ $(function () {
 			function(p_return) {
         var timestamp = new Date().getTime();
         for (var i=0; i<p_return.v_data.length; i++) {
-          var imported = document.createElement('script');
-          imported.src = p_return.v_data[i].file + '?v' + timestamp;
-          document.head.appendChild(imported);
-          v_plugins[p_return.v_data[i].name] = p_return.v_data[i]
+
+          // loading CSS
+          if (p_return.v_data[i].cssfile) {
+            var importedcss = document.createElement('link');
+            importedcss.rel = 'stylesheet';
+            importedcss.href = p_return.v_data[i].cssfile + '?v' + timestamp;
+            document.head.appendChild(importedcss);
+          }
+
+          // loading JS
+          var importedjs = document.createElement('script');
+          importedjs.src = p_return.v_data[i].file + '?v' + timestamp;
+          document.head.appendChild(importedjs);
+
+          v_plugins[p_return.v_data[i].name] = p_return.v_data[i];
         }
 
 			},
@@ -249,13 +260,13 @@ function showPlugins() {
 
 				var col = new Object();
 				col.title =  'Folder';
-				col.width = '120';
+				col.width = '80';
         col.readOnly = true;
 				columnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Plugin Name';
-        col.width = '120';
+        col.width = '100';
         col.readOnly = true;
 				columnProperties.push(col);
 
@@ -267,7 +278,7 @@ function showPlugins() {
 
 				var col = new Object();
 				col.title =  'Config file';
-        col.width = '80';
+        col.width = '70';
         col.readOnly = true;
 				columnProperties.push(col);
 
@@ -280,6 +291,12 @@ function showPlugins() {
         var col = new Object();
 				col.title =  'Python File';
         col.width = '80';
+        col.readOnly = true;
+				columnProperties.push(col);
+
+        var col = new Object();
+				col.title =  'CSS File';
+        col.width = '60';
         col.readOnly = true;
 				columnProperties.push(col);
 

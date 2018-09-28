@@ -31,6 +31,53 @@ import math
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.prettytable as prettytable
 
+v_supported_rdbms = []
+try:
+    import sqlite3
+    v_supported_rdbms.append('SQLite')
+    v_supported_rdbms.append('Memory')
+except ImportError:
+    pass
+try:
+    import psycopg2
+    from psycopg2 import extras
+    from pgspecial.main import PGSpecial
+    from pgspecial.namedqueries import NamedQueries
+    import uuid
+    import sqlparse
+    import psqlparse
+    v_supported_rdbms.append('PostgreSQL')
+except ImportError:
+    pass
+try:
+    import pymysql
+    v_supported_rdbms.append('MySQL')
+    v_supported_rdbms.append('MariaDB')
+except ImportError:
+    pass
+try:
+    import fdb
+    v_supported_rdbms.append('Firebird')
+except ImportError:
+    pass
+try:
+    import cx_Oracle
+    v_supported_rdbms.append('Oracle')
+except ImportError:
+    pass
+try:
+    import pymssql
+    v_supported_rdbms.append('MSSQL')
+except ImportError:
+    pass
+try:
+    import ibm_db
+    import ibm_db_dbi
+    v_supported_rdbms.append('IBMDB2')
+except ImportError:
+    pass
+
+
 class Exception(Exception):
     pass
 
@@ -460,51 +507,6 @@ class DataList(object):
     def append(self, p_item):
         self.v_list.append(p_item)
 
-v_supported_rdbms = []
-try:
-    import sqlite3
-    v_supported_rdbms.append('SQLite')
-    v_supported_rdbms.append('Memory')
-except ImportError:
-    pass
-try:
-    import psycopg2
-    from psycopg2 import extras
-    from OmniDB_app.include.Spartacus.pgspecial.main import PGSpecial
-    from OmniDB_app.include.Spartacus.pgspecial.namedqueries import NamedQueries
-    import uuid
-    import sqlparse
-    import psqlparse
-    v_supported_rdbms.append('PostgreSQL')
-except ImportError:
-    pass
-try:
-    import pymysql
-    v_supported_rdbms.append('MySQL')
-    v_supported_rdbms.append('MariaDB')
-except ImportError:
-    pass
-try:
-    import fdb
-    v_supported_rdbms.append('Firebird')
-except ImportError:
-    pass
-try:
-    import cx_Oracle
-    v_supported_rdbms.append('Oracle')
-except ImportError:
-    pass
-try:
-    import pymssql
-    v_supported_rdbms.append('MSSQL')
-except ImportError:
-    pass
-try:
-    import ibm_db
-    import ibm_db_dbi
-    v_supported_rdbms.append('IBMDB2')
-except ImportError:
-    pass
 
 '''
 ------------------------------------------------------------------------
@@ -528,7 +530,13 @@ class Generic(ABC):
     def ExecuteScalar(self, p_sql):
         pass
     @abstractmethod
-    def Close(self):
+    def Close(self, p_commit=True):
+        pass
+    @abstractmethod
+    def Commit(self):
+        pass
+    @abstractmethod
+    def Rollback(self):
         pass
     @abstractmethod
     def Cancel(self, p_usesameconn=True):
@@ -552,13 +560,13 @@ class Generic(ABC):
     def GetStatus(self):
         pass
     @abstractmethod
+    def GetConStatus(self):
+        pass
+    @abstractmethod
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         pass
     @abstractmethod
     def InsertBlock(self, p_block, p_tablename, p_fields=None):
-        pass
-    @abstractmethod
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
         pass
     @abstractmethod
     def Special(self, p_sql):
@@ -582,6 +590,31 @@ class Generic(ABC):
             return '(' + ','.join(v_mog) + ')'
         else:
             raise Spartacus.Database.Exception('Can not mogrify with different number of parameters.')
+    @classmethod
+    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
+        v_return = DataTransferReturn()
+        try:
+            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
+            if len(v_table.Rows) > 0:
+                p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
+            v_return.v_numrecords = len(v_table.Rows)
+        except Spartacus.Database.Exception as exc:
+            v_return.v_log = str(exc)
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        return v_return
+    @classmethod
+    def Transfer(self, p_table, p_targetdatabase, p_tablename, p_fields=None):
+        v_return = DataTransferReturn()
+        try:
+            if len(p_table.Rows) > 0:
+                p_targetdatabase.InsertBlock(p_table, p_tablename, p_fields)
+            v_return.v_numrecords = len(p_table.Rows)
+        except Spartacus.Database.Exception as exc:
+            v_return.v_log = str(exc)
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        return v_return
 
 '''
 ------------------------------------------------------------------------
@@ -688,7 +721,7 @@ class SQLite(Generic):
         finally:
             if not v_keep:
                 self.Close()
-    def Close(self):
+    def Close(self, p_commit=True):
         try:
             if self.v_con:
                 self.v_con.commit()
@@ -701,6 +734,10 @@ class SQLite(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -755,6 +792,18 @@ class SQLite(Generic):
         pass
     def GetStatus(self):
         return None
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except sqlite3.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -810,18 +859,6 @@ class SQLite(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
-        v_return = DataTransferReturn()
-        try:
-            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
-            if len(v_table.Rows) > 0:
-                p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
-            v_return.v_numrecords = len(v_table.Rows)
-        except Spartacus.Database.Exception as exc:
-            v_return.v_log = str(exc)
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
-        return v_return
     def Special(self, p_sql):
         return self.Query(p_sql).Pretty()
 
@@ -909,7 +946,7 @@ class Memory(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Close(self):
+    def Close(self, p_commit=True):
         try:
             if self.v_con:
                 self.v_con.commit()
@@ -922,6 +959,10 @@ class Memory(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -970,6 +1011,18 @@ class Memory(Generic):
         pass
     def GetStatus(self):
         return None
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except sqlite3.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -1025,18 +1078,6 @@ class Memory(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
-        v_return = DataTransferReturn()
-        try:
-            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
-            if len(v_table.Rows) > 0:
-                p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
-            v_return.v_numrecords = len(v_table.Rows)
-        except Spartacus.Database.Exception as exc:
-            v_return.v_log = str(exc)
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
-        return v_return
     def Special(self, p_sql):
         return self.Query(p_sql).Pretty()
 
@@ -1062,6 +1103,7 @@ class PostgreSQL(Generic):
             self.v_application_name = p_application_name
             self.v_con = None
             self.v_cur = None
+            self.v_start = True
             self.v_cursor = None
             self.v_special = PGSpecial()
             self.v_help = Spartacus.Database.DataTable()
@@ -1130,6 +1172,7 @@ class PostgreSQL(Generic):
             self.v_con.autocommit = p_autocommit
             self.v_cur = self.v_con.cursor()
             self.v_start = True
+            self.v_cursor = None
             # PostgreSQL types
             if self.v_types is None:
                 self.v_cur.execute('select oid, typname from pg_type')
@@ -1233,9 +1276,25 @@ class PostgreSQL(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
     def Commit(self):
-        self.Close(True)
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                return self.v_con.commit()
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def Rollback(self):
-        self.Close(False)
+        try:
+            if self.v_con is None:
+                raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
+            else:
+                return self.v_con.rollback()
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -1362,6 +1421,21 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                if self.v_con.closed == 0:
+                    return self.v_con.status
+                else:
+                    return 0
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except psycopg2.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def Parse(self, p_sql):
         try:
             v_analysis = psqlparse.parse(p_sql)
@@ -1466,18 +1540,6 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
-        v_return = DataTransferReturn()
-        try:
-            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
-            if len(v_table.Rows) > 0:
-                p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
-            v_return.v_numrecords = len(v_table.Rows)
-        except Spartacus.Database.Exception as exc:
-            v_return.v_log = str(exc)
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
-        return v_return
     def Special(self, p_sql):
         try:
             v_keep = None
@@ -1696,7 +1758,7 @@ class MySQL(Generic):
         finally:
             if not v_keep:
                 self.Close()
-    def Close(self):
+    def Close(self, p_commit=True):
         try:
             if self.v_con:
                 self.v_con.commit()
@@ -1709,6 +1771,10 @@ class MySQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -1789,6 +1855,18 @@ class MySQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except pymysql.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -1843,18 +1921,6 @@ class MySQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
-        v_return = DataTransferReturn()
-        try:
-            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
-            if len(v_table.Rows) > 0:
-                p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
-            v_return.v_numrecords = len(v_table.Rows)
-        except Spartacus.Database.Exception as exc:
-            v_return.v_log = str(exc)
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
-        return v_return
     def Special(self, p_sql):
         try:
             v_keep = None
@@ -2069,7 +2135,7 @@ class MariaDB(Generic):
         finally:
             if not v_keep:
                 self.Close()
-    def Close(self):
+    def Close(self, p_commit=True):
         try:
             if self.v_con:
                 self.v_con.commit()
@@ -2082,6 +2148,10 @@ class MariaDB(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -2162,6 +2232,18 @@ class MariaDB(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except pymysql.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -2216,18 +2298,6 @@ class MariaDB(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
-        v_return = DataTransferReturn()
-        try:
-            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
-            if len(v_table.Rows) > 0:
-                p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
-            v_return.v_numrecords = len(v_table.Rows)
-        except Spartacus.Database.Exception as exc:
-            v_return.v_log = str(exc)
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
-        return v_return
     def Special(self, p_sql):
         try:
             v_keep = None
@@ -2401,7 +2471,7 @@ class Firebird(Generic):
         finally:
             if not v_keep:
                 self.Close()
-    def Close(self):
+    def Close(self, p_commit=True):
         try:
             if self.v_con:
                 self.v_con.commit()
@@ -2414,6 +2484,10 @@ class Firebird(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -2468,6 +2542,18 @@ class Firebird(Generic):
         pass
     def GetStatus(self):
         return None
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except fdb.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -2522,18 +2608,6 @@ class Firebird(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
-        v_return = DataTransferReturn()
-        try:
-            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
-            if len(v_table.Rows) > 0:
-                p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
-            v_return.v_numrecords = len(v_table.Rows)
-        except Spartacus.Database.Exception as exc:
-            v_return.v_log = str(exc)
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
-        return v_return
     def Special(self, p_sql):
         return self.Query(p_sql).Pretty()
 
@@ -2682,7 +2756,7 @@ class Oracle(Generic):
         finally:
             if not v_keep:
                 self.Close()
-    def Close(self):
+    def Close(self, p_commit=True):
         try:
             if self.v_con:
                 self.v_con.commit()
@@ -2695,6 +2769,10 @@ class Oracle(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -2766,6 +2844,18 @@ class Oracle(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except cx_Oracle.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -2820,18 +2910,6 @@ class Oracle(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
-        v_return = DataTransferReturn()
-        try:
-            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
-            if len(v_table.Rows) > 0:
-                p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
-            v_return.v_numrecords = len(v_table.Rows)
-        except Spartacus.Database.Exception as exc:
-            v_return.v_log = str(exc)
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
-        return v_return
     def Special(self, p_sql):
         try:
             v_keep = None
@@ -3005,7 +3083,7 @@ class MSSQL(Generic):
         finally:
             if not v_keep:
                 self.Close()
-    def Close(self):
+    def Close(self, p_commit=True):
         try:
             if self.v_con:
                 self.v_con.commit()
@@ -3018,6 +3096,10 @@ class MSSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -3072,6 +3154,18 @@ class MSSQL(Generic):
         pass
     def GetStatus(self):
         return None
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except pymssql.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -3126,18 +3220,6 @@ class MSSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
-        v_return = DataTransferReturn()
-        try:
-            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
-            if len(v_table.Rows) > 0:
-                p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
-            v_return.v_numrecords = len(v_table.Rows)
-        except Spartacus.Database.Exception as exc:
-            v_return.v_log = str(exc)
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
-        return v_return
     def Special(self, p_sql):
         return self.Query(p_sql).Pretty()
 
@@ -3250,7 +3332,7 @@ class IBMDB2(Generic):
         finally:
             if not v_keep:
                 self.Close()
-    def Close(self):
+    def Close(self, p_commit=True):
         try:
             if self.v_con:
                 self.v_con.commit()
@@ -3263,6 +3345,10 @@ class IBMDB2(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
+    def Commit(self):
+        self.Close(True)
+    def Rollback(self):
+        self.Close(False)
     def Cancel(self, p_usesameconn=True):
         try:
             if self.v_con:
@@ -3317,6 +3403,18 @@ class IBMDB2(Generic):
         pass
     def GetStatus(self):
         return None
+    def GetConStatus(self):
+        try:
+            if self.v_con is None:
+                return 0
+            else:
+                return 1
+        except Spartacus.Database.Exception as exc:
+            raise exc
+        except ibm_db_dbi.Error as exc:
+            raise Spartacus.Database.Exception(str(exc))
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
     def QueryBlock(self, p_sql, p_blocksize, p_alltypesstr=False, p_simple=False):
         try:
             if self.v_con is None:
@@ -3371,17 +3469,5 @@ class IBMDB2(Generic):
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
-        v_return = DataTransferReturn()
-        try:
-            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
-            if len(v_table.Rows) > 0:
-                p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
-            v_return.v_numrecords = len(v_table.Rows)
-        except Spartacus.Database.Exception as exc:
-            v_return.v_log = str(exc)
-        except Exception as exc:
-            raise Spartacus.Database.Exception(str(exc))
-        return v_return
     def Special(self, p_sql):
         return self.Query(p_sql).Pretty()

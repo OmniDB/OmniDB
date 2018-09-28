@@ -1902,15 +1902,28 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
         ''', True)
 
     def QueryPublications(self):
-        return self.v_connection.Query('''
-            select quote_ident(pubname) as pubname,
-                   puballtables,
-                   pubinsert,
-                   pubupdate,
-                   pubdelete
-            from pg_publication
-            order by 1
-        ''', True)
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 110000:
+            return self.v_connection.Query('''
+                select quote_ident(pubname) as pubname,
+                       puballtables,
+                       pubinsert,
+                       pubupdate,
+                       pubdelete,
+                       pubtruncate
+                from pg_publication
+                order by 1
+            ''', True)
+        else:
+            return self.v_connection.Query('''
+                select quote_ident(pubname) as pubname,
+                       puballtables,
+                       pubinsert,
+                       pubupdate,
+                       pubdelete,
+                       false as pubtruncate
+                from pg_publication
+                order by 1
+            ''', True)
 
     def QueryPublicationTables(self, p_pub):
         return self.v_connection.Query('''
@@ -3697,8 +3710,10 @@ TABLE #schema_name#.table_name
 )
 --FOR VALUES IN ( { numeric_literal | string_literal | TRUE | FALSE | NULL } [, ...] )
 --FOR VALUES FROM ( { numeric_literal | string_literal | TRUE | FALSE | MINVALUE | MAXVALUE } [, ...] ) TO ( { numeric_literal | string_literal | TRUE | FALSE | MINVALUE | MAXVALUE } [, ...] )
+--FOR VALUES WITH ( MODULUS numeric_literal, REMAINDER numeric_literal )
+--DEFAULT
 --INHERITS ( parent_table [, ... ] )
---PARTITION BY { RANGE | LIST } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] )
+--PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] )
 --WITH ( storage_parameter [= value] [, ... ] )
 --WITH OIDS
 --WITHOUT OIDS
@@ -3963,10 +3978,13 @@ ON #table_name#
         return Template('ALTER TABLE #partition_name# NO INHERIT #table_name#')
 
     def TemplateCreatePartition(self):
-        return Template('''CREATE TABLE name PARTITION OF #table_name# FOR VALUES
+        return Template('''CREATE TABLE name PARTITION OF #table_name#
+--FOR VALUES
 --IN ( { numeric_literal | string_literal | NULL } [, ...] )
 --FROM ( { numeric_literal | string_literal | MINVALUE | MAXVALUE } [, ...] ) TO ( { numeric_literal | string_literal | MINVALUE | MAXVALUE } [, ...] )
---PARTITION BY { RANGE | LIST } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
+--WITH ( MODULUS numeric_literal, REMAINDER numeric_literal )
+--DEFAULT
+--PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
 ''')
 
     def TemplateDetachPartition(self):
@@ -4209,7 +4227,7 @@ WHERE condition
         return Template('''CREATE PUBLICATION name
 --FOR TABLE [ ONLY ] table_name [ * ] [, ...]
 --FOR ALL TABLES
---WITH ( publish = 'insert, update, delete' )
+--WITH ( publish = 'insert, update, delete, truncate' )
 ''')
 
     def TemplateAlterPublication(self):
@@ -4217,7 +4235,7 @@ WHERE condition
 --ADD TABLE [ ONLY ] table_name [ * ] [, ...]
 --SET TABLE [ ONLY ] table_name [ * ] [, ...]
 --DROP TABLE [ ONLY ] table_name [ * ] [, ...]
---SET ( publish = 'insert, update, delete' )
+--SET ( publish = 'insert, update, delete, truncate' )
 --OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
 --RENAME TO new_name
 ''')
@@ -4832,262 +4850,6 @@ force := False
 , convert_global_sequences := True
 )
 ''')
-
-    def QueryXLNodes(self):
-        return self.v_connection.Query('''
-            select quote_ident(node_name) as node_name,
-                   (case node_type
-                      when 'C' then 'coordinator'
-                      when 'D' then 'datanode'
-                    end) as node_type,
-                   node_host,
-                   node_port,
-                   nodeis_primary,
-                   nodeis_preferred
-            from pgxc_node
-            order by 1
-        ''')
-
-    def QueryXLGroups(self):
-        return self.v_connection.Query('''
-            select quote_ident(group_name) as group_name
-            from pgxc_group
-            order by 1
-        ''')
-
-    def QueryXLGroupNodes(self, p_group):
-        return self.v_connection.Query('''
-            select quote_ident(n.node_name) as node_name
-            from (
-            select unnest(group_members) as group_member
-            from pgxc_group
-            where group_name = '{0}'
-            ) g
-            inner join pgxc_node n
-            on n.oid = g.group_member
-            order by 1
-        '''.format(p_group))
-
-    def QueryTablesXLProperties(self, p_table=None, p_all_schemas=False, p_schema=None):
-        v_filter = ''
-        if not p_all_schemas:
-            if p_table and p_schema:
-                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
-            elif p_table:
-                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
-            elif p_schema:
-                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
-            else:
-                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
-        else:
-            if p_table:
-                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
-            else:
-                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select quote_ident(n.nspname) as schema_name,
-                   quote_ident(c.relname) as table_name,
-                   (case x.pclocatortype
-                      when 'R' then 'replication'
-                      when 'N' then 'roundrobin'
-                      when 'H' then 'hash (' || a.attname || ')'
-                      when 'M' then 'modulo (' || a.attname || ')'
-                    end) as distributed_by,
-                   (t.num_nodes = d.num_nodes) as all_nodes
-            from pgxc_class x
-            inner join pg_class c
-            on c.oid = x.pcrelid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            left join pg_attribute a
-            on a.attrelid = c.oid
-            and a.attnum = x.pcattnum
-            inner join (
-            select t.pcrelid,
-                   count(*) as num_nodes
-            from (
-            select pcrelid,
-                   unnest(nodeoids) as nodeoid
-            from pgxc_class
-            ) t
-            group by t.pcrelid
-            ) t
-            on t.pcrelid = c.oid
-            inner join (
-            select count(*) as num_nodes
-            from pgxc_node
-            where node_type = 'D'
-            ) d
-            on 1=1
-            where 1=1
-            {0}
-        '''.format(v_filter), True)
-
-    def QueryTablesXLNodes(self, p_table=None, p_all_schemas=False, p_schema=None):
-        v_filter = ''
-        if not p_all_schemas:
-            if p_table and p_schema:
-                v_filter = "and quote_ident(t.schema_name) = '{0}' and quote_ident(t.table_name) = '{1}' ".format(p_schema, p_table)
-            elif p_table:
-                v_filter = "and quote_ident(t.schema_name) = '{0}' and quote_ident(t.table_name) = '{1}' ".format(self.v_schema, p_table)
-            elif p_schema:
-                v_filter = "and quote_ident(t.schema_name) = '{0}' ".format(p_schema)
-            else:
-                v_filter = "and quote_ident(t.schema_name) = '{0}' ".format(self.v_schema)
-        else:
-            if p_table:
-                v_filter = "and quote_ident(t.schema_name) not in ('information_schema','pg_catalog') and quote_ident(t.table_name) = {0}".format(p_table)
-            else:
-                v_filter = "and quote_ident(t.schema_name) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select quote_ident(t.schema_name) as schema_name,
-                   quote_ident(t.table_name) as table_name,
-                   quote_ident(n.node_name) as node_name
-            from (
-            select n.nspname as schema_name,
-                   c.relname as table_name,
-                   unnest(nodeoids) as nodeoid
-            from pgxc_class x
-            inner join pg_class c
-            on c.oid = x.pcrelid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            ) t
-            inner join pgxc_node n
-            on n.oid = t.nodeoid
-            where 1=1
-            {0}
-            order by 1, 2, 3
-        '''.format(v_filter), True)
-
-    def TemplateXLPauseCluster(self):
-        return Template('PAUSE CLUSTER')
-
-    def TemplateXLUnpauseCluster(self):
-        return Template('UNPAUSE CLUSTER')
-
-    def TemplateXLCleanConnection(self):
-        return Template('''CLEAN CONNECTION TO
---COORDINATOR ( nodename [, ... ] )
---NODE ( nodename [, ... ] )
---ALL
---ALL FORCE
---FOR DATABASE database_name
---TO USER role_name
-''')
-
-    def TemplateXLCreateGroup(self):
-        if 'XL' in self.v_version:
-            v_text = '''-- This command needs to be executed in all nodes.
--- Please adjust the parameters in all commands below.
-
-'''
-            v_table = self.QueryXLNodes()
-            for r in v_table.Rows:
-                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE GROUP name WITH ( nodename [, ... ] )'
-
-'''.format(r['node_name'])
-        else:
-            v_text = ''
-        return Template(v_text)
-
-    def TemplateXLDropGroup(self):
-        if 'XL' in self.v_version:
-            v_text = '''-- This command needs to be executed in all nodes.
-
-'''
-            v_table = self.QueryXLNodes()
-            for r in v_table.Rows:
-                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE GROUP #group_name#'
-
-'''.format(r['node_name'])
-        else:
-            v_text = ''
-        return Template(v_text)
-
-    def TemplateXLCreateNode(self):
-        if 'XL' in self.v_version:
-            v_text = '''-- This command needs to be executed in all nodes.
--- Please adjust the parameters in all commands below.
-
-'''
-            v_table = self.QueryXLNodes()
-            for r in v_table.Rows:
-                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE name WITH (
-TYPE = {{ coordinator | datanode }},
-HOST = hostname,
-PORT = portnum
---, PRIMARY
---, PREFERRED
-)'
-
-'''.format(r['node_name'])
-        else:
-            v_text = ''
-        return Template(v_text)
-
-    def TemplateXLAlterNode(self):
-        if 'XL' in self.v_version:
-            v_text = '''-- This command needs to be executed in all nodes.
--- Please adjust the parameters in all commands below.
-
-'''
-            v_table = self.QueryXLNodes()
-            for r in v_table.Rows:
-                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'ALTER NODE #node_name# WITH (
-TYPE = {{ coordinator | datanode }},
-HOST = hostname,
-PORT = portnum
---, PRIMARY
---, PREFERRED
-)'
-
-'''.format(r['node_name'])
-        else:
-            v_text = ''
-        return Template(v_text)
-
-    def TemplateXLExecuteDirect(self):
-        return Template('''EXECUTE DIRECT ON (#node_name#)
-'SELECT ...'
-''')
-
-    def TemplateXLPoolReload(self):
-        return Template('EXECUTE DIRECT ON (#node_name#) \'SELECT pgxc_pool_reload()\'')
-
-    def TemplateXLDropNode(self):
-        if 'XL' in self.v_version:
-            v_text = '''-- This command needs to be executed in all nodes.
-
-'''
-            v_table = self.QueryXLNodes()
-            for r in v_table.Rows:
-                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE #node_name#'
-
-'''.format(r['node_name'])
-        else:
-            v_text = ''
-        return Template(v_text)
-
-    def TemplateXLAlterTableDistribution(self):
-        return Template('''ALTER TABLE #table_name# DISTRIBUTE BY
---REPLICATION
---ROUNDROBIN
---HASH ( column_name )
---MODULO ( column_name )
-''')
-
-    def TemplateXLAlterTableLocation(self):
-        return Template('''ALTER TABLE #table_name#
-TO NODE ( nodename [, ... ] )
---TO GROUP ( groupname [, ... ] )
-''')
-
-    def TemplateXLALterTableAddNode(self):
-        return Template('ALTER TABLE #table_name# ADD NODE (node_name)')
-
-    def TemplateXLAlterTableDeleteNode(self):
-        return Template('ALTER TABLE #table_name# DELETE NODE (#node_name#)')
 
     def GetPropertiesRole(self, p_object):
         return self.v_connection.Query('''
@@ -7010,7 +6772,7 @@ TO NODE ( nodename [, ... ] )
                         c.relname AS class_name,
                         format('%s.%I',text(c.oid::regclass),a.attname) AS sql_identifier,
                         c.oid,
-                        format('%I %s%s%s',
+                        format('%I %s%s%s%s',
                         	a.attname::text,
                         	format_type(t.oid, a.atttypmod),
                 	        CASE
@@ -7021,7 +6783,12 @@ TO NODE ( nodename [, ... ] )
                         	CASE
                               WHEN a.attnotnull THEN ' NOT NULL'::text
                               ELSE ''::text
-                        	END)
+                        	END,
+                            CASE
+                              WHEN a.attidentity = 'a' THEN ' GENERATED ALWAYS AS IDENTITY'::text
+                              WHEN a.attidentity = 'd' THEN ' GENERATED BY DEFAULT AS IDENTITY'::text
+                              ELSE ''::text
+                            END)
                         AS definition
                    FROM pg_class c
                    JOIN pg_namespace s ON s.oid = c.relnamespace
@@ -7174,7 +6941,7 @@ TO NODE ( nodename [, ... ] )
                         when 't' then 'TEMPORARY '
                         else ''
                       end
-                      || obj.kind || ' ' || obj.sql_identifier
+                      || case obj.kind when 'PARTITIONED TABLE' then 'TABLE' else obj.kind end || ' ' || obj.sql_identifier
                       || case obj.kind when 'TYPE' then ' AS' else '' end
                       || case when c.relispartition
                       then
@@ -7321,6 +7088,9 @@ TO NODE ( nodename [, ... ] )
                     select
                        case
                          when obj.kind = 'INDEX' then ''
+                         when obj.kind = 'PARTITIONED TABLE'
+                         then 'ALTER TABLE '||sql_identifier||
+                              ' OWNER TO '||quote_ident(owner)||E';\n\n'
                          else 'ALTER '||sql_kind||' '||sql_identifier||
                               ' OWNER TO '||quote_ident(owner)||E';\n\n'
                        end as text

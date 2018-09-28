@@ -990,6 +990,7 @@ function initCreateTabFunctions() {
           "<button id='bt_history_" + v_tab.id + "' class='bt_execute bt_icon_only' title='Command History' onclick='showCommandList();'><i class='fas fa-list fa-light'></i></button>" +
           "<button id='bt_explain_" + v_tab.id + "' class='dbms_object postgresql_object bt_icon_only' onclick='getExplain(0)' title='Explain' style='display: none;'><i class='fas fa-search fa-light'></i></button>" +
           "<button id='bt_analyze_" + v_tab.id + "' class='dbms_object postgresql_object bt_icon_only' onclick='getExplain(1)' title='Explain Analyze' style='display: none;'><i class='fas fa-search-plus fa-light'></i></button>" +
+          "<label class='dbms_object postgresql_object custom_checkbox' style='margin: 0px 10px 0px 5px;'>Autocommit<input id='check_autocommit_" + v_tab.id + "' type='checkbox' checked='checked'><span class='checkmark'></span></label>" +
           "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute bt_fetch' title='Run' style='display: none; line-height: 1px;' onclick='querySQL(1);'>Fetch more</button>" +
           "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(2);'>Fetch all</button>" +
           "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='display: none; line-height: 1px;' onclick='cancelSQL();'>Cancel</button>" +
@@ -1022,8 +1023,16 @@ function initCreateTabFunctions() {
     v_editor.$blockScrolling = Infinity;
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/sql");
-		v_editor.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
+		v_editor.commands.bindKey('ctrl+enter', "autocomplete_start");
+    v_editor.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
     v_editor.commands.bindKey(v_keybind_object.v_autocomplete_mac, "startAutocomplete");
+
+    v_editor.commands.addCommand({
+      name: "autocomplete_start",
+      exec: function(editor) {
+        autocomplete_start(editor);
+      }
+    });
 
 
 		v_editor.setFontSize(Number(v_editor_font_size));
@@ -1126,6 +1135,7 @@ function initCreateTabFunctions() {
       bt_history: document.getElementById('bt_history_' + v_tab.id),
       bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
       bt_export: document.getElementById('bt_export_' + v_tab.id),
+      check_autocommit: document.getElementById('check_autocommit_' + v_tab.id),
 			state : 0,
       context: null,
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,

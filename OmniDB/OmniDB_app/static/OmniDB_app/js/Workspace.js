@@ -126,7 +126,7 @@ function getDatabaseList(p_init, p_callback) {
 							}
 
 							v_current_parent = p_return.v_data.v_existing_tabs[i].index;
-							v_connTabControl.tag.createQueryTab('Query',p_return.v_data.v_existing_tabs[i].tab_db_id);
+							v_connTabControl.tag.createQueryTab(p_return.v_data.v_existing_tabs[i].title,p_return.v_data.v_existing_tabs[i].tab_db_id);
 					    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
 					        p_return.v_data.v_existing_tabs[i].snippet);
 							v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
@@ -138,23 +138,13 @@ function getDatabaseList(p_init, p_callback) {
 
 					}
 					else {
-						var qtip = $('#menu_connections').qtip({
-				        content: {
-				            text: 'Create your first connection!'
-				        },
-				        position: {
-				            my: 'top left',
-				            at: 'bottom right'
-				        },
-				        style: {
-				            classes: 'qtip-bootstrap'
-				        },
-				        show: {
-				            ready: true
-				        }
-				    })
+						var v_instance = new Tooltip($('#menu_connections'),{
+					    title: 'Create your first connection!',
+					    placement: "bottom",
+					  });
+						v_instance.show();
 				    window.setTimeout(function() {
-				        qtip.qtip('api').destroy();
+				        v_instance.dispose();
 				    }, 4000);
 					}
 

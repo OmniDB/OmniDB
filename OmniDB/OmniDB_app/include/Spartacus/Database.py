@@ -1062,6 +1062,7 @@ class PostgreSQL(Generic):
             self.v_application_name = p_application_name
             self.v_con = None
             self.v_cur = None
+            self.v_cursor = None
             self.v_special = PGSpecial()
             self.v_help = Spartacus.Database.DataTable()
             self.v_help.Columns = ['Command', 'Syntax', 'Description']
@@ -1371,17 +1372,20 @@ class PostgreSQL(Generic):
                     if v_analysis[i].type == 'SelectStmt':
                         v_cursors.append('{0}_{1}'.format(self.v_application_name, uuid.uuid4().hex))
                 if len(v_cursors) > 0:
-                    v_sql = 'BEGIN;'
+                    v_sql = ''
                     j = 0
                     for i in range(0, len(v_statement)):
                         if v_analysis[i].type == 'SelectStmt':
                             if j < len(v_cursors)-1:
-                                if v_statement[i][-1] == ';':
-                                    v_sql = v_sql + ' DECLARE {0} CURSOR WITHOUT HOLD FOR {1} FETCH {0};'.format(v_cursors[j], v_statement[i])
-                                else:
-                                    v_sql = v_sql + ' DECLARE {0} CURSOR WITHOUT HOLD FOR {1}; FETCH {0};'.format(v_cursors[j], v_statement[i])
+                                v_sql = v_sql + v_statement[i]
                             else:
-                                v_sql = v_sql + ' DECLARE {0} CURSOR WITHOUT HOLD FOR {1}'.format(v_cursors[j], v_statement[i])
+                                if self.v_con.autocommit:
+                                    v_sql = v_sql + ' DECLARE {0} CURSOR WITH HOLD FOR {1}'.format(v_cursors[j], v_statement[i])
+                                else:
+                                    if self.v_con.get_transaction_status() == 2:
+                                        v_sql = v_sql + ' DECLARE {0} CURSOR WITHOUT HOLD FOR {1}'.format(v_cursors[j], v_statement[i])
+                                    else:
+                                        v_sql = v_sql + ' BEGIN; DECLARE {0} CURSOR WITHOUT HOLD FOR {1}'.format(v_cursors[j], v_statement[i])
                                 self.v_cursor = v_cursors[j]
                             j = j + 1
                         else:
@@ -1402,16 +1406,15 @@ class PostgreSQL(Generic):
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
             else:
                 if self.v_start:
+                    if self.v_cursor and self.v_con.autocommit:
+                        self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
                     v_sql = self.Parse(p_sql)
-                    print(v_sql)
                     self.v_cur.execute(v_sql)
                 v_table = DataTable()
                 if self.v_cursor is not None:
                     if p_blocksize > 0:
-                        print('FETCH {0} {1}'.format(p_blocksize, self.v_cursor))
                         self.v_cur.execute('FETCH {0} {1}'.format(p_blocksize, self.v_cursor))
                     else:
-                        print('FETCH ALL {0}'.format(self.v_cursor))
                         self.v_cur.execute('FETCH ALL {0}'.format(self.v_cursor))
                 if self.v_cur.description:
                     for c in self.v_cur.description:
@@ -1429,6 +1432,11 @@ class PostgreSQL(Generic):
                                     v_table.Rows[i][j] = ''
                 if self.v_start:
                     self.v_start = False
+                if self.v_cursor is not None and len(v_table.Rows) < p_blocksize:
+                    if self.v_con.autocommit:
+                        self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
+                    self.v_start = True
+                    self.v_cursor = None
                 return v_table
         except Spartacus.Database.Exception as exc:
             raise exc

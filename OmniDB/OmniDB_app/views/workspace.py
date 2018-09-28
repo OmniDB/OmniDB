@@ -286,13 +286,13 @@ def get_database_list(request):
     try:
         v_existing_tabs = []
         v_tabs = v_session.v_omnidb_database.v_connection.Query('''
-            select conn_id,snippet, tab_id
+            select conn_id,snippet, tab_id, title
             from tabs
             where user_id = {0}
             order by conn_id, tab_id
         '''.format(v_session.v_user_id))
         for v_tab in v_tabs.Rows:
-            v_existing_tabs.append({'index': v_tab['conn_id'], 'snippet': v_tab['snippet'], 'tab_db_id': v_tab['tab_id']})
+            v_existing_tabs.append({'index': v_tab['conn_id'], 'snippet': v_tab['snippet'], 'title': v_tab['title'], 'tab_db_id': v_tab['tab_id']})
 
     except Exception as exc:
         None
@@ -2189,5 +2189,236 @@ def get_console_history_clean(request):
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
         return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def get_autocomplete_results(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_value = json_object['p_value']
+    v_num_dots = v_value.count('.')
+
+    v_filter = '''where search.result like '{0}%' '''.format(v_value)
+    if v_num_dots > 0:
+        v_filter = '''where search.result_complete like '{0}%' and search.num_dots <= {1}'''.format(v_value,v_num_dots)
+    elif v_value=='':
+        v_filter = '''where search.num_dots = 0 '''
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_result = []
+
+    try:
+        #get reserved words list if there are no dots
+        if v_num_dots == 0:
+            v_reserved_words_list = v_database.v_reserved_words
+            v_value_upper = v_value.upper()
+            v_filtered_words_list = [k for k in v_reserved_words_list if k.startswith(v_value_upper)]
+            v_current_group = { 'type': 'keyword', 'elements': [] }
+            for v_filtered_word in v_filtered_words_list:
+                v_current_group['elements'].append({ 'value': v_filtered_word, 'complement': ''})
+            if len(v_current_group['elements']) > 0:
+                v_result.append(v_current_group)
+
+        v_search = v_database.v_connection.Query('''
+            select *
+            from (
+            select 'database' as type,
+                   0 as sequence,
+                   0 as num_dots,
+                   quote_ident(datname) as result,
+                   quote_ident(datname) as result_complete,
+                   quote_ident(datname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_database
+
+            UNION ALL
+
+            select 'tablespace' as type,
+                   2 as sequence,
+                   0 as num_dots,
+                   quote_ident(spcname) as result,
+                   quote_ident(spcname) as result_complete,
+                   quote_ident(spcname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_tablespace
+
+            UNION ALL
+
+            select 'role' as type,
+                   1 as sequence,
+                   0 as num_dots,
+                   quote_ident(rolname) as result,
+                   quote_ident(rolname) as result_complete,
+                   quote_ident(rolname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_roles
+
+            UNION ALL
+
+            select 'extension' as type,
+                   4 as sequence,
+                   0 as num_dots,
+                   quote_ident(extname) as result,
+                   quote_ident(extname) as result_complete,
+                   quote_ident(extname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_extension
+
+            UNION ALL
+
+            select 'schema' as type,
+                   3 as sequence,
+                   0 as num_dots,
+                   quote_ident(nspname) as result,
+                   quote_ident(nspname) as result_complete,
+                   quote_ident(nspname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_catalog.pg_namespace
+            where nspname not in ('pg_toast') and nspname not like 'pg%%temp%%'
+
+            UNION ALL
+
+            select 'table' as type,
+                   5 as sequence,
+                   1 as num_dots,
+                   quote_ident(c.relname) as result,
+                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) as result_complete,
+                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) as select_value,
+                   quote_ident(n.nspname) as complement,
+
+                   '' as complement_complete
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where c.relkind in ('r', 'p')
+
+            UNION ALL
+
+            select 'view' as type,
+                   6 as sequence,
+                   1 as num_dots,
+                   quote_ident(table_name) as result,
+                   quote_ident(table_schema) || '.' || quote_ident(table_name) as result_complete,
+                   quote_ident(table_schema) || '.' || quote_ident(table_name) as select_value,
+                   quote_ident(table_schema) as complement,
+                   '' as complement_complete
+            from information_schema.views
+
+            UNION ALL
+
+
+            select type,
+                   sequence,
+                   num_dots,
+                   result,
+                   result_complete,
+                   select_value,
+                   quote_ident(schema_name) || '.' || quote_ident(table_name) || ' - <b>' || complement || '</b>' as complement,
+                   '<b>' || complement || '</b>' as complement_complete
+            from (
+            select 'column' as type,
+                   7 as sequence,
+                   2 as num_dots,
+                   quote_ident(a.attname) as result,
+                   quote_ident(n.nspname) as schema_name,
+                   quote_ident(c.relname) as table_name,
+                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) || '.' || quote_ident(a.attname) as result_complete,
+                   quote_ident(a.attname) as select_value,
+                               (case when t.typtype = 'd'::"char"
+                                     then case when bt.typelem <> 0::oid and bt.typlen = '-1'::integer
+                                               then 'ARRAY'::text
+                                               when nbt.nspname = 'pg_catalog'::name
+                                               then format_type(t.typbasetype, NULL::integer)
+                                               else 'USER-DEFINED'::text
+                                          end
+                                     else case when t.typelem <> 0::oid and t.typlen = '-1'::integer
+                                               then 'ARRAY'::text
+                                               when nt.nspname = 'pg_catalog'::name
+                                               then format_type(a.atttypid, NULL::integer)
+                                               else 'USER-DEFINED'::text
+                                          end
+                                end) as complement
+            from pg_attribute a
+            inner join pg_class c
+            on c.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join (
+                pg_type t
+                inner join pg_namespace nt
+                on t.typnamespace = nt.oid
+            ) on a.atttypid = t.oid
+            left join (
+                pg_type bt
+                inner join pg_namespace nbt
+                on bt.typnamespace = nbt.oid
+            ) on t.typtype = 'd'::"char" and t.typbasetype = bt.oid
+            where a.attnum > 0
+              and not a.attisdropped
+              and c.relkind in ('r', 'f', 'p', 'v')) x
+
+            UNION ALL
+
+            select 'index' as type,
+                   8 as sequence,
+                   1 as num_dots,
+                   quote_ident(i.indexname) as result,
+                   quote_ident(i.schemaname) || '.' || quote_ident(i.indexname) as result_complete,
+                   quote_ident(i.schemaname) || '.' || quote_ident(i.indexname) as select_value,
+                   quote_ident(i.schemaname) || '.' || quote_ident(i.tablename) as complement,
+                   quote_ident(i.tablename) as complement_complete
+            from pg_indexes i) search
+            {0}
+            order by sequence,result_complete
+        '''.format(v_filter), True)
+
+        v_current_group = { 'type': '', 'elements': [] }
+        if len(v_search.Rows) > 0:
+            v_current_group['type'] = v_search.Rows[0]['type']
+        for v_search_row in v_search.Rows:
+            if v_current_group['type'] != v_search_row['type']:
+                v_result.append(v_current_group)
+                v_current_group = { 'type': v_search_row['type'], 'elements': [] }
+            if v_num_dots==0:
+                v_current_group['elements'].append({ 'value': v_search_row['result'], 'select_value': v_search_row['select_value'],'complement': v_search_row['complement']})
+            else:
+                v_current_group['elements'].append({ 'value': v_search_row['result_complete'], 'select_value': v_search_row['select_value'], 'complement': v_search_row['complement_complete']})
+        if len(v_current_group['elements']) > 0:
+            v_result.append(v_current_group)
+
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_result
 
     return JsonResponse(v_return)

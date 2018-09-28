@@ -59,6 +59,7 @@ urlpatterns = [
     url(r'^refresh_monitoring/', views.workspace.refresh_monitoring, name='refresh_monitoring'),
     url(r'^get_console_history/', views.workspace.get_console_history, name='get_console_history'),
     url(r'^get_console_history_clean/', views.workspace.get_console_history_clean, name='get_console_history_clean'),
+    url(r'^get_autocomplete_results/', views.workspace.get_autocomplete_results, name='get_autocomplete_results'),
 
     #HOOKS
     url(r'^get_plugins/', views.plugins.get_plugins, name='get_plugins'),

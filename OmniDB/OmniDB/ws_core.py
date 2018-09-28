@@ -663,6 +663,8 @@ def thread_query(self,args,ws_object):
         v_mode           = args['v_mode']
         v_all_data       = args['v_all_data']
         v_log_query      = args['v_log_query']
+        v_tab_title      = args['v_tab_title']
+        v_autocommit     = args['v_autocommit']
 
         #Removing last character if it is a semi-colon
         if v_sql[-1:]==';':
@@ -691,10 +693,10 @@ def thread_query(self,args,ws_object):
                 try:
                     v_omnidb_database.v_connection.Open()
                     v_omnidb_database.v_connection.Execute('''
-                    insert into tabs (conn_id,user_id,tab_id,snippet)
+                    insert into tabs (conn_id,user_id,tab_id,snippet,title)
                     values
-                    ({0},{1},(select coalesce(max(tab_id), 0) + 1 from tabs),'{2}')
-                    '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, ws_object.v_session.v_user_id, v_tab_object['sql_save'].replace("'","''")))
+                    ({0},{1},(select coalesce(max(tab_id), 0) + 1 from tabs),'{2}','{3}')
+                    '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, ws_object.v_session.v_user_id, v_tab_object['sql_save'].replace("'","''"),v_tab_title.replace("'","''")))
                     v_inserted_id = v_omnidb_database.v_connection.ExecuteScalar('''
                     select coalesce(max(tab_id), 0) from tabs
                     ''')
@@ -761,7 +763,10 @@ def thread_query(self,args,ws_object):
             else:
 
                 if v_mode==0:
-                    v_database.v_connection.Open()
+                    if not v_database.v_connection.v_con:
+                        v_database.v_connection.Open(v_autocommit)
+                    else:
+                        v_database.v_connection.v_start=True
 
                 if (v_mode==0 or v_mode==1) and not v_all_data:
 
@@ -791,11 +796,11 @@ def thread_query(self,args,ws_object):
                     if not self.cancel:
                         tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
-                    if len(v_data1.Rows) < 50:
-                        try:
-                            v_database.v_connection.Close()
-                        except:
-                            pass
+                    #if len(v_data1.Rows) < 50 and v_autocommit:
+                    #    try:
+                    #        v_database.v_connection.Close()
+                    #    except:
+                    #        pass
 
                 elif v_mode==2 or v_all_data:
 
@@ -829,15 +834,17 @@ def thread_query(self,args,ws_object):
                             'v_chunks': True
                         }
 
-                        if self.cancel:
-                            break
-                        else:
-                            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
-
-                        if len(v_data1.Rows) > 0:
+                        if v_database.v_connection.v_start:
+                            v_hasmorerecords = False
+                        elif len(v_data1.Rows) > 0:
                             v_hasmorerecords = True
                         else:
                             v_hasmorerecords = False
+
+                        if self.cancel:
+                            break
+                        elif v_hasmorerecords:
+                            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                     if not self.cancel:
 
@@ -864,10 +871,11 @@ def thread_query(self,args,ws_object):
 
                         tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
-                    try:
-                        v_database.v_connection.Close()
-                    except:
-                        pass
+                    #if v_autocommit:
+                    #    try:
+                    #        v_database.v_connection.Close()
+                    #    except:
+                    #        pass
 
         except Exception as exc:
             try:
@@ -879,10 +887,10 @@ def thread_query(self,args,ws_object):
             except:
                 v_notices = []
                 v_notices_text = ''
-            try:
-                v_database.v_connection.Close()
-            except:
-                pass
+            #try:
+            #    v_database.v_connection.Close()
+            #except:
+            #    pass
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
             log_status = 'error'
@@ -918,9 +926,10 @@ def thread_query(self,args,ws_object):
                 v_omnidb_database.v_connection.Execute('''
                 update tabs
                 set conn_id = {0},
-                    snippet = '{1}'
-                where tab_id = {2}
-                '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, v_tab_object['sql_save'].replace("'","''"), v_tab_object['tab_db_id']))
+                    snippet = '{1}',
+                    title = '{2}'
+                where tab_id = {3}
+                '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, v_tab_object['sql_save'].replace("'","''"),v_tab_title.replace("'","''"), v_tab_object['tab_db_id']))
             except Exception as exc:
                 None
     except Exception as exc:

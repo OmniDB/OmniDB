@@ -107,6 +107,7 @@ class SQLite:
 			"SET DEFAULT",
 			"CASCADE"
         ]
+        self.v_reserved_words = []
         self.v_console_help = "Console tab."
 
     def GetName(self):

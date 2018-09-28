@@ -81,7 +81,8 @@ function querySQL(p_mode,
 									p_log_query = true,
 									p_save_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue(),
 									p_cmd_type = null,
-									p_clear_data = false) {
+									p_clear_data = false,
+									p_tab_title = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_title_span.innerHTML) {
 
 	var v_state = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state;
 
@@ -118,7 +119,9 @@ function querySQL(p_mode,
 				v_tab_db_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_db_id,
 				v_mode: p_mode,
 				v_all_data: p_all_data,
-				v_log_query: p_log_query
+				v_log_query: p_log_query,
+				v_tab_title: p_tab_title,
+				v_autocommit: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.check_autocommit.checked
 			}
 
 			if(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor) {

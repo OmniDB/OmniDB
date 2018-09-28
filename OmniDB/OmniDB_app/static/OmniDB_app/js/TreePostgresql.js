@@ -10,7 +10,7 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
-function tabSQLTemplate(p_tab_name, p_template, p_showQtip=true) {
+function tabSQLTemplate(p_tab_name, p_template, p_showTip=true) {
     v_connTabControl.tag.createQueryTab(p_tab_name);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
         p_template);
@@ -18,25 +18,17 @@ function tabSQLTemplate(p_tab_name, p_template, p_showQtip=true) {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(
         0, 0, true);
 
-    if(p_showQtip) {
-        var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
-            content: {
-                text: 'Adjust command and run!'
-            },
-            position: {
-                my: 'bottom center',
-                at: 'top center'
-            },
-            style: {
-                classes: 'qtip-bootstrap'
-            },
-            show: {
-                ready: true
-            }
-        })
-        window.setTimeout(function() {
-            qtip.qtip('api').destroy();
-        }, 4000);
+    if(p_showTip) {
+      var v_instance = new Tooltip($(v_connTabControl.selectedTab.tag.tabControl.selectedLi),{
+        title: 'Adjust command and run!',
+        placement: "bottom",
+        container: 'body',
+        offset: 100
+      });
+      v_instance.show();
+      window.setTimeout(function() {
+          v_instance.dispose();
+      }, 4000);
     }
 }
 
@@ -802,68 +794,34 @@ function tabDataMining(node) {
         10
     );
 
-    var qtip = $(v_connTabControl.selectedTab.tag.tabControl.selectedLi).qtip({
-        content: {
-            text: 'Adjust parameters and run!'
-        },
-        position: {
-            my: 'bottom center',
-            at: 'top center'
-        },
-        style: {
-            classes: 'qtip-bootstrap'
-        },
-        show: {
-            ready: true
-        }
-    })
+    var v_instance1 = new Tooltip($(v_connTabControl.selectedTab.tag.tabControl.selectedLi),{
+      title: 'Adjust parameters and run!',
+      placement: 'top',
+      container: 'body'
+    });
+    v_instance1.show();
     window.setTimeout(function() {
-        qtip.qtip('api').destroy();
+        v_instance1.dispose();
     }, 4000);
 
-    var qtip2 = $('.data-mining-input-text').qtip({
-        content: {
-            text:
-                'If Regular Expression is not selected, the pattern will work as follows:<br /><br />' +
-                '- if it does not contain sql % wildcard, it will put your pattern between two % <br /><br />' +
-                '- else it will consider your pattern as it is.'
-        },
-        position: {
-            my: 'top center',
-            at: 'bottom center'
-        },
-        style: {
-            classes: 'qtip-bootstrap'
-        },
-        show: {
-            event: 'mouseover'
-        },
-        hide: {
-            event: 'mouseout'
-        }
+    var v_instance2 = new Tooltip($('.data-mining-input-text'),{
+      title: '<div style="text-align: left;">If Regular Expression is not selected, the pattern will work as follows:<br /><br />' +
+      '- if it does not contain sql % wildcard, it will put your pattern between two % <br /><br />' +
+      '- else it will consider your pattern as it is.</div>',
+      placement: "bottom",
+      container: 'body',
+      html: true
     });
 
-    var qtip3 = $('.data-mining-data-input-text').qtip({
-        content: {
-            text:
-                'If Data category is selected you can use it to filter search space and get a faster response.<br /><br />' +
-                'If you want to filter you must fill it with a | separeted list of patterns that may use % wildcard.<br /><br />' +
-                'For example: public.%mytable%|mysch%ema.% will search for data just in tables that match given patterns.'
-        },
-        position: {
-            my: 'bottom center',
-            at: 'top center'
-        },
-        style: {
-            classes: 'qtip-bootstrap'
-        },
-        show: {
-            event: 'mouseover'
-        },
-        hide: {
-            event: 'mouseout'
-        }
+    var v_instance3 = new Tooltip($('.data-mining-data-input-text'),{
+      title: '<div style="text-align: left;">If Data category is selected you can use it to filter search space and get a faster response.<br /><br />' +
+      'If you want to filter you must fill it with a | separeted list of patterns that may use % wildcard.<br /><br />' +
+      'For example: public.%mytable%|mysch%ema.% will search for data just in tables that match given patterns.</div>',
+      placement: "top",
+      container: 'body',
+      html: true
     });
+
 }
 
 /// <summary>

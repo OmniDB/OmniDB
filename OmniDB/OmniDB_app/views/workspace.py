@@ -141,10 +141,14 @@ def save_config_user(request):
     p_theme = json_object['p_theme']
     p_pwd = json_object['p_pwd']
     p_chat_enabled = json_object['p_chat_enabled']
+    p_csv_encoding = json_object['p_csv_encoding']
+    p_csv_delimiter = json_object['p_csv_delimiter']
 
     v_session.v_theme_id = p_theme
     v_session.v_editor_font_size = p_font_size
     v_session.v_enable_omnichat = p_chat_enabled
+    v_session.v_csv_encoding = p_csv_encoding
+    v_session.v_csv_delimiter = p_csv_delimiter
 
     v_enc_pwd = v_cryptor.Encrypt(p_pwd)
 
@@ -157,17 +161,21 @@ def save_config_user(request):
             set theme_id = {0},
             editor_font_size = '{1}',
             password = '{2}',
-            chat_enabled = {3}
-            where user_id = {4}
-        '''.format(p_theme,p_font_size,v_enc_pwd,p_chat_enabled,v_session.v_user_id)
+            chat_enabled = {3},
+            csv_encoding = '{4}',
+            csv_delimiter = '{5}'
+            where user_id = {6}
+        '''.format(p_theme,p_font_size,v_enc_pwd,p_chat_enabled,p_csv_encoding,p_csv_delimiter,v_session.v_user_id)
     else:
         v_update_command = '''
             update users
             set theme_id = {0},
             editor_font_size = '{1}',
-            chat_enabled = {2}
-            where user_id = {3}
-        '''.format(p_theme,p_font_size,p_chat_enabled,v_session.v_user_id)
+            chat_enabled = {2},
+            csv_encoding = '{3}',
+            csv_delimiter = '{4}'
+            where user_id = {5}
+        '''.format(p_theme,p_font_size,p_chat_enabled,p_csv_encoding,p_csv_delimiter,v_session.v_user_id)
 
     try:
         v_session.v_omnidb_database.v_connection.Execute(v_update_command)

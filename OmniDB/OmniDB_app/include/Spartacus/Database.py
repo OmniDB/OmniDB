@@ -1513,10 +1513,16 @@ class PostgreSQL(Generic):
                     self.v_cursor = None
                 return v_table
         except Spartacus.Database.Exception as exc:
+            self.v_start = True
+            self.v_cursor = None
             raise exc
         except psycopg2.Error as exc:
+            self.v_start = True
+            self.v_cursor = None
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:
+            self.v_start = True
+            self.v_cursor = None
             raise Spartacus.Database.Exception(str(exc))
     def InsertBlock(self, p_block, p_tablename, p_fields=None):
         try:

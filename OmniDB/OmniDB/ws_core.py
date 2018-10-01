@@ -725,11 +725,12 @@ def thread_query(self,args,ws_object):
 
                 v_database.v_connection.Open()
                 v_file_name = '{0}.{1}'.format(str(time.time()).replace('.','_'),v_extension)
-                v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, True, False)
-                if platform.system() == 'Windows':
-                    f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns, 'windows-1252')
-                else:
-                    f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns)
+                v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, False, False)
+                #if platform.system() == 'Windows':
+                #    f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns, 'windows-1252')
+                #else:
+                #    f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns)
+                f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_session.v_csv_encoding, v_session.v_csv_delimiter)
                 f.Open()
                 if len(v_data1.Rows) > 0:
                     f.Write(v_data1)
@@ -737,7 +738,7 @@ def thread_query(self,args,ws_object):
                 else:
                     v_hasmorerecords = False
                 while v_hasmorerecords:
-                    v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, True, False)
+                    v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, False, False)
                     if len(v_data1.Rows) > 0:
                         f.Write(v_data1)
                         v_hasmorerecords = True
@@ -808,7 +809,6 @@ def thread_query(self,args,ws_object):
                     k = 0
                     while v_hasmorerecords:
 
-                        print(k)
                         k = k + 1
 
                         v_data1 = v_database.v_connection.QueryBlock(v_sql, 10000, True, True)

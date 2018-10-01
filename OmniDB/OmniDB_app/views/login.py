@@ -30,7 +30,6 @@ def index(request):
     if user and pwd:
         num_connections = sign_in_automatic(request,user,pwd)
 
-
         if num_connections >= 0:
             return redirect('workspace')
         else:
@@ -96,7 +95,9 @@ def sign_in_automatic(request, username, pwd):
                t.theme_type,
                u.editor_font_size,
                (case when u.chat_enabled is null then 1 else u.chat_enabled end) as chat_enabled,
-               (case when u.super_user is null then 0 else u.super_user end) as super_user
+               (case when u.super_user is null then 0 else u.super_user end) as super_user,
+               u.csv_encoding,
+               u.csv_delimiter
         from users u,
              themes t
          where u.theme_id = t.theme_id
@@ -128,7 +129,9 @@ def sign_in_automatic(request, username, pwd):
                 int(table.Rows[0]["chat_enabled"]),
                 int(table.Rows[0]["super_user"]),
                 cryptor,
-                request.session.session_key
+                request.session.session_key,
+                table.Rows[0]["csv_encoding"],
+                table.Rows[0]["csv_delimiter"]
             )
 
             #v_session.RefreshDatabaseList()
@@ -136,8 +139,6 @@ def sign_in_automatic(request, username, pwd):
 
             if not request.session.get('cryptor'):
                 request.session['cryptor'] = cryptor
-
-
 
             return len(v_session.v_databases)
 
@@ -180,7 +181,9 @@ def sign_in(request):
                t.theme_type,
                u.editor_font_size,
                (case when u.chat_enabled is null then 1 else u.chat_enabled end) as chat_enabled,
-               (case when u.super_user is null then 0 else u.super_user end) as super_user
+               (case when u.super_user is null then 0 else u.super_user end) as super_user,
+               u.csv_encoding,
+               u.csv_delimiter
         from users u,
              themes t
          where u.theme_id = t.theme_id
@@ -209,7 +212,9 @@ def sign_in(request):
                 int(table.Rows[0]["chat_enabled"]),
                 int(table.Rows[0]["super_user"]),
                 cryptor,
-                request.session.session_key
+                request.session.session_key,
+                table.Rows[0]["csv_encoding"],
+                table.Rows[0]["csv_delimiter"]
             )
 
             #v_session.RefreshDatabaseList()

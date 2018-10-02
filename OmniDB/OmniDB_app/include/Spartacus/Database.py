@@ -1471,6 +1471,9 @@ class PostgreSQL(Generic):
             else:
                 self.v_cursor = None
                 return p_sql
+        except psqlparse.exceptions.PSqlParseError as exc:
+            self.v_cursor = None
+            return p_sql
         except Exception as exc:
             self.v_cursor = None
             return p_sql

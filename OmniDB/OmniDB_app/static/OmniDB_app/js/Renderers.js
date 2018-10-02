@@ -97,6 +97,25 @@ function whiteHtmlRenderer(instance, td, row, col, prop, value, cellProperties) 
   	td.className ='cellOdd';
 }
 
+function whiteRightHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="password") {
+	  	Handsontable.renderers.PasswordRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="checkbox") {
+  	  Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+    }
+    else {
+  	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+    }
+
+  	//td.style.background = 'rgb(255, 255, 255)';
+  	td.style.textAlign ='right';
+}
+
 function redHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
 
 	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {

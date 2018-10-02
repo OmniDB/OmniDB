@@ -7744,3 +7744,179 @@ force := False
             return self.GetDDLForeignDataWrapper(p_object)
         else:
             return ''
+
+
+    def GetAutocompleteValues(self, p_columns, p_filter):
+        return self.v_connection.Query('''
+            select {0}
+            from (
+            select 'database' as type,
+                   0 as sequence,
+                   0 as num_dots,
+                   quote_ident(datname) as result,
+                   quote_ident(datname) as result_complete,
+                   quote_ident(datname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_database
+
+            UNION ALL
+
+            select 'tablespace' as type,
+                   2 as sequence,
+                   0 as num_dots,
+                   quote_ident(spcname) as result,
+                   quote_ident(spcname) as result_complete,
+                   quote_ident(spcname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_tablespace
+
+            UNION ALL
+
+            select 'role' as type,
+                   1 as sequence,
+                   0 as num_dots,
+                   quote_ident(rolname) as result,
+                   quote_ident(rolname) as result_complete,
+                   quote_ident(rolname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_roles
+
+            UNION ALL
+
+            select 'extension' as type,
+                   4 as sequence,
+                   0 as num_dots,
+                   quote_ident(extname) as result,
+                   quote_ident(extname) as result_complete,
+                   quote_ident(extname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_extension
+
+            UNION ALL
+
+            select 'schema' as type,
+                   3 as sequence,
+                   0 as num_dots,
+                   quote_ident(nspname) as result,
+                   quote_ident(nspname) as result_complete,
+                   quote_ident(nspname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_catalog.pg_namespace
+            where nspname not in ('pg_toast') and nspname not like 'pg%%temp%%'
+
+            UNION ALL
+
+            select 'table' as type,
+                   5 as sequence,
+                   1 as num_dots,
+                   quote_ident(c.relname) as result,
+                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) as result_complete,
+                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) as select_value,
+                   quote_ident(n.nspname) as complement,
+
+                   '' as complement_complete
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where c.relkind in ('r', 'p')
+
+            UNION ALL
+
+            select 'view' as type,
+                   6 as sequence,
+                   1 as num_dots,
+                   quote_ident(table_name) as result,
+                   quote_ident(table_schema) || '.' || quote_ident(table_name) as result_complete,
+                   quote_ident(table_schema) || '.' || quote_ident(table_name) as select_value,
+                   quote_ident(table_schema) as complement,
+                   '' as complement_complete
+            from information_schema.views
+
+            UNION ALL
+
+
+            select type,
+                   sequence,
+                   num_dots,
+                   result,
+                   result_complete,
+                   select_value,
+                   quote_ident(schema_name) || '.' || quote_ident(table_name) || ' - <b>' || complement || '</b>' as complement,
+                   '<b>' || complement || '</b>' as complement_complete
+            from (
+            select 'column' as type,
+                   7 as sequence,
+                   2 as num_dots,
+                   quote_ident(a.attname) as result,
+                   quote_ident(n.nspname) as schema_name,
+                   quote_ident(c.relname) as table_name,
+                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) || '.' || quote_ident(a.attname) as result_complete,
+                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) || '.' || quote_ident(a.attname) as select_value,
+                               (case when t.typtype = 'd'::"char"
+                                     then case when bt.typelem <> 0::oid and bt.typlen = '-1'::integer
+                                               then 'ARRAY'::text
+                                               when nbt.nspname = 'pg_catalog'::name
+                                               then format_type(t.typbasetype, NULL::integer)
+                                               else 'USER-DEFINED'::text
+                                          end
+                                     else case when t.typelem <> 0::oid and t.typlen = '-1'::integer
+                                               then 'ARRAY'::text
+                                               when nt.nspname = 'pg_catalog'::name
+                                               then format_type(a.atttypid, NULL::integer)
+                                               else 'USER-DEFINED'::text
+                                          end
+                                end) as complement
+            from pg_attribute a
+            inner join pg_class c
+            on c.oid = a.attrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            inner join (
+                pg_type t
+                inner join pg_namespace nt
+                on t.typnamespace = nt.oid
+            ) on a.atttypid = t.oid
+            left join (
+                pg_type bt
+                inner join pg_namespace nbt
+                on bt.typnamespace = nbt.oid
+            ) on t.typtype = 'd'::"char" and t.typbasetype = bt.oid
+            where a.attnum > 0
+              and not a.attisdropped
+              and c.relkind in ('r', 'f', 'p', 'v')) x
+
+            UNION ALL
+
+
+            select 'function' as type,
+                   8 as sequence,
+                   1 as num_dots,
+                   quote_ident(p.proname) as result,
+                   quote_ident(n.nspname) || '.' || quote_ident(p.proname) as result_complete,
+                   quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' as select_value,
+                   quote_ident(n.nspname) as complement,
+                   '' as complement_complete
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            where format_type(p.prorettype, null) <> 'trigger'
+
+            UNION ALL
+
+            select 'index' as type,
+                   9 as sequence,
+                   1 as num_dots,
+                   quote_ident(i.indexname) as result,
+                   quote_ident(i.schemaname) || '.' || quote_ident(i.indexname) as result_complete,
+                   quote_ident(i.schemaname) || '.' || quote_ident(i.indexname) as select_value,
+                   quote_ident(i.schemaname) || '.' || quote_ident(i.tablename) as complement,
+                   quote_ident(i.tablename) as complement_complete
+            from pg_indexes i) search
+            {1}
+            order by sequence,result_complete
+        '''.format(p_columns,p_filter), True)

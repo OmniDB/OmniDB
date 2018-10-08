@@ -19,6 +19,8 @@ i.tab-icon {
   margin-left: 6px;
   font-size: 12px;
   line-height: 16px;
+  width: 16px;
+  height: 16px;
   vertical-align: middle;
 }
 
@@ -45,4 +47,28 @@ i.icon-close {
 i.icon-check {
   color: #1f8e79;
   width: 16px;
+}
+
+i.tab-status {
+  cursor: pointer;
+}
+
+i.tab-status-closed {
+  color: gray
+}
+
+i.tab-status-idle {
+  color: #2cb32c;
+}
+
+i.tab-status-running {
+  color: #2196f3;
+}
+
+i.tab-status-idle_in_transaction {
+  color: orange
+}
+
+i.tab-status-idle_in_transaction_aborted {
+  color: red
 }

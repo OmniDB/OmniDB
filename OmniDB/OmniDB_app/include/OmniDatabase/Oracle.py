@@ -1311,3 +1311,7 @@ WHERE condition
                 from user_objects
                 where (case when upper(replace(object_name, ' ', '')) <> object_name then '"' || object_name || '"' else object_name end) = '{0}'
             '''.format(p_object))
+
+    def GetAutocompleteValues(self, p_columns, p_filter):
+        return self.v_connection.Query('''
+        '''.format(p_columns,p_filter), True)

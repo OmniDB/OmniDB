@@ -940,7 +940,7 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-            '<span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span></span>',
+            '<span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
             false,
             null,
             renameTab,
@@ -991,8 +991,12 @@ function initCreateTabFunctions() {
           "<button id='bt_explain_" + v_tab.id + "' class='dbms_object postgresql_object bt_icon_only' onclick='getExplain(0)' title='Explain' style='display: none;'><i class='fas fa-search fa-light'></i></button>" +
           "<button id='bt_analyze_" + v_tab.id + "' class='dbms_object postgresql_object bt_icon_only' onclick='getExplain(1)' title='Explain Analyze' style='display: none;'><i class='fas fa-search-plus fa-light'></i></button>" +
           "<label class='dbms_object postgresql_object custom_checkbox' style='margin: 0px 10px 0px 5px;'>Autocommit<input id='check_autocommit_" + v_tab.id + "' type='checkbox' checked='checked'><span class='checkmark'></span></label>" +
+          "<i id='query_tab_status_" + v_tab.id + "' title='Not connected' class='fas fa-dot-circle tab-status tab-status-closed dbms_object postgresql_object'></i>" +
+          "<span id='query_tab_status_text_" + v_tab.id + "' title='Not connected' class='tab-status-text query_info dbms_object postgresql_object'>Not connected</span>" +
           "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute bt_fetch' title='Run' style='display: none; line-height: 1px;' onclick='querySQL(1);'>Fetch more</button>" +
           "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(2);'>Fetch all</button>" +
+          "<button id='bt_commit_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(3);'>Commit</button>" +
+          "<button id='bt_rollback_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(4);'>Rollback</button>" +
           "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='display: none; line-height: 1px;' onclick='cancelSQL();'>Cancel</button>" +
 					"<div id='div_query_info_" + v_tab.id + "' class='query_info query_info_summary' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
 					"<button class='bt_export' title='Export Data' style='margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><i class='fas fa-file-export fa-light'></i></button>" +
@@ -1125,9 +1129,13 @@ function initCreateTabFunctions() {
 			tab_close_span : v_tab_close_span,
 			tab_check_span : v_tab_check_span,
       tab_stub_span : v_tab_stub_span,
+      query_tab_status: document.getElementById('query_tab_status_' + v_tab.id),
+      query_tab_status_text: document.getElementById('query_tab_status_text_' + v_tab.id),
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
       bt_fetch_more: document.getElementById('bt_fetch_more_' + v_tab.id),
       bt_fetch_all: document.getElementById('bt_fetch_all_' + v_tab.id),
+      bt_commit: document.getElementById('bt_commit_' + v_tab.id),
+      bt_rollback: document.getElementById('bt_rollback_' + v_tab.id),
       bt_start: document.getElementById('bt_start_' + v_tab.id),
       bt_indent: document.getElementById('bt_indent_' + v_tab.id),
       bt_explain: document.getElementById('bt_explain_' + v_tab.id),
@@ -1214,7 +1222,7 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-            '<i class="fas fa-terminal icon-tab-title"></i><span> Console</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
+            '<i class="fas fa-terminal icon-tab-title"></i><span> Console</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
             false,
             null,
             null,
@@ -1262,6 +1270,13 @@ function initCreateTabFunctions() {
           "<button id='bt_indent_" + v_tab.id + "' class='bt_icon_only' title='Indent SQL' onclick='indentSQL();'><i class='fas fa-indent fa-light'></i></button>" +
           "<button id='bt_clear_" + v_tab.id + "' class='bt_icon_only' title='Clear Console' onclick='clearConsole();'><i class='fas fa-broom fa-light'></i></button>" +
           "<button id='bt_history_" + v_tab.id + "' class='bt_icon_only' title='Command History' onclick='showConsoleHistory();'><i class='fas fa-list fa-light'></i></button>" +
+          "<label class='dbms_object postgresql_object custom_checkbox' style='margin: 0px 10px 0px 5px;'>Autocommit<input id='check_autocommit_" + v_tab.id + "' type='checkbox' checked='checked'><span class='checkmark'></span></label>" +
+          "<i id='query_tab_status_" + v_tab.id + "' title='Not connected' class='fas fa-dot-circle tab-status tab-status-closed dbms_object postgresql_object'></i>" +
+          "<span id='query_tab_status_text_" + v_tab.id + "' title='Not connected' class='tab-status-text query_info dbms_object postgresql_object'>Not connected</span>" +
+          "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute bt_fetch' title='Run' style='display: none; line-height: 1px;' onclick='consoleSQL(false,1);'>Fetch more</button>" +
+          "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='consoleSQL(false,2);'>Fetch all</button>" +
+          "<button id='bt_commit_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(3);'>Commit</button>" +
+          "<button id='bt_rollback_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(4);'>Rollback</button>" +
           "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='line-height: 1px; display: none;' onclick='cancelConsole();'>Cancel</button>" +
 					"<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
           "</div>" +
@@ -1399,8 +1414,16 @@ function initCreateTabFunctions() {
 			div_console: document.getElementById('txt_console_' + v_tab.id),
       div_result: document.getElementById('txt_input_' + v_tab.id),
       query_info: document.getElementById('div_query_info_' + v_tab.id),
+      query_tab_status: document.getElementById('query_tab_status_' + v_tab.id),
+      query_tab_status_text: document.getElementById('query_tab_status_text_' + v_tab.id),
+			bt_start: document.getElementById('bt_start_' + v_tab.id),
+      bt_fetch_more: document.getElementById('bt_fetch_more_' + v_tab.id),
+      bt_fetch_all: document.getElementById('bt_fetch_all_' + v_tab.id),
+      bt_commit: document.getElementById('bt_commit_' + v_tab.id),
+      bt_rollback: document.getElementById('bt_rollback_' + v_tab.id),
       bt_indent: document.getElementById('bt_indent_' + v_tab.id),
       bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
+      check_autocommit: document.getElementById('check_autocommit_' + v_tab.id),
 			tab_loading_span : v_tab_loading_span,
 			tab_close_span : v_tab_close_span,
 			tab_check_span : v_tab_check_span,
@@ -1435,7 +1458,7 @@ function initCreateTabFunctions() {
 
     v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
     var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-        '<i class="fas fa-table icon-tab-title"></i><span id="tab_title"> ' + p_table + '</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
+        '<i class="fas fa-table icon-tab-title"></i><span id="tab_title"> ' + p_table + '</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
         false,
         null,
         null,
@@ -1736,7 +1759,7 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-            '<i class="fas fa-code-branch icon-tab-title"></i><span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
+            '<i class="fas fa-code-branch icon-tab-title"></i><span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 16px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
             false,
             null,
             renameTab,

@@ -104,6 +104,9 @@ function showConfigUser() {
 
 	document.getElementById('chk_enable_chat').checked = ((v_enable_omnichat == 1) ? true : false);
 
+	document.getElementById('sel_csv_encoding').value = v_csv_encoding;
+	document.getElementById('txt_csv_delimiter').value = v_csv_delimiter;
+
 	$('#div_config_user').addClass('isActive');
 
 }
@@ -201,10 +204,13 @@ function saveConfigUser() {
 
 	v_enable_omnichat = ((document.getElementById('chk_enable_chat').checked == true) ? 1 : 0);
 
+	v_csv_encoding = document.getElementById('sel_csv_encoding').value;
+	v_csv_delimiter = document.getElementById('txt_csv_delimiter').value;
+
 	if ((v_confirm_pwd.value!='' || v_pwd.value!='') && (v_pwd.value!=v_confirm_pwd.value))
 		showAlert('New Password and Confirm New Password fields do not match.');
 	else {
-		var input = JSON.stringify({"p_font_size" : v_editor_font_size, "p_theme" : v_theme_id, "p_pwd" : v_pwd.value, "p_chat_enabled": v_enable_omnichat});
+		var input = JSON.stringify({"p_font_size" : v_editor_font_size, "p_theme" : v_theme_id, "p_pwd" : v_pwd.value, "p_chat_enabled": v_enable_omnichat, "p_csv_encoding": v_csv_encoding, "p_csv_delimiter": v_csv_delimiter});
 
 		execAjax('/save_config_user/',
 				input,

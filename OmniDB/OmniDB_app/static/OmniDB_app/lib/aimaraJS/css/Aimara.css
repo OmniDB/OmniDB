@@ -31,13 +31,16 @@ ul.tree li.last {
 	background: #fff url(lastnode.png) no-repeat;
 }
 
-img.exp_col {
+i.exp_col {
 	margin-top: 4px;
 	margin-left: -20px;
+	width: 16px;
+	display: inline-block;
+	height: 16px;
 	vertical-align: sub;
 }
 
-img.exp_col_empty {
+i.exp_col_empty {
 	margin-top: 4px;
 	margin-left: -20px;
 	vertical-align: sub;

@@ -11,7 +11,7 @@ APP_DB_NAME=omnidb_tests
 PG_VERSION=10
 
 # Edit the following to change the local port PostgreSQL port 5432 will be mapped to
-PG_LOCAL_PORT=5402
+PG_LOCAL_PORT=5432
 
 ###########################################################
 # Changes below this line are probably not necessary
@@ -86,7 +86,7 @@ echo "max_replication_slots = 10" >> "$PG_CONF"
 echo "wal_level = logical" >> "$PG_CONF"
 
 # Restart so that all new config is loaded:
-service postgresql restart
+systemctl restart postgresql
 
 cat << EOF | su - postgres -c psql
 -- Create the database user:

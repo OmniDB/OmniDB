@@ -35,7 +35,9 @@ class Session(object):
                 p_enable_omnichat,
                 p_super_user,
                 p_cryptor,
-                p_user_key):
+                p_user_key,
+                p_csv_encoding,
+                p_csv_delimiter):
         self.v_user_id = p_user_id
         self.v_user_name = p_user_name
         self.v_omnidb_database = p_omnidb_database
@@ -49,6 +51,8 @@ class Session(object):
         self.v_database_index = -1
         self.v_databases = OrderedDict()
         self.v_user_key = p_user_key
+        self.v_csv_encoding = p_csv_encoding
+        self.v_csv_delimiter = p_csv_delimiter
         self.v_tab_connections = dict([])
 
         self.RefreshDatabaseList()

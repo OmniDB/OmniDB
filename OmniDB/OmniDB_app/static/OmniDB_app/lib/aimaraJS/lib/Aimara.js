@@ -91,16 +91,18 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 					if (p_parentNode.childNodes.length==0) {
 						if (p_parentNode.expanded) {
 						p_parentNode.elementLi.getElementsByTagName("ul")[0].style.display = 'block';
-						var v_img = p_parentNode.elementLi.getElementsByTagName("img")[0];
+						var v_img = p_parentNode.elementLi.getElementsByTagName("i")[0];
 						v_img.style.visibility = "visible";
-						v_img.src = '/static/OmniDB_app/images/collapse.png';
+						v_img.classList.remove('aimara-expand');
+						v_img.classList.add('aimara-collapse');
 						v_img.id = 'toggle_off';
 						}
 						else {
 							p_parentNode.elementLi.getElementsByTagName("ul")[0].style.display = 'none';
-							var v_img = p_parentNode.elementLi.getElementsByTagName("img")[0];
+							var v_img = p_parentNode.elementLi.getElementsByTagName("i")[0];
 							v_img.style.visibility = "visible";
-							v_img.src = '/static/OmniDB_app/images/expand.png';
+							v_img.classList.add('aimara-expand');
+							v_img.classList.remove('aimara-collapse');
 							v_img.id = 'toggle_on';
 						}
 					}
@@ -145,16 +147,18 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			if (p_node.childNodes.length>0) {
 				if (p_node.expanded) {
 				p_node.elementLi.getElementsByTagName("ul")[0].style.display = 'block';
-				var v_img = p_node.elementLi.getElementsByTagName("img")[0];
+				var v_img = p_node.elementLi.getElementsByTagName("i")[0];
 				v_img.style.visibility = "visible";
-				v_img.src = '/static/OmniDB_app/images/collapse.png';
+				v_img.classList.remove('aimara-expand');
+				v_img.classList.add('aimara-collapse');
 				v_img.id = 'toggle_off';
 				}
 				else {
 					p_node.elementLi.getElementsByTagName("ul")[0].style.display = 'none';
-					var v_img = p_node.elementLi.getElementsByTagName("img")[0];
+					var v_img = p_node.elementLi.getElementsByTagName("i")[0];
 					v_img.style.visibility = "visible";
-					v_img.src = '/static/OmniDB_app/images/expand.png';
+					v_img.classList.add('aimara-expand');
+					v_img.classList.remove('aimara-collapse');
 					v_img.id = 'toggle_on';
 				}
 
@@ -208,15 +212,15 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			var v_exp_col = null;
 
 			if (p_node.childNodes.length == 0) {
-				v_exp_col = createImgElement('toggle_off','exp_col','/static/OmniDB_app/images/collapse.png');
+				v_exp_col = createSimpleElement('i','toggle_off','exp_col aimara-collapse');
 				v_exp_col.style.visibility = "hidden";
 			}
 			else {
 				if (p_node.expanded) {
-					v_exp_col = createImgElement('toggle_off','exp_col','/static/OmniDB_app/images/collapse.png');
+					v_exp_col = createSimpleElement('i','toggle_off','exp_col aimara-collapse');
 				}
 				else {
-					v_exp_col = createImgElement('toggle_on','exp_col','/static/OmniDB_app/images/expand.png');
+					v_exp_col = createSimpleElement('i','toggle_on','exp_col aimara-expand');
 				}
 			}
 
@@ -344,12 +348,13 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				if (this.nodeBeforeOpenEvent!=undefined)
 					this.nodeBeforeOpenEvent(p_node);
 
-				var img=p_node.elementLi.getElementsByTagName("img")[0];
-
+				var img=p_node.elementLi.getElementsByTagName("i")[0];
+				console.log('ae')
 				p_node.expanded = true;
 
 				img.id="toggle_off";
-				img.src = '/static/OmniDB_app/images/collapse.png';
+				img.classList.remove('aimara-expand');
+				img.classList.add('aimara-collapse');
 				elem_ul = img.parentElement.getElementsByTagName("ul")[0];
 				elem_ul.style.display = 'block';
 
@@ -361,14 +366,14 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		// p_node: Reference to the node;
 		collapseNode: function(p_node) {
 			if (p_node.childNodes.length>0 && p_node.expanded==true) {
-				var img=p_node.elementLi.getElementsByTagName("img")[0];
+				var img=p_node.elementLi.getElementsByTagName("i")[0];
 
 				p_node.expanded = false;
 				if (this.nodeBeforeCloseEvent!=undefined)
 					this.nodeBeforeCloseEvent(p_node);
 
-				img.id="toggle_on";
-				img.src = '/static/OmniDB_app/images/expand.png';
+				img.classList.add('aimara-expand');
+				img.classList.remove('aimara-collapse');
 				elem_ul = img.parentElement.getElementsByTagName("ul")[0];
 				elem_ul.style.display = 'none';
 
@@ -425,7 +430,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			p_node.parent.childNodes.splice(index, 1);
 
 			if (p_node.parent.childNodes.length==0) {
-				var v_img = p_node.parent.elementLi.getElementsByTagName("img")[0];
+				var v_img = p_node.parent.elementLi.getElementsByTagName("i")[0];
 				v_img.style.visibility = "hidden";
 			}
 
@@ -437,7 +442,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			if (p_node.childNodes.length>0) {
 				var v_ul = p_node.elementLi.getElementsByTagName("ul")[0];
 
-				var v_img = p_node.elementLi.getElementsByTagName("img")[0];
+				var v_img = p_node.elementLi.getElementsByTagName("i")[0];
 				v_img.style.visibility = "hidden";
 
 				p_node.childNodes = [];

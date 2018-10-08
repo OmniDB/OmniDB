@@ -1077,7 +1077,7 @@ function refreshMonitoring(p_tab_tag) {
 					for (var i=0; i<v_data.v_data.length; i++) {
 						var v_actions_html = '';
 						for (var j=0; j<p_tab_tag.actions.length; j++) {
-							v_actions_html += '<img class="img_ht" title="' + p_tab_tag.actions[j].title + '" src="' + p_tab_tag.actions[j].icon + '" onclick="monitoringAction(' + i + ',&apos;' + p_tab_tag.actions[j].action + '&apos;)">';
+							v_actions_html += '<i class="' + p_tab_tag.actions[j].icon + '" onclick="monitoringAction(' + i + ',&apos;' + p_tab_tag.actions[j].action + '&apos;)"></i>';
 						}
 						v_data.v_data[i].unshift(v_actions_html);
 					}
@@ -1182,7 +1182,8 @@ function adjustQueryTabObjects(p_all_tabs) {
 	});
 
 	var v_objects = $(v_target_div).find("." + v_dbms + "_object").each(function() {
-	  $( this ).css('display','inline-block');
+		if (!$( this ).hasClass('dbms_object_hidden'))
+	  	$( this ).css('display','inline-block');
 	});
 
 
@@ -1260,7 +1261,7 @@ function showMenuNewTab(e) {
 					v_connTabControl.tag.createMonitoringTab(
 							'Backends',
 							'select * from pg_stat_activity', [{
-									icon: '/static/OmniDB_app/images/tab_close.png',
+									icon: 'fas fa-times action-grid action-close',
 									title: 'Terminate',
 									action: 'postgresqlTerminateBackend'
 							}]);
@@ -1277,7 +1278,7 @@ function showMenuNewTab(e) {
 					v_connTabControl.tag.createMonitoringTab(
 							'Process List',
 							'select * from information_schema.processlist', [{
-									icon: '/static/OmniDB_app/images/tab_close.png',
+									icon: 'fas fa-times action-grid action-close',
 									title: 'Terminate',
 									action: 'mysqlTerminateBackend'
 							}]);

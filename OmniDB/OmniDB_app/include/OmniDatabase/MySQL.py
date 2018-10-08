@@ -1145,3 +1145,7 @@ WHERE condition
             return self.v_connection.Query('show create {0} {1}.{2}'.format(p_type, p_schema, p_object), True, True).Rows[0][2]
         else:
             return self.v_connection.Query('show create {0} {1}.{2}'.format(p_type, p_schema, p_object), True, True).Rows[0][1]
+
+    def GetAutocompleteValues(self, p_columns, p_filter):
+        return self.v_connection.Query('''
+        '''.format(p_columns,p_filter), True)

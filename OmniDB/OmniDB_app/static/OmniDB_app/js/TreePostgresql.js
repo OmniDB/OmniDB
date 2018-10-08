@@ -40,7 +40,7 @@ function tabDataMining(node) {
 
     var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
         '<span id="tab_title">' + v_name +
-        '</span><span id="tab_stub"><img style="width: 16px;"/></span><span id="tab_loading" style="display:none;"><img src="/static/OmniDB_app/images/spin.svg"/></span><span id="tab_check" style="display:none;"><img src="/static/OmniDB_app/images/check.png"/></span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+        '</span><span id="tab_stub"><img style="width: 16px;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
         false,
         null,
         renameTab,
@@ -99,16 +99,12 @@ function tabDataMining(node) {
         "' style=' width: 100%; height: 400px; border: 1px solid #c3c3c3;'></div>" +
         "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
         "<button id='bt_start_" + v_tab.id +
-        "' class='bt_execute' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;'><img src='/static/OmniDB_app/images/play.png' style='vertical-align: middle;'/></button>" +
-        "<select id='sel_filtered_data_" + v_tab.id +
-        "' style='display: none;'><option value='0' >Script</option><option selected='selected' value='1' >Query</option></select>" +
+        "' class='bt_execute bt_icon_only' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;'><i class='fas fa-play fa-light'></i></button>" +
         "<button id='bt_cancel_" + v_tab.id +
         "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none; vertical-align: middle;' onclick='cancelSQL();'>Cancel</button>" +
         "<div id='div_query_info_" + v_tab.id +
         "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
-        "<button class='bt_export' title='Export Data' style='display: none; margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><img src='/static/OmniDB_app/images/table_export.png' style='vertical-align: middle;'/></button>" +
-        "<select id='sel_export_type_" + v_tab.id +
-        "' style='display: none; float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option><option value='DBF' >DBF</option></select>" +
+
         "        <div id='query_result_tabs_" + v_tab.id + "'>" +
         "            <ul>" +
         "            <li id='query_result_tabs_" + v_tab.id +
@@ -4906,7 +4902,7 @@ function getSequencesPostgresql(node) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_sequence_name,
                     false,
-                    '/static/OmniDB_app/images/sequence_list.png', {
+                    'fas node-all fa-sort-numeric-down node-sequence', {
                         type: 'sequence',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_sequence', null, false);
@@ -4953,7 +4949,7 @@ function getViewsPostgresql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/view.png', {
+                    false, 'fas node-all fa-eye node-view', {
                         type: 'view',
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
@@ -5130,7 +5126,7 @@ function getMaterializedViewsPostgresql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/view.png', {
+                    false, 'fas node-all fa-eye node-mview', {
                         type: 'mview',
                         has_indexes: p_return.v_data[i].v_has_indexes,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
@@ -5936,7 +5932,7 @@ function getChecksPostgresql(node) {
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, 'cm_check', null, false);
                     v_node.createChildNode(p_return.v_data[i][1], false,
-                        '/static/OmniDB_app/images/text_edit.png', {
+                        'fas node-all fa-edit node-check-value', {
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         },
                         null, null, false);
@@ -6369,20 +6365,20 @@ function getFunctionFieldsPostgresql(node) {
 
                 if (p_return.v_data[i].v_type == 'O')
                     v_node = node.createChildNode(p_return.v_data[i].v_name,
-                        false, '/static/OmniDB_app/images/output.png', {
+                        false, 'fas node-all fa-arrow-right node-function-field', {
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         },
                         null, null, false);
                 else {
                     if (p_return.v_data[i].v_type == 'I')
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
-                            false, '/static/OmniDB_app/images/input.png', {
+                            false, 'fas node-all fa-arrow-left node-function-field', {
                                 database: v_connTabControl.selectedTab.tag.selectedDatabase
                             }, null, null, false);
                     else
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
                             false,
-                            '/static/OmniDB_app/images/input_output.png', {
+                            'fas node-all fa-exchange-alt node-function-field', {
                                 database: v_connTabControl.selectedTab.tag.selectedDatabase
                             }, null, null, false);
                 }
@@ -6558,20 +6554,20 @@ function getProcedureFieldsPostgresql(node) {
 
                 if (p_return.v_data[i].v_type == 'O')
                     v_node = node.createChildNode(p_return.v_data[i].v_name,
-                        false, '/static/OmniDB_app/images/output.png', {
+                        false, 'fas node-all fa-arrow-right node-function-field', {
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         },
                         null, null, false);
                 else {
                     if (p_return.v_data[i].v_type == 'I')
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
-                            false, '/static/OmniDB_app/images/input.png', {
+                            false, 'fas node-all fa-arrow-left node-function-field', {
                                 database: v_connTabControl.selectedTab.tag.selectedDatabase
                             }, null, null, false);
                     else
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
                             false,
-                            '/static/OmniDB_app/images/input_output.png', {
+                            'fas node-all fa-exchange-alt node-function-field', {
                                 database: v_connTabControl.selectedTab.tag.selectedDatabase
                             }, null, null, false);
                 }
@@ -8407,7 +8403,7 @@ function nodeOpenError(p_return, p_node) {
             "Error - <a class='a_link' onclick='showError(&quot;" +
             p_return.v_data.replace(/\n/g, "<br/>").replace(/"/g, '') +
             "&quot;)'>View Detail</a>", false,
-            '/static/OmniDB_app/images/tab_close.png', {
+            'fas fa-times node-error', {
                 type: 'error',
                 message: p_return.v_data
             }, null);

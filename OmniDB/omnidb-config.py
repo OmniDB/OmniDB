@@ -51,7 +51,7 @@ def create_superuser(p_user, p_pwd):
         v_cryptor = Utils.Cryptor("omnidb")
         database.v_connection.Execute('''
             insert into users values (
-            (select coalesce(max(user_id), 0) + 1 from users),'{0}','{1}',1,'14',1,1,'{2}')
+            (select coalesce(max(user_id), 0) + 1 from users),'{0}','{1}',1,'14',1,1,'utf-8',';')
         '''.format(p_user,v_cryptor.Encrypt(p_pwd),str(uuid.uuid4())))
         print('Superuser created.')
         #database.v_connection.Execute('''

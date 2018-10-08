@@ -26,6 +26,22 @@ You should have received a copy of the GNU General Public License along with Omn
   background-image: url("/static/OmniDB_app/images/postgresql_medium.png")
 }
 
+.node-oracle {
+  background-image: url("/static/OmniDB_app/images/oracle_medium.png")
+}
+
+.aimara-expand {
+  background-image: url("/static/OmniDB_app/images/expand.png")
+}
+
+.aimara-collapse {
+  background-image: url("/static/OmniDB_app/images/collapse.png")
+}
+
+.node-error {
+  color: #d85656;
+}
+
 .node-keyword {
   color: #cc933f;
 }
@@ -43,6 +59,10 @@ You should have received a copy of the GNU General Public License along with Omn
 }
 
 .node-tablespace {
+  color: #344E75;
+}
+
+.node-check-value {
   color: #344E75;
 }
 
@@ -118,11 +138,23 @@ You should have received a copy of the GNU General Public License along with Omn
   color: #344E75;
 }
 
+.node-sequence {
+  color: #344E75;
+}
+
 .node-view-list {
   color: #1f8e79;
 }
 
+.node-view {
+  color: #1f8e79;
+}
+
 .node-mview-list {
+  color: #344E75;
+}
+
+.node-mview {
   color: #344E75;
 }
 
@@ -132,6 +164,10 @@ You should have received a copy of the GNU General Public License along with Omn
 
 .node-function {
   color: #1f8e79;
+}
+
+.node-function-field {
+  color: #344E75;
 }
 
 .node-tfunction-list {

@@ -191,7 +191,7 @@ function dataMiningReturnRender(p_message, p_context) {
 	        'cm_see_details': {
 	            elements: [{
 	                text: 'See More',
-	                icon: '/static/OmniDB_app/images/explain.png',
+	                icon: 'fas cm-all fa-search',
 	                action: function(p_node) {
 						tabSQLTemplate('Search - ' + p_node.tag.key, p_node.tag.sql, false);
 	                }
@@ -200,7 +200,7 @@ function dataMiningReturnRender(p_message, p_context) {
 			'cm_see_error': {
 				elements: [{
 					text: 'See Errors',
-					icon: '/static/OmniDB_app/images/explain.png',
+					icon: 'fas cm-all fa-search',
 					action: function(p_node) {
 						showError(p_node.tag.exception);
 					}
@@ -230,7 +230,7 @@ function dataMiningReturnRender(p_message, p_context) {
 					var v_node = v_tree.createNode(
 						v_dataMatches,
 						false,
-						'/static/OmniDB_app/images/data_mining.png',
+						'fas node-all fa-search node-data-mining',
 						null,
 						p_message.v_data.v_result[v_key],
 						v_data_cm
@@ -256,7 +256,7 @@ function dataMiningReturnRender(p_message, p_context) {
 							var v_childNode = v_node.createChildNode(
 								v_matches,
 								false,
-								'/static/OmniDB_app/images/data_mining.png',
+								'fas node-all fa-search node-data-mining',
 								p_message.v_data.v_result[v_key]['result'][v_key2],
 								v_cm
 							);
@@ -283,7 +283,7 @@ function dataMiningReturnRender(p_message, p_context) {
 					var v_node = v_tree.createNode(
 						v_matches,
 						false,
-						'/static/OmniDB_app/images/data_mining.png',
+						'fas node-all fa-search node-data-mining',
 						null,
 						p_message.v_data.v_result[v_key],
 						v_cm
@@ -299,7 +299,7 @@ function dataMiningReturnRender(p_message, p_context) {
 			var v_node = v_tree.createNode(
 				'Advanced Object Search found no matches.',
 				false,
-				'/static/OmniDB_app/images/data_mining.png',
+				'fas node-all fa-search node-data-mining',
 				null,
 				'no_matches',
 				null

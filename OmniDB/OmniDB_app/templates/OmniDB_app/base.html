@@ -3,14 +3,14 @@
   <title>OmniDB</title>
   <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.10.0.2"            />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.12.0.1"            />
 
   <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/modern-style.css?v1.0.0.0"            />
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.10.0.2"/>
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.10.0.2"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.10.0.2"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/popper.css?v2.10.0.2"  />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.12.0.1"/>
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.12.0.1"    />
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.12.0.1"    />
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/popper.css?v2.12.0.1"  />
 
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/bootstrap.css">
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/main.css">
@@ -77,7 +77,7 @@
                   <li id="config_tabs_tab1">Shortcuts</li>
 	                <li id="config_tabs_tab2">Editor</li>
                   {% if not desktop_mode %}
-	                 <li id="config_tabs_tab3">User</li>
+	                <li id="config_tabs_tab3">User</li>
                   {% endif %}
 	  				</ul>
             <div id="div_config_tabs_tab1">
@@ -252,6 +252,114 @@
 		                		<div style="margin-bottom: 10px;">Enable OmniChat</div>
 		                		<input id="chk_enable_chat" type="checkbox" style="width: 200px; margin-bottom: 20px;">
 		                	</div>
+                      <div style="text-align: center;">
+                        <div style="margin-bottom: 10px;">CSV Encoding</div>
+    		                <select id="sel_csv_encoding" style="width: 200px; margin-bottom: 20px;">
+    		                	<option value="ascii">ascii</option>
+                          <option value="big5">big5</option>
+                          <option value="big5hkscs">big5hkscs</option>
+                          <option value="cp037">cp037</option>
+                          <option value="cp273">cp273</option>
+                          <option value="cp424">cp424</option>
+                          <option value="cp437">cp437</option>
+                          <option value="cp500">cp500</option>
+                          <option value="cp720">cp720</option>
+                          <option value="cp737">cp737</option>
+                          <option value="cp775">cp775</option>
+                          <option value="cp850">cp850</option>
+                          <option value="cp852">cp852</option>
+                          <option value="cp855">cp855</option>
+                          <option value="cp856">cp856</option>
+                          <option value="cp857">cp857</option>
+                          <option value="cp858">cp858</option>
+                          <option value="cp860">cp860</option>
+                          <option value="cp861">cp861</option>
+                          <option value="cp862">cp862</option>
+                          <option value="cp863">cp863</option>
+                          <option value="cp864">cp864</option>
+                          <option value="cp865">cp865</option>
+                          <option value="cp866">cp866</option>
+                          <option value="cp869">cp869</option>
+                          <option value="cp874">cp874</option>
+                          <option value="cp875">cp875</option>
+                          <option value="cp932">cp932</option>
+                          <option value="cp949">cp949</option>
+                          <option value="cp950">cp950</option>
+                          <option value="cp1006">cp1006</option>
+                          <option value="cp1026">cp1026</option>
+                          <option value="cp1125">cp1125</option>
+                          <option value="cp1140">cp1140</option>
+                          <option value="cp1250">cp1250</option>
+                          <option value="cp1251">cp1251</option>
+                          <option value="cp1252">cp1252</option>
+                          <option value="cp1253">cp1253</option>
+                          <option value="cp1254">cp1254</option>
+                          <option value="cp1255">cp1255</option>
+                          <option value="cp1256">cp1256</option>
+                          <option value="cp1257">cp1257</option>
+                          <option value="cp1258">cp1258</option>
+                          <option value="cp65001">cp65001</option>
+                          <option value="euc-jp">euc-jp</option>
+                          <option value="euc-jis-2004">euc-jis-2004</option>
+                          <option value="euc-jisx0213">euc-jisx0213</option>
+                          <option value="euc-kr">euc-kr</option>
+                          <option value="gb2312">gb2312</option>
+                          <option value="gbk">gbk</option>
+                          <option value="gb18030">gb18030</option>
+                          <option value="hz">hz</option>
+                          <option value="iso2022-jp">iso2022-jp</option>
+                          <option value="iso2022-jp-1">iso2022-jp-1</option>
+                          <option value="iso2022-jp-2">iso2022-jp-2</option>
+                          <option value="iso2022-jp-2004">iso2022-jp-2004</option>
+                          <option value="iso2022-jp-3">iso2022-jp-3</option>
+                          <option value="iso2022-jp-ext">iso2022-jp-ext</option>
+                          <option value="iso2022-kr">iso2022-kr</option>
+                          <option value="latin-1">latin-1</option>
+                          <option value="iso8859-2">iso8859-2</option>
+                          <option value="iso8859-3">iso8859-3</option>
+                          <option value="iso8859-4">iso8859-4</option>
+                          <option value="iso8859-5">iso8859-5</option>
+                          <option value="iso8859-6">iso8859-6</option>
+                          <option value="iso8859-7">iso8859-7</option>
+                          <option value="iso8859-8">iso8859-8</option>
+                          <option value="iso8859-9">iso8859-9</option>
+                          <option value="iso8859-10">iso8859-10</option>
+                          <option value="iso8859-11">iso8859-11</option>
+                          <option value="iso8859-13">iso8859-13</option>
+                          <option value="iso8859-14">iso8859-14</option>
+                          <option value="iso8859-15">iso8859-15</option>
+                          <option value="iso8859-16">iso8859-16</option>
+                          <option value="johab">johab</option>
+                          <option value="koi8-r">koi8-r</option>
+                          <option value="koi8-t">koi8-t</option>
+                          <option value="koi8-u">koi8-u</option>
+                          <option value="kz1048">kz1048</option>
+                          <option value="mac-cyrillic">mac-cyrillic</option>
+                          <option value="mac-greek">mac-greek</option>
+                          <option value="mac-iceland">mac-iceland</option>
+                          <option value="mac-latin2">mac-latin2</option>
+                          <option value="mac-roman">mac-roman</option>
+                          <option value="mac-turkish">mac-turkish</option>
+                          <option value="ptcp154">ptcp154</option>
+                          <option value="shift-jis">shift-jis</option>
+                          <option value="shift-jis-2004">shift-jis-2004</option>
+                          <option value="shift-jisx0213">shift-jisx0213</option>
+                          <option value="utf-32">utf-32</option>
+                          <option value="utf-32-be">utf-32-be</option>
+                          <option value="utf-32-le">utf-32-le</option>
+                          <option value="utf-16">utf-16</option>
+                          <option value="utf-16-be">utf-16-be</option>
+                          <option value="utf-16-le">utf-16-le</option>
+                          <option value="utf-7">utf-7</option>
+                          <option value="utf-8">utf-8</option>
+                          <option value="utf-8-sig">utf-8-sig</option>
+                          <option value="windows-1252">windows-1252</option>
+    		                </select>
+                      </div>
+                      <div style="text-align: center;">
+		                		<div style="margin-bottom: 10px;">CSV Delimiter</div>
+		                		<input id="txt_csv_delimiter" style="width: 200px; margin-bottom: 20px;">
+		                	</div>
 		                	<div style="text-align: center;">
 			                	<button onclick="saveConfigUser();">Save Changes</button>
 		                	</div>
@@ -318,7 +426,6 @@
         </div>
     </div>
 
-
   <div id="div_error" class="isModal">
       <div class="modal_background_dark" style="z-index: 2000">
           <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%; z-index: 2000;">
@@ -352,8 +459,6 @@
           </div>
       </div>
   </div>
-
-
 
   <div id="div_autocomplete">
     <div id="div_test_length"></div>
@@ -466,27 +571,27 @@
 
   <div class="div_loading"></div>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.10.0.2"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.10.0.2"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.10.0.2"             ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.10.0.2"         ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.12.0.1"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.12.0.1"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.12.0.1"             ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.12.0.1"         ></script>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.10.0.2"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/popper.min.js?v2.10.0.2"             ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/tooltip.min.js?v2.10.0.2"            ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.10.0.2"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.10.0.2"               ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.10.0.2"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.10.0.2"></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.10.0.2"         ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.10.0.2"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.10.0.2"    ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.10.0.2"            ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.10.0.2"       ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.10.0.2"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.10.0.2"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.10.0.2"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.10.0.2"                  ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.12.0.1"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/popper.min.js?v2.12.0.1"             ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/tooltip.min.js?v2.12.0.1"            ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.12.0.1"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.12.0.1"               ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.12.0.1"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.12.0.1"></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.12.0.1"         ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.12.0.1"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.12.0.1"    ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.12.0.1"            ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.12.0.1"       ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.12.0.1"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.12.0.1"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.12.0.1"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.12.0.1"                  ></script>
 
   <script type="text/javascript">
 
@@ -496,13 +601,15 @@
 	var	v_theme_id = {{ session.v_theme_id }};
 	var v_editor_font_size = {{ session.v_editor_font_size }};
 	var v_user_id = {{ session.v_user_id }};
-    var v_user_key = '{{ session.v_user_key }}';
-    var v_user_name = '{{ session.v_user_name }}';
+  var v_user_key = '{{ session.v_user_key }}';
+  var v_user_name = '{{ session.v_user_name }}';
 	var v_enable_omnichat = parseInt({{ session.v_enable_omnichat }});
-    var v_session_key = v_user_key;
-    var v_user_login = v_user_name;
-    var v_version = '{{ omnidb_version }}';
-    var v_short_version = '{{ omnidb_short_version }}';
+  var v_csv_encoding = '{{ session.v_csv_encoding }}';
+  var v_csv_delimiter = '{{ session.v_csv_delimiter }}';
+  var v_session_key = v_user_key;
+  var v_user_login = v_user_name;
+  var v_version = '{{ omnidb_version }}';
+  var v_short_version = '{{ omnidb_short_version }}';
 
   var v_menu_item = '{{ menu_item }}'
   $('#menu_' + v_menu_item).addClass('header_a_selected');

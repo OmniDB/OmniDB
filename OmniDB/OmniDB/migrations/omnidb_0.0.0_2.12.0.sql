@@ -382,19 +382,21 @@ INSERT INTO themes VALUES(34,'tomorrow_night_eighties','dark');--omnidb--
 INSERT INTO themes VALUES(35,'twilight','dark');--omnidb--
 INSERT INTO themes VALUES(36,'vibrant_ink','dark');--omnidb--
 
-CREATE TABLE users (user_id integer not null,
+CREATE TABLE users (
+    user_id integer not null,
     user_name varchar(30),
     password varchar(100),
     theme_id integer,
     editor_font_size varchar(10),
     chat_enabled integer,
     super_user integer,
-    user_key text,
+    csv_encoding varchar(20),
+    csv_delimiter varchar(10),
     constraint pk_users primary key (user_id),
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)
 );--omnidb--
-INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'0c4a137f-9918-4c0b-af45-480deef6f760');--omnidb--
+INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'utf-8',';','\r\n');--omnidb--
 
 CREATE TABLE messages (
     mes_in_code integer not null,
@@ -522,6 +524,7 @@ CREATE TABLE tabs (
     user_id integer not null,
     tab_id integer not null,
     snippet text,
+    title text,
     constraint fk_tabs_conn foreign key (conn_id) references connections (conn_id)  on update CASCADE  on delete CASCADE,
     constraint fk_tabs_users foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE
 );--omnidb--

@@ -232,6 +232,7 @@ div.query_info_summary strong {
 
 .custom_checkbox input {
   position: absolute;
+  left: 0;
   opacity: 0;
   cursor: pointer;
 }
@@ -421,4 +422,8 @@ div.query_info_summary strong {
 
 #div_autocomplete .handsontable tr:first-child th, #div_autocomplete .handsontable tr:first-child td {
   border-top: none;
+}
+
+.tab-status-text {
+  margin: 0px 10px;
 }

@@ -6913,7 +6913,7 @@ function getPublicationsPostgresql(node) {
                 if (p_return.v_data[i].v_alltables == 'False') {
                     v_tables = v_node.createChildNode('Tables',
                         false,
-                        '/static/OmniDB_app/images/table_multiple.png', {
+                        'fas node-all fa-th node-table-list', {
                             type: 'publication_table_list',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, 'cm_pubtables', null, false);
@@ -7024,7 +7024,7 @@ function getSubscriptionsPostgresql(node) {
                     }, null, null, false);
                 v_publications = v_node.createChildNode(
                     'Referenced Publications',
-                    false, '/static/OmniDB_app/images/publication.png', {
+                    false, 'fas node-all fa-arrow-alt-circle-down node-publication', {
                         type: 'subpubs',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null, null, false);
@@ -7032,14 +7032,14 @@ function getSubscriptionsPostgresql(node) {
                 for (j = 0; j < tmp.length; j++) {
                     v_publications.createChildNode(tmp[j],
                         false,
-                        '/static/OmniDB_app/images/publication.png', {
+                        'fas node-all fa-arrow-alt-circle-down node-publication', {
                             type: 'subpub',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, null, null, false);
                 }
                 v_tables = v_node.createChildNode('Tables',
                     false,
-                    '/static/OmniDB_app/images/table_multiple.png', {
+                    'fas node-all fa-th node-table-list', {
                         type: 'subscription_table_list',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null, null, false);
@@ -7220,7 +7220,7 @@ function getForeignServersPostgresql(node) {
               }
 
               v_node = v_node.createChildNode('User Mappings',
-                  false, '/static/OmniDB_app/images/usermap.png', {
+                  false, 'fas node-all fa-user-friends node-user', {
                       type: 'user_mapping_list',
                       database: v_connTabControl.selectedTab.tag.selectedDatabase
                   }, 'cm_user_mappings', null, false);
@@ -7269,7 +7269,7 @@ function getUserMappingsPostgresql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
               v_node = node.createChildNode(p_return.v_data[i].v_name,
-                  false, '/static/OmniDB_app/images/usermap.png', {
+                  false, 'fas node-all fa-user-friends node-user', {
                       type: 'user_mapping',
                       database: v_connTabControl.selectedTab.tag.selectedDatabase
                   }, 'cm_user_mapping', null, false);

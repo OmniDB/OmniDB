@@ -1105,6 +1105,8 @@ class PostgreSQL(Generic):
             self.v_cur = None
             self.v_start = True
             self.v_cursor = None
+            self.v_autocommit = True
+            self.v_last_fetched_size = 0
             self.v_special = PGSpecial()
             self.v_help = Spartacus.Database.DataTable()
             self.v_help.Columns = ['Command', 'Syntax', 'Description']
@@ -1427,7 +1429,11 @@ class PostgreSQL(Generic):
                 return 0
             else:
                 if self.v_con.closed == 0:
-                    return self.v_con.status
+                    v_status = self.v_con.get_transaction_status()
+                    if v_status == 4:
+                        return 0
+                    else:
+                        return v_status+1
                 else:
                     return 0
         except Spartacus.Database.Exception as exc:
@@ -1453,13 +1459,10 @@ class PostgreSQL(Generic):
                             if j < len(v_cursors)-1:
                                 v_sql = v_sql + v_statement[i]
                             else:
-                                if self.v_con.autocommit:
+                                if self.v_autocommit:
                                     v_sql = v_sql + ' DECLARE {0} CURSOR WITH HOLD FOR {1}'.format(v_cursors[j], v_statement[i])
                                 else:
-                                    if self.v_con.get_transaction_status() == 2:
-                                        v_sql = v_sql + ' DECLARE {0} CURSOR WITHOUT HOLD FOR {1}'.format(v_cursors[j], v_statement[i])
-                                    else:
-                                        v_sql = v_sql + ' BEGIN; DECLARE {0} CURSOR WITHOUT HOLD FOR {1}'.format(v_cursors[j], v_statement[i])
+                                    v_sql = v_sql + ' DECLARE {0} CURSOR WITHOUT HOLD FOR {1}'.format(v_cursors[j], v_statement[i])
                                 self.v_cursor = v_cursors[j]
                             j = j + 1
                         else:
@@ -1471,6 +1474,9 @@ class PostgreSQL(Generic):
             else:
                 self.v_cursor = None
                 return p_sql
+        except psqlparse.exceptions.PSqlParseError as exc:
+            self.v_cursor = None
+            return p_sql
         except Exception as exc:
             self.v_cursor = None
             return p_sql
@@ -1480,9 +1486,11 @@ class PostgreSQL(Generic):
                 raise Spartacus.Database.Exception('This method should be called in the middle of Open() and Close() calls.')
             else:
                 if self.v_start:
-                    if self.v_cursor and self.v_con.autocommit:
+                    if self.v_cursor:
                         self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
                     v_sql = self.Parse(p_sql)
+                    if not self.v_autocommit and not self.GetConStatus() == 3 and not self.GetConStatus() == 4:
+                        self.v_cur.execute('BEGIN;')
                     self.v_cur.execute(v_sql)
                 v_table = DataTable()
                 if self.v_cursor is not None:
@@ -1507,8 +1515,7 @@ class PostgreSQL(Generic):
                 if self.v_start:
                     self.v_start = False
                 if self.v_cursor is not None and len(v_table.Rows) < p_blocksize:
-                    if self.v_con.autocommit:
-                        self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
+                    self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
                     self.v_start = True
                     self.v_cursor = None
                 return v_table
@@ -1558,6 +1565,7 @@ class PostgreSQL(Generic):
             v_title = None
             v_table = None
             v_status = None
+            self.v_last_fetched_size = 0
             if v_command == '\\?':
                 v_table = self.v_help
             else:
@@ -1589,7 +1597,8 @@ class PostgreSQL(Generic):
                 else:
                     if self.v_timing:
                         v_timestart = datetime.datetime.now()
-                    v_table = self.Query(p_sql, True)
+                    v_table = self.QueryBlock(p_sql, 50, True, True)
+                    self.v_last_fetched_size = len(v_table.Rows)
                     v_status = self.GetStatus()
                     if self.v_timing:
                         v_status = v_status + '\nTime: {0}'.format(datetime.datetime.now() - v_timestart)

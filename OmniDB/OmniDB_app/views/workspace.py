@@ -18,6 +18,7 @@ from OmniDB_app.include.Session import Session
 
 from django.contrib.sessions.backends.db import SessionStore
 import sqlparse
+import psqlparse
 import random
 import string
 
@@ -1682,6 +1683,7 @@ def get_completions(request):
     v_found = False
 
     inst = get_positions (p_sql, p_prefix)
+    print(inst)
 
     index = 0
 
@@ -2200,6 +2202,76 @@ def get_console_history_clean(request):
 
     return JsonResponse(v_return)
 
+def get_alias_choose(p_item,p_alias):
+    #simple from clause, try to get
+    if 'RangeVar' in p_item:
+        if 'alias' in p_item['RangeVar']:
+            #FOUND
+            if p_item['RangeVar']['alias']['Alias']['aliasname']==p_alias:
+                if 'schemaname' in p_item['RangeVar']:
+                    return {'use_alias': True, 'is_subquery': False, 'relname': p_item['RangeVar']['relname'], 'schemaname': p_item['RangeVar']['schemaname'] }
+                else:
+                    return {'use_alias': True, 'is_subquery': False, 'relname': p_item['RangeVar']['relname'], 'schemaname': None }
+        #DON'T HAVE ALIAS, TRY tablename ITSELF
+        else:
+            if 'schemaname' in p_item['RangeVar']:
+                if p_item['RangeVar']['schemaname'] + '.' + p_item['RangeVar']['relname'] == p_alias:
+                    return {'use_alias': False, 'is_subquery': False, 'relname': p_item['RangeVar']['relname'], 'schemaname': p_item['RangeVar']['schemaname'] }
+            else:
+                if p_item['RangeVar']['relname'] == p_alias:
+                    return {'use_alias': False, 'is_subquery': False, 'relname': p_item['RangeVar']['relname'], 'schemaname': None }
+    #join
+    elif 'JoinExpr' in p_item:
+        v_alias = get_alias_choose(p_item['JoinExpr']['larg'],p_alias)
+        if v_alias!=None:
+            return v_alias
+        v_alias = get_alias_choose(p_item['JoinExpr']['rarg'],p_alias)
+        if v_alias!=None:
+            return v_alias
+    #subquery
+    elif 'RangeSubselect' in p_item:
+        if 'alias' in p_item['RangeSubselect']:
+            #FOUND
+            if p_item['RangeSubselect']['alias']['Alias']['aliasname']==p_alias:
+                return {'use_alias': True, 'is_subquery': True, 'relname': None, 'schemaname': None }
+            #NOT FOUND, CHECK SUBQUERY
+            if 'subquery' in p_item['RangeSubselect']:
+                return get_alias_select(p_item['RangeSubselect']['subquery']['SelectStmt'],p_alias)
+
+
+
+    return None
+
+def get_alias_from_clause(p_from_clause,p_alias):
+    for item in p_from_clause:
+        v_alias = get_alias_choose(item,p_alias)
+        if v_alias!=None:
+            return v_alias
+    return None
+
+def get_alias_target_list(p_from_clause,p_alias):
+    return None
+
+def get_alias_select(p_select,p_alias):
+    if 'fromClause' in p_select:
+        v_alias = get_alias_from_clause(p_select['fromClause'],p_alias)
+        if v_alias!=None:
+            return v_alias
+    if 'targetList' in p_select:
+        v_alias = get_alias_target_list(p_select['targetList'],p_alias)
+        if v_alias!=None:
+            return v_alias
+
+def get_alias(p_sql,p_pos,p_val):
+    try:
+        v_sql_new = p_sql[:p_pos] + 'a1' + p_sql[p_pos:]
+        s = psqlparse.parse(v_sql_new)
+        return get_alias_select(s[0]._obj,p_val[:-1])
+    except Exception as exc:
+        return None
+    return None
+
+
 def get_autocomplete_results(request):
 
     v_return = {}
@@ -2218,14 +2290,10 @@ def get_autocomplete_results(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
+    v_sql = json_object['p_sql']
     v_value = json_object['p_value']
+    v_pos = json_object['p_pos']
     v_num_dots = v_value.count('.')
-
-    v_filter = '''where search.result like '{0}%' '''.format(v_value)
-    if v_num_dots > 0:
-        v_filter = '''where search.result_complete like '{0}%' and search.num_dots <= {1}'''.format(v_value,v_num_dots)
-    elif v_value=='':
-        v_filter = '''where search.num_dots = 0 '''
 
     v_database = v_session.v_tab_connections[v_tab_id]
 
@@ -2237,196 +2305,102 @@ def get_autocomplete_results(request):
         return JsonResponse(v_return)
 
     v_result = []
+    max_result_word = ''
+    max_complement_word = ''
 
-    try:
-        #get reserved words list if there are no dots
-        if v_num_dots == 0:
-            v_reserved_words_list = v_database.v_reserved_words
-            v_value_upper = v_value.upper()
-            v_filtered_words_list = [k for k in v_reserved_words_list if k.startswith(v_value_upper)]
-            v_current_group = { 'type': 'keyword', 'elements': [] }
-            for v_filtered_word in v_filtered_words_list:
-                v_current_group['elements'].append({ 'value': v_filtered_word, 'complement': ''})
+    v_alias = None
+    if v_value[len(v_value)-1]=='.':
+        v_alias = get_alias(v_sql,v_pos,v_value)
+        if v_alias:
+            try:
+                if not v_alias['is_subquery']:
+                    if v_alias['schemaname']:
+                        v_table = v_alias['schemaname'] + '.' + v_alias['relname']
+                    else:
+                        v_table = v_alias['relname']
+                v_data1 = v_database.v_connection.GetFields ("select x.* from " + v_table + " x where 1 = 0")
+                v_current_group = { 'type': 'column', 'elements': [] }
+                max_result_length = 0
+                max_complement_length = 0
+                for v_type in v_data1:
+                    curr_result_length = len(v_type.v_truename)
+                    curr_complement_length = len(v_type.v_dbtype)
+                    curr_result_word = v_type.v_truename
+                    curr_complement_word = v_type.v_dbtype
+
+                    if curr_result_length > max_result_length:
+                        max_result_length = curr_result_length
+                        max_result_word = curr_result_word
+                    if curr_complement_length > max_complement_length:
+                        max_complement_length = curr_complement_length
+                        max_complement_word = curr_complement_word
+
+                    v_current_group['elements'].append({ 'value': v_type.v_truename, 'select_value': v_value + v_type.v_truename, 'complement': v_type.v_dbtype})
+                if len(v_current_group['elements']) > 0:
+                    v_result.append(v_current_group)
+            except Exception as exc:
+                None
+
+    if not v_alias:
+        v_filter = '''where search.result like '{0}%' '''.format(v_value)
+        v_query_columns = 'type,sequence,result,select_value,complement'
+        if v_num_dots > 0:
+            v_filter = '''where search.result_complete like '{0}%' and search.num_dots <= {1}'''.format(v_value,v_num_dots)
+            v_query_columns = 'type,sequence,result_complete as result,select_value,complement_complete as complement'
+        elif v_value=='':
+            v_filter = '''where search.num_dots = 0 '''
+
+        try:
+            max_result_length = 0
+            max_complement_length = 0
+
+            v_search = v_database.GetAutocompleteValues(v_query_columns,v_filter)
+
+            v_current_group = { 'type': '', 'elements': [] }
+            if len(v_search.Rows) > 0:
+                v_current_group['type'] = v_search.Rows[0]['type']
+            for v_search_row in v_search.Rows:
+
+                if v_current_group['type'] != v_search_row['type']:
+                    v_result.append(v_current_group)
+                    v_current_group = { 'type': v_search_row['type'], 'elements': [] }
+
+                curr_result_length = len(v_search_row['result'])
+                curr_complement_length = len(v_search_row['complement'])
+                curr_result_word = v_search_row['result']
+                curr_complement_word = v_search_row['complement']
+                v_current_group['elements'].append({ 'value': v_search_row['result'], 'select_value': v_search_row['select_value'],'complement': v_search_row['complement']})
+
+                if curr_result_length > max_result_length:
+                    max_result_length = curr_result_length
+                    max_result_word = curr_result_word
+                if curr_complement_length > max_complement_length:
+                    max_complement_length = curr_complement_length
+                    max_complement_word = curr_complement_word
+
             if len(v_current_group['elements']) > 0:
                 v_result.append(v_current_group)
 
-        v_search = v_database.v_connection.Query('''
-            select *
-            from (
-            select 'database' as type,
-                   0 as sequence,
-                   0 as num_dots,
-                   quote_ident(datname) as result,
-                   quote_ident(datname) as result_complete,
-                   quote_ident(datname) as select_value,
-                   '' as complement,
-                   '' as complement_complete
-            from pg_database
+        except Exception as exc:
+            v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+            v_return['v_error'] = True
+            return JsonResponse(v_return)
 
-            UNION ALL
-
-            select 'tablespace' as type,
-                   2 as sequence,
-                   0 as num_dots,
-                   quote_ident(spcname) as result,
-                   quote_ident(spcname) as result_complete,
-                   quote_ident(spcname) as select_value,
-                   '' as complement,
-                   '' as complement_complete
-            from pg_tablespace
-
-            UNION ALL
-
-            select 'role' as type,
-                   1 as sequence,
-                   0 as num_dots,
-                   quote_ident(rolname) as result,
-                   quote_ident(rolname) as result_complete,
-                   quote_ident(rolname) as select_value,
-                   '' as complement,
-                   '' as complement_complete
-            from pg_roles
-
-            UNION ALL
-
-            select 'extension' as type,
-                   4 as sequence,
-                   0 as num_dots,
-                   quote_ident(extname) as result,
-                   quote_ident(extname) as result_complete,
-                   quote_ident(extname) as select_value,
-                   '' as complement,
-                   '' as complement_complete
-            from pg_extension
-
-            UNION ALL
-
-            select 'schema' as type,
-                   3 as sequence,
-                   0 as num_dots,
-                   quote_ident(nspname) as result,
-                   quote_ident(nspname) as result_complete,
-                   quote_ident(nspname) as select_value,
-                   '' as complement,
-                   '' as complement_complete
-            from pg_catalog.pg_namespace
-            where nspname not in ('pg_toast') and nspname not like 'pg%%temp%%'
-
-            UNION ALL
-
-            select 'table' as type,
-                   5 as sequence,
-                   1 as num_dots,
-                   quote_ident(c.relname) as result,
-                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) as result_complete,
-                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) as select_value,
-                   quote_ident(n.nspname) as complement,
-
-                   '' as complement_complete
-            from pg_class c
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            where c.relkind in ('r', 'p')
-
-            UNION ALL
-
-            select 'view' as type,
-                   6 as sequence,
-                   1 as num_dots,
-                   quote_ident(table_name) as result,
-                   quote_ident(table_schema) || '.' || quote_ident(table_name) as result_complete,
-                   quote_ident(table_schema) || '.' || quote_ident(table_name) as select_value,
-                   quote_ident(table_schema) as complement,
-                   '' as complement_complete
-            from information_schema.views
-
-            UNION ALL
-
-
-            select type,
-                   sequence,
-                   num_dots,
-                   result,
-                   result_complete,
-                   select_value,
-                   quote_ident(schema_name) || '.' || quote_ident(table_name) || ' - <b>' || complement || '</b>' as complement,
-                   '<b>' || complement || '</b>' as complement_complete
-            from (
-            select 'column' as type,
-                   7 as sequence,
-                   2 as num_dots,
-                   quote_ident(a.attname) as result,
-                   quote_ident(n.nspname) as schema_name,
-                   quote_ident(c.relname) as table_name,
-                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) || '.' || quote_ident(a.attname) as result_complete,
-                   quote_ident(a.attname) as select_value,
-                               (case when t.typtype = 'd'::"char"
-                                     then case when bt.typelem <> 0::oid and bt.typlen = '-1'::integer
-                                               then 'ARRAY'::text
-                                               when nbt.nspname = 'pg_catalog'::name
-                                               then format_type(t.typbasetype, NULL::integer)
-                                               else 'USER-DEFINED'::text
-                                          end
-                                     else case when t.typelem <> 0::oid and t.typlen = '-1'::integer
-                                               then 'ARRAY'::text
-                                               when nt.nspname = 'pg_catalog'::name
-                                               then format_type(a.atttypid, NULL::integer)
-                                               else 'USER-DEFINED'::text
-                                          end
-                                end) as complement
-            from pg_attribute a
-            inner join pg_class c
-            on c.oid = a.attrelid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            inner join (
-                pg_type t
-                inner join pg_namespace nt
-                on t.typnamespace = nt.oid
-            ) on a.atttypid = t.oid
-            left join (
-                pg_type bt
-                inner join pg_namespace nbt
-                on bt.typnamespace = nbt.oid
-            ) on t.typtype = 'd'::"char" and t.typbasetype = bt.oid
-            where a.attnum > 0
-              and not a.attisdropped
-              and c.relkind in ('r', 'f', 'p', 'v')) x
-
-            UNION ALL
-
-            select 'index' as type,
-                   8 as sequence,
-                   1 as num_dots,
-                   quote_ident(i.indexname) as result,
-                   quote_ident(i.schemaname) || '.' || quote_ident(i.indexname) as result_complete,
-                   quote_ident(i.schemaname) || '.' || quote_ident(i.indexname) as select_value,
-                   quote_ident(i.schemaname) || '.' || quote_ident(i.tablename) as complement,
-                   quote_ident(i.tablename) as complement_complete
-            from pg_indexes i) search
-            {0}
-            order by sequence,result_complete
-        '''.format(v_filter), True)
-
-        v_current_group = { 'type': '', 'elements': [] }
-        if len(v_search.Rows) > 0:
-            v_current_group['type'] = v_search.Rows[0]['type']
-        for v_search_row in v_search.Rows:
-            if v_current_group['type'] != v_search_row['type']:
-                v_result.append(v_current_group)
-                v_current_group = { 'type': v_search_row['type'], 'elements': [] }
-            if v_num_dots==0:
-                v_current_group['elements'].append({ 'value': v_search_row['result'], 'select_value': v_search_row['select_value'],'complement': v_search_row['complement']})
-            else:
-                v_current_group['elements'].append({ 'value': v_search_row['result_complete'], 'select_value': v_search_row['select_value'], 'complement': v_search_row['complement_complete']})
+    #get reserved words list if there are no dots
+    if v_num_dots == 0:
+        v_reserved_words_list = v_database.v_reserved_words
+        v_value_upper = v_value.upper()
+        v_filtered_words_list = [k for k in v_reserved_words_list if k.startswith(v_value_upper)]
+        v_current_group = { 'type': 'keyword', 'elements': [] }
+        for v_filtered_word in v_filtered_words_list:
+            v_current_group['elements'].append({ 'value': v_filtered_word, 'select_value': v_filtered_word, 'complement': ''})
         if len(v_current_group['elements']) > 0:
             v_result.append(v_current_group)
 
-    except Exception as exc:
-        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    v_return['v_data'] = v_result
+    v_return['v_data'] = {
+                            'data': v_result,
+                            'max_result_word': max_result_word,
+                            'max_complement_word': max_complement_word
+                        }
 
     return JsonResponse(v_return)

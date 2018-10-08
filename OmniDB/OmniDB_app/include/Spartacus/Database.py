@@ -1445,9 +1445,7 @@ class PostgreSQL(Generic):
     def Parse(self, p_sql):
         try:
             v_analysis = psqlparse.parse(p_sql)
-            print(v_analysis)
             v_statement = sqlparse.split(p_sql)
-            print(v_statement)
             if len(v_statement) == len(v_analysis):
                 v_cursors = []
                 for i in range(0, len(v_analysis)):

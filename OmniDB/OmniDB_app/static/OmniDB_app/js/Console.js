@@ -184,7 +184,7 @@ function clearConsole() {
 
 }
 
-function consoleSQL(p_check_command = true) {
+function consoleSQL(p_check_command = true, p_mode = 0) {
   var v_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 	v_tag.tempData = '';
   var v_content = v_tag.editor_input.getValue().trim();
@@ -201,7 +201,7 @@ function consoleSQL(p_check_command = true) {
   	}
   	else {
 
-      if (v_content=='') {
+      if (v_content=='' && p_mode == 0) {
   			showAlert('Please provide a string.');
   		}
   		else {
@@ -219,9 +219,11 @@ function consoleSQL(p_check_command = true) {
 
         var v_message_data = {
           v_sql_cmd : v_content,
+					v_mode: p_mode,
           v_db_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
 					v_conn_tab_id: v_connTabControl.selectedTab.id,
-          v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id
+          v_tab_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id,
+					v_autocommit: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.check_autocommit.checked
         }
 
         v_tag.editor_input.setReadOnly(true);
@@ -250,6 +252,11 @@ function consoleSQL(p_check_command = true) {
         v_tag.tab_stub_span.style.display = 'none';
         v_tag.bt_cancel.style.display = '';
         v_tag.query_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
+				v_tag.bt_fetch_more.style.display = 'none';
+				v_tag.bt_fetch_all.style.display = 'none';
+				v_tag.bt_commit.style.display = 'none';
+				v_tag.bt_rollback.style.display = 'none';
+				setTabStatus(v_tag,2);
 
         setTimeout(function() {
           if (!v_context.acked) {
@@ -332,6 +339,8 @@ function consoleReturnRender(p_message,p_context) {
 
   var v_tag = p_context.tab_tag;
 
+	setTabStatus(p_context.tab_tag,p_message.v_data.v_con_status);
+
   v_tag.editor_input.setReadOnly(false);
 
   appendToEditor(v_tag.editor_console,v_tag.tempData);
@@ -344,6 +353,10 @@ function consoleReturnRender(p_message,p_context) {
   v_tag.tab_check_span.style.display = 'none';
   v_tag.bt_cancel.style.display = 'none';
 	v_tag.tab_stub_span.style.display = '';
+	if (p_message.v_data.v_show_fetch_button) {
+		v_tag.bt_fetch_more.style.display = '';
+		v_tag.bt_fetch_all.style.display = '';
+	}
 
 
 }

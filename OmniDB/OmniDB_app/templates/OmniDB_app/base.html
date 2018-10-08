@@ -3,14 +3,14 @@
   <title>OmniDB</title>
   <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.10.0.2"            />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.12.0.1"            />
 
   <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/modern-style.css?v1.0.0.0"            />
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.10.0.2"/>
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.10.0.2"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.10.0.2"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/popper.css?v2.10.0.2"  />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.12.0.1"/>
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.12.0.1"    />
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.12.0.1"    />
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/popper.css?v2.12.0.1"  />
 
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/bootstrap.css">
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/main.css">
@@ -461,86 +461,109 @@
   </div>
 
   <div id="div_autocomplete">
+    <div id="div_test_length"></div>
     <!--<div id="div_autocomplete_label"></div>-->
     <input type="text" id="div_autocomplete_input" onkeyup="autocomplete_keyup(event,this)" onkeydown="autocomplete_keydown(event,this)"/>
-    <div class="div_autocomplete_row">
-      <div class="div_autocomplete_type">
-        <i class="fas fa-font node-keyword" title="Keywords"></i>
-        <div id="autocomplete_count_keyword">0 results</div>
+    <div id="div_autocomplete_noresults">No results</div>
+    <div id="div_autocomplete_scroll">
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Databases</div>
+          <i class="fas fa-database node-database-list" title="Databases"></i>
+          <div id="autocomplete_count_database">0 results</div>
+        </div>
+        <div id="autocomplete_grid_database" class="div_autocomplete_data">
+        </div>
       </div>
-      <div id="autocomplete_grid_keyword" class="div_autocomplete_data">
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Roles</div>
+          <i class="fas fa-users node-user-list" title="Roles"></i>
+          <div id="autocomplete_count_role">0 results</div>
+        </div>
+        <div id="autocomplete_grid_role" class="div_autocomplete_data">
+        </div>
       </div>
-    </div>
-    <div class="div_autocomplete_row">
-      <div class="div_autocomplete_type">
-        <i class="fas fa-database node-database-list" title="Databases"></i>
-        <div id="autocomplete_count_database">0 results</div>
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Tablespaces</div>
+          <i class="fas fa-folder-open node-tablespace-list" title="Tablespaces"></i>
+          <div id="autocomplete_count_tablespace">0 results</div>
+        </div>
+        <div id="autocomplete_grid_tablespace" class="div_autocomplete_data">
+        </div>
       </div>
-      <div id="autocomplete_grid_database" class="div_autocomplete_data">
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Schemas</div>
+          <i class="fas fa-layer-group node-schema-list" title="Schemas"></i>
+          <div id="autocomplete_count_schema">0 results</div>
+        </div>
+        <div id="autocomplete_grid_schema" class="div_autocomplete_data">
+        </div>
       </div>
-    </div>
-    <div class="div_autocomplete_row">
-      <div class="div_autocomplete_type">
-        <i class="fas fa-users node-user-list" title="Roles"></i>
-        <div id="autocomplete_count_role">0 results</div>
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Extensions</div>
+          <i class="fas fa-cubes node-extension-list" title="Extensions"></i>
+          <div id="autocomplete_count_extension">0 results</div>
+        </div>
+        <div id="autocomplete_grid_extension" class="div_autocomplete_data">
+        </div>
       </div>
-      <div id="autocomplete_grid_role" class="div_autocomplete_data">
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Tables</div>
+          <i class="fas fa-table node-table-list" title="Tables"></i>
+          <div id="autocomplete_count_table">0 results</div>
+        </div>
+        <div id="autocomplete_grid_table" class="div_autocomplete_data">
+        </div>
       </div>
-    </div>
-    <div class="div_autocomplete_row">
-      <div class="div_autocomplete_type">
-        <i class="fas fa-folder-open node-tablespace-list" title="Tablespaces"></i>
-        <div id="autocomplete_count_tablespace">0 results</div>
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Views</div>
+          <i class="fas fa-eye node-view-list" title="Views"></i>
+          <div id="autocomplete_count_view">0 results</div>
+        </div>
+        <div id="autocomplete_grid_view" class="div_autocomplete_data">
+        </div>
       </div>
-      <div id="autocomplete_grid_tablespace" class="div_autocomplete_data">
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Columns</div>
+          <i class="fas fa-columns node-column" title="Columns"></i>
+          <div id="autocomplete_count_column">0 results</div>
+        </div>
+        <div id="autocomplete_grid_column" class="div_autocomplete_data">
+        </div>
       </div>
-    </div>
-    <div class="div_autocomplete_row">
-      <div class="div_autocomplete_type">
-        <i class="fas fa-layer-group node-schema-list" title="Schemas"></i>
-        <div id="autocomplete_count_schema">0 results</div>
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Functions</div>
+          <i class="fas fa-cog node-function-list" title="Indexes"></i>
+          <div id="autocomplete_count_function">0 results</div>
+        </div>
+        <div id="autocomplete_grid_function" class="div_autocomplete_data">
+        </div>
       </div>
-      <div id="autocomplete_grid_schema" class="div_autocomplete_data">
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Indexes</div>
+          <i class="fas fa-thumbtack node-index" title="Indexes"></i>
+          <div id="autocomplete_count_index">0 results</div>
+        </div>
+        <div id="autocomplete_grid_index" class="div_autocomplete_data">
+        </div>
       </div>
-    </div>
-    <div class="div_autocomplete_row">
-      <div class="div_autocomplete_type">
-        <i class="fas fa-cubes node-extension-list" title="Extensions"></i>
-        <div id="autocomplete_count_extension">0 results</div>
-      </div>
-      <div id="autocomplete_grid_extension" class="div_autocomplete_data">
-      </div>
-    </div>
-    <div class="div_autocomplete_row">
-      <div class="div_autocomplete_type">
-        <i class="fas fa-table node-table-list" title="Tables"></i>
-        <div id="autocomplete_count_table">0 results</div>
-      </div>
-      <div id="autocomplete_grid_table" class="div_autocomplete_data">
-      </div>
-    </div>
-    <div class="div_autocomplete_row">
-      <div class="div_autocomplete_type">
-        <i class="fas fa-eye node-view-list" title="Views"></i>
-        <div id="autocomplete_count_view">0 results</div>
-      </div>
-      <div id="autocomplete_grid_view" class="div_autocomplete_data">
-      </div>
-    </div>
-    <div class="div_autocomplete_row">
-      <div class="div_autocomplete_type">
-        <i class="fas fa-columns node-column" title="Columns"></i>
-        <div id="autocomplete_count_column">0 results</div>
-      </div>
-      <div id="autocomplete_grid_column" class="div_autocomplete_data">
-      </div>
-    </div>
-    <div class="div_autocomplete_row">
-      <div class="div_autocomplete_type">
-        <i class="fas fa-thumbtack node-index" title="Indexes"></i>
-        <div id="autocomplete_count_index">0 results</div>
-      </div>
-      <div id="autocomplete_grid_index" class="div_autocomplete_data">
+      <div class="div_autocomplete_row">
+        <div class="div_autocomplete_type">
+          <div>Keywords</div>
+          <i class="fas fa-font node-keyword" title="Keywords"></i>
+          <div id="autocomplete_count_keyword">0 results</div>
+        </div>
+        <div id="autocomplete_grid_keyword" class="div_autocomplete_data">
+        </div>
       </div>
     </div>
   </div>
@@ -548,27 +571,27 @@
 
   <div class="div_loading"></div>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.10.0.2"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.10.0.2"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.10.0.2"             ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.10.0.2"         ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.12.0.1"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.12.0.1"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.12.0.1"             ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.12.0.1"         ></script>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.10.0.2"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/popper.min.js?v2.10.0.2"             ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/tooltip.min.js?v2.10.0.2"            ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.10.0.2"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.10.0.2"               ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.10.0.2"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.10.0.2"></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.10.0.2"         ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.10.0.2"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.10.0.2"    ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.10.0.2"            ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.10.0.2"       ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.10.0.2"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.10.0.2"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.10.0.2"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.10.0.2"                  ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.12.0.1"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/popper.min.js?v2.12.0.1"             ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/tooltip.min.js?v2.12.0.1"            ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.12.0.1"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.12.0.1"               ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.12.0.1"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.12.0.1"></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.12.0.1"         ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.12.0.1"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.12.0.1"    ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.12.0.1"            ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.12.0.1"       ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.12.0.1"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.12.0.1"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.12.0.1"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.12.0.1"                  ></script>
 
   <script type="text/javascript">
 

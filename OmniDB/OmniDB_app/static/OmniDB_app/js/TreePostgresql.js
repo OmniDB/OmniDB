@@ -3054,181 +3054,6 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
-        'cm_bdr': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }]
-        },
-        'cm_bdrnodes': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }]
-        },
-        'cm_bdrnode': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Terminate Apply',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Terminate Apply',
-                        node.tree.tag
-                        .bdr_terminate_apply
-                        .replace('#node_name#',
-                            v_node.text));
-                }
-            }, {
-                text: 'Terminate WAL Sender',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate(
-                        'Terminate WAL Sender',
-                        node.tree.tag
-                        .bdr_terminate_walsender
-                        .replace('#node_name#',
-                            v_node.text));
-                }
-            }, {
-                text: 'Part Node',
-                icon: 'fas cm-all fa-times',
-                action: function(node) {
-                    tabSQLTemplate('Part Node', node.tree.tag
-                        .bdr_part_node
-                        .replace('#node_name#', v_node.text)
-                    );
-                }
-            }]
-        },
-        'cm_bdrrepsets': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Insert Replication Set',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Insert Replication Set',
-                        node.tree.tag.bdr_insert_repset);
-                }
-            }]
-        },
-        'cm_bdrrepset': {
-            elements: [{
-                text: 'Update Rep. Set',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Update Replication Set',
-                        node.tree.tag.bdr_update_repset
-                        .replace('#set_name#', node.text));
-                }
-            }, {
-                text: 'Delete Replication Set',
-                icon: 'fas cm-all fa-times',
-                action: function(node) {
-                    tabSQLTemplate('Delete Replication Set',
-                        node.tree.tag.bdr_delete_repset
-                        .replace('#set_name#', node.text));
-                }
-            }]
-        },
-        'cm_bdr_table_repsets': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Set Replication Sets',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Set Replication Sets', node
-                        .tree.tag.bdr_set_repsets
-                        .replace('#table_name#', node.parent
-                            .parent.parent.parent.text +
-                            '.' + node.parent.parent.text));
-                }
-            }]
-        },
-        'cm_bdr_table_confhands': {
-            elements: [{
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Create Conf. Handler',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    tabSQLTemplate('Create Conflict Handler',
-                        node.tree.tag.bdr_create_confhand
-                        .replace(/#table_name#/g, node.parent
-                            .parent.parent.parent.text +
-                            '.' + node.parent.parent.text));
-                }
-            }]
-        },
-        'cm_bdr_table_confhand': {
-            elements: [{
-                text: 'Drop Conf. Handler',
-                icon: 'fas cm-all fa-times',
-                action: function(node) {
-                    tabSQLTemplate('Drop Conflict Handler',
-                        node.tree.tag.bdr_drop_confhand
-                        .replace('#table_name#', node.parent
-                            .parent.parent.parent.parent.text +
-                            '.' + node.parent.parent.parent
-                            .text)
-                        .replace('#ch_name#', node.text));
-                }
-            }]
-        },
         'cm_refresh': {
             elements: [{
                 text: 'Refresh',
@@ -3667,16 +3492,6 @@ function refreshTreePostgresqlConfirm(node) {
         getForeignTablesPostgresql(node);
     } else if (node.tag.type == 'foreign_table') {
         getForeignColumnsPostgresql(node);
-    } else if (node.tag.type == 'bdr') {
-        getBDRPropertiesPostgresql(node);
-    } else if (node.tag.type == 'bdr_node_list') {
-        getBDRNodesPostgresql(node);
-    } else if (node.tag.type == 'bdr_repset_list') {
-        getBDRReplicationSetsPostgresql(node);
-    } else if (node.tag.type == 'bdr_table_repset_list') {
-        getBDRTableReplicationSetsPostgresql(node);
-    } else if (node.tag.type == 'bdr_table_confhand_list') {
-        getBDRTableConflictHandlersPostgresql(node);
     }
     else {
       afterNodeOpenedCallbackPostgreSQL(node);
@@ -3898,25 +3713,7 @@ function getTreeDetailsPostgresql(node) {
                 drop_foreign_column: p_return.v_data.v_database_return.drop_foreign_column,
                 create_user_mapping: p_return.v_data.v_database_return.create_user_mapping,
                 alter_user_mapping: p_return.v_data.v_database_return.alter_user_mapping,
-                drop_user_mapping: p_return.v_data.v_database_return.drop_user_mapping,
-                bdr_create_group: p_return.v_data.v_database_return.bdr_create_group,
-                bdr_join_group: p_return.v_data.v_database_return.bdr_join_group,
-                bdr_join_wait: p_return.v_data.v_database_return.bdr_join_wait,
-                bdr_pause: p_return.v_data.v_database_return.bdr_pause,
-                bdr_resume: p_return.v_data.v_database_return.bdr_resume,
-                bdr_replicate_ddl_command: p_return.v_data.v_database_return
-                    .bdr_replicate_ddl_command,
-                bdr_part_node: p_return.v_data.v_database_return.bdr_part_node,
-                bdr_insert_repset: p_return.v_data.v_database_return.bdr_insert_repset,
-                bdr_update_repset: p_return.v_data.v_database_return.bdr_update_repset,
-                bdr_delete_repset: p_return.v_data.v_database_return.bdr_delete_repset,
-                bdr_set_repsets: p_return.v_data.v_database_return.bdr_set_repsets,
-                bdr_create_confhand: p_return.v_data.v_database_return.bdr_create_confhand,
-                bdr_drop_confhand: p_return.v_data.v_database_return.bdr_drop_confhand,
-                bdr_terminate_apply: p_return.v_data.v_database_return.bdr_terminate_apply,
-                bdr_terminate_walsender: p_return.v_data.v_database_return
-                    .bdr_terminate_walsender,
-                bdr_remove: p_return.v_data.v_database_return.bdr_remove
+                drop_user_mapping: p_return.v_data.v_database_return.drop_user_mapping
             }
 
             node.setText(p_return.v_data.v_database_return.version);
@@ -4055,17 +3852,6 @@ function getDatabaseObjectsPostgresql(node) {
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_subscriptions');
                 node_subscriptions.createChildNode('', true,
-                    'node-spin', null, null);
-            }
-            if (p_return.v_data.bdr_version != null &&
-                parseInt(p_return.v_data.bdr_version) < 3) {
-                var node_bdr = node.createChildNode(
-                    'BDR', false,
-                    '/static/OmniDB_app/images/bdr.png', {
-                        type: 'bdr',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, 'cm_bdr');
-                node_bdr.createChildNode('', true,
                     'node-spin', null, null);
             }
 
@@ -5021,35 +4807,6 @@ function getColumnsPostgresql(node) {
                 }
             }
 
-            if (v_connTabControl.selectedTab.tag.selectedDatabaseNode.tag.database_data
-                .bdr_version != null &&
-                parseInt(v_connTabControl.selectedTab.tag.selectedDatabaseNode
-                    .tag.database_data
-                    .bdr_version) < 3) {
-                var node_bdr = node.createChildNode(
-                    'BDR', false,
-                    '/static/OmniDB_app/images/bdr.png', null, null,
-                    null, false);
-                var node_bdr_repsets = node_bdr.createChildNode(
-                    'Replication Sets', false,
-                    '/static/OmniDB_app/images/replication_set.png', {
-                        type: 'bdr_table_repset_list',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, 'cm_bdr_table_repsets', null, false);
-                node_bdr_repsets.createChildNode('', true,
-                    'node-spin', null, null,
-                    null, false);
-                var node_bdr_confhands = node_bdr.createChildNode(
-                    'Conflict Handlers', false,
-                    '/static/OmniDB_app/images/conflict_handler.png', {
-                        type: 'bdr_table_confhand_list',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, 'cm_bdr_table_confhands', null, false);
-                node_bdr_confhands.createChildNode('', true,
-                    'node-spin', null, null,
-                    null, false);
-            }
-
             node.drawChildNodes();
 
             afterNodeOpenedCallbackPostgreSQL(node);
@@ -5745,25 +5502,25 @@ function getTriggersPostgresql(node) {
             if (node.childNodes.length > 0)
                 node.removeChildNodes();
 
-            var v_node;
-
             if (p_return.v_data.length > 0) {
 
                 for (i = 0; i < p_return.v_data.length; i++) {
 
-                    v_node = node.createChildNode(p_return.v_data[i][0],
+                    var v_node = node.createChildNode(p_return.v_data[i].v_name,
                         false, 'fas node-all fa-bolt node-trigger', {
                             type: 'trigger',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, 'cm_trigger', null, false);
-                    /*v_node.createChildNode('Enabled: ' + p_return.v_data[i]
-                        [1], false,
-                        'fas node-all fa-ellipsis-h node-bullet',
-                        null, null);
+                    v_node.createChildNode('Enabled: ' + p_return.v_data[i]
+                        .v_enabled, false,
+                        'fas node-all fa-ellipsis-h node-bullet', {
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        }, null, null, false);
                     v_node.createChildNode('Function: ' + p_return.v_data[i]
-                        [2], false,
-                        'fas node-all fa-ellipsis-h node-bullet',
-                        null, null);*/
+                        .v_function, false,
+                        'fas node-all fa-ellipsis-h node-bullet', {
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        }, null, null, false);
 
                 }
 
@@ -7042,415 +6799,6 @@ function getForeignColumnsPostgresql(node) {
 }
 
 /// <summary>
-/// Retrieving BDR Properties.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getBDRPropertiesPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, 'node-spin', null,
-        null);
-
-    execAjax('/get_bdr_properties_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_tab_id": v_connTabControl.selectedTab.id
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            node.tree.contextMenu.cm_bdr.elements = []
-            node.tree.contextMenu.cm_bdr.elements.push({
-                text: 'Refresh',
-                icon: 'fas cm-all fa-sync-alt',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreePostgresql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            });
-
-            if (p_return.v_data[0].v_node_name == 'Not set') {
-
-                node.tree.contextMenu.cm_bdr.elements.push({
-                    text: 'Create Group',
-                    icon: 'fas cm-all fa-edit',
-                    action: function(node) {
-                        tabSQLTemplate('Create Group', node
-                            .tree
-                            .tag
-                            .bdr_create_group);
-                    }
-                });
-                node.tree.contextMenu.cm_bdr.elements.push({
-                    text: 'Join Group',
-                    icon: 'fas cm-all fa-edit',
-                    action: function(node) {
-                        tabSQLTemplate('Join Group', node.tree
-                            .tag
-                            .bdr_join_group);
-                    }
-                });
-                node.tree.contextMenu.cm_bdr.elements.push({
-                    text: 'Join Group Wait',
-                    icon: 'fas cm-all fa-edit',
-                    action: function(node) {
-                        tabSQLTemplate('Join Group Wait',
-                            node.tree
-                            .tag
-                            .bdr_join_wait);
-                    }
-                });
-
-            } else {
-
-                node.tree.contextMenu.cm_bdr.elements.push({
-                    text: 'Replicate DDL',
-                    icon: 'fas cm-all fa-edit',
-                    action: function(node) {
-                        tabSQLTemplate(
-                            'Replicate DDL Command',
-                            node.tree.tag
-                            .bdr_replicate_ddl_command);
-                    }
-                });
-
-                if (!p_return.v_data[0].v_paused) {
-                    node.tree.contextMenu.cm_bdr.elements.push({
-                        text: 'Pause Apply',
-                        icon: 'fas cm-all fa-edit',
-                        action: function(node) {
-                            tabSQLTemplate('Pause Apply',
-                                node.tree
-                                .tag.bdr_pause);
-                        }
-                    });
-                } else {
-                    node.tree.contextMenu.cm_bdr.elements.push({
-                        text: 'Resume Apply',
-                        icon: 'fas cm-all fa-edit',
-                        action: function(node) {
-                            tabSQLTemplate('Resume Apply',
-                                node
-                                .tree.tag.bdr_resume);
-                        }
-                    });
-                }
-
-                if (getBDRMajorVersion(v_connTabControl.selectedTab.tag
-                        .selectedDatabaseNode
-                        .tag.database_data.bdr_version) != '0') {
-                    node.tree.contextMenu.cm_bdr.elements.push({
-                        text: 'Remove BDR',
-                        icon: 'fas cm-all fa-edit',
-                        action: function(node) {
-                            tabSQLTemplate('Remove BDR',
-                                node.tree
-                                .tag
-                                .bdr_remove);
-                        }
-                    });
-                }
-            }
-
-            node.tree.contextMenu.cm_bdr.elements.push({
-                text: 'Doc: BDR',
-                icon: 'fas cm-all fa-globe-americas',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: BDR',
-                        'http://bdr-project.org/docs/1.0/index.html'
-                    );
-                }
-            });
-
-            node.createChildNode('Version: ' + p_return.v_data[0]
-                .v_version, false,
-                'fas node-all fa-ellipsis-h node-bullet', {
-                    database: v_connTabControl.selectedTab.tag.selectedDatabase
-                },
-                null);
-            node.createChildNode('Active: ' + p_return.v_data[0]
-                .v_active, false,
-                'fas node-all fa-ellipsis-h node-bullet', {
-                    database: v_connTabControl.selectedTab.tag.selectedDatabase
-                },
-                null);
-            node.createChildNode('Node name: ' + p_return.v_data[0]
-                .v_node_name, false,
-                'fas node-all fa-ellipsis-h node-bullet', {
-                    database: v_connTabControl.selectedTab.tag.selectedDatabase
-                },
-                null);
-            node.createChildNode('Paused: ' + p_return.v_data[0]
-                .v_paused, false,
-                'fas node-all fa-ellipsis-h node-bullet', {
-                    database: v_connTabControl.selectedTab.tag.selectedDatabase
-                },
-                null);
-            v_nodes = node.createChildNode('Nodes',
-                false, '/static/OmniDB_app/images/node.png', {
-                    type: 'bdr_node_list',
-                    database: v_connTabControl.selectedTab.tag.selectedDatabase
-                }, 'cm_bdrnodes');
-            v_nodes.createChildNode('', true,
-                'node-spin', null, null);
-            v_repsets = node.createChildNode('Replication Sets',
-                false,
-                '/static/OmniDB_app/images/replication_set.png', {
-                    type: 'bdr_repset_list',
-                    database: v_connTabControl.selectedTab.tag.selectedDatabase
-                }, 'cm_bdrrepsets');
-            v_repsets.createChildNode('', true,
-                'node-spin', null, null);
-
-            afterNodeOpenedCallbackPostgreSQL(node);
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving BDR Nodes (< 3).
-/// </summary>
-/// <param name="node">Node object.</param>
-function getBDRNodesPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, 'node-spin', null,
-        null);
-
-    execAjax('/get_bdr_nodes_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_tab_id": v_connTabControl.selectedTab.id
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            node.setText('Nodes (' + p_return.v_data.length + ')');
-
-            node.tag.num_nodes = p_return.v_data.length;
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                if (!p_return.v_data[i].v_is_local) {
-                    v_node = node.createChildNode(p_return.v_data[i].v_name,
-                        false, '/static/OmniDB_app/images/node.png', {
-                            type: 'bdr_node',
-                            database: v_connTabControl.selectedTab.tag.selectedDatabase
-                        }, 'cm_bdrnode', null, false);
-                } else {
-                    v_node = node.createChildNode(p_return.v_data[i].v_name,
-                        false, '/static/OmniDB_app/images/node.png', {
-                            type: 'bdr_node',
-                            database: v_connTabControl.selectedTab.tag.selectedDatabase
-                        }, null, null, false);
-                }
-
-            }
-
-            node.drawChildNodes();
-
-            afterNodeOpenedCallbackPostgreSQL(node);
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving BDR Replication Sets.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getBDRReplicationSetsPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, 'node-spin', null,
-        null);
-
-    execAjax('/get_bdr_replicationsets_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_tab_id": v_connTabControl.selectedTab.id
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            node.setText('Replication Sets (' + p_return.v_data.length +
-                ')');
-
-            node.tag.num_repsets = p_return.v_data.length;
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false,
-                    '/static/OmniDB_app/images/replication_set.png', {
-                        type: 'bdr_repset',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, 'cm_bdrrepset', null, false);
-                v_node.createChildNode('Inserts: ' + p_return.v_data[0]
-                    .v_inserts, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-                v_node.createChildNode('Updates: ' + p_return.v_data[0]
-                    .v_updates, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-                v_node.createChildNode('Deletes: ' + p_return.v_data[0]
-                    .v_deletes, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-
-            }
-
-            node.drawChildNodes();
-
-            afterNodeOpenedCallbackPostgreSQL(node);
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving BDR Table Replication Sets.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getBDRTableReplicationSetsPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, 'node-spin', null,
-        null);
-
-    execAjax('/get_bdr_table_replicationsets_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_tab_id": v_connTabControl.selectedTab.id,
-            "p_table": node.parent.parent.text,
-            "p_schema": node.parent.parent.parent.parent.text
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            node.setText('Replication Sets (' + p_return.v_data.length +
-                ')');
-
-            node.tag.num_repsets = p_return.v_data.length;
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                node.createChildNode(p_return.v_data[i].v_name, false,
-                    '/static/OmniDB_app/images/replication_set.png', {
-                        type: 'bdr_table_repset',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, null, null, false);
-
-            }
-
-            node.drawChildNodes();
-
-            afterNodeOpenedCallbackPostgreSQL(node);
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
-/// Retrieving BDR Table Conflict Handlers.
-/// </summary>
-/// <param name="node">Node object.</param>
-function getBDRTableConflictHandlersPostgresql(node) {
-
-    node.removeChildNodes();
-    node.createChildNode('', false, 'node-spin', null,
-        null);
-
-    execAjax('/get_bdr_table_conflicthandlers_postgresql/',
-        JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-            "p_tab_id": v_connTabControl.selectedTab.id,
-            "p_table": node.parent.parent.text,
-            "p_schema": node.parent.parent.parent.parent.text
-        }),
-        function(p_return) {
-
-            if (node.childNodes.length > 0)
-                node.removeChildNodes();
-
-            node.setText('Conflict Handlers (' + p_return.v_data.length +
-                ')');
-
-            node.tag.num_chs = p_return.v_data.length;
-
-            for (i = 0; i < p_return.v_data.length; i++) {
-
-                v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false,
-                    '/static/OmniDB_app/images/conflict_handler.png', {
-                        type: 'bdr_table_confhand',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    }, 'cm_bdr_table_confhand', null, false);
-                v_node.createChildNode('Type: ' + p_return.v_data[i]
-                    .v_type, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-                v_node.createChildNode('Function: ' + p_return.v_data[i]
-                    .v_function, false,
-                    'fas node-all fa-ellipsis-h node-bullet', {
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
-                    },
-                    null, null, false);
-
-            }
-
-            node.drawChildNodes();
-
-            afterNodeOpenedCallbackPostgreSQL(node);
-
-        },
-        function(p_return) {
-            nodeOpenError(p_return, node);
-        },
-        'box',
-        false);
-}
-
-/// <summary>
 /// Retrieving SELECT SQL template.
 /// </summary>
 function TemplateSelectPostgresql(p_schema, p_table) {
@@ -7626,10 +6974,6 @@ function getMajorVersion(p_version) {
         '.')
     tmp.pop()
     return tmp.join('.')
-}
-
-function getBDRMajorVersion(p_version) {
-    return p_version.split('.')[0]
 }
 
 function postgresqlTerminateBackendConfirm(p_pid) {

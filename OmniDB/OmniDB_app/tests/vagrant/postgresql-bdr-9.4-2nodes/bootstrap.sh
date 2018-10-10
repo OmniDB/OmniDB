@@ -11,7 +11,7 @@ APP_DB_NAME=omnidb_tests
 PG_VERSION=9.4
 
 # Edit the following to change the local port PostgreSQL port 5432 will be mapped to
-PG_LOCAL_PORT=5404
+PG_LOCAL_PORT=5432
 
 ###########################################################
 # Changes below this line are probably not necessary
@@ -62,21 +62,23 @@ then
   wget --quiet -O - https://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | apt-key add -
 fi
 
+apt-get -y install apt-transport-https curl ca-certificates
+
 SQ_REPO_APT_SOURCE=/etc/apt/sources.list.d/2ndquadrant.list
 if [ ! -f "$SQ_REPO_APT_SOURCE" ]
 then
   # Add 2ndQ apt repo:
-  echo "deb [arch=amd64] http://packages.2ndquadrant.com/bdr/apt/ sid-2ndquadrant main" > "$SQ_REPO_APT_SOURCE"
+  echo "deb https://apt.2ndquadrant.com/ stretch-2ndquadrant main" > "$SQ_REPO_APT_SOURCE"
 
   # Add 2ndQ repo key:
-  wget --quiet -O - http://packages.2ndquadrant.com/bdr/apt/AA7A6805.asc | sudo apt-key add -
+  curl https://apt.2ndquadrant.com/site/keys/9904CD4BD6BAF0C3.asc | sudo apt-key add -
 fi
 
 # Update package list and upgrade all packages
 apt-get update
 apt-get -y upgrade
 
-apt-get -y install postgresql-bdr-9.4-bdr-plugin
+apt-get -y install postgresql-bdr-9.4 postgresql-bdr-9.4-bdr-plugin
 
 PG_CONF="/etc/postgresql/$PG_VERSION/main/postgresql.conf"
 PG_HBA="/etc/postgresql/$PG_VERSION/main/pg_hba.conf"
@@ -112,14 +114,16 @@ echo "host    all           omnidb       ::1/128              trust" >> "$PG_HBA
 echo "local   replication   omnidb                            trust" >> "$PG_HBA"
 echo "host    replication   omnidb       127.0.0.1/32         trust" >> "$PG_HBA"
 echo "host    replication   omnidb       ::1/128              trust" >> "$PG_HBA"
-echo "host    all           omnidb       192.168.56.103/32    trust" >> "$PG_HBA"
-echo "host    replication   omnidb       192.168.56.103/32    trust" >> "$PG_HBA"
+echo "host    all           omnidb       10.33.4.114/32       trust" >> "$PG_HBA"
+echo "host    replication   omnidb       10.33.4.114/32       trust" >> "$PG_HBA"
+echo "host    all           omnidb       10.33.4.115/32       trust" >> "$PG_HBA"
+echo "host    replication   omnidb       10.33.4.115/32       trust" >> "$PG_HBA"
 
 # Append to pg_hba.conf to add password auth:
 echo "host    all           all          all                  md5" >> "$PG_HBA"
 
 # Restart so that all new config is loaded:
-service postgresql restart
+systemctl restart postgresql
 
 cat << EOF | su - postgres -c psql
 -- Create the database user:

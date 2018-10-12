@@ -4019,18 +4019,33 @@ ON #table_name#
 --(column_name, [, ...])
 ''')
 
-    def TemplateSelect(self, p_schema, p_table):
-        v_sql = 'SELECT t.'
-        v_fields = self.QueryTablesFields(p_table, False, p_schema)
-        if len(v_fields.Rows) > 0:
-            v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
-        v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
-        v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
-        if len(v_pk.Rows) > 0:
-            v_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+    def TemplateSelect(self, p_schema, p_table, p_kind):
+        if p_kind == 't':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryTablesFields(p_table, False, p_schema)
             if len(v_fields.Rows) > 0:
-                v_sql += '\nORDER BY t.'
-                v_sql += '\n       , t.'.join([r['column_name'] for r in v_fields.Rows])
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+            v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
+            if len(v_pk.Rows) > 0:
+                v_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+                if len(v_fields.Rows) > 0:
+                    v_sql += '\nORDER BY t.'
+                    v_sql += '\n       , t.'.join([r['column_name'] for r in v_fields.Rows])
+        elif p_kind == 'v':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryViewFields(p_table, False, p_schema)
+            if len(v_fields.Rows) > 0:
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+        elif p_kind == 'm':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryMaterializedViewFields(p_table, False, p_schema)
+            if len(v_fields.Rows) > 0:
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+        else:
+            v_sql = 'SELECT t.*\nFROM {0}.{1} t'.format(p_schema, p_table)
         return Template(v_sql)
 
     def TemplateInsert(self, p_schema, p_table):

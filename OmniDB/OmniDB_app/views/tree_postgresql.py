@@ -2656,6 +2656,7 @@ def template_select(request):
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
+    v_kind = json_object['p_kind']
 
     v_database = v_session.v_tab_connections[v_tab_id]
 
@@ -2667,7 +2668,7 @@ def template_select(request):
         return JsonResponse(v_return)
 
     try:
-        v_template = v_database.TemplateSelect(v_schema, v_table).v_text
+        v_template = v_database.TemplateSelect(v_schema, v_table, v_kind).v_text
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True

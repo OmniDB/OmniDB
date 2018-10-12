@@ -1208,7 +1208,7 @@ function getTreePostgresql(p_div) {
                         icon: 'fas cm-all fa-search',
                         action: function(node) {
                             TemplateSelectPostgresql(node.parent
-                              .parent.text, node.text);
+                              .parent.text, node.text, 't');
                         }
                     }, {
                         text: 'Edit Data',
@@ -1252,7 +1252,7 @@ function getTreePostgresql(p_div) {
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
                                 .tag.editor.setValue(
-                                    "-- Counting Records\nselect count(*) as count\nfrom " +
+                                    "-- Counting Records\nSELECT count(*) AS count\nFROM " +
                                     v_table_name + " t"
                                 );
                             v_connTabControl.selectedTab
@@ -2046,7 +2046,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Debug Function',
-                icon: 'fas cm-all fa-code-branch',
+                icon: 'fas cm-all fa-bug',
                 action: function(node) {
                     v_connTabControl.tag.createDebuggerTab(
                         node.text);
@@ -2125,7 +2125,7 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Debug Procedure',
-                icon: 'fas cm-all fa-code-branch',
+                icon: 'fas cm-all fa-bug',
                 action: function(node) {
                     v_connTabControl.tag.createDebuggerTab(
                         node.text);
@@ -2309,29 +2309,39 @@ function getTreePostgresql(p_div) {
                 text: 'Query Data',
                 icon: 'fas cm-all fa-search',
                 action: function(node) {
+                    TemplateSelectPostgresql(node.parent
+                      .parent.text, node.text, 'v');
+                }
+            }, {
+                text: 'Count Records',
+                icon: 'fas cm-all fa-sort-numeric-down',
+                action: function(node) {
 
                     var v_table_name = '';
-                    if (node.parent.parent.parent.parent !=
-                        null)
-                        v_table_name = node.parent.parent.text +
-                        '.' + node.text;
+                    if (node.parent.parent.parent
+                        .parent != null)
+                        v_table_name = node.parent
+                        .parent.text + '.' +
+                        node.text;
                     else
                         v_table_name = node.text;
 
                     v_connTabControl.tag.createQueryTab(
                         node.text);
 
-                    v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.editor.setValue(
-                            '-- Querying Data\nselect t.*\nfrom ' +
-                            v_table_name + ' t');
-                    v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.editor.clearSelection();
-                    renameTabConfirm(v_connTabControl.selectedTab
-                        .tag.tabControl.selectedTab, node.text
-                    );
-
-                    //minimizeEditor();
+                    v_connTabControl.selectedTab
+                        .tag.tabControl.selectedTab
+                        .tag.editor.setValue(
+                            "-- Counting Records\nSELECT count(*) AS count\nFROM " +
+                            v_table_name + " t"
+                        );
+                    v_connTabControl.selectedTab
+                        .tag.tabControl.selectedTab
+                        .tag.editor.clearSelection();
+                    renameTabConfirm(
+                        v_connTabControl.selectedTab
+                        .tag.tabControl.selectedTab,
+                        node.text);
 
                     querySQL(0);
                 }
@@ -2405,29 +2415,39 @@ function getTreePostgresql(p_div) {
                 text: 'Query Data',
                 icon: 'fas cm-all fa-search',
                 action: function(node) {
+                    TemplateSelectPostgresql(node.parent
+                      .parent.text, node.text, 'm');
+                }
+            }, {
+                text: 'Count Records',
+                icon: 'fas cm-all fa-sort-numeric-down',
+                action: function(node) {
 
                     var v_table_name = '';
-                    if (node.parent.parent.parent.parent !=
-                        null)
-                        v_table_name = node.parent.parent.text +
-                        '.' + node.text;
+                    if (node.parent.parent.parent
+                        .parent != null)
+                        v_table_name = node.parent
+                        .parent.text + '.' +
+                        node.text;
                     else
                         v_table_name = node.text;
 
                     v_connTabControl.tag.createQueryTab(
                         node.text);
 
-                    v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.editor.setValue(
-                            '-- Querying Data\nselect t.*\nfrom ' +
-                            v_table_name + ' t');
-                    v_connTabControl.selectedTab.tag.tabControl
-                        .selectedTab.tag.editor.clearSelection();
-                    renameTabConfirm(v_connTabControl.selectedTab
-                        .tag.tabControl.selectedTab, node.text
-                    );
-
-                    //minimizeEditor();
+                    v_connTabControl.selectedTab
+                        .tag.tabControl.selectedTab
+                        .tag.editor.setValue(
+                            "-- Counting Records\nSELECT count(*) AS count\nFROM " +
+                            v_table_name + " t"
+                        );
+                    v_connTabControl.selectedTab
+                        .tag.tabControl.selectedTab
+                        .tag.editor.clearSelection();
+                    renameTabConfirm(
+                        v_connTabControl.selectedTab
+                        .tag.tabControl.selectedTab,
+                        node.text);
 
                     querySQL(0);
                 }
@@ -2936,7 +2956,7 @@ function getTreePostgresql(p_div) {
                             v_connTabControl.selectedTab
                                 .tag.tabControl.selectedTab
                                 .tag.editor.setValue(
-                                    "-- Counting Records\nselect count(*) as count\nfrom " +
+                                    "-- Counting Records\nSELECT count(*) AS count\nFROM " +
                                     v_table_name + " t"
                                 );
                             v_connTabControl.selectedTab
@@ -3554,7 +3574,7 @@ function getTreeDetailsPostgresql(node) {
                         action: function(node) {
                             v_connTabControl.tag.createMonitoringTab(
                                 'Backends',
-                                'select * from pg_stat_activity', [{
+                                'SELECT * FROM pg_stat_activity', [{
                                     icon: 'fas cm-all fa-times',
                                     title: 'Terminate',
                                     action: 'postgresqlTerminateBackend'
@@ -3566,7 +3586,7 @@ function getTreeDetailsPostgresql(node) {
                         action: function(node) {
                             v_connTabControl.tag.createMonitoringTab(
                                 'Replication',
-                                'select * from pg_stat_replication',
+                                'SELECT * FROM pg_stat_replication',
                                 null);
                         }
                     }]
@@ -6801,14 +6821,15 @@ function getForeignColumnsPostgresql(node) {
 /// <summary>
 /// Retrieving SELECT SQL template.
 /// </summary>
-function TemplateSelectPostgresql(p_schema, p_table) {
+function TemplateSelectPostgresql(p_schema, p_table, p_kind) {
 
     execAjax('/template_select_postgresql/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": p_table,
-            "p_schema": p_schema
+            "p_schema": p_schema,
+            "p_kind": p_kind
         }),
         function(p_return) {
             v_connTabControl.tag.createQueryTab(

@@ -19,7 +19,8 @@ You should have received a copy of the GNU General Public License along with Omn
 }
 
 .node-spin {
-  background-image: url("/static/OmniDB_app/images/spin.svg")
+  background-image: url("/static/OmniDB_app/images/omnidb_loading.svg");
+  background-size: 16px;
 }
 
 .node-postgresql {
@@ -28,6 +29,14 @@ You should have received a copy of the GNU General Public License along with Omn
 
 .node-oracle {
   background-image: url("/static/OmniDB_app/images/oracle_medium.png")
+}
+
+.node-mysql {
+  background-image: url("/static/OmniDB_app/images/mysql_medium.png")
+}
+
+.node-mariadb {
+  background-image: url("/static/OmniDB_app/images/mariadb_medium.png")
 }
 
 .aimara-expand {
@@ -52,6 +61,18 @@ You should have received a copy of the GNU General Public License along with Omn
 
 .node-database {
   color: #177ce0;
+}
+
+.node-snippet-list {
+  color: #177ce0;
+}
+
+.node-snippet-folder {
+  color: #344E75;
+}
+
+.node-snippet-snippet {
+  color: #1f8e79;
 }
 
 .node-tablespace-list {

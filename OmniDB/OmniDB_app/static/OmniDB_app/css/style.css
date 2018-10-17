@@ -368,7 +368,7 @@ body.loading .div_loading {
   left: 0;
   height: 100%;
   width: 100%;
-  background: rgba(252, 253, 253, 0.6) url(../images/loading.svg) 50% 50% no-repeat
+  background: rgba(252, 253, 253, 0.6) url(../images/omnidb_loading.svg) 50% 50% no-repeat
 }
 
 .div_loading_local {
@@ -379,7 +379,7 @@ body.loading .div_loading {
   height: 100%;
   width: 100%;
   z-index: 1;
-  background: rgba(252, 253, 253, 0.6) url(../images/loading.svg) 50% 50% no-repeat
+  background: rgba(252, 253, 253, 0.6) url(../images/omnidb_loading.svg) 50% 50% no-repeat
 }
 
 .white_box {
@@ -1029,7 +1029,7 @@ iframe {
   display: none;
   position: absolute;
   margin-top: 5px;
-  width: 500px;
+  width: 600px;
   height: 400px;
   padding: 5px 5px;
   border-radius: 3px;
@@ -1087,7 +1087,7 @@ iframe {
 
 .unit_list_grid {
   position: relative;
-  width: 500px;
+  width: 600px;
   height: 350px;
   overflow: auto;
   margin-top: 5px;

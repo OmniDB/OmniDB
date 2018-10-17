@@ -71,7 +71,7 @@ function newConnection() {
 		'ssh_key': '',
 		'ssh_enabled': false
 	})
-	v_connections_data.ht.getSourceData().push(['postgresql','','','','','',false,'','22','','','','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
+	v_connections_data.ht.getSourceData().push(['postgresql','','','','','',false,'','22','','','',"<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConnection()'></i>"]);
 	v_connections_data.ht.render();
 	var v_cellMeta = v_connections_data.ht.getCellMeta(v_connections_data.v_conn_ids.length - 1, 0);
 	v_cellMeta.v_conn_id = v_conn_id;

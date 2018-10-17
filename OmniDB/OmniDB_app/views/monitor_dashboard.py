@@ -109,11 +109,15 @@ def get_monitor_unit_list(request):
     try:
         v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
         for v_unit in v_units.Rows:
-            v_actions = '<img src="/static/OmniDB_app/images/select.png" class="img_ht" onclick="includeMonitorUnit({0})"/>'.format(v_unit['unit_id'])
+            v_actions = '''
+            <i title='Edit' class='fas fa-check-circle action-grid action-check' onclick='includeMonitorUnit({0})'></i>
+            '''.format(v_unit['unit_id'])
             #custom unit, add edit and delete actions
             if v_unit['user_id']!=None:
-                v_actions += '''<img src="/static/OmniDB_app/images/text_edit.png" class="img_ht" onclick="editMonitorUnit({0})"/>
-                <img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="deleteMonitorUnit({0})"/>'''.format(v_unit['unit_id'])
+                v_actions += '''
+                <i title='Edit' class='fas fa-edit action-grid action-edit-monitor' onclick='editMonitorUnit({0})'></i>
+                <i title='Delete' class='fas fa-times action-grid action-close' onclick='deleteMonitorUnit({0})'></i>
+                '''.format(v_unit['unit_id'])
 
             v_data.append([v_actions,v_unit['title'],v_unit['type'],v_unit['interval']])
             v_id_list.append(v_unit['unit_id'])

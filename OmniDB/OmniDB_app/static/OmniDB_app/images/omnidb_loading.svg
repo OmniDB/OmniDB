@@ -1,0 +1,18 @@
+<svg class="logo-spinner" width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Main circle -->
+  <circle class="logo-main-circle" cx="24" cy="24" r="16" stroke-width="4px" fill="transparent" stroke="#819ec8"></circle>
+
+  <!-- Points -->
+  <circle class="logo-minor-circle" cx="14" cy="10" r="4" fill="#142d50">
+    <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 24 24" to="360 24 24" dur="1s" repeatCount="indefinite"></animateTransform>
+  </circle>
+  <circle class="logo-minor-circle" cx="40" cy="24" r="4" fill="#142d50">
+    <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 24 24" to="360 24 24" dur="1s" repeatCount="indefinite"></animateTransform>
+  </circle>
+  <circle class="logo-minor-circle" cx="14" cy="38" r="4" fill="#142d50">
+    <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 24 24" to="360 24 24" dur="1s" repeatCount="indefinite"></animateTransform>
+  </circle>
+
+
+</svg>

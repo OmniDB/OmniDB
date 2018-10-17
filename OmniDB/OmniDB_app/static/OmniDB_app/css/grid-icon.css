@@ -21,6 +21,26 @@ i.action-close {
   color: #d85656;
 }
 
+i.action-status-error {
+  color: #d85656;
+}
+
+i.action-status-ok {
+  color: #1f8e79;
+}
+
+i.action-bolt {
+  color: #f59825;
+}
+
+i.action-edit-columns {
+  color: #177ce0;
+}
+
+i.action-edit-monitor {
+  color: #177ce0;
+}
+
 i.action-test {
   color: #495057;
 }

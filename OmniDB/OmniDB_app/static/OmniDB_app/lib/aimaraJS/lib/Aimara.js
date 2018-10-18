@@ -349,7 +349,6 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 					this.nodeBeforeOpenEvent(p_node);
 
 				var img=p_node.elementLi.getElementsByTagName("i")[0];
-				console.log('ae')
 				p_node.expanded = true;
 
 				img.id="toggle_off";

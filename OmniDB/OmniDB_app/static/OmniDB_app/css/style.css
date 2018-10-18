@@ -304,7 +304,7 @@ input {
 .error_text {
 	font-family: monospace;
 	font-weight: 500;
-	color: red;
+	color: #ef4646;
 	-moz-user-select: text;
    -khtml-user-select: text;
    -webkit-user-select: text;
@@ -383,7 +383,6 @@ body.loading .div_loading {
 }
 
 .white_box {
-    border-radius: 3px;
     background-color: #FFFFFF;
     position: fixed;
     font-size: 12px;
@@ -526,9 +525,6 @@ select {
   background-image: -ms-linear-gradient(top, #fcfcfc, #eee);
   background-image: -o-linear-gradient(top, #fcfcfc, #eee);
   background-image: linear-gradient(to bottom, #fcfcfc, #eee);
-  -webkit-border-radius: 3;
-  -moz-border-radius: 3;
-  border-radius: 3px;
   font-family: Arial;
   color: #333;
   font-size: 13px;
@@ -924,7 +920,7 @@ table {
 }
 .handsontable table td {
   position: relative;
-  padding-right: 20px;
+  /*padding-right: 20px;*/
 }
 .handsontable td .htAutocompleteArrow {
   /**/position: absolute;
@@ -1009,7 +1005,6 @@ iframe {
   width: 500px;
   height: 300px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   border: 1px solid #e6e6e6;
   overflow: auto;
@@ -1020,7 +1015,6 @@ iframe {
   width: 500px;
   height: 250px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   border: 1px solid #e6e6e6;
 }
@@ -1032,11 +1026,9 @@ iframe {
   width: 600px;
   height: 400px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   border: 1px solid #cdcdcd;
   z-index: 1000;
-  box-shadow: 2px 2px 2px #cecece;
 }
 
 .connection_list {
@@ -1047,7 +1039,6 @@ iframe {
   max-width: 90%;
   height: 500px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   z-index: 1000;
 }
@@ -1150,7 +1141,6 @@ h2 {
   margin-right: 13px;
   width: 500px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   z-index: 1000;
   background-color: #f9f9f9;
@@ -1166,7 +1156,6 @@ h2 {
   margin-right: 13px;
   width: 400px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   z-index: 1000;
   background-color: #f9f9f9;
@@ -1180,7 +1169,6 @@ h2 {
   margin-right: 13px;
   width: 600px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   z-index: 1000;
   background-color: #f9f9f9;
@@ -1192,12 +1180,10 @@ h2 {
   margin-top: -222px;
   width: 600px;
   height: 200px;
-  padding: 5px 5px;
-  border-radius: 3px;
+  padding: 5px 5px 5px 5px;
   background-color: #f9f9f9;
   border: 1px solid #cdcdcd;
   z-index: 1000;
-  box-shadow: 2px 2px 2px #cecece;
 }
 
 .console_command_history_grid {
@@ -1214,7 +1200,6 @@ h2 {
   width: 750px;
   height: 250px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   border: 1px solid #cdcdcd;
   z-index: 1000;
@@ -1260,7 +1245,6 @@ h2 {
 
 #monitor_dashboard_buttons_div {
   padding-bottom: 5px;
-  border-bottom: 1px dashed #c3c3c3;
 }
 
 /* MODAL State controls */

@@ -125,6 +125,7 @@ class Oracle:
         ]
         self.v_reserved_words = []
         self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
+        self.v_use_server_cursor = False
 
     def GetName(self):
         return self.v_service

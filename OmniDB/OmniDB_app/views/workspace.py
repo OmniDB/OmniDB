@@ -669,7 +669,7 @@ def alter_table_data(request):
 
                 v_row_data.append(v_pk_table.Rows[0]["constraint_name"])
                 v_row_data.append("Primary Key")
-                v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
+                v_row_data.append("<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionConstraints()'></i> " + v_column_list)
                 v_row_data.append("")
                 v_row_data.append("")
                 v_row_data.append("")
@@ -718,7 +718,7 @@ def alter_table_data(request):
 
                             v_row_data.append(v_constraint_name)
                             v_row_data.append("Foreign Key")
-                            v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
+                            v_row_data.append("<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionConstraints()'></i> " + v_column_list)
                             v_row_data.append(v_r_table_name)
                             v_row_data.append(v_referenced_column_list)
                             v_row_data.append(v_delete_rule)
@@ -757,7 +757,7 @@ def alter_table_data(request):
 
                         v_row_data.append(v_constraint_name)
                         v_row_data.append("Foreign Key")
-                        v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
+                        v_row_data.append("<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionConstraints()'></i> " + v_column_list)
                         v_row_data.append(v_r_table_name)
                         v_row_data.append(v_referenced_column_list)
                         v_row_data.append(v_delete_rule)
@@ -797,7 +797,7 @@ def alter_table_data(request):
 
                             v_row_data.append(v_constraint_name)
                             v_row_data.append("Unique");
-                            v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
+                            v_row_data.append("<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionConstraints()'></i> " + v_column_list)
                             v_row_data.append("")
                             v_row_data.append("")
                             v_row_data.append("")
@@ -825,7 +825,7 @@ def alter_table_data(request):
 
                         v_row_data.append(v_constraint_name)
                         v_row_data.append("Unique")
-                        v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_list)
+                        v_row_data.append("<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionConstraints()'></i> " + v_column_list)
                         v_row_data.append("")
                         v_row_data.append("")
                         v_row_data.append("")
@@ -868,7 +868,7 @@ def alter_table_data(request):
 
                             v_row_data.append(v_index_name)
                             v_row_data.append(v_uniqueness)
-                            v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_list)
+                            v_row_data.append("<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionIndexes()'></i> " + v_column_list)
                             v_row_data.append("<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropIndexAlterTable()'></i>")
 
                             v_table_indexes.append(v_row_data)
@@ -889,7 +889,7 @@ def alter_table_data(request):
 
                         v_row_data.append(v_index_name)
                         v_row_data.append(v_uniqueness)
-                        v_row_data.append("<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_list)
+                        v_row_data.append("<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionIndexes()'></i> " + v_column_list)
                         v_row_data.append("<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropIndexAlterTable()'></i>")
 
                         v_table_indexes.append(v_row_data)
@@ -1915,12 +1915,12 @@ def get_command_list(request):
         v_command_data_list.append(v_command["cl_st_duration"])
 
         if v_command["cl_st_status"]=='success':
-            v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_F.png" title="Success"/>')
+            v_command_data_list.append("<i title='Success' class='fas fa-circle action-grid action-status-ok'></i>")
         else:
-            v_command_data_list.append('<img src="/static/OmniDB_app/images/status/status_X.png" title="Error"/>')
+            v_command_data_list.append("<i title='Error' class='fas fa-circle action-grid action-status-error'></i>")
 
         v_command_data_list.append(v_command["cl_st_command"])
-        v_command_data_list.append('<img src="/static/OmniDB_app/images/trigger.png" class="img_ht" title="Open command in the current tab" onclick="commandHistoryOpenCmd({0})"/>'.format(index))
+        v_command_data_list.append("<i title='Open command in the current tab' class='fas fa-bolt action-grid action-bolt' onclick='commandHistoryOpenCmd({0})'></i>".format(index))
 
         v_command_list.append(v_command_data_list)
 

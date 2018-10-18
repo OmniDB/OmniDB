@@ -109,6 +109,7 @@ class SQLite:
         ]
         self.v_reserved_words = []
         self.v_console_help = "Console tab."
+        self.v_use_server_cursor = False
 
     def GetName(self):
         return self.v_service

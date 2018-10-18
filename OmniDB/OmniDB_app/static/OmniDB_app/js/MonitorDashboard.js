@@ -516,13 +516,13 @@ function showMonitorUnitList() {
           var col = new Object();
           col.readOnly = true;
           col.title =  'Actions';
-          col.width = '80px';
+          col.width = '65px';
           columnProperties.push(col);
 
           var col = new Object();
           col.readOnly = true;
           col.title =  'Title';
-          col.width = '280px;'
+          col.width = '300px;'
           columnProperties.push(col);
 
           var col = new Object();

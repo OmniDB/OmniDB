@@ -1,4 +1,4 @@
-DROP TABLE command_list;--omnidb
+DROP TABLE command_list;--omnidb--
 
 CREATE TABLE command_list (
     user_id integer not null,

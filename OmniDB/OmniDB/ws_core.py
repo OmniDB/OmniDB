@@ -1030,7 +1030,9 @@ def thread_console(self,args,ws_object):
                     run_command_list = True
                     list_sql = v_tab_object['remaining_commands']
 
-                self.v_last_fetched_size = len(v_table.Rows)
+            if v_mode == 3:
+                run_command_list = True
+                list_sql = v_tab_object['remaining_commands']
 
             if run_command_list:
                 counter = 0
@@ -1054,10 +1056,11 @@ def thread_console(self,args,ws_object):
 
                         v_data_return += v_data1
 
-                        if v_database.v_connection.v_last_fetched_size == 50:
-                            v_tab_object['remaining_commands'] = list_sql[counter:]
-                            v_show_fetch_button = True
-                            break
+                        if v_database.v_use_server_cursor:
+                            if v_database.v_connection.v_last_fetched_size == 50:
+                                v_tab_object['remaining_commands'] = list_sql[counter:]
+                                v_show_fetch_button = True
+                                break
                     except Exception as exc:
                         try:
                             v_notices = v_database.v_connection.GetNotices()

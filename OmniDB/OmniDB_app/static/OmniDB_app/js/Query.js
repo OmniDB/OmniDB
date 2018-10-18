@@ -360,7 +360,10 @@ function querySQLReturnRender(p_message,p_context) {
 					window.scrollTo(0,0);
 					if (v_data.v_data.length==0 && v_data.v_col_names.length==0) {
 						v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-						v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data.v_status + '</div>';
+						if (typeof(p_message.v_data.v_status)=='string')
+							v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data.v_status + '</div>';
+						else
+							v_div_result.innerHTML = '<div class="query_info">Done</div>';
 					}
 					else {
 						v_query_info.innerHTML = "Number of records: " + v_data.v_data.length + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;

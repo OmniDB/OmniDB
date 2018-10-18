@@ -659,6 +659,7 @@ class PostgreSQL:
         self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
         self.v_version = ''
         self.v_version_num = ''
+        self.v_use_server_cursor = True
 
     def GetName(self):
         return self.v_service
@@ -1325,7 +1326,9 @@ class PostgreSQL:
         return self.v_connection.Query('''
             select quote_ident(n.nspname) as schema_name,
                    quote_ident(c.relname) as table_name,
-                   quote_ident(t.tgname) as trigger_name
+                   quote_ident(t.tgname) as trigger_name,
+                   t.tgenabled as trigger_enabled,
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function
             from pg_trigger t
             inner join pg_class c
             on c.oid = t.tgrelid
@@ -4017,18 +4020,33 @@ ON #table_name#
 --(column_name, [, ...])
 ''')
 
-    def TemplateSelect(self, p_schema, p_table):
-        v_sql = 'SELECT t.'
-        v_fields = self.QueryTablesFields(p_table, False, p_schema)
-        if len(v_fields.Rows) > 0:
-            v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
-        v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
-        v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
-        if len(v_pk.Rows) > 0:
-            v_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+    def TemplateSelect(self, p_schema, p_table, p_kind):
+        if p_kind == 't':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryTablesFields(p_table, False, p_schema)
             if len(v_fields.Rows) > 0:
-                v_sql += '\nORDER BY t.'
-                v_sql += '\n       , t.'.join([r['column_name'] for r in v_fields.Rows])
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+            v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
+            if len(v_pk.Rows) > 0:
+                v_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+                if len(v_fields.Rows) > 0:
+                    v_sql += '\nORDER BY t.'
+                    v_sql += '\n       , t.'.join([r['column_name'] for r in v_fields.Rows])
+        elif p_kind == 'v':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryViewFields(p_table, False, p_schema)
+            if len(v_fields.Rows) > 0:
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+        elif p_kind == 'm':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryMaterializedViewFields(p_table, False, p_schema)
+            if len(v_fields.Rows) > 0:
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+        else:
+            v_sql = 'SELECT t.*\nFROM {0}.{1} t'.format(p_schema, p_table)
         return Template(v_sql)
 
     def TemplateInsert(self, p_schema, p_table):
@@ -4447,408 +4465,6 @@ ADD COLUMN name data_type
         return Template('''ALTER FOREIGN TABLE #table_name#
 DROP COLUMN #column_name#
 --CASCADE
-''')
-
-    def GetPglogicalVersion(self):
-        return self.v_connection.ExecuteScalar('''
-            select extversion
-            from pg_extension
-            where extname = 'pglogical'
-        ''')
-
-    def QueryPglogicalNodes(self):
-        return self.v_connection.Query('''
-            select quote_ident(n.node_name) || (case when l.node_id is not null then ' (local)' else '' end) as node_name
-            from pglogical.node n
-            left join pglogical.local_node l
-            on l.node_id = n.node_id
-            order by 1
-        ''')
-
-    def QueryPglogicalNodeInterfaces(self, p_node):
-        return self.v_connection.Query('''
-            select i.if_name,
-                   i.if_dsn
-            from pglogical.node_interface i
-            inner join pglogical.node n
-            on n.node_id = i.if_nodeid
-            where n.node_name = '{0}'
-        '''.format(p_node))
-
-    def QueryPglogicalReplicationSets(self):
-        return self.v_connection.Query('''
-            select quote_ident(set_name) as set_name,
-                   replicate_insert,
-                   replicate_update,
-                   replicate_delete,
-                   replicate_truncate
-            from pglogical.replication_set
-            order by 1
-        ''')
-
-    def QueryPglogicalReplicationSetTables(self, p_repset):
-        return self.v_connection.Query('''
-            select quote_ident(n.nspname) || '.' || quote_ident(c.relname) as table_name
-            from pglogical.replication_set_table t
-            inner join pglogical.replication_set r
-            on r.set_id = t.set_id
-            inner join pg_class c
-            on c.oid = t.set_reloid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            where quote_ident(r.set_name) = '{0}'
-            order by 1
-        '''.format(p_repset))
-
-    def QueryPglogicalReplicationSetSequences(self, p_repset):
-        return self.v_connection.Query('''
-            select quote_ident(n.nspname) || '.' || quote_ident(c.relname) as sequence_name
-            from pglogical.replication_set_seq t
-            inner join pglogical.replication_set r
-            on r.set_id = t.set_id
-            inner join pg_class c
-            on c.oid = t.set_seqoid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            where quote_ident(r.set_name) = '{0}'
-            order by 1
-        '''.format(p_repset))
-
-    def QueryPglogicalSubscriptions(self):
-        return self.v_connection.Query('''
-            select quote_ident(s.sub_name) as sub_name,
-                   (select status from pglogical.show_subscription_status(s.sub_name)) as sub_status,
-                   quote_ident(n.node_name) as sub_origin,
-                   s.sub_enabled,
-                   s.sub_apply_delay::text as sub_apply_delay
-            from pglogical.subscription s
-            inner join pglogical.node n
-            on n.node_id = s.sub_origin
-            order by 1
-        ''')
-
-    def QueryPglogicalSubscriptionReplicationSets(self, p_subscription):
-        return self.v_connection.Query('''
-            select quote_ident(unnest(s.sub_replication_sets)) as set_name
-            from pglogical.subscription s
-            inner join pglogical.node n
-            on n.node_id = s.sub_origin
-            where quote_ident(s.sub_name) = '{0}'
-        '''.format(p_subscription))
-
-    def TemplatePglogicalCreateNode(self):
-        return Template('''select pglogical.create_node(
-node_name := 'node_name',
-dsn := 'host={0} port={1} dbname={2} user={3} password=password'
-)
-'''.format(self.v_server, self.v_port, self.v_service, self.v_user))
-
-    def TemplatePglogicalDropNode(self):
-        return Template('''select pglogical.drop_node(
-node_name := '#node_name#',
-ifexists := true
-)''')
-
-    def TemplatePglogicalNodeAddInterface(self):
-        return Template('''select pglogical.alter_node_add_interface(
-node_name := '#node_name#',
-interface_name := 'name',
-dsn := 'host= port= dbname= user= password='
-)''')
-
-    def TemplatePglogicalNodeDropInterface(self):
-        return Template('''select pglogical.alter_node_drop_interface(
-node_name := '#node_name#',
-interface_name := '#interface_name#'
-)''')
-
-    def TemplatePglogicalCreateReplicationSet(self):
-        return Template('''select pglogical.create_replication_set(
-set_name := 'name',
-replicate_insert := true,
-replicate_update := true,
-replicate_delete := true,
-replicate_truncate := true
-)''')
-
-    def TemplatePglogicalAlterReplicationSet(self):
-        return Template('''select pglogical.alter_replication_set(
-set_name := '#repset_name#',
-replicate_insert := true,
-replicate_update := true,
-replicate_delete := true,
-replicate_truncate := true
-)''')
-
-    def TemplatePglogicalDropReplicationSet(self):
-        return Template('''select pglogical.drop_replication_set(
-set_name := '#repset_name#',
-ifexists := true
-)''')
-
-    def TemplatePglogicalReplicationSetAddTable(self):
-        return Template('''select pglogical.replication_set_add_table(
-set_name := '#repset_name#',
-relation := 'schema.table'::regclass,
-synchronize_data := true,
-columns := null,
-row_filter := null
-)''')
-
-    def TemplatePglogicalReplicationSetAddAllTables(self):
-        return Template('''select pglogical.replication_set_add_all_tables(
-set_name := '#repset_name#',
-schema_names := ARRAY['public'],
-synchronize_data := true
-)''')
-
-    def TemplatePglogicalReplicationSetRemoveTable(self):
-        return Template('''select pglogical.replication_set_remove_table(
-set_name := '#repset_name#',
-relation := '#table_name#'::regclass
-)''')
-
-    def TemplatePglogicalReplicationSetAddSequence(self):
-        return Template('''select pglogical.replication_set_add_sequence(
-set_name := '#repset_name#',
-relation := 'schema.sequence'::regclass,
-synchronize_data := true
-)''')
-
-    def TemplatePglogicalReplicationSetAddAllSequences(self):
-        return Template('''select pglogical.replication_set_add_all_sequences(
-set_name := '#repset_name#',
-schema_names := ARRAY['public'],
-synchronize_data := true
-)''')
-
-    def TemplatePglogicalReplicationSetRemoveSequence(self):
-        return Template('''select pglogical.replication_set_remove_sequence(
-set_name := '#repset_name#',
-relation := '#sequence_name#'::regclass
-)''')
-
-    def TemplatePglogicalCreateSubscription(self):
-        return Template('''select pglogical.create_subscription(
-subscription_name := 'sub_name',
-provider_dsn := 'host= port= dbname= user= password=',
-replication_sets := array['default','default_insert_only','ddl_sql'],
-synchronize_structure := true,
-synchronize_data := true,
-forward_origins := array['all'],
-apply_delay := '0 seconds'::interval
-)''')
-
-    def TemplatePglogicalEnableSubscription(self):
-        return Template('''select pglogical.alter_subscription_enable(
-subscription_name := '#sub_name#',
-immediate := true
-)''')
-
-    def TemplatePglogicalDisableSubscription(self):
-        return Template('''select pglogical.alter_subscription_disable(
-subscription_name := '#sub_name#',
-immediate := true
-)''')
-
-    def TemplatePglogicalSynchronizeSubscription(self):
-        return Template('''select pglogical.alter_subscription_synchronize(
-subscription_name := '#sub_name#',
-truncate := true
-)''')
-
-    def TemplatePglogicalDropSubscription(self):
-        return Template('''select pglogical.drop_subscription(
-subscription_name := '#sub_name#',
-ifexists := true
-)''')
-
-    def TemplatePglogicalSubscriptionAddReplicationSet(self):
-        return Template('''select pglogical.alter_subscription_add_replication_set(
-subscription_name := '#sub_name#',
-replication_set := 'set_name'
-)''')
-
-    def TemplatePglogicalSubscriptionRemoveReplicationSet(self):
-        return Template('''select pglogical.alter_subscription_remove_replication_set(
-subscription_name := '#sub_name#',
-replication_set := '#set_name#'
-)''')
-
-    def GetBDRVersion(self):
-        return self.v_connection.ExecuteScalar('''
-            select extversion
-            from pg_extension
-            where extname = 'bdr'
-        ''')
-
-    def GetBDRNodeName(self):
-        return self.v_connection.ExecuteScalar('select bdr.bdr_get_local_node_name()')
-
-    def QueryBDRProperties(self):
-        try:
-            v_tmp = self.v_connection.ExecuteScalar('select bdr.bdr_is_active_in_db()')
-            v_test = True
-        except Spartacus.Database.Exception as exc:
-            v_test = False
-        if v_test:
-            return self.v_connection.Query('''
-                select bdr.bdr_version() as version,
-                       bdr.bdr_is_active_in_db() as active,
-                       coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
-                       bdr.bdr_apply_is_paused() as paused,
-                       null as node_state
-            ''')
-        else:
-            return self.v_connection.Query('''
-                select bdr.bdr_version() as version,
-                       (coalesce(bdr.bdr_get_local_node_name(), 'Not set') != 'Not set') as active,
-                       coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
-                       bdr.bdr_apply_is_paused() as paused,
-                       null as node_state
-            ''')
-
-    def QueryBDRNodes(self):
-        return self.v_connection.Query('''
-            select quote_ident(node_name) as node_name,
-                   bdr.bdr_get_local_node_name() = node_name as node_is_local
-            from bdr.bdr_nodes
-            where node_status <> 'k'
-            order by 1
-        ''')
-
-    def QueryBDRReplicationSets(self):
-        return self.v_connection.Query('''
-            select quote_ident(set_name) as set_name,
-                   replicate_inserts,
-                   replicate_updates,
-                   replicate_deletes
-            from bdr.bdr_replication_set_config
-            order by 1
-        ''')
-
-    def QueryBDRTableReplicationSets(self, p_table):
-        return self.v_connection.Query("select unnest(bdr.table_get_replication_sets('{0}')) as set_name".format(p_table))
-
-    def QueryBDRTableConflictHandlers(self, p_table, p_schema):
-        return self.v_connection.Query('''
-            select quote_ident(t.ch_name) as ch_name,
-                   t.ch_type::text as ch_type,
-                   t.ch_fun::text as ch_fun
-            from bdr.bdr_conflict_handlers t
-            inner join pg_class c
-            on c.oid = t.ch_reloid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            where n.nspname = '{0}'
-              and c.relname = '{1}'
-        '''.format(p_schema, p_table))
-
-    def TemplateBDRCreateGroup(self):
-        return Template('''select bdr.bdr_group_create(
-local_node_name := 'node_name'
-, node_external_dsn := 'host={0} port={1} dbname={2}'
-, node_local_dsn := 'dbname={2}'
---, apply_delay := NULL
---, replication_sets := ARRAY['default']
-)
-'''.format(self.v_server, self.v_port, self.v_service))
-
-    def TemplateBDRJoinGroup(self):
-        return Template('''select bdr.bdr_group_join(
-local_node_name := 'node_name'
-, node_external_dsn := 'host={0} port={1} dbname={2}'
-, join_using_dsn := 'host= port= dbname='
-, node_local_dsn := 'dbname={2}'
---, apply_delay := NULL
---, replication_sets := ARRAY['default']
-)
-'''.format(self.v_server, self.v_port, self.v_service))
-
-    def TemplateBDRJoinWait(self):
-        return Template('select bdr.bdr_node_join_wait_for_ready()')
-
-    def TemplateBDRPause(self):
-        return Template('select bdr.bdr_apply_pause()')
-
-    def TemplateBDRResume(self):
-        return Template('select bdr.bdr_apply_resume()')
-
-    def TemplateBDRReplicateDDLCommand(self):
-        return Template("select bdr.bdr_replicate_ddl_command('DDL command here...')")
-
-    def TemplateBDRPartNode(self):
-        return Template("select bdr.bdr_part_by_node_names('{#node_name#}')")
-
-    def TemplateBDRInsertReplicationSet(self):
-        return Template('''INSERT INTO bdr.bdr_replication_set_config (set_name, replicate_inserts, replicate_updates, replicate_deletes)
-VALUES ('set_name', 't', 't', 't')
-''')
-
-    def TemplateBDRUpdateReplicationSet(self):
-        return Template('''UPDATE bdr.bdr_replication_set_config SET
---replicate_inserts = { 't' | 'f' }
---, replicate_updates = { 't' | 'f' }
---, replicate_deletes = { 't' | 'f' }
-WHERE set_name = '#set_name#'
-''')
-
-    def TemplateBDRDeleteReplicationSet(self):
-        return Template('''DELETE
-FROM bdr.bdr_replication_set_config
-WHERE set_name = '#set_name#'
-''')
-
-    def TemplateBDRSetTableReplicationSets(self):
-        return Template("select bdr.table_set_replication_sets('#table_name#', '{repset1,repset2,...}')")
-
-    def TemplateBDRCreateConflictHandler(self):
-        return Template('''CREATE OR REPLACE FUNCTION #table_name#_fnc_conflict_handler (
-  row1 #table_name#,
-  row2 #table_name#,
-  table_name text,
-  table_regclass regclass,
-  conflict_type bdr.bdr_conflict_type, /* [insert_insert | insert_update | update_update | update_delete | delete_delete | unhandled_tx_abort] */
-  OUT row_out #table_name#,
-  OUT handler_action bdr.bdr_conflict_handler_action) /* [IGNORE | ROW | SKIP] */
-  RETURNS record AS
-$BODY$
-BEGIN
-  raise warning 'conflict detected for #table_name#, old_row: %, incoming_row: %', row1, row2;
-  -- sample code to choose the output row or to merge values
-  row_out := row1;
-  handler_action := 'ROW';
-END;
-$BODY$
-LANGUAGE plpgsql;
-
--- after writing the handler procedure we also need to register it as an handler
-select *
-from bdr.bdr_create_conflict_handler(
-  ch_rel := '#table_name#',
-  ch_name := '#table_name#_conflict_handler',
-  ch_proc := '#table_name#_fnc_conflict_handler(#table_name#, #table_name#, text, regclass, bdr.bdr_conflict_type)',
-  ch_type := 'insert_insert' /* [insert_insert | insert_update | update_update | update_delete | delete_delete | unhandled_tx_abort] */
-)
-''')
-
-    def TemplateBDRDropConflictHandler(self):
-        return Template("select bdr.bdr_drop_conflict_handler('#table_name#', '#ch_name#')")
-
-    # only in BDR >= 1
-    def TemplateBDRTerminateApplyWorkers(self):
-        return Template("select bdr.terminate_apply_workers('{#node_name#}')")
-
-    # only in BDR >= 1
-    def TemplateBDRTerminateWalsenderWorkers(self):
-        return Template("select bdr.terminate_walsender_workers('{#node_name#}')")
-
-    # only in BDR >= 1
-    def TemplateBDRRemove(self):
-        return Template('''select bdr.remove_bdr_from_local_node(
-force := False
-, convert_global_sequences := True
-)
 ''')
 
     def GetPropertiesRole(self, p_object):

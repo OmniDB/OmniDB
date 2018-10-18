@@ -292,7 +292,7 @@ function queryEditDataReturnRender(p_message,p_context) {
 
 		var col = new Object();
 		col.title = ' ';
-		col.width = 25;
+		col.width = 40;
 		columnProperties.push(col);
 
 		for (var i = 0; i < v_currTabTag.editDataObject.columns.length; i++) {

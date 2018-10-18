@@ -1021,7 +1021,7 @@ function newColumnAlterTable() {
 
 	v_currTabTag.alterTableObject.infoRowsColumns.push(v_object);
 
-	v_data.push(['','','YES','<img src="/static/OmniDB_app/images/tab_close.png" onclick="dropColumnAlterTable()"/>']);
+	v_data.push(['','','YES',"<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropColumnAlterTable()'></i>"]);
 
 	v_currTabTag.alterTableObject.htColumns.loadData(v_data);
 
@@ -1046,7 +1046,7 @@ function newIndexAlterTable() {
 
 	v_currTabTag.alterTableObject.infoRowsIndexes.push(v_object);
 
-	v_data.push(['','',"<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> ",'<img src="/static/OmniDB_app/images/tab_close.png" onclick="dropIndexAlterTable()"/>']);
+	v_data.push(['','',"<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionIndexes()'></i> ","<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropIndexAlterTable()'></i>"]);
 
 	v_currTabTag.alterTableObject.htIndexes.loadData(v_data);
 
@@ -1071,7 +1071,7 @@ function newConstraintAlterTable() {
 
 	v_currTabTag.alterTableObject.infoRowsConstraints.push(v_object);
 
-	v_data.push(['','',"<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> ",'','','','','<img src="/static/OmniDB_app/images/tab_close.png" onclick="dropConstraintAlterTable()"/>']);
+	v_data.push(['','',"<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionConstraints()'></i> ",'','','','',"<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConstraintAlterTable()'></i>"]);
 
 	v_currTabTag.alterTableObject.data = v_data;
 	v_currTabTag.alterTableObject.htConstraints.loadData(v_data);
@@ -1134,11 +1134,11 @@ function hideColumnSelection() {
 	}
 
 	if (v_currTabTag.alterTableObject.window=='constraints') {
-		v_column_string = "<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionConstraints()'/> " + v_column_string;
+		v_column_string = "<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionConstraints()'></i> " + v_column_string;
 		v_currTabTag.alterTableObject.htConstraints.setDataAtCell(v_currTabTag.alterTableObject.selectedConstraintRow, 2, v_column_string);
 	}
 	else {
-		v_column_string = "<img src='/static/OmniDB_app/images/edit_columns.png' class='img_ht' onclick='showColumnSelectionIndexes()'/> " + v_column_string;
+		v_column_string = "<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionIndexes()'></i> " + v_column_string;
 		v_currTabTag.alterTableObject.htIndexes.setDataAtCell(v_currTabTag.alterTableObject.selectedIndexRow, 2, v_column_string);
 	}
 	$('#div_column_selection').removeClass('isActive');

@@ -1487,7 +1487,10 @@ class PostgreSQL(Generic):
             else:
                 if self.v_start:
                     if self.v_cursor:
-                        self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
+                        try:
+                            self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
+                        except:
+                            None
                     v_sql = self.Parse(p_sql)
                     if not self.v_autocommit and not self.GetConStatus() == 3 and not self.GetConStatus() == 4:
                         self.v_cur.execute('BEGIN;')
@@ -1872,7 +1875,7 @@ class MySQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def GetConStatus(self):
         try:
-            if self.v_con is None:
+            if self.v_con is None or not self.v_con.open:
                 return 0
             else:
                 return 1
@@ -2864,7 +2867,11 @@ class Oracle(Generic):
             if self.v_con is None:
                 return 0
             else:
-                return 1
+                try:
+                    self.v_con.ping()
+                    return 1
+                except:
+                    return 0
         except Spartacus.Database.Exception as exc:
             raise exc
         except cx_Oracle.Error as exc:

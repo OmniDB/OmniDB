@@ -111,7 +111,7 @@ function buildMonitorUnit(p_unit, p_first) {
       refreshMonitorDashboard(true,v_tab_tag,div);
     }
   })(div);
-  button_refresh.innerHTML = '<img src="/static/OmniDB_app/images/refresh.png"/>';
+  button_refresh.innerHTML = "<i class='fas fa-sync-alt fa-light'></i>";
   button_refresh.className = 'unit_header_element bt_icon_only';
   button_refresh.title = 'Refresh';
   var button_pause = document.createElement('button');
@@ -120,7 +120,7 @@ function buildMonitorUnit(p_unit, p_first) {
       pauseMonitorUnit(div);
     }
   })(div);
-  button_pause.innerHTML = '<img src="/static/OmniDB_app/images/pause.png"/>';
+  button_pause.innerHTML = "<i class='fas fa-pause-circle fa-light'></i>";
   button_pause.className = 'unit_header_element bt_icon_only';
   button_pause.title = 'Pause';
   var button_play = document.createElement('button');
@@ -129,7 +129,7 @@ function buildMonitorUnit(p_unit, p_first) {
       playMonitorUnit(div);
     }
   })(div);
-  button_play.innerHTML = '<img src="/static/OmniDB_app/images/play.png"/>';
+  button_play.innerHTML = "<i class='fas fa-play-circle fa-light'></i>";
   button_play.className = 'unit_header_element bt_icon_only';
   button_play.title = 'Play';
   button_play.style.display = 'none';
@@ -156,7 +156,7 @@ function buildMonitorUnit(p_unit, p_first) {
       closeMonitorUnit(div);
     }
   })(div);
-  button_close.innerHTML = '<img src="/static/OmniDB_app/images/tab_close.png"/>';
+  button_close.innerHTML = "<i class='fas fa-times icon-close'></i>";
   button_close.className = 'unit_header_element unit_close_button bt_icon_only';
   var details = document.createElement('div');
   details.classList.add('unit_header_element');
@@ -516,13 +516,13 @@ function showMonitorUnitList() {
           var col = new Object();
           col.readOnly = true;
           col.title =  'Actions';
-          col.width = '60px';
+          col.width = '65px';
           columnProperties.push(col);
 
           var col = new Object();
           col.readOnly = true;
           col.title =  'Title';
-          col.width = '210px;'
+          col.width = '300px;'
           columnProperties.push(col);
 
           var col = new Object();

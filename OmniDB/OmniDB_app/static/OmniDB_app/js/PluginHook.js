@@ -378,7 +378,7 @@ function createSQLTab({ p_name = '', p_template = '', p_show_tip = true }) {
 function createInnerTab({ p_name = '', p_image = '', p_select_function = null, p_before_close_function = null }) {
   v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-    '<img src="' + p_image + '"/><span id="tab_title"> ' + p_name + '</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+    '<img src="' + p_image + '"/><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
     false,
     null,
     null,
@@ -426,7 +426,7 @@ function getSelectedOuterTabTag() {
 function createOuterTab({ p_name = '', p_image = '', p_select_function = null, p_before_close_function = null }) {
   v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
   var v_tab = v_connTabControl.createTab(
-    '<img src="' + p_image + '"/><span id="tab_title"> ' + p_name + '</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+    '<img src="' + p_image + '"/><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
     false,
     null,
     null,

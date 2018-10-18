@@ -262,7 +262,6 @@ function grayEmptyRenderer(instance, td, row, col, prop, value, cellProperties) 
 
 function newRowRenderer(instance, td, row, col, prop, value, cellProperties) {
 
-	//arguments[5] = '<img class="img_ht" src="images/new_row.png"/>';
 	arguments[5] = '+';
 	td.style.textAlign = 'center';
 
@@ -275,7 +274,7 @@ function newRowRenderer(instance, td, row, col, prop, value, cellProperties) {
 
 function columnsActionRenderer(instance, td, row, col, prop, value, cellProperties) {
 
-	arguments[5] = '<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropColumnAlterTable()"/>';
+	arguments[5] = "<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropColumnAlterTable()'></i>";
 
 	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 
@@ -286,7 +285,7 @@ function columnsActionRenderer(instance, td, row, col, prop, value, cellProperti
 
 function editDataActionRenderer(instance, td, row, col, prop, value, cellProperties) {
 
-	arguments[5] = '<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="deleteRowEditData()"/>';
+	arguments[5] = "<i title='Remove' class='fas fa-times action-grid action-close' onclick='deleteRowEditData()'></i>";
 
 	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 

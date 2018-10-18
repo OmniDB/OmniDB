@@ -659,6 +659,7 @@ class PostgreSQL:
         self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
         self.v_version = ''
         self.v_version_num = ''
+        self.v_use_server_cursor = True
 
     def GetName(self):
         return self.v_service

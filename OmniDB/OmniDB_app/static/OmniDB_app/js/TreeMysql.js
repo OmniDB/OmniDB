@@ -19,7 +19,7 @@ function getTreeMysql(p_div) {
         'cm_server': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -33,7 +33,7 @@ function getTreeMysql(p_div) {
         'cm_databases': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -44,14 +44,14 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create Database',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Database', node.tree
                         .tag.create_database);
                 }
             }/*, {
                 text: 'Doc: Databases',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Databases',
@@ -65,14 +65,14 @@ function getTreeMysql(p_div) {
             elements: [
               {
                   text: 'Render Graph',
-                  icon: '/static/OmniDB_app/images/graph.png',
+                  icon: 'fab cm-all fa-hubspot',
                   action: function(node) {
 
                   },
                   submenu: {
                       elements: [{
                           text: 'Simple Graph',
-                          icon: '/static/OmniDB_app/images/graph.png',
+                          icon: 'fab cm-all fa-hubspot',
                           action: function(node) {
                               v_connTabControl.tag.createGraphTab(
                                   node.text)
@@ -80,7 +80,7 @@ function getTreeMysql(p_div) {
                           }
                       }, {
                           text: 'Complete Graph',
-                          icon: '/static/OmniDB_app/images/graph.png',
+                          icon: 'fab cm-all fa-hubspot',
                           action: function(node) {
                               v_connTabControl.tag.createGraphTab(
                                   node.text)
@@ -91,7 +91,7 @@ function getTreeMysql(p_div) {
               },
               {
                   text: 'Alter Database',
-                  icon: '/static/OmniDB_app/images/text_edit.png',
+                  icon: 'fas cm-all fa-edit',
                   action: function(node) {
                       tabSQLTemplate('Alter Database', node.tree.tag
                           .alter_database.replace(
@@ -99,7 +99,7 @@ function getTreeMysql(p_div) {
                   }
               }, {
                   text: 'Drop Database',
-                  icon: '/static/OmniDB_app/images/tab_close.png',
+                  icon: 'fas cm-all fa-times',
                   action: function(node) {
                       tabSQLTemplate('Drop Database', node.tree.tag
                           .drop_database.replace(
@@ -111,7 +111,7 @@ function getTreeMysql(p_div) {
         'cm_roles': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -122,14 +122,14 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create Role',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Role', node.tree.tag
                         .create_role);
                 }
             }/*, {
                 text: 'Doc: Roles',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Roles',
@@ -142,14 +142,14 @@ function getTreeMysql(p_div) {
         'cm_role': {
             elements: [{
                 text: 'Alter Role',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Alter Role', node.tree.tag.alter_role
                         .replace('#role_name#', node.text));
                 }
             }, {
                 text: 'Drop Role',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop Role', node.tree.tag.drop_role
                         .replace('#role_name#', node.text));
@@ -159,7 +159,7 @@ function getTreeMysql(p_div) {
         'cm_tables': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -170,13 +170,13 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create Table (GUI)',
-                icon: '/static/OmniDB_app/images/new_table.png',
+                icon: 'fas cm-all fa-plus-square',
                 action: function(node) {
                     startAlterTable(true, 'new', null, node.parent.text);
                 }
             }, {
                 text: 'Create Table (SQL)',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Table', node.tree.tag
                         .create_table.replace(
@@ -184,7 +184,7 @@ function getTreeMysql(p_div) {
                 }
             }/*, {
                 text: 'Doc: Basics',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Basics',
@@ -194,7 +194,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Doc: Constraints',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Constraints',
@@ -204,7 +204,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Doc: Modifying',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Modifying Tables',
@@ -217,7 +217,7 @@ function getTreeMysql(p_div) {
         'cm_table': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -228,18 +228,18 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Data Actions',
-                icon: '/static/OmniDB_app/images/list.png',
+                icon: 'fas cm-all fa-list',
                 submenu: {
                     elements: [{
                         text: 'Query Data',
-                        icon: '/static/OmniDB_app/images/query.png',
+                        icon: 'fas cm-all fa-search',
                         action: function(node) {
                             TemplateSelectMysql(node.parent
                               .parent.text, node.text);
                         }
                     }, {
                         text: 'Edit Data',
-                        icon: '/static/OmniDB_app/images/edit_data.png',
+                        icon: 'fas cm-all fa-table',
                         action: function(node) {
                             startEditData(node.text,
                                 node.parent.parent.text
@@ -247,21 +247,21 @@ function getTreeMysql(p_div) {
                         }
                     }, {
                         text: 'Insert Record',
-                        icon: '/static/OmniDB_app/images/insert.png',
+                        icon: 'fas cm-all fa-edit',
                         action: function(node) {
                             TemplateInsertMysql(node.parent
                               .parent.text, node.text);
                         }
                     }, {
                         text: 'Update Records',
-                        icon: '/static/OmniDB_app/images/update.png',
+                        icon: 'fas cm-all fa-edit',
                         action: function(node) {
                             TemplateUpdateMysql(node.parent
                               .parent.text, node.text);
                         }
                     }, {
                         text: 'Count Records',
-                        icon: '/static/OmniDB_app/images/counter.png',
+                        icon: 'fas cm-all fa-sort-numeric-down',
                         action: function(node) {
 
                             var v_table_name = '';
@@ -288,7 +288,7 @@ function getTreeMysql(p_div) {
                         }
                     }, {
                         text: 'Delete Records',
-                        icon: '/static/OmniDB_app/images/tab_close.png',
+                        icon: 'fas cm-all fa-times',
                         action: function(node) {
                           tabSQLTemplate(
                               'Delete Records',
@@ -303,11 +303,11 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Table Actions',
-                icon: '/static/OmniDB_app/images/list.png',
+                icon: 'fas cm-all fa-list',
                 submenu: {
                     elements: [{
                         text: 'Alter Table',
-                        icon: '/static/OmniDB_app/images/table_edit.png',
+                        icon: 'fas cm-all fa-table',
                         action: function(node) {
                             startAlterTable(true,
                                 'alter', node.text,
@@ -316,7 +316,7 @@ function getTreeMysql(p_div) {
                         }
                     }, {
                         text: 'Alter Table (SQL)',
-                        icon: '/static/OmniDB_app/images/text_edit.png',
+                        icon: 'fas cm-all fa-edit',
                         action: function(node) {
                             tabSQLTemplate('Alter Table', node.tree.tag
                                 .alter_table.replace(
@@ -325,7 +325,7 @@ function getTreeMysql(p_div) {
                         }
                     }, {
                         text: 'Drop Table',
-                        icon: '/static/OmniDB_app/images/tab_close.png',
+                        icon: 'fas cm-all fa-times',
                         action: function(node) {
                             tabSQLTemplate('Drop Table',
                                 node.tree.tag.drop_table
@@ -340,7 +340,7 @@ function getTreeMysql(p_div) {
         'cm_columns': {
             elements: [{
                 text: 'Create Column',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Field', node.tree.tag
                         .create_column.replace(
@@ -352,7 +352,7 @@ function getTreeMysql(p_div) {
         'cm_column': {
             elements: [{
                 text: 'Alter Column',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Alter Column', node.tree.tag
                         .alter_column.replace(
@@ -362,7 +362,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Drop Column',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop Column', node.tree.tag
                         .drop_column.replace('#table_name#',
@@ -375,7 +375,7 @@ function getTreeMysql(p_div) {
         'cm_pks': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -386,7 +386,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create Primary Key',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Primary Key', node.tree
                         .tag.create_primarykey.replace(
@@ -398,7 +398,7 @@ function getTreeMysql(p_div) {
         'cm_pk': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -409,7 +409,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Drop Primary Key',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop Primary Key', node.tree
                         .tag.drop_primarykey.replace(
@@ -423,7 +423,7 @@ function getTreeMysql(p_div) {
         'cm_fks': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -434,7 +434,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create Foreign Key',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Foreign Key', node.tree
                         .tag.create_foreignkey.replace(
@@ -446,7 +446,7 @@ function getTreeMysql(p_div) {
         'cm_fk': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -457,7 +457,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Drop Foreign Key',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop Foreign Key', node.tree
                         .tag.drop_foreignkey.replace(
@@ -471,7 +471,7 @@ function getTreeMysql(p_div) {
         'cm_uniques': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -482,7 +482,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create Unique',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Unique', node.tree.tag
                         .create_unique.replace(
@@ -494,7 +494,7 @@ function getTreeMysql(p_div) {
         'cm_unique': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -505,7 +505,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Drop Unique',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop Unique', node.tree.tag
                         .drop_unique.replace('#table_name#',
@@ -519,7 +519,7 @@ function getTreeMysql(p_div) {
         'cm_indexes': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -530,7 +530,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create Index',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Index', node.tree.tag
                         .create_index.replace(
@@ -539,7 +539,7 @@ function getTreeMysql(p_div) {
                 }
             }/*, {
                 text: 'Doc: Indexes',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Indexes',
@@ -552,7 +552,7 @@ function getTreeMysql(p_div) {
         'cm_index': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -563,7 +563,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Drop Index',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop Index', node.tree.tag.drop_index
                         .replace('#index_name#', node.parent.parent.parent.parent.text + '.' + node.text.replace(
@@ -575,7 +575,7 @@ function getTreeMysql(p_div) {
         'cm_views': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -586,7 +586,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create View',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create View', node.tree.tag
                         .create_view.replace(
@@ -595,7 +595,7 @@ function getTreeMysql(p_div) {
                 }
             }/*, {
                 text: 'Doc: Views',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Views',
@@ -608,7 +608,7 @@ function getTreeMysql(p_div) {
         'cm_view': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -619,7 +619,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Query Data',
-                icon: '/static/OmniDB_app/images/query.png',
+                icon: 'fas cm-all fa-search',
                 action: function(node) {
 
                     var v_table_name = '';
@@ -644,7 +644,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Edit View',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     v_connTabControl.tag.createQueryTab(
                         node.text);
@@ -652,7 +652,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Drop View',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop View', node.tree.tag.drop_view
                         .replace('#view_name#', node.parent.parent.text + '.' + node.text)
@@ -663,7 +663,7 @@ function getTreeMysql(p_div) {
         /*'cm_triggers': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -674,7 +674,7 @@ function getTreeMysql(p_div) {
                 },
             }, {
                 text: 'Create Trigger',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Trigger', node.tree.tag
                         .create_trigger.replace(
@@ -683,7 +683,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Doc: Triggers',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
@@ -696,7 +696,7 @@ function getTreeMysql(p_div) {
         'cm_view_triggers': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -707,7 +707,7 @@ function getTreeMysql(p_div) {
                 },
             }, {
                 text: 'Create Trigger',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Trigger', node.tree.tag
                         .create_view_trigger.replace(
@@ -716,7 +716,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Doc: Triggers',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
@@ -729,7 +729,7 @@ function getTreeMysql(p_div) {
         'cm_trigger': {
             elements: [{
                 text: 'Alter Trigger',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Alter Trigger', node.tree.tag
                         .alter_trigger.replace(
@@ -739,7 +739,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Enable Trigger',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Enable Trigger', node.tree.tag
                         .enable_trigger.replace(
@@ -749,7 +749,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Disable Trigger',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Disable Trigger', node.tree
                         .tag.disable_trigger.replace(
@@ -759,7 +759,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Drop Trigger',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop Trigger', node.tree.tag
                         .drop_trigger.replace(
@@ -772,7 +772,7 @@ function getTreeMysql(p_div) {
         'cm_partitions': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -783,7 +783,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create Partition',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Partition', node.tree
                         .tag.create_partition.replace(
@@ -792,7 +792,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Doc: Partitions',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Partitions',
@@ -805,7 +805,7 @@ function getTreeMysql(p_div) {
         'cm_partition': {
             elements: [{
                 text: 'No Inherit Partition',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('No Inherit Partition', node
                         .tree.tag.noinherit_partition.replace(
@@ -815,7 +815,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Drop Partition',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop Partition', node.tree.tag
                         .drop_partition.replace(
@@ -826,7 +826,7 @@ function getTreeMysql(p_div) {
         'cm_functions': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -837,7 +837,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create Function',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Function', node.tree
                         .tag.create_function.replace(
@@ -846,7 +846,7 @@ function getTreeMysql(p_div) {
                 }
             }/*, {
                 text: 'Doc: Functions',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Functions',
@@ -859,7 +859,7 @@ function getTreeMysql(p_div) {
         'cm_function': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -870,24 +870,15 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Edit Function',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     v_connTabControl.tag.createQueryTab(
                         node.text);
                     getFunctionDefinitionMysql(node);
                 }
-            }/*, {
-                text: 'Debug Function',
-                icon: '/static/OmniDB_app/images/debug.png',
-                action: function(node) {
-                    v_connTabControl.tag.createDebuggerTab(
-                        node.text);
-                    getDebugFunctionDefinitionMysql(node);
-                    setupDebug(node);
-                }
-            }*/, {
+            }, {
                 text: 'Drop Function',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop Function', node.tree.tag
                         .drop_function.replace(
@@ -899,7 +890,7 @@ function getTreeMysql(p_div) {
         'cm_procedures': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -910,7 +901,7 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Create Procedure',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Procedure', node.tree
                         .tag.create_procedure.replace(
@@ -919,7 +910,7 @@ function getTreeMysql(p_div) {
                 }
             }/*, {
                 text: 'Doc: Procedures',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Functions',
@@ -932,7 +923,7 @@ function getTreeMysql(p_div) {
         'cm_procedure': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -943,24 +934,15 @@ function getTreeMysql(p_div) {
                 }
             }, {
                 text: 'Edit Procedure',
-                icon: '/static/OmniDB_app/images/text_edit.png',
+                icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     v_connTabControl.tag.createQueryTab(
                         node.text);
                     getProcedureDefinitionMysql(node);
                 }
-            }/*, {
-                text: 'Debug Procedure',
-                icon: '/static/OmniDB_app/images/debug.png',
-                action: function(node) {
-                    v_connTabControl.tag.createDebuggerTab(
-                        node.text);
-                    getDebugProcedureDefinitionMysql(node);
-                    setupDebug(node);
-                }
-            }*/, {
+            }, {
                 text: 'Drop Procedure',
-                icon: '/static/OmniDB_app/images/tab_close.png',
+                icon: 'fas cm-all fa-times',
                 action: function(node) {
                     tabSQLTemplate('Drop Procedure', node.tree.tag
                         .drop_procedure.replace(
@@ -969,73 +951,10 @@ function getTreeMysql(p_div) {
                 }
             }]
         },
-        /*'cm_triggerfunctions': {
-            elements: [{
-                text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreeMysql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Create Trigger Function',
-                icon: '/static/OmniDB_app/images/text_edit.png',
-                action: function(node) {
-                    tabSQLTemplate('Create Trigger Function',
-                        node.tree.tag.create_triggerfunction
-                        .replace('#schema_name#', node.tree.tag.v_database));
-                }
-            }, {
-                text: 'Doc: Trigger Functions',
-                icon: '/static/OmniDB_app/images/globe.png',
-                action: function(node) {
-                    v_connTabControl.tag.createWebsiteTab(
-                        'Documentation: Trigger Functions',
-                        'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
-                        '/static/plpgsql-trigger.html');
-                }
-            }]
-        },
-        'cm_triggerfunction': {
-            elements: [{
-                text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
-                action: function(node) {
-                    if (node.childNodes == 0)
-                        refreshTreeMysql(node);
-                    else {
-                        node.collapseNode();
-                        node.expandNode();
-                    }
-                }
-            }, {
-                text: 'Edit Trigger Function',
-                icon: '/static/OmniDB_app/images/text_edit.png',
-                action: function(node) {
-                    v_connTabControl.tag.createQueryTab(
-                        node.text);
-                    getTriggerFunctionDefinitionMysql(node);
-                }
-            }, {
-                text: 'Drop Trigger Function',
-                icon: '/static/OmniDB_app/images/tab_close.png',
-                action: function(node) {
-                    tabSQLTemplate('Drop Trigger Function',
-                        node.tree.tag.drop_triggerfunction.replace(
-                            '#function_name#', node.tag.id)
-                    );
-                }
-            }]
-        },*/
         'cm_refresh': {
             elements: [{
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -1076,10 +995,10 @@ function getTreeMysql(p_div) {
     }
 
     var node_server = tree.createNode('MySQL', false,
-        '/static/OmniDB_app/images/mysql_medium.png', null, {
+        'node-mysql', null, {
             type: 'server'
         }, 'cm_server');
-    node_server.createChildNode('', true, '/static/OmniDB_app/images/spin.svg',
+    node_server.createChildNode('', true, 'node-spin',
         null, null);
     tree.drawTree();
 
@@ -1208,7 +1127,7 @@ function afterNodeOpenedCallbackMysql(node) {
 function getTreeDetailsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_tree_info_mysql/',
@@ -1221,7 +1140,7 @@ function getTreeDetailsMysql(node) {
             node.tree.contextMenu.cm_server.elements = []
             node.tree.contextMenu.cm_server.elements.push({
                 text: 'Refresh',
-                icon: '/static/OmniDB_app/images/refresh.png',
+                icon: 'fas cm-all fa-sync-alt',
                 action: function(node) {
                     if (node.childNodes == 0)
                         refreshTreeMysql(node);
@@ -1234,7 +1153,7 @@ function getTreeDetailsMysql(node) {
 
             /*node.tree.contextMenu.cm_server.elements.push({
                 text: 'Doc: PostgreSQL',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: PostgreSQL',
@@ -1245,7 +1164,7 @@ function getTreeDetailsMysql(node) {
             });
             node.tree.contextMenu.cm_server.elements.push({
                 text: 'Doc: SQL Language',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Language',
@@ -1256,7 +1175,7 @@ function getTreeDetailsMysql(node) {
             });
             node.tree.contextMenu.cm_server.elements.push({
                 text: 'Doc: SQL Commands',
-                icon: '/static/OmniDB_app/images/globe.png',
+                icon: 'fas cm-all fa-globe-americas',
                 action: function(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Commands',
@@ -1318,24 +1237,24 @@ function getTreeDetailsMysql(node) {
 
             node.tree.contextMenu.cm_server.elements.push({
                 text: 'Monitoring',
-                icon: '/static/OmniDB_app/images/monitoring.png',
+                icon: 'fas cm-all fa-chart-line',
                 action: function(node) {},
                 submenu: {
                     elements: [/*{
                         text: 'Dashboard',
-                        icon: '/static/OmniDB_app/images/monitoring.png',
+                        icon: 'fas cm-all fa-chart-line',
                         action: function(node) {
                             v_connTabControl.tag.createMonitorDashboardTab();
                             startMonitorDashboard();
                         }
                     }, */{
                         text: 'Process List',
-                        icon: '/static/OmniDB_app/images/monitoring.png',
+                        icon: 'fas cm-all fa-chart-line',
                         action: function(node) {
                             v_connTabControl.tag.createMonitoringTab(
                                 'Process List',
                                 'select * from information_schema.processlist', [{
-                                    icon: '/static/OmniDB_app/images/tab_close.png',
+                                    icon: 'fas cm-all fa-times',
                                     title: 'Terminate',
                                     action: 'mysqlTerminateBackend'
                                 }]);
@@ -1347,21 +1266,21 @@ function getTreeDetailsMysql(node) {
             node.setText(p_return.v_data.v_database_return.version);
 
             var node_databases = node.createChildNode('Databases', false,
-                '/static/OmniDB_app/images/db.png', {
+                'fas node-all fa-database node-database-list', {
                 type: 'database_list',
                 num_databases: 0
             }, 'cm_databases');
             node_databases.createChildNode('', true,
-                '/static/OmniDB_app/images/spin.svg', null, null);
+                'node-spin', null, null);
 
             if (node.tree.tag.superuser) {
                 var node_roles = node.createChildNode('Roles', false,
-                    '/static/OmniDB_app/images/role.png', {
+                    'fas node-all fa-users node-user-list', {
                         type: 'role_list',
                         num_roles: 0
                 }, 'cm_roles');
                 node_roles.createChildNode('', true,
-                    '/static/OmniDB_app/images/spin.svg', null, null);
+                    'node-spin', null, null);
             }
 
             if (v_connTabControl.selectedTab.tag.firstTimeOpen) {
@@ -1390,40 +1309,40 @@ function getDatabaseObjectsMysql(node) {
     node.removeChildNodes();
 
     var node_tables = node.createChildNode('Tables', false,
-        '/static/OmniDB_app/images/table_multiple.png', {
+        'fas node-all fa-th node-table-list', {
             type: 'table_list',
             num_tables: 0,
             database: v_connTabControl.selectedTab.tag.selectedDatabase
         }, 'cm_tables');
     node_tables.createChildNode('', true,
-        '/static/OmniDB_app/images/spin.svg', null, null);
+        'node-spin', null, null);
 
     var node_views = node.createChildNode('Views', false,
-        '/static/OmniDB_app/images/view_multiple.png', {
+        'fas node-all fa-eye node-view-list', {
             type: 'view_list',
             num_views: 0,
             database: v_connTabControl.selectedTab.tag.selectedDatabase
         }, 'cm_views');
     node_views.createChildNode('', true,
-        '/static/OmniDB_app/images/spin.svg', null, null);
+        'node-spin', null, null);
 
     var node_functions = node.createChildNode('Functions',
-        false, '/static/OmniDB_app/images/gear2.png', {
+        false, 'fas node-all fa-cog node-function-list', {
             type: 'function_list',
             num_functions: 0,
             database: v_connTabControl.selectedTab.tag.selectedDatabase
         }, 'cm_functions');
     node_functions.createChildNode('', true,
-        '/static/OmniDB_app/images/spin.svg', null, null);
+        'node-spin', null, null);
 
     var node_functions = node.createChildNode('Procedures',
-        false, '/static/OmniDB_app/images/gear2.png', {
+        false, 'fas node-all fa-cog node-procedure-list', {
             type: 'procedure_list',
             num_functions: 0,
             database: v_connTabControl.selectedTab.tag.selectedDatabase
         }, 'cm_procedures');
     node_functions.createChildNode('', true,
-        '/static/OmniDB_app/images/spin.svg', null, null);
+        'node-spin', null, null);
 
     afterNodeOpenedCallbackMysql(node);
 }
@@ -1435,7 +1354,7 @@ function getDatabaseObjectsMysql(node) {
 function getDatabasesMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
 
@@ -1456,7 +1375,7 @@ function getDatabasesMysql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 var v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/db.png', {
+                    false, 'fas node-all fa-database node-database', {
                         type: 'database',
                         database: p_return.v_data[i].v_name.replace(/"/g, '')
                     }, 'cm_database',null,false);
@@ -1467,7 +1386,7 @@ function getDatabasesMysql(node) {
                 }
 
                 v_node.createChildNode('', true,
-                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+                    'node-spin', null, null,null,false);
 
             }
 
@@ -1490,7 +1409,7 @@ function getDatabasesMysql(node) {
 function getRolesMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_roles_mysql/',
@@ -1510,7 +1429,7 @@ function getRolesMysql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/role.png', {
+                    false, 'fas node-all fa-user node-user', {
                         type: 'role',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_role',null,false);
@@ -1536,7 +1455,7 @@ function getRolesMysql(node) {
 function getTablesMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
 
@@ -1558,7 +1477,7 @@ function getTablesMysql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/table.png', {
+                    false, 'fas node-all fa-table node-table', {
                         type: 'table',
                         has_primary_keys: p_return.v_data[i].v_has_primary_keys,
                         has_foreign_keys: p_return.v_data[i].v_has_foreign_keys,
@@ -1572,7 +1491,7 @@ function getTablesMysql(node) {
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_table',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', {
+                    'node-spin', {
                         type: 'table_field',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null,null,false);
@@ -1598,7 +1517,7 @@ function getTablesMysql(node) {
 function getViewsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_views_mysql/',
@@ -1619,13 +1538,13 @@ function getViewsMysql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/view.png', {
+                    false, 'fas node-all fa-eye node-view', {
                         type: 'view',
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_view',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', {
+                    'node-spin', {
                         type: 'view_field',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null,null,false);
@@ -1649,7 +1568,7 @@ function getViewsMysql(node) {
 function getViewsColumnsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_views_columns_mysql/',
@@ -1665,40 +1584,40 @@ function getViewsColumnsMysql(node) {
                 node.removeChildNodes();
 
             v_list = node.createChildNode('Columns (' + p_return.v_data.length +
-                ')', false, '/static/OmniDB_app/images/add.png', null,
+                ')', false, 'fas node-all fa-columns node-column', null,
                 null,null,false);
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = v_list.createChildNode(p_return.v_data[i].v_column_name,
-                    false, '/static/OmniDB_app/images/add.png', {
+                    false, 'fas node-all fa-columns node-column', {
                         type: 'table_field',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null,null,false);
                 v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
-                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    false, 'fas node-all fa-ellipsis-h node-bullet',
                     null, null,null,false);
 
             }
 
             if (node.tag.has_rules) {
                 v_node = node.createChildNode('Rules', false,
-                    '/static/OmniDB_app/images/rule.png', {
+                    'fas node-all fa-lightbulb node-rule', {
                         type: 'rule_list',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_rules',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+                    'node-spin', null, null,null,false);
             }
 
             if (node.tag.has_triggers) {
                 v_node = node.createChildNode('Triggers', false,
-                    '/static/OmniDB_app/images/trigger.png', {
+                    'fas node-all fa-bolt node-trigger', {
                         type: 'trigger_list',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_view_triggers',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+                    'node-spin', null, null,null,false);
             }
 
             node.drawChildNodes();
@@ -1769,7 +1688,7 @@ function getViewDefinitionMysql(node) {
 function getColumnsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_columns_mysql/',
@@ -1785,7 +1704,7 @@ function getColumnsMysql(node) {
                 node.removeChildNodes();
 
             v_list = node.createChildNode('Columns (' + p_return.v_data.length +
-                ')', false, '/static/OmniDB_app/images/add.png', {
+                ')', false, 'fas node-all fa-columns node-column', {
                     type: 'column_list',
                     database: v_connTabControl.selectedTab.tag.selectedDatabase
                 }, 'cm_columns',null,false);
@@ -1793,77 +1712,77 @@ function getColumnsMysql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = v_list.createChildNode(p_return.v_data[i].v_column_name,
-                    false, '/static/OmniDB_app/images/add.png', {
+                    false, 'fas node-all fa-columns node-column', {
                         type: 'table_field',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_column',null,false);
                 v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
-                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    false, 'fas node-all fa-ellipsis-h node-bullet',
                     null, null,null,false);
                 v_node.createChildNode('Nullable: ' + p_return.v_data[i].v_nullable,
-                    false, '/static/OmniDB_app/images/bullet_red.png',
+                    false, 'fas node-all fa-ellipsis-h node-bullet',
                     null, null,null,false);
 
             }
 
             if (node.tag.has_primary_keys) {
                 v_node = node.createChildNode('Primary Key', false,
-                    '/static/OmniDB_app/images/key.png', {
+                    'fas node-all fa-key node-pkey', {
                         type: 'primary_key',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_pks',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+                    'node-spin', null, null,null,false);
             }
 
             if (node.tag.has_foreign_keys) {
                 v_node = node.createChildNode('Foreign Keys', false,
-                    '/static/OmniDB_app/images/silver_key.png', {
+                    'fas node-all fa-key node-fkey', {
                         type: 'foreign_keys',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_fks',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+                    'node-spin', null, null,null,false);
             }
 
             if (node.tag.has_uniques) {
                 v_node = node.createChildNode('Uniques', false,
-                    '/static/OmniDB_app/images/blue_key.png', {
+                    'fas node-all fa-key node-unique', {
                         type: 'uniques',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_uniques',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+                    'node-spin', null, null,null,false);
             }
 
             if (node.tag.has_indexes) {
                 v_node = node.createChildNode('Indexes', false,
-                    '/static/OmniDB_app/images/index.png', {
+                    'fas node-all fa-thumbtack node-index', {
                         type: 'indexes',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_indexes',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+                    'node-spin', null, null,null,false);
             }
 
             if (node.tag.has_triggers) {
                 v_node = node.createChildNode('Triggers', false,
-                    '/static/OmniDB_app/images/trigger.png', {
+                    'fas node-all fa-bolt node-trigger', {
                         type: 'trigger_list',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_triggers',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+                    'node-spin', null, null,null,false);
             }
 
             if (node.tag.has_partitions) {
                 v_node = node.createChildNode('Partitions', false,
-                    '/static/OmniDB_app/images/partition.png', {
+                    'fas node-all fa-table node-partition', {
                         type: 'partition_list',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_partitions',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', null, null,null,false);
+                    'node-spin', null, null,null,false);
             }
 
             node.drawChildNodes();
@@ -1885,7 +1804,7 @@ function getColumnsMysql(node) {
 function getPKMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_pk_mysql/',
@@ -1908,12 +1827,12 @@ function getPKMysql(node) {
 
             if (p_return.v_data.length > 0) {
                 v_node = node.createChildNode(p_return.v_data[0][0], false,
-                    '/static/OmniDB_app/images/key.png', {
+                    'fas node-all fa-key node-pkey', {
                         type: 'pk',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_pk');
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', {
+                    'node-spin', {
                         type: 'pk_field',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null);
@@ -1936,7 +1855,7 @@ function getPKMysql(node) {
 function getPKColumnsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_pk_columns_mysql/',
@@ -1955,7 +1874,7 @@ function getPKColumnsMysql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node.createChildNode(p_return.v_data[i][0], false,
-                    '/static/OmniDB_app/images/add.png', null, null,null,false);
+                    'fas node-all fa-columns node-column', null, null,null,false);
 
             }
 
@@ -1978,7 +1897,7 @@ function getPKColumnsMysql(node) {
 function getUniquesMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_uniques_mysql/',
@@ -2001,13 +1920,13 @@ function getUniquesMysql(node) {
 
                     v_node = node.createChildNode(p_return.v_data[i][0],
                         false,
-                        '/static/OmniDB_app/images/blue_key.png', {
+                        'fas node-all fa-key node-unique', {
                             type: 'unique',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, 'cm_unique',null,false);
 
                     v_node.createChildNode('', false,
-                        '/static/OmniDB_app/images/spin.svg', {
+                        'node-spin', {
                             type: 'unique_field',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, null,null,false);
@@ -2035,7 +1954,7 @@ function getUniquesMysql(node) {
 function getUniquesColumnsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_uniques_columns_mysql/',
@@ -2056,7 +1975,7 @@ function getUniquesColumnsMysql(node) {
                 for (i = 0; i < p_return.v_data.length; i++) {
 
                     v_node.createChildNode(p_return.v_data[i][0], false,
-                        '/static/OmniDB_app/images/add.png', null, null,null,false
+                        'fas node-all fa-columns node-column', null, null,null,false
                     );
 
                 }
@@ -2082,7 +2001,7 @@ function getUniquesColumnsMysql(node) {
 function getIndexesMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_indexes_mysql/',
@@ -2107,13 +2026,13 @@ function getIndexesMysql(node) {
 
                     v_node = node.createChildNode(p_return.v_data[i][0] +
                         ' (' + p_return.v_data[i][1] + ')', false,
-                        '/static/OmniDB_app/images/index.png', {
+                        'fas node-all fa-thumbtack node-index', {
                             type: 'index',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, 'cm_index',null,false);
 
                     v_node.createChildNode('', false,
-                        '/static/OmniDB_app/images/spin.svg', {
+                        'node-spin', {
                             type: 'index_field'
                         }, null,null,false);
 
@@ -2140,7 +2059,7 @@ function getIndexesMysql(node) {
 function getIndexesColumnsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_indexes_columns_mysql/',
@@ -2162,7 +2081,7 @@ function getIndexesColumnsMysql(node) {
                 for (i = 0; i < p_return.v_data.length; i++) {
 
                     node.createChildNode(p_return.v_data[i][0], false,
-                        '/static/OmniDB_app/images/add.png', null, null,null,false
+                        'fas node-all fa-columns node-column', null, null,null,false
                     );
 
                 }
@@ -2188,7 +2107,7 @@ function getIndexesColumnsMysql(node) {
 function getFKsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_fks_mysql/',
@@ -2209,21 +2128,21 @@ function getFKsMysql(node) {
 
                 v_node = node.createChildNode(p_return.v_data[i][0],
                     false,
-                    '/static/OmniDB_app/images/silver_key.png', {
+                    'fas node-all fa-key node-fkey', {
                         type: 'foreign_key',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_fk',null,false);
                 v_node.createChildNode('Referenced Table: ' + p_return.v_data[
                         i][1], false,
-                    '/static/OmniDB_app/images/table.png', null,
+                    'fas node-all fa-table node-table', null,
                     null,null,false);
                 v_node.createChildNode('Delete Rule: ' + p_return.v_data[
                         i][2], false,
-                    '/static/OmniDB_app/images/bullet_red.png',
+                    'fas node-all fa-ellipsis-h node-bullet',
                     null, null,null,false);
                 v_node.createChildNode('Update Rule: ' + p_return.v_data[
                         i][3], false,
-                    '/static/OmniDB_app/images/bullet_red.png',
+                    'fas node-all fa-ellipsis-h node-bullet',
                     null, null,null,false);
 
                 v_curr_fk = p_return.v_data[i][0];
@@ -2249,7 +2168,7 @@ function getFKsMysql(node) {
 function getFKsColumnsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_fks_columns_mysql/',
@@ -2267,23 +2186,23 @@ function getFKsColumnsMysql(node) {
 
             node.createChildNode('Referenced Table: ' + p_return.v_data[
                     0][0], false,
-                '/static/OmniDB_app/images/table.png', null,
+                'fas node-all fa-table node-table', null,
                 null,null,false);
             node.createChildNode('Delete Rule: ' + p_return.v_data[
                     0][1], false,
-                '/static/OmniDB_app/images/bullet_red.png',
+                'fas node-all fa-ellipsis-h node-bullet',
                 null, null,null,false);
             node.createChildNode('Update Rule: ' + p_return.v_data[
                     0][2], false,
-                '/static/OmniDB_app/images/bullet_red.png',
+                'fas node-all fa-ellipsis-h node-bullet',
                 null, null,null,false);
 
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 node.createChildNode(p_return.v_data[i][3] +
-                    ' <img style="vertical-align: middle;" src="/static/OmniDB_app/images/arrow_right.png"/> ' +
+                    " <i class='fas node-all fa-arrow-right'></i> " +
                     p_return.v_data[i][4], false,
-                    '/static/OmniDB_app/images/add.png', null, null,null,false);
+                    'fas node-all fa-columns node-column', null, null,null,false);
 
             }
 
@@ -2307,7 +2226,7 @@ function getFKsColumnsMysql(node) {
 function getTriggersMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_triggers_mysql/',
@@ -2337,11 +2256,11 @@ function getTriggersMysql(node) {
                         }, 'cm_trigger');
                     v_node.createChildNode('Enabled: ' + p_return.v_data[i]
                         [1], false,
-                        '/static/OmniDB_app/images/bullet_red.png',
+                        'fas node-all fa-ellipsis-h node-bullet',
                         null, null);
                     v_node.createChildNode('Function: ' + p_return.v_data[i]
                         [2], false,
-                        '/static/OmniDB_app/images/bullet_red.png',
+                        'fas node-all fa-ellipsis-h node-bullet',
                         null, null);
 
                 }
@@ -2363,7 +2282,7 @@ function getTriggersMysql(node) {
 function getPartitionsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_partitions_mysql/',
@@ -2413,7 +2332,7 @@ function getPartitionsMysql(node) {
 function getFunctionsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
 
@@ -2435,13 +2354,13 @@ function getFunctionsMysql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/gear2.png', {
+                    false, 'fas node-all fa-cog node-function', {
                         type: 'function',
                         id: p_return.v_data[i].v_id,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_function',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', {
+                    'node-spin', {
                         type: 'function_field'
                     }, null,null,false);
 
@@ -2466,7 +2385,7 @@ function getFunctionsMysql(node) {
 function getFunctionFieldsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_function_fields_mysql/',
@@ -2487,17 +2406,17 @@ function getFunctionFieldsMysql(node) {
 
                 if (p_return.v_data[i].v_type == 'O')
                     v_node = node.createChildNode(p_return.v_data[i].v_name,
-                        false, '/static/OmniDB_app/images/output.png', null,
+                        false, 'fas node-all fa-arrow-right node-function-field', null,
                         null,null,false);
                 else {
                     if (p_return.v_data[i].v_type == 'I')
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
-                            false, '/static/OmniDB_app/images/input.png',
+                            false, 'fas node-all fa-arrow-left node-function-field',
                             null, null,null,false);
                     else
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
                             false,
-                            '/static/OmniDB_app/images/input_output.png',
+                            'fas node-all fa-exchange-alt node-function-field',
                             null, null,null,false);
                 }
 
@@ -2600,7 +2519,7 @@ function getFunctionDefinitionMysql(node) {
 function getProceduresMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
 
@@ -2622,13 +2541,13 @@ function getProceduresMysql(node) {
             for (i = 0; i < p_return.v_data.length; i++) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
-                    false, '/static/OmniDB_app/images/gear2.png', {
+                    false, 'fas node-all fa-cog node-procedure', {
                         type: 'procedure',
                         id: p_return.v_data[i].v_id,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_procedure',null,false);
                 v_node.createChildNode('', false,
-                    '/static/OmniDB_app/images/spin.svg', {
+                    'node-spin', {
                         type: 'procedure_field',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null,null,false);
@@ -2654,7 +2573,7 @@ function getProceduresMysql(node) {
 function getProcedureFieldsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_procedure_fields_mysql/',
@@ -2675,17 +2594,17 @@ function getProcedureFieldsMysql(node) {
 
                 if (p_return.v_data[i].v_type == 'O')
                     v_node = node.createChildNode(p_return.v_data[i].v_name,
-                        false, '/static/OmniDB_app/images/output.png', null,
+                        false, 'fas node-all fa-arrow-right node-function-field', null,
                         null,null,false);
                 else {
                     if (p_return.v_data[i].v_type == 'I')
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
-                            false, '/static/OmniDB_app/images/input.png',
+                            false, 'fas node-all fa-arrow-left node-function-field',
                             null, null,null,false);
                     else
                         v_node = node.createChildNode(p_return.v_data[i].v_name,
                             false,
-                            '/static/OmniDB_app/images/input_output.png',
+                            'fas node-all fa-exchange-alt node-function-field',
                             null, null,null,false);
                 }
 
@@ -2789,7 +2708,7 @@ function getProcedureDefinitionMysql(node) {
 function getTriggerFunctionsMysql(node) {
 
     node.removeChildNodes();
-    node.createChildNode('', false, '/static/OmniDB_app/images/spin.svg', null,
+    node.createChildNode('', false, 'node-spin', null,
         null);
 
     execAjax('/get_triggerfunctions_mysql/',
@@ -2989,7 +2908,7 @@ function nodeOpenError(p_return, p_node) {
             "Error - <a class='a_link' onclick='showError(&quot;" +
             p_return.v_data.replace(/\n/g, "<br/>").replace(/"/g, '') +
             "&quot;)'>View Detail</a>", false,
-            '/static/OmniDB_app/images/tab_close.png', {
+            'fas fa-times node-error', {
                 type: 'error',
                 message: p_return.v_data
             }, null);

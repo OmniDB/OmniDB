@@ -41,19 +41,19 @@ function showConsoleHistory() {
           var col = new Object();
           col.readOnly = true;
           col.title =  ' ';
-          col.width = '50px';
+          col.width = '26px';
           columnProperties.push(col);
 
           var col = new Object();
           col.readOnly = true;
           col.title =  'Date';
-          col.width = '130px';
+          col.width = '115px';
           columnProperties.push(col);
 
           var col = new Object();
           col.readOnly = true;
           col.title =  'Command';
-          col.width = '400px';
+          col.width = '435px';
           columnProperties.push(col);
 
           v_tab_tag.console_history_div.style.display = 'block';
@@ -254,6 +254,7 @@ function consoleSQL(p_check_command = true, p_mode = 0) {
         v_tag.query_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
 				v_tag.bt_fetch_more.style.display = 'none';
 				v_tag.bt_fetch_all.style.display = 'none';
+				v_tag.bt_skip_fetch.style.display = 'none';
 				v_tag.bt_commit.style.display = 'none';
 				v_tag.bt_rollback.style.display = 'none';
 				setTabStatus(v_tag,2);
@@ -356,6 +357,7 @@ function consoleReturnRender(p_message,p_context) {
 	if (p_message.v_data.v_show_fetch_button) {
 		v_tag.bt_fetch_more.style.display = '';
 		v_tag.bt_fetch_all.style.display = '';
+		v_tag.bt_skip_fetch.style.display = '';
 	}
 
 

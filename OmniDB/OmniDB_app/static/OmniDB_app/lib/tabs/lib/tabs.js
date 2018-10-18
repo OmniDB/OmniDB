@@ -192,7 +192,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 
 			var v_li = createSimpleElement('li',p_div + '_tab' + v_index,'original');
 
-			var v_img = createImgElement(null,null,'/static/OmniDB_app/images/tab_close.png');
+			var v_img = createSimpleElement('i',null,'fas fa-times tab-icon icon-close');
 
 			v_tab.elementClose = v_img;
 

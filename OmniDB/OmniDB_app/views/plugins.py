@@ -155,25 +155,25 @@ def list_plugins(request):
     plugin_list = []
     for key, plugin in plugins.items():
         if plugin['conf_exists']:
-            conf_html = '<span class="fas fa-check"></span>'
+            conf_html = '<i class="fas fa-check-circle action-grid action-check"></i>'
         else:
-            conf_html = '<span class="fas fa-times"></span>'
+            conf_html = '<i class="fas fa-times action-grid action-close"></i>'
         if plugin['js_exists']:
-            js_html = '<span class="fas fa-check"></span>'
+            js_html = '<i class="fas fa-check-circle action-grid action-check"></i>'
         else:
-            js_html = '<span class="fas fa-times"></span>'
+            js_html = '<i class="fas fa-times action-grid action-close"></i>'
         if plugin['py_exists']:
-            py_html = '<span class="fas fa-check"></span>'
+            py_html = '<i class="fas fa-check-circle action-grid action-check"></i>'
         else:
-            py_html = '<span class="fas fa-times"></span>'
+            py_html = '<i class="fas fa-times action-grid action-close"></i>'
         if plugin['css_exists']:
-            css_html = '<span class="fas fa-check"></span>'
+            css_html = '<i class="fas fa-check-circle action-grid action-check"></i>'
         else:
-            css_html = '<span class="fas fa-times"></span>'
+            css_html = '<i class="fas fa-times action-grid action-close"></i>'
         if plugin['enabled']:
-            plugin_enabled = '<span class="fas fa-check"></span>'
+            plugin_enabled = '<i class="fas fa-check-circle action-grid action-check"></i>'
         else:
-            plugin_enabled = '<span class="fas fa-times"></span>'
+            plugin_enabled = '<i class="fas fa-times action-grid action-close"></i>'
 
         plugin_list.append([plugin['folder'],plugin['name'],plugin['version'],conf_html,js_html,py_html,css_html,plugin_enabled])
 

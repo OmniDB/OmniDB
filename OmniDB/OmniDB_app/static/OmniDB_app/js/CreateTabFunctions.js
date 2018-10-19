@@ -1034,7 +1034,7 @@ function initCreateTabFunctions() {
     v_editor.commands.addCommand({
       name: "autocomplete_start",
       exec: function(editor) {
-        autocomplete_start(editor);
+        autocomplete_start(editor,0);
       }
     });
 
@@ -1293,6 +1293,15 @@ function initCreateTabFunctions() {
 		v_editor1.session.setMode("ace/mode/sql");
 		v_editor1.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
     v_editor1.commands.bindKey(v_keybind_object.v_autocomplete_mac, "startAutocomplete");
+
+    v_editor1.commands.bindKey('ctrl+enter', "autocomplete_start");
+
+    v_editor1.commands.addCommand({
+      name: "autocomplete_start",
+      exec: function(editor) {
+        autocomplete_start(editor,1);
+      }
+    });
 
 		v_editor1.setFontSize(Number(v_editor_font_size));
 

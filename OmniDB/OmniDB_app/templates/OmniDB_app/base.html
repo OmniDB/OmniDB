@@ -461,6 +461,7 @@
   </div>
 
   <div id="div_autocomplete">
+    <div id='div_autocomplete_loading' class='div_loading_local' style='z-index: 1000;'></div>
     <div id="div_test_length"></div>
     <!--<div id="div_autocomplete_label"></div>-->
     <input type="text" id="div_autocomplete_input" onkeyup="autocomplete_keyup(event,this)" onkeydown="autocomplete_keydown(event,this)"/>
@@ -566,10 +567,11 @@
         </div>
       </div>
     </div>
+    <input type="text" id="div_autocomplete_input2" onkeyup="autocomplete_keyup(event,this)" onkeydown="autocomplete_keydown(event,this)"/>
   </div>
 
 
-  <div class="div_loading"></div>
+  <div class="div_loading"><button id="bt_cancel_ajax" onclick="cancelAjax()">Cancel</button></div>
 
   <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.12.0.2"          ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.12.0.2"      ></script>

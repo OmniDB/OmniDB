@@ -112,8 +112,8 @@ div.borderRadiusTp {
 
 /* Connection Tree */
 ul span.node {
-  padding-top: 1px;
-  padding-bottom: 1px;
+  /*padding-top: 1px;
+  padding-bottom: 1px;*/
 }
 ul span.node_selected {
   padding-top: 4px;
@@ -289,7 +289,7 @@ div.query_info_summary strong {
   border-left: 1px solid lightgray;
   border-right: 1px solid lightgray;
   border-radius: 2px;
-  z-index: 999999;
+  z-index: 9999;
 }
 
 #div_autocomplete_scroll {
@@ -309,6 +309,15 @@ div.query_info_summary strong {
   border: 0px;
   height: 30px;
   border-bottom: 1px solid lightgray;
+  border-radius: 0px;
+  width: 100%;
+  font-size: 11px;
+}
+
+#div_autocomplete_input2 {
+  border: 0px;
+  height: 30px;
+  border-top: 1px solid lightgray;
   border-radius: 0px;
   width: 100%;
   font-size: 11px;
@@ -404,7 +413,7 @@ div.query_info_summary strong {
 }
 
 #div_autocomplete .htDimmed {
-  color: #143c7b;
+  color: #000000;
 }
 
 #div_autocomplete .handsontable tr {

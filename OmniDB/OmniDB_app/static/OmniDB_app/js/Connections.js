@@ -125,6 +125,7 @@ function testConnectionConfirm(p_index) {
 				}
 			},
 			'box',
+			true,
 			true);
 
 }
@@ -220,6 +221,7 @@ function selectConnectionConfirm(p_index) {
 				}
 			},
 			'box',
+			true,
 			true);
 
 }
@@ -289,6 +291,7 @@ function showConnectionList() {
 				var col = new Object();
 				col.title =  'Technology';
 				col.type = 'dropdown';
+				col.width = '80'
 				col.allowInvalid = false,
 				col.source = p_return.v_data.v_technologies;
 				columnProperties.push(col);
@@ -471,7 +474,8 @@ function showConnectionList() {
 				}
 			},
 			null,
-			'box');
+			'box',
+			true);
 
 }
 

@@ -11,7 +11,7 @@ You should have received a copy of the GNU General Public License along with Omn
 */
 
 html {
-    overflow-y: scroll;
+    overflow-y: hidden;
 }
 
 body {
@@ -357,7 +357,7 @@ textarea {
 }
 
 body.loading .div_loading {
-    display: block;
+    display: flex;
 }
 
 .div_loading {
@@ -368,7 +368,15 @@ body.loading .div_loading {
   left: 0;
   height: 100%;
   width: 100%;
-  background: rgba(252, 253, 253, 0.6) url(../images/omnidb_loading.svg) 50% 50% no-repeat
+  background: rgba(252, 253, 253, 0.6) url(../images/omnidb_loading.svg) 50% 50% no-repeat;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.div_loading button {
+  margin-top: 100px;
+  display: none;
 }
 
 .div_loading_local {

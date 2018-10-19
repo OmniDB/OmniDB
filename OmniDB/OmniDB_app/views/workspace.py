@@ -2309,7 +2309,7 @@ def get_autocomplete_results(request):
     max_complement_word = ''
 
     v_alias = None
-    if v_value[len(v_value)-1]=='.':
+    if v_value!='' and v_value[len(v_value)-1]=='.':
         v_alias = get_alias(v_sql,v_pos,v_value)
         if v_alias:
             try:

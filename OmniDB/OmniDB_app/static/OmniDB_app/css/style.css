@@ -515,7 +515,7 @@ button {
   border-radius: 3px;
   font-family: Arial;
   color: #333;
-  font-size: 13px;
+  font-size: 12px;
   height: 30px;
   line-height: 0px;
   padding-left: 12px;
@@ -1131,7 +1131,7 @@ h2 {
   text-align: center;
   margin-bottom: 5px;
   margin-top: 5px;
-  border-bottom: 1px dashed #c3c3c3;
+  border-bottom: 1px solid #e3e9ef;
   padding-bottom: 5px;
 }
 
@@ -1205,18 +1205,21 @@ h2 {
   display: none;
   position: absolute;
   margin-top: -272px;
-  width: 750px;
+  width: 800px;
   height: 250px;
   padding: 5px 5px;
   background-color: #f9f9f9;
   border: 1px solid #cdcdcd;
   z-index: 1000;
-  box-shadow: 2px 2px 2px #cecece;
+}
+
+.query_command_history input {
+  width: 150px;
 }
 
 .query_command_history_grid {
   position: relative;
-  width: 750px;
+  width: 800px;
   height: 177px;
   overflow: auto;
 }
@@ -1234,7 +1237,7 @@ h2 {
 
 .link_text {
   font-weight: bold;
-  color: blue;
+  color: #177ce0;
   cursor: pointer;
 }
 

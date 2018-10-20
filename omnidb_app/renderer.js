@@ -7,8 +7,6 @@ var bookmarks = path.join(__dirname, 'bookmarks.json');
 var view = document.getElementById('view');
 var loading = document.getElementById('loading');
 var loading_interface = document.getElementById('loading_interface');
-console.log(view)
-
 
 var ipc = require('electron').ipcRenderer;
 
@@ -28,4 +26,8 @@ ipc.on('info' , function(event , data) {
     })(data[i]);
     }
   }
+});
+
+ipc.on('focus' , function(event , data) {
+  view.focus();
 });

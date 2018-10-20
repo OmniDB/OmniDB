@@ -456,8 +456,13 @@ function testMonitorScript() {
                     if (key === 'view_data') {
                         editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
                     }
+                    else if (key === 'copy') {
+                      this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+                      document.execCommand('copy');
+                    }
                   },
                   items: {
+                    "copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
                     "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
                   }
                   },
@@ -560,8 +565,13 @@ function showMonitorUnitList() {
                 if (key === 'view_data') {
                     editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
                 }
+                else if (key === 'copy') {
+                  this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+                  document.execCommand('copy');
+                }
               },
               items: {
+                "copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
                 "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
               }
               },
@@ -795,10 +805,15 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
         									if (key === 'view_data') {
         									  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
         									}
-        								},
-        								items: {
-        									"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
-        								}
+                          else if (key === 'copy') {
+                            this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+                            document.execCommand('copy');
+                          }
+                        },
+                        items: {
+                          "copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+                          "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
+                        }
         						    },
         					        cells: function (row, col, prop) {
         							    var cellProperties = {};

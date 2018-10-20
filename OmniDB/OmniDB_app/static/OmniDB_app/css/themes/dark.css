@@ -39,15 +39,15 @@ div.header {
 }
 .conn_tabs .tabs > li, .white_box .tabs > li, .config_box .tabs > li {
   background-color: #373b41 !important;
-  color: #d7d7d7 !important;
+  color: #ffffff !important;
 }
 
 .config_box {
-  color: #d7d7d7 !important;
+  color: #ffffff !important;
 }
 
 .link_text {
-  color: #9aa7e6 !important;
+  color: #ffc67a !important;
 }
 /* --------------------
 			Right Div
@@ -65,7 +65,7 @@ div.header {
 }
 .div_right .tabs > li {
   background-color: #373b41 !important;
-  color: #d7d7d7 !important;
+  color: #ffffff !important;
 }
 /* Handsontables */
 .handsontable th .relative {
@@ -74,7 +74,7 @@ div.header {
 select {
   background: #1d1f21 !important;
   border: solid #484a55 1px !important;
-  color: #d7d7d7 !important;
+  color: #ffffff !important;
 }
 .handsontable th {
   color: #2bb2d8 !important;
@@ -276,10 +276,11 @@ span.node_selected {
 /* -------------------------
 				Modal
 --------------------------*/
-.white_box, .config_box, .plugin_box, .users_box, .connection_list, .dashboard_unit_list, .dashboard_unit, .dashboard_unit_test, .console_command_history {
+.white_box, .config_box, .plugin_box, .users_box, .connection_list, .dashboard_unit_list, .dashboard_unit, .dashboard_unit_test, .console_command_history, .query_command_history {
   border: 1px solid #484a55 !important;
   background-color: #25282c !important;
   box-shadow: none !important;
+  color: #ffffff;
 }
 .modal_background_dark {
   color: #d7d7d7 !important;
@@ -317,7 +318,7 @@ a.modal-closer:hover {
 button {
   background: #25282c;
   border: solid #484a55 1px;
-  color: #d7d7d7;
+  color: #ffffff;
 }
 button:hover {
   color: #fff !important;
@@ -460,7 +461,6 @@ input, textarea {
 
 .node-all {
   color: #ececec !important;
-  font-size: 14px !important;
 }
 
 .shortcut_block_title {
@@ -534,22 +534,22 @@ i.action-test {
 }
 
 #div_autocomplete .handsontable tr:nth-of-type(2n) td {
-    color: #c5c5c5;
+    color: #ffffff;
     border-right: 1px transparent !important;
     border-bottom: 1px transparent !important;
 }
 
 #div_autocomplete .handsontable tr:nth-of-type(2n + 1) td {
-    color: #c5c5c5;
+    color: #ffffff;
     border-right: 1px transparent !important;
     border-bottom: 1px transparent !important;
 }
 
-#div_autocomplete .handsontable tr:first-child th, .handsontable tr:first-child td {
+#div_autocomplete .handsontable tr:first-child th, #div_autocomplete .handsontable tr:first-child td {
     border-top: 1px transparent !important;
 }
 
-#div_autocomplete .handsontable th:first-child, .handsontable td:first-of-type, .handsontable .htNoFrame + th, .handsontable .htNoFrame + td {
+#div_autocomplete .handsontable th:first-child, #div_autocomplete .handsontable td:first-of-type, #div_autocomplete .handsontable .htNoFrame + th, #div_autocomplete .handsontable .htNoFrame + td {
     border-left: 1px transparent !important;
 }
 

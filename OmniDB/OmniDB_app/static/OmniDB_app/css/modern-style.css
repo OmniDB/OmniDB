@@ -436,3 +436,8 @@ div.query_info_summary strong {
 .tab-status-text {
   margin: 0px 10px;
 }
+
+.tab_actions {
+  margin-bottom: 5px;
+  height: 30px;
+}

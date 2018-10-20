@@ -6991,8 +6991,8 @@ function nodeOpenError(p_return, p_node) {
 
 function getMajorVersion(p_version) {
     var v_version = p_version.split(' (')[0]
-    var tmp = v_version.replace('PostgreSQL ', '').replace('beta', '.').split(
-        '.')
+    var tmp = v_version.replace('PostgreSQL ', '').replace('beta', '.')
+                .replace('rc', '.').split('.')
     tmp.pop()
     return tmp.join('.')
 }

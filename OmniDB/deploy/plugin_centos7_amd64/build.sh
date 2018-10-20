@@ -1,18 +1,12 @@
 #!/bin/bash
 
 VERSION=2.12.0
-ARCH=centos-i386
+ARCH=centos-amd64
 
 cd ~/OmniDB/omnidb_plugin
 
 echo -n "Cleaning... "
 rm -f *.o
-echo "Done."
-
-echo "Compiling for 9.3... "
-rm -f *.o
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-9.3/lib -lpq -I /usr/pgsql-9.3/include -I /usr/pgsql-9.3/include/server
-gcc -fPIC -o omnidb_plugin_93.so omnidb_plugin.o -L /usr/pgsql-9.3/lib -lpq -shared
 echo "Done."
 
 echo "Compiling for 9.4... "
@@ -84,7 +78,7 @@ cat > SPECS/omnidb-plugin.spec <<EOF
 %define buildroot %{_topdir}/%{longname}-root
 
 BuildRoot: %{buildroot}
-BuildArch: i686
+BuildArch: x86_64
 Summary: PostgreSQL plugin to allow OmniDB to debug PLpgSQL functions
 License: MIT
 Name: %{name}
@@ -116,7 +110,7 @@ cp -r ./* %{buildroot}/opt/%{name}
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-plugin.spec
-cp RPMS/i686/omnidb-plugin-$VERSION-0.i686.rpm ../omnidb-plugin_$VERSION-$ARCH.rpm
+cp RPMS/x86_64/omnidb-plugin-$VERSION-0.x86_64.rpm ../omnidb-plugin_$VERSION-centos7-amd64.rpm
 cd ..
 echo "Done"
 

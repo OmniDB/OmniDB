@@ -125,6 +125,7 @@ function testConnectionConfirm(p_index) {
 				}
 			},
 			'box',
+			true,
 			true);
 
 }
@@ -220,6 +221,7 @@ function selectConnectionConfirm(p_index) {
 				}
 			},
 			'box',
+			true,
 			true);
 
 }
@@ -289,6 +291,7 @@ function showConnectionList() {
 				var col = new Object();
 				col.title =  'Technology';
 				col.type = 'dropdown';
+				col.width = '80'
 				col.allowInvalid = false,
 				col.source = p_return.v_data.v_technologies;
 				columnProperties.push(col);
@@ -396,8 +399,13 @@ function showConnectionList() {
 											editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),true);
 									}
 								}
+								else if (key === 'copy') {
+									his.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+									document.execCommand('copy');
+								}
 							},
 							items: {
+								"copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
 								"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
 							}
 				    },
@@ -471,7 +479,8 @@ function showConnectionList() {
 				}
 			},
 			null,
-			'box');
+			'box',
+			true);
 
 }
 

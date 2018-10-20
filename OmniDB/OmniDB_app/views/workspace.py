@@ -1683,7 +1683,6 @@ def get_completions(request):
     v_found = False
 
     inst = get_positions (p_sql, p_prefix)
-    print(inst)
 
     index = 0
 
@@ -2310,7 +2309,7 @@ def get_autocomplete_results(request):
 
     v_alias = None
     if v_value!='' and v_value[len(v_value)-1]=='.':
-        v_alias = get_alias(v_sql,v_pos,v_value)
+        v_alias = get_alias(v_sql,v_pos,v_value.lower())
         if v_alias:
             try:
                 if not v_alias['is_subquery']:
@@ -2323,9 +2322,9 @@ def get_autocomplete_results(request):
                 max_result_length = 0
                 max_complement_length = 0
                 for v_type in v_data1:
-                    curr_result_length = len(v_type.v_truename)
+                    curr_result_length = len(v_value + v_type.v_truename)
                     curr_complement_length = len(v_type.v_dbtype)
-                    curr_result_word = v_type.v_truename
+                    curr_result_word = v_value + v_type.v_truename
                     curr_complement_word = v_type.v_dbtype
 
                     if curr_result_length > max_result_length:
@@ -2335,7 +2334,7 @@ def get_autocomplete_results(request):
                         max_complement_length = curr_complement_length
                         max_complement_word = curr_complement_word
 
-                    v_current_group['elements'].append({ 'value': v_type.v_truename, 'select_value': v_value + v_type.v_truename, 'complement': v_type.v_dbtype})
+                    v_current_group['elements'].append({ 'value': v_value + v_type.v_truename, 'select_value': v_value + v_type.v_truename, 'complement': v_type.v_dbtype})
                 if len(v_current_group['elements']) > 0:
                     v_result.append(v_current_group)
             except Exception as exc:
@@ -2356,30 +2355,31 @@ def get_autocomplete_results(request):
 
             v_search = v_database.GetAutocompleteValues(v_query_columns,v_filter)
 
-            v_current_group = { 'type': '', 'elements': [] }
-            if len(v_search.Rows) > 0:
-                v_current_group['type'] = v_search.Rows[0]['type']
-            for v_search_row in v_search.Rows:
+            if v_search!=None:
+                v_current_group = { 'type': '', 'elements': [] }
+                if len(v_search.Rows) > 0:
+                    v_current_group['type'] = v_search.Rows[0]['type']
+                for v_search_row in v_search.Rows:
 
-                if v_current_group['type'] != v_search_row['type']:
+                    if v_current_group['type'] != v_search_row['type']:
+                        v_result.append(v_current_group)
+                        v_current_group = { 'type': v_search_row['type'], 'elements': [] }
+
+                    curr_result_length = len(v_search_row['result'])
+                    curr_complement_length = len(v_search_row['complement'])
+                    curr_result_word = v_search_row['result']
+                    curr_complement_word = v_search_row['complement']
+                    v_current_group['elements'].append({ 'value': v_search_row['result'], 'select_value': v_search_row['select_value'],'complement': v_search_row['complement']})
+
+                    if curr_result_length > max_result_length:
+                        max_result_length = curr_result_length
+                        max_result_word = curr_result_word
+                    if curr_complement_length > max_complement_length:
+                        max_complement_length = curr_complement_length
+                        max_complement_word = curr_complement_word
+
+                if len(v_current_group['elements']) > 0:
                     v_result.append(v_current_group)
-                    v_current_group = { 'type': v_search_row['type'], 'elements': [] }
-
-                curr_result_length = len(v_search_row['result'])
-                curr_complement_length = len(v_search_row['complement'])
-                curr_result_word = v_search_row['result']
-                curr_complement_word = v_search_row['complement']
-                v_current_group['elements'].append({ 'value': v_search_row['result'], 'select_value': v_search_row['select_value'],'complement': v_search_row['complement']})
-
-                if curr_result_length > max_result_length:
-                    max_result_length = curr_result_length
-                    max_result_word = curr_result_word
-                if curr_complement_length > max_complement_length:
-                    max_complement_length = curr_complement_length
-                    max_complement_word = curr_complement_word
-
-            if len(v_current_group['elements']) > 0:
-                v_result.append(v_current_group)
 
         except Exception as exc:
             v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }

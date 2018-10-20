@@ -1314,5 +1314,4 @@ WHERE condition
             '''.format(p_object))
 
     def GetAutocompleteValues(self, p_columns, p_filter):
-        return self.v_connection.Query('''
-        '''.format(p_columns,p_filter), True)
+        return None

@@ -4,48 +4,7 @@
 
 	<link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico" />
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/login.css?v2.12.0.2"/>
-
-	<script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js"   ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js" ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js"         ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js"    ></script>
-	<script type="text/javascript">
-
-		$(function () {
-
-			checkSessionMessage();
-
-		});
-
-		function signIn() {
-
-			document.getElementById("txt_user").blur();
-			document.getElementById("txt_pwd").blur();
-
-			var v_user_name = document.getElementById('txt_user').value;
-			var v_pwd = document.getElementById('txt_pwd').value;
-
-			execAjax('/sign_in/',
-				JSON.stringify({"p_username": v_user_name, "p_pwd": v_pwd}),
-				function(p_return) {
-
-					if (p_return.v_data>=0) {
-						window.open("../workspace", '_self');
-					}
-					else if (p_return.v_data==-2) {
-						showAlert('Invalid authentication token, use omnidb-server to support multiple users.');
-					}
-					else
-						showAlert('Invalid username or password.');
-
-				},
-				null,
-				'box'
-			);
-		}
-
-	</script>
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/login.css?v2.12.0.3"/>
 </head>
 <body>
 	<div id="div_form">
@@ -87,8 +46,48 @@
 		</div>
 </div>
 
-	<div class="div_loading">
-	</div>
+<div class="div_loading"><button id="bt_cancel_ajax" onclick="cancelAjax()">Cancel</button></div>
+
+<script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js"   ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js" ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js"         ></script>
+<script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js"    ></script>
+<script type="text/javascript">
+
+	$(function () {
+
+		checkSessionMessage();
+
+	});
+
+	function signIn() {
+
+		document.getElementById("txt_user").blur();
+		document.getElementById("txt_pwd").blur();
+
+		var v_user_name = document.getElementById('txt_user').value;
+		var v_pwd = document.getElementById('txt_pwd').value;
+
+		execAjax('/sign_in/',
+			JSON.stringify({"p_username": v_user_name, "p_pwd": v_pwd}),
+			function(p_return) {
+
+				if (p_return.v_data>=0) {
+					window.open("../workspace", '_self');
+				}
+				else if (p_return.v_data==-2) {
+					showAlert('Invalid authentication token, use omnidb-server to support multiple users.');
+				}
+				else
+					showAlert('Invalid username or password.');
+
+			},
+			null,
+			'box'
+		);
+	}
+
+</script>
 
 </body>
 </html>

@@ -19,6 +19,8 @@ var Range = ace.require('ace/range').Range;
 $(function() {
 
   v_autocomplete_object = {
+    active: false,
+    ready: false,
     selected: null,
     //label: document.getElementById('div_autocomplete_label'),
     input: document.getElementById('div_autocomplete_input'),
@@ -313,6 +315,7 @@ function autocomplete_get_results(p_sql,p_value,p_pos) {
         }
 
         build_autocomplete_elements(p_return.v_data.data,p_value);
+        v_autocomplete_object.ready = true;
 
       },
       function(p_return) {
@@ -334,7 +337,9 @@ function autocomplete_get_results(p_sql,p_value,p_pos) {
 
 function autocomplete_keyup(p_event, p_element) {
   if (p_event.keyCode != 40 && p_event.keyCode != 38 && p_event.keyCode != 13 && p_event.keyCode != 16 && p_event.keyCode != 17 && p_event.keyCode != 18) {
-    renew_autocomplete(v_autocomplete_object.search_base + p_element.value)
+    if (v_autocomplete_object.ready) {
+      renew_autocomplete(v_autocomplete_object.search_base + p_element.value)
+    }
   }
 }
 
@@ -481,6 +486,8 @@ function update_selected_grid_row_position(p_cell) {
 }
 
 function close_autocomplete(p_additional_text) {
+  v_autocomplete_object.active = false;
+  v_autocomplete_object.ready = false;
   v_autocomplete_object.selected_grid = null;
   v_autocomplete_object.selected_grid_row = null;
   //hiding nodes
@@ -502,73 +509,76 @@ function close_autocomplete(p_additional_text) {
 }
 
 function autocomplete_start(editor, mode) {
-  v_autocomplete_object.editor = editor;
-  v_autocomplete_object.mode = mode;
-  if (mode==0) {
-    v_autocomplete_object.active_input = v_autocomplete_object.input;
-    v_autocomplete_object.input.style.display = 'block';
-    v_autocomplete_object.input2.style.display = 'none';
+
+  if (!v_autocomplete_object.active) {
+    v_autocomplete_object.editor = editor;
+    v_autocomplete_object.active = true;
+    v_autocomplete_object.mode = mode;
+    if (mode==0) {
+      v_autocomplete_object.active_input = v_autocomplete_object.input;
+      v_autocomplete_object.input.style.display = 'block';
+      v_autocomplete_object.input2.style.display = 'none';
+    }
+    else {
+      v_autocomplete_object.active_input = v_autocomplete_object.input2;
+      v_autocomplete_object.input.style.display = 'none';
+      v_autocomplete_object.input2.style.display = 'block';
+    }
+
+
+    var v_pixel_position = editor.renderer.$cursorLayer.getPixelPosition();
+    var v_editor_position = editor.container.getBoundingClientRect();
+    var v_pos = { 'left': v_editor_position.left + v_pixel_position.left, 'top': v_editor_position.top + v_pixel_position.top}
+
+    var v_top_pos = v_pos.top - editor.renderer.scrollTop;
+
+
+    var v_autocomplete_div = v_autocomplete_object.div;
+    v_autocomplete_div.style.left = v_pos.left + editor.renderer.gutterWidth;
+
+    if (mode==0) {
+      v_autocomplete_div.style.top = v_top_pos - 4;
+      v_autocomplete_div.style.bottom = 'unset';
+    }
+    else {
+      v_autocomplete_div.style.top = 'unset';
+      v_autocomplete_div.style.bottom = window.innerHeight - v_top_pos - 26;
+
+    }
+    v_autocomplete_div.style.display = 'block';
+
+    var v_closediv = document.createElement('div');
+    v_autocomplete_object.close_div = v_closediv;
+    v_closediv.className = 'div_close_cm';
+    v_closediv.onmousedown = function() {
+      close_autocomplete();
+    };
+    document.body.appendChild(v_closediv);
+
+    //get editor word before cursor
+    var v_cursor = editor.selection.getCursor();
+    var v_prefix_pos = editor.session.doc.positionToIndex(v_cursor)-1;
+    var v_editor_text = editor.getValue();
+    //v_editor_text = v_editor_text.substring(0,v_prefix_pos);
+    var v_pos_iterator = v_prefix_pos;
+    var v_word_length = 0;
+    while (v_editor_text[v_pos_iterator]!= ' ' && v_editor_text[v_pos_iterator]!= '\n' && v_pos_iterator>=0) {
+      v_pos_iterator--;
+      v_word_length++;
+    }
+
+    if (v_pos_iterator>=0) {
+      v_pos_iterator++;
+      v_autocomplete_object.range = new Range(v_cursor.row, v_cursor.column-v_word_length, v_cursor.row, v_cursor.column);
+      var v_last_word = v_editor_text.substring(v_pos_iterator,v_pos_iterator+v_word_length);
+    }
+    else {
+      v_autocomplete_object.range = new Range(v_cursor.row, v_cursor.column-v_word_length-1, v_cursor.row, v_cursor.column);
+      var v_last_word = v_editor_text.substring(v_pos_iterator,v_pos_iterator+v_word_length+1);
+    }
+    v_autocomplete_object.active_input.value = '';
+    v_autocomplete_object.search_base = v_last_word;
+    v_autocomplete_object.active_input.focus();
+    autocomplete_get_results(editor.getValue(),v_last_word,editor.session.doc.positionToIndex(v_cursor));
   }
-  else {
-    v_autocomplete_object.active_input = v_autocomplete_object.input2;
-    v_autocomplete_object.input.style.display = 'none';
-    v_autocomplete_object.input2.style.display = 'block';
-  }
-
-
-  var v_pixel_position = editor.renderer.$cursorLayer.getPixelPosition();
-  var v_editor_position = editor.container.getBoundingClientRect();
-  var v_pos = { 'left': v_editor_position.left + v_pixel_position.left, 'top': v_editor_position.top + v_pixel_position.top}
-
-  var v_top_pos = v_pos.top - editor.renderer.scrollTop;
-
-
-  var v_autocomplete_div = v_autocomplete_object.div;
-  v_autocomplete_div.style.left = v_pos.left + editor.renderer.gutterWidth;
-
-  if (mode==0) {
-    v_autocomplete_div.style.top = v_top_pos - 4;
-    v_autocomplete_div.style.bottom = 'unset';
-  }
-  else {
-    v_autocomplete_div.style.top = 'unset';
-    v_autocomplete_div.style.bottom = window.innerHeight - v_top_pos - 26;
-
-  }
-  v_autocomplete_div.style.display = 'block';
-
-  var v_closediv = document.createElement('div');
-  v_autocomplete_object.close_div = v_closediv;
-  v_closediv.className = 'div_close_cm';
-  v_closediv.onmousedown = function() {
-    close_autocomplete();
-  };
-  document.body.appendChild(v_closediv);
-
-  //get editor word before cursor
-  var v_cursor = editor.selection.getCursor();
-  var v_prefix_pos = editor.session.doc.positionToIndex(v_cursor)-1;
-  var v_editor_text = editor.getValue();
-  //v_editor_text = v_editor_text.substring(0,v_prefix_pos);
-  var v_pos_iterator = v_prefix_pos;
-  var v_word_length = 0;
-  while (v_editor_text[v_pos_iterator]!= ' ' && v_editor_text[v_pos_iterator]!= '\n' && v_pos_iterator>=0) {
-    v_pos_iterator--;
-    v_word_length++;
-  }
-
-  if (v_pos_iterator>=0) {
-    v_pos_iterator++;
-    v_autocomplete_object.range = new Range(v_cursor.row, v_cursor.column-v_word_length, v_cursor.row, v_cursor.column);
-    var v_last_word = v_editor_text.substring(v_pos_iterator,v_pos_iterator+v_word_length);
-  }
-  else {
-    v_autocomplete_object.range = new Range(v_cursor.row, v_cursor.column-v_word_length-1, v_cursor.row, v_cursor.column);
-    var v_last_word = v_editor_text.substring(v_pos_iterator,v_pos_iterator+v_word_length+1);
-  }
-  v_autocomplete_object.active_input.value = '';
-  v_autocomplete_object.search_base = v_last_word;
-  v_autocomplete_object.active_input.focus();
-  autocomplete_get_results(editor.getValue(),v_last_word,editor.session.doc.positionToIndex(v_cursor));
-
 }

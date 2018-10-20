@@ -538,8 +538,8 @@ COMMAND: {5}'''.format(p_user_name,
             {6})
         '''.format(p_user_id,
                    p_sql.replace("'","''"),
-                   p_start.strftime('%Y-%m-%d %H:%M:%S.%f'),
-                   p_end.strftime('%Y-%m-%d %H:%M:%S.%f'),
+                   p_start.strftime('%Y-%m-%d %H:%M:%S'),
+                   p_end.strftime('%Y-%m-%d %H:%M:%S'),
                    p_status,
                    p_duration,
                    p_conn_id))

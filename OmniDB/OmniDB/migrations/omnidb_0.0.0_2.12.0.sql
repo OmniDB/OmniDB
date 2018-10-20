@@ -600,6 +600,7 @@ INSERT INTO shortcuts VALUES(NULL,'shortcut_right_outer_tab',0,0,1,0,'.');--omni
 INSERT INTO shortcuts VALUES(NULL,'shortcut_cancel_query',0,0,1,0,'C');--omnidb--
 INSERT INTO shortcuts VALUES(NULL,'shortcut_next_console_command',1,0,0,0,'ARROWDOWN');--omnidb--
 INSERT INTO shortcuts VALUES(NULL,'shortcut_previous_console_command',1,0,0,0,'ARROWUP');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_autocomplete',1,0,0,0,'ENTER');--omnidb--
 
 CREATE TABLE console_history (
     user_id integer,

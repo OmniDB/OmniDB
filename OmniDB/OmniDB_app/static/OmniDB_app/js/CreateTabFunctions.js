@@ -126,7 +126,6 @@ function initCreateTabFunctions() {
       v_editor.$blockScrolling = Infinity;
   		v_editor.setTheme("ace/theme/" + v_editor_theme);
   		v_editor.session.setMode("ace/mode/sql");
-  		v_editor.commands.bindKey(".", "startAutocomplete");
 
   		v_editor.setFontSize(Number(v_editor_font_size));
 
@@ -178,10 +177,15 @@ function initCreateTabFunctions() {
                   							if (key === 'view_data') {
                   							  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
                   							}
-                  						},
-                  						items: {
-                  							"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
-                  						}
+                                else if (key === 'copy') {
+              										this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+              									  document.execCommand('copy');
+              									}
+              								},
+              								items: {
+              									"copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+              									"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
+              								}
                 				    },
                             cells: function (row, col, prop) {
 
@@ -414,7 +418,6 @@ function initCreateTabFunctions() {
     v_editor.$blockScrolling = Infinity;
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/python");
-		v_editor.commands.bindKey(".", "startAutocomplete");
 		v_editor.setFontSize(Number(v_editor_font_size));
 		v_editor.commands.bindKey("ctrl-space", null);
     v_editor.commands.bindKey("Cmd-,", null)
@@ -429,7 +432,6 @@ function initCreateTabFunctions() {
     v_editor_data.$blockScrolling = Infinity;
 		v_editor_data.setTheme("ace/theme/" + v_editor_theme);
 		v_editor_data.session.setMode("ace/mode/python");
-		v_editor_data.commands.bindKey(".", "startAutocomplete");
 		v_editor_data.setFontSize(Number(v_editor_font_size));
 		v_editor_data.commands.bindKey("ctrl-space", null);
     v_editor_data.commands.bindKey("Cmd-,", null)
@@ -631,7 +633,6 @@ function initCreateTabFunctions() {
     v_editor.$blockScrolling = Infinity;
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/sql");
-		v_editor.commands.bindKey(".", "startAutocomplete");
 
 		v_editor.setFontSize(Number(v_editor_font_size));
 
@@ -984,7 +985,7 @@ function initCreateTabFunctions() {
           "<div id='command_history_div_" + v_tab.id + "' class='query_command_history'><a class='modal-closer' onclick='closeCommandHistory()'>x</a>" +
           "<div id='command_history_header_" + v_tab.id + "' class='query_command_history_header'></div>" +
           "<div id='command_history_grid_" + v_tab.id + "' class='query_command_history_grid'></div>" +
-          "</div><div style='margin-bottom: 5px;'>" +
+          "</div><div class='tab_actions'>" +
 					"<button id='bt_start_" + v_tab.id + "' class='bt_execute bt_icon_only' title='Run' onclick='querySQL(0);'><i class='fas fa-play fa-light'></i></button>" +
           "<button id='bt_indent_" + v_tab.id + "' class='bt_execute bt_icon_only' title='Indent SQL' onclick='indentSQL();'><i class='fas fa-indent fa-light'></i></button>" +
           "<button id='bt_history_" + v_tab.id + "' class='bt_execute bt_icon_only' title='Command History' onclick='showCommandList();'><i class='fas fa-list fa-light'></i></button>" +
@@ -993,11 +994,11 @@ function initCreateTabFunctions() {
           "<label class='dbms_object postgresql_object custom_checkbox query_info' style='margin: 0px 10px 0px 5px;'>Autocommit<input id='check_autocommit_" + v_tab.id + "' type='checkbox' checked='checked'><span class='checkmark'></span></label>" +
           "<i id='query_tab_status_" + v_tab.id + "' title='Not connected' class='fas fa-dot-circle tab-status tab-status-closed dbms_object postgresql_object'></i>" +
           "<span id='query_tab_status_text_" + v_tab.id + "' title='Not connected' class='tab-status-text query_info dbms_object postgresql_object'>Not connected</span>" +
-          "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute bt_fetch' title='Run' style='display: none; line-height: 1px;' onclick='querySQL(1);'>Fetch more</button>" +
-          "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(2);'>Fetch all</button>" +
-          "<button id='bt_commit_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(3);'>Commit</button>" +
-          "<button id='bt_rollback_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(4);'>Rollback</button>" +
-          "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='display: none; line-height: 1px;' onclick='cancelSQL();'>Cancel</button>" +
+          "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute bt_fetch' title='Run' style='display: none; ' onclick='querySQL(1);'>Fetch more</button>" +
+          "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute bt_fetch' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(2);'>Fetch all</button>" +
+          "<button id='bt_commit_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(3);'>Commit</button>" +
+          "<button id='bt_rollback_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(4);'>Rollback</button>" +
+          "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='display: none; ' onclick='cancelSQL();'>Cancel</button>" +
 					"<div id='div_query_info_" + v_tab.id + "' class='query_info query_info_summary' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
 					"<button class='bt_export' title='Export Data' style='margin-bottom: 5px; margin-left: 5px; float: right;' onclick='exportData();'><i class='fas fa-file-export fa-light'></i></button>" +
 					"<select id='sel_export_type_" + v_tab.id + "' class='sel_export_file_type' style='float: right;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option></select></div>" +
@@ -1027,17 +1028,6 @@ function initCreateTabFunctions() {
     v_editor.$blockScrolling = Infinity;
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/sql");
-		v_editor.commands.bindKey('ctrl+enter', "autocomplete_start");
-    v_editor.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
-    v_editor.commands.bindKey(v_keybind_object.v_autocomplete_mac, "startAutocomplete");
-
-    v_editor.commands.addCommand({
-      name: "autocomplete_start",
-      exec: function(editor) {
-        autocomplete_start(editor);
-      }
-    });
-
 
 		v_editor.setFontSize(Number(v_editor_font_size));
 
@@ -1057,56 +1047,6 @@ function initCreateTabFunctions() {
 
 		};
 
-		var qtags = {
-			getCompletions: function(editor, session, pos, prefix, callback) {
-
-        if (v_completer_ready && prefix!='') {
-
-            var wordlist = [];
-
-            v_completer_ready = false;
-
-            addLoadingCursor();
-
-            execAjax('/get_completions/',
-                JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_tab_id": v_connTabControl.selectedTab.id, p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
-                function(p_return) {
-
-                  removeLoadingCursor();
-                  v_completer_ready = true;
-
-                  wordlist = p_return.v_data;
-                  callback(null, wordlist);
-
-                },
-                function(p_return) {
-                  removeLoadingCursor();
-                  v_completer_ready = true;
-                  if (p_return.v_data.password_timeout) {
-                    showPasswordPrompt(
-                      v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-                      function() {
-                        v_editor.focus();
-                      },
-                      function() {
-                        v_editor.focus();
-                      },
-          						p_return.v_data.message
-                    );
-                  }
-                },
-                'box',
-                false);
-        }
-        else {
-          callback(null, wordlist);
-        }
-      }
-		}
-
-    langTools.addCompleter([qtags]);
-    v_editor.completers = [qtags];
-    v_editor.setOptions({enableBasicAutocompletion: true});
 
     var v_tab_db_id = null;
     if (p_tab_db_id)
@@ -1265,7 +1205,7 @@ function initCreateTabFunctions() {
           "</div>" +
           "</span>" +
           "</div>" +
-          "<div style='margin-bottom: 5px;'>" +
+          "<div class='tab_actions'>" +
           "<button id='bt_start_" + v_tab.id + "' class='bt_icon_only' title='Run' onclick='consoleSQL(false);'><i class='fas fa-play fa-light'></i></button>" +
           "<button id='bt_indent_" + v_tab.id + "' class='bt_icon_only' title='Indent SQL' onclick='indentSQL();'><i class='fas fa-indent fa-light'></i></button>" +
           "<button id='bt_clear_" + v_tab.id + "' class='bt_icon_only' title='Clear Console' onclick='clearConsole();'><i class='fas fa-broom fa-light'></i></button>" +
@@ -1273,12 +1213,12 @@ function initCreateTabFunctions() {
           "<label class='dbms_object postgresql_object custom_checkbox query_info' style='margin: 0px 10px 0px 5px;'>Autocommit<input id='check_autocommit_" + v_tab.id + "' type='checkbox' checked='checked'><span class='checkmark'></span></label>" +
           "<i id='query_tab_status_" + v_tab.id + "' title='Not connected' class='fas fa-dot-circle tab-status tab-status-closed dbms_object postgresql_object'></i>" +
           "<span id='query_tab_status_text_" + v_tab.id + "' title='Not connected' class='tab-status-text query_info dbms_object postgresql_object'>Not connected</span>" +
-          "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute bt_fetch' title='Fetch More' style='display: none; line-height: 1px;' onclick='consoleSQL(false,1);'>Fetch more</button>" +
-          "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute bt_fetch' title='Fetch All' style='margin-left: 5px; display: none; line-height: 1px;' onclick='consoleSQL(false,2);'>Fetch all</button>" +
-          "<button id='bt_skip_fetch_" + v_tab.id + "' class='bt_execute bt_fetch' title='Skip Fetch' style='margin-left: 5px; display: none; line-height: 1px;' onclick='consoleSQL(false,3);'>Skip Fetch</button>" +
-          "<button id='bt_commit_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(3);'>Commit</button>" +
-          "<button id='bt_rollback_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; line-height: 1px;' onclick='querySQL(4);'>Rollback</button>" +
-          "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='line-height: 1px; display: none;' onclick='cancelConsole();'>Cancel</button>" +
+          "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute bt_fetch' title='Fetch More' style='display: none; ' onclick='consoleSQL(false,1);'>Fetch more</button>" +
+          "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute bt_fetch' title='Fetch All' style='margin-left: 5px; display: none; ' onclick='consoleSQL(false,2);'>Fetch all</button>" +
+          "<button id='bt_skip_fetch_" + v_tab.id + "' class='bt_execute bt_fetch' title='Skip Fetch' style='margin-left: 5px; display: none; ' onclick='consoleSQL(false,3);'>Skip Fetch</button>" +
+          "<button id='bt_commit_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(3);'>Commit</button>" +
+          "<button id='bt_rollback_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(4);'>Rollback</button>" +
+          "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style=' display: none;' onclick='cancelConsole();'>Cancel</button>" +
 					"<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
           "</div>" +
           "<div id='txt_input_" + v_tab.id + "' style=' width: 100%; height: 150px; border: 1px solid #c3c3c3;'></div>";
@@ -1291,8 +1231,7 @@ function initCreateTabFunctions() {
     v_editor1.$blockScrolling = Infinity;
 		v_editor1.setTheme("ace/theme/" + v_editor_theme);
 		v_editor1.session.setMode("ace/mode/sql");
-		v_editor1.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
-    v_editor1.commands.bindKey(v_keybind_object.v_autocomplete_mac, "startAutocomplete");
+
 
 		v_editor1.setFontSize(Number(v_editor_font_size));
 
@@ -1312,56 +1251,6 @@ function initCreateTabFunctions() {
 
 		};
 
-		var qtags = {
-			getCompletions: function(editor, session, pos, prefix, callback) {
-
-        if (v_completer_ready && prefix!='') {
-
-            var wordlist = [];
-
-            v_completer_ready = false;
-
-            addLoadingCursor();
-
-            execAjax('/get_completions/',
-                JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_tab_id": v_connTabControl.selectedTab.id, p_prefix: prefix, p_sql: editor.getValue(), p_prefix_pos: editor.session.doc.positionToIndex(editor.selection.getCursor())}),
-                function(p_return) {
-
-                  removeLoadingCursor();
-                  v_completer_ready = true;
-
-                  wordlist = p_return.v_data;
-                  callback(null, wordlist);
-
-                },
-                function(p_return) {
-                  removeLoadingCursor();
-                  v_completer_ready = true;
-                  if (p_return.v_data.password_timeout) {
-                    showPasswordPrompt(
-                      v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-                      function() {
-                        v_editor1.focus();
-                      },
-                      function() {
-                        v_editor1.focus();
-                      },
-          						p_return.v_data.message
-                    );
-                  }
-                },
-                'box',
-                false);
-        }
-        else {
-          callback(null, wordlist);
-        }
-      }
-		}
-
-    langTools.addCompleter([qtags]);
-    v_editor1.completers = [qtags];
-    v_editor1.setOptions({enableBasicAutocompletion: true});
     v_editor1.focus();
 
     var v_editor2 = ace.edit('txt_console_' + v_tab.id);
@@ -1372,8 +1261,6 @@ function initCreateTabFunctions() {
     v_editor2.$blockScrolling = Infinity;
 		v_editor2.setTheme("ace/theme/" + v_editor_theme);
 		v_editor2.session.setMode("ace/mode/sql");
-		v_editor2.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
-    v_editor2.commands.bindKey(v_keybind_object.v_autocomplete_mac, "startAutocomplete");
 
 		v_editor2.setFontSize(Number(v_editor_font_size));
 
@@ -1504,11 +1391,13 @@ function initCreateTabFunctions() {
     var v_html = "<div id='div_edit_data_select_" + v_tab.id + "' class='query_info' style='margin-top: 5px; margin-bottom: 5px; font-size: 14px;'>select * from " + p_table + " t</div>" +
            "<div id='txt_filter_data_" + v_tab.id + "' style=' width: 100%; height: 100px;border: 1px solid #c3c3c3;'></div>" +
            "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+           "<div class='tab_actions'>" +
            "<button id='bt_start_" + v_tab.id + "' class='bt_execute bt_icon_only' title='Run' style='margin: 0px 5px 5px; 0px;' onclick='queryEditData();'><i class='fas fa-play fa-light'></i></button>" +
            "<select id='sel_filtered_data_" + v_tab.id + "' class='sel_export_file_type' onchange='queryEditData()'><option selected='selected' value='10' >Query 10 rows</option><option value='100'>Query 100 rows</option><option value='1000'>Query 1000 rows</option></select>" +
            "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none;' onclick='cancelEditData();'>Cancel</button>" +
            "<div id='div_edit_data_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
            "<button id='bt_saveEditData_" + v_tab.id + "' onclick='saveEditData()' style='visibility: hidden; margin-left: 5px;'>Save Changes</button>" +
+           "</div>" + 
            "<div id='div_edit_data_data_" + v_tab.id + "' style='width: 100%; height: 250px; overflow: hidden;'></div>";
 
     var v_div = document.getElementById('div_' + v_tab.id);
@@ -1855,7 +1744,6 @@ function initCreateTabFunctions() {
     v_editor.$blockScrolling = Infinity;
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/sql");
-		v_editor.commands.bindKey(".", "startAutocomplete");
 
 		v_editor.setFontSize(Number(v_editor_font_size));
 

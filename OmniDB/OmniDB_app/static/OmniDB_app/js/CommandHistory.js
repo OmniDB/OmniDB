@@ -53,19 +53,19 @@ function showCommandList() {
 	var v_column = new Object();
 	v_column.title =  'Start';
 	v_column.readOnly = true;
-	v_column.width = 180;
+	v_column.width = 120;
 	v_columnProperties.push(v_column);
 
 	var v_column = new Object();
 	v_column.title =  'End';
 	v_column.readOnly = true;
-	v_column.width = 180;
+	v_column.width = 120;
 	v_columnProperties.push(v_column);
 
 	var v_column = new Object();
 	v_column.title =  'Duration';
 	v_column.readOnly = true;
-	v_column.width = 150;
+	v_column.width = 100;
 	v_columnProperties.push(v_column);
 
 	var v_column = new Object();
@@ -77,7 +77,7 @@ function showCommandList() {
 	var v_column = new Object();
 	v_column.title =  'Command';
 	v_column.readOnly = true;
-	v_column.width = 400;
+	v_column.width = 330;
 	v_columnProperties.push(v_column);
 
 	var v_column = new Object();
@@ -138,12 +138,12 @@ function showCommandList() {
 
 	v_tabTag.commandHistory.headerDiv.innerHTML =
 		"<div>" +
-		"    <button id='bt_first_" + v_tabTag.tab_id + "' onclick='commandHistoryFirstPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='First'>First</button>" +
-		"    <button id='bt_previous_" + v_tabTag.tab_id + "' onclick='commandHistoryPreviousPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Previous'>Previous</button>" +
+		"    <button id='bt_first_" + v_tabTag.tab_id + "' onclick='commandHistoryFirstPage()' class='bt_execute' title='First'>First</button>" +
+		"    <button id='bt_previous_" + v_tabTag.tab_id + "' onclick='commandHistoryPreviousPage()' class='bt_execute' title='Previous'>Previous</button>" +
 		"    <span id='cl_curr_page_" + v_tabTag.tab_id + "'></span> / <span id='cl_num_pages_" + v_tabTag.tab_id + "'></span>" +
-		"    <button id='bt_next_" + v_tabTag.tab_id + "' onclick='commandHistoryNextPage()' class='bt_execute' style='margin: 0 5px 5px 5px;' title='Next'>Next</button>" +
-		"    <button id='bt_last_" + v_tabTag.tab_id + "' onclick='commandHistoryLastPage()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Last'>Last</button>" +
-		"    <button id='bt_refresh_" + v_tabTag.tab_id + "' onclick='refreshCommandList()' class='bt_execute' style='margin: 0 5px 5px 0px;' title='Refresh'>Refresh</button>" +
+		"    <button id='bt_next_" + v_tabTag.tab_id + "' onclick='commandHistoryNextPage()' class='bt_execute' title='Next'>Next</button>" +
+		"    <button id='bt_last_" + v_tabTag.tab_id + "' onclick='commandHistoryLastPage()' class='bt_execute' title='Last'>Last</button>" +
+		"    <button id='bt_refresh_" + v_tabTag.tab_id + "' onclick='refreshCommandList()' class='bt_execute' title='Refresh'>Refresh</button>" +
 		"    <button id='bt_clear_" + v_tabTag.tab_id + "' onclick='deleteCommandList()' class='bt_execute bt_red' style='margin: 0 0px 5px 0px;' title='Clear List'>Clear List</button>" +
 		"</div>" +
 		"<div>" +

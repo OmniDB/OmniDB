@@ -157,10 +157,23 @@ $(function () {
       else
           v_tabControl.tabList[v_actualIndex + 1].elementLi.click();
 
+    },
+    shortcut_autocomplete: function() {
+
+      if (v_connTabControl.selectedTab.tag.mode=='connection') {
+        if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query' || v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='console') {
+          var v_editor = null;
+          if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query') {
+            v_editor = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
+            autocomplete_start(v_editor,0);
+          }
+          else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='console') {
+            v_editor = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor_input
+            autocomplete_start(v_editor,1);
+          }
+        }
+      }
     }
-
-
-
 
   }
 
@@ -236,7 +249,6 @@ function setShortcutEvent(p_event) {
     if (p_event.metaKey)
       v_shortcut_element.meta_pressed = 1;
     v_shortcut_element.shortcut_key = p_event.key.toUpperCase();
-
     buildButtonText(v_shortcut_element,v_shortcut_object.button);
   }
 

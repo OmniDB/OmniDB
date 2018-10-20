@@ -52,7 +52,7 @@ img.fnone{float:none !important}
 .dd .ddTitle .ddTitleText .ddTitleText{padding:0;}
 .dd .ddTitle .description{font-style: italic; font-weight: normal;}
 .dd .ddTitle .ddTitleText img{padding-right:5px;}
-.dd .ddChild{border:1px solid #c3c3c3; background-color:#fff; left:-1px;}
+.dd .ddChild{border:none; border-top: 1px solid #c3c3c3; border-left: 1px solid #c3c3c3; border-right: 1px solid #c3c3c3; solid #c3c3c3; background-color:#fff; left:-1px;}
 .dd .ddChild li{padding:5px; background-color:#fff; border-bottom:1px solid #c3c3c3;}
 .dd .ddChild li .description{font-style: italic; font-weight: normal;}
 .dd .ddChild li .ddlabel{color:#333;}

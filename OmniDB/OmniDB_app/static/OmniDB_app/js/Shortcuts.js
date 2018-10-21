@@ -248,7 +248,10 @@ function setShortcutEvent(p_event) {
       v_shortcut_element.alt_pressed = 1;
     if (p_event.metaKey)
       v_shortcut_element.meta_pressed = 1;
-    v_shortcut_element.shortcut_key = p_event.key.toUpperCase();
+    if (p_event.code.toUpperCase()!='SPACE')
+      v_shortcut_element.shortcut_key = p_event.key.toUpperCase();
+    else
+      v_shortcut_element.shortcut_key = 'SPACE'
     buildButtonText(v_shortcut_element,v_shortcut_object.button);
   }
 
@@ -273,7 +276,7 @@ function checkShortcutPressed(p_event, p_shortcut_element) {
     return false;
   if ((p_event.metaKey && p_shortcut_element.meta_pressed==0) || (!p_event.metaKey && p_shortcut_element.meta_pressed==1))
     return false;
-  if (p_event.key.toUpperCase() == p_shortcut_element.shortcut_key)
+  if (p_event.key.toUpperCase() == p_shortcut_element.shortcut_key || p_event.code.toUpperCase() == p_shortcut_element.shortcut_key)
     return true;
 
   return false;

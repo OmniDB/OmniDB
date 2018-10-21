@@ -5,6 +5,7 @@ ARCH=debian-i386
 
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
+pip install setuptools --upgrade
 pip install -r ~/OmniDB/requirements.txt --upgrade
 pip uninstall paramiko
 pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_server.txt --upgrade

@@ -91,13 +91,13 @@ $(function() {
                          ]
                       });
 
-      v_autocomplete_object.elements[i].container.onclick = (function(event,group) {
-        return function () {
+      v_autocomplete_object.elements[i].container.onclick = (function(group) {
+        return function (event) {
           event.preventDefault()
           event.stopPropagation()
           close_autocomplete(group.elements[group.grid.getSelected()[0][0]].select_value);
         }
-      }(event,v_autocomplete_object.elements[i]));
+      }(v_autocomplete_object.elements[i]));
 
 
     }
@@ -149,13 +149,13 @@ function build_autocomplete_elements(p_data, p_value) {
         var v_element = {'value': v_local_group.elements[j].value, 'select_value': v_local_group.elements[j].select_value,'complement': v_local_group.elements[j].complement, 'container': div, 'visible': true, 'group_reference': v_global_group };
         v_global_group.container.appendChild(div);
 
-        div.onclick = (function(event,v_value) {
-          return function () {
+        div.onclick = (function(v_value) {
+          return function (event) {
             event.preventDefault()
             event.stopPropagation()
             close_autocomplete(v_value);
           }
-        }(event,v_element.select_value));
+        }(v_element.select_value));
       }
       else {
         v_list.push([v_local_group.elements[j].value,v_local_group.elements[j].complement]);

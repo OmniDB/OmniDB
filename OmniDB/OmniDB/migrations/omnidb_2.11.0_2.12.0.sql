@@ -63,4 +63,4 @@ ALTER TABLE tabs ADD COLUMN title text;--omnidb--
 
 UPDATE version SET ver_id = '2.12.0';--omnidb--
 
-INSERT INTO shortcuts VALUES(NULL,'shortcut_autocomplete',1,0,0,0,'ENTER');--omnidb--
+INSERT INTO shortcuts VALUES(NULL,'shortcut_autocomplete',1,0,0,0,'SPACE');--omnidb--

@@ -1169,7 +1169,7 @@ function showColumnSelectionConstraints() {
 		if (v_type=='Primary Key' || v_type=='Foreign Key' || v_type=='Unique') {
 
 			var v_columns = v_currTabTag.alterTableObject.htConstraints.getDataAtCell(v_selected[0],v_selected[1]);
-			v_columns = v_columns.substring(114);
+			v_columns = v_columns.substring(129);
 
 			var v_constraint_columns_list;
 
@@ -1225,7 +1225,7 @@ function showColumnSelectionIndexes() {
 
 
 		var v_columns = v_currTabTag.alterTableObject.htIndexes.getDataAtCell(v_selected[0],v_selected[1]);
-		v_columns = v_columns.substring(110);
+		v_columns = v_columns.substring(125);
 
 		var v_index_columns_list;
 

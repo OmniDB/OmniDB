@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-PYTHON_VERSION=3.5.2
+PYTHON_VERSION=3.6.5
 
 echo "Installing dependencies..."
 yum install -y gcc gcc-c++ make git patch openssl-devel zlib-devel readline-devel sqlite-devel bzip2-devel rpm-build wget
@@ -24,7 +24,7 @@ rm -rf ~/OmniDB
 git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 echo "Done"
 
-echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/server_centos7_amd64/
-./build.sh
-echo "Done"
+#echo "Building..."
+#cd ~/OmniDB/OmniDB/deploy/server_centos7_amd64/
+#./build.sh
+#echo "Done"

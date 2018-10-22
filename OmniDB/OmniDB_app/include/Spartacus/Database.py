@@ -1444,18 +1444,18 @@ class PostgreSQL(Generic):
             raise Spartacus.Database.Exception(str(exc))
     def Parse(self, p_sql):
         try:
-            v_analysis = psqlparse.parse(p_sql)
             v_statement = sqlparse.split(p_sql)
+            v_analysis = sqlparse.parse(p_sql)
             if len(v_statement) == len(v_analysis):
                 v_cursors = []
-                for i in range(0, len(v_analysis)):
-                    if v_analysis[i].type == 'SelectStmt':
+                for i in range(0, len(v_statement)):
+                    if v_analysis[i].get_type() == 'SELECT':
                         v_cursors.append('{0}_{1}'.format(self.v_application_name, uuid.uuid4().hex))
                 if len(v_cursors) > 0:
                     v_sql = ''
                     j = 0
                     for i in range(0, len(v_statement)):
-                        if v_analysis[i].type == 'SelectStmt':
+                        if v_analysis[i].get_type() == 'SELECT':
                             if j < len(v_cursors)-1:
                                 v_sql = v_sql + v_statement[i]
                             else:
@@ -1474,9 +1474,6 @@ class PostgreSQL(Generic):
             else:
                 self.v_cursor = None
                 return p_sql
-        except psqlparse.exceptions.PSqlParseError as exc:
-            self.v_cursor = None
-            return p_sql
         except Exception as exc:
             self.v_cursor = None
             return p_sql

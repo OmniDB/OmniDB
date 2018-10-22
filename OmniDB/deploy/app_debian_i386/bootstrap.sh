@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHON_VERSION=3.5.2
+PYTHON_VERSION=3.6.5
 
 echo "Installing dependencies..."
 apt-get update -y
@@ -30,7 +30,7 @@ rm -rf ~/OmniDB
 git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 echo "Done"
 
-echo "Building..."
-cd ~/OmniDB/OmniDB/deploy/app_debian_i386/
-./build.sh
-echo "Done"
+#echo "Building..."
+#cd ~/OmniDB/OmniDB/deploy/app_debian_i386/
+#./build.sh
+#echo "Done"

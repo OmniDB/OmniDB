@@ -45,7 +45,6 @@ try:
     from pgspecial.namedqueries import NamedQueries
     import uuid
     import sqlparse
-    import psqlparse
     v_supported_rdbms.append('PostgreSQL')
 except ImportError:
     pass

@@ -1,32 +1,35 @@
-## Next Release: *2.12.0 - September 20, 2018*
+## Next Release: *2.13.0 - December 13, 2018*
 
 # OmniDB 2.12.0
 
-## Release Date: *August 23, 2018*
+## Release Date: *September 23, 2018*
 
 ## Release Notes
 
 - New features:
-  - Support to PostgreSQL 11
-    - Tables, functions and stored procedures can be managed in Console Tab and Tree View
-    - Debugger can work with PostgreSQL 11 functions and procedures
+  - New modern look & feel on the entire web interface, components and icons
+  - PostgreSQL: User now can enable/disable autocommit
+  - PostgreSQL: Status of the backend is shown to the user
+  - PostgreSQL: If autocommit is disabled or user starts a transaction, user can either COMMIT or ROLLBACK
+  - PostgreSQL: New full-featured autocomplete component for PostgreSQL
+  - PostgreSQL: Support to HASH partitions (SQL templates, treeview, properties and DDL)
+  - New User options to set CSV encoding and delimiter
 - Improvements:
-  - Server packages now install a service in systemd
-  - SQL Template for calling functions and procedures (PostgreSQL)
-  - Support for indexes for materialized views in the Tree View (PostgreSQL)
-  - Support for rules for views in the Tree View (PostgreSQL)
-  - Debugger version for FreeBSD (PostgreSQL)
-  - Connection Grid now allows sorting by clicking in the column name
-  - Improvements to Django security
+  - PostgreSQL: OmniDB now uses PostgreSQL server-side cursors whenever possible to always keep low OmniDB memory usage
+  - PostgreSQL: Improved SELECT template for views and materialized views
+  - Save title of Query Tabs
+  - OmniDB debugger: Different RPM for CentOS 6 and 7
+  - OmniDB plugin API: Adapted to new OmniDB look & feel
+  - OmniDB plugin API: Support to pglogical, Postgres-BDR 1.0 and Postgres-XL removed from core and are now separated open source plugins
 - Bug fixes:
-  - Fixed MESSAGES from a DO block / function / procedure not being shown if an EXCEPTION happens (PostgreSQL)
-  - Fixed Alter Table GUI not handling NULL values (PostgreSQL)
-  - Fixed column type names not being displayed correctly in Alter Table GUI (PostgreSQL)
-  - Fixed DDL for GRANTs for schema (PostgreSQL)
-  - Fixed SQL Template for REFRESH MATERIALIZED VIEW (PostgreSQL)
-  - Fixed Postgres-XL tree not replacing node name
+  - Fixed: PostgreSQL: High memory usage when returning very large dataset (using server-side cursors)
+  - Fixed: Oracle/MySQL/MariaDB: QueryBlock not displaying first row of every block
+  - Fixed: Click on removed node on the treeview: "Can only transpose a table with a single row"
+  - Fixed: Export to XLSX does not respect locale
+  - Fixed: Editor loses focus after Alt-Tab
 - Deprecation notice:
-  - Debian 7 is not supported anymore, server packages are built on Debian 8
+  - OmniDB debugger: Dropped support to PostgreSQL 9.3
+  
 
 # 1- Installation
 

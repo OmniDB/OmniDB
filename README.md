@@ -27,9 +27,7 @@
   - Fixed: Click on removed node on the treeview: "Can only transpose a table with a single row"
   - Fixed: Export to XLSX does not respect locale
   - Fixed: Editor loses focus after Alt-Tab
-- Deprecation notice:
-  - OmniDB debugger: Dropped support to PostgreSQL 9.3
-  
+
 
 # 1- Installation
 

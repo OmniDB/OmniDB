@@ -9,6 +9,12 @@ echo -n "Cleaning... "
 rm -f *.o
 echo "Done."
 
+echo "Compiling for 9.3... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-9.3/lib -lpq -I /usr/pgsql-9.3/include -I /usr/pgsql-9.3/include/server
+gcc -fPIC -o omnidb_plugin_93.so omnidb_plugin.o -L /usr/pgsql-9.3/lib -lpq -shared
+echo "Done."
+
 echo "Compiling for 9.4... "
 rm -f *.o
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-9.4/lib -lpq -I /usr/pgsql-9.4/include -I /usr/pgsql-9.4/include/server

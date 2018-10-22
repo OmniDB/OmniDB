@@ -13,3 +13,5 @@ OmniDB/chat
 OmniDB/OmniDB_app/static/chat*
 omnidb_app/node_modules/
 omnidb_app/omnidb-gui*
+omnidb_app/package-lock.json
+

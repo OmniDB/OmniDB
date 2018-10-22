@@ -14,6 +14,5 @@ Vagrant.configure("2") do |config|
   config.vm.provider :virtualbox do |vb|
     vb.name = "omnidb_debian_deployserver32"
   end
-  config.vm.synced_folder ".", "/mnt/bootstrap"
   config.vm.provision :shell, :path => "bootstrap.sh"
 end

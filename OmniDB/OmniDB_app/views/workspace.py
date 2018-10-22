@@ -18,7 +18,6 @@ from OmniDB_app.include.Session import Session
 
 from django.contrib.sessions.backends.db import SessionStore
 import sqlparse
-import psqlparse
 import random
 import string
 
@@ -2201,71 +2200,27 @@ def get_console_history_clean(request):
 
     return JsonResponse(v_return)
 
-def get_alias_choose(p_item,p_alias):
-    #simple from clause, try to get
-    if 'RangeVar' in p_item:
-        if 'alias' in p_item['RangeVar']:
-            #FOUND
-            if p_item['RangeVar']['alias']['Alias']['aliasname']==p_alias:
-                if 'schemaname' in p_item['RangeVar']:
-                    return {'use_alias': True, 'is_subquery': False, 'relname': p_item['RangeVar']['relname'], 'schemaname': p_item['RangeVar']['schemaname'] }
-                else:
-                    return {'use_alias': True, 'is_subquery': False, 'relname': p_item['RangeVar']['relname'], 'schemaname': None }
-        #DON'T HAVE ALIAS, TRY tablename ITSELF
-        else:
-            if 'schemaname' in p_item['RangeVar']:
-                if p_item['RangeVar']['schemaname'] + '.' + p_item['RangeVar']['relname'] == p_alias:
-                    return {'use_alias': False, 'is_subquery': False, 'relname': p_item['RangeVar']['relname'], 'schemaname': p_item['RangeVar']['schemaname'] }
-            else:
-                if p_item['RangeVar']['relname'] == p_alias:
-                    return {'use_alias': False, 'is_subquery': False, 'relname': p_item['RangeVar']['relname'], 'schemaname': None }
-    #join
-    elif 'JoinExpr' in p_item:
-        v_alias = get_alias_choose(p_item['JoinExpr']['larg'],p_alias)
-        if v_alias!=None:
-            return v_alias
-        v_alias = get_alias_choose(p_item['JoinExpr']['rarg'],p_alias)
-        if v_alias!=None:
-            return v_alias
-    #subquery
-    elif 'RangeSubselect' in p_item:
-        if 'alias' in p_item['RangeSubselect']:
-            #FOUND
-            if p_item['RangeSubselect']['alias']['Alias']['aliasname']==p_alias:
-                return {'use_alias': True, 'is_subquery': True, 'relname': None, 'schemaname': None }
-            #NOT FOUND, CHECK SUBQUERY
-            if 'subquery' in p_item['RangeSubselect']:
-                return get_alias_select(p_item['RangeSubselect']['subquery']['SelectStmt'],p_alias)
-
-
-
-    return None
-
-def get_alias_from_clause(p_from_clause,p_alias):
-    for item in p_from_clause:
-        v_alias = get_alias_choose(item,p_alias)
-        if v_alias!=None:
-            return v_alias
-    return None
-
-def get_alias_target_list(p_from_clause,p_alias):
-    return None
-
-def get_alias_select(p_select,p_alias):
-    if 'fromClause' in p_select:
-        v_alias = get_alias_from_clause(p_select['fromClause'],p_alias)
-        if v_alias!=None:
-            return v_alias
-    if 'targetList' in p_select:
-        v_alias = get_alias_target_list(p_select['targetList'],p_alias)
-        if v_alias!=None:
-            return v_alias
-
 def get_alias(p_sql,p_pos,p_val):
     try:
-        v_sql_new = p_sql[:p_pos] + 'a1' + p_sql[p_pos:]
-        s = psqlparse.parse(v_sql_new)
-        return get_alias_select(s[0]._obj,p_val[:-1])
+        s = sqlparse.parse(p_sql)
+        v_alias = p_val[:-1]
+        for stmt in s:
+            for item in stmt.tokens:
+                if item.ttype==None:
+                    try:
+                        v_cur_alias = item.get_alias()
+                        if v_cur_alias==None:
+                            if item.value == v_alias:
+                                return item.value
+                        elif v_cur_alias == v_alias:
+                            #check if there is punctuation
+                            if str(item.tokens[1].ttype)!='Token.Punctuation':
+                                return item.get_real_name()
+                            else:
+                                return item.tokens[0].value + '.' + item.tokens[2].value
+                    except:
+                        None
+
     except Exception as exc:
         return None
     return None
@@ -2309,15 +2264,10 @@ def get_autocomplete_results(request):
 
     v_alias = None
     if v_value!='' and v_value[len(v_value)-1]=='.':
-        v_alias = get_alias(v_sql,v_pos,v_value.lower())
+        v_alias = get_alias(v_sql,v_pos,v_value)
         if v_alias:
             try:
-                if not v_alias['is_subquery']:
-                    if v_alias['schemaname']:
-                        v_table = v_alias['schemaname'] + '.' + v_alias['relname']
-                    else:
-                        v_table = v_alias['relname']
-                v_data1 = v_database.v_connection.GetFields ("select x.* from " + v_table + " x where 1 = 0")
+                v_data1 = v_database.v_connection.GetFields ("select x.* from " + v_alias + " x where 1 = 0")
                 v_current_group = { 'type': 'column', 'elements': [] }
                 max_result_length = 0
                 max_complement_length = 0

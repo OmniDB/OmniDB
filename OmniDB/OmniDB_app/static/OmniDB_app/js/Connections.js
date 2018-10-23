@@ -71,7 +71,7 @@ function newConnection() {
 		'ssh_key': '',
 		'ssh_enabled': false
 	})
-	v_connections_data.ht.getSourceData().push(['postgresql','','','','','',false,'','22','','','','<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropConnection()"/>']);
+	v_connections_data.ht.getSourceData().push(['postgresql','','','','','',false,'','22','','','',"<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConnection()'></i>"]);
 	v_connections_data.ht.render();
 	var v_cellMeta = v_connections_data.ht.getCellMeta(v_connections_data.v_conn_ids.length - 1, 0);
 	v_cellMeta.v_conn_id = v_conn_id;
@@ -125,6 +125,7 @@ function testConnectionConfirm(p_index) {
 				}
 			},
 			'box',
+			true,
 			true);
 
 }
@@ -220,6 +221,7 @@ function selectConnectionConfirm(p_index) {
 				}
 			},
 			'box',
+			true,
 			true);
 
 }
@@ -265,7 +267,7 @@ function showConnectionList() {
 
   var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
 
-  document.getElementById('connection_list_div').style.display = 'block';
+	document.getElementById('connection_list_div').classList.add('isActive');
 
 	var v_conn_id_list = [];
 
@@ -289,6 +291,7 @@ function showConnectionList() {
 				var col = new Object();
 				col.title =  'Technology';
 				col.type = 'dropdown';
+				col.width = '80'
 				col.allowInvalid = false,
 				col.source = p_return.v_data.v_technologies;
 				columnProperties.push(col);
@@ -396,9 +399,14 @@ function showConnectionList() {
 											editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),true);
 									}
 								}
+								else if (key === 'copy') {
+									his.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+									document.execCommand('copy');
+								}
 							},
 							items: {
-								"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+								"copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+								"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
 							}
 				    },
 						beforeChange: function (changes, source) {
@@ -471,7 +479,8 @@ function showConnectionList() {
 				}
 			},
 			null,
-			'box');
+			'box',
+			true);
 
 }
 
@@ -481,7 +490,7 @@ function showConnectionLocked() {
 
 function closeConnectionList(p_index) {
   document.getElementById('connection_list_div_grid').innerHTML = '';
-  document.getElementById('connection_list_div').style.display = 'none';
+	document.getElementById('connection_list_div').classList.remove('isActive');
 	document.getElementById('div_save').style.visibility = 'hidden';
   v_connections_data.ht.destroy();
   v_connections_data.ht = null;

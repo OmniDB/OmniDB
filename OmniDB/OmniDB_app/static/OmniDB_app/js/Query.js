@@ -57,6 +57,7 @@ function cancelSQLTab(p_tab_tag) {
 	v_tab_tag.tab_stub_span.style.display = '';
 	v_tab_tag.bt_cancel.style.display = 'none';
 	v_tab_tag.query_info.innerHTML = 'Canceled.';
+	setTabStatus(v_tab_tag,0);
 
 	removeContext(v_queryWebSocket,v_tab_tag.context.v_context_code);
 
@@ -81,7 +82,8 @@ function querySQL(p_mode,
 									p_log_query = true,
 									p_save_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue(),
 									p_cmd_type = null,
-									p_clear_data = false) {
+									p_clear_data = false,
+									p_tab_title = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_title_span.innerHTML) {
 
 	var v_state = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state;
 
@@ -118,7 +120,9 @@ function querySQL(p_mode,
 				v_tab_db_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_db_id,
 				v_mode: p_mode,
 				v_all_data: p_all_data,
-				v_log_query: p_log_query
+				v_log_query: p_log_query,
+				v_tab_title: p_tab_title,
+				v_autocommit: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.check_autocommit.checked
 			}
 
 			if(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor) {
@@ -142,7 +146,10 @@ function querySQL(p_mode,
 			v_tab_tag.bt_cancel.style.display = 'inline-block';
 			v_tab_tag.bt_fetch_more.style.display = 'none';
 			v_tab_tag.bt_fetch_all.style.display = 'none';
+			v_tab_tag.bt_commit.style.display = 'none';
+			v_tab_tag.bt_rollback.style.display = 'none';
 			v_tab_tag.div_notices.innerHTML = '';
+			setTabStatus(v_tab_tag,2);
 
 			var v_has_selected_text = false;
 			if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getSelectedText()!='')
@@ -221,6 +228,36 @@ function querySQLReturn(p_data,p_context) {
 	}
 }
 
+function setTabStatus(p_tab_tag, p_con_status) {
+	if (p_con_status==0) {
+		p_tab_tag.query_tab_status_text.innerHTML = 'Not connected';
+		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-closed';
+		p_tab_tag.query_tab_status.title = 'Not connected';
+	}
+	else if (p_con_status==1) {
+		p_tab_tag.query_tab_status_text.innerHTML = 'Idle';
+		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-idle';
+		p_tab_tag.query_tab_status.title = 'Idle';
+	}
+	else if (p_con_status==2) {
+		p_tab_tag.query_tab_status_text.innerHTML = 'Running'
+		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-running';
+		p_tab_tag.query_tab_status.title = 'Running';
+	}
+	else if (p_con_status==3) {
+		p_tab_tag.query_tab_status_text.innerHTML = 'Idle in transaction'
+		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-idle_in_transaction';
+		p_tab_tag.query_tab_status.title = 'Idle in transaction';
+	}
+	else if (p_con_status==4) {
+		p_tab_tag.query_tab_status_text.innerHTML = 'Idle in transaction (aborted)'
+		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-idle_in_transaction_aborted';
+		p_tab_tag.query_tab_status.title = 'Idle in transaction (aborted)';
+	}
+
+
+}
+
 function querySQLReturnRender(p_message,p_context) {
 	p_context.tab_tag.state = v_queryState.Idle;
 	p_context.tab_tag.context = null;
@@ -232,6 +269,20 @@ function querySQLReturnRender(p_message,p_context) {
 
 	var v_div_result = p_context.tab_tag.div_result;
 	var v_query_info = p_context.tab_tag.query_info;
+
+	var v_data = p_message.v_data;
+
+	//Show commit/rollback buttons if transaction is open
+	if (v_data.v_con_status==3 || v_data.v_con_status==4) {
+		p_context.tab_tag.bt_commit.style.display = '';
+		p_context.tab_tag.bt_rollback.style.display = '';
+	}
+	else {
+		p_context.tab_tag.bt_commit.style.display = 'none';
+		p_context.tab_tag.bt_rollback.style.display = 'none';
+	}
+
+	setTabStatus(p_context.tab_tag,p_message.v_data.v_con_status);
 
 	if (p_context.callback!=null) {
 		if (p_message.v_error) {
@@ -249,8 +300,6 @@ function querySQLReturnRender(p_message,p_context) {
 		if(p_context.tab_tag.div_count_notices) {
 			p_context.tab_tag.div_count_notices.style.display = 'none';
 		}
-
-		var v_data = p_message.v_data;
 
 		if (v_data.v_notices_length>0) {
 			if(p_context.tab_tag.div_count_notices) {
@@ -309,13 +358,14 @@ function querySQLReturnRender(p_message,p_context) {
 					v_div_result.innerHTML = '';
 
 					window.scrollTo(0,0);
-
 					if (v_data.v_data.length==0 && v_data.v_col_names.length==0) {
 						v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-						v_div_result.innerHTML = '<div class="query_info">Done.</div>';
+						if (typeof(p_message.v_data.v_status)=='string')
+							v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data.v_status + '</div>';
+						else
+							v_div_result.innerHTML = '<div class="query_info">Done</div>';
 					}
 					else {
-
 						v_query_info.innerHTML = "Number of records: " + v_data.v_data.length + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 
 						var columnProperties = [];
@@ -338,6 +388,7 @@ function querySQLReturnRender(p_message,p_context) {
 							columns : columnProperties,
 							colHeaders : true,
 							rowHeaders : true,
+							autoRowSize: false,
 							//copyRowsLimit : 1000000000,
 							//copyColsLimit : 1000000000,
                             copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
@@ -348,9 +399,14 @@ function querySQLReturnRender(p_message,p_context) {
 									if (key === 'view_data') {
 									  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
 									}
+									else if (key === 'copy') {
+										this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+									  document.execCommand('copy');
+									}
 								},
 								items: {
-									"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+									"copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+									"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
 								}
 						    },
 					        cells: function (row, col, prop) {
@@ -367,7 +423,7 @@ function querySQLReturnRender(p_message,p_context) {
 
 				}
 				//Adding fetched data
-				else {
+				else if (p_context.mode==1 || p_context.mode==2) {
 					v_new_data = p_context.tab_tag.ht.getSourceData();
 					v_query_info.innerHTML = "Number of records: " + (v_new_data.length+v_data.v_data.length) + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
 					for (var i = 0; i < v_data.v_data.length; i ++) {
@@ -375,6 +431,15 @@ function querySQLReturnRender(p_message,p_context) {
 	        }
 					p_context.tab_tag.ht.loadData(v_new_data);
 					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.childNodes[0].childNodes[0].scrollTop = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.childNodes[0].childNodes[0].scrollHeight;
+				}
+				//COMMIT or ROLLBACK
+				else {
+					if (p_context.tab_tag.ht!=null)
+						v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration + '<br/>Status: ' + p_message.v_data.v_status;
+					else {
+						v_query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+						v_div_result.innerHTML = '<div class="query_info">' + p_message.v_data.v_status + '</div>'
+					}
 				}
 
 			}

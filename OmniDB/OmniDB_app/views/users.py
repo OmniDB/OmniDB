@@ -57,7 +57,7 @@ def get_users(request):
         except Exception as exc:
             v_user_data_list.append(v_user["password"])
         v_user_data_list.append(v_user["super_user"])
-        v_user_data_list.append('''<img src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='removeUser("{0}")'/>'''.format(v_user["user_id"]))
+        v_user_data_list.append('''<i title="Remove User" class='fas fa-times action-grid action-close' onclick='removeUser("{0}")'></i>'''.format(v_user["user_id"]))
 
         v_user_list.append(v_user_data_list)
         v_user_id_list.append(v_user["user_id"])
@@ -92,8 +92,8 @@ def new_user(request):
     try:
         v_session.v_omnidb_database.v_connection.Execute('''
             insert into users values (
-            (select coalesce(max(user_id), 0) + 1 from users),'user' || (select coalesce(max(user_id), 0) + 1 from users),'',1,'14',1,0,'{0}')
-        '''.format(str(uuid.uuid4())))
+            (select coalesce(max(user_id), 0) + 1 from users),'user' || (select coalesce(max(user_id), 0) + 1 from users),'',1,'14',1,0,'utf-8',';')
+        ''')
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -125,12 +125,6 @@ def remove_user(request):
     v_id = json_object['p_id']
 
     try:
-        v_user_key = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
-            select user_key
-            from users
-            where user_id = {0}
-        '''.format(v_id))
-
         v_session.v_omnidb_database.v_connection.Execute('''
             delete from users
             where user_id = {0}

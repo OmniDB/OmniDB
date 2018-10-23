@@ -52,6 +52,15 @@ function csrfSafeMethod(method) {
 		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
+var v_ajax_call = null;
+var v_cancel_button = document.getElementById('bt_cancel_ajax');
+
+function cancelAjax() {
+	if (v_ajax_call!=null) {
+		v_ajax_call.abort();
+	}
+}
+
 /// <summary>
 /// AJAX call.
 /// </summary>
@@ -61,14 +70,18 @@ function csrfSafeMethod(method) {
 /// <param name="p_errorFunc">Error return function.</param>
 /// <param name="p_notifMode">Notification mode.</param>
 /// <param name="p_loading">Has loading or not.</param>
-function execAjax(p_url,p_data,p_successFunc,p_errorFunc,p_notifMode,p_loading) {
+function execAjax(p_url,p_data,p_successFunc,p_errorFunc,p_notifMode,p_loading, p_cancel_button) {
 
 	if (p_loading==null || p_loading==true)
 		startLoading();
+	v_cancel_button.style.display = 'none';
+	if (p_cancel_button!=null && p_cancel_button==true) {
+		v_cancel_button.style.display = 'block';
+	}
 
 	var csrftoken = getCookie('csrftoken');
 
-	$.ajax({
+	v_ajax_call = $.ajax({
         url: p_url,
         data: {data: p_data, tab_token: ''},
 				type: "post",
@@ -101,13 +114,15 @@ function execAjax(p_url,p_data,p_successFunc,p_errorFunc,p_notifMode,p_loading) 
         },
         error: function(msg) {
 
-					showAlert('Request error.')
-
         	if (p_loading==null || p_loading==true)
 						endLoading();
 
-        	if (msg.readyState==0)
-        		reportOffline();
+					if (msg.readyState!=0)
+						showAlert('Request error.')
+        	else {
+						if (msg.statusText!='abort')
+        			reportOffline();
+					}
         }
 	});
 

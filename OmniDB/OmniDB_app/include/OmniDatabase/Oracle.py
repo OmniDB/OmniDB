@@ -123,7 +123,9 @@ class Oracle:
 			"SET NULL",
 			"CASCADE"
         ]
+        self.v_reserved_words = []
         self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
+        self.v_use_server_cursor = False
 
     def GetName(self):
         return self.v_service
@@ -1310,3 +1312,6 @@ WHERE condition
                 from user_objects
                 where (case when upper(replace(object_name, ' ', '')) <> object_name then '"' || object_name || '"' else object_name end) = '{0}'
             '''.format(p_object))
+
+    def GetAutocompleteValues(self, p_columns, p_filter):
+        return None

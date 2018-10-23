@@ -1,12 +1,12 @@
-.borderRadius{-moz-border-radius:5px; border-radius:5px; }
+/*.borderRadius{-moz-border-radius:5px; border-radius:5px; }
 .borderRadiusTp{-moz-border-radius:5px 5px 0 0; border-radius:5px 5px 0 0;}
-.borderRadiusBtm{-moz-border-radius:0 0 5px 5px ; border-radius:0 0 5px 5px;}
+.borderRadiusBtm{-moz-border-radius:0 0 5px 5px ; border-radius:0 0 5px 5px;}*/
 
 .ddcommon {position:relative;display:-moz-inline-stack; zoom:1; display:inline-block; *display:inline; cursor:default;}
 .ddcommon ul{padding:0;margin:0;}
 .ddcommon ul li{list-style-type:none;}
-.borderRadiusTp ul li:last-child{-moz-border-radius:0 0 5px 5px ; border-radius:0 0 5px 5px;border-bottom:0 none #c3c3c3; }
-.borderRadiusBtm ul li:first-child{-moz-border-radius:5px 5px 0 0; border-radius:5px 5px 0 0 ;border-bottom:1 solid #c3c3c3; }
+/*.borderRadiusTp ul li:last-child{-moz-border-radius:0 0 5px 5px ; border-radius:0 0 5px 5px;border-bottom:0 none #c3c3c3; }
+.borderRadiusBtm ul li:first-child{-moz-border-radius:5px 5px 0 0; border-radius:5px 5px 0 0 ;border-bottom:1 solid #c3c3c3; }*/
 
 .ddcommon .disabled img, .ddcommon .disabled span, .ddcommon.disabledAll{
 opacity: .5; /* standard: ff gt 1.5, opera, safari */
@@ -17,13 +17,13 @@ filter:alpha(opacity=50); /* ie lt 7 */
 color:#999999;
 }
 .ddcommon .clear{clear:both}
-.ddcommon .shadow{-moz-box-shadow:5px 5px 5px -5px #888888;-webkit-box-shadow:5px 5px 5px -5px #888888;box-shadow: 5px 5px 5px -5px #888888;}
+/*.ddcommon .shadow{-moz-box-shadow:5px 5px 5px -5px #888888;-webkit-box-shadow:5px 5px 5px -5px #888888;box-shadow: 5px 5px 5px -5px #888888;}*/
 .ddcommon input.text{color:#7e7e7e;padding:0 0 0 0; position:absolute; background:#fff; display:block; width:98%; height:98%; left:2px; top:0; border:none;}
 .ddOutOfVision{position:relative; display:-moz-inline-stack; display:inline-block; zoom:1; *display:inline;}
-.borderRadius .shadow{-moz-box-shadow:5px 5px 5px -5px #888888;-webkit-box-shadow:5px 5px 5px -5px #888888;box-shadow: 5px 5px 5px -5px #888888;}
-.borderRadiusBtm .shadow{-moz-box-shadow:-5px -5px 5px -5px #888888;-webkit-box-shadow:-5px -5px 5px -5px #888888;box-shadow: -5px -5px 5px -5px #888888}
-.borderRadiusTp .border, .borderRadius .border{-moz-border-radius:0 0 5px 5px ; border-radius:0 0 5px 5px;}
-.borderRadiusBtm .border{-moz-border-radius:5px 5px 0 0; border-radius:5px 5px 0 0;}
+/*.borderRadius .shadow{-moz-box-shadow:5px 5px 5px -5px #888888;-webkit-box-shadow:5px 5px 5px -5px #888888;box-shadow: 5px 5px 5px -5px #888888;}
+.borderRadiusBtm .shadow{-moz-box-shadow:-5px -5px 5px -5px #888888;-webkit-box-shadow:-5px -5px 5px -5px #888888;box-shadow: -5px -5px 5px -5px #888888}*/
+/*.borderRadiusTp .border, .borderRadius .border{-moz-border-radius:0 0 5px 5px ; border-radius:0 0 5px 5px;}
+.borderRadiusBtm .border{-moz-border-radius:5px 5px 0 0; border-radius:5px 5px 0 0;}*/
 img.fnone{float:none !important}
 .ddcommon .divider{width:0; height:100%; position:absolute;}
 .ddcommon .ddArrow{display:inline-block; position:absolute; top:50%; right:4px;}
@@ -52,7 +52,7 @@ img.fnone{float:none !important}
 .dd .ddTitle .ddTitleText .ddTitleText{padding:0;}
 .dd .ddTitle .description{font-style: italic; font-weight: normal;}
 .dd .ddTitle .ddTitleText img{padding-right:5px;}
-.dd .ddChild{border:1px solid #c3c3c3; background-color:#fff; left:-1px;}
+.dd .ddChild{border:none; border-top: 1px solid #c3c3c3; border-left: 1px solid #c3c3c3; border-right: 1px solid #c3c3c3; solid #c3c3c3; background-color:#fff; left:-1px;}
 .dd .ddChild li{padding:5px; background-color:#fff; border-bottom:1px solid #c3c3c3;}
 .dd .ddChild li .description{font-style: italic; font-weight: normal;}
 .dd .ddChild li .ddlabel{color:#333;}

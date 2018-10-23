@@ -111,8 +111,8 @@ function buildMonitorUnit(p_unit, p_first) {
       refreshMonitorDashboard(true,v_tab_tag,div);
     }
   })(div);
-  button_refresh.innerHTML = '<img src="/static/OmniDB_app/images/refresh.png"/>';
-  button_refresh.classList.add('unit_header_element');
+  button_refresh.innerHTML = "<i class='fas fa-sync-alt fa-light'></i>";
+  button_refresh.className = 'unit_header_element bt_icon_only';
   button_refresh.title = 'Refresh';
   var button_pause = document.createElement('button');
   button_pause.onclick = (function(div) {
@@ -120,8 +120,8 @@ function buildMonitorUnit(p_unit, p_first) {
       pauseMonitorUnit(div);
     }
   })(div);
-  button_pause.innerHTML = '<img src="/static/OmniDB_app/images/pause.png"/>';
-  button_pause.classList.add('unit_header_element');
+  button_pause.innerHTML = "<i class='fas fa-pause-circle fa-light'></i>";
+  button_pause.className = 'unit_header_element bt_icon_only';
   button_pause.title = 'Pause';
   var button_play = document.createElement('button');
   button_play.onclick = (function(div) {
@@ -129,8 +129,8 @@ function buildMonitorUnit(p_unit, p_first) {
       playMonitorUnit(div);
     }
   })(div);
-  button_play.innerHTML = '<img src="/static/OmniDB_app/images/play.png"/>';
-  button_play.classList.add('unit_header_element');
+  button_play.innerHTML = "<i class='fas fa-play-circle fa-light'></i>";
+  button_play.className = 'unit_header_element bt_icon_only';
   button_play.title = 'Play';
   button_play.style.display = 'none';
   var interval = document.createElement('input');
@@ -156,9 +156,8 @@ function buildMonitorUnit(p_unit, p_first) {
       closeMonitorUnit(div);
     }
   })(div);
-  button_close.innerHTML = '<img src="/static/OmniDB_app/images/tab_close.png"/>';
-  button_close.classList.add('unit_header_element');
-  button_close.classList.add('unit_close_button');
+  button_close.innerHTML = "<i class='fas fa-times icon-close'></i>";
+  button_close.className = 'unit_header_element unit_close_button bt_icon_only';
   var details = document.createElement('div');
   details.classList.add('unit_header_element');
   details.innerHTML = '';
@@ -457,9 +456,14 @@ function testMonitorScript() {
                     if (key === 'view_data') {
                         editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
                     }
+                    else if (key === 'copy') {
+                      this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+                      document.execCommand('copy');
+                    }
                   },
                   items: {
-                    "view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+                    "copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+                    "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
                   }
                   },
                     cells: function (row, col, prop) {
@@ -517,13 +521,13 @@ function showMonitorUnitList() {
           var col = new Object();
           col.readOnly = true;
           col.title =  'Actions';
-          col.width = '60px';
+          col.width = '65px';
           columnProperties.push(col);
 
           var col = new Object();
           col.readOnly = true;
           col.title =  'Title';
-          col.width = '210px;'
+          col.width = '300px;'
           columnProperties.push(col);
 
           var col = new Object();
@@ -561,9 +565,14 @@ function showMonitorUnitList() {
                 if (key === 'view_data') {
                     editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
                 }
+                else if (key === 'copy') {
+                  this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+                  document.execCommand('copy');
+                }
               },
               items: {
-                "view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+                "copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+                "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
               }
               },
                 cells: function (row, col, prop) {
@@ -796,10 +805,15 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
         									if (key === 'view_data') {
         									  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
         									}
-        								},
-        								items: {
-        									"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
-        								}
+                          else if (key === 'copy') {
+                            this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+                            document.execCommand('copy');
+                          }
+                        },
+                        items: {
+                          "copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+                          "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
+                        }
         						    },
         					        cells: function (row, col, prop) {
         							    var cellProperties = {};

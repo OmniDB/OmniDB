@@ -516,7 +516,7 @@ button {
   font-family: Arial;
   color: #333;
   font-size: 12px;
-  height: 30px;
+  height: 28px;
   line-height: 0px;
   padding-left: 12px;
   padding-right: 12px;
@@ -593,7 +593,7 @@ button:hover {
   border-radius: 3px;
   font-family: Arial;
   color: #FFF;
-  font-size: 13px;
+  font-size: 11px;
   padding: 6px 12px 6px 12px;
   border: solid #ff6262 1px;
   text-decoration: none;

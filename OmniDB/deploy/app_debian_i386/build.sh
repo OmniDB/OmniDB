@@ -7,7 +7,7 @@ echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install setuptools --upgrade
 pip install -r ~/OmniDB/requirements.txt --upgrade
-pip uninstall paramiko
+pip uninstall paramiko -y
 pip install -r ~/OmniDB/OmniDB/deploy/requirements_for_deploy_app.txt --upgrade
 echo "Done."
 

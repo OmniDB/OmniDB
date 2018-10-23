@@ -75,9 +75,9 @@
 	            <div id="config_tabs" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
 	                <ul>
                   <li id="config_tabs_tab1">Shortcuts</li>
-	                <li id="config_tabs_tab2">Editor</li>
+	                <li id="config_tabs_tab2">User Options</li>
                   {% if not desktop_mode %}
-	                <li id="config_tabs_tab3">User</li>
+	                <li id="config_tabs_tab3">Password</li>
                   {% endif %}
 	  				</ul>
             <div id="div_config_tabs_tab1">
@@ -233,6 +233,114 @@
 		                </select>
 		                </div>
                     <div style="text-align: center;">
+                      <div style="margin-bottom: 10px;">CSV Encoding</div>
+                      <select id="sel_csv_encoding" style="width: 200px; margin-bottom: 20px;">
+                        <option value="ascii">ascii</option>
+                        <option value="big5">big5</option>
+                        <option value="big5hkscs">big5hkscs</option>
+                        <option value="cp037">cp037</option>
+                        <option value="cp273">cp273</option>
+                        <option value="cp424">cp424</option>
+                        <option value="cp437">cp437</option>
+                        <option value="cp500">cp500</option>
+                        <option value="cp720">cp720</option>
+                        <option value="cp737">cp737</option>
+                        <option value="cp775">cp775</option>
+                        <option value="cp850">cp850</option>
+                        <option value="cp852">cp852</option>
+                        <option value="cp855">cp855</option>
+                        <option value="cp856">cp856</option>
+                        <option value="cp857">cp857</option>
+                        <option value="cp858">cp858</option>
+                        <option value="cp860">cp860</option>
+                        <option value="cp861">cp861</option>
+                        <option value="cp862">cp862</option>
+                        <option value="cp863">cp863</option>
+                        <option value="cp864">cp864</option>
+                        <option value="cp865">cp865</option>
+                        <option value="cp866">cp866</option>
+                        <option value="cp869">cp869</option>
+                        <option value="cp874">cp874</option>
+                        <option value="cp875">cp875</option>
+                        <option value="cp932">cp932</option>
+                        <option value="cp949">cp949</option>
+                        <option value="cp950">cp950</option>
+                        <option value="cp1006">cp1006</option>
+                        <option value="cp1026">cp1026</option>
+                        <option value="cp1125">cp1125</option>
+                        <option value="cp1140">cp1140</option>
+                        <option value="cp1250">cp1250</option>
+                        <option value="cp1251">cp1251</option>
+                        <option value="cp1252">cp1252</option>
+                        <option value="cp1253">cp1253</option>
+                        <option value="cp1254">cp1254</option>
+                        <option value="cp1255">cp1255</option>
+                        <option value="cp1256">cp1256</option>
+                        <option value="cp1257">cp1257</option>
+                        <option value="cp1258">cp1258</option>
+                        <option value="cp65001">cp65001</option>
+                        <option value="euc-jp">euc-jp</option>
+                        <option value="euc-jis-2004">euc-jis-2004</option>
+                        <option value="euc-jisx0213">euc-jisx0213</option>
+                        <option value="euc-kr">euc-kr</option>
+                        <option value="gb2312">gb2312</option>
+                        <option value="gbk">gbk</option>
+                        <option value="gb18030">gb18030</option>
+                        <option value="hz">hz</option>
+                        <option value="iso2022-jp">iso2022-jp</option>
+                        <option value="iso2022-jp-1">iso2022-jp-1</option>
+                        <option value="iso2022-jp-2">iso2022-jp-2</option>
+                        <option value="iso2022-jp-2004">iso2022-jp-2004</option>
+                        <option value="iso2022-jp-3">iso2022-jp-3</option>
+                        <option value="iso2022-jp-ext">iso2022-jp-ext</option>
+                        <option value="iso2022-kr">iso2022-kr</option>
+                        <option value="latin-1">latin-1</option>
+                        <option value="iso8859-2">iso8859-2</option>
+                        <option value="iso8859-3">iso8859-3</option>
+                        <option value="iso8859-4">iso8859-4</option>
+                        <option value="iso8859-5">iso8859-5</option>
+                        <option value="iso8859-6">iso8859-6</option>
+                        <option value="iso8859-7">iso8859-7</option>
+                        <option value="iso8859-8">iso8859-8</option>
+                        <option value="iso8859-9">iso8859-9</option>
+                        <option value="iso8859-10">iso8859-10</option>
+                        <option value="iso8859-11">iso8859-11</option>
+                        <option value="iso8859-13">iso8859-13</option>
+                        <option value="iso8859-14">iso8859-14</option>
+                        <option value="iso8859-15">iso8859-15</option>
+                        <option value="iso8859-16">iso8859-16</option>
+                        <option value="johab">johab</option>
+                        <option value="koi8-r">koi8-r</option>
+                        <option value="koi8-t">koi8-t</option>
+                        <option value="koi8-u">koi8-u</option>
+                        <option value="kz1048">kz1048</option>
+                        <option value="mac-cyrillic">mac-cyrillic</option>
+                        <option value="mac-greek">mac-greek</option>
+                        <option value="mac-iceland">mac-iceland</option>
+                        <option value="mac-latin2">mac-latin2</option>
+                        <option value="mac-roman">mac-roman</option>
+                        <option value="mac-turkish">mac-turkish</option>
+                        <option value="ptcp154">ptcp154</option>
+                        <option value="shift-jis">shift-jis</option>
+                        <option value="shift-jis-2004">shift-jis-2004</option>
+                        <option value="shift-jisx0213">shift-jisx0213</option>
+                        <option value="utf-32">utf-32</option>
+                        <option value="utf-32-be">utf-32-be</option>
+                        <option value="utf-32-le">utf-32-le</option>
+                        <option value="utf-16">utf-16</option>
+                        <option value="utf-16-be">utf-16-be</option>
+                        <option value="utf-16-le">utf-16-le</option>
+                        <option value="utf-7">utf-7</option>
+                        <option value="utf-8">utf-8</option>
+                        <option value="utf-8-sig">utf-8-sig</option>
+                        <option value="windows-1252">windows-1252</option>
+                      </select>
+                    </div>
+                    <div style="text-align: center;">
+                      <div style="margin-bottom: 10px;">CSV Delimiter</div>
+                      <input id="txt_csv_delimiter" style="width: 200px; margin-bottom: 20px;">
+                    </div>
+                    <div style="text-align: center;">
                       <button onclick="saveConfigUser();">Save Changes</button>
                     </div>
 		                </div>
@@ -256,114 +364,6 @@
 		                	<div style="text-align: center; display: none;">
 		                		<div style="margin-bottom: 10px;">Enable OmniChat</div>
 		                		<input id="chk_enable_chat" type="checkbox" style="width: 200px; margin-bottom: 20px;">
-		                	</div>
-                      <div style="text-align: center;">
-                        <div style="margin-bottom: 10px;">CSV Encoding</div>
-    		                <select id="sel_csv_encoding" style="width: 200px; margin-bottom: 20px;">
-    		                	<option value="ascii">ascii</option>
-                          <option value="big5">big5</option>
-                          <option value="big5hkscs">big5hkscs</option>
-                          <option value="cp037">cp037</option>
-                          <option value="cp273">cp273</option>
-                          <option value="cp424">cp424</option>
-                          <option value="cp437">cp437</option>
-                          <option value="cp500">cp500</option>
-                          <option value="cp720">cp720</option>
-                          <option value="cp737">cp737</option>
-                          <option value="cp775">cp775</option>
-                          <option value="cp850">cp850</option>
-                          <option value="cp852">cp852</option>
-                          <option value="cp855">cp855</option>
-                          <option value="cp856">cp856</option>
-                          <option value="cp857">cp857</option>
-                          <option value="cp858">cp858</option>
-                          <option value="cp860">cp860</option>
-                          <option value="cp861">cp861</option>
-                          <option value="cp862">cp862</option>
-                          <option value="cp863">cp863</option>
-                          <option value="cp864">cp864</option>
-                          <option value="cp865">cp865</option>
-                          <option value="cp866">cp866</option>
-                          <option value="cp869">cp869</option>
-                          <option value="cp874">cp874</option>
-                          <option value="cp875">cp875</option>
-                          <option value="cp932">cp932</option>
-                          <option value="cp949">cp949</option>
-                          <option value="cp950">cp950</option>
-                          <option value="cp1006">cp1006</option>
-                          <option value="cp1026">cp1026</option>
-                          <option value="cp1125">cp1125</option>
-                          <option value="cp1140">cp1140</option>
-                          <option value="cp1250">cp1250</option>
-                          <option value="cp1251">cp1251</option>
-                          <option value="cp1252">cp1252</option>
-                          <option value="cp1253">cp1253</option>
-                          <option value="cp1254">cp1254</option>
-                          <option value="cp1255">cp1255</option>
-                          <option value="cp1256">cp1256</option>
-                          <option value="cp1257">cp1257</option>
-                          <option value="cp1258">cp1258</option>
-                          <option value="cp65001">cp65001</option>
-                          <option value="euc-jp">euc-jp</option>
-                          <option value="euc-jis-2004">euc-jis-2004</option>
-                          <option value="euc-jisx0213">euc-jisx0213</option>
-                          <option value="euc-kr">euc-kr</option>
-                          <option value="gb2312">gb2312</option>
-                          <option value="gbk">gbk</option>
-                          <option value="gb18030">gb18030</option>
-                          <option value="hz">hz</option>
-                          <option value="iso2022-jp">iso2022-jp</option>
-                          <option value="iso2022-jp-1">iso2022-jp-1</option>
-                          <option value="iso2022-jp-2">iso2022-jp-2</option>
-                          <option value="iso2022-jp-2004">iso2022-jp-2004</option>
-                          <option value="iso2022-jp-3">iso2022-jp-3</option>
-                          <option value="iso2022-jp-ext">iso2022-jp-ext</option>
-                          <option value="iso2022-kr">iso2022-kr</option>
-                          <option value="latin-1">latin-1</option>
-                          <option value="iso8859-2">iso8859-2</option>
-                          <option value="iso8859-3">iso8859-3</option>
-                          <option value="iso8859-4">iso8859-4</option>
-                          <option value="iso8859-5">iso8859-5</option>
-                          <option value="iso8859-6">iso8859-6</option>
-                          <option value="iso8859-7">iso8859-7</option>
-                          <option value="iso8859-8">iso8859-8</option>
-                          <option value="iso8859-9">iso8859-9</option>
-                          <option value="iso8859-10">iso8859-10</option>
-                          <option value="iso8859-11">iso8859-11</option>
-                          <option value="iso8859-13">iso8859-13</option>
-                          <option value="iso8859-14">iso8859-14</option>
-                          <option value="iso8859-15">iso8859-15</option>
-                          <option value="iso8859-16">iso8859-16</option>
-                          <option value="johab">johab</option>
-                          <option value="koi8-r">koi8-r</option>
-                          <option value="koi8-t">koi8-t</option>
-                          <option value="koi8-u">koi8-u</option>
-                          <option value="kz1048">kz1048</option>
-                          <option value="mac-cyrillic">mac-cyrillic</option>
-                          <option value="mac-greek">mac-greek</option>
-                          <option value="mac-iceland">mac-iceland</option>
-                          <option value="mac-latin2">mac-latin2</option>
-                          <option value="mac-roman">mac-roman</option>
-                          <option value="mac-turkish">mac-turkish</option>
-                          <option value="ptcp154">ptcp154</option>
-                          <option value="shift-jis">shift-jis</option>
-                          <option value="shift-jis-2004">shift-jis-2004</option>
-                          <option value="shift-jisx0213">shift-jisx0213</option>
-                          <option value="utf-32">utf-32</option>
-                          <option value="utf-32-be">utf-32-be</option>
-                          <option value="utf-32-le">utf-32-le</option>
-                          <option value="utf-16">utf-16</option>
-                          <option value="utf-16-be">utf-16-be</option>
-                          <option value="utf-16-le">utf-16-le</option>
-                          <option value="utf-7">utf-7</option>
-                          <option value="utf-8">utf-8</option>
-                          <option value="utf-8-sig">utf-8-sig</option>
-                          <option value="windows-1252">windows-1252</option>
-    		                </select>
-                      </div>
-                      <div style="text-align: center;">
-		                		<div style="margin-bottom: 10px;">CSV Delimiter</div>
-		                		<input id="txt_csv_delimiter" style="width: 200px; margin-bottom: 20px;">
 		                	</div>
 		                	<div style="text-align: center;">
 			                	<button onclick="saveConfigUser();">Save Changes</button>

@@ -331,7 +331,8 @@ function autocomplete_get_results(p_sql,p_value,p_pos) {
         }
       },
       'box',
-      true);
+      true,
+    true);
 
 }
 

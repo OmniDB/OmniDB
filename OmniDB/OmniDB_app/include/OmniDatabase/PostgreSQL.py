@@ -7461,60 +7461,6 @@ DROP COLUMN #column_name#
 
             UNION ALL
 
-
-            select type,
-                   sequence,
-                   num_dots,
-                   result,
-                   result_complete,
-                   select_value,
-                   quote_ident(schema_name) || '.' || quote_ident(table_name) || ' - <b>' || complement || '</b>' as complement,
-                   '<b>' || complement || '</b>' as complement_complete
-            from (
-            select 'column' as type,
-                   7 as sequence,
-                   2 as num_dots,
-                   quote_ident(a.attname) as result,
-                   quote_ident(n.nspname) as schema_name,
-                   quote_ident(c.relname) as table_name,
-                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) || '.' || quote_ident(a.attname) as result_complete,
-                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) || '.' || quote_ident(a.attname) as select_value,
-                               (case when t.typtype = 'd'::"char"
-                                     then case when bt.typelem <> 0::oid and bt.typlen = '-1'::integer
-                                               then 'ARRAY'::text
-                                               when nbt.nspname = 'pg_catalog'::name
-                                               then format_type(t.typbasetype, NULL::integer)
-                                               else 'USER-DEFINED'::text
-                                          end
-                                     else case when t.typelem <> 0::oid and t.typlen = '-1'::integer
-                                               then 'ARRAY'::text
-                                               when nt.nspname = 'pg_catalog'::name
-                                               then format_type(a.atttypid, NULL::integer)
-                                               else 'USER-DEFINED'::text
-                                          end
-                                end) as complement
-            from pg_attribute a
-            inner join pg_class c
-            on c.oid = a.attrelid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            inner join (
-                pg_type t
-                inner join pg_namespace nt
-                on t.typnamespace = nt.oid
-            ) on a.atttypid = t.oid
-            left join (
-                pg_type bt
-                inner join pg_namespace nbt
-                on bt.typnamespace = nbt.oid
-            ) on t.typtype = 'd'::"char" and t.typbasetype = bt.oid
-            where a.attnum > 0
-              and not a.attisdropped
-              and c.relkind in ('r', 'f', 'p', 'v')) x
-
-            UNION ALL
-
-
             select 'function' as type,
                    8 as sequence,
                    1 as num_dots,

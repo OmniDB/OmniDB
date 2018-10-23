@@ -84,8 +84,8 @@ class DataFileWriter(object):
         try:
             if self.v_extension == 'csv':
                 self.v_file = open(self.v_filename, 'w', encoding=self.v_encoding)
-                self.v_object = csv.DictWriter(self.v_file, fieldnames=self.v_header, delimiter=self.v_delimiter, lineterminator=self.v_lineterminator)
-                self.v_object.writeheader()
+                self.v_object = csv.writer(self.v_file, delimiter=self.v_delimiter, lineterminator=self.v_lineterminator)
+                self.v_object.writerow(self.v_header)
                 self.v_open = True
             elif self.v_extension == 'xlsx':
                 self.v_object = openpyxl.Workbook(write_only=True)
@@ -102,7 +102,7 @@ class DataFileWriter(object):
                 raise Spartacus.Utils.Exception('You need to call Open() first.')
             if self.v_extension == 'csv':
                 for v_row in p_datatable.Rows:
-                    self.v_object.writerow(dict(v_row))
+                    self.v_object.writerow(v_row)
             else:
                 if self.v_currentrow == 1:
                     if p_sheetname:

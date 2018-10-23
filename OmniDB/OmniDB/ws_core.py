@@ -725,7 +725,7 @@ def thread_query(self,args,ws_object):
 
                 v_database.v_connection.Open()
                 v_file_name = '{0}.{1}'.format(str(time.time()).replace('.','_'),v_extension)
-                v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, False, False)
+                v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, False, True)
                 #if platform.system() == 'Windows':
                 #    f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns, 'windows-1252')
                 #else:
@@ -738,7 +738,7 @@ def thread_query(self,args,ws_object):
                 else:
                     v_hasmorerecords = False
                 while v_hasmorerecords:
-                    v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, False, False)
+                    v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, False, True)
                     if v_database.v_connection.v_start:
                         v_hasmorerecords = False
                     elif len(v_data1.Rows) > 0:

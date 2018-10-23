@@ -30,7 +30,6 @@ import csv
 import openpyxl
 from collections import OrderedDict
 import tempfile
-import formulas
 
 import OmniDB_app.include.Spartacus as Spartacus
 
@@ -61,131 +60,6 @@ class Cryptor(object):
         try:
             v_aes = pyaes.AESModeOfOperationCTR(self.v_hash)
             return v_aes.decrypt(base64.b64decode(p_cyphertext)).decode(self.v_encoding)
-        except Exception as exc:
-            raise Spartacus.Utils.Exception(str(exc))
-
-class DataFileReader(object):
-    def __init__(self, p_filename, p_fieldnames=None, p_encoding='utf-8', p_delimiter=None, p_resolveFormulas=False):
-        v_tmp = p_filename.split('.')
-        if len(v_tmp) > 1:
-            self.v_extension = v_tmp[-1].lower()
-        else:
-            self.v_extension = 'csv'
-        if self.v_extension == 'txt' or self.v_extension == 'out':
-            self.v_extension = 'csv'
-        self.v_filename = p_filename
-        self.v_file = None
-        self.v_header = p_fieldnames
-        self.v_encoding = p_encoding
-        self.v_delimiter = p_delimiter
-        self.v_resolveFormulas = p_resolveFormulas
-        self.v_open = False
-    def Open(self):
-        try:
-            if not os.path.isfile(self.v_filename):
-                raise Spartacus.Utils.Exception('File {0} does not exist or is not a file.'.format(self.v_filename))
-            if self.v_extension == 'csv':
-                self.v_file = open(self.v_filename, encoding=self.v_encoding)
-                v_sample = self.v_file.read(1024)
-                self.v_file.seek(0)
-                v_sniffer = csv.Sniffer()
-                if not v_sniffer.has_header(v_sample):
-                    raise Spartacus.Utils.Exception('CSV file {0} does not have a header.'.format(self.v_filename))
-                v_dialect = v_sniffer.sniff(v_sample)
-                if self.v_delimiter is not None:
-                    v_dialect.delimiter = self.v_delimiter
-                self.v_object = csv.DictReader(self.v_file, self.v_header, None, None, v_dialect)
-                self.v_open = True
-            elif self.v_extension == 'xlsx':
-                if self.v_resolveFormulas:
-                    v_tempFile = tempfile.NamedTemporaryFile(suffix=".xlsx")
-                    v_tempFile.file.close()
-                    v_excelModel = formulas.ExcelModel().loads(self.v_filename).finish()
-                    v_excelModel.calculate()
-                    v_written = v_excelModel.write()
-                    v_written = v_written[list(v_written.keys())[0]]
-                    v_written[list(v_written.keys())[0]].save(v_tempFile.name)
-                    self.v_object = openpyxl.load_workbook(v_tempFile.name, read_only=True)
-                else:
-                    self.v_object = openpyxl.load_workbook(self.v_filename, read_only=True)
-
-                self.v_open = True
-            else:
-                raise Spartacus.Utils.Exception('File extension "{0}" not supported.'.format(self.v_extension))
-        except Spartacus.Utils.Exception as exc:
-            raise exc
-        except Exception as exc:
-            raise Spartacus.Utils.Exception(str(exc))
-    def Read(self, p_blocksize=None, p_sheetname=None):
-        try:
-            if not self.v_open:
-                raise Spartacus.Utils.Exception('You need to call Open() first.')
-            if self.v_extension == 'csv':
-                v_table = Spartacus.Database.DataTable(None, p_alltypesstr=True)
-                v_first = True
-                x = 0
-                for v_row in self.v_object:
-                    if v_first:
-                        if self.v_header:
-                            v_table.Columns = self.v_header
-                        else:
-                            for k in v_row.keys():
-                                v_table.Columns.append(k)
-                        v_first = False
-                    v_table.Rows.append(v_row)
-                    x = x + 1
-                    if x == p_blocksize:
-                        yield v_table
-                        x = 0
-                        v_table.Rows = []
-                self.v_file.close()
-                if len(v_table.Rows) > 0:
-                    yield v_table
-            else:
-                if p_sheetname:
-                    v_worksheet = self.v_object[p_sheetname]
-                    v_table = Spartacus.Database.DataTable(p_sheetname)
-                else:
-                    v_worksheet = self.v_object.active
-                    v_table = Spartacus.Database.DataTable()
-                v_worksheet.max_row = v_worksheet.max_column = None
-                v_first = True
-                x = 0
-                for v_row in v_worksheet.rows:
-                    if v_first:
-                        if self.v_header:
-                            v_table.Columns = self.v_header
-                        else:
-                            v_table.Columns = [a.value for a in v_row]
-                        v_first = False
-                    else:
-                        v_tmp = [a.value for a in v_row]
-                        if len(v_tmp) < len(v_table.Columns):
-                            for i in range(0, len(v_table.Columns) - len(v_tmp)):
-                                v_tmp.append(None)
-                        elif len(v_tmp) > len(v_table.Columns):
-                            for i in range(0, len(v_tmp) - len(v_table.Columns)):
-                                v_tmp.pop()
-                        v_table.Rows.append(OrderedDict(zip(v_table.Columns, v_tmp)))
-                        x = x + 1
-                        if x == p_blocksize:
-                            yield v_table
-                            x = 0
-                            v_table.Rows = []
-                if len(v_table.Rows) > 0:
-                    yield v_table
-        except Spartacus.Utils.Exception as exc:
-            raise exc
-        except Exception as exc:
-            raise Spartacus.Utils.Exception(str(exc))
-    def Sheets(self):
-        try:
-            if self.v_extension == 'xlsx' and self.v_object:
-                return self.v_object.get_sheet_names()
-            else:
-                return []
-        except Spartacus.Utils.Exception as exc:
-            raise exc
         except Exception as exc:
             raise Spartacus.Utils.Exception(str(exc))
 

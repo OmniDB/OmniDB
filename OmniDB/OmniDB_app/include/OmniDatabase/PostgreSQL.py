@@ -126,9 +126,540 @@ class PostgreSQL:
 			"SET DEFAULT",
 			"CASCADE"
         ]
+        self.v_reserved_words = [
+            'ABORT',
+            'ABS',
+            'ABSOLUTE',
+            'ACCESS',
+            'ACTION',
+            'ADA',
+            'ADD',
+            'ADMIN',
+            'AFTER',
+            'AGGREGATE',
+            'ALIAS',
+            'ALL',
+            'ALLOCATE',
+            'ALTER',
+            'ANALYSE',
+            'ANALYZE',
+            'AND',
+            'ANY',
+            'ARE',
+            'ARRAY',
+            'AS',
+            'ASC',
+            'ASENSITIVE',
+            'ASSERTION',
+            'ASSIGNMENT',
+            'ASYMMETRIC',
+            'AT',
+            'ATOMIC',
+            'AUTHORIZATION',
+            'AVG',
+            'BACKWARD',
+            'BEFORE',
+            'BEGIN',
+            'BETWEEN',
+            'BIGINT',
+            'BINARY',
+            'BIT',
+            'BITVAR',
+            'BIT_LENGTH',
+            'BLOB',
+            'BOOLEAN',
+            'BOTH',
+            'BREADTH',
+            'BY',
+            'C',
+            'CACHE',
+            'CALL',
+            'CALLED',
+            'CARDINALITY',
+            'CASCADE',
+            'CASCADED',
+            'CASE',
+            'CAST',
+            'CATALOG',
+            'CATALOG_NAME',
+            'CHAIN',
+            'CHAR',
+            'CHARACTER',
+            'CHARACTERISTICS',
+            'CHARACTER_LENGTH',
+            'CHARACTER_SET_CATALOG',
+            'CHARACTER_SET_NAME',
+            'CHARACTER_SET_SCHEMA',
+            'CHAR_LENGTH',
+            'CHECK',
+            'CHECKED',
+            'CHECKPOINT',
+            'CLASS',
+            'CLASS_ORIGIN',
+            'CLOB',
+            'CLOSE',
+            'CLUSTER',
+            'COALESCE',
+            'COBOL',
+            'COLLATE',
+            'COLLATION',
+            'COLLATION_CATALOG',
+            'COLLATION_NAME',
+            'COLLATION_SCHEMA',
+            'COLUMN',
+            'COLUMN_NAME',
+            'COMMAND_FUNCTION',
+            'COMMAND_FUNCTION_CODE',
+            'COMMENT',
+            'COMMIT',
+            'COMMITTED',
+            'COMPLETION',
+            'CONDITION_NUMBER',
+            'CONNECT',
+            'CONNECTION',
+            'CONNECTION_NAME',
+            'CONSTRAINT',
+            'CONSTRAINTS',
+            'CONSTRAINT_CATALOG',
+            'CONSTRAINT_NAME',
+            'CONSTRAINT_SCHEMA',
+            'CONSTRUCTOR',
+            'CONTAINS',
+            'CONTINUE',
+            'CONVERSION',
+            'CONVERT',
+            'COPY',
+            'CORRESPONDING',
+            'COUNT',
+            'CREATE',
+            'CREATEDB',
+            'CREATEUSER',
+            'CROSS',
+            'CUBE',
+            'CURRENT',
+            'CURRENT_DATE',
+            'CURRENT_PATH',
+            'CURRENT_ROLE',
+            'CURRENT_TIME',
+            'CURRENT_TIMESTAMP',
+            'CURRENT_USER',
+            'CURSOR',
+            'CURSOR_NAME',
+            'CYCLE',
+            'DATA',
+            'DATABASE',
+            'DATE',
+            'DATETIME_INTERVAL_CODE',
+            'DATETIME_INTERVAL_PRECISION',
+            'DAY',
+            'DEALLOCATE',
+            'DEC',
+            'DECIMAL',
+            'DECLARE',
+            'DEFAULT',
+            'DEFERRABLE',
+            'DEFERRED',
+            'DEFINED',
+            'DEFINER',
+            'DELETE',
+            'DELIMITER',
+            'DELIMITERS',
+            'DEPTH',
+            'DEREF',
+            'DESC',
+            'DESCRIBE',
+            'DESCRIPTOR',
+            'DESTROY',
+            'DESTRUCTOR',
+            'DETERMINISTIC',
+            'DIAGNOSTICS',
+            'DICTIONARY',
+            'DISCONNECT',
+            'DISPATCH',
+            'DISTINCT',
+            'DO',
+            'DOMAIN',
+            'DOUBLE',
+            'DROP',
+            'DYNAMIC',
+            'DYNAMIC_FUNCTION',
+            'DYNAMIC_FUNCTION_CODE',
+            'EACH',
+            'ELSE',
+            'ENCODING',
+            'ENCRYPTED',
+            'END',
+            'END-EXEC',
+            'EQUALS',
+            'ESCAPE',
+            'EVERY',
+            'EXCEPT',
+            'EXCEPTION',
+            'EXCLUSIVE',
+            'EXEC',
+            'EXECUTE',
+            'EXISTING',
+            'EXISTS',
+            'EXPLAIN',
+            'EXTERNAL',
+            'EXTRACT',
+            'FALSE',
+            'FETCH',
+            'FINAL',
+            'FIRST',
+            'FLOAT',
+            'FOR',
+            'FORCE',
+            'FOREIGN',
+            'FORTRAN',
+            'FORWARD',
+            'FOUND',
+            'FREE',
+            'FREEZE',
+            'FROM',
+            'FULL',
+            'FUNCTION',
+            'G',
+            'GENERAL',
+            'GENERATED',
+            'GET',
+            'GLOBAL',
+            'GO',
+            'GOTO',
+            'GRANT',
+            'GRANTED',
+            'GROUP',
+            'GROUPING',
+            'HANDLER',
+            'HAVING',
+            'HIERARCHY',
+            'HOLD',
+            'HOST',
+            'HOUR',
+            'IDENTITY',
+            'IGNORE',
+            'ILIKE',
+            'IMMEDIATE',
+            'IMMUTABLE',
+            'IMPLEMENTATION',
+            'IMPLICIT',
+            'IN',
+            'INCREMENT',
+            'INDEX',
+            'INDICATOR',
+            'INFIX',
+            'INHERITS',
+            'INITIALIZE',
+            'INITIALLY',
+            'INNER',
+            'INOUT',
+            'INPUT',
+            'INSENSITIVE',
+            'INSERT',
+            'INSTANCE',
+            'INSTANTIABLE',
+            'INSTEAD',
+            'INT',
+            'INTEGER',
+            'INTERSECT',
+            'INTERVAL',
+            'INTO',
+            'INVOKER',
+            'IS',
+            'ISNULL',
+            'ISOLATION',
+            'ITERATE',
+            'JOIN',
+            'K',
+            'KEY',
+            'KEY_MEMBER',
+            'KEY_TYPE',
+            'LANCOMPILER',
+            'LANGUAGE',
+            'LARGE',
+            'LAST',
+            'LATERAL',
+            'LEADING',
+            'LEFT',
+            'LENGTH',
+            'LESS',
+            'LEVEL',
+            'LIKE',
+            'LIMIT',
+            'LISTEN',
+            'LOAD',
+            'LOCAL',
+            'LOCALTIME',
+            'LOCALTIMESTAMP',
+            'LOCATION',
+            'LOCATOR',
+            'LOCK',
+            'LOWER',
+            'M',
+            'MAP',
+            'MATCH',
+            'MAX',
+            'MAXVALUE',
+            'MESSAGE_LENGTH',
+            'MESSAGE_OCTET_LENGTH',
+            'MESSAGE_TEXT',
+            'METHOD',
+            'MIN',
+            'MINUTE',
+            'MINVALUE',
+            'MOD',
+            'MODE',
+            'MODIFIES',
+            'MODIFY',
+            'MODULE',
+            'MONTH',
+            'MORE',
+            'MOVE',
+            'MUMPS',
+            'NAME',
+            'NAMES',
+            'NATIONAL',
+            'NATURAL',
+            'NCHAR',
+            'NCLOB',
+            'NEW',
+            'NEXT',
+            'NO',
+            'NOCREATEDB',
+            'NOCREATEUSER',
+            'NONE',
+            'NOT',
+            'NOTHING',
+            'NOTIFY',
+            'NOTNULL',
+            'NULL',
+            'NULLABLE',
+            'NULLIF',
+            'NUMBER',
+            'NUMERIC',
+            'OBJECT',
+            'OCTET_LENGTH',
+            'OF',
+            'OFF',
+            'OFFSET',
+            'OIDS',
+            'OLD',
+            'ON',
+            'ONLY',
+            'OPEN',
+            'OPERATION',
+            'OPERATOR',
+            'OPTION',
+            'OPTIONS',
+            'OR',
+            'ORDER',
+            'ORDINALITY',
+            'OUT',
+            'OUTER',
+            'OUTPUT',
+            'OVERLAPS',
+            'OVERLAY',
+            'OVERRIDING',
+            'OWNER',
+            'PAD',
+            'PARAMETER',
+            'PARAMETERS',
+            'PARAMETER_MODE',
+            'PARAMETER_NAME',
+            'PARAMETER_ORDINAL_POSITION',
+            'PARAMETER_SPECIFIC_CATALOG',
+            'PARAMETER_SPECIFIC_NAME',
+            'PARAMETER_SPECIFIC_SCHEMA',
+            'PARTIAL',
+            'PASCAL',
+            'PASSWORD',
+            'PATH',
+            'PENDANT',
+            'PLACING',
+            'PLI',
+            'POSITION',
+            'POSTFIX',
+            'PRECISION',
+            'PREFIX',
+            'PREORDER',
+            'PREPARE',
+            'PRESERVE',
+            'PRIMARY',
+            'PRIOR',
+            'PRIVILEGES',
+            'PROCEDURAL',
+            'PROCEDURE',
+            'PUBLIC',
+            'READ',
+            'READS',
+            'REAL',
+            'RECHECK',
+            'RECURSIVE',
+            'REF',
+            'REFERENCES',
+            'REFERENCING',
+            'REINDEX',
+            'RELATIVE',
+            'RENAME',
+            'REPEATABLE',
+            'REPLACE',
+            'RESET',
+            'RESTRICT',
+            'RESULT',
+            'RETURN',
+            'RETURNED_LENGTH',
+            'RETURNED_OCTET_LENGTH',
+            'RETURNED_SQLSTATE',
+            'RETURNS',
+            'REVOKE',
+            'RIGHT',
+            'ROLE',
+            'ROLLBACK',
+            'ROLLUP',
+            'ROUTINE',
+            'ROUTINE_CATALOG',
+            'ROUTINE_NAME',
+            'ROUTINE_SCHEMA',
+            'ROW',
+            'ROWS',
+            'ROW_COUNT',
+            'RULE',
+            'SAVEPOINT',
+            'SCALE',
+            'SCHEMA',
+            'SCHEMA_NAME',
+            'SCOPE',
+            'SCROLL',
+            'SEARCH',
+            'SECOND',
+            'SECTION',
+            'SECURITY',
+            'SELECT',
+            'SELF',
+            'SENSITIVE',
+            'SEQUENCE',
+            'SERIALIZABLE',
+            'SERVER_NAME',
+            'SESSION',
+            'SESSION_USER',
+            'SET',
+            'SETOF',
+            'SETS',
+            'SHARE',
+            'SHOW',
+            'SIMILAR',
+            'SIMPLE',
+            'SIZE',
+            'SMALLINT',
+            'SOME',
+            'SOURCE',
+            'SPACE',
+            'SPECIFIC',
+            'SPECIFICTYPE',
+            'SPECIFIC_NAME',
+            'SQL',
+            'SQLCODE',
+            'SQLERROR',
+            'SQLEXCEPTION',
+            'SQLSTATE',
+            'SQLWARNING',
+            'STABLE',
+            'START',
+            'STATE',
+            'STATEMENT',
+            'STATIC',
+            'STATISTICS',
+            'STDIN',
+            'STDOUT',
+            'STORAGE',
+            'STRICT',
+            'STRUCTURE',
+            'STYLE',
+            'SUBCLASS_ORIGIN',
+            'SUBLIST',
+            'SUBSTRING',
+            'SUM',
+            'SYMMETRIC',
+            'SYSID',
+            'SYSTEM',
+            'SYSTEM_USER',
+            'TABLE',
+            'TABLE_NAME',
+            'TEMP',
+            'TEMPLATE',
+            'TEMPORARY',
+            'TERMINATE',
+            'THAN',
+            'THEN',
+            'TIME',
+            'TIMESTAMP',
+            'TIMEZONE_HOUR',
+            'TIMEZONE_MINUTE',
+            'TO',
+            'TOAST',
+            'TRAILING',
+            'TRANSACTION',
+            'TRANSACTIONS_COMMITTED',
+            'TRANSACTIONS_ROLLED_BACK',
+            'TRANSACTION_ACTIVE',
+            'TRANSFORM',
+            'TRANSFORMS',
+            'TRANSLATE',
+            'TRANSLATION',
+            'TREAT',
+            'TRIGGER',
+            'TRIGGER_CATALOG',
+            'TRIGGER_NAME',
+            'TRIGGER_SCHEMA',
+            'TRIM',
+            'TRUE',
+            'TRUNCATE',
+            'TRUSTED',
+            'TYPE',
+            'UNCOMMITTED',
+            'UNDER',
+            'UNENCRYPTED',
+            'UNION',
+            'UNIQUE',
+            'UNKNOWN',
+            'UNLISTEN',
+            'UNNAMED',
+            'UNNEST',
+            'UNTIL',
+            'UPDATE',
+            'UPPER',
+            'USAGE',
+            'USER',
+            'USER_DEFINED_TYPE_CATALOG',
+            'USER_DEFINED_TYPE_NAME',
+            'USER_DEFINED_TYPE_SCHEMA',
+            'USING',
+            'VACUUM',
+            'VALID',
+            'VALIDATOR',
+            'VALUE',
+            'VALUES',
+            'VARCHAR',
+            'VARIABLE',
+            'VARYING',
+            'VERBOSE',
+            'VERSION',
+            'VIEW',
+            'VOLATILE',
+            'WHEN',
+            'WHENEVER',
+            'WHERE',
+            'WITH',
+            'WITHOUT',
+            'WORK',
+            'WRITE',
+            'YEAR',
+            'ZONE',
+        ]
         self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
         self.v_version = ''
         self.v_version_num = ''
+        self.v_use_server_cursor = True
 
     def GetName(self):
         return self.v_service
@@ -795,7 +1326,9 @@ class PostgreSQL:
         return self.v_connection.Query('''
             select quote_ident(n.nspname) as schema_name,
                    quote_ident(c.relname) as table_name,
-                   quote_ident(t.tgname) as trigger_name
+                   quote_ident(t.tgname) as trigger_name,
+                   t.tgenabled as trigger_enabled,
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function
             from pg_trigger t
             inner join pg_class c
             on c.oid = t.tgrelid
@@ -1372,15 +1905,28 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
         ''', True)
 
     def QueryPublications(self):
-        return self.v_connection.Query('''
-            select quote_ident(pubname) as pubname,
-                   puballtables,
-                   pubinsert,
-                   pubupdate,
-                   pubdelete
-            from pg_publication
-            order by 1
-        ''', True)
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 110000:
+            return self.v_connection.Query('''
+                select quote_ident(pubname) as pubname,
+                       puballtables,
+                       pubinsert,
+                       pubupdate,
+                       pubdelete,
+                       pubtruncate
+                from pg_publication
+                order by 1
+            ''', True)
+        else:
+            return self.v_connection.Query('''
+                select quote_ident(pubname) as pubname,
+                       puballtables,
+                       pubinsert,
+                       pubupdate,
+                       pubdelete,
+                       false as pubtruncate
+                from pg_publication
+                order by 1
+            ''', True)
 
     def QueryPublicationTables(self, p_pub):
         return self.v_connection.Query('''
@@ -3167,8 +3713,10 @@ TABLE #schema_name#.table_name
 )
 --FOR VALUES IN ( { numeric_literal | string_literal | TRUE | FALSE | NULL } [, ...] )
 --FOR VALUES FROM ( { numeric_literal | string_literal | TRUE | FALSE | MINVALUE | MAXVALUE } [, ...] ) TO ( { numeric_literal | string_literal | TRUE | FALSE | MINVALUE | MAXVALUE } [, ...] )
+--FOR VALUES WITH ( MODULUS numeric_literal, REMAINDER numeric_literal )
+--DEFAULT
 --INHERITS ( parent_table [, ... ] )
---PARTITION BY { RANGE | LIST } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] )
+--PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] )
 --WITH ( storage_parameter [= value] [, ... ] )
 --WITH OIDS
 --WITHOUT OIDS
@@ -3433,10 +3981,13 @@ ON #table_name#
         return Template('ALTER TABLE #partition_name# NO INHERIT #table_name#')
 
     def TemplateCreatePartition(self):
-        return Template('''CREATE TABLE name PARTITION OF #table_name# FOR VALUES
+        return Template('''CREATE TABLE name PARTITION OF #table_name#
+--FOR VALUES
 --IN ( { numeric_literal | string_literal | NULL } [, ...] )
 --FROM ( { numeric_literal | string_literal | MINVALUE | MAXVALUE } [, ...] ) TO ( { numeric_literal | string_literal | MINVALUE | MAXVALUE } [, ...] )
---PARTITION BY { RANGE | LIST } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
+--WITH ( MODULUS numeric_literal, REMAINDER numeric_literal )
+--DEFAULT
+--PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] ) ]
 ''')
 
     def TemplateDetachPartition(self):
@@ -3469,18 +4020,33 @@ ON #table_name#
 --(column_name, [, ...])
 ''')
 
-    def TemplateSelect(self, p_schema, p_table):
-        v_sql = 'SELECT t.'
-        v_fields = self.QueryTablesFields(p_table, False, p_schema)
-        if len(v_fields.Rows) > 0:
-            v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
-        v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
-        v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
-        if len(v_pk.Rows) > 0:
-            v_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+    def TemplateSelect(self, p_schema, p_table, p_kind):
+        if p_kind == 't':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryTablesFields(p_table, False, p_schema)
             if len(v_fields.Rows) > 0:
-                v_sql += '\nORDER BY t.'
-                v_sql += '\n       , t.'.join([r['column_name'] for r in v_fields.Rows])
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+            v_pk = self.QueryTablesPrimaryKeys(p_table, False, p_schema)
+            if len(v_pk.Rows) > 0:
+                v_fields = self.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], p_table, False, p_schema)
+                if len(v_fields.Rows) > 0:
+                    v_sql += '\nORDER BY t.'
+                    v_sql += '\n       , t.'.join([r['column_name'] for r in v_fields.Rows])
+        elif p_kind == 'v':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryViewFields(p_table, False, p_schema)
+            if len(v_fields.Rows) > 0:
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+        elif p_kind == 'm':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryMaterializedViewFields(p_table, False, p_schema)
+            if len(v_fields.Rows) > 0:
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+        else:
+            v_sql = 'SELECT t.*\nFROM {0}.{1} t'.format(p_schema, p_table)
         return Template(v_sql)
 
     def TemplateInsert(self, p_schema, p_table):
@@ -3679,7 +4245,7 @@ WHERE condition
         return Template('''CREATE PUBLICATION name
 --FOR TABLE [ ONLY ] table_name [ * ] [, ...]
 --FOR ALL TABLES
---WITH ( publish = 'insert, update, delete' )
+--WITH ( publish = 'insert, update, delete, truncate' )
 ''')
 
     def TemplateAlterPublication(self):
@@ -3687,7 +4253,7 @@ WHERE condition
 --ADD TABLE [ ONLY ] table_name [ * ] [, ...]
 --SET TABLE [ ONLY ] table_name [ * ] [, ...]
 --DROP TABLE [ ONLY ] table_name [ * ] [, ...]
---SET ( publish = 'insert, update, delete' )
+--SET ( publish = 'insert, update, delete, truncate' )
 --OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
 --RENAME TO new_name
 ''')
@@ -3817,7 +4383,7 @@ INTO local_schema
         return Template('DROP USER MAPPING #user_name# SERVER #srvname#')
 
     def TemplateCreateForeignTable(self):
-        return Template('''CREATE FOREIGN TABLE table_name
+        return Template('''CREATE FOREIGN TABLE #schema_name#.table_name
 --PARTITION OF parent_table
 (
     column_name data_type
@@ -3900,664 +4466,6 @@ ADD COLUMN name data_type
 DROP COLUMN #column_name#
 --CASCADE
 ''')
-
-    def GetPglogicalVersion(self):
-        return self.v_connection.ExecuteScalar('''
-            select extversion
-            from pg_extension
-            where extname = 'pglogical'
-        ''')
-
-    def QueryPglogicalNodes(self):
-        return self.v_connection.Query('''
-            select quote_ident(n.node_name) || (case when l.node_id is not null then ' (local)' else '' end) as node_name
-            from pglogical.node n
-            left join pglogical.local_node l
-            on l.node_id = n.node_id
-            order by 1
-        ''')
-
-    def QueryPglogicalNodeInterfaces(self, p_node):
-        return self.v_connection.Query('''
-            select i.if_name,
-                   i.if_dsn
-            from pglogical.node_interface i
-            inner join pglogical.node n
-            on n.node_id = i.if_nodeid
-            where n.node_name = '{0}'
-        '''.format(p_node))
-
-    def QueryPglogicalReplicationSets(self):
-        return self.v_connection.Query('''
-            select quote_ident(set_name) as set_name,
-                   replicate_insert,
-                   replicate_update,
-                   replicate_delete,
-                   replicate_truncate
-            from pglogical.replication_set
-            order by 1
-        ''')
-
-    def QueryPglogicalReplicationSetTables(self, p_repset):
-        return self.v_connection.Query('''
-            select quote_ident(n.nspname) || '.' || quote_ident(c.relname) as table_name
-            from pglogical.replication_set_table t
-            inner join pglogical.replication_set r
-            on r.set_id = t.set_id
-            inner join pg_class c
-            on c.oid = t.set_reloid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            where quote_ident(r.set_name) = '{0}'
-            order by 1
-        '''.format(p_repset))
-
-    def QueryPglogicalReplicationSetSequences(self, p_repset):
-        return self.v_connection.Query('''
-            select quote_ident(n.nspname) || '.' || quote_ident(c.relname) as sequence_name
-            from pglogical.replication_set_seq t
-            inner join pglogical.replication_set r
-            on r.set_id = t.set_id
-            inner join pg_class c
-            on c.oid = t.set_seqoid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            where quote_ident(r.set_name) = '{0}'
-            order by 1
-        '''.format(p_repset))
-
-    def QueryPglogicalSubscriptions(self):
-        return self.v_connection.Query('''
-            select quote_ident(s.sub_name) as sub_name,
-                   (select status from pglogical.show_subscription_status(s.sub_name)) as sub_status,
-                   quote_ident(n.node_name) as sub_origin,
-                   s.sub_enabled,
-                   s.sub_apply_delay::text as sub_apply_delay
-            from pglogical.subscription s
-            inner join pglogical.node n
-            on n.node_id = s.sub_origin
-            order by 1
-        ''')
-
-    def QueryPglogicalSubscriptionReplicationSets(self, p_subscription):
-        return self.v_connection.Query('''
-            select quote_ident(unnest(s.sub_replication_sets)) as set_name
-            from pglogical.subscription s
-            inner join pglogical.node n
-            on n.node_id = s.sub_origin
-            where quote_ident(s.sub_name) = '{0}'
-        '''.format(p_subscription))
-
-    def TemplatePglogicalCreateNode(self):
-        return Template('''select pglogical.create_node(
-node_name := 'node_name',
-dsn := 'host={0} port={1} dbname={2} user={3} password=password'
-)
-'''.format(self.v_server, self.v_port, self.v_service, self.v_user))
-
-    def TemplatePglogicalDropNode(self):
-        return Template('''select pglogical.drop_node(
-node_name := '#node_name#',
-ifexists := true
-)''')
-
-    def TemplatePglogicalNodeAddInterface(self):
-        return Template('''select pglogical.alter_node_add_interface(
-node_name := '#node_name#',
-interface_name := 'name',
-dsn := 'host= port= dbname= user= password='
-)''')
-
-    def TemplatePglogicalNodeDropInterface(self):
-        return Template('''select pglogical.alter_node_drop_interface(
-node_name := '#node_name#',
-interface_name := '#interface_name#'
-)''')
-
-    def TemplatePglogicalCreateReplicationSet(self):
-        return Template('''select pglogical.create_replication_set(
-set_name := 'name',
-replicate_insert := true,
-replicate_update := true,
-replicate_delete := true,
-replicate_truncate := true
-)''')
-
-    def TemplatePglogicalAlterReplicationSet(self):
-        return Template('''select pglogical.alter_replication_set(
-set_name := '#repset_name#',
-replicate_insert := true,
-replicate_update := true,
-replicate_delete := true,
-replicate_truncate := true
-)''')
-
-    def TemplatePglogicalDropReplicationSet(self):
-        return Template('''select pglogical.drop_replication_set(
-set_name := '#repset_name#',
-ifexists := true
-)''')
-
-    def TemplatePglogicalReplicationSetAddTable(self):
-        return Template('''select pglogical.replication_set_add_table(
-set_name := '#repset_name#',
-relation := 'schema.table'::regclass,
-synchronize_data := true,
-columns := null,
-row_filter := null
-)''')
-
-    def TemplatePglogicalReplicationSetAddAllTables(self):
-        return Template('''select pglogical.replication_set_add_all_tables(
-set_name := '#repset_name#',
-schema_names := ARRAY['public'],
-synchronize_data := true
-)''')
-
-    def TemplatePglogicalReplicationSetRemoveTable(self):
-        return Template('''select pglogical.replication_set_remove_table(
-set_name := '#repset_name#',
-relation := '#table_name#'::regclass
-)''')
-
-    def TemplatePglogicalReplicationSetAddSequence(self):
-        return Template('''select pglogical.replication_set_add_sequence(
-set_name := '#repset_name#',
-relation := 'schema.sequence'::regclass,
-synchronize_data := true
-)''')
-
-    def TemplatePglogicalReplicationSetAddAllSequences(self):
-        return Template('''select pglogical.replication_set_add_all_sequences(
-set_name := '#repset_name#',
-schema_names := ARRAY['public'],
-synchronize_data := true
-)''')
-
-    def TemplatePglogicalReplicationSetRemoveSequence(self):
-        return Template('''select pglogical.replication_set_remove_sequence(
-set_name := '#repset_name#',
-relation := '#sequence_name#'::regclass
-)''')
-
-    def TemplatePglogicalCreateSubscription(self):
-        return Template('''select pglogical.create_subscription(
-subscription_name := 'sub_name',
-provider_dsn := 'host= port= dbname= user= password=',
-replication_sets := array['default','default_insert_only','ddl_sql'],
-synchronize_structure := true,
-synchronize_data := true,
-forward_origins := array['all'],
-apply_delay := '0 seconds'::interval
-)''')
-
-    def TemplatePglogicalEnableSubscription(self):
-        return Template('''select pglogical.alter_subscription_enable(
-subscription_name := '#sub_name#',
-immediate := true
-)''')
-
-    def TemplatePglogicalDisableSubscription(self):
-        return Template('''select pglogical.alter_subscription_disable(
-subscription_name := '#sub_name#',
-immediate := true
-)''')
-
-    def TemplatePglogicalSynchronizeSubscription(self):
-        return Template('''select pglogical.alter_subscription_synchronize(
-subscription_name := '#sub_name#',
-truncate := true
-)''')
-
-    def TemplatePglogicalDropSubscription(self):
-        return Template('''select pglogical.drop_subscription(
-subscription_name := '#sub_name#',
-ifexists := true
-)''')
-
-    def TemplatePglogicalSubscriptionAddReplicationSet(self):
-        return Template('''select pglogical.alter_subscription_add_replication_set(
-subscription_name := '#sub_name#',
-replication_set := 'set_name'
-)''')
-
-    def TemplatePglogicalSubscriptionRemoveReplicationSet(self):
-        return Template('''select pglogical.alter_subscription_remove_replication_set(
-subscription_name := '#sub_name#',
-replication_set := '#set_name#'
-)''')
-
-    def GetBDRVersion(self):
-        return self.v_connection.ExecuteScalar('''
-            select extversion
-            from pg_extension
-            where extname = 'bdr'
-        ''')
-
-    def GetBDRNodeName(self):
-        return self.v_connection.ExecuteScalar('select bdr.bdr_get_local_node_name()')
-
-    def QueryBDRProperties(self):
-        try:
-            v_tmp = self.v_connection.ExecuteScalar('select bdr.bdr_is_active_in_db()')
-            v_test = True
-        except Spartacus.Database.Exception as exc:
-            v_test = False
-        if v_test:
-            return self.v_connection.Query('''
-                select bdr.bdr_version() as version,
-                       bdr.bdr_is_active_in_db() as active,
-                       coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
-                       bdr.bdr_apply_is_paused() as paused,
-                       null as node_state
-            ''')
-        else:
-            return self.v_connection.Query('''
-                select bdr.bdr_version() as version,
-                       (coalesce(bdr.bdr_get_local_node_name(), 'Not set') != 'Not set') as active,
-                       coalesce(bdr.bdr_get_local_node_name(), 'Not set') as node_name,
-                       bdr.bdr_apply_is_paused() as paused,
-                       null as node_state
-            ''')
-
-    def QueryBDRNodes(self):
-        return self.v_connection.Query('''
-            select quote_ident(node_name) as node_name,
-                   bdr.bdr_get_local_node_name() = node_name as node_is_local
-            from bdr.bdr_nodes
-            where node_status <> 'k'
-            order by 1
-        ''')
-
-    def QueryBDRReplicationSets(self):
-        return self.v_connection.Query('''
-            select quote_ident(set_name) as set_name,
-                   replicate_inserts,
-                   replicate_updates,
-                   replicate_deletes
-            from bdr.bdr_replication_set_config
-            order by 1
-        ''')
-
-    def QueryBDRTableReplicationSets(self, p_table):
-        return self.v_connection.Query("select unnest(bdr.table_get_replication_sets('{0}')) as set_name".format(p_table))
-
-    def QueryBDRTableConflictHandlers(self, p_table, p_schema):
-        return self.v_connection.Query('''
-            select quote_ident(t.ch_name) as ch_name,
-                   t.ch_type::text as ch_type,
-                   t.ch_fun::text as ch_fun
-            from bdr.bdr_conflict_handlers t
-            inner join pg_class c
-            on c.oid = t.ch_reloid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            where n.nspname = '{0}'
-              and c.relname = '{1}'
-        '''.format(p_schema, p_table))
-
-    def TemplateBDRCreateGroup(self):
-        return Template('''select bdr.bdr_group_create(
-local_node_name := 'node_name'
-, node_external_dsn := 'host={0} port={1} dbname={2}'
-, node_local_dsn := 'dbname={2}'
---, apply_delay := NULL
---, replication_sets := ARRAY['default']
-)
-'''.format(self.v_server, self.v_port, self.v_service))
-
-    def TemplateBDRJoinGroup(self):
-        return Template('''select bdr.bdr_group_join(
-local_node_name := 'node_name'
-, node_external_dsn := 'host={0} port={1} dbname={2}'
-, join_using_dsn := 'host= port= dbname='
-, node_local_dsn := 'dbname={2}'
---, apply_delay := NULL
---, replication_sets := ARRAY['default']
-)
-'''.format(self.v_server, self.v_port, self.v_service))
-
-    def TemplateBDRJoinWait(self):
-        return Template('select bdr.bdr_node_join_wait_for_ready()')
-
-    def TemplateBDRPause(self):
-        return Template('select bdr.bdr_apply_pause()')
-
-    def TemplateBDRResume(self):
-        return Template('select bdr.bdr_apply_resume()')
-
-    def TemplateBDRReplicateDDLCommand(self):
-        return Template("select bdr.bdr_replicate_ddl_command('DDL command here...')")
-
-    def TemplateBDRPartNode(self):
-        return Template("select bdr.bdr_part_by_node_names('{#node_name#}')")
-
-    def TemplateBDRInsertReplicationSet(self):
-        return Template('''INSERT INTO bdr.bdr_replication_set_config (set_name, replicate_inserts, replicate_updates, replicate_deletes)
-VALUES ('set_name', 't', 't', 't')
-''')
-
-    def TemplateBDRUpdateReplicationSet(self):
-        return Template('''UPDATE bdr.bdr_replication_set_config SET
---replicate_inserts = { 't' | 'f' }
---, replicate_updates = { 't' | 'f' }
---, replicate_deletes = { 't' | 'f' }
-WHERE set_name = '#set_name#'
-''')
-
-    def TemplateBDRDeleteReplicationSet(self):
-        return Template('''DELETE
-FROM bdr.bdr_replication_set_config
-WHERE set_name = '#set_name#'
-''')
-
-    def TemplateBDRSetTableReplicationSets(self):
-        return Template("select bdr.table_set_replication_sets('#table_name#', '{repset1,repset2,...}')")
-
-    def TemplateBDRCreateConflictHandler(self):
-        return Template('''CREATE OR REPLACE FUNCTION #table_name#_fnc_conflict_handler (
-  row1 #table_name#,
-  row2 #table_name#,
-  table_name text,
-  table_regclass regclass,
-  conflict_type bdr.bdr_conflict_type, /* [insert_insert | insert_update | update_update | update_delete | delete_delete | unhandled_tx_abort] */
-  OUT row_out #table_name#,
-  OUT handler_action bdr.bdr_conflict_handler_action) /* [IGNORE | ROW | SKIP] */
-  RETURNS record AS
-$BODY$
-BEGIN
-  raise warning 'conflict detected for #table_name#, old_row: %, incoming_row: %', row1, row2;
-  -- sample code to choose the output row or to merge values
-  row_out := row1;
-  handler_action := 'ROW';
-END;
-$BODY$
-LANGUAGE plpgsql;
-
--- after writing the handler procedure we also need to register it as an handler
-select *
-from bdr.bdr_create_conflict_handler(
-  ch_rel := '#table_name#',
-  ch_name := '#table_name#_conflict_handler',
-  ch_proc := '#table_name#_fnc_conflict_handler(#table_name#, #table_name#, text, regclass, bdr.bdr_conflict_type)',
-  ch_type := 'insert_insert' /* [insert_insert | insert_update | update_update | update_delete | delete_delete | unhandled_tx_abort] */
-)
-''')
-
-    def TemplateBDRDropConflictHandler(self):
-        return Template("select bdr.bdr_drop_conflict_handler('#table_name#', '#ch_name#')")
-
-    # only in BDR >= 1
-    def TemplateBDRTerminateApplyWorkers(self):
-        return Template("select bdr.terminate_apply_workers('{#node_name#}')")
-
-    # only in BDR >= 1
-    def TemplateBDRTerminateWalsenderWorkers(self):
-        return Template("select bdr.terminate_walsender_workers('{#node_name#}')")
-
-    # only in BDR >= 1
-    def TemplateBDRRemove(self):
-        return Template('''select bdr.remove_bdr_from_local_node(
-force := False
-, convert_global_sequences := True
-)
-''')
-
-    def QueryXLNodes(self):
-        return self.v_connection.Query('''
-            select quote_ident(node_name) as node_name,
-                   (case node_type
-                      when 'C' then 'coordinator'
-                      when 'D' then 'datanode'
-                    end) as node_type,
-                   node_host,
-                   node_port,
-                   nodeis_primary,
-                   nodeis_preferred
-            from pgxc_node
-            order by 1
-        ''')
-
-    def QueryXLGroups(self):
-        return self.v_connection.Query('''
-            select quote_ident(group_name) as group_name
-            from pgxc_group
-            order by 1
-        ''')
-
-    def QueryXLGroupNodes(self, p_group):
-        return self.v_connection.Query('''
-            select quote_ident(n.node_name) as node_name
-            from (
-            select unnest(group_members) as group_member
-            from pgxc_group
-            where group_name = '{0}'
-            ) g
-            inner join pgxc_node n
-            on n.oid = g.group_member
-            order by 1
-        '''.format(p_group))
-
-    def QueryTablesXLProperties(self, p_table=None, p_all_schemas=False, p_schema=None):
-        v_filter = ''
-        if not p_all_schemas:
-            if p_table and p_schema:
-                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
-            elif p_table:
-                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
-            elif p_schema:
-                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
-            else:
-                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
-        else:
-            if p_table:
-                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
-            else:
-                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select quote_ident(n.nspname) as schema_name,
-                   quote_ident(c.relname) as table_name,
-                   (case x.pclocatortype
-                      when 'R' then 'replication'
-                      when 'N' then 'roundrobin'
-                      when 'H' then 'hash (' || a.attname || ')'
-                      when 'M' then 'modulo (' || a.attname || ')'
-                    end) as distributed_by,
-                   (t.num_nodes = d.num_nodes) as all_nodes
-            from pgxc_class x
-            inner join pg_class c
-            on c.oid = x.pcrelid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            left join pg_attribute a
-            on a.attrelid = c.oid
-            and a.attnum = x.pcattnum
-            inner join (
-            select t.pcrelid,
-                   count(*) as num_nodes
-            from (
-            select pcrelid,
-                   unnest(nodeoids) as nodeoid
-            from pgxc_class
-            ) t
-            group by t.pcrelid
-            ) t
-            on t.pcrelid = c.oid
-            inner join (
-            select count(*) as num_nodes
-            from pgxc_node
-            where node_type = 'D'
-            ) d
-            on 1=1
-            where 1=1
-            {0}
-        '''.format(v_filter), True)
-
-    def QueryTablesXLNodes(self, p_table=None, p_all_schemas=False, p_schema=None):
-        v_filter = ''
-        if not p_all_schemas:
-            if p_table and p_schema:
-                v_filter = "and quote_ident(t.schema_name) = '{0}' and quote_ident(t.table_name) = '{1}' ".format(p_schema, p_table)
-            elif p_table:
-                v_filter = "and quote_ident(t.schema_name) = '{0}' and quote_ident(t.table_name) = '{1}' ".format(self.v_schema, p_table)
-            elif p_schema:
-                v_filter = "and quote_ident(t.schema_name) = '{0}' ".format(p_schema)
-            else:
-                v_filter = "and quote_ident(t.schema_name) = '{0}' ".format(self.v_schema)
-        else:
-            if p_table:
-                v_filter = "and quote_ident(t.schema_name) not in ('information_schema','pg_catalog') and quote_ident(t.table_name) = {0}".format(p_table)
-            else:
-                v_filter = "and quote_ident(t.schema_name) not in ('information_schema','pg_catalog') "
-        return self.v_connection.Query('''
-            select quote_ident(t.schema_name) as schema_name,
-                   quote_ident(t.table_name) as table_name,
-                   quote_ident(n.node_name) as node_name
-            from (
-            select n.nspname as schema_name,
-                   c.relname as table_name,
-                   unnest(nodeoids) as nodeoid
-            from pgxc_class x
-            inner join pg_class c
-            on c.oid = x.pcrelid
-            inner join pg_namespace n
-            on n.oid = c.relnamespace
-            ) t
-            inner join pgxc_node n
-            on n.oid = t.nodeoid
-            where 1=1
-            {0}
-            order by 1, 2, 3
-        '''.format(v_filter), True)
-
-    def TemplateXLPauseCluster(self):
-        return Template('PAUSE CLUSTER')
-
-    def TemplateXLUnpauseCluster(self):
-        return Template('UNPAUSE CLUSTER')
-
-    def TemplateXLCleanConnection(self):
-        return Template('''CLEAN CONNECTION TO
---COORDINATOR ( nodename [, ... ] )
---NODE ( nodename [, ... ] )
---ALL
---ALL FORCE
---FOR DATABASE database_name
---TO USER role_name
-''')
-
-    def TemplateXLCreateGroup(self):
-        if 'XL' in self.v_version:
-            v_text = '''-- This command needs to be executed in all nodes.
--- Please adjust the parameters in all commands below.
-
-'''
-            v_table = self.QueryXLNodes()
-            for r in v_table.Rows:
-                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE GROUP name WITH ( nodename [, ... ] )'
-
-'''.format(r['node_name'])
-        else:
-            v_text = ''
-        return Template(v_text)
-
-    def TemplateXLDropGroup(self):
-        if 'XL' in self.v_version:
-            v_text = '''-- This command needs to be executed in all nodes.
-
-'''
-            v_table = self.QueryXLNodes()
-            for r in v_table.Rows:
-                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE GROUP #group_name#'
-
-'''.format(r['node_name'])
-        else:
-            v_text = ''
-        return Template(v_text)
-
-    def TemplateXLCreateNode(self):
-        if 'XL' in self.v_version:
-            v_text = '''-- This command needs to be executed in all nodes.
--- Please adjust the parameters in all commands below.
-
-'''
-            v_table = self.QueryXLNodes()
-            for r in v_table.Rows:
-                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'CREATE NODE name WITH (
-TYPE = {{ coordinator | datanode }},
-HOST = hostname,
-PORT = portnum
---, PRIMARY
---, PREFERRED
-)'
-
-'''.format(r['node_name'])
-        else:
-            v_text = ''
-        return Template(v_text)
-
-    def TemplateXLAlterNode(self):
-        if 'XL' in self.v_version:
-            v_text = '''-- This command needs to be executed in all nodes.
--- Please adjust the parameters in all commands below.
-
-'''
-            v_table = self.QueryXLNodes()
-            for r in v_table.Rows:
-                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'ALTER NODE #node_name# WITH (
-TYPE = {{ coordinator | datanode }},
-HOST = hostname,
-PORT = portnum
---, PRIMARY
---, PREFERRED
-)'
-
-'''.format(r['node_name'])
-        else:
-            v_text = ''
-        return Template(v_text)
-
-    def TemplateXLExecuteDirect(self):
-        return Template('''EXECUTE DIRECT ON (#node_name#)
-'SELECT ...'
-''')
-
-    def TemplateXLPoolReload(self):
-        return Template('EXECUTE DIRECT ON (#node_name#) \'SELECT pgxc_pool_reload()\'')
-
-    def TemplateXLDropNode(self):
-        if 'XL' in self.v_version:
-            v_text = '''-- This command needs to be executed in all nodes.
-
-'''
-            v_table = self.QueryXLNodes()
-            for r in v_table.Rows:
-                v_text = v_text + '''EXECUTE DIRECT ON ({0}) 'DROP NODE #node_name#'
-
-'''.format(r['node_name'])
-        else:
-            v_text = ''
-        return Template(v_text)
-
-    def TemplateXLAlterTableDistribution(self):
-        return Template('''ALTER TABLE #table_name# DISTRIBUTE BY
---REPLICATION
---ROUNDROBIN
---HASH ( column_name )
---MODULO ( column_name )
-''')
-
-    def TemplateXLAlterTableLocation(self):
-        return Template('''ALTER TABLE #table_name#
-TO NODE ( nodename [, ... ] )
---TO GROUP ( groupname [, ... ] )
-''')
-
-    def TemplateXLALterTableAddNode(self):
-        return Template('ALTER TABLE #table_name# ADD NODE (node_name)')
-
-    def TemplateXLAlterTableDeleteNode(self):
-        return Template('ALTER TABLE #table_name# DELETE NODE (#node_name#)')
 
     def GetPropertiesRole(self, p_object):
         return self.v_connection.Query('''
@@ -5785,56 +5693,62 @@ TO NODE ( nodename [, ... ] )
         '''.format(p_object))
 
     def GetProperties(self, p_schema, p_table, p_object, p_type):
-        if p_type == 'role':
-            return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
-        elif p_type == 'tablespace':
-            return self.GetPropertiesTablespace(p_object).Transpose('Property', 'Value')
-        elif p_type == 'database':
-            return self.GetPropertiesDatabase(p_object).Transpose('Property', 'Value')
-        elif p_type == 'extension':
-            return self.GetPropertiesExtension(p_object).Transpose('Property', 'Value')
-        elif p_type == 'schema':
-            return self.GetPropertiesSchema(p_object).Transpose('Property', 'Value')
-        elif p_type == 'table':
-            return self.GetPropertiesTable(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'index':
-            return self.GetPropertiesIndex(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'sequence':
-            return self.GetPropertiesSequence(p_schema, p_object)
-        elif p_type == 'view':
-            return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'mview':
-            return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'function':
-            return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
-        elif p_type == 'procedure':
-            return self.GetPropertiesProcedure(p_object).Transpose('Property', 'Value')
-        elif p_type == 'trigger':
-            return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'triggerfunction':
-            return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
-        elif p_type == 'pk':
-            return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'foreign_key':
-            return self.GetPropertiesFK(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'unique':
-            return self.GetPropertiesUnique(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'check':
-            return self.GetPropertiesCheck(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'exclude':
-            return self.GetPropertiesExclude(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'rule':
-            return self.GetPropertiesRule(p_schema, p_table, p_object).Transpose('Property', 'Value')
-        elif p_type == 'foreign_table':
-            return self.GetPropertiesForeignTable(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'user_mapping':
-            return self.GetPropertiesUserMapping(p_schema, p_object).Transpose('Property', 'Value')
-        elif p_type == 'foreign_server':
-            return self.GetPropertiesForeignServer(p_object).Transpose('Property', 'Value')
-        elif p_type == 'fdw':
-            return self.GetPropertiesForeignDataWrapper(p_object).Transpose('Property', 'Value')
-        else:
-            return None
+        try:
+            if p_type == 'role':
+                return self.GetPropertiesRole(p_object).Transpose('Property', 'Value')
+            elif p_type == 'tablespace':
+                return self.GetPropertiesTablespace(p_object).Transpose('Property', 'Value')
+            elif p_type == 'database':
+                return self.GetPropertiesDatabase(p_object).Transpose('Property', 'Value')
+            elif p_type == 'extension':
+                return self.GetPropertiesExtension(p_object).Transpose('Property', 'Value')
+            elif p_type == 'schema':
+                return self.GetPropertiesSchema(p_object).Transpose('Property', 'Value')
+            elif p_type == 'table':
+                return self.GetPropertiesTable(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'index':
+                return self.GetPropertiesIndex(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'sequence':
+                return self.GetPropertiesSequence(p_schema, p_object)
+            elif p_type == 'view':
+                return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'mview':
+                return self.GetPropertiesView(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'function':
+                return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+            elif p_type == 'procedure':
+                return self.GetPropertiesProcedure(p_object).Transpose('Property', 'Value')
+            elif p_type == 'trigger':
+                return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'triggerfunction':
+                return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+            elif p_type == 'pk':
+                return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'foreign_key':
+                return self.GetPropertiesFK(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'unique':
+                return self.GetPropertiesUnique(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'check':
+                return self.GetPropertiesCheck(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'exclude':
+                return self.GetPropertiesExclude(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'rule':
+                return self.GetPropertiesRule(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'foreign_table':
+                return self.GetPropertiesForeignTable(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'user_mapping':
+                return self.GetPropertiesUserMapping(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'foreign_server':
+                return self.GetPropertiesForeignServer(p_object).Transpose('Property', 'Value')
+            elif p_type == 'fdw':
+                return self.GetPropertiesForeignDataWrapper(p_object).Transpose('Property', 'Value')
+            else:
+                return None
+        except Spartacus.Database.Exception as exc:
+            if str(exc) == 'Can only transpose a table with a single row.':
+                raise Exception('Object {0} does not exist anymore. Please refresh the tree view.'.format(p_object))
+            else:
+                raise exc
 
     def GetDDLRole(self, p_object):
         return self.v_connection.ExecuteScalar('''
@@ -5895,9 +5809,9 @@ TO NODE ( nodename [, ... ] )
     def GetDDLTablespace(self, p_object):
         return self.v_connection.ExecuteScalar('''
             select format(E'CREATE TABLESPACE %s\nLOCATION %s\nOWNER %s;',
-                         t.spcname,
+                         quote_ident(t.spcname),
                          chr(39) || pg_tablespace_location(t.oid) || chr(39),
-                         r.rolname)
+                         quote_ident(r.rolname))
             from pg_tablespace t
             inner join pg_roles r
             on r.oid = t.spcowner
@@ -5907,9 +5821,9 @@ TO NODE ( nodename [, ... ] )
     def GetDDLDatabase(self, p_object):
         return self.v_connection.ExecuteScalar('''
             select format(E'CREATE DATABASE %s\nOWNER %s\nTABLESPACE %s;',
-                          d.datname,
-                          r.rolname,
-                          t.spcname)
+                          quote_ident(d.datname),
+                          quote_ident(r.rolname),
+                          quote_ident(t.spcname))
             from pg_database d
             inner join pg_roles r
             on r.oid = d.datdba
@@ -6480,7 +6394,7 @@ TO NODE ( nodename [, ... ] )
                         c.relname AS class_name,
                         format('%s.%I',text(c.oid::regclass),a.attname) AS sql_identifier,
                         c.oid,
-                        format('%I %s%s%s',
+                        format('%I %s%s%s%s',
                         	a.attname::text,
                         	format_type(t.oid, a.atttypmod),
                 	        CASE
@@ -6491,7 +6405,12 @@ TO NODE ( nodename [, ... ] )
                         	CASE
                               WHEN a.attnotnull THEN ' NOT NULL'::text
                               ELSE ''::text
-                        	END)
+                        	END,
+                            CASE
+                              WHEN a.attidentity = 'a' THEN ' GENERATED ALWAYS AS IDENTITY'::text
+                              WHEN a.attidentity = 'd' THEN ' GENERATED BY DEFAULT AS IDENTITY'::text
+                              ELSE ''::text
+                            END)
                         AS definition
                    FROM pg_class c
                    JOIN pg_namespace s ON s.oid = c.relnamespace
@@ -6644,7 +6563,7 @@ TO NODE ( nodename [, ... ] )
                         when 't' then 'TEMPORARY '
                         else ''
                       end
-                      || obj.kind || ' ' || obj.sql_identifier
+                      || case obj.kind when 'PARTITIONED TABLE' then 'TABLE' else obj.kind end || ' ' || obj.sql_identifier
                       || case obj.kind when 'TYPE' then ' AS' else '' end
                       || case when c.relispartition
                       then
@@ -6791,6 +6710,9 @@ TO NODE ( nodename [, ... ] )
                     select
                        case
                          when obj.kind = 'INDEX' then ''
+                         when obj.kind = 'PARTITIONED TABLE'
+                         then 'ALTER TABLE '||sql_identifier||
+                              ' OWNER TO '||quote_ident(owner)||E';\n\n'
                          else 'ALTER '||sql_kind||' '||sql_identifier||
                               ' OWNER TO '||quote_ident(owner)||E';\n\n'
                        end as text
@@ -7129,7 +7051,7 @@ TO NODE ( nodename [, ... ] )
         if p_object == 'PUBLIC':
             return self.v_connection.ExecuteScalar('''
                 select format(E'CREATE USER MAPPING FOR PUBLIC\n  SERVER %s\n  OPTIONS ( %s );\n',
-                         s.srvname,
+                         quote_ident(s.srvname),
                          (select array_to_string(array(
                           select format('%s %s', a[1], quote_literal(a[2]))
                           from (
@@ -7138,20 +7060,20 @@ TO NODE ( nodename [, ... ] )
                           inner join pg_foreign_server s
                           on s.oid = u.umserver
                           where u.umuser = 0
-                            and s.srvname = '{0}'
+                            and quote_ident(s.srvname) = '{0}'
                           ) x
                           ), ', ')))
                 from pg_user_mapping u
                 inner join pg_foreign_server s
                 on s.oid = u.umserver
                 where u.umuser = 0
-                  and s.srvname = '{0}'
+                  and quote_ident(s.srvname) = '{0}'
             '''.format(p_server))
         else:
             return self.v_connection.ExecuteScalar('''
                 select format(E'CREATE USER MAPPING FOR %s\n  SERVER %s\n  OPTIONS ( %s );\n',
-                         r.rolname,
-                         s.srvname,
+                         quote_ident(r.rolname),
+                         quote_ident(s.srvname),
                          (select array_to_string(array(
                           select format('%s %s', a[1], quote_literal(a[2]))
                           from (
@@ -7161,8 +7083,8 @@ TO NODE ( nodename [, ... ] )
                           on s.oid = u.umserver
                           inner join pg_roles r
                           on r.oid = u.umuser
-                          where s.srvname = '{0}'
-                            and r.rolname = '{1}'
+                          where quote_ident(s.srvname) = '{0}'
+                            and quote_ident(r.rolname) = '{1}'
                           ) x
                           ), ', ')))
                 from pg_user_mapping u
@@ -7170,8 +7092,8 @@ TO NODE ( nodename [, ... ] )
                 on s.oid = u.umserver
                 inner join pg_roles r
                 on r.oid = u.umuser
-                where s.srvname = '{0}'
-                  and r.rolname = '{1}'
+                where quote_ident(s.srvname) = '{0}'
+                  and quote_ident(r.rolname) = '{1}'
             '''.format(p_server, p_object))
 
     def GetDDLForeignServer(self, p_object):
@@ -7235,7 +7157,7 @@ TO NODE ( nodename [, ... ] )
                 WHERE g.grantee <> r.rolname
             )
             select format(E'CREATE SERVER %s%s%s\n  FOREIGN DATA WRAPPER %s%s;\n\nALTER SERVER %s OWNER TO %s;\n\n%s',
-                     s.srvname,
+                     quote_ident(s.srvname),
                      (case when s.srvtype is not null
                            then format(E'\n  TYPE %s\n', quote_literal(s.srvtype))
                            else ''
@@ -7254,7 +7176,7 @@ TO NODE ( nodename [, ... ] )
                                  on w.oid = s.srvfdw
                                  inner join pg_roles r
                                  on r.oid = s.srvowner
-                                 where s.srvname = '{0}'
+                                 where quote_ident(s.srvname) = '{0}'
                                  ) x
                                  ), ', ')) != ''
                            then format('\n  OPTIONS ( %s )',
@@ -7267,13 +7189,13 @@ TO NODE ( nodename [, ... ] )
                                  on w.oid = s.srvfdw
                                  inner join pg_roles r
                                  on r.oid = s.srvowner
-                                 where s.srvname = '{0}'
+                                 where quote_ident(s.srvname) = '{0}'
                                  ) x
                                  ), ', ')))
                            else ''
                       end),
-                     s.srvname,
-                     r.rolname,
+                     quote_ident(s.srvname),
+                     quote_ident(r.rolname),
                      g.text
                    )
             from pg_foreign_server s
@@ -7379,7 +7301,7 @@ TO NODE ( nodename [, ... ] )
                            else ''
                       end),
                      w.fdwname,
-                     r.rolname,
+                     quote_ident(r.rolname),
                      g.text
                    )
             from pg_foreign_data_wrapper w
@@ -7444,3 +7366,125 @@ TO NODE ( nodename [, ... ] )
             return self.GetDDLForeignDataWrapper(p_object)
         else:
             return ''
+
+
+    def GetAutocompleteValues(self, p_columns, p_filter):
+        return self.v_connection.Query('''
+            select {0}
+            from (
+            select 'database' as type,
+                   0 as sequence,
+                   0 as num_dots,
+                   quote_ident(datname) as result,
+                   quote_ident(datname) as result_complete,
+                   quote_ident(datname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_database
+
+            UNION ALL
+
+            select 'tablespace' as type,
+                   2 as sequence,
+                   0 as num_dots,
+                   quote_ident(spcname) as result,
+                   quote_ident(spcname) as result_complete,
+                   quote_ident(spcname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_tablespace
+
+            UNION ALL
+
+            select 'role' as type,
+                   1 as sequence,
+                   0 as num_dots,
+                   quote_ident(rolname) as result,
+                   quote_ident(rolname) as result_complete,
+                   quote_ident(rolname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_roles
+
+            UNION ALL
+
+            select 'extension' as type,
+                   4 as sequence,
+                   0 as num_dots,
+                   quote_ident(extname) as result,
+                   quote_ident(extname) as result_complete,
+                   quote_ident(extname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_extension
+
+            UNION ALL
+
+            select 'schema' as type,
+                   3 as sequence,
+                   0 as num_dots,
+                   quote_ident(nspname) as result,
+                   quote_ident(nspname) as result_complete,
+                   quote_ident(nspname) as select_value,
+                   '' as complement,
+                   '' as complement_complete
+            from pg_catalog.pg_namespace
+            where nspname not in ('pg_toast') and nspname not like 'pg%%temp%%'
+
+            UNION ALL
+
+            select 'table' as type,
+                   5 as sequence,
+                   1 as num_dots,
+                   quote_ident(c.relname) as result,
+                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) as result_complete,
+                   quote_ident(n.nspname) || '.' || quote_ident(c.relname) as select_value,
+                   quote_ident(n.nspname) as complement,
+
+                   '' as complement_complete
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where c.relkind in ('r', 'p')
+
+            UNION ALL
+
+            select 'view' as type,
+                   6 as sequence,
+                   1 as num_dots,
+                   quote_ident(table_name) as result,
+                   quote_ident(table_schema) || '.' || quote_ident(table_name) as result_complete,
+                   quote_ident(table_schema) || '.' || quote_ident(table_name) as select_value,
+                   quote_ident(table_schema) as complement,
+                   '' as complement_complete
+            from information_schema.views
+
+            UNION ALL
+
+            select 'function' as type,
+                   8 as sequence,
+                   1 as num_dots,
+                   quote_ident(p.proname) as result,
+                   quote_ident(n.nspname) || '.' || quote_ident(p.proname) as result_complete,
+                   quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' as select_value,
+                   quote_ident(n.nspname) as complement,
+                   '' as complement_complete
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            where format_type(p.prorettype, null) <> 'trigger'
+
+            UNION ALL
+
+            select 'index' as type,
+                   9 as sequence,
+                   1 as num_dots,
+                   quote_ident(i.indexname) as result,
+                   quote_ident(i.schemaname) || '.' || quote_ident(i.indexname) as result_complete,
+                   quote_ident(i.schemaname) || '.' || quote_ident(i.indexname) as select_value,
+                   quote_ident(i.schemaname) || '.' || quote_ident(i.tablename) as complement,
+                   quote_ident(i.tablename) as complement_complete
+            from pg_indexes i) search
+            {1}
+            order by sequence,result_complete
+        '''.format(p_columns,p_filter), True)

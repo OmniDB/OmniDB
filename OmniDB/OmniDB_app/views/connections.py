@@ -118,12 +118,12 @@ def get_connections(request):
         }
 
         if v_connection.v_conn_id in v_tab_conn_id_list:
-            v_connection_data_list.append('''<img title="Connection Locked" src='/static/OmniDB_app/images/lock.png' class='img_ht' onclick='showConnectionLocked()'/>''')
+            v_connection_data_list.append('''<i title="Connection Locked" class='fas fa-lock action-grid action-locked' onclick='showConnectionLocked()'></i>''')
             v_conn_object['locked'] = True
         else:
-            v_connection_data_list.append('''<img title="Remove Connection" src='/static/OmniDB_app/images/tab_close.png' class='img_ht' onclick='dropConnection()'/>
-            <img title="Test Connection" src='/static/OmniDB_app/images/test.png' class='img_ht' onclick='testConnection({0})'/>
-            <img title="Select Connection" src='/static/OmniDB_app/images/select.png' class='img_ht' onclick='selectConnection({0})'/>'''.format(v_connection.v_conn_id))
+            v_connection_data_list.append('''<i title="Remove Connection" class='fas fa-times action-grid action-close' onclick='dropConnection()'></i>
+            <i title="Test Connection" class='fas fa-plug action-grid action-test' onclick='testConnection({0})''></i>
+            <i title="Select Connection" class='fas fa-check-circle action-grid action-check' onclick='selectConnection({0})''></i>'''.format(v_connection.v_conn_id))
 
         v_conn_id_list.append(v_conn_object)
 

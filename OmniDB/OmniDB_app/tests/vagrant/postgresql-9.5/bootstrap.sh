@@ -86,7 +86,7 @@ echo "max_replication_slots = 10" >> "$PG_CONF"
 echo "wal_level = logical" >> "$PG_CONF"
 
 # Restart so that all new config is loaded:
-service postgresql restart
+systemctl restart postgresql
 
 cat << EOF | su - postgres -c psql
 -- Create the database user:

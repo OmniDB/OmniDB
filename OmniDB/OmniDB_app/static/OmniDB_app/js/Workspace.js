@@ -82,6 +82,18 @@ $(function () {
 	  e.preventDefault();
 	},false);
 
+	window.addEventListener("focus", function(event)
+	{
+		if (v_connTabControl.selectedTab.tag.mode=='connection') {
+			if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query')
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.focus();
+			else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='console')
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor_input.focus();
+			else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.focus();
+		}
+	}, false);
+
 /*
 	//WebSockets
 	startChatWebSocket(2011, v_enable_omnichat);
@@ -126,7 +138,7 @@ function getDatabaseList(p_init, p_callback) {
 							}
 
 							v_current_parent = p_return.v_data.v_existing_tabs[i].index;
-							v_connTabControl.tag.createQueryTab('Query',p_return.v_data.v_existing_tabs[i].tab_db_id);
+							v_connTabControl.tag.createQueryTab(p_return.v_data.v_existing_tabs[i].title,p_return.v_data.v_existing_tabs[i].tab_db_id);
 					    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(
 					        p_return.v_data.v_existing_tabs[i].snippet);
 							v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
@@ -138,23 +150,13 @@ function getDatabaseList(p_init, p_callback) {
 
 					}
 					else {
-						var qtip = $('#menu_connections').qtip({
-				        content: {
-				            text: 'Create your first connection!'
-				        },
-				        position: {
-				            my: 'top left',
-				            at: 'bottom right'
-				        },
-				        style: {
-				            classes: 'qtip-bootstrap'
-				        },
-				        show: {
-				            ready: true
-				        }
-				    })
+						var v_instance = new Tooltip($('#menu_connections'),{
+					    title: 'Create your first connection!',
+					    placement: "bottom",
+					  });
+						v_instance.show();
 				    window.setTimeout(function() {
-				        qtip.qtip('api').destroy();
+				        v_instance.dispose();
 				    }, 4000);
 					}
 
@@ -346,13 +348,13 @@ function refreshTreeHeight() {
 	var v_tag = v_connTabControl.selectedTab.tag;
 
 	if (v_tag.currTreeTab=='properties') {
-		var v_height  = window.innerHeight - $(v_tag.divProperties).offset().top - 21;
+		var v_height  = window.innerHeight - $(v_tag.divProperties).offset().top - 8;
 		v_tag.divProperties.style.height = v_height + "px";
 		v_tag.gridProperties.render();
 		v_tag.gridProperties.render();
 	}
 	else if (v_tag.currTreeTab=='ddl') {
-		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 21;
+		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 8;
 		v_tag.divDDL.style.height = v_height + "px";
 		v_tag.ddlEditor.resize();
 	}
@@ -392,45 +394,46 @@ function refreshHeights(p_all) {
 		}
 		else if (v_tab_tag.mode=='query') {
 			if (v_tab_tag.currQueryTab=='data') {
-				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
 				if (v_tab_tag.ht!=null)
 					v_tab_tag.ht.render();
 				if(v_tab_tag.editor != null)
 						v_tab_tag.editor.resize();
 			}
 			else if (v_tab_tag.currQueryTab=='message') {
-				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 15 + 'px';
 			}
 			else if (v_tab_tag.currQueryTab=='explain') {
-				v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 29 + 'px';
+				v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 15 + 'px';
 			}
 		}
 		else if (v_tab_tag.mode=='console') {
-			v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 70 + 'px';
+			v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 59 + 'px';
 			v_tab_tag.editor_console.resize();
+			v_tab_tag.editor_input.resize();
 
 		}
 		else if (v_tab_tag.mode=='debug') {
 			if (v_tab_tag.currDebugTab=='variable') {
-				v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - 29 + 'px';
+				v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - 15 + 'px';
 				if (v_tab_tag.htVariable!=null)
 					v_tab_tag.htVariable.render();
 			}
 			else if (v_tab_tag.currDebugTab=='parameter') {
-				v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - 29 + 'px';
+				v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - 15 + 'px';
 				if (v_tab_tag.htParameter!=null)
 					v_tab_tag.htParameter.render();
 			}
 			else if (v_tab_tag.currDebugTab=='result') {
-				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
 				if (v_tab_tag.htResult!=null)
 					v_tab_tag.htResult.render();
 			}
 			else if (v_tab_tag.currDebugTab=='message') {
-				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 15 + 'px';
 			}
 			else if (v_tab_tag.currDebugTab=='statistics') {
-				v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - 29 + 'px';
+				v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - 15 + 'px';
 				if (v_tab_tag.chart!=null)
 					v_tab_tag.chart.update();
 			}
@@ -446,41 +449,41 @@ function refreshHeights(p_all) {
 				v_tab_tag.ht.render();
 		}
 		else if (v_tab_tag.mode=='graph') {
-			v_tab_tag.graph_div.style.height = window.innerHeight - $(v_tab_tag.graph_div).offset().top - 20 + "px";
+			v_tab_tag.graph_div.style.height = window.innerHeight - $(v_tab_tag.graph_div).offset().top - 10 + "px";
 
 		}
 		else if (v_tab_tag.mode=='website') {
-			v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 20 + "px";
+			v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 10 + "px";
 		}
 		else if (v_tab_tag.mode=='website_outer') {
-			v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 12 + "px";
+			v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 4 + "px";
 		}
 		else if (v_tab_tag.mode=='edit') {
-			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 10 + 'px';
 			if (v_tab_tag.editDataObject.ht!=null) {
 				v_tab_tag.editDataObject.ht.render();
 			}
 		}
 		else if (v_tab_tag.mode=='monitor_dashboard') {
-			v_tab_tag.dashboard_div.style.height = window.innerHeight - $(v_tab_tag.dashboard_div).offset().top - $(v_tab_tag.dashboard_div.parentElement).scrollTop() - 20 + "px";
+			v_tab_tag.dashboard_div.style.height = window.innerHeight - $(v_tab_tag.dashboard_div).offset().top - $(v_tab_tag.dashboard_div.parentElement).scrollTop() - 10 + "px";
 		}
 		else if (v_tab_tag.mode=='alter') {
 			if (v_tab_tag.alterTableObject.window=='columns') {
-				var v_height = window.innerHeight - $(v_tab_tag.htDivColumns).offset().top - 59;
+				var v_height = window.innerHeight - $(v_tab_tag.htDivColumns).offset().top - 45;
 				v_tab_tag.htDivColumns.style.height = v_height + 'px';
 				if (v_tab_tag.alterTableObject.htColumns!=null) {
 					v_tab_tag.alterTableObject.htColumns.render();
 				}
 			}
 			else if (v_tab_tag.alterTableObject.window=='constraints') {
-				var v_height = window.innerHeight - $(v_tab_tag.htDivConstraints).offset().top - 59;
+				var v_height = window.innerHeight - $(v_tab_tag.htDivConstraints).offset().top - 45;
 				v_tab_tag.htDivConstraints.style.height = v_height + 'px';
 				if (v_tab_tag.alterTableObject.htConstraints!=null) {
 					v_tab_tag.alterTableObject.htConstraints.render();
 				}
 			}
 			else {
-				var v_height = window.innerHeight - $(v_tab_tag.htDivIndexes).offset().top - 59;
+				var v_height = window.innerHeight - $(v_tab_tag.htDivIndexes).offset().top - 45;
 				v_tab_tag.htDivIndexes.style.height = v_height + 'px';
 				if (v_tab_tag.alterTableObject.htIndexes!=null) {
 					v_tab_tag.alterTableObject.htIndexes.render();
@@ -489,7 +492,7 @@ function refreshHeights(p_all) {
 		}
 		else if(v_tab_tag.mode == 'data_mining') {
 			if(v_tab_tag.currQueryTab == 'data') {
-				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
 			}
 		}
 	}
@@ -1050,7 +1053,7 @@ function drawGraph(p_all, p_schema) {
 /// </summary>
 function hideCommandsLog() {
 
-	$('#div_commands_log').hide();
+	$('#div_commands_log').removeClass('isActive');
 
 }
 
@@ -1086,7 +1089,7 @@ function refreshMonitoring(p_tab_tag) {
 					for (var i=0; i<v_data.v_data.length; i++) {
 						var v_actions_html = '';
 						for (var j=0; j<p_tab_tag.actions.length; j++) {
-							v_actions_html += '<img class="img_ht" title="' + p_tab_tag.actions[j].title + '" src="' + p_tab_tag.actions[j].icon + '" onclick="monitoringAction(' + i + ',&apos;' + p_tab_tag.actions[j].action + '&apos;)">';
+							v_actions_html += '<i class="' + p_tab_tag.actions[j].icon + '" onclick="monitoringAction(' + i + ',&apos;' + p_tab_tag.actions[j].action + '&apos;)">';
 						}
 						v_data.v_data[i].unshift(v_actions_html);
 					}
@@ -1124,9 +1127,14 @@ function refreshMonitoring(p_tab_tag) {
 							if (key === 'view_data') {
 							  	editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
 							}
+							else if (key === 'copy') {
+								this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+								document.execCommand('copy');
+							}
 						},
 						items: {
-							"view_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">View Content</div>'}
+							"copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+							"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
 						}
 				    },
 			        cells: function (row, col, prop) {
@@ -1177,6 +1185,7 @@ function removeLoadingCursor() {
 	document.body.classList.remove("cursor_loading");
 }
 
+
 function adjustQueryTabObjects(p_all_tabs) {
 	var v_dbms = v_connTabControl.selectedTab.tag.selectedDBMS;
 
@@ -1191,9 +1200,9 @@ function adjustQueryTabObjects(p_all_tabs) {
 	});
 
 	var v_objects = $(v_target_div).find("." + v_dbms + "_object").each(function() {
-	  $( this ).css('display','inline-block');
+		if (!$( this ).hasClass('dbms_object_hidden'))
+	  	$( this ).css('display','inline-block');
 	});
-
 
 }
 
@@ -1209,7 +1218,7 @@ function showMenuNewTabOuter(e) {
 	if (v_option_list.length>0) {
 		v_option_list.unshift({
 			text: 'New Connection',
-			icon: '/static/OmniDB_app/images/test.png',
+			icon: 'fas cm-all fa-plug',
 			action: function() {
 				startLoading();
 				setTimeout(function() { v_connTabControl.tag.createConnTab(); },0);
@@ -1235,14 +1244,14 @@ function showMenuNewTab(e) {
 	var v_option_list = [
 		{
 			text: 'Query Tab',
-			icon: '/static/OmniDB_app/images/text_edit.png',
+			icon: 'fas cm-all fa-search',
 			action: function() {
 				v_connTabControl.tag.createQueryTab();
 			}
 		},
 		{
 			text: 'Console Tab',
-			icon: '/static/OmniDB_app/images/console.png',
+			icon: 'fas cm-all fa-terminal',
 			action: function() {
 				v_connTabControl.tag.createConsoleTab();
 			}
@@ -1253,7 +1262,7 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Monitoring Dashboard',
-				icon: '/static/OmniDB_app/images/monitoring.png',
+				icon: 'fas cm-all fa-chart-line',
 				action: function() {
 					v_connTabControl.tag.createMonitorDashboardTab();
 					startMonitorDashboard();
@@ -1264,12 +1273,12 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Backends',
-				icon: '/static/OmniDB_app/images/monitoring.png',
+				icon: 'fas cm-all fa-tasks',
 				action: function() {
 					v_connTabControl.tag.createMonitoringTab(
 							'Backends',
 							'select * from pg_stat_activity', [{
-									icon: '/static/OmniDB_app/images/tab_close.png',
+									icon: 'fas fa-times action-grid action-close',
 									title: 'Terminate',
 									action: 'postgresqlTerminateBackend'
 							}]);
@@ -1281,12 +1290,12 @@ function showMenuNewTab(e) {
 		v_option_list.push(
 			{
 				text: 'Process List',
-				icon: '/static/OmniDB_app/images/monitoring.png',
+				icon: 'fas cm-all fa-tasks',
 				action: function() {
 					v_connTabControl.tag.createMonitoringTab(
 							'Process List',
 							'select * from information_schema.processlist', [{
-									icon: '/static/OmniDB_app/images/tab_close.png',
+									icon: 'fas fa-times action-grid action-close',
 									title: 'Terminate',
 									action: 'mysqlTerminateBackend'
 							}]);

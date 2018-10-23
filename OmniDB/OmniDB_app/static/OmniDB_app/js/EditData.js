@@ -292,7 +292,7 @@ function queryEditDataReturnRender(p_message,p_context) {
 
 		var col = new Object();
 		col.title = ' ';
-		col.width = 25;
+		col.width = 40;
 		columnProperties.push(col);
 
 		for (var i = 0; i < v_currTabTag.editDataObject.columns.length; i++) {
@@ -301,7 +301,7 @@ function queryEditDataReturnRender(p_message,p_context) {
 				if (!v_currTabTag.editDataObject.columns[i].v_is_pk)
 					col.title =  '<b>' + v_currTabTag.editDataObject.columns[i].v_column + '</b> (' + v_currTabTag.editDataObject.columns[i].v_type + ')';
 				else
-					col.title = '<img src="/static/OmniDB_app/images/key.png" style="vertical-align: middle;"/> <b>' + v_currTabTag.editDataObject.columns[i].v_column + '</b> (' + v_currTabTag.editDataObject.columns[i].v_type + ')';
+					col.title = '<i class="fas fa-key action-key"></i> <b>' + v_currTabTag.editDataObject.columns[i].v_column + '</b> (' + v_currTabTag.editDataObject.columns[i].v_type + ')';
 
 				col.renderer = 'text';
 			columnProperties.push(col);
@@ -347,9 +347,14 @@ function queryEditDataReturnRender(p_message,p_context) {
 							else
 								editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
 						}
+						else if (key === 'copy') {
+							this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+							document.execCommand('copy');
+						}
 					},
 					items: {
-						"edit_data": {name: '<div style=\"position: absolute;\"><img class="img_ht" src=\"/static/OmniDB_app/images/rename.png\"></div><div style=\"padding-left: 30px;\">Edit Content</div>'}
+						"copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+						"edit_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Edit Content</div>'}
 					}
 				},
 			beforeChange: function (changes, source) {

@@ -97,6 +97,25 @@ function whiteHtmlRenderer(instance, td, row, col, prop, value, cellProperties) 
   	td.className ='cellOdd';
 }
 
+function whiteRightHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
+
+	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
+	  	Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="password") {
+	  	Handsontable.renderers.PasswordRenderer.apply(this, arguments);
+    }
+    else if (cellProperties.__proto__.type=="checkbox") {
+  	  Handsontable.renderers.CheckboxRenderer.apply(this, arguments);
+    }
+    else {
+  	  Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+    }
+
+  	//td.style.background = 'rgb(255, 255, 255)';
+  	td.style.textAlign ='right';
+}
+
 function redHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {
 
 	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {
@@ -243,7 +262,6 @@ function grayEmptyRenderer(instance, td, row, col, prop, value, cellProperties) 
 
 function newRowRenderer(instance, td, row, col, prop, value, cellProperties) {
 
-	//arguments[5] = '<img class="img_ht" src="images/new_row.png"/>';
 	arguments[5] = '+';
 	td.style.textAlign = 'center';
 
@@ -256,7 +274,7 @@ function newRowRenderer(instance, td, row, col, prop, value, cellProperties) {
 
 function columnsActionRenderer(instance, td, row, col, prop, value, cellProperties) {
 
-	arguments[5] = '<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="dropColumnAlterTable()"/>';
+	arguments[5] = "<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropColumnAlterTable()'></i>";
 
 	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 
@@ -267,7 +285,7 @@ function columnsActionRenderer(instance, td, row, col, prop, value, cellProperti
 
 function editDataActionRenderer(instance, td, row, col, prop, value, cellProperties) {
 
-	arguments[5] = '<img src="/static/OmniDB_app/images/tab_close.png" class="img_ht" onclick="deleteRowEditData()"/>';
+	arguments[5] = "<i title='Remove' class='fas fa-times action-grid action-close' onclick='deleteRowEditData()'></i>";
 
 	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 

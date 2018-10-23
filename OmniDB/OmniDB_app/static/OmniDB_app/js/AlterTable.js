@@ -591,7 +591,7 @@ function saveAlterTable() {
 			v_changedRowsConstraintsInfo.push(v_currTabTag.alterTableObject.infoRowsConstraints[i]);
 			var v_row = v_currTabTag.alterTableObject.htConstraints.getDataAtRow(i);
 
-			v_row[2] = v_row[2].substring(114);
+			v_row[2] = v_row[2].substring(129);
 
 			v_changedRowsConstraintsData.push(v_row);
 		}
@@ -604,7 +604,7 @@ function saveAlterTable() {
 			v_changedRowsIndexesInfo.push(v_currTabTag.alterTableObject.infoRowsIndexes[i]);
 			var v_row = v_currTabTag.alterTableObject.htIndexes.getDataAtRow(i);
 
-			v_row[2] = v_row[2].substring(110);
+			v_row[2] = v_row[2].substring(125);
 
 			v_changedRowsIndexesData.push(v_row);
 		}

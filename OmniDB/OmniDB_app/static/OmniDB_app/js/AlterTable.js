@@ -579,35 +579,10 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 	);
 }
 
-/// <summary>
-/// Retrieves list of pks and uniques referenced by FKs in specific table.
-/// </summary>
-/// <param name="p_row_index">Row number of current FK.</param>
-/// <param name="p_table_name">Table name.</param>
-function getReferenceColumnsList(p_row_index, p_table_name) {
-
-	var v_currAlterTableObject = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.alterTableObject;
-
-	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex, "p_table_name": p_table_name});
-
-	execAjax('MainDB.aspx/RefreshRefColumnsList',
-				input,
-				function(p_return) {
-
-					v_currAlterTableObject.fkRefColumns[p_row_index] = p_return.v_data;
-					v_currAlterTableObject.htConstraints.render();
-
-				},
-				null,
-				'box');
-
-}
-
-/// <summary>
-/// Saves alter table changes.
-/// </summary>
+/**
+ * Saves alter table changes in GUI alter table mode.
+ */
 function saveAlterTable() {
-
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_changedRowsColumnsInfo = [];
@@ -619,308 +594,311 @@ function saveAlterTable() {
 	var v_changedRowsIndexesInfo = [];
 	var v_changedRowsIndexesData = [];
 
-	for (var i=0; i < v_currTabTag.alterTableObject.infoRowsColumns.length; i++) {
-		if (v_currTabTag.alterTableObject.infoRowsColumns[i].mode!=0) {
+	//Changes in table columns
+	for(var i = 0; i < v_currTabTag.alterTableObject.infoRowsColumns.length; i++) {
+		if(v_currTabTag.alterTableObject.infoRowsColumns[i].mode != 0) {
 			v_currTabTag.alterTableObject.infoRowsColumns[i].index = i;
 			v_changedRowsColumnsInfo.push(v_currTabTag.alterTableObject.infoRowsColumns[i]);
 			v_changedRowsColumnsData.push(v_currTabTag.alterTableObject.htColumns.getDataAtRow(i));
-
 		}
 	}
 
-	for (var i=0; i < v_currTabTag.alterTableObject.infoRowsConstraints.length; i++) {
-		if (v_currTabTag.alterTableObject.infoRowsConstraints[i].mode!=0) {
+	//Changes in table constraints
+	for(var i = 0; i < v_currTabTag.alterTableObject.infoRowsConstraints.length; i++) {
+		if(v_currTabTag.alterTableObject.infoRowsConstraints[i].mode != 0) {
 			v_currTabTag.alterTableObject.infoRowsConstraints[i].index = i;
 			v_changedRowsConstraintsInfo.push(v_currTabTag.alterTableObject.infoRowsConstraints[i]);
+
 			var v_row = v_currTabTag.alterTableObject.htConstraints.getDataAtRow(i);
-
 			v_row[2] = v_row[2].substring(129);
-
 			v_changedRowsConstraintsData.push(v_row);
 		}
-
 	}
 
-	for (var i=0; i < v_currTabTag.alterTableObject.infoRowsIndexes.length; i++) {
-		if (v_currTabTag.alterTableObject.infoRowsIndexes[i].mode!=0) {
+	//Changes in table indexes
+	for(var i = 0; i < v_currTabTag.alterTableObject.infoRowsIndexes.length; i++) {
+		if(v_currTabTag.alterTableObject.infoRowsIndexes[i].mode != 0) {
 			v_currTabTag.alterTableObject.infoRowsIndexes[i].index = i;
 			v_changedRowsIndexesInfo.push(v_currTabTag.alterTableObject.infoRowsIndexes[i]);
+
 			var v_row = v_currTabTag.alterTableObject.htIndexes.getDataAtRow(i);
-
 			v_row[2] = v_row[2].substring(125);
-
 			v_changedRowsIndexesData.push(v_row);
 		}
-
 	}
 
 	var v_new_table_name = v_currTabTag.txtTableName.value;
-  var v_schema_name = v_currTabTag.alterTableObject.schemaName;
+	var v_schema_name = v_currTabTag.alterTableObject.schemaName;
 
-	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-															"p_tab_id": v_connTabControl.selectedTab.id,
-															"p_mode" : v_currTabTag.alterTableObject.mode,
-															"p_schema_name": v_currTabTag.alterTableObject.schemaName,
-															"p_new_table_name": v_new_table_name,
-															"p_original_table_name": v_currTabTag.alterTableObject.tableName,
-															"p_data_columns": v_changedRowsColumnsData,
-															"p_row_columns_info": v_changedRowsColumnsInfo,
-															"p_data_constraints": v_changedRowsConstraintsData,
-															"p_row_constraints_info": v_changedRowsConstraintsInfo,
-															"p_data_indexes": v_changedRowsIndexesData,
-															"p_row_indexes_info": v_changedRowsIndexesInfo});
+	var input = JSON.stringify({
+		"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+		"p_tab_id": v_connTabControl.selectedTab.id,
+		"p_mode" : v_currTabTag.alterTableObject.mode,
+		"p_schema_name": v_currTabTag.alterTableObject.schemaName,
+		"p_new_table_name": v_new_table_name,
+		"p_original_table_name": v_currTabTag.alterTableObject.tableName,
+		"p_data_columns": v_changedRowsColumnsData,
+		"p_row_columns_info": v_changedRowsColumnsInfo,
+		"p_data_constraints": v_changedRowsConstraintsData,
+		"p_row_constraints_info": v_changedRowsConstraintsInfo,
+		"p_data_indexes": v_changedRowsIndexesData,
+		"p_row_indexes_info": v_changedRowsIndexesInfo
+	});
 
-	execAjax('/save_alter_table/',
-			input,
-			function(p_return) {
+	execAjax(
+		'/save_alter_table/',
+		input,
+		/**
+		 * Callback executed on ajax call success.
+		 */
+		function(p_return) {
+			var v_div_commands_log = document.getElementById('div_commands_log_list');
+			v_div_commands_log.innerHTML = '';
 
-				var v_div_commands_log = document.getElementById('div_commands_log_list');
-				v_div_commands_log.innerHTML = '';
-				var v_commands_log = '';
+			var v_commands_log = '';
+			var v_has_error = false;
 
-				var v_has_error = false;
+			v_currTabTag.btSave.style.visibility = 'hidden';
 
-				v_currTabTag.btSave.style.visibility = 'hidden';
+			//Creating new table
+			if(p_return.v_data.v_create_table_command != null) {
+				if(!p_return.v_data.v_create_table_command.error) {
+					startAlterTable(false, 'alter', v_new_table_name, v_schema_name);
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_title_span.innerHTML = ' ' + v_schema_name + '.' + v_new_table_name;
+				}
+				else {
+					v_has_error = true;
 
-				//Creating new table
-				if (p_return.v_data.v_create_table_command!=null) {
+					v_commands_log +=
+						'<b>Command:</b> ' +
+						p_return.v_data.v_create_table_command.v_command +
+						'<br/><br/><b>Message:</b> ' +
+						p_return.v_data.v_create_table_command.v_message +
+						'<br/><br/>';
 
-					if (!p_return.v_data.v_create_table_command.error) {
-						startAlterTable(false, 'alter', v_new_table_name, v_schema_name);
+					v_currTabTag.btSave.style.visibility = 'visible';
+				}
+			}
+			else {
+				if(p_return.v_data.v_rename_table_command != null) {
+					if(!p_return.v_data.v_rename_table_command.error) {
+						v_currTabTag.alterTableObject.schemaName = v_schema_name;
+						v_currTabTag.alterTableObject.tableName = v_new_table_name;
+						$(v_currTabTag.txtTableName).removeClass('changed_input');
 						v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_title_span.innerHTML = ' ' + v_schema_name + '.' + v_new_table_name;
 					}
 					else {
 						v_has_error = true;
 
-						v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_create_table_command.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_create_table_command.v_message + '<br/><br/>';
+						v_commands_log +=
+							'<b>Command:</b> ' +
+							p_return.v_data.v_rename_table_command.v_command +
+							'<br/><br/><b>Message:</b> ' +
+							p_return.v_data.v_rename_table_command.v_message +
+							'<br/><br/>';
 
 						v_currTabTag.btSave.style.visibility = 'visible';
-
 					}
 				}
 				else {
+					$(v_currTabTag.txtTableName).removeClass('changed_input');
+				}
 
-					if (p_return.v_data.v_rename_table_command!=null) {
-
-						if (!p_return.v_data.v_rename_table_command.error) {
-
-                            v_currTabTag.alterTableObject.schemaName = v_schema_name;
-							v_currTabTag.alterTableObject.tableName = v_new_table_name;
-							$(v_currTabTag.txtTableName).removeClass('changed_input');
-							v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_title_span.innerHTML = ' ' + v_schema_name + '.' + v_new_table_name;
-
+				// New column or delete column
+				for(var i = p_return.v_data.v_columns_simple_commands_return.length - 1; i >= 0; i--) {
+					if(p_return.v_data.v_columns_simple_commands_return[i].mode == -1) {
+						if(!p_return.v_data.v_columns_simple_commands_return[i].error) {
+							v_currTabTag.alterTableObject.infoRowsColumns.splice(p_return.v_data.v_columns_simple_commands_return[i].index, 1);
+							v_currTabTag.alterTableObject.htColumns.alter('remove_row', p_return.v_data.v_columns_simple_commands_return[i].index);
 						}
 						else {
 							v_has_error = true;
 
-							v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_rename_table_command.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_rename_table_command.v_message + '<br/><br/>';
+							v_commands_log +=
+								'<b>Command:</b> ' +
+								p_return.v_data.v_columns_simple_commands_return[i].v_command +
+								'<br/><br/><b>Message:</b> ' +
+								p_return.v_data.v_columns_simple_commands_return[i].v_message +
+								'<br/><br/>';
 
 							v_currTabTag.btSave.style.visibility = 'visible';
-
 						}
-
 					}
-					else {
-						$(v_currTabTag.txtTableName).removeClass('changed_input');
-					}
-
-					// New column or delete column
-					for (var i = p_return.v_data.v_columns_simple_commands_return.length-1; i >= 0; i--) {
-
-						if (p_return.v_data.v_columns_simple_commands_return[i].mode==-1) {
-							if (!p_return.v_data.v_columns_simple_commands_return[i].error) {
-
-								v_currTabTag.alterTableObject.infoRowsColumns.splice(p_return.v_data.v_columns_simple_commands_return[i].index, 1);
-								v_currTabTag.alterTableObject.htColumns.alter('remove_row', p_return.v_data.v_columns_simple_commands_return[i].index);
-
-							}
-							else {
-
-								v_has_error = true;
-
-								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_message + '<br/><br/>';
-
-								v_currTabTag.btSave.style.visibility = 'visible';
-							}
+					else if(p_return.v_data.v_columns_simple_commands_return[i].mode == 2) {
+						if(!p_return.v_data.v_columns_simple_commands_return[i].error) {
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].mode = 0;
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].old_mode = -1;
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalColName = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index, 0);
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalDataType = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index, 1);
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalNullable = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index, 2);
 						}
-						else if (p_return.v_data.v_columns_simple_commands_return[i].mode==2) {
-							if (!p_return.v_data.v_columns_simple_commands_return[i].error) {
+						else {
+							v_has_error = true;
 
-								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].mode = 0;
-								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].old_mode = -1;
+							v_commands_log +=
+								'<b>Command:</b> ' +
+								p_return.v_data.v_columns_simple_commands_return[i].v_command +
+								'<br/><br/><b>Message:</b> ' +
+								p_return.v_data.v_columns_simple_commands_return[i].v_message  +
+								'<br/><br/>';
 
-								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalColName = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,0);
-								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalDataType = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,1);
-								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_simple_commands_return[i].index].originalNullable = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_simple_commands_return[i].index,2);
-
-							}
-							else {
-
-								v_has_error = true;
-
-								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_simple_commands_return[i].v_message  + '<br/><br/>';
-
-								v_currTabTag.btSave.style.visibility = 'visible';
-							}
+							v_currTabTag.btSave.style.visibility = 'visible';
 						}
-
-					}
-
-					var v_has_group_error;
-
-					// Altering column
-					for (var i = p_return.v_data.v_columns_group_commands_return.length-1; i >= 0; i--) {
-
-						v_has_group_error = false;
-
-						if (p_return.v_data.v_columns_group_commands_return[i].alter_datatype!=null) {
-							if (!p_return.v_data.v_columns_group_commands_return[i].alter_datatype.error) {
-
-								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalDataType = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,1);
-
-							}
-							else {
-
-								v_has_error = true;
-								v_has_group_error = true;
-
-								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_datatype.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_datatype.v_message  + '<br/><br/>';
-
-
-							}
-
-						}
-
-						if (p_return.v_data.v_columns_group_commands_return[i].alter_nullable!=null) {
-							if (!p_return.v_data.v_columns_group_commands_return[i].alter_nullable.error) {
-
-								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalNullable = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,2);
-
-							}
-							else {
-
-								v_has_error = true;
-								v_has_group_error = true;
-
-								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_nullable.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_nullable.v_message  + '<br/><br/>';
-
-							}
-
-						}
-
-						if (p_return.v_data.v_columns_group_commands_return[i].alter_colname!=null) {
-							if (!p_return.v_data.v_columns_group_commands_return[i].alter_colname.error) {
-
-								v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalColName = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index,0);
-
-							}
-							else {
-
-								v_has_error = true;
-								v_has_group_error = true;
-
-								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_colname.v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_columns_group_commands_return[i].alter_colname.v_message  + '<br/><br/>';
-
-							}
-
-						}
-
-						if (!v_has_group_error) {
-							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].mode = 0;
-							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].old_mode = -1;
-						}
-
-					}
-
-					// New constraint or delete constraint
-					for (var i = p_return.v_data.v_constraints_commands_return.length-1; i >= 0; i--) {
-
-						if (p_return.v_data.v_constraints_commands_return[i].mode==-1) {
-							if (!p_return.v_data.v_constraints_commands_return[i].error) {
-
-								v_currTabTag.alterTableObject.infoRowsConstraints.splice(p_return.v_data.v_constraints_commands_return[i].index, 1);
-								v_currTabTag.alterTableObject.htConstraints.alter('remove_row', p_return.v_data.v_constraints_commands_return[i].index);
-
-							}
-							else {
-
-								v_has_error = true;
-
-								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_message + '<br/><br/>';
-
-							}
-						}
-						else if (p_return.v_data.v_constraints_commands_return[i].mode==2) {
-							if (!p_return.v_data.v_constraints_commands_return[i].error) {
-
-								v_currTabTag.alterTableObject.infoRowsConstraints[p_return.v_data.v_constraints_commands_return[i].index].mode = 0;
-								v_currTabTag.alterTableObject.infoRowsConstraints[p_return.v_data.v_constraints_commands_return[i].index].old_mode = -1;
-
-							}
-							else {
-
-								v_has_error = true;
-
-								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_message  + '<br/><br/>';
-
-							}
-						}
-
-					}
-
-					// New index or delete index
-					for (var i = p_return.v_data.v_indexes_commands_return.length-1; i >= 0; i--) {
-
-						if (p_return.v_data.v_indexes_commands_return[i].mode==-1) {
-							if (!p_return.v_data.v_indexes_commands_return[i].error) {
-
-								v_currTabTag.alterTableObject.infoRowsIndexes.splice(p_return.v_data.v_indexes_commands_return[i].index, 1);
-								v_currTabTag.alterTableObject.htIndexes.alter('remove_row', p_return.v_data.v_indexes_commands_return[i].index);
-
-							}
-							else {
-
-								v_has_error = true;
-
-								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_message + '<br/><br/>';
-
-							}
-						}
-						else if (p_return.v_data.v_indexes_commands_return[i].mode==2) {
-							if (!p_return.v_data.v_indexes_commands_return[i].error) {
-
-								v_currTabTag.alterTableObject.infoRowsIndexes[p_return.v_data.v_indexes_commands_return[i].index].mode = 0;
-								v_currTabTag.alterTableObject.infoRowsIndexes[p_return.v_data.v_indexes_commands_return[i].index].old_mode = -1;
-
-							}
-							else {
-
-								v_has_error = true;
-
-								v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_message  + '<br/><br/>';
-
-							}
-						}
-
 					}
 				}
 
-				if (v_has_error) {
-					v_div_commands_log.innerHTML = v_commands_log;
-					$('#div_commands_log').addClass('isActive');
+				var v_has_group_error;
+
+				// Altering column
+				for (var i = p_return.v_data.v_columns_group_commands_return.length - 1; i >= 0; i--) {
+					v_has_group_error = false;
+
+					if(p_return.v_data.v_columns_group_commands_return[i].alter_datatype != null) {
+						if(!p_return.v_data.v_columns_group_commands_return[i].alter_datatype.error) {
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalDataType = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index, 1);
+						}
+						else {
+							v_has_error = true;
+							v_has_group_error = true;
+
+							v_commands_log +=
+								'<b>Command:</b> ' +
+								p_return.v_data.v_columns_group_commands_return[i].alter_datatype.v_command +
+								'<br/><br/><b>Message:</b> ' +
+								p_return.v_data.v_columns_group_commands_return[i].alter_datatype.v_message +
+								'<br/><br/>';
+						}
+					}
+
+					if(p_return.v_data.v_columns_group_commands_return[i].alter_nullable != null) {
+						if(!p_return.v_data.v_columns_group_commands_return[i].alter_nullable.error) {
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalNullable = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index, 2);
+						}
+						else {
+							v_has_error = true;
+							v_has_group_error = true;
+
+							v_commands_log +=
+								'<b>Command:</b> ' +
+								p_return.v_data.v_columns_group_commands_return[i].alter_nullable.v_command +
+								'<br/><br/><b>Message:</b> ' +
+								p_return.v_data.v_columns_group_commands_return[i].alter_nullable.v_message +
+								'<br/><br/>';
+						}
+					}
+
+					if(p_return.v_data.v_columns_group_commands_return[i].alter_colname != null) {
+						if(!p_return.v_data.v_columns_group_commands_return[i].alter_colname.error) {
+							v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].originalColName = v_currTabTag.alterTableObject.htColumns.getDataAtCell(p_return.v_data.v_columns_group_commands_return[i].index, 0);
+						}
+						else {
+							v_has_error = true;
+							v_has_group_error = true;
+
+							v_commands_log +=
+								'<b>Command:</b> ' +
+								p_return.v_data.v_columns_group_commands_return[i].alter_colname.v_command +
+								'<br/><br/><b>Message:</b> ' +
+								p_return.v_data.v_columns_group_commands_return[i].alter_colname.v_message +
+								'<br/><br/>';
+						}
+					}
+
+					if(!v_has_group_error) {
+						v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].mode = 0;
+						v_currTabTag.alterTableObject.infoRowsColumns[p_return.v_data.v_columns_group_commands_return[i].index].old_mode = -1;
+					}
+				}
+
+				// New constraint or delete constraint
+				for (var i = p_return.v_data.v_constraints_commands_return.length-1; i >= 0; i--) {
+
+				if (p_return.v_data.v_constraints_commands_return[i].mode==-1) {
+				if (!p_return.v_data.v_constraints_commands_return[i].error) {
+
+				v_currTabTag.alterTableObject.infoRowsConstraints.splice(p_return.v_data.v_constraints_commands_return[i].index, 1);
+				v_currTabTag.alterTableObject.htConstraints.alter('remove_row', p_return.v_data.v_constraints_commands_return[i].index);
 
 				}
 				else {
-					v_currTabTag.btSave.style.visibility = 'hidden';
+
+				v_has_error = true;
+
+				v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_message + '<br/><br/>';
+
+				}
+				}
+				else if (p_return.v_data.v_constraints_commands_return[i].mode==2) {
+				if (!p_return.v_data.v_constraints_commands_return[i].error) {
+
+				v_currTabTag.alterTableObject.infoRowsConstraints[p_return.v_data.v_constraints_commands_return[i].index].mode = 0;
+				v_currTabTag.alterTableObject.infoRowsConstraints[p_return.v_data.v_constraints_commands_return[i].index].old_mode = -1;
+
+				}
+				else {
+
+				v_has_error = true;
+
+				v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_constraints_commands_return[i].v_message  + '<br/><br/>';
+
+				}
 				}
 
-				v_currTabTag.alterTableObject.htColumns.render();
-				v_currTabTag.alterTableObject.htConstraints.render();
-				v_currTabTag.alterTableObject.htIndexes.render();
+				}
 
-			},
-			null,
-			'box');
+				// New index or delete index
+				for (var i = p_return.v_data.v_indexes_commands_return.length-1; i >= 0; i--) {
+
+				if (p_return.v_data.v_indexes_commands_return[i].mode==-1) {
+				if (!p_return.v_data.v_indexes_commands_return[i].error) {
+
+				v_currTabTag.alterTableObject.infoRowsIndexes.splice(p_return.v_data.v_indexes_commands_return[i].index, 1);
+				v_currTabTag.alterTableObject.htIndexes.alter('remove_row', p_return.v_data.v_indexes_commands_return[i].index);
+
+				}
+				else {
+
+				v_has_error = true;
+
+				v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_message + '<br/><br/>';
+
+				}
+				}
+				else if (p_return.v_data.v_indexes_commands_return[i].mode==2) {
+				if (!p_return.v_data.v_indexes_commands_return[i].error) {
+
+				v_currTabTag.alterTableObject.infoRowsIndexes[p_return.v_data.v_indexes_commands_return[i].index].mode = 0;
+				v_currTabTag.alterTableObject.infoRowsIndexes[p_return.v_data.v_indexes_commands_return[i].index].old_mode = -1;
+
+				}
+				else {
+
+				v_has_error = true;
+
+				v_commands_log += '<b>Command:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_command + '<br/><br/><b>Message:</b> ' + p_return.v_data.v_indexes_commands_return[i].v_message  + '<br/><br/>';
+
+				}
+				}
+
+				}
+			}
+
+			if (v_has_error) {
+			v_div_commands_log.innerHTML = v_commands_log;
+			$('#div_commands_log').addClass('isActive');
+
+			}
+			else {
+			v_currTabTag.btSave.style.visibility = 'hidden';
+			}
+
+			v_currTabTag.alterTableObject.htColumns.render();
+			v_currTabTag.alterTableObject.htConstraints.render();
+			v_currTabTag.alterTableObject.htIndexes.render();
+
+		},
+	null,
+	'box');
 
 }
 

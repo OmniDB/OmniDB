@@ -10,530 +10,573 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
-/// <summary>
-/// Initiates alter table window.
-/// </summary>
-/// <param name="p_mode">Alter or new table.</param>
-/// <param name="p_table">Table name.</param>
-/// <param name="p_schema">Schema name.</param>
+/**
+ * Initiates a alter/create table tab.
+ * @param {boolean} p_create_tab - if we should use an existent tab or create a new one.
+ * @param {string} p_mode - if 'new' will start a create table tab, alter table one otherwise.
+ * @param {string} p_table - the table name.
+ * @param {string} p_schema - the table schema name.
+ */
 function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
+	var input = JSON.stringify({
+		"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+		"p_tab_id": v_connTabControl.selectedTab.id,
+		"p_table": p_table,
+		"p_schema": p_schema
+	});
 
-	var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-															"p_tab_id": v_connTabControl.selectedTab.id,
-															"p_table": p_table,
-															"p_schema": p_schema});
-
-	execAjax('/alter_table_data/',
-				input,
-				function(p_return) {
-
-					if (p_create_tab) {
-						if (p_mode=='new')
-							v_connTabControl.tag.createAlterTableTab("New Table");
-						else {
-							if (p_schema)
-								v_connTabControl.tag.createAlterTableTab(p_schema + '.' + p_table);
-							else
-								v_connTabControl.tag.createAlterTableTab(p_table);
-						}
-					}
-
-					var v_curr_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-					v_curr_tab_tag.tabControl.selectTabIndex(0);
-
-					v_curr_tab_tag.txtTableName.value = p_table;
-
-
-					if (!p_return.v_data.v_can_add_constraint && p_mode=='alter')
-						$(v_curr_tab_tag.btNewConstraint).hide();
-					else
-						$(v_curr_tab_tag.btNewConstraint).show();
-
-					if (!p_return.v_data.v_can_rename_table && p_mode=='alter') {
-						$(v_curr_tab_tag.txtTableName).prop("readonly", true);
-						v_curr_tab_tag.txtTableName.style.backgroundColor = 'rgb(242, 242, 242)';
-
+	execAjax(
+		'/alter_table_data/',
+		input,
+		/**
+		 * Callback executed on ajax call success. Will render the create/alter table tab to the user.
+		 * @param {object} p_return - the return data of the call.
+		 * @param {boolean} p_return.v_data.v_can_add_constraint - if the database permits adding constraints.
+		 * @param {boolean} p_return.v_data.v_can_rename_table - if the database permits renaming the table.
+		 * @param {object[]} p_return.v_data.v_data_types - the database datatypes to be used in the types dropdown.
+		 * @param {object[]} p_return.v_data.v_data_columns - the table columns.
+		 * @param {boolean} p_return.v_data.v_can_alter_type - if the database permits altering columns types.
+		 * @param {boolean} p_return.v_data.v_can_alter_nullable - if the database permits changing columns nullable.
+		 * @param {boolean} p_return.v_data.v_can_rename_column - if the database permits renaming columns.
+		 * @param {boolean} p_return.v_data.v_has_update_rule - if the database permits updating rules.
+		 * @param {object} p_return.v_data.table_ref_columns - referenced columns in foreign keys.
+		 * @param {boolean} p_return.v_data.v_can_drop_column - if the database permits droping columns.
+		 * @param {object} p_return.v_data.v_tables - referenced tables.
+		 * @param {object} p_return.v_data.v_delete_rules - tables delete rules.
+		 * @param {object} p_return.v_data.v_update_rules - tables update rules.
+		 * @param {object} p_return.v_data.v_data_constraints - the table constraints.
+		 * @param {object} p_return.v_data.v_data_indexes - the table indexes.
+		 */
+		function(p_return) {
+			if(p_create_tab) {
+				if(p_mode=='new') {
+					v_connTabControl.tag.createAlterTableTab("New Table");
+				}
+				else {
+					if(p_schema) {
+						v_connTabControl.tag.createAlterTableTab(p_schema + '.' + p_table);
 					}
 					else {
-						$(v_curr_tab_tag.txtTableName).prop("readonly", false);
-						$(v_curr_tab_tag.txtTableName).removeClass("txt_readonly");
+						v_connTabControl.tag.createAlterTableTab(p_table);
 					}
+				}
+			}
 
-					/*$('#div_alter_table').show();
+			var v_curr_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+			v_curr_tab_tag.tabControl.selectTabIndex(0);
 
-					var v_height  = window.innerHeight - $('#div_alter_table_data').offset().top - 120;
-					document.getElementById('div_alter_table_data').style.height = v_height + "px";
-					document.getElementById('div_alter_constraint_data').style.height = v_height + "px";*/
+			v_curr_tab_tag.txtTableName.value = p_table;
 
-					//Columns Table
-					var v_div_result = v_curr_tab_tag.htDivColumns;
 
-					var columnProperties = [];
+			if(!p_return.v_data.v_can_add_constraint && p_mode=='alter') {
+				$(v_curr_tab_tag.btNewConstraint).hide();
+			}
+			else {
+				$(v_curr_tab_tag.btNewConstraint).show();
+			}
 
-					var col = new Object();
-      				col.title =  'Column Name';
-      				col.width = '100px';
-     	 			columnProperties.push(col);
+			if(!p_return.v_data.v_can_rename_table && p_mode=='alter') {
+				$(v_curr_tab_tag.txtTableName).prop("readonly", true);
+				v_curr_tab_tag.txtTableName.style.backgroundColor = 'rgb(242, 242, 242)';
+			}
+			else {
+				$(v_curr_tab_tag.txtTableName).prop("readonly", false);
+				$(v_curr_tab_tag.txtTableName).removeClass("txt_readonly");
+			}
 
-     	 			var col = new Object();
-      				col.title =  'Data Type';
-      				col.width = '160px';
-      				col.type = 'autocomplete';
-	                col.source = p_return.v_data.v_data_types;
-     	 			columnProperties.push(col);
+			//Columns Table
+			var v_div_result = v_curr_tab_tag.htDivColumns;
 
-					var col = new Object();
-	                col.title =  'Nullable';
-	                col.width = '80px';
-	                col.type = 'dropdown';
-	                col.source = ['YES','NO'];
-	                columnProperties.push(col);
+			var columnProperties = [];
 
-	                var col = new Object();
-      				col.title =  ' ';
-      				col.renderer = 'html';
-     	 			columnProperties.push(col);
+			var col = new Object();
+			col.title =  'Column Name';
+			col.width = '100px';
+			columnProperties.push(col);
 
-	                var v_infoRowsColumns = [];
+			var col = new Object();
+			col.title =  'Data Type';
+			col.width = '160px';
+			col.type = 'autocomplete';
+			col.source = p_return.v_data.v_data_types;
+			columnProperties.push(col);
 
-	                for (var i=0; i < p_return.v_data.v_data_columns.length; i++) {
-	                	var v_object = new Object();
-	                	v_object.mode = 0;
-	                	v_object.old_mode = -1;
-	                	v_object.index = i;
-	                	v_object.originalColName = p_return.v_data.v_data_columns[i][0];
-	                	v_object.originalDataType = p_return.v_data.v_data_columns[i][1];
-	                	v_object.originalNullable = p_return.v_data.v_data_columns[i][2];
-	                	v_infoRowsColumns.push(v_object);
-	                }
+			var col = new Object();
+			col.title =  'Nullable';
+			col.width = '80px';
+			col.type = 'dropdown';
+			col.source = ['YES','NO'];
+			columnProperties.push(col);
 
-					if (v_curr_tab_tag.htDivColumns.innerHTML!='') {
+			var col = new Object();
+			col.title =  ' ';
+			col.renderer = 'html';
+			columnProperties.push(col);
 
-						v_curr_tab_tag.alterTableObject.htColumns.destroy();
+			var v_infoRowsColumns = [];
 
-					}
+			for(var i = 0; i < p_return.v_data.v_data_columns.length; i++) {
+				var v_object = new Object();
+				v_object.mode = 0;
+				v_object.old_mode = -1;
+				v_object.index = i;
+				v_object.originalColName = p_return.v_data.v_data_columns[i][0];
+				v_object.originalDataType = p_return.v_data.v_data_columns[i][1];
+				v_object.originalNullable = p_return.v_data.v_data_columns[i][2];
+				v_infoRowsColumns.push(v_object);
+			}
 
-					if (v_curr_tab_tag.htDivConstraints.innerHTML!='') {
+			if(v_curr_tab_tag.htDivColumns.innerHTML != '') {
+				v_curr_tab_tag.alterTableObject.htColumns.destroy();
+			}
 
-						v_curr_tab_tag.alterTableObject.htConstraints.destroy();
+			if(v_curr_tab_tag.htDivConstraints.innerHTML != '') {
+				v_curr_tab_tag.alterTableObject.htConstraints.destroy();
+			}
 
-					}
+			if(v_curr_tab_tag.htDivIndexes.innerHTML != '') {
+				v_curr_tab_tag.alterTableObject.htIndexes.destroy();
+			}
 
-					if (v_curr_tab_tag.htDivIndexes.innerHTML!='') {
+			var container = v_div_result;
 
-						v_curr_tab_tag.alterTableObject.htIndexes.destroy();
+			v_curr_tab_tag.alterTableObject = new Object();
 
-					}
+			v_curr_tab_tag.alterTableObject.tableName = p_table;
+			v_curr_tab_tag.alterTableObject.schemaName = p_schema;
+			v_curr_tab_tag.alterTableObject.infoRowsColumns = v_infoRowsColumns;
+			v_curr_tab_tag.alterTableObject.cellChanges = [];
+			v_curr_tab_tag.alterTableObject.mode = p_mode;
+			v_curr_tab_tag.alterTableObject.window = 'columns';
+			v_curr_tab_tag.alterTableObject.canAlterType = p_return.v_data.v_can_alter_type;
+			v_curr_tab_tag.alterTableObject.canAlterNullable = p_return.v_data.v_can_alter_nullable;
+			v_curr_tab_tag.alterTableObject.canRenameColumn = p_return.v_data.v_can_rename_column;
+			v_curr_tab_tag.alterTableObject.hasUpdateRule = p_return.v_data.v_has_update_rule;
+			v_curr_tab_tag.alterTableObject.htConstraints = null;
+			v_curr_tab_tag.alterTableObject.fkRefColumns = p_return.v_data.table_ref_columns;
+			v_curr_tab_tag.alterTableObject.can_drop_column = p_return.v_data.v_can_drop_column;
 
-					var container = v_div_result;
+			v_curr_tab_tag.alterTableObject.htColumns = new Handsontable(
+				container,
+				{
+					data: p_return.v_data.v_data_columns,
+					columns : columnProperties,
+					colHeaders : true,
+					rowHeaders : true,
+					manualColumnResize: true,
+					minSpareRows: 1,
+					fillHandle:false,
+					/**
+					 * Callback executed before changes are applied to the grid. Store some info about user interaction in the grid.
+					 * @param {object} changes - the changes occured in the grid.
+					 * @param {object} source - where the changes have occurred.
+					 */
+					beforeChange: function (changes, source) {
+						if (!changes) {
+							return;
+						}
 
-					v_curr_tab_tag.alterTableObject = new Object();
+						$.each(
+							changes,
+							function (index, element) {
+								var change = element;
+								var rowIndex = change[0];
+								var columnIndex = change[1];
+								var oldValue = change[2];
+								var newValue = change[3];
 
-					v_curr_tab_tag.alterTableObject.tableName = p_table;
-                    v_curr_tab_tag.alterTableObject.schemaName = p_schema;
-					v_curr_tab_tag.alterTableObject.infoRowsColumns = v_infoRowsColumns;
-					v_curr_tab_tag.alterTableObject.cellChanges = [];
-					v_curr_tab_tag.alterTableObject.mode = p_mode;
-					v_curr_tab_tag.alterTableObject.window = 'columns';
-					v_curr_tab_tag.alterTableObject.canAlterType = p_return.v_data.v_can_alter_type;
-                	v_curr_tab_tag.alterTableObject.canAlterNullable = p_return.v_data.v_can_alter_nullable;
-                	v_curr_tab_tag.alterTableObject.canRenameColumn = p_return.v_data.v_can_rename_column;
-                	v_curr_tab_tag.alterTableObject.hasUpdateRule = p_return.v_data.v_has_update_rule;
-					v_curr_tab_tag.alterTableObject.htConstraints = null;
-					v_curr_tab_tag.alterTableObject.fkRefColumns = p_return.v_data.table_ref_columns;
-					v_curr_tab_tag.alterTableObject.can_drop_column = p_return.v_data.v_can_drop_column;
-
-					v_curr_tab_tag.alterTableObject.htColumns = new Handsontable(container,
-					{
-						data: p_return.v_data.v_data_columns,
-						columns : columnProperties,
-						colHeaders : true,
-						rowHeaders : true,
-						manualColumnResize: true,
-						minSpareRows: 1,
-						fillHandle:false,
-						beforeChange: function (changes, source) {
-
-	                        if (!changes) {
-	                            return;
-	                        }
-
-	                        $.each(changes, function (index, element) {
-	                            var change = element;
-	                            var rowIndex = change[0];
-	                            var columnIndex = change[1];
-	                            var oldValue = change[2];
-	                            var newValue = change[3];
-
-	                            if (rowIndex >= v_curr_tab_tag.alterTableObject.infoRowsColumns.length)
-	                            {
-	                            	var v_object = new Object();
-						        	v_object.mode = 2;
-						        	v_object.old_mode = 2;
-						        	v_object.originalColName = '';
-						        	v_object.originalDataType = '';
-						        	v_object.index = v_curr_tab_tag.alterTableObject.infoRowsColumns.length;
-						        	v_object.nullable = '';
+								if(rowIndex >= v_curr_tab_tag.alterTableObject.infoRowsColumns.length) {
+									var v_object = new Object();
+									v_object.mode = 2;
+									v_object.old_mode = 2;
+									v_object.originalColName = '';
+									v_object.originalDataType = '';
+									v_object.index = v_curr_tab_tag.alterTableObject.infoRowsColumns.length;
+									v_object.nullable = '';
 
 									v_curr_tab_tag.alterTableObject.infoRowsColumns.push(v_object);
 
 									v_curr_tab_tag.btSave.style.visibility = 'visible';
-
-	                            }
-
-	                            if(oldValue != newValue && v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].mode!=2) {
-
-	                            	if (v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].mode!=-1)
-	                            		v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].mode = 1;
-	                            	else
-	                            		v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].old_mode = 1;
-
-	                                v_curr_tab_tag.btSave.style.visibility = 'visible';
-
-	                            }
-	                        });
-
-	                    },
-	                    cells: function (row, col, prop) {
-
-						    var cellProperties = {};
-
-						    if (v_curr_tab_tag.alterTableObject.infoRowsColumns[row]!=null) {
-
-						    	if (col==3) {
-						    		if (v_curr_tab_tag.alterTableObject.can_drop_column || v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode==2)
-						    			cellProperties.renderer = columnsActionRenderer;
-						    		else
-						    			cellProperties.renderer = grayEmptyRenderer;
-	    							cellProperties.readOnly = true;
 								}
-								else if (v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode==2) {
-	    							cellProperties.renderer = greenHtmlRenderer;
-	    						}
-	    						else if (v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode==-1) {
-	    							cellProperties.renderer = redHtmlRenderer;
-	    						}
-	    						else if (v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode== 1) {
-	    							cellProperties.renderer = yellowHtmlRenderer;
-	    						}
-	    						else if ((!v_curr_tab_tag.alterTableObject.canAlterType && col==1) || (!v_curr_tab_tag.alterTableObject.canAlterNullable && col==2) || (!v_curr_tab_tag.alterTableObject.canRenameColumn && col==0)) {
-	    							cellProperties.renderer = grayHtmlRenderer;
-	    							cellProperties.readOnly = true;
-	    						}
-	    						else {
-	    							if (row % 2 == 0)
-	    								cellProperties.renderer = blueHtmlRenderer;
-	    							else
-	    								cellProperties.renderer = whiteHtmlRenderer;
-	    						}
 
-    						}
-    						else {
-    							if (col==3) {
-						    		cellProperties.renderer = grayEmptyRenderer;
-	    							cellProperties.readOnly = true;
+								if(oldValue != newValue && v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].mode != 2) {
+									if (v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].mode != -1) {
+										v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].mode = 1;
+									}
+									else {
+										v_curr_tab_tag.alterTableObject.infoRowsColumns[rowIndex].old_mode = 1;
+									}
+
+									v_curr_tab_tag.btSave.style.visibility = 'visible';
 								}
-    						}
-
-						    return cellProperties;
-
-						}
-					});
-
-					v_curr_tab_tag.tabControl.tabList[0].tag = { ht: v_curr_tab_tag.alterTableObject.htColumns };
-
-					//Constraints Table
-					var v_div_result = v_curr_tab_tag.htDivConstraints;
-
-					var columnProperties = [];
-
-					var col = new Object();
-      				col.title =  'Constraint Name';
-      				col.width = '100px';
-     	 			columnProperties.push(col);
-
-					var col = new Object();
-	                col.title =  'Type';
-	                col.width = '100px';
-	                col.type = 'dropdown';
-	                col.source = ['Primary Key','Foreign Key','Unique'];
-	                columnProperties.push(col);
-
-	                var col = new Object();
-      				col.title =  'Columns';
-      				col.width = '140px';
-     	 			columnProperties.push(col);
-
-     	 			var col = new Object();
-	                col.title =  'Referenced Table';
-	                col.width = '140px';
-	                col.type = 'autocomplete';
-	                col.source = p_return.v_data.v_tables;
-	                columnProperties.push(col);
-
-     	 			var col = new Object();
-      				col.title =  'Referenced Columns';
-      				col.width = '140px';
-      				//col.type = 'autocomplete';
-     	 			columnProperties.push(col);
-
-     	 			var col = new Object();
-	                col.title =  'Delete Rule';
-	                col.width = '100px';
-	                col.type = 'autocomplete';
-	                col.source = p_return.v_data.v_delete_rules;
-	                columnProperties.push(col);
-
-	                var col = new Object();
-	                col.title =  'Update Rule';
-	                col.width = '100px';
-	                col.type = 'autocomplete';
-	                col.source = p_return.v_data.v_update_rules;
-	                columnProperties.push(col);
-
-     	 			var col = new Object();
-      				col.title =  ' ';
-      				col.renderer = 'html';
-     	 			columnProperties.push(col);
-
-     	 			var v_infoRowsConstraints = [];
-
-	                for (var i=0; i < p_return.v_data.v_data_constraints.length; i++) {
-	                	var v_object = new Object();
-	                	v_object.mode = 0;
-	                	v_object.old_mode = -1;
-	                	v_object.index = i;
-	                	v_infoRowsConstraints.push(v_object);
-	                }
-
-	                v_curr_tab_tag.alterTableObject.infoRowsConstraints = v_infoRowsConstraints;
-									 v_curr_tab_tag.alterTableObject.data = p_return.v_data.v_data_constraints;
-	                v_curr_tab_tag.alterTableObject.canAlterConstraints = false;
-
-
-					var container = v_div_result;
-
-
-					v_curr_tab_tag.alterTableObject.htConstraints = new Handsontable(container,
-					{
-						data: p_return.v_data.v_data_constraints,
-						columns : columnProperties,
-						colHeaders : true,
-						manualColumnResize: true,
-						fillHandle:false,
-						beforeChange: function (changes, source) {
-
-	                        if (!changes) {
-	                            return;
-	                        }
-	                        $.each(changes, function (index, element) {
-	                            var change = element;
-	                            var rowIndex = change[0];
-	                            var columnIndex = change[1];
-	                            var oldValue = change[2];
-	                            var newValue = change[3];
-
-	                            if(oldValue != newValue){
-
-	                            	if (columnIndex == 3) {
-	                            		//getReferenceColumnsList(rowIndex,newValue);
-	                            	}
-
-	                            	v_curr_tab_tag.btSave.style.visibility = 'visible';
-	                            }
-	                        });
-
-	                    },
-						cells: function (row, col, prop) {
-
-						    var cellProperties = {};
-
-						    if (v_curr_tab_tag.alterTableObject.infoRowsConstraints[row]!=null) {
-
-					    		var v_constraint_type = v_curr_tab_tag.alterTableObject.data[row][1];
-
-						    	if (col==7 || (!v_curr_tab_tag.alterTableObject.hasUpdateRule && col==6)) {
-						    		cellProperties.renderer = grayHtmlRenderer;
-	    							cellProperties.readOnly = true;
-								}
-								else if (v_curr_tab_tag.alterTableObject.infoRowsConstraints[row].mode==-1) {
-	    							cellProperties.renderer = redHtmlRenderer;
-	    						}
-								else if ( (v_constraint_type!='Primary Key' && v_constraint_type!='Foreign Key' && v_constraint_type!='Unique') && (col==2) ) {
-						    		cellProperties.renderer = grayHtmlRenderer;
-	    							cellProperties.readOnly = true;
-								}
-								else if ( (v_constraint_type!='Foreign Key') && (col==3 || col==4 || col==5 || col==6) ) {
-						    		cellProperties.renderer = grayHtmlRenderer;
-	    							cellProperties.readOnly = true;
-								}
-								else if (v_curr_tab_tag.alterTableObject.infoRowsConstraints[row].mode==2) {
-	    							cellProperties.renderer = greenHtmlRenderer;
-	    							cellProperties.readOnly = false;
-	    						}
-	    						else if (!v_curr_tab_tag.alterTableObject.canAlterConstraints) {
-	    							cellProperties.renderer = grayHtmlRenderer;
-	    							cellProperties.readOnly = true;
-	    						}
-	    						else {
-	    							if (row % 2 == 0)
-	    								cellProperties.renderer = blueHtmlRenderer;
-	    							else
-	    								cellProperties.renderer = whiteHtmlRenderer;
-	    						}
-
-	    						if (col==2)
-						    		cellProperties.readOnly = true;
-
-	    						if (col==4) {
-							    	if (v_constraint_type=='Foreign Key') {
-
-							    		cellProperties.type='dropdown';
-							    		//cellProperties.source = v_curr_tab_tag.alterTableObject.fkRefColumns[row];
-
-							    	}
-						    	}
-
-    						}
-
-						    return cellProperties;
-
-						}
-
-					});
-
-					v_curr_tab_tag.tabControl.tabList[1].tag = { ht: v_curr_tab_tag.alterTableObject.htConstraints };
-
-					//Indexes Table
-					var v_div_result = v_curr_tab_tag.htDivIndexes;
-
-					var columnProperties = [];
-
-					var col = new Object();
-      				col.title =  'Index Name';
-      				col.width = '100px';
-     	 			columnProperties.push(col);
-
-					var col = new Object();
-	                col.title =  'Type';
-	                col.width = '100px';
-	                col.type = 'dropdown';
-	                col.source = ['Non Unique','Unique'];
-	                columnProperties.push(col);
-
-	                var col = new Object();
-      				col.title =  'Columns';
-      				col.width = '160px';
-     	 			columnProperties.push(col);
-
-     	 			var col = new Object();
-      				col.title =  ' ';
-      				col.renderer = 'html';
-     	 			columnProperties.push(col);
-
-     	 			var v_infoRowsIndexes = [];
-
-	                for (var i=0; i < p_return.v_data.v_data_indexes.length; i++) {
-	                	var v_object = new Object();
-	                	v_object.mode = 0;
-	                	v_object.old_mode = -1;
-	                	v_object.index = i;
-	                	v_infoRowsIndexes.push(v_object);
-	                }
-
-	                v_curr_tab_tag.alterTableObject.infoRowsIndexes = v_infoRowsIndexes;
-	                v_curr_tab_tag.alterTableObject.canAlterIndexes = false;
-
-
-					var container = v_div_result;
-
-					v_curr_tab_tag.alterTableObject.htIndexes = new Handsontable(container,
-					{
-						data: p_return.v_data.v_data_indexes,
-						columns : columnProperties,
-						colHeaders : true,
-						manualColumnResize: true,
-						fillHandle:false,
-						beforeChange: function (changes, source) {
-
-	                        if (!changes) {
-	                            return;
-	                        }
-	                        $.each(changes, function (index, element) {
-	                            var change = element;
-	                            var rowIndex = change[0];
-	                            var columnIndex = change[1];
-	                            var oldValue = change[2];
-	                            var newValue = change[3];
-
-	                            if(oldValue != newValue){
-
-	                            	if (columnIndex == 3) {
-	                            		//getReferenceColumnsList(rowIndex,newValue);
-	                            	}
-
-	                            	v_curr_tab_tag.btSave.style.visibility = 'visible';
-	                            }
-	                        });
-
-	                    },
-						cells: function (row, col, prop) {
-
-						    var cellProperties = {};
-
-						    if (v_curr_tab_tag.alterTableObject.infoRowsIndexes[row]!=null) {
-
-						    	if (col==3) {
-						    		cellProperties.renderer = grayHtmlRenderer;
-	    							cellProperties.readOnly = true;
-								}
-								else if (v_curr_tab_tag.alterTableObject.infoRowsIndexes[row].mode==-1) {
-	    							cellProperties.renderer = redHtmlRenderer;
-	    						}
-								else if (v_curr_tab_tag.alterTableObject.infoRowsIndexes[row].mode==2) {
-	    							cellProperties.renderer = greenHtmlRenderer;
-	    							cellProperties.readOnly = false;
-	    						}
-	    						else if (!v_curr_tab_tag.alterTableObject.canAlterIndexes) {
-	    							cellProperties.renderer = grayHtmlRenderer;
-	    							cellProperties.readOnly = true;
-	    						}
-	    						else {
-	    							if (row % 2 == 0)
-	    								cellProperties.renderer = blueHtmlRenderer;
-	    							else
-	    								cellProperties.renderer = whiteHtmlRenderer;
-	    						}
-
-	    						if (col==2)
-						    		cellProperties.readOnly = true;
-
-
-    						}
-
-						    return cellProperties;
-						}
-
-					});
-
-					v_curr_tab_tag.tabControl.tabList[2].tag = { ht: v_curr_tab_tag.alterTableObject.htIndexes };
-
-
-				},
-				function(p_return) {
-					if (p_return.v_data.password_timeout) {
-						showPasswordPrompt(
-							v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-							function() {
-								startAlterTable(p_create_tab, p_mode, p_table, p_schema);
-							},
-							null,
-							p_return.v_data.message
+							}
 						);
-					}
-				},
-				'box');
+	                },
+					/**
+					 * Callback used to customize cells rendering in the grid. Applies colors to the lines after observing its current state.
+					 * @param {number} row - the row number of the cell being rendered.
+					 * @param {number} col - the column number of the cell being rendered.
+					 * @param {object} prop - cell properties.
+					 * @returns {object} the new cell properties.
+					 */
+					cells: function (row, col, prop) {
+						var cellProperties = {};
 
+						if(v_curr_tab_tag.alterTableObject.infoRowsColumns[row] != null) {
+							if(col == 3) {
+								if(v_curr_tab_tag.alterTableObject.can_drop_column || v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode == 2) {
+									cellProperties.renderer = columnsActionRenderer;
+								}
+								else {
+									cellProperties.renderer = grayEmptyRenderer;
+								}
+
+								cellProperties.readOnly = true;
+							}
+							else if(v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode == 2) {
+								cellProperties.renderer = greenHtmlRenderer;
+							}
+							else if(v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode == -1) {
+								cellProperties.renderer = redHtmlRenderer;
+							}
+							else if(v_curr_tab_tag.alterTableObject.infoRowsColumns[row].mode == 1) {
+								cellProperties.renderer = yellowHtmlRenderer;
+							}
+							else if((!v_curr_tab_tag.alterTableObject.canAlterType && col == 1) || (!v_curr_tab_tag.alterTableObject.canAlterNullable && col == 2) || (!v_curr_tab_tag.alterTableObject.canRenameColumn && col == 0)) {
+								cellProperties.renderer = grayHtmlRenderer;
+								cellProperties.readOnly = true;
+							}
+							else {
+								if(row % 2 == 0) {
+									cellProperties.renderer = blueHtmlRenderer;
+								}
+								else {
+									cellProperties.renderer = whiteHtmlRenderer;
+								}
+							}
+						}
+						else {
+							if(col==3) {
+								cellProperties.renderer = grayEmptyRenderer;
+								cellProperties.readOnly = true;
+							}
+						}
+
+						return cellProperties;
+					}
+				}
+			);
+
+			v_curr_tab_tag.tabControl.tabList[0].tag = { ht: v_curr_tab_tag.alterTableObject.htColumns };
+
+			//Constraints Table
+			var v_div_result = v_curr_tab_tag.htDivConstraints;
+
+			var columnProperties = [];
+
+			var col = new Object();
+			col.title =  'Constraint Name';
+			col.width = '100px';
+			columnProperties.push(col);
+
+			var col = new Object();
+			col.title =  'Type';
+			col.width = '100px';
+			col.type = 'dropdown';
+			col.source = ['Primary Key','Foreign Key','Unique'];
+			columnProperties.push(col);
+
+			var col = new Object();
+			col.title =  'Columns';
+			col.width = '140px';
+			columnProperties.push(col);
+
+			var col = new Object();
+			col.title =  'Referenced Table';
+			col.width = '140px';
+			col.type = 'autocomplete';
+			col.source = p_return.v_data.v_tables;
+			columnProperties.push(col);
+
+			var col = new Object();
+			col.title =  'Referenced Columns';
+			col.width = '140px';
+			//col.type = 'autocomplete';
+			columnProperties.push(col);
+
+			var col = new Object();
+			col.title =  'Delete Rule';
+			col.width = '100px';
+			col.type = 'autocomplete';
+			col.source = p_return.v_data.v_delete_rules;
+			columnProperties.push(col);
+
+			var col = new Object();
+			col.title =  'Update Rule';
+			col.width = '100px';
+			col.type = 'autocomplete';
+			col.source = p_return.v_data.v_update_rules;
+			columnProperties.push(col);
+
+			var col = new Object();
+			col.title =  ' ';
+			col.renderer = 'html';
+			columnProperties.push(col);
+
+			var v_infoRowsConstraints = [];
+
+			for(var i = 0; i < p_return.v_data.v_data_constraints.length; i++) {
+				var v_object = new Object();
+				v_object.mode = 0;
+				v_object.old_mode = -1;
+				v_object.index = i;
+				v_infoRowsConstraints.push(v_object);
+			}
+
+			v_curr_tab_tag.alterTableObject.infoRowsConstraints = v_infoRowsConstraints;
+			v_curr_tab_tag.alterTableObject.data = p_return.v_data.v_data_constraints;
+			v_curr_tab_tag.alterTableObject.canAlterConstraints = false;
+
+			var container = v_div_result;
+
+			v_curr_tab_tag.alterTableObject.htConstraints = new Handsontable(
+				container,
+				{
+					data: p_return.v_data.v_data_constraints,
+					columns : columnProperties,
+					colHeaders : true,
+					manualColumnResize: true,
+					fillHandle:false,
+					/**
+					 * Callback executed before changes are applied to the grid. Changes save button visibility mode based on grid changes.
+					 * @param {object} changes - the changes occured in the grid.
+					 * @param {object} source - where the changes have occurred.
+					 */
+					beforeChange: function (changes, source) {
+						if (!changes) {
+							return;
+						}
+
+						$.each(
+							changes,
+							function (index, element) {
+								var change = element;
+								var rowIndex = change[0];
+								var columnIndex = change[1];
+								var oldValue = change[2];
+								var newValue = change[3];
+
+								if(oldValue != newValue) {
+									v_curr_tab_tag.btSave.style.visibility = 'visible';
+								}
+							}
+						);
+					},
+					/**
+					 * Callback used to customize cells rendering in the grid. Applies colors to the lines after observing its current state.
+					 * @param {number} row - the row number of the cell being rendered.
+					 * @param {number} col - the column number of the cell being rendered.
+					 * @param {object} prop - cell properties.
+					 * @returns {object} the new cell properties.
+					 */
+					cells: function (row, col, prop) {
+						var cellProperties = {};
+
+						if(v_curr_tab_tag.alterTableObject.infoRowsConstraints[row] != null) {
+							var v_constraint_type = v_curr_tab_tag.alterTableObject.data[row][1];
+
+							if(col == 7 || (!v_curr_tab_tag.alterTableObject.hasUpdateRule && col==6)) {
+								cellProperties.renderer = grayHtmlRenderer;
+								cellProperties.readOnly = true;
+							}
+							else if(v_curr_tab_tag.alterTableObject.infoRowsConstraints[row].mode == -1) {
+								cellProperties.renderer = redHtmlRenderer;
+							}
+							else if((v_constraint_type != 'Primary Key' && v_constraint_type != 'Foreign Key' && v_constraint_type != 'Unique') && (col == 2)) {
+								cellProperties.renderer = grayHtmlRenderer;
+								cellProperties.readOnly = true;
+							}
+							else if((v_constraint_type != 'Foreign Key') && (col == 3 || col == 4 || col == 5 || col == 6)) {
+								cellProperties.renderer = grayHtmlRenderer;
+								cellProperties.readOnly = true;
+							}
+							else if(v_curr_tab_tag.alterTableObject.infoRowsConstraints[row].mode == 2) {
+								cellProperties.renderer = greenHtmlRenderer;
+								cellProperties.readOnly = false;
+							}
+							else if(!v_curr_tab_tag.alterTableObject.canAlterConstraints) {
+								cellProperties.renderer = grayHtmlRenderer;
+								cellProperties.readOnly = true;
+							}
+							else {
+								if(row % 2 == 0) {
+									cellProperties.renderer = blueHtmlRenderer;
+								}
+								else {
+									cellProperties.renderer = whiteHtmlRenderer;
+								}
+							}
+
+							if(col == 2) {
+								cellProperties.readOnly = true;
+							}
+
+							if(col == 4) {
+								if(v_constraint_type == 'Foreign Key') {
+									cellProperties.type='dropdown';
+								}
+							}
+						}
+
+						return cellProperties;
+					}
+				}
+			);
+
+			v_curr_tab_tag.tabControl.tabList[1].tag = { ht: v_curr_tab_tag.alterTableObject.htConstraints };
+
+			//Indexes Table
+			var v_div_result = v_curr_tab_tag.htDivIndexes;
+
+			var columnProperties = [];
+
+			var col = new Object();
+			col.title =  'Index Name';
+			col.width = '100px';
+			columnProperties.push(col);
+
+			var col = new Object();
+			col.title =  'Type';
+			col.width = '100px';
+			col.type = 'dropdown';
+			col.source = ['Non Unique','Unique'];
+			columnProperties.push(col);
+
+			var col = new Object();
+			col.title =  'Columns';
+			col.width = '160px';
+			columnProperties.push(col);
+
+			var col = new Object();
+			col.title =  ' ';
+			col.renderer = 'html';
+			columnProperties.push(col);
+
+			var v_infoRowsIndexes = [];
+
+			for (var i=0; i < p_return.v_data.v_data_indexes.length; i++) {
+			var v_object = new Object();
+			v_object.mode = 0;
+			v_object.old_mode = -1;
+			v_object.index = i;
+			v_infoRowsIndexes.push(v_object);
+			}
+
+			v_curr_tab_tag.alterTableObject.infoRowsIndexes = v_infoRowsIndexes;
+			v_curr_tab_tag.alterTableObject.canAlterIndexes = false;
+
+			var container = v_div_result;
+
+			v_curr_tab_tag.alterTableObject.htIndexes = new Handsontable(
+				container,
+				{
+					data: p_return.v_data.v_data_indexes,
+					columns : columnProperties,
+					colHeaders : true,
+					manualColumnResize: true,
+					fillHandle:false,
+					/**
+					 * Callback executed before changes are applied to the grid. Changes save button visibility mode based on grid changes.
+					 * @param {object} changes - the changes occured in the grid.
+					 * @param {object} source - where the changes have occurred.
+					 */
+					beforeChange: function (changes, source) {
+						if(!changes) {
+							return;
+						}
+
+						$.each(
+							changes,
+							function (index, element) {
+								var change = element;
+								var rowIndex = change[0];
+								var columnIndex = change[1];
+								var oldValue = change[2];
+								var newValue = change[3];
+
+								if(oldValue != newValue) {
+									v_curr_tab_tag.btSave.style.visibility = 'visible';
+								}
+							}
+						);
+					},
+					/**
+					 * Callback used to customize cells rendering in the grid. Applies colors to the lines after observing its current state.
+					 * @param {number} row - the row number of the cell being rendered.
+					 * @param {number} col - the column number of the cell being rendered.
+					 * @param {object} prop - cell properties.
+					 * @returns {object} the new cell properties.
+					 */
+					cells: function (row, col, prop) {
+						var cellProperties = {};
+
+						if(v_curr_tab_tag.alterTableObject.infoRowsIndexes[row] != null) {
+							if(col == 3) {
+								cellProperties.renderer = grayHtmlRenderer;
+								cellProperties.readOnly = true;
+							}
+							else if(v_curr_tab_tag.alterTableObject.infoRowsIndexes[row].mode == -1) {
+								cellProperties.renderer = redHtmlRenderer;
+							}
+							else if(v_curr_tab_tag.alterTableObject.infoRowsIndexes[row].mode == 2) {
+								cellProperties.renderer = greenHtmlRenderer;
+								cellProperties.readOnly = false;
+							}
+							else if(!v_curr_tab_tag.alterTableObject.canAlterIndexes) {
+								cellProperties.renderer = grayHtmlRenderer;
+								cellProperties.readOnly = true;
+							}
+							else {
+								if(row % 2 == 0) {
+									cellProperties.renderer = blueHtmlRenderer;
+								}
+								else {
+									cellProperties.renderer = whiteHtmlRenderer;
+								}
+							}
+
+							if(col == 2) {
+								cellProperties.readOnly = true;
+							}
+						}
+
+						return cellProperties;
+					}
+				}
+			);
+
+			v_curr_tab_tag.tabControl.tabList[2].tag = { ht: v_curr_tab_tag.alterTableObject.htIndexes };
+		},
+		/**
+		 * Callback executed on ajax call error. Will check if a password timeout has occurred and warn user about that, if it's the case
+		 * @param {object} p_return - the return data of the call.
+		 * @param {boolean} p_return.v_data.password_timeout - if the password has timed out and the user should type it again.
+		 * @param {string} p_return.v_data.message - the message to be displayed to the user in case of password timeout.
+		 */
+		function(p_return) {
+			if(p_return.v_data.password_timeout) {
+				showPasswordPrompt(
+					v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					function() {
+						startAlterTable(p_create_tab, p_mode, p_table, p_schema);
+					},
+					null,
+					p_return.v_data.message
+				);
+			}
+		},
+		'box'
+	);
 }
 
 /// <summary>

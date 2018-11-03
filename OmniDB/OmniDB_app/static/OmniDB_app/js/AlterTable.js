@@ -39,13 +39,12 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 		 * @param {boolean} p_return.v_data.v_can_alter_nullable - if the database permits changing columns nullable.
 		 * @param {boolean} p_return.v_data.v_can_rename_column - if the database permits renaming columns.
 		 * @param {boolean} p_return.v_data.v_has_update_rule - if the database permits updating rules.
-		 * @param {object} p_return.v_data.table_ref_columns - referenced columns in foreign keys.
 		 * @param {boolean} p_return.v_data.v_can_drop_column - if the database permits droping columns.
-		 * @param {object} p_return.v_data.v_tables - referenced tables.
-		 * @param {object} p_return.v_data.v_delete_rules - tables delete rules.
-		 * @param {object} p_return.v_data.v_update_rules - tables update rules.
-		 * @param {object} p_return.v_data.v_data_constraints - the table constraints.
-		 * @param {object} p_return.v_data.v_data_indexes - the table indexes.
+		 * @param {object[]} p_return.v_data.v_tables - database tables.
+		 * @param {object[]} p_return.v_data.v_delete_rules - tables general delete rules.
+		 * @param {object[]} p_return.v_data.v_update_rules - tables general update rules.
+		 * @param {object[]} p_return.v_data.v_data_constraints - the table constraints.
+		 * @param {object[]} p_return.v_data.v_data_indexes - the table indexes.
 		 */
 		function(p_return) {
 			if(p_create_tab) {
@@ -153,7 +152,6 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 			v_curr_tab_tag.alterTableObject.canRenameColumn = p_return.v_data.v_can_rename_column;
 			v_curr_tab_tag.alterTableObject.hasUpdateRule = p_return.v_data.v_has_update_rule;
 			v_curr_tab_tag.alterTableObject.htConstraints = null;
-			v_curr_tab_tag.alterTableObject.fkRefColumns = p_return.v_data.table_ref_columns;
 			v_curr_tab_tag.alterTableObject.can_drop_column = p_return.v_data.v_can_drop_column;
 
 			v_curr_tab_tag.alterTableObject.htColumns = new Handsontable(
@@ -650,6 +648,27 @@ function saveAlterTable() {
 		input,
 		/**
 		 * Callback executed on ajax call success.
+		 * @param {object} p_return - the return data of the call.
+		 * @param {object} p_return.v_data.v_create_table_command - info about the create table command.
+		 * @param {boolean} p_return.v_data.v_create_table_command.error - if an error occurred in create table command.
+		 * @param {string} p_return.v_data.v_create_table_command.v_command - the create table command itself.
+		 * @param {string} p_return.v_data.v_create_table_command.v_message - any message about the create table command.
+		 * @param {object} p_return.v_data.v_rename_table_command - info about the alter table rename command.
+		 * @param {boolean} p_return.v_data.v_rename_table_command.error - if an error occurred in alter table rename command.
+		 * @param {string} p_return.v_data.v_rename_table_command.v_command - the alter table rename command itself.
+		 * @param {string} p_return.v_data.v_rename_table_command.v_message - any message about the alter table rename command.
+		 * @param {object[]} p_return.v_data.v_columns_simple_commands_return - info about adding/dropping in table columns.
+		 * @param {boolean} p_return.v_data.v_columns_simple_commands_return[].error - if an error occurred in add/drop column command.
+		 * @param {string} p_return.v_data.v_columns_simple_commands_return[].v_command - the add/drop column command itself.
+		 * @param {string} p_return.v_data.v_columns_simple_commands_return[].v_message - any message about the add/drop column command.
+		 * @param {number} p_return.v_data.v_columns_simple_commands_return[].mode - 2 if add mode, -1 if drop mode.
+		 * @param {number} p_return.v_data.v_columns_simple_commands_return[].index - the add/drop column index.
+		 * @param {object[]} p_return.v_data.v_columns_group_commands_return - info about changings in table columns.
+		 * @param {object} p_return.v_data.v_columns_group_commands_return[].alter_datatype - info about changings in column data type.
+		 * @param {boolean} p_return.v_data.v_columns_group_commands_return[].alter_datatype.error - if an error occurred in alter column type command.
+		 * @param {string} p_return.v_data.v_columns_group_commands_return[].alter_datatype.v_command - the alter column type command itself.
+		 * @param {string} p_return.v_data.v_columns_group_commands_return[].alter_datatype.v_message - any message about the alter column type command.
+		 kkk
 		 */
 		function(p_return) {
 			var v_div_commands_log = document.getElementById('div_commands_log_list');

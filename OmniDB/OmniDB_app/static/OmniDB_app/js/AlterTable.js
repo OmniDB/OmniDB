@@ -667,7 +667,27 @@ function saveAlterTable() {
 		 * @param {object} p_return.v_data.v_columns_group_commands_return[].alter_datatype - info about changings in column data type.
 		 * @param {boolean} p_return.v_data.v_columns_group_commands_return[].alter_datatype.error - if an error occurred in alter column type command.
 		 * @param {string} p_return.v_data.v_columns_group_commands_return[].alter_datatype.v_command - the alter column type command itself.
-		 * @param {string} p_return.v_data.v_columns_group_commands_return[].alter_datatype.v_message - any message about the alter column type command.
+		 * @param {string} p_return.v_data.v_columns_group_commands_return[].alter_nullable.v_message - any message about the alter column nullable command.
+		 * @param {object} p_return.v_data.v_columns_group_commands_return[].alter_nullable - info about changings in column nullable.
+		 * @param {boolean} p_return.v_data.v_columns_group_commands_return[].alter_nullable.error - if an error occurred in alter column nullable command.
+		 * @param {string} p_return.v_data.v_columns_group_commands_return[].alter_nullable.v_command - the alter column nullable command itself.
+		 * @param {string} p_return.v_data.v_columns_group_commands_return[].alter_nullable.v_message - any message about the alter column nullable command.
+		 * @param {object} p_return.v_data.v_columns_group_commands_return[].alter_colname - info about changings in column name.
+		 * @param {boolean} p_return.v_data.v_columns_group_commands_return[].alter_colname.error - if an error occurred in alter column name command.
+		 * @param {string} p_return.v_data.v_columns_group_commands_return[].alter_colname.v_command - the alter column name command itself.
+		 * @param {string} p_return.v_data.v_columns_group_commands_return[].alter_colname.v_message - any message about the alter column name command.
+		 * @param {object[]} p_return.v_data.v_constraints_commands_return - info about adding/dropping in table constraints.
+		 * @param {boolean} p_return.v_data.v_constraints_commands_return[].error - if an error occurred in add/drop constraint command.
+		 * @param {string} p_return.v_data.v_constraints_commands_return[].v_command - the add/drop constraint command itself.
+		 * @param {string} p_return.v_data.v_constraints_commands_return[].v_message - any message about the add/drop constraint command.
+		 * @param {number} p_return.v_data.v_constraints_commands_return[].mode - 2 if add mode, -1 if drop mode.
+		 * @param {number} p_return.v_data.v_constraints_commands_return[].index - the add/drop constraint index.
+		 * @param {object[]} p_return.v_data.v_indexes_commands_return - info about adding/dropping in table indexes.
+		 * @param {boolean} p_return.v_data.v_indexes_commands_return[].error - if an error occurred in add/drop index command.
+		 * @param {string} p_return.v_data.v_indexes_commands_return[].v_command - the add/drop index command itself.
+		 * @param {string} p_return.v_data.v_indexes_commands_return[].v_message - any message about the add/drop index command.
+		 * @param {number} p_return.v_data.v_indexes_commands_return[].mode - 2 if add mode, -1 if drop mode.
+		 * @param {number} p_return.v_data.v_indexes_commands_return[].index - the add/drop index index.
 		 kkk
 		 */
 		function(p_return) {
@@ -929,147 +949,82 @@ function changeTableName() {
 	$(v_curr_tab_tag.txtTableName).addClass('changed_input');
 }
 
-/// <summary>
-/// Changes sequence field.
-/// </summary>
-function changeSequenceField(p_element) {
-
-	var v_curr_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-
-	v_curr_tab_tag.btSave.style.visibility = 'visible';
-	$(p_element).addClass('changed_input');
-
-}
-
-/// <summary>
-/// Triggered when X is pressed in specific column at the alter table window.
-/// </summary>
+/**
+ * Triggered when X is pressed in specific column at the alter table window.
+ */
 function dropColumnAlterTable() {
-
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_data = v_currTabTag.alterTableObject.htColumns.getData();
 	var v_row = v_currTabTag.alterTableObject.htColumns.getSelected()[0][0];
 
-	if (v_currTabTag.alterTableObject.infoRowsColumns[v_row].mode==2) {
-
-		v_currTabTag.alterTableObject.infoRowsColumns.splice(v_row,1);
-		v_data.splice(v_row,1);
-
+	if(v_currTabTag.alterTableObject.infoRowsColumns[v_row].mode == 2) {
+		v_currTabTag.alterTableObject.infoRowsColumns.splice(v_row, 1);
+		v_data.splice(v_row, 1);
 		v_currTabTag.alterTableObject.htColumns.loadData(v_data);
-
 	}
 	else {
-
 		var v_mode = v_currTabTag.alterTableObject.infoRowsColumns[v_row].mode;
 		v_currTabTag.alterTableObject.infoRowsColumns[v_row].mode = v_currTabTag.alterTableObject.infoRowsColumns[v_row].old_mode;
 		v_currTabTag.alterTableObject.infoRowsColumns[v_row].old_mode = v_mode;
-
 		v_currTabTag.alterTableObject.htColumns.loadData(v_data);
-
 	}
 
 	v_currTabTag.btSave.style.visibility = 'visible';
-
 }
 
-/// <summary>
-/// Triggered when X is pressed in specific constraint at the alter table window.
-/// </summary>
+/**
+ * Triggered when X is pressed in specific constraint at the alter table window.
+ */
 function dropConstraintAlterTable() {
-
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_data = v_currTabTag.alterTableObject.htConstraints.getData();
 	var v_row = v_currTabTag.alterTableObject.htConstraints.getSelected()[0][0];
 
-	if (v_currTabTag.alterTableObject.infoRowsConstraints[v_row].mode==2) {
-
-		v_currTabTag.alterTableObject.infoRowsConstraints.splice(v_row,1);
-		v_data.splice(v_row,1);
-
+	if(v_currTabTag.alterTableObject.infoRowsConstraints[v_row].mode == 2) {
+		v_currTabTag.alterTableObject.infoRowsConstraints.splice(v_row, 1);
+		v_data.splice(v_row, 1);
 		v_currTabTag.alterTableObject.htConstraints.loadData(v_data);
-
 	}
 	else {
-
 		var v_mode = v_currTabTag.alterTableObject.infoRowsConstraints[v_row].mode;
 		v_currTabTag.alterTableObject.infoRowsConstraints[v_row].mode = v_currTabTag.alterTableObject.infoRowsConstraints[v_row].old_mode;
 		v_currTabTag.alterTableObject.infoRowsConstraints[v_row].old_mode = v_mode;
-
 		v_currTabTag.alterTableObject.htConstraints.loadData(v_data);
-
 	}
 
 	v_currTabTag.btSave.style.visibility = 'visible';
-
 }
 
-/// <summary>
-/// Triggered when X is pressed in specific index at the alter table window.
-/// </summary>
+/**
+ * Triggered when X is pressed in specific index at the alter table window.
+ */
 function dropIndexAlterTable() {
-
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_data = v_currTabTag.alterTableObject.htIndexes.getData();
 	var v_row = v_currTabTag.alterTableObject.htIndexes.getSelected()[0][0];
 
-	if (v_currTabTag.alterTableObject.infoRowsIndexes[v_row].mode==2) {
-
-		v_currTabTag.alterTableObject.infoRowsIndexes.splice(v_row,1);
-		v_data.splice(v_row,1);
-
+	if(v_currTabTag.alterTableObject.infoRowsIndexes[v_row].mode == 2) {
+		v_currTabTag.alterTableObject.infoRowsIndexes.splice(v_row, 1);
+		v_data.splice(v_row, 1);
 		v_currTabTag.alterTableObject.htIndexes.loadData(v_data);
-
 	}
 	else {
-
 		var v_mode = v_currTabTag.alterTableObject.infoRowsIndexes[v_row].mode;
 		v_currTabTag.alterTableObject.infoRowsIndexes[v_row].mode = v_currTabTag.alterTableObject.infoRowsIndexes[v_row].old_mode;
 		v_currTabTag.alterTableObject.infoRowsIndexes[v_row].old_mode = v_mode;
-
 		v_currTabTag.alterTableObject.htIndexes.loadData(v_data);
-
 	}
 
 	v_currTabTag.btSave.style.visibility = 'visible';
-
 }
 
-/// <summary>
-/// Adds new column at the alter table window.
-/// </summary>
-function newColumnAlterTable() {
-
-	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-
-	var v_data = v_currTabTag.alterTableObject.htColumns.getData();
-
-	var v_object = new Object();
-	v_object.canAlterType = true;
-	v_object.canAlterNullable = true;
-	v_object.canRenameColumn = true;
-	v_object.mode = 2;
-	v_object.originalColName = '';
-	v_object.originalDataType = '';
-	v_object.nullable = '';
-
-	v_currTabTag.alterTableObject.infoRowsColumns.push(v_object);
-
-	v_data.push(['','','YES',"<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropColumnAlterTable()'></i>"]);
-
-	v_currTabTag.alterTableObject.htColumns.loadData(v_data);
-
-	v_currTabTag.btSave.style.visibility = 'visible';
-
-}
-
-/// <summary>
-/// Adds new index at the alter table window.
-/// </summary>
+/**
+ * Adds new index at the alter table window.
+ */
 function newIndexAlterTable() {
-
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_data = v_currTabTag.alterTableObject.htIndexes.getData();
@@ -1079,22 +1034,16 @@ function newIndexAlterTable() {
 	v_object.old_mode = 2;
 	v_object.index = v_currTabTag.alterTableObject.infoRowsIndexes.length;
 
-
 	v_currTabTag.alterTableObject.infoRowsIndexes.push(v_object);
-
 	v_data.push(['','',"<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionIndexes()'></i> ","<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropIndexAlterTable()'></i>"]);
-
 	v_currTabTag.alterTableObject.htIndexes.loadData(v_data);
-
 	v_currTabTag.btSave.style.visibility = 'visible';
-
 }
 
-/// <summary>
-/// Adds new constraint at the alter table window.
-/// </summary>
+/**
+ * Adds new constraint at the alter table window.
+ */
 function newConstraintAlterTable() {
-
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_data = v_currTabTag.alterTableObject.htConstraints.getData();
@@ -1104,23 +1053,17 @@ function newConstraintAlterTable() {
 	v_object.old_mode = 2;
 	v_object.index = v_currTabTag.alterTableObject.infoRowsConstraints.length;
 
-
 	v_currTabTag.alterTableObject.infoRowsConstraints.push(v_object);
-
 	v_data.push(['','',"<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionConstraints()'></i> ",'','','','',"<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConstraintAlterTable()'></i>"]);
-
 	v_currTabTag.alterTableObject.data = v_data;
 	v_currTabTag.alterTableObject.htConstraints.loadData(v_data);
-
 	v_currTabTag.btSave.style.visibility = 'visible';
-
 }
 
-/// <summary>
-/// Adds column to right list at columns list window.
-/// </summary>
+/**
+ * Adds column to right list at columns list window.
+ */
 function addColumnToList() {
-
 	var v_select_left = document.getElementById("sel_columns_left");
 
 	var v_select_right = document.getElementById("sel_columns_right");
@@ -1129,14 +1072,12 @@ function addColumnToList() {
 	v_select_right.add(option);
 
 	v_select_left.remove(v_select_left.selectedIndex);
-
 }
 
-/// <summary>
-/// Adds column to left list at columns list window.
-/// </summary>
+/**
+ * Adds column to left list at columns list window.
+ */
 function remColumnFromList() {
-
 	var v_select_right = document.getElementById("sel_columns_right");
 
 	var v_select_left = document.getElementById("sel_columns_left");
@@ -1145,14 +1086,12 @@ function remColumnFromList() {
 	v_select_left.add(option);
 
 	v_select_right.remove(v_select_right.selectedIndex);
-
 }
 
-/// <summary>
-/// Hides column list window.
-/// </summary>
+/**
+ * Hides column list window.
+ */
 function hideColumnSelection() {
-
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_select_right = document.getElementById('sel_columns_right');
@@ -1160,16 +1099,16 @@ function hideColumnSelection() {
 	var v_first = true;
 	var v_column_string = '';
 
-	for (var i=0; i < v_select_right.options.length; i++) {
-		if (!v_first)
+	for(var i = 0; i < v_select_right.options.length; i++) {
+		if(!v_first) {
 			v_column_string += ', ';
+		}
 
 		v_first = false;
 		v_column_string += v_select_right.options[i].text;
-
 	}
 
-	if (v_currTabTag.alterTableObject.window=='constraints') {
+	if(v_currTabTag.alterTableObject.window == 'constraints') {
 		v_column_string = "<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionConstraints()'></i> " + v_column_string;
 		v_currTabTag.alterTableObject.htConstraints.setDataAtCell(v_currTabTag.alterTableObject.selectedConstraintRow, 2, v_column_string);
 	}
@@ -1177,15 +1116,14 @@ function hideColumnSelection() {
 		v_column_string = "<i title='Select columns' class='fas fa-columns action-grid action-edit-columns' onclick='showColumnSelectionIndexes()'></i> " + v_column_string;
 		v_currTabTag.alterTableObject.htIndexes.setDataAtCell(v_currTabTag.alterTableObject.selectedIndexRow, 2, v_column_string);
 	}
-	$('#div_column_selection').removeClass('isActive');
 
+	$('#div_column_selection').removeClass('isActive');
 }
 
-/// <summary>
-/// Displays columns list window for constraints.
-/// </summary>
+/**
+ * Displays columns list window for constraints.
+ */
 function showColumnSelectionConstraints() {
-
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	$("#sel_columns_left").empty();
@@ -1196,25 +1134,25 @@ function showColumnSelectionConstraints() {
 
 	var v_selected = v_currTabTag.alterTableObject.htConstraints.getSelected()[0];
 
-	if (v_currTabTag.alterTableObject.infoRowsConstraints[v_selected[0]].mode==2) {
-
+	if(v_currTabTag.alterTableObject.infoRowsConstraints[v_selected[0]].mode == 2) {
 		v_currTabTag.alterTableObject.selectedConstraintRow = v_selected[0];
 
-		var v_type = v_currTabTag.alterTableObject.htConstraints.getDataAtCell(v_selected[0],1);
+		var v_type = v_currTabTag.alterTableObject.htConstraints.getDataAtCell(v_selected[0], 1);
 
-		if (v_type=='Primary Key' || v_type=='Foreign Key' || v_type=='Unique') {
-
-			var v_columns = v_currTabTag.alterTableObject.htConstraints.getDataAtCell(v_selected[0],v_selected[1]);
+		if(v_type == 'Primary Key' || v_type == 'Foreign Key' || v_type == 'Unique') {
+			var v_columns = v_currTabTag.alterTableObject.htConstraints.getDataAtCell(v_selected[0], v_selected[1]);
 			v_columns = v_columns.substring(129);
 
 			var v_constraint_columns_list;
 
-			if (v_columns=='')
+			if(v_columns == '') {
 				v_constraint_columns_list = [];
-			else
+			}
+			else {
 				v_constraint_columns_list = v_columns.split(', ')
+			}
 
-			for (var i=0; i < v_constraint_columns_list.length; i++) {
+			for(var i = 0; i < v_constraint_columns_list.length; i++) {
 				var option = document.createElement("option");
 				option.text = v_constraint_columns_list[i];
 				v_select_right.add(option);
@@ -1222,8 +1160,8 @@ function showColumnSelectionConstraints() {
 
 			var v_table_columns_list = v_currTabTag.alterTableObject.htColumns.getDataAtCol(0);
 
-			for (var i=0; i < v_table_columns_list.length-1; i++) {
-				if (v_constraint_columns_list.indexOf(v_table_columns_list[i])==-1) {
+			for(var i = 0; i < v_table_columns_list.length - 1; i++) {
+				if(v_constraint_columns_list.indexOf(v_table_columns_list[i]) == -1) {
 					var option = document.createElement("option");
 					option.text = v_table_columns_list[i];
 					v_select_left.add(option);
@@ -1231,18 +1169,14 @@ function showColumnSelectionConstraints() {
 			}
 
 			$('#div_column_selection').addClass('isActive');
-
 		}
-
 	}
-
 }
 
-/// <summary>
-/// Displays columns list window for indexes.
-/// </summary>
+/**
+ * Displays columns list window for indexes.
+ */
 function showColumnSelectionIndexes() {
-
 	var v_currTabTag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	$("#sel_columns_left").empty();
@@ -1253,24 +1187,25 @@ function showColumnSelectionIndexes() {
 
 	var v_selected = v_currTabTag.alterTableObject.htIndexes.getSelected()[0];
 
-	if (v_currTabTag.alterTableObject.infoRowsIndexes[v_selected[0]].mode==2) {
-
+	if(v_currTabTag.alterTableObject.infoRowsIndexes[v_selected[0]].mode == 2) {
 		v_currTabTag.alterTableObject.selectedIndexRow = v_selected[0];
 
-		var v_type = v_currTabTag.alterTableObject.htIndexes.getDataAtCell(v_selected[0],1);
+		var v_type = v_currTabTag.alterTableObject.htIndexes.getDataAtCell(v_selected[0], 1);
 
 
-		var v_columns = v_currTabTag.alterTableObject.htIndexes.getDataAtCell(v_selected[0],v_selected[1]);
+		var v_columns = v_currTabTag.alterTableObject.htIndexes.getDataAtCell(v_selected[0], v_selected[1]);
 		v_columns = v_columns.substring(125);
 
 		var v_index_columns_list;
 
-		if (v_columns=='')
+		if(v_columns == '') {
 			v_index_columns_list = [];
-		else
+		}
+		else {
 			v_index_columns_list = v_columns.split(', ')
+		}
 
-		for (var i=0; i < v_index_columns_list.length; i++) {
+		for(var i = 0; i < v_index_columns_list.length; i++) {
 			var option = document.createElement("option");
 			option.text = v_index_columns_list[i];
 			v_select_right.add(option);
@@ -1278,8 +1213,8 @@ function showColumnSelectionIndexes() {
 
 		var v_table_columns_list = v_currTabTag.alterTableObject.htColumns.getDataAtCol(0);
 
-		for (var i=0; i < v_table_columns_list.length-1; i++) {
-			if (v_index_columns_list.indexOf(v_table_columns_list[i])==-1) {
+		for(var i = 0; i < v_table_columns_list.length - 1; i++) {
+			if(v_index_columns_list.indexOf(v_table_columns_list[i]) == -1) {
 				var option = document.createElement("option");
 				option.text = v_table_columns_list[i];
 				v_select_left.add(option);
@@ -1287,7 +1222,5 @@ function showColumnSelectionIndexes() {
 		}
 
 		$('#div_column_selection').addClass('isActive');
-
 	}
-
 }

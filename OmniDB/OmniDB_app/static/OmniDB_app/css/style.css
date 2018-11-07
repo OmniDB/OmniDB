@@ -11,7 +11,7 @@ You should have received a copy of the GNU General Public License along with Omn
 */
 
 html {
-    overflow-y: scroll;
+    overflow-y: hidden;
 }
 
 body {
@@ -304,7 +304,7 @@ input {
 .error_text {
 	font-family: monospace;
 	font-weight: 500;
-	color: red;
+	color: #ef4646;
 	-moz-user-select: text;
    -khtml-user-select: text;
    -webkit-user-select: text;
@@ -357,7 +357,7 @@ textarea {
 }
 
 body.loading .div_loading {
-    display: block;
+    display: flex;
 }
 
 .div_loading {
@@ -368,7 +368,15 @@ body.loading .div_loading {
   left: 0;
   height: 100%;
   width: 100%;
-  background: rgba(252, 253, 253, 0.6) url(../images/loading.svg) 50% 50% no-repeat
+  background: rgba(252, 253, 253, 0.6) url(../images/omnidb_loading.svg) 50% 50% no-repeat;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.div_loading button {
+  margin-top: 100px;
+  display: none;
 }
 
 .div_loading_local {
@@ -379,12 +387,10 @@ body.loading .div_loading {
   height: 100%;
   width: 100%;
   z-index: 1;
-  background: rgba(252, 253, 253, 0.6) url(../images/loading.svg) 50% 50% no-repeat
+  background: rgba(252, 253, 253, 0.6) url(../images/omnidb_loading.svg) 50% 50% no-repeat
 }
 
 .white_box {
-    border-radius: 3px;
-    border: 1px solid #FFFFFF;
     background-color: #FFFFFF;
     position: fixed;
     font-size: 12px;
@@ -424,6 +430,8 @@ body.loading .div_loading {
 	line-height: 25px;
     list-style-type: none;
 	display: inline-block;
+  color: white;
+  font-size: 12px;
 }
 
 .header_menu li {
@@ -507,8 +515,8 @@ button {
   border-radius: 3px;
   font-family: Arial;
   color: #333;
-  font-size: 13px;
-  height: 30px;
+  font-size: 12px;
+  height: 28px;
   line-height: 0px;
   padding-left: 12px;
   padding-right: 12px;
@@ -525,9 +533,6 @@ select {
   background-image: -ms-linear-gradient(top, #fcfcfc, #eee);
   background-image: -o-linear-gradient(top, #fcfcfc, #eee);
   background-image: linear-gradient(to bottom, #fcfcfc, #eee);
-  -webkit-border-radius: 3;
-  -moz-border-radius: 3;
-  border-radius: 3px;
   font-family: Arial;
   color: #333;
   font-size: 13px;
@@ -588,11 +593,10 @@ button:hover {
   border-radius: 3px;
   font-family: Arial;
   color: #FFF;
-  font-size: 13px;
+  font-size: 11px;
   padding: 6px 12px 6px 12px;
   border: solid #ff6262 1px;
   text-decoration: none;
-  text-shadow: -1px -1px 0 rgba(0,0,0,0.3);font-weight:bold; color: #FFFFFF;
 }
 
 .bt_red:hover {
@@ -924,7 +928,7 @@ table {
 }
 .handsontable table td {
   position: relative;
-  padding-right: 20px;
+  /*padding-right: 20px;*/
 }
 .handsontable td .htAutocompleteArrow {
   /**/position: absolute;
@@ -1009,7 +1013,6 @@ iframe {
   width: 500px;
   height: 300px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   border: 1px solid #e6e6e6;
   overflow: auto;
@@ -1020,7 +1023,6 @@ iframe {
   width: 500px;
   height: 250px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   border: 1px solid #e6e6e6;
 }
@@ -1029,14 +1031,12 @@ iframe {
   display: none;
   position: absolute;
   margin-top: 5px;
-  width: 500px;
+  width: 600px;
   height: 400px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   border: 1px solid #cdcdcd;
   z-index: 1000;
-  box-shadow: 2px 2px 2px #cecece;
 }
 
 .connection_list {
@@ -1047,7 +1047,6 @@ iframe {
   max-width: 90%;
   height: 500px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   z-index: 1000;
 }
@@ -1087,7 +1086,7 @@ iframe {
 
 .unit_list_grid {
   position: relative;
-  width: 500px;
+  width: 600px;
   height: 350px;
   overflow: auto;
   margin-top: 5px;
@@ -1132,7 +1131,7 @@ h2 {
   text-align: center;
   margin-bottom: 5px;
   margin-top: 5px;
-  border-bottom: 1px dashed #c3c3c3;
+  border-bottom: 1px solid #e3e9ef;
   padding-bottom: 5px;
 }
 
@@ -1150,7 +1149,6 @@ h2 {
   margin-right: 13px;
   width: 500px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   z-index: 1000;
   background-color: #f9f9f9;
@@ -1166,7 +1164,6 @@ h2 {
   margin-right: 13px;
   width: 400px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   z-index: 1000;
   background-color: #f9f9f9;
@@ -1180,12 +1177,9 @@ h2 {
   margin-right: 13px;
   width: 600px;
   padding: 5px 5px;
-  border-radius: 3px;
   background-color: #f9f9f9;
   z-index: 1000;
   background-color: #f9f9f9;
-  border: 1px solid #cdcdcd;
-  box-shadow: 2px 2px 2px #cecece;
 }
 
 .console_command_history {
@@ -1194,18 +1188,39 @@ h2 {
   margin-top: -222px;
   width: 600px;
   height: 200px;
-  padding: 5px 5px;
-  border-radius: 3px;
+  padding: 5px 5px 5px 5px;
   background-color: #f9f9f9;
   border: 1px solid #cdcdcd;
   z-index: 1000;
-  box-shadow: 2px 2px 2px #cecece;
 }
 
 .console_command_history_grid {
   position: relative;
   width: 600px;
   height: 200px;
+  overflow: auto;
+}
+
+.query_command_history {
+  display: none;
+  position: absolute;
+  margin-top: -272px;
+  width: 800px;
+  height: 250px;
+  padding: 5px 5px;
+  background-color: #f9f9f9;
+  border: 1px solid #cdcdcd;
+  z-index: 1000;
+}
+
+.query_command_history input {
+  width: 150px;
+}
+
+.query_command_history_grid {
+  position: relative;
+  width: 800px;
+  height: 177px;
   overflow: auto;
 }
 
@@ -1222,7 +1237,7 @@ h2 {
 
 .link_text {
   font-weight: bold;
-  color: blue;
+  color: #177ce0;
   cursor: pointer;
 }
 
@@ -1241,5 +1256,12 @@ h2 {
 
 #monitor_dashboard_buttons_div {
   padding-bottom: 5px;
-  border-bottom: 1px dashed #c3c3c3;
+}
+
+/* MODAL State controls */
+.isModal {
+  display: none;
+}
+.isModal.isActive {
+  display: block;
 }

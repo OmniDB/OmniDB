@@ -120,7 +120,9 @@ class MySQL:
 			"SET NULL",
 			"CASCADE"
         ]
+        self.v_reserved_words = []
         self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
+        self.v_use_server_cursor = False
 
     def GetName(self):
         return self.v_service
@@ -1144,3 +1146,6 @@ WHERE condition
             return self.v_connection.Query('show create {0} {1}.{2}'.format(p_type, p_schema, p_object), True, True).Rows[0][2]
         else:
             return self.v_connection.Query('show create {0} {1}.{2}'.format(p_type, p_schema, p_object), True, True).Rows[0][1]
+
+    def GetAutocompleteValues(self, p_columns, p_filter):
+        return None

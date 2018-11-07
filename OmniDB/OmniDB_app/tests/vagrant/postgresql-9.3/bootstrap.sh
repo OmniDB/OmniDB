@@ -82,7 +82,7 @@ echo "host    all             all             all                     md5" >> "$
 echo "client_encoding = utf8" >> "$PG_CONF"
 
 # Restart so that all new config is loaded:
-service postgresql restart
+systemctl restart postgresql
 
 cat << EOF | su - postgres -c psql
 -- Create the database user:

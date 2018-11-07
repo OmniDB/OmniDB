@@ -39,6 +39,10 @@ def load_plugins():
         else:
             py_exists = False
             enabled = False
+        if isfile(join(settings.PLUGINS_STATIC_DIR,plugin_folder,'plugin.css')):
+            css_exists = True
+        else:
+            css_exists = False
         #if is directory, try to import plugin.py inside it
         if isdir(join(settings.PLUGINS_DIR,plugin_folder)):
             try:
@@ -57,8 +61,10 @@ def load_plugins():
                     'conf_exists'    : conf_exists,
                     'js_exists'      : js_exists,
                     'py_exists'      : py_exists,
+                    'css_exists'     : css_exists,
                     'enabled'        : enabled,
                     'javascript_file': '/static/plugins/{0}/plugin.js'.format(plugin_folder),
+                    'css_file'       : '/static/plugins/{0}/plugin.css'.format(plugin_folder) if css_exists else '',
                     'plugin_folder'  : '/static/plugins/{0}/'.format(plugin_folder)
                 }
                 print('Loaded plugin {0}.'.format(plugin_name),flush=True)
@@ -72,8 +78,10 @@ def load_plugins():
                     'conf_exists'    : conf_exists,
                     'js_exists'      : js_exists,
                     'py_exists'      : py_exists,
+                    'css_exists'     : css_exists,
                     'enabled'        : enabled,
                     'javascript_file': '/static/plugins/{0}/plugin.js'.format(plugin_folder),
+                    'css_file'       : '/static/plugins/{0}/plugin.css'.format(plugin_folder) if css_exists else '',
                     'plugin_folder'  : '/static/plugins/{0}/'.format(plugin_folder)
                 }
 
@@ -121,7 +129,7 @@ def get_plugins(request):
     plugin_list = []
     for key, plugin in plugins.items():
         if plugin['enabled']:
-            plugin_list.append({ 'name': plugin['name'], 'file': plugin['javascript_file'], 'folder': plugin['plugin_folder']})
+            plugin_list.append({ 'name': plugin['name'], 'file': plugin['javascript_file'], 'cssfile': plugin['css_file'], 'folder': plugin['plugin_folder']})
 
     v_return['v_data'] = plugin_list
 
@@ -147,23 +155,27 @@ def list_plugins(request):
     plugin_list = []
     for key, plugin in plugins.items():
         if plugin['conf_exists']:
-            conf_html = '<img title="File exists" src="/static/OmniDB_app/images/select.png">'
+            conf_html = '<i class="fas fa-check-circle action-grid action-check"></i>'
         else:
-            conf_html = '<img title="File not found" src="/static/OmniDB_app/images/tab_close.png">'
+            conf_html = '<i class="fas fa-times action-grid action-close"></i>'
         if plugin['js_exists']:
-            js_html = '<img title="File exists" src="/static/OmniDB_app/images/select.png">'
+            js_html = '<i class="fas fa-check-circle action-grid action-check"></i>'
         else:
-            js_html = '<img title="File not found" src="/static/OmniDB_app/images/tab_close.png">'
+            js_html = '<i class="fas fa-times action-grid action-close"></i>'
         if plugin['py_exists']:
-            py_html = '<img title="File exists" src="/static/OmniDB_app/images/select.png">'
+            py_html = '<i class="fas fa-check-circle action-grid action-check"></i>'
         else:
-            py_html = '<img title="File not found" src="/static/OmniDB_app/images/tab_close.png">'
+            py_html = '<i class="fas fa-times action-grid action-close"></i>'
+        if plugin['css_exists']:
+            css_html = '<i class="fas fa-check-circle action-grid action-check"></i>'
+        else:
+            css_html = '<i class="fas fa-times action-grid action-close"></i>'
         if plugin['enabled']:
-            plugin_enabled = '<img title="File exists" src="/static/OmniDB_app/images/select.png">'
+            plugin_enabled = '<i class="fas fa-check-circle action-grid action-check"></i>'
         else:
-            plugin_enabled = '<img title="File not found" src="/static/OmniDB_app/images/tab_close.png">'
+            plugin_enabled = '<i class="fas fa-times action-grid action-close"></i>'
 
-        plugin_list.append([plugin['folder'],plugin['name'],plugin['version'],conf_html,js_html,py_html, plugin_enabled])
+        plugin_list.append([plugin['folder'],plugin['name'],plugin['version'],conf_html,js_html,py_html,css_html,plugin_enabled])
 
     v_return['v_data'] = plugin_list
 

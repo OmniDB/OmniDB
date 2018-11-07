@@ -1,7 +1,7 @@
 function showPasswordPrompt(p_database_index, p_callback_function, p_cancel_callback_function, p_message, p_send_tab_id = true) {
   if (p_message)
     document.getElementById('div_password_prompt_msg').innerHTML = p_message;
-	$('#div_password_prompt').show();
+	$('#div_password_prompt').addClass('isActive');
 
   document.getElementById('bt_password_prompt_ok').onclick = function() {
     checkPasswordPrompt(p_database_index, p_callback_function, p_cancel_callback_function, p_send_tab_id);
@@ -55,7 +55,7 @@ function checkPasswordPrompt(p_database_index, p_callback_function, p_cancel_cal
 }
 
 function hidePasswordPrompt() {
-	$('#div_password_prompt').hide();
+	$('#div_password_prompt').removeClass('isActive');
 	document.getElementById('div_password_prompt_msg').innerHTML = '';
   document.getElementById('txt_password_prompt').value = '';
 }

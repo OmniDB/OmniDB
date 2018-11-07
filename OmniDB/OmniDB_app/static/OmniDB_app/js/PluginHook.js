@@ -113,12 +113,12 @@ You should have received a copy of the GNU General Public License along with Omn
   - **DESCRIPTION**: Gets the tag of the selected external tab, allowing to store information there.
   - **RETURNS**: Selected external tab tag.
 
-- ```createSQLTab({ p_name: '', p_template: '', p_show_qtip: true })```
+- ```createSQLTab({ p_name: '', p_template: '', p_show_tip: true })```
   - **DESCRIPTION**: Creates an internal Query Tab with a specific SQL passed as a parameter.
   - **PARAMETERS**:
     - p_name: the name of the tab.
     - p_template: the SQL to be filled in the editor.
-    - p_show_qtip: whether to show a tip with the message "Adjust command and run!"
+    - p_show_tip: whether to show a tip with the message "Adjust command and run!"
 
 - ```getPluginPath(p_plugin_name)```
   - **DESCRIPTION**: Get the path of the specific plugin to use reference static files.
@@ -180,10 +180,21 @@ $(function () {
 			function(p_return) {
         var timestamp = new Date().getTime();
         for (var i=0; i<p_return.v_data.length; i++) {
-          var imported = document.createElement('script');
-          imported.src = p_return.v_data[i].file + '?v' + timestamp;
-          document.head.appendChild(imported);
-          v_plugins[p_return.v_data[i].name] = p_return.v_data[i]
+
+          // loading CSS
+          if (p_return.v_data[i].cssfile) {
+            var importedcss = document.createElement('link');
+            importedcss.rel = 'stylesheet';
+            importedcss.href = p_return.v_data[i].cssfile + '?v' + timestamp;
+            document.head.appendChild(importedcss);
+          }
+
+          // loading JS
+          var importedjs = document.createElement('script');
+          importedjs.src = p_return.v_data[i].file + '?v' + timestamp;
+          document.head.appendChild(importedjs);
+
+          v_plugins[p_return.v_data[i].name] = p_return.v_data[i];
         }
 
 			},
@@ -230,14 +241,14 @@ function getPluginPath(p_name) {
 }
 
 function hidePlugins() {
-  document.getElementById('div_plugins').style.display = 'none';
+  document.getElementById('div_plugins').classList.remove('isActive');
   v_connTabControl.tag.plugin_ht.destroy();
   v_connTabControl.tag.plugin_ht = null;
 }
 
 function showPlugins() {
 
-  document.getElementById('div_plugins').style.display = 'block';
+  document.getElementById('div_plugins').classList.add('isActive');
 
 	execAjax('/list_plugins/',
 			JSON.stringify({}),
@@ -249,13 +260,13 @@ function showPlugins() {
 
 				var col = new Object();
 				col.title =  'Folder';
-				col.width = '120';
+				col.width = '80';
         col.readOnly = true;
 				columnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Plugin Name';
-        col.width = '120';
+        col.width = '100';
         col.readOnly = true;
 				columnProperties.push(col);
 
@@ -267,7 +278,7 @@ function showPlugins() {
 
 				var col = new Object();
 				col.title =  'Config file';
-        col.width = '80';
+        col.width = '70';
         col.readOnly = true;
 				columnProperties.push(col);
 
@@ -280,6 +291,12 @@ function showPlugins() {
         var col = new Object();
 				col.title =  'Python File';
         col.width = '80';
+        col.readOnly = true;
+				columnProperties.push(col);
+
+        var col = new Object();
+				col.title =  'CSS File';
+        col.width = '60';
         col.readOnly = true;
 				columnProperties.push(col);
 
@@ -354,14 +371,14 @@ function callPluginFunction({ p_plugin_name, p_function_name, p_data = null, p_c
       p_loading);
 }
 
-function createSQLTab({ p_name = '', p_template = '', p_show_qtip = true }) {
-  tabSQLTemplate(p_name, p_template, p_show_qtip);
+function createSQLTab({ p_name = '', p_template = '', p_show_tip = true }) {
+  tabSQLTemplate(p_name, p_template, p_show_tip);
 }
 
 function createInnerTab({ p_name = '', p_image = '', p_select_function = null, p_before_close_function = null }) {
   v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-    '<img src="' + p_image + '"/><span id="tab_title"> ' + p_name + '</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+    '<img src="' + p_image + '"/><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
     false,
     null,
     null,
@@ -409,7 +426,7 @@ function getSelectedOuterTabTag() {
 function createOuterTab({ p_name = '', p_image = '', p_select_function = null, p_before_close_function = null }) {
   v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
   var v_tab = v_connTabControl.createTab(
-    '<img src="' + p_image + '"/><span id="tab_title"> ' + p_name + '</span><span title="Close" id="tab_close"><img src="/static/OmniDB_app/images/tab_close.png"/></span>',
+    '<img src="' + p_image + '"/><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
     false,
     null,
     null,

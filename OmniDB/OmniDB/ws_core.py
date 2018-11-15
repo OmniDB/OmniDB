@@ -740,6 +740,7 @@ def thread_query(self,args,ws_object):
                 while v_hasmorerecords:
                     v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, False, True)
                     if v_database.v_connection.v_start:
+                        f.Write(v_data1)
                         v_hasmorerecords = False
                     elif len(v_data1.Rows) > 0:
                         f.Write(v_data1)

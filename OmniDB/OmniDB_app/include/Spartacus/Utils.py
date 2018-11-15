@@ -30,6 +30,7 @@ import csv
 import openpyxl
 from collections import OrderedDict
 import tempfile
+import hashlib
 
 import OmniDB_app.include.Spartacus as Spartacus
 
@@ -60,6 +61,11 @@ class Cryptor(object):
         try:
             v_aes = pyaes.AESModeOfOperationCTR(self.v_hash)
             return v_aes.decrypt(base64.b64decode(p_cyphertext)).decode(self.v_encoding)
+        except Exception as exc:
+            raise Spartacus.Utils.Exception(str(exc))
+    def Hash(self, p_text):
+        try:
+            return hashlib.md5(p_text.encode(self.v_encoding)).hexdigest()
         except Exception as exc:
             raise Spartacus.Utils.Exception(str(exc))
 

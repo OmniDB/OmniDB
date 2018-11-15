@@ -1,4 +1,4 @@
-Django==1.11
+Django
 cherrypy
 tornado==4.5.1
 click

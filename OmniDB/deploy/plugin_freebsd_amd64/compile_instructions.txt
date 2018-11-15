@@ -26,5 +26,5 @@ gcc -fPIC -o omnidb_plugin_10.so omnidb_plugin.o -lpq -shared
 rm -f *.o
 
 cd ..
-mv omnidb_plugin/ omnidb-plugin_2.12.0-freebsd-amd64
-tar -czvf omnidb-plugin_2.12.0-freebsd-amd64.tar.gz omnidb-plugin_2.12.0-freebsd-amd64/
+mv omnidb_plugin/ omnidb-plugin_2.12.1-freebsd-amd64
+tar -czvf omnidb-plugin_2.12.1-freebsd-amd64.tar.gz omnidb-plugin_2.12.1-freebsd-amd64/

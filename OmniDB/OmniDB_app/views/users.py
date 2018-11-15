@@ -171,7 +171,7 @@ def save_users(request):
                     password = '{1}',
                     super_user = '{2}'
                 where user_id = {3}
-            '''.format(r[0],v_cryptor.Encrypt(r[1]),r[2],v_user_id_list[v_index]))
+            '''.format(r[0],v_cryptor.Hash(v_cryptor.Encrypt(r[1])),r[2],v_user_id_list[v_index]))
             v_index = v_index + 1
     except Exception as exc:
         v_return['v_data'] = str(exc)

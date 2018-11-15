@@ -6,7 +6,7 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 migrations = {
-    '0.0.0': ('2.12.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_0.0.0_2.12.0.sql')),
+    '0.0.0': ('2.12.1', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_0.0.0_2.12.1.sql')),
     '2.4.0': ('2.4.1', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.4.0_2.4.1.sql')),
     '2.4.1': ('2.5.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.4.1_2.5.0.sql')),
     '2.5.0': ('2.6.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.5.0_2.6.0.sql')),
@@ -16,6 +16,7 @@ migrations = {
     '2.9.0': ('2.10.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.9.0_2.10.0.sql')),
     '2.10.0': ('2.11.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.10.0_2.11.0.sql')),
     '2.11.0': ('2.12.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.11.0_2.12.0.sql')),
+    '2.12.0': ('2.12.1', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.12.0_2.12.1.py')),
 }
 
 def get_current_version(p_database):
@@ -26,18 +27,26 @@ def get_current_version(p_database):
 
 def migrate(p_database, p_current_version):
     if p_current_version in migrations:
-        next_version = migrations[p_current_version][0]
-        sql_file = migrations[p_current_version][1]
         try:
+            next_version = migrations[p_current_version][0]
             print('Starting migration of user database from version {0} to version {1}...'.format(p_current_version, next_version))
-            with open(sql_file, 'r') as f:
-                p_database.v_connection.Open()
-                p_database.v_connection.Execute('BEGIN TRANSACTION;')
-                for sql in f.read().split('--omnidb--'):
-                    p_database.v_connection.Execute(sql)
-                p_database.v_connection.Execute('COMMIT;')
-                p_database.v_connection.Close()
-            p_database.v_connection.Execute('VACUUM;')
+            file = migrations[p_current_version][1]
+            tmp = file.split('.')
+            ext = tmp[5]
+            if ext == 'sql':
+                with open(file, 'r') as f:
+                    p_database.v_connection.Open()
+                    p_database.v_connection.Execute('BEGIN TRANSACTION;')
+                    for sql in f.read().split('--omnidb--'):
+                        p_database.v_connection.Execute(sql)
+                    p_database.v_connection.Execute('COMMIT;')
+                    p_database.v_connection.Close()
+                    p_database.v_connection.Execute('VACUUM;')
+            elif ext == 'py':
+                with open(file, 'r') as f:
+                    exec(f.read())
+            else:
+                raise Exception('Unsupported migration file format: {0}'.format(file))
             print('OmniDB successfully migrated user database from version {0} to version {1}'.format(p_current_version, next_version))
             return True
         except Exception as exc:

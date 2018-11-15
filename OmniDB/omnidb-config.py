@@ -48,11 +48,11 @@ database_sessions = OmniDatabase.Generic.InstantiateDatabase(
 def create_superuser(p_user, p_pwd):
     try:
         print('Creating superuser...')
-        v_cryptor = Utils.Cryptor("omnidb")
+        v_cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
         database.v_connection.Execute('''
             insert into users values (
             (select coalesce(max(user_id), 0) + 1 from users),'{0}','{1}',1,'14',1,1,'utf-8',';')
-        '''.format(p_user,v_cryptor.Encrypt(p_pwd)))
+        '''.format(p_user,v_cryptor.Hash(v_cryptor.Encrypt(p_pwd))))
         print('Superuser created.')
         #database.v_connection.Execute('''
         #    insert into users_channels (

@@ -107,8 +107,7 @@ def sign_in_automatic(request, username, pwd):
     if len(table.Rows) > 0:
         cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
 
-        pwd_decrypted = cryptor.Decrypt(table.Rows[0]['password'])
-        if pwd_decrypted == pwd:
+        if cryptor.Hash(cryptor.Encrypt(pwd)) == table.Rows[0]['password']:
 
             #creating session key to use it
             try:
@@ -193,8 +192,7 @@ def sign_in(request):
     if len(table.Rows) > 0:
         cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
 
-        pwd_decrypted = cryptor.Decrypt(table.Rows[0]['password'])
-        if pwd_decrypted == pwd:
+        if cryptor.Hash(cryptor.Encrypt(pwd)) == table.Rows[0]['password']:
 
             #creating session key to use it
             request.session.save()

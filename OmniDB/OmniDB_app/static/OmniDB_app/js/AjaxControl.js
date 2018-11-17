@@ -79,7 +79,7 @@ function execAjax(p_url,p_data,p_successFunc,p_errorFunc,p_notifMode,p_loading, 
 		v_cancel_button.style.display = 'block';
 	}
 
-	var csrftoken = getCookie('csrftoken');
+	var csrftoken = getCookie('omnidb_csrftoken');
 
 	v_ajax_call = $.ajax({
         url: p_url,

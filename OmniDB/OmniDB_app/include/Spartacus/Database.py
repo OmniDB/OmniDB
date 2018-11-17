@@ -1694,7 +1694,8 @@ class MySQL(Generic):
                 port=int(self.v_port),
                 db=self.v_service,
                 user=self.v_user,
-                password=self.v_password)
+                password=self.v_password,
+                autocommit=p_autocommit)
             self.v_cur = self.v_con.cursor()
             self.v_start = True
             self.v_status = 0
@@ -2071,7 +2072,8 @@ class MariaDB(Generic):
                 port=int(self.v_port),
                 db=self.v_service,
                 user=self.v_user,
-                password=self.v_password)
+                password=self.v_password,
+                autocommit=p_autocommit)
             self.v_cur = self.v_con.cursor()
             self.v_start = True
             self.v_status = 0

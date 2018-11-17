@@ -502,6 +502,18 @@ function testMonitorScript() {
 
 }
 
+function refreshMonitorUnitsObjects() {
+  v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+  for (var i=0; i<v_tab_tag.units.length; i++) {
+    if (v_tab_tag.units[i].type=='grid') {
+      if (v_tab_tag.units[i].object) {
+        v_tab_tag.units[i].object.render();
+      }
+    }
+  }
+
+}
+
 function showMonitorUnitList() {
 
   var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
@@ -639,6 +651,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
               for (var i=0; i<v_tab_tag.units.length; i++) {
                 if (v_return_unit.v_sequence == v_tab_tag.units[i].unit_sequence) {
                   v_tab_tag.units[i].saved_id = v_return_unit.v_saved_id;
+                  v_tab_tag.units[i].type = v_return_unit.v_type;
                   v_unit = v_tab_tag.units[i];
                   break;
                 }

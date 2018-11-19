@@ -242,6 +242,15 @@ function QueryPasswordRequired(p_context, p_message) {
 			function() {
 				cancelSQLTab(p_context.tab_tag);
 				//querySQL(p_context.mode);
+				querySQL(p_context.mode,
+								 p_context.all_data,
+								 p_context.query,
+								 p_context.callback,
+								 p_context.log_query,
+								 p_context.save_query,
+								 p_context.cmd_type,
+								 p_context.clear_data,
+								 p_context.tab_title);
 			},
 			function() {
 				cancelSQLTab(p_context.tab_tag);
@@ -267,9 +276,10 @@ function QueryPasswordRequired(p_context, p_message) {
 			p_context.database_index,
 			function() {
 				cancelConsoleTab(p_context.tab_tag);
-				//p_context.tab_tag.editor_input.setValue(p_context.tab_tag.last_command);
-        //p_context.tab_tag.editor_input.clearSelection();
-				//consoleSQL(false);
+				p_context.tab_tag.editor_input.setValue(p_context.tab_tag.last_command);
+        p_context.tab_tag.editor_input.clearSelection();
+				consoleSQL(p_context.check_command,
+									 p_context.mode);
 			},
 			function() {
 				cancelConsoleTab(p_context.tab_tag);

@@ -6177,7 +6177,7 @@ DROP COLUMN #column_name#
                 ),
                 createindex as (
                     with ii as (
-                     SELECT CASE d.refclassid
+                     SELECT DISTINCT CASE d.refclassid
                                 WHEN 'pg_constraint'::regclass
                                 THEN 'ALTER TABLE ' || text(c.oid::regclass)
                                      || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
@@ -6625,7 +6625,7 @@ DROP COLUMN #column_name#
                 ),
                 createindex as (
                     with ii as (
-                     SELECT CASE d.refclassid
+                     SELECT DISTINCT CASE d.refclassid
                                 WHEN 'pg_constraint'::regclass
                                 THEN 'ALTER TABLE ' || text(c.oid::regclass)
                                      || ' ADD CONSTRAINT ' || quote_ident(cc.conname)

@@ -966,6 +966,7 @@ def get_triggers(request):
                 'v_name': v_trigger['trigger_name'],
                 'v_enabled': v_trigger['trigger_enabled'],
                 'v_function': v_trigger['trigger_function'],
+                'v_id': v_trigger['id']
             }
             v_list_triggers.append(v_trigger_data)
     except Exception as exc:

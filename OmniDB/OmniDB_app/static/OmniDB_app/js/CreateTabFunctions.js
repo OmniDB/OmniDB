@@ -500,6 +500,7 @@ function initCreateTabFunctions() {
       function() {
         if(this.tag != null) {
           refreshHeights();
+          refreshMonitorUnitsObjects();
           if (this.tag.unit_list_grid!=null) {
             showMonitorUnitList();
           }
@@ -1397,7 +1398,7 @@ function initCreateTabFunctions() {
            "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none;' onclick='cancelEditData();'>Cancel</button>" +
            "<div id='div_edit_data_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
            "<button id='bt_saveEditData_" + v_tab.id + "' onclick='saveEditData()' style='visibility: hidden; margin-left: 5px;'>Save Changes</button>" +
-           "</div>" + 
+           "</div>" +
            "<div id='div_edit_data_data_" + v_tab.id + "' style='width: 100%; height: 250px; overflow: hidden;'></div>";
 
     var v_div = document.getElementById('div_' + v_tab.id);

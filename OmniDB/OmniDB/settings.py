@@ -61,6 +61,9 @@ if DEV_MODE:
 else:
     SECRET_KEY = ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(50))
 
+SESSION_COOKIE_NAME = 'omnidb_sessionid'
+CSRF_COOKIE_NAME = 'omnidb_csrftoken'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

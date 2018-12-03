@@ -202,7 +202,7 @@ def thread_dispatcher(self,args,ws_object):
                     #Send Ack Message
                     v_response['v_code'] = response.QueryAck
                     #ws_object.write_message(json.dumps(v_response))
-                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                     #Getting refreshed session
                     s = SessionStore(session_key=ws_object.v_user_key)
@@ -362,7 +362,7 @@ def thread_dispatcher(self,args,ws_object):
 
                             #If the thread pool wasn't previously cancelled
                             if not t.cancel:
-                                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                     #Debugger
                     elif v_code == request.Debug:
@@ -424,17 +424,18 @@ def thread_dispatcher(self,args,ws_object):
                 except Exception as exc:
                     v_response['v_code'] = response.SessionMissing
                     #ws_object.write_message(json.dumps(v_response))
-                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_code'] = response.MessageException
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         #ws_object.write_message(json.dumps(v_response))
-        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+        ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
 class WSHandler(tornado.websocket.WebSocketHandler):
   def open(self):
+    self.event_loop = tornado.ioloop.IOLoop.instance()
     None
   def on_message(self, message):
     t = StoppableThread(thread_dispatcher,message,self)
@@ -456,6 +457,9 @@ def start_wsserver_thread():
     t.setDaemon(True)
     t.start()
 
+import asyncio
+from tornado.platform.asyncio import AnyThreadEventLoopPolicy
+
 def start_wsserver():
     logger.info('''*** Starting OmniDB ***''')
 
@@ -475,6 +479,7 @@ def start_wsserver():
         else:
             server = tornado.httpserver.HTTPServer(application)
 
+        asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())
         server.listen(settings.OMNIDB_WEBSOCKET_PORT,address=settings.OMNIDB_ADDRESS)
         tornado.ioloop.IOLoop.instance().start()
 
@@ -740,6 +745,7 @@ def thread_query(self,args,ws_object):
                 while v_hasmorerecords:
                     v_data1 = v_database.v_connection.QueryBlock(v_sql, 1000, False, True)
                     if v_database.v_connection.v_start:
+                        f.Write(v_data1)
                         v_hasmorerecords = False
                     elif len(v_data1.Rows) > 0:
                         f.Write(v_data1)
@@ -763,7 +769,7 @@ def thread_query(self,args,ws_object):
                 }
 
                 if not self.cancel:
-                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
             else:
                 if v_mode==0:
@@ -802,7 +808,7 @@ def thread_query(self,args,ws_object):
                     }
 
                     if not self.cancel:
-                        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                        ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                     #if len(v_data1.Rows) < 50 and v_autocommit:
                     #    try:
@@ -855,7 +861,7 @@ def thread_query(self,args,ws_object):
                         if self.cancel:
                             break
                         elif v_hasmorerecords:
-                            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                     if not self.cancel:
 
@@ -882,7 +888,7 @@ def thread_query(self,args,ws_object):
                             'v_chunks': True
                         }
 
-                        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                        ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                 elif v_mode==3 or v_mode==4:
                     v_duration = GetDuration(log_start_time,log_end_time)
@@ -904,7 +910,7 @@ def thread_query(self,args,ws_object):
                         'v_con_status': v_database.v_connection.GetConStatus(),
                         'v_chunks': False
                     }
-                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         except Exception as exc:
             try:
                 v_notices = v_database.v_connection.GetNotices()
@@ -936,7 +942,7 @@ def thread_query(self,args,ws_object):
             v_response['v_error'] = True
 
             if not self.cancel:
-                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
         #Log to history
         if v_mode==0 and v_log_query:
@@ -967,7 +973,7 @@ def thread_query(self,args,ws_object):
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         if not self.cancel:
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
 def thread_console(self,args,ws_object):
     v_response = {
@@ -1106,10 +1112,10 @@ def thread_console(self,args,ws_object):
                             'v_con_status': v_database.v_connection.GetConStatus(),
                         }
                     if not self.cancel:
-                        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                        ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
             else:
                 if not self.cancel:
-                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
             try:
                 v_database.v_connection.ClearNotices()
@@ -1129,7 +1135,7 @@ def thread_console(self,args,ws_object):
             }
 
             if not self.cancel:
-                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
         if v_mode == 0:
             #logging to console history
@@ -1182,7 +1188,7 @@ def thread_console(self,args,ws_object):
             'v_duration': ''
         }
         if not self.cancel:
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
 def thread_query_edit_data(self,args,ws_object):
     v_response = {
@@ -1248,7 +1254,7 @@ def thread_query_edit_data(self,args,ws_object):
             v_response['v_error'] = True
 
         if not self.cancel:
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_error'] = True
@@ -1438,7 +1444,7 @@ def thread_save_edit_data(self,args,ws_object):
             i = i + 1
 
         if not self.cancel:
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_error'] = True
@@ -1511,7 +1517,7 @@ def thread_debug_run_func(self,args,ws_object):
             #send debugger finished message
             v_response['v_code'] = response.DebugResponse
 
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         #Cancelled, return cancelled status
         else:
             v_response['v_code'] = response.DebugResponse
@@ -1520,7 +1526,7 @@ def thread_debug_run_func(self,args,ws_object):
                 'v_remove_context': True,
                 'v_error': False
             }
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
     except Exception as exc:
         #Not cancelled
@@ -1541,7 +1547,7 @@ def thread_debug_run_func(self,args,ws_object):
             except Exception:
                 None
 
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         else:
             v_response['v_code'] = response.DebugResponse
             v_response['v_data'] = {
@@ -1549,7 +1555,7 @@ def thread_debug_run_func(self,args,ws_object):
                 'v_remove_context': True,
                 'v_error': False
             }
-            tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
 
 def thread_debug(self,args,ws_object):
@@ -1614,7 +1620,7 @@ def thread_debug(self,args,ws_object):
                 'v_variables': v_variables.Rows,
                 'v_lineno': v_lineno
                 }
-                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
         elif v_state == debugState.Step:
 
@@ -1636,16 +1642,16 @@ def thread_debug(self,args,ws_object):
                     'v_variables': v_variables.Rows,
                     'v_lineno': v_context_data.Rows[0][0]
                     }
-                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
                 else:
                     v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
                     v_database_control.v_connection.Close()
                     v_response['v_code'] = response.RemoveContext
-                    tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
             except Exception:
                 v_response['v_code'] = response.RemoveContext
-                tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
         #Cancelling debugger, the thread executing the function will return the cancel status
         elif v_state == debugState.Cancel:
@@ -1669,4 +1675,4 @@ def thread_debug(self,args,ws_object):
         except Exception:
             None
 
-        tornado.ioloop.IOLoop.instance().add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+        ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))

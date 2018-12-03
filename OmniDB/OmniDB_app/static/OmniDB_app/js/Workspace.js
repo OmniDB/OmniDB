@@ -1052,6 +1052,7 @@ function drawGraph(p_all, p_schema) {
 /// Hides command history window.
 /// </summary>
 function hideCommandsLog() {
+	console.log('ae')
 
 	$('#div_commands_log').removeClass('isActive');
 

@@ -1,9 +1,10 @@
 from django.conf.urls import url
+from django.urls import include, path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
-urlpatterns = [
+base_urlpatterns = [
     #LOGIN
     url(r'^$', views.login.index, name='login'),
     url(r'^login/', views.login.index, name='login'),
@@ -259,3 +260,8 @@ urlpatterns = [
     url(r'^update_saved_monitor_unit_interval/', views.monitor_dashboard.update_saved_monitor_unit_interval, name='update_saved_monitor_unit_interval'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+urlpatterns = [# iff you wish to maintain the un-prefixed URL's too
+    url(r'^', include(base_urlpatterns)),
+    url(r'^subfolder/', include(base_urlpatterns))
+]

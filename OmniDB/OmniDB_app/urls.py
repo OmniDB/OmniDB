@@ -18,6 +18,10 @@ base_urlpatterns = [
     url(r'^save_connections/$', views.connections.save_connections, name='save_connections'),
     url(r'^test_connection/$', views.connections.test_connection, name='test_connection'),
     url(r'^select_connection/$', views.connections.select_connection, name='select_connection'),
+    url(r'^get_groups/$', views.connections.get_groups, name='get_groups'),
+    url(r'^new_group/$', views.connections.new_group, name='new_group'),
+    url(r'^edit_group/$', views.connections.edit_group, name='edit_group'),
+    url(r'^delete_group/$', views.connections.delete_group, name='delete_group'),
 
     #USERS
     url(r'^get_users/$', views.users.get_users, name='get_users'),

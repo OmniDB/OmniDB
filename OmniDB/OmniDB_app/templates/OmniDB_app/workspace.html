@@ -1,7 +1,7 @@
 {% extends 'OmniDB_app/base.html' %}
 
 {% block header_menu %}
-<li><a id="menu_connections" onclick="showConnectionList()">Connections</a></li>
+<li><a id="menu_connections" onclick="startConnectionManagement()">Connections</a></li>
 {% endblock %}
 
 {% block header_actions %}
@@ -68,7 +68,23 @@
 				<div id='div_save' style='visibility: hidden; display:inline-block;'>
 					<button onclick="saveConnections()">Save Data</button>
 				</div>
-				<div id='connection_list_div_grid' class='connection_grid'></div>
+				<div style='display:inline-block;'>
+					Groups:
+					<select id="group_selector" onchange="groupChange(this.value)">
+						<option value=-1>Select group</option>
+						<option>Group 1</option>
+					</select>
+				</div>
+				<div id='div_show_group' style='display:inline-block;'>
+					<button id='bt_groups' onclick="newGroup()">New Group</button>
+				</div>
+				<div id='div_edit_group' style='display:none;'>
+					<button id='bt_groups' onclick="editGroup()">Edit Group</button>
+				</div>
+				<div id='div_delete_group' style='display:none;'>
+					<button id='bt_groups' class="bt_red" onclick="deleteGroup()">Delete Group</button>
+				</div>
+				<div id='connection_list_div_grid'></div>
 			</div>
 		</div>
 

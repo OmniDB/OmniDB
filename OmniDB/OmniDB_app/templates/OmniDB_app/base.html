@@ -432,7 +432,7 @@
     </div>
 
   <div id="div_error" class="isModal">
-      <div class="modal_background_dark" style="z-index: 2000">
+      <div class="modal_background_dark" style="z-index: 100001">
           <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%; z-index: 2000;">
               <a class="modal-closer" onclick="hideError()">x</a>
               <div id="div_error_msg" class="error_text" style="height:100%; width:100%; margin-top:20px; text-align: center;"></div>
@@ -577,13 +577,15 @@
 
 
   <div class="div_loading"><button id="bt_cancel_ajax" onclick="cancelAjax()">Cancel</button></div>
-
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.12.1.0"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.12.1.0"            ></script>
+  <script type="text/javascript">
+  startLoading()
+  </script>
   <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.12.1.0"          ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.12.1.0"      ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.12.1.0"             ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.12.1.0"         ></script>
-
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.12.1.0"      ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/popper.min.js?v2.12.1.0"             ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/tooltip.min.js?v2.12.1.0"            ></script>
 	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.12.1.0"          ></script>
@@ -593,7 +595,7 @@
   <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.12.1.0"         ></script>
 	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.12.1.0"      ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.12.1.0"    ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.12.1.0"            ></script>
+
   <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.12.1.0"       ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.12.1.0"              ></script>
   <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.12.1.0"          ></script>
@@ -641,6 +643,10 @@
 
   {% block include %}
   {% endblock %}
+
+  <script type="text/javascript">
+  endLoading()
+  </script>
 
 </body>
 </html>

@@ -1328,7 +1328,8 @@ class PostgreSQL:
                    quote_ident(c.relname) as table_name,
                    quote_ident(t.tgname) as trigger_name,
                    t.tgenabled as trigger_enabled,
-                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function,
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id
             from pg_trigger t
             inner join pg_class c
             on c.oid = t.tgrelid
@@ -5722,6 +5723,8 @@ DROP COLUMN #column_name#
                 return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
             elif p_type == 'triggerfunction':
                 return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+            elif p_type == 'direct_triggerfunction':
+                return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
             elif p_type == 'pk':
                 return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
             elif p_type == 'foreign_key':
@@ -6177,7 +6180,7 @@ DROP COLUMN #column_name#
                 ),
                 createindex as (
                     with ii as (
-                     SELECT CASE d.refclassid
+                     SELECT DISTINCT CASE d.refclassid
                                 WHEN 'pg_constraint'::regclass
                                 THEN 'ALTER TABLE ' || text(c.oid::regclass)
                                      || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
@@ -6625,7 +6628,7 @@ DROP COLUMN #column_name#
                 ),
                 createindex as (
                     with ii as (
-                     SELECT CASE d.refclassid
+                     SELECT DISTINCT CASE d.refclassid
                                 WHEN 'pg_constraint'::regclass
                                 THEN 'ALTER TABLE ' || text(c.oid::regclass)
                                      || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
@@ -7343,6 +7346,8 @@ DROP COLUMN #column_name#
         elif p_type == 'trigger':
             return self.GetTriggerDefinition(p_object, p_table, p_schema)
         elif p_type == 'triggerfunction':
+            return self.GetDDLFunction(p_object)
+        elif p_type == 'direct_triggerfunction':
             return self.GetDDLFunction(p_object)
         elif p_type == 'pk':
             return self.GetDDLConstraint(p_schema, p_table, p_object)

@@ -71,7 +71,7 @@ function clickConfirmCancel() {
 
 }
 
-function showConfirm(p_info,p_funcYes)
+function showConfirm(p_info,p_funcYes,p_funcNo)
 {
 	var v_div_text = document.createElement('div');
 	v_div_text.className = 'div_alert_text';
@@ -92,6 +92,8 @@ function showConfirm(p_info,p_funcYes)
 	v_button_cancel.innerHTML = 'Cancel';
 	v_button_cancel.onclick = function() {
 		clickConfirmCancel();
+		if (p_funcNo)
+			p_funcNo();
 	};
 	v_div_buttons.appendChild(v_button_cancel);
 

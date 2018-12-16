@@ -535,8 +535,8 @@ select {
   background-image: linear-gradient(to bottom, #fcfcfc, #eee);
   font-family: Arial;
   color: #333;
-  font-size: 13px;
-  height: 30px;
+  font-size: 12px;
+  height: 28px;
   padding-left: 12px;
   padding-right: 12px;
   border: solid #d5d5d5 1px;
@@ -593,7 +593,6 @@ button:hover {
   border-radius: 3px;
   font-family: Arial;
   color: #FFF;
-  font-size: 11px;
   padding: 6px 12px 6px 12px;
   border: solid #ff6262 1px;
   text-decoration: none;
@@ -1092,7 +1091,15 @@ iframe {
   margin-top: 5px;
 }
 
-.connection_grid, #plugin_grid {
+#connection_list_div_grid {
+  position: relative;
+  width: 100%;
+  height: 450px;
+  overflow: auto;
+  margin-top: 5px;
+}
+
+#plugin_grid {
   position: relative;
   width: 100%;
   height: 450px;

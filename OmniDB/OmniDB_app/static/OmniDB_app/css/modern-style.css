@@ -185,7 +185,6 @@ button {
     background: #177ce0;
     border-radius: 0px;
     border: 1px solid #177ce0;
-    transition: 0.45s;
 }
 button:hover {
     color: #177ce0;

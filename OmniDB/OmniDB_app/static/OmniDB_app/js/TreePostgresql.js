@@ -302,6 +302,12 @@ function tabDataMining(node) {
           }, {
               'text': 'Table Trigger Name',
               'value': 31
+          }, {
+              'text': 'Materialized View Definition',
+              'value': 32
+          }, {
+              'text': 'View Definition',
+              'value': 33
           }
       ];
     } else {
@@ -395,6 +401,12 @@ function tabDataMining(node) {
           }, {
               'text': 'Table Trigger Name',
               'value': 30
+          }, {
+              'text': 'Materialized View Definition',
+              'value': 31
+          }, {
+              'text': 'View Definition',
+              'value': 32
           }
       ];
     }

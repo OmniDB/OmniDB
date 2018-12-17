@@ -453,6 +453,13 @@ function newGroup() {
 							function() {
 								newGroupConfirm(document.getElementById('group_name_input').value);
 							});
+  var v_input = document.getElementById('group_name_input');
+	v_input.onkeydown = function() {
+		if (event.keyCode == 13)
+			document.getElementById('button_confirm_ok').click();
+		else if (event.keyCode == 27)
+			document.getElementById('button_confirm_cancel').click();
+	}
 	document.getElementById('group_name_input').focus();
 }
 
@@ -464,6 +471,13 @@ function editGroup() {
 									document.getElementById('group_selector').value,
 									document.getElementById('group_name_input').value);
 							});
+	var v_input = document.getElementById('group_name_input');
+	v_input.onkeydown = function() {
+		if (event.keyCode == 13)
+			document.getElementById('button_confirm_ok').click();
+		else if (event.keyCode == 27)
+			document.getElementById('button_confirm_cancel').click();
+	}
 	document.getElementById('group_name_input').focus();
 }
 
@@ -761,13 +775,14 @@ function closeConnectionListFinish(p_index) {
 				var v_found = false;
 				for (var j=0; j<v_connTabControl.tag.groups.length; j++) {
 					if (v_tab.tag.selectedGroupIndex==v_connTabControl.tag.groups[j].v_group_id) {
-						v_found==true;
+						v_found=true;
 						break;
 					}
 				}
 				if (!v_found) {
 					v_tab.tag.selectedGroupIndex = 0;
 				}
+				console.log(v_found)
 
 				v_tab.tag.divSelectGroup.innerHTML = v_connTabControl.tag.selectGroupHTML;
 				v_tab.tag.divSelectGroup.childNodes[0].value = v_tab.tag.selectedGroupIndex;

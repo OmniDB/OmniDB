@@ -446,7 +446,6 @@ CREATE TABLE connections (
     port varchar(20),
     service varchar(500),
     user varchar(100),
-    password varchar(100),
     alias varchar(100),
     ssh_server varchar(500),
     ssh_port varchar(20),
@@ -616,9 +615,9 @@ CREATE TABLE cgroups (
 )
 
 CREATE TABLE cgroups_connections (
-cgroup_id integer references cgroups (cgroup_id) ON UPDATE CASCADE ON DELETE CASCADE,
-conn_id integer references connections (conn_id) ON UPDATE CASCADE ON DELETE CASCADE,
-primary key (cgroup_id, conn_id)
+  cgroup_id integer references cgroups (cgroup_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  conn_id integer references connections (conn_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  primary key (cgroup_id, conn_id)
 )
 
 CREATE TABLE version (

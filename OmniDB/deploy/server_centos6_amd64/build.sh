@@ -54,6 +54,7 @@ mkdir omnidb-server
 cd omnidb-server
 mkdir -p BUILD RPMS SOURCES SPECS
 cp ../omnidb-server_$VERSION-$ARCH.tar.gz SOURCES/
+cp ../omnidb-server_$VERSION-$ARCH/omnidb.conf SOURCES/
 cat > SOURCES/omnidb-server.sh << EOF
 #!/bin/bash
 LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:.:/opt/omnidb-server/ /opt/omnidb-server/omnidb-server \$@
@@ -65,7 +66,7 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/bin/bash -c "/opt/omnidb-server/omnidb-server &"
+ExecStart=/bin/bash -c "/opt/omnidb-server/omnidb-server -c /etc/omnidb.conf &"
 RemainAfterExit=yes
 User=root
 Group=root
@@ -82,6 +83,7 @@ cat > SPECS/omnidb-server.spec << EOF
 %define _unpackaged_files_terminate_build 0
 %define _topdir /root/OmniDB/OmniDB/deploy/packages/omnidb-server
 %define _bindir /usr/bin
+%define _etcdir /etc
 %define _systemddir /etc/systemd/system
 %define _servicename omnidb
 %define name omnidb-server
@@ -123,6 +125,8 @@ ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
 mkdir -p %{buildroot}/%{_systemddir}
 cp ../../SOURCES/%{_servicename}.service %{buildroot}/%{_systemddir}
 chmod 644 %{buildroot}/%{_systemddir}/%{_servicename}.service
+cp ../../SOURCES/%{name}.conf %{buildroot}/%{_etcdir}
+chmod 644 %{buildroot}/%{_etcdir}/%{name}.conf
 
 %files
 %defattr(0777,root,root,0777)
@@ -131,6 +135,8 @@ chmod 644 %{buildroot}/%{_systemddir}/%{_servicename}.service
 %{_bindir}/%{name}
 %{_bindir}/%{configname}
 %{_systemddir}/%{_servicename}.service
+
+%config(noreplace) %{_etcdir}/%{name}.conf
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-server.spec

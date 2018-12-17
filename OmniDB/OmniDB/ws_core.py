@@ -737,7 +737,10 @@ def thread_query(self,args,ws_object):
                 #    f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns)
                 f = Spartacus.Utils.DataFileWriter(os.path.join(v_export_dir, v_file_name), v_data1.Columns,v_session.v_csv_encoding, v_session.v_csv_delimiter)
                 f.Open()
-                if len(v_data1.Rows) > 0:
+                if v_database.v_connection.v_start:
+                    f.Write(v_data1)
+                    v_hasmorerecords = False
+                elif len(v_data1.Rows) > 0:
                     f.Write(v_data1)
                     v_hasmorerecords = True
                 else:

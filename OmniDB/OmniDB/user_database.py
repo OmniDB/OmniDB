@@ -1,5 +1,6 @@
 from . import settings
 import os
+import shutil
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
@@ -61,6 +62,8 @@ def work():
     current_version = get_current_version(database)
     if current_version != settings.OMNIDB_SHORT_VERSION:
         if int(current_version.replace('.', '')) < int(settings.OMNIDB_SHORT_VERSION.replace('.', '')):
+            if os.path.exists(settings.OMNIDB_DATABASE):
+                shutil.copyfile(settings.OMNIDB_DATABASE, '{0}.bak_{1}'.format(settings.OMNIDB_DATABASE, settings.OMNIDB_SHORT_VERSION))
             while int(current_version.replace('.', '')) < int(settings.OMNIDB_SHORT_VERSION.replace('.', '')):
                 if not migrate(database, current_version):
                     break

@@ -2,31 +2,27 @@
 
 # OmniDB 2.13.0
 
-## Release Date: *December 13, 2018*
+## Release Date: *December 20, 2018*
 
 ## Release Notes
 
 - New features:
-  - New modern look & feel on the entire web interface, components and icons
-  - PostgreSQL: User now can enable/disable autocommit
-  - PostgreSQL: Status of the backend is shown to the user
-  - PostgreSQL: If autocommit is disabled or user starts a transaction, user can either COMMIT or ROLLBACK
-  - PostgreSQL: New full-featured autocomplete component for PostgreSQL
-  - PostgreSQL: Support to HASH partitions (SQL templates, treeview, properties and DDL)
-  - New User options to set CSV encoding and delimiter
+  - Connection Groups: allow users to, for example, easily distinct Production and Test database servers
+  - User and connection management via omnidb-config CLI utility, which helps with automated deploying
 - Improvements:
-  - PostgreSQL: OmniDB now uses PostgreSQL server-side cursors whenever possible to always keep low OmniDB memory usage
-  - PostgreSQL: Improved SELECT template for views and materialized views
-  - Save title of Query Tabs
-  - OmniDB debugger: Different RPM for CentOS 6 and 7
-  - OmniDB plugin API: Adapted to new OmniDB look & feel
-  - OmniDB plugin API: Support to pglogical, Postgres-BDR 1.0 and Postgres-XL removed from core and are now separated open source plugins
+  - Advanced Object Search now considers view and materialized view definition
+  - Show trigger function when expanding the trigger node in the tree view
+  - PostgreSQL: Improved \h command, which provides syntax help on SQL commands
+  - Linux: OmniDB systemd service now uses configuration file in /etc/omnidb.conf
+  - Converted all OmniDB users passwords into hashes in the OmniDB user database, improving security
+  - OmniDB upgrade procedure now takes a backup of the user database (file omnidb.db)
+  - Autocommit is now always enabled on Oracle/MySQL/MariaDB
+  - User won't need to execute query again after password expiration / re-validation
 - Bug fixes:
-  - Fixed: PostgreSQL: High memory usage when returning very large dataset (using server-side cursors)
-  - Fixed: Oracle/MySQL/MariaDB: QueryBlock not displaying first row of every block
-  - Fixed: Click on removed node on the treeview: "Can only transpose a table with a single row"
-  - Fixed: Export to XLSX does not respect locale
-  - Fixed: Editor loses focus after Alt-Tab
+  - Fixed: Click index with WHERE clause: "Can only transpose a table with a single row"
+  - Fixed: Export to XLSX/CSV does not consider all rows
+  - Fixed: Error closing error window
+  - Fixed: Monitoring Dashboard: Column widths are not adjusted when the monitoring tab doesn't have focus
 
 
 # 1- Installation

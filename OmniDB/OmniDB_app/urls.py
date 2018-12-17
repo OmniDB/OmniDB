@@ -265,7 +265,7 @@ base_urlpatterns = [
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-urlpatterns = [# iff you wish to maintain the un-prefixed URL's too
+urlpatterns = [# if you wish to maintain the un-prefixed URL's too
     url(r'^', include(base_urlpatterns)),
-    url(r'^subfolder/', include(base_urlpatterns))
+    #url(r'^subfolder/', include(base_urlpatterns))
 ]

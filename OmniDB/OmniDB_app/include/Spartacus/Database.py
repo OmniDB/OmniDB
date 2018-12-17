@@ -1454,7 +1454,15 @@ class PostgreSQL(Generic):
                 v_cursors = []
                 for i in range(0, len(v_statement)):
                     if v_analysis[i].get_type() == 'SELECT':
-                        v_cursors.append('{0}_{1}'.format(self.v_application_name, uuid.uuid4().hex))
+                        v_found_cte = False
+                        v_found_dml = False
+                        for v_token in v_analysis[i].flatten():
+                            if v_token.ttype == sqlparse.tokens.Token.Keyword.CTE:
+                                v_found_cte = True
+                            if v_token.ttype == sqlparse.tokens.Token.Keyword.DML and v_token.value != 'SELECT':
+                                v_found_dml = True
+                        if not (v_found_cte and v_found_dml):
+                            v_cursors.append('{0}_{1}'.format(self.v_application_name, uuid.uuid4().hex))
                 if len(v_cursors) > 0:
                     v_sql = ''
                     j = 0
@@ -1497,7 +1505,7 @@ class PostgreSQL(Generic):
                         self.v_cur.execute('BEGIN;')
                     self.v_cur.execute(v_sql)
                 v_table = DataTable()
-                if self.v_cursor is not None:
+                if self.v_cursor:
                     if p_blocksize > 0:
                         self.v_cur.execute('FETCH {0} {1}'.format(p_blocksize, self.v_cursor))
                     else:
@@ -1518,10 +1526,11 @@ class PostgreSQL(Generic):
                                     v_table.Rows[i][j] = ''
                 if self.v_start:
                     self.v_start = False
-                if self.v_cursor is not None and len(v_table.Rows) < p_blocksize:
-                    self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
+                if len(v_table.Rows) < p_blocksize:
                     self.v_start = True
-                    self.v_cursor = None
+                    if self.v_cursor:
+                        self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
+                        self.v_cursor = None
                 return v_table
         except Spartacus.Database.Exception as exc:
             self.v_start = True

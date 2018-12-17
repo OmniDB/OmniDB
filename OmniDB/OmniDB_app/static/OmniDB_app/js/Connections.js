@@ -453,7 +453,7 @@ function newGroup() {
 							function() {
 								newGroupConfirm(document.getElementById('group_name_input').value);
 							});
-  var v_input = document.getElementById('group_name_input');
+	var v_input = document.getElementById('group_name_input');
 	v_input.onkeydown = function() {
 		if (event.keyCode == 13)
 			document.getElementById('button_confirm_ok').click();
@@ -713,6 +713,9 @@ function showConnectionList() {
 										v_read_only = true;
 									}
 
+									if (col == 13)
+										v_read_only = true;
+
 									if (!v_read_only) {
 										cellProperties.readOnly = false;
 										if (v_connections_data.v_conn_ids[row].mode==2)
@@ -775,14 +778,13 @@ function closeConnectionListFinish(p_index) {
 				var v_found = false;
 				for (var j=0; j<v_connTabControl.tag.groups.length; j++) {
 					if (v_tab.tag.selectedGroupIndex==v_connTabControl.tag.groups[j].v_group_id) {
-						v_found=true;
+						v_found = true;
 						break;
 					}
 				}
 				if (!v_found) {
 					v_tab.tag.selectedGroupIndex = 0;
 				}
-				console.log(v_found)
 
 				v_tab.tag.divSelectGroup.innerHTML = v_connTabControl.tag.selectGroupHTML;
 				v_tab.tag.divSelectGroup.childNodes[0].value = v_tab.tag.selectedGroupIndex;

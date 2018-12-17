@@ -18,24 +18,20 @@
     <h2>Release notes</h2>
     <div class="welcome_release_container">
       <ul class="welcome_release_list">
-        <li class="welcome_release_item"><span>New modern look & feel on the entire web interface, components and icons</span></li>
-        <li class="welcome_release_item"><span>PostgreSQL: OmniDB now uses PostgreSQL server-side cursors whenever possible to always keep low OmniDB memory usage</span></li>
-        <li class="welcome_release_item"><span>PostgreSQL: User now can enable/disable autocommit</span></li>
-        <li class="welcome_release_item"><span>PostgreSQL: Status of the backend is shown to the user</span></li>
-        <li class="welcome_release_item"><span>PostgreSQL: If autocommit is disabled or user starts a transaction, user can either COMMIT or ROLLBACK</span></li>
-        <li class="welcome_release_item"><span>PostgreSQL: New full-featured autocomplete component for PostgreSQL</span></li>
-        <li class="welcome_release_item"><span>PostgreSQL: Support to HASH partitions (SQL templates, treeview, properties and DDL)</span></li>
-        <li class="welcome_release_item"><span>PostgreSQL: Improved SELECT template for views and materialized views</span></li>
-        <li class="welcome_release_item"><span>New User options to set CSV encoding and delimiter</span></li>
-        <li class="welcome_release_item"><span>Save title of Query Tabs</span></li>
-        <li class="welcome_release_item"><span>Fixed: PostgreSQL: High memory usage when returning very large dataset (using server-side cursors)</span></li>
-        <li class="welcome_release_item"><span>Fixed: Oracle/MySQL/MariaDB: QueryBlock not displaying first row of every block</span></li>
-        <li class="welcome_release_item"><span>Fixed: Click on removed node on the treeview: "Can only transpose a table with a single row"</span></li>
-        <li class="welcome_release_item"><span>Fixed: Export to XLSX does not respect locale</span></li>
-        <li class="welcome_release_item"><span>Fixed: Editor loses focus after Alt-Tab</span></li>
-        <li class="welcome_release_item"><span>OmniDB debugger: Different RPM for CentOS 6 and 7</span></li>
-        <li class="welcome_release_item"><span>OmniDB plugin API: Adapted to new OmniDB look & feel</span></li>
-        <li class="welcome_release_item"><span>OmniDB plugin API: Support to pglogical, Postgres-BDR 1.0 and Postgres-XL removed from core and are now separated open source plugins</span></li>
+        <li class="welcome_release_item"><span>Connection Groups: allow users to, for example, easily distinct Production and Test database servers</span></li>
+        <li class="welcome_release_item"><span>User and connection management via omnidb-config CLI utility, which helps with automated deploying</span></li>
+        <li class="welcome_release_item"><span>Advanced Object Search now considers view and materialized view definition</span></li>
+        <li class="welcome_release_item"><span>Show trigger function when expanding the trigger node in the tree view</span></li>
+        <li class="welcome_release_item"><span>PostgreSQL: Improved \h command, which provides syntax help on SQL commands</span></li>
+        <li class="welcome_release_item"><span>Linux: OmniDB systemd service now uses configuration file in /etc/omnidb.conf</span></li>
+        <li class="welcome_release_item"><span>Converted all OmniDB users passwords into hashes in the OmniDB user database, improving security</span></li>
+        <li class="welcome_release_item"><span>OmniDB upgrade procedure now takes a backup of the user database (file omnidb.db)</span></li>
+        <li class="welcome_release_item"><span>Autocommit is now always enabled on Oracle/MySQL/MariaDB</span></li>
+        <li class="welcome_release_item"><span>User won't need to execute query again after password expiration / re-validation</span></li>
+        <li class="welcome_release_item"><span>Fixed: Click index with WHERE clause: "Can only transpose a table with a single row"</span></li>
+        <li class="welcome_release_item"><span>Fixed: Export to XLSX/CSV does not consider all rows</span></li>
+        <li class="welcome_release_item"><span>Fixed: Error closing error window</span></li>
+        <li class="welcome_release_item"><span>Fixed: Monitoring Dashboard: Column widths are not adjusted when the monitoring tab doesn't have focus</span></li>
       </ul>
     </div>
   </section>

@@ -64,6 +64,8 @@ EOF
 chmod 777 omnidb-server
 ln -s /opt/omnidb-server/omnidb-config-server .
 cd ../..
+mkdir -p etc
+cp opt/omnidb-server/omnidb.conf etc/
 mkdir -p etc/systemd/system
 cd etc/systemd/system
 cat > omnidb.service << EOF
@@ -73,7 +75,7 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/bin/bash -c "/opt/omnidb-server/omnidb-server &"
+ExecStart=/bin/bash -c "/opt/omnidb-server/omnidb-server -c /etc/omnidb.conf &"
 RemainAfterExit=yes
 User=root
 Group=root
@@ -128,6 +130,10 @@ systemctl daemon-reload
 systemctl reset-failed
 EOF
 chmod 755 DEBIAN/postrm
+cat > DEBIAN/conffiles << EOF
+/etc/omnidb.conf
+EOF
+chmod 755 DEBIAN/conffiles
 cd ..
 dpkg -b omnidb-server_$VERSION-$ARCH
 echo "Done"

@@ -209,7 +209,16 @@ function build_autocomplete_elements(p_data, p_value) {
   v_autocomplete_object.active_input.focus();
 }
 
-function renew_autocomplete(p_new_value) {
+function renew_autocomplete(p_base, p_new_value) {
+  var v_search_regex = null;
+
+  if(p_new_value != '') {
+    v_search_regex = new RegExp('^(' + p_base + ').*' + p_new_value.split('').join('.*'), 'i');
+  }
+  else {
+    v_search_regex = new RegExp('^(' + p_base + ')', 'i');
+  }
+
   autocomplete_deselect_element();
   var v_num_results = 0;
   for (var i=v_autocomplete_object.elements.length-1; i>=0; i--) {
@@ -219,15 +228,16 @@ function renew_autocomplete(p_new_value) {
       for (var j=v_group.elements.length-1; j>=0; j--) {
         var v_element = v_group.elements[j];
         //doesn't match, hide
-        if (!v_element.value.toLowerCase().startsWith(p_new_value.toLowerCase())) {
+        if(!v_search_regex.test(v_element.value)) {
           v_element.container.style.display = 'none';
           v_element.visible = false;
         }
         else {
+          var v_match_text = v_search_regex.exec(v_element.value)[0];
           v_num_results++;
           v_element.container.style.display = 'inline-block';
           v_element.visible = true;
-          v_element.container.innerHTML = v_element.value.replace(p_new_value,'<b>' + p_new_value + '</b>')
+          v_element.container.innerHTML = v_element.value.replace(v_match_text,'<b>' + v_match_text + '</b>')
           v_group.num_visible++;
         }
       }
@@ -238,14 +248,15 @@ function renew_autocomplete(p_new_value) {
       for (var j=0; j<v_group.elements.length; j++) {
         var v_element = v_group.elements[j];
         //doesn't match, hide
-        if (!v_element.value.toLowerCase().startsWith(p_new_value.toLowerCase())) {
+        if(!v_search_regex.test(v_element.value)) {
           v_element.visible = false;
         }
         else {
+          var v_match_text = v_search_regex.exec(v_element.value)[0];
           v_num_results++;
           v_element.visible = true;
           v_element.visible_index = v_group.num_visible;
-          v_new_data.push([v_group.grid_data[j][0].replace(p_new_value,'<b>' + p_new_value + '</b>'),v_group.grid_data[j][1]]);
+          v_new_data.push([v_group.grid_data[j][0].replace(v_match_text,'<b>' + v_match_text + '</b>'),v_group.grid_data[j][1]]);
           v_group.num_visible++;
         }
       }
@@ -339,7 +350,7 @@ function autocomplete_get_results(p_sql,p_value,p_pos) {
 function autocomplete_keyup(p_event, p_element) {
   if (p_event.keyCode != 40 && p_event.keyCode != 38 && p_event.keyCode != 13 && p_event.keyCode != 16 && p_event.keyCode != 17 && p_event.keyCode != 18) {
     if (v_autocomplete_object.ready) {
-      renew_autocomplete(v_autocomplete_object.search_base + p_element.value)
+      renew_autocomplete(v_autocomplete_object.search_base, p_element.value)
     }
   }
 }

@@ -125,8 +125,8 @@ ln -s /opt/%{name}/%{configname} %{buildroot}/%{_bindir}/%{configname}
 mkdir -p %{buildroot}/%{_systemddir}
 cp ../../SOURCES/%{_servicename}.service %{buildroot}/%{_systemddir}
 chmod 644 %{buildroot}/%{_systemddir}/%{_servicename}.service
-cp ../../SOURCES/%{name}.conf %{buildroot}/%{_etcdir}
-chmod 644 %{buildroot}/%{_etcdir}/%{name}.conf
+cp ../../SOURCES/%{_servicename}.conf %{buildroot}/%{_etcdir}
+chmod 644 %{buildroot}/%{_etcdir}/%{_servicename}.conf
 
 %files
 %defattr(0777,root,root,0777)
@@ -135,8 +135,9 @@ chmod 644 %{buildroot}/%{_etcdir}/%{name}.conf
 %{_bindir}/%{name}
 %{_bindir}/%{configname}
 %{_systemddir}/%{_servicename}.service
+%{_etcdir}/%{_servicename}.conf
 
-%config(noreplace) %{_etcdir}/%{name}.conf
+%config(noreplace) %{_etcdir}/%{_servicename}.conf
 EOF
 
 rpmbuild -v -bb --clean SPECS/omnidb-server.spec

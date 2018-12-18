@@ -120,8 +120,14 @@ EOF
 chmod 755 DEBIAN/postinst
 cat > DEBIAN/prerm << EOF
 #!/bin/bash
-systemctl is-active --quiet omnidb && systemctl stop omnidb
-systemctl is-enabled --quiet omnidb && systemctl disable omnidb
+systemctl is-active --quiet omnidb
+if [ $? -eq 0 ]; then
+  systemctl stop omnidb
+fi
+systemctl is-enabled --quiet omnidb
+if [ $? -eq 0 ]; then
+  systemctl disable omnidb
+fi
 EOF
 chmod 755 DEBIAN/prerm
 cat > DEBIAN/postrm << EOF

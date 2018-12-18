@@ -124,7 +124,7 @@ systemctl is-active --quiet omnidb
 if [ $? -eq 0 ]; then
   systemctl stop omnidb
 fi
-systemctl is-enabled --quiet omnidb && systemctl disable omnidb
+systemctl is-enabled --quiet omnidb
 if [ $? -eq 0 ]; then
   systemctl disable omnidb
 fi

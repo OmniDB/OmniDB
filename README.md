@@ -18,6 +18,7 @@
   - OmniDB upgrade procedure now takes a backup of the user database (file omnidb.db)
   - Autocommit is now always enabled on Oracle/MySQL/MariaDB
   - User won't need to execute query again after password expiration / re-validation
+  - OmniDB debugger plugin for PostgreSQL 11 for FreeBSD
 - Bug fixes:
   - Fixed: Click index with WHERE clause: "Can only transpose a table with a single row"
   - Fixed: Export to XLSX/CSV does not consider all rows

@@ -3,25 +3,29 @@ pkg install git gcc
 git clone https://github.com/OmniDB/OmniDB
 cd ~/OmniDB/omnidb_plugin
 
-pkg install postgresql93-server-9.3.23 postgresql93-client-9.3.23
+pkg install postgresql93-server-9.3.24_1 postgresql93-client-9.3.24_1
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/postgresql -I /usr/local/include/postgresql/server
 gcc -fPIC -o omnidb_plugin_93.so omnidb_plugin.o -lpq -shared
 
-pkg install postgresql94-server-9.4.18 postgresql94-client-9.4.18
+pkg install postgresql94-server-9.4.19_1 postgresql94-client-9.4.19_1
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/postgresql -I /usr/local/include/postgresql/server
 gcc -fPIC -o omnidb_plugin_94.so omnidb_plugin.o -lpq -shared
 
-pkg install postgresql95-server-9.5.13 postgresql95-client-9.5.13
+pkg install postgresql95-server-9.5.14_1 postgresql95-client-9.5.14_1
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/postgresql -I /usr/local/include/postgresql/server
 gcc -fPIC -o omnidb_plugin_95.so omnidb_plugin.o -lpq -shared
 
-pkg install postgresql96-server-9.6.9_1 postgresql96-client-9.6.9
+pkg install postgresql96-server-9.6.10_1 postgresql96-client-9.6.10_1
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/postgresql -I /usr/local/include/postgresql/server
 gcc -fPIC -o omnidb_plugin_96.so omnidb_plugin.o -lpq -shared
 
-pkg install postgresql10-server-10.4_1 postgresql10-client-10.4
+pkg install postgresql10-server-10.5_1 postgresql10-client-10.5_1
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/postgresql -I /usr/local/include/postgresql/server
 gcc -fPIC -o omnidb_plugin_10.so omnidb_plugin.o -lpq -shared
+
+pkg install postgresql11-server-11.0_2 postgresql11-client-11.0
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/local/include/postgresql -I /usr/local/include/postgresql/server
+gcc -fPIC -o omnidb_plugin_11.so omnidb_plugin.o -lpq -shared
 
 rm -f *.o
 

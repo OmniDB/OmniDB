@@ -6903,8 +6903,11 @@ DROP COLUMN #column_name#
                     WHERE p.oid = '{0}'::text::regprocedure
                 ),
                 createfunction as (
-                    select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
-                    from obj
+                    select substring(body from 1 for length(body)-1) || E';\n\n' as text
+                    from (
+                        select pg_get_functiondef(sql_identifier::regprocedure) as body
+                        from obj
+                    ) x
                 ),
                 alterowner as (
                     select
@@ -6977,8 +6980,11 @@ DROP COLUMN #column_name#
                     WHERE p.prokind = 'f' AND p.oid = '{0}'::text::regprocedure
                 ),
                 createfunction as (
-                    select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
-                    from obj
+                    select substring(body from 1 for length(body)-1) || E';\n\n' as text
+                    from (
+                        select pg_get_functiondef(sql_identifier::regprocedure) as body
+                        from obj
+                    ) x
                 ),
                 alterowner as (
                     select
@@ -7052,8 +7058,11 @@ DROP COLUMN #column_name#
                 WHERE p.prokind = 'p' AND p.oid = '{0}'::text::regprocedure
             ),
             createfunction as (
-                select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
-                from obj
+                select substring(body from 1 for length(body)-1) || E';\n\n' as text
+                from (
+                    select pg_get_functiondef(sql_identifier::regprocedure) as body
+                    from obj
+                ) x
             ),
             alterowner as (
                 select

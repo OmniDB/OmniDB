@@ -26,6 +26,7 @@
   - Fixed: Monitoring Dashboard: Column widths are not adjusted when the monitoring tab doesn't have focus
   - Fixed: User Mapping is not being shown in the tree if there are no options
   - Fixed: Foreign Table DDL not being shown correctly if there are no options
+  - Fixed: DDL for functions and procedures do not show a necessary comma after function body
 
 
 # 1- Installation

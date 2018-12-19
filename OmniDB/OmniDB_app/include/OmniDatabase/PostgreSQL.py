@@ -2009,7 +2009,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             from (
             select 1 as seq,
                    'PUBLIC' as rolname,
-                   unnest(u.umoptions) as umoption
+                   unnest(coalesce(u.umoptions, '{{null}}')) as umoption
             from pg_user_mapping u
             inner join pg_foreign_server s
             on s.oid = u.umserver
@@ -2018,7 +2018,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             union
             select 1 + row_number() over(order by r.rolname) as seq,
                    r.rolname,
-                   unnest(u.umoptions) as umoption
+                   unnest(coalesce(u.umoptions, '{{null}}')) as umoption
             from pg_user_mapping u
             inner join pg_foreign_server s
             on s.oid = u.umserver
@@ -5653,7 +5653,6 @@ DROP COLUMN #column_name#
                        c.relnatts as "Number of Attributes",
                        c.relchecks as "Number of Checks",
                        c.relhasoids as "Has OIDs",
-                       c.relhaspkey as "Has Primary Key",
                        c.relhasrules as "Has Rules",
                        c.relhastriggers as "Has Triggers",
                        c.relhassubclass as "Has Subclass",
@@ -6227,7 +6226,11 @@ DROP COLUMN #column_name#
                       CASE relhasoids WHEN true THEN ' WITH OIDS' ELSE '' END
                       ||
                       coalesce(
-                        E'\nSERVER '||quote_ident(fs.srvname)||E'\nOPTIONS (\n'||
+                        E'\nSERVER '||quote_ident(fs.srvname)
+                        ,'')
+                      ||
+                      coalesce(
+                        E'\nOPTIONS (\n'||
                         (select string_agg(
                                   '    '||quote_ident(option_name)||' '||quote_nullable(option_value),
                                   E',\n')
@@ -6675,7 +6678,11 @@ DROP COLUMN #column_name#
                       CASE relhasoids WHEN true THEN ' WITH OIDS' ELSE '' END
                       ||
                       coalesce(
-                        E'\nSERVER '||quote_ident(fs.srvname)||E'\nOPTIONS (\n'||
+                        E'\nSERVER '||quote_ident(fs.srvname)
+                        ,'')
+                      ||
+                      coalesce(
+                        E'\nOPTIONS (\n'||
                         (select string_agg(
                                   '    '||quote_ident(option_name)||' '||quote_nullable(option_value),
                                   E',\n')
@@ -7131,9 +7138,14 @@ DROP COLUMN #column_name#
     def GetDDLUserMapping(self, p_server, p_object):
         if p_object == 'PUBLIC':
             return self.v_connection.ExecuteScalar('''
-                select format(E'CREATE USER MAPPING FOR PUBLIC\n  SERVER %s\n  OPTIONS ( %s );\n',
+                select format(E'CREATE USER MAPPING FOR PUBLIC\n  SERVER %s%s;\n',
                          quote_ident(s.srvname),
-                         (select array_to_string(array(
+                         (select (case when s is not null and s <> ''
+                                       then format(E'\n  OPTIONS (%s)', s)
+                                       else ''
+                                  end)
+                          from (
+                          select array_to_string(array(
                           select format('%s %s', a[1], quote_literal(a[2]))
                           from (
                           select string_to_array(unnest(u.umoptions), '=') as a
@@ -7143,7 +7155,7 @@ DROP COLUMN #column_name#
                           where u.umuser = 0
                             and quote_ident(s.srvname) = '{0}'
                           ) x
-                          ), ', ')))
+                          ), ', ') as s) x))
                 from pg_user_mapping u
                 inner join pg_foreign_server s
                 on s.oid = u.umserver
@@ -7152,10 +7164,15 @@ DROP COLUMN #column_name#
             '''.format(p_server))
         else:
             return self.v_connection.ExecuteScalar('''
-                select format(E'CREATE USER MAPPING FOR %s\n  SERVER %s\n  OPTIONS ( %s );\n',
+                select format(E'CREATE USER MAPPING FOR %s\n  SERVER %s%s;\n',
                          quote_ident(r.rolname),
                          quote_ident(s.srvname),
-                         (select array_to_string(array(
+                         (select (case when s is not null and s <> ''
+                                       then format(E'\n  OPTIONS (%s)', s)
+                                       else ''
+                                  end)
+                          from (
+                          select array_to_string(array(
                           select format('%s %s', a[1], quote_literal(a[2]))
                           from (
                           select string_to_array(unnest(u.umoptions), '=') as a
@@ -7167,7 +7184,7 @@ DROP COLUMN #column_name#
                           where quote_ident(s.srvname) = '{0}'
                             and quote_ident(r.rolname) = '{1}'
                           ) x
-                          ), ', ')))
+                          ), ', ') as s) x))
                 from pg_user_mapping u
                 inner join pg_foreign_server s
                 on s.oid = u.umserver

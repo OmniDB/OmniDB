@@ -24,6 +24,8 @@
   - Fixed: Export to XLSX/CSV does not consider all rows
   - Fixed: Error closing error window
   - Fixed: Monitoring Dashboard: Column widths are not adjusted when the monitoring tab doesn't have focus
+  - Fixed: User Mapping is not being shown in the tree if there are no options
+  - Fixed: Foreign Table DDL not being shown correctly if there are no options
 
 
 # 1- Installation

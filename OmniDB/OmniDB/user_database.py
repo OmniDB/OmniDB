@@ -33,7 +33,7 @@ def migrate(p_database, p_current_version):
             print('Starting migration of user database from version {0} to version {1}...'.format(p_current_version, next_version))
             file = migrations[p_current_version][1]
             tmp = file.split('.')
-            ext = tmp[5]
+            ext = tmp[len(tmp)-1]
             if ext == 'sql':
                 with open(file, 'r') as f:
                     p_database.v_connection.Open()

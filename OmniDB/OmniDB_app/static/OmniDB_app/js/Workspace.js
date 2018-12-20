@@ -119,6 +119,9 @@ function getDatabaseList(p_init, p_callback) {
 				v_connTabControl.tag.selectHTML = p_return.v_data.v_select_html;
 				v_connTabControl.tag.connections = p_return.v_data.v_connections;
 
+				v_connTabControl.tag.selectGroupHTML = p_return.v_data.v_select_group_html;
+				v_connTabControl.tag.groups = p_return.v_data.v_groups;
+
 				if (p_init) {
 
 					//v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
@@ -196,7 +199,6 @@ function checkBeforeChangeDatabase(p_cancel_function, p_ok_function) {
 /// <summary>
 /// Changing selected database.
 /// </summary>
-/// <param name="p_sel_id">Selection tag ID.</param>
 /// <param name="p_value">Database ID.</param>
 function changeDatabase(p_value) {
 
@@ -253,6 +255,87 @@ function changeDatabase(p_value) {
 			adjustQueryTabObjects(true);
 		});
 
+}
+
+function changeGroup(p_value) {
+	//finding group object
+	var v_group_object = null;
+	for (var i=0; i<v_connTabControl.tag.groups.length; i++) {
+		if (p_value==v_connTabControl.tag.groups[i].v_group_id) {
+			v_group_object = v_connTabControl.tag.groups[i];
+			break;
+		}
+	}
+	if (!v_group_object) {
+		v_group_object = v_connTabControl.tag.groups[0];
+		v_connTabControl.tag.divSelectGroup.childNodes[0].value = 0;
+	}
+
+	v_connTabControl.selectedTab.tag.selectedGroupIndex = parseInt(p_value);
+
+  //check if next group contains the currently selected connection
+	var v_found = false;
+	//first group contains all connections
+	if (v_group_object.v_group_id==0) {
+		v_found = true;
+	}
+	else {
+		for (var i=0; i<v_group_object.conn_list.length; i++) {
+			if (v_connTabControl.selectedTab.tag.selectedDatabaseIndex==v_group_object.conn_list[i]) {
+				v_found = true;
+				break;
+			}
+		}
+	}
+
+	//not found, check if there aren't troublesome tabs before changing selector
+	if (!v_found) {
+		for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
+
+			var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
+			if (v_tab.tag!=null)
+				if (v_tab.tag.mode=='edit' || v_tab.tag.mode=='alter' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='monitor_dashboard' || v_tab.tag.mode=='data_mining') {
+					showAlert("Before changing group please close any tab of the selected connection that belongs to the following types: <br/><br/><b>Edit Data<br/><br/>Alter Table<br/><br/>Function Debugging<br/><br/>Monitoring Dashboard<br/><br/>Advanced Object Search.");
+					v_connTabControl.selectedTab.tag.dd_group_object.set("selectedIndex",v_connTabControl.selectedTab.tag.dd_group_selected_index);
+					return null;
+				}
+		}
+	}
+
+	//Filtering connection list
+	var v_tag = v_connTabControl.selectedTab.tag;
+	v_tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
+	var v_select = v_tag.divSelectDB.childNodes[0];
+
+	//filter if not default group
+	if (v_group_object.v_group_id!=0) {
+		for (var i=v_select.childNodes.length-1; i>=0; i--) {
+			var v_option = v_select.childNodes[i];
+
+			var v_found_conn = false;
+			for (var j=0; j<v_group_object.conn_list.length; j++) {
+				if (v_option.value==v_group_object.conn_list[j]) {
+					v_found_conn = true;
+					if (!v_found) {
+						changeDatabase(v_option.value);
+						v_found = true;
+					}
+					break;
+				}
+			}
+			if (!v_found_conn) {
+				v_option.parentNode.removeChild(v_option);
+			}
+		}
+	}
+
+	//Rebuild selector
+	v_tag.divSelectDB.childNodes[0].value = v_tag.selectedDatabaseIndex;
+	v_tag.dd_object = $(v_tag.divSelectDB.childNodes[0]).msDropDown().data("dd");
+	v_tag.dd_selected_index = v_tag.dd_object.selectedIndex;
+
+
+	v_connTabControl.selectedTab.tag.dd_group_selected_index = v_connTabControl.selectedTab.tag.dd_group_object.selectedIndex;
 }
 
 function queueChangeActiveDatabaseThreadSafe(p_data) {

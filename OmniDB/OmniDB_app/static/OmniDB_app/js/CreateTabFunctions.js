@@ -43,7 +43,8 @@ function initCreateTabFunctions() {
     	v_connTabControl.selectTab(v_tab);
 
     	var v_html = "<div id='" + v_tab.id + "_div_left' class='div_left' style='float:left; position: relative; width:20%; '>" +
-    	"<div style='padding-right: 12px;'><div id='" + v_tab.id + "_div_select_db' style='width: 100%; display: inline-block;'></div>" +
+    	"<div style='padding-right: 12px;'><div id='" + v_tab.id + "_div_select_group' style='width: 100%; margin-bottom: 5px; display: inline-block;'></div>" +
+      "<div id='" + v_tab.id + "_div_select_db' style='width: 100%; display: inline-block;'></div>" +
     	"</div>" +
     	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
     	"<div style='margin-right: 10px;'>" +
@@ -216,6 +217,7 @@ function initCreateTabFunctions() {
     		divLeft: document.getElementById(v_tab.id + '_div_left'),
     		divRight: document.getElementById(v_tab.id + '_div_right'),
         divSelectDB: document.getElementById(v_tab.id + '_div_select_db'),
+        divSelectGroup: document.getElementById(v_tab.id + '_div_select_group'),
     		selectedDatabaseIndex: 0,
     		connTabControl: v_connTabControl,
         mode: 'connection',
@@ -259,9 +261,15 @@ function initCreateTabFunctions() {
       v_tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
       v_tag.divSelectDB.childNodes[0].value=v_index;
 
+      v_tag.divSelectGroup.innerHTML = v_connTabControl.tag.selectGroupHTML;
+      v_tag.divSelectGroup.childNodes[0].value=v_connTabControl.tag.groups[0].v_group_id;
+
       v_tab.tag.dd_object = $(v_tag.divSelectDB.childNodes[0]).msDropDown().data("dd");
 
+      v_tab.tag.dd_group_object = $(v_tag.divSelectGroup.childNodes[0]).msDropDown().data("dd");
+
       changeDatabase(v_index);
+      changeGroup(v_connTabControl.tag.groups[0].v_group_id);
 
       if (p_create_query_tab) {
          v_connTabControl.tag.createConsoleTab();
@@ -500,6 +508,7 @@ function initCreateTabFunctions() {
       function() {
         if(this.tag != null) {
           refreshHeights();
+          refreshMonitorUnitsObjects();
           if (this.tag.unit_list_grid!=null) {
             showMonitorUnitList();
           }
@@ -1397,7 +1406,7 @@ function initCreateTabFunctions() {
            "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style='margin-bottom: 5px; margin-left: 5px; display: none;' onclick='cancelEditData();'>Cancel</button>" +
            "<div id='div_edit_data_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
            "<button id='bt_saveEditData_" + v_tab.id + "' onclick='saveEditData()' style='visibility: hidden; margin-left: 5px;'>Save Changes</button>" +
-           "</div>" + 
+           "</div>" +
            "<div id='div_edit_data_data_" + v_tab.id + "' style='width: 100%; height: 250px; overflow: hidden;'></div>";
 
     var v_div = document.getElementById('div_' + v_tab.id);

@@ -302,6 +302,12 @@ function tabDataMining(node) {
           }, {
               'text': 'Table Trigger Name',
               'value': 31
+          }, {
+              'text': 'Materialized View Definition',
+              'value': 32
+          }, {
+              'text': 'View Definition',
+              'value': 33
           }
       ];
     } else {
@@ -395,6 +401,12 @@ function tabDataMining(node) {
           }, {
               'text': 'Table Trigger Name',
               'value': 30
+          }, {
+              'text': 'Materialized View Definition',
+              'value': 31
+          }, {
+              'text': 'View Definition',
+              'value': 32
           }
       ];
     }
@@ -2206,6 +2218,37 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
+        'cm_direct_triggerfunction': {
+            elements: [{
+                text: 'Refresh',
+                icon: 'fas cm-all fa-sync-alt',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Edit Trigger Function',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    v_connTabControl.tag.createQueryTab(
+                        node.text);
+                    getTriggerFunctionDefinitionPostgresql(node);
+                }
+            }, {
+                text: 'Drop Trigger Function',
+                icon: 'fas cm-all fa-times',
+                action: function(node) {
+                    tabSQLTemplate('Drop Trigger Function',
+                        node.tree.tag.drop_triggerfunction.replace(
+                            '#function_name#', node.tag.id)
+                    );
+                }
+            }]
+        },
         'cm_sequences': {
             elements: [{
                 text: 'Refresh',
@@ -3325,6 +3368,13 @@ function getPropertiesPostgresqlConfirm(node) {
     } else if (node.tag.type == 'triggerfunction') {
         getProperties('/get_properties_postgresql/', {
             p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.tag.id,
+            p_type: node.tag.type
+        });
+    } else if (node.tag.type == 'direct_triggerfunction') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.parent.parent.parent.text,
             p_table: null,
             p_object: node.tag.id,
             p_type: node.tag.type
@@ -5530,17 +5580,25 @@ function getTriggersPostgresql(node) {
                         false, 'fas node-all fa-bolt node-trigger', {
                             type: 'trigger',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
-                        }, 'cm_trigger', null, false);
+                        }, 'cm_trigger', null, true);
                     v_node.createChildNode('Enabled: ' + p_return.v_data[i]
                         .v_enabled, false,
                         'fas node-all fa-ellipsis-h node-bullet', {
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
                         }, null, null, false);
-                    v_node.createChildNode('Function: ' + p_return.v_data[i]
+
+                    /*v_node.createChildNode('Function: ' + p_return.v_data[i]
                         .v_function, false,
                         'fas node-all fa-ellipsis-h node-bullet', {
                             database: v_connTabControl.selectedTab.tag.selectedDatabase
-                        }, null, null, false);
+                        }, null, null, false);*/
+
+                    v_node.createChildNode(p_return.v_data[i].v_function, false,
+                        'fas node-all fa-cog node-tfunction', {
+                            type: 'direct_triggerfunction',
+                            id: p_return.v_data[i].v_id,
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        }, 'cm_direct_triggerfunction', null, true);
 
                 }
 

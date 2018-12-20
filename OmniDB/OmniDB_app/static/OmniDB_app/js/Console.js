@@ -245,7 +245,10 @@ function consoleSQL(p_check_command = true, p_mode = 0) {
           tab_tag: v_tag,
           start_datetime: dformat,
           database_index: v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-          acked: false
+          acked: false,
+					last_command: v_content,
+					check_command: p_check_command,
+					mode: p_mode
         }
         v_context.tab_tag.context = v_context;
 

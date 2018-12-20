@@ -1,9 +1,10 @@
 from django.conf.urls import url
+from django.urls import include, path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
-urlpatterns = [
+base_urlpatterns = [
     #LOGIN
     url(r'^$', views.login.index, name='login'),
     url(r'^login/', views.login.index, name='login'),
@@ -17,6 +18,10 @@ urlpatterns = [
     url(r'^save_connections/$', views.connections.save_connections, name='save_connections'),
     url(r'^test_connection/$', views.connections.test_connection, name='test_connection'),
     url(r'^select_connection/$', views.connections.select_connection, name='select_connection'),
+    url(r'^get_groups/$', views.connections.get_groups, name='get_groups'),
+    url(r'^new_group/$', views.connections.new_group, name='new_group'),
+    url(r'^edit_group/$', views.connections.edit_group, name='edit_group'),
+    url(r'^delete_group/$', views.connections.delete_group, name='delete_group'),
 
     #USERS
     url(r'^get_users/$', views.users.get_users, name='get_users'),
@@ -259,3 +264,8 @@ urlpatterns = [
     url(r'^update_saved_monitor_unit_interval/', views.monitor_dashboard.update_saved_monitor_unit_interval, name='update_saved_monitor_unit_interval'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+urlpatterns = [# if you wish to maintain the un-prefixed URL's too
+    url(r'^', include(base_urlpatterns)),
+    #url(r'^subfolder/', include(base_urlpatterns))
+]

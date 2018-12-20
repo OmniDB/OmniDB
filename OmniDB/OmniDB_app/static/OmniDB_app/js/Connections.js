@@ -11,6 +11,19 @@ You should have received a copy of the GNU General Public License along with Omn
 */
 
 /// <summary>
+/// Startup function.
+/// </summary>
+$(function () {
+	v_connections_data = new Object();
+	v_connections_data.v_groups_visible = false;
+	v_connections_data.ht = null;
+	v_connections_data.v_group_list = null;
+	v_connections_data.v_group_last_selected = null;
+	v_connections_data.v_group_changed = false;
+	v_connections_data.v_next_conn_id = -1;
+});
+
+/// <summary>
 /// Creates a new connection.
 /// </summary>
 function newConnectionConfirm() {
@@ -69,9 +82,10 @@ function newConnection() {
 		'ssh_user': '',
 		'ssh_password': '',
 		'ssh_key': '',
-		'ssh_enabled': false
+		'ssh_enabled': false,
+		'group_changed': true
 	})
-	v_connections_data.ht.getSourceData().push(['postgresql','','','','','',false,'','22','','','',"<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConnection()'></i>"]);
+	v_connections_data.ht.getSourceData().push([false,'postgresql','','','','','',false,'','22','','','',"<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConnection()'></i>"]);
 	v_connections_data.ht.render();
 	var v_cellMeta = v_connections_data.ht.getCellMeta(v_connections_data.v_conn_ids.length - 1, 0);
 	v_cellMeta.v_conn_id = v_conn_id;
@@ -223,7 +237,6 @@ function selectConnectionConfirm(p_index) {
 			'box',
 			true,
 			true);
-
 }
 
 /// <summary>
@@ -233,27 +246,42 @@ function saveConnections(p_callback) {
 
 	var v_data_list = [];
 	var v_conn_id_list = [];
+	var v_conn_group_list = [];
 
 	for (var i=0; i < v_connections_data.v_conn_ids.length; i++) {
+		var v_temp_row = null;
 		if (v_connections_data.v_conn_ids[i].mode!=0) {
+
+		}
+		if (v_connections_data.v_conn_ids[i].mode!=0 || v_connections_data.v_conn_ids[i].group_changed) {
 			var v_clone = jQuery.extend(true, {}, v_connections_data.v_conn_ids[i]);
-			delete v_clone['v_cellMeta'];
-			v_conn_id_list.push(v_clone)
 			var v_temp_row = v_connections_data.ht.getDataAtRow(v_connections_data.v_conn_ids[i].v_cellMeta.visualRow);
-			v_data_list.push([v_temp_row[0],v_temp_row[1],v_temp_row[2],v_temp_row[3],v_temp_row[4],v_temp_row[5],v_temp_row[6],v_temp_row[7],v_temp_row[8],v_temp_row[9],v_temp_row[10],v_temp_row[11]])
+			delete v_clone['v_cellMeta'];
+			v_clone['group_value'] = v_temp_row[0]
+			v_conn_id_list.push(v_clone)
+			if (v_connections_data.v_conn_ids[i].mode!=0) {
+				v_temp_row.shift();
+				v_data_list.push([v_temp_row[0],v_temp_row[1],v_temp_row[2],v_temp_row[3],v_temp_row[4],v_temp_row[5],v_temp_row[6],v_temp_row[7],v_temp_row[8],v_temp_row[9],v_temp_row[10],v_temp_row[11]])
+			}
+			else {
+				v_data_list.push([]);
+			}
 		}
 	}
 
-
-	var input = JSON.stringify({"p_data_list": v_data_list, "p_conn_id_list": v_conn_id_list});
-
+	var input = JSON.stringify({"p_data_list": v_data_list, "p_conn_id_list": v_conn_id_list, "p_group_id": v_connections_data.v_group_last_selected});
 
 	execAjax('/save_connections/',
 			input,
 			function() {
-
 				document.getElementById('div_save').style.visibility = 'hidden';
-				showConnectionList();
+				if (v_connections_data.v_group_changed==true) {
+					getGroups(true);
+					v_connections_data.v_group_changed = false;
+				}
+				else
+					showConnectionList();
+
 				if (p_callback)
 					p_callback();
 
@@ -263,7 +291,227 @@ function saveConnections(p_callback) {
 
 }
 
+function groupChange(p_value) {
+
+	if (v_connections_data.v_group_changed) {
+
+		showConfirm('There are changes on the connections list, would you like to save them?',
+					function() {
+
+						saveConnections();
+
+					},
+					function() {
+						document.getElementById('group_selector').value = v_connections_data.v_group_last_selected;
+					});
+
+
+	}
+	else {
+		v_connections_data.v_group_last_selected = p_value;
+		if (p_value!=-1) {
+			document.getElementById('div_edit_group').style.display = 'inline-block';
+			document.getElementById('div_delete_group').style.display = 'inline-block';
+			v_connections_data.v_groups_visible = true;
+			configureConnectionGroups(p_value);
+		}
+		else {
+			document.getElementById('div_edit_group').style.display = 'none';
+			document.getElementById('div_delete_group').style.display = 'none';
+			document.getElementById('group_selector').value = -1;
+
+			v_connections_data.v_groups_visible = false;
+
+			if (v_connections_data.ht) {
+				var v_conn_ids_indexes = [];
+				var v_data = v_connections_data.ht.getData();
+				for (var i=0; i < v_data.length; i++) {
+					var v_row = v_connections_data.v_conn_ids.getConnIndexById(v_connections_data.ht.getCellMeta(i, 0).v_conn_id);
+					v_conn_ids_indexes.push(v_row);
+					v_data[i][0] = false;
+					v_connections_data.v_conn_ids[v_row].group_changed = false;
+				}
+				v_connections_data.v_group_changed = false;
+				v_connections_data.ht.loadData(v_data);
+
+				//fixing cells metadatas
+				for(var i = 0; i < v_conn_ids_indexes.length; i++) {
+					var v_cellMeta = v_connections_data.ht.getCellMeta(i, 0);
+					v_cellMeta.v_conn_id = v_connections_data.v_conn_ids[v_conn_ids_indexes[i]].id;
+					v_connections_data.v_conn_ids[v_conn_ids_indexes[i]].v_cellMeta = v_cellMeta
+				}
+			}
+		}
+	}
+}
+
+function configureConnectionGroups(p_value) {
+	if (v_connections_data.v_groups_visible) {
+		var v_current_group = null;
+		for (var i=0; i<v_connections_data.v_group_list.length; i++) {
+			if (v_connections_data.v_group_list[i].id==p_value) {
+				v_current_group = v_connections_data.v_group_list[i];
+				break;
+			}
+		}
+		if (v_current_group != null) {
+			var v_conn_ids_indexes = [];
+			var v_data = v_connections_data.ht.getData();
+			for (var i=0; i < v_data.length; i++) {
+				var v_id = v_connections_data.ht.getCellMeta(i, 0).v_conn_id;
+				var v_row = v_connections_data.v_conn_ids.getConnIndexById(v_id);
+				v_conn_ids_indexes.push(v_row);
+				if (v_current_group.conn_list.includes(v_id)) {
+					v_data[i][0] = true;
+				}
+				else {
+					v_data[i][0] = false;
+				}
+				v_connections_data.v_conn_ids[v_row].group_changed = false;
+			}
+			v_connections_data.v_group_changed = false;
+			v_connections_data.ht.loadData(v_data);
+
+			//fixing cells metadatas
+			for(var i = 0; i < v_conn_ids_indexes.length; i++) {
+				var v_cellMeta = v_connections_data.ht.getCellMeta(i, 0);
+				v_cellMeta.v_conn_id = v_connections_data.v_conn_ids[v_conn_ids_indexes[i]].id;
+				v_connections_data.v_conn_ids[v_conn_ids_indexes[i]].v_cellMeta = v_cellMeta
+			}
+		}
+	}
+}
+
+function getGroups(p_reload_connections) {
+	execAjax('/get_groups/',
+			JSON.stringify({}),
+			function(p_return) {
+				v_connections_data.v_group_list = p_return.v_data;
+				var select = document.getElementById('group_selector');
+				var current_value = select.value;
+				select.innerHTML = '';
+				var option = document.createElement('option');
+				option.value = -1;
+				option.textContent = 'Select group';
+				select.appendChild(option);
+				var found = false;
+				for (var i=0; i<p_return.v_data.length; i++) {
+					option = document.createElement('option');
+					option.value = p_return.v_data[i].id;
+					option.textContent = p_return.v_data[i].name;
+					if (option.value == current_value) {
+						option.selected = true;
+						found = true;
+					}
+					select.appendChild(option);
+				}
+				if (!found==true) {
+					groupChange(-1);
+				}
+
+				if (p_reload_connections)
+					showConnectionList();
+
+			},
+			null,
+			'box');
+
+}
+
+function newGroupConfirm(p_name) {
+	execAjax('/new_group/',
+			JSON.stringify({"p_name": p_name}),
+			function(p_return) {
+				getGroups();
+			},
+			null,
+			'box');
+}
+
+function editGroupConfirm(p_id, p_name) {
+	execAjax('/edit_group/',
+			JSON.stringify({"p_id": p_id,"p_name": p_name}),
+			function(p_return) {
+				getGroups();
+			},
+			null,
+			'box');
+}
+
+function deleteGroupConfirm(p_group_id) {
+	execAjax('/delete_group/',
+			JSON.stringify({"p_id": p_group_id}),
+			function(p_return) {
+				getGroups();
+			},
+			null,
+			'box');
+}
+
+function newGroup() {
+	showConfirm('<input id="group_name_input"/ placeholder="Group Name" style="width: 200px;">',
+							function() {
+								newGroupConfirm(document.getElementById('group_name_input').value);
+							});
+	var v_input = document.getElementById('group_name_input');
+	v_input.onkeydown = function() {
+		if (event.keyCode == 13)
+			document.getElementById('button_confirm_ok').click();
+		else if (event.keyCode == 27)
+			document.getElementById('button_confirm_cancel').click();
+	}
+	document.getElementById('group_name_input').focus();
+}
+
+function editGroup() {
+	var v_select = document.getElementById('group_selector');
+	showConfirm('<input id="group_name_input"/ placeholder="Group Name" value="' + v_select.options[v_select.selectedIndex].text + '" style="width: 200px;">',
+							function() {
+								editGroupConfirm(
+									document.getElementById('group_selector').value,
+									document.getElementById('group_name_input').value);
+							});
+	var v_input = document.getElementById('group_name_input');
+	v_input.onkeydown = function() {
+		if (event.keyCode == 13)
+			document.getElementById('button_confirm_ok').click();
+		else if (event.keyCode == 27)
+			document.getElementById('button_confirm_cancel').click();
+	}
+	document.getElementById('group_name_input').focus();
+}
+
+function deleteGroup() {
+
+	var v_group_id = document.getElementById('group_selector').value;
+
+	//Check if group isn't already opened in a connection tab
+	for (var i=0; i < v_connTabControl.tabList.length; i++) {
+		var v_tab = v_connTabControl.tabList[i];
+		if (v_tab.tag && v_tab.tag.mode=='connection') {
+			if (v_group_id == v_tab.tag.selectedGroupIndex) {
+				showAlert('This group is being used in one of the connection tabs, please close the tab or change the active group there.')
+				return null;
+			}
+		}
+	}
+
+	showConfirm('Are you sure you want to delete the current group?',
+							function() {
+								deleteGroupConfirm(v_group_id);
+							});
+}
+
+function startConnectionManagement() {
+	v_connections_data.v_group_last_selected = -1;
+	v_connections_data.v_group_changed = false;
+	groupChange(-1);
+	getGroups(true);
+}
+
 function showConnectionList() {
+
+	v_connections_data.v_next_conn_id = -1;
 
   var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
 
@@ -284,9 +532,15 @@ function showConnectionList() {
 			input,
 			function(p_return) {
 
-				window.scrollTo(0,0);
+				var ConnColumnProperties = [];
 
-				var columnProperties = [];
+				var col = new Object();
+				col.title =  'Group';
+				col.type = "checkbox",
+				col.checkedTemplate = true,
+        col.uncheckedTemplate = false
+				col.width = '60'
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Technology';
@@ -294,28 +548,28 @@ function showConnectionList() {
 				col.width = '80'
 				col.allowInvalid = false,
 				col.source = p_return.v_data.v_technologies;
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Server';
 				col.width = '120'
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Port';
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Database';
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'User';
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Title';
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'SSH Tunnel';
@@ -323,35 +577,35 @@ function showConnectionList() {
 				col.checkedTemplate = true,
         		col.uncheckedTemplate = false
 				col.width = '80'
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'SSH Server';
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'SSH Port';
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'SSH User';
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'SSH Password';
 				col.type = "password",
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'SSH Key';
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Actions';
 				col.renderer = 'html';
 				col.readOnly = true;
 				col.width = '80'
-				columnProperties.push(col);
+				ConnColumnProperties.push(col);
 
 				var v_div_result = document.getElementById('connection_list_div_grid');
 
@@ -359,8 +613,6 @@ function showConnectionList() {
 					v_connections_data.ht.destroy();
 				}
 
-				v_connections_data = new Object();
-				v_connections_data.v_next_conn_id = -1;
 				v_connections_data.v_conn_ids = p_return.v_data.v_conn_ids;
 
 				v_connections_data.v_conn_ids.getConnIndexById = function(p_conn_id) {
@@ -375,11 +627,10 @@ function showConnectionList() {
 
 				v_connections_data.v_active = true;
 
-				var container = v_div_result;
-				v_connections_data.ht = new Handsontable(container,
+				v_connections_data.ht = new Handsontable(v_div_result,
 					{
 						data: p_return.v_data.v_data,
-						columns : columnProperties,
+						columns : ConnColumnProperties,
 						colHeaders : true,
 						manualColumnResize: true,
 						minSpareCols :0,
@@ -387,6 +638,7 @@ function showConnectionList() {
 						fillHandle:false,
 						columnSorting: true,
 						sortIndicator: true,
+						stretchH: "all",
 						contextMenu: {
 							callback: function (key, options) {
 								if (key === 'view_data') {
@@ -417,12 +669,12 @@ function showConnectionList() {
 							$.each(changes, function (index, element) {
 							    var change = element;
 							    var rowIndex = change[0];
-								var rowIndex = v_connections_data.v_conn_ids.getConnIndexById(v_connections_data.ht.getCellMeta(rowIndex, 0).v_conn_id);
+									var rowIndex = v_connections_data.v_conn_ids.getConnIndexById(v_connections_data.ht.getCellMeta(rowIndex, 0).v_conn_id);
 							    var columnIndex = change[1];
 							    var oldValue = change[2];
 							    var newValue = change[3];
 
-							    if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2) {
+							    if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2 && columnIndex!=0) {
 
 											if (v_connections_data.v_conn_ids[rowIndex].mode!=-1)
 												v_connections_data.v_conn_ids[rowIndex].mode = 1;
@@ -432,39 +684,55 @@ function showConnectionList() {
 							        document.getElementById('div_save').style.visibility = 'visible';
 
 							    }
+									else if (columnIndex==0) {
+										v_connections_data.v_conn_ids[rowIndex].group_changed = true;
+										v_connections_data.v_group_changed = true;
+										document.getElementById('div_save').style.visibility = 'visible';
+									}
 							});
 
 						},
 						cells: function (row, col, prop) {
 
 							if (v_connections_data.v_conn_ids.length!=0 && row < v_connections_data.v_conn_ids.length) {
-								var v_even = row % 2 == 0;
 
 								var cellProperties = {};
 
-								var v_read_only = false;
-
-								if (v_connections_data.v_conn_ids[row].locked) {
+								if (!v_connections_data.v_groups_visible && col==0) {
 									cellProperties.renderer = grayHtmlRenderer;
 									cellProperties.readOnly = true;
-									v_read_only = true;
 								}
+								else {
+									var v_even = row % 2 == 0;
 
-								if (!v_read_only) {
+									var v_read_only = false;
 
-									if (v_connections_data.v_conn_ids[row].mode==2)
-										cellProperties.renderer = greenHtmlRenderer;
-									else if (v_connections_data.v_conn_ids[row].mode==-1)
-										cellProperties.renderer = redHtmlRenderer;
-									else if (v_connections_data.v_conn_ids[row].mode==1)
-										cellProperties.renderer = yellowHtmlRenderer;
-									else if (v_even % 2 == 0)
-										cellProperties.renderer = blueHtmlRenderer;
-									else
-										cellProperties.renderer =whiteHtmlRenderer;
+									if (v_connections_data.v_conn_ids[row].locked && col!=0) {
+										cellProperties.renderer = grayHtmlRenderer;
+										cellProperties.readOnly = true;
+										v_read_only = true;
+									}
 
+									if (col == 13)
+										v_read_only = true;
+
+									if (!v_read_only) {
+										cellProperties.readOnly = false;
+										if (v_connections_data.v_conn_ids[row].mode==2)
+											cellProperties.renderer = greenHtmlRenderer;
+										else if (v_connections_data.v_conn_ids[row].mode==-1)
+											cellProperties.renderer = redHtmlRenderer;
+										else if (v_connections_data.v_conn_ids[row].mode==1)
+											cellProperties.renderer = yellowHtmlRenderer;
+										else if (v_connections_data.v_conn_ids[row].group_changed && col==0)
+											cellProperties.renderer = yellowHtmlRenderer;
+										else if (v_even % 2 == 0)
+											cellProperties.renderer = blueHtmlRenderer;
+										else
+											cellProperties.renderer =whiteHtmlRenderer;
+
+									}
 								}
-
 								return cellProperties;
 							}
 
@@ -477,6 +745,7 @@ function showConnectionList() {
 					v_cellMeta.v_conn_id = v_connections_data.v_conn_ids[i].id;
 					v_connections_data.v_conn_ids[i].v_cellMeta = v_cellMeta
 				}
+				configureConnectionGroups(document.getElementById('group_selector').value);
 			},
 			null,
 			'box',
@@ -505,10 +774,24 @@ function closeConnectionListFinish(p_index) {
 			var v_tab = v_connTabControl.tabList[i];
 			if (v_tab.tag && v_tab.tag.mode=='connection') {
 
-				v_tab.tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
-				v_tab.tag.divSelectDB.childNodes[0].value = v_tab.tag.selectedDatabaseIndex;
-				v_tab.tag.dd_object = $(v_tab.tag.divSelectDB.childNodes[0]).msDropDown().data("dd");
-				v_tab.tag.dd_selected_index = v_tab.tag.dd_object.selectedIndex;
+				//check if group still exists
+				var v_found = false;
+				for (var j=0; j<v_connTabControl.tag.groups.length; j++) {
+					if (v_tab.tag.selectedGroupIndex==v_connTabControl.tag.groups[j].v_group_id) {
+						v_found = true;
+						break;
+					}
+				}
+				if (!v_found) {
+					v_tab.tag.selectedGroupIndex = 0;
+				}
+
+				v_tab.tag.divSelectGroup.innerHTML = v_connTabControl.tag.selectGroupHTML;
+				v_tab.tag.divSelectGroup.childNodes[0].value = v_tab.tag.selectedGroupIndex;
+				v_tab.tag.dd_group_object = $(v_tab.tag.divSelectGroup.childNodes[0]).msDropDown().data("dd");
+				v_tab.tag.dd_group_selected_index = v_tab.tag.dd_group_object.selectedIndex;
+
+				changeGroup(v_tab.tag.selectedGroupIndex)
 
 			}
 		}

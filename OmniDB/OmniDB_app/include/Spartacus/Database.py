@@ -43,6 +43,7 @@ try:
     from psycopg2 import extras
     from pgspecial.main import PGSpecial
     from pgspecial.namedqueries import NamedQueries
+    from pgspecial.help.commands import helpcommands as HelpCommands
     import uuid
     import sqlparse
     v_supported_rdbms.append('PostgreSQL')
@@ -1110,7 +1111,7 @@ class PostgreSQL(Generic):
             self.v_help = Spartacus.Database.DataTable()
             self.v_help.Columns = ['Command', 'Syntax', 'Description']
             self.v_help.AddRow(['\\?', '\\?', 'Show Commands.'])
-            self.v_help.AddRow(['\\h', '\\h', 'Show SQL syntax and help.'])
+            self.v_help.AddRow(['\\h', '\\h [pattern]', 'Show SQL syntax and help.'])
             self.v_help.AddRow(['\\list', '\\list', 'List databases.'])
             self.v_help.AddRow(['\\l', '\\l[+] [pattern]', 'List databases.'])
             self.v_help.AddRow(['\\du', '\\du[+] [pattern]', 'List roles.'])
@@ -1122,7 +1123,7 @@ class PostgreSQL(Generic):
             self.v_help.AddRow(['\\ds', '\\ds[+] [pattern]', 'List sequences.'])
             self.v_help.AddRow(['\\d', '\\d[+] [pattern]', 'List or describe tables, views and sequences.'])
             self.v_help.AddRow(['DESCRIBE', 'DESCRIBE [pattern]', 'Describe tables, views and sequences.'])
-            self.v_help.AddRow(['describe', 'DESCRIBE [pattern]', 'Describe tables, views and sequences.'])
+            self.v_help.AddRow(['describe', 'describe [pattern]', 'Describe tables, views and sequences.'])
             self.v_help.AddRow(['\\di', '\\di[+] [pattern]', 'List indexes.'])
             self.v_help.AddRow(['\\dm', '\\dm[+] [pattern]', 'List materialized views.'])
             self.v_help.AddRow(['\\df', '\\df[+] [pattern]', 'List functions.'])
@@ -1130,6 +1131,10 @@ class PostgreSQL(Generic):
             self.v_help.AddRow(['\\dT', '\\dT[+] [pattern]', 'List data types.'])
             self.v_help.AddRow(['\\x', '\\x', 'Toggle expanded output.'])
             self.v_help.AddRow(['\\timing', '\\timing', 'Toggle timing of commands.'])
+            self.v_helpcommands = Spartacus.Database.DataTable()
+            self.v_helpcommands.Columns = ['SQL Command']
+            for s in list(HelpCommands.keys()):
+                self.v_helpcommands.AddRow([s])
             self.v_expanded = False
             self.v_timing = False
             self.v_types = None
@@ -1449,7 +1454,15 @@ class PostgreSQL(Generic):
                 v_cursors = []
                 for i in range(0, len(v_statement)):
                     if v_analysis[i].get_type() == 'SELECT':
-                        v_cursors.append('{0}_{1}'.format(self.v_application_name, uuid.uuid4().hex))
+                        v_found_cte = False
+                        v_found_dml = False
+                        for v_token in v_analysis[i].flatten():
+                            if v_token.ttype == sqlparse.tokens.Token.Keyword.CTE:
+                                v_found_cte = True
+                            if v_token.ttype == sqlparse.tokens.Token.Keyword.DML and v_token.value != 'SELECT':
+                                v_found_dml = True
+                        if not (v_found_cte and v_found_dml):
+                            v_cursors.append('{0}_{1}'.format(self.v_application_name, uuid.uuid4().hex))
                 if len(v_cursors) > 0:
                     v_sql = ''
                     j = 0
@@ -1492,7 +1505,7 @@ class PostgreSQL(Generic):
                         self.v_cur.execute('BEGIN;')
                     self.v_cur.execute(v_sql)
                 v_table = DataTable()
-                if self.v_cursor is not None:
+                if self.v_cursor:
                     if p_blocksize > 0:
                         self.v_cur.execute('FETCH {0} {1}'.format(p_blocksize, self.v_cursor))
                     else:
@@ -1513,10 +1526,11 @@ class PostgreSQL(Generic):
                                     v_table.Rows[i][j] = ''
                 if self.v_start:
                     self.v_start = False
-                if self.v_cursor is not None and len(v_table.Rows) < p_blocksize:
-                    self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
+                if len(v_table.Rows) < p_blocksize:
                     self.v_start = True
-                    self.v_cursor = None
+                    if self.v_cursor:
+                        self.v_cur.execute('CLOSE {0}'.format(self.v_cursor))
+                        self.v_cursor = None
                 return v_table
         except Spartacus.Database.Exception as exc:
             self.v_start = True
@@ -1567,6 +1581,9 @@ class PostgreSQL(Generic):
             self.v_last_fetched_size = 0
             if v_command == '\\?':
                 v_table = self.v_help
+            elif v_command == '\\h' and len(p_sql.lstrip().split(' ')[1:]) == 0:
+                v_title = 'Type "\h [parameter]" where "parameter" is a SQL Command from the list below:'
+                v_table = self.v_helpcommands
             else:
                 v_aux = self.v_help.Select('Command', v_command)
                 if len(v_aux.Rows) > 0:
@@ -1694,7 +1711,8 @@ class MySQL(Generic):
                 port=int(self.v_port),
                 db=self.v_service,
                 user=self.v_user,
-                password=self.v_password)
+                password=self.v_password,
+                autocommit=p_autocommit)
             self.v_cur = self.v_con.cursor()
             self.v_start = True
             self.v_status = 0
@@ -2071,7 +2089,8 @@ class MariaDB(Generic):
                 port=int(self.v_port),
                 db=self.v_service,
                 user=self.v_user,
-                password=self.v_password)
+                password=self.v_password,
+                autocommit=p_autocommit)
             self.v_cur = self.v_con.cursor()
             self.v_start = True
             self.v_status = 0

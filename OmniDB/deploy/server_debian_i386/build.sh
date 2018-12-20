@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2.12.0
+VERSION=2.13.0
 ARCH=debian-i386
 
 echo "Installing OmniDB dependencies..."
@@ -64,6 +64,8 @@ EOF
 chmod 777 omnidb-server
 ln -s /opt/omnidb-server/omnidb-config-server .
 cd ../..
+mkdir -p etc
+cp opt/omnidb-server/omnidb.conf etc/
 mkdir -p etc/systemd/system
 cd etc/systemd/system
 cat > omnidb.service << EOF
@@ -73,7 +75,7 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/bin/bash -c "/opt/omnidb-server/omnidb-server &"
+ExecStart=/bin/bash -c "/opt/omnidb-server/omnidb-server -c /etc/omnidb.conf &"
 RemainAfterExit=yes
 User=root
 Group=root
@@ -118,8 +120,14 @@ EOF
 chmod 755 DEBIAN/postinst
 cat > DEBIAN/prerm << EOF
 #!/bin/bash
-systemctl is-active --quiet omnidb && systemctl stop omnidb
-systemctl is-enabled --quiet omnidb && systemctl disable omnidb
+systemctl is-active --quiet omnidb
+if [ $? -eq 0 ]; then
+  systemctl stop omnidb
+fi
+systemctl is-enabled --quiet omnidb
+if [ $? -eq 0 ]; then
+  systemctl disable omnidb
+fi
 EOF
 chmod 755 DEBIAN/prerm
 cat > DEBIAN/postrm << EOF
@@ -128,6 +136,10 @@ systemctl daemon-reload
 systemctl reset-failed
 EOF
 chmod 755 DEBIAN/postrm
+cat > DEBIAN/conffiles << EOF
+/etc/omnidb.conf
+EOF
+chmod 755 DEBIAN/conffiles
 cd ..
 dpkg -b omnidb-server_$VERSION-$ARCH
 echo "Done"

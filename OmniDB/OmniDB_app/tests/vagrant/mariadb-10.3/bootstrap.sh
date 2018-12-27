@@ -22,26 +22,26 @@ fi
 # Installing dependencies
 apt-get -y install software-properties-common dirmngr
 
-REPO_APT_SOURCE=/etc/apt/sources.list.d/mysql.list
+REPO_APT_SOURCE=/etc/apt/sources.list.d/mariadb.list
 if [ ! -f "$REPO_APT_SOURCE" ]
 then
-  # Add MySQL apt repo:
-  echo "deb http://repo.mysql.com/apt/debian/ jessie mysql-5.7" >> "$REPO_APT_SOURCE"
+  # Add MARIADB apt repo:
+  echo "deb [arch=amd64,i386,ppc64el] http://mirror.ufscar.br/mariadb/repo/10.3/debian stretch main" >> "$REPO_APT_SOURCE"
+  echo "deb-src http://mirror.ufscar.br/mariadb/repo/10.3/debian stretch main" >> "$REPO_APT_SOURCE"
 
-  # Add MySQL repo key:
-  #apt-key adv --no-tty --keyserver pgp.mit.edu --recv-keys 5072E1F5
-  apt-key adv --no-tty --recv-keys 5072E1F5
+  # Add MARIADB repo key:
+  apt-key adv --no-tty --recv-keys --keyserver keyserver.ubuntu.com 0xF1656F24C74CD1D8
 fi
 
 # Update package list and upgrade all packages
 apt-get update
 apt-get -y upgrade
 
-apt-get -y install mysql-server
+apt-get -y install mariadb-server
 
-sed -i -e '/bind-address/s/^/#/g' /etc/mysql/mysql.conf.d/mysqld.cnf
+sed -i -e '/bind-address/s/^/#/g' /etc/mysql/my.cnf
 
-systemctl restart mysql
+systemctl restart mariadb
 
 mysql -e "create database ${APP_DB_NAME};"
 mysql -e "create user ${APP_DB_USER} identified by '${APP_DB_PASS}';"
@@ -51,5 +51,5 @@ mysql -e "flush privileges;"
 # Tag the provision time:
 date > "$PROVISIONED_ON"
 
-echo "Successfully created MySQL dev virtual machine."
+echo "Successfully created MariaDB dev virtual machine."
 echo ""

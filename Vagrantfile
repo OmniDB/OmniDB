@@ -4,8 +4,8 @@
 $script = <<SCRIPT
 echo "I am provisioning..."
 apt-get update
-wget -q https://omnidb.org/dist/2.13.0/omnidb-server_2.13.0-debian-amd64.deb
-dpkg -i omnidb-server_2.13.0-debian-amd64.deb
+wget -q https://omnidb.org/dist/2.14.0/omnidb-server_2.14.0-debian-amd64.deb
+dpkg -i omnidb-server_2.14.0-debian-amd64.deb
 cat > /etc/systemd/system/omnidb.service << EOF
 [Unit]
 After=network.target

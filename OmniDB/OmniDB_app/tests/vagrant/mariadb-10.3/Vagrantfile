@@ -1,0 +1,20 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+echo I am provisioning...
+date > /etc/vagrant_provisioned_at
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: $script
+  config.vm.box = "debian/stretch64"
+  config.vm.box_url = "https://app.vagrantup.com/debian/boxes/stretch64"
+  config.vm.host_name = "mariadb103"
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "omnidb_mariadb103"
+  end
+  config.vm.synced_folder ".", "/mnt/bootstrap"
+  config.vm.provision :shell, :path => "bootstrap.sh"
+  config.vm.network "forwarded_port", guest: 3306, host: 3303
+end

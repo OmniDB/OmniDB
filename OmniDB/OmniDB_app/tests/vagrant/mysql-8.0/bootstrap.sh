@@ -26,10 +26,10 @@ REPO_APT_SOURCE=/etc/apt/sources.list.d/mysql.list
 if [ ! -f "$REPO_APT_SOURCE" ]
 then
   # Add MySQL apt repo:
-  echo "deb http://repo.mysql.com/apt/debian/ jessie mysql-5.7" >> "$REPO_APT_SOURCE"
+  echo "deb http://repo.mysql.com/apt/debian/ jessie mysql-8.0" >> "$REPO_APT_SOURCE"
 
   # Add MySQL repo key:
-  #apt-key adv --no-tty --keyserver pgp.mit.edu --recv-keys 5072E1F5
+  # apt-key adv --no-tty --keyserver pgp.mit.edu --recv-keys 5072E1F5
   apt-key adv --no-tty --recv-keys 5072E1F5
 fi
 

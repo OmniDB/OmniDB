@@ -30,7 +30,7 @@ then
   echo "deb-src http://mirror.ufscar.br/mariadb/repo/10.1/debian stretch main" >> "$REPO_APT_SOURCE"
 
   # Add MARIADB repo key:
-  apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xF1656F24C74CD1D8
+  apt-key adv --no-tty --recv-keys --keyserver keyserver.ubuntu.com 0xF1656F24C74CD1D8
 fi
 
 # Update package list and upgrade all packages

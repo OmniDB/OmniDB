@@ -584,6 +584,22 @@ class MariaDB:
         v_body = v_body + self.v_connection.Query('show create procedure {0}.{1}'.format(self.v_schema, p_procedure), True, True).Rows[0][2]
         return v_body
 
+    def QuerySequences(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and table_schema = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and table_schema = '{0}' ".format(self.v_schema)
+        return self.v_connection.Query('''
+            select table_name as sequence_name,
+                   table_schema as sequence_schema
+            from information_schema.tables
+            where table_type = 'SEQUENCE'
+            {0}
+            order by 2, 1
+        '''.format(v_filter), True)
+
     def QueryViews(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -909,6 +925,30 @@ ON #table_name#
     def TemplateDropIndex(self):
         return Template('DROP INDEX #index_name#')
 
+    def TemplateCreateSequence(self):
+        return Template('''CREATE SEQUENCE #schema_name#.name
+--INCREMENT BY increment
+--MINVALUE minvalue | NOMINVALUE
+--MAXVALUE maxvalue | NOMAXVALUE
+--START WITH start
+--CACHE cache | NOCACHE
+--CYCLE | NOCYCLE
+''')
+
+    def TemplateAlterSequence(self):
+        return Template('''ALTER SEQUENCE #sequence_name#
+--INCREMENT BY increment
+--MINVALUE minvalue | NOMINVALUE
+--MAXVALUE maxvalue | NOMAXVALUE
+--START WITH start
+--CACHE cache | NOCACHE
+--CYCLE | NOCYCLE
+--RESTART WITH restart
+''')
+
+    def TemplateDropSequence(self):
+        return Template('DROP SEQUENCE #sequence_name#')
+
     def TemplateCreateView(self):
         return Template('''CREATE OR REPLACE VIEW #schema_name#.name AS
 SELECT ...
@@ -1138,6 +1178,18 @@ WHERE condition
                 where routine_type = 'PROCEDURE'
                   and routine_schema = '{0}'
                   and routine_name = '{1}'
+            '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
+        elif p_type == 'sequence':
+            return self.v_connection.Query('''
+                select next_not_cached_value as "Next Not Cached Value",
+                       minimum_value as "Min Value",
+                       maximum_value as "Max Value",
+                       start_value as "Start Value",
+                       increment as "Increment By",
+                       cache_size as "Cache Size",
+                       (case when 0 then 'No Cycle' else 'Cycle' end) as "Cycle Option",
+                       cycle_count as "Cycle Count"
+                from {0}.{1}
             '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
         else:
             return None

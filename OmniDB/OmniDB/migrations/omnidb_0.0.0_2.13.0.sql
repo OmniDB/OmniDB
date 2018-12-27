@@ -394,7 +394,7 @@ CREATE TABLE users (
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)
 );--omnidb--
-INSERT INTO users VALUES(1,'admin','8IqxKdQ=',1,'14',1,1,'utf-8',';');--omnidb--
+INSERT INTO users VALUES(1,'admin','48b19163bdb02cadab1a09c9dd4eafae',1,'14',1,1,'utf-8',';');--omnidb--
 
 CREATE TABLE messages (
     mes_in_code integer not null,
@@ -446,7 +446,6 @@ CREATE TABLE connections (
     port varchar(20),
     service varchar(500),
     user varchar(100),
-    password varchar(100),
     alias varchar(100),
     ssh_server varchar(500),
     ssh_port varchar(20),
@@ -609,8 +608,20 @@ CREATE TABLE console_history (
     constraint fk_ch_conn foreign key (conn_id) references connections (conn_id) on update CASCADE on delete CASCADE
 );--omnidb--
 
+CREATE TABLE cgroups (
+  cgroup_id integer primary key,
+  user_id integer references users (user_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  cgroup_name text
+);--omnidb--
+
+CREATE TABLE cgroups_connections (
+  cgroup_id integer references cgroups (cgroup_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  conn_id integer references connections (conn_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  primary key (cgroup_id, conn_id)
+);--omnidb--
+
 CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)
 );--omnidb--
-INSERT INTO version VALUES('2.12.0');--omnidb--
+INSERT INTO version VALUES('2.13.0');--omnidb--

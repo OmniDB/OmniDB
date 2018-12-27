@@ -23,8 +23,3 @@ echo "Cloning OmniDB repo..."
 rm -rf ~/OmniDB
 git clone --depth 1 --branch dev https://github.com/OmniDB/OmniDB ~/OmniDB
 echo "Done"
-
-#echo "Building..."
-#cd ~/OmniDB/OmniDB/deploy/server_centos7_amd64/
-#./build.sh
-#echo "Done"

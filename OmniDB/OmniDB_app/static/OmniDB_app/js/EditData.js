@@ -645,7 +645,7 @@ v_currTabTag.bt_cancel.style.display = '';
 
 	if (v_has_error) {
 		v_div_commands_log.innerHTML = v_commands_log;
-		$('#div_commands_log').show();
+		$('#div_commands_log').addClass('isActive');
 
 	}
 

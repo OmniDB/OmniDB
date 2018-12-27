@@ -164,7 +164,13 @@ function querySQL(p_mode,
 				mode: p_mode,
 				has_selected_text: v_has_selected_text,
 				callback: p_callback,
-				acked: false
+				acked: false,
+				all_data: p_all_data,
+				query: p_query,
+				log_query: p_log_query,
+				save_query: p_save_query,
+				clear_data: p_clear_data,
+				tab_title: p_tab_title
 			}
 			v_context.tab_tag.context = v_context;
 

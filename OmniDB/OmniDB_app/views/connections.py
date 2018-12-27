@@ -97,6 +97,7 @@ def get_connections(request):
         v_connection = v_connection_object['database']
         v_tunnel     = v_connection_object['tunnel']
         v_connection_data_list = []
+        v_connection_data_list.append(False)
         v_connection_data_list.append(v_connection.v_db_type)
         v_connection_data_list.append(v_connection.v_server)
         v_connection_data_list.append(v_connection.v_port)
@@ -114,7 +115,8 @@ def get_connections(request):
             'id': v_connection.v_conn_id,
             'mode': 0,
             'old_mode': -1,
-            'locked': False
+            'locked': False,
+            'group_changed': False
         }
 
         if v_connection.v_conn_id in v_tab_conn_id_list:
@@ -137,6 +139,158 @@ def get_connections(request):
 
     return JsonResponse(v_return)
 
+def get_groups(request):
+
+    v_return = {}
+    v_return['v_data'] = []
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+
+    try:
+        v_groups_connections = v_session.v_omnidb_database.v_connection.Query('''
+            select c.cgroup_id as cgroup_id,
+                   c.cgroup_name as cgroup_name,
+                   cc.conn_id as conn_id
+            from cgroups c
+            left join cgroups_connections cc on c.cgroup_id = cc.cgroup_id
+            where c.user_id = {0}
+            order by c.cgroup_id
+        '''.format(v_session.v_user_id))
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    if len(v_groups_connections.Rows)==0:
+        return JsonResponse(v_return)
+
+    v_group_list = []
+
+    v_current_group_data = {
+        'id': None,
+        'name': None,
+        'conn_list': []
+    }
+
+    for r in v_groups_connections.Rows:
+        if v_current_group_data['id'] != r['cgroup_id']:
+            if v_current_group_data['id'] != None:
+                v_group_list.append(v_current_group_data)
+            v_current_group_data = {
+                'id': r['cgroup_id'],
+                'name':  r['cgroup_name'],
+                'conn_list': []
+            }
+        if r['conn_id']!=None:
+            v_current_group_data['conn_list'].append(r['conn_id'])
+
+    v_group_list.append(v_current_group_data)
+
+    v_return['v_data'] = v_group_list
+
+    return JsonResponse(v_return)
+
+def new_group(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    p_name = json_object['p_name']
+
+    try:
+        v_session.v_omnidb_database.v_connection.Execute('''
+            insert into cgroups values (
+            (select coalesce(max(cgroup_id), 0) + 1 from cgroups),
+            {0},
+            '{1}')
+        '''.format(v_session.v_user_id,p_name))
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def edit_group(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    p_id = json_object['p_id']
+    p_name = json_object['p_name']
+
+    try:
+        v_session.v_omnidb_database.v_connection.Execute('''
+            update cgroups
+            set cgroup_name = '{0}'
+            where cgroup_id = {1}
+        '''.format(p_name,p_id))
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def delete_group(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    p_id = json_object['p_id']
+
+    try:
+        v_session.v_omnidb_database.v_connection.Execute('''
+            delete from cgroups
+            where cgroup_id = {0}
+        '''.format(p_id))
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+
 def save_connections(request):
 
     v_return = {}
@@ -156,17 +310,19 @@ def save_connections(request):
     json_object = json.loads(request.POST.get('data', None))
     v_data_list = json_object['p_data_list']
     v_conn_id_list = json_object['p_conn_id_list']
-
+    v_group_id = json_object['p_group_id']
 
     v_index = 0
 
     try:
         v_session.v_omnidb_database.v_connection.Open();
         v_session.v_omnidb_database.v_connection.Execute('BEGIN TRANSACTION;');
+
         for r in v_data_list:
+            is_delete = False
+            conn_id = v_conn_id_list[v_index]['id']
             #update
             if v_conn_id_list[v_index]['mode'] == 1:
-                conn_id = v_conn_id_list[v_index]['id']
                 if r[6]:
                     v_use_tunnel = 1
                 else:
@@ -217,8 +373,6 @@ def save_connections(request):
                 v_session.v_databases[conn_id]['tunnel']['password'] = r[10]
                 v_session.v_databases[conn_id]['tunnel']['key'] = r[11]
 
-                v_index = v_index + 1
-
                 database = OmniDatabase.Generic.InstantiateDatabase(
     				r[0],
     				r[1],
@@ -247,7 +401,6 @@ def save_connections(request):
                     '{3}',
                     '{4}',
                     '{5}',
-                    '',
                     '{6}',
                     '{7}',
                     '{8}',
@@ -270,7 +423,7 @@ def save_connections(request):
                     v_cryptor.Encrypt(r[11]),
                     v_use_tunnel
                 ))
-                v_inserted_id = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
+                conn_id = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
                 select coalesce(max(conn_id), 0) from connections
                 ''')
 
@@ -281,7 +434,7 @@ def save_connections(request):
     				r[3],
     				r[4],
                     '',
-                    v_inserted_id,
+                    conn_id,
                     r[5]
                 )
 
@@ -294,8 +447,6 @@ def save_connections(request):
                     'key': r[11]
                 }
 
-                v_index = v_index + 1
-
                 if 1==0:
                     v_session.AddDatabase(database,False,tunnel_information)
                 else:
@@ -303,13 +454,35 @@ def save_connections(request):
 
             #delete
             elif v_conn_id_list[v_index]['mode'] == -1:
-                conn_id = v_conn_id_list[v_index]['id']
+                is_delete = True
                 v_session.v_omnidb_database.v_connection.Execute('''
                     delete from connections
                     where conn_id = {0}
                 '''.format(conn_id))
-                v_index = v_index + 1
                 del v_session.v_databases[conn_id]
+
+            if not is_delete and v_conn_id_list[v_index]['group_changed']:
+                if v_conn_id_list[v_index]['group_value']==False:
+                    v_session.v_omnidb_database.v_connection.Execute('''
+                        delete from cgroups_connections
+                        where cgroup_id = {0}
+                          and conn_id = {1}
+                    '''.format(
+                        v_group_id,
+                        conn_id)
+                    )
+                else:
+                    v_session.v_omnidb_database.v_connection.Execute('''
+                        insert into cgroups_connections
+                        select {0},{1}
+                        where not exists (select 1 from cgroups_connections where cgroup_id = {0} and conn_id = {1})
+                    '''.format(
+                        v_group_id,
+                        conn_id)
+                    )
+
+
+            v_index = v_index + 1
         v_session.v_omnidb_database.v_connection.Execute('COMMIT;');
         v_session.v_omnidb_database.v_connection.Close();
     except Exception as exc:

@@ -1328,7 +1328,8 @@ class PostgreSQL:
                    quote_ident(c.relname) as table_name,
                    quote_ident(t.tgname) as trigger_name,
                    t.tgenabled as trigger_enabled,
-                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function,
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id
             from pg_trigger t
             inner join pg_class c
             on c.oid = t.tgrelid
@@ -2008,7 +2009,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             from (
             select 1 as seq,
                    'PUBLIC' as rolname,
-                   unnest(u.umoptions) as umoption
+                   unnest(coalesce(u.umoptions, '{{null}}')) as umoption
             from pg_user_mapping u
             inner join pg_foreign_server s
             on s.oid = u.umserver
@@ -2017,7 +2018,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             union
             select 1 + row_number() over(order by r.rolname) as seq,
                    r.rolname,
-                   unnest(u.umoptions) as umoption
+                   unnest(coalesce(u.umoptions, '{{null}}')) as umoption
             from pg_user_mapping u
             inner join pg_foreign_server s
             on s.oid = u.umserver
@@ -3339,6 +3340,80 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
+    def DataMiningMaterializedViewDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Materialized View Definition'::text as category,
+                   y.schema_name::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   y.mview_definition::text as match_value
+            from (
+                select n.nspname::text as schema_name,
+                       pg_get_viewdef((n.nspname || '.' || c.relname)::regclass) as mview_definition
+                from pg_class c
+                inner join pg_namespace n
+                           on n.oid = c.relnamespace
+                where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                  and n.nspname not like 'pg%%temp%%'
+                  and c.relkind = 'm'
+                  --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+            ) y
+            where 1 = 1
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and y.mview_definition like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.mview_definition) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and y.mview_definition ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and y.mview_definition ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningViewDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'View Definition'::text as category,
+                   v.table_schema::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   v.view_definition::text as match_value
+            from information_schema.views v
+            where v.table_schema not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and v.table_schema not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and v.view_definition like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(v.view_definition) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and v.view_definition ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and v.view_definition ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(v.table_schema) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
     def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_dataCategoryFilter):
         v_sqlDict = {}
 
@@ -3417,6 +3492,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 v_sqlDict[v_category] = self.DataMiningCheckDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Table Trigger Name':
                 v_sqlDict[v_category] = self.DataMiningTableTriggerName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Materialized View Definition':
+                v_sqlDict[v_category] = self.DataMiningMaterializedViewDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'View Definition':
+                v_sqlDict[v_category] = self.DataMiningViewDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
 
         return v_sqlDict
 
@@ -5574,7 +5653,6 @@ DROP COLUMN #column_name#
                        c.relnatts as "Number of Attributes",
                        c.relchecks as "Number of Checks",
                        c.relhasoids as "Has OIDs",
-                       c.relhaspkey as "Has Primary Key",
                        c.relhasrules as "Has Rules",
                        c.relhastriggers as "Has Triggers",
                        c.relhassubclass as "Has Subclass",
@@ -5721,6 +5799,8 @@ DROP COLUMN #column_name#
             elif p_type == 'trigger':
                 return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
             elif p_type == 'triggerfunction':
+                return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+            elif p_type == 'direct_triggerfunction':
                 return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
             elif p_type == 'pk':
                 return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
@@ -6146,7 +6226,11 @@ DROP COLUMN #column_name#
                       CASE relhasoids WHEN true THEN ' WITH OIDS' ELSE '' END
                       ||
                       coalesce(
-                        E'\nSERVER '||quote_ident(fs.srvname)||E'\nOPTIONS (\n'||
+                        E'\nSERVER '||quote_ident(fs.srvname)
+                        ,'')
+                      ||
+                      coalesce(
+                        E'\nOPTIONS (\n'||
                         (select string_agg(
                                   '    '||quote_ident(option_name)||' '||quote_nullable(option_value),
                                   E',\n')
@@ -6177,7 +6261,7 @@ DROP COLUMN #column_name#
                 ),
                 createindex as (
                     with ii as (
-                     SELECT CASE d.refclassid
+                     SELECT DISTINCT CASE d.refclassid
                                 WHEN 'pg_constraint'::regclass
                                 THEN 'ALTER TABLE ' || text(c.oid::regclass)
                                      || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
@@ -6594,7 +6678,11 @@ DROP COLUMN #column_name#
                       CASE relhasoids WHEN true THEN ' WITH OIDS' ELSE '' END
                       ||
                       coalesce(
-                        E'\nSERVER '||quote_ident(fs.srvname)||E'\nOPTIONS (\n'||
+                        E'\nSERVER '||quote_ident(fs.srvname)
+                        ,'')
+                      ||
+                      coalesce(
+                        E'\nOPTIONS (\n'||
                         (select string_agg(
                                   '    '||quote_ident(option_name)||' '||quote_nullable(option_value),
                                   E',\n')
@@ -6625,7 +6713,7 @@ DROP COLUMN #column_name#
                 ),
                 createindex as (
                     with ii as (
-                     SELECT CASE d.refclassid
+                     SELECT DISTINCT CASE d.refclassid
                                 WHEN 'pg_constraint'::regclass
                                 THEN 'ALTER TABLE ' || text(c.oid::regclass)
                                      || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
@@ -6815,8 +6903,11 @@ DROP COLUMN #column_name#
                     WHERE p.oid = '{0}'::text::regprocedure
                 ),
                 createfunction as (
-                    select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
-                    from obj
+                    select substring(body from 1 for length(body)-1) || E';\n\n' as text
+                    from (
+                        select pg_get_functiondef(sql_identifier::regprocedure) as body
+                        from obj
+                    ) x
                 ),
                 alterowner as (
                     select
@@ -6889,8 +6980,11 @@ DROP COLUMN #column_name#
                     WHERE p.prokind = 'f' AND p.oid = '{0}'::text::regprocedure
                 ),
                 createfunction as (
-                    select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
-                    from obj
+                    select substring(body from 1 for length(body)-1) || E';\n\n' as text
+                    from (
+                        select pg_get_functiondef(sql_identifier::regprocedure) as body
+                        from obj
+                    ) x
                 ),
                 alterowner as (
                     select
@@ -6964,8 +7058,11 @@ DROP COLUMN #column_name#
                 WHERE p.prokind = 'p' AND p.oid = '{0}'::text::regprocedure
             ),
             createfunction as (
-                select pg_get_functiondef(sql_identifier::regprocedure)||E'\n' as text
-                from obj
+                select substring(body from 1 for length(body)-1) || E';\n\n' as text
+                from (
+                    select pg_get_functiondef(sql_identifier::regprocedure) as body
+                    from obj
+                ) x
             ),
             alterowner as (
                 select
@@ -7050,9 +7147,14 @@ DROP COLUMN #column_name#
     def GetDDLUserMapping(self, p_server, p_object):
         if p_object == 'PUBLIC':
             return self.v_connection.ExecuteScalar('''
-                select format(E'CREATE USER MAPPING FOR PUBLIC\n  SERVER %s\n  OPTIONS ( %s );\n',
+                select format(E'CREATE USER MAPPING FOR PUBLIC\n  SERVER %s%s;\n',
                          quote_ident(s.srvname),
-                         (select array_to_string(array(
+                         (select (case when s is not null and s <> ''
+                                       then format(E'\n  OPTIONS (%s)', s)
+                                       else ''
+                                  end)
+                          from (
+                          select array_to_string(array(
                           select format('%s %s', a[1], quote_literal(a[2]))
                           from (
                           select string_to_array(unnest(u.umoptions), '=') as a
@@ -7062,7 +7164,7 @@ DROP COLUMN #column_name#
                           where u.umuser = 0
                             and quote_ident(s.srvname) = '{0}'
                           ) x
-                          ), ', ')))
+                          ), ', ') as s) x))
                 from pg_user_mapping u
                 inner join pg_foreign_server s
                 on s.oid = u.umserver
@@ -7071,10 +7173,15 @@ DROP COLUMN #column_name#
             '''.format(p_server))
         else:
             return self.v_connection.ExecuteScalar('''
-                select format(E'CREATE USER MAPPING FOR %s\n  SERVER %s\n  OPTIONS ( %s );\n',
+                select format(E'CREATE USER MAPPING FOR %s\n  SERVER %s%s;\n',
                          quote_ident(r.rolname),
                          quote_ident(s.srvname),
-                         (select array_to_string(array(
+                         (select (case when s is not null and s <> ''
+                                       then format(E'\n  OPTIONS (%s)', s)
+                                       else ''
+                                  end)
+                          from (
+                          select array_to_string(array(
                           select format('%s %s', a[1], quote_literal(a[2]))
                           from (
                           select string_to_array(unnest(u.umoptions), '=') as a
@@ -7086,7 +7193,7 @@ DROP COLUMN #column_name#
                           where quote_ident(s.srvname) = '{0}'
                             and quote_ident(r.rolname) = '{1}'
                           ) x
-                          ), ', ')))
+                          ), ', ') as s) x))
                 from pg_user_mapping u
                 inner join pg_foreign_server s
                 on s.oid = u.umserver
@@ -7343,6 +7450,8 @@ DROP COLUMN #column_name#
         elif p_type == 'trigger':
             return self.GetTriggerDefinition(p_object, p_table, p_schema)
         elif p_type == 'triggerfunction':
+            return self.GetDDLFunction(p_object)
+        elif p_type == 'direct_triggerfunction':
             return self.GetDDLFunction(p_object)
         elif p_type == 'pk':
             return self.GetDDLConstraint(p_schema, p_table, p_object)

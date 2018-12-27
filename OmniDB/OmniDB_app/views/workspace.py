@@ -260,6 +260,54 @@ def get_database_list(request):
     v_cryptor = request.session.get('cryptor')
 
     v_databases = []
+    v_groups = []
+    v_options = ''
+
+    #Group list
+    try:
+        v_groups_connections = v_session.v_omnidb_database.v_connection.Query('''
+            select c.cgroup_id as cgroup_id,
+                   c.cgroup_name as cgroup_name,
+                   cc.conn_id as conn_id
+            from cgroups c
+            inner join cgroups_connections cc on c.cgroup_id = cc.cgroup_id
+            where c.user_id = {0}
+            order by c.cgroup_id
+        '''.format(v_session.v_user_id))
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_group_list = []
+
+    v_current_group_data = {
+        'v_group_id': 0,
+        'v_name': 'All connections',
+        'conn_list': []
+    }
+    v_groups.append(v_current_group_data)
+    v_options = v_options + '<option value="{0}" data-description="{1} {2}"></option>'.format(v_current_group_data['v_group_id'],"<i class='fas fa-layer-group icon-group'></i>",v_current_group_data['v_name'])
+
+    if len(v_groups_connections.Rows)>0:
+        for r in v_groups_connections.Rows:
+            if v_current_group_data['v_group_id'] != r['cgroup_id']:
+                if v_current_group_data['v_group_id'] != 0:
+                    v_groups.append(v_current_group_data)
+                    v_options = v_options + '<option value="{0}" data-description="{1} {2}"></option>'.format(v_current_group_data['v_group_id'],"<i class='fas fa-layer-group icon-group'></i>",v_current_group_data['v_name'])
+                v_current_group_data = {
+                    'v_group_id': r['cgroup_id'],
+                    'v_name': r['cgroup_name'],
+                    'conn_list': []
+                }
+            if r['conn_id']!=None:
+                v_current_group_data['conn_list'].append(r['conn_id'])
+
+        v_groups.append(v_current_group_data)
+        v_options = v_options + '<option value="{0}" data-description="{1} {2}"></option>'.format(v_current_group_data['v_group_id'],"<i class='fas fa-layer-group icon-group'></i>",v_current_group_data['v_name'])
+
+    v_html_groups = '<select style="width: 100%; font-weight: bold;" onchange="changeGroup(this.value);">{0}</select>'.format(v_options)
+
     v_options = ''
 
     #Connection list
@@ -288,7 +336,7 @@ def get_database_list(request):
         v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
         v_index = v_index + 1
 
-    v_html = '<select style="width: 100%; font-weight: bold;" onchange="changeDatabase(this.value);">{0}</select>'.format(v_options)
+    v_html_connections = '<select style="width: 100%; font-weight: bold;" onchange="changeDatabase(this.value);">{0}</select>'.format(v_options)
 
     #retrieving saved tabs
     try:
@@ -306,8 +354,10 @@ def get_database_list(request):
         None
 
     v_return['v_data'] = {
-        'v_select_html': v_html,
+        'v_select_html': v_html_connections,
+        'v_select_group_html': v_html_groups,
         'v_connections': v_databases,
+        'v_groups': v_groups,
         'v_id': v_session.v_database_index,
         'v_existing_tabs': v_existing_tabs
     }

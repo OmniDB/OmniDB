@@ -71,7 +71,7 @@ function clickConfirmCancel() {
 
 }
 
-function showConfirm(p_info,p_funcYes)
+function showConfirm(p_info,p_funcYes,p_funcNo)
 {
 	var v_div_text = document.createElement('div');
 	v_div_text.className = 'div_alert_text';
@@ -81,6 +81,7 @@ function showConfirm(p_info,p_funcYes)
 	v_div_buttons.className = 'div_alert_buttons';
 
 	var v_button_ok = document.createElement('button');
+	v_button_ok.id = 'button_confirm_ok';
 	v_button_ok.innerHTML = 'Ok';
 	v_button_ok.onclick = function() {
 		clickConfirmCancel();
@@ -89,9 +90,12 @@ function showConfirm(p_info,p_funcYes)
 	v_div_buttons.appendChild(v_button_ok);
 
 	var v_button_cancel = document.createElement('button');
+	v_button_cancel.id = 'button_confirm_cancel';
 	v_button_cancel.innerHTML = 'Cancel';
 	v_button_cancel.onclick = function() {
 		clickConfirmCancel();
+		if (p_funcNo)
+			p_funcNo();
 	};
 	v_div_buttons.appendChild(v_button_cancel);
 

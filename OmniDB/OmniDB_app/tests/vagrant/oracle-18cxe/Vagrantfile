@@ -25,15 +25,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # change memory size
   config.vm.provider "virtualbox" do |v|
     v.memory = 2048
-    v.name = "omnidb_oracle11gxe"
+    v.name = "omnidb_oracle18cxe"
   end
 
   # VM hostname
-  config.vm.hostname = "oracle11gxe"
+  config.vm.hostname = "oracle18cxe"
 
   # Oracle port forwarding
   config.vm.network "forwarded_port", guest: 1521, host: 1521
+  config.vm.network "forwarded_port", guest: 5500, host: 5500
 
   # Provision everything on the first run
-  config.vm.provision "shell", path: "scripts/install.sh"
+  config.vm.provision "shell", path: "scripts/install.sh", env:
+    {
+       "ORACLE_CHARACTERSET" => "AL32UTF8",
+       "SYSTEM_TIMEZONE"     => "UTC"
+    }
+
 end

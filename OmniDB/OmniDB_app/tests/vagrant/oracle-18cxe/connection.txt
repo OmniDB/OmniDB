@@ -1,0 +1,16 @@
+After creating the VM, run as root for the first time:
+
+/etc/init.d/oracle-xe-18c configure
+
+
+Then to start Oracle, run as root:
+
+/etc/init.d/oracle-xe-18c start
+
+
+Connection info:
+
+Hostname: localhost
+Port: 1521
+SID: XE
+ORACLE PASSWORD FOR SYS, SYSTEM AND PDBADMIN: 8WjuCD6HdIw=1

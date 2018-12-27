@@ -18,10 +18,10 @@ You can install from packages or compile from source.
 
 ```bash
 # For example, Debian-like 64 bits:
-sudo dpkg -i omnidb-plugin_2.13.0-debian-amd64.deb
+sudo dpkg -i omnidb-plugin_2.14.0-debian-amd64.deb
 
 # For example, for CentOS-like 64 bits:
-sudo rpm -ivU omnidb-plugin_2.13.0-centos-amd64.rpm
+sudo rpm -ivU omnidb-plugin_2.14.0-centos-amd64.rpm
 ```
 
 ### 1.1.2. Create a symlink
@@ -150,7 +150,7 @@ Follow [Post-installation steps](#4-post-installation-steps--required-) in secti
 Download the tar.gz corresponding to your architecture from the website.
 
 ```bash
-wget --no-check-certificate https://omnidb.org/dist/2.13.0/omnidb-plugin_2.13.0-freebsd.tar.gz
+wget --no-check-certificate https://omnidb.org/dist/2.14.0/omnidb-plugin_2.14.0-freebsd.tar.gz
 ```
 
 ## 3.1. Installing the plugin
@@ -158,8 +158,8 @@ wget --no-check-certificate https://omnidb.org/dist/2.13.0/omnidb-plugin_2.13.0-
 Move the omnidb_plugin.so corresponding to your PostgreSQL version to the folder *lib*, which is inside the folder where PostgreSQL was installed.
 
 ```bash
-tar -xzvf omnidb-plugin_2.13.0-freebsd.tar.gz
-cp omnidb-plugin_2.13.0-freebsd/omnidb_plugin_10.so /usr/local/lib/postgresql/omnidb_plugin.so
+tar -xzvf omnidb-plugin_2.14.0-freebsd.tar.gz
+cp omnidb-plugin_2.14.0-freebsd/omnidb_plugin_10.so /usr/local/lib/postgresql/omnidb_plugin.so
 ```
 
 ## 3.3. Set shared_preload_libraries

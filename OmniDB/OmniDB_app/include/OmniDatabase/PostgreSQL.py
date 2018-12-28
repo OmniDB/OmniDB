@@ -4124,6 +4124,12 @@ ON #table_name#
             if len(v_fields.Rows) > 0:
                 v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
             v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+        elif p_kind == 'f':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryForeignTablesFields(p_table, False, p_schema)
+            if len(v_fields.Rows) > 0:
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
         else:
             v_sql = 'SELECT t.*\nFROM {0}.{1} t'.format(p_schema, p_table)
         return Template(v_sql)

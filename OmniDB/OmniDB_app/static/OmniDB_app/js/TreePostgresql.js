@@ -2955,7 +2955,7 @@ function getTreePostgresql(p_div) {
                         icon: 'fas cm-all fa-search',
                         action: function(node) {
                             TemplateSelectPostgresql(node.parent
-                              .parent.text, node.text);
+                              .parent.text, node.text, 'f');
                         }
                     }, {
                         text: 'Edit Data',

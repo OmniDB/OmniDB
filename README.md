@@ -36,6 +36,39 @@
 Just go to [omnidb.org](https://omnidb.org), download the appropriate file for your
 operating system and architecture and install it.
 
+You can also install from repositories (as root):
+
+### 1.1.1- Debian / Ubuntu repository
+
+```
+apt install apt-transport-https dirmngr
+echo "deb https://dl.bintray.com/wind39/omnidb-deb debian main" > /etc/apt/sources.list.d/omnidb.list
+apt-key adv --recv-keys 379CE192D401AB61
+apt update
+
+apt install omnidb-app        # for the app; or
+apt install omnidb-server     # for the server; or
+apt install omnidb-plugin     # for the plugin
+```
+
+### 1.1.2- CentOS 7 / Fedora repository
+
+```
+cat > /etc/yum.repos.d/omnidb.repo <<EOF
+[omnidb]
+name=omnidb
+baseurl=https://dl.bintray.com/wind39/omnidb-rpm
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1
+EOF
+
+yum install omnidb-app        # for the app; or
+yum install omnidb-server     # for the server; or
+yum install omnidb-plugin     # for the plugin
+```
+
+
 ## 1.2- From source
 
 ### 1.2.1- On Debian >= 9 with `pip`

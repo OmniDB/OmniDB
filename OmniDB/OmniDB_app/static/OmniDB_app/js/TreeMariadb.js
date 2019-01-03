@@ -56,7 +56,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Databases',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/managing-databases.html');
                 }
             }*/]
@@ -134,7 +134,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Roles',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/user-manag.html');
                 }
             }*/]
@@ -189,7 +189,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Basics',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/ddl-basics.html');
                 }
             }, {
@@ -199,7 +199,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Constraints',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/ddl-constraints.html');
                 }
             }, {
@@ -209,7 +209,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Modifying Tables',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/ddl-alter.html');
                 }
             }*/]
@@ -544,7 +544,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Indexes',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/indexes.html');
                 }
             }*/]
@@ -600,7 +600,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Sequences',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql-createsequence.html');
                 }
             }*/]
@@ -652,7 +652,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Views',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql-createview.html');
                 }
             }*/]
@@ -740,7 +740,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/trigger-definition.html');
                 }
             }]
@@ -773,7 +773,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/trigger-definition.html');
                 }
             }]
@@ -849,7 +849,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Partitions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/ddl-partitioning.html');
                 }
             }]
@@ -903,7 +903,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Functions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql-createfunction.html');
                 }
             }*/]
@@ -967,7 +967,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Functions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql-createfunction.html');
                 }
             }*/]
@@ -1220,7 +1220,7 @@ function getTreeDetailsMariadb(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: PostgreSQL',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/');
                 }
             });
@@ -1231,7 +1231,7 @@ function getTreeDetailsMariadb(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Language',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql.html');
                 }
             });
@@ -1242,7 +1242,7 @@ function getTreeDetailsMariadb(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Commands',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql-commands.html');
                 }
             });*/
@@ -1382,7 +1382,7 @@ function getDatabaseObjectsMariadb(node) {
     node_tables.createChildNode('', true,
         'node-spin', null, null);
 
-    if (parseFloat(getMajorVersion(node.tree.tag.version)) >= 10.3) {
+    if (parseFloat(getMajorVersionMariadb(node.tree.tag.version)) >= 10.3) {
         var node_sequences = node.createChildNode('Sequences',
             false,
             'fas node-all fa-sort-numeric-down node-sequence-list', {
@@ -3037,7 +3037,7 @@ function nodeOpenError(p_return, p_node) {
 
 }
 
-function getMajorVersion(p_version) {
+function getMajorVersionMariadb(p_version) {
     var v_version = p_version.split('-')[0]
     var tmp = v_version.replace('MariaDB ', '').split('.')
     tmp.pop()

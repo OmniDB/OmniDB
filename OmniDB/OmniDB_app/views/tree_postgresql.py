@@ -142,7 +142,13 @@ def get_tree_info(request):
                 'drop_foreign_column': v_database.TemplateDropForeignColumn().v_text,
                 'create_user_mapping': v_database.TemplateCreateUserMapping().v_text,
                 'alter_user_mapping': v_database.TemplateAlterUserMapping().v_text,
-                'drop_user_mapping': v_database.TemplateDropUserMapping().v_text
+                'drop_user_mapping': v_database.TemplateDropUserMapping().v_text,
+                'create_type': v_database.TemplateCreateType().v_text,
+                'alter_type': v_database.TemplateAlterType().v_text,
+                'drop_type': v_database.TemplateDropType().v_text,
+                'create_domain': v_database.TemplateCreateDomain().v_text,
+                'alter_domain': v_database.TemplateAlterDomain().v_text,
+                'drop_domain': v_database.TemplateDropDomain().v_text,
             }
         }
     except Exception as exc:
@@ -2595,6 +2601,102 @@ def get_foreign_columns(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_columns
+
+    return JsonResponse(v_return)
+
+
+def get_types(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_types = []
+
+    try:
+        v_types = v_database.QueryTypes(False,v_schema)
+        for v_type in v_types.Rows:
+            v_type_data = {
+                'v_type_name': v_type['type_name']
+            }
+            v_list_types.append(v_type_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_types
+
+    return JsonResponse(v_return)
+
+
+def get_domains(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_domains = []
+
+    try:
+        v_domains = v_database.QueryDomains(False,v_schema)
+        for v_domain in v_domains.Rows:
+            v_domain_data = {
+                'v_domain_name': v_domain['domain_name']
+            }
+            v_list_domains.append(v_domain_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_domains
 
     return JsonResponse(v_return)
 

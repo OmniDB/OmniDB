@@ -274,3 +274,19 @@ You should have received a copy of the GNU General Public License along with Omn
 .node-partition {
   color: #344E75;
 }
+
+.node-type-list {
+  color: #177ce0;
+}
+
+.node-type {
+  color: #177ce0;
+}
+
+.node-domain-list {
+  color: #344E75;
+}
+
+.node-domain {
+  color: #344E75;
+}

@@ -48,7 +48,7 @@ function initCreateTabFunctions() {
     	"</div>" +
     	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
     	"<div style='margin-right: 10px;'>" +
-      "<div id='" + v_tab.id + "_details' class='connection_details query_info' ></div>" +
+      "<div id='" + v_tab.id + "_details' class='connection_details' ></div>" +
       "<div id='" + v_tab.id + "_tree' style='margin-top: 5px; overflow: auto; height: 50%;'>" +
       "</div>" +
       "<div onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
@@ -256,8 +256,6 @@ function initCreateTabFunctions() {
       if (p_index)
         v_index = p_index;
 
-
-
       v_tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
       v_tag.divSelectDB.childNodes[0].value=v_index;
 
@@ -414,7 +412,7 @@ function initCreateTabFunctions() {
     "</div>" +
 		"<button class='bt_icon_only' title='Test' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='testMonitorScript();'><i class='fas fa-bolt fa-light'></i></button>" +
     "<button class='bt_icon_only' title='Save' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='saveMonitorScript();'><i class='fas fa-save fa-light'></i></button>" +
-    "<div class='dashboard_unit_test'><div id='div_result_" + v_tab.id + "' class='unit_grid'></div></div>";
+    "<div class='dashboard_unit_test'><div id='div_result_" + v_tab.id + "' ></div><div id='div_result_label_" + v_tab.id + "' class='dashboard_unit_legend_box'></div></div>";
 
 		var v_div = document.getElementById('div_' + v_tab.id);
 		v_div.innerHTML = v_html;
@@ -470,6 +468,7 @@ function initCreateTabFunctions() {
       input_unit_name: document.getElementById('txt_unit_name_' + v_tab.id),
       input_interval: document.getElementById('txt_interval_' + v_tab.id),
       div_result: document.getElementById('div_result_' + v_tab.id),
+      div_result_label: document.getElementById('div_result_label_' + v_tab.id),
       bt_test: document.getElementById('bt_test_' + v_tab.id),
 			tabControl: v_connTabControl.selectedTab.tag.tabControl,
       unit_id: null,
@@ -1269,7 +1268,6 @@ function initCreateTabFunctions() {
     });
     v_editor2.$blockScrolling = Infinity;
 		v_editor2.setTheme("ace/theme/" + v_editor_theme);
-		v_editor2.session.setMode("ace/mode/sql");
 
 		v_editor2.setFontSize(Number(v_editor_font_size));
 

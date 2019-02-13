@@ -7037,9 +7037,10 @@ function getForeignColumnsPostgresql(node) {
 /// </summary>
 /// <param name="node">Node object.</param>
 function getTypesPostgresql(node) {
+  console.log('ae')
     node.removeChildNodes();
     node.createChildNode('', false, 'node-spin', null,
-        null, null, false);
+        null);
 
     execAjax('/get_types_postgresql/',
         JSON.stringify({
@@ -7086,7 +7087,7 @@ function getTypesPostgresql(node) {
 function getDomainsPostgresql(node) {
     node.removeChildNodes();
     node.createChildNode('', false, 'node-spin', null,
-        null, null, false);
+        null);
 
     execAjax('/get_domains_postgresql/',
         JSON.stringify({

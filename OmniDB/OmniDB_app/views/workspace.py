@@ -319,7 +319,7 @@ def get_database_list(request):
             'v_alias': v_database.v_alias,
             'v_conn_id': v_database.v_conn_id,
             'v_console_help': v_database.v_console_help,
-            'v_database': v_database.v_service
+            'v_database': v_database.v_active_service
         }
 
         v_databases.append(v_database_data)
@@ -331,7 +331,7 @@ def get_database_list(request):
         if not v_database_object['tunnel']['enabled']:
             v_details = v_database.PrintDatabaseDetails()
         else:
-            v_details = v_database_object['database'].v_server + ':' + v_database.v_port + ' <b>(' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port'] + ')</b>'
+            v_details = v_database.PrintDatabaseDetails() + ' <b>(' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port'] + ')</b>'
 
         v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
         v_index = v_index + 1
@@ -390,14 +390,16 @@ def change_active_database(request):
         v_database.v_db_type,
         v_database.v_connection.v_host,
         str(v_database.v_connection.v_port),
-        v_database.v_service,
-        v_database.v_user,
+        v_database.v_active_service,
+        v_database.v_active_user,
         v_database.v_connection.v_password,
         v_database.v_conn_id,
-        v_database.v_alias
+        v_database.v_alias,
+        p_conn_string = v_database.v_conn_string,
+        p_parse_conn_string = False
     )
 
-    v_database_new.v_service = v_data;
+    v_database_new.v_active_service = v_data;
     v_database_new.v_connection.v_service = v_data;
 
     v_session.v_tab_connections[v_tab_id] = v_database_new

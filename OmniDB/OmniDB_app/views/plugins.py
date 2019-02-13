@@ -124,7 +124,6 @@ def load_plugin(plugin_folder, p_load):
                 loaded_folder_name = '{0}_{1}'.format(plugin_name,str(time.time()).replace('.','_'))
                 loaded_folder_complete_name = join(settings.PLUGINS_DIR,'temp_loaded',loaded_folder_name)
                 os.mkdir(loaded_folder_complete_name)
-                print(join(settings.PLUGINS_DIR,plugin_folder))
                 shutil.copytree(join(settings.PLUGINS_DIR,plugin_folder),join(loaded_folder_complete_name,plugin_name))
                 module = importlib.import_module('OmniDB_app.plugins.temp_loaded.{0}.{1}.plugin'.format(loaded_folder_name,plugin_name))
                 try:

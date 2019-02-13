@@ -14,6 +14,7 @@ from configparser import ConfigParser
 from itertools import chain
 import time
 import shutil
+import os
 
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 
@@ -120,7 +121,12 @@ def load_plugin(plugin_folder, p_load):
 
         if p_load and py_exists:
             try:
-                module = importlib.import_module('OmniDB_app.plugins.{0}.plugin'.format(plugin_folder))
+                loaded_folder_name = '{0}_{1}'.format(plugin_name,str(time.time()).replace('.','_'))
+                loaded_folder_complete_name = join(settings.PLUGINS_DIR,'temp_loaded',loaded_folder_name)
+                os.mkdir(loaded_folder_complete_name)
+                print(join(settings.PLUGINS_DIR,plugin_folder))
+                shutil.copytree(join(settings.PLUGINS_DIR,plugin_folder),join(loaded_folder_complete_name,plugin_name))
+                module = importlib.import_module('OmniDB_app.plugins.temp_loaded.{0}.{1}.plugin'.format(loaded_folder_name,plugin_name))
                 try:
                     mon_units = getattr(module, 'monitoring_units')
                     for mon_unit in mon_units:
@@ -211,7 +217,7 @@ def list_plugins(request):
         else:
             plugin_enabled = '<i class="fas fa-exclamation-triangle action-grid action-close"></i>'
 
-        plugin_list.append([plugin['folder'],plugin['name'],plugin['version'],conf_html,js_html,py_html,css_html,plugin_enabled,'''<i title='Delete Plugin' class='fas fa-times action-grid action-close' onclick='deletePlugin("{0}")'></i>'''.format(plugin['name'])])
+        plugin_list.append([plugin['folder'],plugin['name'],plugin['version'],conf_html,js_html,py_html,css_html,plugin_enabled,'''<i title='Delete Plugin' class='fas fa-times action-grid action-close' onclick='deletePlugin("{0}","{1}")'></i>'''.format(plugin['name'],plugin['folder'])])
         plugin_message_list.append(plugin['message'])
 
     for key, plugin in plugins.items():
@@ -236,7 +242,7 @@ def list_plugins(request):
         else:
             plugin_enabled = '<i class="fas fa-exclamation-triangle action-grid action-close" onclick="getPluginMessage()"></i>'
 
-        plugin_list.append([plugin['folder'],plugin['name'],plugin['version'],conf_html,js_html,py_html,css_html,plugin_enabled,'''<i title='Delete Plugin' class='fas fa-times action-grid action-close' onclick='deletePlugin("{0}")'></i>'''.format(plugin['name'])])
+        plugin_list.append([plugin['folder'],plugin['name'],plugin['version'],conf_html,js_html,py_html,css_html,plugin_enabled,'''<i title='Delete Plugin' class='fas fa-times action-grid action-close' onclick='deletePlugin("{0}","{1}")'></i>'''.format(plugin['name'],plugin['folder'])])
         plugin_message_list.append(plugin['message'])
     v_return['v_data'] = {
         'list': plugin_list,
@@ -272,9 +278,24 @@ def get_plugins(request):
     return JsonResponse(v_return)
 
 def load_plugins():
+    #delete temp loaded python files
+    plugin_temp_files = listdir(join(settings.PLUGINS_DIR,'temp_loaded'))
+    for plugin_temp_file in plugin_temp_files:
+        try:
+            if plugin_temp_file!='.gitkeep':
+                item_name = join(settings.PLUGINS_DIR,'temp_loaded',plugin_temp_file)
+                if isfile(item_name):
+                    os.remove(item_name)
+                else:
+                    shutil.rmtree(item_name)
+
+        except Exception as exc:
+            None
+
     plugins_folders = listdir(settings.PLUGINS_DIR)
     for plugin_folder in plugins_folders:
-        load_plugin(plugin_folder,True)
+        if plugin_folder != 'temp_loaded':
+            load_plugin(plugin_folder,True)
     #delete existing monitoring units from plugins that don't exist anymore
     plugin_string = ''
     first = True
@@ -348,8 +369,6 @@ def handle_uploaded_file(f):
     shutil.unpack_archive(v_file,v_dir_name)
 
     #remove uploaded file
-    print(v_file)
-    print(v_dir_name)
     remove(v_file)
 
     v_has_plugins_folder = isdir(join(v_dir_name,'plugins'))
@@ -473,9 +492,24 @@ def delete_plugin(request):
 
     json_object = json.loads(request.POST.get('data', None))
     p_plugin_name = json_object['p_plugin_name']
+    p_plugin_folder = json_object['p_plugin_folder']
 
     try:
         plugin = plugins[p_plugin_name]
+        try:
+            shutil.rmtree(join(settings.PLUGINS_STATIC_DIR,plugin['folder']))
+        except:
+            None
+        try:
+            shutil.rmtree(join(settings.PLUGINS_DIR,plugin['folder']))
+        except:
+            None
+        del plugins[p_plugin_name]
+    except:
+        None
+
+    try:
+        plugin = failed_plugins[p_plugin_folder]
         try:
             shutil.rmtree(join(settings.PLUGINS_STATIC_DIR,plugin['folder']))
         except:
@@ -543,6 +577,7 @@ def exec_plugin_function(request):
             return JsonResponse(v_return)
 
     try:
+        print(plugins[p_plugin_name]['module'])
         v_return['v_data'] = getattr(plugins[p_plugin_name]['module'], p_function_name)(v_database,p_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }

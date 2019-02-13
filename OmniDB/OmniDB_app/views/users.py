@@ -92,7 +92,7 @@ def new_user(request):
     try:
         v_session.v_omnidb_database.v_connection.Execute('''
             insert into users values (
-            (select coalesce(max(user_id), 0) + 1 from users),'user' || (select coalesce(max(user_id), 0) + 1 from users),'',1,'14',1,0,'utf-8',';')
+            (select coalesce(max(user_id), 0) + 1 from users),'user' || (select coalesce(max(user_id), 0) + 1 from users),'',1,'14',1,0,'utf-8',';','11')
         ''')
     except Exception as exc:
         v_return['v_data'] = str(exc)

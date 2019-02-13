@@ -30,6 +30,7 @@ from enum import Enum
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
+from urllib.parse import urlparse
 
 '''
 ------------------------------------------------------------------------
@@ -51,20 +52,47 @@ MariaDB
 ------------------------------------------------------------------------
 '''
 class MariaDB:
-    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias=''):
+    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias='', p_conn_string='', p_parse_conn_string = False):
         self.v_alias = p_alias
         self.v_db_type = 'mariadb'
+        self.v_conn_string = p_conn_string
+        self.v_conn_string_error = ''
         self.v_conn_id = p_conn_id
 
-        if p_port is None or p_port == '':
-            self.v_port = '3306'
-        else:
-            self.v_port = p_port
-        self.v_service = p_service
         self.v_server = p_server
+        self.v_active_server = p_server
         self.v_user = p_user
+        self.v_active_user = p_user
         self.v_schema = p_service
-        self.v_connection = Spartacus.Database.MariaDB(p_server, p_port, p_service, p_user, p_password)
+        self.v_service = p_service
+        self.v_active_service = p_service
+
+        self.v_port = p_port
+        if p_port is None or p_port == '':
+            self.v_active_port = '3306'
+        else:
+            self.v_active_port = p_port
+
+        #try to get info from connection string
+        if p_conn_string!='' and p_parse_conn_string:
+            try:
+                parsed = urlparse(p_conn_string)
+                if parsed.port!=None:
+                    self.v_active_port = str(parsed.port)
+                if parsed.hostname!=None:
+                    self.v_active_server = parsed.hostname
+                if parsed.username!=None:
+                    self.v_active_user = parsed.username
+                if parsed.query!=None:
+                    self.v_conn_string_query = parsed.query
+                parsed_database = parsed.path
+                if len(parsed_database)>1:
+                    self.v_active_service = parsed_database[1:]
+            except Exception as exc:
+                self.v_conn_string_error = 'Syntax error in the connection string.'
+                None
+
+        self.v_connection = Spartacus.Database.MariaDB(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_conn_string)
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -148,10 +176,16 @@ class MariaDB:
             return False
 
     def PrintDatabaseInfo(self):
-        return self.v_user + '@' + self.v_service
+        if self.v_conn_string=='':
+            return self.v_active_user + '@' + self.v_active_service
+        else:
+            return self.v_active_user + '@' + self.v_active_service
 
     def PrintDatabaseDetails(self):
-        return self.v_server + ':' + self.v_port
+        if self.v_conn_string=='':
+            return self.v_active_server + ':' + self.v_active_port
+        else:
+            return "<i title='{0}' class='fas fa-asterisk icon-conn-string'></i> ".format(self.v_conn_string) + self.v_active_server + ':' + self.v_active_port
 
     def HandleUpdateDeleteRules(self, p_update_rule, p_delete_rule):
         v_rules = ''
@@ -163,6 +197,9 @@ class MariaDB:
 
     def TestConnection(self):
         v_return = ''
+        if self.v_conn_string and self.v_conn_string_error!='':
+            return self.v_conn_string_error
+
         try:
             self.v_connection.Open()
             self.v_connection.Close()

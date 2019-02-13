@@ -324,6 +324,15 @@ button:hover {
   color: #fff !important;
   background: #1e90ff !important;
 }
+#plugin_file_label {
+  background: #25282c;
+  border: solid #484a55 1px;
+  color: #ffffff;
+}
+#plugin_file_label:hover {
+  color: #fff !important;
+  background: #1e90ff !important;
+}
 input, textarea {
     background-color: #1d1f21 !important;
 	color: #d7d7d7 !important;
@@ -460,7 +469,11 @@ input, textarea {
 }
 
 .icon-group {
-  color: #ffffff !important;
+  color: #50a8ff !important;
+}
+
+.icon-conn-string {
+  color: #50a8ff !important;
 }
 
 .node-all {
@@ -506,7 +519,7 @@ i.action-test {
 }
 
 /* Workspace Connection Info */
-.connection_details.query_info {
+.connection_details {
     background-color: #1e90ff !important;
 }
 

@@ -33,11 +33,11 @@ ul.tree li.last {
 
 i.exp_col {
 	margin-top: 4px;
-	margin-left: -20px;
-	width: 16px;
-	display: inline-block;
-	height: 16px;
-	vertical-align: sub;
+  margin-left: -20px;
+  width: 16px;
+  display: inline-block;
+  height: 16px;
+  vertical-align: sub;
 }
 
 i.exp_col_empty {
@@ -48,7 +48,7 @@ i.exp_col_empty {
 }
 
 .icon_tree {
-  margin-left: 3px;
+	margin-left: 2px;
 	margin-right: 3px;
   display: inline-block;
   width: 20px;
@@ -68,28 +68,25 @@ span.node a {
 
 span.node {
 	position: relative;
-	margin-left: 2px;
+	display: inline-block;
 	padding-right: 3px;
-	padding-top: 4px;
-	padding-bottom: 4px;
+	margin-bottom: 4px;
 	border: 1px solid rgba(255, 255, 255, 0);
 }
 
 span.node:hover {
-	margin-left: 2px;
 	background-color: #DCEDFF;
 	border-radius: 2px;
 }
 
 span.node_selected {
 	position: relative;
-	margin-left: 2px;
-	padding-right: 3px;
-	padding-top: 4px;
-	padding-bottom: 4px;
-	background-color: #d3deff;
-	border: 1px solid #7c90f1;
-	border-radius: 4px;
+  display: inline-block;
+  padding-right: 3px;
+  margin-bottom: 4px;
+  background-color: #d3deff;
+  border: 1px solid #7c90f1;
+  border-radius: 2px;
 }
 
 span.node_selected a {

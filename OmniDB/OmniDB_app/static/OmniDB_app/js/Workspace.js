@@ -469,7 +469,7 @@ function refreshHeights(p_all) {
 			v_tab_tag.editor.resize();
 		}
 		else if (v_tab_tag.mode=='monitor_unit') {
-			var v_new_height = window.innerHeight - $(v_tab_tag.editorDataDiv).offset().top - 324 + 'px';
+			var v_new_height = window.innerHeight - $(v_tab_tag.editorDataDiv).offset().top - 364 + 'px';
 			v_tab_tag.editorDiv.style.height = v_new_height;
 			v_tab_tag.editorDataDiv.style.height = v_new_height;
 			v_tab_tag.editor.resize();
@@ -1341,7 +1341,9 @@ function showMenuNewTab(e) {
 		}
 	]
 
-	if (v_connTabControl.selectedTab.tag.selectedDBMS=='postgresql') {
+	if (v_connTabControl.selectedTab.tag.selectedDBMS=='postgresql' ||
+			v_connTabControl.selectedTab.tag.selectedDBMS=='mysql' ||
+			v_connTabControl.selectedTab.tag.selectedDBMS=='mariadb') {
 		v_option_list.push(
 			{
 				text: 'Monitoring Dashboard',

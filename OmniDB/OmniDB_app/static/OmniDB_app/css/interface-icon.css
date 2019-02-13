@@ -44,6 +44,11 @@ i.icon-group {
   color: #177ce0;
 }
 
+i.icon-conn-string {
+  color: #177ce0;
+  font-size: 9px;
+}
+
 i.icon-close {
   color: #d85656;
 }

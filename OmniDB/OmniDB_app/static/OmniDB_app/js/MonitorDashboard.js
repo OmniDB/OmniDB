@@ -164,6 +164,11 @@ function buildMonitorUnit(p_unit, p_first) {
   var div_error = document.createElement('div');
   div_error.classList.add('error_text');
   var div_content = document.createElement('div');
+  var div_label = document.createElement('div');
+  div_label.className = 'dashboard_unit_legend_box';
+
+  var div_content_group = document.createElement('div');
+  div_content_group.className = 'dashboard_unit_content_group';
 
   div_header.appendChild(title);
   div_header.appendChild(button_refresh);
@@ -176,7 +181,11 @@ function buildMonitorUnit(p_unit, p_first) {
   div.appendChild(div_loading);
   div.appendChild(div_header);
   div.appendChild(div_error);
-  div.appendChild(div_content);
+  div_content_group.appendChild(div_content);
+  div_content_group.appendChild(div_label);
+  div.appendChild(div_content_group);
+
+
   if (p_first)
     $(v_dashboard_div).prepend(div);
   else
@@ -190,11 +199,13 @@ function buildMonitorUnit(p_unit, p_first) {
     'object': null,
     'saved_id': v_return_unit.v_saved_id,
     'id': v_return_unit.v_id,
+    'plugin_name': v_return_unit.v_plugin_name,
     'div': div,
     'div_loading': div_loading,
     'div_details': details,
     'div_error': div_error,
     'div_content': div_content,
+    'div_label': div_label,
     'button_pause': button_pause,
     'button_play': button_play,
     'input_interval': interval,
@@ -229,12 +240,15 @@ function startMonitorDashboard() {
 
 }
 
-function includeMonitorUnit(p_id) {
+function includeMonitorUnit(p_id,p_plugin_name) {
   var v_grid = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_grid;
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
   var v_row_data = v_grid.getDataAtRow(v_grid.getSelected()[0][0]);
+  var v_plugin_name = '';
+  if (p_plugin_name!=null)
+    v_plugin_name = p_plugin_name;
 
-  var div = buildMonitorUnit({'v_saved_id': -1, 'v_id': p_id, 'v_title': v_row_data[1], 'v_interval': v_row_data[3]},true);
+  var div = buildMonitorUnit({'v_saved_id': -1, 'v_id': p_id, 'v_title': v_row_data[1], 'v_interval': v_row_data[3], 'v_plugin_name': v_plugin_name},true);
   refreshMonitorDashboard(true,v_tab_tag,div);
 }
 
@@ -268,17 +282,20 @@ function editMonitorUnit(p_unit_id) {
   v_connTabControl.tag.createNewMonitorUnitTab();
 
   var input1 = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-                               "p_tab_id": v_connTabControl.selectedTab.id});
+                               "p_tab_id": v_connTabControl.selectedTab.id,
+                               "p_mode": 1});
 
   execAjax('/get_monitor_unit_list/',
 				input1,
 				function(p_return) {
 
           var v_select_template = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.select_template;
+          v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.template_list = [];
 
           p_return.v_data.data.forEach(function(p_unit, p_index) {
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.template_list.push({'plugin_name':p_unit[0], 'id': p_return.v_data.id_list[p_index]})
             var v_option = document.createElement('option');
-            v_option.value = p_return.v_data.id_list[p_index];
+            v_option.value = p_index;
             v_option.innerHTML = '(' + p_unit[2] + ') ' + p_unit[1];
             v_select_template.appendChild(v_option);
           });
@@ -364,13 +381,15 @@ function saveMonitorScript() {
 
 function selectUnitTemplate(p_value) {
   if (p_value!=-1) {
-    var input = JSON.stringify({"p_unit_id": p_value});
+    var v_element_item = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.template_list[p_value];
+    var input = JSON.stringify({"p_unit_id": v_element_item.id, "p_unit_plugin_name": v_element_item.plugin_name});
 
     execAjax('/get_monitor_unit_template/',
   				input,
   				function(p_return) {
 
             v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.innerHTML = '';
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result_label.innerHTML = '';
             v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.select_type.value = p_return.v_data.type;
             v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.input_interval.value = p_return.v_data.interval;
 
@@ -407,6 +426,7 @@ function testMonitorScript() {
 				function(p_return) {
 
           var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+          v_tab_tag.div_result_label.innerHTML = '';
           var v_type = v_tab_tag.select_type.value;
           var v_div_result = v_tab_tag.div_result;
 
@@ -423,11 +443,44 @@ function testMonitorScript() {
             }
             else if (v_type=='chart_append' || v_type=='chart') {
               var canvas = document.createElement('canvas');
+              canvas.style.width = '535px';
               v_div_result.appendChild(canvas);
 
+              var v_return_unit = p_return.v_data;
+
               var ctx = canvas.getContext('2d');
-              v_tab_tag.object = new Chart(ctx, p_return.v_data.v_object);
+              var v_show_legend = false;
+              try {
+                v_return_unit.v_object.options.responsive = false;
+                if (v_return_unit.v_object.options.legend==null) {
+                  v_return_unit.v_object.options.legend = {
+                    'display': false
+                  }
+                  v_show_legend = true;
+                }
+                else {
+                  if (v_return_unit.v_object.options.legend.display==true)
+                    v_show_legend = true;
+                  v_return_unit.v_object.options.legend.display = false;
+                }
+              }
+              catch (err) {
+
+              }
+              v_return_unit.v_object.options.legendCallback = function(chart) {
+                var text = [];
+                for (var i = 0; i < chart.legend.legendItems.length; i++) {
+                    text.push('<span class="dashboard_unit_label_group"><span class="dashboard_unit_label_box" style="background-color:' + chart.legend.legendItems[i].fillStyle + '"></span><span id="legend-' + i + '-item" class="dashboard_unit_label" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')">' + chart.legend.legendItems[i].text + '</span></span>');
+                }
+                return text.join("");
+              }
+              v_tab_tag.object = new Chart(ctx, v_return_unit.v_object);
               adjustChartTheme(v_tab_tag.object);
+              if (v_show_legend) {
+                var v_legend = v_tab_tag.object.generateLegend();
+                v_tab_tag.div_result_label.innerHTML += v_legend;
+              }
+
 
             }
             else if (v_type=='grid') {
@@ -439,7 +492,7 @@ function testMonitorScript() {
                 col.title =  p_return.v_data.v_object.columns[j];
                 columnProperties.push(col);
               }
-
+              v_div_result.className = 'unit_grid';
               v_tab_tag.object = new Handsontable(v_div_result,
               {
                 data: p_return.v_data.v_object.data,
@@ -517,7 +570,8 @@ function refreshMonitorUnitsObjects() {
 function showMonitorUnitList() {
 
   var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-                              "p_tab_id": v_connTabControl.selectedTab.id});
+                              "p_tab_id": v_connTabControl.selectedTab.id,
+                              "p_mode": 0});
 
   var v_grid_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_grid_div;
   v_grid_div.innerHTML = '';
@@ -622,13 +676,13 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
       if (!p_div) {
         if (p_loading)
           v_tab_tag.units[i].div_loading.style.display = 'block';
-        v_units.push({ 'saved_id': v_tab_tag.units[i].saved_id, 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered, 'interval': v_tab_tag.units[i].input_interval.value })
+        v_units.push({ 'saved_id': v_tab_tag.units[i].saved_id, 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered, 'interval': v_tab_tag.units[i].input_interval.value, 'plugin_name': v_tab_tag.units[i].plugin_name })
         clearTimeout(v_tab_tag.units[i].timeout_object);
       }
       else if (p_div == v_tab_tag.units[i].div) {
         if (p_loading)
           v_tab_tag.units[i].div_loading.style.display = 'block';
-        v_units.push({ 'saved_id': v_tab_tag.units[i].saved_id, 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered, 'interval': v_tab_tag.units[i].input_interval.value })
+        v_units.push({ 'saved_id': v_tab_tag.units[i].saved_id, 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered, 'interval': v_tab_tag.units[i].input_interval.value, 'plugin_name': v_tab_tag.units[i].plugin_name })
         clearTimeout(v_tab_tag.units[i].timeout_object);
         break;
       }
@@ -641,18 +695,17 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
   	execAjax('/refresh_monitor_units/',
   				input,
   				function(p_return) {
-
             for (var i=0; i<p_return.v_data.length; i++) {
 
               var v_return_unit = p_return.v_data[i];
 
               var v_unit = null;
               //find corresponding object
-              for (var i=0; i<v_tab_tag.units.length; i++) {
-                if (v_return_unit.v_sequence == v_tab_tag.units[i].unit_sequence) {
-                  v_tab_tag.units[i].saved_id = v_return_unit.v_saved_id;
-                  v_tab_tag.units[i].type = v_return_unit.v_type;
-                  v_unit = v_tab_tag.units[i];
+              for (var p=0; p<v_tab_tag.units.length; p++) {
+                if (v_return_unit.v_sequence == v_tab_tag.units[p].unit_sequence) {
+                  v_tab_tag.units[p].saved_id = v_return_unit.v_saved_id;
+                  v_tab_tag.units[p].type = v_return_unit.v_type;
+                  v_unit = v_tab_tag.units[p];
                   break;
                 }
               }
@@ -670,8 +723,8 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
 
                     v_unit.div_error.innerHTML = v_return_unit.v_message;
                     v_unit.error = true;
-                    v_unit.object = null;
-                    v_unit.div_content.innerHTML = '';
+                    //v_unit.object = null;
+                    //v_unit.div_content.innerHTML = '';
 
                   }
                   // New chart
@@ -679,26 +732,150 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                     v_unit.div_content.innerHTML = '';
 
                     var canvas = document.createElement('canvas');
+                    canvas.style.width = '535px';
                     v_unit.div_content.appendChild(canvas);
 
                     var ctx = canvas.getContext('2d');
+                    var v_show_legend = false;
+                    try {
+                      v_return_unit.v_object.options.responsive = false;
+                      if (v_return_unit.v_object.options.legend==null) {
+                        v_return_unit.v_object.options.legend = {
+                          'display': false
+                        }
+                        v_show_legend = true;
+                      }
+                      else {
+                        if (v_return_unit.v_object.options.legend.display==true)
+                          v_show_legend = true;
+                        v_return_unit.v_object.options.legend.display = false;
+                      }
+                    }
+                    catch (err) {
+
+                    }
+                    v_return_unit.v_object.options.legendCallback = function(chart) {
+                      var text = [];
+                      for (var i = 0; i < chart.legend.legendItems.length; i++) {
+                          text.push('<span class="dashboard_unit_label_group"><span class="dashboard_unit_label_box" style="background-color:' + chart.legend.legendItems[i].fillStyle + '"></span><span id="legend-' + i + '-item" class="dashboard_unit_label" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')">' + chart.legend.legendItems[i].text + '</span></span>');
+                      }
+                      return text.join("");
+                    }
                     var v_chart = new Chart(ctx, v_return_unit.v_object);
                     adjustChartTheme(v_chart);
+                    if (v_show_legend) {
+                      var v_legend = v_chart.generateLegend();
+                      v_unit.div_label.innerHTML = v_legend;
+                    }
 
                     v_unit.object = v_chart;
 
                   }
                   // Update existing chart
                   else {
-                    //Don't append, simply replace labels and datasets
+                    //Don't append, simply update labels and datasets
                     if (v_return_unit.v_type=='chart') {
+
+                      //checking labels
+                      var v_need_rebuild_legend = false;
+
+                      //foreach dataset in existing chart, check if it still exists, if not, remove it
+                      for (var j=v_unit.object.data.datasets.length-1; j>=0; j--) {
+                        var dataset = v_unit.object.data.datasets[j];
+
+                        var v_found = false;
+                        for (var k=0; k<v_return_unit.v_object.datasets.length; k++) {
+                          var return_dataset = v_return_unit.v_object.datasets[k];
+                          if (return_dataset.label == dataset.label) {
+                            v_found = true;
+                            break;
+                          }
+                        }
+                        //dataset doesn't exist, remove it
+                        if (!v_found) {
+                          v_need_rebuild_legend = true;
+                          v_unit.object.data.datasets.splice(j,1);
+                        }
+                      }
+
+                      //foreach label in existing chart, check if it still exists, if not, legend needs to be rebuilt
+                      for (var j=v_unit.object.data.labels.length-1; j>=0; j--) {
+                        var v_found = false;
+                        for (var k=0; k<v_return_unit.v_object.labels.length; k++) {
+                          if (JSON.stringify(v_return_unit.v_object.labels[k]) == JSON.stringify(v_unit.object.data.labels[j])) {
+                            v_found = true;
+                            break;
+                          }
+                        }
+                        if (!v_found) {
+                          v_need_rebuild_legend = true;
+                        }
+                      }
+
+                      //foreach dataset in returning data, find corresponding dataset in existing chart
+                      for (var j=0; j<v_return_unit.v_object.datasets.length; j++) {
+                        var return_dataset = v_return_unit.v_object.datasets[j];
+
+                        //checking datasets
+                        var v_found = false;
+                        for (var k=0; k<v_unit.object.data.datasets.length; k++) {
+                          var dataset = v_unit.object.data.datasets[k];
+                          //Dataset exists, update data and adjust colors
+                          if (return_dataset.label == dataset.label) {
+                            var new_dataset = dataset;
+
+                            //rebuild color list if it exists
+                            if (return_dataset.backgroundColor && return_dataset.backgroundColor.length) {
+                              var v_color_list = [];
+                              for (var l=0; l<v_return_unit.v_object.labels.length; l++) {
+                                var v_found_label = false;
+                                for (var m=0; m<v_unit.object.data.labels.length; m++) {
+                                  if (JSON.stringify(v_return_unit.v_object.labels[l]) == JSON.stringify(v_unit.object.data.labels[m])) {
+                                    v_color_list.push(dataset.backgroundColor[m]);
+                                    v_found_label = true;
+                                    break;
+                                  }
+                                }
+
+                                if (!v_found_label) {
+                                  v_need_rebuild_legend = true;
+                                  v_color_list.push(return_dataset.backgroundColor[l]);
+                                }
+                              }
+                              new_dataset.backgroundColor=v_color_list;
+                            }
+                            new_dataset.data=return_dataset.data;
+
+                            dataset = new_dataset;
+
+                            v_found = true;
+                            break;
+                          }
+                        };
+                        //dataset doesn't exist, create it
+                        if (!v_found) {
+                          v_need_rebuild_legend = true;
+                          v_unit.object.data.datasets.push(return_dataset);
+                        }
+                      };
+
                       v_unit.object.data.labels = v_return_unit.v_object.labels;
-                      v_unit.object.data.datasets = v_return_unit.v_object.datasets;
+
+                      //update title
+                      if (v_return_unit.v_object.title && v_unit.object.options && v_unit.object.options.title) {
+                        v_unit.object.options.title.text = v_return_unit.v_object.title;
+                      }
+
+
                       try {
                         v_unit.object.update();
+                        if (v_need_rebuild_legend) {
+                          //rebuild labels
+                          var v_legend = v_unit.object.generateLegend();
+                          v_unit.div_label.innerHTML = v_legend;
+                        }
                       }
                       catch (err) {
-
                       }
                     }
                     // Append data
@@ -717,20 +894,6 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                         dataset.data.push(null);
                         if (v_shift)
                           dataset.data.shift();
-                        /*
-                        var v_found = false;
-                        for (var k=0; k<v_return_unit.v_object.datasets.length; k++) {
-                          var return_dataset = v_return_unit.v_object.datasets[k];
-                          //Dataset exists
-                          if (return_dataset.label == dataset.label) {
-                            v_found = true;
-                            break;
-                          }
-                        };
-                        //dataset doesn't exist, remove it
-                        if (!v_found) {
-                          v_unit.object.data.datasets.splice(j,1);
-                        }*/
                       };
 
                       //foreach dataset in returning data, find corresponding dataset in existing chart
@@ -752,6 +915,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                         };
                         //dataset doesn't exist, create it
                         if (!v_found) {
+                          v_need_rebuild_legend = true;
                           //populate dataset with empty data prior to newest value
                           for (var k=0; k<v_unit.object.data.labels.length-1; k++) {
                             return_dataset.data.unshift(null);
@@ -759,11 +923,21 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                           v_unit.object.data.datasets.push(return_dataset);
                         }
                       };
+
+                      //update title
+                      if (v_return_unit.v_object.title && v_unit.object.options && v_unit.object.options.title) {
+                        v_unit.object.options.title.text = v_return_unit.v_object.title;
+                      }
+
                       try {
                         v_unit.object.update();
+                        if (v_need_rebuild_legend) {
+                          //rebuild labels
+                          var v_legend = v_unit.object.generateLegend();
+                          v_unit.div_label.innerHTML = v_legend;
+                        }
                       }
                       catch (err) {
-
                       }
                     }
                   }
@@ -782,8 +956,8 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
 
                     v_unit.div_error.innerHTML = v_return_unit.v_message;
                     v_unit.error = true;
-                    v_unit.object = null;
-                    v_unit.div_content.innerHTML = '';
+                    //v_unit.object = null;
+                    //v_unit.div_content.innerHTML = '';
 
                   }
                   // New grid
@@ -865,7 +1039,6 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                   }
                 })(v_unit.div),v_unit.input_interval.value*1000);
               }
-
             }
   				},
   				function(p_return) {

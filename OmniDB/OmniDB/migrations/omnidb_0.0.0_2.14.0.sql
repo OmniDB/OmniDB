@@ -395,7 +395,7 @@ CREATE TABLE users (
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)
 );--omnidb--
-INSERT INTO users VALUES(1,'admin','48b19163bdb02cadab1a09c9dd4eafae',1,'14',1,1,'utf-8',';');--omnidb--
+INSERT INTO users VALUES(1,'admin','48b19163bdb02cadab1a09c9dd4eafae',1,'14',1,1,'utf-8',';','11');--omnidb--
 
 CREATE TABLE messages (
     mes_in_code integer not null,

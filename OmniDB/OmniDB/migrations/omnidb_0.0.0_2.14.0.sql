@@ -390,6 +390,7 @@ CREATE TABLE users (
     super_user integer,
     csv_encoding varchar(20),
     csv_delimiter varchar(10),
+    interface_font_size text,
     constraint pk_users primary key (user_id),
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)

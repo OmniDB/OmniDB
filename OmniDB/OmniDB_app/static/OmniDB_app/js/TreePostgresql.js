@@ -7037,7 +7037,6 @@ function getForeignColumnsPostgresql(node) {
 /// </summary>
 /// <param name="node">Node object.</param>
 function getTypesPostgresql(node) {
-  console.log('ae')
     node.removeChildNodes();
     node.createChildNode('', false, 'node-spin', null,
         null);

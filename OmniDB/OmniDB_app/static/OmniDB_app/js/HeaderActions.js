@@ -22,7 +22,7 @@ $(function() {
 	v_configTabControl.selectTabIndex(0);
 
 	//setting font size of body
-	document.body.style['font-size'] = v_editor_font_size + 'px';
+	document.body.style['font-size'] = v_interface_font_size + 'px';
 
 
 });
@@ -88,11 +88,15 @@ function changeTheme(p_option) {
 function changeFontSize(p_option) {
 	var els = document.getElementsByClassName("ace_editor");
 	v_editor_font_size = p_option;
-	document.body.style['font-size'] = v_editor_font_size + 'px';
 	Array.prototype.forEach.call(els, function(el) {
 	    // Do stuff here
 			ace.edit(el).setFontSize(Number(p_option));
 	});
+}
+
+function changeInterfaceFontSize(p_option) {
+	v_interface_font_size = p_option;
+	document.body.style['font-size'] = v_interface_font_size + 'px';
 }
 
 /// <summary>
@@ -101,6 +105,7 @@ function changeFontSize(p_option) {
 function showConfigUser() {
 
 	document.getElementById('sel_editor_font_size').value = v_editor_font_size;
+	document.getElementById('sel_interface_font_size').value = v_interface_font_size;
 	document.getElementById('sel_editor_theme').value = v_theme_id + '/' + v_editor_theme;
 
 	document.getElementById('txt_confirm_new_pwd').value = '';
@@ -214,7 +219,7 @@ function saveConfigUser() {
 	if ((v_confirm_pwd.value!='' || v_pwd.value!='') && (v_pwd.value!=v_confirm_pwd.value))
 		showAlert('New Password and Confirm New Password fields do not match.');
 	else {
-		var input = JSON.stringify({"p_font_size" : v_editor_font_size, "p_theme" : v_theme_id, "p_pwd" : v_pwd.value, "p_chat_enabled": v_enable_omnichat, "p_csv_encoding": v_csv_encoding, "p_csv_delimiter": v_csv_delimiter});
+		var input = JSON.stringify({"p_font_size" : v_editor_font_size, "p_interface_font_size" : v_interface_font_size, "p_theme" : v_theme_id, "p_pwd" : v_pwd.value, "p_chat_enabled": v_enable_omnichat, "p_csv_encoding": v_csv_encoding, "p_csv_delimiter": v_csv_delimiter});
 
 		execAjax('/save_config_user/',
 				input,

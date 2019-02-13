@@ -284,11 +284,11 @@ function hidePlugins() {
   v_connTabControl.tag.plugin_ht = null;
 }
 
-function deletePlugin(p_plugin_name) {
+function deletePlugin(p_plugin_name,p_plugin_folder) {
   showConfirm('Are you sure you want to delete the following plugin? You will have to restart OmniDB after this operation.',
   function() {
     execAjax('/delete_plugin/',
-  			JSON.stringify({'p_plugin_name': p_plugin_name}),
+  			JSON.stringify({'p_plugin_name': p_plugin_name, "p_plugin_folder": p_plugin_folder}),
   			function(p_return) {
           showAlert(p_return.v_data);
           showPlugins();

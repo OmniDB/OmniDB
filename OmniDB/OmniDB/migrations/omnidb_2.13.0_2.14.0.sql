@@ -29,4 +29,7 @@ FROM units_users_connections;--omnidb--
 DROP TABLE units_users_connections;--omnidb--
 ALTER TABLE units_users_connections_temp RENAME TO units_users_connections;--omnidb--
 
+ALTER TABLE users ADD COLUMN interface_font_size TEXT;--omnidb--
+UPDATE users SET interface_font_size = '11';--omnidb--
+
 UPDATE version SET ver_id = '2.14.0';--omnidb--

@@ -32,6 +32,7 @@ class Session(object):
                 p_theme_type,
                 p_theme_id,
                 p_editor_font_size,
+                p_interface_font_size,
                 p_enable_omnichat,
                 p_super_user,
                 p_cryptor,
@@ -45,6 +46,7 @@ class Session(object):
         self.v_theme_type = p_theme_type
         self.v_theme_id = p_theme_id
         self.v_editor_font_size = p_editor_font_size
+        self.v_interface_font_size = p_interface_font_size
         self.v_enable_omnichat = p_enable_omnichat
         self.v_super_user = p_super_user
         self.v_cryptor = p_cryptor

@@ -24,7 +24,7 @@ SELECT uuc_id,
        user_id,
        conn_id,
        interval,
-       '',
+       ''
 FROM units_users_connections;--omnidb--
 DROP TABLE units_users_connections;--omnidb--
 ALTER TABLE units_users_connections_temp RENAME TO units_users_connections;--omnidb--

@@ -21,6 +21,9 @@ $(function() {
 	var v_configTabControl = createTabControl('config_tabs',0,null);
 	v_configTabControl.selectTabIndex(0);
 
+	//setting font size of body
+	document.body.style['font-size'] = v_editor_font_size + 'px';
+
 
 });
 
@@ -85,6 +88,7 @@ function changeTheme(p_option) {
 function changeFontSize(p_option) {
 	var els = document.getElementsByClassName("ace_editor");
 	v_editor_font_size = p_option;
+	document.body.style['font-size'] = v_editor_font_size + 'px';
 	Array.prototype.forEach.call(els, function(el) {
 	    // Do stuff here
 			ace.edit(el).setFontSize(Number(p_option));

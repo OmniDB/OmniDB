@@ -5,6 +5,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 base_urlpatterns = [
+    url(r'^upload/$', views.plugins.upload_view, name='sign_in'),
+
     #LOGIN
     url(r'^$', views.login.index, name='login'),
     url(r'^login/', views.login.index, name='login'),
@@ -65,6 +67,7 @@ base_urlpatterns = [
     url(r'^get_console_history/', views.workspace.get_console_history, name='get_console_history'),
     url(r'^get_console_history_clean/', views.workspace.get_console_history_clean, name='get_console_history_clean'),
     url(r'^get_autocomplete_results/', views.workspace.get_autocomplete_results, name='get_autocomplete_results'),
+    url(r'^delete_plugin/', views.plugins.delete_plugin, name='delete_plugin'),
 
     #HOOKS
     url(r'^get_plugins/', views.plugins.get_plugins, name='get_plugins'),

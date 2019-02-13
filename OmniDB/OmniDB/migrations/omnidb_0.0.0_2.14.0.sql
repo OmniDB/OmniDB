@@ -453,6 +453,7 @@ CREATE TABLE connections (
     ssh_password varchar(100),
     ssh_key text,
     use_tunnel integer,
+    conn_string TEXT,
     constraint pk_connections primary key (conn_id),
     constraint connections_fk_0 foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE,
     constraint connections_fk_1 foreign key (dbt_st_name) references db_type (dbt_st_name)  on update CASCADE  on delete CASCADE
@@ -565,10 +566,10 @@ CREATE TABLE units_users_connections (
     user_id integer not null,
     conn_id integer not null,
     interval integer not null,
+    plugin_name text,
     constraint pk_units_users_connections primary key (uuc_id),
     constraint units_users_connections_fk_0 foreign key (conn_id) references connections (conn_id) on update CASCADE on delete CASCADE,
-    constraint units_users_connections_fk_1 foreign key (user_id) references users (user_id) on update CASCADE on delete CASCADE,
-    constraint units_users_connections_fk_2 foreign key (unit_id) references mon_units (unit_id) on update CASCADE on delete CASCADE
+    constraint units_users_connections_fk_1 foreign key (user_id) references users (user_id) on update CASCADE on delete CASCADE
 );--omnidb--
 
 CREATE TABLE shortcuts (

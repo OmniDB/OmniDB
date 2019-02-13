@@ -97,7 +97,8 @@ def sign_in_automatic(request, username, pwd):
                (case when u.chat_enabled is null then 1 else u.chat_enabled end) as chat_enabled,
                (case when u.super_user is null then 0 else u.super_user end) as super_user,
                u.csv_encoding,
-               u.csv_delimiter
+               u.csv_delimiter,
+               u.interface_font_size
         from users u,
              themes t
          where u.theme_id = t.theme_id
@@ -125,6 +126,7 @@ def sign_in_automatic(request, username, pwd):
                 table.Rows[0]["theme_type"],
                 table.Rows[0]["theme_id"],
                 table.Rows[0]["editor_font_size"],
+                table.Rows[0]["interface_font_size"],
                 int(table.Rows[0]["chat_enabled"]),
                 int(table.Rows[0]["super_user"]),
                 cryptor,
@@ -182,7 +184,8 @@ def sign_in(request):
                (case when u.chat_enabled is null then 1 else u.chat_enabled end) as chat_enabled,
                (case when u.super_user is null then 0 else u.super_user end) as super_user,
                u.csv_encoding,
-               u.csv_delimiter
+               u.csv_delimiter,
+               u.interface_font_size
         from users u,
              themes t
          where u.theme_id = t.theme_id
@@ -207,6 +210,7 @@ def sign_in(request):
                 table.Rows[0]["theme_type"],
                 table.Rows[0]["theme_id"],
                 table.Rows[0]["editor_font_size"],
+                table.Rows[0]["interface_font_size"],
                 int(table.Rows[0]["chat_enabled"]),
                 int(table.Rows[0]["super_user"]),
                 cryptor,

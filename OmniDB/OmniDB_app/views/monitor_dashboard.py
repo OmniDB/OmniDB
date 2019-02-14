@@ -230,6 +230,7 @@ def get_monitor_units(request):
               and uuc.unit_id = mu.unit_id
               and uuc.user_id = {1}
               and uuc.conn_id = {2}
+              and uuc.plugin_name = ''
         union all
         select uuc.uuc_id,uuc.unit_id, '' as title, uuc.interval, uuc.plugin_name
             from units_users_connections uuc

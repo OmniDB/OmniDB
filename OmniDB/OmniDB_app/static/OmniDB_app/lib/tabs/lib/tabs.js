@@ -271,7 +271,6 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 				}
 
 				function handleDragOver(e) {
-					console.log('ae')
 					if(e.path.length == 0) {
 						return false;
 					}

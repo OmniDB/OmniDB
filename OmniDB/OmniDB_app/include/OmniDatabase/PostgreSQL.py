@@ -30,6 +30,7 @@ from enum import Enum
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
+from urllib.parse import urlparse
 
 '''
 ------------------------------------------------------------------------
@@ -51,24 +52,50 @@ PostgreSQL
 ------------------------------------------------------------------------
 '''
 class PostgreSQL:
-    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias='', p_application_name='OmniDB'):
+    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias='', p_application_name='OmniDB', p_conn_string='', p_parse_conn_string = False):
         self.v_alias = p_alias
         self.v_db_type = 'postgresql'
         self.v_conn_id = p_conn_id
+        self.v_conn_string = p_conn_string
+        self.v_conn_string_error = ''
 
+        self.v_port = p_port
         if p_port is None or p_port == '':
-            self.v_port = '5432'
+            self.v_active_port = '5432'
         else:
-            self.v_port = p_port
+            self.v_active_port = p_port
+        self.v_service = p_service
         if p_service is None or p_service == '':
-            self.v_service = 'postgres'
+            self.v_active_service = 'postgres'
         else:
-            self.v_service = p_service
-
+            self.v_active_service = p_service
         self.v_server = p_server
+        self.v_active_server = p_server
         self.v_user = p_user
+        self.v_active_user = p_user
+        self.v_conn_string_query = ''
+        #try to get info from connection string
+        if p_conn_string!='' and p_parse_conn_string:
+            try:
+                parsed = urlparse(p_conn_string)
+                if parsed.port!=None:
+                    self.v_active_port = str(parsed.port)
+                if parsed.hostname!=None:
+                    self.v_active_server = parsed.hostname
+                if parsed.username!=None:
+                    self.v_active_user = parsed.username
+                if parsed.query!=None:
+                    self.v_conn_string_query = parsed.query
+                parsed_database = parsed.path
+                if len(parsed_database)>1:
+                    self.v_active_service = parsed_database[1:]
+            except Exception as exc:
+                self.v_conn_string_error = 'Syntax error in the connection string.'
+                None
+
+
         self.v_schema = 'public'
-        self.v_connection = Spartacus.Database.PostgreSQL(p_server, p_port, p_service, p_user, p_password, p_application_name)
+        self.v_connection = Spartacus.Database.PostgreSQL(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_application_name, p_conn_string)
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -673,10 +700,16 @@ class PostgreSQL:
         return self.v_connection.ExecuteScalar("select rolsuper from pg_roles where rolname = '{0}'".format(self.v_user))
 
     def PrintDatabaseInfo(self):
-        return self.v_user + '@' + self.v_service
+        if self.v_conn_string=='':
+            return self.v_active_user + '@' + self.v_active_service
+        else:
+            return self.v_active_user + '@' + self.v_active_service
 
     def PrintDatabaseDetails(self):
-        return self.v_server + ':' + self.v_port
+        if self.v_conn_string=='':
+            return self.v_active_server + ':' + self.v_active_port
+        else:
+            return "<i title='{0}' class='fas fa-asterisk icon-conn-string'></i> ".format(self.v_conn_string) + self.v_active_server + ':' + self.v_active_port
 
     def HandleUpdateDeleteRules(self, p_update_rule, p_delete_rule):
         v_rules = ''
@@ -688,6 +721,9 @@ class PostgreSQL:
 
     def TestConnection(self):
         v_return = ''
+        if self.v_conn_string and self.v_conn_string_error!='':
+            return self.v_conn_string_error
+
         try:
             self.v_connection.Open()
             v_schema = self.QuerySchemas()
@@ -2142,6 +2178,52 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by quote_ident(c.relname),
                      a.attnum
         '''.format(v_filter), True)
+
+    def QueryTypes(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        v_table = self.v_connection.Query('''
+            select quote_ident(n.nspname) as type_schema,
+                   quote_ident(t.typname) as type_name
+            from pg_type t
+            inner join pg_namespace n
+            on n.oid = t.typnamespace
+            where (t.typrelid = 0 or (select c.relkind = 'c' from pg_class c where c.oid = t.typrelid))
+              and not exists(select 1 from pg_type el where el.oid = t.typelem and el.typarray = t.oid)
+              and t.typtype <> 'd'
+            {0}
+            order by 1, 2
+        '''.format(v_filter), True)
+        return v_table
+
+    def QueryDomains(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        v_table = self.v_connection.Query('''
+            select quote_ident(n.nspname) as domain_schema,
+                   quote_ident(t.typname) as domain_name
+            from pg_type t
+            inner join pg_namespace n
+            on n.oid = t.typnamespace
+            where (t.typrelid = 0 or (select c.relkind = 'c' from pg_class c where c.oid = t.typrelid))
+              and not exists(select 1 from pg_type el where el.oid = t.typelem and el.typarray = t.oid)
+              and t.typtype = 'd'
+            {0}
+            order by 1, 2
+        '''.format(v_filter), True)
+        return v_table
 
     def DataMiningData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas, p_dataCategoryFilter):
         v_sqlDict = {}
@@ -4075,6 +4157,91 @@ ON #table_name#
     def TemplateDropPartition(self):
         return Template('DROP TABLE #partition_name#')
 
+    def TemplateCreateType(self):
+        return Template('''CREATE TYPE #schema_name#.name
+
+-- AS (
+--    attribute_name data_type [ COLLATE collation ] [, ... ]
+
+-- AS ENUM (
+--    'label' [, ... ]
+
+-- AS RANGE (
+--    SUBTYPE = subtype
+--    , SUBTYPE_OPCLASS = subtype_operator_class
+--    , COLLATION = collation
+--    , CANONICAL = canonical_function
+--    , SUBTYPE_DIFF = subtype_diff_function
+
+-- (
+--    INPUT = input_function,
+--    OUTPUT = output_function
+--    , RECEIVE = receive_function
+--    , SEND = send_function
+--    , TYPMOD_IN = type_modifier_input_function
+--    , TYPMOD_OUT = type_modifier_output_function
+--    , ANALYZE = analyze_function
+--    , INTERNALLENGTH = { internallength | VARIABLE }
+--    , PASSEDBYVALUE
+--    , ALIGNMENT = alignment
+--    , STORAGE = storage
+--    , LIKE = like_type
+--    , CATEGORY = category
+--    , PREFERRED = preferred
+--    , DEFAULT = default
+--    , ELEMENT = element
+--    , DELIMITER = delimiter
+--    , COLLATABLE = collatable
+
+-- )
+''')
+
+    def TemplateAlterType(self):
+        return Template('''ALTER TYPE #type_name#
+--ADD ATTRIBUTE attribute_name data_type [ COLLATE collation ] [ CASCADE | RESTRICT ]
+--DROP ATTRIBUTE [ IF EXISTS ] attribute_name [ CASCADE | RESTRICT ]
+--ALTER ATTRIBUTE attribute_name [ SET DATA ] TYPE data_type [ COLLATE collation ] [ CASCADE | RESTRICT ]
+--RENAME ATTRIBUTE attribute_name TO new_attribute_name [ CASCADE | RESTRICT ]
+--OWNER TO new_owner
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--ADD VALUE [ IF NOT EXISTS ] new_enum_value [ { BEFORE | AFTER } existing_enum_value ]
+''')
+
+    def TemplateDropType(self):
+        return Template('''DROP TYPE #type_name#
+--CASCADE
+''')
+
+    def TemplateCreateDomain(self):
+        return Template('''CREATE DOMAIN #schema_name#.name AS data_type
+--COLLATE collation
+--DEFAULT expression
+-- [ CONSTRAINT constraint_name ] NOT NULL
+-- [ CONSTRAINT constraint_name ] NULL
+-- [ CONSTRAINT constraint_name ] CHECK (expression)
+''')
+
+    def TemplateAlterDomain(self):
+        return Template('''ALTER DOMAIN #domain_name#
+--SET DEFAULT expression
+--DROP DEFAULT
+--SET NOT NULL
+--DROP NOT NULL
+--ADD domain_constraint [ NOT VALID ]
+--DROP CONSTRAINT constraint_name [ CASCADE ]
+--RENAME CONSTRAINT constraint_name TO new_constraint_name
+--VALIDATE CONSTRAINT constraint_name
+--OWNER TO new_owner
+--RENAME TO new_name
+--SET SCHEMA new_schema
+''')
+
+    def TemplateDropDomain(self):
+        return Template('''DROP DOMAIN #domain_name#
+--CASCADE
+''')
+
     def TemplateVacuum(self):
         return Template('''VACUUM
 --FULL
@@ -4121,6 +4288,12 @@ ON #table_name#
         elif p_kind == 'm':
             v_sql = 'SELECT t.'
             v_fields = self.QueryMaterializedViewFields(p_table, False, p_schema)
+            if len(v_fields.Rows) > 0:
+                v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
+            v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
+        elif p_kind == 'f':
+            v_sql = 'SELECT t.'
+            v_fields = self.QueryForeignTablesFields(p_table, False, p_schema)
             if len(v_fields.Rows) > 0:
                 v_sql += '\n     , t.'.join([r['column_name'] for r in v_fields.Rows])
             v_sql += '\nFROM {0}.{1} t'.format(p_schema, p_table)
@@ -5712,7 +5885,7 @@ DROP COLUMN #column_name#
                 inner join pg_foreign_data_wrapper w
                 on w.oid = s.srvfdw
                 where u.umuser = 0
-                  and s.srvname = '{0}'
+                  and quote_ident(s.srvname) = '{0}'
             '''.format(p_server))
         else:
             return self.v_connection.Query('''
@@ -5729,8 +5902,8 @@ DROP COLUMN #column_name#
                 on w.oid = s.srvfdw
                 inner join pg_roles r
                 on r.oid = u.umuser
-                where s.srvname = '{0}'
-                  and r.rolname = '{1}'
+                where quote_ident(s.srvname) = '{0}'
+                  and quote_ident(r.rolname) = '{1}'
             '''.format(p_server, p_object))
 
     def GetPropertiesForeignServer(self, p_object):
@@ -5748,7 +5921,7 @@ DROP COLUMN #column_name#
             on w.oid = s.srvfdw
             inner join pg_roles r
             on r.oid = s.srvowner
-            where s.srvname = '{0}'
+            where quote_ident(s.srvname) = '{0}'
         '''.format(p_object))
 
     def GetPropertiesForeignDataWrapper(self, p_object):
@@ -5767,8 +5940,109 @@ DROP COLUMN #column_name#
             on h.oid = w.fdwhandler
             left join pg_proc v
             on v.oid = w.fdwvalidator
-            where w.fdwname = '{0}'
+            where quote_ident(w.fdwname) = '{0}'
         '''.format(p_object))
+
+    def GetPropertiesType(self, p_schema, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   n.nspname as "Schema",
+                   t.typname as "Internal Type Name",
+                   format_type(t.oid, null) as "SQL Type Name",
+                   oid as "OID",
+                   r.rolname as "Owner",
+                   (case when t.typlen = -2 then 'Variable (null-terminated C string)'
+                         when t.typlen = -1 then 'Variable (varlena type)'
+                         else format('%s bytes', t.typlen)
+                    end) as "Size",
+                   t.typbyval as "Passed by Value",
+                   (case t.typtype
+                      when 'b' then 'Base'
+                      when 'c' then 'Composite'
+                      when 'd' then 'Domain'
+                      when 'e' then 'Enum'
+                      when 'p' then 'Pseudo'
+                      when 'r' then 'Range'
+                      else 'Undefined'
+                    end) as "Type",
+                   (case t.typcategory
+                      when 'A' then 'A - Array'
+                      when 'B' then 'B - Boolean'
+                      when 'C' then 'C - Composite'
+                      when 'D' then 'D - Date/Time'
+                      when 'E' then 'E - Enum'
+                      when 'G' then 'G - Geometric'
+                      when 'I' then 'I - Network Address'
+                      when 'N' then 'N - Numeric'
+                      when 'P' then 'P - Pseudo'
+                      when 'R' then 'R - Range'
+                      when 'S' then 'S - String'
+                      when 'T' then 'T - Timespan'
+                      when 'U' then 'U - User-defined'
+                      when 'V' then 'V - Bit-string'
+                      else 'X - Unknown'
+                    end) as "Category",
+                   t.typispreferred as "Is Preferred",
+                   t.typisdefined as "Is Defined",
+                   t.typdelim as "Delimiter",
+                   nrelid.nspname || '.' || crelid.relname as "Corresponding Table",
+                   nelem.nspname || '.' || telem.typname as "Element Type",
+                   narray.nspname || '.' || tarray.typname as "Array Type",
+                   ninput.nspname || '.' || pinput.proname as "Input Conversion Function (Text Format)",
+                   noutput.nspname || '.' || poutput.proname as "Output Conversion Function (Text Format)",
+                   nreceive.nspname || '.' || preceive.proname as "Input Conversion Function (Binary Format)",
+                   nsend.nspname || '.' || psend.proname as "Output Conversion Function (Binary Format)",
+                   nmodin.nspname || '.' || pmodin.proname as "Type Modifier Input Function",
+                   nmodout.nspname || '.' || pmodout.proname as "Type Modifier Input Function",
+                   nanalyze.nspname || '.' || panalyze.proname as "Custom Analyze Function",
+                   (case t.typalign
+                      when 'c' then 'char'
+                      when 's' then 'int2'
+                      when 'i' then 'int4'
+                      when 'd' then 'double'
+                    end) as "Alignment",
+                   (case t.typstorage
+                      when 'p' then 'plain'
+                      when 'e' then 'extended'
+                      when 'm' then 'main'
+                      when 'x' then 'external'
+                    end) as "Storage",
+                   t.typnotnull as "Not Null",
+                   nbase.nspname || '.' || tbase.typname as "Base Type",
+                   t.typtypmod as "Type Modifier",
+                   t.typndims as "Number of Array Dimensions",
+                   coll.collname as "Collation",
+                   t.typdefault as "Default Value",
+                   t.typacl as "ACL"
+            from pg_type t
+            inner join pg_roles r on r.oid = t.typowner
+            inner join pg_namespace n on n.oid = t.typnamespace
+            left join pg_class crelid on crelid.oid = t.typrelid
+            left join pg_namespace nrelid on nrelid.oid = crelid.relnamespace
+            left join pg_type telem on telem.oid = t.typelem
+            left join pg_namespace nelem on nelem.oid = telem.typnamespace
+            left join pg_type tarray on tarray.oid = t.typarray
+            left join pg_namespace narray on narray.oid = tarray.typnamespace
+            left join pg_proc pinput on pinput.oid = t.typinput
+            left join pg_namespace ninput on ninput.oid = pinput.pronamespace
+            left join pg_proc poutput on poutput.oid = t.typoutput
+            left join pg_namespace noutput on noutput.oid = poutput.pronamespace
+            left join pg_proc preceive on preceive.oid = t.typreceive
+            left join pg_namespace nreceive on nreceive.oid = preceive.pronamespace
+            left join pg_proc psend on psend.oid = t.typsend
+            left join pg_namespace nsend on nsend.oid = psend.pronamespace
+            left join pg_proc pmodin on pmodin.oid = t.typmodin
+            left join pg_namespace nmodin on nmodin.oid = pmodin.pronamespace
+            left join pg_proc pmodout on pmodout.oid = t.typmodout
+            left join pg_namespace nmodout on nmodout.oid = pmodout.pronamespace
+            left join pg_proc panalyze on panalyze.oid = t.typanalyze
+            left join pg_namespace nanalyze on nanalyze.oid = panalyze.pronamespace
+            left join pg_type tbase on tbase.oid = t.typbasetype
+            left join pg_namespace nbase on nbase.oid = tbase.typnamespace
+            left join pg_collation coll on coll.oid = t.typcollation
+            where quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.typname) = '{1}'
+        '''.format(p_schema, p_object))
 
     def GetProperties(self, p_schema, p_table, p_object, p_type):
         try:
@@ -5822,6 +6096,10 @@ DROP COLUMN #column_name#
                 return self.GetPropertiesForeignServer(p_object).Transpose('Property', 'Value')
             elif p_type == 'fdw':
                 return self.GetPropertiesForeignDataWrapper(p_object).Transpose('Property', 'Value')
+            elif p_type == 'type':
+                return self.GetPropertiesType(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'domain':
+                return self.GetPropertiesType(p_schema, p_object).Transpose('Property', 'Value')
             else:
                 return None
         except Spartacus.Database.Exception as exc:
@@ -7311,7 +7589,7 @@ DROP COLUMN #column_name#
             inner join pg_roles r
             on r.oid = s.srvowner
             inner join grants g on 1=1
-            where s.srvname = '{0}'
+            where quote_ident(s.srvname) = '{0}'
         '''.format(p_object))
 
     def GetDDLForeignDataWrapper(self, p_object):
@@ -7419,8 +7697,180 @@ DROP COLUMN #column_name#
             inner join pg_roles r
             on r.oid = w.fdwowner
             inner join grants g on 1=1
-            where w.fdwname = '{0}'
+            where quote_ident(w.fdwname) = '{0}'
         '''.format(p_object))
+
+    def GetDDLType(self, p_schema, p_object):
+        v_type = self.v_connection.ExecuteScalar('''
+            select t.typtype
+            from pg_type t
+            inner join pg_namespace n
+            on n.oid = t.typnamespace
+            where quote_ident(n.nspname) = '{0}'
+              and quote_ident(t.typname) = '{1}'
+        '''.format(p_schema, p_object))
+        if v_type == 'c':
+            return self.GetDDLClass(p_schema, p_object)
+        elif v_type == 'e':
+            return self.v_connection.ExecuteScalar('''
+                select format(
+                           E'CREATE TYPE %s.%s AS ENUM (\n%s\n);\n\nALTER TYPE %s.%s OWNER TO %s;\n',
+                           quote_ident(n.nspname),
+                           quote_ident(t.typname),
+                           string_agg(format('    ' || chr(39) || '%s' || chr(39), e.enumlabel), E',\n'),
+                           quote_ident(n.nspname),
+                           quote_ident(t.typname),
+                           quote_ident(r.rolname)
+                       )
+                from pg_type t
+                inner join pg_namespace n on n.oid = t.typnamespace
+                inner join pg_enum e on e.enumtypid = t.oid
+                inner join pg_roles r on r.oid = t.typowner
+                where quote_ident(n.nspname) = '{0}'
+                  and quote_ident(t.typname) = '{1}'
+                group by n.nspname,
+                         t.typname,
+                         r.rolname
+            '''.format(p_schema, p_object))
+        elif v_type == 'r':
+            return self.v_connection.ExecuteScalar('''
+                select format(
+                         E'CREATE TYPE %s.%s AS RANGE (\n  SUBTYPE = %s.%s\n%s%s%s%s);\n\nALTER TYPE %s.%s OWNER TO %s;\n',
+                         quote_ident(n.nspname),
+                         quote_ident(t.typname),
+                         quote_ident(sn.nspname),
+                         quote_ident(st.typname),
+                         (case when o.opcname is not null then format(E'  , SUBTYPE_OPCLASS = %s\n', quote_ident(o.opcname)) else '' end),
+                         (case when c.collname is not null then format(E'  , COLLATION = %s\n', quote_ident(c.collname)) else '' end),
+                         (case when pc.proname is not null then format(E'  , CANONICAL = %s.%s\n', quote_ident(nc.nspname), quote_ident(pc.proname)) else '' end),
+                         (case when ps.proname is not null then format(E'  , SUBTYPE_DIFF = %s.%s\n', quote_ident(ns.nspname), quote_ident(ps.proname)) else '' end),
+                         quote_ident(n.nspname),
+                         quote_ident(t.typname),
+                         quote_ident(ro.rolname)
+                       )
+                from pg_type t
+                inner join pg_namespace n on n.oid = t.typnamespace
+                inner join pg_range r on r.rngtypid = t.oid
+                inner join pg_type st on st.oid = r.rngsubtype
+                inner join pg_namespace sn on sn.oid = st.typnamespace
+                left join pg_collation c on c.oid = r.rngcollation
+                left join pg_opclass o on o.oid = r.rngsubopc
+                left join pg_proc pc on pc.oid = r.rngcanonical
+                left join pg_namespace nc on nc.oid = pc.pronamespace
+                left join pg_proc ps on ps.oid = r.rngsubdiff
+                left join pg_namespace ns on ns.oid = ps.pronamespace
+                inner join pg_roles ro on ro.oid = t.typowner
+                where quote_ident(n.nspname) = '{0}'
+                  and quote_ident(t.typname) = '{1}'
+            '''.format(p_schema, p_object))
+        else:
+            return self.v_connection.ExecuteScalar('''
+                select format(
+                         E'CREATE TYPE %s (\n  INPUT = %s,\n  , OUTPUT = %s\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s);\n\nALTER TYPE %s OWNER TO %s;\n',
+                         quote_ident(n.nspname) || '.' || quote_ident(t.typname),
+                         quote_ident(ninput.nspname) || '.' || quote_ident(pinput.proname),
+                         quote_ident(noutput.nspname) || '.' || quote_ident(poutput.proname),
+                         (case when preceive.proname is not null then format(E'  , RECEIVE = %s\n', quote_ident(nreceive.nspname) || '.' || quote_ident(preceive.proname)) else '' end),
+                         (case when psend.proname is not null then format(E'  , SEND = %s\n', quote_ident(nsend.nspname) || '.' || quote_ident(psend.proname)) else '' end),
+                         (case when pmodin.proname is not null then format(E'  , TYPMOD_IN = %s\n', quote_ident(nmodin.nspname) || '.' || quote_ident(pmodin.proname)) else '' end),
+                         (case when pmodout.proname is not null then format(E'  , TYPMOD_OUT = %s\n', quote_ident(nmodout.nspname) || '.' || quote_ident(pmodout.proname)) else '' end),
+                         (case when panalyze.proname is not null then format(E'  , ANALYZE = %s\n', quote_ident(nanalyze.nspname) || '.' || quote_ident(panalyze.proname)) else '' end),
+                         (case when t.typlen > 0 then format(E'  , INTERNALLENGTH = %s\n', t.typlen) else '' end),
+                         (case when t.typbyval then E'  , PASSEDBYVALUE\n' else '' end),
+                         (case t.typalign
+                            when 'c' then E'  , ALIGNMENT = char\n'
+                            when 's' then E'  , ALIGNMENT = int2\n'
+                            when 'i' then E'  , ALIGNMENT = int4\n'
+                            when 'd' then E'  , ALIGNMENT = double\n'
+                            else ''
+                          end),
+                         (case t.typstorage
+                            when 'p' then E'  , STORAGE = plain\n'
+                            when 'e' then E'  , STORAGE = extended\n'
+                            when 'm' then E'  , STORAGE = main\n'
+                            when 'x' then E'  , STORAGE = external\n'
+                          end),
+                         format(E'  , CATEGORY = ' || chr(39) || '%s' || chr(39) || E'\n', t.typcategory),
+                         (case when t.typispreferred then E'  , PREFERRED = true\n' else '' end),
+                         (case when t.typdefault is not null then format('  , DEFAULT = ' || chr(39) || '%s' || chr(39) || E'\n', t.typdefault) else '' end),
+                         (case when telem.typname is not null then format(E'  , ELEMENT = %s\n', nelem.nspname || '.' || telem.typname) else '' end),
+                         (case when t.typdelim is not null then format(E'  , DELIMITER = ' || chr(39) || '%s' || chr(39) || E'\n', t.typdelim) else '' end),
+                         (case when coll.collname is not null then E'  , COLLATABLE = true\n' else '' end),
+                         quote_ident(n.nspname) || '.' || quote_ident(t.typname),
+                         quote_ident(r.rolname)
+                       )
+                from pg_type t
+                inner join pg_roles r on r.oid = t.typowner
+                inner join pg_namespace n on n.oid = t.typnamespace
+                left join pg_type telem on telem.oid = t.typelem
+                left join pg_namespace nelem on nelem.oid = telem.typnamespace
+                left join pg_proc pinput on pinput.oid = t.typinput
+                left join pg_namespace ninput on ninput.oid = pinput.pronamespace
+                left join pg_proc poutput on poutput.oid = t.typoutput
+                left join pg_namespace noutput on noutput.oid = poutput.pronamespace
+                left join pg_proc preceive on preceive.oid = t.typreceive
+                left join pg_namespace nreceive on nreceive.oid = preceive.pronamespace
+                left join pg_proc psend on psend.oid = t.typsend
+                left join pg_namespace nsend on nsend.oid = psend.pronamespace
+                left join pg_proc pmodin on pmodin.oid = t.typmodin
+                left join pg_namespace nmodin on nmodin.oid = pmodin.pronamespace
+                left join pg_proc pmodout on pmodout.oid = t.typmodout
+                left join pg_namespace nmodout on nmodout.oid = pmodout.pronamespace
+                left join pg_proc panalyze on panalyze.oid = t.typanalyze
+                left join pg_namespace nanalyze on nanalyze.oid = panalyze.pronamespace
+                left join pg_collation coll on coll.oid = t.typcollation
+                where quote_ident(n.nspname) = '{0}'
+                  and quote_ident(t.typname) = '{1}'
+            '''.format(p_schema, p_object))
+
+    def GetDDLDomain(self, p_schema, p_object):
+        return self.v_connection.ExecuteScalar('''
+            with domain as (
+                select t.oid,
+                       quote_ident(n.nspname) || '.' || quote_ident(t.typname) as name,
+                       format_type(t.typbasetype, null) as basetype,
+                       quote_ident(cn.nspname) || '.' || quote_ident(c.collname) as collation,
+                       t.typdefault as defaultvalue,
+                       t.typnotnull as notnull,
+                       quote_ident(r.rolname) as domainowner
+                from pg_type t
+                inner join pg_namespace n on n.oid = t.typnamespace
+                left join pg_collation c on c.oid = t.typcollation
+                left join pg_namespace cn on cn.oid = c.collnamespace
+                inner join pg_roles r on r.oid = t.typowner
+                where quote_ident(n.nspname) = '{0}'
+                  and quote_ident(t.typname) = '{1}'
+            ),
+            constraints as (
+                select d.oid,
+                       quote_ident(c.conname) as name,
+                       pg_get_constraintdef(c.oid, true) as def
+                from domain d
+                inner join pg_constraint c on c.contypid = d.oid
+            ),
+            create_domain as (
+                select format(
+                         E'CREATE DOMAIN %s\n  AS %s\n%s%s%s\n', d.name, d.basetype,
+                         (case when d.collation is not null then format(E'  COLLATION %s', d.collation) else '' end),
+                         (case when d.defaultvalue is not null then format(E'  DEFAULT %s\n', d.defaultvalue) else '' end),
+                         (case when d.notnull then E'  NOT NULL' else '' end)
+                       ) as sql
+                from domain d
+            ),
+            create_constraints as (
+                select string_agg(format(E'  CONSTRAINT %s %s\n', c.name, c.def), '') as sql
+                from constraints c
+            ),
+            alter_domain as (
+                select format(E'ALTER DOMAIN %s OWNER TO %s;\n', d.name, d.domainowner) as sql
+                from domain d
+            )
+            select format(E'%s%s;\n\n%s',
+                     (select sql from create_domain),
+                     (select substring(sql from 1 for length(sql)-1) from create_constraints),
+                     (select sql from alter_domain)
+                   )
+        '''.format(p_schema, p_object))
 
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
@@ -7473,6 +7923,10 @@ DROP COLUMN #column_name#
             return self.GetDDLForeignServer(p_object)
         elif p_type == 'fdw':
             return self.GetDDLForeignDataWrapper(p_object)
+        elif p_type == 'type':
+            return self.GetDDLType(p_schema, p_object)
+        elif p_type == 'domain':
+            return self.GetDDLDomain(p_schema, p_object)
         else:
             return ''
 

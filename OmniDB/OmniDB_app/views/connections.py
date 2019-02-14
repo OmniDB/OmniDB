@@ -99,6 +99,7 @@ def get_connections(request):
         v_connection_data_list = []
         v_connection_data_list.append(False)
         v_connection_data_list.append(v_connection.v_db_type)
+        v_connection_data_list.append(v_connection.v_conn_string)
         v_connection_data_list.append(v_connection.v_server)
         v_connection_data_list.append(v_connection.v_port)
         v_connection_data_list.append(v_connection.v_service)
@@ -323,26 +324,28 @@ def save_connections(request):
             conn_id = v_conn_id_list[v_index]['id']
             #update
             if v_conn_id_list[v_index]['mode'] == 1:
-                if r[6]:
+                if r[7]:
                     v_use_tunnel = 1
                 else:
                     v_use_tunnel = 0
 
+
                 v_session.v_omnidb_database.v_connection.Execute('''
                     update connections
                     set dbt_st_name = '{0}',
-                        server = '{1}',
-                        port = '{2}',
-                        service = '{3}',
-                        user = '{4}',
-                        alias = '{5}',
-                        ssh_server = '{6}',
-                        ssh_port = '{7}',
-                        ssh_user = '{8}',
-                        ssh_password = '{9}',
-                        ssh_key = '{10}',
-                        use_tunnel = '{11}'
-                    where conn_id = {12}
+                        conn_string = '{1}',
+                        server = '{2}',
+                        port = '{3}',
+                        service = '{4}',
+                        user = '{5}',
+                        alias = '{6}',
+                        ssh_server = '{7}',
+                        ssh_port = '{8}',
+                        ssh_user = '{9}',
+                        ssh_password = '{10}',
+                        ssh_key = '{11}',
+                        use_tunnel = '{12}'
+                    where conn_id = {13}
                 '''.format(
                     r[0],
                     v_cryptor.Encrypt(r[1]),
@@ -350,45 +353,49 @@ def save_connections(request):
                     v_cryptor.Encrypt(r[3]),
                     v_cryptor.Encrypt(r[4]),
                     v_cryptor.Encrypt(r[5]),
-                    v_cryptor.Encrypt(r[7]),
+                    v_cryptor.Encrypt(r[6]),
                     v_cryptor.Encrypt(r[8]),
                     v_cryptor.Encrypt(r[9]),
                     v_cryptor.Encrypt(r[10]),
                     v_cryptor.Encrypt(r[11]),
+                    v_cryptor.Encrypt(r[12]),
                     v_use_tunnel,
                     conn_id)
                 )
 
-                v_session.v_databases[conn_id]['database'].v_db_type  = r[0]
-                v_session.v_databases[conn_id]['database'].v_server   = r[1]
-                v_session.v_databases[conn_id]['database'].v_port     = r[2]
-                v_session.v_databases[conn_id]['database'].v_service  = r[3]
-                v_session.v_databases[conn_id]['database'].v_user     = r[4]
-                v_session.v_databases[conn_id]['database'].v_alias    = r[5]
+                #v_session.v_databases[conn_id]['database'].v_db_type     = r[0]
+                #v_session.v_databases[conn_id]['database'].v_conn_string = r[1]
+                #v_session.v_databases[conn_id]['database'].v_server      = r[2]
+                #v_session.v_databases[conn_id]['database'].v_port        = r[3]
+                #v_session.v_databases[conn_id]['database'].v_service     = r[4]
+                #v_session.v_databases[conn_id]['database'].v_user        = r[5]
+                #v_session.v_databases[conn_id]['database'].v_alias       = r[6]
 
-                v_session.v_databases[conn_id]['tunnel']['enabled'] = r[6]
-                v_session.v_databases[conn_id]['tunnel']['server'] = r[7]
-                v_session.v_databases[conn_id]['tunnel']['port'] = r[8]
-                v_session.v_databases[conn_id]['tunnel']['user'] = r[9]
-                v_session.v_databases[conn_id]['tunnel']['password'] = r[10]
-                v_session.v_databases[conn_id]['tunnel']['key'] = r[11]
+                v_session.v_databases[conn_id]['tunnel']['enabled'] = r[7]
+                v_session.v_databases[conn_id]['tunnel']['server'] = r[8]
+                v_session.v_databases[conn_id]['tunnel']['port'] = r[9]
+                v_session.v_databases[conn_id]['tunnel']['user'] = r[10]
+                v_session.v_databases[conn_id]['tunnel']['password'] = r[11]
+                v_session.v_databases[conn_id]['tunnel']['key'] = r[12]
 
                 database = OmniDatabase.Generic.InstantiateDatabase(
     				r[0],
-    				r[1],
     				r[2],
     				r[3],
     				r[4],
+    				r[5],
                     '',
                     conn_id,
-                    r[5]
+                    r[6],
+                    p_conn_string = r[1],
+                    p_parse_conn_string = True
                 )
 
                 v_session.v_databases[conn_id]['database'] = database
                 v_session.v_databases[conn_id]['tunnel_object'] = None
             #new
             elif v_conn_id_list[v_index]['mode'] == 2:
-                if r[6]:
+                if r[7]:
                     v_use_tunnel = 1
                 else:
                     v_use_tunnel = 0
@@ -407,21 +414,23 @@ def save_connections(request):
                     '{9}',
                     '{10}',
                     '{11}',
-                    '{12}')
+                    '{12}',
+                    '{13}')
                 '''.format(
                     v_session.v_user_id,
                     r[0],
-                    v_cryptor.Encrypt(r[1]),
                     v_cryptor.Encrypt(r[2]),
                     v_cryptor.Encrypt(r[3]),
                     v_cryptor.Encrypt(r[4]),
                     v_cryptor.Encrypt(r[5]),
-                    v_cryptor.Encrypt(r[7]),
+                    v_cryptor.Encrypt(r[6]),
                     v_cryptor.Encrypt(r[8]),
                     v_cryptor.Encrypt(r[9]),
                     v_cryptor.Encrypt(r[10]),
                     v_cryptor.Encrypt(r[11]),
-                    v_use_tunnel
+                    v_cryptor.Encrypt(r[12]),
+                    v_use_tunnel,
+                    v_cryptor.Encrypt(r[1])
                 ))
                 conn_id = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
                 select coalesce(max(conn_id), 0) from connections
@@ -429,22 +438,24 @@ def save_connections(request):
 
                 database = OmniDatabase.Generic.InstantiateDatabase(
     				r[0],
-    				r[1],
     				r[2],
     				r[3],
     				r[4],
+    				r[5],
                     '',
                     conn_id,
-                    r[5]
+                    r[6],
+                    p_conn_string = r[1],
+                    p_parse_conn_string = True
                 )
 
                 tunnel_information = {
-                    'enabled': r[6],
-                    'server': r[7],
-                    'port': r[8],
-                    'user': r[9],
-                    'password': r[10],
-                    'key': r[11]
+                    'enabled': r[7],
+                    'server': r[8],
+                    'port': r[9],
+                    'user': r[10],
+                    'password': r[11],
+                    'key': r[12]
                 }
 
                 if 1==0:

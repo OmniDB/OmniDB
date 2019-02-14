@@ -54,6 +54,7 @@ class SQLite:
     def __init__(self, p_service, p_conn_id=0, p_alias='', p_foreignkeys=True):
         self.v_alias = p_alias
         self.v_db_type = 'sqlite'
+        self.v_conn_string = ''
         self.v_conn_id = p_conn_id
         self.v_server = ''
         self.v_port = ''

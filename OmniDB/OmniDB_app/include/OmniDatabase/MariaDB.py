@@ -30,6 +30,7 @@ from enum import Enum
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
+from urllib.parse import urlparse
 
 '''
 ------------------------------------------------------------------------
@@ -51,20 +52,47 @@ MariaDB
 ------------------------------------------------------------------------
 '''
 class MariaDB:
-    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias=''):
+    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias='', p_conn_string='', p_parse_conn_string = False):
         self.v_alias = p_alias
         self.v_db_type = 'mariadb'
+        self.v_conn_string = p_conn_string
+        self.v_conn_string_error = ''
         self.v_conn_id = p_conn_id
 
-        if p_port is None or p_port == '':
-            self.v_port = '3306'
-        else:
-            self.v_port = p_port
-        self.v_service = p_service
         self.v_server = p_server
+        self.v_active_server = p_server
         self.v_user = p_user
+        self.v_active_user = p_user
         self.v_schema = p_service
-        self.v_connection = Spartacus.Database.MariaDB(p_server, p_port, p_service, p_user, p_password)
+        self.v_service = p_service
+        self.v_active_service = p_service
+
+        self.v_port = p_port
+        if p_port is None or p_port == '':
+            self.v_active_port = '3306'
+        else:
+            self.v_active_port = p_port
+
+        #try to get info from connection string
+        if p_conn_string!='' and p_parse_conn_string:
+            try:
+                parsed = urlparse(p_conn_string)
+                if parsed.port!=None:
+                    self.v_active_port = str(parsed.port)
+                if parsed.hostname!=None:
+                    self.v_active_server = parsed.hostname
+                if parsed.username!=None:
+                    self.v_active_user = parsed.username
+                if parsed.query!=None:
+                    self.v_conn_string_query = parsed.query
+                parsed_database = parsed.path
+                if len(parsed_database)>1:
+                    self.v_active_service = parsed_database[1:]
+            except Exception as exc:
+                self.v_conn_string_error = 'Syntax error in the connection string.'
+                None
+
+        self.v_connection = Spartacus.Database.MariaDB(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_conn_string)
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -148,10 +176,16 @@ class MariaDB:
             return False
 
     def PrintDatabaseInfo(self):
-        return self.v_user + '@' + self.v_service
+        if self.v_conn_string=='':
+            return self.v_active_user + '@' + self.v_active_service
+        else:
+            return self.v_active_user + '@' + self.v_active_service
 
     def PrintDatabaseDetails(self):
-        return self.v_server + ':' + self.v_port
+        if self.v_conn_string=='':
+            return self.v_active_server + ':' + self.v_active_port
+        else:
+            return "<i title='{0}' class='fas fa-asterisk icon-conn-string'></i> ".format(self.v_conn_string) + self.v_active_server + ':' + self.v_active_port
 
     def HandleUpdateDeleteRules(self, p_update_rule, p_delete_rule):
         v_rules = ''
@@ -163,6 +197,9 @@ class MariaDB:
 
     def TestConnection(self):
         v_return = ''
+        if self.v_conn_string and self.v_conn_string_error!='':
+            return self.v_conn_string_error
+
         try:
             self.v_connection.Open()
             self.v_connection.Close()
@@ -584,6 +621,22 @@ class MariaDB:
         v_body = v_body + self.v_connection.Query('show create procedure {0}.{1}'.format(self.v_schema, p_procedure), True, True).Rows[0][2]
         return v_body
 
+    def QuerySequences(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and table_schema = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and table_schema = '{0}' ".format(self.v_schema)
+        return self.v_connection.Query('''
+            select table_name as sequence_name,
+                   table_schema as sequence_schema
+            from information_schema.tables
+            where table_type = 'SEQUENCE'
+            {0}
+            order by 2, 1
+        '''.format(v_filter), True)
+
     def QueryViews(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -909,6 +962,30 @@ ON #table_name#
     def TemplateDropIndex(self):
         return Template('DROP INDEX #index_name#')
 
+    def TemplateCreateSequence(self):
+        return Template('''CREATE SEQUENCE #schema_name#.name
+--INCREMENT BY increment
+--MINVALUE minvalue | NOMINVALUE
+--MAXVALUE maxvalue | NOMAXVALUE
+--START WITH start
+--CACHE cache | NOCACHE
+--CYCLE | NOCYCLE
+''')
+
+    def TemplateAlterSequence(self):
+        return Template('''ALTER SEQUENCE #sequence_name#
+--INCREMENT BY increment
+--MINVALUE minvalue | NOMINVALUE
+--MAXVALUE maxvalue | NOMAXVALUE
+--START WITH start
+--CACHE cache | NOCACHE
+--CYCLE | NOCYCLE
+--RESTART WITH restart
+''')
+
+    def TemplateDropSequence(self):
+        return Template('DROP SEQUENCE #sequence_name#')
+
     def TemplateCreateView(self):
         return Template('''CREATE OR REPLACE VIEW #schema_name#.name AS
 SELECT ...
@@ -1138,6 +1215,18 @@ WHERE condition
                 where routine_type = 'PROCEDURE'
                   and routine_schema = '{0}'
                   and routine_name = '{1}'
+            '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
+        elif p_type == 'sequence':
+            return self.v_connection.Query('''
+                select next_not_cached_value as "Next Not Cached Value",
+                       minimum_value as "Min Value",
+                       maximum_value as "Max Value",
+                       start_value as "Start Value",
+                       increment as "Increment By",
+                       cache_size as "Cache Size",
+                       (case when 0 then 'No Cycle' else 'Cycle' end) as "Cycle Option",
+                       cycle_count as "Cycle Count"
+                from {0}.{1}
             '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
         else:
             return None

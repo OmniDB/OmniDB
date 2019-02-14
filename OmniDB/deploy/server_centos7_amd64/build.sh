@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.13.0
+VERSION=2.14.0
 ARCH=centos-amd64
 
 echo "Installing OmniDB dependencies..."
@@ -134,6 +134,7 @@ chmod 644 %{buildroot}/%{_etcdir}/%{_servicename}.conf
 /opt/%{name}/*
 %{_bindir}/%{name}
 %{_bindir}/%{configname}
+%{_systemddir}/%{_servicename}.service
 %{_etcdir}/%{_servicename}.conf
 
 %config(noreplace) %{_etcdir}/%{_servicename}.conf

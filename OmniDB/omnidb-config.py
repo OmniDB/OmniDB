@@ -189,7 +189,7 @@ def create_user(p_user, p_pwd):
         v_cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
         database.v_connection.Execute('''
             insert into users values (
-            (select coalesce(max(user_id), 0) + 1 from users),'{0}','{1}',1,'14',1,0,'utf-8',';')
+            (select coalesce(max(user_id), 0) + 1 from users),'{0}','{1}',1,'14',1,0,'utf-8',';','11')
         '''.format(p_user,v_cryptor.Hash(v_cryptor.Encrypt(p_pwd))))
         print('User created.')
         #database.v_connection.Execute('''
@@ -214,7 +214,7 @@ def create_superuser(p_user, p_pwd):
         v_cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
         database.v_connection.Execute('''
             insert into users values (
-            (select coalesce(max(user_id), 0) + 1 from users),'{0}','{1}',1,'14',1,1,'utf-8',';')
+            (select coalesce(max(user_id), 0) + 1 from users),'{0}','{1}',1,'14',1,1,'utf-8',';','11')
         '''.format(p_user,v_cryptor.Hash(v_cryptor.Encrypt(p_pwd))))
         print('Superuser created.')
         #database.v_connection.Execute('''
@@ -301,7 +301,7 @@ def create_connection(p_username, p_technology, p_host, p_port, p_database, p_db
                     insert into connections values (
                         (select coalesce(max(conn_id), 0) + 1 from connections),
                         {0}, '{1}', '{2}', '{3}', '{4}', '{5}',
-                        '', '', '', '', '', '', '', 0
+                        '', '', '', '', '', '', 0
                     )
                 '''.format(
                     v_users.Rows[0]['user_id'],

@@ -236,19 +236,22 @@ def thread_dispatcher(self,args,ws_object):
                             v_conn_tab_connection.v_db_type!=tab_object['omnidatabase'].v_db_type or
                             v_conn_tab_connection.v_connection.v_host!=tab_object['omnidatabase'].v_connection.v_host or
                             str(v_conn_tab_connection.v_connection.v_port)!=str(tab_object['omnidatabase'].v_connection.v_port) or
-                            v_conn_tab_connection.v_service!=tab_object['omnidatabase'].v_service or
+                            v_conn_tab_connection.v_active_service!=tab_object['omnidatabase'].v_active_service or
                             v_conn_tab_connection.v_user!=tab_object['omnidatabase'].v_user or
                             v_conn_tab_connection.v_connection.v_password!=tab_object['omnidatabase'].v_connection.v_password):
                                 v_database_new = OmniDatabase.Generic.InstantiateDatabase(
                                     v_conn_tab_connection.v_db_type,
                                     v_conn_tab_connection.v_connection.v_host,
                                     str(v_conn_tab_connection.v_connection.v_port),
-                                    v_conn_tab_connection.v_service,
-                                    v_conn_tab_connection.v_user,
+                                    v_conn_tab_connection.v_active_service,
+                                    v_conn_tab_connection.v_active_user,
                                     v_conn_tab_connection.v_connection.v_password,
                                     v_conn_tab_connection.v_conn_id,
-                                    v_conn_tab_connection.v_alias
+                                    v_conn_tab_connection.v_alias,
+                                    p_conn_string = v_conn_tab_connection.v_conn_string,
+                                    p_parse_conn_string = False
                                 )
+
                                 tab_object['omnidatabase'] = v_database_new
                                 tab_object['database_index'] = v_data['v_db_index']
 
@@ -375,21 +378,25 @@ def thread_dispatcher(self,args,ws_object):
                                     v_conn_tab_connection.v_db_type,
                                     v_conn_tab_connection.v_connection.v_host,
                                     str(v_conn_tab_connection.v_connection.v_port),
-                                    v_conn_tab_connection.v_service,
-                                    v_conn_tab_connection.v_user,
+                                    v_conn_tab_connection.v_active_service,
+                                    v_conn_tab_connection.v_active_user,
                                     v_conn_tab_connection.v_connection.v_password,
                                     v_conn_tab_connection.v_conn_id,
-                                    v_conn_tab_connection.v_alias
+                                    v_conn_tab_connection.v_alias,
+                                    p_conn_string = v_conn_tab_connection.v_conn_string,
+                                    p_parse_conn_string = False
                                 )
                                 v_database_control = OmniDatabase.Generic.InstantiateDatabase(
                                     v_conn_tab_connection.v_db_type,
                                     v_conn_tab_connection.v_connection.v_host,
                                     str(v_conn_tab_connection.v_connection.v_port),
-                                    v_conn_tab_connection.v_service,
-                                    v_conn_tab_connection.v_user,
+                                    v_conn_tab_connection.v_active_service,
+                                    v_conn_tab_connection.v_active_user,
                                     v_conn_tab_connection.v_connection.v_password,
                                     v_conn_tab_connection.v_conn_id,
-                                    v_conn_tab_connection.v_alias
+                                    v_conn_tab_connection.v_alias,
+                                    p_conn_string = v_conn_tab_connection.v_conn_string,
+                                    p_parse_conn_string = False
                                 )
                                 tab_object =  { 'thread': None,
                                              'omnidatabase_debug': v_database_debug,
@@ -561,13 +568,15 @@ def thread_datamining(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
 
         v_database = OmniDatabase.Generic.InstantiateDatabase(
             p_args['v_database'].v_db_type,
-            p_args['v_database'].v_server,
-            p_args['v_database'].v_port,
-            p_args['v_database'].v_service,
-            p_args['v_database'].v_user,
+            p_args['v_database'].v_connection.v_host,
+            p_args['v_database'].v_connection.v_port,
+            p_args['v_database'].v_active_service,
+            p_args['v_database'].v_active_user,
             p_args['v_database'].v_connection.v_password,
             p_args['v_database'].v_conn_id,
-            p_args['v_database'].v_alias
+            p_args['v_database'].v_alias,
+            p_conn_string = p_args['v_database'].v_conn_string,
+            p_parse_conn_string = False
         )
 
         v_database.v_connection.Open()
@@ -1243,7 +1252,7 @@ def thread_query_edit_data(self,args,ws_object):
                 for j in range(0, len(v_pk_list)):
                     v_pk_col = {}
                     v_pk_col['v_column'] = v_pk_list[j]['v_column']
-                    v_pk_col['v_value'] = v_row[v_pk_list[j]['v_column']]
+                    v_pk_col['v_value'] = v_row[v_pk_list[j]['v_column'].replace('"','')]
                     v_row_pk.append(v_pk_col)
                 v_response['v_data']['v_row_pk'].append(v_row_pk)
 

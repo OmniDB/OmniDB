@@ -2,7 +2,7 @@
 <head>
   <title>OmniDB</title>
   <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/welcome.css?v2.13.0.1"/>
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/welcome.css?v2.14.0.3"/>
   <style>
     img {
       margin-top: 20px;
@@ -18,23 +18,21 @@
     <h2>Release notes</h2>
     <div class="welcome_release_container">
       <ul class="welcome_release_list">
-        <li class="welcome_release_item"><span>Connection Groups: allow users to, for example, easily distinct Production and Test database servers</span></li>
-        <li class="welcome_release_item"><span>User and connection management via omnidb-config CLI utility, which helps with automated deploying</span></li>
-        <li class="welcome_release_item"><span>Advanced Object Search now considers view and materialized view definition</span></li>
-        <li class="welcome_release_item"><span>Show trigger function when expanding the trigger node in the tree view</span></li>
-        <li class="welcome_release_item"><span>PostgreSQL: Improved \h command, which provides syntax help on SQL commands</span></li>
-        <li class="welcome_release_item"><span>Linux: OmniDB systemd service now uses configuration file in /etc/omnidb.conf</span></li>
-        <li class="welcome_release_item"><span>Converted all OmniDB users passwords into hashes in the OmniDB user database, improving security</span></li>
-        <li class="welcome_release_item"><span>OmniDB upgrade procedure now takes a backup of the user database (file omnidb.db)</span></li>
-        <li class="welcome_release_item"><span>Autocommit is now always enabled on Oracle/MySQL/MariaDB</span></li>
-        <li class="welcome_release_item"><span>User won't need to execute query again after password expiration / re-validation</span></li>
-        <li class="welcome_release_item"><span>Fixed: Click index with WHERE clause: "Can only transpose a table with a single row"</span></li>
-        <li class="welcome_release_item"><span>Fixed: Export to XLSX/CSV does not consider all rows</span></li>
-        <li class="welcome_release_item"><span>Fixed: Error closing error window</span></li>
-        <li class="welcome_release_item"><span>Fixed: Monitoring Dashboard: Column widths are not adjusted when the monitoring tab doesn't have focus</span></li>
-        <li class="welcome_release_item"><span>Fixed: User Mapping is not being shown in the tree if there are no options</span></li>
-        <li class="welcome_release_item"><span>Fixed: Foreign Table DDL not being shown correctly if there are no options</span></li>
-        <li class="welcome_release_item"><span>Fixed: DDL for functions and procedures do not show a necessary comma after function body</span></li>
+        <li class="welcome_release_item"><span>Connection via URI, allowing more connection parameters</span></li>
+        <li class="welcome_release_item"><span>Easy installation/removal of OmniDB plugins</span></li>
+        <li class="welcome_release_item"><span>Plugin API: Monitoring Units can now be created as separate plugins</span></li>
+        <li class="welcome_release_item"><span>Global user interface font size is now customizable</span></li>
+        <li class="welcome_release_item"><span>(PostgreSQL) Support to user-defined types and domains</span></li>
+        <li class="welcome_release_item"><span>Monitoring Dashboard: Charts with many labels now are rendered with a vertical scroll bar</span></li>
+        <li class="welcome_release_item"><span>Monitoring Dashboard: Non-append charts now keep original colors</span></li>
+        <li class="welcome_release_item"><span>Included support to MariaDB 10.3</span></li>
+        <li class="welcome_release_item"><span>Included support to MySQL 8.0</span></li>
+        <li class="welcome_release_item"><span>Included support to Oracle 18c</span></li>
+        <li class="welcome_release_item"><span>Included support to Postgres-XL 10</span></li>
+        <li class="welcome_release_item"><span>Fixed error when clicking on a foreign table, then Data Actions, then Query Data</span></li>
+        <li class="welcome_release_item"><span>Fixed error when changing connection: object of type 'NoneType' has no len()</span></li>
+        <li class="welcome_release_item"><span>Fixed CentOS 7 package error: OmniDB server service file is missing</span></li>
+        <li class="welcome_release_item"><span>Fixed error in EditData being shown if PK column name has quotes and table has at least 1 record</span></li>
       </ul>
     </div>
   </section>

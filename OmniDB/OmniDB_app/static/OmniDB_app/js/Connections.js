@@ -85,7 +85,7 @@ function newConnection() {
 		'ssh_enabled': false,
 		'group_changed': true
 	})
-	v_connections_data.ht.getSourceData().push([false,'postgresql','','','','','',false,'','22','','','',"<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConnection()'></i>"]);
+	v_connections_data.ht.getSourceData().push([false,'postgresql','','','','','','',false,'','22','','','',"<i title='Remove' class='fas fa-times action-grid action-close' onclick='dropConnection()'></i>"]);
 	v_connections_data.ht.render();
 	var v_cellMeta = v_connections_data.ht.getCellMeta(v_connections_data.v_conn_ids.length - 1, 0);
 	v_cellMeta.v_conn_id = v_conn_id;
@@ -96,7 +96,6 @@ function newConnection() {
 	v_div_result.childNodes[0].childNodes[0].scrollTop = v_div_result.childNodes[0].childNodes[0].scrollHeight;
 
 	document.getElementById('div_save').style.visibility = 'visible';
-
 }
 
 /// <summary>
@@ -261,7 +260,7 @@ function saveConnections(p_callback) {
 			v_conn_id_list.push(v_clone)
 			if (v_connections_data.v_conn_ids[i].mode!=0) {
 				v_temp_row.shift();
-				v_data_list.push([v_temp_row[0],v_temp_row[1],v_temp_row[2],v_temp_row[3],v_temp_row[4],v_temp_row[5],v_temp_row[6],v_temp_row[7],v_temp_row[8],v_temp_row[9],v_temp_row[10],v_temp_row[11]])
+				v_data_list.push([v_temp_row[0],v_temp_row[1],v_temp_row[2],v_temp_row[3],v_temp_row[4],v_temp_row[5],v_temp_row[6],v_temp_row[7],v_temp_row[8],v_temp_row[9],v_temp_row[10],v_temp_row[11],v_temp_row[12]])
 			}
 			else {
 				v_data_list.push([]);
@@ -551,6 +550,11 @@ function showConnectionList() {
 				ConnColumnProperties.push(col);
 
 				var col = new Object();
+				col.title =  'Connection String';
+				col.width = '160'
+				ConnColumnProperties.push(col);
+
+				var col = new Object();
 				col.title =  'Server';
 				col.width = '120'
 				ConnColumnProperties.push(col);
@@ -576,7 +580,7 @@ function showConnectionList() {
 				col.type = "checkbox",
 				col.checkedTemplate = true,
         		col.uncheckedTemplate = false
-				col.width = '80'
+				col.width = '60'
 				ConnColumnProperties.push(col);
 
 				var col = new Object();
@@ -598,6 +602,7 @@ function showConnectionList() {
 
 				var col = new Object();
 				col.title =  'SSH Key';
+				col.width = '80'
 				ConnColumnProperties.push(col);
 
 				var col = new Object();
@@ -674,7 +679,10 @@ function showConnectionList() {
 							    var oldValue = change[2];
 							    var newValue = change[3];
 
-							    if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2 && columnIndex!=0) {
+									if (columnIndex==1 && newValue=='') {
+										v_connections_data.ht.setDataAtCell(rowIndex,columnIndex,oldValue);
+									}
+							    else if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2 && columnIndex!=0) {
 
 											if (v_connections_data.v_conn_ids[rowIndex].mode!=-1)
 												v_connections_data.v_conn_ids[rowIndex].mode = 1;
@@ -713,7 +721,7 @@ function showConnectionList() {
 										v_read_only = true;
 									}
 
-									if (col == 13)
+									if (col == 14)
 										v_read_only = true;
 
 									if (!v_read_only) {

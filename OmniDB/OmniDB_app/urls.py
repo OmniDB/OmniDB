@@ -5,6 +5,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 base_urlpatterns = [
+    url(r'^upload/$', views.plugins.upload_view, name='sign_in'),
+
     #LOGIN
     url(r'^$', views.login.index, name='login'),
     url(r'^login/', views.login.index, name='login'),
@@ -65,6 +67,7 @@ base_urlpatterns = [
     url(r'^get_console_history/', views.workspace.get_console_history, name='get_console_history'),
     url(r'^get_console_history_clean/', views.workspace.get_console_history_clean, name='get_console_history_clean'),
     url(r'^get_autocomplete_results/', views.workspace.get_autocomplete_results, name='get_autocomplete_results'),
+    url(r'^delete_plugin/', views.plugins.delete_plugin, name='delete_plugin'),
 
     #HOOKS
     url(r'^get_plugins/', views.plugins.get_plugins, name='get_plugins'),
@@ -132,6 +135,8 @@ base_urlpatterns = [
     url(r'^get_user_mappings_postgresql/', views.tree_postgresql.get_user_mappings, name='get_user_mappings'),
     url(r'^get_foreign_tables_postgresql/', views.tree_postgresql.get_foreign_tables, name='get_foreign_tables'),
     url(r'^get_foreign_columns_postgresql/', views.tree_postgresql.get_foreign_columns, name='get_foreign_columns'),
+    url(r'^get_types_postgresql/', views.tree_postgresql.get_types, name='get_types'),
+    url(r'^get_domains_postgresql/', views.tree_postgresql.get_domains, name='get_domains'),
     url(r'^kill_backend_postgresql/', views.tree_postgresql.kill_backend, name='kill_backend'),
     url(r'^get_properties_postgresql/', views.tree_postgresql.get_properties, name='get_properties'),
     url(r'^get_database_objects_postgresql/', views.tree_postgresql.get_database_objects, name='get_database_objects'),
@@ -238,7 +243,7 @@ base_urlpatterns = [
     #url(r'^get_function_debug_mariadb/', views.tree_mariadb.get_function_debug, name='get_function_debug'),
     #url(r'^get_triggerfunctions_mariadb/', views.tree_mariadb.get_triggerfunctions, name='get_triggerfunctions'),
     #url(r'^get_triggerfunction_definition_mariadb/', views.tree_mariadb.get_triggerfunction_definition, name='get_triggerfunction_definition'),
-    #url(r'^get_sequences_mariadb/', views.tree_mariadb.get_sequences, name='get_sequences'),
+    url(r'^get_sequences_mariadb/', views.tree_mariadb.get_sequences, name='get_sequences'),
     url(r'^get_views_mariadb/', views.tree_mariadb.get_views, name='get_views'),
     url(r'^get_views_columns_mariadb/', views.tree_mariadb.get_views_columns, name='get_views_columns'),
     url(r'^get_view_definition_mariadb/', views.tree_mariadb.get_view_definition, name='get_view_definition'),

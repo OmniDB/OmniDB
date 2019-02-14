@@ -30,6 +30,7 @@ import math
 
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.prettytable as prettytable
+from urllib.parse import urlparse
 
 v_supported_rdbms = []
 try:
@@ -1087,7 +1088,7 @@ PostgreSQL
 ------------------------------------------------------------------------
 '''
 class PostgreSQL(Generic):
-    def __init__(self, p_host, p_port, p_service, p_user, p_password, p_application_name='spartacus'):
+    def __init__(self, p_host, p_port, p_service, p_user, p_password, p_application_name='spartacus', p_conn_string=''):
         if 'PostgreSQL' in v_supported_rdbms:
             self.v_host = p_host
             if p_port is None or p_port == '':
@@ -1098,6 +1099,8 @@ class PostgreSQL(Generic):
                 self.v_service = 'postgres'
             else:
                 self.v_service = p_service
+            self.v_conn_string = p_conn_string
+            self.v_conn_string_parsed = urlparse(p_conn_string)
             self.v_user = p_user
             self.v_password = p_password
             self.v_application_name = p_application_name
@@ -1144,7 +1147,22 @@ class PostgreSQL(Generic):
         else:
             raise Spartacus.Database.Exception("PostgreSQL is not supported. Please install it with 'pip install Spartacus[postgresql]'.")
     def GetConnectionString(self):
-        if self.v_host is None or self.v_host == '':
+        if self.v_conn_string!='':
+            if self.v_conn_string_parsed.query=='':
+                v_new_query = '?dbname={0}&port={1}'.format(self.v_service.replace("'","\\'"),self.v_port)
+            else:
+                v_new_query = '&dbname={0}&port={1}'.format(self.v_service.replace("'","\\'"),self.v_port)
+            if self.v_host is None or self.v_host == '':
+                None
+            else:
+                v_new_query = '{0}&host={1}'.format(v_new_query,self.v_host.replace("'","\\'"))
+            if self.v_password is None or self.v_password == '':
+                v_return_string = '{0}{1}'.format(self.v_conn_string,v_new_query)
+            else:
+                v_return_string = '{0}{1}&password={2}'.format(self.v_conn_string,v_new_query,self.v_password.replace("'","\\'"))
+            return v_return_string
+
+        elif self.v_host is None or self.v_host == '':
             if self.v_password is None or self.v_password == '':
                 return """port={0} dbname='{1}' user='{2}' application_name='{3}'""".format(
                     self.v_port,
@@ -1649,13 +1667,15 @@ MySQL
 ------------------------------------------------------------------------
 '''
 class MySQL(Generic):
-    def __init__(self, p_host, p_port, p_service, p_user, p_password):
+    def __init__(self, p_host, p_port, p_service, p_user, p_password, p_conn_string=''):
         if 'MySQL' in v_supported_rdbms:
             self.v_host = p_host
             if p_port is None or p_port == '':
                 self.v_port = 3306
             else:
                 self.v_port = p_port
+            self.v_conn_string = p_conn_string
+            self.v_conn_string_parsed = urlparse(p_conn_string)
             self.v_service = p_service
             self.v_user = p_user
             self.v_password = p_password
@@ -2027,13 +2047,15 @@ MariaDB
 ------------------------------------------------------------------------
 '''
 class MariaDB(Generic):
-    def __init__(self, p_host, p_port, p_service, p_user, p_password):
+    def __init__(self, p_host, p_port, p_service, p_user, p_password, p_conn_string=''):
         if 'MariaDB' in v_supported_rdbms:
             self.v_host = p_host
             if p_port is None or p_port == '':
                 self.v_port = 3306
             else:
                 self.v_port = p_port
+            self.v_conn_string = p_conn_string
+            self.v_conn_string_parsed = urlparse(p_conn_string)
             self.v_service = p_service
             self.v_user = p_user
             self.v_password = p_password
@@ -2650,7 +2672,7 @@ Oracle
 ------------------------------------------------------------------------
 '''
 class Oracle(Generic):
-    def __init__(self, p_host, p_port, p_service, p_user, p_password):
+    def __init__(self, p_host, p_port, p_service, p_user, p_password, p_conn_string=''):
         if 'Oracle' in v_supported_rdbms:
             self.v_host = p_host
             if p_host is not None and (p_port is None or p_port == ''):
@@ -2661,6 +2683,8 @@ class Oracle(Generic):
                 self.v_service = 'xe'
             else:
                 self.v_service = p_service
+            self.v_conn_string = p_conn_string
+            self.v_conn_string_parsed = urlparse(p_conn_string)
             self.v_user = p_user
             self.v_password = p_password
             self.v_con = None
@@ -3020,13 +3044,15 @@ MSSQL
 ------------------------------------------------------------------------
 '''
 class MSSQL(Generic):
-    def __init__(self, p_host, p_port, p_service, p_user, p_password):
+    def __init__(self, p_host, p_port, p_service, p_user, p_password, p_conn_string=''):
         if 'MSSQL' in v_supported_rdbms:
             self.v_host = p_host
             if p_port is None or p_port == '':
                 self.v_port = 1433
             else:
                 self.v_port = p_port
+            self.v_conn_string = p_conn_string
+            self.v_conn_string_parsed = urlparse(p_conn_string)
             self.v_service = p_service
             self.v_user = p_user
             self.v_password = p_password

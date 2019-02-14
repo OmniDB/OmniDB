@@ -52,7 +52,7 @@ ul.tabs li {
 }
 
 /* Workspace Connection Info */
-.connection_details.query_info {
+.connection_details {
     margin-top: 0px;
     padding-top: 3px;
     padding-bottom: 3px;
@@ -116,8 +116,6 @@ ul span.node {
   padding-bottom: 1px;*/
 }
 ul span.node_selected {
-  padding-top: 4px;
-  padding-bottom: 4px;
 }
 
 /* Modals */
@@ -174,8 +172,31 @@ button.bt_export:hover {
 
 input, select.sel_export_file_type {
   background: #f2f2f2;
-  border-color: #a9aeb5;
   border-radius: 0px;
+}
+
+#plugin_file_label {
+  font-family: 'Roboto', sans-serif;
+  color: #FFFFFF;
+  background: #177ce0;
+  border-radius: 0px;
+  cursor: pointer;
+  font-size: 12px;
+  height: 28px;
+  line-height: 28px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border: solid #177ce0 1px;
+  text-decoration: none;
+  display: inline-block;
+}
+#plugin_file_label:hover {
+    color: #177ce0;
+    background-color: #FFFFFF;
+}
+
+#plugin_file_selector {
+  display: none;
 }
 
 /* QUERY INFO */
@@ -207,6 +228,10 @@ div.query_info_summary .query_info_row {
 }
 div.query_info_summary strong {
     color: #4a6796;
+}
+
+.query_info {
+  font-size: 11px;
 }
 
 /*Workspace Ace-Editor */

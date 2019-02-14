@@ -2,4 +2,3 @@ Hostname: localhost
 Port: 1521
 SID: XE
 ORACLE PASSWORD FOR SYS AND SYSTEM: b7e54b4570f6fe16
-

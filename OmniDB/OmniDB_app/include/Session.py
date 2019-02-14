@@ -32,6 +32,7 @@ class Session(object):
                 p_theme_type,
                 p_theme_id,
                 p_editor_font_size,
+                p_interface_font_size,
                 p_enable_omnichat,
                 p_super_user,
                 p_cryptor,
@@ -45,6 +46,7 @@ class Session(object):
         self.v_theme_type = p_theme_type
         self.v_theme_id = p_theme_id
         self.v_editor_font_size = p_editor_font_size
+        self.v_interface_font_size = p_interface_font_size
         self.v_enable_omnichat = p_enable_omnichat
         self.v_super_user = p_super_user
         self.v_cryptor = p_cryptor
@@ -102,14 +104,14 @@ class Session(object):
                                 ssh_username=self.v_databases[p_database_index]['tunnel']['user'],
                                 ssh_private_key_password=self.v_databases[p_database_index]['tunnel']['password'],
                                 ssh_pkey = v_full_file_name,
-                                remote_bind_address=(self.v_databases[p_database_index]['database'].v_server, int(self.v_databases[p_database_index]['database'].v_port))
+                                remote_bind_address=(self.v_databases[p_database_index]['database'].v_active_server, int(self.v_databases[p_database_index]['database'].v_active_port))
                             )
                         else:
                             server = SSHTunnelForwarder(
                                 (self.v_databases[p_database_index]['tunnel']['server'], int(self.v_databases[p_database_index]['tunnel']['port'])),
                                 ssh_username=self.v_databases[p_database_index]['tunnel']['user'],
                                 ssh_password=self.v_databases[p_database_index]['tunnel']['password'],
-                                remote_bind_address=(self.v_databases[p_database_index]['database'].v_server, int(self.v_databases[p_database_index]['database'].v_port))
+                                remote_bind_address=(self.v_databases[p_database_index]['database'].v_active_server, int(self.v_databases[p_database_index]['database'].v_active_port))
                             )
                         server.set_keepalive = 120
                         server.start()
@@ -189,6 +191,10 @@ class Session(object):
                 v_alias = self.v_cryptor.Decrypt(r["alias"])
             except Exception as exc:
                 v_alias = r["alias"]
+            try:
+                v_conn_string = self.v_cryptor.Decrypt(r["conn_string"])
+            except Exception as exc:
+                v_conn_string = r["conn_string"]
 
             #SSH Tunnel information
             try:
@@ -235,7 +241,9 @@ class Session(object):
 				v_user,
                 '',
                 r["conn_id"],
-                v_alias
+                v_alias,
+                p_conn_string = v_conn_string,
+                p_parse_conn_string = True
             )
 
             if 1==0:

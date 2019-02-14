@@ -390,11 +390,12 @@ CREATE TABLE users (
     super_user integer,
     csv_encoding varchar(20),
     csv_delimiter varchar(10),
+    interface_font_size text,
     constraint pk_users primary key (user_id),
     constraint users_fk_0 foreign key (theme_id) references themes (theme_id)  on update NO ACTION  on delete NO ACTION,
     constraint uq_users_0 unique (user_name)
 );--omnidb--
-INSERT INTO users VALUES(1,'admin','48b19163bdb02cadab1a09c9dd4eafae',1,'14',1,1,'utf-8',';');--omnidb--
+INSERT INTO users VALUES(1,'admin','48b19163bdb02cadab1a09c9dd4eafae',1,'14',1,1,'utf-8',';','11');--omnidb--
 
 CREATE TABLE messages (
     mes_in_code integer not null,
@@ -453,6 +454,7 @@ CREATE TABLE connections (
     ssh_password varchar(100),
     ssh_key text,
     use_tunnel integer,
+    conn_string TEXT,
     constraint pk_connections primary key (conn_id),
     constraint connections_fk_0 foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE,
     constraint connections_fk_1 foreign key (dbt_st_name) references db_type (dbt_st_name)  on update CASCADE  on delete CASCADE
@@ -565,10 +567,10 @@ CREATE TABLE units_users_connections (
     user_id integer not null,
     conn_id integer not null,
     interval integer not null,
+    plugin_name text,
     constraint pk_units_users_connections primary key (uuc_id),
     constraint units_users_connections_fk_0 foreign key (conn_id) references connections (conn_id) on update CASCADE on delete CASCADE,
-    constraint units_users_connections_fk_1 foreign key (user_id) references users (user_id) on update CASCADE on delete CASCADE,
-    constraint units_users_connections_fk_2 foreign key (unit_id) references mon_units (unit_id) on update CASCADE on delete CASCADE
+    constraint units_users_connections_fk_1 foreign key (user_id) references users (user_id) on update CASCADE on delete CASCADE
 );--omnidb--
 
 CREATE TABLE shortcuts (
@@ -624,4 +626,4 @@ CREATE TABLE version (
     ver_id text not null,
     constraint pk_versions primary key (ver_id)
 );--omnidb--
-INSERT INTO version VALUES('2.13.0');--omnidb--
+INSERT INTO version VALUES('2.14.0');--omnidb--

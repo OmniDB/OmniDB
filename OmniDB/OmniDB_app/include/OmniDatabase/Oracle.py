@@ -51,27 +51,53 @@ Oracle
 ------------------------------------------------------------------------
 '''
 class Oracle:
-    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias=''):
+    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias='', p_conn_string='', p_parse_conn_string = False):
         self.v_alias = p_alias
         self.v_db_type = 'oracle'
+        self.v_conn_string = p_conn_string
         self.v_conn_id = p_conn_id
 
+        self.v_port = p_port
         if p_port is None or p_port == '':
-            self.v_port = '1521'
+            self.v_active_port = '1521'
         else:
-            self.v_port = p_port
+            self.v_active_port = p_port
+
+        self.v_service = p_service.upper()
         if p_service is None or p_service == '':
-            self.v_service = 'XE'
+            self.v_active_service = 'XE'
         else:
-            self.v_service = p_service.upper()
+            self.v_active_service = p_service.upper()
 
         self.v_server = p_server
+        self.v_active_server = p_server
         self.v_user = p_user.upper()
+        self.v_active_user = p_user.upper()
+
+        #try to get info from connection string
+        if p_conn_string!='' and p_parse_conn_string:
+            try:
+                parsed = urlparse(p_conn_string)
+                if parsed.port!=None:
+                    self.v_active_port = str(parsed.port)
+                if parsed.hostname!=None:
+                    self.v_active_server = parsed.hostname
+                if parsed.username!=None:
+                    self.v_active_user = parsed.username
+                if parsed.query!=None:
+                    self.v_conn_string_query = parsed.query
+                parsed_database = parsed.path
+                if len(parsed_database)>1:
+                    self.v_active_service = parsed_database[1:]
+            except Exception as exc:
+                self.v_conn_string_error = 'Syntax error in the connection string.'
+                None
+
         if self.v_user.replace(' ', '') != self.v_user:
             self.v_schema = '"{0}"'.format(p_user)
         else:
             self.v_schema = self.v_user
-        self.v_connection = Spartacus.Database.Oracle(p_server, p_port, p_service, p_user, p_password)
+        self.v_connection = Spartacus.Database.Oracle(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_conn_string)
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -168,6 +194,9 @@ class Oracle:
 
     def TestConnection(self):
         v_return = ''
+        if self.v_conn_string and self.v_conn_string_error!='':
+            return self.v_conn_string_error
+
         try:
             self.v_connection.Open()
             self.v_connection.Close()

@@ -138,6 +138,7 @@ def save_config_user(request):
 
     json_object = json.loads(request.POST.get('data', None))
     p_font_size = json_object['p_font_size']
+    p_interface_font_size = json_object['p_interface_font_size']
     p_theme = json_object['p_theme']
     p_pwd = json_object['p_pwd']
     p_chat_enabled = json_object['p_chat_enabled']
@@ -146,6 +147,7 @@ def save_config_user(request):
 
     v_session.v_theme_id = p_theme
     v_session.v_editor_font_size = p_font_size
+    v_session.v_interface_font_size = p_interface_font_size
     v_session.v_enable_omnichat = p_chat_enabled
     v_session.v_csv_encoding = p_csv_encoding
     v_session.v_csv_delimiter = p_csv_delimiter
@@ -160,22 +162,24 @@ def save_config_user(request):
             update users
             set theme_id = {0},
             editor_font_size = '{1}',
-            password = '{2}',
-            chat_enabled = {3},
-            csv_encoding = '{4}',
-            csv_delimiter = '{5}'
-            where user_id = {6}
-        '''.format(p_theme,p_font_size,v_enc_pwd,p_chat_enabled,p_csv_encoding,p_csv_delimiter,v_session.v_user_id)
+            interface_font_size = '{2}',
+            password = '{3}',
+            chat_enabled = {4},
+            csv_encoding = '{5}',
+            csv_delimiter = '{6}'
+            where user_id = {7}
+        '''.format(p_theme,p_font_size,p_interface_font_size,v_enc_pwd,p_chat_enabled,p_csv_encoding,p_csv_delimiter,v_session.v_user_id)
     else:
         v_update_command = '''
             update users
             set theme_id = {0},
             editor_font_size = '{1}',
-            chat_enabled = {2},
-            csv_encoding = '{3}',
-            csv_delimiter = '{4}'
-            where user_id = {5}
-        '''.format(p_theme,p_font_size,p_chat_enabled,p_csv_encoding,p_csv_delimiter,v_session.v_user_id)
+            interface_font_size = '{2}',
+            chat_enabled = {3},
+            csv_encoding = '{4}',
+            csv_delimiter = '{5}'
+            where user_id = {6}
+        '''.format(p_theme,p_font_size,p_interface_font_size,p_chat_enabled,p_csv_encoding,p_csv_delimiter,v_session.v_user_id)
 
     try:
         v_session.v_omnidb_database.v_connection.Execute(v_update_command)
@@ -319,7 +323,7 @@ def get_database_list(request):
             'v_alias': v_database.v_alias,
             'v_conn_id': v_database.v_conn_id,
             'v_console_help': v_database.v_console_help,
-            'v_database': v_database.v_service
+            'v_database': v_database.v_active_service
         }
 
         v_databases.append(v_database_data)
@@ -331,7 +335,7 @@ def get_database_list(request):
         if not v_database_object['tunnel']['enabled']:
             v_details = v_database.PrintDatabaseDetails()
         else:
-            v_details = v_database_object['database'].v_server + ':' + v_database.v_port + ' <b>(' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port'] + ')</b>'
+            v_details = v_database.PrintDatabaseDetails() + ' <b>(' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port'] + ')</b>'
 
         v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
         v_index = v_index + 1
@@ -390,14 +394,16 @@ def change_active_database(request):
         v_database.v_db_type,
         v_database.v_connection.v_host,
         str(v_database.v_connection.v_port),
-        v_database.v_service,
-        v_database.v_user,
+        v_database.v_active_service,
+        v_database.v_active_user,
         v_database.v_connection.v_password,
         v_database.v_conn_id,
-        v_database.v_alias
+        v_database.v_alias,
+        p_conn_string = v_database.v_conn_string,
+        p_parse_conn_string = False
     )
 
-    v_database_new.v_service = v_data;
+    v_database_new.v_active_service = v_data;
     v_database_new.v_connection.v_service = v_data;
 
     v_session.v_tab_connections[v_tab_id] = v_database_new

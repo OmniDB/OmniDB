@@ -203,6 +203,44 @@ $(function () {
 
 });
 
+var csrftoken = getCookie('omnidb_csrftoken');
+
+function upload(p_file_selector) {
+
+var formData = new FormData();
+formData.append('file', p_file_selector.files[0]);
+p_file_selector.value = null;
+startLoading();
+$.ajax({
+    url: '/upload/',
+    type: 'POST',
+		beforeSend: function(xhr, settings) {
+			if(!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrftoken);
+			}
+		},
+    data: formData,
+    cache: false,
+    processData: false,
+    contentType: false,
+    success: function(data) {
+        if (!data.v_error) {
+          showAlert('Plugin successfully installed, please restart OmniDB.');
+          showPlugins();
+        }
+        else
+        {
+          showError(data.v_message);
+        }
+        endLoading();
+    },
+    error: function(msg) {
+			endLoading();
+		}
+});
+return false;
+}
+
 function activateHook(p_hook,p_function) {
   try {
     v_connTabControl.tag.hooks[p_hook].push(p_function);
@@ -244,6 +282,20 @@ function hidePlugins() {
   document.getElementById('div_plugins').classList.remove('isActive');
   v_connTabControl.tag.plugin_ht.destroy();
   v_connTabControl.tag.plugin_ht = null;
+}
+
+function deletePlugin(p_plugin_name,p_plugin_folder) {
+  showConfirm('Are you sure you want to delete the following plugin? You will have to restart OmniDB after this operation.',
+  function() {
+    execAjax('/delete_plugin/',
+  			JSON.stringify({'p_plugin_name': p_plugin_name, "p_plugin_folder": p_plugin_folder}),
+  			function(p_return) {
+          showAlert(p_return.v_data);
+          showPlugins();
+        },
+        null,
+        'box');
+  })
 }
 
 function showPlugins() {
@@ -301,12 +353,19 @@ function showPlugins() {
 				columnProperties.push(col);
 
         var col = new Object();
-				col.title =  'Enabled';
+				col.title =  'Status';
+        col.width = '50';
+        col.readOnly = true;
+				columnProperties.push(col);
+
+        var col = new Object();
+				col.title =  'Actions';
         col.width = '50';
         col.readOnly = true;
 				columnProperties.push(col);
 
 				var v_div_result = document.getElementById('plugin_grid');
+        v_connTabControl.tag.plugin_message_list = p_return.v_data.message;
 
 				if (v_div_result.innerHTML!='') {
 					v_connTabControl.tag.plugin_ht.destroy();
@@ -314,7 +373,7 @@ function showPlugins() {
 
 				v_connTabControl.tag.plugin_ht = new Handsontable(v_div_result,
 														{
-															data: p_return.v_data,
+															data: p_return.v_data.list,
 															columns : columnProperties,
 															colHeaders : true,
 															manualColumnResize: true,
@@ -334,6 +393,12 @@ function showPlugins() {
 				},
 				null,
 				'box');
+}
+
+function getPluginMessage() {
+  var v_row = v_connTabControl.tag.plugin_ht.getSelected()[0][0];
+  if (v_connTabControl.tag.plugin_message_list[v_row]!='')
+    showError(v_connTabControl.tag.plugin_message_list[v_row])
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -378,7 +443,7 @@ function createSQLTab({ p_name = '', p_template = '', p_show_tip = true }) {
 function createInnerTab({ p_name = '', p_image = '', p_select_function = null, p_before_close_function = null }) {
   v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-    '<img src="' + p_image + '"/><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
+    '<i class="' + p_image + ' icon-tab-title"></i><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
     false,
     null,
     null,
@@ -426,7 +491,7 @@ function getSelectedOuterTabTag() {
 function createOuterTab({ p_name = '', p_image = '', p_select_function = null, p_before_close_function = null }) {
   v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
   var v_tab = v_connTabControl.createTab(
-    '<img src="' + p_image + '"/><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
+    '<i class="' + p_image + ' icon-tab-title"></i><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
     false,
     null,
     null,

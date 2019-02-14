@@ -28,6 +28,7 @@ TEMP_DIR = os.path.join(BASE_DIR,'OmniDB_app','static','temp')
 
 PLUGINS_DIR = os.path.join(BASE_DIR,'OmniDB_app','plugins')
 PLUGINS_STATIC_DIR = os.path.join(BASE_DIR,'OmniDB_app','static','plugins')
+APP_DIR = os.path.join(BASE_DIR,'OmniDB_app')
 
 # OmniDB User Folder
 DESKTOP_MODE = custom_settings.DESKTOP_MODE

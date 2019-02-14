@@ -3,11 +3,11 @@ pkg install postgresql11-server-11.0_2 postgresql11-contrib-11.0 postgresql11-cl
 
 su postgres
 cd
-wget --no-check-certificate https://omnidb.org/dist/2.13.0/omnidb-plugin_2.13.0-freebsd-amd64.tar.gz
-tar -xzvf omnidb-plugin_2.13.0-freebsd-amd64.tar.gz
+wget --no-check-certificate https://omnidb.org/dist/2.14.0/omnidb-plugin_2.14.0-freebsd-amd64.tar.gz
+tar -xzvf omnidb-plugin_2.14.0-freebsd-amd64.tar.gz
 exit
 
-cp /var/db/postgres/omnidb-plugin_2.13.0-freebsd-amd64/omnidb_plugin_10.so /usr/local/lib/postgresql/omnidb_plugin.so
+cp /var/db/postgres/omnidb-plugin_2.14.0-freebsd-amd64/omnidb_plugin_10.so /usr/local/lib/postgresql/omnidb_plugin.so
 
 service zerotier onestart
 zerotier-cli join <network>
@@ -28,7 +28,7 @@ psql
   create user omnidb with password 'omnidb';
   create database omnidb_tests owner omnidb;
 
-cd ~/omnidb-plugin_2.13.0-freebsd-amd64
+cd ~/omnidb-plugin_2.14.0-freebsd-amd64
 psql -d omnidb_tests -f debugger_schema.sql
 psql -d omnidb_tests -f sample_functions.sql
 psql -d omnidb_tests -c 'grant all on schema omnidb to omnidb'

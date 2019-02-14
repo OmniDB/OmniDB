@@ -84,7 +84,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Tablespaces',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/manage-ag-tablespaces.html'
                     );
                 }
@@ -137,7 +137,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Roles',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/user-manag.html');
                 }
             }*/]
@@ -192,7 +192,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Basics',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/ddl-basics.html');
                 }
             }, {
@@ -202,7 +202,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Constraints',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/ddl-constraints.html');
                 }
             }, {
@@ -212,7 +212,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Modifying Tables',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/ddl-alter.html');
                 }
             }*/]
@@ -546,7 +546,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Indexes',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/indexes.html');
                 }
             }*/]
@@ -613,7 +613,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Sequences',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/sql-createsequence.html');
                 }
             }*/]
@@ -665,7 +665,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Views',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/sql-createview.html');
                 }
             }*/]
@@ -753,7 +753,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/trigger-definition.html');
                 }
             }]
@@ -786,7 +786,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/trigger-definition.html');
                 }
             }]
@@ -862,7 +862,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Partitions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/ddl-partitioning.html');
                 }
             }]
@@ -916,7 +916,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Functions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/sql-createfunction.html');
                 }
             }*/]
@@ -980,7 +980,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Functions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/sql-createfunction.html');
                 }
             }*/]
@@ -1043,7 +1043,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Trigger Functions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/plpgsql-trigger.html');
                 }
             }]
@@ -1108,7 +1108,7 @@ function getTreeOracle(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Materialized Views',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/sql-creatematerializedview.html'
                     );
                 }
@@ -1438,7 +1438,7 @@ function getTreeDetailsOracle(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: PostgreSQL',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/');
                 }
             });
@@ -1449,7 +1449,7 @@ function getTreeDetailsOracle(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Language',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/sql.html');
                 }
             });
@@ -1460,7 +1460,7 @@ function getTreeDetailsOracle(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Commands',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionOracle(node.tree.tag.version) +
                         '/static/sql-commands.html');
                 }
             });*/
@@ -3345,7 +3345,7 @@ function nodeOpenError(p_return, p_node) {
 
 }
 
-/*function getMajorVersion(p_version) {
+/*function getMajorVersionOracle(p_version) {
     var v_version = p_version.split(' (')[0]
     var tmp = v_version.replace('PostgreSQL ', '').replace('beta', '.').split(
         '.')

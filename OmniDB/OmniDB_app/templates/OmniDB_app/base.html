@@ -3,14 +3,14 @@
   <title>OmniDB</title>
   <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.13.0.1"            />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.14.0.4"            />
 
   <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/modern-style.css?v1.0.0.0"            />
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.13.0.1"/>
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.13.0.1"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.13.0.1"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/popper.css?v2.13.0.1"  />
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.14.0.4"/>
+	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.14.0.4"    />
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.14.0.4"    />
+  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/popper.css?v2.14.0.4"  />
 
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/bootstrap.css">
   <link rel="stylesheet" href="/static/OmniDB_app/css/explain/main.css">
@@ -24,7 +24,6 @@
 
 </head>
 <body>
-
 	<div class="header">
 		<div class="header_menu">
 			<img src="/static/OmniDB_app/images/omnidb.png" />
@@ -64,6 +63,8 @@
   <div id="div_plugins" class="isModal modal_background_dark">
 	        <div class ="plugin_box">
 	            <a class="modal-closer" onclick="hidePlugins()">x</a>
+              <label id="plugin_file_label" for='plugin_file_selector'>Select plugin package to be installed...</label>
+              <input type="file" id="plugin_file_selector" onchange="upload(this)">
 	            <div id="plugin_grid"></div>
 	</div>
   </div>
@@ -178,7 +179,21 @@
 
 	  					<div style="margin: 30px; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
 		                <div style="text-align: center;">
-		                <div style="margin-bottom: 10px;">Editor font size</div>
+		                <div style="margin-bottom: 10px;">Interface font size</div>
+		                <select id="sel_interface_font_size" style="width: 200px; margin-bottom: 20px;" onchange="changeInterfaceFontSize(this.value)">
+		                	<option value="10">10</option>
+		                	<option value="11">11</option>
+		                	<option value="12">12</option>
+		                	<option value="13">13</option>
+		                	<option value="14">14</option>
+		                	<option value="15">15</option>
+		                	<option value="16">16</option>
+		                	<option value="17">17</option>
+		                	<option value="18">18</option>
+                      <option value="19">19</option>
+                      <option value="20">20</option>
+		                </select>
+                    <div style="margin-bottom: 10px;">Editor font size</div>
 		                <select id="sel_editor_font_size" style="width: 200px; margin-bottom: 20px;" onchange="changeFontSize(this.value)">
 		                	<option value="10">10</option>
 		                	<option value="11">11</option>
@@ -577,30 +592,30 @@
 
 
   <div class="div_loading"><button id="bt_cancel_ajax" onclick="cancelAjax()">Cancel</button></div>
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.13.0.1"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.13.0.1"            ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.14.0.4"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.14.0.4"            ></script>
   <script type="text/javascript">
   startLoading()
   </script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.13.0.1"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.13.0.1"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.13.0.1"             ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.13.0.1"         ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/popper.min.js?v2.13.0.1"             ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/tooltip.min.js?v2.13.0.1"            ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.13.0.1"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.13.0.1"               ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.13.0.1"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.13.0.1"></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.13.0.1"         ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.13.0.1"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.13.0.1"    ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.14.0.4"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.14.0.4"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.14.0.4"             ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.14.0.4"         ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/popper.min.js?v2.14.0.4"             ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/tooltip.min.js?v2.14.0.4"            ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.14.0.4"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.14.0.4"               ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.14.0.4"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.14.0.4"></script>
+  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.14.0.4"         ></script>
+	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.14.0.4"      ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.14.0.4"    ></script>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.13.0.1"       ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.13.0.1"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.13.0.1"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.13.0.1"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.13.0.1"                  ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.14.0.4"       ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.14.0.4"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.14.0.4"          ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.14.0.4"              ></script>
+  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.14.0.4"                  ></script>
 
   <script type="text/javascript">
 
@@ -609,6 +624,7 @@
 	var	v_theme_type = '{{ session.v_theme_type }}';
 	var	v_theme_id = {{ session.v_theme_id }};
 	var v_editor_font_size = {{ session.v_editor_font_size }};
+  var v_interface_font_size = {{ session.v_interface_font_size }};
 	var v_user_id = {{ session.v_user_id }};
   var v_user_key = '{{ session.v_user_key }}';
   var v_user_name = '{{ session.v_user_name }}';

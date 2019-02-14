@@ -208,7 +208,7 @@ function tabDataMining(node) {
     v_optionsContainerDiv.style.padding = '10px';
     v_containerDiv.appendChild(v_optionsContainerDiv);
 
-    if (parseInt(getMajorVersion(node.tree.tag.version)) >= 10) {
+    if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
       var v_optionList = [{
               'text': 'Data',
               'value': 1
@@ -879,7 +879,7 @@ function getTreePostgresql(p_div) {
                         v_connTabControl.tag.createWebsiteTab(
                             'Documentation: Databases',
                             'https://www.postgresql.org/docs/' +
-                            getMajorVersion(node.tree.tag.version) +
+                            getMajorVersionPostgresql(node.tree.tag.version) +
                             '/static/managing-databases.html');
                     }
                 }
@@ -940,7 +940,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Tablespaces',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/manage-ag-tablespaces.html'
                     );
                 }
@@ -993,7 +993,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Roles',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/user-manag.html');
                 }
             }]
@@ -1041,7 +1041,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Extensions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/extend-extensions.html');
                 }
             }]
@@ -1091,7 +1091,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Schemas',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/ddl-schemas.html');
                 }
             }]
@@ -1174,7 +1174,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Basics',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/ddl-basics.html');
                 }
             }, {
@@ -1184,7 +1184,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Constraints',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/ddl-constraints.html');
                 }
             }, {
@@ -1194,7 +1194,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Modifying Tables',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/ddl-alter.html');
                 }
             }]
@@ -1586,7 +1586,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Indexes',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/indexes.html');
                 }
             }]
@@ -1733,7 +1733,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Rules',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/rules.html');
                 }
             }]
@@ -1798,7 +1798,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/trigger-definition.html');
                 }
             }]
@@ -1832,7 +1832,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/trigger-definition.html');
                 }
             }]
@@ -1913,7 +1913,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Partitioning',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/ddl-partitioning.html');
                 }
             }]
@@ -1969,7 +1969,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Partitioning',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/ddl-partitioning.html');
                 }
             }]
@@ -2024,7 +2024,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Functions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/sql-createfunction.html');
                 }
             }]
@@ -2103,7 +2103,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Procedures',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/sql-createprocedure.html');
                 }
             }]
@@ -2182,7 +2182,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Trigger Functions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/plpgsql-trigger.html');
                 }
             }]
@@ -2277,7 +2277,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Sequences',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/sql-createsequence.html');
                 }
             }]
@@ -2331,7 +2331,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Views',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/sql-createview.html');
                 }
             }]
@@ -2436,7 +2436,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Materialized Views',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/sql-creatematerializedview.html'
                     );
                 }
@@ -2566,7 +2566,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Physical Replication Slots',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/warm-standby.html#streaming-replication-slots'
                     );
                 }
@@ -2613,7 +2613,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Logical Replication Slots',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/logicaldecoding-explanation.html#logicaldecoding-replication-slots'
                     );
                 }
@@ -2658,7 +2658,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Publications',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/logical-replication-publication.html'
                     );
                 }
@@ -2744,7 +2744,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Subscriptions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/logical-replication-subscription.html'
                     );
                 }
@@ -2795,7 +2795,7 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Foreign Data Wrappers',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/postgres-fdw.html'
                     );
                 }
@@ -2955,7 +2955,7 @@ function getTreePostgresql(p_div) {
                         icon: 'fas cm-all fa-search',
                         action: function(node) {
                             TemplateSelectPostgresql(node.parent
-                              .parent.text, node.text);
+                              .parent.text, node.text, 'f');
                         }
                     }, {
                         text: 'Edit Data',
@@ -3114,6 +3114,114 @@ function getTreePostgresql(p_div) {
                             .text + '.' + node.parent.parent
                             .text).replace(/#column_name#/g,
                             node.text));
+                }
+            }]
+        },
+        'cm_types': {
+            elements: [{
+                text: 'Refresh',
+                icon: 'fas cm-all fa-sync-alt',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Type',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate('Create Type', node.tree
+                        .tag.create_type.replace(
+                            '#schema_name#', node.parent.text
+                        ));
+                }
+            }, {
+                text: 'Doc: Types',
+                icon: 'fas cm-all fa-globe-americas',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Types',
+                        'https://www.postgresql.org/docs/' +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
+                        '/static/sql-createtype.html');
+                }
+            }]
+        },
+        'cm_type': {
+            elements: [{
+                text: 'Alter Type',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate('Alter Type', node.tree.tag
+                        .alter_type.replace(
+                            '#type_name#', node.parent.parent
+                            .text + '.' + node.text));
+                }
+            }, {
+                text: 'Drop Type',
+                icon: 'fas cm-all fa-times',
+                action: function(node) {
+                    tabSQLTemplate('Drop Type', node.tree.tag
+                        .drop_type.replace(
+                            '#type_name#', node.parent.parent
+                            .text + '.' + node.text));
+                }
+            }]
+        },
+        'cm_domains': {
+            elements: [{
+                text: 'Refresh',
+                icon: 'fas cm-all fa-sync-alt',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Domain',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate('Create Domain', node.tree
+                        .tag.create_domain.replace(
+                            '#schema_name#', node.parent.text
+                        ));
+                }
+            }, {
+                text: 'Doc: Domains',
+                icon: 'fas cm-all fa-globe-americas',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Domains',
+                        'https://www.postgresql.org/docs/' +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
+                        '/static/sql-createdomain.html');
+                }
+            }]
+        },
+        'cm_domain': {
+            elements: [{
+                text: 'Alter Domain',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate('Alter Domain', node.tree.tag
+                        .alter_domain.replace(
+                            '#domain_name#', node.parent.parent
+                            .text + '.' + node.text));
+                }
+            }, {
+                text: 'Drop Domain',
+                icon: 'fas cm-all fa-times',
+                action: function(node) {
+                    tabSQLTemplate('Drop Domain', node.tree.tag
+                        .drop_domain.replace(
+                            '#domain_name#', node.parent.parent
+                            .text + '.' + node.text));
                 }
             }]
         },
@@ -3457,6 +3565,20 @@ function getPropertiesPostgresqlConfirm(node) {
             p_object: node.text,
             p_type: node.tag.type
         });
+    } else if (node.tag.type == 'type') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
+    } else if (node.tag.type == 'domain') {
+        getProperties('/get_properties_postgresql/', {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+        });
     } else {
         clearProperties();
     }
@@ -3562,6 +3684,10 @@ function refreshTreePostgresqlConfirm(node) {
         getForeignTablesPostgresql(node);
     } else if (node.tag.type == 'foreign_table') {
         getForeignColumnsPostgresql(node);
+    } else if (node.tag.type == 'type_list') {
+        getTypesPostgresql(node);
+    } else if (node.tag.type == 'domain_list') {
+        getDomainsPostgresql(node);
     }
     else {
       afterNodeOpenedCallbackPostgreSQL(node);
@@ -3649,7 +3775,7 @@ function getTreeDetailsPostgresql(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: PostgreSQL',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/');
                 }
             });
@@ -3660,7 +3786,7 @@ function getTreeDetailsPostgresql(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Language',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/sql.html');
                 }
             });
@@ -3671,7 +3797,7 @@ function getTreeDetailsPostgresql(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Commands',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
                         '/static/sql-commands.html');
                 }
             });
@@ -3783,7 +3909,13 @@ function getTreeDetailsPostgresql(node) {
                 drop_foreign_column: p_return.v_data.v_database_return.drop_foreign_column,
                 create_user_mapping: p_return.v_data.v_database_return.create_user_mapping,
                 alter_user_mapping: p_return.v_data.v_database_return.alter_user_mapping,
-                drop_user_mapping: p_return.v_data.v_database_return.drop_user_mapping
+                drop_user_mapping: p_return.v_data.v_database_return.drop_user_mapping,
+                create_type: p_return.v_data.v_database_return.create_type,
+                alter_type: p_return.v_data.v_database_return.alter_type,
+                drop_type: p_return.v_data.v_database_return.drop_type,
+                create_domain: p_return.v_data.v_database_return.create_domain,
+                alter_domain: p_return.v_data.v_database_return.alter_domain,
+                drop_domain: p_return.v_data.v_database_return.drop_domain
             }
 
             node.setText(p_return.v_data.v_database_return.version);
@@ -3809,7 +3941,7 @@ function getTreeDetailsPostgresql(node) {
                 }, 'cm_roles');
             node_roles.createChildNode('', true,
                 'node-spin', null, null);
-            if (parseFloat(getMajorVersion(node.tree.tag.version)) >= 9.4) {
+            if (parseFloat(getMajorVersionPostgresql(node.tree.tag.version)) >= 9.4) {
                 var node_replication = node.createChildNode(
                     'Replication Slots', false,
                     'fas node-all fa-sitemap node-repslot-list', {
@@ -3898,7 +4030,7 @@ function getDatabaseObjectsPostgresql(node) {
                 }, 'cm_fdws');
             node_fdws.createChildNode('', true,
                 'node-spin', null, null);
-            if (parseInt(getMajorVersion(node.tree.tag.version)) >= 10) {
+            if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
                 var node_replication = node.createChildNode(
                     'Logical Replication', false,
                     'fas node-all fa-sitemap node-logrep', {
@@ -4268,7 +4400,7 @@ function getSchemasPostgresql(node) {
                     'node-spin', null, null,
                     null, false);
 
-                if (parseFloat(getMajorVersion(node.tree.tag.version)) >=
+                if (parseFloat(getMajorVersionPostgresql(node.tree.tag.version)) >=
                     9.3) {
                     var node_views = v_node.createChildNode(
                         'Materialized Views', false,
@@ -4306,7 +4438,7 @@ function getSchemasPostgresql(node) {
                     'node-spin', null, null,
                     null, false);
 
-                if (parseInt(getMajorVersion(node.tree.tag.version)) >= 11) {
+                if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 11) {
                     var node_procedures = v_node.createChildNode('Procedures',
                         false, 'fas node-all fa-cog node-procedure-list', {
                             type: 'procedure_list',
@@ -4318,6 +4450,30 @@ function getSchemasPostgresql(node) {
                         'node-spin', null, null,
                         null, false);
                 }
+
+                var node_types = v_node.createChildNode('Types',
+                    false,
+                    'fas node-all fa-square node-type-list', {
+                        type: 'type_list',
+                        schema: p_return.v_data[i].v_name,
+                        num_types: 0,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_types', null, false);
+                node_types.createChildNode('', true,
+                    'node-spin', null, null,
+                    null, false);
+
+                var node_domains = v_node.createChildNode('Domains',
+                    false,
+                    'fas node-all fa-square node-domain-list', {
+                        type: 'domain_list',
+                        schema: p_return.v_data[i].v_name,
+                        num_domains: 0,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_domains', null, false);
+                node_domains.createChildNode('', true,
+                    'node-spin', null, null,
+                    null, false);
             }
 
             node.drawChildNodes();
@@ -4865,7 +5021,7 @@ function getColumnsPostgresql(node) {
                     'node-spin', null, null,
                     null, false);
 
-                if (parseInt(getMajorVersion(node.tree.tag.version)) >= 10) {
+                if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
                     v_node = node.createChildNode('Partitions', false,
                         'fas node-all fa-table node-partition', {
                             type: 'partition_list',
@@ -6877,6 +7033,100 @@ function getForeignColumnsPostgresql(node) {
 }
 
 /// <summary>
+/// Retrieving types.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getTypesPostgresql(node) {
+    node.removeChildNodes();
+    node.createChildNode('', false, 'node-spin', null,
+        null);
+
+    execAjax('/get_types_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_schema": node.parent.text
+        }),
+        function(p_return) {
+
+            node.setText('Types (' + p_return.v_data.length + ')');
+
+            node.tag.num_types = p_return.v_data.length;
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_type_name,
+                    false,
+                    'fas node-all fa-square node-type', {
+                        type: 'type',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_type', null, false);
+
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving domains.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getDomainsPostgresql(node) {
+    node.removeChildNodes();
+    node.createChildNode('', false, 'node-spin', null,
+        null);
+
+    execAjax('/get_domains_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_schema": node.parent.text
+        }),
+        function(p_return) {
+
+            node.setText('Domains (' + p_return.v_data.length + ')');
+
+            node.tag.num_domains = p_return.v_data.length;
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_domain_name,
+                    false,
+                    'fas node-all fa-square node-domain', {
+                        type: 'domain',
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                    }, 'cm_domain', null, false);
+
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
 /// Retrieving SELECT SQL template.
 /// </summary>
 function TemplateSelectPostgresql(p_schema, p_table, p_kind) {
@@ -7047,7 +7297,7 @@ function nodeOpenError(p_return, p_node) {
 
 }
 
-function getMajorVersion(p_version) {
+function getMajorVersionPostgresql(p_version) {
     var v_version = p_version.split(' (')[0]
     var tmp = v_version.replace('PostgreSQL ', '').replace('beta', '.')
                 .replace('rc', '.').split('.')

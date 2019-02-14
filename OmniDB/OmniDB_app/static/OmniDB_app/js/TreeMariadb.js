@@ -56,7 +56,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Databases',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/managing-databases.html');
                 }
             }*/]
@@ -134,7 +134,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Roles',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/user-manag.html');
                 }
             }*/]
@@ -189,7 +189,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Basics',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/ddl-basics.html');
                 }
             }, {
@@ -199,7 +199,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Table Constraints',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/ddl-constraints.html');
                 }
             }, {
@@ -209,7 +209,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Modifying Tables',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/ddl-alter.html');
                 }
             }*/]
@@ -544,7 +544,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Indexes',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/indexes.html');
                 }
             }*/]
@@ -569,6 +569,58 @@ function getTreeMariadb(p_div) {
                         .replace('#index_name#', node.parent.parent.parent.parent.text + '.' + node.text.replace(
                                 ' (Unique)', '').replace(
                                 ' (Non Unique)', '')));
+                }
+            }]
+        },
+        'cm_sequences': {
+            elements: [{
+                text: 'Refresh',
+                icon: 'fas cm-all fa-sync-alt',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreeOracle(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Sequence',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate('Create Sequence', node.tree
+                        .tag.create_sequence.replace(
+                            '#schema_name#', node.parent.text
+                        ));
+                }
+            }/*, {
+                text: 'Doc: Sequences',
+                icon: 'fas cm-all fa-globe-americas',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Sequences',
+                        'https://www.postgresql.org/docs/' +
+                        getMajorVersionMariadb(node.tree.tag.version) +
+                        '/static/sql-createsequence.html');
+                }
+            }*/]
+        },
+        'cm_sequence': {
+            elements: [{
+                text: 'Alter Sequence',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate('Alter Sequence', node.tree.tag
+                        .alter_sequence.replace(
+                            '#sequence_name#', node.parent.parent.text + '.' + node.text));
+                }
+            }, {
+                text: 'Drop Sequence',
+                icon: 'fas cm-all fa-times',
+                action: function(node) {
+                    tabSQLTemplate('Drop Sequence', node.tree.tag
+                        .drop_sequence.replace(
+                            '#sequence_name#', node.parent.parent.text + '.' + node.text));
                 }
             }]
         },
@@ -600,7 +652,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Views',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql-createview.html');
                 }
             }*/]
@@ -688,7 +740,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/trigger-definition.html');
                 }
             }]
@@ -721,7 +773,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Triggers',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/trigger-definition.html');
                 }
             }]
@@ -797,7 +849,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Partitions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/ddl-partitioning.html');
                 }
             }]
@@ -851,7 +903,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Functions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql-createfunction.html');
                 }
             }*/]
@@ -915,7 +967,7 @@ function getTreeMariadb(p_div) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: Functions',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql-createfunction.html');
                 }
             }*/]
@@ -1019,6 +1071,14 @@ function getPropertiesMariadb(node) {
             p_object: node.text,
             p_type: node.tag.type
           });
+      } else if (node.tag.type == 'sequence') {
+        getProperties('/get_properties_mariadb/',
+          {
+            p_schema: node.parent.parent.text,
+            p_table: null,
+            p_object: node.text,
+            p_type: node.tag.type
+          });
       } else if (node.tag.type == 'view') {
         getProperties('/get_properties_mariadb/',
           {
@@ -1092,6 +1152,8 @@ function refreshTreeMariadb(node) {
         getProceduresMariadb(node);
     } else if (node.tag.type == 'procedure') {
         getProcedureFieldsMariadb(node);
+    } else if (node.tag.type == 'sequence_list') {
+        getSequencesMariadb(node);
     } else if (node.tag.type == 'database_list') {
         getDatabasesMariadb(node);
     } else if (node.tag.type == 'database') {
@@ -1158,7 +1220,7 @@ function getTreeDetailsMariadb(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: PostgreSQL',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/');
                 }
             });
@@ -1169,7 +1231,7 @@ function getTreeDetailsMariadb(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Language',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql.html');
                 }
             });
@@ -1180,7 +1242,7 @@ function getTreeDetailsMariadb(node) {
                     v_connTabControl.tag.createWebsiteTab(
                         'Documentation: SQL Commands',
                         'https://www.postgresql.org/docs/' +
-                        getMajorVersion(node.tree.tag.version) +
+                        getMajorVersionMariadb(node.tree.tag.version) +
                         '/static/sql-commands.html');
                 }
             });*/
@@ -1207,6 +1269,9 @@ function getTreeDetailsMariadb(node) {
                 //    .create_triggerfunction,
                 //drop_triggerfunction: p_return.v_data.v_database_return
                 //    .drop_triggerfunction,
+                create_sequence: p_return.v_data.v_database_return.create_sequence,
+                alter_sequence: p_return.v_data.v_database_return.alter_sequence,
+                drop_sequence: p_return.v_data.v_database_return.drop_sequence,
                 create_view: p_return.v_data.v_database_return.create_view,
                 drop_view: p_return.v_data.v_database_return.drop_view,
                 create_table: p_return.v_data.v_database_return.create_table,
@@ -1316,6 +1381,18 @@ function getDatabaseObjectsMariadb(node) {
         }, 'cm_tables');
     node_tables.createChildNode('', true,
         'node-spin', null, null);
+
+    if (parseFloat(getMajorVersionMariadb(node.tree.tag.version)) >= 10.3) {
+        var node_sequences = node.createChildNode('Sequences',
+            false,
+            'fas node-all fa-sort-numeric-down node-sequence-list', {
+                type: 'sequence_list',
+                num_sequences: 0,
+                database: v_connTabControl.selectedTab.tag.selectedDatabase
+            }, 'cm_sequences');
+        node_sequences.createChildNode('', true,
+            'node-spin', null, null);
+    }
 
     var node_views = node.createChildNode('Views', false,
         'fas node-all fa-eye node-view-list', {
@@ -1495,6 +1572,51 @@ function getTablesMariadb(node) {
                         type: 'table_field',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, null,null,false);
+
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackMariaDB(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving sequences.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getSequencesMariadb(node) {
+    node.removeChildNodes();
+    node.createChildNode('', false, 'node-spin', null,
+        null);
+
+    execAjax('/get_sequences_mariadb/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_schema": null
+        }),
+        function(p_return) {
+
+            node.setText('Sequences (' + p_return.v_data.length + ')');
+
+            node.tag.num_tables = p_return.v_data.length;
+
+            if (node.childNodes.length > 0)
+                node.removeChildNodes();
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+
+                v_node = node.createChildNode(p_return.v_data[i].v_sequence_name,
+                    false,
+                    'fas node-all fa-sort-numeric-down node-sequence', {
+                        type: 'sequence'
+                    }, 'cm_sequence',null,false);
 
             }
 
@@ -2915,13 +3037,12 @@ function nodeOpenError(p_return, p_node) {
 
 }
 
-/*function getMajorVersion(p_version) {
-    var v_version = p_version.split(' (')[0]
-    var tmp = v_version.replace('PostgreSQL ', '').replace('beta', '.').split(
-        '.')
+function getMajorVersionMariadb(p_version) {
+    var v_version = p_version.split('-')[0]
+    var tmp = v_version.replace('MariaDB ', '').split('.')
     tmp.pop()
     return tmp.join('.')
-}*/
+}
 
 function mariadbTerminateBackendConfirm(p_pid) {
     execAjax('/kill_backend_mariadb/',

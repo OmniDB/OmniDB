@@ -30,6 +30,7 @@ from enum import Enum
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
+from urllib.parse import urlparse
 
 '''
 ------------------------------------------------------------------------
@@ -51,20 +52,48 @@ MySQL
 ------------------------------------------------------------------------
 '''
 class MySQL:
-    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias=''):
+    def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias='', p_conn_string='', p_parse_conn_string = False):
         self.v_alias = p_alias
         self.v_db_type = 'mysql'
+        self.v_conn_string = p_conn_string
+        self.v_conn_string_error = ''
         self.v_conn_id = p_conn_id
 
-        if p_port is None or p_port == '':
-            self.v_port = '3306'
-        else:
-            self.v_port = p_port
-        self.v_service = p_service
         self.v_server = p_server
+        self.v_active_server = p_server
         self.v_user = p_user
+        self.v_active_user = p_user
         self.v_schema = p_service
-        self.v_connection = Spartacus.Database.MySQL(p_server, p_port, p_service, p_user, p_password)
+        self.v_service = p_service
+        self.v_active_service = p_service
+
+        self.v_port = p_port
+        if p_port is None or p_port == '':
+            self.v_active_port = '3306'
+        else:
+            self.v_active_port = p_port
+
+        #try to get info from connection string
+        if p_conn_string!='' and p_parse_conn_string:
+            try:
+                parsed = urlparse(p_conn_string)
+                if parsed.port!=None:
+                    self.v_active_port = str(parsed.port)
+                if parsed.hostname!=None:
+                    self.v_active_server = parsed.hostname
+                if parsed.username!=None:
+                    self.v_active_user = parsed.username
+                if parsed.query!=None:
+                    self.v_conn_string_query = parsed.query
+                parsed_database = parsed.path
+                if len(parsed_database)>1:
+                    self.v_active_service = parsed_database[1:]
+            except Exception as exc:
+                self.v_conn_string_error = 'Syntax error in the connection string.'
+                None
+
+
+        self.v_connection = Spartacus.Database.MySQL(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_conn_string)
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -136,7 +165,7 @@ class MySQL:
     def GetUserSuper(self):
         try:
             v_super = self.v_connection.ExecuteScalar('''
-                select super_priv
+                select super_priv as "super_priv"
                 from mysql.user
                 where user = '{0}'
             '''.format(self.v_user))
@@ -148,10 +177,16 @@ class MySQL:
             return False
 
     def PrintDatabaseInfo(self):
-        return self.v_user + '@' + self.v_service
+        if self.v_conn_string=='':
+            return self.v_active_user + '@' + self.v_active_service
+        else:
+            return self.v_active_user + '@' + self.v_active_service
 
     def PrintDatabaseDetails(self):
-        return self.v_server + ':' + self.v_port
+        if self.v_conn_string=='':
+            return self.v_active_server + ':' + self.v_active_port
+        else:
+            return "<i title='{0}' class='fas fa-asterisk icon-conn-string'></i> ".format(self.v_conn_string) + self.v_active_server + ':' + self.v_active_port
 
     def HandleUpdateDeleteRules(self, p_update_rule, p_delete_rule):
         v_rules = ''
@@ -163,6 +198,9 @@ class MySQL:
 
     def TestConnection(self):
         v_return = ''
+        if self.v_conn_string and self.v_conn_string_error!='':
+            return self.v_conn_string_error
+
         try:
             self.v_connection.Open()
             self.v_connection.Close()
@@ -183,7 +221,7 @@ class MySQL:
 
     def QueryRoles(self):
         return self.v_connection.Query("""
-            select concat('''',user,'''','@','''',host,'''') as role_name
+            select concat('''',user,'''','@','''',host,'''') as "role_name"
             from mysql.user
             order by 1
         """, True)
@@ -199,8 +237,8 @@ class MySQL:
             else:
                 v_filter = "and table_schema = '{0}' ".format(self.v_schema)
         return self.v_connection.Query('''
-            select table_name,
-                   table_schema
+            select table_name as "table_name",
+                   table_schema as "table_schema"
             from information_schema.tables
             where table_type in ('BASE TABLE', 'SYSTEM VIEW')
             {0}
@@ -222,14 +260,14 @@ class MySQL:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         return self.v_connection.Query('''
-            select distinct c.table_name as table_name,
-                   c.column_name,
-                   c.data_type,
-                   c.is_nullable as nullable,
-                   c.character_maximum_length as data_length,
-                   c.numeric_precision as data_precision,
-                   c.numeric_scale as data_scale,
-                   c.ordinal_position
+            select distinct c.table_name as "table_name",
+                   c.column_name as "column_name",
+                   c.data_type as "data_type",
+                   c.is_nullable as "nullable",
+                   c.character_maximum_length as "data_length",
+                   c.numeric_precision as "data_precision",
+                   c.numeric_scale as "data_scale",
+                   c.ordinal_position as "ordinal_position"
             from information_schema.columns c,
                  information_schema.tables t
             where t.table_name = c.table_name
@@ -254,13 +292,13 @@ class MySQL:
             if p_table:
                 v_filter = "and i.table_name = '{0}' ".format(p_table)
         return self.v_connection.Query('''
-            select distinct i.constraint_name,
-                   i.table_name,
-                   k.referenced_table_name as r_table_name,
-                   k.table_schema,
-                   k.referenced_table_schema as r_table_schema,
-                   r.update_rule,
-                   r.delete_rule
+            select distinct i.constraint_name as "constraint_name",
+                   i.table_name as "table_name",
+                   k.referenced_table_name as "r_table_name",
+                   k.table_schema as "table_schema",
+                   k.referenced_table_schema as "r_table_schema",
+                   r.update_rule as "update_rule",
+                   r.delete_rule as "delete_rule"
             from information_schema.table_constraints i
             left join information_schema.key_column_usage k on i.constraint_name = k.constraint_name
             left join information_schema.referential_constraints r on i.constraint_name = r.constraint_name
@@ -286,16 +324,16 @@ class MySQL:
                 v_filter = "and i.table_name = '{0}' ".format(p_table)
         v_filter = v_filter + "and i.constraint_name = '{0}' ".format(p_fkey)
         return self.v_connection.Query('''
-            select distinct i.constraint_name,
-                   i.table_name,
-                   k.referenced_table_name as r_table_name,
-                   k.column_name,
-                   k.referenced_column_name as r_column_name,
-                   k.table_schema,
-                   k.referenced_table_schema as r_table_schema,
-                   r.update_rule,
-                   r.delete_rule,
-                   k.ordinal_position
+            select distinct i.constraint_name as "constraint_name",
+                   i.table_name as "table_name",
+                   k.referenced_table_name as "r_table_name",
+                   k.column_name as "column_name",
+                   k.referenced_column_name as "r_column_name",
+                   k.table_schema as "table_schema",
+                   k.referenced_table_schema as "r_table_schema",
+                   r.update_rule as "update_rule",
+                   r.delete_rule as "delete_rule",
+                   k.ordinal_position as "ordinal_position"
             from information_schema.table_constraints i
             left join information_schema.key_column_usage k on i.constraint_name = k.constraint_name
             left join information_schema.referential_constraints r on i.constraint_name = r.constraint_name
@@ -321,9 +359,9 @@ class MySQL:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         return self.v_connection.Query('''
-            select distinct concat('pk_', t.table_name) as constraint_name,
-                   t.table_name,
-                   t.table_schema
+            select distinct concat('pk_', t.table_name) as "constraint_name",
+                   t.table_name as "table_name",
+                   t.table_schema as "table_schema"
             from information_schema.table_constraints t
             where t.constraint_type = 'PRIMARY KEY'
             {0}
@@ -347,8 +385,8 @@ class MySQL:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         v_filter = "and concat('pk_', t.table_name) = '{0}' ".format(p_pkey)
         return self.v_connection.Query('''
-            select distinct k.column_name,
-                   k.ordinal_position
+            select distinct k.column_name as "column_name",
+                   k.ordinal_position as "ordinal_position"
             from information_schema.table_constraints t
             join information_schema.key_column_usage k
             using (constraint_name, table_schema, table_name)
@@ -372,9 +410,9 @@ class MySQL:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         return self.v_connection.Query('''
-            select distinct t.constraint_name,
-                   t.table_name,
-                   t.table_schema
+            select distinct t.constraint_name as "constraint_name",
+                   t.table_name as "table_name",
+                   t.table_schema as "table_schema"
             from information_schema.table_constraints t
             where t.constraint_type = 'UNIQUE'
             {0}
@@ -398,8 +436,8 @@ class MySQL:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         v_filter = "and t.constraint_name = '{0}' ".format(p_unique)
         return self.v_connection.Query('''
-            select distinct k.column_name,
-                   k.ordinal_position
+            select distinct k.column_name as "column_name",
+                   k.ordinal_position as "ordinal_position"
             from information_schema.table_constraints t
             join information_schema.key_column_usage k
             using (constraint_name, table_schema, table_name)
@@ -423,10 +461,10 @@ class MySQL:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         return self.v_connection.Query('''
-            select distinct t.table_schema as schema_name,
-                   t.table_name,
-                   (case when t.index_name = 'PRIMARY' then concat('pk_', t.table_name) else t.index_name end) as index_name,
-                   case when t.non_unique = 1 then 'Non Unique' else 'Unique' end as uniqueness
+            select distinct t.table_schema as "schema_name",
+                   t.table_name as "table_name",
+                   (case when t.index_name = 'PRIMARY' then concat('pk_', t.table_name) else t.index_name end) as "index_name",
+                   case when t.non_unique = 1 then 'Non Unique' else 'Unique' end as "uniqueness"
             from information_schema.statistics t
             where 1 = 1
             {0}
@@ -449,8 +487,8 @@ class MySQL:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         v_filter = "and (case when t.index_name = 'PRIMARY' then concat('pk_', t.table_name) else t.index_name end) = '{0}' ".format(p_index)
         return self.v_connection.Query('''
-            select distinct t.column_name,
-                   t.seq_in_index
+            select distinct t.column_name as "column_name",
+                   t.seq_in_index as "seq_in_index"
             from information_schema.statistics t
             where 1 = 1
             {0}
@@ -501,9 +539,9 @@ class MySQL:
             else:
                 v_filter = "and t.routine_schema = '{0}' ".format(self.v_schema)
         return self.v_connection.Query('''
-            select t.routine_schema as schema_name,
-                   t.routine_name as id,
-                   t.routine_name as name
+            select t.routine_schema as "schema_name",
+                   t.routine_name as "id",
+                   t.routine_name as "name"
             from information_schema.routines t
             where t.routine_type = 'FUNCTION'
             {0}
@@ -516,9 +554,9 @@ class MySQL:
         else:
             v_schema = self.v_schema
         return self.v_connection.Query('''
-            select 'O' as type,
-                   concat('returns ', t.data_type) as name,
-                   0 as seq
+            select 'O' as "type",
+                   concat('returns ', t.data_type) as "name",
+                   0 as "seq"
             from information_schema.routines t
             where t.routine_type = 'FUNCTION'
               and t.routine_schema = '{0}'
@@ -528,9 +566,9 @@ class MySQL:
                       when 'IN' then 'I'
                       when 'OUT' then 'O'
                       else 'R'
-                    end) as type,
-                   concat(t.parameter_name, ' ', t.data_type) as name,
-                   t.ordinal_position+1 as seq
+                    end) as "type",
+                   concat(t.parameter_name, ' ', t.data_type) as "name",
+                   t.ordinal_position+1 as "seq"
             from information_schema.parameters t
             where t.ordinal_position > 0
               and t.specific_schema = '{0}'
@@ -551,9 +589,9 @@ class MySQL:
             else:
                 v_filter = "and t.routine_schema = '{0}' ".format(self.v_schema)
         return self.v_connection.Query('''
-            select t.routine_schema as schema_name,
-                   t.routine_name as id,
-                   t.routine_name as name
+            select t.routine_schema as "schema_name",
+                   t.routine_name as "id",
+                   t.routine_name as "name"
             from information_schema.routines t
             where t.routine_type = 'PROCEDURE'
             {0}
@@ -570,9 +608,9 @@ class MySQL:
                       when 'IN' then 'I'
                       when 'OUT' then 'O'
                       else 'R'
-                    end) as type,
-                   concat(t.parameter_name, ' ', t.data_type) as name,
-                   t.ordinal_position+1 as seq
+                    end) as "type",
+                   concat(t.parameter_name, ' ', t.data_type) as "name",
+                   t.ordinal_position+1 as "seq"
             from information_schema.parameters t
             where t.specific_schema = '{0}'
               and t.specific_name = '{1}'
@@ -592,8 +630,8 @@ class MySQL:
             else:
                 v_filter = "and table_schema = '{0}' ".format(self.v_schema)
         return self.v_connection.Query('''
-            select table_name,
-                   table_schema
+            select table_name as "table_name",
+                   table_schema as "table_schema"
             from information_schema.views
             where 1=1
             {0}
@@ -615,14 +653,14 @@ class MySQL:
             if p_table:
                 v_filter = "and c.table_name = '{0}' ".format(p_table)
         return self.v_connection.Query('''
-            select distinct c.table_name as table_name,
-                   c.column_name,
-                   c.data_type,
-                   c.is_nullable as nullable,
-                   c.character_maximum_length as data_length,
-                   c.numeric_precision as data_precision,
-                   c.numeric_scale as data_scale,
-                   c.ordinal_position
+            select distinct c.table_name as "table_name",
+                   c.column_name as "column_name",
+                   c.data_type as "data_type",
+                   c.is_nullable as "nullable",
+                   c.character_maximum_length as "data_length",
+                   c.numeric_precision as "data_precision",
+                   c.numeric_scale as "data_scale",
+                   c.ordinal_position as "ordinal_position"
             from information_schema.columns c,
                  information_schema.tables t
             where t.table_name = c.table_name

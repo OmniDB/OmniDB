@@ -9,7 +9,6 @@
 	padding: 0px;
 	list-style-type: none;
 	font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;
-	font-size: 0;
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
 	background-color: rgb(74, 104, 150);
@@ -19,7 +18,6 @@
 
 .tabs li {
 	opacity: 0.5;
-	font-size: 11px;
 	display: inline-block;
 	background-color: #fcfdfd;
 	padding-top: 7px;

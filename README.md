@@ -1,32 +1,29 @@
-## Next Release: *2.14.0 - February 14, 2019*
+## Next Release: *2.15.0 - April 11, 2019*
 
-# OmniDB 2.13.0
+# OmniDB 2.14.0
 
-## Release Date: *December 20, 2018*
+## Release Date: *February 14, 2019*
 
 ## Release Notes
 
 - New features:
-  - Connection Groups: allow users to, for example, easily distinct Production and Test database servers
-  - User and connection management via omnidb-config CLI utility, which helps with automated deploying
+  - Connection via URI, allowing more connection parameters (for more details check https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING)
+  - Easy installation/removal of OmniDB plugins
+  - Plugin API: Monitoring Units can now be created as separate plugins
+  - Global user interface font size is now customizable
+  - (PostgreSQL) Support to user-defined types and domains
 - Improvements:
-  - Advanced Object Search now considers view and materialized view definition
-  - Show trigger function when expanding the trigger node in the tree view
-  - PostgreSQL: Improved \h command, which provides syntax help on SQL commands
-  - Linux: OmniDB systemd service now uses configuration file in /etc/omnidb.conf
-  - Converted all OmniDB users passwords into hashes in the OmniDB user database, improving security
-  - OmniDB upgrade procedure now takes a backup of the user database (file omnidb.db)
-  - Autocommit is now always enabled on Oracle/MySQL/MariaDB
-  - User won't need to execute query again after password expiration / re-validation
-  - OmniDB debugger plugin for PostgreSQL 11 for FreeBSD
+  - Monitoring Dashboard: Charts with many labels now are rendered with a vertical scroll bar
+  - Monitoring Dashboard: Non-append charts now keep original colors
+  - Included support to MariaDB 10.3
+  - Included support to MySQL 8.0
+  - Included support to Oracle 18c
+  - Included support to Postgres-XL 10
 - Bug fixes:
-  - Fixed: Click index with WHERE clause: "Can only transpose a table with a single row"
-  - Fixed: Export to XLSX/CSV does not consider all rows
-  - Fixed: Error closing error window
-  - Fixed: Monitoring Dashboard: Column widths are not adjusted when the monitoring tab doesn't have focus
-  - Fixed: User Mapping is not being shown in the tree if there are no options
-  - Fixed: Foreign Table DDL not being shown correctly if there are no options
-  - Fixed: DDL for functions and procedures do not show a necessary comma after function body
+  - Fixed error when clicking on a foreign table, then Data Actions, then Query Data
+  - Fixed error when changing connection: object of type 'NoneType' has no len()
+  - Fixed CentOS 7 package error: OmniDB server service file is missing
+  - Fixed error in EditData being shown if PK column name has quotes and table has at least 1 record
 
 
 # 1- Installation
@@ -35,6 +32,39 @@
 
 Just go to [omnidb.org](https://omnidb.org), download the appropriate file for your
 operating system and architecture and install it.
+
+You can also install from repositories (as root):
+
+### 1.1.1- Debian / Ubuntu repository
+
+```
+apt install apt-transport-https dirmngr
+echo "deb https://dl.bintray.com/wind39/omnidb-deb debian main" > /etc/apt/sources.list.d/omnidb.list
+apt-key adv --recv-keys 379CE192D401AB61
+apt update
+
+apt install omnidb-app        # for the app; or
+apt install omnidb-server     # for the server; or
+apt install omnidb-plugin     # for the plugin
+```
+
+### 1.1.2- CentOS 7 / Fedora repository
+
+```
+cat > /etc/yum.repos.d/omnidb.repo <<EOF
+[omnidb]
+name=omnidb
+baseurl=https://dl.bintray.com/wind39/omnidb-rpm
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1
+EOF
+
+yum install omnidb-app        # for the app; or
+yum install omnidb-server     # for the server; or
+yum install omnidb-plugin     # for the plugin
+```
+
 
 ## 1.2- From source
 

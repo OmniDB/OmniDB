@@ -8,8 +8,8 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-  config.vm.box = "bento/debian-8.10-i386"
-  config.vm.box_url = "https://app.vagrantup.com/bento/boxes/debian-8.10-i386 "
+  config.vm.box = "bento/debian-8.11-i386"
+  config.vm.box_url = "https://app.vagrantup.com/bento/boxes/debian-8.11-i386 "
   config.vm.host_name = "deployserver32"
   config.vm.provider :virtualbox do |vb|
     vb.name = "omnidb_debian_deployserver32"

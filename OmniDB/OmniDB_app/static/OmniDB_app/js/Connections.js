@@ -672,6 +672,7 @@ function showConnectionList() {
 							    return;
 
 							$.each(changes, function (index, element) {
+								console.log(element)
 							    var change = element;
 							    var rowIndex = change[0];
 									var rowIndex = v_connections_data.v_conn_ids.getConnIndexById(v_connections_data.ht.getCellMeta(rowIndex, 0).v_conn_id);
@@ -679,7 +680,10 @@ function showConnectionList() {
 							    var oldValue = change[2];
 							    var newValue = change[3];
 
-							    if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2 && columnIndex!=0) {
+									if (columnIndex==1 && newValue=='') {
+										v_connections_data.ht.setDataAtCell(rowIndex,columnIndex,oldValue);
+									}
+							    else if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2 && columnIndex!=0) {
 
 											if (v_connections_data.v_conn_ids[rowIndex].mode!=-1)
 												v_connections_data.v_conn_ids[rowIndex].mode = 1;

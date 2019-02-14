@@ -672,7 +672,6 @@ function showConnectionList() {
 							    return;
 
 							$.each(changes, function (index, element) {
-								console.log(element)
 							    var change = element;
 							    var rowIndex = change[0];
 									var rowIndex = v_connections_data.v_conn_ids.getConnIndexById(v_connections_data.ht.getCellMeta(rowIndex, 0).v_conn_id);

@@ -1,0 +1,19 @@
+$blue:      #4a6896;
+$darkblue:  #344E75;
+$red:       #ff4d4d;
+
+$theme_colors: ();
+
+$primary: $blue;
+$secondary: $darkblue;
+
+$th_warning: $red;
+
+$theme_colors: map-merge(
+  (
+  'primary':    $primary,
+  'secondary':  $secondary,
+  'th_warning': $th_warning
+  ),
+  $theme_colors
+);

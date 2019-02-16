@@ -1,0 +1,20 @@
+@include keyframes(growIn) {
+  from { transform: scale(0) }
+  to { transform: scale(1) }
+}
+@include keyframes(fadeIn){
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@include keyframes(slideInFromRight) {
+    from  { transform: translateX(100%); }
+    to    { transform: translateX(0); }
+}
+@include keyframes(flipInVertical) {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@include keyframes(flipInHorizontal) {
+  from { transform: scaleY(1); }
+  to { transform: scaleX(1); }
+}

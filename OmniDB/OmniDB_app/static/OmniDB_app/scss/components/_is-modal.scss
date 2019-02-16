@@ -1,0 +1,9 @@
+/* MODAL State controls */
+.isModal {
+  display: none;
+
+  &.isActive {
+    display: block;
+  }
+
+}

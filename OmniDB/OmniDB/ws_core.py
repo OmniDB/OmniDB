@@ -1326,9 +1326,9 @@ def thread_save_edit_data(self,args,ws_object):
                             break
 
                     if v_pk_info[v_pk_index]['v_class'] == 'numeric':
-                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', v_pk['v_column'] + ' = ' + str(v_pk['v_value']))
+                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', str(v_pk['v_column'])) + ' = ' + v_pk_info[v_pk_index]['v_compareformat'].replace('#', str(v_pk['v_value']))
                     else:
-                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', v_pk['v_column'] + " = '" + str(v_pk['v_value']) + "'")
+                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', str(v_pk['v_column'])) + ' = ' + v_pk_info[v_pk_index]['v_compareformat'].replace('#', "'" + str(v_pk['v_value']) + "'")
 
                 v_row_info_return = {}
                 v_row_info_return['mode'] = -1

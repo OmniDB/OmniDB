@@ -480,6 +480,8 @@ def start_wsserver():
 
         if settings.IS_SSL:
             ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_ctx.options |= ssl.OP_NO_TLSv1
+            ssl_ctx.options |= ssl.OP_NO_TLSv1_1
             ssl_ctx.load_cert_chain(settings.SSL_CERTIFICATE,
                                    settings.SSL_KEY)
             server = tornado.httpserver.HTTPServer(application, ssl_options=ssl_ctx)

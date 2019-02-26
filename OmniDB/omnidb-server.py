@@ -256,9 +256,16 @@ class DjangoApplication(object):
             }
 
             if parameters['is_ssl']:
+                import ssl
+                ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+                ssl_ctx.options |= ssl.OP_NO_TLSv1
+                ssl_ctx.options |= ssl.OP_NO_TLSv1_1
+                ssl_ctx.load_cert_chain(parameters['ssl_certificate_file'],
+                                       parameters['ssl_key_file'])
                 v_cherrypy_config['server.ssl_module'] = 'builtin'
                 v_cherrypy_config['server.ssl_certificate'] = parameters['ssl_certificate_file']
                 v_cherrypy_config['server.ssl_private_key'] = parameters['ssl_key_file']
+                v_cherrypy_config['server.ssl_context'] = ssl_ctx
 
             cherrypy.config.update(v_cherrypy_config)
 

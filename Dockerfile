@@ -1,17 +1,27 @@
 FROM debian:stable-slim
 
-RUN  apt-get update \
-  && apt-get install -y wget \
+ENV OMNIDB_VERSION=2.14.0
+ENV SERVICE_USER=omnidb
+
+WORKDIR /${SERVICE_USER}
+
+RUN  adduser --system --home /${SERVICE_USER} --no-create-home ${SERVICE_USER} \
+  && mkdir -p /${SERVICE_USER} \
+  && chown -R ${SERVICE_USER}.root /${SERVICE_USER} \
+  && apt-get update \
+  && apt-get -y upgrade \
+  && apt-get install -y wget dumb-init \
+  && if [ ! -e '/bin/systemctl' ]; then ln -s /bin/echo /bin/systemctl; fi \
   && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir /app
-WORKDIR /app
+RUN wget -q https://omnidb.org/dist/${OMNIDB_VERSION}/omnidb-server_${OMNIDB_VERSION}-debian-amd64.deb \
+  && dpkg -i omnidb-server_${OMNIDB_VERSION}-debian-amd64.deb \
+  && rm -rf omnidb-server_${OMNIDB_VERSION}-debian-amd64.deb
 
-RUN wget -q https://omnidb.org/dist/2.14.0/omnidb-server_2.14.0-debian-amd64.deb \
- && dpkg -i /app/omnidb-server_2.14.0-debian-amd64.deb \
- && rm -rf omnidb-server_2.14.0-debian-amd64.deb
-
+USER ${SERVICE_USER}
+  
 EXPOSE 8000
 EXPOSE 25482
 
-CMD ["omnidb-server"]
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD ["omnidb-server", "-H", "0.0.0.0"]

@@ -8,6 +8,7 @@ WORKDIR /${SERVICE_USER}
 RUN  adduser --system --home /${SERVICE_USER} --no-create-home ${SERVICE_USER} \
   && mkdir -p /${SERVICE_USER} \
   && chown -R ${SERVICE_USER}.root /${SERVICE_USER} \
+  && chmod -R g+w /${SERVICE_USER} \
   && apt-get update \
   && apt-get -y upgrade \
   && apt-get install -y wget dumb-init \

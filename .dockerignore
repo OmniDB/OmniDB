@@ -1,0 +1,11 @@
+.git
+.gitignore
+Vagrantfile
+
+*.txt
+*.xlsx
+
+OmniDB
+omnidb_app
+omnidb_plugin
+

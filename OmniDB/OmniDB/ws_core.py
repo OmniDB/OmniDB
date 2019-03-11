@@ -480,6 +480,8 @@ def start_wsserver():
 
         if settings.IS_SSL:
             ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_ctx.options |= ssl.OP_NO_TLSv1
+            ssl_ctx.options |= ssl.OP_NO_TLSv1_1
             ssl_ctx.load_cert_chain(settings.SSL_CERTIFICATE,
                                    settings.SSL_KEY)
             server = tornado.httpserver.HTTPServer(application, ssl_options=ssl_ctx)
@@ -1326,9 +1328,9 @@ def thread_save_edit_data(self,args,ws_object):
                             break
 
                     if v_pk_info[v_pk_index]['v_class'] == 'numeric':
-                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', v_pk['v_column'] + ' = ' + str(v_pk['v_value']))
+                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', str(v_pk['v_column'])) + ' = ' + v_pk_info[v_pk_index]['v_compareformat'].replace('#', str(v_pk['v_value']))
                     else:
-                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', v_pk['v_column'] + " = '" + str(v_pk['v_value']) + "'")
+                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', str(v_pk['v_column'])) + ' = ' + v_pk_info[v_pk_index]['v_compareformat'].replace('#', "'" + str(v_pk['v_value']) + "'")
 
                 v_row_info_return = {}
                 v_row_info_return['mode'] = -1

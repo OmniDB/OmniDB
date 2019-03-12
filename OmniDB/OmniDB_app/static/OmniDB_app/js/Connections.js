@@ -535,10 +535,22 @@ function showConnectionList() {
 
 				var col = new Object();
 				col.title =  'Group';
-				col.type = "checkbox",
-				col.checkedTemplate = true,
-        col.uncheckedTemplate = false
-				col.width = '60'
+				col.type = "checkbox";
+				col.checkedTemplate = true;
+        		col.uncheckedTemplate = false;
+				col.width = '60';
+				/*TODO: Update Handsontable in order to use the feature below.
+				col.compareFunctionFactory = function(sortOrder, columnMeta) {
+					console.log('hehe');
+					console.log(sortOrder, columnMeta);
+
+					return function comparator(value, nextValue) {
+						console.log(value, nextValue);
+						//TODO: implement function to do desired sort in such field
+						return -1;// Some value comparisons which will return -1, 0 or 1...
+					};
+				};
+				*/
 				ConnColumnProperties.push(col);
 
 				var col = new Object();

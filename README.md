@@ -13,6 +13,9 @@
   - Fixed error on EditData when primary key was of type date or timestamp
   - Fixed display and handling of array types
   - Fixed handling of BC and infinity dates
+- Changes in deployment
+  - Dropped support for 32 bits builds
+  - Linux deployment migrated to Docker
 
 
 # 1- Installation

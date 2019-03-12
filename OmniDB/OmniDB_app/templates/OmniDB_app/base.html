@@ -60,20 +60,23 @@
   {% block content %}
   {% endblock %}
 
-  <div id="div_plugins" class="isModal modal_background_dark">
-	        <div class ="plugin_box">
-	            <a class="modal-closer" onclick="hidePlugins()">x</a>
-              <label id="plugin_file_label" for='plugin_file_selector'>Select plugin package to be installed...</label>
-              <input type="file" id="plugin_file_selector" onchange="upload(this)">
-	            <div id="plugin_grid"></div>
-	</div>
+  <div id="div_plugins" class="isModal">
+    <div class="modal_background_dark">
+      <div class ="plugin_box animated animated-slideInFromRight">
+        <a class="modal-closer" onclick="hidePlugins()">x</a>
+        <label id="plugin_file_label" for='plugin_file_selector'>Select plugin package to be installed...</label>
+        <input type="file" id="plugin_file_selector" onchange="upload(this)">
+        <div id="plugin_grid"></div>
+      </div>
+   </div>
   </div>
 
-	<div id="div_config_user" class="isModal modal_background_dark">
-	        <div class ="config_box">
+	<div id="div_config_user" class="isModal">
+    <div class="modal_background_dark">
+	        <div class ="config_box animated animated-slideInFromRight">
 	            <a class="modal-closer" onclick="hideConfigUser()">x</a>
 
-	            <div id="config_tabs" style='margin-top: 10px; margin-left: 10px; margin-right: 10px; margin-bottom: 10px;'>
+	            <div id="config_tabs">
 	                <ul>
                   <li id="config_tabs_tab1">Shortcuts</li>
 	                <li id="config_tabs_tab2">User Options</li>
@@ -387,11 +390,12 @@
 	  				</div>
 				</div>
 	    </div>
+    </div>
 	</div>
 
     <div id="div_about" class="isModal">
         <div class="modal_background_dark">
-            <div class ="white_box" style="width: 40%; left: 30%; top: 30%;">
+            <div class ="white_box animated animated-slideInFromRight">
                 <a class="modal-closer" onclick="hideAbout()">x</a>
                 <div style="width: 100%; text-align: center;">
                 	<div style="margin: 20px;"><h1>{{ omnidb_version }}</h1></div>
@@ -417,7 +421,7 @@
 
     <div id="div_users" class="isModal">
         <div class="modal_background_dark">
-            <div class ="users_box">
+            <div class ="users_box animated animated-slideInFromRight">
               <a class="modal-closer" onclick="hideUsers()">x</a>
               <div style='margin-left:10px; margin-top: 10px; display:inline-block;'>
             		<button onclick="newUser()">New User</button>
@@ -434,11 +438,11 @@
 
     <div id="div_edit_content" class="isModal">
         <div class="modal_background_dark">
-            <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
+            <div class ="white_box animated animated-slideInFromRight">
                 <a class="modal-closer" onclick="hideEditContent()">x</a>
 
                 <div style="height: 90%; padding: 30px;">
-                  <div id="txt_edit_content" style="width: 100%; height: 100%; font-size: 12px; border: 1px solid rgb(195, 195, 195);">
+                  <div id="txt_edit_content">
                   </div>
                 </div>
 
@@ -447,30 +451,30 @@
     </div>
 
   <div id="div_error" class="isModal">
-      <div class="modal_background_dark" style="z-index: 100001">
-          <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%; z-index: 2000;">
+      <div class="modal_background_dark">
+          <div class ="white_box animated animated-slideInFromRight">
               <a class="modal-closer" onclick="hideError()">x</a>
-              <div id="div_error_msg" class="error_text" style="height:100%; width:100%; margin-top:20px; text-align: center;"></div>
+              <div id="div_error_msg" class="error_text"></div>
           </div>
       </div>
   </div>
 
   <div id="div_alert" class="isModal">
       <div class="modal_background_dark">
-          <div class ="white_box" style="width: 40%; left: 30%; top: 50%;  transform: translate(0px, -50%); -webkit-transform: translate(0px, -50%);">
-              <div id="div_alert_content" style="height:100%; width:100%;"></div>
+          <div class ="white_box animated animated-slideInFromRight">
+              <div id="div_alert_content"></div>
           </div>
       </div>
   </div>
 
   <div id="div_password_prompt" class="isModal">
       <div class="modal_background_dark">
-          <div class ="white_box" style="width: 50%; left: 25%; top: 20%; z-index: 2000; text-align: center;">
+          <div class ="white_box animated animated-slideInFromRight">
               <a id="bt2_password_prompt_cancel" class="modal-closer">x</a>
               <i class="fas fa-key icon-key-large"></i>
-              <div id="div_password_prompt_msg" class="error_text" style="margin:20px 0px 20px 0px; padding: 0px 20px 0px 20px; max-height: 50px; overflow-y: auto;"></div>
+              <div id="div_password_prompt_msg" class="error_text"></div>
               <div>
-                <input id="txt_password_prompt" type="password" placeholder="Password" style="margin-bottom:20px; text-align: center;"/>
+                <input id="txt_password_prompt" type="password" placeholder="Password"/>
               </div>
               <div style="margin-bottom: 20px;">
                 <button id="bt_password_prompt_ok">Ok</button>

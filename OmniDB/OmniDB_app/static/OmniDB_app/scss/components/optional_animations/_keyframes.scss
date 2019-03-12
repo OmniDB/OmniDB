@@ -1,3 +1,7 @@
+@include keyframes(show){
+  from { display: none; }
+  to { display: block; }
+}
 @include keyframes(growIn) {
   from { transform: scale(0) }
   to { transform: scale(1) }

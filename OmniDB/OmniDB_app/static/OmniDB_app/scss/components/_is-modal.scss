@@ -7,3 +7,127 @@
   }
 
 }
+
+
+//Modals specifics by ID
+//--Base
+#div_config_user {
+
+  #config_tabs {
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+
+}
+
+#div_about {
+
+  .white_box {
+    width: 40%;
+    left: 30%;
+    top: 30%;
+  }
+
+}
+
+#div_edit_content {
+
+  .white_box {
+    width: 90%;
+    height: 90%;
+    left: 5%;
+    top: 5%;
+
+    #txt_edit_content {
+      width: 100%;
+      height: 100%;
+      font-size: 12px;
+      border: 1px solid rgb(195, 195, 195);
+    }
+
+  }
+
+}
+
+#div_alert {
+
+  .white_box {
+    width: 40%;
+    top: 50%;
+    left: 30%;
+    transform: translate(0px, -50%);
+    -webkit-transform: translate(0px, -50%);
+
+    #div_alert_content {
+      width:100%;
+      height:100%;
+    }
+
+    .div_alert_buttons button {
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+    }
+
+  }
+
+}
+
+#div_error {
+
+  .modal_background_dark {
+    z-index: 100001;
+  }
+
+  .white_box {
+    width: 90%;
+    height: 90%;
+    left: 5%;
+    top: 5%;
+    z-index: 2000;
+
+    #div_error_msg {
+      width:100%;
+      height:100%;
+      margin-top:20px;
+      text-align: center;
+    }
+
+  }
+
+}
+
+#div_password_prompt {
+
+  .white_box {
+    width: 50%;
+    left: 25%;
+    top: 20%;
+    text-align: center;
+    z-index: 2000;
+
+    #div_password_prompt_msg {
+      margin:20px 0px 20px 0px;
+      padding: 0px 20px 0px 20px;
+      max-height: 50px;
+      overflow-y: auto;
+    }
+
+    #txt_password_prompt {
+      margin-bottom:20px;
+      text-align: center;
+    }
+
+  }
+
+}
+
+//--Workspace
+#connection_list_div_grid {
+  position: relative;
+  width: 100%;
+  height: 450px;
+  overflow: auto;
+  margin-top: 5px;
+}

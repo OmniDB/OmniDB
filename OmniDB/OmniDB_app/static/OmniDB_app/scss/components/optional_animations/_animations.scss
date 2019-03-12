@@ -1,0 +1,52 @@
+.animated {
+  &.animated-slideInFromRight {
+    transform: translateX(100%);
+
+    @include animation-name(slideInFromRight);
+    @include animation-duration(0.35s);
+    @include animation-fill-mode(forwards);
+    @include animation-iteration-count(1);
+  }
+}
+
+//Modal animation delay controller
+.isModal {
+
+  .modal_background_dark {
+    opacity: 0;
+  }
+
+  &#div_alert {
+    .white_box {
+      transform: translateX(100%);
+    }
+  }
+
+  &.isActive {
+
+    .modal_background_dark {
+      @include animation-name(fadeIn);
+      @include animation-duration($base_animation_timing);
+      @include animation-fill-mode(forwards);
+      @include animation-iteration-count(1);
+      @include animation-delay($base_animation_delays);
+    }
+
+    .animated {
+      @include animation-delay($base_animation_delays*1.33);
+    }
+
+  }
+
+}
+
+//Loading animations
+.div_loading,
+.div_loading_local {
+  opacity: 0;
+
+  @include animation-name(fadeIn);
+  @include animation-duration($base_animation_timing);
+  @include animation-fill-mode(forwards);
+  @include animation-iteration-count(1);
+}

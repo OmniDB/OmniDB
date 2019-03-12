@@ -1,8 +1,0 @@
-.animated {
-  &.animated-slideInFromRight {
-    @include animation-name(slideInFromRight);
-    @include animation-duration(0.35s);
-    @include animation-fill-mode(forward);
-    @include animation-iteration-count(1);
-  }
-}

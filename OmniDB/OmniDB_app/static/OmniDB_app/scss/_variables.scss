@@ -17,3 +17,6 @@ $theme_colors: map-merge(
   ),
   $theme_colors
 );
+
+$base_animation_timing:   0.35s;
+$base_animation_delays:   $base_animation_timing*1.33;

@@ -22,9 +22,12 @@ You should have received a copy of the GNU General Public License along with Omn
 
 
 //--Components
-@import 'components/animations';
 @import 'components/is-modal';
-@import 'components/keyframes';
+@import 'components/loading';
+
+//-- Optional Animations
+@import 'components/optional_animations/animations';
+@import 'components/optional_animations/keyframes';
 
 html {
     overflow-y: hidden;
@@ -257,41 +260,6 @@ textarea {
     font-size: 40px;
     text-shadow: 1px 1px #000000;
     text-align: center;
-}
-
-body.loading .div_loading {
-    display: flex;
-}
-
-.div_loading {
-  display: none;
-  position: absolute;
-  z-index: 100005;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background: rgba(252, 253, 253, 0.6) url(../images/omnidb_loading.svg) 50% 50% no-repeat;
-
-  align-items: center;
-  justify-content: center;
-
-  button {
-    margin-top: 100px;
-    display: none;
-  }
-
-}
-
-.div_loading_local {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  z-index: 1000;
-  background: rgba(252, 253, 253, 0.6) url(../images/omnidb_loading.svg) 50% 50% no-repeat;
 }
 
 .white_box {
@@ -989,14 +957,6 @@ iframe {
   position: relative;
   width: 600px;
   height: 350px;
-  overflow: auto;
-  margin-top: 5px;
-}
-
-#connection_list_div_grid {
-  position: relative;
-  width: 100%;
-  height: 450px;
   overflow: auto;
   margin-top: 5px;
 }

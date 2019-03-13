@@ -1,6 +1,8 @@
+$gray-400:  #d5d5d5;
 $blue:      #4a6896;
 $darkblue:  #344E75;
 $red:       #ff4d4d;
+$white:     #FFFFFF;
 
 $theme_colors: ();
 
@@ -20,3 +22,7 @@ $theme_colors: map-merge(
 
 $base_animation_timing:   0.35s;
 $base_animation_delays:   $base_animation_timing*1.33;
+
+$border-radius:   2px;
+
+$padding-sm:    6px;

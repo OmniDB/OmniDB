@@ -22,6 +22,7 @@ You should have received a copy of the GNU General Public License along with Omn
 
 
 //--Components
+@import 'components/input';
 @import 'components/is-modal';
 @import 'components/loading';
 
@@ -65,10 +66,10 @@ body {
   text-align: center;
 
   input {
-  	border-radius: 2px;
+    //border-radius: 2px;
       border: 0px;
       padding: 8px;
-      background-color: white;
+      //background-color: white;
       margin: 10px;
       font-size: 12px;
   }
@@ -76,13 +77,6 @@ body {
   img {
       margin: 10px;
   }
-}
-
-input {
-	border-radius: 2px;
-    border: solid #d5d5d5 1px;
-    padding: 6px;
-    background-color: white;
 }
 
 

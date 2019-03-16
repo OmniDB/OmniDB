@@ -1,0 +1,17 @@
+$div_colors: ();
+$div_colors: map-merge(
+  (
+    'col_blue':   $skyblue,
+    'green':      $greenyellow,
+    'col_green':  $greenyellow,
+    'red':        $lightsalmon,
+    'col_red':    $lightsalmon
+  ),
+  $div_colors
+);
+
+@each $color, $value in $div_colors {
+  .div_#{$color} {
+    @include div-colors($value);
+  }
+}

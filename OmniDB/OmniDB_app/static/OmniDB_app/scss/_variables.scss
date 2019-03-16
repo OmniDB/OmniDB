@@ -1,20 +1,68 @@
-$gray-400:  #d5d5d5;
-$blue:      #4a6896;
-$darkblue:  #344E75;
-$red:       #ff4d4d;
-$white:     #FFFFFF;
+$colors: ();
+
+$gray-90:     #f7f7f7;
+$gray-100:    #fcfcfc;
+$gray-200:    #eeeeee;
+$gray-210:    #e0e0e0;
+$gray-300:    #b2b2b2;
+$gray-400:    #d5d5d5;
+
+$skyblue:     #87ceeb;
+$blue:        #4a6896;
+$darkblue:    #344E75;
+$greenyellow: #adff2f;
+$lightsalmon: #ffa07a;
+
+$light-red-100:   #ff9a9a;
+$light-red-200:   #ff4040;
+$light-red-300:   #ff6767;
+$light-red-310:   #ff6262;
+$light-red-400:   #ff0d0d;
+$lightred:    #ef4646;
+$red:         #ff4d4d;
+
+$white:       #FFFFFF;
+
+$colors: map-merge(
+  (
+    'gray-90':      $gray-90,
+    'gray-100':     $gray-100,
+    'gray-200':     $gray-200,
+    'gray-300':     $gray-300,
+    'gray-400':     $gray-400,
+    'skyblue':      $skyblue,
+    'blue':         $blue,
+    'darkblue':     $darkblue,
+    'greenyellow':  $greenyellow,
+    'lightsalmon':  $lightsalmon,
+    'light-red-100':  $light-red-100,
+    'light-red-200':  $light-red-200,
+    'light-red-300':  $light-red-300,
+    'light-red-310':  $light-red-310,
+    'light-red-400':  $light-red-400,
+    'lightred':     $lightred,
+    'red':          $red,
+    'white':        $white
+  ),
+  $colors
+);
+
+
 
 $theme_colors: ();
 
 $primary: $blue;
 $secondary: $darkblue;
 
+$th_error:   $lightred;
 $th_warning: $red;
+
 
 $theme_colors: map-merge(
   (
   'primary':    $primary,
   'secondary':  $secondary,
+  'th_error':   $th_error,
   'th_warning': $th_warning
   ),
   $theme_colors

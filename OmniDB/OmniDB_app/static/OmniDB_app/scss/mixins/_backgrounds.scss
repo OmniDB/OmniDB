@@ -1,0 +1,11 @@
+@mixin linearGradient($start_direction, $start_color, $end_direction, $end_color){
+    background: $start_color; /* Old browsers */
+    background-color: $start_color;
+    background-image: -moz-linear-gradient($start_direction,  $start_color 0%, $end_color 100%); /* FF3.6+ */
+    background-image: -webkit-gradient(linear, left $start_direction, left $end_direction, color-stop(0%,$start_color), color-stop(100%,$end_color)); /* Chrome,Safari4+ */
+    background-image: -webkit-linear-gradient($start_direction, $start_color, $end_color); /* Chrome10+,Safari5.1+ */
+    background-image: -o-linear-gradient($start_direction,  $start_color 0%,$end_color 100%); /* Opera 11.10+ */
+    background-image: -ms-linear-gradient($start_direction,  $start_color 0%,$end_color 100%); /* IE10+ */
+    background-image: linear-gradient(to $end_direction,  $start_color 0%,$end_color 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
+}

@@ -8,6 +8,33 @@
 
 }
 
+a.modal-closer {
+	position: absolute;
+  display: block;
+  width: 20px;
+  height: 20px;
+  right: -10px;
+  top: -10px;
+  cursor: pointer;
+  z-index: 1000;
+  border-radius: 20px;
+  color: #ffffff;
+  border: 1px solid #4d6d9d;
+  background-color: #74a1e5;
+  text-align: center;
+  line-height: 20px;
+  font-size: 16px;
+  font-family: Tahoma, Geneva, sans-serif;
+  font-weight: 500;
+
+  &:hover {
+    background-color: #ffffff;
+    color: #74a1e5;
+    border-color: #74a1e5;
+  }
+
+}
+
 
 //Modals specifics by ID
 //--Base

@@ -1,0 +1,18 @@
+select {
+  //-webkit-appearance: none;
+  background: #fcfcfc;
+  background-image: -webkit-linear-gradient(top, #fcfcfc, #eee);
+  background-image: -moz-linear-gradient(top, #fcfcfc, #eee);
+  background-image: -ms-linear-gradient(top, #fcfcfc, #eee);
+  background-image: -o-linear-gradient(top, #fcfcfc, #eee);
+  background-image: linear-gradient(to bottom, #fcfcfc, #eee);
+  font-family: Arial;
+  color: #333;
+  font-size: 12px;
+  height: 28px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border: solid #d5d5d5 1px;
+  text-decoration: none;
+  cursor: pointer;
+}

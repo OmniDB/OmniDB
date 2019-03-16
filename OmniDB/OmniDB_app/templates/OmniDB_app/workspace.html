@@ -49,7 +49,7 @@
 
 		<div id="div_commands_log" class="isModal">
         <div class="modal_background_dark">
-            <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
+            <div class="white_box animated animated-slideInFromRight" style="width: 90%; height: 90%; left: 5%; top: 5%;">
                 <a class="modal-closer" onclick="hideCommandsLog()">x</a>
 
                 <div style="height: 100%;">
@@ -60,31 +60,33 @@
         </div>
     </div>
 
-		<div id="connection_list_div" class="isModal modal_background_dark">
-			<div class='connection_list'><a class='modal-closer' onclick='closeConnectionList()'>x</a>
-				<div style='display:inline-block;'>
-					<button onclick="newConnection()">New Connection</button>
+		<div id="connection_list_div" class="isModal">
+			<div class="modal_background_dark">
+				<div class='connection_list animated animated-slideInFromRight'><a class='modal-closer' onclick='closeConnectionList()'>x</a>
+					<div style='display:inline-block;'>
+						<button onclick="newConnection()">New Connection</button>
+					</div>
+					<div id='div_save' style='visibility: hidden; display:inline-block;'>
+						<button onclick="saveConnections()">Save Data</button>
+					</div>
+					<div style='display:inline-block;'>
+						Groups:
+						<select id="group_selector" onchange="groupChange(this.value)">
+							<option value=-1>Select group</option>
+							<option>Group 1</option>
+						</select>
+					</div>
+					<div id='div_show_group' style='display:inline-block;'>
+						<button id='bt_groups' onclick="newGroup()">New Group</button>
+					</div>
+					<div id='div_edit_group' style='display:none;'>
+						<button id='bt_groups' onclick="editGroup()">Edit Group</button>
+					</div>
+					<div id='div_delete_group' style='display:none;'>
+						<button id='bt_groups' class="bt_red" onclick="deleteGroup()">Delete Group</button>
+					</div>
+					<div id='connection_list_div_grid'></div>
 				</div>
-				<div id='div_save' style='visibility: hidden; display:inline-block;'>
-					<button onclick="saveConnections()">Save Data</button>
-				</div>
-				<div style='display:inline-block;'>
-					Groups:
-					<select id="group_selector" onchange="groupChange(this.value)">
-						<option value=-1>Select group</option>
-						<option>Group 1</option>
-					</select>
-				</div>
-				<div id='div_show_group' style='display:inline-block;'>
-					<button id='bt_groups' onclick="newGroup()">New Group</button>
-				</div>
-				<div id='div_edit_group' style='display:none;'>
-					<button id='bt_groups' onclick="editGroup()">Edit Group</button>
-				</div>
-				<div id='div_delete_group' style='display:none;'>
-					<button id='bt_groups' class="bt_red" onclick="deleteGroup()">Delete Group</button>
-				</div>
-				<div id='connection_list_div_grid'></div>
 			</div>
 		</div>
 

@@ -1,0 +1,7 @@
+@mixin div-colors($color) {
+  background-color: $color;
+	display: table-cell;
+	width: 250px;
+	height: 23px;
+	vertical-align: middle;
+}

@@ -1,0 +1,40 @@
+button {
+  @include linearGradient(top, $gray-100, bottom, $gray-200);
+  -webkit-border-radius: 3;
+  -moz-border-radius: 3;
+  border-radius: 3px;
+  font-family: Arial;
+  color: #333;
+  font-size: 12px;
+  height: 28px;
+  line-height: 0px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border: solid $gray-400 1px;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    @include linearGradient(top, $gray-90, bottom, $gray-210);
+    text-decoration: none;
+  }
+}
+
+
+//Auxiliar buttons
+.bt_red {
+  @include linearGradient(top, $light-red-100, bottom, $light-red-200);
+  -webkit-border-radius: 3;
+  -moz-border-radius: 3;
+  border-radius: 3px;
+  font-family: Arial;
+  color: #FFF;
+  padding: 6px 12px 6px 12px;
+  border: solid $light-red-310 1px;
+  text-decoration: none;
+
+  &:hover {
+    @include linearGradient(top, $light-red-300, bottom, $light-red-400);
+    text-decoration: none;
+  }
+}

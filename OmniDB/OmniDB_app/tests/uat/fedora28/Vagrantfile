@@ -23,7 +23,7 @@ cat << EOF | su - postgres -c psql
 ALTER USER postgres WITH PASSWORD 'postgres';
 EOF
 systemctl restart "postgresql-$PG_VERSION"
-dnf install @workstation-product-environment
+dnf -y install @workstation-product-environment
 date > /etc/vagrant_provisioned_at
 SCRIPT
 

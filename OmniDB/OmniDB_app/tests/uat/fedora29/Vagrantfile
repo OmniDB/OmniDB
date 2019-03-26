@@ -24,6 +24,8 @@ ALTER USER postgres WITH PASSWORD 'postgres';
 EOF
 systemctl restart "postgresql-$PG_VERSION"
 dnf -y install @workstation-product-environment
+systemctl set-default graphical.target
+systemctl enable gdm
 date > /etc/vagrant_provisioned_at
 SCRIPT
 

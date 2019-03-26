@@ -23,8 +23,7 @@ cat << EOF | su - postgres -c psql
 ALTER USER postgres WITH PASSWORD 'postgres';
 EOF
 systemctl restart "postgresql-$PG_VERSION"
-yum groupinstall -y gnome
-systemctl set-default graphical.target
+dnf install @workstation-product-environment
 date > /etc/vagrant_provisioned_at
 SCRIPT
 

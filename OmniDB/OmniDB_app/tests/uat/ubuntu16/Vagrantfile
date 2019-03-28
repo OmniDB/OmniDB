@@ -29,9 +29,9 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
   config.vm.box = "ubuntu/xenial64"
   config.vm.box_url = "https://app.vagrantup.com/ubuntu/boxes/xenial64"
-  config.vm.host_name = "omnidbuatubuntu14"
+  config.vm.host_name = "omnidbuatubuntu16"
   config.vm.provider :virtualbox do |vb|
-    vb.name = "omnidb_uat_ubuntu14"
+    vb.name = "omnidb_uat_ubuntu16"
     vb.gui = true
     vb.memory = 2048
     vb.cpus = 2

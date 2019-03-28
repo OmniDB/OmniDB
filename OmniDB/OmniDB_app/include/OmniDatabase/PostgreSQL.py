@@ -1541,7 +1541,7 @@ class PostgreSQL:
                 join pg_namespace n
                 on p.pronamespace = n.oid
                 where not p.proisagg
-                  and format_type(p.prorettype, null) <> 'trigger'
+                  and format_type(p.prorettype, null) not in ('trigger', 'event_trigger')
                 {0}
                 order by 1
             '''.format(v_filter), True)
@@ -1554,7 +1554,7 @@ class PostgreSQL:
                 join pg_namespace n
                 on p.pronamespace = n.oid
                 where p.prokind = 'f'
-                  and format_type(p.prorettype, null) <> 'trigger'
+                  and format_type(p.prorettype, null) not in ('trigger', 'event_trigger')
                 {0}
                 order by 1
             '''.format(v_filter), True)
@@ -1646,7 +1646,6 @@ class PostgreSQL:
             join pg_namespace n
             on p.pronamespace = n.oid
             where p.prokind = 'p'
-              and format_type(p.prorettype, null) <> 'trigger'
             {0}
             order by 1
         '''.format(v_filter), True)
@@ -1717,6 +1716,30 @@ class PostgreSQL:
         '''.format(v_filter), True)
 
     def GetTriggerFunctionDefinition(self, p_function):
+        return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_function))
+
+    def QueryEventTriggerFunctions(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                   quote_ident(p.proname) as name,
+                   quote_ident(n.nspname) as schema_name
+            from pg_proc p
+            join pg_namespace n
+            on p.pronamespace = n.oid
+            where format_type(p.prorettype, null) = 'event_trigger'
+            {0}
+            order by 1
+        '''.format(v_filter), True)
+
+    def GetEventTriggerFunctionDefinition(self, p_function):
         return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_function))
 
     def QuerySequences(self, p_all_schemas=False, p_schema=None):

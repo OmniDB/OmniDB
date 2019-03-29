@@ -13,8 +13,8 @@ vagrant box add debian/stretch64 --provider virtualbox
 vagrant box add ubuntu/xenial64 --provider virtualbox
 vagrant box add ubuntu/bionic64 --provider virtualbox
 vagrant box add centos/7 --provider virtualbox
-vagrant box add fedora/28-cloud-base --provider virtualbox
-vagrant box add fedora/29-cloud-base --provider virtualbox
+vagrant box add wind39/fedora28 --provider virtualbox
+vagrant box add wind39/fedora29 --provider virtualbox
 ```
 
 Type `vagrant box list` to check if you have them all.
@@ -63,7 +63,7 @@ Debian / Ubuntu machines, as `root` user:
 ```
 apt install apt-transport-https dirmngr
 echo "deb https://dl.bintray.com/wind39/omnidb-deb debian main" > /etc/apt/sources.list.d/omnidb.list
-apt-key adv --recv-keys 379CE192D401AB61
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61
 apt update
 
 apt install omnidb-app        # for the app; or

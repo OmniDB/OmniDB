@@ -32,7 +32,7 @@ SCRIPT
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
   config.vm.box = "centos/7"
-  config.vm.box_url = "https://app.vagrantup.com/ubuntu/boxes/centos7"
+  config.vm.box_url = "https://app.vagrantup.com/ubuntu/boxes/centos/7"
   config.vm.host_name = "omnidbuatcentos7"
   config.vm.provider :virtualbox do |vb|
     vb.name = "omnidb_uat_centos7"

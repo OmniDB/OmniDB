@@ -23,16 +23,13 @@ cat << EOF | su - postgres -c psql
 ALTER USER postgres WITH PASSWORD 'postgres';
 EOF
 systemctl restart "postgresql-$PG_VERSION"
-dnf -y install @workstation-product-environment
-systemctl set-default graphical.target
-systemctl enable gdm
 date > /etc/vagrant_provisioned_at
 SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-  config.vm.box = "fedora/29-cloud-base"
-  config.vm.box_url = "https://app.vagrantup.com/fedora/boxes/29-cloud-base"
+  config.vm.box = "wind39/fedora29"
+  config.vm.box_url = "https://app.vagrantup.com/wind39/boxes/fedora29"
   config.vm.host_name = "omnidbuatfedora29"
   config.vm.provider :virtualbox do |vb|
     vb.name = "omnidb_uat_fedora29"

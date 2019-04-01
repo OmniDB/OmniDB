@@ -28,13 +28,15 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-  config.vm.box = "wind39/fedora28"
-  config.vm.box_url = "https://app.vagrantup.com/wind39/boxes/fedora28"
+  config.vm.box = "Pysis/fedora28-workstation"
+  config.vm.box_url = "https://app.vagrantup.com/Pysis/boxes/fedora28-workstation"
   config.vm.host_name = "omnidbuatfedora28"
   config.vm.provider :virtualbox do |vb|
     vb.name = "omnidb_uat_fedora28"
     vb.gui = true
     vb.memory = 1024
     vb.cpus = 2
+    vb.customize ["modifyvm", :id, "--usb", "on"]
+    vb.customize ["modifyvm", :id, "--usbehci", "off"]
   end
 end

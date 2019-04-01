@@ -9,13 +9,16 @@
 - New features:
 - Improvements:
   - Improved security: disabled TLSv1.0 and TLSv1.1
+  - App graphical stack upgraded to Electron 4.1 and GTK 3
 - Bug fixes:
   - Fixed error on EditData when primary key was of type date or timestamp
   - Fixed display and handling of array types
   - Fixed handling of BC and infinity dates
+  - Fixed bug involving SELECT INTO statements
 - Changes in deployment
   - Dropped support for 32 bits builds
-  - Linux deployment migrated to Docker
+  - Linux deployment migrated from Vagrant to Docker
+  - New Vagrant machines for User Acceptance Tests
 
 
 # 1- Installation

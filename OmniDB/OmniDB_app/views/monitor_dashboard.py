@@ -601,6 +601,7 @@ def refresh_monitor_units(request):
     if len(v_ids) > 0:
         v_first = True
         v_query = ''
+        unit_counter = 0
         for v_id in v_ids:
 
             #save new user/connection unit
@@ -632,9 +633,9 @@ def refresh_monitor_units(request):
                     v_query += ' union all '
                 v_first = False
                 v_query += '''
-                    select unit_id, {0} as 'sequence', {1} as rendered, {2} as saved_id, script_chart, script_data, type, title, interval
-                    from mon_units where unit_id = '{3}'
-                '''.format(v_id['sequence'], v_id['rendered'], v_id['saved_id'], v_id['id'])
+                    select unit_id, {0} as 'sequence', {1} as rendered, {2} as saved_id, script_chart, script_data, type, title, interval, {3} as unit_counter
+                    from mon_units where unit_id = '{4}'
+                '''.format(v_id['sequence'], v_id['rendered'], v_id['saved_id'], unit_counter, v_id['id'])
 
             #plugin unit
             else:
@@ -692,7 +693,7 @@ def refresh_monitor_units(request):
                     }
                     v_return['v_data'].append(v_unit_data)
 
-
+            unit_counter = unit_counter + 1
         if v_query != '':
             try:
                 v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
@@ -710,7 +711,10 @@ def refresh_monitor_units(request):
                             'v_error': False
                         }
 
-                        loc = {"connection": v_database.v_connection}
+                        loc = {
+                            "connection": v_database.v_connection,
+                            "previous_data": v_ids[v_unit['unit_counter']]['object_data']
+                        }
 
                         builtins = safe_builtins.copy()
                         builtins['_getiter_'] = iter
@@ -791,7 +795,10 @@ def test_monitor_script(request):
     }
 
     try:
-        loc = {"connection": v_database.v_connection}
+        loc = {
+            "connection": v_database.v_connection,
+            "previous_data": None
+        }
 
         builtins = safe_builtins.copy()
         builtins['_getiter_'] = iter

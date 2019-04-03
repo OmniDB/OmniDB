@@ -20,7 +20,8 @@ migrations = {
     '2.12.0': ('2.13.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.12.0_2.13.0.py')),
     '2.13.0': ('2.14.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.13.0_2.14.0.sql')),
     '2.14.0': ('2.14.1', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.14.0_2.14.1.sql')),
-    '2.14.1': ('2.15.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.14.1_2.15.0.sql')),
+    '2.14.1': ('2.14.2', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.14.1_2.14.2.sql')),
+    '2.14.2': ('2.15.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.14.2_2.15.0.sql')),
 }
 
 def get_current_version(p_database):

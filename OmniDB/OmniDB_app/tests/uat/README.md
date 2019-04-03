@@ -13,8 +13,6 @@ vagrant box add debian/stretch64 --provider virtualbox
 vagrant box add ubuntu/xenial64 --provider virtualbox
 vagrant box add ubuntu/bionic64 --provider virtualbox
 vagrant box add centos/7 --provider virtualbox
-vagrant box add wind39/fedora28 --provider virtualbox
-vagrant box add wind39/fedora29 --provider virtualbox
 ```
 
 Type `vagrant box list` to check if you have them all.

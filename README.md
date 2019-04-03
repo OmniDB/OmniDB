@@ -7,6 +7,7 @@
 ## Release Notes
 
 - New features:
+  - Monitoring units can now use past data, allowing users to create historical charts
 - Improvements:
   - Improved security: disabled TLSv1.0 and TLSv1.1
   - App graphical stack upgraded to Electron 4.1 and GTK 3
@@ -17,8 +18,10 @@
   - Fixed bug involving SELECT INTO statements
 - Changes in deployment
   - Dropped support for 32 bits builds
-  - Linux deployment migrated from Vagrant to Docker
-  - New Vagrant machines for User Acceptance Tests
+  - Linux deployment machines migrated from Vagrant to Docker
+- Changes in test pipeline
+  - PostgreSQL, Oracle, MySQL and MariaDB test machines migrated from Vagrant to Docker
+  - New Vagrant machines for User Acceptance Tests (with graphical environment to test OmniDB app)
 
 
 # 1- Installation

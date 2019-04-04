@@ -103,6 +103,9 @@ $(function () {
 	}
 */
 	startQueryWebSocket();
+
+	//Loading Xterm Fit Addon
+	Terminal.applyAddon(fit);
 });
 
 /// <summary>
@@ -419,6 +422,7 @@ function verticalLinePosition(p_event) {
 
 function resizeWindow(){
 	refreshHeights(true);
+
 }
 
 var resizeTimeout;
@@ -457,6 +461,11 @@ function refreshHeights(p_all) {
 
 	if (v_connTabControl.selectedTab.tag.mode=='monitor_all') {
 		v_connTabControl.selectedTab.tag.tabControlDiv.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.tabControlDiv).offset().top - 18 + 'px';
+	}
+	else if (v_connTabControl.selectedTab.tag.mode=='outer_terminal') {
+		v_connTabControl.selectedTab.tag.div_console.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.div_console).offset().top - 10 + 'px';
+		v_connTabControl.selectedTab.tag.editor_console.fit();
+
 	}
 
 	//If inner tab exists
@@ -632,9 +641,9 @@ function resizeVerticalEnd(event) {
 		if (Math.abs(v_height_diff) > parseInt(v_result_div.style.height, 10))
 		 v_height_diff = parseInt(v_result_div.style.height, 10) - 10;
 	}
-
 	v_editor_div.style.height = parseInt(v_editor_div.style.height, 10) + v_height_diff + 'px';
 	v_result_div.style.height = parseInt(v_result_div.style.height, 10) - v_height_diff + 'px';
+
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
@@ -1297,6 +1306,60 @@ function showMenuNewTabOuter(e) {
 		for (var i=0; i<v_connTabControl.tag.hooks.outerTabMenu.length; i++)
 			v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.outerTabMenu[i]());
 	}
+/*
+	v_option_list.push({
+		text: 'Local Terminal',
+		icon: 'fas cm-all fa-terminal',
+		action: function() {
+			v_connTabControl.tag.createOuterTerminalTab();
+		}
+	});
+
+	v_option_list.push({
+		text: 'SSH Consoles',
+		icon: 'fas cm-all fa-terminal',
+		submenu: {
+				elements: [{
+						text: 'Group 1',
+						icon: 'fas cm-all fa-terminal',
+						submenu: {
+								elements: [{
+										text: 'omnidb@omnidb.org:22',
+										icon: 'fas cm-all fa-terminal'
+								}, {
+										text: 'Console 2',
+										icon: 'fas cm-all fa-terminal'
+								}]
+						}
+				}, {
+						text: 'Group 2',
+						icon: 'fas cm-all fa-terminal',
+						submenu: {
+								elements: [{
+										text: 'Console 1',
+										icon: 'fas cm-all fa-terminal'
+								},
+								{
+										text: 'Console 2',
+										icon: 'fas cm-all fa-terminal'
+								}, {
+										text: 'Console 3',
+										icon: 'fas cm-all fa-terminal'
+								},
+								{
+										text: 'Console 4',
+										icon: 'fas cm-all fa-terminal'
+								}, {
+										text: 'Console 5',
+										icon: 'fas cm-all fa-terminal'
+								}]
+						}
+				}]
+		}
+	});
+*/
+
+
 
 	if (v_option_list.length>0) {
 		v_option_list.unshift({

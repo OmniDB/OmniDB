@@ -10,6 +10,22 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
+var v_light_terminal_theme = {
+	background: '#fff',
+	brightBlue: '#006de2',
+	brightGreen: '#4b9800',
+	foreground: '#000',
+	cursor: '#000',
+	cursorAccent: '#000',
+	selection: '#00000030'
+}
+
+var v_dark_terminal_theme = {
+}
+
+var v_current_terminal_theme;
+
+
 /// <summary>
 /// Startup function.
 /// </summary>
@@ -24,7 +40,10 @@ $(function() {
 	//setting font size of body
 	document.body.style['font-size'] = v_interface_font_size + 'px';
 
-
+	if (v_theme_type=='light')
+		v_current_terminal_theme = v_light_terminal_theme;
+	else
+		v_current_terminal_theme = v_dark_terminal_theme;
 });
 
 function adjustChartTheme(p_chart) {
@@ -67,16 +86,30 @@ function changeTheme(p_option) {
 	v_editor_theme = p_options[1];
 	v_theme_id = p_options[0];
 
+	if (v_theme_type=='light')
+		v_current_terminal_theme = v_light_terminal_theme;
+	else
+		v_current_terminal_theme = v_dark_terminal_theme;
+
 	var els = document.getElementsByClassName("ace_editor");
 
 	Array.prototype.forEach.call(els, function(el) {
-	    // Do stuff here
 			ace.edit(el).setTheme("ace/theme/" + p_options[1]);
 	});
 
 	Chart.helpers.each(Chart.instances, function(instance){
 		adjustChartTheme(instance.chart);
 	})
+
+	//Adjusting terminal themes
+	for (var i=0; i < v_connTabControl.tabList.length; i++) {
+		var v_tab = v_connTabControl.tabList[i];
+		if (v_tab.tag!=null) {
+			if (v_tab.tag.mode=='outer_terminal') {
+				v_tab.tag.editor_console.setOption('theme',v_current_terminal_theme);
+			}
+		}
+	}
 
 	//Hooks
 	if (v_connTabControl.tag.hooks.changeTheme.length>0) {

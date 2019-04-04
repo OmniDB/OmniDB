@@ -811,6 +811,93 @@ function initCreateTabFunctions() {
 
 	};
 
+  var v_createOuterTerminalTabFunction = function() {
+
+    v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
+		var v_tab = v_connTabControl.createTab(
+            '<i class="fas fa-terminal icon-tab-title"></i><span> Terminal</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
+            false,
+            null,
+            null,
+            null,
+            null,
+            true,
+            function() {
+              if(this.tag != null) {
+                refreshHeights();
+              }
+              if(this.tag != null && this.tag.editor_input != null) {
+                  this.tag.editor_input.focus();
+                  checkConsoleStatus(this);
+              }
+            }
+        );
+		v_connTabControl.selectTab(v_tab);
+
+		//Adding unique names to spans
+		var v_tab_close_span = document.getElementById('tab_close');
+		v_tab_close_span.id = 'tab_close_' + v_tab.id;
+		v_tab_close_span.onclick = function(e) {
+      var v_current_tab = v_tab;
+      beforeCloseTab(e,
+        function() {
+          removeTab(v_current_tab);
+        });
+		};
+
+		var v_html = "<div id='txt_console_" + v_tab.id + "' style=' width: 100%; height: 120px;'></div>";
+
+		var v_div = document.getElementById('div_' + v_tab.id);
+		v_div.innerHTML = v_html;
+
+
+    var term_div = document.getElementById('txt_console_' + v_tab.id);
+    var term = new Terminal({
+          fontSize: 14,
+          theme: v_current_terminal_theme
+    });
+    term.open(term_div);
+
+    term_div.oncontextmenu = function(e) {
+      if (e.button==2) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      terminalContextMenu(e);
+    };
+
+    term.on('data', (key, ev) => {
+            terminalKey(key);
+    });
+
+		var v_tag = {
+			tab_id: v_tab.id,
+			mode: 'outer_terminal',
+      editor_console: term,
+      editorDivId: 'txt_console_' + v_tab.id,
+			div_console: document.getElementById('txt_console_' + v_tab.id),
+			tab_close_span : v_tab_close_span,
+      context: null,
+			tabControl: v_connTabControl,
+			connTab: v_connTabControl.selectedTab,
+      currDatabaseIndex: null,
+      tabCloseSpan: v_tab_close_span,
+      state: 0,
+      terminalHistoryList: [],
+      tempData: []
+		};
+
+		v_tab.tag = v_tag;
+
+    v_connTabControl.createTab('+',false,function(e) {showMenuNewTabOuter(e); },null,null,null,null,null,false);
+
+    setTimeout(function() {
+      refreshHeights();
+      startTerminal();
+    },10);
+
+  };
+
   var v_createWebsiteOuterTabFunction = function(p_name, p_site) {
 
 		v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
@@ -1900,6 +1987,7 @@ function initCreateTabFunctions() {
   v_connTabControl.tag.createNewMonitorUnitTab = v_createNewMonitorUnitTabFunction;
   v_connTabControl.tag.createMonitorDashboardTab = v_createMonitorDashboardTabFunction;
   v_connTabControl.tag.createConsoleTab = v_createConsoleTabFunction;
+  v_connTabControl.tag.createOuterTerminalTab = v_createOuterTerminalTabFunction;
 
   //Functions to create tabs inside monitor tab
   //v_connTabControl.tag.createNewMonitorNodeTab = v_createNewMonitorNodeTabFunction;

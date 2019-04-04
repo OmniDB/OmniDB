@@ -295,29 +295,23 @@ def get_monitor_units(request):
                         '');
                 '''.format(v_unit['unit_id'],v_session.v_user_id,v_database.v_conn_id,v_unit['interval']));
 
+            #Saving default plugin units
+            for mon_unit in monitoring_units:
+                if mon_unit['default'] == True and mon_unit['dbms'] == v_database.v_db_type:
+                    v_session.v_omnidb_database.v_connection.Execute('''
+                        insert into units_users_connections values
+                            ((select coalesce(max(uuc_id), 0) + 1 from units_users_connections),
+                            {0},
+                            {1},
+                            {2},
+                            {3},
+                            '{4}');
+                    '''.format(mon_unit['id'],v_session.v_user_id,v_database.v_conn_id,mon_unit['interval'],mon_unit['plugin_name']));
+
             v_session.v_omnidb_database.v_connection.Execute('COMMIT;');
             v_session.v_omnidb_database.v_connection.Close();
 
-            v_query = '''
-                select uuc.uuc_id,mu.unit_id, mu.title, uuc.interval, uuc.plugin_name
-                from mon_units mu,units_users_connections uuc
-                where mu.dbt_st_name = '{0}'
-                  and uuc.unit_id = mu.unit_id
-                  and uuc.user_id = {1}
-                  and uuc.conn_id = {2}
-                order by uuc_id desc
-            '''.format(v_database.v_db_type,v_session.v_user_id,v_database.v_conn_id)
-
-            v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
-            for v_unit in v_units.Rows:
-                v_unit_data = {
-                    'v_saved_id': v_unit['uuc_id'],
-                    'v_id': v_unit['unit_id'],
-                    'v_title': v_unit['title'],
-                    'v_plugin_name': v_unit['plugin_name'],
-                    'v_interval': v_unit['interval']
-                }
-                v_return['v_data'].append(v_unit_data)
+            return get_monitor_units(request)
 
         else:
 
@@ -601,6 +595,7 @@ def refresh_monitor_units(request):
     if len(v_ids) > 0:
         v_first = True
         v_query = ''
+        unit_counter = 0
         for v_id in v_ids:
 
             #save new user/connection unit
@@ -632,9 +627,9 @@ def refresh_monitor_units(request):
                     v_query += ' union all '
                 v_first = False
                 v_query += '''
-                    select unit_id, {0} as 'sequence', {1} as rendered, {2} as saved_id, script_chart, script_data, type, title, interval
-                    from mon_units where unit_id = '{3}'
-                '''.format(v_id['sequence'], v_id['rendered'], v_id['saved_id'], v_id['id'])
+                    select unit_id, {0} as 'sequence', {1} as rendered, {2} as saved_id, script_chart, script_data, type, title, interval, {3} as unit_counter
+                    from mon_units where unit_id = '{4}'
+                '''.format(v_id['sequence'], v_id['rendered'], v_id['saved_id'], unit_counter, v_id['id'])
 
             #plugin unit
             else:
@@ -657,7 +652,10 @@ def refresh_monitor_units(request):
                         'v_error': False
                     }
 
-                    loc = {"connection": v_database.v_connection}
+                    loc = {
+                        "connection": v_database.v_connection,
+                        "previous_data": v_ids[unit_counter]['object_data']
+                    }
 
                     builtins = safe_builtins.copy()
                     builtins['_getiter_'] = iter
@@ -692,7 +690,7 @@ def refresh_monitor_units(request):
                     }
                     v_return['v_data'].append(v_unit_data)
 
-
+            unit_counter = unit_counter + 1
         if v_query != '':
             try:
                 v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
@@ -710,7 +708,10 @@ def refresh_monitor_units(request):
                             'v_error': False
                         }
 
-                        loc = {"connection": v_database.v_connection}
+                        loc = {
+                            "connection": v_database.v_connection,
+                            "previous_data": v_ids[v_unit['unit_counter']]['object_data']
+                        }
 
                         builtins = safe_builtins.copy()
                         builtins['_getiter_'] = iter
@@ -791,7 +792,10 @@ def test_monitor_script(request):
     }
 
     try:
-        loc = {"connection": v_database.v_connection}
+        loc = {
+            "connection": v_database.v_connection,
+            "previous_data": None
+        }
 
         builtins = safe_builtins.copy()
         builtins['_getiter_'] = iter

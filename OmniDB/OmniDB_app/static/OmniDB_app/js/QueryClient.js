@@ -24,7 +24,8 @@ var v_queryRequestCodes = {
 	Debug: 7,
 	CloseTab: 8,
 	DataMining: 9,
-	Console: 10
+	Console: 10,
+	Terminal: 11
 }
 
 /// <summary>
@@ -42,7 +43,8 @@ var v_queryResponseCodes = {
 	DebugResponse: 8,
 	RemoveContext: 9,
 	DataMiningResult: 10,
-	ConsoleResult: 11
+	ConsoleResult: 11,
+	TerminalResult: 12
 }
 
 /// <summary>
@@ -155,6 +157,12 @@ function startQueryWebSocket(p_port) {
 							//Remove context
 							removeContext(v_queryWebSocket,p_context_code);
 						}
+					}
+					break;
+				}
+				case parseInt(v_queryResponseCodes.TerminalResult): {
+					if (p_context) {
+						terminalReturn(v_message,p_context);
 					}
 					break;
 				}

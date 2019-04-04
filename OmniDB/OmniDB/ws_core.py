@@ -37,10 +37,10 @@ from OmniDB.startup import clean_temp_folder
 
 import sqlparse
 
-import pexpect
-sys.path.append('OmniDB_app/include')
-from OmniDB_app.include import paramiko
-from OmniDB_app.include import custom_paramiko_expect
+#import pexpect
+#sys.path.append('OmniDB_app/include')
+#from OmniDB_app.include import paramiko
+#from OmniDB_app.include import custom_paramiko_expect
 
 class StoppableThread(threading.Thread):
     def __init__(self,p1,p2,p3):

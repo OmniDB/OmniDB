@@ -80,6 +80,18 @@ function createWebSocket(p_address, p_port, p_onOpen, p_onMessage, p_onClose, p_
 	return v_connection;
 }
 
+function createContext(p_connection, p_context) {
+	p_connection.contextCode += 1;
+	v_context_code = p_connection.contextCode;
+	p_context.v_context_code = v_context_code;
+	var v_context = {
+		code: v_context_code,
+		context: p_context
+	}
+	p_connection.contextList.push(v_context);
+	return v_context;
+}
+
 function removeContext(p_connection, p_context_code) {
 	for (var i=0; i<p_connection.contextList.length; i++) {
 		if (p_connection.contextList[i].code == p_context_code) {
@@ -103,14 +115,21 @@ function sendWebSocketMessage(p_connection, p_messageCode, p_messageData, p_erro
 
 	//Configuring context
 	if (p_context!=null) {
-		p_connection.contextCode += 1;
-		v_context_code = p_connection.contextCode;
-		p_context.v_context_code = v_context_code;
-		var v_context = {
-			code: v_context_code,
-			context: p_context
+
+		//Context code is passed
+		if (p_context === parseInt(p_context, 10)) {
+			v_context_code = p_context;
 		}
-		p_connection.contextList.push(v_context);
+		else {
+			p_connection.contextCode += 1;
+			v_context_code = p_connection.contextCode;
+			p_context.v_context_code = v_context_code;
+			var v_context = {
+				code: v_context_code,
+				context: p_context
+			}
+			p_connection.contextList.push(v_context);
+		}
 	}
 
 	waitForSocketConnection(

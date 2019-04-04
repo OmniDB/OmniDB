@@ -1,0 +1,39 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+echo I am provisioning...
+PG_VERSION=11
+echo "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+wget --quiet -O - https://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | apt-key add -
+apt-get update
+apt-get -y upgrade
+apt-get -y install "postgresql-$PG_VERSION"
+PG_CONF="/etc/postgresql/$PG_VERSION/main/postgresql.conf"
+PG_HBA="/etc/postgresql/$PG_VERSION/main/pg_hba.conf"
+PG_DIR="/var/lib/postgresql/$PG_VERSION/main"
+sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" "$PG_CONF"
+echo "host all all all md5" >> "$PG_HBA"
+echo "client_encoding = utf8" >> "$PG_CONF"
+echo "max_replication_slots = 10" >> "$PG_CONF"
+echo "wal_level = logical" >> "$PG_CONF"
+cat << EOF | su - postgres -c psql
+ALTER USER postgres WITH PASSWORD 'postgres';
+EOF
+systemctl restart postgresql
+apt -y install ubuntu-desktop
+date > /etc/vagrant_provisioned_at
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: $script
+  config.vm.box = "ubuntu/bionic64"
+  config.vm.box_url = "https://app.vagrantup.com/ubuntu/boxes/bionic64"
+  config.vm.host_name = "omnidbuatubuntu18"
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "omnidb_uat_ubuntu18"
+    vb.gui = true
+    vb.memory = 2048
+    vb.cpus = 2
+  end
+end

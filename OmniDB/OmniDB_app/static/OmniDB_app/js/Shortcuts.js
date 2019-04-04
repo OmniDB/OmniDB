@@ -25,6 +25,8 @@ $(function () {
         else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='edit')
           queryEditData();
       }
+      else if (v_connTabControl.selectedTab.tag.mode=='outer_terminal')
+        terminalRun();
     },
     shortcut_cancel_query: function() {
 

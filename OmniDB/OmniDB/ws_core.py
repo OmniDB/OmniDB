@@ -37,6 +37,11 @@ from OmniDB.startup import clean_temp_folder
 
 import sqlparse
 
+import pexpect
+sys.path.append('OmniDB_app/include')
+from OmniDB_app.include import paramiko
+from OmniDB_app.include import custom_paramiko_expect
+
 class StoppableThread(threading.Thread):
     def __init__(self,p1,p2,p3):
         super(StoppableThread, self).__init__(target=p1, args=(self,p2,p3,))
@@ -74,6 +79,7 @@ class request(IntEnum):
   CloseTab       = 8
   DataMining     = 9
   Console        = 10
+  Terminal       = 11
 
 class response(IntEnum):
   LoginResult         = 0
@@ -88,6 +94,7 @@ class response(IntEnum):
   RemoveContext       = 9
   DataMiningResult    = 10
   ConsoleResult       = 11
+  TerminalResult      = 12
 
 class debugState(IntEnum):
   Initial  = 0
@@ -107,7 +114,7 @@ def closeTabHandler(ws_object,p_tab_object_id):
                 None
             try:
                 tab_object['omnidatabase'].v_connection.Close()
-            except Exception:
+            except Exception as exc:
                 None
         elif tab_object['type'] == 'debug':
             tab_object['cancelled'] = True
@@ -210,12 +217,57 @@ def thread_dispatcher(self,args,ws_object):
                     ws_object.v_session = v_session
 
                     #Check database prompt timeout
-                    v_timeout = v_session.DatabaseReachPasswordTimeout(v_data['v_db_index'])
-                    if v_timeout['timeout']:
-                        v_response['v_code'] = response.PasswordRequired
-                        v_response['v_data'] = v_timeout['message']
-                        ws_object.write_message(json.dumps(v_response))
-                        return
+                    if v_data['v_db_index']!=None:
+                        v_timeout = v_session.DatabaseReachPasswordTimeout(v_data['v_db_index'])
+                        if v_timeout['timeout']:
+                            v_response['v_code'] = response.PasswordRequired
+                            v_response['v_data'] = v_timeout['message']
+                            ws_object.write_message(json.dumps(v_response))
+                            return
+
+                    if v_code == request.Terminal:
+                        #create tab object if it doesn't exist
+                        try:
+                            tab_object = ws_object.v_list_tab_objects[v_data['v_tab_id']]
+
+                            #object exists, send new command
+                            if v_data['v_mode']>0:
+                                tab_object['terminal_object'].send(chr(v_data['v_mode']))
+                            else:
+                                tab_object['terminal_object'].send(v_data['v_cmd'])
+
+                            #tab_object['terminal_object'].send(v_data['v_cmd'])
+                        except Exception as exc:
+                            tab_object =  {
+                                            'thread': None,
+                                            'terminal_object': None
+                                          }
+                            ws_object.v_list_tab_objects[v_data['v_tab_id']] = tab_object
+
+                            try:
+                                #client = paramiko.SSHClient()
+                                #client.load_system_host_keys()
+                                #client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                                #client.connect(hostname='omnidb.org',username='omnidb',password='666432brasil')
+                                tab_object['terminal_object'] = pexpect.spawn('/bin/bash',encoding='utf-8')
+                                tab_object['terminal_object'].send(v_data['v_cmd'])
+                                #tab_object['terminal_object'] = custom_paramiko_expect.SSHClientInteraction(client,timeout=60, display=False)
+
+                            except Exception as exc:
+                                logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+                                v_response['v_code'] = response.MessageException
+                                v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
+                                ws_object.write_message(json.dumps(v_response))
+
+                            v_data['v_context_code'] = v_context_code
+
+                            v_data['v_tab_object'] = tab_object
+                            t = StoppableThread(thread_terminal,v_data,ws_object)
+                            tab_object['thread'] = t
+                            tab_object['type'] = 'terminal'
+                            tab_object['tab_id'] = v_data['v_tab_id']
+                            t.start()
+
 
                     if v_code == request.Query or v_code == request.QueryEditData or v_code == request.SaveEditData or v_code == request.DataMining or v_code == request.Console:
 
@@ -429,6 +481,7 @@ def thread_dispatcher(self,args,ws_object):
                         t.start()
 
                 except Exception as exc:
+                    print(str(exc))
                     v_response['v_code'] = response.SessionMissing
                     #ws_object.write_message(json.dumps(v_response))
                     ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
@@ -1194,6 +1247,88 @@ def thread_console(self,args,ws_object):
                     log_status,
                     v_database.v_conn_id)
             v_omnidb_database.v_connection.Close()
+
+    except Exception as exc:
+        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+        v_response['v_data'] = {
+            'v_data': str(exc),
+            'v_duration': ''
+        }
+        if not self.cancel:
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+def thread_terminal(self,args,ws_object):
+    v_response = {
+        'v_code': response.TerminalResult,
+        'v_context_code': args['v_context_code'],
+        'v_error': False,
+        'v_data': 1
+    }
+
+    try:
+        v_cmd             = args['v_cmd']
+        v_tab_id          = args['v_tab_id']
+        v_tab_object      = args['v_tab_object']
+        v_terminal_object = v_tab_object['terminal_object']
+
+
+        log_start_time = datetime.now()
+        log_status = 'success'
+
+        try:
+
+            while True:
+                try:
+                    v_data_return = v_terminal_object.read_nonblocking(size=1024)
+                    #v_data_return = v_terminal_object.read_current()
+
+                    log_end_time = datetime.now()
+                    v_duration = GetDuration(log_start_time,log_end_time)
+
+                    v_response['v_data'] = {
+                        'v_data' : v_data_return,
+                        'v_last_block': True,
+                        'v_duration': v_duration
+                    }
+
+                    #send data in chunks to avoid blocking the websocket server
+                    chunks = [v_data_return[x:x+10000] for x in range(0, len(v_data_return), 10000)]
+
+                    if len(chunks)>0:
+                        for count in range(0,len(chunks)):
+                            if self.cancel:
+                                break
+                            if not count==len(chunks)-1:
+                                v_response['v_data'] = {
+                                    'v_data' : chunks[count],
+                                    'v_last_block': False,
+                                    'v_duration': v_duration,
+                                }
+                            else:
+                                v_response['v_data'] = {
+                                    'v_data' : chunks[count],
+                                    'v_last_block': True,
+                                    'v_duration': v_duration,
+                                }
+                            if not self.cancel:
+                                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                    else:
+                        if not self.cancel:
+                            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                except Exception as exc:
+                    None
+
+        except Exception as exc:
+            log_end_time = datetime.now()
+            v_duration = GetDuration(log_start_time,log_end_time)
+            log_status = 'error'
+            v_response['v_data'] = {
+                'v_data': str(exc),
+                'v_duration': v_duration
+            }
+
+            if not self.cancel:
+                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))

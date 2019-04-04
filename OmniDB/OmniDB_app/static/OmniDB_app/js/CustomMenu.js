@@ -84,7 +84,7 @@ function customMenu(p_position,p_menu,p_object) {
           var v_span_more = createSimpleElement('div',null,null);
           v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
           v_li.appendChild(v_span_more);
-          customMenuRecursive(p_menu[i].submenu,v_ul,p_object,v_closediv,v_div, 1);
+          customMenuRecursive(p_menu[i].submenu.elements,v_ul,p_object,v_closediv,v_div, 1);
         }
 
       })(i);
@@ -123,6 +123,7 @@ function customMenuRecursive(p_submenu,p_ul,p_object,p_closediv, p_cm_div, p_lev
 
     p_ul.appendChild(v_li);
 
+
     if (p_submenu[i].submenu!=undefined) {
 
       v_li.onmouseenter = function() {
@@ -138,7 +139,7 @@ function customMenuRecursive(p_submenu,p_ul,p_object,p_closediv, p_cm_div, p_lev
       var v_span_more = createSimpleElement('div',null,null);
       v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
       v_li.appendChild(v_span_more);
-      v_tree.contextMenuLi(p_submenu[i].submenu,v_ul,p_object,p_closediv, p_cm_div, p_level+1);
+      customMenuRecursive(p_submenu[i].submenu.elements,v_ul,p_object,p_closediv,p_cm_div, p_level+1);
     }
 
   })(i);

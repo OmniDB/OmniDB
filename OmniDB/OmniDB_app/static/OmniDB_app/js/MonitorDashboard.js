@@ -197,6 +197,7 @@ function buildMonitorUnit(p_unit, p_first) {
   v_unit = {
     'type': '',
     'object': null,
+    'object_data': null,
     'saved_id': v_return_unit.v_saved_id,
     'id': v_return_unit.v_id,
     'plugin_name': v_return_unit.v_plugin_name,
@@ -676,13 +677,27 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
       if (!p_div) {
         if (p_loading)
           v_tab_tag.units[i].div_loading.style.display = 'block';
-        v_units.push({ 'saved_id': v_tab_tag.units[i].saved_id, 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered, 'interval': v_tab_tag.units[i].input_interval.value, 'plugin_name': v_tab_tag.units[i].plugin_name })
+        v_units.push({ 'saved_id': v_tab_tag.units[i].saved_id,
+                       'id': v_tab_tag.units[i].id,
+                       'sequence': v_tab_tag.units[i].unit_sequence,
+                       'rendered': v_unit_rendered,
+                       'interval': v_tab_tag.units[i].input_interval.value,
+                       'plugin_name': v_tab_tag.units[i].plugin_name,
+                       'object_data': v_tab_tag.units[i].object_data
+                     })
         clearTimeout(v_tab_tag.units[i].timeout_object);
       }
       else if (p_div == v_tab_tag.units[i].div) {
         if (p_loading)
           v_tab_tag.units[i].div_loading.style.display = 'block';
-        v_units.push({ 'saved_id': v_tab_tag.units[i].saved_id, 'id': v_tab_tag.units[i].id, 'sequence': v_tab_tag.units[i].unit_sequence, 'rendered': v_unit_rendered, 'interval': v_tab_tag.units[i].input_interval.value, 'plugin_name': v_tab_tag.units[i].plugin_name })
+        v_units.push({ 'saved_id': v_tab_tag.units[i].saved_id,
+                       'id': v_tab_tag.units[i].id,
+                       'sequence': v_tab_tag.units[i].unit_sequence,
+                       'rendered': v_unit_rendered,
+                       'interval': v_tab_tag.units[i].input_interval.value,
+                       'plugin_name': v_tab_tag.units[i].plugin_name,
+                       'object_data': v_tab_tag.units[i].object_data
+                     })
         clearTimeout(v_tab_tag.units[i].timeout_object);
         break;
       }
@@ -705,6 +720,14 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                 if (v_return_unit.v_sequence == v_tab_tag.units[p].unit_sequence) {
                   v_tab_tag.units[p].saved_id = v_return_unit.v_saved_id;
                   v_tab_tag.units[p].type = v_return_unit.v_type;
+                  if (v_return_unit.v_object) {
+                    if (v_return_unit.v_object.data) {
+                      v_tab_tag.units[p].object_data = JSON.parse(JSON.stringify(v_return_unit.v_object.data));
+                    }
+                    else {
+                      v_tab_tag.units[p].object_data = JSON.parse(JSON.stringify(v_return_unit.v_object));
+                    }
+                  }
                   v_unit = v_tab_tag.units[p];
                   break;
                 }

@@ -124,6 +124,7 @@ function getDatabaseList(p_init, p_callback) {
 
 				v_connTabControl.tag.selectGroupHTML = p_return.v_data.v_select_group_html;
 				v_connTabControl.tag.groups = p_return.v_data.v_groups;
+				v_connTabControl.tag.remote_terminals = p_return.v_data.v_remote_terminals;
 
 				if (p_init) {
 
@@ -402,7 +403,7 @@ function removeTab(p_tab) {
 	if (p_tab.tag.editor!=null)
 		p_tab.tag.editor.destroy();
 
-	if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit' || p_tab.tag.mode=='console') {
+	if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit' || p_tab.tag.mode=='console' || p_tab.tag.mode=='outer_terminal') {
 		var v_message_data = { tab_id: p_tab.tag.tab_id, tab_db_id: null };
 		if (p_tab.tag.mode=='query')
 			v_message_data.tab_db_id = p_tab.tag.tab_db_id;
@@ -1306,7 +1307,7 @@ function showMenuNewTabOuter(e) {
 		for (var i=0; i<v_connTabControl.tag.hooks.outerTabMenu.length; i++)
 			v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.outerTabMenu[i]());
 	}
-/*
+
 	v_option_list.push({
 		text: 'Local Terminal',
 		icon: 'fas cm-all fa-terminal',
@@ -1315,49 +1316,29 @@ function showMenuNewTabOuter(e) {
 		}
 	});
 
-	v_option_list.push({
-		text: 'SSH Consoles',
-		icon: 'fas cm-all fa-terminal',
-		submenu: {
-				elements: [{
-						text: 'Group 1',
-						icon: 'fas cm-all fa-terminal',
-						submenu: {
-								elements: [{
-										text: 'omnidb@omnidb.org:22',
-										icon: 'fas cm-all fa-terminal'
-								}, {
-										text: 'Console 2',
-										icon: 'fas cm-all fa-terminal'
-								}]
-						}
-				}, {
-						text: 'Group 2',
-						icon: 'fas cm-all fa-terminal',
-						submenu: {
-								elements: [{
-										text: 'Console 1',
-										icon: 'fas cm-all fa-terminal'
-								},
-								{
-										text: 'Console 2',
-										icon: 'fas cm-all fa-terminal'
-								}, {
-										text: 'Console 3',
-										icon: 'fas cm-all fa-terminal'
-								},
-								{
-										text: 'Console 4',
-										icon: 'fas cm-all fa-terminal'
-								}, {
-										text: 'Console 5',
-										icon: 'fas cm-all fa-terminal'
-								}]
-						}
-				}]
-		}
-	});
-*/
+	if (v_connTabControl.tag.remote_terminals.length>0) {
+
+		var v_submenu_list = []
+
+		for (var i=0; i<v_connTabControl.tag.remote_terminals.length; i++) (function(i){
+			var v_term = v_connTabControl.tag.remote_terminals[i];
+			v_submenu_list.push({
+				text: v_term.v_alias,
+				icon: 'fas cm-all fa-terminal',
+				action: function() {
+						v_connTabControl.tag.createOuterTerminalTab(v_term.v_conn_id);
+				}
+			});
+		})(i);
+
+		v_option_list.push({
+			text: 'SSH Consoles',
+			icon: 'fas cm-all fa-terminal',
+			submenu: {
+					elements: v_submenu_list
+			}
+		});
+}
 
 
 

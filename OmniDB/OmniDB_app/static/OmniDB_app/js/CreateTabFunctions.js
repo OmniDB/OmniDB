@@ -811,11 +811,11 @@ function initCreateTabFunctions() {
 
 	};
 
-  var v_createOuterTerminalTabFunction = function(p_conn_id = -1) {
+  var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Terminal') {
 
     v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
 		var v_tab = v_connTabControl.createTab(
-            '<i class="fas fa-terminal icon-tab-title"></i><span> Terminal</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
+            '<i class="fas fa-terminal icon-tab-title"></i><span>' + p_alias + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
             false,
             null,
             null,

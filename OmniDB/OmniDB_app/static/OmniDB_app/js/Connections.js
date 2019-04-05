@@ -136,6 +136,9 @@ function testConnectionConfirm(p_index) {
 						false
 					);
 				}
+				else {
+					showError(p_return.v_data.message);
+				}
 			},
 			'box',
 			true,
@@ -173,7 +176,7 @@ function testConnection(p_index) {
 /// <summary>
 /// Go to workspace with selected connection.
 /// </summary>
-function selectConnection(p_index) {
+function selectConnection(p_tech,p_index) {
 
 	var v_has_changes = false
 
@@ -188,31 +191,31 @@ function selectConnection(p_index) {
 		showConfirm('There are changes on the connections list, would you like to save them?',
 					function() {
 
-						saveConnections(function() { selectConnectionConfirm(p_index); });
+						saveConnections(function() { selectConnectionConfirm(p_tech,p_index); });
 
 					});
 	  else
-	  	selectConnectionConfirm(p_index);
+	  	selectConnectionConfirm(p_tech,p_index);
 
 }
 
-function selectConnectionConfirm(p_index) {
+function selectConnectionConfirm(p_tech,p_index) {
 
 	var input = JSON.stringify({"p_index": p_index});
 
-    execAjax('/select_connection/',
+    execAjax('/test_connection/',
 			input,
 			function(p_return) {
 
 				if (p_return.v_data=="Connection successful.")
 
-					closeConnectionList(p_index);
+					closeConnectionList(p_tech,p_index);
 
 				else
 					showPasswordPrompt(
 						p_index,
 						function() {
-							selectConnection(p_index);
+							selectConnection(p_tech,p_index);
 						},
 						null,
 						p_return.v_data,
@@ -225,12 +228,15 @@ function selectConnectionConfirm(p_index) {
 					showPasswordPrompt(
 						p_index,
 						function() {
-							selectConnection(p_index);
+							selectConnection(p_tech,p_index);
 						},
 						null,
 						p_return.v_data.message,
 						false
 					);
+				}
+				else {
+					showError(p_return.v_data.message);
 				}
 			},
 			'box',
@@ -520,9 +526,10 @@ function showConnectionList() {
 
 	for (var i=0; i < v_connTabControl.tabList.length; i++) {
 		var v_tab = v_connTabControl.tabList[i];
-		if (v_tab.tag && v_tab.tag.mode=='connection') {
+		if (v_tab.tag && v_tab.tag.mode=='connection')
 			v_conn_id_list.push(v_tab.tag.selectedDatabaseIndex);
-		}
+		else if (v_tab.tag && v_tab.tag.mode=='outer_terminal' && v_tab.tag.connId!=null)
+			v_conn_id_list.push( v_tab.tag.connId);
 	}
 
 	var input = JSON.stringify({"p_conn_id_list": v_conn_id_list});
@@ -732,12 +739,11 @@ function showConnectionList() {
 										cellProperties.readOnly = true;
 										v_read_only = true;
 									}
+									else {
+										if (col == 14)
+											v_read_only = true;
 
-									if (col == 14)
-										v_read_only = true;
-
-									if (!v_read_only) {
-										cellProperties.readOnly = false;
+										cellProperties.readOnly = v_read_only;
 										if (v_connections_data.v_conn_ids[row].mode==2)
 											cellProperties.renderer = greenHtmlRenderer;
 										else if (v_connections_data.v_conn_ids[row].mode==-1)
@@ -748,7 +754,7 @@ function showConnectionList() {
 											cellProperties.renderer = yellowHtmlRenderer;
 										else if (v_even % 2 == 0)
 											cellProperties.renderer = blueHtmlRenderer;
-										else
+										else if (!v_read_only)
 											cellProperties.renderer =whiteHtmlRenderer;
 
 									}
@@ -777,17 +783,17 @@ function showConnectionLocked() {
 	showAlert('This connection is locked because there are connection tabs using it, close the tabs first or change the selected connection in these tabs.')
 }
 
-function closeConnectionList(p_index) {
+function closeConnectionList(p_tech,p_index) {
   document.getElementById('connection_list_div_grid').innerHTML = '';
 	document.getElementById('connection_list_div').classList.remove('isActive');
 	document.getElementById('div_save').style.visibility = 'hidden';
   v_connections_data.ht.destroy();
   v_connections_data.ht = null;
 	v_connections_data.v_active = false;
-	getDatabaseList(false, function() { closeConnectionListFinish(p_index) });
+	getDatabaseList(false, function() { closeConnectionListFinish(p_tech,p_index) });
 }
 
-function closeConnectionListFinish(p_index) {
+function closeConnectionListFinish(p_tech,p_index) {
 
 		for (var i=0; i < v_connTabControl.tabList.length; i++) {
 
@@ -811,12 +817,15 @@ function closeConnectionListFinish(p_index) {
 				v_tab.tag.dd_group_object = $(v_tab.tag.divSelectGroup.childNodes[0]).msDropDown().data("dd");
 				v_tab.tag.dd_group_selected_index = v_tab.tag.dd_group_object.selectedIndex;
 
-				changeGroup(v_tab.tag.selectedGroupIndex)
+				//changeGroup(v_tab.tag.selectedGroupIndex)
 
 			}
 		}
-
-		if (p_index)
-			v_connTabControl.tag.createConnTab(p_index);
+		if (p_index) {
+			if (p_tech=='terminal')
+				v_connTabControl.tag.createOuterTerminalTab(p_index);
+			else
+				v_connTabControl.tag.createConnTab(p_index);
+		}
 
 }

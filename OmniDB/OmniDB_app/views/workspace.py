@@ -265,6 +265,7 @@ def get_database_list(request):
 
     v_databases = []
     v_groups = []
+    v_remote_terminals = []
     v_options = ''
 
     #Group list
@@ -317,28 +318,40 @@ def get_database_list(request):
     #Connection list
     v_index = 0
     for key,v_database_object in v_session.v_databases.items():
-        v_database = v_database_object['database']
-        v_database_data = {
-            'v_db_type': v_database.v_db_type,
-            'v_alias': v_database.v_alias,
-            'v_conn_id': v_database.v_conn_id,
-            'v_console_help': v_database.v_console_help,
-            'v_database': v_database.v_active_service
-        }
+        if v_database_object['tunnel']['enabled'] or v_database_object['technology']=='terminal':
+            if v_database_object['alias']!='':
+                v_alias = v_database_object['alias']
+            else:
+                v_alias = v_database_object['tunnel']['user'] + '@' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port']
+            v_terminal_object = {
+                'v_conn_id': key,
+                'v_alias': v_alias
+            }
+            v_remote_terminals.append(v_terminal_object)
 
-        v_databases.append(v_database_data)
+        if v_database_object['database']!=None:
+            v_database = v_database_object['database']
+            v_database_data = {
+                'v_db_type': v_database.v_db_type,
+                'v_alias': v_database.v_alias,
+                'v_conn_id': v_database.v_conn_id,
+                'v_console_help': v_database.v_console_help,
+                'v_database': v_database.v_active_service
+            }
 
-        if v_database.v_alias=='':
-            v_alias = ''
-        else:
-            v_alias = '({0}) '.format(v_database.v_alias)
-        if not v_database_object['tunnel']['enabled']:
-            v_details = v_database.PrintDatabaseDetails()
-        else:
-            v_details = v_database.PrintDatabaseDetails() + ' <b>(' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port'] + ')</b>'
+            v_databases.append(v_database_data)
 
-        v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
-        v_index = v_index + 1
+            if v_database.v_alias=='':
+                v_alias = ''
+            else:
+                v_alias = '({0}) '.format(v_database.v_alias)
+            if not v_database_object['tunnel']['enabled']:
+                v_details = v_database.PrintDatabaseDetails()
+            else:
+                v_details = v_database.PrintDatabaseDetails() + ' <b>(' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port'] + ')</b>'
+
+            v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
+            v_index = v_index + 1
 
     v_html_connections = '<select style="width: 100%; font-weight: bold;" onchange="changeDatabase(this.value);">{0}</select>'.format(v_options)
 
@@ -362,6 +375,7 @@ def get_database_list(request):
         'v_select_group_html': v_html_groups,
         'v_connections': v_databases,
         'v_groups': v_groups,
+        'v_remote_terminals': v_remote_terminals,
         'v_id': v_session.v_database_index,
         'v_existing_tabs': v_existing_tabs
     }

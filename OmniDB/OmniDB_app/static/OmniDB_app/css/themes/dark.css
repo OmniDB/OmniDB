@@ -345,12 +345,12 @@ input, textarea {
 }
 
 .cellEdit {
-	background-color: rgb(187, 174, 109) !important;
+	background-color: rgb(255, 238, 154) !important;
 	color: #000 !important;
 }
 
 .cellRemove {
-	background-color: rgb(187, 109, 109) !important;
+	background-color: rgb(255, 144, 144) !important;
 	color: #000 !important;
 }
 

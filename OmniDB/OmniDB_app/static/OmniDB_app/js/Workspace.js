@@ -1326,7 +1326,7 @@ function showMenuNewTabOuter(e) {
 				text: v_term.v_alias,
 				icon: 'fas cm-all fa-terminal',
 				action: function() {
-						v_connTabControl.tag.createOuterTerminalTab(v_term.v_conn_id);
+						v_connTabControl.tag.createOuterTerminalTab(v_term.v_conn_id,v_term.v_alias);
 				}
 			});
 		})(i);

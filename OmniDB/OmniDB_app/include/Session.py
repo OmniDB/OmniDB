@@ -60,18 +60,23 @@ class Session(object):
         self.RefreshDatabaseList()
 
     def AddDatabase(self,
-                    p_database,
-                    p_prompt_password,
-                    p_tunnel_information = None):
+                    p_conn_id = None,
+                    p_technology = None,
+                    p_database = None,
+                    p_prompt_password = True,
+                    p_tunnel_information = None,
+                    p_alias = None):
         if len(self.v_databases)==0:
             self.v_database_index = 0
 
-        self.v_databases[p_database.v_conn_id] = {
+        self.v_databases[p_conn_id] = {
                                 'database': p_database,
                                 'prompt_password': p_prompt_password,
                                 'prompt_timeout': None,
                                 'tunnel': p_tunnel_information,
-                                'tunnel_object': None
+                                'tunnel_object': None,
+                                'alias': p_alias,
+                                'technology': p_technology
                                 }
 
     def DatabaseReachPasswordTimeout(self,p_database_index):
@@ -247,9 +252,9 @@ class Session(object):
             )
 
             if 1==0:
-                self.AddDatabase(database,False,tunnel_information)
+                self.AddDatabase(r["conn_id"],r["dbt_st_name"],database,False,tunnel_information,v_alias)
             else:
-                self.AddDatabase(database,True,tunnel_information)
+                self.AddDatabase(r["conn_id"],r["dbt_st_name"],database,True,tunnel_information,v_alias)
 
     def Execute(self,
                 p_database,

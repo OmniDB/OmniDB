@@ -11,16 +11,17 @@ You should have received a copy of the GNU General Public License along with Omn
 */
 
 var v_light_terminal_theme = {
-	background: '#fff',
+	background: '#fcfdfd',
 	brightBlue: '#006de2',
 	brightGreen: '#4b9800',
-	foreground: '#000',
-	cursor: '#000',
-	cursorAccent: '#000',
+	foreground: '#353535',
+	cursor: '#353535',
+	cursorAccent: '#353535',
 	selection: '#00000030'
 }
 
 var v_dark_terminal_theme = {
+	background: '#1a1a1d'
 }
 
 var v_current_terminal_theme;

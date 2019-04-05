@@ -15,6 +15,9 @@ from OmniDB_app.include.Session import Session
 from OmniDB import settings
 from datetime import datetime
 
+sys.path.append('OmniDB_app/include')
+from OmniDB_app.include import paramiko
+
 def index(request):
 
     #Invalid session
@@ -96,15 +99,25 @@ def get_connections(request):
     for key,v_connection_object in v_session.v_databases.items():
         v_connection = v_connection_object['database']
         v_tunnel     = v_connection_object['tunnel']
+        v_tech       = v_connection_object['technology']
+        v_alias      = v_connection_object['alias']
         v_connection_data_list = []
         v_connection_data_list.append(False)
-        v_connection_data_list.append(v_connection.v_db_type)
-        v_connection_data_list.append(v_connection.v_conn_string)
-        v_connection_data_list.append(v_connection.v_server)
-        v_connection_data_list.append(v_connection.v_port)
-        v_connection_data_list.append(v_connection.v_service)
-        v_connection_data_list.append(v_connection.v_user)
-        v_connection_data_list.append(v_connection.v_alias)
+        v_connection_data_list.append(v_tech)
+        if (v_tech=='terminal'):
+            v_connection_data_list.append('')
+            v_connection_data_list.append('')
+            v_connection_data_list.append('')
+            v_connection_data_list.append('')
+            v_connection_data_list.append('')
+
+        else:
+            v_connection_data_list.append(v_connection.v_conn_string)
+            v_connection_data_list.append(v_connection.v_server)
+            v_connection_data_list.append(v_connection.v_port)
+            v_connection_data_list.append(v_connection.v_service)
+            v_connection_data_list.append(v_connection.v_user)
+        v_connection_data_list.append(v_alias)
         v_connection_data_list.append(v_tunnel['enabled'])
         v_connection_data_list.append(v_tunnel['server'])
         v_connection_data_list.append(v_tunnel['port'])
@@ -113,20 +126,20 @@ def get_connections(request):
         v_connection_data_list.append(v_tunnel['key'])
 
         v_conn_object = {
-            'id': v_connection.v_conn_id,
+            'id': key,
             'mode': 0,
             'old_mode': -1,
             'locked': False,
             'group_changed': False
         }
 
-        if v_connection.v_conn_id in v_tab_conn_id_list:
+        if key in v_tab_conn_id_list:
             v_connection_data_list.append('''<i title="Connection Locked" class='fas fa-lock action-grid action-locked' onclick='showConnectionLocked()'></i>''')
             v_conn_object['locked'] = True
         else:
             v_connection_data_list.append('''<i title="Remove Connection" class='fas fa-times action-grid action-close' onclick='dropConnection()'></i>
             <i title="Test Connection" class='fas fa-plug action-grid action-test' onclick='testConnection({0})''></i>
-            <i title="Select Connection" class='fas fa-check-circle action-grid action-check' onclick='selectConnection({0})''></i>'''.format(v_connection.v_conn_id))
+            <i title="Select Connection" class='fas fa-check-circle action-grid action-check' onclick="selectConnection('{0}',{1})"></i>'''.format(v_connection_object['technology'],key))
 
         v_conn_id_list.append(v_conn_object)
 
@@ -330,6 +343,30 @@ def save_connections(request):
                     v_use_tunnel = 0
 
 
+                if r[0]=='terminal':
+                    database = None
+                    r[1] = ''
+                    r[2] = ''
+                    r[3] = ''
+                    r[4] = ''
+                    r[5] = ''
+
+
+
+                else:
+                    database = OmniDatabase.Generic.InstantiateDatabase(
+        				r[0],
+        				r[2],
+        				r[3],
+        				r[4],
+        				r[5],
+                        '',
+                        conn_id,
+                        r[6],
+                        p_conn_string = r[1],
+                        p_parse_conn_string = True
+                    )
+
                 v_session.v_omnidb_database.v_connection.Execute('''
                     update connections
                     set dbt_st_name = '{0}',
@@ -378,27 +415,22 @@ def save_connections(request):
                 v_session.v_databases[conn_id]['tunnel']['password'] = r[11]
                 v_session.v_databases[conn_id]['tunnel']['key'] = r[12]
 
-                database = OmniDatabase.Generic.InstantiateDatabase(
-    				r[0],
-    				r[2],
-    				r[3],
-    				r[4],
-    				r[5],
-                    '',
-                    conn_id,
-                    r[6],
-                    p_conn_string = r[1],
-                    p_parse_conn_string = True
-                )
-
                 v_session.v_databases[conn_id]['database'] = database
                 v_session.v_databases[conn_id]['tunnel_object'] = None
+                v_session.v_databases[conn_id]['alias'] = r[6]
             #new
             elif v_conn_id_list[v_index]['mode'] == 2:
                 if r[7]:
                     v_use_tunnel = 1
                 else:
                     v_use_tunnel = 0
+
+                if r[0]=='terminal':
+                    r[1] = ''
+                    r[2] = ''
+                    r[3] = ''
+                    r[4] = ''
+                    r[5] = ''
                 v_session.v_omnidb_database.v_connection.Execute('''
                     insert into connections values (
                     (select coalesce(max(conn_id), 0) + 1 from connections),
@@ -436,18 +468,21 @@ def save_connections(request):
                 select coalesce(max(conn_id), 0) from connections
                 ''')
 
-                database = OmniDatabase.Generic.InstantiateDatabase(
-    				r[0],
-    				r[2],
-    				r[3],
-    				r[4],
-    				r[5],
-                    '',
-                    conn_id,
-                    r[6],
-                    p_conn_string = r[1],
-                    p_parse_conn_string = True
-                )
+                if r[0]=='terminal':
+                    database=None
+                else:
+                    database = OmniDatabase.Generic.InstantiateDatabase(
+        				r[0],
+        				r[2],
+        				r[3],
+        				r[4],
+        				r[5],
+                        '',
+                        conn_id,
+                        r[6],
+                        p_conn_string = r[1],
+                        p_parse_conn_string = True
+                    )
 
                 tunnel_information = {
                     'enabled': r[7],
@@ -459,9 +494,9 @@ def save_connections(request):
                 }
 
                 if 1==0:
-                    v_session.AddDatabase(database,False,tunnel_information)
+                    v_session.AddDatabase(conn_id,r[0],database,False,tunnel_information,r[6])
                 else:
-                    v_session.AddDatabase(database,True,tunnel_information)
+                    v_session.AddDatabase(conn_id,r[0],database,True,tunnel_information,r[6])
 
             #delete
             elif v_conn_id_list[v_index]['mode'] == -1:
@@ -524,17 +559,31 @@ def test_connection(request):
     json_object = json.loads(request.POST.get('data', None))
     p_index = json_object['p_index']
 
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(p_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_conn_object = v_session.v_databases[p_index]
+
+    if v_conn_object['technology']=='terminal':
+        client = paramiko.SSHClient()
+        client.load_system_host_keys()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+            client.close()
+            v_return['v_data'] = 'Connection successful.'
+        except Exception as exc:
+            v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
+            v_return['v_error'] = True
     else:
-        v_session.v_databases[int(p_index)]['prompt_timeout'] = datetime.now()
+        #Check database prompt timeout
+        v_timeout = v_session.DatabaseReachPasswordTimeout(int(p_index))
+        if v_timeout['timeout']:
+            v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+            v_return['v_error'] = True
+            return JsonResponse(v_return)
+        else:
+            v_session.v_databases[int(p_index)]['prompt_timeout'] = datetime.now()
 
 
-    v_return['v_data'] = v_session.v_databases [int(p_index)]['database'].TestConnection()
+        v_return['v_data'] = v_session.v_databases [int(p_index)]['database'].TestConnection()
 
     return JsonResponse(v_return)
 

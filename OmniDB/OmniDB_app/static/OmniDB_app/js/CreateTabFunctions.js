@@ -811,7 +811,7 @@ function initCreateTabFunctions() {
 
 	};
 
-  var v_createOuterTerminalTabFunction = function() {
+  var v_createOuterTerminalTabFunction = function(p_conn_id = -1) {
 
     v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
 		var v_tab = v_connTabControl.createTab(
@@ -826,9 +826,8 @@ function initCreateTabFunctions() {
               if(this.tag != null) {
                 refreshHeights();
               }
-              if(this.tag != null && this.tag.editor_input != null) {
-                  this.tag.editor_input.focus();
-                  checkConsoleStatus(this);
+              if(this.tag != null && this.tag.editor_console != null) {
+                  this.tag.editor_console.focus();
               }
             }
         );
@@ -884,7 +883,8 @@ function initCreateTabFunctions() {
       tabCloseSpan: v_tab_close_span,
       state: 0,
       terminalHistoryList: [],
-      tempData: []
+      tempData: [],
+      connId: p_conn_id
 		};
 
 		v_tab.tag = v_tag;
@@ -893,7 +893,7 @@ function initCreateTabFunctions() {
 
     setTimeout(function() {
       refreshHeights();
-      startTerminal();
+      startTerminal(p_conn_id);
     },10);
 
   };

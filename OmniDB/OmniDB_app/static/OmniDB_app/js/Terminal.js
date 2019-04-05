@@ -25,18 +25,21 @@ function clearTerminal() {
 
 }
 
-function startTerminal() {
+function startTerminal(p_conn_id) {
   var v_tag = v_connTabControl.selectedTab.tag;
   var v_context = {
     tab_tag: v_tag,
     acked: false
   }
   v_tag.context = createContext(v_queryWebSocket,v_context);
-	terminalRun(0,'stty rows ' + v_tag.editor_console.rows + ' cols ' + v_tag.editor_console.cols + '\nclear\n');
+	v_tag.editor_console.focus();
+	v_tag.editor_console.write('Starting terminal...')
+	v_tag.clear_terminal = true;
+	terminalRun(true,p_conn_id,'stty rows ' + v_tag.editor_console.rows + ' cols ' + v_tag.editor_console.cols + '\n');
 }
 
 function terminalKey(p_key) {
-	terminalRun(0, p_key)
+	terminalRun(false,-1, p_key);
 }
 
 function terminalContextMenu(p_event) {
@@ -68,10 +71,13 @@ function terminalContextMenu(p_event) {
 		}
 	},
 	{
-		text: 'Local Terminal',
+		text: 'Adjust Terminal Dimensions',
 		icon: 'fas cm-all fa-terminal',
 		action: function() {
-			v_connTabControl.tag.createOuterTerminalTab();
+			terminalRun(false,-1,'stty rows ' + v_tag.editor_console.rows + ' cols ' + v_tag.editor_console.cols + '\n');
+			setTimeout(function() {
+				v_tag.editor_console.focus();
+			},10);
 		}
 	});
 
@@ -86,7 +92,7 @@ function terminalContextMenu(p_event) {
 
 }
 
-function terminalRun(p_mode = 0, p_query = '') {
+function terminalRun(p_spawn = false, p_ssh_id = -1, p_query = '') {
   var v_tag = v_connTabControl.selectedTab.tag;
 	v_tag.tempData = '';
   var v_content = p_query;
@@ -97,7 +103,8 @@ function terminalRun(p_mode = 0, p_query = '') {
       v_cmd : v_content,
       v_tab_id: v_tag.tab_id,
       v_db_index: null,
-      v_mode: p_mode
+      v_spawn: p_spawn,
+			v_ssh_id: p_ssh_id
     }
 
     var d = new Date,
@@ -112,32 +119,28 @@ function terminalRun(p_mode = 0, p_query = '') {
 
     v_tag.state = v_consoleState.Executing;
 
-    setTimeout(function() {
-      if (!v_tag.context.context.acked) {
-        cancelTerminalTab(v_tag.context.context.tab_tag);
-      }
-    },20000);
+		if (p_spawn==true) {
+	    setTimeout(function() {
+	      if (!v_tag.context.context.acked) {
+	        cancelTerminalTab(v_tag.context.context.tab_tag);
+	      }
+	    },20000);
+		}
 }
 
 function terminalReturn(p_data,p_context) {
-
-
-		if (p_context.tab_tag.tab_id == v_connTabControl.selectedTab.id) {
-			terminalReturnRender(p_data,p_context);
-		}
-		else {
-			p_context.tab_tag.state = v_terminalState.Ready;
-			p_context.tab_tag.context = p_context;
-			p_context.tab_tag.data = p_data;
-
-		}
+	terminalReturnRender(p_data,p_context);
 }
 
 function terminalReturnRender(p_message,p_context) {
+	var v_tag = p_context.tab_tag;
+
+	if (p_context.tab_tag.clear_terminal==true) {
+		v_tag.editor_console.write('\x1b[H\x1b[2J');
+		p_context.tab_tag.clear_terminal = false;
+	}
 
   p_context.tab_tag.state = v_consoleState.Idle;
-
-  var v_tag = p_context.tab_tag;
 
   v_tag.editor_console.write(p_message.v_data.v_data)
   //appendToEditor(v_tag.editor_console,p_message.v_data.v_data);

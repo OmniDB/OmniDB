@@ -138,7 +138,7 @@ def get_connections(request):
             v_conn_object['locked'] = True
         else:
             v_connection_data_list.append('''<i title="Remove Connection" class='fas fa-times action-grid action-close' onclick='dropConnection()'></i>
-            <i title="Test Connection" class='fas fa-plug action-grid action-test' onclick='testConnection({0})''></i>
+            <i title="Test Connection" class='fas fa-plug action-grid action-test' onclick='testConnection({1})''></i>
             <i title="Select Connection" class='fas fa-check-circle action-grid action-check' onclick="selectConnection('{0}',{1})"></i>'''.format(v_connection_object['technology'],key))
 
         v_conn_id_list.append(v_conn_object)
@@ -416,6 +416,7 @@ def save_connections(request):
                 v_session.v_databases[conn_id]['tunnel']['key'] = r[12]
 
                 v_session.v_databases[conn_id]['database'] = database
+                v_session.v_databases[conn_id]['technology'] = r[0]
                 v_session.v_databases[conn_id]['tunnel_object'] = None
                 v_session.v_databases[conn_id]['alias'] = r[6]
             #new

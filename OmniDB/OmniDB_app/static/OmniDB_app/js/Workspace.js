@@ -33,7 +33,17 @@ $(function () {
 
 
 	v_connTabControl.tag.createSnippetTab();
-	v_connTabControl.tag.createWebsiteOuterTab(v_short_version,'/welcome');
+	v_connTabControl.tag.createWebsiteOuterTab(v_short_version,null,
+	`
+	<section class="welcome_release_content">
+    <h2>Release notes</h2>
+    <div class="welcome_release_container">
+      <ul class="welcome_release_list">
+        <li class="welcome_release_item"><span>To do...</span></li>
+      </ul>
+    </div>
+  </section>
+	`);
 
 	//v_connTabControl.tag.createServerMonitoringTab();
 
@@ -81,6 +91,10 @@ $(function () {
 	  e = e || event;
 	  e.preventDefault();
 	},false);
+
+	/*window.addEventListener("paste",function(e){
+	  console.log('ae')
+	});*/
 
 	window.addEventListener("focus", function(event)
 	{
@@ -475,7 +489,7 @@ function refreshHeights(p_all) {
 
 		//Snippet tab, adjust editor only
 		if (v_tab_tag.mode=='snippet') {
-			v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 62 + 'px';
+			v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 42 + 'px';
 			v_tab_tag.editor.resize();
 		}
 		else if (v_tab_tag.mode=='monitor_unit') {

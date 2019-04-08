@@ -382,7 +382,7 @@ button {
   border-radius: 3px;
   font-family: Arial;
   color: #333;
-  font-size: 12px;
+  font-size: inherit;
   height: 28px;
   line-height: 0px;
   padding-left: 12px;
@@ -413,11 +413,6 @@ select {
 
 button:hover {
   background: #f7f7f7;
-  background-image: -webkit-linear-gradient(top, #f7f7f7, #e0e0e0);
-  background-image: -moz-linear-gradient(top, #f7f7f7, #e0e0e0);
-  background-image: -ms-linear-gradient(top, #f7f7f7, #e0e0e0);
-  background-image: -o-linear-gradient(top, #f7f7f7, #e0e0e0);
-  background-image: linear-gradient(to bottom, #f7f7f7, #e0e0e0);
   text-decoration: none;
 }
 
@@ -1089,17 +1084,6 @@ h2 {
   width: 800px;
   height: 177px;
   overflow: auto;
-}
-
-.welcome_release_item {
-  font-size: 14px;
-  margin-top: 30px;
-  border-radius: 15px;
-  background: #a5c2ec;
-  padding: 20px;
-  display: inline-block;
-  margin: 10 auto;
-  max-width: 90%;
 }
 
 .link_text {

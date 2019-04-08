@@ -15,6 +15,8 @@ from OmniDB_app.include.Session import Session
 from OmniDB import settings
 from datetime import datetime
 
+import time, os
+
 sys.path.append('OmniDB_app/include')
 from OmniDB_app.include import paramiko
 
@@ -130,7 +132,8 @@ def get_connections(request):
             'mode': 0,
             'old_mode': -1,
             'locked': False,
-            'group_changed': False
+            'group_changed': False,
+            'technology': v_tech
         }
 
         if key in v_tab_conn_id_list:
@@ -563,11 +566,22 @@ def test_connection(request):
     v_conn_object = v_session.v_databases[p_index]
 
     if v_conn_object['technology']=='terminal':
+
         client = paramiko.SSHClient()
         client.load_system_host_keys()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
         try:
-            client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+            #ssh key provided
+            if v_conn_object['tunnel']['key'].strip() != '':
+                v_file_name = '{0}'.format(str(time.time())).replace('.','_')
+                v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
+                with open(v_full_file_name,'w') as f:
+                    f.write(v_conn_object['tunnel']['key'])
+                client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+            else:
+                client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+
             client.close()
             v_return['v_data'] = 'Connection successful.'
         except Exception as exc:

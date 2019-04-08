@@ -12,3 +12,4 @@ cx_Oracle>=6.1
 pymysql
 pgspecial
 sshtunnel
+pexpect

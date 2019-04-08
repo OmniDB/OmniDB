@@ -16,6 +16,9 @@ import time
 import os
 from collections import OrderedDict
 
+import logging
+logger = logging.getLogger('OmniDB_app.Session')
+
 tunnels = dict([])
 
 '''
@@ -109,14 +112,16 @@ class Session(object):
                                 ssh_username=self.v_databases[p_database_index]['tunnel']['user'],
                                 ssh_private_key_password=self.v_databases[p_database_index]['tunnel']['password'],
                                 ssh_pkey = v_full_file_name,
-                                remote_bind_address=(self.v_databases[p_database_index]['database'].v_active_server, int(self.v_databases[p_database_index]['database'].v_active_port))
+                                remote_bind_address=(self.v_databases[p_database_index]['database'].v_active_server, int(self.v_databases[p_database_index]['database'].v_active_port)),
+                                logger=logger
                             )
                         else:
                             server = SSHTunnelForwarder(
                                 (self.v_databases[p_database_index]['tunnel']['server'], int(self.v_databases[p_database_index]['tunnel']['port'])),
                                 ssh_username=self.v_databases[p_database_index]['tunnel']['user'],
                                 ssh_password=self.v_databases[p_database_index]['tunnel']['password'],
-                                remote_bind_address=(self.v_databases[p_database_index]['database'].v_active_server, int(self.v_databases[p_database_index]['database'].v_active_port))
+                                remote_bind_address=(self.v_databases[p_database_index]['database'].v_active_server, int(self.v_databases[p_database_index]['database'].v_active_port)),
+                                logger=logger
                             )
                         server.set_keepalive = 120
                         server.start()

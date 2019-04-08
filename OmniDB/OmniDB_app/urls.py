@@ -48,7 +48,6 @@ base_urlpatterns = [
 
     #WORKSPACE
     url(r'^workspace/', views.workspace.index, name='workspace'),
-    url(r'^welcome/', views.workspace.welcome, name='welcome'),
     url(r'^shortcuts/', views.workspace.shortcuts, name='shortcuts'),
     url(r'^save_config_user/', views.workspace.save_config_user, name='save_config_user'),
     url(r'^save_shortcuts/', views.workspace.save_shortcuts, name='save_shortcuts'),

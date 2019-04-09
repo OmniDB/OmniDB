@@ -558,16 +558,6 @@ function showConnectionList() {
 						};
 					}
 				}
-				/*col.compareFunctionFactory = function(sortOrder, columnMeta) {
-					console.log('hehe');
-					console.log(sortOrder, columnMeta);
-
-					return function comparator(value, nextValue) {
-						console.log(value, nextValue);
-						//TODO: implement function to do desired sort in such field
-						return -1;// Some value comparisons which will return -1, 0 or 1...
-					};
-				};*/
 				ConnColumnProperties.push(col);
 
 				var col = new Object();

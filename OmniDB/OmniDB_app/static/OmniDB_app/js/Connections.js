@@ -546,8 +546,19 @@ function showConnectionList() {
 				col.checkedTemplate = true;
         		col.uncheckedTemplate = false;
 				col.width = '60';
-				/*TODO: Update Handsontable in order to use the feature below.
-				col.compareFunctionFactory = function(sortOrder, columnMeta) {
+				col.columnSorting = {
+					compareFunctionFactory: function compareFunctionFactory(p_sortOrder, p_columnMeta) {
+						return function comparator(p_value, p_nextValue) {
+							if(p_sortOrder == 'asc') {
+								return (p_value === p_nextValue)? 0 : p_value? 1 : -1;
+							}
+							else if(p_sortOrder == 'desc') {
+								return (p_value === p_nextValue)? 0 : p_value? -1 : 1;
+							}
+						};
+					}
+				}
+				/*col.compareFunctionFactory = function(sortOrder, columnMeta) {
 					console.log('hehe');
 					console.log(sortOrder, columnMeta);
 
@@ -556,8 +567,7 @@ function showConnectionList() {
 						//TODO: implement function to do desired sort in such field
 						return -1;// Some value comparisons which will return -1, 0 or 1...
 					};
-				};
-				*/
+				};*/
 				ConnColumnProperties.push(col);
 
 				var col = new Object();
@@ -653,6 +663,7 @@ function showConnectionList() {
 
 				v_connections_data.ht = new Handsontable(v_div_result,
 					{
+						licenseKey: 'non-commercial-and-evaluation',
 						data: p_return.v_data.v_data,
 						columns : ConnColumnProperties,
 						colHeaders : true,

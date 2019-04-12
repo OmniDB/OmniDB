@@ -8,14 +8,17 @@
 
 - New features:
   - Monitoring units can now use past data, allowing users to create historical charts
+  - Local and remote terminal emulator
 - Improvements:
   - Improved security: disabled TLSv1.0 and TLSv1.1
   - App graphical stack upgraded to Electron 4.1 and GTK 3
+  - Support to file .my.cnf for MySQL and MariaDB
 - Bug fixes:
   - Fixed error on EditData when primary key was of type date or timestamp
   - Fixed display and handling of array types
   - Fixed handling of BC and infinity dates
   - Fixed bug involving SELECT INTO statements
+  - Fixed error message not completely copyable from error popup
 - Changes in deployment
   - Dropped support for 32 bits builds
   - Linux deployment machines migrated from Vagrant to Docker

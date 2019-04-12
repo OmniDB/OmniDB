@@ -1442,11 +1442,11 @@ for (var func in conversions) {
   // export rgb2hsl and ["rgb"]["hsl"]
   convert[from] = convert[from] || {};
 
-  convert[from][to] = convert[func] = (function(func) {
+  convert[from][to] = convert[func] = (function(func) { 
     return function(arg) {
       if (typeof arg == "number")
         arg = Array.prototype.slice.call(arguments);
-
+      
       var val = conversions[func](arg);
       if (typeof val == "string" || val === undefined)
         return val; // keyword
@@ -1474,12 +1474,12 @@ Converter.prototype.routeSpace = function(space, args) {
    }
    // color.rgb(10, 10, 10)
    if (typeof values == "number") {
-      values = Array.prototype.slice.call(args);
+      values = Array.prototype.slice.call(args);        
    }
 
    return this.setValues(space, values);
 };
-
+  
 /* Set the values for a space, invalidating cache */
 Converter.prototype.setValues = function(space, values) {
    this.space = space;
@@ -13653,32 +13653,28 @@ module.exports = Element.extend({
 	},
 
 	draw: function() {
-    try {
-  		var ctx = this._chart.ctx;
-  		var vm = this._view;
-  		var sA = vm.startAngle;
-  		var eA = vm.endAngle;
+		var ctx = this._chart.ctx;
+		var vm = this._view;
+		var sA = vm.startAngle;
+		var eA = vm.endAngle;
 
-  		ctx.beginPath();
+		ctx.beginPath();
 
-  		ctx.arc(vm.x, vm.y, vm.outerRadius, sA, eA);
-  		ctx.arc(vm.x, vm.y, vm.innerRadius, eA, sA, true);
+		ctx.arc(vm.x, vm.y, vm.outerRadius, sA, eA);
+		ctx.arc(vm.x, vm.y, vm.innerRadius, eA, sA, true);
 
-  		ctx.closePath();
-  		ctx.strokeStyle = vm.borderColor;
-  		ctx.lineWidth = vm.borderWidth;
+		ctx.closePath();
+		ctx.strokeStyle = vm.borderColor;
+		ctx.lineWidth = vm.borderWidth;
 
-  		ctx.fillStyle = vm.backgroundColor;
+		ctx.fillStyle = vm.backgroundColor;
 
-  		ctx.fill();
-  		ctx.lineJoin = 'bevel';
+		ctx.fill();
+		ctx.lineJoin = 'bevel';
 
-  		if (vm.borderWidth) {
-  			ctx.stroke();
-  		}
-    }
-    catch(err) {
-    }
+		if (vm.borderWidth) {
+			ctx.stroke();
+		}
 	}
 });
 
@@ -14125,12 +14121,7 @@ var exports = module.exports = {
 	 * @param {Chart} chart - The chart for which to clear the canvas.
 	 */
 	clear: function(chart) {
-    try {
-		    chart.ctx.clearRect(0, 0, chart.width, chart.height);
-    }
-    catch(err) {
-
-    }
+		chart.ctx.clearRect(0, 0, chart.width, chart.height);
 	},
 
 	/**

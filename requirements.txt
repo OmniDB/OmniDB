@@ -4,7 +4,7 @@ tornado
 click
 sqlparse>=0.2.3
 psycopg2-binary
-scrypt
+pyscrypt
 pyaes
 openpyxl
 RestrictedPython>=4.0b2

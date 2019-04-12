@@ -1,7 +1,7 @@
 '''
 The MIT License (MIT)
 
-Copyright (c) 2014-2018 William Ivanski
+Copyright (c) 2014-2019 William Ivanski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-import scrypt
+try:
+    import scrypt
+    v_use_scrypt = True
+except ImportError:
+    import pyscrypt
+    v_use_scrypt = False
 import pyaes
 import base64
 import os
@@ -41,13 +46,23 @@ class Cryptor(object):
     def __init__(self, p_key, p_encoding='utf-8'):
         try:
             self.v_encoding = p_encoding
-            self.v_hash = scrypt.hash(
-                password = p_key.encode('utf-8'),
-                salt = '0123456789ABCDEF'.encode('utf-8'),
-                N = 1024,
-                r = 1,
-                p = 1
-            )[:32]
+            if v_use_scrypt:
+                self.v_hash = scrypt.hash(
+                    password = p_key.encode('utf-8'),
+                    salt = '0123456789ABCDEF'.encode('utf-8'),
+                    N = 1024,
+                    r = 1,
+                    p = 1
+                )[:32]
+            else:
+                self.v_hash = pyscrypt.hash(
+                    password = p_key.encode('utf-8'),
+                    salt = '0123456789ABCDEF'.encode('utf-8'),
+                    N = 1024,
+                    r = 1,
+                    p = 1,
+                    dkLen = 32
+                )
         except Exception as exc:
             raise Spartacus.Utils.Exception(str(exc))
     def Encrypt(self, p_plaintext):

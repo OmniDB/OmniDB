@@ -64,6 +64,7 @@ function showConsoleHistory() {
 
           v_tab_tag.console_history_grid = new Handsontable(v_grid_div,
           {
+			licenseKey: 'non-commercial-and-evaluation',
             data: p_return.v_data.data,
             columns : columnProperties,
             colHeaders : true,

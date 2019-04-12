@@ -108,6 +108,7 @@ function listConversions() {
 				var container = v_div_result;
 				v_conv_data.ht = new Handsontable(container,
 												{
+													licenseKey: 'non-commercial-and-evaluation',
 													data: p_return.v_data.v_data,
 													columns : columnProperties,
 													colHeaders : true,
@@ -323,6 +324,7 @@ function conversionDetails(p_conv_id) {
 				var container = v_div_result;
 				v_conv_data.ht_details = new Handsontable(container,
 														{
+															licenseKey: 'non-commercial-and-evaluation',
 															data: p_return.v_data.v_data,
 															columns : columnProperties,
 															colHeaders : true,
@@ -453,6 +455,7 @@ function refreshConvDetails() {
 				var container = v_div_result;
 				v_conv_data.ht_details = new Handsontable(container,
 														{
+															licenseKey: 'non-commercial-and-evaluation',
 															data: p_return.v_data.v_data,
 															columns : columnProperties,
 															colHeaders : true,

@@ -157,6 +157,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 			v_curr_tab_tag.alterTableObject.htColumns = new Handsontable(
 				container,
 				{
+					licenseKey: 'non-commercial-and-evaluation',
 					data: p_return.v_data.v_data_columns,
 					columns : columnProperties,
 					colHeaders : true,
@@ -340,6 +341,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 			v_curr_tab_tag.alterTableObject.htConstraints = new Handsontable(
 				container,
 				{
+					licenseKey: 'non-commercial-and-evaluation',
 					data: p_return.v_data.v_data_constraints,
 					columns : columnProperties,
 					colHeaders : true,
@@ -478,6 +480,7 @@ function startAlterTable(p_create_tab, p_mode, p_table, p_schema) {
 			v_curr_tab_tag.alterTableObject.htIndexes = new Handsontable(
 				container,
 				{
+					licenseKey: 'non-commercial-and-evaluation',
 					data: p_return.v_data.v_data_indexes,
 					columns : columnProperties,
 					colHeaders : true,

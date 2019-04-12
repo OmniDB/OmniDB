@@ -198,6 +198,7 @@ function listUsers() {
 				var container = v_div_result;
 				v_usersObject.ht = new Handsontable(container,
 													{
+														licenseKey: 'non-commercial-and-evaluation',
 														data: p_return.v_data.v_data,
 														columns : columnProperties,
 														colHeaders : true,

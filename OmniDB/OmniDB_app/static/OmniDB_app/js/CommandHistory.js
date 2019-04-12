@@ -89,6 +89,7 @@ function showCommandList() {
 	v_tabTag.commandHistory.grid = new Handsontable(
 		v_gridDiv,
 		{
+			licenseKey: 'non-commercial-and-evaluation',
 			data: [],
 			columns : v_columnProperties,
 			colHeaders : true,

@@ -373,6 +373,7 @@ function showPlugins() {
 
 				v_connTabControl.tag.plugin_ht = new Handsontable(v_div_result,
 														{
+                                                            licenseKey: 'non-commercial-and-evaluation',
 															data: p_return.v_data.list,
 															columns : columnProperties,
 															colHeaders : true,

@@ -255,9 +255,15 @@ def thread_dispatcher(self,args,ws_object):
                                 #spawn local terminal
                                 if v_data['v_ssh_id'] == -1:
 
-                                    tab_object['terminal_object'] = pexpect.spawn('/bin/bash',encoding='utf-8')
-                                    tab_object['terminal_object'].send(v_data['v_cmd'])
-                                    tab_object['terminal_type'] = 'local'
+                                    if not v_session.v_super_user:
+                                        start_thread = False
+                                        v_response['v_code'] = response.MessageException
+                                        v_response['v_data'] = 'Must be superuser to start a local terminal.'
+                                        ws_object.write_message(json.dumps(v_response))
+                                    else:
+                                        tab_object['terminal_object'] = pexpect.spawn('/bin/bash',encoding='utf-8')
+                                        tab_object['terminal_object'].send(v_data['v_cmd'])
+                                        tab_object['terminal_type'] = 'local'
                                 #spawn remote terminal
                                 else:
                                     v_conn_object = v_session.v_databases[v_data['v_ssh_id']]
@@ -265,7 +271,17 @@ def thread_dispatcher(self,args,ws_object):
                                     client = paramiko.SSHClient()
                                     client.load_system_host_keys()
                                     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                                    client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+
+                                    #ssh key provided
+                                    if v_conn_object['tunnel']['key'].strip() != '':
+                                        v_file_name = '{0}'.format(str(time.time())).replace('.','_')
+                                        v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
+                                        with open(v_full_file_name,'w') as f:
+                                            f.write(v_conn_object['tunnel']['key'])
+                                        client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+                                    else:
+                                        client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+
                                     tab_object['terminal_ssh_client'] = client
                                     tab_object['terminal_object'] = custom_paramiko_expect.SSHClientInteraction(client,timeout=60, display=False)
                                     tab_object['terminal_object'].send(v_data['v_cmd'])

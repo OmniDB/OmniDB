@@ -46,33 +46,10 @@ function terminalContextMenu(p_event) {
 	var v_tag = v_connTabControl.selectedTab.tag;
 	var v_option_list = [];
 
-	v_option_list.push({
-		text: 'Copy',
-		icon: 'fas cm-all fa-copy',
-		action: function() {
-			document.execCommand("copy");
-		}
-	},
-	{
-		text: 'Paste',
-		icon: 'fas cm-all fa-copy',
-		action: function() {
-			setTimeout(function() {
-
-				var v_input = document.getElementById('hidden-input');
-				console.log(v_input)
-				v_input.focus();
-				v_input.value = 'ae'
-				document.execCommand("paste");
-				v_tag.editor_console.focus();
-
-			},500)
-
-		}
-	},
+	v_option_list.push(
 	{
 		text: 'Adjust Terminal Dimensions',
-		icon: 'fas cm-all fa-terminal',
+		icon: 'fas cm-all fa-window-maximize',
 		action: function() {
 			terminalRun(false,-1,'stty rows ' + v_tag.editor_console.rows + ' cols ' + v_tag.editor_console.cols + '\n');
 			setTimeout(function() {

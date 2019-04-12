@@ -122,6 +122,18 @@ function changeTheme(p_option) {
 function changeFontSize(p_option) {
 	var els = document.getElementsByClassName("ace_editor");
 	v_editor_font_size = p_option;
+
+	//Adjusting terminal themes
+	for (var i=0; i < v_connTabControl.tabList.length; i++) {
+		var v_tab = v_connTabControl.tabList[i];
+		if (v_tab.tag!=null) {
+			if (v_tab.tag.mode=='outer_terminal') {
+				v_tab.tag.editor_console.setOption('fontSize',p_option);
+				v_tab.tag.editor_console.fit();
+			}
+		}
+	}
+
 	Array.prototype.forEach.call(els, function(el) {
 	    // Do stuff here
 			ace.edit(el).setFontSize(Number(p_option));

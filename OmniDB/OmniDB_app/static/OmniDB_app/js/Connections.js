@@ -546,18 +546,18 @@ function showConnectionList() {
 				col.checkedTemplate = true;
         		col.uncheckedTemplate = false;
 				col.width = '60';
-				/*TODO: Update Handsontable in order to use the feature below.
-				col.compareFunctionFactory = function(sortOrder, columnMeta) {
-					console.log('hehe');
-					console.log(sortOrder, columnMeta);
-
-					return function comparator(value, nextValue) {
-						console.log(value, nextValue);
-						//TODO: implement function to do desired sort in such field
-						return -1;// Some value comparisons which will return -1, 0 or 1...
-					};
-				};
-				*/
+				col.columnSorting = {
+					compareFunctionFactory: function compareFunctionFactory(p_sortOrder, p_columnMeta) {
+						return function comparator(p_value, p_nextValue) {
+							if(p_sortOrder == 'asc') {
+								return (p_value === p_nextValue)? 0 : p_value? 1 : -1;
+							}
+							else if(p_sortOrder == 'desc') {
+								return (p_value === p_nextValue)? 0 : p_value? -1 : 1;
+							}
+						};
+					}
+				}
 				ConnColumnProperties.push(col);
 
 				var col = new Object();
@@ -653,6 +653,7 @@ function showConnectionList() {
 
 				v_connections_data.ht = new Handsontable(v_div_result,
 					{
+						licenseKey: 'non-commercial-and-evaluation',
 						data: p_return.v_data.v_data,
 						columns : ConnColumnProperties,
 						colHeaders : true,
@@ -701,21 +702,29 @@ function showConnectionList() {
 									if (columnIndex==1 && newValue=='') {
 										v_connections_data.ht.setDataAtCell(rowIndex,columnIndex,oldValue);
 									}
-							    else if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2 && columnIndex!=0) {
+									else {
+										if(oldValue != newValue && v_connections_data.v_conn_ids[rowIndex].mode!=2 && columnIndex!=0) {
 
-											if (v_connections_data.v_conn_ids[rowIndex].mode!=-1)
-												v_connections_data.v_conn_ids[rowIndex].mode = 1;
-											else
-												v_connections_data.v_conn_ids[rowIndex].old_mode = 1;
+												if (v_connections_data.v_conn_ids[rowIndex].mode!=-1)
+													v_connections_data.v_conn_ids[rowIndex].mode = 1;
+												else
+													v_connections_data.v_conn_ids[rowIndex].old_mode = 1;
 
-							        document.getElementById('div_save').style.visibility = 'visible';
+								        document.getElementById('div_save').style.visibility = 'visible';
 
-							    }
-									else if (columnIndex==0) {
-										v_connections_data.v_conn_ids[rowIndex].group_changed = true;
-										v_connections_data.v_group_changed = true;
-										document.getElementById('div_save').style.visibility = 'visible';
+								    }
+										else if (columnIndex==0) {
+											v_connections_data.v_conn_ids[rowIndex].group_changed = true;
+											v_connections_data.v_group_changed = true;
+											document.getElementById('div_save').style.visibility = 'visible';
+										}
+
+										if (columnIndex==1) {
+											v_connections_data.v_conn_ids[rowIndex].technology = newValue;
+											console.log(v_connections_data.v_conn_ids[rowIndex].technology)
+										}
 									}
+
 							});
 
 						},
@@ -724,6 +733,7 @@ function showConnectionList() {
 							if (v_connections_data.v_conn_ids.length!=0 && row < v_connections_data.v_conn_ids.length) {
 
 								var cellProperties = {};
+								cellProperties.readOnly = false;
 
 								if (!v_connections_data.v_groups_visible && col==0) {
 									cellProperties.renderer = grayHtmlRenderer;
@@ -732,19 +742,19 @@ function showConnectionList() {
 								else {
 									var v_even = row % 2 == 0;
 
-									var v_read_only = false;
-
 									if (v_connections_data.v_conn_ids[row].locked && col!=0) {
 										cellProperties.renderer = grayHtmlRenderer;
 										cellProperties.readOnly = true;
-										v_read_only = true;
 									}
 									else {
 										if (col == 14)
-											v_read_only = true;
+											cellProperties.readOnly = true;
 
-										cellProperties.readOnly = v_read_only;
-										if (v_connections_data.v_conn_ids[row].mode==2)
+										if (v_connections_data.v_conn_ids[row].technology=='terminal' && (col==2 || col==3 || col==4 || col==5 || col==6 || col==8)) {
+											cellProperties.readOnly = true;
+											cellProperties.renderer = grayHtmlRenderer;
+										}
+										else if (v_connections_data.v_conn_ids[row].mode==2)
 											cellProperties.renderer = greenHtmlRenderer;
 										else if (v_connections_data.v_conn_ids[row].mode==-1)
 											cellProperties.renderer = redHtmlRenderer;
@@ -754,7 +764,7 @@ function showConnectionList() {
 											cellProperties.renderer = yellowHtmlRenderer;
 										else if (v_even % 2 == 0)
 											cellProperties.renderer = blueHtmlRenderer;
-										else if (!v_read_only)
+										else
 											cellProperties.renderer =whiteHtmlRenderer;
 
 									}
@@ -822,8 +832,16 @@ function closeConnectionListFinish(p_tech,p_index) {
 			}
 		}
 		if (p_index) {
-			if (p_tech=='terminal')
-				v_connTabControl.tag.createOuterTerminalTab(p_index);
+			if (p_tech=='terminal') {
+				//finding corresponding terminal alias
+				for (var i=0; i<v_connTabControl.tag.remote_terminals.length; i++) {
+					if (p_index==v_connTabControl.tag.remote_terminals[i].v_conn_id) {
+						v_connTabControl.tag.createOuterTerminalTab(p_index,v_connTabControl.tag.remote_terminals[i].v_alias);
+						break;
+					}
+				}
+
+			}
 			else
 				v_connTabControl.tag.createConnTab(p_index);
 		}

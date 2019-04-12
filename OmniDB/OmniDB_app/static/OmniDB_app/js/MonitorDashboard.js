@@ -496,6 +496,7 @@ function testMonitorScript() {
               v_div_result.className = 'unit_grid';
               v_tab_tag.object = new Handsontable(v_div_result,
               {
+                licenseKey: 'non-commercial-and-evaluation',
                 data: p_return.v_data.v_object.data,
                 columns : columnProperties,
                 colHeaders : true,
@@ -617,6 +618,7 @@ function showMonitorUnitList() {
 
           v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.unit_list_grid = new Handsontable(v_grid_div,
           {
+            licenseKey: 'non-commercial-and-evaluation',
             data: p_return.v_data.data,
             columns : columnProperties,
             colHeaders : true,
@@ -1001,6 +1003,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
 
         						var v_grid = new Handsontable(v_unit.div_content,
         						{
+                                    licenseKey: 'non-commercial-and-evaluation',
         							data: v_return_unit.v_object.data,
         							columns : columnProperties,
         							colHeaders : true,

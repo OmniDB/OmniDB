@@ -164,6 +164,7 @@ function initCreateTabFunctions() {
 
       var ht = new Handsontable(v_divProperties,
                           {
+                            licenseKey: 'non-commercial-and-evaluation',
                             data: [],
                             columns : columnProperties,
                             colHeaders : true,
@@ -312,7 +313,7 @@ function initCreateTabFunctions() {
   	"<div style='padding-right: 12px;'><div id='" + v_tab.id + "_div_select_db' style='width: 100%; display: inline-block;'></div>" +
   	"</div>" +
   	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
-  	"<div style='width: 97%;'><div id='" + v_tab.id + "_tree' style='margin-top: 10px; overflow: auto; font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans;'></div>" +
+  	"<div style='width: 97%;'><div id='" + v_tab.id + "_tree' style='height: 100%;'></div>" +
   	"</div>" +
   	"<div id='html1'>" +
   	"</div>" +
@@ -327,8 +328,6 @@ function initCreateTabFunctions() {
   	var v_div = document.getElementById('div_' + v_tab.id);
   	v_div.innerHTML = v_html;
 
-  	var v_height  = window.innerHeight - $('#' + v_tab.id + '_tree').offset().top - 20;
-  	document.getElementById(v_tab.id + '_tree').style.height = v_height + "px";
 
   	var v_currTabControl = createTabControl(v_tab.id + '_tabs',0,null);
 
@@ -815,7 +814,7 @@ function initCreateTabFunctions() {
 
     v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
 		var v_tab = v_connTabControl.createTab(
-            '<i class="fas fa-terminal icon-tab-title"></i><span>' + p_alias + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
+            '<i class="fas fa-terminal icon-tab-title"></i><span>' + p_alias + '</span><i title="Configure" id="tab_configure" class="fas fa-wrench tab-icon"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
             false,
             null,
             null,
@@ -834,7 +833,7 @@ function initCreateTabFunctions() {
 		v_connTabControl.selectTab(v_tab);
 
 		//Adding unique names to spans
-		var v_tab_close_span = document.getElementById('tab_close');
+    var v_tab_close_span = document.getElementById('tab_close');
 		v_tab_close_span.id = 'tab_close_' + v_tab.id;
 		v_tab_close_span.onclick = function(e) {
       var v_current_tab = v_tab;
@@ -842,6 +841,12 @@ function initCreateTabFunctions() {
         function() {
           removeTab(v_current_tab);
         });
+		};
+
+    var v_tab_close_span = document.getElementById('tab_configure');
+		v_tab_close_span.id = 'tab_configure_' + v_tab.id;
+		v_tab_close_span.onclick = function(e) {
+      terminalContextMenu(e);
 		};
 
 		var v_html = "<div id='txt_console_" + v_tab.id + "' style=' width: 100%; height: 120px;'></div>";
@@ -852,18 +857,10 @@ function initCreateTabFunctions() {
 
     var term_div = document.getElementById('txt_console_' + v_tab.id);
     var term = new Terminal({
-          fontSize: 14,
+          fontSize: v_editor_font_size,
           theme: v_current_terminal_theme
     });
     term.open(term_div);
-
-    term_div.oncontextmenu = function(e) {
-      if (e.button==2) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      terminalContextMenu(e);
-    };
 
     term.on('data', (key, ev) => {
             terminalKey(key);
@@ -898,7 +895,7 @@ function initCreateTabFunctions() {
 
   };
 
-  var v_createWebsiteOuterTabFunction = function(p_name, p_site) {
+  var v_createWebsiteOuterTabFunction = function(p_name, p_site, p_html) {
 
 		v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
 		var v_tab = v_connTabControl.createTab(
@@ -930,7 +927,14 @@ function initCreateTabFunctions() {
 		var v_tab_title_span = document.getElementById('tab_title');
 		v_tab_title_span.id = 'tab_title_' + v_tab.id;
 
-		var v_html = "<iframe id='website_" + v_tab.id + "' src='" + p_site + "' style=' width: 100%; height: 200px;'></iframe>";
+    var v_html = '';
+
+    if (p_html==null) {
+  		v_html = "<iframe id='website_" + v_tab.id + "' src='" + p_site + "' style=' width: 100%; height: 200px;'></iframe>";
+    }
+    else {
+      v_html = "<div id='website_" + v_tab.id + "' style=' width: 100%; height: 200px;'>" + p_html + "</div>";
+    }
 
     var v_div = document.getElementById('div_' + v_tab.id);
 		v_div.innerHTML = v_html;

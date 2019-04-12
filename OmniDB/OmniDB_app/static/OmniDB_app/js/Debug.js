@@ -121,6 +121,7 @@ function setupDebug(p_node, p_type) {
 
 			  v_tab_tag.htParameter = new Handsontable(v_tab_tag.div_parameter,
 			  {
+				licenseKey: 'non-commercial-and-evaluation',
 			    data: v_data,
 			    columns : columnProperties,
 			    colHeaders : true,
@@ -174,6 +175,7 @@ function setupDebug(p_node, p_type) {
 
   v_tab_tag.htVariable = new Handsontable(v_tab_tag.div_variable,
   {
+	licenseKey: 'non-commercial-and-evaluation',
     data: [],
     columns : columnProperties,
     colHeaders : true,
@@ -519,6 +521,7 @@ function debugResponseRender(p_message, p_context) {
 
 					p_context.tab_tag.htResult = new Handsontable(p_context.tab_tag.div_result,
 					{
+						licenseKey: 'non-commercial-and-evaluation',
 						data: p_message.v_data.v_result_rows,
 						columns : columnProperties,
 						colHeaders : true,

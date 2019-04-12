@@ -308,6 +308,12 @@ function tabDataMining(node) {
           }, {
               'text': 'View Definition',
               'value': 33
+          }, {
+              'text': 'Type Name',
+              'value': 34
+          }, {
+              'text': 'Domain Name',
+              'value': 35
           }
       ];
     } else {
@@ -407,6 +413,12 @@ function tabDataMining(node) {
           }, {
               'text': 'View Definition',
               'value': 32
+          }, {
+              'text': 'Type Name',
+              'value': 33
+          }, {
+              'text': 'Domain Name',
+              'value': 34
           }
       ];
     }

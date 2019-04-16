@@ -199,6 +199,14 @@ You should have received a copy of the GNU General Public License along with Omn
   color: #344E75;
 }
 
+.node-etfunction-list {
+  color: #f59825;
+}
+
+.node-etfunction {
+  color: #f59825;
+}
+
 .node-procedure-list {
   color: #177ce0;
 }
@@ -261,6 +269,10 @@ You should have received a copy of the GNU General Public License along with Omn
 
 .node-trigger {
   color: #1f8e79;
+}
+
+.node-eventtrigger {
+  color: #f59825;
 }
 
 .node-rule {

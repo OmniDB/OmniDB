@@ -7,18 +7,22 @@
 ## Release Notes
 
 - New features:
-  - Monitoring units can now use past data, allowing users to create historical charts
   - Local and remote terminal emulator
+  - PostgreSQL: Support to event triggers and event trigger functions
 - Improvements:
+  - Monitoring units can now use past data, allowing users to create historical charts
   - Improved security: disabled TLSv1.0 and TLSv1.1
+  - Support to file .my.cnf for MySQL and MariaDB connections
   - App graphical stack upgraded to Electron 4.1 and GTK 3
-  - Support to file .my.cnf for MySQL and MariaDB
+  - Grid component HandsOnTable upgraded to 7.0
 - Bug fixes:
   - Fixed error on EditData when primary key was of type date or timestamp
   - Fixed display and handling of array types
   - Fixed handling of BC and infinity dates
   - Fixed bug involving SELECT INTO statements
   - Fixed error message not completely copyable from error popup
+  - Fixed bug when sorting connection grid
+  - Fixed bug when changing user password
 - Changes in deployment
   - Dropped support for 32 bits builds
   - Linux deployment machines migrated from Vagrant to Docker

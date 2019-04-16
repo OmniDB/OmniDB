@@ -1346,6 +1346,7 @@ class PostgreSQL:
     def QueryEventTriggers(self):
         return self.v_connection.Query('''
             select quote_ident(t.evtname) as trigger_name,
+                   t.evtenabled as trigger_enabled,
                    t.evtevent as event_name,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()' as id
@@ -5393,7 +5394,7 @@ DROP COLUMN #column_name#
                    t.oid as "OID",
                    t.evtenabled as "Enabled",
                    r.rolname as "Owner",
-                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as "Trigger Function"
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as "Event Trigger Function"
             from pg_event_trigger t
             inner join pg_proc p
             on p.oid = t.evtfoid

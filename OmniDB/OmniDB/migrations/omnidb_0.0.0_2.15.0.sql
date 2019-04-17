@@ -455,7 +455,7 @@ CREATE TABLE connections (
     ssh_password varchar(100),
     ssh_key text,
     use_tunnel integer,
-    conn_string TEXT,
+    conn_string text,
     constraint pk_connections primary key (conn_id),
     constraint connections_fk_0 foreign key (user_id) references users (user_id)  on update CASCADE  on delete CASCADE,
     constraint connections_fk_1 foreign key (dbt_st_name) references db_type (dbt_st_name)  on update CASCADE  on delete CASCADE

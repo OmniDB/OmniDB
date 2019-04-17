@@ -39,7 +39,28 @@ $(function () {
     <h2>Release notes</h2>
     <div class="welcome_release_container">
       <ul class="welcome_release_list">
-        <li class="welcome_release_item"><span>To do...</span></li>
+        <li class="welcome_release_item"><span>Local and remote terminal emulator</span></li>
+        <li class="welcome_release_item"><span>PostgreSQL: Support to event triggers and event trigger functions</span></li>
+        <li class="welcome_release_item"><span>Monitoring units can now use past data, allowing users to create historical charts</span></li>
+        <li class="welcome_release_item"><span>Improved security: disabled TLSv1.0 and TLSv1.1</span></li>
+        <li class="welcome_release_item"><span>Support to file .my.cnf for MySQL and MariaDB connections</span></li>
+        <li class="welcome_release_item"><span>App graphical stack upgraded to Electron 4.1 and GTK 3</span></li>
+        <li class="welcome_release_item"><span>Grid component HandsOnTable upgraded to 7.0</span></li>
+        <li class="welcome_release_item"><span>Improved thread safety</span></li>
+        <li class="welcome_release_item"><span>Fixed error on EditData when primary key was of type date or timestamp</span></li>
+        <li class="welcome_release_item"><span>Fixed display and handling of array types</span></li>
+        <li class="welcome_release_item"><span>Fixed handling of BC and infinity dates</span></li>
+        <li class="welcome_release_item"><span>Fixed bug involving SELECT INTO statements</span></li>
+        <li class="welcome_release_item"><span>Fixed error message not completely copyable from error popup</span></li>
+        <li class="welcome_release_item"><span>Fixed bug when sorting connection grid</span></li>
+        <li class="welcome_release_item"><span>Fixed bug when changing user password</span></li>
+        <li class="welcome_release_item"><span>Fixed bug when creating connections from omnidb-config (CLI)</span></li>
+        <li class="welcome_release_item"><span>Fixed query tab hanging while waiting on command cancellation, while user is not being notified</span></li>
+				<li class="welcome_release_item"><span>Fixed bug in drag and drop of tabs in Firefox</span></li>
+        <li class="welcome_release_item"><span>Dropped support for 32 bits builds</span></li>
+        <li class="welcome_release_item"><span>Linux deployment machines migrated from Vagrant to Docker</span></li>
+        <li class="welcome_release_item"><span>PostgreSQL, Oracle, MySQL and MariaDB test machines migrated from Vagrant to Docker</span></li>
+        <li class="welcome_release_item"><span>New Vagrant machines for User Acceptance Tests (with graphical environment to test OmniDB app)</span></li>
       </ul>
     </div>
   </section>

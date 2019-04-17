@@ -15,6 +15,7 @@
   - Support to file .my.cnf for MySQL and MariaDB connections
   - App graphical stack upgraded to Electron 4.1 and GTK 3
   - Grid component HandsOnTable upgraded to 7.0
+  - Improved thread safety
 - Bug fixes:
   - Fixed error on EditData when primary key was of type date or timestamp
   - Fixed display and handling of array types
@@ -23,6 +24,9 @@
   - Fixed error message not completely copyable from error popup
   - Fixed bug when sorting connection grid
   - Fixed bug when changing user password
+  - Fixed bug when creating connections from omnidb-config (CLI)
+  - Fixed query tab hanging while waiting on command cancellation, while user is not being notified
+  - Fixed bug in drag and drop of tabs in Firefox
 - Changes in deployment
   - Dropped support for 32 bits builds
   - Linux deployment machines migrated from Vagrant to Docker

@@ -35,7 +35,7 @@ $(function () {
 	v_connTabControl.tag.createSnippetTab();
 	v_connTabControl.tag.createWebsiteOuterTab(v_short_version,null,
 	`
-	<section class="welcome_release_content">
+	<div class="welcome_release_content">
     <h2>Release notes</h2>
     <div class="welcome_release_container">
       <ul class="welcome_release_list">
@@ -47,7 +47,7 @@ $(function () {
         <li class="welcome_release_item"><span>App graphical stack upgraded to Electron 4.1 and GTK 3</span></li>
         <li class="welcome_release_item"><span>Grid component HandsOnTable upgraded to 7.0</span></li>
         <li class="welcome_release_item"><span>Improved thread safety</span></li>
-				<li class="welcome_release_item">Improved websocket connection handling in the client side</span></li>
+				<li class="welcome_release_item"><span>Improved websocket connection handling in the client side</span></li>
         <li class="welcome_release_item"><span>Fixed error on EditData when primary key was of type date or timestamp</span></li>
         <li class="welcome_release_item"><span>Fixed display and handling of array types</span></li>
         <li class="welcome_release_item"><span>Fixed handling of BC and infinity dates</span></li>
@@ -64,7 +64,7 @@ $(function () {
         <li class="welcome_release_item"><span>New Vagrant machines for User Acceptance Tests (with graphical environment to test OmniDB app)</span></li>
       </ul>
     </div>
-  </section>
+  </div>
 	`);
 
 	//v_connTabControl.tag.createServerMonitoringTab();

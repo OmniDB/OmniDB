@@ -47,6 +47,7 @@ $(function () {
         <li class="welcome_release_item"><span>App graphical stack upgraded to Electron 4.1 and GTK 3</span></li>
         <li class="welcome_release_item"><span>Grid component HandsOnTable upgraded to 7.0</span></li>
         <li class="welcome_release_item"><span>Improved thread safety</span></li>
+				<li class="welcome_release_item">Improved websocket connection handling in the client side</span></li>
         <li class="welcome_release_item"><span>Fixed error on EditData when primary key was of type date or timestamp</span></li>
         <li class="welcome_release_item"><span>Fixed display and handling of array types</span></li>
         <li class="welcome_release_item"><span>Fixed handling of BC and infinity dates</span></li>
@@ -55,7 +56,7 @@ $(function () {
         <li class="welcome_release_item"><span>Fixed bug when sorting connection grid</span></li>
         <li class="welcome_release_item"><span>Fixed bug when changing user password</span></li>
         <li class="welcome_release_item"><span>Fixed bug when creating connections from omnidb-config (CLI)</span></li>
-        <li class="welcome_release_item"><span>Fixed query tab hanging while waiting on command cancellation, while user is not being notified</span></li>
+        <li class="welcome_release_item"><span>Fixed bug that sporadically breaks query tab usability after query is cancelled</span></li>
 				<li class="welcome_release_item"><span>Fixed bug in drag and drop of tabs in Firefox</span></li>
         <li class="welcome_release_item"><span>Dropped support for 32 bits builds</span></li>
         <li class="welcome_release_item"><span>Linux deployment machines migrated from Vagrant to Docker</span></li>

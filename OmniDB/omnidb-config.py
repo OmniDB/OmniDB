@@ -301,7 +301,7 @@ def create_connection(p_username, p_technology, p_host, p_port, p_database, p_db
                     insert into connections values (
                         (select coalesce(max(conn_id), 0) + 1 from connections),
                         {0}, '{1}', '{2}', '{3}', '{4}', '{5}',
-                        '', '', '', '', '', '', 0
+                        '', '', '', '', '', '', 0, ''
                     )
                 '''.format(
                     v_users.Rows[0]['user_id'],

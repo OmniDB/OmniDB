@@ -314,6 +314,15 @@ function tabDataMining(node) {
           }, {
               'text': 'Domain Name',
               'value': 35
+          }, {
+              'text': 'Event Trigger Name',
+              'value': 36
+          }, {
+              'text': 'Event Trigger Function Name',
+              'value': 37
+          }, {
+              'text': 'Event Trigger Function Definition',
+              'value': 38
           }
       ];
     } else {
@@ -419,6 +428,15 @@ function tabDataMining(node) {
           }, {
               'text': 'Domain Name',
               'value': 34
+          }, {
+              'text': 'Event Trigger Name',
+              'value': 35
+          }, {
+              'text': 'Event Trigger Function Name',
+              'value': 36
+          }, {
+              'text': 'Event Trigger Function Definition',
+              'value': 37
           }
       ];
     }

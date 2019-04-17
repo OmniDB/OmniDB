@@ -25,7 +25,8 @@ var v_queryRequestCodes = {
 	CloseTab: 8,
 	DataMining: 9,
 	Console: 10,
-	Terminal: 11
+	Terminal: 11,
+	Ping: 12
 }
 
 /// <summary>
@@ -44,8 +45,19 @@ var v_queryResponseCodes = {
 	RemoveContext: 9,
 	DataMiningResult: 10,
 	ConsoleResult: 11,
-	TerminalResult: 12
+	TerminalResult: 12,
+	Pong: 13
 }
+
+//If client is connected or not
+var v_client_connected = false;
+
+//Tooltip object and timer
+var v_client_tooltip = null;
+var v_client_tooltip_timer = null;
+
+//Ping timer
+var v_client_ping_timer = null;
 
 /// <summary>
 /// The variable that will receive the WebSocket object.
@@ -68,6 +80,34 @@ function setStatusIcon(p_mode) {
 		v_ws_connecting.style.display = '';
 	else if (p_mode == 2)
 		v_ws_online.style.display = '';
+}
+
+//
+function websocketPing() {
+	setTimeout( function() {
+		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Ping, null, false);
+		v_client_ping_timer = setTimeout(function() {
+			try {
+				v_queryWebSocket.close();
+			}
+			catch {
+
+			}
+			websocketClosed();
+		},20000);
+	},120000);
+
+}
+
+function websocketPong() {
+	clearTimeout(v_client_ping_timer);
+	setTimeout( function() {
+		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Ping, null, false);
+		v_client_ping_timer = setTimeout(function() {
+			websocketClosed();
+		},20000);
+	},120000);
+
 }
 
 /// <summary>
@@ -104,11 +144,30 @@ function startQueryWebSocket(p_port) {
 		function(p_event) {//Open
 			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Login, v_user_key, false);
 			setStatusIcon(2);
+			websocketPing();
+			v_client_connected = true;
+
+			if (v_client_tooltip!=null) {
+				v_client_tooltip.dispose();
+				v_client_tooltip = new Tooltip($('#tooltip_status'),{
+					title: 'Reconnected.',
+					placement: "bottom",
+				});
+				v_client_tooltip.show();
+				v_client_tooltip_timer = window.setTimeout(function() {
+						v_client_tooltip.dispose();
+				}, 4000);
+			}
+
 		},
 		function(p_message, p_context, p_context_code) {//Message
 			var v_message = p_message;
 
 			switch(v_message.v_code) {
+				case parseInt(v_queryResponseCodes.Pong): {
+					websocketPong();
+					break;
+				}
 				case parseInt(v_queryResponseCodes.SessionMissing): {
 					showAlert('Session not found please reload the page.');
 					break;
@@ -212,29 +271,59 @@ function startQueryWebSocket(p_port) {
 			}
 		},
 		function(p_event) {//Close
-			//showError('The connection with query server was closed.<br>WebSocket error code: ' + p_event.code + '.<br>Reconnected.');
-			//startQueryWebSocket(p_port);
 
-			setStatusIcon(0);
-
-			if (!p_port) {
-				startQueryWebSocket(v_query_port);
-			}
-			else {
-				showAlert(
-					'Cannot connect to websocket server with ports ' + v_query_port_external + ' (external) and ' + v_query_port + ' (internal). Trying again in 5 seconds...'
-				,function() {
-					setTimeout(function() {
-						startQueryWebSocket();
-					},5000);
-				})
-			}
+			websocketClosed(p_port);
 		},
 		function(p_event) {//Error
 			//showError('An error has occurred during the communication with the query server.');
 		},
 		v_channel
 	);
+
+}
+
+function websocketClosed(p_port) {
+
+	setStatusIcon(0);
+
+	if (p_port==null && !v_client_connected) {
+		startQueryWebSocket(v_query_port);
+	}
+	else if (v_client_connected) {
+		v_client_connected = false;
+		startQueryWebSocket();
+
+		if (v_client_tooltip!=null) {
+			if (v_client_tooltip_timer!=null) {
+				clearTimeout(v_client_tooltip_timer);
+				v_client_tooltip_timer = null;
+			}
+			v_client_tooltip.dispose();
+		}
+
+		v_client_tooltip = new Tooltip($('#tooltip_status'),{
+			title: 'Lost connection to server, reconnecting...',
+			placement: "bottom",
+		});
+		v_client_tooltip.show();
+	}
+	else {
+		if (v_client_tooltip!=null) {
+			if (v_client_tooltip_timer!=null) {
+				clearTimeout(v_client_tooltip_timer);
+				v_client_tooltip_timer = null;
+			}
+			v_client_tooltip.dispose();
+		}
+
+		showAlert(
+			'Cannot connect to websocket server with ports ' + v_query_port_external + ' (external) and ' + v_query_port + ' (internal). Trying again in 2 seconds...'
+		,function() {
+			setTimeout(function() {
+				startQueryWebSocket();
+			},2000);
+		})
+	}
 
 }
 

@@ -80,6 +80,7 @@ class request(IntEnum):
   DataMining     = 9
   Console        = 10
   Terminal       = 11
+  Ping           = 12
 
 class response(IntEnum):
   LoginResult         = 0
@@ -95,6 +96,7 @@ class response(IntEnum):
   DataMiningResult    = 10
   ConsoleResult       = 11
   TerminalResult      = 12
+  Pong                = 13
 
 class debugState(IntEnum):
   Initial  = 0
@@ -176,10 +178,13 @@ def thread_dispatcher(self,args,ws_object):
                 v_response['v_code'] = response.LoginResult
                 ws_object.v_list_tab_objects = dict([])
                 ws_object.terminal_command_list = []
-                ws_object.write_message(json.dumps(v_response))
+                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
             except Exception:
                 v_response['v_code'] = response.SessionMissing
-                ws_object.write_message(json.dumps(v_response))
+                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+        elif v_code == request.Ping:
+            v_response['v_code'] = response.Pong
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         else:
             #Cancel thread
             if v_code == request.CancelThread:
@@ -235,7 +240,7 @@ def thread_dispatcher(self,args,ws_object):
                         if v_timeout['timeout']:
                             v_response['v_code'] = response.PasswordRequired
                             v_response['v_data'] = v_timeout['message']
-                            ws_object.write_message(json.dumps(v_response))
+                            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
                             return
 
                     if v_code == request.Terminal:
@@ -259,7 +264,7 @@ def thread_dispatcher(self,args,ws_object):
                                         start_thread = False
                                         v_response['v_code'] = response.MessageException
                                         v_response['v_data'] = 'Must be superuser to start a local terminal.'
-                                        ws_object.write_message(json.dumps(v_response))
+                                        ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
                                     else:
                                         tab_object['terminal_object'] = pexpect.spawn('/bin/bash',encoding='utf-8')
                                         tab_object['terminal_object'].send(v_data['v_cmd'])
@@ -293,7 +298,7 @@ def thread_dispatcher(self,args,ws_object):
                                 logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
                                 v_response['v_code'] = response.MessageException
                                 v_response['v_data'] = str(exc)
-                                ws_object.write_message(json.dumps(v_response))
+                                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                             if start_thread:
                                 v_data['v_context_code'] = v_context_code
@@ -347,7 +352,7 @@ def thread_dispatcher(self,args,ws_object):
                             logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
                             v_response['v_code'] = response.MessageException
                             v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
-                            ws_object.write_message(json.dumps(v_response))
+                            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                         v_data['v_context_code'] = v_context_code
                         v_data['v_database'] = tab_object['omnidatabase']
@@ -498,7 +503,7 @@ def thread_dispatcher(self,args,ws_object):
                                 logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
                                 v_response['v_code'] = response.MessageException
                                 v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
-                                ws_object.write_message(json.dumps(v_response))
+                                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
                         #Existing debugger, get existing tab_object
                         else:
@@ -1069,36 +1074,36 @@ def thread_query(self,args,ws_object):
                     }
                     ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         except Exception as exc:
-            try:
-                v_notices = v_database.v_connection.GetNotices()
-                v_notices_text = ''
-                if len(v_notices) > 0:
-                    for v_notice in v_notices:
-                        v_notices_text += v_notice.replace('\n','<br/>')
-            except:
-                v_notices = []
-                v_notices_text = ''
-            #try:
-            #    v_database.v_connection.Close()
-            #except:
-            #    pass
-            log_end_time = datetime.now()
-            v_duration = GetDuration(log_start_time,log_end_time)
-            log_status = 'error'
-            v_response['v_data'] = {
-                'position': v_database.GetErrorPosition(str(exc)),
-                'message' : str(exc).replace('\n','<br>'),
-                'v_duration': v_duration,
-                'v_notices': v_notices_text,
-                'v_notices_length': len(v_notices),
-                'v_inserted_id': v_inserted_id,
-                'v_status': 0,
-                'v_con_status': v_database.v_connection.GetConStatus(),
-                'v_chunks': False
-            }
-            v_response['v_error'] = True
-
             if not self.cancel:
+                try:
+                    v_notices = v_database.v_connection.GetNotices()
+                    v_notices_text = ''
+                    if len(v_notices) > 0:
+                        for v_notice in v_notices:
+                            v_notices_text += v_notice.replace('\n','<br/>')
+                except:
+                    v_notices = []
+                    v_notices_text = ''
+                #try:
+                #    v_database.v_connection.Close()
+                #except:
+                #    pass
+                log_end_time = datetime.now()
+                v_duration = GetDuration(log_start_time,log_end_time)
+                log_status = 'error'
+                v_response['v_data'] = {
+                    'position': v_database.GetErrorPosition(str(exc)),
+                    'message' : str(exc).replace('\n','<br>'),
+                    'v_duration': v_duration,
+                    'v_notices': v_notices_text,
+                    'v_notices_length': len(v_notices),
+                    'v_inserted_id': v_inserted_id,
+                    'v_status': 0,
+                    'v_con_status': v_database.v_connection.GetConStatus(),
+                    'v_chunks': False
+                }
+                v_response['v_error'] = True
+
                 ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
         #Log to history
@@ -1479,7 +1484,7 @@ def thread_query_edit_data(self,args,ws_object):
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         if not self.cancel:
-            ws_object.write_message(json.dumps(v_response))
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
 def thread_save_edit_data(self,args,ws_object):
     v_response = {
@@ -1669,7 +1674,7 @@ def thread_save_edit_data(self,args,ws_object):
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         if not self.cancel:
-            ws_object.write_message(json.dumps(v_response))
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
 
 def thread_debug_run_func(self,args,ws_object):

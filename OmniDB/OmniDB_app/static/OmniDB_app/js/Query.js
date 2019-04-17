@@ -390,6 +390,7 @@ function querySQLReturnRender(p_message,p_context) {
 						var container = v_div_result;
 						p_context.tab_tag.ht = new Handsontable(container,
 						{
+							licenseKey: 'non-commercial-and-evaluation',
 							data: v_data.v_data,
 							columns : columnProperties,
 							colHeaders : true,

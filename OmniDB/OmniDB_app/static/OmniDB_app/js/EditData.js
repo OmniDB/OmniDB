@@ -332,6 +332,7 @@ function queryEditDataReturnRender(p_message,p_context) {
 		var container = v_div_result;
 		v_currTabTag.editDataObject.ht = new Handsontable(container,
 		{
+			licenseKey: 'non-commercial-and-evaluation',
 			columns : columnProperties,
 			data : v_data.v_data,
 			colHeaders : true,

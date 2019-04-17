@@ -1218,6 +1218,7 @@ function refreshMonitoring(p_tab_tag) {
 
 				p_tab_tag.ht = new Handsontable(p_tab_tag.div_result,
 				{
+					licenseKey: 'non-commercial-and-evaluation',
 					data: v_data.v_data,
 					columns : columnProperties,
 					colHeaders : true,

@@ -164,6 +164,7 @@ function initCreateTabFunctions() {
 
       var ht = new Handsontable(v_divProperties,
                           {
+                            licenseKey: 'non-commercial-and-evaluation',
                             data: [],
                             columns : columnProperties,
                             colHeaders : true,

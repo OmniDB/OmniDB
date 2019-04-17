@@ -71,6 +71,8 @@ def get_tree_info(request):
                 'drop_procedure': v_database.TemplateDropProcedure().v_text,
                 'create_triggerfunction': v_database.TemplateCreateTriggerFunction().v_text,
                 'drop_triggerfunction': v_database.TemplateDropTriggerFunction().v_text,
+                'create_eventtriggerfunction': v_database.TemplateCreateEventTriggerFunction().v_text,
+                'drop_eventtriggerfunction': v_database.TemplateDropEventTriggerFunction().v_text,
                 'create_view': v_database.TemplateCreateView().v_text,
                 'drop_view': v_database.TemplateDropView().v_text,
                 'create_mview': v_database.TemplateCreateMaterializedView().v_text,
@@ -104,6 +106,11 @@ def get_tree_info(request):
                 'enable_trigger': v_database.TemplateEnableTrigger().v_text,
                 'disable_trigger': v_database.TemplateDisableTrigger().v_text,
                 'drop_trigger': v_database.TemplateDropTrigger().v_text,
+                'create_eventtrigger': v_database.TemplateCreateEventTrigger().v_text,
+                'alter_eventtrigger': v_database.TemplateAlterEventTrigger().v_text,
+                'enable_eventtrigger': v_database.TemplateEnableEventTrigger().v_text,
+                'disable_eventtrigger': v_database.TemplateDisableEventTrigger().v_text,
+                'drop_eventtrigger': v_database.TemplateDropEventTrigger().v_text,
                 'create_inherited': v_database.TemplateCreateInherited().v_text,
                 'noinherit_partition': v_database.TemplateNoInheritPartition().v_text,
                 'create_partition': v_database.TemplateCreatePartition().v_text,
@@ -971,6 +978,56 @@ def get_triggers(request):
             v_trigger_data = {
                 'v_name': v_trigger['trigger_name'],
                 'v_enabled': v_trigger['trigger_enabled'],
+                'v_function': v_trigger['trigger_function'],
+                'v_id': v_trigger['id']
+            }
+            v_list_triggers.append(v_trigger_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_triggers
+
+    return JsonResponse(v_return)
+
+def get_eventtriggers(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_triggers = []
+
+    try:
+        v_triggers = v_database.QueryEventTriggers()
+        for v_trigger in v_triggers.Rows:
+            v_trigger_data = {
+                'v_name': v_trigger['trigger_name'],
+                'v_enabled': v_trigger['trigger_enabled'],
+                'v_event': v_trigger['event_name'],
                 'v_function': v_trigger['trigger_function'],
                 'v_id': v_trigger['id']
             }
@@ -1962,6 +2019,92 @@ def get_triggerfunction_definition(request):
 
     try:
         v_return['v_data'] = v_database.GetTriggerFunctionDefinition(v_function)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+def get_eventtriggerfunctions(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_functions = []
+
+    try:
+        v_functions = v_database.QueryEventTriggerFunctions(False,v_schema)
+        for v_function in v_functions.Rows:
+            v_function_data = {
+                'v_name': v_function['name'],
+                'v_id': v_function['id']
+            }
+            v_list_functions.append(v_function_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_functions
+
+    return JsonResponse(v_return)
+
+def get_eventtriggerfunction_definition(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_function = json_object['p_function']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    try:
+        v_return['v_data'] = v_database.GetEventTriggerFunctionDefinition(v_function)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True

@@ -40,7 +40,7 @@ To test OmniDB, start a container from the test image, and a shell into the cont
 docker run -it --rm -p 1521:1521 omnidb:tests_oracle /bin/bash
 ```
 
-Inside the container, start all PostgreSQL instances:
+Inside the container, start the Oracle instance:
 
 ```
 /etc/init.d/oracle-xe-18c start

@@ -159,7 +159,7 @@ def save_config_user(request):
     v_session.v_csv_encoding = p_csv_encoding
     v_session.v_csv_delimiter = p_csv_delimiter
 
-    v_enc_pwd = v_cryptor.Encrypt(p_pwd)
+    v_enc_pwd = v_cryptor.Hash(v_cryptor.Encrypt(p_pwd))
 
     v_update_command = ""
     v_query_theme_name = "select theme_name, theme_type from themes where theme_id = " + p_theme

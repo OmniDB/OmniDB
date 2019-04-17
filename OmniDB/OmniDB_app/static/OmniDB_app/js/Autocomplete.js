@@ -62,6 +62,7 @@ $(function() {
 
     v_autocomplete_object.elements[i].grid = new Handsontable(v_autocomplete_object.elements[i].container,
                       {
+                        licenseKey: 'non-commercial-and-evaluation',
                         data: [],
                         columns : columnProperties,
                         colHeaders : false,

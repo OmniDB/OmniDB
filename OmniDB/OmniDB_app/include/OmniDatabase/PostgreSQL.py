@@ -1,8 +1,8 @@
 '''
 The MIT License (MIT)
 
-Portions Copyright (c) 2015-2018, The OmniDB Team
-Portions Copyright (c) 2017-2018, 2ndQuadrant Limited
+Portions Copyright (c) 2015-2019, The OmniDB Team
+Portions Copyright (c) 2017-2019, 2ndQuadrant Limited
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -1343,6 +1343,20 @@ class PostgreSQL:
               and quote_ident(rulename) = '{2}'
         '''.format(p_schema, p_table, p_rule)).replace('CREATE RULE', 'CREATE OR REPLACE RULE')
 
+    def QueryEventTriggers(self):
+        return self.v_connection.Query('''
+            select quote_ident(t.evtname) as trigger_name,
+                   t.evtenabled as trigger_enabled,
+                   t.evtevent as event_name,
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function,
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()' as id
+            from pg_event_trigger t
+            inner join pg_proc p
+            on p.oid = t.evtfoid
+            inner join pg_namespace np
+            on np.oid = p.pronamespace
+        ''')
+
     def QueryTablesTriggers(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1379,38 +1393,6 @@ class PostgreSQL:
             {0}
             order by 1, 2, 3
         '''.format(v_filter), True)
-
-    def GetTriggerDefinition(self, p_trigger, p_table, p_schema):
-        return self.v_connection.ExecuteScalar('''
-            select 'CREATE TRIGGER ' || x.trigger_name || chr(10) ||
-                   '  ' || x.action_timing || ' ' || x.event_manipulation || chr(10) ||
-                   '  ON {0}.{1}' || chr(10) ||
-                   '  FOR EACH ' || x.action_orientation || chr(10) ||
-                   (case when length(coalesce(x.action_condition, '')) > 0 then '  WHEN ( ' || x.action_condition || ') ' || chr(10) else '' end) ||
-                   '  ' || x.action_statement as definition
-            from (
-            select distinct quote_ident(t.trigger_name) as trigger_name,
-                   t.action_timing,
-                   e.event as event_manipulation,
-                   t.action_orientation,
-                   t.action_condition,
-                   t.action_statement
-            from information_schema.triggers t
-            inner join (
-            select array_to_string(array(
-            select event_manipulation::text
-            from information_schema.triggers
-            where quote_ident(event_object_schema) = '{0}'
-              and quote_ident(event_object_table) = '{1}'
-              and quote_ident(trigger_name) = '{2}'
-            ), ' OR ') as event
-            ) e
-            on 1 = 1
-            where quote_ident(t.event_object_schema) = '{0}'
-              and quote_ident(t.event_object_table) = '{1}'
-              and quote_ident(t.trigger_name) = '{2}'
-            ) x
-        '''.format(p_schema, p_table, p_trigger))
 
     def QueryTablesInheriteds(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
@@ -3519,6 +3501,203 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
+    def DataMiningTypeName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Type Name'::text as category,
+                   n.nspname::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   t.typname::text as match_value
+            from pg_type t
+            inner join pg_namespace n
+            on n.oid = t.typnamespace
+            where (t.typrelid = 0 or (select c.relkind = 'c' from pg_class c where c.oid = t.typrelid))
+              and not exists(select 1 from pg_type el where el.oid = t.typelem and el.typarray = t.oid)
+              and t.typtype <> 'd'
+              and n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and n.nspname not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and t.typname like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.typname) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and t.typname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and t.typname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningDomainName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Domain Name'::text as category,
+                   n.nspname::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   t.typname::text as match_value
+            from pg_type t
+            inner join pg_namespace n
+            on n.oid = t.typnamespace
+            where (t.typrelid = 0 or (select c.relkind = 'c' from pg_class c where c.oid = t.typrelid))
+              and not exists(select 1 from pg_type el where el.oid = t.typelem and el.typarray = t.oid)
+              and t.typtype = 'd'
+              and n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and n.nspname not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and t.typname like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.typname) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and t.typname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and t.typname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningEventTriggerName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Event Trigger Name'::text as category,
+                   np.nspname::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   t.evtname::text as match_value
+            from pg_event_trigger t
+            inner join pg_proc p
+                    on p.oid = t.evtfoid
+            inner join pg_namespace np
+                    on np.oid = p.pronamespace
+            where np.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and np.nspname not like 'pg%%temp%%'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and t.evtname like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(t.evtname) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE#  and t.evtname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#  and t.evtname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(np.nspname) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningEventTriggerFunctionName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Event Trigger Function Name'::text as category,
+                   n.nspname::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   p.proname::text as match_value
+            from pg_proc p
+            join pg_namespace n
+              on p.pronamespace = n.oid
+            where format_type(p.prorettype, null) = 'event_trigger'
+              and n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and n.nspname not like 'pg%%temp%%'
+              and format_type(p.prorettype, null) <> 'trigger'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and p.proname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and p.proname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningEventTriggerFunctionDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Event Trigger Function Definition'::text as category,
+                   y.schema_name::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   y.function_definition::text as match_value
+            from (
+                select pg_get_functiondef(z.function_oid::regprocedure) as function_definition,
+                       *
+                from (
+                    select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as function_oid,
+                           p.proname as function_name,
+                           n.nspname as schema_name
+                    from pg_proc p
+                    join pg_namespace n
+                      on p.pronamespace = n.oid
+                    where format_type(p.prorettype, null) = 'event_trigger'
+                      and n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                      and n.nspname not like 'pg%%temp%%'
+                      and format_type(p.prorettype, null) <> 'trigger'
+                    --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                ) z
+            ) y
+            where 1 = 1
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and y.function_definition like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.function_definition) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and y.function_definition ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and y.function_definition ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
     def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_dataCategoryFilter):
         v_sqlDict = {}
 
@@ -3601,6 +3780,16 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 v_sqlDict[v_category] = self.DataMiningMaterializedViewDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'View Definition':
                 v_sqlDict[v_category] = self.DataMiningViewDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Type Name':
+                v_sqlDict[v_category] = self.DataMiningTypeName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Domain Name':
+                v_sqlDict[v_category] = self.DataMiningDomainName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Event Trigger Name':
+                v_sqlDict[v_category] = self.DataMiningEventTriggerName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Event Trigger Function Name':
+                v_sqlDict[v_category] = self.DataMiningEventTriggerFunctionName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Event Trigger Function Definition':
+                v_sqlDict[v_category] = self.DataMiningEventTriggerFunctionDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
 
         return v_sqlDict
 
@@ -3832,6 +4021,27 @@ $function$
 ''')
 
     def TemplateDropTriggerFunction(self):
+        return Template('''DROP FUNCTION #function_name#
+--CASCADE
+''')
+
+    def TemplateCreateEventTriggerFunction(self):
+        return Template('''CREATE OR REPLACE FUNCTION #schema_name#.name()
+RETURNS event_trigger
+LANGUAGE plpgsql
+--IMMUTABLE | STABLE | VOLATILE
+--COST execution_cost
+AS
+$function$
+--DECLARE
+-- variables
+BEGIN
+-- definition
+END;
+$function$
+''')
+
+    def TemplateDropEventTriggerFunction(self):
         return Template('''DROP FUNCTION #function_name#
 --CASCADE
 ''')
@@ -4145,13 +4355,49 @@ ON #table_name#
         return Template('ALTER TRIGGER #trigger_name# ON #table_name# RENAME TO new_name')
 
     def TemplateEnableTrigger(self):
-        return Template('ALTER TABLE #table_name# ENABLE TRIGGER #trigger_name#')
+        return Template('''ALTER TABLE #table_name# ENABLE
+--REPLICA
+--ALWAYS
+TRIGGER #trigger_name#
+''')
 
     def TemplateDisableTrigger(self):
         return Template('ALTER TABLE #table_name# DISABLE TRIGGER #trigger_name#')
 
     def TemplateDropTrigger(self):
         return Template('''DROP TRIGGER #trigger_name# ON #table_name#
+--CASCADE
+''')
+
+    def TemplateCreateEventTrigger(self):
+        return Template('''CREATE EVENT TRIGGER name
+--ON ddl_command_start
+--ON ddl_command_end
+--ON table_rewrite
+--ON sql_drop
+--WHEN TAG IN ( filter_value [, ...] )
+EXECUTE PROCEDURE function_name()
+''')
+
+    def TemplateAlterEventTrigger(self):
+        return Template('''ALTER EVENT TRIGGER #trigger_name#
+--OWNER TO new_owner
+--OWNER TO CURRENT_USER
+--OWNER TO SESSION_USER
+--RENAME TO new_name
+''')
+
+    def TemplateEnableEventTrigger(self):
+        return Template('''ALTER EVENT TRIGGER #trigger_name# ENABLE
+--REPLICA
+--ALWAYS
+''')
+
+    def TemplateDisableEventTrigger(self):
+        return Template('ALTER EVENT TRIGGER #trigger_name# DISABLE')
+
+    def TemplateDropEventTrigger(self):
+        return Template('''DROP EVENT TRIGGER #trigger_name#
 --CASCADE
 ''')
 
@@ -5266,6 +5512,26 @@ DROP COLUMN #column_name#
             and y.trigger_name = x.trigger_name
         '''.format(p_schema, p_table, p_object))
 
+    def GetPropertiesEventTrigger(self, p_object):
+        return self.v_connection.Query('''
+            select current_database() as "Database",
+                   quote_ident(t.evtname) as "Event Trigger Name",
+                   t.evtevent as "Event",
+                   array_to_string(t.evttags, ', ') as "Tags",
+                   t.oid as "OID",
+                   t.evtenabled as "Enabled",
+                   r.rolname as "Owner",
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) as "Event Trigger Function"
+            from pg_event_trigger t
+            inner join pg_proc p
+            on p.oid = t.evtfoid
+            inner join pg_namespace np
+            on np.oid = p.pronamespace
+            inner join pg_roles r
+            on r.oid = t.evtowner
+            where quote_ident(t.evtname) = '{0}'
+        '''.format(p_object))
+
     def GetPropertiesPK(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
             create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
@@ -6095,9 +6361,15 @@ DROP COLUMN #column_name#
                 return self.GetPropertiesProcedure(p_object).Transpose('Property', 'Value')
             elif p_type == 'trigger':
                 return self.GetPropertiesTrigger(p_schema, p_table, p_object).Transpose('Property', 'Value')
+            elif p_type == 'eventtrigger':
+                return self.GetPropertiesEventTrigger(p_object).Transpose('Property', 'Value')
             elif p_type == 'triggerfunction':
                 return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
             elif p_type == 'direct_triggerfunction':
+                return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+            elif p_type == 'eventtriggerfunction':
+                return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+            elif p_type == 'direct_eventtriggerfunction':
                 return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
             elif p_type == 'pk':
                 return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
@@ -7191,6 +7463,61 @@ DROP COLUMN #column_name#
                        (select text from grants)
             '''.format(p_schema, p_object))
 
+    def GetDDLTrigger(self, p_trigger, p_table, p_schema):
+        return self.v_connection.ExecuteScalar('''
+            select 'CREATE TRIGGER ' || x.trigger_name || chr(10) ||
+                   '  ' || x.action_timing || ' ' || x.event_manipulation || chr(10) ||
+                   '  ON {0}.{1}' || chr(10) ||
+                   '  FOR EACH ' || x.action_orientation || chr(10) ||
+                   (case when length(coalesce(x.action_condition, '')) > 0 then '  WHEN ( ' || x.action_condition || ') ' || chr(10) else '' end) ||
+                   '  ' || x.action_statement as definition
+            from (
+            select distinct quote_ident(t.trigger_name) as trigger_name,
+                   t.action_timing,
+                   e.event as event_manipulation,
+                   t.action_orientation,
+                   t.action_condition,
+                   t.action_statement
+            from information_schema.triggers t
+            inner join (
+            select array_to_string(array(
+            select event_manipulation::text
+            from information_schema.triggers
+            where quote_ident(event_object_schema) = '{0}'
+              and quote_ident(event_object_table) = '{1}'
+              and quote_ident(trigger_name) = '{2}'
+            ), ' OR ') as event
+            ) e
+            on 1 = 1
+            where quote_ident(t.event_object_schema) = '{0}'
+              and quote_ident(t.event_object_table) = '{1}'
+              and quote_ident(t.trigger_name) = '{2}'
+            ) x
+        '''.format(p_schema, p_table, p_trigger))
+
+    def GetDDLEventTrigger(self, p_trigger):
+        return self.v_connection.ExecuteScalar('''
+            select format(E'CREATE EVENT TRIGGER %s\n  ON %s%s\n  EXECUTE PROCEDURE %s;\n\nALTER EVENT TRIGGER %s OWNER TO %s;\n',
+                     quote_ident(t.evtname),
+                     t.evtevent,
+                     (case when t.evttags is not null
+                           then E'\n  WHEN TAG IN ( '' || array_to_string(t.evttags, '', '') || '' )'
+                           else ''
+                      end),
+                     quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()',
+                     quote_ident(t.evtname),
+                     r.rolname
+                   )
+            from pg_event_trigger t
+            inner join pg_proc p
+            on p.oid = t.evtfoid
+            inner join pg_namespace np
+            on np.oid = p.pronamespace
+            inner join pg_roles r
+            on r.oid = t.evtowner
+            where quote_ident(t.evtname) = '{0}'
+        '''.format(p_trigger))
+
     def GetDDLFunction(self, p_function):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
             return self.v_connection.ExecuteScalar('''
@@ -7921,10 +8248,16 @@ DROP COLUMN #column_name#
         elif p_type == 'procedure':
             return self.GetDDLProcedure(p_object)
         elif p_type == 'trigger':
-            return self.GetTriggerDefinition(p_object, p_table, p_schema)
+            return self.GetDDLTrigger(p_object, p_table, p_schema)
+        elif p_type == 'eventtrigger':
+            return self.GetDDLEventTrigger(p_object)
         elif p_type == 'triggerfunction':
             return self.GetDDLFunction(p_object)
         elif p_type == 'direct_triggerfunction':
+            return self.GetDDLFunction(p_object)
+        elif p_type == 'eventtriggerfunction':
+            return self.GetDDLFunction(p_object)
+        elif p_type == 'direct_eventtriggerfunction':
             return self.GetDDLFunction(p_object)
         elif p_type == 'pk':
             return self.GetDDLConstraint(p_schema, p_table, p_object)
@@ -8058,7 +8391,7 @@ DROP COLUMN #column_name#
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
-            where format_type(p.prorettype, null) <> 'trigger'
+            where format_type(p.prorettype, null) not in ('trigger', 'event_trigger')
 
             UNION ALL
 

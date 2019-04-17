@@ -258,6 +258,7 @@ function listNodes() {
 				var container = v_div_result;
 				v_nodes_data.ht = new Handsontable(container,
 														{
+															licenseKey: 'non-commercial-and-evaluation',
 															data: p_return.v_data.v_data,
 															columns : columnProperties,
 															colHeaders : true,
@@ -424,6 +425,7 @@ function listAlerts(p_node_id) {
 				var container = v_div_result;
 				v_alerts_data.ht = new Handsontable(container,
 														{
+															licenseKey: 'non-commercial-and-evaluation',
 															data: p_return.v_data.v_data,
 															columns : columnProperties,
 															colHeaders : true,
@@ -680,6 +682,7 @@ function listAlertData(p_alert_id) {
 				var container = v_div_result;
 				v_curr_alert_data.ht = new Handsontable(container,
 														{
+															licenseKey: 'non-commercial-and-evaluation',
 															data: p_return.v_data.v_data,
 															columns : columnProperties,
 															colHeaders : true,

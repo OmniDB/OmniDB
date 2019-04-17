@@ -588,7 +588,7 @@ i.action-test {
     background-color: #4e5a6b !important;
 }
 
-section.welcome_release_content h2 {
+div.welcome_release_content h2 {
   background-color: #1e90ff;
 }
 ul.welcome_release_list {

@@ -219,7 +219,7 @@ button.bt_red {
 }
 button.bt_red:hover {
     color: #FF4040;
-    background: #FFFFFF;
+    background: #FF4040 !important;
 }
 
 div.query_info_summary .query_info_row {

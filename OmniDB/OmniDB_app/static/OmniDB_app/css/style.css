@@ -416,33 +416,6 @@ button:hover {
   text-decoration: none;
 }
 
-.bt_red {
-  background: #fcfcfc;
-  background-image: -webkit-linear-gradient(top, #ff9a9a, #ff4040);
-  background-image: -moz-linear-gradient(top, #ff9a9a, #ff4040);
-  background-image: -ms-linear-gradient(top, #ff9a9a, #ff4040);
-  background-image: -o-linear-gradient(top, #ff9a9a, #ff4040);
-  background-image: linear-gradient(to bottom, #ff9a9a, #ff4040);
-  -webkit-border-radius: 3;
-  -moz-border-radius: 3;
-  border-radius: 3px;
-  font-family: Arial;
-  color: #FFF;
-  padding: 6px 12px 6px 12px;
-  border: solid #ff6262 1px;
-  text-decoration: none;
-}
-
-.bt_red:hover {
-  background: #f7f7f7;
-  background-image: -webkit-linear-gradient(top, #ff6767, #ff0d0d);
-  background-image: -moz-linear-gradient(top, #ff6767, #ff0d0d);
-  background-image: -ms-linear-gradient(top, #ff6767, #ff0d0d);
-  background-image: -o-linear-gradient(top, #ff6767, #ff0d0d);
-  background-image: linear-gradient(to bottom, #ff6767, #ff0d0d);
-  text-decoration: none;
-}
-
 .pie-legend {
     text-align: left;
     list-style-type: none;

@@ -163,13 +163,13 @@ function listUsers() {
 
 				var col = new Object();
 				col.title =  'Username';
-				col.width = '130';
+				col.width = '120';
 				columnProperties.push(col);
 
 				var col = new Object();
 				col.title =  'Password';
 				col.type = 'password';
-				col.width = '130';
+				col.width = '120';
 				col.hashLength = 10;
 				columnProperties.push(col);
 

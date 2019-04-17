@@ -721,7 +721,6 @@ function showConnectionList() {
 
 										if (columnIndex==1) {
 											v_connections_data.v_conn_ids[rowIndex].technology = newValue;
-											console.log(v_connections_data.v_conn_ids[rowIndex].technology)
 										}
 									}
 

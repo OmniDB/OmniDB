@@ -20,6 +20,7 @@ from django.contrib.sessions.backends.db import SessionStore
 import sqlparse
 import random
 import string
+import platform
 
 def index(request):
     #Invalid session
@@ -76,6 +77,11 @@ def index(request):
             'shortcut_code': v_shortcut['shortcut_code']
         }
 
+    if not v_session.v_super_user or platform.system()=='Windows':
+        v_show_terminal_option = 'false'
+    else:
+        v_show_terminal_option = 'true'
+
     context = {
         'session' : v_session,
         'desktop_mode': settings.DESKTOP_MODE,
@@ -90,7 +96,8 @@ def index(request):
         'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC,
         'shortcuts': shortcut_object,
         'chat_link': settings.CHAT_LINK,
-        'tab_token': ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(20))
+        'tab_token': ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(20)),
+        'show_terminal_option': v_show_terminal_option
     }
 
     #wiping tab connection list

@@ -1347,25 +1347,29 @@ class PostgreSQL(Generic):
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
     def Cancel(self, p_usesameconn=True):
+        v_current_con = self.v_con
+        v_current_cur = self.v_cur
+        self.v_con = None
+        self.v_cur = None
         try:
-            if self.v_con:
+            if v_current_con:
                 if p_usesameconn:
-                    self.v_con.cancel()
+                    v_current_con.cancel()
                 else:
                     v_con2 = psycopg2.connect(
                         self.GetConnectionString(),
                         cursor_factory=psycopg2.extras.DictCursor
                     )
                     v_cur2 = v_con2.cursor()
-                    v_pid = self.v_con.get_backend_pid()
+                    v_pid = v_current_con.get_backend_pid()
                     v_cur2.execute('select pg_terminate_backend({0})'.format(v_pid))
                     v_cur2.close()
                     v_con2.close()
-                if self.v_cur:
-                    self.v_cur.close()
-                    self.v_cur = None
-                self.v_con.close()
-                self.v_con = None
+                if v_current_cur:
+                    v_current_cur.close()
+                    v_current_cur = None
+                v_current_con.close()
+                v_current_con = None
         except psycopg2.Error as exc:
             raise Spartacus.Database.Exception(str(exc))
         except Exception as exc:

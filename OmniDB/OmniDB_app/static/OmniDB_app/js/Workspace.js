@@ -93,7 +93,6 @@ $(function () {
 	},false);
 
 	/*window.addEventListener("paste",function(e){
-	  console.log('ae')
 	});*/
 
 	window.addEventListener("focus", function(event)
@@ -1322,13 +1321,14 @@ function showMenuNewTabOuter(e) {
 			v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.outerTabMenu[i]());
 	}
 
-	v_option_list.push({
-		text: 'Local Terminal',
-		icon: 'fas cm-all fa-terminal',
-		action: function() {
-			v_connTabControl.tag.createOuterTerminalTab();
-		}
-	});
+	if (v_show_terminal_option)
+		v_option_list.push({
+			text: 'Local Terminal',
+			icon: 'fas cm-all fa-terminal',
+			action: function() {
+				v_connTabControl.tag.createOuterTerminalTab();
+			}
+		});
 
 	if (v_connTabControl.tag.remote_terminals.length>0) {
 

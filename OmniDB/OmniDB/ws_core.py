@@ -259,16 +259,19 @@ def thread_dispatcher(self,args,ws_object):
                             try:
                                 #spawn local terminal
                                 if v_data['v_ssh_id'] == -1:
-
-                                    if not v_session.v_super_user:
-                                        start_thread = False
-                                        v_response['v_code'] = response.MessageException
-                                        v_response['v_data'] = 'Must be superuser to start a local terminal.'
-                                        ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
-                                    else:
-                                        tab_object['terminal_object'] = pexpect.spawn('/bin/bash',encoding='utf-8')
-                                        tab_object['terminal_object'].send(v_data['v_cmd'])
-                                        tab_object['terminal_type'] = 'local'
+                                    start_thread = False
+                                    v_response['v_code'] = response.MessageException
+                                    v_response['v_data'] = 'Feature under development.'
+                                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                                    #if not v_session.v_super_user:
+                                    #    start_thread = False
+                                    #    v_response['v_code'] = response.MessageException
+                                    #    v_response['v_data'] = 'Must be superuser to start a local terminal.'
+                                    #    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                                    #else:
+                                    #    tab_object['terminal_object'] = pexpect.spawn('/bin/bash',encoding='utf-8')
+                                    #    tab_object['terminal_object'].send(v_data['v_cmd'])
+                                    #    tab_object['terminal_type'] = 'local'
                                 #spawn remote terminal
                                 else:
                                     v_conn_object = v_session.v_databases[v_data['v_ssh_id']]

@@ -588,19 +588,19 @@ i.action-test {
     background-color: #4e5a6b !important;
 }
 
-section.welcome_release_content h2 {
-  background-color: #1e90ff;
+div.welcome_release_content h2 {
+  background-color: #1e90ff !important;
 }
 ul.welcome_release_list {
-    border-left: 1px solid #1e90ff;
+    border-left: 1px solid #1e90ff !important;
 }
 li.welcome_release_item::before {
-    background-color: #1e90ff;
+    background-color: #1e90ff !important;
 }
 li.welcome_release_item span::before {
-    background-color: #1e90ff;
+    background-color: #1e90ff !important;
 }
 li.welcome_release_item span {
-  background: #25282c;
-  color: f6f6f6;
+  background: #25282c !important;
+  color: #f6f6f6 !important;
 }

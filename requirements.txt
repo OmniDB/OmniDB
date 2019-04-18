@@ -1,4 +1,4 @@
-Django
+Django==2.1.7
 cherrypy
 tornado
 click

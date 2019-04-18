@@ -465,7 +465,7 @@ div.query_info_summary strong {
   height: 30px;
 }
 
-section.welcome_release_content h2 {
+div.welcome_release_content h2 {
   font-size: 24px;
   font-family: mono;
   text-transform: uppercase;
@@ -476,7 +476,7 @@ section.welcome_release_content h2 {
   color: #FFFFFF;
   padding: 8px 17px;
 }
-section.welcome_release_content {
+div.welcome_release_content {
     text-align: center;
 }
 ul.welcome_release_list {

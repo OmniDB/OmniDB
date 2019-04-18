@@ -39,7 +39,7 @@ $(function () {
     <h2>Release notes</h2>
     <div class="welcome_release_container">
       <ul class="welcome_release_list">
-        <li class="welcome_release_item"><span>Local and remote terminal emulator</span></li>
+        <li class="welcome_release_item"><span>SSH terminal emulator</span></li>
         <li class="welcome_release_item"><span>PostgreSQL: Support to event triggers and event trigger functions</span></li>
         <li class="welcome_release_item"><span>Monitoring units can now use past data, allowing users to create historical charts</span></li>
         <li class="welcome_release_item"><span>Improved security: disabled TLSv1.0 and TLSv1.1</span></li>

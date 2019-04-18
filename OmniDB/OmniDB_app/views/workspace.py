@@ -77,10 +77,11 @@ def index(request):
             'shortcut_code': v_shortcut['shortcut_code']
         }
 
-    if not v_session.v_super_user or platform.system()=='Windows':
-        v_show_terminal_option = 'false'
-    else:
-        v_show_terminal_option = 'true'
+    #if not v_session.v_super_user or platform.system()=='Windows':
+    #    v_show_terminal_option = 'false'
+    #else:
+    #    v_show_terminal_option = 'true'
+    v_show_terminal_option = 'false'
 
     context = {
         'session' : v_session,

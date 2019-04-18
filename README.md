@@ -7,7 +7,7 @@
 ## Release Notes
 
 - New features:
-  - Local and remote terminal emulator
+  - SSH terminal emulator
   - PostgreSQL: Support to event triggers and event trigger functions
 - Improvements:
   - Monitoring units can now use past data, allowing users to create historical charts

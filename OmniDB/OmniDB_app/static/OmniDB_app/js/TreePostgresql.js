@@ -208,237 +208,362 @@ function tabDataMining(node) {
     v_optionsContainerDiv.style.padding = '10px';
     v_containerDiv.appendChild(v_optionsContainerDiv);
 
-    if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
-      var v_optionList = [{
-              'text': 'Data',
-              'value': 1
-          }, {
-              'text': 'FK Name',
-              'value': 2
-          }, {
-              'text': 'Function Definition',
-              'value': 3
-          }, {
-              'text': 'Function Name',
-              'value': 4
-          }, {
-              'text': 'Index Name',
-              'value': 5
-          }, {
-              'text': 'Materialized View Column Name',
-              'value': 6
-          }, {
-              'text': 'Materialized View Name',
-              'value': 7
-          }, {
-              'text': 'PK Name',
-              'value': 8
-          }, {
-              'text': 'Schema Name',
-              'value': 9
-          }, {
-              'text': 'Sequence Name',
-              'value': 10
-          }, {
-              'text': 'Table Column Name',
-              'value': 11
-          }, {
-              'text': 'Table Name',
-              'value': 12
-          }, {
-              'text': 'Trigger Name',
-              'value': 13
-          }, {
-              'text': 'Trigger Source',
-              'value': 14
-          }, {
-              'text': 'Unique Name',
-              'value': 15
-          }, {
-              'text': 'View Column Name',
-              'value': 16
-          }, {
-              'text': 'View Name',
-              'value': 17
-          }, {
-              'text': 'Check Name',
-              'value': 18
-          }, {
-              'text': 'Rule Name',
-              'value': 19
-          }, {
-              'text': 'Rule Definition',
-              'value': 20
-          }, {
-              'text': 'Inherited Table Name',
-              'value': 21
-          }, {
-              'text': 'Partition Name',
-              'value': 22
-          }, {
-              'text': 'Role Name',
-              'value': 23
-          }, {
-              'text': 'Tablespace Name',
-              'value': 24
-          }, {
-              'text': 'Extension Name',
-              'value': 25
-          }, {
-              'text': 'FK Column Name',
-              'value': 26
-          }, {
-              'text': 'PK Column Name',
-              'value': 27
-          }, {
-              'text': 'Unique Column Name',
-              'value': 28
-          }, {
-              'text': 'Index Column Name',
-              'value': 29
-          }, {
-              'text': 'Check Definition',
-              'value': 30
-          }, {
-              'text': 'Table Trigger Name',
-              'value': 31
-          }, {
-              'text': 'Materialized View Definition',
-              'value': 32
-          }, {
-              'text': 'View Definition',
-              'value': 33
-          }, {
-              'text': 'Type Name',
-              'value': 34
-          }, {
-              'text': 'Domain Name',
-              'value': 35
-          }, {
-              'text': 'Event Trigger Name',
-              'value': 36
-          }, {
-              'text': 'Event Trigger Function Name',
-              'value': 37
-          }, {
-              'text': 'Event Trigger Function Definition',
-              'value': 38
-          }
-      ];
-    } else {
-      var v_optionList = [{
-              'text': 'Data',
-              'value': 1
-          }, {
-              'text': 'FK Name',
-              'value': 2
-          }, {
-              'text': 'Function Definition',
-              'value': 3
-          }, {
-              'text': 'Function Name',
-              'value': 4
-          }, {
-              'text': 'Index Name',
-              'value': 5
-          }, {
-              'text': 'Materialized View Column Name',
-              'value': 6
-          }, {
-              'text': 'Materialized View Name',
-              'value': 7
-          }, {
-              'text': 'PK Name',
-              'value': 8
-          }, {
-              'text': 'Schema Name',
-              'value': 9
-          }, {
-              'text': 'Sequence Name',
-              'value': 10
-          }, {
-              'text': 'Table Column Name',
-              'value': 11
-          }, {
-              'text': 'Table Name',
-              'value': 12
-          }, {
-              'text': 'Trigger Name',
-              'value': 13
-          }, {
-              'text': 'Trigger Source',
-              'value': 14
-          }, {
-              'text': 'Unique Name',
-              'value': 15
-          }, {
-              'text': 'View Column Name',
-              'value': 16
-          }, {
-              'text': 'View Name',
-              'value': 17
-          }, {
-              'text': 'Check Name',
-              'value': 18
-          }, {
-              'text': 'Rule Name',
-              'value': 19
-          }, {
-              'text': 'Rule Definition',
-              'value': 20
-          }, {
-              'text': 'Inherited Table Name',
-              'value': 21
-          }, {
-              'text': 'Role Name',
-              'value': 22
-          }, {
-              'text': 'Tablespace Name',
-              'value': 23
-          }, {
-              'text': 'Extension Name',
-              'value': 24
-          }, {
-              'text': 'FK Column Name',
-              'value': 25
-          }, {
-              'text': 'PK Column Name',
-              'value': 26
-          }, {
-              'text': 'Unique Column Name',
-              'value': 27
-          }, {
-              'text': 'Index Column Name',
-              'value': 28
-          }, {
-              'text': 'Check Definition',
-              'value': 29
-          }, {
-              'text': 'Table Trigger Name',
-              'value': 30
-          }, {
-              'text': 'Materialized View Definition',
-              'value': 31
-          }, {
-              'text': 'View Definition',
-              'value': 32
-          }, {
-              'text': 'Type Name',
-              'value': 33
-          }, {
-              'text': 'Domain Name',
-              'value': 34
-          }, {
-              'text': 'Event Trigger Name',
-              'value': 35
-          }, {
-              'text': 'Event Trigger Function Name',
-              'value': 36
-          }, {
-              'text': 'Event Trigger Function Definition',
-              'value': 37
-          }
-      ];
+    if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 11) {
+        var v_optionList = [{
+                'text': 'Data',
+                'value': 1
+            }, {
+                'text': 'FK Name',
+                'value': 2
+            }, {
+                'text': 'Function Definition',
+                'value': 3
+            }, {
+                'text': 'Function Name',
+                'value': 4
+            }, {
+                'text': 'Index Name',
+                'value': 5
+            }, {
+                'text': 'Materialized View Column Name',
+                'value': 6
+            }, {
+                'text': 'Materialized View Name',
+                'value': 7
+            }, {
+                'text': 'PK Name',
+                'value': 8
+            }, {
+                'text': 'Schema Name',
+                'value': 9
+            }, {
+                'text': 'Sequence Name',
+                'value': 10
+            }, {
+                'text': 'Table Column Name',
+                'value': 11
+            }, {
+                'text': 'Table Name',
+                'value': 12
+            }, {
+                'text': 'Trigger Name',
+                'value': 13
+            }, {
+                'text': 'Trigger Source',
+                'value': 14
+            }, {
+                'text': 'Unique Name',
+                'value': 15
+            }, {
+                'text': 'View Column Name',
+                'value': 16
+            }, {
+                'text': 'View Name',
+                'value': 17
+            }, {
+                'text': 'Check Name',
+                'value': 18
+            }, {
+                'text': 'Rule Name',
+                'value': 19
+            }, {
+                'text': 'Rule Definition',
+                'value': 20
+            }, {
+                'text': 'Inherited Table Name',
+                'value': 21
+            }, {
+                'text': 'Partition Name',
+                'value': 22
+            }, {
+                'text': 'Role Name',
+                'value': 23
+            }, {
+                'text': 'Tablespace Name',
+                'value': 24
+            }, {
+                'text': 'Extension Name',
+                'value': 25
+            }, {
+                'text': 'FK Column Name',
+                'value': 26
+            }, {
+                'text': 'PK Column Name',
+                'value': 27
+            }, {
+                'text': 'Unique Column Name',
+                'value': 28
+            }, {
+                'text': 'Index Column Name',
+                'value': 29
+            }, {
+                'text': 'Check Definition',
+                'value': 30
+            }, {
+                'text': 'Table Trigger Name',
+                'value': 31
+            }, {
+                'text': 'Materialized View Definition',
+                'value': 32
+            }, {
+                'text': 'View Definition',
+                'value': 33
+            }, {
+                'text': 'Type Name',
+                'value': 34
+            }, {
+                'text': 'Domain Name',
+                'value': 35
+            }, {
+                'text': 'Event Trigger Name',
+                'value': 36
+            }, {
+                'text': 'Event Trigger Function Name',
+                'value': 37
+            }, {
+                'text': 'Event Trigger Function Definition',
+                'value': 38
+            }, {
+                'text': 'Procedure Name',
+                'value': 39
+            }, {
+                'text': 'Procedure Definition',
+                'value': 40
+            }
+        ];
+    }
+    else if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
+        var v_optionList = [{
+                'text': 'Data',
+                'value': 1
+            }, {
+                'text': 'FK Name',
+                'value': 2
+            }, {
+                'text': 'Function Definition',
+                'value': 3
+            }, {
+                'text': 'Function Name',
+                'value': 4
+            }, {
+                'text': 'Index Name',
+                'value': 5
+            }, {
+                'text': 'Materialized View Column Name',
+                'value': 6
+            }, {
+                'text': 'Materialized View Name',
+                'value': 7
+            }, {
+                'text': 'PK Name',
+                'value': 8
+            }, {
+                'text': 'Schema Name',
+                'value': 9
+            }, {
+                'text': 'Sequence Name',
+                'value': 10
+            }, {
+                'text': 'Table Column Name',
+                'value': 11
+            }, {
+                'text': 'Table Name',
+                'value': 12
+            }, {
+                'text': 'Trigger Name',
+                'value': 13
+            }, {
+                'text': 'Trigger Source',
+                'value': 14
+            }, {
+                'text': 'Unique Name',
+                'value': 15
+            }, {
+                'text': 'View Column Name',
+                'value': 16
+            }, {
+                'text': 'View Name',
+                'value': 17
+            }, {
+                'text': 'Check Name',
+                'value': 18
+            }, {
+                'text': 'Rule Name',
+                'value': 19
+            }, {
+                'text': 'Rule Definition',
+                'value': 20
+            }, {
+                'text': 'Inherited Table Name',
+                'value': 21
+            }, {
+                'text': 'Partition Name',
+                'value': 22
+            }, {
+                'text': 'Role Name',
+                'value': 23
+            }, {
+                'text': 'Tablespace Name',
+                'value': 24
+            }, {
+                'text': 'Extension Name',
+                'value': 25
+            }, {
+                'text': 'FK Column Name',
+                'value': 26
+            }, {
+                'text': 'PK Column Name',
+                'value': 27
+            }, {
+                'text': 'Unique Column Name',
+                'value': 28
+            }, {
+                'text': 'Index Column Name',
+                'value': 29
+            }, {
+                'text': 'Check Definition',
+                'value': 30
+            }, {
+                'text': 'Table Trigger Name',
+                'value': 31
+            }, {
+                'text': 'Materialized View Definition',
+                'value': 32
+            }, {
+                'text': 'View Definition',
+                'value': 33
+            }, {
+                'text': 'Type Name',
+                'value': 34
+            }, {
+                'text': 'Domain Name',
+                'value': 35
+            }, {
+                'text': 'Event Trigger Name',
+                'value': 36
+            }, {
+                'text': 'Event Trigger Function Name',
+                'value': 37
+            }, {
+                'text': 'Event Trigger Function Definition',
+                'value': 38
+            }
+        ];
+    }
+    else {
+        var v_optionList = [{
+                'text': 'Data',
+                'value': 1
+            }, {
+                'text': 'FK Name',
+                'value': 2
+            }, {
+                'text': 'Function Definition',
+                'value': 3
+            }, {
+                'text': 'Function Name',
+                'value': 4
+            }, {
+                'text': 'Index Name',
+                'value': 5
+            }, {
+                'text': 'Materialized View Column Name',
+                'value': 6
+            }, {
+                'text': 'Materialized View Name',
+                'value': 7
+            }, {
+                'text': 'PK Name',
+                'value': 8
+            }, {
+                'text': 'Schema Name',
+                'value': 9
+            }, {
+                'text': 'Sequence Name',
+                'value': 10
+            }, {
+                'text': 'Table Column Name',
+                'value': 11
+            }, {
+                'text': 'Table Name',
+                'value': 12
+            }, {
+                'text': 'Trigger Name',
+                'value': 13
+            }, {
+                'text': 'Trigger Source',
+                'value': 14
+            }, {
+                'text': 'Unique Name',
+                'value': 15
+            }, {
+                'text': 'View Column Name',
+                'value': 16
+            }, {
+                'text': 'View Name',
+                'value': 17
+            }, {
+                'text': 'Check Name',
+                'value': 18
+            }, {
+                'text': 'Rule Name',
+                'value': 19
+            }, {
+                'text': 'Rule Definition',
+                'value': 20
+            }, {
+                'text': 'Inherited Table Name',
+                'value': 21
+            }, {
+                'text': 'Role Name',
+                'value': 22
+            }, {
+                'text': 'Tablespace Name',
+                'value': 23
+            }, {
+                'text': 'Extension Name',
+                'value': 24
+            }, {
+                'text': 'FK Column Name',
+                'value': 25
+            }, {
+                'text': 'PK Column Name',
+                'value': 26
+            }, {
+                'text': 'Unique Column Name',
+                'value': 27
+            }, {
+                'text': 'Index Column Name',
+                'value': 28
+            }, {
+                'text': 'Check Definition',
+                'value': 29
+            }, {
+                'text': 'Table Trigger Name',
+                'value': 30
+            }, {
+                'text': 'Materialized View Definition',
+                'value': 31
+            }, {
+                'text': 'View Definition',
+                'value': 32
+            }, {
+                'text': 'Type Name',
+                'value': 33
+            }, {
+                'text': 'Domain Name',
+                'value': 34
+            }, {
+                'text': 'Event Trigger Name',
+                'value': 35
+            }, {
+                'text': 'Event Trigger Function Name',
+                'value': 36
+            }, {
+                'text': 'Event Trigger Function Definition',
+                'value': 37
+            }
+        ];
     }
 
     var v_compare = function(a, b) {

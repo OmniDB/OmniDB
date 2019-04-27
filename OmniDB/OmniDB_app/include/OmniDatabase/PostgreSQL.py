@@ -2387,7 +2387,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningFunctioName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def DataMiningFunctionName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Function Name'::text as category,
                    n.nspname::text as schema_name,
@@ -3698,6 +3698,88 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
+    def DataMiningProcedureDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Procedure Definition'::text as category,
+                   y.schema_name::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   y.procedure_definition::text as match_value
+            from (
+                select pg_get_functiondef(z.procedure_oid::regprocedure) as procedure_definition,
+                       *
+                from (
+                    select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as procedure_oid,
+                           p.proname as procedure_name,
+                           n.nspname as schema_name
+                    from pg_proc p
+                    inner join pg_namespace n
+                               on p.pronamespace = n.oid
+                    where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                      and n.nspname not like 'pg%%temp%%'
+                      and p.prokind = 'p'
+                    --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                ) z
+            ) y
+            where 1 = 1
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and y.procedure_definition like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.procedure_definition) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and y.procedure_definition ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and y.procedure_definition ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def DataMiningProcedureName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Procedure Name'::text as category,
+                   n.nspname::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   p.proname::text as match_value
+            from pg_proc p
+            inner join pg_namespace n
+                       on p.pronamespace = n.oid
+            where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and n.nspname not like 'pg%%temp%%'
+              and p.prokind = 'p'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and p.proname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and p.proname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
     def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_dataCategoryFilter):
         v_sqlDict = {}
 
@@ -3721,7 +3803,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             elif v_category == 'Function Definition':
                 v_sqlDict[v_category] = self.DataMiningFunctionDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Function Name':
-                v_sqlDict[v_category] = self.DataMiningFunctioName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.DataMiningFunctionName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Index Name':
                 v_sqlDict[v_category] = self.DataMiningIndexName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Materialized View Column Name':
@@ -3790,6 +3872,10 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 v_sqlDict[v_category] = self.DataMiningEventTriggerFunctionName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Event Trigger Function Definition':
                 v_sqlDict[v_category] = self.DataMiningEventTriggerFunctionDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Procedure Definition':
+                v_sqlDict[v_category] = self.DataMiningProcedureDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Procedure Name':
+                v_sqlDict[v_category] = self.DataMiningProcedureName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
 
         return v_sqlDict
 

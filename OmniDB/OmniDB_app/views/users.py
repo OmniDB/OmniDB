@@ -2,7 +2,6 @@ from django.http import HttpResponse
 from django.template import loader
 from django.http import JsonResponse
 from django.core import serializers
-from django.shortcuts import redirect
 import uuid
 import json
 
@@ -15,18 +14,15 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB_app.include.Session import Session
 from OmniDB import settings
 
-def get_users(request):
+from OmniDB_app.include.decorators import omnidb_session_required_in_ajax
 
+
+@omnidb_session_required_in_ajax
+def get_users(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
     v_cryptor = request.session.get('cryptor')
@@ -69,18 +65,13 @@ def get_users(request):
 
     return JsonResponse(v_return)
 
-def new_user(request):
 
+@omnidb_session_required_in_ajax
+def new_user(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -101,18 +92,13 @@ def new_user(request):
 
     return JsonResponse(v_return)
 
-def remove_user(request):
 
+@omnidb_session_required_in_ajax
+def remove_user(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -136,18 +122,13 @@ def remove_user(request):
 
     return JsonResponse(v_return)
 
-def save_users(request):
 
+@omnidb_session_required_in_ajax
+def save_users(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
     v_cryptor = request.session.get('cryptor')

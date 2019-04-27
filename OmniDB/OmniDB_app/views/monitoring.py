@@ -19,13 +19,14 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB import monitoring_core,settings
 from OmniDB_app.include.Session import Session
 
+from OmniDB_app.include.decorators import (
+    omnidb_session_required_in_get,
+    omnidb_session_required_in_ajax
+)
+
+
+@omnidb_session_required_in_get
 def index(request):
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
-        return redirect('login')
-
     context = {
         'session' : request.session.get('omnidb_session'),
         'menu_item': 'monitoring',
@@ -36,8 +37,10 @@ def index(request):
     template = loader.get_template('OmniDB_app/monitoring.html')
     return HttpResponse(template.render(context, request))
 
+
 def get_random_string(length):
     return ''.join(choice(ascii_letters + digits) for _ in range(length))
+
 
 def receive_alert_data(request):
     if request.POST:
@@ -76,18 +79,12 @@ def receive_alert_data(request):
 
     return HttpResponse(request)
 
+@omnidb_session_required_in_ajax
 def get_nodes(request):
-
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -117,18 +114,13 @@ def get_nodes(request):
 
     return JsonResponse(v_return)
 
-def new_node(request):
 
+@omnidb_session_required_in_ajax
+def new_node(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -139,18 +131,13 @@ def new_node(request):
 
     return JsonResponse(v_return)
 
-def refresh_node_key(request):
 
+@omnidb_session_required_in_ajax
+def refresh_node_key(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -167,18 +154,13 @@ def refresh_node_key(request):
 
     return JsonResponse(v_return)
 
-def remove_node(request):
 
+@omnidb_session_required_in_ajax
+def remove_node(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -202,18 +184,13 @@ def remove_node(request):
 
     return JsonResponse(v_return)
 
-def save_nodes(request):
 
+@omnidb_session_required_in_ajax
+def save_nodes(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -236,18 +213,12 @@ def save_nodes(request):
 
 #alerts
 
+@omnidb_session_required_in_ajax
 def get_alerts(request):
-
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
     json_object = json.loads(request.POST.get('data', None))
@@ -290,18 +261,13 @@ def get_alerts(request):
 
     return JsonResponse(v_return)
 
-def new_alert(request):
 
+@omnidb_session_required_in_ajax
+def new_alert(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
     json_object = json.loads(request.POST.get('data', None))
@@ -314,18 +280,13 @@ def new_alert(request):
 
     return JsonResponse(v_return)
 
-def remove_alert(request):
 
+@omnidb_session_required_in_ajax
+def remove_alert(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -344,18 +305,13 @@ def remove_alert(request):
 
     return JsonResponse(v_return)
 
-def save_alerts(request):
 
+@omnidb_session_required_in_ajax
+def save_alerts(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -411,19 +367,14 @@ def save_alerts(request):
 
     return JsonResponse(v_return)
 
-#alert data
-def get_alert_data_list(request):
 
+#alert data
+@omnidb_session_required_in_ajax
+def get_alert_data_list(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
     json_object = json.loads(request.POST.get('data', None))
@@ -456,6 +407,7 @@ def get_alert_data_list(request):
 
     return JsonResponse(v_return)
 
+
 def get_n_values(p_list,n):
     list_length = len(p_list)
     if list_length <= n:
@@ -474,18 +426,13 @@ def get_n_values(p_list,n):
     new_list.append(p_list[list_length-1])
     return new_list
 
-def view_alert_chart(request):
 
+@omnidb_session_required_in_ajax
+def view_alert_chart(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = False
-        v_return['v_error_id'] = -1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
     json_object = json.loads(request.POST.get('data', None))

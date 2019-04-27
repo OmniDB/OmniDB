@@ -15,9 +15,11 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB_app.include.Session import Session
 from OmniDB import settings, custom_settings
+from OmniDB_app.include.decorators import omnidb_session_required_in_get
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 def index(request):
     context = {
@@ -38,13 +40,9 @@ def index(request):
     template = loader.get_template('OmniDB_app/login.html')
     return HttpResponse(template.render(context, request))
 
+
+@omnidb_session_required_in_get
 def logout(request):
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        request.session ["omnidb_alert_message"] = "Session object was already destroyed."
-        return redirect('login')
-
     v_session = request.session.get('omnidb_session')
 
     logger.info('User "{0}" logged out.'.format(v_session.v_user_name))
@@ -54,8 +52,8 @@ def logout(request):
 
     return redirect('login')
 
-def check_session_message(request):
 
+def check_session_message(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
@@ -67,8 +65,8 @@ def check_session_message(request):
 
     return JsonResponse(v_return)
 
-def sign_in_automatic(request, username, pwd):
 
+def sign_in_automatic(request, username, pwd):
     token = request.GET.get('token', '')
     valid_token = custom_settings.APP_TOKEN
 

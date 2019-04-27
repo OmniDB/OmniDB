@@ -11,18 +11,15 @@ import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
 from OmniDB_app.include.Session import Session
 
-def get_node_children(request):
+from OmniDB_app.include.decorators import omnidb_session_required_in_ajax
 
+
+@omnidb_session_required_in_ajax
+def get_node_children(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -74,18 +71,13 @@ def get_node_children(request):
 
     return JsonResponse(v_return)
 
-def get_snippet_text(request):
 
+@omnidb_session_required_in_ajax
+def get_snippet_text(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -105,18 +97,13 @@ def get_snippet_text(request):
 
     return JsonResponse(v_return)
 
-def new_node_snippet(request):
 
+@omnidb_session_required_in_ajax
+def new_node_snippet(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -148,18 +135,13 @@ def new_node_snippet(request):
 
     return JsonResponse(v_return)
 
-def delete_node_snippet(request):
 
+@omnidb_session_required_in_ajax
+def delete_node_snippet(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -191,18 +173,13 @@ def delete_node_snippet(request):
 
     return JsonResponse(v_return)
 
-def save_snippet_text(request):
 
+@omnidb_session_required_in_ajax
+def save_snippet_text(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -237,18 +214,12 @@ def save_snippet_text(request):
     return JsonResponse(v_return)
 
 
+@omnidb_session_required_in_ajax
 def rename_node_snippet(request):
-
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 

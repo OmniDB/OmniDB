@@ -19,13 +19,14 @@ import time, os
 
 sys.path.append('OmniDB_app/include')
 from OmniDB_app.include import paramiko
+from OmniDB_app.include.decorators import (
+    omnidb_session_required_in_get,
+    omnidb_session_required_in_ajax
+)
 
+
+@omnidb_session_required_in_get
 def index(request):
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
-        return redirect('login')
 
     v_session = request.session.get('omnidb_session')
 
@@ -39,18 +40,14 @@ def index(request):
     template = loader.get_template('OmniDB_app/connections.html')
     return HttpResponse(template.render(context, request))
 
+
+@omnidb_session_required_in_ajax
 def get_connections(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
     v_cryptor = request.session.get('cryptor')
@@ -156,6 +153,8 @@ def get_connections(request):
 
     return JsonResponse(v_return)
 
+
+@omnidb_session_required_in_ajax
 def get_groups(request):
 
     v_return = {}
@@ -163,14 +162,7 @@ def get_groups(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
     v_session = request.session.get('omnidb_session')
-
 
     try:
         v_groups_connections = v_session.v_omnidb_database.v_connection.Query('''
@@ -216,17 +208,13 @@ def get_groups(request):
 
     return JsonResponse(v_return)
 
+
+@omnidb_session_required_in_ajax
 def new_group(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -247,17 +235,13 @@ def new_group(request):
 
     return JsonResponse(v_return)
 
+
+@omnidb_session_required_in_ajax
 def edit_group(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -278,17 +262,13 @@ def edit_group(request):
 
     return JsonResponse(v_return)
 
+
+@omnidb_session_required_in_ajax
 def delete_group(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -308,18 +288,12 @@ def delete_group(request):
     return JsonResponse(v_return)
 
 
+@omnidb_session_required_in_ajax
 def save_connections(request):
-
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
     v_cryptor = request.session.get('cryptor')
@@ -545,18 +519,13 @@ def save_connections(request):
 
     return JsonResponse(v_return)
 
-def test_connection(request):
 
+@omnidb_session_required_in_ajax
+def test_connection(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -602,18 +571,13 @@ def test_connection(request):
 
     return JsonResponse(v_return)
 
-def select_connection(request):
 
+@omnidb_session_required_in_ajax
+def select_connection(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 

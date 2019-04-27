@@ -12,18 +12,15 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 from OmniDB_app.include.Session import Session
 from datetime import datetime
 
-def get_tree_info(request):
+from OmniDB_app.include.decorators import omnidb_session_required_in_ajax
 
+
+@omnidb_session_required_in_ajax
+def get_tree_info(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -102,18 +99,13 @@ def get_tree_info(request):
 
     return JsonResponse(v_return)
 
-def get_properties(request):
 
+@omnidb_session_required_in_ajax
+def get_properties(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -150,18 +142,13 @@ def get_properties(request):
 
     return JsonResponse(v_return)
 
-def get_tables(request):
 
+@omnidb_session_required_in_ajax
+def get_tables(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -205,18 +192,13 @@ def get_tables(request):
 
     return JsonResponse(v_return)
 
-def get_columns(request):
 
+@omnidb_session_required_in_ajax
+def get_columns(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -255,18 +237,13 @@ def get_columns(request):
 
     return JsonResponse(v_return)
 
-def get_pk(request):
 
+@omnidb_session_required_in_ajax
+def get_pk(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -301,18 +278,13 @@ def get_pk(request):
 
     return JsonResponse(v_return)
 
-def get_pk_columns(request):
 
+@omnidb_session_required_in_ajax
+def get_pk_columns(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -348,18 +320,13 @@ def get_pk_columns(request):
 
     return JsonResponse(v_return)
 
-def get_fks(request):
 
+@omnidb_session_required_in_ajax
+def get_fks(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -397,18 +364,13 @@ def get_fks(request):
 
     return JsonResponse(v_return)
 
-def get_fks_columns(request):
 
+@omnidb_session_required_in_ajax
+def get_fks_columns(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -448,18 +410,13 @@ def get_fks_columns(request):
 
     return JsonResponse(v_return)
 
-def get_uniques(request):
 
+@omnidb_session_required_in_ajax
+def get_uniques(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -494,18 +451,13 @@ def get_uniques(request):
 
     return JsonResponse(v_return)
 
-def get_uniques_columns(request):
 
+@omnidb_session_required_in_ajax
+def get_uniques_columns(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -541,18 +493,13 @@ def get_uniques_columns(request):
 
     return JsonResponse(v_return)
 
-def get_indexes(request):
 
+@omnidb_session_required_in_ajax
+def get_indexes(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -588,18 +535,13 @@ def get_indexes(request):
 
     return JsonResponse(v_return)
 
-def get_indexes_columns(request):
 
+@omnidb_session_required_in_ajax
+def get_indexes_columns(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -635,18 +577,13 @@ def get_indexes_columns(request):
 
     return JsonResponse(v_return)
 
-def get_tablespaces(request):
 
+@omnidb_session_required_in_ajax
+def get_tablespaces(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -680,18 +617,13 @@ def get_tablespaces(request):
 
     return JsonResponse(v_return)
 
-def get_roles(request):
 
+@omnidb_session_required_in_ajax
+def get_roles(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -725,18 +657,13 @@ def get_roles(request):
 
     return JsonResponse(v_return)
 
-def get_functions(request):
 
+@omnidb_session_required_in_ajax
+def get_functions(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -772,18 +699,13 @@ def get_functions(request):
 
     return JsonResponse(v_return)
 
-def get_function_fields(request):
 
+@omnidb_session_required_in_ajax
+def get_function_fields(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -820,18 +742,13 @@ def get_function_fields(request):
 
     return JsonResponse(v_return)
 
-def get_function_definition(request):
 
+@omnidb_session_required_in_ajax
+def get_function_definition(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -857,18 +774,13 @@ def get_function_definition(request):
 
     return JsonResponse(v_return)
 
-def get_procedures(request):
 
+@omnidb_session_required_in_ajax
+def get_procedures(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -904,18 +816,13 @@ def get_procedures(request):
 
     return JsonResponse(v_return)
 
-def get_procedure_fields(request):
 
+@omnidb_session_required_in_ajax
+def get_procedure_fields(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -952,18 +859,13 @@ def get_procedure_fields(request):
 
     return JsonResponse(v_return)
 
-def get_procedure_definition(request):
 
+@omnidb_session_required_in_ajax
+def get_procedure_definition(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -989,18 +891,13 @@ def get_procedure_definition(request):
 
     return JsonResponse(v_return)
 
-def get_sequences(request):
 
+@omnidb_session_required_in_ajax
+def get_sequences(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -1035,18 +932,13 @@ def get_sequences(request):
 
     return JsonResponse(v_return)
 
-def get_views(request):
 
+@omnidb_session_required_in_ajax
+def get_views(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -1082,18 +974,13 @@ def get_views(request):
 
     return JsonResponse(v_return)
 
-def get_views_columns(request):
 
+@omnidb_session_required_in_ajax
+def get_views_columns(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -1131,18 +1018,13 @@ def get_views_columns(request):
 
     return JsonResponse(v_return)
 
-def get_view_definition(request):
 
+@omnidb_session_required_in_ajax
+def get_view_definition(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -1169,18 +1051,13 @@ def get_view_definition(request):
 
     return JsonResponse(v_return)
 
-def kill_backend(request):
 
+@omnidb_session_required_in_ajax
+def kill_backend(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -1206,18 +1083,13 @@ def kill_backend(request):
 
     return JsonResponse(v_return)
 
-def template_select(request):
 
+@omnidb_session_required_in_ajax
+def template_select(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -1249,18 +1121,13 @@ def template_select(request):
 
     return JsonResponse(v_return)
 
-def template_insert(request):
 
+@omnidb_session_required_in_ajax
+def template_insert(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -1292,18 +1159,13 @@ def template_insert(request):
 
     return JsonResponse(v_return)
 
-def template_update(request):
 
+@omnidb_session_required_in_ajax
+def template_update(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 

@@ -25,18 +25,15 @@ from RestrictedPython.Eval import RestrictionCapableEval
 #load plugins to retrieve list of monitoring units of all loaded plugins
 from OmniDB_app.views.plugins import monitoring_units
 
-def get_monitor_nodes(request):
+from OmniDB_app.include.decorators import omnidb_session_required_in_ajax
 
+
+@omnidb_session_required_in_ajax
+def get_monitor_nodes(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -67,18 +64,13 @@ def get_monitor_nodes(request):
 
     return JsonResponse(v_return)
 
-def get_monitor_unit_list(request):
 
+@omnidb_session_required_in_ajax
+def get_monitor_unit_list(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -157,18 +149,13 @@ def get_monitor_unit_list(request):
 
     return JsonResponse(v_return)
 
-def get_monitor_unit_details(request):
 
+@omnidb_session_required_in_ajax
+def get_monitor_unit_details(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -197,18 +184,13 @@ def get_monitor_unit_details(request):
 
     return JsonResponse(v_return)
 
-def get_monitor_units(request):
 
+@omnidb_session_required_in_ajax
+def get_monitor_units(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -333,18 +315,13 @@ def get_monitor_units(request):
 
     return JsonResponse(v_return)
 
-def get_monitor_unit_template(request):
 
+@omnidb_session_required_in_ajax
+def get_monitor_unit_template(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -382,18 +359,13 @@ def get_monitor_unit_template(request):
 
     return JsonResponse(v_return)
 
-def save_monitor_unit(request):
 
+@omnidb_session_required_in_ajax
+def save_monitor_unit(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -454,18 +426,13 @@ def save_monitor_unit(request):
 
     return JsonResponse(v_return)
 
-def delete_monitor_unit(request):
 
+@omnidb_session_required_in_ajax
+def delete_monitor_unit(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -491,18 +458,13 @@ def delete_monitor_unit(request):
 
     return JsonResponse(v_return)
 
-def remove_saved_monitor_unit(request):
 
+@omnidb_session_required_in_ajax
+def remove_saved_monitor_unit(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -523,18 +485,13 @@ def remove_saved_monitor_unit(request):
 
     return JsonResponse(v_return)
 
-def update_saved_monitor_unit_interval(request):
 
+@omnidb_session_required_in_ajax
+def update_saved_monitor_unit_interval(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -557,18 +514,13 @@ def update_saved_monitor_unit_interval(request):
 
     return JsonResponse(v_return)
 
-def refresh_monitor_units(request):
 
+@omnidb_session_required_in_ajax
+def refresh_monitor_units(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -755,18 +707,13 @@ def refresh_monitor_units(request):
 
         return JsonResponse(v_return)
 
-def test_monitor_script(request):
 
+@omnidb_session_required_in_ajax
+def test_monitor_script(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 

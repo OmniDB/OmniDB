@@ -20,6 +20,9 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 from django import forms
 
+from OmniDB_app.include.decorators import omnidb_session_required_in_ajax
+
+
 class UploadFileForm(forms.Form):
     file = forms.FileField()
 
@@ -174,19 +177,14 @@ def load_plugin(plugin_folder, p_load):
     }
     return
 
-#loading javascript plugins
-def list_plugins(request):
 
+#loading javascript plugins
+@omnidb_session_required_in_ajax
+def list_plugins(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -250,19 +248,15 @@ def list_plugins(request):
 
     return JsonResponse(v_return)
 
+
 #loading javascript plugins
+@omnidb_session_required_in_ajax
 def get_plugins(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -275,6 +269,7 @@ def get_plugins(request):
     v_return['v_data'] = plugin_list
 
     return JsonResponse(v_return)
+
 
 def load_plugins():
     #delete temp loaded python files
@@ -351,6 +346,7 @@ def upload_view(request):
     else:
         form = UploadFileForm()
     return JsonResponse(return_object)
+
 
 #upload plugin helper
 def handle_uploaded_file(f):
@@ -449,18 +445,12 @@ def handle_uploaded_file(f):
 
 
 #reloading plugins
+@omnidb_session_required_in_ajax
 def reload_plugins(request):
-
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -470,18 +460,13 @@ def reload_plugins(request):
 
     return JsonResponse(v_return)
 
-def delete_plugin(request):
 
+@omnidb_session_required_in_ajax
+def delete_plugin(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
     if not v_session.v_super_user:
@@ -525,18 +510,13 @@ def delete_plugin(request):
 
     return JsonResponse(v_return)
 
-def exec_plugin_function(request):
 
+@omnidb_session_required_in_ajax
+def exec_plugin_function(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 

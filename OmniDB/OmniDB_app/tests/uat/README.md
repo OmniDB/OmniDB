@@ -13,6 +13,7 @@ vagrant box add debian/stretch64 --provider virtualbox
 vagrant box add ubuntu/xenial64 --provider virtualbox
 vagrant box add ubuntu/bionic64 --provider virtualbox
 vagrant box add centos/7 --provider virtualbox
+vagrant box add centos/7 --provider virtualbox
 ```
 
 Type `vagrant box list` to check if you have them all.
@@ -69,7 +70,7 @@ apt install omnidb-server     # for the server; or
 apt install omnidb-plugin     # for the plugin
 ```
 
-CentOS / Fedora machines, as `root` user:
+CentOS 7 / RedHat 7 machines, as `root` user:
 
 ```
 cat > /etc/yum.repos.d/omnidb.repo <<EOF
@@ -87,7 +88,17 @@ yum install omnidb-plugin     # for the plugin
 ```
 
 
-### Upgrading OmniDB
+### Installing OmniDB manually
+
+CentOS 6 / Red Hat 6 machines, as `root` user:
+
+```
+wget https://omnidb.org/dist/X.YY.Z/omnidb-server_X.YY.Z-centos6-amd64.rpm
+rpm -ivU https://omnidb.org/dist/X.YY.Z/omnidb-server_X.YY.Z-centos6-amd64.rpm
+```
+
+
+### Upgrading OmniDB (when installed from repo)
 
 Having OmniDB repository installed, upgrading OmniDB is easy:
 
@@ -98,7 +109,7 @@ apt update
 apt upgrade
 ```
 
-CentOS / Fedora machines, as `root` user:
+CentOS / RedHat machines, as `root` user:
 
 ```
 yum update

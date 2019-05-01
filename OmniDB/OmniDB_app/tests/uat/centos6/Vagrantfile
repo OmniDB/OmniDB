@@ -6,12 +6,12 @@ echo I am provisioning...
 PG_VERSION=11
 yum -y update
 yum -y install epel-release
-rpm -ivh https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+rpm -ivh https://download.postgresql.org/pub/repos/yum/reporpms/EL-6/pgdg-redhat-repo-latest.noarch.rpm
 yum -y check-update
 yum -y install "postgresql$PG_VERSION" "postgresql$PG_VERSION-server" "postgresql$PG_VERSION-libs" "postgresql$PG_VERSION-contrib"
-"/usr/pgsql-$PG_VERSION/bin/postgresql-$PG_VERSION-setup" initdb
-systemctl enable "postgresql-$PG_VERSION"
-systemctl start "postgresql-$PG_VERSION"
+service "postgresql-$PG_VERSION" initdb
+chkconfig "postgresql-$PG_VERSION" on
+service "postgresql-$PG_VERSION" start
 PG_CONF="/var/lib/pgsql/$PG_VERSION/data/postgresql.conf"
 PG_HBA="/var/lib/pgsql/$PG_VERSION/data/pg_hba.conf"
 PG_DIR="/var/lib/pgsql/$PG_VERSION/data"
@@ -24,19 +24,19 @@ echo "wal_level = logical" >> "$PG_CONF"
 cat << EOF | su - postgres -c psql
 ALTER USER postgres WITH PASSWORD 'postgres';
 EOF
-systemctl restart "postgresql-$PG_VERSION"
-yum groupinstall -y "GNOME Desktop"
-systemctl set-default graphical.target
+service "postgresql-$PG_VERSION" restart
+yum groupinstall -y Desktop "General Purpose Desktop" "Desktop Platform" "X Window System" "Internet Browser" "Graphical Administration Tools" Fonts
+sed -i 's/^id:.:initdefault:/id:5:initdefault:/' /etc/inittab
 date > /etc/vagrant_provisioned_at
 SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-  config.vm.box = "centos/7"
-  config.vm.box_url = "https://app.vagrantup.com/centos/boxes/7"
-  config.vm.host_name = "omnidbuatcentos7"
+  config.vm.box = "centos/6"
+  config.vm.box_url = "https://app.vagrantup.com/centos/boxes/6"
+  config.vm.host_name = "omnidbuatcentos6"
   config.vm.provider :virtualbox do |vb|
-    vb.name = "omnidb_uat_centos7"
+    vb.name = "omnidb_uat_centos6"
     vb.gui = true
     vb.memory = 2048
     vb.cpus = 2

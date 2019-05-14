@@ -2,7 +2,7 @@ import os
 
 OMNIDB_VERSION = 'OmniDB 2.15.0'
 OMNIDB_SHORT_VERSION = '2.15.0'
-DEV_MODE = True
+DEV_MODE = False
 DESKTOP_MODE = False
 HOME_DIR = None
 APP_TOKEN = None

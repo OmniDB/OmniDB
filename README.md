@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/omnidb/badge/?version=latest)](https://omnidb.readthedocs.io/en/latest/?badge=latest)
+
 ## Next Release: *2.16.0 - June 13, 2019*
 
 # OmniDB 2.15.0
@@ -45,7 +47,7 @@ operating system and architecture and install it.
 
 You can also install from repositories (as root):
 
-### 1.1.1- Debian / Ubuntu repository
+## 1.2- Debian / Ubuntu repository
 
 ```
 apt install apt-transport-https dirmngr
@@ -58,7 +60,7 @@ apt install omnidb-server     # for the server; or
 apt install omnidb-plugin     # for the plugin
 ```
 
-### 1.1.2- CentOS 7 / Fedora repository
+## 1.3- CentOS 7 / Fedora repository
 
 ```
 cat > /etc/yum.repos.d/omnidb.repo <<EOF
@@ -76,9 +78,14 @@ yum install omnidb-plugin     # for the plugin
 ```
 
 
-## 1.2- From source
+# 2- From sources
 
-### 1.2.1- On Debian >= 9 with `pip`
+If your purpose is to use OmniDB, we recommend installing latest packages as
+explained above. But if you are developing for OmniDB, then you can install it
+from sources, with system-wide `pip` or user-wide `PyEnv`:
+
+
+## 2.1- On Debian >= 9 with `pip`
 
 ```
 sudo apt install python3-pip
@@ -86,7 +93,7 @@ pip3 install pip --upgrade
 pip3 install -r requirements.txt
 ```
 
-### 1.2.2- On Debian/Ubuntu using `PyEnv`
+## 2.2- On Debian/Ubuntu using `PyEnv`
 
 ```
 sudo apt install git make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils
@@ -105,9 +112,15 @@ pip install pip --upgrade
 pip install -r requirements.txt
 ```
 
-## 1.3- Running OmniDB
+## 2.3- Cloning OmniDB repo
 
-Download or clone OmniDB repo and extract it somewhere. To start Django server, enter into `OmniDB/OmniDB` folder and type:
+```
+git clone https://github.com/OmniDB/OmniDB
+```
+
+## 2.4- Running OmniDB from sources
+
+To start Django server, enter into `OmniDB/OmniDB` folder and type:
 
 ```
 python omnidb-server.py
@@ -131,7 +144,7 @@ python omnidb-server.py
 
 Technologies:
 
-- Python (3.5+)
+- Python (3.6+)
 - Django
 
 Supported Platforms:

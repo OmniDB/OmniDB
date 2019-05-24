@@ -249,17 +249,17 @@ host    all             <user>          127.0.0.1/32            trust
 
 #### md5
 
-- Add a rule similar to:
+- Add rules similar to:
 
 ```bash
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
-host    all             <user>          127.0.0.1/32            md5
+host    <database>      <user>          127.0.0.1/32            md5
+host    <database>      <user>          ::1/128                 md5
 ```
 
 - Create a `.pgpass` file with a similar content:
 
 ```bash
-127.0.0.1:<port>:<database>:<username>:<password>
 localhost:<port>:<database>:<username>:<password>
 ```
 

@@ -232,7 +232,7 @@ local   <database>      <user>                                  md5
 localhost:<port>:<database>:<username>:<password>
 ```
 
-More information about how `.pgpass` works can be found here: https://www.postgresql.org/docs/10/static/libpq-pgpass.html
+More information about how `.pgpass` works can be found here: https://www.postgresql.org/docs/11/static/libpq-pgpass.html
 
 ### Windows:
 
@@ -262,4 +262,4 @@ host    all             <user>          127.0.0.1/32            md5
 localhost:<port>:<database>:<username>:<password>
 ```
 
-More information about how `.pgpass` works can be found here: https://www.postgresql.org/docs/10/static/libpq-pgpass.html
+More information about how `.pgpass` works can be found here: https://www.postgresql.org/docs/11/static/libpq-pgpass.html

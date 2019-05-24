@@ -234,7 +234,7 @@ localhost:<port>:<database>:<username>:<password>
 
 More information about how `.pgpass` works can be found here: https://www.postgresql.org/docs/11/static/libpq-pgpass.html
 
-### Windows:
+### Windows
 
 On Windows we need to add a rule to *pg_hba.conf* of type `host`, as there are no unix socket connections on Windows, matching the PostgreSQL user and database OmniDB is connected to. The method can be either `trust`, which is insecure and not recommended, or `md5`.
 

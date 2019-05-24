@@ -200,7 +200,7 @@ Every database user that uses the debugger needs access to the debugger control 
 psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;'
 ```
 
-## 4.2. Enable * local*  passwordless access to each database user that will debug functions
+## 4.2. Enable * local *  passwordless access to each database user that will debug functions
 
 Every database user that uses the debugger needs local passwordless access to the target database. This is because the database will create an additional local connection to perform debugging operations.
 

@@ -244,7 +244,8 @@ On Windows we need to add a rule to *pg_hba.conf* of type `host`, as there are n
 
 ```bash
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
-host    all             <user>          127.0.0.1/32            trust
+host    <database>      <user>          127.0.0.1/32            trust
+host    <database>      <user>          ::1/128                 trust
 ```
 
 #### md5

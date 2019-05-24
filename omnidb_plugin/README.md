@@ -200,32 +200,66 @@ Every database user that uses the debugger needs access to the debugger control 
 psql -d <database> -c 'GRANT ALL ON SCHEMA omnidb TO <user>; GRANT ALL ON ALL TABLES IN SCHEMA omnidb TO <user>;'
 ```
 
-## 4.2. Enable local passwordless access to each database user that will debug functions
+## 4.2. Enable * local*  passwordless access to each database user that will debug functions
 
-Every database user that uses the debugger needs local passwordless access to the database. This is because the database will create an additional local connection to perform debugging operations.
+Every database user that uses the debugger needs local passwordless access to the target database. This is because the database will create an additional local connection to perform debugging operations.
 
-This can be done by adding a rule to *pg_hba.conf* or changing *.pgpass* of the postgres user.
+### Linux
 
-### 4.2.1 *pg_hba.conf*
+On Linux we need to add a rule to *pg_hba.conf* of type `local`, maching the user and database OmniDB is connected to. The method can be either `trust`, which is insecure and not recommended, or `md5`.
 
-Add a rule similar to:
+#### trust
 
-a) Linux:
+- Add a rule similar to:
+
 ```bash
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
-local   all             <user>                                  trust
+local   <database>      <user>                                  trust
 ```
 
-b) Windows:
+#### md5
+
+- Add a rule similar to:
+
+```bash
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+local   <database>      <user>                                  md5
+```
+
+- Create a `.pgpass` file in the home directory of the system user who started PG (usually `postgresql`). This file needs permissions 600, and should contain the following content:
+
+```bash
+localhost:<port>:<database>:<username>:<password>
+```
+
+More information about how `.pgpass` works can be found here: https://www.postgresql.org/docs/10/static/libpq-pgpass.html
+
+### Windows:
+
+On Windows we need to add a rule to *pg_hba.conf* of type `host`, as there are no unix socket connections on Windows, maching the user and database OmniDB is connected to. The method can be either `trust`, which is insecure and not recommended, or `md5`.
+
+#### trust
+
+- Add a rule similar to:
+
 ```bash
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 host    all             <user>          127.0.0.1/32            trust
 ```
 
-### 4.2.2 *.pgpass*
+#### md5
+
+- Add a rule similar to:
 
 ```bash
-hostname:port:database:username:password
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+host    all             <user>          127.0.0.1/32            md5
+```
+
+- Create a `.pgpass` file with a similar content:
+
+```bash
+localhost:<port>:<database>:<username>:<password>
 ```
 
 More information about how `.pgpass` works can be found here: https://www.postgresql.org/docs/10/static/libpq-pgpass.html

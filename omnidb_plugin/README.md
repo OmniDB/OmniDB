@@ -259,6 +259,7 @@ host    all             <user>          127.0.0.1/32            md5
 - Create a `.pgpass` file with a similar content:
 
 ```bash
+127.0.0.1:<port>:<database>:<username>:<password>
 localhost:<port>:<database>:<username>:<password>
 ```
 

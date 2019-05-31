@@ -2,7 +2,7 @@
  MIT License
 
  Portions Copyright (c) 2015-2019, The OmniDB Team
- Portions Copyright (c) 2019, 2ndQuadrant Limited
+ Portions Copyright (c) 2017-2019, 2ndQuadrant Limited
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -594,6 +594,9 @@ static void update_variables( PLpgSQL_execstate * estate )
 
 								break;
             }
+
+						default:
+							break;
         }
     }
 }

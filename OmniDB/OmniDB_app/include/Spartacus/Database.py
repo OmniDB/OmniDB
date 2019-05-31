@@ -1525,9 +1525,9 @@ class PostgreSQL(Generic):
                         for v_token in v_analysis[i].flatten():
                             if v_token.ttype == sqlparse.tokens.Token.Keyword.CTE:
                                 v_found_cte = True
-                            if v_token.ttype == sqlparse.tokens.Token.Keyword.DML and v_token.value != 'SELECT':
+                            if v_token.ttype == sqlparse.tokens.Token.Keyword.DML and v_token.value.upper() != 'SELECT':
                                 v_found_dml = True
-                            if v_token.is_keyword and v_token.value == 'INTO':
+                            if v_token.is_keyword and v_token.value.upper() == 'INTO':
                                 v_found_into = True
                         if not (v_found_cte and v_found_dml) and not v_found_into:
                             v_cursors.append('{0}_{1}'.format(self.v_application_name, uuid.uuid4().hex))

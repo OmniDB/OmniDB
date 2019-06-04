@@ -572,14 +572,12 @@ class Generic(ABC):
     @abstractmethod
     def Special(self, p_sql):
         pass
-    @classmethod
     def String(self, p_value):
         if type(p_value) == type(list()):
             ret = self.MogrifyArray(p_value)
         else:
             ret = str(p_value)
         return ret
-    @classmethod
     def MogrifyValue(self, p_value):
         if type(p_value) == type(list()):
             ret = self.MogrifyArray(p_value)
@@ -592,7 +590,6 @@ class Generic(ABC):
         else:
             ret = '{0}'.format(p_value)
         return ret
-    @classmethod
     def MogrifyArray(self, p_array):
         ret = '{'
         if len(p_array) > 0:
@@ -601,20 +598,18 @@ class Generic(ABC):
                 ret = ret + ', ' + self.MogrifyArrayValue(p_array[i])
         ret = ret + '}'
         return ret
-    @classmethod
     def MogrifyArrayValue(self, p_value):
         if type(p_value) == type(list()):
             ret = self.MogrifyArray(p_value)
         elif type(p_value) == type(None):
             ret = 'null'
         elif type(p_value) == type(str()):
-            ret = '"{0}"'.format(p_value.replace("'", "''"))
+            ret = '"{0}"'.format(p_value.replace('"', '""'))
         elif type(p_value) == datetime.datetime:
             ret = '"{0}"'.format(p_value)
         else:
             ret = '{0}'.format(p_value)
         return ret
-    @classmethod
     def Mogrify(self, p_row, p_fields):
         if len(p_row) == len(p_fields):
             v_mog = []
@@ -623,31 +618,154 @@ class Generic(ABC):
             return '(' + ','.join(v_mog) + ')'
         else:
             raise Spartacus.Database.Exception('Can not mogrify with different number of parameters.')
-    @classmethod
-    def Transfer(self, p_sql, p_targetdatabase, p_tablename, p_blocksize, p_fields=None, p_alltypesstr=False):
+    def Transfer(self, p_sql=None, p_table=None, p_targetdatabase=None, p_tablename=None, p_blocksize=1000, p_fields=None, p_alltypesstr=False):
+        """Method used to transfer data from one database to another one.
+
+            Args:
+                p_sql (str): the sql query to be executed in the current database, in order to provide data to be inserted into target database. Defaults to None.
+                p_table (Spartacus.Database.DataTable): the data table containing data to be inserted into target database. Defaults to None.
+                p_targetdatabase (Spartacus.Database.Generic): any object that inherits from Spartacus.Database.Generic. It is the target database connection. Defaults to None.
+                p_tablename (str): the target table name. Defaults to None.
+                p_blocksize (int): number of rows to be read at a time from source database. Defaults to 1000.
+                p_fields (list): list of fields to be considered while inserting into target database table. Defaults to None.
+                p_alltypesstr (bool): if all fields should be queried as str instances.
+
+            Notes:
+                Either p_sql or p_table must be provided. If p_sql is provided, a query will be executed in source database. Otherwise, will use p_table data.
+                p_tablename may also contain schema name, if target database supports it, e.g., 'my_schema.my_table'.
+                p_blocksize and p_alltypesstr are used just in case of p_sql being used too.
+                If p_fields is None, will consider all target table columns while transfering data.
+
+            Returns:
+                Spartacus.Database.DataTransferReturn.
+
+            Raises:
+                Spartacus.Database.Exception.
+        """
+
+        if p_sql is None and p_table is None:
+            raise Spartacus.Database.Exception('Either p_sql or p_table parameter must be provided.')
         v_return = DataTransferReturn()
         try:
-            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr)
+            v_table = self.QueryBlock(p_sql, p_blocksize, p_alltypesstr) if p_sql is not None else p_table
             if len(v_table.Rows) > 0:
                 p_targetdatabase.InsertBlock(v_table, p_tablename, p_fields)
             v_return.v_numrecords = len(v_table.Rows)
+            v_return.v_hasmorerecords = not self.v_start
         except Spartacus.Database.Exception as exc:
             v_return.v_log = str(exc)
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
         return v_return
-    @classmethod
-    def Transfer(self, p_table, p_targetdatabase, p_tablename, p_fields=None):
-        v_return = DataTransferReturn()
+    def GetIdentifiersDML(p_sql):
         try:
-            if len(p_table.Rows) > 0:
-                p_targetdatabase.InsertBlock(p_table, p_tablename, p_fields)
-            v_return.v_numrecords = len(p_table.Rows)
-        except Spartacus.Database.Exception as exc:
-            v_return.v_log = str(exc)
+            v_dict = {
+                'all': [],
+                'readonly': [],
+                'writeonly': [],
+                'readwrite': []
+            }
+            v_statement = sqlparse.split(p_sql)
+            v_analysis = sqlparse.parse(p_sql)
+            if len(v_statement) == len(v_analysis):
+                for i in range(0, len(v_statement)):
+                    v_type = v_analysis[i].get_type()
+                    v_next_is_into = False
+                    v_next_is_from = False
+                    v_next_is_read_table = False
+                    v_next_is_write_table = False
+                    for v_token in v_analysis[i].flatten():
+                        if v_token.ttype != sqlparse.tokens.Token.Text.Whitespace:
+                            if v_next_is_into:
+                                v_next_is_write_table = True
+                                v_next_is_into = False
+                            elif v_next_is_from:
+                                v_next_is_write_table = True
+                                v_next_is_from = False
+                            elif v_next_is_read_table:
+                                v_dict['readonly'].append(v_token.value)
+                                v_next_is_read_table = False
+                            elif v_next_is_write_table:
+                                v_dict['writeonly'].append(v_token.value)
+                                v_next_is_write_table = False
+                            elif v_token.is_keyword and v_token.value.lower() in [
+                                'from',
+                                'join',
+                                'inner join',
+                                'left join',
+                                'left outer join',
+                                'right join',
+                                'right outer join',
+                                'full join',
+                                'full outer join',
+                                'cross join',
+                                'natural join'
+                            ]:
+                                v_next_is_read_table = True
+                            elif v_token.is_keyword and v_token.value.lower() == 'insert':
+                                v_next_is_into = True
+                            elif v_token.is_keyword and v_token.value.lower() == 'delete':
+                                v_next_is_from = True
+                            elif v_token.is_keyword and v_token.value.lower() == 'update':
+                                v_next_is_write_table = True
+                            elif v_token.is_keyword and v_token.value.lower() == 'truncate':
+                                v_next_is_write_table = True
+            v_dict['readonly'] = list(dict.fromkeys(v_dict['readonly']))
+            v_dict['writeonly'] = list(dict.fromkeys(v_dict['writeonly']))
+            v_dict['readwrite'] = list(dict.fromkeys([value for value in v_dict['readonly'] if value in v_dict['writeonly']] + [value for value in v_dict['writeonly'] if value in v_dict['readonly']]))
+            for value in v_dict['readwrite']:
+                v_dict['readonly'].remove(value)
+                v_dict['writeonly'].remove(value)
+            v_dict['all'] = list(dict.fromkeys(v_dict['readonly'] + v_dict['writeonly'] + v_dict['readwrite']))
+            for k in list(v_dict.keys()):
+                v_dict[k].sort()
+            return v_dict
         except Exception as exc:
             raise Spartacus.Database.Exception(str(exc))
-        return v_return
+    def GetIdentifiersDDL(p_sql):
+        try:
+            v_dict = {
+                'all': [],
+                'create': [],
+                'alter': [],
+                'drop': []
+            }
+            v_statement = sqlparse.split(p_sql)
+            v_analysis = sqlparse.parse(p_sql)
+            if len(v_statement) == len(v_analysis):
+                for i in range(0, len(v_statement)):
+                    v_type = v_analysis[i].get_type()
+                    v_class = None
+                    v_next_is_class = False
+                    v_next_is_object = False
+                    if v_type in ['CREATE', 'CREATE OR REPLACE', 'ALTER', 'DROP']:
+                        for v_token in v_analysis[i].flatten():
+                            if v_token.ttype != sqlparse.tokens.Token.Text.Whitespace:
+                                if v_token.is_keyword and v_token.value.upper() == v_type:
+                                    v_next_is_class = True
+                                elif v_next_is_class:
+                                    v_class = v_token.value.lower()
+                                    v_next_is_class = False
+                                    v_next_is_object = True
+                                elif v_next_is_object:
+                                    if v_type == 'CREATE OR REPLACE':
+                                        v_dict['create'].append((v_class, v_token.value))
+                                    else:
+                                        v_dict[v_type.lower()].append((v_class, v_token.value))
+                                    if v_class in v_dict:
+                                        v_dict[v_class].append(v_token.value)
+                                    else:
+                                        v_dict[v_class] = [v_token.value]
+                                    v_next_is_object = False
+            v_dict['create'] = list(dict.fromkeys(v_dict['create']))
+            v_dict['alter'] = list(dict.fromkeys(v_dict['alter']))
+            v_dict['drop'] = list(dict.fromkeys(v_dict['drop']))
+            v_dict['all'] = list(dict.fromkeys(v_dict['create'] + v_dict['alter'] + v_dict['drop']))
+            for k in list(v_dict.keys()):
+                v_dict[k].sort()
+            return v_dict
+        except Exception as exc:
+            raise Spartacus.Database.Exception(str(exc))
 
 '''
 ------------------------------------------------------------------------

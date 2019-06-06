@@ -779,7 +779,7 @@ function getFKs(node) {
 		        	}
 
 
-		        	v_node.createChildNode(p_return.v_data[i][1] + ' <img style="vertical-align: middle;" src="/static/OmniDB_app/images/arrow_right.png"/> ' + p_return.v_data[i][3],false,'/static/OmniDB_app/images/add.png',null,null);
+		        	v_node.createChildNode(p_return.v_data[i][1] + ' <img style="vertical-align: middle;" src="../../../static/OmniDB_app/images/arrow_right.png"/> ' + p_return.v_data[i][3],false,'/static/OmniDB_app/images/add.png',null,null);
 
 
 		        }

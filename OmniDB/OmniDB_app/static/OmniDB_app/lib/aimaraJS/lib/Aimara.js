@@ -455,7 +455,11 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			var v_items_list = [];
 			if (p_node.contextMenu!=undefined) {
 				try {
-						var v_menu_list = this.contextMenu[p_node.contextMenu].elements;
+						var v_menu_list = null;
+						if (typeof(this.contextMenu[p_node.contextMenu].elements)=='function')
+							v_menu_list = this.contextMenu[p_node.contextMenu].elements(p_node);
+						else
+							v_menu_list = this.contextMenu[p_node.contextMenu].elements;
 						v_items_list = v_items_list.concat(v_menu_list);
 				}
 				catch(err) {
@@ -535,6 +539,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 						v_li.appendChild(v_span);
 						if (v_items_list[i].icon!=undefined) {
 							var v_img = createSimpleElement('i',null,v_items_list[i].icon);
+							v_img.innerHTML = '&nbsp;';
 							v_li.appendChild(v_img);
 						}
 
@@ -555,7 +560,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 							v_li.appendChild(v_ul);
 							var v_span_more = createSimpleElement('div',null,null);
-							v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
+							v_span_more.appendChild(createImgElement(null,'menu_img',v_url_folder + '/static/OmniDB_app/images/right.png'));
 							v_li.appendChild(v_span_more);
 							v_tree.contextMenuLi(v_items_list[i].submenu,v_ul,p_node,v_closediv, 1);
 						}
@@ -574,7 +579,13 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 			var v_tree = this;
 
-			for (var i=0; i<p_submenu.elements.length; i++) (function(i){
+			var v_menu_list = null;
+			if (typeof(p_submenu.elements)=='function')
+				v_menu_list = p_submenu.elements(p_node);
+			else
+				v_menu_list = p_submenu.elements;
+
+			for (var i=0; i<v_menu_list.length; i++) (function(i){
 
 				var v_li = createSimpleElement('li',null,null);
 				v_li.aimara_level = p_level;
@@ -588,20 +599,21 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 					}
 					p_closediv.parentNode.removeChild(p_closediv);
 
-					if (p_submenu.elements[i].action!=null)
-						p_submenu.elements[i].action(p_node)
+					if (v_menu_list[i].action!=null)
+						v_menu_list[i].action(p_node)
 				};
 
 				var v_a = createSimpleElement('a',null,null);
 				var v_ul = createSimpleElement('ul',null,'aimara_sub-menu');
 				v_ul.aimara_level = p_level;
 
-				v_a.appendChild(document.createTextNode(p_submenu.elements[i].text));
+				v_a.appendChild(document.createTextNode(v_menu_list[i].text));
 
 				v_li.appendChild(v_span);
 
-				if (p_submenu.elements[i].icon!=undefined) {
-					var v_img = createSimpleElement('i',null,p_submenu.elements[i].icon);
+				if (v_menu_list[i].icon!=undefined) {
+					var v_img = createSimpleElement('i',null,v_menu_list[i].icon);
+					v_img.innerHTML = '&nbsp;';
 					v_li.appendChild(v_img);
 				}
 
@@ -609,7 +621,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 				p_ul.appendChild(v_li);
 
-				if (p_submenu.elements[i].submenu!=undefined) {
+				if (v_menu_list[i].submenu!=undefined) {
 
 					v_li.onmouseenter = function() {
 						var v_submenus = document.getElementsByClassName("aimara_sub-menu");
@@ -622,9 +634,9 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 					v_li.appendChild(v_ul);
 					var v_span_more = createSimpleElement('div',null,null);
-					v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
+					v_span_more.appendChild(createImgElement(null,'menu_img',v_url_folder + '/static/OmniDB_app/images/right.png'));
 					v_li.appendChild(v_span_more);
-					v_tree.contextMenuLi(p_submenu.elements[i].submenu,v_ul,p_node,p_closediv, p_level+1);
+					v_tree.contextMenuLi(v_menu_list[i].submenu,v_ul,p_node,p_closediv, p_level+1);
 				}
 
 			})(i);

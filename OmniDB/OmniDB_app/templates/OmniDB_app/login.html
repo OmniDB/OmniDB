@@ -2,16 +2,16 @@
 <head runat="server">
 	<title>OmniDB</title>
 
-	<link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico" />
+	<link rel="shortcut icon" type="image/x-icon" href="{{url_folder}}/static/OmniDB_app/images/favicon.ico" />
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/login.css?v2.15.0.6"/>
+	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/login.css?v2.16.0.0"/>
 </head>
 <body>
 	<div id="div_form">
 		<div class="loginWrap">
 			<div id="div_time">
 				<div class="logo">
-					<img src="/static/OmniDB_app/images/omnidb_big_2.png">
+					<img src="{{url_folder}}/static/OmniDB_app/images/omnidb_big_2.png">
 				</div>
 				<div class="version">
 					<small>v{{ omnidb_short_version }}</small>
@@ -48,12 +48,12 @@
 
 <div class="div_loading"><button id="bt_cancel_ajax" onclick="cancelAjax()">Cancel</button></div>
 
-<script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js"   ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js" ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js"         ></script>
-<script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js"    ></script>
+<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/jquery-1.11.2.min.js"   ></script>
+<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/NotificationControl.js" ></script>
+<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/AjaxControl.js"         ></script>
+<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/WebSocketControl.js"    ></script>
 <script type="text/javascript">
-
+	var v_url_folder = '{{ url_folder }}'
 	$(function () {
 
 		checkSessionMessage();
@@ -73,7 +73,7 @@
 			function(p_return) {
 
 				if (p_return.v_data>=0) {
-					window.open("../workspace", '_self');
+					window.open(v_url_folder + "/workspace", '_self');
 				}
 				else if (p_return.v_data==-2) {
 					showAlert('Invalid authentication token, use omnidb-server to support multiple users.');

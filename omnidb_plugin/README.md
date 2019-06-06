@@ -324,5 +324,4 @@ host    <database>      <user>          ::1/128                 md5
 localhost:<port>:<database>:<username>:<password>
 ```
 
-More information about how `.pgpass` works can be found here:
-https://www.postgresql.org/docs/11/static/libpq-pgpass.html
+More information about how `.pgpass` works can be found here: https://www.postgresql.org/docs/11/static/libpq-pgpass.html

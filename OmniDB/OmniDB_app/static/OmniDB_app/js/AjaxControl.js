@@ -107,7 +107,7 @@ function execAjax(p_url,p_data,p_successFunc,p_errorFunc,p_notifMode,p_loading, 
 	var csrftoken = getCookie('omnidb_csrftoken');
 
 	v_ajax_call = $.ajax({
-		url: p_url,
+		url: v_url_folder + p_url,
 		data: {
 			data: p_data,
 			tab_token: ''

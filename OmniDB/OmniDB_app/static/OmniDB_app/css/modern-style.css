@@ -149,7 +149,7 @@ a.modal-closer:hover,
 
 /* Handson Tables */
 .handsontable thead th {
-    background-color: #344e75;
+    background-color: #4a6896;
     color: #FFFFFF;
 }
 .handsontable tbody th.ht__highlight,
@@ -520,4 +520,20 @@ li.welcome_release_item span {
     margin: 8px;
     display: inline-block;
     position: relative;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: none;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #c0c3c7;
+    cursor: pointer;
 }

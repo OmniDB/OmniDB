@@ -576,7 +576,6 @@ def exec_plugin_function(request):
             return JsonResponse(v_return)
 
     try:
-        print(plugins[p_plugin_name]['module'])
         v_return['v_data'] = getattr(plugins[p_plugin_name]['module'], p_function_name)(v_database,p_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }

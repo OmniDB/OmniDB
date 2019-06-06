@@ -16,3 +16,4 @@ omnidb_app/omnidb-gui*
 omnidb_app/package-lock.json
 *.DS_Store
 
+OmniDB/db.sqlite3

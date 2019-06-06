@@ -33,7 +33,7 @@ var v_current_terminal_theme;
 $(function() {
 
 	var v_fileref = document.getElementById("ss_theme");
-  v_fileref.setAttribute("href", '/static/OmniDB_app/css/themes/' + v_theme_type + '.css');
+  v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/css/themes/' + v_theme_type + '.css');
 
 	var v_configTabControl = createTabControl('config_tabs',0,null);
 	v_configTabControl.selectTabIndex(0);
@@ -69,7 +69,23 @@ function adjustChartTheme(p_chart) {
 	catch(err) {
 	}
 	p_chart.update();
+}
 
+function adjustGraphTheme(p_graph) {
+	var v_font_color = '#666666';
+
+	if (v_theme_type=='dark') {
+		v_font_color = '#d7d7d7';
+	}
+
+	try {
+		p_graph.style().selector('node').style('color', v_font_color);
+		p_graph.style().selector('edge').style('color', v_font_color);
+		p_graph.nodes().updateStyle();
+		p_graph.edges().updateStyle();
+	}
+	catch(err) {
+	}
 }
 
 function changeTheme(p_option) {
@@ -77,11 +93,11 @@ function changeTheme(p_option) {
 	var p_options = p_option.split('/');
 
 	if (parseInt(p_options[0])>=17) {
-		v_fileref.setAttribute("href", '/static/OmniDB_app/css/themes/dark.css');
+		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/css/themes/dark.css');
 		v_theme_type = 'dark';
 	}
 	else {
-		v_fileref.setAttribute("href", '/static/OmniDB_app/css/themes/light.css');
+		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/css/themes/light.css');
 		v_theme_type = 'light';
 	}
 	v_editor_theme = p_options[1];
@@ -108,6 +124,26 @@ function changeTheme(p_option) {
 		if (v_tab.tag!=null) {
 			if (v_tab.tag.mode=='outer_terminal') {
 				v_tab.tag.editor_console.setOption('theme',v_current_terminal_theme);
+			}
+		}
+	}
+
+	//Adjusting graph themes
+	for (var i=0; i < v_connTabControl.tabList.length; i++) {
+		var v_tab = v_connTabControl.tabList[i];
+		if (v_tab.tag!=null) {
+			if (v_tab.tag.mode=='connection') {
+				for (var j=0; j < v_tab.tag.tabControl.tabList.length; j++) {
+					var v_inner_tab = v_tab.tag.tabControl.tabList[j];
+					if (v_inner_tab.tag!=null) {
+						if (v_inner_tab.tag.mode=='monitor_dashboard') {
+							for (var k=0; k < v_inner_tab.tag.units.length; k++) {
+								if (v_inner_tab.tag.units[k].type=='graph')
+									adjustGraphTheme(v_inner_tab.tag.units[k].object);
+							}
+						}
+					}
+				}
 			}
 		}
 	}

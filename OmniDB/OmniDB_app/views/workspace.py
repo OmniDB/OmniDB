@@ -40,6 +40,7 @@ def index(request):
     else:
         v_dev_mode = 'false'
 
+
     v_shortcuts = v_session.v_omnidb_database.v_connection.Query('''
         select default_shortcut_code as shortcut_code,
                case when user_defined_shortcut_code is null then default_ctrl_pressed else user_defined_ctrl_pressed end as ctrl_pressed,
@@ -65,6 +66,10 @@ def index(request):
         where defaults.user_id is null) subquery
     '''.format(v_session.v_user_id))
 
+    v_welcome_closed = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
+        select welcome_closed from users where user_id = {0}
+    '''.format(v_session.v_user_id))
+
     shortcut_object = {}
 
     for v_shortcut in v_shortcuts.Rows:
@@ -77,14 +82,28 @@ def index(request):
             'shortcut_code': v_shortcut['shortcut_code']
         }
 
+
+
     #if not v_session.v_super_user or platform.system()=='Windows':
     #    v_show_terminal_option = 'false'
     #else:
     #    v_show_terminal_option = 'true'
     v_show_terminal_option = 'false'
-
     context = {
-        'session' : v_session,
+        'session' : None,
+        'editor_theme': v_session.v_editor_theme,
+        'theme_type': v_session.v_theme_type,
+        'theme_id': v_session.v_theme_id,
+        'editor_font_size': v_session.v_editor_font_size,
+        'interface_font_size': v_session.v_interface_font_size,
+        'user_id': v_session.v_user_id,
+        'user_key': v_session.v_user_key,
+        'user_name': v_session.v_user_name,
+        'super_user': v_session.v_super_user,
+        'welcome_closed': v_welcome_closed,
+        'enable_omnichat': v_session.v_enable_omnichat,
+        'csv_encoding': v_session.v_csv_encoding,
+        'delimiter': v_session.v_csv_delimiter,
         'desktop_mode': settings.DESKTOP_MODE,
         'omnidb_version': settings.OMNIDB_VERSION,
         'omnidb_short_version': settings.OMNIDB_SHORT_VERSION,
@@ -96,9 +115,9 @@ def index(request):
         'autocomplete': settings.BINDKEY_AUTOCOMPLETE,
         'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC,
         'shortcuts': shortcut_object,
-        'chat_link': settings.CHAT_LINK,
         'tab_token': ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(20)),
-        'show_terminal_option': v_show_terminal_option
+        'show_terminal_option': v_show_terminal_option,
+        'url_folder': settings.PATH
     }
 
     #wiping tab connection list
@@ -127,6 +146,34 @@ def shortcuts(request):
 
     template = loader.get_template('OmniDB_app/shortcuts.html')
     return HttpResponse(template.render(context, request))
+
+def close_welcome(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    try:
+        v_session.v_omnidb_database.v_connection.Execute('''
+        update users
+        set welcome_closed = 1
+        where user_id = {0}
+        '''.format(v_session.v_user_id))
+
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+
+    return JsonResponse(v_return)
 
 def save_config_user(request):
 
@@ -339,15 +386,6 @@ def get_database_list(request):
 
         if v_database_object['database']!=None:
             v_database = v_database_object['database']
-            v_database_data = {
-                'v_db_type': v_database.v_db_type,
-                'v_alias': v_database.v_alias,
-                'v_conn_id': v_database.v_conn_id,
-                'v_console_help': v_database.v_console_help,
-                'v_database': v_database.v_active_service
-            }
-
-            v_databases.append(v_database_data)
 
             if v_database.v_alias=='':
                 v_alias = ''
@@ -358,8 +396,20 @@ def get_database_list(request):
             else:
                 v_details = v_database.PrintDatabaseDetails() + ' <b>(' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port'] + ')</b>'
 
-            v_options = v_options + '<option data-image="/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
+            v_options = v_options + '<option data-image="' + settings.PATH + '/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
             v_index = v_index + 1
+
+            v_database_data = {
+                'v_db_type': v_database.v_db_type,
+                'v_alias': v_database.v_alias,
+                'v_conn_id': v_database.v_conn_id,
+                'v_console_help': v_database.v_console_help,
+                'v_database': v_database.v_active_service,
+                'v_details1': '{0}{1}'.format(v_alias,v_database.PrintDatabaseInfo()),
+                'v_details2': v_details
+            }
+
+            v_databases.append(v_database_data)
 
     v_html_connections = '<select style="width: 100%; font-weight: bold;" onchange="changeDatabase(this.value);">{0}</select>'.format(v_options)
 

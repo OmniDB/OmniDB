@@ -810,7 +810,7 @@ iframe {
 .dashboard_unit {
   position: relative;
   margin: 10px 10px;
-  width: 550px;
+  width: 450px;
   height: 350px;
   padding: 5px 5px;
   background-color: #f9f9f9;
@@ -824,7 +824,7 @@ iframe {
 
 .dashboard_unit_test {
   position: relative;
-  width: 550px;
+  width: 450px;
   height: 300px;
   padding: 5px 5px;
   background-color: #f9f9f9;
@@ -907,9 +907,15 @@ iframe {
 
 .unit_grid {
   position: relative;
-  width: 550px;
+  width: 450px;
   height: 300px;
   overflow: auto;
+}
+
+.unit_graph {
+  position: relative;
+  width: 450px;
+  height: 300px;
 }
 
 .unit_list_grid {

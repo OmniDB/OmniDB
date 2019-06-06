@@ -96,6 +96,7 @@ def get_monitor_unit_list(request):
           when 'chart' then 'Chart'
           when 'chart_append' then 'Chart (Append)'
           when 'grid' then 'Grid'
+          when 'graph' then 'Graph'
         end type,
         user_id,
         interval
@@ -723,6 +724,12 @@ def refresh_monitor_units(request):
 
                         if v_unit['type']  == 'grid' or v_unit['rendered'] == 1:
                             v_unit_data['v_object'] = data
+                        elif v_unit['type'] == 'graph':
+                            byte_code = compile_restricted(v_unit['script_chart'], '<inline>', 'exec')
+                            exec(byte_code, builtins, loc)
+                            result = loc['result']
+                            result['elements'] = data
+                            v_unit_data['v_object'] = result
                         else:
                             byte_code = compile_restricted(v_unit['script_chart'], '<inline>', 'exec')
                             exec(byte_code, builtins, loc)
@@ -807,6 +814,12 @@ def test_monitor_script(request):
 
         if v_type == 'grid':
             v_return['v_data']['v_object'] = data
+        elif v_type =='graph':
+            byte_code = compile_restricted(v_script_chart, '<inline>', 'exec')
+            exec(byte_code, builtins, loc)
+            result = loc['result']
+            result['elements'] = data
+            v_return['v_data']['v_object'] = result
         else:
             byte_code = compile_restricted(v_script_chart, '<inline>', 'exec')
             exec(byte_code, builtins, loc)

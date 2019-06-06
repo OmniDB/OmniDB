@@ -477,7 +477,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 						if (v_menu.elements[i].submenu!=undefined) {
 							v_li.appendChild(v_ul);
 							var v_span_more = createSimpleElement('div',null,null);
-							v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
+							v_span_more.appendChild(createImgElement(null,'menu_img',v_url_folder + '/static/OmniDB_app/images/right.png'));
 							v_li.appendChild(v_span_more);
 							v_tree.contextMenuLi(v_menu.elements[i].submenu,v_ul,p_tag,v_closediv);
 						}
@@ -525,7 +525,7 @@ function createTabControl(p_div, p_selected_index, p_contextMenu, p_tabColor) {
 				if (p_submenu.elements[i].p_submenu!=undefined) {
 					v_li.appendChild(v_ul);
 					var v_span_more = createSimpleElement('div',null,null);
-					v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
+					v_span_more.appendChild(createImgElement(null,'menu_img',v_url_folder + '/static/OmniDB_app/images/right.png'));
 					v_li.appendChild(v_span_more);
 					v_tree.contextMenuLi(p_submenu.elements[i].p_submenu,v_ul,p_tag,p_closediv);
 				}

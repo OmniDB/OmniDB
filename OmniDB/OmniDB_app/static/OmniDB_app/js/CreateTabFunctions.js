@@ -22,7 +22,7 @@ function initCreateTabFunctions() {
 
     	v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
     	var v_tab = v_connTabControl.createTab(
-          '<span id="tab_title"><img src="/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[0].v_alias + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
+          '<span id="tab_title"><img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[0].v_alias + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
           false,
           null,
           null,
@@ -42,7 +42,10 @@ function initCreateTabFunctions() {
 
     	v_connTabControl.selectTab(v_tab);
 
-    	var v_html = "<div id='" + v_tab.id + "_div_left' class='div_left' style='float:left; position: relative; width:20%; '>" +
+      var v_width = Math.ceil((300/window.innerWidth)*100);
+      var v_complement_width = 100 - v_width;
+
+    	var v_html = "<div id='" + v_tab.id + "_div_left' class='div_left' style='float:left; position: relative; width:" + v_width + "%; '>" +
     	"<div style='padding-right: 12px;'><div id='" + v_tab.id + "_div_select_group' style='width: 100%; margin-bottom: 5px; display: inline-block;'></div>" +
       "<div id='" + v_tab.id + "_div_select_db' style='width: 100%; display: inline-block;'></div>" +
     	"</div>" +
@@ -60,7 +63,7 @@ function initCreateTabFunctions() {
       "<li id='tree_tabs_" + v_tab.id + "_tab2'>DDL</li>" +
       "</ul>" +
       "<div id='div_tree_tabs_" + v_tab.id + "_tab1' style='position: relative;'>" +
-      "<div id='" + v_tab.id + "_properties' style='width: 100%; overflow: auto;'></div>" +
+      "<div id='" + v_tab.id + "_properties' style='width: 100%; overflow: hidden;'></div>" +
       "</div>" +
       "<div id='div_tree_tabs_" + v_tab.id + "_tab2'>" +
       "<div id='" + v_tab.id + "_ddl' style='width: 100%; line-height: 16px;'></div>" +
@@ -68,7 +71,7 @@ function initCreateTabFunctions() {
       "</div>" +
       "</div>" +
     	"</div>" +
-    	"<div id='" + v_tab.id + "_div_right' class='div_right' style='float:left; width:80%;'>" +
+    	"<div id='" + v_tab.id + "_div_right' class='div_right' style='float:left; width:" + v_complement_width + "%;'>" +
     	"<div id='" + v_tab.id + "_tabs'>" +
     	"<ul>" +
     	"</ul>" +
@@ -309,16 +312,19 @@ function initCreateTabFunctions() {
 
   	v_connTabControl.selectTab(v_tab);
 
-  	var v_html = "<div id='" + v_tab.id + "_div_left' class='div_left' style='float:left; position: relative; width:15%; '>" +
+    var v_width = Math.ceil((300/window.innerWidth)*100);
+    var v_complement_width = 100 - v_width;
+
+  	var v_html = "<div id='" + v_tab.id + "_div_left' class='div_left' style='float:left; position: relative; width:" + v_width + "%; '>" +
   	"<div style='padding-right: 12px;'><div id='" + v_tab.id + "_div_select_db' style='width: 100%; display: inline-block;'></div>" +
   	"</div>" +
   	"<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
-  	"<div style='width: 97%;'><div id='" + v_tab.id + "_tree' style='height: 100%;'></div>" +
+  	"<div style='width: 97%;'><div id='" + v_tab.id + "_tree' style='height: 100%; overflow: auto;'></div>" +
   	"</div>" +
   	"<div id='html1'>" +
   	"</div>" +
   	"</div>" +
-  	"<div id='" + v_tab.id + "_div_right' class='div_right' style='float:left; width:85%;'>" +
+  	"<div id='" + v_tab.id + "_div_right' class='div_right' style='float:left; width:" + v_complement_width + "%;'>" +
   	"<div id='" + v_tab.id + "_tabs'>" +
   	"<ul>" +
   	"</ul>" +
@@ -399,7 +405,7 @@ function initCreateTabFunctions() {
 
 		var v_html = "<div style='margin-top: 5px; margin-bottom: 5px;'>" +
     "<span class='query_info'>Name: </span><input type='text' id='txt_unit_name_" + v_tab.id + "' />" +
-    "<span style='margin-left: 5px;' class='query_info'>Type: </span><select id='select_type_" + v_tab.id + "' class='sel_export_file_type'><option value='chart_append'>Chart (Append)</option><option value='chart'>Chart (No Append)</option><option value='grid'>Grid</option></select>" +
+    "<span style='margin-left: 5px;' class='query_info'>Type: </span><select id='select_type_" + v_tab.id + "' class='sel_export_file_type'><option value='chart_append'>Chart (Append)</option><option value='chart'>Chart (No Append)</option><option value='grid'>Grid</option><option value='graph'>Graph</option></select>" +
     "<span style='margin-left: 5px;' class='query_info'>Refresh Interval: </span><input type='text' id='txt_interval_" + v_tab.id + "' style='width: 100px;' onkeypress='return event.charCode >= 48 && event.charCode <= 57'/> <span class='query_info'>seconds</span>" +
     "</div>" +
     "<div style='margin-top: 5px; margin-bottom: 5px;'>" +
@@ -895,7 +901,7 @@ function initCreateTabFunctions() {
 
   };
 
-  var v_createWebsiteOuterTabFunction = function(p_name, p_site, p_html) {
+  var v_createWebsiteOuterTabFunction = function(p_name, p_site, p_html, p_close_function) {
 
 		v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);
 		var v_tab = v_connTabControl.createTab(
@@ -919,6 +925,9 @@ function initCreateTabFunctions() {
       var v_current_tab = v_tab;
       beforeCloseTab(e,
         function() {
+          if (p_close_function!=null) {
+            p_close_function();
+          }
           removeTab(v_current_tab);
         });
 		};
@@ -1108,7 +1117,8 @@ function initCreateTabFunctions() {
           "            <li id='query_result_tabs_" + v_tab.id + "_tab3' class='dbms_object postgresql_object' style='display: none;'>Explain</li>" +
           "			</ul>" +
           "			<div id='div_query_result_tabs_" + v_tab.id + "_tab1'>" +
-          "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
+          "<div id='div_resultx_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: hidden;'>" +
+          "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: hidden;'></div></div>" +
           "			</div>" +
           "			<div id='div_query_result_tabs_" + v_tab.id + "_tab2'>" +
           "<div id='div_notices_" + v_tab.id + "' class='query_result' style='width: 100%; line-height: 16px; user-select: initial;'></div>" +
@@ -1813,13 +1823,13 @@ function initCreateTabFunctions() {
           "            <li id='debug_result_tabs_" + v_tab.id + "_tab5'>Statistics</li>" +
           "			</ul>" +
           "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab1'>" +
-          "<div id='div_parameters_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
+          "<div id='div_parameters_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: hidden;'></div>" +
           "			</div>" +
           "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab2'>" +
-          "<div id='div_variables_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
+          "<div id='div_variables_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: hidden;'></div>" +
           "			</div>" +
           "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab3'>" +
-          "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +
+          "<div id='div_result_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: hidden;'></div>" +
           "			</div>" +
           "			<div id='div_debug_result_tabs_" + v_tab.id + "_tab4'>" +
           "<div id='div_notices_" + v_tab.id + "' class='query_result' style='width: 100%; overflow: auto;'></div>" +

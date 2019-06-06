@@ -49,6 +49,7 @@ base_urlpatterns = [
     #WORKSPACE
     url(r'^workspace/', views.workspace.index, name='workspace'),
     url(r'^shortcuts/', views.workspace.shortcuts, name='shortcuts'),
+    url(r'^close_welcome/', views.workspace.close_welcome, name='close_welcome'),
     url(r'^save_config_user/', views.workspace.save_config_user, name='save_config_user'),
     url(r'^save_shortcuts/', views.workspace.save_shortcuts, name='save_shortcuts'),
     url(r'^get_database_list/', views.workspace.get_database_list, name='get_database_list'),
@@ -272,7 +273,12 @@ base_urlpatterns = [
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
+if settings.PATH == '':
+    v_url = ''
+else:
+    v_url = settings.PATH[1:] + '/'
+
 urlpatterns = [# if you wish to maintain the un-prefixed URL's too
-    url(r'^', include(base_urlpatterns)),
+    url(v_url, include(base_urlpatterns)),
     #url(r'^subfolder/', include(base_urlpatterns))
 ]

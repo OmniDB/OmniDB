@@ -4901,7 +4901,7 @@ INTO local_schema
 ''')
 
     def TemplateDropUserMapping(self):
-        return Template('DROP USER MAPPING #user_name# SERVER #srvname#')
+        return Template('DROP USER MAPPING FOR #user_name# SERVER #srvname#')
 
     def TemplateCreateForeignTable(self):
         return Template('''CREATE FOREIGN TABLE #schema_name#.table_name

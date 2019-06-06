@@ -44,6 +44,10 @@ parser.add_option("-A", "--app", dest="app",
                   default=False,
                   help=optparse.SUPPRESS_HELP)
 
+parser.add_option("-P", "--path", dest="path",
+                  default='', type=str,
+                  help="path to access the application, other than /")
+
 (options, args) = parser.parse_args()
 
 #Generate random token if in app mode
@@ -61,17 +65,18 @@ if options.homedir!='':
     else:
         OmniDB.custom_settings.HOME_DIR = options.homedir
 
-#importing settings after setting HOME_DIR and other required parameters
-import OmniDB.settings
+
+#importing runtime settings after setting HOME_DIR and other required parameters
+import OmniDB.runtime_settings
 
 if options.conf!='':
     if not os.path.exists(options.conf):
         print("Config file not found, using default settings.",flush=True)
-        config_file = OmniDB.settings.CONFFILE
+        config_file = OmniDB.runtime_settings.CONFFILE
     else:
         config_file = options.conf
 else:
-    config_file = OmniDB.settings.CONFFILE
+    config_file = OmniDB.runtime_settings.CONFFILE
 
 #Parsing config file
 Config = configparser.ConfigParser()
@@ -83,7 +88,7 @@ else:
     try:
         listening_address = Config.get('webserver', 'listening_address')
     except:
-        listening_address = OmniDB.settings.OMNIDB_ADDRESS
+        listening_address = OmniDB.custom_settings.OMNIDB_ADDRESS
 
 if options.port!=None:
     listening_port = options.port
@@ -99,7 +104,7 @@ else:
     try:
         ws_port = Config.getint('webserver', 'websocket_port')
     except:
-        ws_port = OmniDB.settings.OMNIDB_WEBSOCKET_PORT
+        ws_port = OmniDB.custom_settings.OMNIDB_WEBSOCKET_PORT
 
 if options.ewsport!=None:
     ews_port = options.ewsport
@@ -108,6 +113,14 @@ else:
         ews_port = Config.getint('webserver', 'external_websocket_port')
     except:
         ews_port = None
+
+if options.path!='':
+    OmniDB.custom_settings.PATH = options.path
+else:
+    try:
+        OmniDB.custom_settings.PATH = Config.get('webserver', 'path')
+    except:
+        OmniDB.custom_settings.PATH = ''
 
 try:
     is_ssl = Config.getboolean('webserver', 'is_ssl')
@@ -136,6 +149,14 @@ try:
 except:
     pass
 
+#importing settings after setting HOME_DIR and other required parameters
+import OmniDB.settings
+
+import logging
+import logging.config
+
+logger = logging.getLogger('OmniDB_app.Init')
+
 #Configuring Django settings before loading them
 OmniDB.settings.DEBUG = False
 if is_ssl:
@@ -153,7 +174,6 @@ if is_ssl:
         print("Key file not found. Please specify a file that exists.",flush=True)
         logger.info("Key file not found. Please specify a file that exists.")
         sys.exit()
-
 
 import OmniDB
 import OmniDB_app
@@ -187,8 +207,6 @@ import django.contrib.auth.password_validation
 from django.core.handlers.wsgi import WSGIHandler
 from OmniDB import startup, ws_core
 
-import logging
-import logging.config
 import time
 import cherrypy
 
@@ -197,8 +215,6 @@ from django.contrib.sessions.backends.db import SessionStore
 import socket
 import random
 import urllib.request
-
-logger = logging.getLogger('OmniDB_app.Init')
 
 def check_port(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -212,6 +228,7 @@ def check_port(port):
 class DjangoApplication(object):
 
     def mount_static(self, url, root):
+        print(url)
         config = {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': root,
@@ -269,7 +286,7 @@ class DjangoApplication(object):
 
             cherrypy.config.update(v_cherrypy_config)
 
-            print ("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)),flush=True)
+            print ("Starting server {0} at {1}:{2}{3}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port),OmniDB.settings.PATH),flush=True)
             logger.info("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)))
 
             # Startup

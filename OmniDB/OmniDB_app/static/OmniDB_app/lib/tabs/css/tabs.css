@@ -70,7 +70,12 @@ opacity: 1.0;
 	display: block;
 }
 
-.tabs li.original {
+.tabs li.original .icon-close {
+	visibility: hidden;
+}
+
+.tabs li.original:hover .icon-close {
+	visibility: visible;
 }
 
 .tabs li.fake {

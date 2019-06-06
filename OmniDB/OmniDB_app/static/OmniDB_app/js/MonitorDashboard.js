@@ -20,6 +20,10 @@ function closeMonitorUnit(p_div) {
       //Clear timeout
       clearTimeout(v_unit.timeout_object);
 
+      if (v_unit.type == 'graph') {
+        v_unit.object.destroy();
+      }
+
       v_unit.div.parentElement.removeChild(v_unit.div);
       v_tab_tag.units.splice(i,1);
 
@@ -432,6 +436,7 @@ function testMonitorScript() {
           var v_div_result = v_tab_tag.div_result;
 
           v_div_result.innerHTML = '';
+          v_div_result.className = '';
 
           if (v_tab_tag.object!=null) {
             v_tab_tag.object.destroy();
@@ -444,7 +449,7 @@ function testMonitorScript() {
             }
             else if (v_type=='chart_append' || v_type=='chart') {
               var canvas = document.createElement('canvas');
-              canvas.style.width = '535px';
+              canvas.style.width = '435px';
               v_div_result.appendChild(canvas);
 
               var v_return_unit = p_return.v_data;
@@ -531,6 +536,12 @@ function testMonitorScript() {
                 }
               });
 
+            }
+            else if (v_type=='graph') {
+              v_div_result.className = 'unit_graph';
+              p_return.v_data.v_object.container = v_div_result;
+              v_tab_tag.object = cytoscape(p_return.v_data.v_object);
+              adjustGraphTheme(v_tab_tag.object);
             }
           }
           catch(err) {
@@ -726,6 +737,9 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                     if (v_return_unit.v_object.data) {
                       v_tab_tag.units[p].object_data = JSON.parse(JSON.stringify(v_return_unit.v_object.data));
                     }
+                    else if (v_return_unit.v_object.elements) {
+                      v_tab_tag.units[p].object_data = JSON.parse(JSON.stringify(v_return_unit.v_object.elements));
+                    }
                     else {
                       v_tab_tag.units[p].object_data = JSON.parse(JSON.stringify(v_return_unit.v_object));
                     }
@@ -757,7 +771,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                     v_unit.div_content.innerHTML = '';
 
                     var canvas = document.createElement('canvas');
-                    canvas.style.width = '535px';
+                    canvas.style.width = '435px';
                     v_unit.div_content.appendChild(canvas);
 
                     var ctx = canvas.getContext('2d');
@@ -781,8 +795,8 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                     }
                     v_return_unit.v_object.options.legendCallback = function(chart) {
                       var text = [];
-                      for (var i = 0; i < chart.legend.legendItems.length; i++) {
-                          text.push('<span class="dashboard_unit_label_group"><span class="dashboard_unit_label_box" style="background-color:' + chart.legend.legendItems[i].fillStyle + '"></span><span id="legend-' + i + '-item" class="dashboard_unit_label" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')">' + chart.legend.legendItems[i].text + '</span></span>');
+                      for (var j=0; j < chart.legend.legendItems.length; j++) {
+                          text.push('<span class="dashboard_unit_label_group"><span class="dashboard_unit_label_box" style="background-color:' + chart.legend.legendItems[j].fillStyle + '"></span><span id="legend-' + i + '-item" class="dashboard_unit_label" onclick="updateDataset(event, ' + '\'' + j + '\'' + ')">' + chart.legend.legendItems[j].text + '</span></span>');
                       }
                       return text.join("");
                     }
@@ -1049,6 +1063,127 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
 
                   }
                 }
+
+
+
+                // Graph unit
+                else if (v_return_unit.v_type=='graph') {
+
+                  v_unit.div_error.innerHTML = '';
+                  v_unit.div_details.innerHTML = '';
+
+                  v_unit.div_loading.style.display = 'none';
+
+                  v_return_unit.type='graph';
+
+                  if (v_return_unit.v_error) {
+
+                    v_unit.div_error.innerHTML = v_return_unit.v_message;
+                    v_unit.error = true;
+                    //v_unit.object = null;
+                    //v_unit.div_content.innerHTML = '';
+
+                  }
+                  // New graph
+                  else if (v_unit.object==null) {
+                    v_unit.div_content.classList.add('unit_graph');
+                    v_unit.div_content.innerHTML = '';
+
+                    v_return_unit.v_object.container = v_unit.div_content;
+                    v_unit.object = cytoscape(v_return_unit.v_object);
+                    adjustGraphTheme(v_unit.object);
+                  }
+                  // Existing graph
+                  else {
+
+                    var v_existing_nodes = v_unit.object.nodes()
+                    var v_existing_edges = v_unit.object.edges()
+
+                    var v_new_objects = []
+
+                    //Updating existing nodes and adding new ones
+                    for (var j=0; j<v_return_unit.v_object.nodes.length; j++) {
+                      var v_found_node = false;
+                      var node = v_return_unit.v_object.nodes[j];
+                      for (var k=0; k<v_existing_nodes.length; k++) {
+                        //New node already exists, update data
+                        if (v_existing_nodes[k].data('id') == node.data['id']) {
+                          v_found_node = true;
+                          for (var property in node.data) {
+                              if (node.data.hasOwnProperty(property)) {
+                                  v_existing_nodes[k].data(property,node.data[property])
+                              }
+                          }
+                          break;
+                        }
+                      }
+                      if (!v_found_node) {
+                        node['group'] = 'nodes';
+                        v_new_objects.push(node);
+                      }
+                    }
+
+                    //Updating existing nodes and adding new ones
+                    for (var j=0; j<v_return_unit.v_object.edges.length; j++) {
+                      var v_found_edge = false;
+                      var edge = v_return_unit.v_object.edges[j];
+                      for (var k=0; k<v_existing_edges.length; k++) {
+                        //New edge already exists, update data
+                        if (v_existing_edges[k].data('id') == edge.data['id']) {
+                          v_found_edge = true;
+                          for (var property in edge.data) {
+                              if (edge.data.hasOwnProperty(property)) {
+                                  v_existing_edges[k].data(property,edge.data[property])
+                              }
+                          }
+                          break;
+                        }
+                      }
+                      if (!v_found_edge) {
+                        edge['group'] = 'edges';
+                        v_new_objects.push(edge);
+                      }
+                    }
+                    //Removing edges that doesn't exist anymore
+                    for (var k=0; k<v_existing_edges.length; k++) {
+                      var v_found_edge = false;
+                      for (var j=0; j<v_return_unit.v_object.edges.length; j++) {
+                        var edge = v_return_unit.v_object.edges[j];
+                        if (v_existing_edges[k].data('id') == edge.data['id']) {
+                          v_found_edge = true;
+                          break;
+                        }
+                      }
+                      //Not found, remove it
+                      if (!v_found_edge) {
+                        v_existing_edges[k].remove();
+                      }
+                    }
+                    //Removing nodes that doesn't exist anymore
+                    for (var k=0; k<v_existing_nodes.length; k++) {
+                      var v_found_node = false;
+                      for (var j=0; j<v_return_unit.v_object.nodes.length; j++) {
+                        var node = v_return_unit.v_object.nodes[j];
+                        if (v_existing_nodes[k].data('id') == node.data['id']) {
+                          v_found_node = true;
+                          break;
+                        }
+                      }
+                      //Not found, remove it
+                      if (!v_found_node) {
+                        v_existing_nodes[k].remove();
+                      }
+                    }
+
+                    //Adding new objects and rendering graph again
+                    if (v_new_objects.length > 0) {
+                      v_unit.object.add(v_new_objects);
+                      v_unit.object.layout();
+                    }
+
+
+                  }
+                }
               }
               catch(err) {
                 v_unit.div_error.innerHTML = err;
@@ -1093,6 +1228,9 @@ function cancelMonitorUnits(p_tab_tag) {
   for (var i=0; i<v_tab_tag.units.length; i++) {
     var v_unit = v_tab_tag.units[i];
     clearTimeout(v_unit.timeout_object);
+    if (v_unit.type == 'graph') {
+      v_unit.object.destroy();
+    }
   }
 }
 

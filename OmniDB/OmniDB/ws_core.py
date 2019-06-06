@@ -541,6 +541,8 @@ def thread_dispatcher_terminal_command(self,args,ws_object):
 
     while True:
         ws_object.terminal_lock.acquire()
+        if self.cancel:
+            break
         while True:
             try:
                 element = ws_object.terminal_command_list.pop(0)
@@ -559,8 +561,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     lock = threading.Lock()
     self.terminal_lock = lock
     self.terminal_lock.acquire()
-    t = StoppableThread(thread_dispatcher_terminal_command,'',self)
-    t.start()
+    self.terminal_thread = StoppableThread(thread_dispatcher_terminal_command,'',self)
+    self.terminal_thread.start()
     None
   def on_message(self, message):
 
@@ -601,6 +603,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
   def on_close(self):
     try:
+        #closing terminal thread
+        try:
+            self.terminal_thread.stop()
+            self.terminal_lock.release()
+        except Exception as exc:
+            None
+
         for k in list(self.v_list_tab_objects.keys()):
             closeTabHandler(self,k)
     except Exception:
@@ -623,10 +632,10 @@ def start_wsserver():
 
     try:
         application = tornado.web.Application([
-          (r'/ws', WSHandler),
-          (r'/wss',WSHandler),
-          (r'/chatws', ws_chat.WSHandler),
-          (r'/chatwss',ws_chat.WSHandler)
+          (r'' + settings.PATH + '/ws', WSHandler),
+          (r'' + settings.PATH + '/wss',WSHandler),
+          (r'' + settings.PATH + '/chatws', ws_chat.WSHandler),
+          (r'' + settings.PATH + '/chatwss',ws_chat.WSHandler)
         ])
 
         if settings.IS_SSL:

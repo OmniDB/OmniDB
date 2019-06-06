@@ -17,13 +17,13 @@ import random
 import string
 import getpass
 from . import custom_settings
+from . import runtime_settings
 
 # Development Mode
 DEV_MODE = custom_settings.DEV_MODE
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 TEMP_DIR = os.path.join(BASE_DIR,'OmniDB_app','static','temp')
 
 PLUGINS_DIR = os.path.join(BASE_DIR,'OmniDB_app','plugins')
@@ -32,25 +32,11 @@ APP_DIR = os.path.join(BASE_DIR,'OmniDB_app')
 
 # OmniDB User Folder
 DESKTOP_MODE = custom_settings.DESKTOP_MODE
-if DEV_MODE:
-    HOME_DIR = BASE_DIR
-elif custom_settings.HOME_DIR:
-    HOME_DIR = custom_settings.HOME_DIR
-else:
-    if DESKTOP_MODE:
-        HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-app')
-    else:
-        HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-server')
-if not os.path.exists(HOME_DIR):
-    os.makedirs(HOME_DIR)
-CHAT_LINK = ''
+HOME_DIR = runtime_settings.HOME_DIR
 LOG_DIR = HOME_DIR
 SESSION_DATABASE = os.path.join(HOME_DIR, 'db.sqlite3')
 if not os.path.exists(SESSION_DATABASE):
     shutil.copyfile(os.path.join(BASE_DIR, 'db.sqlite3'), SESSION_DATABASE)
-CONFFILE = os.path.join(HOME_DIR, 'omnidb.conf')
-if not DEV_MODE and not os.path.exists(CONFFILE):
-    shutil.copyfile(os.path.join(BASE_DIR, 'omnidb.conf'), CONFFILE)
 OMNIDB_DATABASE = os.path.join(HOME_DIR, 'omnidb.db')
 
 # Quick-start development settings - unsuitable for production
@@ -157,7 +143,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_URL = '/static/'
+PATH = custom_settings.PATH
+# Processing PATH
+if PATH == '/':
+    PATH = ''
+elif PATH != '':
+    if PATH[0] != '/':
+        PATH = '/' + PATH
+    if PATH[len(PATH)-1] == '/':
+        PATH = PATH[:-1]
+
+STATIC_URL = PATH + '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "OmniDB_app/static")
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
@@ -222,9 +218,9 @@ OMNIDB_VERSION                 = custom_settings.OMNIDB_VERSION
 OMNIDB_SHORT_VERSION           = custom_settings.OMNIDB_SHORT_VERSION
 BINDKEY_AUTOCOMPLETE           = 'ctrl+space'
 BINDKEY_AUTOCOMPLETE_MAC       = 'cmd+space'
-OMNIDB_WEBSOCKET_PORT          = 25482
+OMNIDB_WEBSOCKET_PORT          = custom_settings.OMNIDB_WEBSOCKET_PORT
 OMNIDB_EXTERNAL_WEBSOCKET_PORT = 25482
-OMNIDB_ADDRESS                 = '127.0.0.1'
+OMNIDB_ADDRESS                 = custom_settings.OMNIDB_ADDRESS
 IS_SSL                         = False
 SSL_CERTIFICATE                = ""
 SSL_KEY                        = ""

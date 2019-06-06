@@ -185,13 +185,13 @@ $(function () {
           if (p_return.v_data[i].cssfile) {
             var importedcss = document.createElement('link');
             importedcss.rel = 'stylesheet';
-            importedcss.href = p_return.v_data[i].cssfile + '?v' + timestamp;
+            importedcss.href = v_url_folder + p_return.v_data[i].cssfile + '?v' + timestamp;
             document.head.appendChild(importedcss);
           }
 
           // loading JS
           var importedjs = document.createElement('script');
-          importedjs.src = p_return.v_data[i].file + '?v' + timestamp;
+          importedjs.src = v_url_folder + p_return.v_data[i].file + '?v' + timestamp;
           document.head.appendChild(importedjs);
 
           v_plugins[p_return.v_data[i].name] = p_return.v_data[i];
@@ -212,7 +212,7 @@ formData.append('file', p_file_selector.files[0]);
 p_file_selector.value = null;
 startLoading();
 $.ajax({
-    url: '/upload/',
+    url: v_url_folder + '/upload/',
     type: 'POST',
 		beforeSend: function(xhr, settings) {
 			if(!csrfSafeMethod(settings.type) && !this.crossDomain) {

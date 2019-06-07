@@ -934,7 +934,7 @@ def thread_query(self,args,ws_object):
                 v_duration = GetDuration(log_start_time,log_end_time)
 
                 v_response['v_data'] = {
-                    'v_filename': '/static/temp/{0}'.format(v_file_name),
+                    'v_filename': settings.PATH + '/static/temp/{0}'.format(v_file_name),
                     'v_downloadname': 'omnidb_exported.{0}'.format(v_extension),
                     'v_duration': v_duration,
                     'v_inserted_id': v_inserted_id,

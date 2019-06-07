@@ -159,7 +159,7 @@ span.node_selected a {
 	-ms-user-select: none; /* IE10+ */
 	cursor: default;
 	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
-  border: 1px solid #5172a2;
+  border: 1px solid #949ca9;
   border-radius: 2px;
 	z-index: 999999;
 }
@@ -170,7 +170,7 @@ span.node_selected a {
 	position: absolute;
 	min-width: 200px;
 	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
-  border: 1px solid #5172a2;
+  border: 1px solid #949ca9;
   border-radius: 2px;
   margin-top: -1px;
 	z-index: 999999;

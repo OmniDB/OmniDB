@@ -331,7 +331,6 @@ def get_monitor_units(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
-
     return JsonResponse(v_return)
 
 def get_monitor_unit_template(request):

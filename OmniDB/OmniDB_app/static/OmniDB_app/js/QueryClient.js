@@ -23,7 +23,7 @@ var v_queryRequestCodes = {
 	CancelThread: 6,
 	Debug: 7,
 	CloseTab: 8,
-	DataMining: 9,
+	AdvancedObjectSearch: 9,
 	Console: 10,
 	Terminal: 11,
 	Ping: 12
@@ -43,7 +43,7 @@ var v_queryResponseCodes = {
 	MessageException: 7,
 	DebugResponse: 8,
 	RemoveContext: 9,
-	DataMiningResult: 10,
+	AdvancedObjectSearchResult: 10,
 	ConsoleResult: 11,
 	TerminalResult: 12,
 	Pong: 13
@@ -259,10 +259,10 @@ function startQueryWebSocket(p_port) {
 				default: {
 					break;
 				}
-				case parseInt(v_queryResponseCodes.DataMiningResult): {
+				case parseInt(v_queryResponseCodes.AdvancedObjectSearchResult): {
 					if (p_context) {
 						SetAcked(p_context);
-						dataMiningReturn(v_message, p_context);
+						advancedObjectSearchReturn(v_message, p_context);
 						//Remove context
 						removeContext(v_queryWebSocket,p_context_code);
 					}

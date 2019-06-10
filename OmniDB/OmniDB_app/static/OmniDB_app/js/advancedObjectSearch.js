@@ -1,4 +1,4 @@
-function queryDataMining(p_data, p_callback = null) {
+function queryAdvancedObjectSearch(p_data, p_callback = null) {
 	var v_state = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.state;
 
 	if(v_state != v_queryState.Idle) {
@@ -70,7 +70,7 @@ function queryDataMining(p_data, p_callback = null) {
 
 		v_context.tab_tag.query_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
 
-		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.DataMining, v_message_data, false, v_context);
+		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.AdvancedObjectSearch, v_message_data, false, v_context);
 
 		setTimeout(function() {
 			if (!v_context.acked) {
@@ -81,18 +81,18 @@ function queryDataMining(p_data, p_callback = null) {
 	}
 }
 
-function checkDataMiningStatus(p_tab) {
+function checkAdvancedObjectSearchStatus(p_tab) {
 	if(p_tab.tag.state == v_queryState.Ready) {
-		dataMiningReturnRender(p_tab.tag.data, p_tab.tag.context);
+		advancedObjectSearchReturnRender(p_tab.tag.data, p_tab.tag.context);
 	}
 }
 
-function dataMiningReturn(p_message, p_context) {
+function advancedObjectSearchReturn(p_message, p_context) {
 	//If data mining wasn't canceled already
 	if(p_context.tab_tag.state!=v_queryState.Idle) {
 
 		if(p_context.tab_tag.tab_id == p_context.tab_tag.tabControl.selectedTab.id && p_context.tab_tag.connTab.id == p_context.tab_tag.connTab.tag.connTabControl.selectedTab.id) {
-			dataMiningReturnRender(p_message, p_context);
+			advancedObjectSearchReturnRender(p_message, p_context);
 		}
 		else {
 			p_context.tab_tag.state = v_queryState.Ready;
@@ -105,7 +105,7 @@ function dataMiningReturn(p_message, p_context) {
 	}
 }
 
-function dataMiningReturnRender(p_message, p_context) {
+function advancedObjectSearchReturnRender(p_message, p_context) {
 	p_context.tab_tag.state = v_queryState.Idle;
 	p_context.tab_tag.context = null;
 	p_context.tab_tag.data = null;
@@ -230,7 +230,7 @@ function dataMiningReturnRender(p_message, p_context) {
 					var v_node = v_tree.createNode(
 						v_dataMatches,
 						false,
-						'fas node-all fa-search node-data-mining',
+						'fas node-all fa-search node-advanced-object-search',
 						null,
 						p_message.v_data.v_result[v_key],
 						v_data_cm
@@ -256,7 +256,7 @@ function dataMiningReturnRender(p_message, p_context) {
 							var v_childNode = v_node.createChildNode(
 								v_matches,
 								false,
-								'fas node-all fa-search node-data-mining',
+								'fas node-all fa-search node-advanced-object-search',
 								p_message.v_data.v_result[v_key]['result'][v_key2],
 								v_cm
 							);
@@ -283,7 +283,7 @@ function dataMiningReturnRender(p_message, p_context) {
 					var v_node = v_tree.createNode(
 						v_matches,
 						false,
-						'fas node-all fa-search node-data-mining',
+						'fas node-all fa-search node-advanced-object-search',
 						null,
 						p_message.v_data.v_result[v_key],
 						v_cm
@@ -299,7 +299,7 @@ function dataMiningReturnRender(p_message, p_context) {
 			var v_node = v_tree.createNode(
 				'Advanced Object Search found no matches.',
 				false,
-				'fas node-all fa-search node-data-mining',
+				'fas node-all fa-search node-advanced-object-search',
 				null,
 				'no_matches',
 				null

@@ -32,7 +32,7 @@ function tabSQLTemplate(p_tab_name, p_template, p_showTip=true) {
     }
 }
 
-function tabDataMining(node) {
+function tabAdvancedObjectSearch(node) {
     var v_name = 'Advanced Object Search';
 
     v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl
@@ -53,7 +53,7 @@ function tabDataMining(node) {
             }
 
             if (this.tag != null) {
-                checkDataMiningStatus(this);
+                checkAdvancedObjectSearchStatus(this);
             }
         }
     );
@@ -144,7 +144,7 @@ function tabDataMining(node) {
     v_inputFilter.placeholder = 'Type the pattern to be searched...';
     v_inputFilter.style.margin = '10px';
     v_inputFilter.style.flex = '1 0 auto';
-    v_inputFilter.classList.add('data-mining-input-text');
+    v_inputFilter.classList.add('advanced-object-search-input-text');
     v_filterContainerDiv.appendChild(v_inputFilter);
 
     var v_divCase = document.createElement('div');
@@ -155,7 +155,7 @@ function tabDataMining(node) {
     var v_inputCase = document.createElement('input');
     v_inputCase.type = 'checkbox';
     v_inputCase.style.margin = '10px';
-    v_inputCase.classList.add('data-mining-input-case');
+    v_inputCase.classList.add('advanced-object-search-input-case');
     v_divCase.appendChild(v_inputCase);
 
     var v_spanCase = document.createElement('span');
@@ -171,7 +171,7 @@ function tabDataMining(node) {
     var v_inputRegex = document.createElement('input');
     v_inputRegex.type = 'checkbox';
     v_inputRegex.style.margin = '10px';
-    v_inputRegex.classList.add('data-mining-input-regex');
+    v_inputRegex.classList.add('advanced-object-search-input-regex');
     v_divRegex.appendChild(v_inputRegex);
 
     /*v_inputRegex.addEventListener(
@@ -209,6 +209,129 @@ function tabDataMining(node) {
     v_containerDiv.appendChild(v_optionsContainerDiv);
 
     if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
+      var v_optionList = [{
+              'text': 'Data',
+              'value': 1
+          }, {
+              'text': 'FK Name',
+              'value': 2
+          }, {
+              'text': 'Function Definition',
+              'value': 3
+          }, {
+              'text': 'Function Name',
+              'value': 4
+          }, {
+              'text': 'Index Name',
+              'value': 5
+          }, {
+              'text': 'Materialized View Column Name',
+              'value': 6
+          }, {
+              'text': 'Materialized View Name',
+              'value': 7
+          }, {
+              'text': 'PK Name',
+              'value': 8
+          }, {
+              'text': 'Schema Name',
+              'value': 9
+          }, {
+              'text': 'Sequence Name',
+              'value': 10
+          }, {
+              'text': 'Table Column Name',
+              'value': 11
+          }, {
+              'text': 'Table Name',
+              'value': 12
+          }, {
+              'text': 'Trigger Name',
+              'value': 13
+          }, {
+              'text': 'Trigger Source',
+              'value': 14
+          }, {
+              'text': 'Unique Name',
+              'value': 15
+          }, {
+              'text': 'View Column Name',
+              'value': 16
+          }, {
+              'text': 'View Name',
+              'value': 17
+          }, {
+              'text': 'Check Name',
+              'value': 18
+          }, {
+              'text': 'Rule Name',
+              'value': 19
+          }, {
+              'text': 'Rule Definition',
+              'value': 20
+          }, {
+              'text': 'Inherited Table Name',
+              'value': 21
+          }, {
+              'text': 'Partition Name',
+              'value': 22
+          }, {
+              'text': 'Role Name',
+              'value': 23
+          }, {
+              'text': 'Tablespace Name',
+              'value': 24
+          }, {
+              'text': 'Extension Name',
+              'value': 25
+          }, {
+              'text': 'FK Column Name',
+              'value': 26
+          }, {
+              'text': 'PK Column Name',
+              'value': 27
+          }, {
+              'text': 'Unique Column Name',
+              'value': 28
+          }, {
+              'text': 'Index Column Name',
+              'value': 29
+          }, {
+              'text': 'Check Definition',
+              'value': 30
+          }, {
+              'text': 'Table Trigger Name',
+              'value': 31
+          }, {
+              'text': 'Materialized View Definition',
+              'value': 32
+          }, {
+              'text': 'View Definition',
+              'value': 33
+          }, {
+              'text': 'Type Name',
+              'value': 34
+          }, {
+              'text': 'Domain Name',
+              'value': 35
+          }, {
+              'text': 'Event Trigger Name',
+              'value': 36
+          }, {
+              'text': 'Event Trigger Function Name',
+              'value': 37
+          }, {
+              'text': 'Event Trigger Function Definition',
+              'value': 38
+          }, {
+              'text': 'Procedure Name',
+              'value': 39
+          }, {
+              'text': 'Procedure Definition',
+              'value': 40
+          }
+      ];
+    } else if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
       var v_optionList = [{
               'text': 'Data',
               'value': 1
@@ -463,7 +586,7 @@ function tabDataMining(node) {
         var v_inputOption = document.createElement('input');
         v_inputOption.type = 'checkbox';
         v_inputOption.value = v_optionList[i].text;
-        v_inputOption.classList.add('data-mining-input-option');
+        v_inputOption.classList.add('advanced-object-search-input-option');
         v_divOption.appendChild(v_inputOption);
 
         if(v_optionList[i].text == 'Data') {
@@ -502,7 +625,7 @@ function tabDataMining(node) {
             var v_grandParent = this.parentElement.parentElement;
 
             var v_categoryList = v_grandParent.querySelectorAll(
-                '.data-mining-input-option');
+                '.advanced-object-search-input-option');
 
             for (var i = 0; i < v_categoryList.length; i++) {
                 if (!v_categoryList[i].checked) {
@@ -524,7 +647,7 @@ function tabDataMining(node) {
             var v_grandParent = this.parentElement.parentElement;
 
             var v_categoryList = v_grandParent.querySelectorAll(
-                '.data-mining-input-option');
+                '.advanced-object-search-input-option');
 
             for (var i = 0; i < v_categoryList.length; i++) {
                 if (v_categoryList[i].checked) {
@@ -589,7 +712,7 @@ function tabDataMining(node) {
                     var v_inputSchema = document.createElement('input');
                     v_inputSchema.type = 'checkbox';
                     v_inputSchema.value = v_schemaList[i].v_name;
-                    v_inputSchema.classList.add('data-mining-input-schema');
+                    v_inputSchema.classList.add('advanced-object-search-input-schema');
                     v_divSchema.appendChild(v_inputSchema);
 
                     var v_spanSchema = document.createElement('span');
@@ -620,7 +743,7 @@ function tabDataMining(node) {
             var v_grandParent = this.parentElement.parentElement;
 
             var v_schemaList = v_grandParent.querySelectorAll(
-                '.data-mining-input-schema');
+                '.advanced-object-search-input-schema');
 
             for (var i = 0; i < v_schemaList.length; i++) {
                 if (!v_schemaList[i].checked) {
@@ -642,7 +765,7 @@ function tabDataMining(node) {
             var v_grandParent = this.parentElement.parentElement;
 
             var v_schemaList = v_grandParent.querySelectorAll(
-                '.data-mining-input-schema');
+                '.advanced-object-search-input-schema');
 
             for (var i = 0; i < v_schemaList.length; i++) {
                 if (v_schemaList[i].checked) {
@@ -671,7 +794,7 @@ function tabDataMining(node) {
     v_inputDataFilter.placeholder = 'Type the filter to be applied to data category...';
     v_inputDataFilter.style.margin = '10px';
     v_inputDataFilter.style.flex = '1 0 auto';
-    v_inputDataFilter.classList.add('data-mining-data-input-text');
+    v_inputDataFilter.classList.add('advanced-object-search-data-input-text');
     v_dataFilterContainerDiv.appendChild(v_inputDataFilter);
 
     var v_buttonStart = document.getElementById('bt_start_' + v_tab.id);
@@ -694,7 +817,7 @@ function tabDataMining(node) {
                     dataCategoryFilter: ''
                 };
 
-                var v_inputFilter = v_parent.querySelector('.data-mining-input-text');
+                var v_inputFilter = v_parent.querySelector('.advanced-object-search-input-text');
 
                 if (v_inputFilter != null) {
                     v_data.text = v_inputFilter.value;
@@ -705,26 +828,26 @@ function tabDataMining(node) {
                     return;
                 }
 
-                var v_inputCase = v_parent.querySelector('.data-mining-input-case');
+                var v_inputCase = v_parent.querySelector('.advanced-object-search-input-case');
 
                 if (v_inputCase != null) {
                     v_data.caseSensitive = v_inputCase.checked;
                 }
 
-                var v_inputRegex = v_parent.querySelector('.data-mining-input-regex');
+                var v_inputRegex = v_parent.querySelector('.advanced-object-search-input-regex');
 
                 if (v_inputRegex != null) {
                     v_data.regex = v_inputRegex.checked;
                 }
 
-                var v_categoryList = v_parent.querySelectorAll('.data-mining-input-option');
+                var v_categoryList = v_parent.querySelectorAll('.advanced-object-search-input-option');
 
                 for (var i = 0; i < v_categoryList.length; i++) {
                     if (v_categoryList[i].checked) {
                         v_data.categoryList.push(v_categoryList[i].value);
 
                         if (v_categoryList[i].value == 'Data') {
-                            var v_dataInputFilter = v_parent.querySelector('.data-mining-data-input-text');
+                            var v_dataInputFilter = v_parent.querySelector('.advanced-object-search-data-input-text');
 
                             if (v_dataInputFilter != null) {
                                 v_data.dataCategoryFilter = v_dataInputFilter.value;
@@ -738,7 +861,7 @@ function tabDataMining(node) {
                     return;
                 }
 
-                var v_schemaList = v_parent.querySelectorAll('.data-mining-input-schema');
+                var v_schemaList = v_parent.querySelectorAll('.advanced-object-search-input-schema');
 
                 for (var i = 0; i < v_schemaList.length; i++) {
                     if (v_schemaList[i].checked) {
@@ -755,11 +878,11 @@ function tabDataMining(node) {
                     showConfirm(
                         'You have selected the category "Data". Please, be aware that it can consume a considerable amount of time, depending on selected schemas size. Do you want to proceed?',
                         function(p_data) {
-                            queryDataMining(p_data);
+                            queryAdvancedObjectSearch(p_data);
                         }.bind(null, v_data)
                     );
                 } else {
-                    queryDataMining(v_data);
+                    queryAdvancedObjectSearch(v_data);
                 }
             }
         }
@@ -842,7 +965,7 @@ function tabDataMining(node) {
         v_instance1.dispose();
     }, 4000);
 
-    var v_instance2 = new Tooltip($('.data-mining-input-text'),{
+    var v_instance2 = new Tooltip($('.advanced-object-search-input-text'),{
       title: '<div style="text-align: left;">If Regular Expression is not selected, the pattern will work as follows:<br /><br />' +
       '- if it does not contain sql % wildcard, it will put your pattern between two % <br /><br />' +
       '- else it will consider your pattern as it is.</div>',
@@ -851,7 +974,7 @@ function tabDataMining(node) {
       html: true
     });
 
-    var v_instance3 = new Tooltip($('.data-mining-data-input-text'),{
+    var v_instance3 = new Tooltip($('.advanced-object-search-data-input-text'),{
       title: '<div style="text-align: left;">If Data category is selected you can use it to filter search space and get a faster response.<br /><br />' +
       'If you want to filter you must fill it with a | separeted list of patterns that may use % wildcard.<br /><br />' +
       'For example: public.%mytable%|mysch%ema.% will search for data just in tables that match given patterns.</div>',
@@ -937,7 +1060,7 @@ function getTreePostgresql(p_div) {
                 icon: 'fas cm-all fa-search',
                 action: function(node) {
                   checkCurrentDatabase(node, true, function() {
-                      tabDataMining(node);
+                      tabAdvancedObjectSearch(node);
                   }, function() {
                       node.collapseNode();
                   })

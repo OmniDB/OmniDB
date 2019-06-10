@@ -20,7 +20,7 @@ function closeMonitorUnit(p_div) {
       //Clear timeout
       clearTimeout(v_unit.timeout_object);
 
-      if (v_unit.type == 'graph') {
+      if (v_unit.type == 'graph' && v_unit.object != null) {
         v_unit.object.destroy();
       }
 
@@ -1228,7 +1228,7 @@ function cancelMonitorUnits(p_tab_tag) {
   for (var i=0; i<v_tab_tag.units.length; i++) {
     var v_unit = v_tab_tag.units[i];
     clearTimeout(v_unit.timeout_object);
-    if (v_unit.type == 'graph') {
+    if (v_unit.type == 'graph' && v_unit.object != null) {
       v_unit.object.destroy();
     }
   }

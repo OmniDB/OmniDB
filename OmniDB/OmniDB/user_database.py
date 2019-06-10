@@ -7,7 +7,7 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 migrations = {
-    '0.0.0': ('2.16.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_0.0.0_2.15.0.sql')),
+    '0.0.0': ('2.16.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_0.0.0_2.16.0.sql')),
     '2.4.0': ('2.4.1', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.4.0_2.4.1.sql')),
     '2.4.1': ('2.5.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.4.1_2.5.0.sql')),
     '2.5.0': ('2.6.0', os.path.join(settings.BASE_DIR, 'OmniDB/migrations/omnidb_2.5.0_2.6.0.sql')),

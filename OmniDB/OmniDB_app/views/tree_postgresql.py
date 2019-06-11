@@ -8,7 +8,7 @@ import sys
 
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
-import OmniDB_app.include.Spartacus.Utils as Utilsf
+import OmniDB_app.include.Spartacus.Utils as Utils
 from OmniDB_app.include.Session import Session
 from datetime import datetime
 

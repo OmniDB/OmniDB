@@ -723,7 +723,6 @@ class PostgreSQL:
         v_return = ''
         if self.v_conn_string and self.v_conn_string_error!='':
             return self.v_conn_string_error
-
         try:
             self.v_connection.Open()
             v_schema = self.QuerySchemas()
@@ -822,32 +821,45 @@ class PostgreSQL:
                 v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
-        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
-            return self.v_connection.Query('''
-                select quote_ident(c.relname) as table_name,
-                       quote_ident(n.nspname) as table_schema,
-                       false as is_partition,
-                       false as is_partitioned
-                from pg_class c
-                inner join pg_namespace n
-                on n.oid = c.relnamespace
+        return self.v_connection.Query('''
+            with parents as (
+                select distinct quote_ident(c.relname) as table_name,
+                       quote_ident(n.nspname) as table_schema
+                from pg_inherits i
+                inner join pg_class c on c.oid = i.inhparent
+                inner join pg_namespace n on n.oid = c.relnamespace
+                inner join pg_class cc on cc.oid = i.inhrelid
+                inner join pg_namespace nc on nc.oid = cc.relnamespace
                 where c.relkind in ('r', 'p')
                 {0}
-                order by 2, 1
-            '''.format(v_filter), True)
-        else:
-            return self.v_connection.Query('''
-                select quote_ident(c.relname) as table_name,
-                       quote_ident(n.nspname) as table_schema,
-                       c.relispartition as is_partition,
-                       c.relkind = 'p' as is_partitioned
-                from pg_class c
-                inner join pg_namespace n
-                on n.oid = c.relnamespace
-                where c.relkind in ('r', 'p')
+            ),
+            children as (
+                select distinct quote_ident(c.relname) as table_name,
+                       quote_ident(n.nspname) as table_schema
+                from pg_inherits i
+                inner join pg_class cp on cp.oid = i.inhparent
+                inner join pg_namespace np on np.oid = cp.relnamespace
+                inner join pg_class c on c.oid = i.inhrelid
+                inner join pg_namespace n on n.oid = c.relnamespace
+                where 1=1
                 {0}
-                order by 2, 1
-            '''.format(v_filter), True)
+            )
+            select quote_ident(c.relname) as table_name,
+                   quote_ident(n.nspname) as table_schema
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            left join parents p
+            on p.table_name = quote_ident(c.relname)
+            and p.table_schema = quote_ident(n.nspname)
+            left join children ch
+            on ch.table_name = quote_ident(c.relname)
+            and ch.table_schema = quote_ident(n.nspname)
+            where ch.table_name is null
+              and c.relkind in ('r', 'p')
+            {0}
+            order by 2, 1
+        '''.format(v_filter), True)
 
     def QueryTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
@@ -1140,52 +1152,72 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(p_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') and quote_ident(t.tablename) = {0}".format(p_table)
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
             else:
-                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select quote_ident(t.tablename) as table_name,
-                   quote_ident(t.indexname) as index_name,
-                   (case when strpos(t.indexdef, 'UNIQUE') > 0 then 'Unique' else 'Non Unique' end) as uniqueness,
-                   quote_ident(t.schemaname) as schema_name
-            from pg_indexes t
-            where 1 = 1
-            {0}
-            order by quote_ident(t.tablename),
-                     quote_ident(t.indexname)
+            select quote_ident(c.relname) as table_name,
+                   quote_ident(ci.relname) as index_name,
+                   (case when i.indisunique then 'Unique' else 'Non Unique' end) as uniqueness,
+                   quote_ident(n.nspname) as schema_name
+            from pg_index i
+            inner join pg_class ci
+            on ci.oid = i.indexrelid
+            inner join pg_namespace ni
+            on ni.oid = ci.relnamespace
+            inner join pg_class c
+            on c.oid = i.indrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where i.indisvalid
+              and i.indislive
+              {0}
+            order by 1, 2
         '''.format(v_filter), True)
 
     def QueryTablesIndexesColumns(self, p_index, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(p_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') and quote_ident(t.tablename) = {0}".format(p_table)
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
             else:
-                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') "
-        v_filter = v_filter + "and quote_ident(t.indexname) = '{0}' ".format(p_index)
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        v_filter = v_filter + "and quote_ident(ci.relname) = '{0}' ".format(p_index)
         return self.v_connection.Query('''
             select unnest(string_to_array(replace(substr(t.indexdef, strpos(t.indexdef, '(')+1, strpos(t.indexdef, ')')-strpos(t.indexdef, '(')-1), ' ', ''),',')) as column_name
-            from pg_indexes t
-            where 1 = 1
-            {0}
+            from (
+            select pg_get_indexdef(i.indexrelid) as indexdef
+            from pg_index i
+            inner join pg_class ci
+            on ci.oid = i.indexrelid
+            inner join pg_namespace ni
+            on ni.oid = ci.relnamespace
+            inner join pg_class c
+            on c.oid = i.indrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where i.indisvalid
+              and i.indislive
+              {0}
+            ) t
         '''.format(v_filter), True)
 
     def QueryTablesChecks(self, p_table=None, p_all_schemas=False, p_schema=None):
@@ -1441,6 +1473,57 @@ class PostgreSQL:
                 order by 1, 2, 3, 4
             '''.format(v_filter))
 
+    def QueryTablesInheritedsParents(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select distinct quote_ident(cp.relname) as table_name,
+                   quote_ident(np.nspname) as table_schema
+            from pg_inherits i
+            inner join pg_class cp on cp.oid = i.inhparent
+            inner join pg_namespace np on np.oid = cp.relnamespace
+            inner join pg_class c on c.oid = i.inhrelid
+            inner join pg_namespace n on n.oid = c.relnamespace
+            where cp.relkind = 'r'
+            {0}
+            order by 2, 1
+        '''.format(v_filter))
+
+    def QueryTablesInheritedsChildren(self, p_table, p_schema):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
+            return self.v_connection.Query('''
+                select quote_ident(cc.relname) as table_name,
+                       quote_ident(nc.nspname) as table_schema
+                from pg_inherits i
+                inner join pg_class cp on cp.oid = i.inhparent
+                inner join pg_namespace np on np.oid = cp.relnamespace
+                inner join pg_class cc on cc.oid = i.inhrelid
+                inner join pg_namespace nc on nc.oid = cc.relnamespace
+                where not cc.relispartition
+                  and quote_ident(np.nspname) || '.' || quote_ident(cp.relname) = '{0}'
+                  and quote_ident(nc.nspname) = '{1}'
+                order by 2, 1
+            '''.format(p_table, p_schema))
+        else:
+            return self.v_connection.Query('''
+                select quote_ident(cc.relname) as table_name,
+                       quote_ident(nc.nspname) as table_schema
+                from pg_inherits i
+                inner join pg_class cp on cp.oid = i.inhparent
+                inner join pg_namespace np on np.oid = cp.relnamespace
+                inner join pg_class cc on cc.oid = i.inhrelid
+                inner join pg_namespace nc on nc.oid = cc.relnamespace
+                where quote_ident(np.nspname) || '.' || quote_ident(cp.relname) = '{0}'
+                  and quote_ident(nc.nspname) = '{1}'
+                order by 2, 1
+            '''.format(p_table, p_schema))
+
     def QueryTablesPartitions(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1471,6 +1554,43 @@ class PostgreSQL:
             {0}
             order by 1, 2, 3, 4
         '''.format(v_filter))
+
+    def QueryTablesPartitionsParents(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select distinct quote_ident(cp.relname) as table_name,
+                   quote_ident(np.nspname) as table_schema
+            from pg_inherits i
+            inner join pg_class cp on cp.oid = i.inhparent
+            inner join pg_namespace np on np.oid = cp.relnamespace
+            inner join pg_class c on c.oid = i.inhrelid
+            inner join pg_namespace n on n.oid = c.relnamespace
+            where cp.relkind = 'p'
+            {0}
+            order by 2, 1
+        '''.format(v_filter))
+
+    def QueryTablesPartitionsChildren(self, p_table, p_schema):
+        return self.v_connection.Query('''
+            select quote_ident(cc.relname) as table_name,
+                   quote_ident(nc.nspname) as table_schema
+            from pg_inherits i
+            inner join pg_class cp on cp.oid = i.inhparent
+            inner join pg_namespace np on np.oid = cp.relnamespace
+            inner join pg_class cc on cc.oid = i.inhrelid
+            inner join pg_namespace nc on nc.oid = cc.relnamespace
+            where cc.relispartition
+              and quote_ident(np.nspname) || '.' || quote_ident(cp.relname) = '{0}'
+              and quote_ident(nc.nspname) = '{1}'
+            order by 2, 1
+        '''.format(p_table, p_schema))
 
     def QueryDataLimited(self, p_query, p_count=-1):
         if p_count != -1:
@@ -5308,6 +5428,14 @@ DROP COLUMN #column_name#
                    c.oid as "OID",
                    r.rolname as "Owner",
                    pg_size_pretty(pg_relation_size(c.oid)) as "Size",
+                   i.indisunique as "Unique",
+                   i.indisprimary as "Primary",
+                   i.indisexclusion as "Exclusion",
+                   i.indimmediate as "Immediate",
+                   i.indisclustered as "Clustered",
+                   i.indisvalid as "Valid",
+                   i.indisready as "Ready",
+                   i.indislive as "Live",
                    a.amname as "Access Method",
                    coalesce(t1.spcname, t2.spcname) as "Tablespace",
                    pg_relation_filepath(c.oid) as "Filenode"
@@ -5328,6 +5456,8 @@ DROP COLUMN #column_name#
             on 1 = 1
             inner join pg_am a
             on a.oid = c.relam
+            inner join pg_index i
+            on i.indexrelid = c.oid
             where quote_ident(n.nspname) = '{0}'
               and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object))
@@ -7109,6 +7239,7 @@ DROP COLUMN #column_name#
                          values ('r','TABLE'),
                                 ('v','VIEW'),
                                 ('i','INDEX'),
+                                ('I','PARTITIONED INDEX'),
                                 ('S','SEQUENCE'),
                                 ('s','SPECIAL'),
                                 ('m','MATERIALIZED VIEW'),
@@ -7223,7 +7354,7 @@ DROP COLUMN #column_name#
                    JOIN pg_class i ON i.oid = x.indexrelid
                    JOIN pg_depend d ON d.objid = x.indexrelid
                    LEFT JOIN pg_constraint cc ON cc.oid = d.refobjid
-                  WHERE c.relkind in ('r','m') AND i.relkind = 'i'::"char"
+                  WHERE c.relkind in ('r','p','m') AND i.relkind in ('i'::"char", 'I'::"char")
                     AND coalesce(c.oid = '{0}.{1}'::regclass,true)
                 ),
                 triggers as (
@@ -7384,7 +7515,7 @@ DROP COLUMN #column_name#
                        JOIN pg_class i ON i.oid = x.indexrelid
                        JOIN pg_depend d ON d.objid = x.indexrelid
                        LEFT JOIN pg_constraint cc ON cc.oid = d.refobjid
-                      WHERE c.relkind in ('r','m') AND i.relkind = 'i'::"char"
+                      WHERE c.relkind in ('r','p','m') AND i.relkind in ('i'::"char", 'I'::"char")
                         AND i.oid = '{0}.{1}'::regclass
                     )
                      SELECT indexdef || E';\n' as text
@@ -7397,7 +7528,7 @@ DROP COLUMN #column_name#
                       when obj.kind in ('VIEW','MATERIALIZED VIEW') then (select text from createview)
                       when obj.kind in ('TABLE','TYPE','FOREIGN TABLE','PARTITIONED TABLE') then (select text from createtable)
                       when obj.kind in ('SEQUENCE') then (select text from createsequence)
-                      when obj.kind in ('INDEX') then (select text from createindex)
+                      when obj.kind in ('INDEX', 'PARTITIONED INDEX') then (select text from createindex)
                       else '-- UNSUPPORTED CLASS: '||obj.kind
                      end
                       || E'\n' ||
@@ -7456,7 +7587,7 @@ DROP COLUMN #column_name#
                 alterowner as (
                     select
                        case
-                         when obj.kind = 'INDEX' then ''
+                         when obj.kind in ('INDEX', 'PARTITIONED INDEX') then ''
                          when obj.kind = 'PARTITIONED TABLE'
                          then 'ALTER TABLE '||sql_identifier||
                               ' OWNER TO '||quote_ident(owner)||E';\n\n'
@@ -7681,7 +7812,7 @@ DROP COLUMN #column_name#
                 select (select text from createfunction) ||
                        (select text from alterowner) ||
                        (select text from grants)
-'''.format(p_function))
+            '''.format(p_function))
         else:
             return self.v_connection.ExecuteScalar('''
                 with obj as (
@@ -7758,7 +7889,7 @@ DROP COLUMN #column_name#
                 select (select text from createfunction) ||
                        (select text from alterowner) ||
                        (select text from grants)
-'''.format(p_function))
+        '''.format(p_function))
 
     def GetDDLProcedure(self, p_procedure):
         return self.v_connection.ExecuteScalar('''
@@ -7836,7 +7967,7 @@ DROP COLUMN #column_name#
             select (select text from createfunction) ||
                    (select text from alterowner) ||
                    (select text from grants)
-'''.format(p_procedure))
+        '''.format(p_procedure))
 
     def GetDDLConstraint(self, p_schema, p_table, p_object):
         return self.v_connection.ExecuteScalar('''

@@ -96,11 +96,11 @@ You should have received a copy of the GNU General Public License along with Omn
 }
 
 .node-repslot-list {
-  color: #5078b3;
+  color: #f59825;
 }
 
 .node-repslot {
-  color: #5078b3;
+  color: #f59825;
 }
 
 .node-schema-list {
@@ -139,20 +139,28 @@ You should have received a copy of the GNU General Public License along with Omn
   color: #3e9dfb;
 }
 
-.node-table_partitioned {
-  color: #3e9dfb;
+.node-ptable-list {
+  color: #5078b3;
 }
 
-.node-table_partition {
-  color: #3e9dfb;
+.node-ptable {
+  color: #5078b3;
 }
 
-.node-table_partitioned_partition {
-  color: #3e9dfb;
+.node-itable-list {
+  color: #f59825;
+}
+
+.node-itable {
+  color: #f59825;
 }
 
 .node-ftable-list {
-  color: #5078b3;
+  color: #2bb79c;
+}
+
+.node-ftable {
+  color: #2bb79c;
 }
 
 .node-sequence-list {
@@ -164,11 +172,11 @@ You should have received a copy of the GNU General Public License along with Omn
 }
 
 .node-view-list {
-  color: #2bb79c;
+  color: #3e9dfb;
 }
 
 .node-view {
-  color: #2bb79c;
+  color: #3e9dfb;
 }
 
 .node-mview-list {
@@ -180,11 +188,11 @@ You should have received a copy of the GNU General Public License along with Omn
 }
 
 .node-function-list {
-  color: #2bb79c;
+  color: #3e9dfb;
 }
 
 .node-function {
-  color: #2bb79c;
+  color: #3e9dfb;
 }
 
 .node-function-field {
@@ -208,11 +216,11 @@ You should have received a copy of the GNU General Public License along with Omn
 }
 
 .node-procedure-list {
-  color: #3e9dfb;
+  color: #2bb79c;
 }
 
 .node-procedure {
-  color: #3e9dfb;
+  color: #2bb79c;
 }
 
 .node-logrep {
@@ -280,7 +288,7 @@ You should have received a copy of the GNU General Public License along with Omn
 }
 
 .node-inherited {
-  color: #3e9dfb;
+  color: #f59825;
 }
 
 .node-partition {

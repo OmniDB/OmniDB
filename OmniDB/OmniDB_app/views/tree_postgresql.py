@@ -8,7 +8,7 @@ import sys
 
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
-import OmniDB_app.include.Spartacus.Utils as Utils
+import OmniDB_app.include.Spartacus.Utils as Utilsf
 from OmniDB_app.include.Session import Session
 from datetime import datetime
 
@@ -285,18 +285,8 @@ def get_tables(request):
     try:
         v_tables = v_database.QueryTables(False,v_schema)
         for v_table in v_tables.Rows:
-            if v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'False':
-                v_icon = 'table'
-            elif v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'True':
-                v_icon = 'table_partitioned'
-            elif v_table['is_partition'] == 'True' and v_table['is_partitioned'] == 'False':
-                v_icon = 'table_partition'
-            else:
-                v_icon = 'table_partitioned_partition'
-
             v_table_data = {
                 'v_name': v_table['table_name'],
-                'v_icon': v_icon,
                 'v_has_primary_keys': v_database.v_has_primary_keys,
                 'v_has_foreign_keys': v_database.v_has_foreign_keys,
                 'v_has_uniques': v_database.v_has_uniques,
@@ -2669,18 +2659,8 @@ def get_foreign_tables(request):
     try:
         v_tables = v_database.QueryForeignTables(False,v_schema)
         for v_table in v_tables.Rows:
-            if v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'False':
-                v_icon = 'table'
-            elif v_table['is_partition'] == 'False' and v_table['is_partitioned'] == 'True':
-                v_icon = 'table_partitioned'
-            elif v_table['is_partition'] == 'True' and v_table['is_partitioned'] == 'False':
-                v_icon = 'table_partition'
-            else:
-                v_icon = 'table_partitioned_partition'
-
             v_table_data = {
-                'v_name': v_table['table_name'],
-                'v_icon': v_icon
+                'v_name': v_table['table_name']
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -2840,6 +2820,215 @@ def get_domains(request):
         return JsonResponse(v_return)
 
     v_return['v_data'] = v_list_domains
+
+    return JsonResponse(v_return)
+
+def get_inheriteds_parents(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QueryTablesInheritedsParents(False,v_schema)
+        for v_table in v_tables.Rows:
+            v_table_data = {
+                'v_name': v_table['table_schema'] + '.' + v_table['table_name']
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
+
+    return JsonResponse(v_return)
+
+def get_inheriteds_children(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+    print(v_schema, v_table)
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QueryTablesInheritedsChildren(v_table,v_schema)
+        for v_table in v_tables.Rows:
+            v_table_data = {
+                'v_name': v_table['table_name'],
+                'v_has_primary_keys': v_database.v_has_primary_keys,
+                'v_has_foreign_keys': v_database.v_has_foreign_keys,
+                'v_has_uniques': v_database.v_has_uniques,
+                'v_has_indexes': v_database.v_has_indexes,
+                'v_has_checks': v_database.v_has_checks,
+                'v_has_excludes': v_database.v_has_excludes,
+                'v_has_rules': v_database.v_has_rules,
+                'v_has_triggers': v_database.v_has_triggers,
+                'v_has_partitions': v_database.v_has_partitions
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
+
+    return JsonResponse(v_return)
+
+def get_partitions_parents(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QueryTablesPartitionsParents(False,v_schema)
+        for v_table in v_tables.Rows:
+            v_table_data = {
+                'v_name': v_table['table_schema'] + '.' + v_table['table_name']
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
+
+    return JsonResponse(v_return)
+
+def get_partitions_children(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = v_session.v_tab_connections[v_tab_id]
+
+    #Check database prompt timeout
+    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+    if v_timeout['timeout']:
+        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_list_tables = []
+
+    try:
+        v_tables = v_database.QueryTablesPartitionsChildren(v_table,v_schema)
+        for v_table in v_tables.Rows:
+            v_table_data = {
+                'v_name': v_table['table_name'],
+                'v_has_primary_keys': v_database.v_has_primary_keys,
+                'v_has_foreign_keys': v_database.v_has_foreign_keys,
+                'v_has_uniques': v_database.v_has_uniques,
+                'v_has_indexes': v_database.v_has_indexes,
+                'v_has_checks': v_database.v_has_checks,
+                'v_has_excludes': v_database.v_has_excludes,
+                'v_has_rules': v_database.v_has_rules,
+                'v_has_triggers': v_database.v_has_triggers,
+                'v_has_partitions': v_database.v_has_partitions
+            }
+            v_list_tables.append(v_table_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_tables
 
     return JsonResponse(v_return)
 

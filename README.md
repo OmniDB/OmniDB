@@ -28,7 +28,7 @@
   - Fixed #836: SELECT ... INTO is not allowed here
   - Fixed #845: Partitioned relation indexes
   - Fixed #938: Password in connection string not used
-  - Fixed #940: Drag width of target set display
+  - Fixed #940: Unable to change column width of query results
   - Fixed #960: Snippet TreeView not rendering properly
   - Fixed #970: Focus on change Query Tab names
   - Fixed #981: Updatable chart titles

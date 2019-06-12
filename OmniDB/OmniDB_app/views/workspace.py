@@ -2332,10 +2332,13 @@ def get_alias(p_sql,p_pos,p_val):
     try:
         s = sqlparse.parse(p_sql)
         v_alias = p_val[:-1]
+        print('alias: ' + v_alias)
         for stmt in s:
             for item in stmt.tokens:
                 if item.ttype==None:
                     try:
+                        print(item.value)
+                        print(item.get_alias())
                         v_cur_alias = item.get_alias()
                         if v_cur_alias==None:
                             if item.value == v_alias:

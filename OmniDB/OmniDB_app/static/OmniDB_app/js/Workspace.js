@@ -285,7 +285,12 @@ function changeDatabase(p_value) {
 
 }
 
-function changeGroup(p_value) {
+function changeGroup(p_value, p_tab_tag) {
+
+	var v_tag = v_connTabControl.selectedTab.tag;
+	if (p_tab_tag!=null)
+		v_tag = p_tab_tag;
+
 	//finding group object
 	var v_group_object = null;
 	for (var i=0; i<v_connTabControl.tag.groups.length; i++) {
@@ -296,10 +301,10 @@ function changeGroup(p_value) {
 	}
 	if (!v_group_object) {
 		v_group_object = v_connTabControl.tag.groups[0];
-		v_connTabControl.tag.divSelectGroup.childNodes[0].value = 0;
+		v_tag.divSelectGroup.childNodes[0].value = 0;
 	}
 
-	v_connTabControl.selectedTab.tag.selectedGroupIndex = parseInt(p_value);
+	v_tag.selectedGroupIndex = parseInt(p_value);
 
   //check if next group contains the currently selected connection
 	var v_found = false;
@@ -309,7 +314,7 @@ function changeGroup(p_value) {
 	}
 	else {
 		for (var i=0; i<v_group_object.conn_list.length; i++) {
-			if (v_connTabControl.selectedTab.tag.selectedDatabaseIndex==v_group_object.conn_list[i]) {
+			if (v_tag.selectedDatabaseIndex==v_group_object.conn_list[i]) {
 				v_found = true;
 				break;
 			}
@@ -318,20 +323,19 @@ function changeGroup(p_value) {
 
 	//not found, check if there aren't troublesome tabs before changing selector
 	if (!v_found) {
-		for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
+		for (var i=0; i < v_tag.tabControl.tabList.length; i++) {
 
-			var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
+			var v_tab = v_tag.tabControl.tabList[i];
 			if (v_tab.tag!=null)
 				if (v_tab.tag.mode=='edit' || v_tab.tag.mode=='alter' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='monitor_dashboard' || v_tab.tag.mode=='data_mining') {
 					showAlert("Before changing group please close any tab of the selected connection that belongs to the following types: <br/><br/><b>Edit Data<br/><br/>Alter Table<br/><br/>Function Debugging<br/><br/>Monitoring Dashboard<br/><br/>Advanced Object Search.");
-					v_connTabControl.selectedTab.tag.dd_group_object.set("selectedIndex",v_connTabControl.selectedTab.tag.dd_group_selected_index);
+					v_tag.dd_group_object.set("selectedIndex",v_tag.dd_group_selected_index);
 					return null;
 				}
 		}
 	}
 
 	//Filtering connection list
-	var v_tag = v_connTabControl.selectedTab.tag;
 	v_tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
 	var v_select = v_tag.divSelectDB.childNodes[0];
 
@@ -363,7 +367,7 @@ function changeGroup(p_value) {
 	v_tag.dd_selected_index = v_tag.dd_object.selectedIndex;
 
 
-	v_connTabControl.selectedTab.tag.dd_group_selected_index = v_connTabControl.selectedTab.tag.dd_group_object.selectedIndex;
+	v_tag.dd_group_selected_index = v_tag.dd_group_object.selectedIndex;
 }
 
 function queueChangeActiveDatabaseThreadSafe(p_data) {

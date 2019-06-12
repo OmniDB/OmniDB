@@ -3488,6 +3488,34 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
+        'cm_partitioned_parent': {
+            elements: [{
+                text: 'Refresh',
+                icon: 'fas cm-all fa-sync-alt',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }]
+        },
+        'cm_inherited_parent': {
+            elements: [{
+                text: 'Refresh',
+                icon: 'fas cm-all fa-sync-alt',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }]
+        },
         'cm_refresh': {
             elements: [{
                 text: 'Refresh',

@@ -2890,7 +2890,6 @@ def get_inheriteds_children(request):
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
-    print(v_schema, v_table)
 
     v_database = v_session.v_tab_connections[v_tab_id]
 

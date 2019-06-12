@@ -820,13 +820,12 @@ function closeConnectionListFinish(p_tech,p_index) {
 				if (!v_found) {
 					v_tab.tag.selectedGroupIndex = 0;
 				}
-
 				v_tab.tag.divSelectGroup.innerHTML = v_connTabControl.tag.selectGroupHTML;
 				v_tab.tag.divSelectGroup.childNodes[0].value = v_tab.tag.selectedGroupIndex;
 				v_tab.tag.dd_group_object = $(v_tab.tag.divSelectGroup.childNodes[0]).msDropDown().data("dd");
 				v_tab.tag.dd_group_selected_index = v_tab.tag.dd_group_object.selectedIndex;
 
-				//changeGroup(v_tab.tag.selectedGroupIndex)
+				changeGroup(v_tab.tag.selectedGroupIndex,v_tab.tag)
 
 			}
 		}

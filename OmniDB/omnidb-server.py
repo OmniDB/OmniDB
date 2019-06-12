@@ -228,7 +228,6 @@ def check_port(port):
 class DjangoApplication(object):
 
     def mount_static(self, url, root):
-        print(url)
         config = {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': root,

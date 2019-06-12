@@ -57,7 +57,7 @@ $(function () {
 					<li class="welcome_release_item"><span>Fixed #836: SELECT ... INTO is not allowed here</span></li>
 					<li class="welcome_release_item"><span>Fixed #845: Partitioned relation indexes</span></li>
 					<li class="welcome_release_item"><span>Fixed #938: Password in connection string not used</span></li>
-					<li class="welcome_release_item"><span>Fixed #940: Drag width of target set display</span></li>
+					<li class="welcome_release_item"><span>Fixed #940: Unable to change column width of query results</span></li>
 					<li class="welcome_release_item"><span>Fixed #960: Snippet TreeView not rendering properly</span></li>
 					<li class="welcome_release_item"><span>Fixed #970: Focus on change Query Tab names</span></li>
 					<li class="welcome_release_item"><span>Fixed #981: Updatable chart titles</span></li>

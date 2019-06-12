@@ -1,4 +1,4 @@
-import threading, time, datetime, json
+import threading, time, datetime, json, uuid
 from concurrent.futures.thread import ThreadPoolExecutor
 import traceback
 
@@ -106,6 +106,8 @@ class debugState(IntEnum):
   Finished = 4
   Cancel   = 5
 
+connection_list = dict([])
+
 def closeTabHandler(ws_object,p_tab_object_id):
     try:
         tab_object = ws_object.v_list_tab_objects[p_tab_object_id]
@@ -183,6 +185,7 @@ def thread_dispatcher(self,args,ws_object):
                 v_response['v_code'] = response.SessionMissing
                 ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         elif v_code == request.Ping:
+            ws_object.last_ping_time = datetime.now()
             v_response['v_code'] = response.Pong
             ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         else:
@@ -552,9 +555,26 @@ def thread_dispatcher_terminal_command(self,args,ws_object):
             except Exception:
                 break
 
+def thread_client_control(self,args,object):
+    message = args
+
+    while True:
+        time.sleep(300)
+        for k in list(connection_list.keys()):
+            client_object = connection_list[k]
+            try:
+                if ((datetime.now() - client_object.last_ping_time).total_seconds() > 600):
+                    del connection_list[k]
+                    client_object.close()
+            except Exception as exc:
+                logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
 class WSHandler(tornado.websocket.WebSocketHandler):
   def open(self):
+    client_id = str(uuid.uuid4())
+    self.client_id = client_id
+    self.last_ping_time = datetime.now()
+    connection_list[client_id] = self
     self.event_loop = tornado.ioloop.IOLoop.instance()
     spawn_thread = False
 
@@ -610,6 +630,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         except Exception as exc:
             None
 
+        #removing client object from list of clients
+        try:
+            del connection_list[self.client_id]
+        except Exception as exc:
+            None
+
         for k in list(self.v_list_tab_objects.keys()):
             closeTabHandler(self,k)
     except Exception:
@@ -647,6 +673,10 @@ def start_wsserver():
             server = tornado.httpserver.HTTPServer(application, ssl_options=ssl_ctx)
         else:
             server = tornado.httpserver.HTTPServer(application)
+
+        #Start thread that controls clients
+        thread_clients = StoppableThread(thread_client_control,None,None)
+        thread_clients.start()
 
         asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())
         server.listen(settings.OMNIDB_WEBSOCKET_PORT,address=settings.OMNIDB_ADDRESS)

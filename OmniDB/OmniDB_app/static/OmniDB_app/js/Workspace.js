@@ -40,7 +40,29 @@ $(function () {
 	    <h2>Release notes</h2>
 	    <div class="welcome_release_container">
 	      <ul class="welcome_release_list">
-	        <li class="welcome_release_item"><span>To do...</span></li>
+
+					<li class="welcome_release_item"><span>Monitoring Dashboard: Graph monitor unit type</span></li>
+					<li class="welcome_release_item"><span>Monitoring Dashboard: New standard units: TPS, WAL Production and Replication Graph</span></li>
+					<li class="welcome_release_item"><span>PostgreSQL TreeView: New groups for partitioned and inherited tables</span></li>
+					<li class="welcome_release_item"><span>PostgreSQL Debugger Plugin: Support for PostgreSQL running on OSX</span></li>
+					<li class="welcome_release_item"><span>Server: Support to run OmniDB on a custom URL path</span></li>
+					<li class="welcome_release_item"><span>Snippets: Run Snippet in Connection</span></li>
+					<li class="welcome_release_item"><span>Add Connection list in (+) menu of outer tabs</span></li>
+					<li class="welcome_release_item"><span>Show red X on tabs only on mouse hover</span></li>
+					<li class="welcome_release_item"><span>Color icons in Dark Theme</span></li>
+					<li class="welcome_release_item"><span>Release Notes outer tab now stay closed and only open upon next upgrade</span></li>
+					<li class="welcome_release_item"><span>Included procedures in Advanced Object Search for PostgreSQL 11</span></li>
+					<li class="welcome_release_item"><span>OmniDB server and PostgreSQL debugger plugin packages under Debian PGDG repository (thanks to Christoph Berg @df7cb )</span></li>
+					<li class="welcome_release_item"><span>Fixed #768: Monitoring - some units fail on a standby server</span></li>
+					<li class="welcome_release_item"><span>Fixed #836: SELECT ... INTO is not allowed here</span></li>
+					<li class="welcome_release_item"><span>Fixed #845: Partitioned relation indexes</span></li>
+					<li class="welcome_release_item"><span>Fixed #938: Password in connection string not used</span></li>
+					<li class="welcome_release_item"><span>Fixed #940: Drag width of target set display</span></li>
+					<li class="welcome_release_item"><span>Fixed #960: Snippet TreeView not rendering properly</span></li>
+					<li class="welcome_release_item"><span>Fixed #970: Focus on change Query Tab names</span></li>
+					<li class="welcome_release_item"><span>Fixed #981: Updatable chart titles</span></li>
+					<li class="welcome_release_item"><span>Fixed #990: Cleanup of inactive web socket clients</span></li>
+
 	      </ul>
 	    </div>
 	  </div>

@@ -1,6 +1,6 @@
 {
   "name": "OmniDB",
-  "version": "2.15.0",
+  "version": "2.16.0",
   "description": "Database management application",
   "main": "main.js",
   "scripts": {

@@ -77,7 +77,7 @@ class request(IntEnum):
   CancelThread   = 6
   Debug          = 7
   CloseTab       = 8
-  DataMining     = 9
+  AdvancedObjectSearch     = 9
   Console        = 10
   Terminal       = 11
   Ping           = 12
@@ -93,7 +93,7 @@ class response(IntEnum):
   MessageException    = 7
   DebugResponse       = 8
   RemoveContext       = 9
-  DataMiningResult    = 10
+  AdvancedObjectSearchResult    = 10
   ConsoleResult       = 11
   TerminalResult      = 12
   Pong                = 13
@@ -194,7 +194,7 @@ def thread_dispatcher(self,args,ws_object):
                 try:
                     thread_data = ws_object.v_list_tab_objects[v_data]
                     if thread_data:
-                        if thread_data['type'] == 'datamining':
+                        if thread_data['type'] == 'advancedobjectsearch':
                             def callback(self):
                                 try:
                                     self.tag['lock'].acquire()
@@ -316,7 +316,7 @@ def thread_dispatcher(self,args,ws_object):
                                 t.start()
 
 
-                    if v_code == request.Query or v_code == request.QueryEditData or v_code == request.SaveEditData or v_code == request.DataMining or v_code == request.Console:
+                    if v_code == request.Query or v_code == request.QueryEditData or v_code == request.SaveEditData or v_code == request.AdvancedObjectSearch or v_code == request.Console:
 
                         #create tab object if it doesn't exist
                         try:
@@ -402,10 +402,10 @@ def thread_dispatcher(self,args,ws_object):
                             tab_object['type'] = 'edit'
                             #t.setDaemon(True)
                             t.start()
-                        #Query Data Mining
-                        elif v_code == request.DataMining:
+                        #Query Advanced Object Search
+                        elif v_code == request.AdvancedObjectSearch:
                             v_response = {
-                                'v_code': response.DataMiningResult,
+                                'v_code': response.AdvancedObjectSearchResult,
                                 'v_context_code': v_data['v_context_code'],
                                 'v_error': False,
                                 'v_data': 1
@@ -413,7 +413,7 @@ def thread_dispatcher(self,args,ws_object):
 
                             tab_object['tab_db_id'] = v_data['v_tab_db_id']
                             v_data['v_tab_object'] = tab_object
-                            v_data['v_sql_dict'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'], v_data['dataCategoryFilter'])
+                            v_data['v_sql_dict'] = tab_object['omnidatabase'].AdvancedObjectSearch(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'], v_data['dataCategoryFilter'])
 
                             t = StoppableThreadPool(
                                 p_tag = {
@@ -424,7 +424,7 @@ def thread_dispatcher(self,args,ws_object):
                             )
 
                             tab_object['thread_pool'] = t
-                            tab_object['type'] = 'datamining'
+                            tab_object['type'] = 'advancedobjectsearch'
                             tab_object['tab_id'] = v_data['v_tab_id']
 
                             v_argsList = []
@@ -443,7 +443,7 @@ def thread_dispatcher(self,args,ws_object):
 
                             try:
                                 #Will block here until thread pool ends
-                                t.start(thread_datamining, v_argsList)
+                                t.start(thread_advancedobjectsearch, v_argsList)
 
                                 log_end_time = datetime.now()
                                 v_duration = GetDuration(log_start_time,log_end_time)
@@ -560,7 +560,6 @@ def thread_client_control(self,args,object):
 
     while True:
         time.sleep(300)
-        print(connection_list)
         for k in list(connection_list.keys()):
             client_object = connection_list[k]
             try:
@@ -751,7 +750,7 @@ COMMAND: {5}'''.format(p_user_name,
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
-def thread_datamining(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
+def thread_advancedobjectsearch(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
     try:
         v_session = p_ws_object.v_session
 

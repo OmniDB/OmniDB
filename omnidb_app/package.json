@@ -20,7 +20,7 @@
     "gulp-sass": "*"
   },
   "dependencies": {
-    "electron": "*",
+    "electron": "^4.2.0",
     "favicon-getter": "*",
     "jsonfile": "*",
     "uuid": "*"

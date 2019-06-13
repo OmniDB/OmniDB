@@ -1,6 +1,6 @@
 Django==2.1.9
 cherrypy
-tornado
+tornado>=5.1.1
 click
 sqlparse>=0.2.3
 psycopg2-binary

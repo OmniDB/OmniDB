@@ -1,4 +1,4 @@
-import threading, time, datetime, json
+import threading, time, datetime, json, uuid
 from concurrent.futures.thread import ThreadPoolExecutor
 import traceback
 
@@ -77,7 +77,7 @@ class request(IntEnum):
   CancelThread   = 6
   Debug          = 7
   CloseTab       = 8
-  DataMining     = 9
+  AdvancedObjectSearch     = 9
   Console        = 10
   Terminal       = 11
   Ping           = 12
@@ -93,7 +93,7 @@ class response(IntEnum):
   MessageException    = 7
   DebugResponse       = 8
   RemoveContext       = 9
-  DataMiningResult    = 10
+  AdvancedObjectSearchResult    = 10
   ConsoleResult       = 11
   TerminalResult      = 12
   Pong                = 13
@@ -105,6 +105,8 @@ class debugState(IntEnum):
   Step     = 3
   Finished = 4
   Cancel   = 5
+
+connection_list = dict([])
 
 def closeTabHandler(ws_object,p_tab_object_id):
     try:
@@ -183,6 +185,7 @@ def thread_dispatcher(self,args,ws_object):
                 v_response['v_code'] = response.SessionMissing
                 ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         elif v_code == request.Ping:
+            ws_object.last_ping_time = datetime.now()
             v_response['v_code'] = response.Pong
             ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
         else:
@@ -191,7 +194,7 @@ def thread_dispatcher(self,args,ws_object):
                 try:
                     thread_data = ws_object.v_list_tab_objects[v_data]
                     if thread_data:
-                        if thread_data['type'] == 'datamining':
+                        if thread_data['type'] == 'advancedobjectsearch':
                             def callback(self):
                                 try:
                                     self.tag['lock'].acquire()
@@ -313,7 +316,7 @@ def thread_dispatcher(self,args,ws_object):
                                 t.start()
 
 
-                    if v_code == request.Query or v_code == request.QueryEditData or v_code == request.SaveEditData or v_code == request.DataMining or v_code == request.Console:
+                    if v_code == request.Query or v_code == request.QueryEditData or v_code == request.SaveEditData or v_code == request.AdvancedObjectSearch or v_code == request.Console:
 
                         #create tab object if it doesn't exist
                         try:
@@ -399,10 +402,10 @@ def thread_dispatcher(self,args,ws_object):
                             tab_object['type'] = 'edit'
                             #t.setDaemon(True)
                             t.start()
-                        #Query Data Mining
-                        elif v_code == request.DataMining:
+                        #Query Advanced Object Search
+                        elif v_code == request.AdvancedObjectSearch:
                             v_response = {
-                                'v_code': response.DataMiningResult,
+                                'v_code': response.AdvancedObjectSearchResult,
                                 'v_context_code': v_data['v_context_code'],
                                 'v_error': False,
                                 'v_data': 1
@@ -410,7 +413,7 @@ def thread_dispatcher(self,args,ws_object):
 
                             tab_object['tab_db_id'] = v_data['v_tab_db_id']
                             v_data['v_tab_object'] = tab_object
-                            v_data['v_sql_dict'] = tab_object['omnidatabase'].DataMining(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'], v_data['dataCategoryFilter'])
+                            v_data['v_sql_dict'] = tab_object['omnidatabase'].AdvancedObjectSearch(v_data['text'], v_data['caseSensitive'], v_data['regex'], v_data['categoryList'], v_data['schemaList'], v_data['dataCategoryFilter'])
 
                             t = StoppableThreadPool(
                                 p_tag = {
@@ -421,7 +424,7 @@ def thread_dispatcher(self,args,ws_object):
                             )
 
                             tab_object['thread_pool'] = t
-                            tab_object['type'] = 'datamining'
+                            tab_object['type'] = 'advancedobjectsearch'
                             tab_object['tab_id'] = v_data['v_tab_id']
 
                             v_argsList = []
@@ -440,7 +443,7 @@ def thread_dispatcher(self,args,ws_object):
 
                             try:
                                 #Will block here until thread pool ends
-                                t.start(thread_datamining, v_argsList)
+                                t.start(thread_advancedobjectsearch, v_argsList)
 
                                 log_end_time = datetime.now()
                                 v_duration = GetDuration(log_start_time,log_end_time)
@@ -541,6 +544,8 @@ def thread_dispatcher_terminal_command(self,args,ws_object):
 
     while True:
         ws_object.terminal_lock.acquire()
+        if self.cancel:
+            break
         while True:
             try:
                 element = ws_object.terminal_command_list.pop(0)
@@ -550,17 +555,34 @@ def thread_dispatcher_terminal_command(self,args,ws_object):
             except Exception:
                 break
 
+def thread_client_control(self,args,object):
+    message = args
+
+    while True:
+        time.sleep(300)
+        for k in list(connection_list.keys()):
+            client_object = connection_list[k]
+            try:
+                if ((datetime.now() - client_object.last_ping_time).total_seconds() > 600):
+                    del connection_list[k]
+                    client_object.close()
+            except Exception as exc:
+                logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
 class WSHandler(tornado.websocket.WebSocketHandler):
   def open(self):
+    client_id = str(uuid.uuid4())
+    self.client_id = client_id
+    self.last_ping_time = datetime.now()
+    connection_list[client_id] = self
     self.event_loop = tornado.ioloop.IOLoop.instance()
     spawn_thread = False
 
     lock = threading.Lock()
     self.terminal_lock = lock
     self.terminal_lock.acquire()
-    t = StoppableThread(thread_dispatcher_terminal_command,'',self)
-    t.start()
+    self.terminal_thread = StoppableThread(thread_dispatcher_terminal_command,'',self)
+    self.terminal_thread.start()
     None
   def on_message(self, message):
 
@@ -601,6 +623,19 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
   def on_close(self):
     try:
+        #closing terminal thread
+        try:
+            self.terminal_thread.stop()
+            self.terminal_lock.release()
+        except Exception as exc:
+            None
+
+        #removing client object from list of clients
+        try:
+            del connection_list[self.client_id]
+        except Exception as exc:
+            None
+
         for k in list(self.v_list_tab_objects.keys()):
             closeTabHandler(self,k)
     except Exception:
@@ -623,10 +658,10 @@ def start_wsserver():
 
     try:
         application = tornado.web.Application([
-          (r'/ws', WSHandler),
-          (r'/wss',WSHandler),
-          (r'/chatws', ws_chat.WSHandler),
-          (r'/chatwss',ws_chat.WSHandler)
+          (r'' + settings.PATH + '/ws', WSHandler),
+          (r'' + settings.PATH + '/wss',WSHandler),
+          (r'' + settings.PATH + '/chatws', ws_chat.WSHandler),
+          (r'' + settings.PATH + '/chatwss',ws_chat.WSHandler)
         ])
 
         if settings.IS_SSL:
@@ -638,6 +673,10 @@ def start_wsserver():
             server = tornado.httpserver.HTTPServer(application, ssl_options=ssl_ctx)
         else:
             server = tornado.httpserver.HTTPServer(application)
+
+        #Start thread that controls clients
+        thread_clients = StoppableThread(thread_client_control,None,None)
+        thread_clients.start()
 
         asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())
         server.listen(settings.OMNIDB_WEBSOCKET_PORT,address=settings.OMNIDB_ADDRESS)
@@ -711,7 +750,7 @@ COMMAND: {5}'''.format(p_user_name,
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
-def thread_datamining(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
+def thread_advancedobjectsearch(self, p_key1, p_key2, p_sql, p_args, p_ws_object):
     try:
         v_session = p_ws_object.v_session
 
@@ -925,7 +964,7 @@ def thread_query(self,args,ws_object):
                 v_duration = GetDuration(log_start_time,log_end_time)
 
                 v_response['v_data'] = {
-                    'v_filename': '/static/temp/{0}'.format(v_file_name),
+                    'v_filename': settings.PATH + '/static/temp/{0}'.format(v_file_name),
                     'v_downloadname': 'omnidb_exported.{0}'.format(v_extension),
                     'v_duration': v_duration,
                     'v_inserted_id': v_inserted_id,
@@ -1693,7 +1732,7 @@ def thread_debug_run_func(self,args,ws_object):
 
     try:
         #enable debugger for current connection
-        v_conn_string = "port={0} dbname=''{1}'' user=''{2}''".format(args['v_port'],v_database_debug.v_service,v_database_debug.v_user);
+        v_conn_string = "host=localhost port={0} dbname=''{1}'' user=''{2}''".format(args['v_port'],v_database_debug.v_service,v_database_debug.v_user);
         v_database_debug.v_connection.Execute("select omnidb.omnidb_enable_debugger('{0}')".format(v_conn_string))
 
         #run function it will lock until the function ends

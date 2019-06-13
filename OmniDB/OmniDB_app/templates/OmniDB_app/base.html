@@ -1,22 +1,24 @@
 <html>
 <head>
   <title>OmniDB</title>
-  <link rel="shortcut icon" type="image/x-icon" href="/static/OmniDB_app/images/favicon.ico"/>
+  <style>
+  </style>
+  <link rel="shortcut icon" type="image/x-icon" href="{{url_folder}}/static/OmniDB_app/images/favicon.ico"/>
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/style.css?v2.15.0.6"            />
+	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/style.css?v2.16.0.1"            />
 
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/modern-style.css?v2.15.0.6"            />
+  <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/modern-style.css?v2.16.0.1"            />
 
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/handsontable.full.css?v2.15.0.6"/>
-	<link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/msdropdown/dd.css?v2.15.0.6"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/lib/tabs/css/tabs.css?v2.15.0.6"    />
-  <link rel="stylesheet" type="text/css" href="/static/OmniDB_app/css/popper.css?v2.15.0.6"  />
+	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/handsontable.full.css?v2.16.0.1"/>
+	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/msdropdown/dd.css?v2.16.0.1"    />
+  <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/lib/tabs/css/tabs.css?v2.16.0.1"    />
+  <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/popper.css?v2.16.0.1"  />
 
-  <link rel="stylesheet" href="/static/OmniDB_app/css/explain/bootstrap.css">
-  <link rel="stylesheet" href="/static/OmniDB_app/css/explain/main.css">
+  <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/css/explain/bootstrap.css">
+  <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/css/explain/main.css">
 
-  <link rel="stylesheet" href="/static/OmniDB_app/fa/css/all.css">
-  <link rel="stylesheet" href="/static/OmniDB_app/css/xterm.css">
+  <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/fa/css/all.css">
+  <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/css/xterm.css">
 
   <link id="ss_theme" rel="stylesheet" type="text/css">
 
@@ -27,7 +29,7 @@
 <body>
 	<div class="header">
 		<div class="header_menu">
-			<img src="/static/OmniDB_app/images/omnidb.png" />
+			<img src="{{url_folder}}/static/OmniDB_app/images/omnidb.png" />
 			<ul>
         {% block header_menu %}
         {% endblock %}
@@ -40,8 +42,8 @@
             <i id="websocket_status_online" class="fas fa-signal" title="Online" style="vertical-align: middle; cursor: pointer; color: #74ff5d; display: none;"></i>
           </li>
           {% if not desktop_mode %}
-  					<li style="color: #F1F7FF; padding-right: 10px;">{{ session.v_user_name }}</li>
-            {% if session.v_super_user == 1 %}
+  					<li style="color: #F1F7FF; padding-right: 10px;">{{ user_name }}</li>
+            {% if super_user == 1 %}
     					<li style="padding-right: 10px;"><i class="fas fa-user" title="Manage users" style="vertical-align: middle; cursor: pointer;" onclick="listUsers();"></i></li>
     				{% endif %}
           {% endif %}
@@ -397,19 +399,19 @@
                 <div style="width: 100%; text-align: center;">
                 	<div style="margin: 20px;"><h1>{{ omnidb_version }}</h1></div>
                 	<div style="margin: 20px;">
-                		<img src="/static/OmniDB_app/images/postgresql_medium.png" title="PostgreSQL"/>
-                        <img src="/static/OmniDB_app/images/oracle_medium.png" title="Oracle"/>
-                		<img src="/static/OmniDB_app/images/mysql_medium.png" title="MySQL"/>
-                		<img src="/static/OmniDB_app/images/mariadb_medium.png" title="MariaDB"/>
-                        <!--<img src="/static/OmniDB_app/images/sqlserver_medium.png" title="SQL Server"/>
-                		<img src="/static/OmniDB_app/images/firebird_medium.png" title="Firebird"/>
-                		<img src="/static/OmniDB_app/images/sqlite_medium.png" title="SQLite"/>
-                		<img src="/static/OmniDB_app/images/access_medium.png" title="Microsoft Access"/>-->
+                		<img src="{{url_folder}}/static/OmniDB_app/images/postgresql_medium.png" title="PostgreSQL"/>
+                        <img src="{{url_folder}}/static/OmniDB_app/images/oracle_medium.png" title="Oracle"/>
+                		<img src="{{url_folder}}/static/OmniDB_app/images/mysql_medium.png" title="MySQL"/>
+                		<img src="{{url_folder}}/static/OmniDB_app/images/mariadb_medium.png" title="MariaDB"/>
+                        <!--<img src="{{url_folder}}/static/OmniDB_app/images/sqlserver_medium.png" title="SQL Server"/>
+                		<img src="{{url_folder}}/static/OmniDB_app/images/firebird_medium.png" title="Firebird"/>
+                		<img src="{{url_folder}}/static/OmniDB_app/images/sqlite_medium.png" title="SQLite"/>
+                		<img src="{{url_folder}}/static/OmniDB_app/images/access_medium.png" title="Microsoft Access"/>-->
                 	</div>
                 	<div style="margin: 20px;"><a onclick="showWebsite('OmniDB', 'https://www.omnidb.org')" >www.omnidb.org</a></div>
                   <div style="margin: 20px;">
                     <h2>Primary Supporter:</h2>
-                    <a onclick="showWebsite('2ndQuadrant', 'https://www.2ndquadrant.com')" ><img style="width: 120px;" src="/static/OmniDB_app/images/supporters/2ndquadrant.png" title="2ndQuadrant"/></a>
+                    <a onclick="showWebsite('2ndQuadrant', 'https://www.2ndquadrant.com')" ><img style="width: 120px;" src="{{url_folder}}/static/OmniDB_app/images/supporters/2ndquadrant.png" title="2ndQuadrant"/></a>
                   </div>
                 </div>
             </div>
@@ -592,51 +594,53 @@
   </div>
 
   <div class="div_loading"><button id="bt_cancel_ajax" onclick="cancelAjax()">Cancel</button></div>
-  <script type="text/javascript" src="/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.15.0.6"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/AjaxControl.js?v2.15.0.6"            ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/jquery-1.11.2.min.js?v2.16.0.1"      ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/AjaxControl.js?v2.16.0.1"            ></script>
   <script type="text/javascript">
   startLoading()
   </script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react.js?v2.15.0.6"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/react-dom.js?v2.15.0.6"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/d3.js?v2.15.0.6"             ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/explain/pgplan.js?v2.15.0.6"         ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/popper.min.js?v2.15.0.6"             ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/tooltip.min.js?v2.15.0.6"            ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/jquery.dd.min.js?v2.15.0.6"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/xterm.js?v2.15.0.6"                  ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/fit.js?v2.15.0.6"                    ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ace.js?v2.15.0.6"               ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/mode-sql.js?v2.15.0.6"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.15.0.6"></script>
-  <script type="text/javascript" src="/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.15.0.6"         ></script>
-	<script type="text/javascript" src="/static/OmniDB_app/js/handsontable.full.js?v2.15.0.6"      ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/NotificationControl.js?v2.15.0.6"    ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/explain/react.js?v2.16.0.1"          ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/explain/react-dom.js?v2.16.0.1"      ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/explain/d3.js?v2.16.0.1"             ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/explain/pgplan.js?v2.16.0.1"         ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/popper.min.js?v2.16.0.1"             ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/tooltip.min.js?v2.16.0.1"            ></script>
+	<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/jquery.dd.min.js?v2.16.0.1"          ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/xterm.js?v2.16.0.1"                  ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/fit.js?v2.16.0.1"                    ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/ace/ace.js?v2.16.0.1"               ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/ace/mode-sql.js?v2.16.0.1"          ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/ace/ext-language_tools.js?v2.16.0.1"></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/tabs/lib/tabs.js?v2.16.0.1"         ></script>
+	<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/handsontable.full.js?v2.16.0.1"      ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/NotificationControl.js?v2.16.0.1"    ></script>
 
-  <script type="text/javascript" src="/static/OmniDB_app/js/WebSocketControl.js?v2.15.0.6"       ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Renderers.js?v2.15.0.6"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/HeaderActions.js?v2.15.0.6"          ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Passwords.js?v2.15.0.6"              ></script>
-  <script type="text/javascript" src="/static/OmniDB_app/js/Users.js?v2.15.0.6"                  ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/WebSocketControl.js?v2.16.0.1"       ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Renderers.js?v2.16.0.1"              ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/HeaderActions.js?v2.16.0.1"          ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Passwords.js?v2.16.0.1"              ></script>
+  <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Users.js?v2.16.0.1"                  ></script>
 
   <script type="text/javascript">
 
 	//Global variables
-	var v_editor_theme = '{{ session.v_editor_theme }}';
-	var	v_theme_type = '{{ session.v_theme_type }}';
-	var	v_theme_id = {{ session.v_theme_id }};
-	var v_editor_font_size = {{ session.v_editor_font_size }};
-  var v_interface_font_size = {{ session.v_interface_font_size }};
-	var v_user_id = {{ session.v_user_id }};
-  var v_user_key = '{{ session.v_user_key }}';
-  var v_user_name = '{{ session.v_user_name }}';
-	var v_enable_omnichat = parseInt({{ session.v_enable_omnichat }});
-  var v_csv_encoding = '{{ session.v_csv_encoding }}';
-  var v_csv_delimiter = '{{ session.v_csv_delimiter }}';
+	var v_editor_theme = '{{ editor_theme }}';
+	var	v_theme_type = '{{ theme_type }}';
+	var	v_theme_id = {{ theme_id }};
+	var v_editor_font_size = {{ editor_font_size }};
+  var v_interface_font_size = {{ interface_font_size }};
+	var v_user_id = {{ user_id }};
+  var v_user_key = '{{ user_key }}';
+  var v_user_name = '{{ user_name }}';
+	var v_enable_omnichat = parseInt({{ enable_omnichat }});
+  var v_csv_encoding = '{{ csv_encoding }}';
+  var v_csv_delimiter = '{{ csv_delimiter }}';
   var v_session_key = v_user_key;
   var v_user_login = v_user_name;
   var v_version = '{{ omnidb_version }}';
   var v_short_version = '{{ omnidb_short_version }}';
+  var v_url_folder = '{{ url_folder }}';
+  var v_welcome_closed = {{ welcome_closed }};
 
   var v_menu_item = '{{ menu_item }}'
   $('#menu_' + v_menu_item).addClass('header_a_selected');

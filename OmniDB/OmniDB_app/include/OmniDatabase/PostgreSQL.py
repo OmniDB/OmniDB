@@ -723,7 +723,6 @@ class PostgreSQL:
         v_return = ''
         if self.v_conn_string and self.v_conn_string_error!='':
             return self.v_conn_string_error
-
         try:
             self.v_connection.Open()
             v_schema = self.QuerySchemas()
@@ -822,32 +821,45 @@ class PostgreSQL:
                 v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
-        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
-            return self.v_connection.Query('''
-                select quote_ident(c.relname) as table_name,
-                       quote_ident(n.nspname) as table_schema,
-                       false as is_partition,
-                       false as is_partitioned
-                from pg_class c
-                inner join pg_namespace n
-                on n.oid = c.relnamespace
+        return self.v_connection.Query('''
+            with parents as (
+                select distinct quote_ident(c.relname) as table_name,
+                       quote_ident(n.nspname) as table_schema
+                from pg_inherits i
+                inner join pg_class c on c.oid = i.inhparent
+                inner join pg_namespace n on n.oid = c.relnamespace
+                inner join pg_class cc on cc.oid = i.inhrelid
+                inner join pg_namespace nc on nc.oid = cc.relnamespace
                 where c.relkind in ('r', 'p')
                 {0}
-                order by 2, 1
-            '''.format(v_filter), True)
-        else:
-            return self.v_connection.Query('''
-                select quote_ident(c.relname) as table_name,
-                       quote_ident(n.nspname) as table_schema,
-                       c.relispartition as is_partition,
-                       c.relkind = 'p' as is_partitioned
-                from pg_class c
-                inner join pg_namespace n
-                on n.oid = c.relnamespace
-                where c.relkind in ('r', 'p')
+            ),
+            children as (
+                select distinct quote_ident(c.relname) as table_name,
+                       quote_ident(n.nspname) as table_schema
+                from pg_inherits i
+                inner join pg_class cp on cp.oid = i.inhparent
+                inner join pg_namespace np on np.oid = cp.relnamespace
+                inner join pg_class c on c.oid = i.inhrelid
+                inner join pg_namespace n on n.oid = c.relnamespace
+                where 1=1
                 {0}
-                order by 2, 1
-            '''.format(v_filter), True)
+            )
+            select quote_ident(c.relname) as table_name,
+                   quote_ident(n.nspname) as table_schema
+            from pg_class c
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            left join parents p
+            on p.table_name = quote_ident(c.relname)
+            and p.table_schema = quote_ident(n.nspname)
+            left join children ch
+            on ch.table_name = quote_ident(c.relname)
+            and ch.table_schema = quote_ident(n.nspname)
+            where ch.table_name is null
+              and c.relkind in ('r', 'p')
+            {0}
+            order by 2, 1
+        '''.format(v_filter), True)
 
     def QueryTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
@@ -1140,52 +1152,72 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(p_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') and quote_ident(t.tablename) = {0}".format(p_table)
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
             else:
-                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') "
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select quote_ident(t.tablename) as table_name,
-                   quote_ident(t.indexname) as index_name,
-                   (case when strpos(t.indexdef, 'UNIQUE') > 0 then 'Unique' else 'Non Unique' end) as uniqueness,
-                   quote_ident(t.schemaname) as schema_name
-            from pg_indexes t
-            where 1 = 1
-            {0}
-            order by quote_ident(t.tablename),
-                     quote_ident(t.indexname)
+            select quote_ident(c.relname) as table_name,
+                   quote_ident(ci.relname) as index_name,
+                   (case when i.indisunique then 'Unique' else 'Non Unique' end) as uniqueness,
+                   quote_ident(n.nspname) as schema_name
+            from pg_index i
+            inner join pg_class ci
+            on ci.oid = i.indexrelid
+            inner join pg_namespace ni
+            on ni.oid = ci.relnamespace
+            inner join pg_class c
+            on c.oid = i.indrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where i.indisvalid
+              and i.indislive
+              {0}
+            order by 1, 2
         '''.format(v_filter), True)
 
     def QueryTablesIndexesColumns(self, p_index, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(p_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' and quote_ident(t.tablename) = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "and quote_ident(n.nspname) = '{0}' and quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(t.schemaname) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') and quote_ident(t.tablename) = {0}".format(p_table)
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') and quote_ident(c.relname) = {0}".format(p_table)
             else:
-                v_filter = "and quote_ident(t.schemaname) not in ('information_schema','pg_catalog') "
-        v_filter = v_filter + "and quote_ident(t.indexname) = '{0}' ".format(p_index)
+                v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        v_filter = v_filter + "and quote_ident(ci.relname) = '{0}' ".format(p_index)
         return self.v_connection.Query('''
             select unnest(string_to_array(replace(substr(t.indexdef, strpos(t.indexdef, '(')+1, strpos(t.indexdef, ')')-strpos(t.indexdef, '(')-1), ' ', ''),',')) as column_name
-            from pg_indexes t
-            where 1 = 1
-            {0}
+            from (
+            select pg_get_indexdef(i.indexrelid) as indexdef
+            from pg_index i
+            inner join pg_class ci
+            on ci.oid = i.indexrelid
+            inner join pg_namespace ni
+            on ni.oid = ci.relnamespace
+            inner join pg_class c
+            on c.oid = i.indrelid
+            inner join pg_namespace n
+            on n.oid = c.relnamespace
+            where i.indisvalid
+              and i.indislive
+              {0}
+            ) t
         '''.format(v_filter), True)
 
     def QueryTablesChecks(self, p_table=None, p_all_schemas=False, p_schema=None):
@@ -1441,6 +1473,57 @@ class PostgreSQL:
                 order by 1, 2, 3, 4
             '''.format(v_filter))
 
+    def QueryTablesInheritedsParents(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select distinct quote_ident(cp.relname) as table_name,
+                   quote_ident(np.nspname) as table_schema
+            from pg_inherits i
+            inner join pg_class cp on cp.oid = i.inhparent
+            inner join pg_namespace np on np.oid = cp.relnamespace
+            inner join pg_class c on c.oid = i.inhrelid
+            inner join pg_namespace n on n.oid = c.relnamespace
+            where cp.relkind = 'r'
+            {0}
+            order by 2, 1
+        '''.format(v_filter))
+
+    def QueryTablesInheritedsChildren(self, p_table, p_schema):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
+            return self.v_connection.Query('''
+                select quote_ident(cc.relname) as table_name,
+                       quote_ident(nc.nspname) as table_schema
+                from pg_inherits i
+                inner join pg_class cp on cp.oid = i.inhparent
+                inner join pg_namespace np on np.oid = cp.relnamespace
+                inner join pg_class cc on cc.oid = i.inhrelid
+                inner join pg_namespace nc on nc.oid = cc.relnamespace
+                where not cc.relispartition
+                  and quote_ident(np.nspname) || '.' || quote_ident(cp.relname) = '{0}'
+                  and quote_ident(nc.nspname) = '{1}'
+                order by 2, 1
+            '''.format(p_table, p_schema))
+        else:
+            return self.v_connection.Query('''
+                select quote_ident(cc.relname) as table_name,
+                       quote_ident(nc.nspname) as table_schema
+                from pg_inherits i
+                inner join pg_class cp on cp.oid = i.inhparent
+                inner join pg_namespace np on np.oid = cp.relnamespace
+                inner join pg_class cc on cc.oid = i.inhrelid
+                inner join pg_namespace nc on nc.oid = cc.relnamespace
+                where quote_ident(np.nspname) || '.' || quote_ident(cp.relname) = '{0}'
+                  and quote_ident(nc.nspname) = '{1}'
+                order by 2, 1
+            '''.format(p_table, p_schema))
+
     def QueryTablesPartitions(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1471,6 +1554,43 @@ class PostgreSQL:
             {0}
             order by 1, 2, 3, 4
         '''.format(v_filter))
+
+    def QueryTablesPartitionsParents(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+        return self.v_connection.Query('''
+            select distinct quote_ident(cp.relname) as table_name,
+                   quote_ident(np.nspname) as table_schema
+            from pg_inherits i
+            inner join pg_class cp on cp.oid = i.inhparent
+            inner join pg_namespace np on np.oid = cp.relnamespace
+            inner join pg_class c on c.oid = i.inhrelid
+            inner join pg_namespace n on n.oid = c.relnamespace
+            where cp.relkind = 'p'
+            {0}
+            order by 2, 1
+        '''.format(v_filter))
+
+    def QueryTablesPartitionsChildren(self, p_table, p_schema):
+        return self.v_connection.Query('''
+            select quote_ident(cc.relname) as table_name,
+                   quote_ident(nc.nspname) as table_schema
+            from pg_inherits i
+            inner join pg_class cp on cp.oid = i.inhparent
+            inner join pg_namespace np on np.oid = cp.relnamespace
+            inner join pg_class cc on cc.oid = i.inhrelid
+            inner join pg_namespace nc on nc.oid = cc.relnamespace
+            where cc.relispartition
+              and quote_ident(np.nspname) || '.' || quote_ident(cp.relname) = '{0}'
+              and quote_ident(nc.nspname) = '{1}'
+            order by 2, 1
+        '''.format(p_table, p_schema))
 
     def QueryDataLimited(self, p_query, p_count=-1):
         if p_count != -1:
@@ -2230,7 +2350,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
         '''.format(v_filter), True)
         return v_table
 
-    def DataMiningData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas, p_dataCategoryFilter):
+    def AdvancedObjectSearchData(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas, p_dataCategoryFilter):
         v_sqlDict = {}
 
         if p_inSchemas != '': #At least one schema must be selected
@@ -2307,7 +2427,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sqlDict
 
-    def DataMiningFKName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchFKName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'FK Name'::text as category,
                    tc.table_schema::text as schema_name,
@@ -2341,7 +2461,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningFunctionDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchFunctionDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Function Definition'::text as category,
                    y.schema_name::text as schema_name,
@@ -2387,7 +2507,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningFunctioName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchFunctionName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Function Name'::text as category,
                    n.nspname::text as schema_name,
@@ -2423,7 +2543,89 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningIndexName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchProcedureDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Procedure Definition'::text as category,
+                   y.schema_name::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   y.procedure_definition::text as match_value
+            from (
+                select pg_get_functiondef(z.procedure_oid::regprocedure) as procedure_definition,
+                       *
+                from (
+                    select n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as procedure_oid,
+                           p.proname as procedure_name,
+                           n.nspname as schema_name
+                    from pg_proc p
+                    inner join pg_namespace n
+                               on p.pronamespace = n.oid
+                    where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+                      and n.nspname not like 'pg%%temp%%'
+                      and p.prokind = 'p'
+                    --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+                ) z
+            ) y
+            where 1 = 1
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and y.procedure_definition like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(y.procedure_definition) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and y.procedure_definition ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and y.procedure_definition ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def AdvancedObjectSearchProcedureName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+        v_sql = '''
+            select 'Procedure Name'::text as category,
+                   n.nspname::text as schema_name,
+                   ''::text as table_name,
+                   ''::text as column_name,
+                   p.proname::text as match_value
+            from pg_proc p
+            inner join pg_namespace n
+                       on p.pronamespace = n.oid
+            where n.nspname not in ('information_schema', 'omnidb', 'pg_catalog', 'pg_toast')
+              and n.nspname not like 'pg%%temp%%'
+              and p.prokind = 'p'
+            --#FILTER_PATTERN_CASE_SENSITIVE#  and p.proname like '#VALUE_PATTERN_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_CASE_INSENSITIVE#  and lower(p.proname) like lower('#VALUE_PATTERN_CASE_INSENSITIVE#')
+            --#FILTER_PATTERN_REGEX_CASE_SENSITIVE# and p.proname ~ '#VALUE_PATTERN_REGEX_CASE_SENSITIVE#'
+            --#FILTER_PATTERN_REGEX_CASE_INSENSITIVE# and p.proname ~* '#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#'
+            --#FILTER_BY_SCHEMA#  and lower(n.nspname) in (#VALUE_BY_SCHEMA#)
+        '''
+
+        if p_inSchemas != '':
+            v_sql = v_sql.replace('--#FILTER_BY_SCHEMA#', '').replace('#VALUE_BY_SCHEMA#', p_inSchemas)
+
+        if p_regex:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_REGEX_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_REGEX_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+        else:
+            if p_caseSentive:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_SENSITIVE#', '').replace('#VALUE_PATTERN_CASE_SENSITIVE#', p_textPattern.replace("'", "''"))
+            else:
+                v_sql = v_sql.replace('--#FILTER_PATTERN_CASE_INSENSITIVE#', '').replace('#VALUE_PATTERN_CASE_INSENSITIVE#', p_textPattern.replace("'", "''"))
+
+        return v_sql
+
+    def AdvancedObjectSearchIndexName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Index Name'::text as category,
                    i.schemaname::text as schema_name,
@@ -2456,7 +2658,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningMaterializedViewColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchMaterializedViewColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Materialized View Column Name'::text as category,
                    n.nspname::text as schema_name,
@@ -2498,7 +2700,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningMaterializedViewName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchMaterializedViewName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Materialized View Name'::text as category,
                    n.nspname::text as schema_name,
@@ -2534,7 +2736,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningPKName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchPKName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'PK Name'::text as category,
                    tc.table_schema::text as schema_name,
@@ -2568,7 +2770,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningSchemaName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchSchemaName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Schema Name'::text as category,
                    ''::text as schema_name,
@@ -2600,7 +2802,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningSequenceName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchSequenceName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Sequence Name'::text as category,
                    s.sequence_schema::text as schema_name,
@@ -2633,7 +2835,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningTableColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchTableColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Table Column Name'::text as category,
                    c.table_schema::text as schema_name,
@@ -2669,7 +2871,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningTableName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchTableName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Table Name'::text as category,
                    t.table_schema::text as schema_name,
@@ -2703,7 +2905,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningTriggerName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchTriggerName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Trigger Name'::text as category,
                    n.nspname::text as schema_name,
@@ -2739,7 +2941,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningTriggerSource(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchTriggerSource(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Trigger Source'::text as category,
                    n.nspname::text as schema_name,
@@ -2775,7 +2977,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningUniqueName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchUniqueName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Unique Name'::text as category,
                    tc.table_schema::text as schema_name,
@@ -2809,7 +3011,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningViewColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchViewColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'View Column Name'::text as category,
                    c.table_schema::text as schema_name,
@@ -2844,7 +3046,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningViewName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchViewName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'View Name'::text as category,
                    v.table_schema::text as schema_name,
@@ -2877,7 +3079,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningCheckName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchCheckName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Check Name'::text as category,
                    quote_ident(n.nspname)::text as schema_name,
@@ -2913,7 +3115,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningRuleName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchRuleName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Rule Name'::text as category,
                    quote_ident(schemaname)::text as schema_name,
@@ -2945,7 +3147,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningRuleDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchRuleDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Rule Definition'::text as category,
                    quote_ident(schemaname)::text as schema_name,
@@ -2977,7 +3179,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningInheritedTableName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchInheritedTableName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
             v_sql = '''
                 select 'Inherited Table Name'::text as category,
@@ -3041,7 +3243,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningPartitionName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchPartitionName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Partition Name'::text as category,
                    quote_ident(np.nspname)::text as schema_name,
@@ -3081,7 +3283,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningRoleName(self, p_textPattern, p_caseSentive, p_regex):
+    def AdvancedObjectSearchRoleName(self, p_textPattern, p_caseSentive, p_regex):
         v_sql = '''
             select 'Role Name'::text as category,
                    ''::text as schema_name,
@@ -3109,7 +3311,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningTablespaceName(self, p_textPattern, p_caseSentive, p_regex):
+    def AdvancedObjectSearchTablespaceName(self, p_textPattern, p_caseSentive, p_regex):
         v_sql = '''
             select 'Tablespace Name'::text as category,
                    ''::text as schema_name,
@@ -3137,7 +3339,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningExtensionName(self, p_textPattern, p_caseSentive, p_regex):
+    def AdvancedObjectSearchExtensionName(self, p_textPattern, p_caseSentive, p_regex):
         v_sql = '''
             select 'Extension Name'::text as category,
                    ''::text as schema_name,
@@ -3165,7 +3367,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningFKColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchFKColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             with select_fks as (
                 select distinct
@@ -3235,7 +3437,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningPKColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchPKColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'PK Column Name'::text as category,
                    quote_ident(tc.table_schema)::text as schema_name,
@@ -3273,7 +3475,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningUniqueColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchUniqueColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Unique Column Name'::text as category,
                    quote_ident(tc.table_schema)::text as schema_name,
@@ -3311,7 +3513,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningIndexColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchIndexColumnName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select *
             from (
@@ -3347,7 +3549,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningCheckDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchCheckDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Check Definition'::text as category,
                    quote_ident(n.nspname)::text as schema_name,
@@ -3385,7 +3587,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningTableTriggerName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchTableTriggerName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Table Trigger Name'::text as category,
                    quote_ident(n.nspname)::text as schema_name,
@@ -3427,7 +3629,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningMaterializedViewDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchMaterializedViewDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Materialized View Definition'::text as category,
                    y.schema_name::text as schema_name,
@@ -3468,7 +3670,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningViewDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchViewDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'View Definition'::text as category,
                    v.table_schema::text as schema_name,
@@ -3501,7 +3703,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningTypeName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchTypeName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Type Name'::text as category,
                    n.nspname::text as schema_name,
@@ -3539,7 +3741,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningDomainName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchDomainName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Domain Name'::text as category,
                    n.nspname::text as schema_name,
@@ -3577,7 +3779,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningEventTriggerName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchEventTriggerName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Event Trigger Name'::text as category,
                    np.nspname::text as schema_name,
@@ -3614,7 +3816,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningEventTriggerFunctionName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchEventTriggerFunctionName(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Event Trigger Function Name'::text as category,
                    n.nspname::text as schema_name,
@@ -3651,7 +3853,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMiningEventTriggerFunctionDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
+    def AdvancedObjectSearchEventTriggerFunctionDefinition(self, p_textPattern, p_caseSentive, p_regex, p_inSchemas):
         v_sql = '''
             select 'Event Trigger Function Definition'::text as category,
                    y.schema_name::text as schema_name,
@@ -3698,7 +3900,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         return v_sql
 
-    def DataMining(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_dataCategoryFilter):
+    def AdvancedObjectSearch(self, p_textPattern, p_caseSentive, p_regex, p_categoryList, p_schemaList, p_dataCategoryFilter):
         v_sqlDict = {}
 
         v_inSchemas = ''
@@ -3715,81 +3917,85 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
 
         for v_category in p_categoryList:
             if v_category == 'Data':
-                v_sqlDict[v_category] = self.DataMiningData(p_textPattern, p_caseSentive, p_regex, v_inSchemas, p_dataCategoryFilter)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchData(p_textPattern, p_caseSentive, p_regex, v_inSchemas, p_dataCategoryFilter)
             elif v_category == 'FK Name':
-                v_sqlDict[v_category] = self.DataMiningFKName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchFKName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Function Definition':
-                v_sqlDict[v_category] = self.DataMiningFunctionDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchFunctionDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Function Name':
-                v_sqlDict[v_category] = self.DataMiningFunctioName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchFunctionName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Index Name':
-                v_sqlDict[v_category] = self.DataMiningIndexName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchIndexName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Materialized View Column Name':
-                v_sqlDict[v_category] = self.DataMiningMaterializedViewColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchMaterializedViewColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Materialized View Name':
-                v_sqlDict[v_category] = self.DataMiningMaterializedViewName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchMaterializedViewName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'PK Name':
-                v_sqlDict[v_category] = self.DataMiningPKName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchPKName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Schema Name':
-                v_sqlDict[v_category] = self.DataMiningSchemaName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchSchemaName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Sequence Name':
-                v_sqlDict[v_category] = self.DataMiningSequenceName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchSequenceName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Table Column Name':
-                v_sqlDict[v_category] = self.DataMiningTableColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchTableColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Table Name':
-                v_sqlDict[v_category] = self.DataMiningTableName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchTableName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Trigger Name':
-                v_sqlDict[v_category] = self.DataMiningTriggerName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchTriggerName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Trigger Source':
-                v_sqlDict[v_category] = self.DataMiningTriggerSource(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchTriggerSource(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Unique Name':
-                v_sqlDict[v_category] = self.DataMiningUniqueName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchUniqueName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'View Column Name':
-                v_sqlDict[v_category] = self.DataMiningViewColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchViewColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'View Name':
-                v_sqlDict[v_category] = self.DataMiningViewName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchViewName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Check Name':
-                v_sqlDict[v_category] = self.DataMiningCheckName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchCheckName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Rule Name':
-                v_sqlDict[v_category] = self.DataMiningRuleName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchRuleName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Rule Definition':
-                v_sqlDict[v_category] = self.DataMiningRuleDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchRuleDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Inherited Table Name':
-                v_sqlDict[v_category] = self.DataMiningInheritedTableName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchInheritedTableName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Partition Name':
-                v_sqlDict[v_category] = self.DataMiningPartitionName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchPartitionName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Role Name':
-                v_sqlDict[v_category] = self.DataMiningRoleName(p_textPattern, p_caseSentive, p_regex)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchRoleName(p_textPattern, p_caseSentive, p_regex)
             elif v_category == 'Tablespace Name':
-                v_sqlDict[v_category] = self.DataMiningTablespaceName(p_textPattern, p_caseSentive, p_regex)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchTablespaceName(p_textPattern, p_caseSentive, p_regex)
             elif v_category == 'Extension Name':
-                v_sqlDict[v_category] = self.DataMiningExtensionName(p_textPattern, p_caseSentive, p_regex)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchExtensionName(p_textPattern, p_caseSentive, p_regex)
             elif v_category == 'FK Column Name':
-                v_sqlDict[v_category] = self.DataMiningFKColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchFKColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'PK Column Name':
-                v_sqlDict[v_category] = self.DataMiningPKColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchPKColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Unique Column Name':
-                v_sqlDict[v_category] = self.DataMiningUniqueColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchUniqueColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Index Column Name':
-                v_sqlDict[v_category] = self.DataMiningIndexColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchIndexColumnName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Check Definition':
-                v_sqlDict[v_category] = self.DataMiningCheckDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchCheckDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Table Trigger Name':
-                v_sqlDict[v_category] = self.DataMiningTableTriggerName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchTableTriggerName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Materialized View Definition':
-                v_sqlDict[v_category] = self.DataMiningMaterializedViewDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchMaterializedViewDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'View Definition':
-                v_sqlDict[v_category] = self.DataMiningViewDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchViewDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Type Name':
-                v_sqlDict[v_category] = self.DataMiningTypeName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchTypeName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Domain Name':
-                v_sqlDict[v_category] = self.DataMiningDomainName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchDomainName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Event Trigger Name':
-                v_sqlDict[v_category] = self.DataMiningEventTriggerName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchEventTriggerName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Event Trigger Function Name':
-                v_sqlDict[v_category] = self.DataMiningEventTriggerFunctionName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchEventTriggerFunctionName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
             elif v_category == 'Event Trigger Function Definition':
-                v_sqlDict[v_category] = self.DataMiningEventTriggerFunctionDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+                v_sqlDict[v_category] = self.AdvancedObjectSearchEventTriggerFunctionDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Procedure Definition':
+                v_sqlDict[v_category] = self.AdvancedObjectSearchProcedureDefinition(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
+            elif v_category == 'Procedure Name':
+                v_sqlDict[v_category] = self.AdvancedObjectSearchProcedureName(p_textPattern, p_caseSentive, p_regex, v_inSchemas)
 
         return v_sqlDict
 
@@ -5222,6 +5428,14 @@ DROP COLUMN #column_name#
                    c.oid as "OID",
                    r.rolname as "Owner",
                    pg_size_pretty(pg_relation_size(c.oid)) as "Size",
+                   i.indisunique as "Unique",
+                   i.indisprimary as "Primary",
+                   i.indisexclusion as "Exclusion",
+                   i.indimmediate as "Immediate",
+                   i.indisclustered as "Clustered",
+                   i.indisvalid as "Valid",
+                   i.indisready as "Ready",
+                   i.indislive as "Live",
                    a.amname as "Access Method",
                    coalesce(t1.spcname, t2.spcname) as "Tablespace",
                    pg_relation_filepath(c.oid) as "Filenode"
@@ -5242,6 +5456,8 @@ DROP COLUMN #column_name#
             on 1 = 1
             inner join pg_am a
             on a.oid = c.relam
+            inner join pg_index i
+            on i.indexrelid = c.oid
             where quote_ident(n.nspname) = '{0}'
               and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object))
@@ -7023,6 +7239,7 @@ DROP COLUMN #column_name#
                          values ('r','TABLE'),
                                 ('v','VIEW'),
                                 ('i','INDEX'),
+                                ('I','PARTITIONED INDEX'),
                                 ('S','SEQUENCE'),
                                 ('s','SPECIAL'),
                                 ('m','MATERIALIZED VIEW'),
@@ -7137,7 +7354,7 @@ DROP COLUMN #column_name#
                    JOIN pg_class i ON i.oid = x.indexrelid
                    JOIN pg_depend d ON d.objid = x.indexrelid
                    LEFT JOIN pg_constraint cc ON cc.oid = d.refobjid
-                  WHERE c.relkind in ('r','m') AND i.relkind = 'i'::"char"
+                  WHERE c.relkind in ('r','p','m') AND i.relkind in ('i'::"char", 'I'::"char")
                     AND coalesce(c.oid = '{0}.{1}'::regclass,true)
                 ),
                 triggers as (
@@ -7298,7 +7515,7 @@ DROP COLUMN #column_name#
                        JOIN pg_class i ON i.oid = x.indexrelid
                        JOIN pg_depend d ON d.objid = x.indexrelid
                        LEFT JOIN pg_constraint cc ON cc.oid = d.refobjid
-                      WHERE c.relkind in ('r','m') AND i.relkind = 'i'::"char"
+                      WHERE c.relkind in ('r','p','m') AND i.relkind in ('i'::"char", 'I'::"char")
                         AND i.oid = '{0}.{1}'::regclass
                     )
                      SELECT indexdef || E';\n' as text
@@ -7311,7 +7528,7 @@ DROP COLUMN #column_name#
                       when obj.kind in ('VIEW','MATERIALIZED VIEW') then (select text from createview)
                       when obj.kind in ('TABLE','TYPE','FOREIGN TABLE','PARTITIONED TABLE') then (select text from createtable)
                       when obj.kind in ('SEQUENCE') then (select text from createsequence)
-                      when obj.kind in ('INDEX') then (select text from createindex)
+                      when obj.kind in ('INDEX', 'PARTITIONED INDEX') then (select text from createindex)
                       else '-- UNSUPPORTED CLASS: '||obj.kind
                      end
                       || E'\n' ||
@@ -7370,7 +7587,7 @@ DROP COLUMN #column_name#
                 alterowner as (
                     select
                        case
-                         when obj.kind = 'INDEX' then ''
+                         when obj.kind in ('INDEX', 'PARTITIONED INDEX') then ''
                          when obj.kind = 'PARTITIONED TABLE'
                          then 'ALTER TABLE '||sql_identifier||
                               ' OWNER TO '||quote_ident(owner)||E';\n\n'
@@ -7595,7 +7812,7 @@ DROP COLUMN #column_name#
                 select (select text from createfunction) ||
                        (select text from alterowner) ||
                        (select text from grants)
-'''.format(p_function))
+            '''.format(p_function))
         else:
             return self.v_connection.ExecuteScalar('''
                 with obj as (
@@ -7672,7 +7889,7 @@ DROP COLUMN #column_name#
                 select (select text from createfunction) ||
                        (select text from alterowner) ||
                        (select text from grants)
-'''.format(p_function))
+        '''.format(p_function))
 
     def GetDDLProcedure(self, p_procedure):
         return self.v_connection.ExecuteScalar('''
@@ -7750,7 +7967,7 @@ DROP COLUMN #column_name#
             select (select text from createfunction) ||
                    (select text from alterowner) ||
                    (select text from grants)
-'''.format(p_procedure))
+        '''.format(p_procedure))
 
     def GetDDLConstraint(self, p_schema, p_table, p_object):
         return self.v_connection.ExecuteScalar('''

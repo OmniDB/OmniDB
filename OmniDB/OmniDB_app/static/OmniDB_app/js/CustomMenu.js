@@ -56,12 +56,14 @@ function customMenu(p_position,p_menu,p_object) {
         var v_ul = createSimpleElement('ul',null,'aimara_sub-menu');
         v_ul.aimara_level = 0;
 
-        v_a.appendChild(document.createTextNode(p_menu[i].text));
+        //v_a.appendChild(document.createTextNode(p_menu[i].text));
+        v_a.innerHTML = p_menu[i].text;
 
         v_li.appendChild(v_span);
 
         if (p_menu[i].icon!=undefined) {
           var v_img = createSimpleElement('i',null,p_menu[i].icon);
+          v_img.innerHTML = '&nbsp;';
           v_li.appendChild(v_img);
         }
 
@@ -82,7 +84,7 @@ function customMenu(p_position,p_menu,p_object) {
 
           v_li.appendChild(v_ul);
           var v_span_more = createSimpleElement('div',null,null);
-          v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
+          v_span_more.appendChild(createImgElement(null,'menu_img',v_url_folder + '/static/OmniDB_app/images/right.png'));
           v_li.appendChild(v_span_more);
           customMenuRecursive(p_menu[i].submenu.elements,v_ul,p_object,v_closediv,v_div, 1);
         }
@@ -110,12 +112,14 @@ function customMenuRecursive(p_submenu,p_ul,p_object,p_closediv, p_cm_div, p_lev
     var v_ul = createSimpleElement('ul',null,'aimara_sub-menu');
     v_ul.aimara_level = p_level;
 
-    v_a.appendChild(document.createTextNode(p_submenu[i].text));
+    //v_a.appendChild(document.createTextNode(p_submenu[i].text));
+    v_a.innerHTML = p_submenu[i].text;
 
     v_li.appendChild(v_span);
 
     if (p_submenu[i].icon!=undefined) {
       var v_img = createSimpleElement('i',null,p_submenu[i].icon);
+      v_img.innerHTML = '&nbsp;';
       v_li.appendChild(v_img);
     }
 
@@ -137,7 +141,7 @@ function customMenuRecursive(p_submenu,p_ul,p_object,p_closediv, p_cm_div, p_lev
 
       v_li.appendChild(v_ul);
       var v_span_more = createSimpleElement('div',null,null);
-      v_span_more.appendChild(createImgElement(null,'menu_img','/static/OmniDB_app/images/right.png'));
+      v_span_more.appendChild(createImgElement(null,'menu_img',v_url_folder + '/static/OmniDB_app/images/right.png'));
       v_li.appendChild(v_span_more);
       customMenuRecursive(p_submenu[i].submenu.elements,v_ul,p_object,p_closediv,p_cm_div, p_level+1);
     }

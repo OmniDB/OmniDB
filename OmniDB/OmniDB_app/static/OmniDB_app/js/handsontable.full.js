@@ -1,33 +1,33 @@
 /*!
  * Copyright (c) HANDSONCODE sp. z o. o.
- * 
+ *
  * HANDSONTABLE is a software distributed by HANDSONCODE sp. z o. o.,
  * a Polish corporation, based in Gdynia, Poland, at 96/98 Aleja Zwycięstwa,
  * registered with the National Court Register under number 538651,
  * EU tax ID number: PL5862294002, share capital: PLN 62,800.00.
- * 
+ *
  * This software is protected by applicable copyright laws, including
  * international treaties, and dual-licensed – depending on whether
  * your use is intended for or may result in commercial advantage
  * or monetary compensation (commercial purposes), or not.
- * 
+ *
  * If your use involves only such purposes as research, private study,
  * evaluation and the like, you agree to be bound by the terms included
  * in the “handsontable-non-commercial-license.pdf” file, available
  * in the main directory of this software repository.
- * 
+ *
  * By installing, copying, or otherwise using this software for
  * commercial purposes, you agree to be bound by the terms included
  * in the “handsontable-general-terms.pdf” file, available in the main
  * directory of this software repository.
- * 
+ *
  * HANDSONCODE PROVIDES THIS SOFTWARE ON AN “AS IS” BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND. IN NO EVENT
  * AND UNDER NO LEGAL THEORY, SHALL HANDSONCODE BE LIABLE
  * TO YOU FOR DAMAGES, INCLUDING ANY DIRECT, INDIRECT, SPECIAL,
  * INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER ARISING
  * FROM USE OR INABILITY TO USE THIS SOFTWARE.
- * 
+ *
  * Version: 7.0.1
  * Release date: 08/04/2019 (built at 29/03/2019 11:28:56)
  */
@@ -17711,12 +17711,12 @@ exports.arrayEach = function(array, iteratee) {
 };
 
 exports.transpose = function(matrix) {
-  if(!matrix) { 
+  if(!matrix) {
     return error.value;
   }
 
-  return matrix[0].map(function(col, i) { 
-    return matrix.map(function(row) { 
+  return matrix[0].map(function(col, i) {
+    return matrix.map(function(row) {
       return row[i];
     });
   });
@@ -31039,7 +31039,7 @@ exports.VLOOKUP = function (needle, table, index, rangeLookup) {
   }
 
   return error.na;
-};      
+};
 
 exports.HLOOKUP = function (needle, table, index, rangeLookup) {
   if (!needle || !table || !index) {
@@ -62996,7 +62996,7 @@ exports.default = _default;
             if (typeof this._o.onDraw === 'function') {
                 this._o.onDraw(this);
             }
-            
+
             if (opts.bound) {
                 // let the screen reader user know to use arrow keys
                 opts.field.setAttribute('aria-label', 'Use the arrow keys to pick a date');
@@ -79448,6 +79448,7 @@ function (_BasePlugin) {
   }, {
     key: "onMouseOver",
     value: function onMouseOver(event) {
+
       var priv = privatePool.get(this);
       var rootDocument = this.hot.rootDocument;
       priv.cellBelowCursor = rootDocument.elementFromPoint(event.clientX, event.clientY);
@@ -85970,6 +85971,7 @@ function (_BasePlugin) {
   }, {
     key: "setupHandlePosition",
     value: function setupHandlePosition(TH) {
+
       var _this3 = this;
 
       if (!TH.parentNode) {
@@ -86022,7 +86024,9 @@ function (_BasePlugin) {
 
         this.startOffset = relativeHeaderPosition.left - 6;
         this.startWidth = parseInt(box.width, 10);
-        this.handle.style.top = "".concat(relativeHeaderPosition.top, "px");
+				/* OMNIDB */
+				/*this.handle.style.top = "".concat(relativeHeaderPosition.top, "px");*/
+				this.handle.style.top = "".concat(0, "px");
         this.handle.style.left = "".concat(this.startOffset + this.startWidth, "px");
         this.handle.style.height = "".concat(headerHeight, "px");
         this.hot.rootElement.appendChild(this.handle);
@@ -86135,6 +86139,7 @@ function (_BasePlugin) {
   }, {
     key: "onMouseOver",
     value: function onMouseOver(event) {
+
       if (this.checkIfColumnHeader(event.target)) {
         var th = this.getTHFromTargetElement(event.target);
 
@@ -87939,6 +87944,7 @@ function (_BasePlugin) {
 
         if (th) {
           if (!this.pressed) {
+
             this.setupHandlePosition(th);
           }
         }

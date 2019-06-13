@@ -21,6 +21,8 @@
     - Release Notes outer tab now stay closed and only open upon next upgrade
   - Other improvements:
     - Included procedures in Advanced Object Search for PostgreSQL 11
+- Important changes:
+  - PostgreSQL Debugger Plugin: Requires a host connection on all platforms
 - Deployment:
   - OmniDB server and PostgreSQL debugger plugin packages under Debian PGDG repository (thanks to Christoph Berg @df7cb )
 - Bug fixes:

@@ -9,28 +9,30 @@
 
 # 1. Linux Installation
 
-You can install from packages or compile from source.
+You can install from Debian PGDG repository **or** from standalone packages
+**or** compile from source.
 
-- 1.1. Installing from DEB/RPM packages
-- 1.2. Compiling the extension from source
+- 1.1. Installing from Debian PGDG repository (**recommended**)
+- 1.2. Installing from DEB/RPM packages
+- 1.3. Compiling the extension from source
 
-## 1.1. Installing from DEB/RPM packages
 
-### 1.1.1. Install the package
+## 1.1. Installing from Debian PGDG repository
+
+On Debian and Ubuntu systems, this is the recommended way of installing the
+OmniDB debugger for PostgreSQL PL/pgSQL functions and procedures.
+
+### 1.1.1. Install Debian PGDG repository (if not already)
 
 ```bash
-# For example, Debian-like 64 bits:
-sudo dpkg -i omnidb-plugin_2.16.0-debian-amd64.deb
-
-# For example, for CentOS-like 64 bits:
-sudo rpm -ivU omnidb-plugin_2.16.0-centos-amd64.rpm
+sudo echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+sudo wget --quiet -O - https://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | apt-key add -
 ```
 
-### 1.1.2. Create a symlink
+### 1.1.2. Install omnidb_plugin for your PostgreSQL version X.Y
 
 ```bash
-# Find the PostgreSQL version and path for $libdir and create a link to the specific library. For example:
-sudo ln -s /opt/omnidb-plugin/omnidb_plugin_96.so /usr/lib/postgresql/9.6/lib/omnidb_plugin.so
+sudo apt install postgresql-X.Y-omnidb
 ```
 
 ### 1.1.3. Set shared_preload_libraries
@@ -42,46 +44,46 @@ nano /etc/postgresql/X.Y/main/postgresql.conf
 sudo systemctl restart postgresql
 ```
 
-### 1.1.4. Post-installation steps
+### 1.1.3. Post-installation steps
 
-#### 1.1.4.1. Create omnidb schema in your database (should be done by a superuser)
+#### 1.1.3.1. Create omnidb_plugin extension (should be done by a superuser)
 
 ```bash
-psql -d <database> -f debugger_schema.sql
+psql -d <database> -c 'CREATE EXTENSION omnidb_plugin'
 ```
 
-#### 1.1.4.2. Create sample functions (optional)
+#### 1.1.3.2. Create sample functions (optional)
 
 ```bash
 psql -d <database> -f sample_functions.sql
 ```
 
-#### 1.1.4.3. Next steps
+#### 1.1.3.3. Next steps
 
 Follow [Post-installation steps](#5-post-installation-steps--required-) in
 section 5.
 
-## 1.2. Compiling the extension from source
 
-### 1.2.1. Install headers for PostgreSQL and libpq
+## 1.2. Installing from DEB/RPM packages
 
-```bash
-sudo apt install postgresql-server-dev-X.Y libpq-dev
-```
-
-### 1.2.2. Compile omnidb_plugin
+### 1.2.1. Install the package
 
 ```bash
-make
+# For example, Debian-like 64 bits:
+sudo dpkg -i omnidb-plugin_2.16.0-debian-amd64.deb
+
+# For example, for CentOS-like 64 bits:
+sudo rpm -ivU omnidb-plugin_2.16.0-centos-amd64.rpm
 ```
 
-### 1.2.3. Install omnidb_plugin
+### 1.2.2. Create a symlink
 
 ```bash
-sudo make install
+# Find the PostgreSQL version and path for $libdir and create a link to the specific library. For example:
+sudo ln -s /opt/omnidb-plugin/omnidb_plugin_96.so /usr/lib/postgresql/9.6/lib/omnidb_plugin.so
 ```
 
-### 1.2.4. Set shared_preload_libraries
+### 1.2.3. Set shared_preload_libraries
 
 ```bash
 nano /etc/postgresql/X.Y/main/postgresql.conf
@@ -90,21 +92,69 @@ nano /etc/postgresql/X.Y/main/postgresql.conf
 sudo systemctl restart postgresql
 ```
 
-### 1.2.5. Post-installation steps
+### 1.2.4. Post-installation steps
 
-#### 1.2.5.1. Create omnidb_plugin extension (should be done by a superuser)
+#### 1.2.4.1. Create omnidb schema in your database (should be done by a superuser)
 
 ```bash
-psql -d <database> -c 'CREATE EXTENSION omnidb_plugin'
+psql -d <database> -f debugger_schema.sql
 ```
 
-#### 1.2.5.2. Create sample functions (optional)
+#### 1.2.4.2. Create sample functions (optional)
 
 ```bash
 psql -d <database> -f sample_functions.sql
 ```
 
-#### 1.2.5.3. Next steps
+#### 1.2.4.3. Next steps
+
+Follow [Post-installation steps](#5-post-installation-steps--required-) in
+section 5.
+
+## 1.3. Compiling the extension from source
+
+### 1.3.1. Install headers for PostgreSQL and libpq
+
+```bash
+sudo apt install postgresql-server-dev-X.Y libpq-dev
+```
+
+### 1.3.2. Compile omnidb_plugin
+
+```bash
+make
+```
+
+### 1.3.3. Install omnidb_plugin
+
+```bash
+sudo make install
+```
+
+### 1.3.4. Set shared_preload_libraries
+
+```bash
+nano /etc/postgresql/X.Y/main/postgresql.conf
+    shared_preload_libraries = 'omnidb_plugin'
+
+sudo systemctl restart postgresql
+```
+
+### 1.3.5. Post-installation steps
+
+#### 1.3.5.1. Create omnidb_plugin extension (should be done by a superuser)
+
+```bash
+psql -d <database> -c 'CREATE EXTENSION omnidb_plugin'
+```
+
+#### 1.3.5.2. Create sample functions (optional)
+
+```bash
+psql -d <database> -f sample_functions.sql
+```
+
+#### 1.3.5.3. Next steps
 
 Follow [Post-installation steps](#5-post-installation-steps--required-) in
 section 5.

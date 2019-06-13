@@ -33,39 +33,50 @@ $(function () {
 
 
 	v_connTabControl.tag.createSnippetTab();
-	v_connTabControl.tag.createWebsiteOuterTab(v_short_version,null,
-	`
-	<div class="welcome_release_content">
-    <h2>Release notes</h2>
-    <div class="welcome_release_container">
-      <ul class="welcome_release_list">
-        <li class="welcome_release_item"><span>SSH terminal emulator</span></li>
-        <li class="welcome_release_item"><span>PostgreSQL: Support to event triggers and event trigger functions</span></li>
-        <li class="welcome_release_item"><span>Monitoring units can now use past data, allowing users to create historical charts</span></li>
-        <li class="welcome_release_item"><span>Improved security: disabled TLSv1.0 and TLSv1.1</span></li>
-        <li class="welcome_release_item"><span>Support to file .my.cnf for MySQL and MariaDB connections</span></li>
-        <li class="welcome_release_item"><span>App graphical stack upgraded to Electron 4.1 and GTK 3</span></li>
-        <li class="welcome_release_item"><span>Grid component HandsOnTable upgraded to 7.0</span></li>
-        <li class="welcome_release_item"><span>Improved thread safety</span></li>
-				<li class="welcome_release_item"><span>Improved websocket connection handling in the client side</span></li>
-        <li class="welcome_release_item"><span>Fixed error on EditData when primary key was of type date or timestamp</span></li>
-        <li class="welcome_release_item"><span>Fixed display and handling of array types</span></li>
-        <li class="welcome_release_item"><span>Fixed handling of BC and infinity dates</span></li>
-        <li class="welcome_release_item"><span>Fixed bug involving SELECT INTO statements</span></li>
-        <li class="welcome_release_item"><span>Fixed error message not completely copyable from error popup</span></li>
-        <li class="welcome_release_item"><span>Fixed bug when sorting connection grid</span></li>
-        <li class="welcome_release_item"><span>Fixed bug when changing user password</span></li>
-        <li class="welcome_release_item"><span>Fixed bug when creating connections from omnidb-config (CLI)</span></li>
-        <li class="welcome_release_item"><span>Fixed bug that sporadically breaks query tab usability after query is cancelled</span></li>
-				<li class="welcome_release_item"><span>Fixed bug in drag and drop of tabs in Firefox</span></li>
-        <li class="welcome_release_item"><span>Dropped support for 32 bits builds</span></li>
-        <li class="welcome_release_item"><span>Linux deployment machines migrated from Vagrant to Docker</span></li>
-        <li class="welcome_release_item"><span>PostgreSQL, Oracle, MySQL and MariaDB test machines migrated from Vagrant to Docker</span></li>
-        <li class="welcome_release_item"><span>New Vagrant machines for User Acceptance Tests (with graphical environment to test OmniDB app)</span></li>
-      </ul>
-    </div>
-  </div>
-	`);
+	if (v_welcome_closed==0) {
+		v_connTabControl.tag.createWebsiteOuterTab(v_short_version,null,
+		`
+		<div class="welcome_release_content">
+	    <h2>Release notes</h2>
+	    <div class="welcome_release_container">
+	      <ul class="welcome_release_list">
+
+					<li class="welcome_release_item"><span>Monitoring Dashboard: Graph monitor unit type</span></li>
+					<li class="welcome_release_item"><span>Monitoring Dashboard: New standard units: TPS, WAL Production and Replication Graph</span></li>
+					<li class="welcome_release_item"><span>PostgreSQL TreeView: New groups for partitioned and inherited tables</span></li>
+					<li class="welcome_release_item"><span>PostgreSQL Debugger Plugin: Support for PostgreSQL running on OSX</span></li>
+					<li class="welcome_release_item"><span>Server: Support to run OmniDB on a custom URL path</span></li>
+					<li class="welcome_release_item"><span>Snippets: Run Snippet in Connection</span></li>
+					<li class="welcome_release_item"><span>Add Connection list in (+) menu of outer tabs</span></li>
+					<li class="welcome_release_item"><span>Show red X on tabs only on mouse hover</span></li>
+					<li class="welcome_release_item"><span>Color icons in Dark Theme</span></li>
+					<li class="welcome_release_item"><span>Release Notes outer tab now stay closed and only open upon next upgrade</span></li>
+					<li class="welcome_release_item"><span>Included procedures in Advanced Object Search for PostgreSQL 11</span></li>
+					<li class="welcome_release_item"><span>OmniDB server and PostgreSQL debugger plugin packages under Debian PGDG repository (thanks to Christoph Berg @df7cb )</span></li>
+					<li class="welcome_release_item"><span>Fixed #768: Monitoring - some units fail on a standby server</span></li>
+					<li class="welcome_release_item"><span>Fixed #836: SELECT ... INTO is not allowed here</span></li>
+					<li class="welcome_release_item"><span>Fixed #845: Partitioned relation indexes</span></li>
+					<li class="welcome_release_item"><span>Fixed #938: Password in connection string not used</span></li>
+					<li class="welcome_release_item"><span>Fixed #940: Unable to change column width of query results</span></li>
+					<li class="welcome_release_item"><span>Fixed #960: Snippet TreeView not rendering properly</span></li>
+					<li class="welcome_release_item"><span>Fixed #970: Focus on change Query Tab names</span></li>
+					<li class="welcome_release_item"><span>Fixed #981: Updatable chart titles</span></li>
+					<li class="welcome_release_item"><span>Fixed #990: Cleanup of inactive web socket clients</span></li>
+
+	      </ul>
+	    </div>
+	  </div>
+		`,
+		function() {
+			execAjax('/close_welcome/',
+					JSON.stringify({}),
+					function(p_return) {
+					},
+					null,
+					'box',
+					false);
+		});
+	}
 
 	//v_connTabControl.tag.createServerMonitoringTab();
 
@@ -269,9 +280,9 @@ function changeDatabase(p_value) {
 			v_connTabControl.selectedTab.tag.selectedTitle = v_conn_object.v_alias;
 
 			if (v_connTabControl.selectedTab.tag.selectedTitle!='')
-				v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedTitle + ' - ' + v_connTabControl.selectedTab.tag.selectedDatabase;
+				v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedTitle + ' - ' + v_connTabControl.selectedTab.tag.selectedDatabase;
 			else
-				v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedDatabase;
+				v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedDatabase;
 
 
 			queueChangeActiveDatabaseThreadSafe({
@@ -296,7 +307,12 @@ function changeDatabase(p_value) {
 
 }
 
-function changeGroup(p_value) {
+function changeGroup(p_value, p_tab_tag) {
+
+	var v_tag = v_connTabControl.selectedTab.tag;
+	if (p_tab_tag!=null)
+		v_tag = p_tab_tag;
+
 	//finding group object
 	var v_group_object = null;
 	for (var i=0; i<v_connTabControl.tag.groups.length; i++) {
@@ -307,10 +323,10 @@ function changeGroup(p_value) {
 	}
 	if (!v_group_object) {
 		v_group_object = v_connTabControl.tag.groups[0];
-		v_connTabControl.tag.divSelectGroup.childNodes[0].value = 0;
+		v_tag.divSelectGroup.childNodes[0].value = 0;
 	}
 
-	v_connTabControl.selectedTab.tag.selectedGroupIndex = parseInt(p_value);
+	v_tag.selectedGroupIndex = parseInt(p_value);
 
   //check if next group contains the currently selected connection
 	var v_found = false;
@@ -320,7 +336,7 @@ function changeGroup(p_value) {
 	}
 	else {
 		for (var i=0; i<v_group_object.conn_list.length; i++) {
-			if (v_connTabControl.selectedTab.tag.selectedDatabaseIndex==v_group_object.conn_list[i]) {
+			if (v_tag.selectedDatabaseIndex==v_group_object.conn_list[i]) {
 				v_found = true;
 				break;
 			}
@@ -329,20 +345,19 @@ function changeGroup(p_value) {
 
 	//not found, check if there aren't troublesome tabs before changing selector
 	if (!v_found) {
-		for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
+		for (var i=0; i < v_tag.tabControl.tabList.length; i++) {
 
-			var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
+			var v_tab = v_tag.tabControl.tabList[i];
 			if (v_tab.tag!=null)
 				if (v_tab.tag.mode=='edit' || v_tab.tag.mode=='alter' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='monitor_dashboard' || v_tab.tag.mode=='data_mining') {
 					showAlert("Before changing group please close any tab of the selected connection that belongs to the following types: <br/><br/><b>Edit Data<br/><br/>Alter Table<br/><br/>Function Debugging<br/><br/>Monitoring Dashboard<br/><br/>Advanced Object Search.");
-					v_connTabControl.selectedTab.tag.dd_group_object.set("selectedIndex",v_connTabControl.selectedTab.tag.dd_group_selected_index);
+					v_tag.dd_group_object.set("selectedIndex",v_tag.dd_group_selected_index);
 					return null;
 				}
 		}
 	}
 
 	//Filtering connection list
-	var v_tag = v_connTabControl.selectedTab.tag;
 	v_tag.divSelectDB.innerHTML = v_connTabControl.tag.selectHTML;
 	var v_select = v_tag.divSelectDB.childNodes[0];
 
@@ -374,7 +389,7 @@ function changeGroup(p_value) {
 	v_tag.dd_selected_index = v_tag.dd_object.selectedIndex;
 
 
-	v_connTabControl.selectedTab.tag.dd_group_selected_index = v_connTabControl.selectedTab.tag.dd_group_object.selectedIndex;
+	v_tag.dd_group_selected_index = v_tag.dd_group_object.selectedIndex;
 }
 
 function queueChangeActiveDatabaseThreadSafe(p_data) {
@@ -410,6 +425,14 @@ function renameTab(p_tab) {
 					renameTabConfirm(p_tab,document.getElementById('tab_name').value);
 
 	            });
+	var v_input = document.getElementById('tab_name');
+	v_input.onkeydown = function() {
+		if (event.keyCode == 13)
+			document.getElementById('button_confirm_ok').click();
+		else if (event.keyCode == 27)
+			document.getElementById('button_confirm_cancel').click();
+	}
+	document.getElementById('tab_name').focus();
 
 }
 
@@ -480,6 +503,10 @@ function refreshTreeHeight() {
 		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 8;
 		v_tag.divDDL.style.height = v_height + "px";
 		v_tag.ddlEditor.resize();
+	}
+	else if (v_tag.mode=='snippets') {
+		var v_height  = window.innerHeight - $(v_tag.divTree).offset().top;
+		v_tag.divTree.style.height = v_height + "px";
 	}
 
 }
@@ -1074,7 +1101,7 @@ function drawGraph(p_all, p_schema) {
 						boxSelectionEnabled: false,
 						autounselectify: true,
 						layout: {
-							name: 'cose',
+							name: 'spread',
 	            			idealEdgeLength: 100,
 	            			nodeOverlap: 20
 						},
@@ -1157,7 +1184,7 @@ function drawGraph(p_all, p_schema) {
 						elements: {
 							nodes: v_nodes,
 							edges: v_edges
-						},
+						}
 					});
 
 			},
@@ -1335,6 +1362,38 @@ function adjustQueryTabObjects(p_all_tabs) {
 
 }
 
+function getOpenedConnTabs(p_node) {
+	var v_option_list = [];
+
+
+	for (var i=0; i < v_connTabControl.tabList.length; i++) (function(i){
+		var v_tab = v_connTabControl.tabList[i];
+		if (v_tab.tag!=null) {
+			if (v_tab.tag.mode=='connection') {
+
+				var v_text = '';
+
+				if (v_tab.tag.selectedTitle!='')
+					v_text = v_tab.tag.selectedTitle + ' - ' + v_tab.tag.selectedDatabase;
+				else
+					v_text = v_tab.tag.selectedDatabase;
+
+				v_option_list.push({
+					text: v_text,
+					icon: 'fas cm-all node-' + v_tab.tag.selectedDBMS,
+					action: function() {
+							executeSnippet(p_node,v_tab);
+					}
+				});
+
+			}
+		}
+	})(i);
+
+
+	return v_option_list;
+}
+
 function showMenuNewTabOuter(e) {
 
 	var v_option_list = [];
@@ -1353,13 +1412,107 @@ function showMenuNewTabOuter(e) {
 			}
 		});
 
+		//building connection list
+		if (v_connTabControl.tag.connections.length>0) {
+
+			// No custom groups, render all connections in the same list
+			if (v_connTabControl.tag.groups.length==1) {
+				var v_submenu_connection_list = []
+
+				for (var i=0; i<v_connTabControl.tag.connections.length; i++) (function(i){
+					var v_conn = v_connTabControl.tag.connections[i];
+					v_submenu_connection_list.push({
+						text: v_conn.v_details1 + ' - ' + v_conn.v_details2,
+						icon: 'fas cm-all node-' + v_conn.v_db_type,
+						action: function() {
+								v_connTabControl.tag.createConnTab(v_conn.v_conn_id);
+						}
+					});
+				})(i);
+
+				v_option_list.push({
+					text: 'Connections',
+					icon: 'fas cm-all fa-plug',
+					submenu: {
+							elements: v_submenu_connection_list
+					}
+				});
+			}
+			//Render connections split in groups
+			else {
+
+				var v_group_list = [];
+
+				for (var i=0; i<v_connTabControl.tag.groups.length; i++) (function(i){
+					var v_current_group = v_connTabControl.tag.groups[i];
+
+					var v_group_connections = [];
+
+					//First group, add all connections
+					if (i==0) {
+						for (var k=0; k<v_connTabControl.tag.connections.length; k++) (function(k){
+							var v_conn = v_connTabControl.tag.connections[k];
+							v_group_connections.push({
+								text: v_conn.v_details1 + ' - ' + v_conn.v_details2,
+								icon: 'fas cm-all node-' + v_conn.v_db_type,
+								action: function() {
+										v_connTabControl.tag.createConnTab(v_conn.v_conn_id);
+								}
+							});
+						})(k);
+
+					}
+					else {
+						for (var j=0; j<v_current_group.conn_list.length; j++) {
+
+							//Search corresponding connection to use its data
+							for (var k=0; k<v_connTabControl.tag.connections.length; k++) (function(k){
+								var v_conn = v_connTabControl.tag.connections[k];
+								if (v_conn.v_conn_id==v_current_group.conn_list[j]) {
+									v_group_connections.push({
+										text: v_conn.v_details1 + ' - ' + v_conn.v_details2,
+										icon: 'fas cm-all node-' + v_conn.v_db_type,
+										action: function() {
+												v_connTabControl.tag.createConnTab(v_conn.v_conn_id);
+										}
+									});
+									return;
+								}
+							})(k);
+
+						}
+					}
+
+					var v_group_data = {
+						text: v_current_group.v_name,
+						icon: 'fas cm-all fa-plug',
+						submenu: {
+								elements: v_group_connections
+						}
+					}
+
+					v_group_list.push(v_group_data);
+
+				})(i);
+
+				v_option_list.push({
+					text: 'Connections',
+					icon: 'fas cm-all fa-plug',
+					submenu: {
+							elements: v_group_list
+					}
+				});
+
+			}
+	}
+
 	if (v_connTabControl.tag.remote_terminals.length>0) {
 
-		var v_submenu_list = []
+		var v_submenu_terminal_list = []
 
 		for (var i=0; i<v_connTabControl.tag.remote_terminals.length; i++) (function(i){
 			var v_term = v_connTabControl.tag.remote_terminals[i];
-			v_submenu_list.push({
+			v_submenu_terminal_list.push({
 				text: v_term.v_alias,
 				icon: 'fas cm-all fa-terminal',
 				action: function() {
@@ -1372,7 +1525,7 @@ function showMenuNewTabOuter(e) {
 			text: 'SSH Consoles',
 			icon: 'fas cm-all fa-terminal',
 			submenu: {
-					elements: v_submenu_list
+					elements: v_submenu_terminal_list
 			}
 		});
 }

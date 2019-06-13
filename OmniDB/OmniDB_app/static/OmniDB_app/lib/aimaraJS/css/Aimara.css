@@ -53,10 +53,10 @@ i.exp_col_empty {
   display: inline-block;
   width: 20px;
   height: 16px;
-	font-size: 16px;
+	font-size: 15px;
   background-repeat: no-repeat;
 	vertical-align: middle;
-
+	text-align: center;
 }
 
 a.node {
@@ -131,14 +131,14 @@ span.node_selected a {
 }
 
 .aimara_menu i {
-  padding-left: 5px;
+  margin-left: 5px;
 	vertical-align: middle;
-	display: inline;
 	font-size: 16px;
 	width: 16px;
 }
 .aimara_menu li {
   position: relative;
+  white-space: pre;
 }
 
 .aimara_menu li:hover {
@@ -159,7 +159,7 @@ span.node_selected a {
 	-ms-user-select: none; /* IE10+ */
 	cursor: default;
 	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
-  border: 1px solid #A0A0A0;
+  border: 1px solid #949ca9;
   border-radius: 2px;
 	z-index: 999999;
 }
@@ -170,7 +170,7 @@ span.node_selected a {
 	position: absolute;
 	min-width: 200px;
 	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
-  border: 1px solid #A0A0A0;
+  border: 1px solid #949ca9;
   border-radius: 2px;
   margin-top: -1px;
 	z-index: 999999;

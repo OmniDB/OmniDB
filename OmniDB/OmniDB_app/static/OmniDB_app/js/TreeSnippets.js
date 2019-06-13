@@ -112,6 +112,13 @@ function getTreeSnippets(p_div) {
           action : function(node) {
             deleteNodeSnippet(node);
           }
+        },
+        {
+          text : 'Run Snippet',
+          icon: 'fas cm-all fa-play',
+          submenu : {
+            elements: function(node) { return getOpenedConnTabs(node) }
+          }
         }
       ]
     }
@@ -214,6 +221,15 @@ function saveSnippetText() {
                   }
                   saveSnippetTextConfirm(v_save_object)
   	            });
+
+    var v_input = document.getElementById('element_name');
+  	v_input.onkeydown = function() {
+  		if (event.keyCode == 13)
+  			document.getElementById('button_confirm_ok').click();
+  		else if (event.keyCode == 27)
+  			document.getElementById('button_confirm_cancel').click();
+  	}
+    v_input.focus();
   }
 }
 
@@ -258,6 +274,14 @@ function newNodeSnippet(p_node,p_mode) {
                    			'box');
 
 	            });
+
+  var v_input = document.getElementById('element_name');
+	v_input.onkeydown = function() {
+		if (event.keyCode == 13)
+			document.getElementById('button_confirm_ok').click();
+		else if (event.keyCode == 27)
+			document.getElementById('button_confirm_cancel').click();
+	}
 }
 
 function renameNodeSnippet(p_node) {
@@ -275,6 +299,14 @@ function renameNodeSnippet(p_node) {
                    			'box');
 
 	            });
+
+  var v_input = document.getElementById('element_name');
+	v_input.onkeydown = function() {
+		if (event.keyCode == 13)
+			document.getElementById('button_confirm_ok').click();
+		else if (event.keyCode == 27)
+			document.getElementById('button_confirm_cancel').click();
+	}
 }
 
 function deleteNodeSnippet(p_node) {
@@ -303,6 +335,20 @@ function startEditSnippetText(p_node) {
         v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
         v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
 
+			},
+			null,
+			'box');
+}
+
+function executeSnippet(p_node,p_tab) {
+	execAjax('/get_snippet_text/',
+			JSON.stringify({"p_st_id": p_node.tag.id}),
+			function(p_return) {
+				v_connTabControl.selectTab(p_tab);
+				v_connTabControl.tag.createQueryTab();
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
+				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
 			},
 			null,
 			'box');

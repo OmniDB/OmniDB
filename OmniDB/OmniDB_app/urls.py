@@ -49,6 +49,7 @@ base_urlpatterns = [
     #WORKSPACE
     url(r'^workspace/', views.workspace.index, name='workspace'),
     url(r'^shortcuts/', views.workspace.shortcuts, name='shortcuts'),
+    url(r'^close_welcome/', views.workspace.close_welcome, name='close_welcome'),
     url(r'^save_config_user/', views.workspace.save_config_user, name='save_config_user'),
     url(r'^save_shortcuts/', views.workspace.save_shortcuts, name='save_shortcuts'),
     url(r'^get_database_list/', views.workspace.get_database_list, name='get_database_list'),
@@ -102,7 +103,11 @@ base_urlpatterns = [
     url(r'^get_triggers_postgresql/', views.tree_postgresql.get_triggers, name='get_triggers'),
     url(r'^get_eventtriggers_postgresql/', views.tree_postgresql.get_eventtriggers, name='get_eventtriggers'),
     url(r'^get_inheriteds_postgresql/', views.tree_postgresql.get_inheriteds, name='get_inheriteds'),
+    url(r'^get_inheriteds_parents_postgresql/', views.tree_postgresql.get_inheriteds_parents, name='get_inheriteds_parents'),
+    url(r'^get_inheriteds_children_postgresql/', views.tree_postgresql.get_inheriteds_children, name='get_inheriteds_children'),
     url(r'^get_partitions_postgresql/', views.tree_postgresql.get_partitions, name='get_partitions'),
+    url(r'^get_partitions_parents_postgresql/', views.tree_postgresql.get_partitions_parents, name='get_partitions_parents'),
+    url(r'^get_partitions_children_postgresql/', views.tree_postgresql.get_partitions_children, name='get_partitions_children'),
     url(r'^get_functions_postgresql/', views.tree_postgresql.get_functions, name='get_functions'),
     url(r'^get_function_fields_postgresql/', views.tree_postgresql.get_function_fields, name='get_function_fields'),
     url(r'^get_function_definition_postgresql/', views.tree_postgresql.get_function_definition, name='get_function_definition'),
@@ -272,7 +277,12 @@ base_urlpatterns = [
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
+if settings.PATH == '':
+    v_url = ''
+else:
+    v_url = settings.PATH[1:] + '/'
+
 urlpatterns = [# if you wish to maintain the un-prefixed URL's too
-    url(r'^', include(base_urlpatterns)),
+    url(v_url, include(base_urlpatterns)),
     #url(r'^subfolder/', include(base_urlpatterns))
 ]

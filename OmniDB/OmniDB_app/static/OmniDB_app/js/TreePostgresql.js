@@ -2487,7 +2487,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Event Trigger Function',
                         node.tree.tag.create_eventtriggerfunction
-                        .replace('#schema_name#', nnode.tag.schema));
+                        .replace('#schema_name#', node.tag.schema));
                 }
             }, {
                 text: 'Doc: Event Trigger Functions',

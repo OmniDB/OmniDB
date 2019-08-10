@@ -1,35 +1,27 @@
 html {
-	position: relative;
 	height: 100%;
-	height: 100vh;
 }
 body {
-	position: relative;
 	margin: 0px;
 	height: 100%;
-	height: 100vh;
 	font-family: monospace;
 	background-color: #F2F2F2;
 }
 #div_form {
-	position: absolute;
-	display: table;
-	top: 10%;
-	bottom: 10%;
-	right: 0;
-	left: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	height: 100%;
+}
+#div_form .loginWrap {
+	padding: 10px;
 	width: 280px;
-	max-width: 100%;
-	margin: auto;
-	box-sizing: border-box;
+	text-align: center;
 	background-color: #FFFFFF;
 	box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.07);
 	border-radius: 3px;
-}
-#div_form .loginWrap {
-	display: inline-block;
-	padding: 10px;
-	text-align: center;
+	box-sizing: border-box;
 }
 #div_form .div_time {
 	display: inline-block;
@@ -91,7 +83,7 @@ body {
 button {
 	display: inline-block;
 	padding: 6px 10px;
-	font-size: 22px;
+	font-size: 18px;
 	border: none;
 	color: #FFFFFF;
 	background-color: #839ec7;
@@ -154,4 +146,107 @@ body.loading .div_loading {
 }
 .isModal.isActive {
   display: block;
+}
+
+
+
+/** ANIMATIONS **/
+#div_form {
+	opacity: 0;
+
+	animation: fadeIn 0.3s linear forwards 0s;
+}
+
+#div_form .loginWrap-body {
+	height: 0px;
+	overflow: hidden;
+
+	animation:	growInFromTop 0.4s linear forwards 1.4s;
+}
+
+#div_form .version,
+#div_form .inputWrap,
+#div_form button {
+	opacity: 0;
+
+	animation:	fadeIn 0.6s linear forwards 1.8s;
+}
+
+#div_form .inputWrap {
+	overflow: hidden;
+}
+#div_form .inputWrap label {
+	transform: translateX(260px);
+
+}
+#user_title {
+	animation: slideInFromRight 0.45s ease forwards 2s;
+}
+#pwd_title {
+	animation: slideInFromRight 0.45s ease forwards 2.1s;
+}
+
+/* Animated Logo Omnidb styles */
+#div_time .logo svg {
+	width: 220px;
+}
+
+.logo_omnidb path,
+.logo_omnidb rect {
+	fill: transparent;
+	stroke: #818181;
+	stroke-width: 1px;
+
+	stroke-dasharray: 100;
+	stroke-dashoffset: 100;
+}
+
+.logo_omnidb_to-blue path,
+.logo_omnidb_to-blue rect {
+	animation:  svgDrawStrokes 1s linear forwards 0.3s,
+				svgToBlue 0.6s linear forwards 1.3s,
+				svgFadeStrokes 0.6s linear forwards 1.3s;
+}
+
+.logo_omnidb_to-darkblue path,
+.logo_omnidb_to-darkblue rect {
+	animation:  svgDrawStrokes 1s linear forwards 0.3s,
+				svgToDarkblue 0.6s linear forwards 1.3s,
+				svgFadeStrokes 0.6s linear forwards 1.3s;
+}
+
+@keyframes  svgDrawStrokes {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+@keyframes svgFadeStrokes {
+	to {
+		stroke: transparent;
+	}
+}
+@keyframes svgToBlue {
+	to {
+		fill: #878FC6;
+	}
+}
+@keyframes svgToDarkblue {
+	to {
+		fill: #515579;
+	}
+}
+@keyframes fadeIn {
+	to {
+		opacity: 1;
+	}
+}
+@keyframes slideInFromRight {
+	to {
+		transform: translateX(0);
+	}
+}
+@keyframes growInFromTop {
+	to {
+		height: 217px;
+	}
 }

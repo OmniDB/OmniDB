@@ -29,6 +29,7 @@ body {
 #div_form .version {
 	padding-right: 34px;
 	text-align: right;
+    color: #828282;
 }
 #div_form small {
 	display: inline-block:
@@ -36,7 +37,7 @@ body {
 #div_form .inputWrap {
 	position: relative;
 	display: block;
-	margin: 30px 0px;
+	margin: 20px 0px;
 	padding-top: 2px;
 	padding-bottom: 2px;
 	background-color: #FFFFFF;
@@ -247,6 +248,6 @@ body.loading .div_loading {
 }
 @keyframes growInFromTop {
 	to {
-		height: 217px;
+		height: 187px;
 	}
 }

@@ -1,4 +1,8 @@
-## Next Release: *2.17.0 - Aug 14, 2019*
+## Updates
+
+https://github.com/OmniDB/OmniDB/issues/1067
+
+## Next Release: *2.17.0 - Dec 05, 2019*
 
 # OmniDB 2.16.0
 

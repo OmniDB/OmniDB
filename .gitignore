@@ -15,4 +15,4 @@ omnidb_app/node_modules/
 omnidb_app/omnidb-gui*
 omnidb_app/package-lock.json
 *.DS_Store
-
+*.idea

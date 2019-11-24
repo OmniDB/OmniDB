@@ -93,7 +93,6 @@ class PostgreSQL:
                 self.v_conn_string_error = 'Syntax error in the connection string.'
                 None
 
-
         self.v_schema = 'public'
         self.v_connection = Spartacus.Database.PostgreSQL(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_application_name, p_conn_string)
 

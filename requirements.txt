@@ -1,4 +1,4 @@
-Django==2.1.9
+Django==2.1.11
 cherrypy
 tornado>=5.1.1
 click
@@ -6,7 +6,7 @@ sqlparse>=0.2.3
 psycopg2-binary
 pyscrypt
 pyaes
-openpyxl
+openpyxl==2.5.14
 RestrictedPython>=4.0b2
 cx_Oracle>=6.1
 pymysql

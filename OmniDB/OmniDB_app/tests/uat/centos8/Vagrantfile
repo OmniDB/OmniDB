@@ -3,18 +3,10 @@
 
 $script = <<SCRIPT
 echo I am provisioning...
-
-REDHAT_USERNAME=""
-REDHAT_PASSWORD=""
-
-if ! subscription-manager status; then
-  sudo subscription-manager register --username=$REDHAT_USERNAME --password=$REDHAT_PASSWORD --auto-attach
-  sudo yum-config-manager --disable rhel-7-server-rt-beta-rpms
-fi
 PG_VERSION=12
 yum -y update
 yum -y install epel-release
-rpm -ivh https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+rpm -ivh https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 yum -y check-update
 yum -y install "postgresql$PG_VERSION" "postgresql$PG_VERSION-server" "postgresql$PG_VERSION-libs" "postgresql$PG_VERSION-contrib"
 "/usr/pgsql-$PG_VERSION/bin/postgresql-$PG_VERSION-setup" initdb
@@ -33,29 +25,20 @@ cat << EOF | su - postgres -c psql
 ALTER USER postgres WITH PASSWORD 'postgres';
 EOF
 systemctl restart "postgresql-$PG_VERSION"
-yum groupinstall -y "Server with GUI"
+yum groupinstall -y "GNOME Desktop"
 systemctl set-default graphical.target
 date > /etc/vagrant_provisioned_at
 SCRIPT
 
-$unregister = <<SCRIPT
-sudo subscription-manager unregister \
-  && echo "Machine successfully unregistered." \
-  || echo "Something went wrong, please remove the machine manually from https://access.redhat.com/management/subscriptions"
-SCRIPT
-
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-  config.vm.box = "generic/rhel7"
-  config.vm.box_url = "https://app.vagrantup.com/generic/boxes/rhel7"
-  config.vm.host_name = "omnidbuatredhat7"
+  config.vm.box = "centos/8"
+  config.vm.box_url = "https://app.vagrantup.com/centos/boxes/8"
+  config.vm.host_name = "omnidbuatcentos8"
   config.vm.provider :virtualbox do |vb|
-    vb.name = "omnidb_uat_redhat7"
+    vb.name = "omnidb_uat_centos8"
     vb.gui = true
     vb.memory = 2048
     vb.cpus = 2
-  end
-  config.trigger.before :destroy do |trigger|
-    trigger.run_remote = {inline: $unregister}
   end
 end

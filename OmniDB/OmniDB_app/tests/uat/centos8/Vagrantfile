@@ -5,7 +5,7 @@ $script = <<SCRIPT
 echo I am provisioning...
 PG_VERSION=12
 yum -y update
-yum -y install epel-release
+yum -y install epel-release yum-utils
 rpm -ivh https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 yum -y check-update
 yum -y install "postgresql$PG_VERSION" "postgresql$PG_VERSION-server" "postgresql$PG_VERSION-libs" "postgresql$PG_VERSION-contrib"

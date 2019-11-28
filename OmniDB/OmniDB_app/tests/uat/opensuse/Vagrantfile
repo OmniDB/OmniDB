@@ -3,11 +3,8 @@
 
 $script = <<SCRIPT
 echo I am provisioning...	
-PG_VERSION=12	
-yum -y update	
-rpm -ivh https://download.postgresql.org/pub/repos/yum/reporpms/F-30-x86_64/pgdg-fedora-repo-latest.noarch.rpm	
-yum -y check-update
-yum -y install "postgresql$PG_VERSION" "postgresql$PG_VERSION-server" "postgresql$PG_VERSION-libs" "postgresql$PG_VERSION-contrib"	
+PG_VERSION=11
+zypper --non-interactive install "postgresql$PG_VERSION" "postgresql$PG_VERSION-contrib" "postgresql$PG_VERSION-server"	
 "/usr/pgsql-$PG_VERSION/bin/postgresql-$PG_VERSION-setup" initdb	
 systemctl enable "postgresql-$PG_VERSION"	
 systemctl start "postgresql-$PG_VERSION"
@@ -30,11 +27,11 @@ SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-  config.vm.box = "bento/fedora-30"
-  config.vm.box_url = "https://app.vagrantup.com/bento/boxes/fedora-30"
-  config.vm.host_name = "omnidbuatfedora30"
+  config.vm.box = "opensuse/Tumbleweed.x86_64"
+  config.vm.box_url = "https://app.vagrantup.com/opensuse/boxes/Tumbleweed.x86_64"
+  config.vm.host_name = "omnidbuatopensuse"
   config.vm.provider :virtualbox do |vb|
-    vb.name = "omnidb_uat_fedora30"
+    vb.name = "omnidb_uat_opensuse"
     vb.gui = true
     vb.memory = 2048
     vb.cpus = 2

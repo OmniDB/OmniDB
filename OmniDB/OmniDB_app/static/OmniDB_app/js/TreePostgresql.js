@@ -1804,6 +1804,19 @@ function getTreePostgresql(p_div) {
                                 '')));
                 }
             }, {
+                text: 'Cluster Index',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate('Cluster Index', node.tree.tag
+                        .cluster_index.replace(
+                            '#table_name#', node.tag.schema + '.' + node.parent.parent
+                            .text).replace('#index_name#',
+                            node.tag.schema + '.' +
+                            node.text.replace(' (Unique)',
+                                '').replace(' (Non Unique)',
+                                '')));
+                }
+            }, {
                 text: 'Drop Index',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -4194,6 +4207,7 @@ function getTreeDetailsPostgresql(node) {
                 drop_foreignkey: p_return.v_data.v_database_return.drop_foreignkey,
                 create_index: p_return.v_data.v_database_return.create_index,
                 alter_index: p_return.v_data.v_database_return.alter_index,
+                cluster_index: p_return.v_data.v_database_return.cluster_index,
                 drop_index: p_return.v_data.v_database_return.drop_index,
                 create_check: p_return.v_data.v_database_return.create_check,
                 drop_check: p_return.v_data.v_database_return.drop_check,

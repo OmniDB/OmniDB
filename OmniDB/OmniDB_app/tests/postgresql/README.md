@@ -36,6 +36,7 @@ pg_ctlcluster 9.5 main start
 pg_ctlcluster 9.6 main start
 pg_ctlcluster 10 main start
 pg_ctlcluster 11 main start
+pg_ctlcluster 12 main start
 ```
 
 Also inside the container, restore the sample database:

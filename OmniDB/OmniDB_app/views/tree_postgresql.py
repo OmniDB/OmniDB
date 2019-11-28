@@ -92,6 +92,7 @@ def get_tree_info(request):
                 'drop_foreignkey': v_database.TemplateDropForeignKey().v_text,
                 'create_index': v_database.TemplateCreateIndex().v_text,
                 'alter_index': v_database.TemplateAlterIndex().v_text,
+                'cluster_index': v_database.TemplateClusterIndex().v_text,
                 'drop_index': v_database.TemplateDropIndex().v_text,
                 'create_check': v_database.TemplateCreateCheck().v_text,
                 'drop_check': v_database.TemplateDropCheck().v_text,

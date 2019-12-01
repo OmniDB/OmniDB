@@ -1588,6 +1588,41 @@ function showMenuNewTab(e) {
 		}
 	]
 
+	if (v_connTabControl.selectedTab.tag.selectedDBMS == 'postgresql') {
+		var v_openTabAdvancedObjectSearch = function() {
+			execAjax('/get_postgresql_version/',
+				JSON.stringify({
+					'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					'p_tab_id': v_connTabControl.selectedTab.id
+				}),
+				function(p_return) {
+					tabAdvancedObjectSearch(parseInt(getMajorVersionPostgresql(p_return.v_data.v_version)));
+				},
+				function(p_return) {
+					if (p_return.v_data.password_timeout) {
+						showPasswordPrompt(
+							v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+							function() {
+								v_openTabAdvancedObjectSearch();
+							},
+							null,
+							p_return.v_data.message
+						);
+					}
+				},
+				'box'
+			);
+		};
+
+		v_option_list.push(
+			{
+				text: 'Advanced Object Search',
+				icon: 'fas cm-all fa-binoculars',
+				action: v_openTabAdvancedObjectSearch
+			}
+		);
+	}
+
 	if (v_connTabControl.selectedTab.tag.selectedDBMS=='postgresql' ||
 			v_connTabControl.selectedTab.tag.selectedDBMS=='mysql' ||
 			v_connTabControl.selectedTab.tag.selectedDBMS=='mariadb') {

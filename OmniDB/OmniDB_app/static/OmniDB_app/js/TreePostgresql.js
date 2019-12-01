@@ -45,7 +45,7 @@ function tabSQLTemplate(p_tab_name, p_template, p_showTip=true) {
     }
 }
 
-function tabAdvancedObjectSearch(node) {
+function tabAdvancedObjectSearch(p_majorVersion) {
     var v_name = 'Advanced Object Search';
 
     v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl
@@ -221,7 +221,7 @@ function tabAdvancedObjectSearch(node) {
     v_optionsContainerDiv.style.padding = '10px';
     v_containerDiv.appendChild(v_optionsContainerDiv);
 
-    if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
+    if (p_majorVersion >= 10) {
       var v_optionList = [{
               'text': 'Data',
               'value': 1
@@ -344,7 +344,7 @@ function tabAdvancedObjectSearch(node) {
               'value': 40
           }
       ];
-    } else if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
+  } else if (p_majorVersion >= 10) {
       var v_optionList = [{
               'text': 'Data',
               'value': 1
@@ -1070,10 +1070,10 @@ function getTreePostgresql(p_div) {
                 }
             }, {
                 text: 'Advanced Object Search',
-                icon: 'fas cm-all fa-search',
+                icon: 'fas cm-all fa-binoculars',
                 action: function(node) {
                   checkCurrentDatabase(node, true, function() {
-                      tabAdvancedObjectSearch(node);
+                      tabAdvancedObjectSearch(parseInt(getMajorVersionPostgresql(node.tree.tag.version)));
                   }, function() {
                       node.collapseNode();
                   })

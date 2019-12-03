@@ -71,6 +71,7 @@ var v_client_tooltip_timer = null;
 
 //Ping timer
 var v_client_ping_timer = null;
+var v_client_ping_response_timer = null;
 
 /// <summary>
 /// The variable that will receive the WebSocket object.
@@ -97,9 +98,9 @@ function setStatusIcon(p_mode) {
 
 //
 function websocketPing() {
-	setTimeout( function() {
+	v_client_ping_timer = setTimeout( function() {
 		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Ping, null, false);
-		v_client_ping_timer = setTimeout(function() {
+		v_client_ping_response_timer = setTimeout(function() {
 			try {
 				v_queryWebSocket.close();
 			}
@@ -114,12 +115,8 @@ function websocketPing() {
 
 function websocketPong() {
 	clearTimeout(v_client_ping_timer);
-	setTimeout( function() {
-		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Ping, null, false);
-		v_client_ping_timer = setTimeout(function() {
-			websocketClosed();
-		},20000);
-	},120000);
+	clearTimeout(v_client_ping_response_timer);
+	websocketPing();
 
 }
 
@@ -128,6 +125,10 @@ function websocketPong() {
 /// </summary>
 /// <param name="p_port">Port where chat will listen for connections.</param>
 function startQueryWebSocket(p_port) {
+
+	clearTimeout(v_client_ping_timer);
+	clearTimeout(v_client_ping_response_timer);
+
 
 	setStatusIcon(1);
 

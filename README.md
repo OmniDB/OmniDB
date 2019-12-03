@@ -13,8 +13,9 @@
   - Added SQL template for Cluster Index, accessible from context menu in TreeView.
   - Added Advanced Object Search as an option in Inner Tab context menu.
 - Bug fixes:
-  - Server ping causing peaks of false positives in moments of brief network interruption or idle activities, or when the notebook running OmniDB was put to sleep.
-  - Render issue with graph chart type.
+  - Fixed: Server ping causing peaks of false positives in moments of brief network interruption or idle activities, or when the notebook running OmniDB was put to sleep.
+  - Fixed: Render issue with graph chart type.
+  - Fixed: Permission issue to install OmniDB plugins on Linux.
 
 **Full Documentation**: https://omnidb.readthedocs.io
 

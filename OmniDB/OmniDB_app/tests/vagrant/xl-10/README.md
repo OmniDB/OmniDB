@@ -1,6 +1,6 @@
 ## Introduction
 
-This creates a Postgres-XL 9.5 cluster with 4 nodes:
+This creates a Postgres-XL 10 cluster with 4 nodes:
 
 - xlgtm: 10.33.1.114
 - xlcoord: 10.33.1.115

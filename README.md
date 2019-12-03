@@ -7,12 +7,14 @@
 ## Release Notes
 
 - New features:
-  - Support to PostgreSQL 12
+  - Support to PostgreSQL 12.
 - Improvements:
-  - Table DDL panel shows generated columns
-  - Added SQL template for Cluster Index, accessible from context menu in TreeView
+  - Table DDL panel shows generated columns.
+  - Added SQL template for Cluster Index, accessible from context menu in TreeView.
+  - Added Advanced Object Search as an option in Inner Tab context menu.
 - Bug fixes:
-
+  - Server ping causing peaks of false positives in moments of brief network interruption or idle activities, or when the notebook running OmniDB was put to sleep.
+  - Render issue with graph chart type.
 
 **Full Documentation**: https://omnidb.readthedocs.io
 

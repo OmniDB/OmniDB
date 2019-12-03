@@ -54,27 +54,12 @@ $(function () {
 	    <div class="welcome_release_container">
 	      <ul class="welcome_release_list">
 
-					<li class="welcome_release_item"><span>Monitoring Dashboard: Graph monitor unit type</span></li>
-					<li class="welcome_release_item"><span>Monitoring Dashboard: New standard units: TPS, WAL Production and Replication Graph</span></li>
-					<li class="welcome_release_item"><span>PostgreSQL TreeView: New groups for partitioned and inherited tables</span></li>
-					<li class="welcome_release_item"><span>PostgreSQL Debugger Plugin: Support for PostgreSQL running on OSX</span></li>
-					<li class="welcome_release_item"><span>Server: Support to run OmniDB on a custom URL path</span></li>
-					<li class="welcome_release_item"><span>Snippets: Run Snippet in Connection</span></li>
-					<li class="welcome_release_item"><span>Add Connection list in (+) menu of outer tabs</span></li>
-					<li class="welcome_release_item"><span>Show red X on tabs only on mouse hover</span></li>
-					<li class="welcome_release_item"><span>Color icons in Dark Theme</span></li>
-					<li class="welcome_release_item"><span>Release Notes outer tab now stay closed and only open upon next upgrade</span></li>
-					<li class="welcome_release_item"><span>Included procedures in Advanced Object Search for PostgreSQL 11</span></li>
-					<li class="welcome_release_item"><span>OmniDB server and PostgreSQL debugger plugin packages under Debian PGDG repository (thanks to Christoph Berg @df7cb )</span></li>
-					<li class="welcome_release_item"><span>Fixed #768: Monitoring - some units fail on a standby server</span></li>
-					<li class="welcome_release_item"><span>Fixed #836: SELECT ... INTO is not allowed here</span></li>
-					<li class="welcome_release_item"><span>Fixed #845: Partitioned relation indexes</span></li>
-					<li class="welcome_release_item"><span>Fixed #938: Password in connection string not used</span></li>
-					<li class="welcome_release_item"><span>Fixed #940: Unable to change column width of query results</span></li>
-					<li class="welcome_release_item"><span>Fixed #960: Snippet TreeView not rendering properly</span></li>
-					<li class="welcome_release_item"><span>Fixed #970: Focus on change Query Tab names</span></li>
-					<li class="welcome_release_item"><span>Fixed #981: Updatable chart titles</span></li>
-					<li class="welcome_release_item"><span>Fixed #990: Cleanup of inactive web socket clients</span></li>
+					<li class="welcome_release_item"><span>Support to PostgreSQL 12.</span></li>
+					<li class="welcome_release_item"><span>Table DDL panel shows generated columns.</span></li>
+					<li class="welcome_release_item"><span>Added SQL template for Cluster Index, accessible from context menu in TreeView.</span></li>
+					<li class="welcome_release_item"><span>Added Advanced Object Search as an option in Inner Tab context menu.</span></li>
+					<li class="welcome_release_item"><span>Server ping causing peaks of false positives in moments of brief network interruption or idle activities, or when the notebook running OmniDB was put to sleep.</span></li>
+					<li class="welcome_release_item"><span>Render issue with graph chart type.</span></li>
 
 	      </ul>
 	    </div>

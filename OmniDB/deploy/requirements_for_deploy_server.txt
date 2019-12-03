@@ -1,2 +1,2 @@
-CherryPy>=11.0.0
-PyInstaller>=3.2.1
+CherryPy==18.1.1
+PyInstaller==3.5

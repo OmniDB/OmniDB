@@ -123,6 +123,14 @@ Description: OmniDB is a web tool that simplifies database management focusing o
  Plugin package includes a PostgreSQL plugin to enable PLpgSQL function debugger.
  OmniDB is supported by 2ndQuadrant (http://www.2ndquadrant.com)
 EOF
+cat > DEBIAN/postinst << EOF
+#!/bin/bash
+chmod 777 /opt/omnidb-app/resources/app/omnidb-server/OmniDB_app/static/temp/
+chmod 777 /opt/omnidb-app/resources/app/omnidb-server/OmniDB_app/static/plugins/
+chmod 777 /opt/omnidb-app/resources/app/omnidb-server/OmniDB_app/plugins/
+chmod 777 /opt/omnidb-app/resources/app/omnidb-server/OmniDB_app/plugins/temp_loaded
+EOF
+chmod 755 DEBIAN/postinst
 cd ..
 dpkg -b omnidb-app_$VERSION-$ARCH
 echo "Done"

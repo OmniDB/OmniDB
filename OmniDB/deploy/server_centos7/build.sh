@@ -37,6 +37,9 @@ mkdir deploy/packages
 cp dist/omnidb-config/omnidb-config dist/omnidb-server/omnidb-config-server
 mv dist/omnidb-server deploy/packages
 chmod 777 deploy/packages/omnidb-server/OmniDB_app/static/temp/
+chmod 777 deploy/packages/omnidb-server/OmniDB_app/static/plugins/
+chmod 777 deploy/packages/omnidb-server/OmniDB_app/plugins/
+chmod 777 deploy/packages/omnidb-server/OmniDB_app/plugins/temp_loaded/
 rm -rf dist
 echo "Done."
 

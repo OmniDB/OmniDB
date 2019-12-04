@@ -8,9 +8,8 @@ SHELL ["/bin/bash", "-c"]
 
 RUN yum -y update \
  && yum -y install epel-release \
- && yum install -y gcc gcc-c++ make git patch rpm-build \
+ && yum -y install gcc gcc-c++ make git patch rpm-build \
  && rpm -ivh https://download.postgresql.org/pub/repos/yum/reporpms/EL-6-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
- && yum -y check-update \
  && yum -y install postgresql94 postgresql94-server postgresql94-libs postgresql94-contrib postgresql94-devel \
  && yum -y install postgresql95 postgresql95-server postgresql95-libs postgresql95-contrib postgresql95-devel \
  && yum -y install postgresql96 postgresql96-server postgresql96-libs postgresql96-contrib postgresql96-devel \

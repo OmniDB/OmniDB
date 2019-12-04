@@ -3,6 +3,12 @@
 VERSION=2.17.0
 ARCH=centos-amd64
 
+echo "Downgrading Django version..."
+# See https://code.djangoproject.com/ticket/29624
+#   and https://github.com/OmniDB/OmniDB/issues/808
+sed -i -e "s/Django==2.1.11/Django==2.0.13/" ~/OmniDB/requirements.txt
+echo "Done"
+
 echo "Installing OmniDB dependencies..."
 pip install pip --upgrade
 pip install setuptools --upgrade

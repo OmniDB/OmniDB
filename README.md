@@ -14,6 +14,7 @@
   - Added Advanced Object Search as an option in Inner Tab context menu.
 - Bug fixes:
   - Fixed: Server ping causing peaks of false positives in moments of brief network interruption or idle activities, or when the notebook running OmniDB was put to sleep.
+  - Fixed: High CPU usage when SSH console is being used and tunnel gets closed.
   - Fixed: Render issue with graph chart type.
   - Fixed: Permission issue to install OmniDB plugins on Linux.
 

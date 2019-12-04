@@ -59,6 +59,7 @@ $(function () {
 					<li class="welcome_release_item"><span>Added SQL template for Cluster Index, accessible from context menu in TreeView.</span></li>
 					<li class="welcome_release_item"><span>Added Advanced Object Search as an option in Inner Tab context menu.</span></li>
 					<li class="welcome_release_item"><span>Fixed: Server ping causing peaks of false positives in moments of brief network interruption or idle activities, or when the notebook running OmniDB was put to sleep.</span></li>
+					<li class="welcome_release_item"><span>Fixed: High CPU usage when SSH console is being used and tunnel gets closed.</span></li>
 					<li class="welcome_release_item"><span>Fixed: Render issue with graph chart type.</span></li>
 					<li class="welcome_release_item"><span>Fixed: Permission issue to install OmniDB plugins on Linux.</span></li>
 

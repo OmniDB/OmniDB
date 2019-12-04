@@ -47,7 +47,7 @@ cp dist/omnidb-config/omnidb-config dist/omnidb-server/omnidb-config-server
 chmod 777 dist/omnidb-server/OmniDB_app/static/temp/
 chmod 777 dist/omnidb-server/OmniDB_app/static/plugins/
 chmod 777 dist/omnidb-server/OmniDB_app/plugins/
-chmod 777 dist/omnidb-server/OmniDB_app/plugins/temp_loaded
+chmod 777 dist/omnidb-server/OmniDB_app/plugins/temp_loaded/
 rm -rf ~/OmniDB/omnidb_app/omnidb-server
 mv dist/omnidb-server ~/OmniDB/omnidb_app
 rm -rf dist
@@ -128,7 +128,7 @@ cat > DEBIAN/postinst << EOF
 chmod 777 /opt/omnidb-app/resources/app/omnidb-server/OmniDB_app/static/temp/
 chmod 777 /opt/omnidb-app/resources/app/omnidb-server/OmniDB_app/static/plugins/
 chmod 777 /opt/omnidb-app/resources/app/omnidb-server/OmniDB_app/plugins/
-chmod 777 /opt/omnidb-app/resources/app/omnidb-server/OmniDB_app/plugins/temp_loaded
+chmod 777 /opt/omnidb-app/resources/app/omnidb-server/OmniDB_app/plugins/temp_loaded/
 EOF
 chmod 755 DEBIAN/postinst
 cd ..

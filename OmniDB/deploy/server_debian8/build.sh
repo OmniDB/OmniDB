@@ -39,7 +39,7 @@ mv dist/omnidb-server deploy/packages
 chmod 777 deploy/packages/omnidb-server/OmniDB_app/static/temp/
 chmod 777 deploy/packages/omnidb-server/OmniDB_app/static/plugins/
 chmod 777 deploy/packages/omnidb-server/OmniDB_app/plugins/
-chmod 777 deploy/packages/omnidb-server/OmniDB_app/plugins/temp_loaded
+chmod 777 deploy/packages/omnidb-server/OmniDB_app/plugins/temp_loaded/
 rm -rf dist
 echo "Done."
 
@@ -119,7 +119,7 @@ cat > DEBIAN/postinst << EOF
 chmod 777 /opt/omnidb-server/OmniDB_app/static/temp/
 chmod 777 /opt/omnidb-server/OmniDB_app/static/plugins/
 chmod 777 /opt/omnidb-server/OmniDB_app/plugins/
-chmod 777 /opt/omnidb-server/OmniDB_app/plugins/temp_loaded
+chmod 777 /opt/omnidb-server/OmniDB_app/plugins/temp_loaded/
 systemctl daemon-reload
 systemctl enable omnidb
 systemctl start omnidb

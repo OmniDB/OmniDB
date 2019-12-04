@@ -116,6 +116,10 @@ EOF
 chmod 755 DEBIAN/preinst
 cat > DEBIAN/postinst << EOF
 #!/bin/bash
+chmod 777 /opt/omnidb-server/OmniDB_app/static/temp/
+chmod 777 /opt/omnidb-server/OmniDB_app/static/plugins/
+chmod 777 /opt/omnidb-server/OmniDB_app/plugins/
+chmod 777 /opt/omnidb-server/OmniDB_app/plugins/temp_loaded
 systemctl daemon-reload
 systemctl enable omnidb
 systemctl start omnidb

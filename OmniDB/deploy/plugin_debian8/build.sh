@@ -9,12 +9,6 @@ echo -n "Cleaning... "
 rm -f *.o
 echo "Done."
 
-echo "Compiling for 9.3... "
-rm -f *.o
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/9.3/server
-gcc -fPIC -o omnidb_plugin_93.so omnidb_plugin.o -lpq -shared
-echo "Done."
-
 echo "Compiling for 9.4... "
 rm -f *.o
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/9.4/server
@@ -43,6 +37,12 @@ echo "Compiling for 11... "
 rm -f *.o
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/11/server
 gcc -fPIC -o omnidb_plugin_11.so omnidb_plugin.o -lpq -shared
+echo "Done."
+
+echo "Compiling for 12... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -lpq -I /usr/include/postgresql -I /usr/include/postgresql/12/server
+gcc -fPIC -o omnidb_plugin_12.so omnidb_plugin.o -lpq -shared
 echo "Done."
 
 echo -n "Cleaning... "

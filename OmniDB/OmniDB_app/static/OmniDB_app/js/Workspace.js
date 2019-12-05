@@ -1,13 +1,26 @@
 /*
-Copyright 2015-2017 The OmniDB Team
+The MIT License (MIT)
 
-This file is part of OmniDB.
+Portions Copyright (c) 2015-2019, The OmniDB Team
+Portions Copyright (c) 2017-2019, 2ndQuadrant Limited
 
-OmniDB is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
 var v_browserTabActive = true;
@@ -41,27 +54,14 @@ $(function () {
 	    <div class="welcome_release_container">
 	      <ul class="welcome_release_list">
 
-					<li class="welcome_release_item"><span>Monitoring Dashboard: Graph monitor unit type</span></li>
-					<li class="welcome_release_item"><span>Monitoring Dashboard: New standard units: TPS, WAL Production and Replication Graph</span></li>
-					<li class="welcome_release_item"><span>PostgreSQL TreeView: New groups for partitioned and inherited tables</span></li>
-					<li class="welcome_release_item"><span>PostgreSQL Debugger Plugin: Support for PostgreSQL running on OSX</span></li>
-					<li class="welcome_release_item"><span>Server: Support to run OmniDB on a custom URL path</span></li>
-					<li class="welcome_release_item"><span>Snippets: Run Snippet in Connection</span></li>
-					<li class="welcome_release_item"><span>Add Connection list in (+) menu of outer tabs</span></li>
-					<li class="welcome_release_item"><span>Show red X on tabs only on mouse hover</span></li>
-					<li class="welcome_release_item"><span>Color icons in Dark Theme</span></li>
-					<li class="welcome_release_item"><span>Release Notes outer tab now stay closed and only open upon next upgrade</span></li>
-					<li class="welcome_release_item"><span>Included procedures in Advanced Object Search for PostgreSQL 11</span></li>
-					<li class="welcome_release_item"><span>OmniDB server and PostgreSQL debugger plugin packages under Debian PGDG repository (thanks to Christoph Berg @df7cb )</span></li>
-					<li class="welcome_release_item"><span>Fixed #768: Monitoring - some units fail on a standby server</span></li>
-					<li class="welcome_release_item"><span>Fixed #836: SELECT ... INTO is not allowed here</span></li>
-					<li class="welcome_release_item"><span>Fixed #845: Partitioned relation indexes</span></li>
-					<li class="welcome_release_item"><span>Fixed #938: Password in connection string not used</span></li>
-					<li class="welcome_release_item"><span>Fixed #940: Unable to change column width of query results</span></li>
-					<li class="welcome_release_item"><span>Fixed #960: Snippet TreeView not rendering properly</span></li>
-					<li class="welcome_release_item"><span>Fixed #970: Focus on change Query Tab names</span></li>
-					<li class="welcome_release_item"><span>Fixed #981: Updatable chart titles</span></li>
-					<li class="welcome_release_item"><span>Fixed #990: Cleanup of inactive web socket clients</span></li>
+					<li class="welcome_release_item"><span>Support to PostgreSQL 12.</span></li>
+					<li class="welcome_release_item"><span>Table DDL panel shows generated columns.</span></li>
+					<li class="welcome_release_item"><span>Added SQL template for Cluster Index, accessible from context menu in TreeView.</span></li>
+					<li class="welcome_release_item"><span>Added Advanced Object Search as an option in Inner Tab context menu.</span></li>
+					<li class="welcome_release_item"><span>Fixed: Server ping causing peaks of false positives in moments of brief network interruption or idle activities, or when the notebook running OmniDB was put to sleep.</span></li>
+					<li class="welcome_release_item"><span>Fixed: High CPU usage when SSH console is being used and tunnel gets closed.</span></li>
+					<li class="welcome_release_item"><span>Fixed: Render issue with graph chart type.</span></li>
+					<li class="welcome_release_item"><span>Fixed: Permission issue to install OmniDB plugins on Linux.</span></li>
 
 	      </ul>
 	    </div>
@@ -1574,6 +1574,41 @@ function showMenuNewTab(e) {
 			}
 		}
 	]
+
+	if (v_connTabControl.selectedTab.tag.selectedDBMS == 'postgresql') {
+		var v_openTabAdvancedObjectSearch = function() {
+			execAjax('/get_postgresql_version/',
+				JSON.stringify({
+					'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					'p_tab_id': v_connTabControl.selectedTab.id
+				}),
+				function(p_return) {
+					tabAdvancedObjectSearch(parseInt(getMajorVersionPostgresql(p_return.v_data.v_version)));
+				},
+				function(p_return) {
+					if (p_return.v_data.password_timeout) {
+						showPasswordPrompt(
+							v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+							function() {
+								v_openTabAdvancedObjectSearch();
+							},
+							null,
+							p_return.v_data.message
+						);
+					}
+				},
+				'box'
+			);
+		};
+
+		v_option_list.push(
+			{
+				text: 'Advanced Object Search',
+				icon: 'fas cm-all fa-binoculars',
+				action: v_openTabAdvancedObjectSearch
+			}
+		);
+	}
 
 	if (v_connTabControl.selectedTab.tag.selectedDBMS=='postgresql' ||
 			v_connTabControl.selectedTab.tag.selectedDBMS=='mysql' ||

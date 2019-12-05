@@ -2,44 +2,25 @@
 
 https://github.com/OmniDB/OmniDB/issues/1067
 
-## Next Release: *2.17.0 - Dec 05, 2019*
+## Next Release: *To be defined.*
 
-# OmniDB 2.16.0
+# OmniDB 2.17.0
 
-## Release Date: *June 13, 2019*
+## Release Date: *December 5, 2019*
 
 ## Release Notes
 
 - New features:
-  - Monitoring Dashboard: Graph monitor unit type
-  - Monitoring Dashboard: New standard units: TPS, WAL Production and Replication Graph
-  - PostgreSQL TreeView: New groups for partitioned and inherited tables
-  - PostgreSQL Debugger Plugin: Support for PostgreSQL running on OSX
-  - Server: Support to run OmniDB on a custom URL path
-  - Snippets: Run Snippet in Connection
+  - Support to PostgreSQL 12.
 - Improvements:
-  - UI usability:
-    - Add Connection list in (+) menu of outer tabs
-    - Show red X on tabs only on mouse hover
-    - Color icons in Dark Theme
-    - Release Notes outer tab now stay closed and only open upon next upgrade
-  - Other improvements:
-    - Included procedures in Advanced Object Search for PostgreSQL 11
-- Important changes:
-  - PostgreSQL Debugger Plugin: Requires a host connection on all platforms
-- Deployment:
-  - OmniDB server and PostgreSQL debugger plugin packages under Debian PGDG repository (thanks to Christoph Berg @df7cb )
+  - Table DDL panel shows generated columns.
+  - Added SQL template for Cluster Index, accessible from context menu in TreeView.
+  - Added Advanced Object Search as an option in Inner Tab context menu.
 - Bug fixes:
-  - Fixed #768: Monitoring - some units fail on a standby server
-  - Fixed #836: SELECT ... INTO is not allowed here
-  - Fixed #845: Partitioned relation indexes
-  - Fixed #938: Password in connection string not used
-  - Fixed #940: Unable to change column width of query results
-  - Fixed #960: Snippet TreeView not rendering properly
-  - Fixed #970: Focus on change Query Tab names
-  - Fixed #981: Updatable chart titles
-  - Fixed #990: Cleanup of inactive web socket clients
-
+  - Fixed: Server ping causing peaks of false positives in moments of brief network interruption or idle activities, or when the notebook running OmniDB was put to sleep.
+  - Fixed: High CPU usage when SSH console is being used and tunnel gets closed.
+  - Fixed: Render issue with graph chart type.
+  - Fixed: Permission issue to install OmniDB plugins on Linux.
 
 **Full Documentation**: https://omnidb.readthedocs.io
 

@@ -17,6 +17,7 @@
   - Fixed: High CPU usage when SSH console is being used and tunnel gets closed.
   - Fixed: Render issue with graph chart type.
   - Fixed: Permission issue to install OmniDB plugins on Linux.
+  - Fixed: SQLite dependency issue on CentOS 6.
 
 **Full Documentation**: https://omnidb.readthedocs.io
 

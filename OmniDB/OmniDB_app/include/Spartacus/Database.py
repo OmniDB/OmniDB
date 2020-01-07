@@ -26,6 +26,7 @@ from collections import OrderedDict
 from abc import ABC, abstractmethod
 import datetime
 import decimal
+import json
 import math
 
 import OmniDB_app.include.Spartacus as Spartacus
@@ -324,6 +325,35 @@ class DataTable(object):
                 raise Spartacus.Database.Exception('Can not compare tables with different columns.')
         else:
             raise Spartacus.Database.Exception('Can not compare tables with no columns.')
+    def Jsonify(self):
+        if self.Simple:
+            if len(self.Rows) > 0:
+                if isinstance(self.Rows[0], OrderedDict):
+                    return json.dumps(self.Rows)
+                else:
+                    v_table = []
+                    for r in self.Rows:
+                        v_row = []
+                        for c in range(0, len(self.Columns)):
+                            v_row.append(r[c])
+                        v_table.append(OrderedDict(zip(self.Columns, tuple(v_row))))
+                    return json.dumps(v_table)
+            else:
+                return json.dumps(self.Rows)
+        else:
+            if len(self.Rows) > 0:
+                if isinstance(self.Rows[0], OrderedDict):
+                    return json.dumps(self.Rows)
+                else:
+                    v_table = []
+                    for r in self.Rows:
+                        v_row = []
+                        for c in self.Columns:
+                            v_row.append(r[c])
+                        v_table.append(OrderedDict(zip(self.Columns, tuple(v_row))))
+                    return json.dumps(v_table)
+            else:
+                return json.dumps(self.Rows)
     def Pretty(self, p_transpose=False):
         if self.Simple:
             if p_transpose:

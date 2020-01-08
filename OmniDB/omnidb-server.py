@@ -221,6 +221,7 @@ def check_port(port):
     try:
         s.bind(("127.0.0.1", port))
     except socket.error as e:
+        print(str(e))
         return False
     s.close()
     return True

@@ -6505,7 +6505,7 @@ DROP COLUMN #column_name#
                    n.nspname as "Schema",
                    t.typname as "Internal Type Name",
                    format_type(t.oid, null) as "SQL Type Name",
-                   oid as "OID",
+                   t.oid as "OID",
                    r.rolname as "Owner",
                    (case when t.typlen = -2 then 'Variable (null-terminated C string)'
                          when t.typlen = -1 then 'Variable (varlena type)'

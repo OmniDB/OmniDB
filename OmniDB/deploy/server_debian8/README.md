@@ -3,7 +3,7 @@
 Download Debian 8 base image:
 
 ```
-docker pull debian:oldstable-slim
+docker pull debian:jessie-slim
 ```
 
 For more information about Debian official docker images, please check here:

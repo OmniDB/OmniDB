@@ -20,11 +20,14 @@ group.add_option("-a", "--vacuum", dest="vacuum",
                   default=False, action="store_true",
                   help="databases maintenance")
 group.add_option("-r", "--resetdatabase", dest="reset",
-                  default=False,action="store_true",
+                  default=False, action="store_true",
                   help="reset user and session databases")
 group.add_option("-t", "--deletetemp", dest="deletetemp",
-                  default=False,action="store_true",
+                  default=False, action="store_true",
                   help="delete temporary files")
+group.add_option("-j", "--jsonoutput", dest="jsonoutput",
+                  default=False, action="store_true",
+                  help="format list output as json")
 parser.add_option_group(group)
 
 group = optparse.OptionGroup(parser, "User Management Options",
@@ -178,7 +181,10 @@ def list_users():
             from users
             order by user_id
         ''')
-        print(v_table.Pretty())
+        if options.jsonoutput:
+            print(v_table.Jsonify())
+        else:
+            print(v_table.Pretty())
     except Exception as exc:
         print('Error:')
         print(exc)
@@ -275,7 +281,10 @@ def list_connections(p_user):
             v_row['port'] = v_cryptor.Decrypt(v_row['port'])
             v_row['database'] = v_cryptor.Decrypt(v_row['database'])
             v_row['dbuser'] = v_cryptor.Decrypt(v_row['dbuser'])
-        print(v_table.Pretty())
+        if options.jsonoutput:
+            print(v_table.Jsonify())
+        else:
+            print(v_table.Pretty())
     except Exception as exc:
         print('Error:')
         print(exc)

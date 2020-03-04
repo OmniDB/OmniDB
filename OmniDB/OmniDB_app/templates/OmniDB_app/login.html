@@ -4,28 +4,31 @@
 
 	<link rel="shortcut icon" type="image/x-icon" href="{{url_folder}}/static/OmniDB_app/images/favicon.ico" />
 
-	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/login.css?v2.16.0.1"/>
+	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/login.css?v2.17.0.0"/>
 </head>
 <body>
 	<div id="div_form">
 		<div class="loginWrap">
 			<div id="div_time">
 				<div class="logo">
-					<img src="{{url_folder}}/static/OmniDB_app/images/omnidb_big_2.png">
+					{% include 'OmniDB_app/animated_assets/animated_logo_omnidb.svg' %}
 				</div>
 				<div class="version">
 					<small>v{{ omnidb_short_version }}</small>
 				</div>
 			</div>
-			<div id="userBox" class="inputWrap">
-				<label id="user_title">user</label>
-				<input id="txt_user" type="text" placeholder="user" onfocus="this.parentElement.classList.add('isActive')" onblur="this.parentElement.classList.remove('isActive')" onkeydown="if (event.keyCode == 13) signIn();">
+
+			<div class="loginWrap-body">
+				<div id="userBox" class="inputWrap">
+					<label id="user_title">user</label>
+					<input id="txt_user" type="text" placeholder="user" onfocus="this.parentElement.classList.add('isActive')" onblur="this.parentElement.classList.remove('isActive')" onkeydown="if (event.keyCode == 13) signIn();">
+				</div>
+				<div id="pwdBox" class="inputWrap">
+					<label id="pwd_title">pwd</label>
+					<input id="txt_pwd" type="password" placeholder="password" onfocus="this.parentElement.classList.add('isActive')" onblur="this.parentElement.classList.remove('isActive')" onkeydown="if (event.keyCode == 13) signIn();">
+				</div>
+				<button onclick="signIn()">Sign in</button>
 			</div>
-			<div id="pwdBox" class="inputWrap">
-				<label id="pwd_title">pwd</label>
-				<input id="txt_pwd" type="password" placeholder="password" onfocus="this.parentElement.classList.add('isActive')" onblur="this.parentElement.classList.remove('isActive')" onkeydown="if (event.keyCode == 13) signIn();">
-			</div>
-			<button onclick="signIn()">Sign in</button>
 		</div>
 	</div>
 

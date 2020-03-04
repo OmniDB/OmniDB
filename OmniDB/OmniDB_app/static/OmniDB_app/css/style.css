@@ -807,6 +807,16 @@ iframe {
   justify-content: center;
 }
 
+.box_color {
+  background-color: #f9f9f9;
+  border: 1px solid #d8d8d8;
+}
+
+.box_color2 {
+  background-color: #f3f3f3;
+  border: 1px solid #d8d8d8;
+}
+
 .dashboard_unit {
   position: relative;
   margin: 10px 10px;

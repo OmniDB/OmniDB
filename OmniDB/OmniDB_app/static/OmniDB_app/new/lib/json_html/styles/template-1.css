@@ -1,0 +1,51 @@
+.jsonBuilder--template-1 .jsonBuilder__ul {
+  padding-left: 15px;
+  position: relative;
+}
+
+.jsonBuilder--template-1 .jsonBuilder__li {
+  position: relative;
+}
+
+.jsonBuilder--template-1 .jsonBuilder__li::before {
+  border-right: 1px dotted #d2d2d2;
+  content: " ";
+  display: block;
+  height: calc(100% - 2px);
+  left: -14px;
+  top: 12px;
+  position: absolute;
+  width: 1px;
+}
+
+.jsonBuilder--template-1 .jsonBuilder__li .jsonBuilder__li::after {
+    display: block;
+    content: " ";
+    width: 10px;
+    height: 1px;
+    border-bottom: 1px dotted #d2d2d2;
+    position: absolute;
+    top: 12px;
+    left: -27px;
+}
+
+.jsonBuilder--template-1 .jsonBuilder__li:last-child::before {
+  /* display: none; */
+}
+
+.jsonBuilder--template-1 .jsonBuilder__label {
+  color: #919191;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.jsonBuilder--template-1 .jsonBuilder__li-value {
+  color: #444;
+  display: block;
+  font-weight: bold;
+}
+
+.jsonBuilder--template-1 .jsonBuilder__type,
+.jsonBuilder--template-1 .jsonBuilder__counter {
+  opacity: 0.7;
+}

@@ -303,15 +303,17 @@ function monitorStatusRenderer(instance, td, row, col, prop, value, cellProperti
 	  else {
 	  	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
 	  }
-		if (value == 'UNKNOWN')
-  		td.style.background = 'rgb(249, 195, 255)';
-		else if (value == 'OK')
-			td.style.background = 'rgb(200, 255, 195)';
-		else if (value == 'WARNING')
-			td.style.background = 'rgb(255, 252, 195)';
-		else if (value == 'CRITICAL')
-			td.style.background = 'rgb(255, 195, 195)';
-		else
-			td.style.background = 'rgb(242, 242, 242)';
+		if (value == 'unknown')
+  		td.setAttribute('style', 'background-color: rgb(165, 84, 175) !important');
+		else if (value == 'ok' || value == 'recovery')
+			td.setAttribute('style', 'background-color: rgb(74, 183, 65) !important');
+		else if (value == 'warning')
+			td.setAttribute('style', 'background-color: rgb(255, 161, 45) !important');
+		else if (value == 'critical')
+			td.setAttribute('style', 'background-color: rgb(232, 79, 79) !important');
+
+		td.style.color = 'white';
+		td.style['text-align'] = 'center';
+
 
 }

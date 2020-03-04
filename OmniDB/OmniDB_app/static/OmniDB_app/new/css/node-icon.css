@@ -1,0 +1,312 @@
+/*
+Copyright 2015-2017 The OmniDB Team
+
+This file is part of OmniDB.
+
+OmniDB is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
+*/
+.node-all {
+  color: #22477d;
+}
+
+.cm-all {
+  color: #3e9dfb;
+  font-size: 16px;
+}
+
+.node-spin {
+  background-image: url("../../../static/OmniDB_app/images/omnidb_loading.svg");
+  background-size: 16px;
+}
+
+.node-postgresql {
+  background-image: url( "../../../static/OmniDB_app/images/postgresql_medium.png")
+}
+
+.node-oracle {
+  background-image: url("../../../static/OmniDB_app/images/oracle_medium.png")
+}
+
+.node-mysql {
+  background-image: url("../../../static/OmniDB_app/images/mysql_medium.png")
+}
+
+.node-mariadb {
+  background-image: url("../../../static/OmniDB_app/images/mariadb_medium.png")
+}
+
+.aimara-expand {
+  background-image: url("../../../static/OmniDB_app/images/expand.png")
+}
+
+.aimara-collapse {
+  background-image: url("../../../static/OmniDB_app/images/collapse.png")
+}
+
+.node-error {
+  color: #d85656;
+}
+
+.node-keyword {
+  color: #cc933f;
+}
+
+.node-database-list {
+  color: #3e9dfb;
+}
+
+.node-database {
+  color: #3e9dfb;
+}
+
+.node-snippet-list {
+  color: #3e9dfb;
+}
+
+.node-snippet-folder {
+  color: #5078b3;
+}
+
+.node-snippet-snippet {
+  color: #2bb79c;
+}
+
+.node-tablespace-list {
+  color: #5078b3;
+}
+
+.node-tablespace {
+  color: #5078b3;
+}
+
+.node-check-value {
+  color: #5078b3;
+}
+
+.node-user-list {
+  color: #2bb79c;
+}
+
+.node-user {
+  color: #2bb79c;
+}
+
+.node-repslot-list {
+  color: #f59825;
+}
+
+.node-repslot {
+  color: #f59825;
+}
+
+.node-schema-list {
+  color: #2bb79c;
+}
+
+.node-schema {
+  color: #2bb79c;
+}
+
+.node-extension-list {
+  color: #5078b3;
+}
+
+.node-extension {
+  color: #5078b3;
+}
+
+.node-fdw-list {
+  color: #3e9dfb;
+}
+
+.node-fdw {
+  color: #3e9dfb;
+}
+
+.node-server {
+  color: #de5252;
+}
+
+.node-table-list {
+  color: #3e9dfb;
+}
+
+.node-table {
+  color: #3e9dfb;
+}
+
+.node-ptable-list {
+  color: #5078b3;
+}
+
+.node-ptable {
+  color: #5078b3;
+}
+
+.node-itable-list {
+  color: #f59825;
+}
+
+.node-itable {
+  color: #f59825;
+}
+
+.node-ftable-list {
+  color: #2bb79c;
+}
+
+.node-ftable {
+  color: #2bb79c;
+}
+
+.node-sequence-list {
+  color: #5078b3;
+}
+
+.node-sequence {
+  color: #5078b3;
+}
+
+.node-view-list {
+  color: #3e9dfb;
+}
+
+.node-view {
+  color: #3e9dfb;
+}
+
+.node-mview-list {
+  color: #5078b3;
+}
+
+.node-mview {
+  color: #5078b3;
+}
+
+.node-function-list {
+  color: #3e9dfb;
+}
+
+.node-function {
+  color: #3e9dfb;
+}
+
+.node-function-field {
+  color: #5078b3;
+}
+
+.node-tfunction-list {
+  color: #5078b3;
+}
+
+.node-tfunction {
+  color: #5078b3;
+}
+
+.node-etfunction-list {
+  color: #f59825;
+}
+
+.node-etfunction {
+  color: #f59825;
+}
+
+.node-procedure-list {
+  color: #2bb79c;
+}
+
+.node-procedure {
+  color: #2bb79c;
+}
+
+.node-logrep {
+  color: #5078b3;
+}
+
+.node-publication-list {
+  color: #2bb79c;
+}
+
+.node-subscription-list {
+  color: #2bb79c;
+}
+
+.node-publication {
+  color: #2bb79c;
+}
+
+.node-subscription {
+  color: #2bb79c;
+}
+
+.node-column {
+  color: #2bb79c;
+}
+
+.node-bullet {
+  color: #5078b3;
+}
+
+.node-pkey {
+  color: #f59825;
+}
+
+.node-fkey {
+  color: #737373;
+}
+
+.node-unique {
+  color: #3e9dfb;
+}
+
+.node-check {
+  color: #2bb79c;
+}
+
+.node-exclude {
+  color: #c52a2a;
+}
+
+.node-index {
+  color: #5078b3;
+}
+
+.node-trigger {
+  color: #2bb79c;
+}
+
+.node-eventtrigger {
+  color: #f59825;
+}
+
+.node-rule {
+  color: #f59825;
+}
+
+.node-inherited {
+  color: #f59825;
+}
+
+.node-partition {
+  color: #5078b3;
+}
+
+.node-type-list {
+  color: #3e9dfb;
+}
+
+.node-type {
+  color: #3e9dfb;
+}
+
+.node-domain-list {
+  color: #5078b3;
+}
+
+.node-domain {
+  color: #5078b3;
+}

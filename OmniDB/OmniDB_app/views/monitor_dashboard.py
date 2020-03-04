@@ -115,9 +115,7 @@ def get_monitor_unit_list(request):
         #plugins units
         for mon_unit in monitoring_units:
             if mon_unit['dbms'] == v_database.v_db_type:
-                v_actions = '''
-                <i title='Edit' class='fas fa-check-circle action-grid action-check' onclick='includeMonitorUnit({0},"{1}")'></i>
-                '''.format(mon_unit['id'],mon_unit['plugin_name'])
+                v_actions = '''<i title='Edit' class='fas fa-check-circle action-grid action-check' onclick='includeMonitorUnit({0},"{1}")'></i>'''.format(mon_unit['id'],mon_unit['plugin_name'])
                 if mon_unit['type'] == 'chart':
                     v_type = 'Chart'
                 elif mon_unit['type'] == 'chart_append':
@@ -133,9 +131,8 @@ def get_monitor_unit_list(request):
 
         v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
         for v_unit in v_units.Rows:
-            v_actions = '''
-            <i title='Edit' class='fas fa-check-circle action-grid action-check' onclick='includeMonitorUnit({0})'></i>
-            '''.format(v_unit['unit_id'])
+            v_actions = '''<i title='Edit' class='fas fa-check-circle action-grid action-check' onclick='includeMonitorUnit({0})'></i>'''.format(v_unit['unit_id'])
+            #v_actions = '<button class="btn btn-secondary btn-sm my-1">Actions</button>'
             #custom unit, add edit and delete actions
             if v_unit['user_id']!=None:
                 v_actions += '''

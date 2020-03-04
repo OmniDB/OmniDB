@@ -544,6 +544,8 @@ def exec_plugin_function(request):
     p_plugin_name = json_object['p_plugin_name']
     p_function_name = json_object['p_function_name']
     p_data = json_object['p_data']
+    p_data['omnidb_user'] = v_session.v_user_name
+    p_data['omnidb_user_superuser'] = v_session.v_super_user
     p_check_database_connection = json_object['p_check_database_connection']
     p_database_index = json_object['p_database_index']
     p_tab_id = json_object['p_tab_id']
@@ -576,7 +578,8 @@ def exec_plugin_function(request):
             return JsonResponse(v_return)
 
     try:
-        v_return['v_data'] = getattr(plugins[p_plugin_name]['module'], p_function_name)(v_database,p_data)
+        func = getattr(plugins[p_plugin_name]['module'], p_function_name)
+        v_return['v_data'] = func(v_database,p_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True

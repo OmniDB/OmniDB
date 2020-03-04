@@ -520,8 +520,9 @@ function createOuterTab({ p_name = '', p_image = '', p_select_function = null, p
         });
 		};
     var v_div = document.getElementById('div_' + v_tab.id);
-    v_div.style.height = 'calc(100% - 86px)';
+    v_div.style.height = 'calc(100% - 70px)';
     v_tab.tag = {
+      tab_id: v_tab.id,
       mode: '',
       div: v_div
     };

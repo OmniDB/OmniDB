@@ -1,0 +1,148 @@
+body {
+}
+
+#div_shortcut_background_dark {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba( 0, 0, 0, .4 );
+    vertical-align: top;
+    color: white;
+    font-size: 40px;
+    text-shadow: 1px 1px #000000;
+    text-align: center;
+}
+
+.div_loading {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.div_loading_cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.div_loading_content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.tab-icon {
+  margin: 0px 4px;
+}
+
+/* Handsontable invisible */
+
+.ht_invisible .handsontable tr:nth-of-type(2n) td {
+    border-right: 1px solid #ffffff00 !important;
+    border-bottom: 1px solid #ffffff00 !important;
+}
+
+.ht_invisible .handsontable tr:hover {
+    background-color: #ffffff00 !important;
+}
+
+.ht_invisible .handsontable tr:nth-of-type(2n + 1) {
+  background-color: #ffffff00 !important;
+}
+
+.ht_invisible .handsontable tr:nth-of-type(2n) td {
+  background-color: #ffffff00 !important;
+}
+
+.ht_invisible .handsontable tr:nth-of-type(2n + 1) td {
+  background-color: #ffffff00 !important;
+}
+
+.ht_invisible .handsontable tr {
+    background-color: #ffffff00 !important;
+}
+
+.ht_invisible .handsontable tr:nth-of-type(2n + 1) td {
+    border-right: 1px solid #ffffff00 !important;
+    border-bottom: 1px solid #ffffff00 !important;
+}
+
+.ht_invisible .handsontable tr:first-child td {
+    border-top: 1px solid #ffffff00 !important;
+}
+
+.ht_invisible .handsontable td:first-of-type, .ht_invisible .handsontable .htNoFrame + th, .ht_invisible .handsontable .htNoFrame + td {
+    border-left: 1px solid #ffffff00 !important;
+}
+
+.ht_invisible .ht_master:not(.innerBorderTop) thead tr:last-child th, .ht_invisible .ht_master:not(.innerBorderTop) ~ .handsontable thead tr:last-child th, .ht_invisible .ht_master:not(.innerBorderTop) thead tr.lastChild th, .ht_invisible .ht_master:not(.innerBorderTop) ~ .handsontable thead tr.lastChild th {
+  border-bottom-width: 1px;
+}
+
+/* Connection modal */
+
+.connection-card-checkbox {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+}
+
+.connection-card-cover {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Monitoring Dashboard */
+
+.dashboard_all {
+  overflow: auto;
+}
+
+.dashboard_unit_grid {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: auto;
+}
+
+.dashboard_unit_content_group {
+  overflow: auto;
+  height: 300px;
+}
+
+.dashboard_unit_legend_box {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.dashboard_unit_label_box {
+  width: 25px;
+  height: 15px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.dashboard_unit_label_group {
+  margin: 3px 5px;
+}
+
+.dashboard_unit_label {
+  vertical-align: middle;
+  margin-left: 3px;
+}

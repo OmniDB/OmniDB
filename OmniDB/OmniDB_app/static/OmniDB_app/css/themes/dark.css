@@ -1,5 +1,6 @@
 body {
   background-color: #373b41 !important;
+  color: white;
 }
 div.header {
   background-color: #1a1a1d !important;
@@ -109,6 +110,10 @@ select {
 .handsontable th, .handsontable td {
   border-right: 1px solid #484a55 !important;
   border-bottom: 1px solid #484a55 !important;
+}
+
+.handsontable tr {
+  background-color: #1d1f21 !important;
 }
 
 .handsontable.htRowHeaders thead tr th:nth-child(2) {
@@ -288,6 +293,18 @@ span.node_selected {
 }
 .table-resultset, .explain-plan-toolbar, .dashboard_unit {
   color: #d7d7d7 !important;
+}
+.box_color {
+  border: 1px solid #484a55 !important;
+  background-color: #25282c !important;
+  box-shadow: none !important;
+}
+
+.box_color2 {
+  border: 1px solid #484a55 !important;
+  background-color: #373b41 !important;
+  box-shadow: none !important;
+  color: #ffffff;
 }
 
 /*

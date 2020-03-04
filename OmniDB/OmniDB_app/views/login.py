@@ -19,6 +19,13 @@ from OmniDB import settings, custom_settings
 import logging
 logger = logging.getLogger(__name__)
 
+def check_session(request):
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        return redirect('login')
+    else:
+        return redirect('workspace')
+
 def index(request):
     context = {
         'omnidb_short_version': settings.OMNIDB_SHORT_VERSION,

@@ -8,7 +8,7 @@ base_urlpatterns = [
     url(r'^upload/$', views.plugins.upload_view, name='sign_in'),
 
     #LOGIN
-    url(r'^$', views.login.index, name='login'),
+    url(r'^$', views.login.check_session, name='check_session'),
     url(r'^login/', views.login.index, name='login'),
     url(r'^logout/', views.login.logout, name='logout'),
     url(r'^check_session_message/$', views.login.check_session_message, name='check_session_message'),
@@ -24,6 +24,11 @@ base_urlpatterns = [
     url(r'^new_group/$', views.connections.new_group, name='new_group'),
     url(r'^edit_group/$', views.connections.edit_group, name='edit_group'),
     url(r'^delete_group/$', views.connections.delete_group, name='delete_group'),
+
+    url(r'^get_connections_new/$', views.connections.get_connections_new, name='get_connections_new'),
+    url(r'^save_connection_new/$', views.connections.save_connection_new, name='save_connection_new'),
+    url(r'^delete_connection_new/$', views.connections.delete_connection_new, name='delete_connection_new'),
+    url(r'^test_connection_new/$', views.connections.test_connection_new, name='test_connection_new'),
 
     #USERS
     url(r'^get_users/$', views.users.get_users, name='get_users'),
@@ -47,6 +52,8 @@ base_urlpatterns = [
     url(r'^receive_alert_data/', views.monitoring.receive_alert_data, name='receive_alert_data'),
 
     #WORKSPACE
+    url(r'^old/', views.workspace.old, name='old'),
+
     url(r'^workspace/', views.workspace.index, name='workspace'),
     url(r'^shortcuts/', views.workspace.shortcuts, name='shortcuts'),
     url(r'^close_welcome/', views.workspace.close_welcome, name='close_welcome'),

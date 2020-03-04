@@ -23,6 +23,7 @@ You should have received a copy of the GNU General Public License along with Omn
 }
 body {
   font-family: 'Roboto', sans-serif;
+  color: #3a3a3a;
 }
 
 /* Worskpace HEADER */
@@ -536,4 +537,8 @@ li.welcome_release_item span {
 ::-webkit-scrollbar-thumb {
     background: #c0c3c7;
     cursor: pointer;
+}
+
+.xdsoft_datetimepicker {
+  z-index: 999999 !important;
 }

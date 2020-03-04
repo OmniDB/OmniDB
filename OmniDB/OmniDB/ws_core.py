@@ -1732,7 +1732,8 @@ def thread_debug_run_func(self,args,ws_object):
 
     try:
         #enable debugger for current connection
-        v_conn_string = "host=localhost port={0} dbname=''{1}'' user=''{2}''".format(args['v_port'],v_database_debug.v_service,v_database_debug.v_user);
+        v_conn_string = "host=''localhost'' port={0} dbname=''{1}'' user=''{2}''".format(args['v_port'],v_database_debug.v_service,v_database_debug.v_user);
+
         v_database_debug.v_connection.Execute("select omnidb.omnidb_enable_debugger('{0}')".format(v_conn_string))
 
         #run function it will lock until the function ends

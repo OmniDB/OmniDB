@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" type="image/x-icon" href="{{url_folder}}/static/OmniDB_app/images/favicon.ico"/>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css?v2" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/handsontable.full.css?v2"/>
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/css/omnidb.css?v2">
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/lib/fa/css/all.css?v2">
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/css/Aimara.css?v2"/>
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/node-icon.css?v2"/>
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/interface-icon.css?v2"/>
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/jquery.datetimepicker.min.css?v2"/>
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/json_html/styles/template-2.css?v2"/>
+    <link id="ss_theme" rel="stylesheet" type="text/css">
+    <title>OmniDB</title>
+  </head>
+  <body>
+
+  <!-- IF CHROME - Security countermeasures -->
+  <form style="display:none;" autocomplete="off">
+    <input type="text" name="prevent_autofill" id="prevent_autofill" value="" />
+    <input type="password" name="password_fake" id="password_fake" value="" />
+  </form>
+  <!-- .IF CHROME -->
+
+  <div class="toast" data-autohide="false" style="position: absolute; top: 0; right: 0;">
+    <div class="toast-header">
+      <strong class="mr-auto">Bootstrap</strong>
+      <small>11 mins ago</small>
+      <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="toast-body">
+      Hello, world! This is a toast message.
+    </div>
+  </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <img style='height: 40px;' src='/static/OmniDB_app/images/omnidb_logo.svg'/>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <div class="navbar-nav">
+        </div>
+      </div>
+
+      <form class="form-inline">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSecond" aria-controls="navbarSecond" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSecond">
+            <div class="navbar-nav">
+              {% if not desktop_mode %}
+              <a class="nav-item nav-link">{{ user_name }}</a>
+              {% endif %}
+              <a class="nav-item nav-link" href="#" onclick="startConnectionManagement();"><i class="fas fa-plug" title="Connections"></i></a>
+              {% if not desktop_mode %}
+              {% if super_user == 1 %}
+              <a class="nav-item nav-link" href="#" onclick="listUsers();"><i class="fas fa-user" title="Users"></i></a>
+              {% endif %}
+              {% endif %}
+              <a class="nav-item nav-link" href="#" onclick="showConfigUser();"><i class="fas fa-cog" title="Settings"></i></a>
+              <a class="nav-item nav-link" href="#" onclick="showPlugins();"><i class="fas fa-cube" title="Plugins"></i></a>
+              <a class="nav-item nav-link" href="#" onclick="showAbout();"><i class="fas fa-info-circle" title="About"></i></a>
+              {% if not desktop_mode %}
+              <a class="nav-item nav-link" href="#" onclick="confirmSignout()">Sign out</a>
+              {% endif %}
+            </div>
+          </div>
+      </form>
+    </nav>
+
+
+    <div id="omnidb_main_tablist"></div>
+
+    <div id="div_loading" class="div_loading" style='z-index: 100005;'>
+      <div class="div_loading_cover"></div>
+      <div class="div_loading_content">
+        <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+          <span class="sr-only ">Loading...</span>
+        </div>
+        <div>
+          <button id="bt_cancel_ajax" style='display: none; margin-top: 10px;' class='btn btn-light' onclick="cancelAjax()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Connections -->
+    <div class="modal fade" id="modal_connections" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              Connections
+              <button type="button" class="btn btn-primary" onclick="newConnection();">New connection</button>
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class='mb-3'>
+              <span id="group_actions_1">
+                <span>Groups</span>
+                <select id="group_selector" class="form-control" onchange="groupChange(this.value);" style='display: inline-block; width: 200px;'>
+                  <option value=-1 selected>Select Group</option>
+                </select>
+                <button id="button_new_group" type="button" class="btn btn-primary" onclick="newGroup();">New group</button>
+                <button id="button_group_actions" type="button" class="btn btn-secondary dropdown-toggle" style='display: none;' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Group Actions
+                </button>
+                <div class="dropdown-menu dropdown-menu-left">
+                  <button class="dropdown-item" type="button" onclick="renameGroup();">Rename</button>
+                  <button class="dropdown-item" type="button" onclick="manageGroup();">Manage Connections</button>
+                  <button class="dropdown-item" type="button" onclick="deleteGroup();">Delete</button>
+                </div>
+              </span>
+              <span id="group_actions_2" style='display: none;'>
+                <button id="button_new_group" type="button" class="btn btn-success" onclick="manageGroupSave();">Save changes</button>
+              </span>
+            </div>
+            <div id="connection_card_list" class="text-center"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Edit Connection -->
+    <div class="modal fade" id="modal_edit_connection" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Connection</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+              <div class="form-row">
+                <div class="col-md-4 mb-3">
+                  <label for="conn_form_type">Connection Type</label>
+                  <select id="conn_form_type" class="form-control">
+                    <option value=-1 selected>Select Type</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="conn_form_title">Title</label>
+                  <input type="text" class="form-control" id="conn_form_title" placeholder="Title">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="col-md mb-3">
+                  <label for="conn_form_connstring">Connection string</label>
+                  <input type="text" class="form-control" id="conn_form_connstring" placeholder="Connection string">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="col-md-4 mb-3">
+                  <label for="conn_form_server">Server</label>
+                  <input type="text" class="form-control" id="conn_form_server" placeholder="Server">
+                </div>
+                <div class="col-md-2 mb-3">
+                  <label for="conn_form_port">Port</label>
+                  <input type="text" class="form-control" id="conn_form_port" placeholder="Port">
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="conn_form_database">Database</label>
+                  <input type="text" class="form-control" id="conn_form_database" placeholder="Database">
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="conn_form_user">User</label>
+                  <input type="text" class="form-control" id="conn_form_user" placeholder="User">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="conn_form_use_tunnel">
+                  <label class="form-check-label" for="conn_form_use_tunnel">
+                    Use SSH tunnel
+                  </label>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="col-md-4 mb-3">
+                  <label for="conn_form_ssh_server">SSH Server</label>
+                  <input type="text" class="form-control" id="conn_form_ssh_server" placeholder="SSH server">
+                </div>
+                <div class="col-md-2 mb-3">
+                  <label for="conn_form_ssh_port">SSH Port</label>
+                  <input type="text" class="form-control" id="conn_form_ssh_port" placeholder="SSH port">
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="conn_form_ssh_user">SSH User</label>
+                  <input type="text" class="form-control" id="conn_form_ssh_user" placeholder="SSH user">
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="conn_form_ssh_password">Password / Passphrase</label>
+                  <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="col-md mb-3">
+                  <label for="conn_form_ssh_key">SSH Key</label>
+                  <textarea class="form-control" id="conn_form_ssh_key" rows="4"></textarea>
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="testConnection();">Test</button>
+              <button class="btn btn-success" onclick="saveConnection();">Save</button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Query History -->
+    <div class="modal fade" id="modal_query_history" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button class="btn btn-danger">Delete History</button>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+              <div class="form-row">
+                <div class="col-md-3 mb-3">
+                  <label for="query_history_from">From</label>
+                  <input type="text" class="form-control" id="query_history_from" placeholder="From Date">
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="query_history_to">To</label>
+                  <input type="text" class="form-control" id="query_history_to" placeholder="To Date">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="query_history_contains">Query Contains</label>
+                  <input type="text" class="form-control" id="query_history_contains" placeholder="Filter">
+                </div>
+              </div>
+
+              <div class="text-center">
+                <button class="btn btn-secondary btn-sm mr-1">First</button>
+                <button class="btn btn-secondary btn-sm mr-1">Previous</button>
+                <span class="mr-1"> 1 / 217 </span>
+                <button class="btn btn-secondary btn-sm mr-1">Next</button>
+                <button class="btn btn-secondary btn-sm mr-1">Last</button>
+              </div>
+
+              <div id="query_history_grid" style="width: 100%; height: 300px; overflow: hidden;"></div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal About -->
+    <div class="modal fade" id="modal_about" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ omnidb_version }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+            <div class="my-3">
+              <img src="{{url_folder}}/static/OmniDB_app/images/postgresql_medium.png" title="PostgreSQL"/>
+                  <img src="{{url_folder}}/static/OmniDB_app/images/oracle_medium.png" title="Oracle"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/mysql_medium.png" title="MySQL"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/mariadb_medium.png" title="MariaDB"/>
+              <!--<img src="{{url_folder}}/static/OmniDB_app/images/sqlserver_medium.png" title="SQL Server"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/firebird_medium.png" title="Firebird"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/sqlite_medium.png" title="SQLite"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/access_medium.png" title="Microsoft Access"/>-->
+            </div>
+            <div class="my-3"><a onclick="showWebsite('OmniDB', 'https://www.omnidb.org')" >www.omnidb.org</a></div>
+            <div class="my-3">
+              <h2>Primary Supporter:</h2>
+              <a onclick="showWebsite('2ndQuadrant', 'https://www.2ndquadrant.com')" ><img style="width: 120px;" src="{{url_folder}}/static/OmniDB_app/images/supporters/2ndquadrant.png" title="2ndQuadrant"/></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Monitoring Units -->
+    <div class="modal fade" id="modal_monitoring_units" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button class='btn btn-secondary btn-sm mb-2' onclick='editMonitorUnit()'>New Unit</button>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body ht_invisible">
+            <div id="monitoring_units_grid" style="width: 100%; height: 300px; overflow: hidden;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Users -->
+    <div class="modal fade" id="modal_users" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button class='btn btn-secondary' onclick='newUser()'>New</button>
+            <button id="div_save_users" class='btn btn-success ml-1' style='visibility: hidden;' onclick='saveUsers()'>Save</button>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="div_user_list" style="width: 100%; height: 300px; overflow: hidden;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Config -->
+    <div class="modal fade" id="modal_config" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <ul class="nav nav-tabs" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" id="config_shortcuts-tab" data-toggle="tab" href="#config_shortcuts" role="tab" aria-controls="config_shortcuts" aria-selected="true">Shortcuts</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="config_options-tab" data-toggle="tab" href="#config_options" role="tab" aria-controls="config_options" aria-selected="false">Options</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="config_password-tab" data-toggle="tab" href="#config_password" role="tab" aria-controls="config_password" aria-selected="false">Password</a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="config_shortcuts" role="tabpanel" aria-labelledby="config_shortcuts-tab">
+                <div id="div_shortcut_background_dark"><div style="position: absolute; top: 50%; width: 100%;">Press key combination... (ESC to cancel)</div></div>
+                <div class="form-group row">
+                  <label for="shortcut_run_query" class="col-sm-6 col-form-label">Run Query</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_run_query" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_cancel_query" class="col-sm-6 col-form-label">Cancel Query</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_cancel_query" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_indent" class="col-sm-6 col-form-label">Indent</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_indent" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_autocomplete" class="col-sm-6 col-form-label">Autocomplete</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_autocomplete" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_explain" class="col-sm-6 col-form-label">Explain (PostgreSQL)</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_explain" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_analyze" class="col-sm-6 col-form-label">Explain Analyze (PostgreSQL)</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_analyze" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_previous_console_command" class="col-sm-6 col-form-label">Previous Command (Console Tab)</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_previous_console_command" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_next_console_command" class="col-sm-6 col-form-label">Next Command (Console Tab)</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_next_console_command" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_new_inner_tab" class="col-sm-6 col-form-label">New Inner Tab</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_new_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_remove_inner_tab" class="col-sm-6 col-form-label">Remove Current Inner Tab</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_remove_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_left_inner_tab" class="col-sm-6 col-form-label">Select Left Inner Tab</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_left_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_right_inner_tab" class="col-sm-6 col-form-label">Select Right Inner Tab</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_right_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_new_outer_tab" class="col-sm-6 col-form-label">New Outer Tab</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_new_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_remove_outer_tab" class="col-sm-6 col-form-label">Remove Current Connection Tab</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_remove_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_left_outer_tab" class="col-sm-6 col-form-label">Select Left Outer Tab</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_left_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="shortcut_right_outer_tab" class="col-sm-6 col-form-label">Select Right Outer Tab</label>
+                  <div class="col-sm-6">
+                    <button id="shortcut_right_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  </div>
+                </div>
+
+                <button class='btn btn-success' onclick='saveShortcuts()'>Save</button>
+
+              </div>
+              <div class="tab-pane fade" id="config_options" role="tabpanel" aria-labelledby="config_options-tab">
+
+                <div class="form-row">
+                  <div class="col-md-6 mb-3">
+                    <label for="sel_interface_font_size">Interface Font Size</label>
+                    <select id="sel_interface_font_size" class="form-control" onchange="changeInterfaceFontSize(this.value)">
+		                	<option value="10">10</option>
+		                	<option value="11">11</option>
+		                	<option value="12">12</option>
+		                	<option value="13">13</option>
+		                	<option value="14">14</option>
+		                	<option value="15">15</option>
+		                	<option value="16">16</option>
+		                	<option value="17">17</option>
+		                	<option value="18">18</option>
+                      <option value="19">19</option>
+                      <option value="20">20</option>
+		                </select>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="sel_editor_font_size">Editor Font Size</label>
+                    <select id="sel_editor_font_size" class="form-control" onchange="changeFontSize(this.value)">
+		                	<option value="10">10</option>
+		                	<option value="11">11</option>
+		                	<option value="12">12</option>
+		                	<option value="13">13</option>
+		                	<option value="14">14</option>
+		                	<option value="15">15</option>
+		                	<option value="16">16</option>
+		                	<option value="17">17</option>
+		                	<option value="18">18</option>
+                      <option value="19">19</option>
+                      <option value="20">20</option>
+		                </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="col-md-12 mb-3">
+                    <label for="sel_editor_theme">Editor Theme</label>
+                    <select id="sel_editor_theme" class="form-control" onchange="changeTheme(this.value)">
+		                	<option value="1/omnidb">(Light) OmniDB</option>
+		                	<option value="2/chrome">(Light) Chrome</option>
+		                	<option value="3/clouds">(Light) Clouds</option>
+		                	<option value="4/crimson_editor">(Light) Crimson Editor</option>
+		                	<option value="5/dawn">(Light) Dawn</option>
+		                	<option value="6/dreamweaver">(Light) Dreamweaver</option>
+		                	<option value="7/eclipse">(Light) Eclipse</option>
+		                	<option value="8/github">(Light) Github</option>
+		                	<option value="9/iplastic">(Light) Iplastic</option>
+		                	<option value="10/katzenmilch">(Light) Katzenmilch</option>
+		                	<option value="11/kuroir">(Light) Kuroir</option>
+		                	<option value="12/solarized_light">(Light) Solarized Light</option>
+		                	<option value="13/sqlserver">(Light) SQL Server</option>
+		                	<option value="14/textmate">(Light) Textmate</option>
+		                	<option value="15/tomorrow">(Light) Tomorrow</option>
+		                	<option value="16/xcode">(Light) XCode</option>
+							        <option value="17/omnidb_dark">(Dark) OmniDB Dark</option>
+		                	<option value="18/ambiance">(Dark) Ambiance</option>
+		                	<option value="19/chaos">(Dark) Chaos</option>
+		                	<option value="20/clouds_midnight">(Dark) Clouds Midnight</option>
+		                	<option value="21/cobalt">(Dark) Cobalt</option>
+		                	<option value="22/idle_fingers">(Dark) Idle Fingers</option>
+		                	<option value="23/kr_theme">(Dark) KR Theme</option>
+		                	<option value="24/merbivore">(Dark) Merbivore</option>
+		                	<option value="25/merbivore_soft">(Dark) Merbivore Soft</option>
+		                	<option value="26/mono_industrial">(Dark) Mono Industrial</option>
+		                	<option value="27/monokai">(Dark) Monokai</option>
+		                	<option value="28/pastel_on_dark">(Dark) Pastel On Dark</option>
+		                	<option value="29/solarized_dark">(Dark) Solarized Dark</option>
+		                	<option value="30/terminal">(Dark) Terminal</option>
+		                	<option value="31/tomorrow_night">(Dark) Tomorrow Night</option>
+		                	<option value="32/tomorrow_night_blue">(Dark) Tomorrow Night Blue</option>
+		                	<option value="33/tomorrow_night_bright">(Dark) Tomorrow Night Bright</option>
+		                	<option value="34/tomorrow_night_eighties">(Dark) Tomorrow Night 80s</option>
+		                	<option value="35/twilight">(Dark) Twilight</option>
+		                	<option value="36/vibrant_ink">(Dark) Vibrant Ink</option>
+		                </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="col-md-6 mb-3">
+                    <label for="sel_csv_encoding">CSV Enconding</label>
+                    <select id="sel_csv_encoding" class="form-control">
+                      <option value="ascii">ascii</option>
+                      <option value="big5">big5</option>
+                      <option value="big5hkscs">big5hkscs</option>
+                      <option value="cp037">cp037</option>
+                      <option value="cp273">cp273</option>
+                      <option value="cp424">cp424</option>
+                      <option value="cp437">cp437</option>
+                      <option value="cp500">cp500</option>
+                      <option value="cp720">cp720</option>
+                      <option value="cp737">cp737</option>
+                      <option value="cp775">cp775</option>
+                      <option value="cp850">cp850</option>
+                      <option value="cp852">cp852</option>
+                      <option value="cp855">cp855</option>
+                      <option value="cp856">cp856</option>
+                      <option value="cp857">cp857</option>
+                      <option value="cp858">cp858</option>
+                      <option value="cp860">cp860</option>
+                      <option value="cp861">cp861</option>
+                      <option value="cp862">cp862</option>
+                      <option value="cp863">cp863</option>
+                      <option value="cp864">cp864</option>
+                      <option value="cp865">cp865</option>
+                      <option value="cp866">cp866</option>
+                      <option value="cp869">cp869</option>
+                      <option value="cp874">cp874</option>
+                      <option value="cp875">cp875</option>
+                      <option value="cp932">cp932</option>
+                      <option value="cp949">cp949</option>
+                      <option value="cp950">cp950</option>
+                      <option value="cp1006">cp1006</option>
+                      <option value="cp1026">cp1026</option>
+                      <option value="cp1125">cp1125</option>
+                      <option value="cp1140">cp1140</option>
+                      <option value="cp1250">cp1250</option>
+                      <option value="cp1251">cp1251</option>
+                      <option value="cp1252">cp1252</option>
+                      <option value="cp1253">cp1253</option>
+                      <option value="cp1254">cp1254</option>
+                      <option value="cp1255">cp1255</option>
+                      <option value="cp1256">cp1256</option>
+                      <option value="cp1257">cp1257</option>
+                      <option value="cp1258">cp1258</option>
+                      <option value="cp65001">cp65001</option>
+                      <option value="euc-jp">euc-jp</option>
+                      <option value="euc-jis-2004">euc-jis-2004</option>
+                      <option value="euc-jisx0213">euc-jisx0213</option>
+                      <option value="euc-kr">euc-kr</option>
+                      <option value="gb2312">gb2312</option>
+                      <option value="gbk">gbk</option>
+                      <option value="gb18030">gb18030</option>
+                      <option value="hz">hz</option>
+                      <option value="iso2022-jp">iso2022-jp</option>
+                      <option value="iso2022-jp-1">iso2022-jp-1</option>
+                      <option value="iso2022-jp-2">iso2022-jp-2</option>
+                      <option value="iso2022-jp-2004">iso2022-jp-2004</option>
+                      <option value="iso2022-jp-3">iso2022-jp-3</option>
+                      <option value="iso2022-jp-ext">iso2022-jp-ext</option>
+                      <option value="iso2022-kr">iso2022-kr</option>
+                      <option value="latin-1">latin-1</option>
+                      <option value="iso8859-2">iso8859-2</option>
+                      <option value="iso8859-3">iso8859-3</option>
+                      <option value="iso8859-4">iso8859-4</option>
+                      <option value="iso8859-5">iso8859-5</option>
+                      <option value="iso8859-6">iso8859-6</option>
+                      <option value="iso8859-7">iso8859-7</option>
+                      <option value="iso8859-8">iso8859-8</option>
+                      <option value="iso8859-9">iso8859-9</option>
+                      <option value="iso8859-10">iso8859-10</option>
+                      <option value="iso8859-11">iso8859-11</option>
+                      <option value="iso8859-13">iso8859-13</option>
+                      <option value="iso8859-14">iso8859-14</option>
+                      <option value="iso8859-15">iso8859-15</option>
+                      <option value="iso8859-16">iso8859-16</option>
+                      <option value="johab">johab</option>
+                      <option value="koi8-r">koi8-r</option>
+                      <option value="koi8-t">koi8-t</option>
+                      <option value="koi8-u">koi8-u</option>
+                      <option value="kz1048">kz1048</option>
+                      <option value="mac-cyrillic">mac-cyrillic</option>
+                      <option value="mac-greek">mac-greek</option>
+                      <option value="mac-iceland">mac-iceland</option>
+                      <option value="mac-latin2">mac-latin2</option>
+                      <option value="mac-roman">mac-roman</option>
+                      <option value="mac-turkish">mac-turkish</option>
+                      <option value="ptcp154">ptcp154</option>
+                      <option value="shift-jis">shift-jis</option>
+                      <option value="shift-jis-2004">shift-jis-2004</option>
+                      <option value="shift-jisx0213">shift-jisx0213</option>
+                      <option value="utf-32">utf-32</option>
+                      <option value="utf-32-be">utf-32-be</option>
+                      <option value="utf-32-le">utf-32-le</option>
+                      <option value="utf-16">utf-16</option>
+                      <option value="utf-16-be">utf-16-be</option>
+                      <option value="utf-16-le">utf-16-le</option>
+                      <option value="utf-7">utf-7</option>
+                      <option value="utf-8">utf-8</option>
+                      <option value="utf-8-sig">utf-8-sig</option>
+                      <option value="windows-1252">windows-1252</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="txt_csv_delimiter">CSV Delimiter</label>
+                    <input type="text" class="form-control" id="txt_csv_delimiter" placeholder="Delimiter">
+                  </div>
+                </div>
+                <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
+
+              </div>
+              <div class="tab-pane fade" id="config_password" role="tabpanel" aria-labelledby="config_password-tab">
+                <div class="form-row">
+                  <div class="col-md-6 mb-3">
+                    <label for="txt_new_pwd">New Password</label>
+                    <input id="txt_new_pwd" type="password" class="form-control">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="txt_confirm_new_pwd">Confirm</label>
+                    <input id="txt_confirm_new_pwd" type="password" class="form-control">
+                  </div>
+                </div>
+                <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Plugins -->
+    <div class="modal fade" id="modal_plugins" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="plugin_file_selector" onchange="upload(this)" required>
+              <label class="custom-file-label" for="plugin_file_selector">Select plugin package to be installed...</label>
+            </div>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body ht_invisible">
+            <div id="plugin_grid" style="width: 100%; height: 300px; overflow: hidden;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Monitoring Unit Test -->
+    <div class="modal fade" id="modal_monitoring_unit_test" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="dashboard_unit_content_group">
+              <div id="monitoring_unit_test_result">
+              </div>
+              <div id="monitoring_unit_test_legend" class="dashboard_unit_legend_box">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Generic Message -->
+    <div class="modal fade" id="modal_message" tabindex="-1" role="dialog" aria-hidden="true">
+      <div id="modal_message_dialog" class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div id="modal_message_content" class="modal-body" style='white-space: pre-line;'>
+          </div>
+          <div class="modal-footer">
+            <button id="modal_message_yes" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
+            <button id="modal_message_ok" type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+            <button id="modal_message_no" type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+            <button id="modal_message_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Password -->
+    <div class="modal fade" id="modal_password" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="modal_password_content" style='white-space: pre-line;'>
+            </div>
+            <input id="txt_password_prompt" class="form-control" type="password" placeholder="Password" style="margin-top: 20px; margin-bottom:20px; text-align: center;"/>
+          </div>
+          <div class="modal-footer">
+            <button id="modal_password_ok" type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+            <button id="modal_password_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/ajax_control.js?v2"></script>
+    <script type="text/javascript">
+    startLoading();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js?v2" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js?v2" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/ace.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/mode-sql.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/ext-language_tools.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/handsontable.full.js?"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape.min.js"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/Chart.bundle.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/chartjs-plugin-datalabels.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/chartjs-plugin-annotation.min.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/jquery.datetimepicker.full.min.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/lib/Aimara.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeSnippets.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMonitor.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreePostgresql.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeOracle.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMariadb.js?v2"></script>
+
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Renderers.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/websocket_control.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/header_actions.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/query_client.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/query.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/custom_menu.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/notification_control.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/passwords.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/properties.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tabs.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/outer_connection_tab.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_query_tab.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_console_tab.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_monitoring_tab.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/website_tab.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/create_tab_functions.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/monitoring.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/workspace.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/plugin_hook.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/users.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/shortcuts.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/connections.js?v2"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/lib/json_html/components.js?v2"></script>
+    <script type="text/javascript">
+  	//Global variables
+  	var v_editor_theme = '{{ editor_theme }}';
+  	var	v_theme_type = '{{ theme_type }}';
+  	var	v_theme_id = {{ theme_id }};
+  	var v_editor_font_size = {{ editor_font_size }};
+    var v_interface_font_size = {{ interface_font_size }};
+  	var v_user_id = {{ user_id }};
+    var v_user_key = '{{ user_key }}';
+    var v_user_name = '{{ user_name }}';
+  	var v_enable_omnichat = parseInt({{ enable_omnichat }});
+    var v_csv_encoding = '{{ csv_encoding }}';
+    var v_csv_delimiter = '{{ csv_delimiter }}';
+    var v_session_key = v_user_key;
+    var v_user_login = v_user_name;
+    var v_version = '{{ omnidb_version }}';
+    var v_short_version = '{{ omnidb_short_version }}';
+    var v_url_folder = '{{ url_folder }}';
+    var v_welcome_closed = {{ welcome_closed }};
+
+    var v_query_port = {{ query_port }};
+  	var v_query_port_external = {{ query_port_external }};
+  	var v_is_secure = {{ is_secure }};
+  	var v_dev_mode = {{ dev_mode }};
+  	var v_keybind_object = { v_autocomplete: '{{ autocomplete }}',
+   							 v_autocomplete_mac: '{{ autocomplete_mac }}' };
+  							 //Global variables
+  	var v_connections_data;
+  	var gv_chatWebSocketPort = v_query_port;
+  	var gv_chatAttachmentPath = '{{ chat_link }}';
+  	var gv_desktopMode = ('{{ desktop_mode }}' == 'True');
+  	var v_tab_token = '{{ tab_token }}';
+  	var v_show_terminal_option = {{ show_terminal_option }};
+
+    var v_menu_item = '{{ menu_item }}'
+    $('#menu_' + v_menu_item).addClass('header_a_selected');
+
+    var ht;
+    var network;
+    var v_connTabControl;
+    var v_usersObject;
+    var v_editDataObject;
+    var v_canEditContent;
+    var v_editContentObject;
+    var v_database_list = null;
+    var v_completer_ready = true;
+    var v_tree_object;
+    var v_shortcut_object = {
+      shortcuts: {{shortcuts|safe}},
+      button: null,
+      actions: null
+    };
+    </script>
+    <script type="text/javascript">
+    </script>
+  </body>
+</html>

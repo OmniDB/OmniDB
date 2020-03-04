@@ -1,0 +1,36 @@
+.jsonBuilder--template-4 .jsonBuilder__li {
+  margin: 0px;
+  padding: 0px;
+}
+
+.jsonBuilder--template-4 .jsonBuilder__li-value {
+  background-color: #d2c0fb;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-left: 5px;
+  padding: 2px 6px;
+}
+
+.jsonBuilder--template-4 .jsonBuilder__label {
+  border-radius: 5px;
+  font-size: 12px;
+  margin-right: 5px;
+  padding: 0px 2px 0px 4px;
+}
+
+.jsonBuilder--template-4 .jsonBuilder__label::after {
+  content: ":";
+  display: inline-block;
+  margin: 0px 3px;
+}
+
+.jsonBuilder--template-4 .jsonBuilder__label-value {
+  background-color: #d2c0fb;
+  border-radius: 5px;
+  font-weight: bold;
+  padding: 2px 6px;
+}
+
+.jsonBuilder--template-4 .jsonBuilder__counter {
+  display: none;
+}

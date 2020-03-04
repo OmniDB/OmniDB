@@ -1123,7 +1123,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
                       }
                     }
 
-                    //Updating existing nodes and adding new ones
+                    //Updating existing edges and adding new ones
                     for (var j=0; j<v_return_unit.v_object.edges.length; j++) {
                       var v_found_edge = false;
                       var edge = v_return_unit.v_object.edges[j];

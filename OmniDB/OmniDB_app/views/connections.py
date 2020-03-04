@@ -19,6 +19,7 @@ import time, os
 
 sys.path.append('OmniDB_app/include')
 from OmniDB_app.include import paramiko
+from sshtunnel import SSHTunnelForwarder
 
 def index(request):
 
@@ -152,6 +153,109 @@ def get_connections(request):
         'v_data': v_connection_list,
         'v_technologies': v_tech_list,
         'v_conn_ids': v_conn_id_list
+    }
+
+    return JsonResponse(v_return)
+
+def get_connections_new(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+    v_cryptor = request.session.get('cryptor')
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_tab_conn_id_list = json_object['p_conn_id_list']
+
+    #sessions.omnidb_sessions[v_session.v_user_key] = v_session
+    #ws_core.omnidb_sessions[v_session.v_user_key] = v_session
+
+    try:
+        v_technologies = v_session.v_omnidb_database.v_connection.Query('''
+            select dbt_st_name
+            from (
+            select dbt_st_name,
+                   sort
+            from (
+            select dbt_st_name,
+                   1 as sort
+            from db_type
+            where dbt_in_enabled = 1
+              and dbt_st_name = 'postgresql'
+            union
+            select a.dbt_st_name,
+                   (select count(*)
+                    from db_type b
+                    where b.dbt_in_enabled = 1
+                      and b.dbt_st_name <> 'postgresql'
+                      and a.dbt_st_name >= b.dbt_st_name)+1 as sort
+            from db_type a
+            where a.dbt_in_enabled = 1
+              and a.dbt_st_name <> 'postgresql'
+            )
+            order by sort
+            )
+        ''')
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_connection_list = []
+    v_tech_list = []
+    for r in v_technologies.Rows:
+        v_tech_list.append(r['dbt_st_name'])
+
+    for key,v_connection_object in v_session.v_databases.items():
+        v_connection = v_connection_object['database']
+        v_tunnel     = v_connection_object['tunnel']
+        v_tech       = v_connection_object['technology']
+        v_alias      = v_connection_object['alias']
+
+        v_conn_object = {
+            'id': key,
+            'locked': False,
+            'technology': v_tech,
+            'alias': v_alias,
+            'conn_string': '',
+            'server': '',
+            'port': '',
+            'service': '',
+            'user': '',
+            'tunnel': {
+                'enabled': v_tunnel['enabled'],
+                'server': v_tunnel['server'],
+                'port': v_tunnel['port'],
+                'user': v_tunnel['user'],
+                'password': v_tunnel['password'],
+                'key': v_tunnel['key']
+            }
+        }
+
+        if key in v_tab_conn_id_list:
+            v_conn_object['locked'] = True
+
+        if (v_tech!='terminal'):
+            v_conn_object['conn_string'] = v_connection.v_conn_string
+            v_conn_object['server'] = v_connection.v_server
+            v_conn_object['port'] = v_connection.v_port
+            v_conn_object['service'] = v_connection.v_service
+            v_conn_object['user'] = v_connection.v_user
+
+        v_connection_list.append(v_conn_object)
+
+    v_return['v_data'] = {
+        'v_conn_list': v_connection_list,
+        'v_technologies': v_tech_list
     }
 
     return JsonResponse(v_return)
@@ -543,6 +647,309 @@ def save_connections(request):
     #v_session.RefreshDatabaseList()
     request.session['omnidb_session'] = v_session
 
+    return JsonResponse(v_return)
+
+def test_connection_new(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    json_object = json.loads(request.POST.get('data', None))
+    p_type = json_object['type']
+    #p_index = json_object['p_index']
+
+    if p_type=='terminal':
+
+        client = paramiko.SSHClient()
+        client.load_system_host_keys()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        try:
+            #ssh key provided
+            if json_object['tunnel']['key'].strip() != '':
+                v_file_name = '{0}'.format(str(time.time())).replace('.','_')
+                v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
+                with open(v_full_file_name,'w') as f:
+                    f.write(json_object['tunnel']['key'])
+                client.connect(hostname=json_object['tunnel']['server'],username=json_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=json_object['tunnel']['password'],port=int(json_object['tunnel']['port']))
+            else:
+                client.connect(hostname=json_object['tunnel']['server'],username=json_object['tunnel']['user'],password=json_object['tunnel']['password'],port=int(json_object['tunnel']['port']))
+
+            client.close()
+            v_return['v_data'] = 'Connection successful.'
+        except Exception as exc:
+            v_return['v_data'] = str(exc)
+            v_return['v_error'] = True
+    else:
+
+        database = OmniDatabase.Generic.InstantiateDatabase(
+            p_type,
+            json_object['server'],
+            json_object['port'],
+            json_object['database'],
+            json_object['user'],
+            '',
+            -1,
+            '',
+            p_conn_string = json_object['connstring'],
+            p_parse_conn_string = True
+        )
+
+        # create tunnel if enabled
+        if json_object['tunnel']['enabled'] == True:
+
+            try:
+                if json_object['tunnel']['key'].strip() != '':
+                    v_file_name = '{0}'.format(str(time.time())).replace('.','_')
+                    v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
+                    with open(v_full_file_name,'w') as f:
+                        f.write(json_object['tunnel']['key'])
+                    server = SSHTunnelForwarder(
+                        (json_object['tunnel']['server'], int(json_object['tunnel']['port'])),
+                        ssh_username=json_object['tunnel']['user'],
+                        ssh_private_key_password=json_object['tunnel']['password'],
+                        ssh_pkey = v_full_file_name,
+                        remote_bind_address=(database.v_active_server, int(database.v_active_port)),
+                        logger=None
+                    )
+                else:
+                    server = SSHTunnelForwarder(
+                        (json_object['tunnel']['server'], int(json_object['tunnel']['port'])),
+                        ssh_username=json_object['tunnel']['user'],
+                        ssh_password=json_object['tunnel']['password'],
+                        remote_bind_address=(database.v_active_server, int(database.v_active_port)),
+                        logger=None
+                    )
+                server.set_keepalive = 120
+                server.start()
+
+                database.v_connection.v_host = '127.0.0.1'
+                database.v_connection.v_port = server.local_bind_port
+
+                message = database.TestConnection()
+                server.close()
+                v_return['v_data'] = message
+                if message != 'Connection successful.':
+                    v_return['v_error'] = True
+
+            except Exception as exc:
+                v_return['v_data'] = str(exc)
+                v_return['v_error'] = True
+
+        else:
+            message = database.TestConnection()
+            v_return['v_data'] = message
+            if message != 'Connection successful.':
+                v_return['v_error'] = True
+
+    return JsonResponse(v_return)
+
+def save_connection_new(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+    v_cryptor = request.session.get('cryptor')
+
+    json_object = json.loads(request.POST.get('data', None))
+    p_id = json_object['id']
+
+    try:
+        # New connection
+        if p_id == -1:
+            if json_object['tunnel']['enabled']:
+                v_use_tunnel = 1
+            else:
+                v_use_tunnel = 0
+
+            v_session.v_omnidb_database.v_connection.Execute('''
+                insert into connections values (
+                (select coalesce(max(conn_id), 0) + 1 from connections),
+                {0},
+                '{1}',
+                '{2}',
+                '{3}',
+                '{4}',
+                '{5}',
+                '{6}',
+                '{7}',
+                '{8}',
+                '{9}',
+                '{10}',
+                '{11}',
+                '{12}',
+                '{13}')
+            '''.format(
+                v_session.v_user_id,
+                json_object['type'],
+                v_cryptor.Encrypt(json_object['server']),
+                v_cryptor.Encrypt(json_object['port']),
+                v_cryptor.Encrypt(json_object['database']),
+                v_cryptor.Encrypt(json_object['user']),
+                v_cryptor.Encrypt(json_object['title']),
+                v_cryptor.Encrypt(json_object['tunnel']['server']),
+                v_cryptor.Encrypt(json_object['tunnel']['port']),
+                v_cryptor.Encrypt(json_object['tunnel']['user']),
+                v_cryptor.Encrypt(json_object['tunnel']['password']),
+                v_cryptor.Encrypt(json_object['tunnel']['key']),
+                v_use_tunnel,
+                v_cryptor.Encrypt(json_object['connstring'])
+            ))
+            conn_id = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
+            select coalesce(max(conn_id), 0) from connections
+            ''')
+
+            if json_object['type']=='terminal':
+                database=None
+            else:
+
+                database = OmniDatabase.Generic.InstantiateDatabase(
+                    json_object['type'],
+                    json_object['server'],
+                    json_object['port'],
+                    json_object['database'],
+                    json_object['user'],
+                    '',
+                    conn_id,
+                    json_object['title'],
+                    p_conn_string = json_object['connstring'],
+                    p_parse_conn_string = True
+                )
+
+            tunnel_information = {
+                'enabled': json_object['tunnel']['enabled'],
+                'server': json_object['tunnel']['server'],
+                'port': json_object['tunnel']['port'],
+                'user': json_object['tunnel']['user'],
+                'password': json_object['tunnel']['password'],
+                'key': json_object['tunnel']['key']
+            }
+
+            v_session.AddDatabase(conn_id,json_object['type'],database,True,tunnel_information,json_object['title'])
+
+        #update
+        else:
+            if json_object['tunnel']['enabled']:
+                v_use_tunnel = 1
+            else:
+                v_use_tunnel = 0
+
+            if json_object['type']=='terminal':
+                database = None
+            else:
+                database = OmniDatabase.Generic.InstantiateDatabase(
+                    json_object['type'],
+                    json_object['server'],
+                    json_object['port'],
+                    json_object['database'],
+                    json_object['user'],
+                    '',
+                    p_id,
+                    json_object['title'],
+                    p_conn_string = json_object['connstring'],
+                    p_parse_conn_string = True
+                )
+
+            v_session.v_omnidb_database.v_connection.Execute('''
+                update connections
+                set dbt_st_name = '{0}',
+                    conn_string = '{1}',
+                    server = '{2}',
+                    port = '{3}',
+                    service = '{4}',
+                    user = '{5}',
+                    alias = '{6}',
+                    ssh_server = '{7}',
+                    ssh_port = '{8}',
+                    ssh_user = '{9}',
+                    ssh_password = '{10}',
+                    ssh_key = '{11}',
+                    use_tunnel = '{12}'
+                where conn_id = {13}
+            '''.format(
+                json_object['type'],
+                v_cryptor.Encrypt(json_object['connstring']),
+                v_cryptor.Encrypt(json_object['server']),
+                v_cryptor.Encrypt(json_object['port']),
+                v_cryptor.Encrypt(json_object['database']),
+                v_cryptor.Encrypt(json_object['user']),
+                v_cryptor.Encrypt(json_object['title']),
+                v_cryptor.Encrypt(json_object['tunnel']['server']),
+                v_cryptor.Encrypt(json_object['tunnel']['port']),
+                v_cryptor.Encrypt(json_object['tunnel']['user']),
+                v_cryptor.Encrypt(json_object['tunnel']['password']),
+                v_cryptor.Encrypt(json_object['tunnel']['key']),
+                v_use_tunnel,
+                p_id)
+            )
+
+            v_session.v_databases[p_id]['tunnel']['enabled'] = json_object['tunnel']['enabled']
+            v_session.v_databases[p_id]['tunnel']['server'] = json_object['tunnel']['server']
+            v_session.v_databases[p_id]['tunnel']['port'] = json_object['tunnel']['port']
+            v_session.v_databases[p_id]['tunnel']['user'] = json_object['tunnel']['user']
+            v_session.v_databases[p_id]['tunnel']['password'] = json_object['tunnel']['password']
+            v_session.v_databases[p_id]['tunnel']['key'] = json_object['tunnel']['key']
+
+            v_session.v_databases[p_id]['database'] = database
+            v_session.v_databases[p_id]['technology'] = json_object['type']
+            v_session.v_databases[p_id]['tunnel_object'] = None
+            v_session.v_databases[p_id]['alias'] = json_object['title']
+
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    request.session['omnidb_session'] = v_session
+    return JsonResponse(v_return)
+
+def delete_connection_new(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+    v_cryptor = request.session.get('cryptor')
+
+    json_object = json.loads(request.POST.get('data', None))
+    p_id = json_object['id']
+
+    try:
+        v_session.v_omnidb_database.v_connection.Execute('''
+            delete from connections
+            where conn_id = {0}
+        '''.format(p_id))
+        del v_session.v_databases[p_id]
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    request.session['omnidb_session'] = v_session
     return JsonResponse(v_return)
 
 def test_connection(request):

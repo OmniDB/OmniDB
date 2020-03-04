@@ -255,11 +255,14 @@ class DjangoApplication(object):
         print('''Checking port availability...''',flush=True)
         logger.info('''Checking port availability...''')
 
-        while not check_port(port) or num_attempts >= 20:
+        while not check_port(port):
             print("Port {0} is busy, trying another port...".format(port),flush=True)
             logger.info("Port {0} is busy, trying another port...".format(port))
             port = random.randint(1025,32676)
             num_attempts = num_attempts + 1
+
+            if num_attempts == 20:
+                break
 
         if num_attempts < 20:
 
@@ -320,11 +323,14 @@ if __name__ == "__main__":
     print('''Checking port availability...''',flush=True)
     logger.info('''Checking port availability...''')
 
-    while not check_port(port) or num_attempts_port >= 20:
+    while not check_port(port):
         print("Port {0} is busy, trying another port...".format(port),flush=True)
         logger.info("Port {0} is busy, trying another port...".format(port))
         port = random.randint(1025,32676)
         num_attempts_port = num_attempts_port + 1
+
+        if num_attempts_port == 20:
+            break
 
     if num_attempts_port < 20:
         OmniDB.settings.OMNIDB_WEBSOCKET_PORT          = port

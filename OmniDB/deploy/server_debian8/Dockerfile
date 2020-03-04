@@ -1,4 +1,4 @@
-FROM debian:oldstable-slim
+FROM debian:jessie-slim
 MAINTAINER William Ivanski <william.ivanski@gmail.com>
 
 USER root

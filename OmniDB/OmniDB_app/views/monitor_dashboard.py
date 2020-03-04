@@ -122,6 +122,8 @@ def get_monitor_unit_list(request):
                     v_type = 'Chart (Append)'
                 elif mon_unit['type'] == 'grid':
                     v_type = 'Grid'
+                elif mon_unit['type'] == 'graph':
+                    v_type = 'Graph'
                 if v_mode==0:
                     v_data.append([v_actions,mon_unit['title'],v_type,mon_unit['interval']])
                 else:
@@ -664,6 +666,12 @@ def refresh_monitor_units(request):
 
                     if unit_data['type']  == 'grid' or v_id['rendered'] == 1:
                         v_unit_data['v_object'] = data
+                    elif unit_data['type'] == 'graph':
+                        byte_code = compile_restricted(unit_data['script_chart'], '<inline>', 'exec')
+                        exec(byte_code, builtins, loc)
+                        result = loc['result']
+                        result['elements'] = data
+                        v_unit_data['v_object'] = result
                     else:
                         byte_code = compile_restricted(unit_data['script_chart'], '<inline>', 'exec')
                         exec(byte_code, builtins, loc)

@@ -292,7 +292,6 @@ def thread_dispatcher(self,args,ws_object):
                                         client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
                                     else:
                                         client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
-
                                     tab_object['terminal_ssh_client'] = client
                                     tab_object['terminal_object'] = custom_paramiko_expect.SSHClientInteraction(client,timeout=60, display=False)
                                     tab_object['terminal_object'].send(v_data['v_cmd'])
@@ -1407,6 +1406,7 @@ def thread_terminal(self,args,ws_object):
         v_tab_id          = args['v_tab_id']
         v_tab_object      = args['v_tab_object']
         v_terminal_object = v_tab_object['terminal_object']
+        v_terminal_ssh_client = v_tab_object['terminal_ssh_client']
 
         while not self.cancel:
             try:
@@ -1442,7 +1442,11 @@ def thread_terminal(self,args,ws_object):
                 else:
                     if not self.cancel:
                         ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
             except Exception as exc:
+                transport = v_terminal_ssh_client.get_transport()
+                if transport == None or transport.is_active() == False:
+                    break
                 if 'EOF' in str(exc):
                     break
 

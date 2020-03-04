@@ -1,13 +1,26 @@
 /*
-Copyright 2015-2017 The OmniDB Team
+The MIT License (MIT)
 
-This file is part of OmniDB.
+Portions Copyright (c) 2015-2019, The OmniDB Team
+Portions Copyright (c) 2017-2019, 2ndQuadrant Limited
 
-OmniDB is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
 var v_browserTabActive = true;
@@ -40,7 +53,16 @@ $(function () {
 	    <h2>Release notes</h2>
 	    <div class="welcome_release_container">
 	      <ul class="welcome_release_list">
-	        <li class="welcome_release_item"><span>To do...</span></li>
+
+					<li class="welcome_release_item"><span>Support to PostgreSQL 12.</span></li>
+					<li class="welcome_release_item"><span>Table DDL panel shows generated columns.</span></li>
+					<li class="welcome_release_item"><span>Added SQL template for Cluster Index, accessible from context menu in TreeView.</span></li>
+					<li class="welcome_release_item"><span>Added Advanced Object Search as an option in Inner Tab context menu.</span></li>
+					<li class="welcome_release_item"><span>Fixed: Server ping causing peaks of false positives in moments of brief network interruption or idle activities, or when the notebook running OmniDB was put to sleep.</span></li>
+					<li class="welcome_release_item"><span>Fixed: High CPU usage when SSH console is being used and tunnel gets closed.</span></li>
+					<li class="welcome_release_item"><span>Fixed: Render issue with graph chart type.</span></li>
+					<li class="welcome_release_item"><span>Fixed: Permission issue to install OmniDB plugins on Linux.</span></li>
+
 	      </ul>
 	    </div>
 	  </div>
@@ -1552,6 +1574,41 @@ function showMenuNewTab(e) {
 			}
 		}
 	]
+
+	if (v_connTabControl.selectedTab.tag.selectedDBMS == 'postgresql') {
+		var v_openTabAdvancedObjectSearch = function() {
+			execAjax('/get_postgresql_version/',
+				JSON.stringify({
+					'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					'p_tab_id': v_connTabControl.selectedTab.id
+				}),
+				function(p_return) {
+					tabAdvancedObjectSearch(parseInt(getMajorVersionPostgresql(p_return.v_data.v_version)));
+				},
+				function(p_return) {
+					if (p_return.v_data.password_timeout) {
+						showPasswordPrompt(
+							v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+							function() {
+								v_openTabAdvancedObjectSearch();
+							},
+							null,
+							p_return.v_data.message
+						);
+					}
+				},
+				'box'
+			);
+		};
+
+		v_option_list.push(
+			{
+				text: 'Advanced Object Search',
+				icon: 'fas cm-all fa-binoculars',
+				action: v_openTabAdvancedObjectSearch
+			}
+		);
+	}
 
 	if (v_connTabControl.selectedTab.tag.selectedDBMS=='postgresql' ||
 			v_connTabControl.selectedTab.tag.selectedDBMS=='mysql' ||

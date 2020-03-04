@@ -3,12 +3,13 @@
 
 $script = <<SCRIPT
 echo I am provisioning...
+DEBIAN_FRONTEND=noninteractive apt-get -y install wget gnupg
 PG_VERSION=12
-echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+echo "deb http://apt.postgresql.org/pub/repos/apt/ buster-pgdg main" > /etc/apt/sources.list.d/pgdg.list
 wget --quiet -O - https://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | apt-key add -
 apt-get update
-apt-get -y upgrade
-apt-get -y install "postgresql-$PG_VERSION"
+DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+DEBIAN_FRONTEND=noninteractive apt-get -y install "postgresql-$PG_VERSION"
 PG_CONF="/etc/postgresql/$PG_VERSION/main/postgresql.conf"
 PG_HBA="/etc/postgresql/$PG_VERSION/main/pg_hba.conf"
 PG_DIR="/var/lib/postgresql/$PG_VERSION/main"
@@ -21,17 +22,17 @@ cat << EOF | su - postgres -c psql
 ALTER USER postgres WITH PASSWORD 'postgres';
 EOF
 systemctl restart postgresql
-apt -y install ubuntu-desktop
+apt -y install gnome-core
 date > /etc/vagrant_provisioned_at
 SCRIPT
 
 Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $script
-  config.vm.box = "ubuntu/xenial64"
-  config.vm.box_url = "https://app.vagrantup.com/ubuntu/boxes/xenial64"
-  config.vm.host_name = "omnidbuatubuntu16"
+  config.vm.box = "debian/buster64"
+  config.vm.box_url = "https://app.vagrantup.com/debian/boxes/buster64"
+  config.vm.host_name = "omnidbuatdebian10"
   config.vm.provider :virtualbox do |vb|
-    vb.name = "omnidb_uat_ubuntu16"
+    vb.name = "omnidb_uat_debian10"
     vb.gui = true
     vb.memory = 2048
     vb.cpus = 2

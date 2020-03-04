@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2.15.0
+VERSION=2.17.0
 ARCH=debian-amd64
 
 echo "Installing OmniDB dependencies..."
@@ -37,6 +37,9 @@ mkdir deploy/packages
 cp dist/omnidb-config/omnidb-config dist/omnidb-server/omnidb-config-server
 mv dist/omnidb-server deploy/packages
 chmod 777 deploy/packages/omnidb-server/OmniDB_app/static/temp/
+chmod 777 deploy/packages/omnidb-server/OmniDB_app/static/plugins/
+chmod 777 deploy/packages/omnidb-server/OmniDB_app/plugins/
+chmod 777 deploy/packages/omnidb-server/OmniDB_app/plugins/temp_loaded/
 rm -rf dist
 echo "Done."
 
@@ -113,6 +116,10 @@ EOF
 chmod 755 DEBIAN/preinst
 cat > DEBIAN/postinst << EOF
 #!/bin/bash
+chmod 777 /opt/omnidb-server/OmniDB_app/static/temp/
+chmod 777 /opt/omnidb-server/OmniDB_app/static/plugins/
+chmod 777 /opt/omnidb-server/OmniDB_app/plugins/
+chmod 777 /opt/omnidb-server/OmniDB_app/plugins/temp_loaded/
 systemctl daemon-reload
 systemctl enable omnidb
 systemctl start omnidb

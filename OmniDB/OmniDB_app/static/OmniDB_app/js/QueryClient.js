@@ -1,13 +1,26 @@
 /*
-Copyright 2015-2017 The OmniDB Team
+The MIT License (MIT)
 
-This file is part of OmniDB.
+Portions Copyright (c) 2015-2019, The OmniDB Team
+Portions Copyright (c) 2017-2019, 2ndQuadrant Limited
 
-OmniDB is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
 /// <summary>
@@ -58,6 +71,7 @@ var v_client_tooltip_timer = null;
 
 //Ping timer
 var v_client_ping_timer = null;
+var v_client_ping_response_timer = null;
 
 /// <summary>
 /// The variable that will receive the WebSocket object.
@@ -84,9 +98,9 @@ function setStatusIcon(p_mode) {
 
 //
 function websocketPing() {
-	setTimeout( function() {
+	v_client_ping_timer = setTimeout( function() {
 		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Ping, null, false);
-		v_client_ping_timer = setTimeout(function() {
+		v_client_ping_response_timer = setTimeout(function() {
 			try {
 				v_queryWebSocket.close();
 			}
@@ -101,12 +115,8 @@ function websocketPing() {
 
 function websocketPong() {
 	clearTimeout(v_client_ping_timer);
-	setTimeout( function() {
-		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Ping, null, false);
-		v_client_ping_timer = setTimeout(function() {
-			websocketClosed();
-		},20000);
-	},120000);
+	clearTimeout(v_client_ping_response_timer);
+	websocketPing();
 
 }
 
@@ -115,6 +125,10 @@ function websocketPong() {
 /// </summary>
 /// <param name="p_port">Port where chat will listen for connections.</param>
 function startQueryWebSocket(p_port) {
+
+	clearTimeout(v_client_ping_timer);
+	clearTimeout(v_client_ping_response_timer);
+
 
 	setStatusIcon(1);
 

@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-VERSION=2.15.0
+VERSION=2.17.0
 ARCH=centos-amd64
 
 echo "Installing OmniDB dependencies..."
@@ -45,6 +45,9 @@ rm -rf build
 mkdir deploy/packages
 cp dist/omnidb-config/omnidb-config dist/omnidb-server/omnidb-config-server
 chmod 777 dist/omnidb-server/OmniDB_app/static/temp/
+chmod 777 dist/omnidb-server/OmniDB_app/static/plugins/
+chmod 777 dist/omnidb-server/OmniDB_app/plugins/
+chmod 777 dist/omnidb-server/OmniDB_app/plugins/temp_loaded/
 rm -rf ~/OmniDB/omnidb_app/omnidb-server
 mv dist/omnidb-server ~/OmniDB/omnidb_app
 rm -rf dist

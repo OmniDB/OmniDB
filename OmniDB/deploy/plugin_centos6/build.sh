@@ -1,18 +1,12 @@
 #!/bin/bash
 
-VERSION=2.15.0
+VERSION=2.17.0
 ARCH=centos-amd64
 
 cd ~/OmniDB/omnidb_plugin
 
 echo -n "Cleaning... "
 rm -f *.o
-echo "Done."
-
-echo "Compiling for 9.3... "
-rm -f *.o
-gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-9.3/lib -lpq -I /usr/pgsql-9.3/include -I /usr/pgsql-9.3/include/server
-gcc -fPIC -o omnidb_plugin_93.so omnidb_plugin.o -L /usr/pgsql-9.3/lib -lpq -shared
 echo "Done."
 
 echo "Compiling for 9.4... "
@@ -43,6 +37,12 @@ echo "Compiling for 11... "
 rm -f *.o
 gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-11/lib -lpq -I /usr/pgsql-11/include -I /usr/pgsql-11/include/server
 gcc -fPIC -o omnidb_plugin_11.so omnidb_plugin.o -L /usr/pgsql-11/lib -lpq -shared
+echo "Done."
+
+echo "Compiling for 12... "
+rm -f *.o
+gcc -fPIC -c -o omnidb_plugin.o omnidb_plugin.c -L /usr/pgsql-12/lib -lpq -I /usr/pgsql-12/include -I /usr/pgsql-12/include/server
+gcc -fPIC -o omnidb_plugin_12.so omnidb_plugin.o -L /usr/pgsql-12/lib -lpq -shared
 echo "Done."
 
 echo -n "Cleaning... "

@@ -221,6 +221,7 @@ def check_port(port):
     try:
         s.bind(("127.0.0.1", port))
     except socket.error as e:
+        print(str(e))
         return False
     s.close()
     return True
@@ -228,7 +229,6 @@ def check_port(port):
 class DjangoApplication(object):
 
     def mount_static(self, url, root):
-        print(url)
         config = {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': root,

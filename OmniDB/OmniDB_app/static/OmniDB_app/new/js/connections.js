@@ -28,8 +28,6 @@ function startConnectionManagement() {
 
 function showConnectionList(p_open_modal, p_change_group) {
 
-  var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex});
-
 	var v_conn_id_list = [];
 
 	for (var i=0; i < v_connTabControl.tabList.length; i++) {

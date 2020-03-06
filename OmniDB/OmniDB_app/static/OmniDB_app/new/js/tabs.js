@@ -19,7 +19,7 @@ function composedPath(el) {
     }
 }
 
-function createTabControl({ p_div }) {
+function createTabControl({ p_div, p_hierarchy }) {
 
 	// Get an element's exact position
 	function getPosition(el) {
@@ -51,14 +51,29 @@ function createTabControl({ p_div }) {
   // Initializing HTML elements
 	var v_div = document.getElementById(p_div);
   v_div.innerHTML = '';
+
   var v_nav = document.createElement('nav');
   var v_div_tab_list = document.createElement('div');
   v_div_tab_list.className = 'nav nav-tabs';
   v_nav.appendChild(v_div_tab_list);
   var v_div_tab_content_list = document.createElement('div');
-  v_div_tab_content_list.className = 'tab-content';
+  v_div_tab_content_list.className = 'omnidb__tab-content omnidb__tab-content--primary tab-content';
 
-  v_div.appendChild(v_nav);
+  var v_tab_menu = document.createElement('div');
+  v_tab_menu.className = 'omnidb__tab-menu';
+
+  if (p_hierarchy != undefined) {
+    let css_tab_menu_variations = [
+      'omnidb__tab-menu--',
+      'omnidb__theme-bg--menu-'
+    ];
+    for (let i = 0; i < css_tab_menu_variations.length; i++) {
+      v_tab_menu.classList.add(css_tab_menu_variations[i] + p_hierarchy);
+    }
+  }
+
+  v_tab_menu.appendChild(v_nav);
+  v_div.appendChild(v_tab_menu);
   v_div.appendChild(v_div_tab_content_list);
 
 	var v_tabControl = {
@@ -210,15 +225,16 @@ function createTabControl({ p_div }) {
 
 		},
 		createTab : function({
-      p_name = '',
-      p_close = true,
       p_clickFunction = null,
-      p_dblClickFunction = null,
+      p_close = true,
       p_closeFunction = null,
+      p_dblClickFunction = null,
+      p_disabled = false,
+      p_icon = false,
       p_isDraggable = true,
+      p_name = '',
       p_selectFunction = null,
-      p_selectable = true,
-      p_disabled = false
+      p_selectable = true
     }) {
 			var v_control = this;
 			var v_index = this.tabCounter;
@@ -263,7 +279,7 @@ function createTabControl({ p_div }) {
 
 
       var v_close = document.createElement('i');
-      v_close.className = 'fas fa-times tab-icon icon-close';
+      v_close.className = 'fas fa-times tab-icon icon-close omnidb__tab-menu__link-close';
 
 			v_tab.elementClose = v_close;
 
@@ -274,7 +290,10 @@ function createTabControl({ p_div }) {
           v_tab.closeFunction(e,v_tab);
         }
 			};
-			v_a.innerHTML = '<span>' + p_name + '<span>';
+			v_a.innerHTML = '<span class="omnidb__tab-menu__link-content">' +
+                        ((p_icon !== false) ? '<span class="omnidb__menu__btn omnidb__tab-menu__link-icon">' + p_icon + '</span>' : '') +
+                        '<span class="omnidb__tab-menu__link-name">' + p_name + '<span>' +
+                      '<span>';
       if (p_close) {
   			v_a.appendChild(v_close);
       }

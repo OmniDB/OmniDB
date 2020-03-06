@@ -5,7 +5,8 @@ $(function () {
 
   // Instantiating outer tab component
   v_connTabControl = createTabControl({
-    p_div: 'omnidb_main_tablist'
+    p_div: 'omnidb_main_tablist',
+    p_hierarchy: 'primary'
   });
   // Objects to control sequential change of active database tabs
   v_connTabControl.tag.change_active_database_call_list = [];
@@ -19,8 +20,9 @@ $(function () {
       p_selectable: false,
       p_clickFunction: function(e) {
         showMenuNewTabOuter(e);
+      }
     }
-  });
+  );
 
   // Instantiating functions responsible for creating all the different types
   // of tabs

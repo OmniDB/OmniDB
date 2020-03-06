@@ -14,20 +14,96 @@
   z-index: 1001;
 }
 
+.omnidb__utilities-menu .omnidb__menu__btn {
+  margin-left: 0px;
+  margin-right: 0px;
+  width: 0px;
+  transition: 0.35s;
+}
+.omnidb__utilities-menu:hover .omnidb__menu__btn {
+  width: 27px;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+}
+
 .omnidb__menu__btn {
+  align-items: center;
   border-radius: 100%;
   background-color: #FFF;
+  display: flex;
+  justify-content: center;
   height: 27px;
   width: 27px;
+  overflow: hidden;
 }
 
 /* TAB MENU */
 .omnidb__tab-menu {
-  position: fixed;
+  /* position: fixed;
   bottom: 0px;
   height: 100%;
   left: 0px;
+  top: 0px; */
+}
+.omnidb__tab-menu--primary {
+  bottom: 0px;
+  height: 100%;
+  left: 0px;
+  padding: 3px;
+  position: fixed;
   top: 0px;
+  z-index: 2100;
+}
+/* .omnidb__tab-menu--secondary {
+  left: 52px;
+  z-index: 2100;
+} */
+
+.omnidb__tab-menu--primary .nav-tabs {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-flex-start;
+}
+
+.omnidb__tab-menu--primary .nav-tabs .nav-item {
+  margin-bottom: 3px;
+  margin-top: 3px;
+  padding: 0px;
+  position: relative;
+}
+
+.omnidb__tab-menu .omnidb__tab-menu__link-close {
+  opacity: 0;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+.omnidb__tab-menu:hover .omnidb__tab-menu__link-close {
+  opacity: 1;
+}
+
+.omnidb__tab-menu .omnidb__tab-menu__link-content {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
+  display: inline-block;
+  width: 0px;
+  overflow: hidden;
+  transition: 0.35s;
+  white-space: nowrap;
+}
+.omnidb__tab-menu--primary:hover .omnidb__tab-menu__link-name {
+  width: 160px;
+}
+
+/* TAB-CONTENT */
+.omnidb__tab-content--primary {
+  margin-left: 35px;
 }
 
 /* OLD TEMPLATE */

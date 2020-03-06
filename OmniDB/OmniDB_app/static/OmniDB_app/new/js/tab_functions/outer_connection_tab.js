@@ -9,7 +9,8 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
     v_connTabControl.removeLastTab();
 
     var v_tab = v_connTabControl.createTab({
-      p_name: '<span id="tab_title"><img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/> ' + v_connTabControl.tag.connections[0].v_alias + '</span>',
+      p_icon: '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/>',
+      p_name: '<span id="tab_title">' + v_connTabControl.tag.connections[0].v_alias + '</span>',
       p_selectFunction: function() {
         document.title = 'OmniDB'
         if(this.tag != null) {

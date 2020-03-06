@@ -1,3 +1,36 @@
+.omnidb__theme-bg--menu-primary {
+  background-color: #839EC7;
+}
+
+.omnidb__rounded--lg {
+  border-radius: 18px;
+}
+
+.omnidb__utilities-menu {
+  padding: 0.25rem 0.125rem;
+  position: fixed;
+  right: 5px;
+  top: 5px;
+  z-index: 1001;
+}
+
+.omnidb__menu__btn {
+  border-radius: 100%;
+  background-color: #FFF;
+  height: 27px;
+  width: 27px;
+}
+
+/* TAB MENU */
+.omnidb__tab-menu {
+  position: fixed;
+  bottom: 0px;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+}
+
+/* OLD TEMPLATE */
 body {
 }
 

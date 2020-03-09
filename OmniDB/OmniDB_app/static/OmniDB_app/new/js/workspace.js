@@ -147,6 +147,7 @@ function changeDatabase(p_value) {
   v_connTabControl.selectedTab.tag.selectedDatabase = v_conn_object.v_database;
   v_connTabControl.selectedTab.tag.selectedTitle = v_conn_object.v_alias;
 
+  // Icons are now built inside the function with p_icon
   // if (v_connTabControl.selectedTab.tag.selectedTitle!='')
   // 	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedTitle + ' - ' + v_connTabControl.selectedTab.tag.selectedDatabase;
   // else

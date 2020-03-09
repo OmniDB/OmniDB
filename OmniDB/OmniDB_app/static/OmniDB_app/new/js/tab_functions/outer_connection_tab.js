@@ -61,29 +61,33 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
     "<div class='container-fluid'>" +
       "<div class='row'>" +
         "<div id='" + v_tab.id + "_div_left' class='col-md-2'>" +
-          "<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
-          "<div style='margin-right: 10px;'>" +
-            "<div id='" + v_tab.id + "_details' class='connection_details' ></div>" +
-            "<div id='" + v_tab.id + "_tree' style='margin-top: 5px; overflow: auto; height: 300px;'></div>" +
-            "<div onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
-            "<div style='position: relative;'>" +
-              "<div id='" + v_tab.id + "_loading' class='div_loading' style='z-index: 1000;'>" +
+          "<div class='row'>" +
+            "<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
+            "<div class='w-100' style='padding-right: 10px;'>" +
+              "<div id='" + v_tab.id + "_details' class='connection_details' ></div>" +
+              "<div id='" + v_tab.id + "_tree' style='margin-top: 5px; overflow: auto; height: 300px;'></div>" +
+              "<div onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+              "<div style='position: relative;'>" +
+                "<div id='" + v_tab.id + "_loading' class='div_loading' style='z-index: 1000;'>" +
 
-              '<div class="div_loading_cover"></div>' +
-              '<div class="div_loading_content">' +
-              '  <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">' +
-              '    <span class="sr-only ">Loading...</span>' +
-              '  </div>' +
-              '</div>' +
+                '<div class="div_loading_cover"></div>' +
+                '<div class="div_loading_content">' +
+                '  <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">' +
+                '    <span class="sr-only ">Loading...</span>' +
+                '  </div>' +
+                '</div>' +
+                "</div>" +
+                "<div id='tree_tabs_" + v_tab.id + "' style='position: relative;'></div>" +
               "</div>" +
-              "<div id='tree_tabs_" + v_tab.id + "' style='position: relative;'></div>" +
             "</div>" +
           "</div>" +
-        "</div>" +
+        "</div>" +//.div_left
         "<div id='" + v_tab.id + "_div_right' class='col-md-10'>" +
-          "<div id='" + v_tab.id + "_tabs'></div>" +
-        "</div>" +
-      "</div>" +
+          "<div class='row'>" +
+            "<div id='" + v_tab.id + "_tabs'></div>" +
+          "</div>" +
+        "</div>" +//.div_right
+      "</div>" +//.row
     "</div>";
 
     var v_tab_title_span = document.getElementById('tab_title');

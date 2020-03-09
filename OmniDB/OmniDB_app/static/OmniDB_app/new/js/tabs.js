@@ -273,9 +273,9 @@ function createTabControl({ p_div, p_hierarchy }) {
       v_a.setAttribute('aria-controls','div_' + p_div + '_tab' + v_index);
 
       if (p_disabled)
-        v_a.className = 'nav-item nav-link disabled';
+        v_a.className = 'omnidb__tab-menu__link nav-item nav-link disabled';
       else
-        v_a.className = 'nav-item nav-link';
+        v_a.className = 'omnidb__tab-menu__link nav-item nav-link';
 
 
       var v_close = document.createElement('i');

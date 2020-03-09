@@ -126,7 +126,11 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
     v_treeTabs.selectTabIndex(0);
 
     // Tab control on the right (for queries, consoles, etc)
-    var v_currTabControl = createTabControl({ p_div: v_tab.id + '_tabs' });
+    // var v_currTabControl = createTabControl({ p_div: v_tab.id + '_tabs' });
+    var v_currTabControl = createTabControl({
+      p_div: v_tab.id + '_tabs',
+      p_hierarchy: 'secondary'
+    });
     v_currTabControl.createTab(
       {
         p_name: '+',
@@ -261,7 +265,8 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
     // Creating + tab in the outer tab list
     v_connTabControl.createTab(
       {
-        p_name: '+',
+        p_icon: "<i class='fas fa-plus'></i>",
+        p_name: 'Add connection',
         p_close: false,
         p_selectable: false,
         p_clickFunction: function(e) {

@@ -57,7 +57,7 @@ function createTabControl({ p_div, p_hierarchy }) {
   v_div_tab_list.className = 'nav nav-tabs';
   v_nav.appendChild(v_div_tab_list);
   var v_div_tab_content_list = document.createElement('div');
-  v_div_tab_content_list.className = 'omnidb__tab-content omnidb__tab-content--primary tab-content';
+  v_div_tab_content_list.className = 'tab-content omnidb__tab-content';
 
   var v_tab_menu = document.createElement('div');
   v_tab_menu.className = 'omnidb__tab-menu';
@@ -70,6 +70,7 @@ function createTabControl({ p_div, p_hierarchy }) {
     for (let i = 0; i < css_tab_menu_variations.length; i++) {
       v_tab_menu.classList.add(css_tab_menu_variations[i] + p_hierarchy);
     }
+    v_div_tab_content_list.classList.add('omnidb__tab-content--' + p_hierarchy);
   }
 
   v_tab_menu.appendChild(v_nav);

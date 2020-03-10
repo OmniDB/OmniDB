@@ -695,11 +695,26 @@ function showMenuNewTab(e) {
 }
 
 function dragStart(event, gridContainer) {
-  event.dataTransfer.setData("Text", event.target.id);
-  gridContainer.classList.add('omnidb__workspace-resize-grid--active');
+  try {
+    event.dataTransfer.setData("Text", event.target.id);
+    event.dataTransfer.effectAllowed = "move";
+    gridContainer.classList.add('omnidb__workspace-resize-grid--active');
+    event.srcElement.classList.add('omnidb__workspace-resize-grid__draggable--is-dragging');
+  }
+  catch (e) {
+
+  }
 }
 
 function dragEnd(event, gridContainer) {
+}
+
+function dragEnter(event) {
+  event.target.classList.add('omnidb__workspace-resize-grid__column--enter');
+}
+
+function dragLeave(event) {
+  event.target.classList.remove('omnidb__workspace-resize-grid__column--enter');
 }
 
 function allowDrop(event) {
@@ -708,14 +723,26 @@ function allowDrop(event) {
 
 function drop(event, grid_container, div_left, div_right) {
   event.preventDefault();
-  var data = event.dataTransfer.getData("Text");
-  event.target.appendChild(document.getElementById(data));
-  grid_container.classList.remove('omnidb__workspace-resize-grid--active');
+  try {
+    var data = event.dataTransfer.getData("Text");
+    event.target.appendChild(document.getElementById(data));
+    grid_container.classList.remove('omnidb__workspace-resize-grid--active');
+    document.getElementById(data).classList.remove('omnidb__workspace-resize-grid__draggable--is-dragging');
 
-	let pos = parseInt( event.srcElement.getBoundingClientRect().left );
-	let space = parseInt( window.innerWidth );
-	let cells = Math.round( pos*12 / space );
+  	let pos = parseInt( event.srcElement.getBoundingClientRect().left );
+  	let space = parseInt( window.innerWidth );
+  	let cells = Math.round( pos*12 / space );
 
-  div_left.classList = ['col-md-' + cells];
-  div_right.classList = ['col-md-' + (12 - cells)];
+    div_left.classList = ['col-md-' + cells];
+    div_right.classList = ['col-md-' + (12 - cells)];
+
+    let cols = document.getElementsByClassName('omnidb__workspace-resize-grid__column');
+    for (let i = 0; i < cols.length; i++) {
+      document.getElementsByClassName('omnidb__workspace-resize-grid__column')[i].classList.remove('omnidb__workspace-resize-grid__column--enter');
+    }
+  }
+  catch (e) {
+
+  }
+
 }

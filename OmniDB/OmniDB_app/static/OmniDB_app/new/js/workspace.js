@@ -706,7 +706,9 @@ function dragStart(event, gridContainer) {
   }
 }
 
-function dragEnd(event, gridContainer) {
+function dragEnd(event, grid_container) {
+  grid_container.classList.remove('omnidb__workspace-resize-grid--active');
+  event.target.classList.remove('omnidb__workspace-resize-grid__draggable--is-dragging');
 }
 
 function dragEnter(event) {
@@ -726,8 +728,6 @@ function drop(event, grid_container, div_left, div_right) {
   try {
     var data = event.dataTransfer.getData("Text");
     event.target.appendChild(document.getElementById(data));
-    grid_container.classList.remove('omnidb__workspace-resize-grid--active');
-    document.getElementById(data).classList.remove('omnidb__workspace-resize-grid__draggable--is-dragging');
 
   	let pos = parseInt( event.srcElement.getBoundingClientRect().left );
   	let space = parseInt( window.innerWidth );

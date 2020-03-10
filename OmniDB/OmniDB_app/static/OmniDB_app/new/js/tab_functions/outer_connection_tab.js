@@ -58,12 +58,15 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
     var v_complement_width = 100 - v_width;
 
     var v_html =
-    "<div class='container-fluid'>" +
+    "<div class='container-fluid' style='position: relative;'>" +
       "<div class='row'>" +
         "<div id='" + v_tab.id + "_div_left' class='col-md-2'>" +
           "<div class='row'>" +
-            "<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
-            "<div class='w-100' style='padding-right: 10px;'>" +
+
+            // "<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
+
+
+            "<div class='w-100' style='padding-right: 15px;'>" +
               "<div id='" + v_tab.id + "_details' class='connection_details' ></div>" +
               "<div id='" + v_tab.id + "_tree' style='margin-top: 5px; overflow: auto; height: 300px;'></div>" +
               "<div onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
@@ -88,6 +91,34 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
           "</div>" +
         "</div>" +//.div_right
       "</div>" +//.row
+
+      "<div id='" + v_tab.id + "_workspace_resize_grid' class='omnidb__workspace-resize-grid'>" +
+        "<div class='container-fluid h-100'>" +
+          "<div class='row h-100'>" +
+
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'>" +
+              "<div id='"+ v_tab.id + "_workspace_resize_draggable' ondragstart='dragStart(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' dragEnd='workspaceResizeHorizontalEnd(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' draggable='true' class='omnidb__workspace-resize-grid__draggable' style='width: 30px; height: 100%; cursor: ew-resize;'>" +
+                "<div class='resize_line_vertical' style='width: 22px; height: 100%; border-right: 1px dotted #c3c3c3;'></div>" +
+              "</div>" +
+            "</div></div>" +
+
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+            "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
+
+          "</div>" +
+        "</div>" +
+      "</div>" +
+
     "</div>";
 
     var v_tab_title_span = document.getElementById('tab_title');

@@ -693,3 +693,29 @@ function showMenuNewTab(e) {
 		null);
 
 }
+
+function dragStart(event, gridContainer) {
+  event.dataTransfer.setData("Text", event.target.id);
+  gridContainer.classList.add('omnidb__workspace-resize-grid--active');
+}
+
+function dragEnd(event, gridContainer) {
+}
+
+function allowDrop(event) {
+  event.preventDefault();
+}
+
+function drop(event, grid_container, div_left, div_right) {
+  event.preventDefault();
+  var data = event.dataTransfer.getData("Text");
+  event.target.appendChild(document.getElementById(data));
+  grid_container.classList.remove('omnidb__workspace-resize-grid--active');
+
+	let pos = parseInt( event.srcElement.getBoundingClientRect().left );
+	let space = parseInt( window.innerWidth );
+	let cells = Math.round( pos*12 / space );
+
+  div_left.classList = ['col-md-' + cells];
+  div_right.classList = ['col-md-' + (12 - cells)];
+}

@@ -465,7 +465,7 @@ function createInnerTab({ p_name = '', p_icon = '', p_select_function = null, p_
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
     {
       p_icon: p_icon,
-      p_name: p_name,
+      p_name: '<span id="tab_title"> ' + p_name + '</span>',
       p_selectFunction: function() {
         if(p_select_function != null) {
           p_select_function();
@@ -522,7 +522,7 @@ function createOuterTab({ p_name = '', p_icon = '', p_select_function = null, p_
   var v_tab = v_connTabControl.createTab(
     {
       p_icon: p_icon,
-      p_name: p_name,
+      p_name: '<span id="tab_title"> ' + p_name + '</span>',
       p_selectFunction: function() {
         if(p_select_function != null) {
           p_select_function();

@@ -17,6 +17,11 @@
   .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon {
     margin-right: 3px;
   }
+
+  /* MAIN */
+  .omnidb__main__tablist-toggler {
+    display: none;
+  }
 }
 
 @media (min-width: 1280px) and (max-width: 1439px) {
@@ -58,6 +63,25 @@
     overflow: hidden;
   }
 
+  /* MAIN */
+  .omnidb__main__tablist-toggler {
+    align-items: center;
+    color: #434f66;
+    display: flex;
+    justify-content: center;
+    padding: .5rem 1rem;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    font-size: 1.5rem;
+    z-index: 5000;
+    height: 42px;
+    line-height: 1;
+    text-align: center;
+    display: block;
+    border: none;
+  }
+
   /* TAB MENU */
   .omnidb__tab-menu {
     /* position: fixed;
@@ -86,12 +110,16 @@
 
   /* TAB MENU -- PRIMARY */
   .omnidb__tab-menu--primary {
+    background-color: #e5e5e8;
     bottom: 0px;
     height: 100%;
-    left: 0px;
+    left: 46px;
+    overflow: hidden;
     padding: 0px;
     position: fixed;
     top: 0px;
+    transition: 0.35s;
+    width: 0px;
     z-index: 2100;
   }
   .omnidb__tab-menu--primary .nav-tabs {
@@ -114,13 +142,14 @@
   }
   .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
     display: inline-block;
-    width: 0px;
+    width: 160px;
     overflow: hidden;
     transition: 0.35s;
     white-space: nowrap;
   }
-  .omnidb__tab-menu--primary:hover .omnidb__tab-menu__link-name {
-    width: 160px;
+
+  .omnidb__tab-menu.omnidb__tab-menu--primary.omnidb__tab-menu--dropin {
+    width: 196px;
   }
 
   /* TAB MENU -- SECONDARY */
@@ -137,9 +166,12 @@
 
   /* TAB-CONTENT */
   .omnidb__tab-content--primary {
-    margin-left: 35px;
+    border-left: 46px solid #f8f9fa;
   }
 }
+/* END QUERYS */
+
+
 
 /* RESIZE GRID */
 .omnidb__workspace-resize-grid {

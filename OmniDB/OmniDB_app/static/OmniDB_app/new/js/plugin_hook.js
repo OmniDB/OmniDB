@@ -87,20 +87,20 @@ You should have received a copy of the GNU General Public License along with Omn
     - p_loading: whether to show the loading image.
     - p_check_database_connection: whether to check if the database connection is working before calling the python function.
 
-- ```createInnerTab({ p_name: '', p_image: '', p_select_function: null, p_before_close_function: null })```
+- ```createInnerTab({ p_name: '', p_icon: '', p_select_function: null, p_before_close_function: null })```
   - **DESCRIPTION**: Creates an internal blank tab.
   - **PARAMETERS**:
     - p_name: the name of the tab.
-    - p_image: path of an image to be used in the tab title. Use together with getPluginPath() to get the correct relative path.
+    - p_icon: path of an image to be used in the tab title. Use together with getPluginPath() to get the correct relative path.
     - p_select_function: function to be called whenever the tab is selected.
     - p_before_close_function: function to be called before the tab is closed.
   - **RETURNS**: tab object tag.
 
-- ```createOuterTab({ p_name: '', p_image: '', p_select_function: null, p_before_close_function: null })```
+- ```createOuterTab({ p_name: '', p_icon: '', p_select_function: null, p_before_close_function: null })```
   - **DESCRIPTION**: Creates an external blank tab.
   - **PARAMETERS**:
     - p_name: the name of the tab.
-    - p_image: path of an image to be used in the tab title. Use together with getPluginPath() to get the correct relative path.
+    - p_icon: path of an image to be used in the tab title. Use together with getPluginPath() to get the correct relative path.
     - p_select_function: function to be called whenever the tab is selected.
     - p_before_close_function: function to be called before the tab is closed.
   - **RETURNS**: tab object tag.
@@ -458,13 +458,14 @@ function createSQLTab({ p_name = '', p_template = '', p_show_tip = true }) {
   tabSQLTemplate(p_name, p_template, p_show_tip);
 }
 
-function createInnerTab({ p_name = '', p_image = '', p_select_function = null, p_before_close_function = null }) {
+function createInnerTab({ p_name = '', p_icon = '', p_select_function = null, p_before_close_function = null }) {
 
   v_connTabControl.selectedTab.tag.tabControl.removeLastTab();
 
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
     {
-      p_name: '<i class="' + p_image + ' icon-tab-title"></i><span id="tab_title"> ' + p_name + '</span>',
+      p_icon: p_icon,
+      p_name: p_name,
       p_selectFunction: function() {
         if(p_select_function != null) {
           p_select_function();
@@ -515,12 +516,13 @@ function getSelectedOuterTabTag() {
   return v_connTabControl.selectedTab.tag;
 }
 
-function createOuterTab({ p_name = '', p_image = '', p_select_function = null, p_before_close_function = null }) {
+function createOuterTab({ p_name = '', p_icon = '', p_select_function = null, p_before_close_function = null }) {
   v_connTabControl.removeLastTab();
 
   var v_tab = v_connTabControl.createTab(
     {
-      p_name: '<i class="' + p_image + ' icon-tab-title"></i><span id="tab_title"> ' + p_name + '</span>',
+      p_icon: p_icon,
+      p_name: p_name,
       p_selectFunction: function() {
         if(p_select_function != null) {
           p_select_function();

@@ -360,7 +360,3 @@ function createImgElement(p_id,p_class,p_src) {
 		element.src = p_src;
 	return element;
 }
-
-function togglePrimaryTab() {
-  document.getElementsByClassName('omnidb__tab-menu--primary')[0].classList.toggle('omnidb__tab-menu--dropin');
-}

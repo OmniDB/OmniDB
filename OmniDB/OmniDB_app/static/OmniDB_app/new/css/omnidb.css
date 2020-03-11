@@ -149,6 +149,9 @@
     margin-top: 3px;
     padding-right: 80px;
   }
+  .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
+    padding-right: 10px;
+  }
   .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon {
     margin-right: 3px;
   }
@@ -290,6 +293,10 @@
     margin-top: 3px;
     padding-right: 80px;
   }
+  .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
+    padding-right: 10px;
+  }
+
   .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon {
     margin-right: 3px;
   }

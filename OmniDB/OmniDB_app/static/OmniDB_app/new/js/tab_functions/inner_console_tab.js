@@ -43,20 +43,19 @@ var v_createConsoleTabFunction = function() {
         "</div>" +
         "</span>" +
         "</div>" +
-        "<div class='tab_actions'>" +
-        "<button id='bt_start_" + v_tab.id + "' class='bt_icon_only' title='Run' onclick='consoleSQL(false);'><i class='fas fa-play fa-light'></i></button>" +
-        "<button id='bt_indent_" + v_tab.id + "' class='bt_icon_only' title='Indent SQL' onclick='indentSQL();'><i class='fas fa-indent fa-light'></i></button>" +
-        "<button id='bt_clear_" + v_tab.id + "' class='bt_icon_only' title='Clear Console' onclick='clearConsole();'><i class='fas fa-broom fa-light'></i></button>" +
-        "<button id='bt_history_" + v_tab.id + "' class='bt_icon_only' title='Command History' onclick='showConsoleHistory();'><i class='fas fa-list fa-light'></i></button>" +
-        "<label class='dbms_object postgresql_object custom_checkbox query_info' style='margin: 0px 10px 0px 5px;'>Autocommit<input id='check_autocommit_" + v_tab.id + "' type='checkbox' checked='checked'><span class='checkmark'></span></label>" +
-        "<i id='query_tab_status_" + v_tab.id + "' title='Not connected' class='fas fa-dot-circle tab-status tab-status-closed dbms_object postgresql_object'></i>" +
-        "<span id='query_tab_status_text_" + v_tab.id + "' title='Not connected' class='tab-status-text query_info dbms_object postgresql_object'>Not connected</span>" +
-        "<button id='bt_fetch_more_" + v_tab.id + "' class='bt_execute bt_fetch' title='Fetch More' style='display: none; ' onclick='consoleSQL(false,1);'>Fetch more</button>" +
-        "<button id='bt_fetch_all_" + v_tab.id + "' class='bt_execute bt_fetch' title='Fetch All' style='margin-left: 5px; display: none; ' onclick='consoleSQL(false,2);'>Fetch all</button>" +
-        "<button id='bt_skip_fetch_" + v_tab.id + "' class='bt_execute bt_fetch' title='Skip Fetch' style='margin-left: 5px; display: none; ' onclick='consoleSQL(false,3);'>Skip Fetch</button>" +
-        "<button id='bt_commit_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(3);'>Commit</button>" +
-        "<button id='bt_rollback_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object bt_fetch' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(4);'>Rollback</button>" +
-        "<button id='bt_cancel_" + v_tab.id + "' class='bt_red' title='Cancel' style=' display: none;' onclick='cancelConsole();'>Cancel</button>" +
+        "<div class='tab_actions omnidb__tab-actions'>" +
+        "<button id='bt_start_" + v_tab.id + "' class='btn btn-sm btn-light omnidb__tab-actions__btn' title='Run' onclick='consoleSQL(false);'><i class='fas fa-play fa-light'></i></button>" +
+        "<button id='bt_indent_" + v_tab.id + "' class='btn btn-sm btn-light omnidb__tab-actions__btn' title='Indent SQL' onclick='indentSQL();'><i class='fas fa-indent fa-light'></i></button>" +
+        "<button id='bt_clear_" + v_tab.id + "' class='btn btn-sm btn-light omnidb__tab-actions__btn' title='Clear Console' onclick='clearConsole();'><i class='fas fa-broom fa-light'></i></button>" +
+        "<button id='bt_history_" + v_tab.id + "' class='btn btn-sm btn-light omnidb__tab-actions__btn' title='Command History' onclick='showConsoleHistory();'><i class='fas fa-list fa-light'></i></button>" +
+        "<div class='omnidb__form-check form-check form-check-inline'><input id='check_autocommit_" + v_tab.id + "' class='form-check-input' type='checkbox' checked='checked'><label class='form-check-label dbms_object postgresql_object custom_checkbox query_info' for='check_autocommit_" + v_tab.id + "'>Autocommit</label></div>" +
+        "<div class='omnidb__tab-status'><i id='query_tab_status_" + v_tab.id + "' title='Not connected' class='fas fa-dot-circle tab-status tab-status-closed dbms_object postgresql_object omnidb__tab-status__icon'></i><span id='query_tab_status_text_" + v_tab.id + "' title='Not connected' class='tab-status-text query_info dbms_object postgresql_object'>Not connected</span></div>" +
+        "<button id='bt_fetch_more_" + v_tab.id + "' class='btn btn-sm btn-light omnidb__tab-actions__btn' title='Fetch More' style='display: none; ' onclick='consoleSQL(false,1);'>Fetch more</button>" +
+        "<button id='bt_fetch_all_" + v_tab.id + "' class='btn btn-sm btn-light omnidb__tab-actions__btn' title='Fetch All' style='margin-left: 5px; display: none; ' onclick='consoleSQL(false,2);'>Fetch all</button>" +
+        "<button id='bt_skip_fetch_" + v_tab.id + "' class='btn btn-sm btn-light omnidb__tab-actions__btn' title='Skip Fetch' style='margin-left: 5px; display: none; ' onclick='consoleSQL(false,3);'>Skip Fetch</button>" +
+        "<button id='bt_commit_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object btn btn-sm btn-light omnidb__tab-actions__btn' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(3);'>Commit</button>" +
+        "<button id='bt_rollback_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object btn btn-sm btn-light omnidb__tab-actions__btn' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(4);'>Rollback</button>" +
+        "<button id='bt_cancel_" + v_tab.id + "' class='btn btn-sm btn-danger omnidb__tab-actions__btn' title='Cancel' style=' display: none;' onclick='cancelConsole();'>Cancel</button>" +
         "<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
         "</div>" +
         "<div id='txt_input_" + v_tab.id + "' style=' width: 100%; height: 150px; border: 1px solid #c3c3c3;'></div>";

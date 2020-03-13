@@ -90,11 +90,11 @@ function changeTheme(p_option) {
 	var p_options = p_option.split('/');
 
 	if (parseInt(p_options[0])>=17) {
-		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/css/themes/dark.css');
+		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/dark.css');
 		v_theme_type = 'dark';
 	}
 	else {
-		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/css/themes/light.css');
+		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/light.css');
 		v_theme_type = 'light';
 	}
 	v_editor_theme = p_options[1];

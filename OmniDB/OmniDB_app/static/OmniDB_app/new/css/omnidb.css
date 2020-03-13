@@ -109,7 +109,7 @@
     height: 100%;
     left: 0px;
     overflow: hidden;
-    padding: 32px 0px 0px 0px;
+    padding: 0px;
     position: fixed;
     top: 0px;
     z-index: 2100;
@@ -253,7 +253,7 @@
     height: 100%;
     left: 0px;
     overflow: hidden;
-    padding: 32px 0px 0px 0px;
+    padding: 0px;
     position: fixed;
     top: 0px;
     z-index: 2100;
@@ -317,6 +317,15 @@
 }
 .omnidb__main-tablist--hide-primary .omnidb__tab-content--primary {
   border-left: none !important;
+}
+.omnidb__tab-menu--primary .nav-tabs .nav-item:first-child {
+  padding: 0px;
+}
+.omnidb__tab-menu--primary .nav-tabs .nav-item:first-child span.omnidb__menu__btn.omnidb__tab-menu__link-icon {
+  background-color: unset;
+}
+.omnidb__tab-menu--primary .nav-tabs .nav-item:first-child img {
+  height: 32px;
 }
 
 

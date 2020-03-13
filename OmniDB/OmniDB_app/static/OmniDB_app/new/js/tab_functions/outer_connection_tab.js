@@ -8,6 +8,17 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
 
     v_connTabControl.removeLastTab();
 
+    // Create the branding item for omnidb
+    var v_tab = v_connTabControl.createTab({
+      p_icon: '<img style="height: 27px;" src="' + v_url_folder + '/static/OmniDB_app/images/omnidb_icon.svg"/>',
+      p_name: '<span id="tab_title"><img style="height: 27px;" src="' + v_url_folder + '/static/OmniDB_app/images/omnidb_logotype.svg"/></span>',
+      p_close: false,
+      p_selectable: false,
+      p_clickFunction: function(e) {
+        return false;
+      }
+    });
+
     var v_tab = v_connTabControl.createTab({
       p_icon: '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/>',
       p_name: '<span id="tab_title">' + v_connTabControl.tag.connections[0].v_alias + '</span>',
@@ -149,14 +160,14 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
           v_selectPropertiesTabFunc();
         }
       });
-      var v_ddl_tab = v_treeTabs.createTab(
-        {
-          p_name: 'DDL',
-          p_close: false,
-          p_clickFunction: function(e) {
-            v_selectDDLTabFunc();
-          }
-        });
+    var v_ddl_tab = v_treeTabs.createTab(
+      {
+        p_name: 'DDL',
+        p_close: false,
+        p_clickFunction: function(e) {
+          v_selectDDLTabFunc();
+        }
+      });
     v_treeTabs.selectTabIndex(0);
 
     // Tab control on the right (for queries, consoles, etc)

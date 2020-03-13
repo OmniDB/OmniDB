@@ -382,6 +382,64 @@
   width: 100%;
 }
 
+
+
+/* TAB ACTIONS */
+.omnidb__tab-actions {
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+}
+.tab_actions.omnidb__tab-actions {
+  margin: 5px 0px;
+}
+.omnidb__tab-actions .omnidb__tab-actions__btn,
+.omnidb__tab-actions .omnidb__tab-actions__select {
+  margin-right: 5px;
+}
+
+.omnidb__tab-status {
+  margin-right: 5px;
+}
+.omnidb__tab-status__icon {
+  margin-right: 5px;
+}
+
+
+/* FORMS */
+.omnidb__form-check .form-check-label {
+  cursor: pointer;
+}
+.omnidb__form-check .form-check-label::before {
+  background-color: #FFF;
+  border: 1px solid #d2d2d2;
+  border-radius: 3px;
+  content: " ";
+  display: inline-block;
+  height: 16px;
+  left: 0px;
+  position: absolute;
+  width: 16px;
+  z-index: 1;
+}
+.omnidb__form-check .form-check-label::after {
+  border-radius: 3px;
+  content: " ";
+  display: inline-block;
+  height: 10px;
+  left: 3px;
+  position: absolute;
+  top: 3px;
+  width: 10px;
+  z-index: 2;
+}
+.omnidb__form-check input:checked~.form-check-label::after {
+  background-color: #43afd2;
+}
+
+
+
+
 /* OLD TEMPLATE */
 body {
 }

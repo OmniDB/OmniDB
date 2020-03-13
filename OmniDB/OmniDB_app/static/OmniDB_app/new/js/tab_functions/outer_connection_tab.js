@@ -71,7 +71,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
     var v_html =
     "<div class='container-fluid' style='position: relative;'>" +
       "<div class='row'>" +
-        "<div id='" + v_tab.id + "_div_left' class='col-md-2'>" +
+        "<div id='" + v_tab.id + "_div_left' class='omnidb__workspace__div-left col-md-2'>" +
           "<div class='row'>" +
 
             // "<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
@@ -91,12 +91,12 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
                 '  </div>' +
                 '</div>' +
                 "</div>" +
-                "<div id='tree_tabs_" + v_tab.id + "' style='position: relative;'></div>" +
+                "<div id='tree_tabs_" + v_tab.id + "' style='position: relative;' class='omnidb__tree-tabs'></div>" +
               "</div>" +
             "</div>" +
           "</div>" +
         "</div>" +//.div_left
-        "<div id='" + v_tab.id + "_div_right' class='col-md-10'>" +
+        "<div id='" + v_tab.id + "_div_right' class='omnidb__workspace__div-right col-md-10'>" +
           "<div class='row'>" +
             "<div id='" + v_tab.id + "_tabs' class='w-100'></div>" +
           "</div>" +

@@ -733,8 +733,8 @@ function drop(event, grid_container, div_left, div_right) {
   	let space = parseInt( window.innerWidth );
   	let cells = Math.round( pos*12 / space );
 
-    div_left.classList = ['col-md-' + cells];
-    div_right.classList = ['col-md-' + (12 - cells)];
+    div_left.classList = [' omnidb__workspace__div-left col-md-' + cells];
+    div_right.classList = [' omnidb__workspace__div-right col-md-' + (12 - cells)];
 
     let cols = document.getElementsByClassName('omnidb__workspace-resize-grid__column');
     for (let i = 0; i < cols.length; i++) {

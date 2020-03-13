@@ -30,7 +30,7 @@ var v_current_terminal_theme;
 $(function() {
 
 	var v_fileref = document.getElementById("ss_theme");
-  v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/css/themes/' + v_theme_type + '.css');
+  v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/' + v_theme_type + '.css');
 
 	//var v_configTabControl = createTabControl('config_tabs',0,null);
 	//v_configTabControl.selectTabIndex(0);

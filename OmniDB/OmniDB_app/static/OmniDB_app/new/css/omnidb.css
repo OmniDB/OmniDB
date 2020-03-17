@@ -99,12 +99,12 @@
     align-items: center;
     display: flex;
     flex-direction: row;
+    height: 100%;
     justify-content: flex-start;
   }
 
   /* TAB MENU -- PRIMARY */
   .omnidb__tab-menu--primary {
-    background-color: #e5e5e8;
     bottom: 0px;
     height: 100%;
     left: 0px;
@@ -243,12 +243,12 @@
     align-items: center;
     display: flex;
     flex-direction: row;
+    height: 100%;
     justify-content: flex-start;
   }
 
   /* TAB MENU -- PRIMARY */
   .omnidb__tab-menu--primary {
-    background-color: #e5e5e8;
     bottom: 0px;
     height: 100%;
     left: 0px;
@@ -448,6 +448,62 @@
 
 
 
+/* CONNECTIONS */
+.omnidb__connections__card-list--cards .row {
+  justify-content: center;
+}
+
+.omnidb__connections__card-list--cards .omnidb__connections__card .card-body {
+  position: relative;
+}
+.omnidb__connections__card-list--cards .omnidb__connections__btn--select {
+  align-items: center;
+  border: none;
+  border-bottom-left-radius: 0px;
+  border-top-left-radius: 0px;
+  display: flex;
+  font-size: 30px;
+  height: 100%;
+  line-height: 30px;
+  padding: 0px;
+  position: absolute;
+  right: -5px;
+  top: 0px;
+  width: 50px;
+  z-index: 1;
+}
+.omnidb__connections__card-list--cards .omnidb__connections__btn--select i {
+  margin: auto;
+}
+.omnidb__connections__card-list--cards .omnidb__connections__cols {
+  flex: 0 1 350px;
+  padding: 15px;
+}
+
+.omnidb__connections__card-list--rows .omnidb__connections__cols {
+  flex: 1 1;
+  padding: 5px 15px;
+}
+.omnidb__connections__card-list--rows .card-body {
+  align-items: center;
+  display: flex;
+  padding: 5px;
+}
+.omnidb__connections__card-list--rows h5,
+.omnidb__connections__card-list--rows h6,
+.omnidb__connections__card-list--rows p {
+  margin-bottom: 0px !important;
+  margin-right: 5px;
+}
+.omnidb__connections__card-list--rows h6 {
+  margin-top: 3px;
+}
+.omnidb__connections__card-list--rows .omnidb__connections__btn--select {
+  margin-left: auto !important;
+}
+.omnidb__connections__card-list--rows .omnidb__connections__btn--select svg {
+  display: none;
+}
 
 /* OLD TEMPLATE */
 body {

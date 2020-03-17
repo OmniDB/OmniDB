@@ -22,7 +22,24 @@ import random
 import string
 import platform
 
+from OmniDB_app.models.main import *
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def index(request):
+    print(request.user.id)
+    print(User.objects.get(id=request.user.id))
+    try:
+        user_details = UserDetails.objects.get(user=User.objects.get(id=request.user.id))
+        print(user_details)
+    #user details does not exist, create it.
+    except Exception:
+        user_details = UserDetails(user=request.user)
+        user_details.save()
+
+    print(user_details.font_size)
+
     #Invalid session
     if not request.session.get('omnidb_session'):
         request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
@@ -40,47 +57,49 @@ def index(request):
     else:
         v_dev_mode = 'false'
 
+    print(request.user.is_superuser)
 
-    v_shortcuts = v_session.v_omnidb_database.v_connection.Query('''
-        select default_shortcut_code as shortcut_code,
-               case when user_defined_shortcut_code is null then default_ctrl_pressed else user_defined_ctrl_pressed end as ctrl_pressed,
-               case when user_defined_shortcut_code is null then default_shift_pressed else user_defined_shift_pressed end as shift_pressed,
-               case when user_defined_shortcut_code is null then default_alt_pressed else user_defined_alt_pressed end as alt_pressed,
-               case when user_defined_shortcut_code is null then default_meta_pressed else user_defined_meta_pressed end as meta_pressed,
-               case when user_defined_shortcut_code is null then default_shortcut_key else user_defined_shortcut_key end as shortcut_key
-        from
-        (select defaults.shortcut_code as default_shortcut_code,
-               defaults.ctrl_pressed as default_ctrl_pressed,
-               defaults.shift_pressed as default_shift_pressed,
-               defaults.alt_pressed as default_alt_pressed,
-               defaults.meta_pressed as default_meta_pressed,
-               defaults.shortcut_key as default_shortcut_key,
-               user_defined.shortcut_code as user_defined_shortcut_code,
-               user_defined.ctrl_pressed as user_defined_ctrl_pressed,
-               user_defined.shift_pressed as user_defined_shift_pressed,
-               user_defined.alt_pressed as user_defined_alt_pressed,
-               user_defined.meta_pressed as user_defined_meta_pressed,
-               user_defined.shortcut_key as user_defined_shortcut_key
-        from shortcuts defaults
-        left join shortcuts user_defined on (defaults.shortcut_code = user_defined.shortcut_code and user_defined.user_id = {0})
-        where defaults.user_id is null) subquery
-    '''.format(v_session.v_user_id))
 
-    v_welcome_closed = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
-        select welcome_closed from users where user_id = {0}
-    '''.format(v_session.v_user_id))
+    #v_shortcuts = v_session.v_omnidb_database.v_connection.Query('''
+    #    select default_shortcut_code as shortcut_code,
+    #           case when user_defined_shortcut_code is null then default_ctrl_pressed else user_defined_ctrl_pressed end as ctrl_pressed,
+    #           case when user_defined_shortcut_code is null then default_shift_pressed else user_defined_shift_pressed end as shift_pressed,
+    #           case when user_defined_shortcut_code is null then default_alt_pressed else user_defined_alt_pressed end as alt_pressed,
+    #           case when user_defined_shortcut_code is null then default_meta_pressed else user_defined_meta_pressed end as meta_pressed,
+    #           case when user_defined_shortcut_code is null then default_shortcut_key else user_defined_shortcut_key end as shortcut_key
+    #    from
+    #    (select defaults.shortcut_code as default_shortcut_code,
+    #           defaults.ctrl_pressed as default_ctrl_pressed,
+    #           defaults.shift_pressed as default_shift_pressed,
+    #           defaults.alt_pressed as default_alt_pressed,
+    #           defaults.meta_pressed as default_meta_pressed,
+    #           defaults.shortcut_key as default_shortcut_key,
+    #           user_defined.shortcut_code as user_defined_shortcut_code,
+    #           user_defined.ctrl_pressed as user_defined_ctrl_pressed,
+    #           user_defined.shift_pressed as user_defined_shift_pressed,
+    #           user_defined.alt_pressed as user_defined_alt_pressed,
+    #           user_defined.meta_pressed as user_defined_meta_pressed,
+    #           user_defined.shortcut_key as user_defined_shortcut_key
+    #    from shortcuts defaults
+    #    left join shortcuts user_defined on (defaults.shortcut_code = user_defined.shortcut_code and user_defined.user_id = {0})
+    #    where defaults.user_id is null) subquery
+    #'''.format(v_session.v_user_id))
+
+    #v_welcome_closed = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
+    #    select welcome_closed from users where user_id = {0}
+    #'''.format(v_session.v_user_id))
 
     shortcut_object = {}
 
-    for v_shortcut in v_shortcuts.Rows:
-        shortcut_object[v_shortcut['shortcut_code']] = {
-            'ctrl_pressed': v_shortcut['ctrl_pressed'],
-            'shift_pressed': v_shortcut['shift_pressed'],
-            'alt_pressed': v_shortcut['alt_pressed'],
-            'meta_pressed': v_shortcut['meta_pressed'],
-            'shortcut_key': v_shortcut['shortcut_key'],
-            'shortcut_code': v_shortcut['shortcut_code']
-        }
+    #for v_shortcut in v_shortcuts.Rows:
+    #    shortcut_object[v_shortcut['shortcut_code']] = {
+    #        'ctrl_pressed': v_shortcut['ctrl_pressed'],
+    #        'shift_pressed': v_shortcut['shift_pressed'],
+    #        'alt_pressed': v_shortcut['alt_pressed'],
+    #        'meta_pressed': v_shortcut['meta_pressed'],
+    #        'shortcut_key': v_shortcut['shortcut_key'],
+    #        'shortcut_code': v_shortcut['shortcut_code']
+    #    }
 
 
 
@@ -89,21 +108,32 @@ def index(request):
     #else:
     #    v_show_terminal_option = 'true'
     v_show_terminal_option = 'false'
+
+    if user_details.welcome_closed:
+        welcome_closed = 1
+    else:
+        welcome_closed = 0
+
+    if request.user.is_superuser:
+        superuser = 1
+    else:
+        superuser = 0
+
     context = {
         'session' : None,
-        'editor_theme': v_session.v_editor_theme,
-        'theme_type': v_session.v_theme_type,
-        'theme_id': v_session.v_theme_id,
-        'editor_font_size': v_session.v_editor_font_size,
-        'interface_font_size': v_session.v_interface_font_size,
-        'user_id': v_session.v_user_id,
-        'user_key': v_session.v_user_key,
-        'user_name': v_session.v_user_name,
-        'super_user': v_session.v_super_user,
-        'welcome_closed': v_welcome_closed,
-        'enable_omnichat': v_session.v_enable_omnichat,
-        'csv_encoding': v_session.v_csv_encoding,
-        'delimiter': v_session.v_csv_delimiter,
+        'editor_theme': 'omnidb',
+        'theme_type': user_details.theme,
+        'theme_id': 1,
+        'editor_font_size': user_details.font_size,
+        'interface_font_size': user_details.font_size,
+        'user_id': request.user.id,
+        'user_key': request.session.session_key,
+        'user_name': request.user.username,
+        'super_user': superuser,
+        'welcome_closed': welcome_closed,
+        'enable_omnichat': 0,
+        'csv_encoding': user_details.csv_encoding,
+        'delimiter': user_details.csv_delimiter,
         'desktop_mode': settings.DESKTOP_MODE,
         'omnidb_version': settings.OMNIDB_VERSION,
         'omnidb_short_version': settings.OMNIDB_SHORT_VERSION,

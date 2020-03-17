@@ -116,10 +116,10 @@
             </button>
           </div>
           <div class="modal-body">
-            <div class='mb-3'>
-              <span id="group_actions_1">
+            <div class='mb-3 d-flex align-items-center justify-content-start'>
+              <span id="group_actions_1" class="d-flex align-items-center justify-content-start">
                 <span>Groups</span>
-                <select id="group_selector" class="form-control" onchange="groupChange(this.value);" style='display: inline-block; width: 200px;'>
+                <select id="group_selector" class="form-control mx-1" onchange="groupChange(this.value);" style='display: inline-block; width: 200px;'>
                   <option value=-1 selected>Select Group</option>
                 </select>
                 <button id="button_new_group" type="button" class="btn btn-primary" onclick="newGroup();">New group</button>
@@ -135,8 +135,12 @@
               <span id="group_actions_2" style='display: none;'>
                 <button id="button_new_group" type="button" class="btn btn-success" onclick="manageGroupSave();">Save changes</button>
               </span>
+              <div class="btn-group ml-auto" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-secondary active" title="Display connections as a grid with cards" onclick="toggleConnectionsLayout('cards')"><i class="fas fa-th-large"></i></button>
+                <button type="button" class="btn btn-secondary" title="Display connections as a list with rows" onclick="toggleConnectionsLayout('rows')"><i class="fas fa-list"></i></button>
+              </div>
             </div>
-            <div id="connection_card_list" class="text-center"></div>
+            <div id="connection_card_list" class="text-center omnidb__connections__card-list omnidb__connections__card-list--cards"></div>
           </div>
         </div>
       </div>

@@ -60,11 +60,11 @@ function showConnectionList(p_open_modal, p_change_group) {
           var v_conn_obj = p_return.v_data.v_conn_list[i];
 
           var v_col_div = document.createElement('div');
-          v_col_div.className = 'col-sm-6 mb-4';
+          v_col_div.className = 'omnidb__connections__cols';
           v_row.appendChild(v_col_div);
 
           var v_card_div = document.createElement('div');
-          v_card_div.className = 'card';
+          v_card_div.className = 'card omnidb__connections__card';
           v_col_div.appendChild(v_card_div);
 
           var v_cover_div = document.createElement('div');
@@ -114,6 +114,14 @@ function showConnectionList(p_open_modal, p_change_group) {
             v_details;
           }
 
+					var v_button_select = document.createElement('button');
+					v_button_select.className = 'btn btn-success btn-sm mx-1 omnidb__connections__btn--select';
+					v_button_select.title = "Select";
+					if (v_conn_obj.locked==true)
+						v_button_select.setAttribute("disabled",true);
+					v_button_select.innerHTML = '<svg width="15px" height="160px" viewBox="0 0 15 160" style="fill: #FFF;"><path fill="#FFF" stroke="none" d="M 0 0 L 15 80 L 0 160 Z"></path></svg><i class="fas fa-plug"></i>';
+					v_card_body_div.appendChild(v_button_select);
+
           var v_button_edit = document.createElement('button');
           v_button_edit.className = 'btn btn-primary btn-sm mx-1';
           v_button_edit.title = "Edit";
@@ -129,6 +137,12 @@ function showConnectionList(p_open_modal, p_change_group) {
             v_button_delete.setAttribute("disabled",true);
           v_button_delete.innerHTML = '<i class="fas fa-trash-alt"></i>'
           v_card_body_div.appendChild(v_button_delete);
+
+					v_button_select.onclick = (function(conn_obj) {
+						return function() {
+							selectConnection(conn_obj);
+						};
+					}(v_conn_obj));
 
           v_button_edit.onclick = (function(conn_obj) {
               return function() {
@@ -542,4 +556,21 @@ function newConnection() {
   document.getElementById('conn_form_ssh_key').value = '';
 
   $('#modal_edit_connection').modal();
+}
+
+function selectConnection(p_tech,p_index) {
+
+	alert('TODO: Try connection');
+
+}
+
+function toggleConnectionsLayout(l_type) {
+	if (l_type === 'cards') {
+		$('.omnidb__connections__card-list').removeClass('omnidb__connections__card-list--rows');
+		$('.omnidb__connections__card-list').addClass('omnidb__connections__card-list--cards');
+	}
+	else if (l_type === 'rows') {
+		$('.omnidb__connections__card-list').removeClass('omnidb__connections__card-list--cards');
+		$('.omnidb__connections__card-list').addClass('omnidb__connections__card-list--rows');
+	}
 }

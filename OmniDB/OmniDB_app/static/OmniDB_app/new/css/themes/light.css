@@ -11,6 +11,12 @@
   background-color: #FFFFFF !important;
 }
 
+/* BRANDING ICON */
+.omnidb-icon__theme--branding,
+.omnidb-icon__theme--branding path {
+	fill: #FFF;
+}
+
 /* BUTTONS */
 .omnidb__theme__btn--primary {
   background-color: #FFC781 !important;
@@ -119,11 +125,6 @@ a:hover {
 }
 .omnidb__form-check input:checked~.form-check-label::after {
   background-color: #43afd2;
-}
-
-.omnidb-icon__theme--branding,
-.omnidb-icon__theme--branding path {
-	fill: #FFF;
 }
 
 .cellNew {

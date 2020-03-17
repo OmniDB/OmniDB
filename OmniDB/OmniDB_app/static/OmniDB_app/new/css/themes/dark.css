@@ -8,7 +8,13 @@
   background-color: #2F3136 !important;
 }
 .tab_actions.omnidb__tab-actions {
-  background-color: #2F3136 !important;
+  background-color: #282A2F !important;
+}
+
+/* BRANDING ICON */
+.omnidb-icon__theme--branding,
+.omnidb-icon__theme--branding path {
+	fill: #FFF;
 }
 
 /* BUTTONS */
@@ -29,7 +35,8 @@
   background-color: #282a2f !important;
   color: #DCDDDE !important;
 }
-.omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-name,
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
 	color: #FFFFFF;
 }
 

@@ -45,7 +45,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
       p_close: false,
       p_selectable: false,
       p_clickFunction: function(e) {
-        return false;
+        return startConnectionManagement();
       }
     });
 

@@ -16,6 +16,9 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB_app.include.Session import Session
 from OmniDB import settings, custom_settings
 
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import logout as logout_django
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -48,6 +51,8 @@ def index(request):
 
 def logout(request):
 
+    logout_django(request)
+
     #Invalid session
     if not request.session.get('omnidb_session'):
         request.session ["omnidb_alert_message"] = "Session object was already destroyed."
@@ -57,7 +62,6 @@ def logout(request):
 
     logger.info('User "{0}" logged out.'.format(v_session.v_user_name))
 
-    request.session['omnidb_user_key'] = None
     request.session['omnidb_session'] = None
 
     return redirect('login')
@@ -153,7 +157,6 @@ def sign_in_automatic(request, username, pwd):
 
     return -1
 
-
 def sign_in(request):
     v_return = {}
     v_return['v_data'] = -1
@@ -204,6 +207,10 @@ def sign_in(request):
         cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
 
         if cryptor.Hash(cryptor.Encrypt(pwd)) == table.Rows[0]['password']:
+
+            user = authenticate(username='admin', password='admin')
+            if user is not None:
+                login(request, user)
 
             #creating session key to use it
             request.session.save()

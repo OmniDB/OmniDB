@@ -31,7 +31,7 @@
 .omnidb__tab-menu--primary .omnidb__menu__btn {
   background-color: #282A2F !important;
 }
-.omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active {
+.omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active .omnidb__tab-menu__link-name {
   background-color: #282a2f !important;
   color: #DCDDDE !important;
 }

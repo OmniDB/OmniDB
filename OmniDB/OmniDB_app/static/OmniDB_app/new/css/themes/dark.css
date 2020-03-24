@@ -1,3 +1,7 @@
+.omnidb__main {
+  background-color: #2F3136 !important;
+}
+
 .omnidb__theme-bg--menu-primary {
   background-color: #394E83 !important;
 }
@@ -74,6 +78,7 @@ a:hover {
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
   background-color: #282A2F !important;
+  border-bottom-color: #5371bd !important;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
   color: #DCDDDE !important;

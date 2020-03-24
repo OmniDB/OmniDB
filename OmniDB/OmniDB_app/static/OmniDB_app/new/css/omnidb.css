@@ -312,6 +312,10 @@
 /* END QUERYS */
 
 
+.omnidb__main {
+  min-height: 100vh;
+}
+
 .omnidb__main-tablist--hide-primary .omnidb__tab-menu.omnidb__tab-menu--primary {
   display: none;
 }

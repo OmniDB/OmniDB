@@ -146,7 +146,7 @@
 
   /* TAB MENU -- SECONDARY */
   .omnidb__tab-menu--secondary {
-    margin-top: 3px;
+    padding-top: 3px;
     padding-right: 80px;
   }
   .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
@@ -290,7 +290,7 @@
 
   /* TAB MENU -- SECONDARY */
   .omnidb__tab-menu--secondary {
-    margin-top: 3px;
+    padding-top: 3px;
     padding-right: 80px;
   }
   .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {

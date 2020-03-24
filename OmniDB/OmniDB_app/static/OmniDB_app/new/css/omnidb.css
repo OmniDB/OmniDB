@@ -335,15 +335,15 @@
   border-bottom: 1px solid transparent;
 }
 .omnidb__tab-menu--secondary .nav-tabs {
-  border-bottom: none;
+  /* border-bottom: none; */
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link,
 .omnidb__tree-tabs .omnidb__tab-menu__link,
 .omnidb__query-result-tabs .omnidb__tab-menu__link {
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  /* border-top-left-radius: 12px; */
+  /* border-top-right-radius: 12px; */
   margin-right: 5px;
-  padding: 2px 5px;
+  /* padding: 2px 5px; */
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon,
 .omnidb__tree-tabs .omnidb__tab-menu__link-icon,

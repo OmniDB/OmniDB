@@ -68,11 +68,15 @@ a:hover {
 }
 
 /* SECONDARY TAB */
+.omnidb__tab-menu--secondary {
+  border-bottom-color: #94A5E3;
+}
 .omnidb__tab-menu--secondary .nav-tabs {
   border-bottom-color: transparent !important;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
-  background-color: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border-bottom-color: #94a5e3 !important;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
   color: #444444 !important;

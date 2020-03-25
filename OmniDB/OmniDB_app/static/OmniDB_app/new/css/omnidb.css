@@ -580,6 +580,13 @@ body {
   margin: 0px 4px;
 }
 
+/* Handsontable Customization with font-size */
+.handsontable th, .handsontable td {
+  height: 2rem;
+  padding: 0px 0.36rem 0px 0.36rem;
+  vertical-align: middle;
+}
+
 /* Handsontable invisible */
 
 .ht_invisible .handsontable tr:nth-of-type(2n) td {

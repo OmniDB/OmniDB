@@ -36,7 +36,7 @@ $(function() {
 	//v_configTabControl.selectTabIndex(0);
 
 	//setting font size of body
-	document.body.style['font-size'] = v_interface_font_size + 'px';
+	document.getElementsByTagName('html')[0].style['font-size'] = v_interface_font_size + 'px';
 
 	if (v_theme_type=='light')
 		v_current_terminal_theme = v_light_terminal_theme;
@@ -175,7 +175,7 @@ function changeFontSize(p_option) {
 
 function changeInterfaceFontSize(p_option) {
 	v_interface_font_size = p_option;
-	document.body.style['font-size'] = v_interface_font_size + 'px';
+	document.getElementsByTagName('html')[0].style['font-size'] = v_interface_font_size + 'px';
 }
 
 /// <summary>

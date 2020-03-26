@@ -19,7 +19,7 @@ function composedPath(el) {
     }
 }
 
-function createTabControl({ p_div, p_hierarchy }) {
+function createTabControl({ p_div, p_hierarchy, p_options = { layout: 'default' } }) {
 
 	// Get an element's exact position
 	function getPosition(el) {
@@ -76,6 +76,12 @@ function createTabControl({ p_div, p_hierarchy }) {
   v_tab_menu.appendChild(v_nav);
   v_div.appendChild(v_tab_menu);
   v_div.appendChild(v_div_tab_content_list);
+
+  if (p_options.layout === 'card') {
+    v_div.classList.push('card');
+    v_tab_menu.classList.push('card-header pb-0');
+    v_div_tab_content_list.push('card-body');
+  }
 
 	var v_tabControl = {
 		id: p_div,

@@ -79,7 +79,8 @@ function createTabControl({ p_div, p_hierarchy, p_options = { layout: 'default' 
 
   if (p_options.layout === 'card') {
     v_div.classList.add('card');
-    v_tab_menu.classList.add('card-header pb-0');
+    v_tab_menu.classList.add('card-header');
+    v_tab_menu.classList.add('pb-0');
     v_div_tab_content_list.classList.add('card-body');
   }
 

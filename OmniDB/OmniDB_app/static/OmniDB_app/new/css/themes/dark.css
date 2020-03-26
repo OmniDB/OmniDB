@@ -139,11 +139,11 @@ a:hover {
 }
 
 /* MODAL */
-.modal-header {
-  border-color: #484a55 !important;
+.omnidb--theme-dark .modal-header {
+  border-color: #484a55;
 }
-.modal-content {
-  background-color: #2f3136 !important;
+.omnidb--theme-dark .modal-content {
+  background-color: #2f3136;
 }
 
 body {

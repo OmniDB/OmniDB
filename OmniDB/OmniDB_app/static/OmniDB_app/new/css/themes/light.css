@@ -141,11 +141,11 @@ a:hover {
 }
 
 /* MODAL */
-.modal-header {
-  border-color: #E2E2E2 !important;
+.omnidb--theme-light .modal-header {
+  border-color: #E2E2E2;
 }
-.modal-content {
-  background-color: #FFF !important;
+.omnidb--theme-light .modal-content {
+  background-color: #FFF;
 }
 
 .cellNew {

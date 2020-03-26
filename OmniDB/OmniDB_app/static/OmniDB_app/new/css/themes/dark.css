@@ -15,6 +15,12 @@
   background-color: #282A2F !important;
 }
 
+/* ICONS */
+.omnidb--theme-dark .close,
+.omnidb--theme-dark i.icon-close {
+  color: #d85656;
+}
+
 /* BRANDING ICON */
 .omnidb-icon__theme--branding,
 .omnidb-icon__theme--branding path {

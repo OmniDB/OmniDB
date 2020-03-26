@@ -6,13 +6,13 @@
   background-color: #839EC7 !important;
 }
 .omnidb__workspace__div-left {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
 }
 .omnidb__workspace__div-right {
   background-color: #F4F4F4 !important;
 }
 .tab_actions.omnidb__tab-actions {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
 }
 
 /* BRANDING ICON */
@@ -31,7 +31,7 @@
   border-color: #E2E2E2 !important;
 }
 .nav-tabs .nav-link {
-  color: #FFFFFF;
+  color: #FFF;
 }
 .nav-tabs .nav-link.active {
   background-color: #FFF !important;
@@ -41,19 +41,22 @@
 
 /* PRIMARY TAB */
 .omnidb__tab-menu--primary .omnidb__menu__btn {
-  /* background-color: #FFFFFF !important; */
+  /* background-color: #FFF !important; */
 }
 .omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active .omnidb__tab-menu__link-name {
   background-color: #F2F2F2 !important;
   color: #444444 !important;
 }
-.omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
-	color: #FFFFFF;
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-name{
+	color: #FFF;
+}
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
+	/* color: #FFF; */
 }
 
 /* UTILITIES MENU */
 .omnidb__utilities-menu .omnidb__menu__btn {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
   color: #444444 !important;
 }
 .omnidb__utilities-menu .omnidb__menu__btn-text {
@@ -73,7 +76,7 @@ a:hover {
   border: 1px solid #94A5E3 !important;
 }
 .ace_editor.ace-omnidb .ace_gutter {
-	background-color: #FFFFFF;
+	background-color: #FFF;
 }
 .ace_editor.ace-omnidb .ace_folding-enabled > .ace_gutter-cell {
   color: #828282;
@@ -87,7 +90,7 @@ a:hover {
   border-bottom-color: transparent !important;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
   border-bottom-color: #94A5E3 !important;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
@@ -102,7 +105,7 @@ a:hover {
   border-bottom-color: transparent !important;
 }
 .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
 }
 .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #444444 !important;
@@ -119,7 +122,7 @@ a:hover {
   border-bottom-color: transparent !important;
 }
 .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
 }
 .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #444444 !important;
@@ -129,6 +132,11 @@ a:hover {
 }
 .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
   border-color: #94A5E3 !important;
+}
+
+/* CARD */
+.omnidb--theme-dark .card {
+  background-color: #FFF;
 }
 
 /* FORMS */

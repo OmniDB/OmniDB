@@ -19,7 +19,7 @@ function composedPath(el) {
     }
 }
 
-function createTabControl({ p_div, p_hierarchy, p_options = { layout: 'default' } }) {
+function createTabControl({ p_div, p_hierarchy, p_layout }) {
 
 	// Get an element's exact position
 	function getPosition(el) {
@@ -77,7 +77,7 @@ function createTabControl({ p_div, p_hierarchy, p_options = { layout: 'default' 
   v_div.appendChild(v_tab_menu);
   v_div.appendChild(v_div_tab_content_list);
 
-  if (p_options.layout === 'card') {
+  if (p_layout === 'card') {
     v_div.classList.add('card');
     v_tab_menu.classList.add('card-header');
     v_tab_menu.classList.add('pb-0');

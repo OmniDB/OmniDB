@@ -156,6 +156,15 @@ a:hover {
   background-color: #FFF;
 }
 
+/* TOAST */
+.omnidb--theme-light .toast {
+  background-color: #dadada;
+  border-color: rgba(0,0,0,.1);
+ }
+.omnidb--theme-light .toast-header {
+  background-color: rgba(255,255,255,.85);
+}
+
 .cellNew {
 	background-color: rgb(216, 236, 218) !important;
 }

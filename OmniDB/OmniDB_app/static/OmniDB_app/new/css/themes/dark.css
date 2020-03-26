@@ -156,6 +156,15 @@ a:hover {
   background-color: #2F3136;
 }
 
+/* TOAST */
+.omnidb--theme-dark .toast {
+  background-color: #2f3136;
+  border-color: #1d1f21;
+ }
+.omnidb--theme-dark .toast-header {
+  background-color: #1d1f21;
+}
+
 body {
   background-color: #373b41 !important;
   color: white;

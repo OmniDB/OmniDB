@@ -530,6 +530,11 @@
   display: none;
 }
 
+/* POPOVER */
+.popover {
+  font-size: 1rem;
+}
+
 /* OLD TEMPLATE */
 body {
 }

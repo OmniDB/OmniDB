@@ -610,6 +610,7 @@
 /* FORMS */
 .omnidb__form-check .form-check-label {
   cursor: pointer;
+  padding-left: 0.25rem;
 }
 .omnidb__form-check .form-check-label::before {
   background-color: #FFF;

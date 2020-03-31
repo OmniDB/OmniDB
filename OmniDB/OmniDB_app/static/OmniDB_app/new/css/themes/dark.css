@@ -171,6 +171,23 @@ a:hover {
   background-color: #1d1f21;
 }
 
+/* JSON BUILDER */
+.omnidb--theme-dark .jsonBuilder--template-2 .jsonBuilder__label {
+    background-color: #1D1F21;
+}
+
+/* PAGINATION */
+.omnidb--theme-dark .page-link {
+  color: #7CBAFB;
+  background-color: #1d1f21;
+  border: 1px solid #484a55;
+}
+.omnidb--theme-dark .page-item.active .page-link {
+  color: #FFF;
+  background-color: #394E83;
+  border-color: #394E83;
+}
+
 body {
   background-color: #373b41 !important;
   color: white;

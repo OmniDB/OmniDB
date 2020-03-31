@@ -585,14 +585,25 @@
 }
 
 /* UTILITIES MENU */
-.omnidb__utilities-menu .omnidb__menu__btn-text {
-  display: inline-block !important;
+.omnidb__utilities-menu .omnidb__menu__btn-user i {
+  height: 27px;
   line-height: 27px;
   overflow: hidden;
-  padding: 0px 3px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 80px;
+  text-align: center;
+  transition: 0.35s;
+  width: 27px;
+}
+.omnidb__utilities-menu .omnidb__menu__btn-user span {
+  transform: scaleX(0);
+  transition: 0.35s;
+  width: 0px;
+}
+.omnidb__utilities-menu:hover .omnidb__menu__btn-user i {
+  width: 0px;
+}
+.omnidb__utilities-menu:hover .omnidb__menu__btn-user span {
+  transform: scaleX(1);
+  width: auto;
 }
 
 

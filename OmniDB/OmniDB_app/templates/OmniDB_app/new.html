@@ -60,7 +60,10 @@
         <div id="navbarSecond">
             <div class="navbar-nav flex-row">
               {% if not desktop_mode %}
-              <a class="omnidb__menu__btn-text nav-item nav-link mx-1 d-flex align-items-center justify-content-center">{{ user_name }}</a>
+              <a class="omnidb__menu__btn-user omnidb__menu__btn-text nav-item nav-link mx-1 d-flex align-items-center justify-content-center">
+                <i class="fas fa-user"></i>
+                <span>{{ user_name }}</span>
+              </a>
               {% endif %}
               <a class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="startConnectionManagement();"><i class="fas fa-plug" title="Connections"></i></a>
               {% if not desktop_mode %}

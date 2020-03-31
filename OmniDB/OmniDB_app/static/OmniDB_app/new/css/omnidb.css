@@ -584,6 +584,17 @@
   margin-right: 5px;
 }
 
+/* UTILITIES MENU */
+.omnidb__utilities-menu .omnidb__menu__btn-text {
+  display: inline-block !important;
+  line-height: 27px;
+  overflow: hidden;
+  padding: 0px 3px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 80px;
+}
+
 
 /* FORMS */
 .omnidb__form-check .form-check-label {

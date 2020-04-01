@@ -310,7 +310,7 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 1279px) {
+@media (min-width: 240px) and (max-width: 1279px) {
   .omnidb__rounded--lg {
     border-radius: 18px;
   }

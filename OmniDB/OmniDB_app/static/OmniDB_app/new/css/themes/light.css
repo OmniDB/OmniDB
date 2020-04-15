@@ -50,14 +50,14 @@
   /* background-color: #FFF !important; */
 }
 .omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active .omnidb__tab-menu__link-name {
-  background-color: #F2F2F2 !important;
+  background-color: #FFF !important;
   color: #444444 !important;
 }
 .omnidb__tab-menu--primary .omnidb__tab-menu__link-name{
 	color: #FFF;
 }
 .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
-	/* color: #FFF; */
+	color: #839ec7;
 }
 
 /* UTILITIES MENU */

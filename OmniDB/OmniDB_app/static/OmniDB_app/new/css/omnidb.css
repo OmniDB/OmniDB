@@ -487,6 +487,8 @@
 .omnidb__query-result-tabs .omnidb__tab-menu__link {
   /* border-top-left-radius: 12px; */
   /* border-top-right-radius: 12px; */
+  font-size: 1.15rem;
+  line-height: 1;
   margin-right: 5px;
   /* padding: 2px 5px; */
 }

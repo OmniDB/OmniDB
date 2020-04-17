@@ -232,6 +232,42 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
 			p_tab.text = p_name;
 
 		},
+    dragEndFunction : function(e,p_tab) {
+      let el = e.target;
+      let el_pos = el.getBoundingClientRect();
+      let el_index = $(el).index();
+
+      let drop_pos_x = e.x;
+      let drop_pos_y = e.y;
+
+      let old_index = el_index;
+      let new_index;
+
+      let siblings = $(el).siblings();
+      let total = siblings.length;
+      for (let i = 0; i < total; i++) {
+        let sibling = siblings[i];
+        let sibling_pos = sibling.getBoundingClientRect();
+        let sibling_pos_x = sibling_pos.x;
+        let sibling_pos_x_center = sibling_pos_x + (sibling_pos.width / 2);
+        let sibling_pos_x_end = sibling_pos_x + sibling_pos.width;
+        let sibling_pos_y = sibling_pos.y;
+        let sibling_pos_y_end = sibling_pos.y + sibling_pos.height;
+        if (sibling_pos_y < drop_pos_y && drop_pos_y < sibling_pos_y_end && sibling_pos_x < drop_pos_x && drop_pos_x < sibling_pos_x_end) {
+          var removedEl = p_tab.tabList.splice(old_index, 1)[0];
+          if (drop_pos_x < sibling_pos_x_center) {
+            new_index = i;
+            p_tab.tabList.splice(new_index, 0, removedEl);
+            sibling.before(el);
+          }
+          else {
+            new_index = i + 1;
+            p_tab.tabList.splice(new_index, 0, removedEl);
+            sibling.after(el);
+          }
+        }
+      }
+    },
 		createTab : function({
       p_clickFunction = null,
       p_close = true,
@@ -268,6 +304,7 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
 				renameTab: function(p_name) { v_control.renameTab(this,p_name); },
 				disableClose: function() { v_control.disableClose(this) },
 				enableClose: function() { v_control.enableClose(this) },
+        dragEndFunction: function(e,p_tab,p_index) { v_control.dragEndFunction(e,p_tab) },
 				isDraggable: p_isDraggable
 			};
 
@@ -279,6 +316,15 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
       v_a.setAttribute('aria-selected','false');
       v_a.setAttribute('href','#' + 'div_' + p_div + '_tab' + v_index);
       v_a.setAttribute('aria-controls','div_' + p_div + '_tab' + v_index);
+
+      if (v_tab.isDraggable) {
+        v_a.setAttribute('draggable','true');
+        v_a.ondragend = function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          v_tab.dragEndFunction(e,this);
+  			}.bind(this);
+      }
 
       if (p_disabled)
         v_a.className = 'omnidb__tab-menu__link nav-item nav-link disabled';

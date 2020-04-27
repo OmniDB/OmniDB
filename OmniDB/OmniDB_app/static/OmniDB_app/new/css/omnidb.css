@@ -146,7 +146,7 @@
 
   /* TAB MENU -- SECONDARY */
   .omnidb__tab-menu--secondary {
-    margin-top: 3px;
+    padding-top: 3px;
     padding-right: 80px;
   }
   .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
@@ -290,7 +290,152 @@
 
   /* TAB MENU -- SECONDARY */
   .omnidb__tab-menu--secondary {
+    padding-top: 3px;
+    padding-right: 80px;
+  }
+  .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
+    padding-right: 10px;
+  }
+
+  .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon {
+    margin-right: 3px;
+  }
+  .omnidb__tab-menu.omnidb__tab-menu--secondary .omnidb__tab-menu__link:hover .omnidb__tab-menu__link-close {
+    opacity: 1;
+  }
+
+  /* TAB-CONTENT */
+  .omnidb__tab-content--primary {
+    border-left: 36px solid #f8f9fa;
+  }
+}
+
+@media (min-width: 240px) and (max-width: 1279px) {
+  .omnidb__rounded--lg {
+    border-radius: 18px;
+  }
+
+  .omnidb__utilities-menu {
+    padding: 0.25rem 0.125rem;
+    position: fixed;
+    right: 2px;
+    top: 2px;
+    z-index: 1001;
+  }
+  .omnidb__utilities-menu .omnidb__menu__btn.nav-link {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 0px;
+    width: 0px;
+    transition: 0.35s;
+  }
+  .omnidb__utilities-menu:hover .omnidb__menu__btn.nav-link {
+    width: 27px;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+  }
+  .omnidb__utilities-menu .omnidb__menu__btn-text {
+    padding: 0px;
+  }
+
+  .omnidb__menu__btn {
+    align-items: center;
+    border-radius: 100%;
+    background-color: #FFF;
+    display: flex;
+    justify-content: center;
+    height: 27px;
+    width: 27px;
+    overflow: hidden;
+  }
+
+  /* MAIN */
+  .omnidb__main__tablist-toggler {
+    align-items: center;
+    color: #434f66;
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 5000;
+    height: 36px;
+    text-align: center;
+    border: none;
+    width: 36px;
+  }
+
+  /* TAB MENU */
+  .omnidb__tab-menu {
+    /* position: fixed;
+    bottom: 0px;
+    height: 100%;
+    left: 0px;
+    top: 0px; */
+  }
+  .omnidb__tab-menu .omnidb__tab-menu__link {
+    position: relative;
+  }
+  .omnidb__tab-menu .omnidb__tab-menu__link-close {
+    opacity: 0;
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: 0.3s;
+  }
+  .omnidb__tab-menu .omnidb__tab-menu__link-content {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    justify-content: flex-start;
+  }
+
+  /* TAB MENU -- PRIMARY */
+  .omnidb__tab-menu--primary {
+    bottom: 0px;
+    height: 100%;
+    left: 0px;
+    overflow: hidden;
+    padding: 0px;
+    position: fixed;
+    top: 0px;
+    z-index: 2100;
+  }
+  .omnidb__tab-menu--primary .nav-tabs {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-flex-start;
+  }
+  .omnidb__tab-menu--primary .nav-tabs .nav-item {
+    border: none;
+    margin-bottom: 3px;
     margin-top: 3px;
+    padding: 3px;
+  }
+  .omnidb__tab-menu.omnidb__tab-menu--primary:hover .omnidb__tab-menu__link-close {
+    opacity: 1;
+  }
+  .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
+    margin-right: 3px;
+  }
+  .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
+    display: inline-block;
+    width: 0px;
+    overflow: hidden;
+    transition: 0.35s;
+    white-space: nowrap;
+  }
+
+  .omnidb__tab-menu.omnidb__tab-menu--primary:hover .omnidb__tab-menu__link-name {
+    width: 160px;
+  }
+
+  /* TAB MENU -- SECONDARY */
+  .omnidb__tab-menu--secondary {
+    padding-top: 3px;
     padding-right: 80px;
   }
   .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
@@ -312,6 +457,10 @@
 /* END QUERYS */
 
 
+.omnidb__main {
+  min-height: 100vh;
+}
+
 .omnidb__main-tablist--hide-primary .omnidb__tab-menu.omnidb__tab-menu--primary {
   display: none;
 }
@@ -326,6 +475,28 @@
 }
 .omnidb__tab-menu--primary .nav-tabs .nav-item:first-child img {
   height: 32px;
+}
+.omnidb__tab-menu--secondary {
+  border-bottom: 1px solid transparent;
+}
+.omnidb__tab-menu--secondary .nav-tabs {
+  /* border-bottom: none; */
+}
+.omnidb__tab-menu--secondary .omnidb__tab-menu__link,
+.omnidb__tree-tabs .omnidb__tab-menu__link,
+.omnidb__query-result-tabs .omnidb__tab-menu__link {
+  /* border-top-left-radius: 12px; */
+  /* border-top-right-radius: 12px; */
+  font-size: 1.15rem;
+  line-height: 1;
+  margin-right: 5px;
+  /* padding: 2px 5px; */
+}
+.omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon,
+.omnidb__tree-tabs .omnidb__tab-menu__link-icon,
+.omnidb__query-result-tabs .omnidb__tab-menu__link-icon {
+  width: 23px;
+  height: 23px;
 }
 
 
@@ -415,10 +586,33 @@
   margin-right: 5px;
 }
 
+/* UTILITIES MENU */
+.omnidb__utilities-menu .omnidb__menu__btn-user i {
+  height: 27px;
+  line-height: 27px;
+  overflow: hidden;
+  text-align: center;
+  transition: 0.35s;
+  width: 27px;
+}
+.omnidb__utilities-menu .omnidb__menu__btn-user span {
+  transform: scaleX(0);
+  transition: 0.35s;
+  width: 0px;
+}
+.omnidb__utilities-menu:hover .omnidb__menu__btn-user i {
+  width: 0px;
+}
+.omnidb__utilities-menu:hover .omnidb__menu__btn-user span {
+  transform: scaleX(1);
+  width: auto;
+}
+
 
 /* FORMS */
 .omnidb__form-check .form-check-label {
   cursor: pointer;
+  padding-left: 0.25rem;
 }
 .omnidb__form-check .form-check-label::before {
   background-color: #FFF;
@@ -429,6 +623,8 @@
   height: 16px;
   left: 0px;
   position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   width: 16px;
   z-index: 1;
 }
@@ -439,7 +635,8 @@
   height: 10px;
   left: 3px;
   position: absolute;
-  top: 3px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 10px;
   z-index: 2;
 }
@@ -506,6 +703,20 @@
   display: none;
 }
 
+/* POPOVER */
+.popover {
+  font-size: 1rem;
+}
+
+/* TOOLTIPS */
+.tooltip h5 {
+  font-size: 1.2rem;
+}
+.tooltip div {
+  font-size: 1rem;
+  text-align: left;
+}
+
 /* OLD TEMPLATE */
 body {
 }
@@ -554,6 +765,13 @@ body {
 
 .tab-icon {
   margin: 0px 4px;
+}
+
+/* Handsontable Customization with font-size */
+.handsontable th, .handsontable td {
+  height: 2rem;
+  padding: 0px 0.36rem 0px 0.36rem;
+  vertical-align: middle;
 }
 
 /* Handsontable invisible */

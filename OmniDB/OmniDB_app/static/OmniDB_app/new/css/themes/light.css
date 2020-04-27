@@ -1,14 +1,24 @@
+.omnidb__main {
+  background-color: #F4F4F4 !important;
+}
+
 .omnidb__theme-bg--menu-primary {
   background-color: #839EC7 !important;
 }
 .omnidb__workspace__div-left {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
 }
 .omnidb__workspace__div-right {
   background-color: #F4F4F4 !important;
 }
 .tab_actions.omnidb__tab-actions {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
+}
+
+/* ICONS */
+.omnidb--theme-light .close,
+.omnidb--theme-light i.icon-close {
+  color: #d85656;
 }
 
 /* BRANDING ICON */
@@ -23,25 +33,36 @@
 }
 
 /* TABS */
+.nav-tabs {
+  border-color: #E2E2E2 !important;
+}
+.nav-tabs .nav-link {
+  color: #FFF;
+}
 .nav-tabs .nav-link.active {
-  border-color: #FFFFFF !important;
+  background-color: #FFF !important;
+  border-color: #FFF !important;
+  color: #444;
 }
 
 /* PRIMARY TAB */
 .omnidb__tab-menu--primary .omnidb__menu__btn {
-  /* background-color: #FFFFFF !important; */
+  /* background-color: #FFF !important; */
 }
-.omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active {
-  background-color: #F2F2F2 !important;
+.omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active .omnidb__tab-menu__link-name {
+  background-color: #FFF !important;
   color: #444444 !important;
 }
-.omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
-	color: #FFFFFF;
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-name{
+	color: #FFF;
+}
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
+	color: #839ec7;
 }
 
 /* UTILITIES MENU */
 .omnidb__utilities-menu .omnidb__menu__btn {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
   color: #444444 !important;
 }
 .omnidb__utilities-menu .omnidb__menu__btn-text {
@@ -61,18 +82,22 @@ a:hover {
   border: 1px solid #94A5E3 !important;
 }
 .ace_editor.ace-omnidb .ace_gutter {
-	background-color: #FFFFFF;
+	background-color: #FFF;
 }
 .ace_editor.ace-omnidb .ace_folding-enabled > .ace_gutter-cell {
   color: #828282;
 }
 
 /* SECONDARY TAB */
+.omnidb__tab-menu--secondary {
+  border-bottom-color: #94A5E3;
+}
 .omnidb__tab-menu--secondary .nav-tabs {
   border-bottom-color: transparent !important;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
+  border-bottom-color: #94A5E3 !important;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
   color: #444444 !important;
@@ -80,16 +105,13 @@ a:hover {
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon {
   background-color: #E2E2E2 !important;
 }
-.omnidb__tab-menu--secondary .omnidb__tab-menu__link.active {
-  border-color: #94A5E3 !important;
-}
 
 /* TREE TAB */
 .omnidb__tree-tabs .omnidb__tab-menu .nav-tabs {
   border-bottom-color: transparent !important;
 }
 .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
 }
 .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #444444 !important;
@@ -106,7 +128,7 @@ a:hover {
   border-bottom-color: transparent !important;
 }
 .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link {
-  background-color: #FFFFFF !important;
+  background-color: #FFF !important;
 }
 .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #444444 !important;
@@ -118,6 +140,11 @@ a:hover {
   border-color: #94A5E3 !important;
 }
 
+/* CARD */
+.omnidb--theme-dark .card {
+  background-color: #FFF;
+}
+
 /* FORMS */
 .omnidb__form-check .form-check-label::before {
   background-color: #f4f4f4 !important;
@@ -125,6 +152,40 @@ a:hover {
 }
 .omnidb__form-check input:checked~.form-check-label::after {
   background-color: #43afd2;
+}
+
+/* MODAL */
+.omnidb--theme-light .modal-header {
+  border-color: #E2E2E2;
+}
+.omnidb--theme-light .modal-content {
+  background-color: #FFF;
+}
+
+/* TOAST */
+.omnidb--theme-light .toast {
+  background-color: #dadada;
+  border-color: rgba(0,0,0,.1);
+ }
+.omnidb--theme-light .toast-header {
+  background-color: rgba(255,255,255,.85);
+}
+
+/* JSON BUILDER */
+.omnidb--theme-light .jsonBuilder--template-2 .jsonBuilder__label {
+    background-color: #E2E2E2;
+}
+
+/* PAGINATION */
+.omnidb--theme-dark .page-link {
+  /* color: #7CBAFB;
+  background-color: #1d1f21;
+  border: 1px solid #484a55; */
+}
+.omnidb--theme-dark .page-item.active .page-link {
+  /* color: #FFF;
+  background-color: #394E83;
+  border-color: #394E83; */
 }
 
 .cellNew {

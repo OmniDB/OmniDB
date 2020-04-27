@@ -32,16 +32,23 @@ $(function() {
 	var v_fileref = document.getElementById("ss_theme");
   v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/' + v_theme_type + '.css');
 
+
 	//var v_configTabControl = createTabControl('config_tabs',0,null);
 	//v_configTabControl.selectTabIndex(0);
 
 	//setting font size of body
-	document.body.style['font-size'] = v_interface_font_size + 'px';
+	document.getElementsByTagName('html')[0].style['font-size'] = v_interface_font_size + 'px';
 
-	if (v_theme_type=='light')
+	if (v_theme_type=='light') {
 		v_current_terminal_theme = v_light_terminal_theme;
-	else
+		document.body.classList.remove('omnidb--theme-dark');
+		document.body.classList.add('omnidb--theme-light');
+	}
+	else {
 		v_current_terminal_theme = v_dark_terminal_theme;
+		document.body.classList.remove('omnidb--theme-light');
+		document.body.classList.add('omnidb--theme-dark');
+	}
 });
 
 function adjustChartTheme(p_chart) {
@@ -92,10 +99,14 @@ function changeTheme(p_option) {
 	if (parseInt(p_options[0])>=17) {
 		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/dark.css');
 		v_theme_type = 'dark';
+		document.body.classList.remove('omnidb--theme-light');
+		document.body.classList.add('omnidb--theme-dark');
 	}
 	else {
 		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/light.css');
 		v_theme_type = 'light';
+		document.body.classList.remove('omnidb--theme-dark');
+		document.body.classList.add('omnidb--theme-light');
 	}
 	v_editor_theme = p_options[1];
 	v_theme_id = p_options[0];
@@ -175,7 +186,7 @@ function changeFontSize(p_option) {
 
 function changeInterfaceFontSize(p_option) {
 	v_interface_font_size = p_option;
-	document.body.style['font-size'] = v_interface_font_size + 'px';
+	document.getElementsByTagName('html')[0].style['font-size'] = v_interface_font_size + 'px';
 }
 
 /// <summary>

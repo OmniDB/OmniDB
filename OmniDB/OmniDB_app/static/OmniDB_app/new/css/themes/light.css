@@ -139,6 +139,9 @@ a:hover {
 .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
   border-color: #94A5E3 !important;
 }
+.omnidb__query-result-tabs .omnidb__query-result-tabs__content {
+  border: 1px solid #94A5E3;
+}
 
 /* CARD */
 .omnidb--theme-dark .card {

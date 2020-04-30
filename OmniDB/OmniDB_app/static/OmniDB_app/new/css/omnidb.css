@@ -571,11 +571,10 @@
   justify-content: flex-start;
 }
 .tab_actions.omnidb__tab-actions {
-  margin: 2px 0px;
-  padding: 3px 0px;
+  padding-bottom: 3px;
+  padding-top: 3px;
 }
-.omnidb__tab-actions .omnidb__tab-actions__btn,
-.omnidb__tab-actions .omnidb__tab-actions__select {
+.omnidb__tab-actions .omnidb__tab-actions__btn {
   margin-right: 5px;
 }
 

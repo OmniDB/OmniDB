@@ -43,7 +43,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
   var command_history_modal =
-  "<div class='modal fade' id='modal_command_history' tabindex='-1' role='dialog' aria-hidden='true'>" +
+  "<div class='modal fade' id='modal_command_history_" + v_tab.id + "' tabindex='-1' role='dialog' aria-hidden='true'>" +
     "<div class='modal-dialog modal-xl modal-dialog-scrollable' role='document'>" +
       "<div class='modal-content'>" +
         "<div class='modal-header'>" +
@@ -214,20 +214,21 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     tab_db_id: v_tab_db_id,
     tempData: [],
     commandHistory: {
-         div: document.getElementById('command_history_div_' + v_tab.id),
-         headerDiv: document.getElementById('command_history_header_' + v_tab.id),
-         gridDiv: document.getElementById('command_history_grid_' + v_tab.id),
-         grid: null,
-         currentPage: 1,
-         pages: 1,
-         spanNumPages: null,
-         spanCurrPage: null,
-         inputStartedFrom: null,
-         inputStartedFromLastValue: null,
-         inputStartedTo: null,
-         inputStartedToLastValue: null,
-         inputCommandContains: null,
-         inputCommandContainsLastValue: null
+        modal: document.getElementById('modal_command_history_' + v_tab.id),
+        div: document.getElementById('command_history_div_' + v_tab.id),
+        headerDiv: document.getElementById('command_history_header_' + v_tab.id),
+        gridDiv: document.getElementById('command_history_grid_' + v_tab.id),
+        grid: null,
+        currentPage: 1,
+        pages: 1,
+        spanNumPages: null,
+        spanCurrPage: null,
+        inputStartedFrom: null,
+        inputStartedFromLastValue: null,
+        inputStartedTo: null,
+        inputStartedToLastValue: null,
+        inputCommandContains: null,
+        inputCommandContainsLastValue: null
      }
   };
 

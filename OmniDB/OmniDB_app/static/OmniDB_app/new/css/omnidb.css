@@ -558,10 +558,28 @@
 
 /* WORKSPACE CONTENT LEFT */
 .omnidb__workspace__content-left {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   padding: 7px 15px 7px 7px;
   width: 100%;
 }
 
+.omnidb__tree-tabs {
+  overflow: hidden;
+  transition: 0.45s;
+}
+.omnidb__tree-tabs--not-in-view {
+  height: 2.2rem;
+  flex-basis: 2.2rem !important;
+  flex-shrink: 1;
+}
+.omnidb__tree-tabs__toggler {
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  z-index: 1;
+}
 
 
 /* TAB ACTIONS */

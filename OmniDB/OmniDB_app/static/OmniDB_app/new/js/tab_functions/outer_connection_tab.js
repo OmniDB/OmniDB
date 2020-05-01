@@ -111,9 +111,9 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
 
             "<div class='omnidb__workspace__content-left'>" +
               "<div id='" + v_tab.id + "_details' class='connection_details' ></div>" +
-              "<div id='" + v_tab.id + "_tree' style='margin-top: 5px; overflow: auto; height: 300px;'></div>" +
-              "<div onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
-              "<div style='position: relative;'>" +
+              "<div id='" + v_tab.id + "_tree' style='margin-top: 5px; overflow: auto; flex-grow: 1;'></div>" +
+              "<div id='" + v_tab.id + "_left_resize_line_horizontal' onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+              "<div id='tree_tabs_parent_" + v_tab.id + "' class='omnidb__tree-tabs' style='position: relative;flex-shrink: 0;flex-basis: 40vh;'>" +
                 "<div id='" + v_tab.id + "_loading' class='div_loading' style='z-index: 1000;'>" +
 
                 '<div class="div_loading_cover"></div>' +
@@ -123,7 +123,8 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
                 '  </div>' +
                 '</div>' +
                 "</div>" +
-                "<div id='tree_tabs_" + v_tab.id + "' style='position: relative;' class='omnidb__tree-tabs'></div>" +
+                "<button type='button' onclick='toggleTreeTabsContainer(" + '"tree_tabs_parent_' + v_tab.id + '","' + v_tab.id + '_left_resize_line_horizontal"' + ")' class='btn btn-secondary omnidb__tree-tabs__toggler'><i class='fas fa-arrows-alt-v'></i></button>" +
+                "<div id='tree_tabs_" + v_tab.id + "' class='omnidb__tree-tabs__container' style='position: relative;'></div>" +
               "</div>" +
             "</div>" +
           "</div>" +
@@ -305,6 +306,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
       tabTitle: v_tab_title_span,
       divDetails: document.getElementById(v_tab.id + '_details'),
       divTree: document.getElementById(v_tab.id + '_tree'),
+      divTreeTabs: document.getElementById('tree_tabs_parent_' + v_tab.id),
       divProperties: v_divProperties,
       gridProperties: ht,
       gridPropertiesCleared: true,

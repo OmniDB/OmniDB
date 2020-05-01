@@ -660,14 +660,14 @@ input, textarea {
 }
 
 #vertical-resize-line {
-    position: absolute;
-    float: left;
-    width: 100vw;
-    height: 0px;
-    border-top: 1px dashed white;
-    box-sizing: border-box;
-    left: 0;
-    z-index: 99999;
+  position: absolute;
+  float: left;
+  width: 100%;
+  height: 0px;
+  border-top: 1px dashed white;
+  box-sizing: border-box;
+  left: 0;
+  z-index: 99999;
 }
 
 .fa-light {

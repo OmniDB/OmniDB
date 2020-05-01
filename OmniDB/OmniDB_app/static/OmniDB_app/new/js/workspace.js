@@ -273,6 +273,7 @@ function resizeTreeVertical(event) {
 /// Resize SQL editor and result div.
 /// </summary>
 function resizeTreeVerticalEnd(event) {
+  console.log(v_connTabControl.selectedTab.tag.mode);
 
 	document.body.removeEventListener("mouseup", resizeTreeVerticalEnd);
 	document.getElementById('vertical-resize-line').remove();
@@ -328,6 +329,115 @@ function resizeTreeVerticalEnd(event) {
 		v_tag.ddlEditor.resize();
 	}
 
+}
+
+/// <summary>
+/// Resize SQL editor and result div.
+/// </summary>
+function resizeVertical(event) {
+	var v_verticalLine = document.createElement('div');
+	v_verticalLine.id = 'vertical-resize-line';
+	v_connTabControl.selectedTab.tag.divRight.appendChild(v_verticalLine);
+
+	document.body.addEventListener(
+		'mousemove',
+		verticalLinePosition
+	)
+
+	v_start_height = event.screenY;
+	document.body.addEventListener("mouseup", resizeVerticalEnd);
+
+}
+
+/// <summary>
+/// Resize SQL editor and result div.
+/// </summary>
+function resizeVerticalEnd(event) {
+
+	document.body.removeEventListener("mouseup", resizeVerticalEnd);
+	document.getElementById('vertical-resize-line').remove();
+
+	document.body.removeEventListener(
+		'mousemove',
+		verticalLinePosition
+	)
+
+	var v_height_diff = event.screenY - v_start_height;
+
+	var v_editor_div = document.getElementById(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editorDivId);
+	var v_result_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result;
+
+	if (v_height_diff < 0) {
+		if (Math.abs(v_height_diff) > parseInt(v_editor_div.style.height, 10))
+		 v_height_diff = parseInt(v_editor_div.style.height, 10)*-1 + 10;
+	}
+	else {
+		if (Math.abs(v_height_diff) > parseInt(v_result_div.style.height, 10))
+		 v_height_diff = parseInt(v_result_div.style.height, 10) - 10;
+	}
+	v_editor_div.style.height = parseInt(v_editor_div.style.height, 10) + v_height_diff + 'px';
+	v_result_div.style.height = parseInt(v_result_div.style.height, 10) - v_height_diff + 'px';
+
+
+	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	if(v_tab_tag.editor != null) {
+		v_tab_tag.editor.resize();
+	}
+
+	if (v_tab_tag.mode=='query') {
+		if (v_tab_tag.currQueryTab=='data') {
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+			if (v_tab_tag.ht!=null)
+				v_tab_tag.ht.render();
+		}
+		else if (v_tab_tag.currQueryTab=='message') {
+			v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+		}
+		else if (v_tab_tag.currQueryTab=='explain') {
+			v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 29 + 'px';
+		}
+	}
+	else if (v_tab_tag.mode=='debug') {
+		v_tab_tag.editor.resize();
+		if (v_tab_tag.currDebugTab=='variable') {
+			v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - 29 + 'px';
+			if (v_tab_tag.htVariable!=null)
+				v_tab_tag.htVariable.render();
+		}
+		if (v_tab_tag.currDebugTab=='parameter') {
+			v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - 29 + 'px';
+			if (v_tab_tag.htParameter!=null)
+				v_tab_tag.htParameter.render();
+		}
+		if (v_tab_tag.currDebugTab=='result') {
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+			if (v_tab_tag.htResult!=null)
+				v_tab_tag.htResult.render();
+		}
+		else if (v_tab_tag.currDebugTab=='message') {
+			v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+		}
+		else if (v_tab_tag.currDebugTab=='statistics') {
+			v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - 29 + 'px';
+			if (v_tab_tag.chart!=null)
+				v_tab_tag.chart.update();
+		}
+	}
+	else if (v_tab_tag.mode=='edit') {
+		if (v_tab_tag.editDataObject.ht!=null) {
+			v_tab_tag.editDataObject.ht.render();
+		}
+	}
+	else if (v_tab_tag.mode=='console') {
+		v_tab_tag.editor_input.resize();
+		v_tab_tag.editor_console.resize();
+	}
+	else if(v_tab_tag.mode == 'data_mining') {
+		if(v_tab_tag.currQueryTab == 'data') {
+			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+		}
+	}
 }
 
 function resizeWindow(){

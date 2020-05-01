@@ -129,7 +129,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
             "</div>" +
           "</div>" +
         "</div>" +//.div_left
-        "<div id='" + v_tab.id + "_div_right' class='omnidb__workspace__div-right col-md-10'>" +
+        "<div id='" + v_tab.id + "_div_right' class='omnidb__workspace__div-right col-md-10' style='position: relative;'>" +
           // "<div class='row'>" +
             "<div id='" + v_tab.id + "_tabs' class='w-100'></div>" +
           // "</div>" +

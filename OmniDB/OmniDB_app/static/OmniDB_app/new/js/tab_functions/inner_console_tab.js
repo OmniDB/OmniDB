@@ -36,13 +36,13 @@ var v_createConsoleTabFunction = function() {
   var v_tab_stub_span = document.getElementById('tab_stub');
   v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
-  var command_history_modal =
+  var console_history_modal =
   "<div class='modal fade' id='modal_console_history_" + v_tab.id + "' tabindex='-1' role='dialog' aria-hidden='true'>" +
     "<div class='modal-dialog modal-xl modal-dialog-scrollable' role='document'>" +
       "<div class='modal-content'>" +
         "<div class='modal-header'>" +
           "<h5 class='modal-title'>" +
-            "Command history" +
+            "Console commands history" +
           "</h5>" +
           "<button type='button' class='close' data-dismiss='modal' aria-label='Close' onclick='closeConsoleHistory()'>" +
             "<span aria-hidden='true'>&times;</span>" +
@@ -60,7 +60,7 @@ var v_createConsoleTabFunction = function() {
   var v_html =
   "<div id='txt_console_" + v_tab.id + "' style=' width: 100%; height: 120px; border: 1px solid #c3c3c3;'></div>" +
   "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
-  command_history_modal +
+  console_history_modal +
   "<div class='row mb-1'>" +
     "<div class='tab_actions omnidb__tab-actions col-12'>" +
       "<button id='bt_start_" + v_tab.id + "' class='btn btn-sm omnidb__theme__btn--primary omnidb__tab-actions__btn' title='Run' onclick='consoleSQL(false);'><i class='fas fa-play fa-light'></i></button>" +

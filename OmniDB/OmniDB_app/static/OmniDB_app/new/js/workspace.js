@@ -965,6 +965,7 @@ function drop(event, grid_container, div_left, div_right) {
     for (let i = 0; i < cols.length; i++) {
       document.getElementsByClassName('omnidb__workspace-resize-grid__column')[i].classList.remove('omnidb__workspace-resize-grid__column--enter');
     }
+    v_connTabControl.selectedTab.tag.gridProperties.render();
   }
   catch (e) {
 

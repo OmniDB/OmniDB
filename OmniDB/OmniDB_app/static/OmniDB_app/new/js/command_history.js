@@ -159,16 +159,16 @@ function showCommandList() {
 		"    <span id='cl_curr_page_" + v_tabTag.tab_id + "'></span> / <span id='cl_num_pages_" + v_tabTag.tab_id + "'></span>" +
 		"    <button id='bt_next_" + v_tabTag.tab_id + "' onclick='commandHistoryNextPage()' class='bt_execute btn btn-secondary' title='Next'>Next</button>" +
 		"    <button id='bt_last_" + v_tabTag.tab_id + "' onclick='commandHistoryLastPage()' class='bt_execute btn btn-secondary' title='Last'>Last</button>" +
-		"    <button id='bt_refresh_" + v_tabTag.tab_id + "' onclick='refreshCommandList()' class='bt_execute btn btn-primary' title='Refresh'>Refresh</button>" +
-		"    <button id='bt_clear_" + v_tabTag.tab_id + "' onclick='deleteCommandList()' class='bt_execute btn btn-danger' title='Clear List'>Clear List</button>" +
+		"    <button id='bt_refresh_" + v_tabTag.tab_id + "' onclick='refreshCommandList()' class='bt_execute btn btn-primary' title='Refresh'><i class='fas fa-sync-alt mr-1'></i>Refresh</button>" +
+		"    <button id='bt_clear_" + v_tabTag.tab_id + "' onclick='deleteCommandList()' class='bt_execute btn btn-danger' title='Clear List'><i class='fas fa-broom mr-1'></i>Clear List</button>" +
 		"</div>" +
 		"<div class='mb-2 form-inline'>" +
-		"    <label>Started from:</label>" +
-		"    <input type='date' id='cl_input_from_" + v_tabTag.tab_id + "' class='mx-1 form-control' onchange='refreshCommandList();'  onchange='refreshCommandList();'/>" +
-		"    <label>to:</label>" +
-		"    <input type='date' id='cl_input_to_" + v_tabTag.tab_id + "' class='mx-1 form-control' onchange='refreshCommandList(); '/>" +
-		"    <label>Command contains:</label>" +
-		"    <input type='text' id='cl_input_contains_" + v_tabTag.tab_id + "' class='mx-1 form-control' onchange='refreshCommandList();' />" +
+		"    <label class='mr-1'>Started from:</label>" +
+		"    <input type='date' id='cl_input_from_" + v_tabTag.tab_id + "' class='mr-2 form-control' onchange='refreshCommandList();'  onchange='refreshCommandList();'/>" +
+		"    <label class='mr-1'>to:</label>" +
+		"    <input type='date' id='cl_input_to_" + v_tabTag.tab_id + "' class='mr-2 form-control' onchange='refreshCommandList(); '/>" +
+		"    <label class='mr-1'>Command contains:</label>" +
+		"    <input type='text' id='cl_input_contains_" + v_tabTag.tab_id + "' class='mr-2 form-control' onchange='refreshCommandList();' />" +
 		"</div>";
 
 	v_tabTag.commandHistory.currentPage = 1;

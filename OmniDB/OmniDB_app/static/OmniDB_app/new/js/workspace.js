@@ -635,6 +635,38 @@ function checkTabStatus(v_tab) {
 
 }
 
+/// <summary>
+/// Indent SQL.
+/// </summary>
+function indentSQL() {
+
+	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+	var v_editor = null;
+	if (v_tab_tag.mode=='query')
+		v_editor = v_tab_tag.editor;
+	else if (v_tab_tag.mode=='console')
+		v_editor = v_tab_tag.editor_input;
+
+	var v_sql_value = v_editor.getValue();
+
+	if (v_sql_value.trim()=='') {
+		showAlert('Please provide a string.');
+	}
+	else {
+		execAjax('/indent_sql/',
+				JSON.stringify({"p_sql": v_sql_value}),
+				function(p_return) {
+
+					v_editor.setValue(p_return.v_data);
+					v_editor.clearSelection();
+					v_editor.gotoLine(0, 0, true);
+
+				},
+				null,
+				'box');
+	}
+}
+
 function showMenuNewTabOuter(e) {
 
 	var v_option_list = [];

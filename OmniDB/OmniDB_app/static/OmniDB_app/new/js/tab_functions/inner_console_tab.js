@@ -37,7 +37,7 @@ var v_createConsoleTabFunction = function() {
   v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
   var command_history_modal =
-  "<div class='modal fade' id='modal_command_history' tabindex='-1' role='dialog' aria-hidden='true'>" +
+  "<div class='modal fade' id='modal_console_history_" + v_tab.id + "' tabindex='-1' role='dialog' aria-hidden='true'>" +
     "<div class='modal-dialog modal-xl modal-dialog-scrollable' role='document'>" +
       "<div class='modal-content'>" +
         "<div class='modal-header'>" +
@@ -162,6 +162,7 @@ var v_createConsoleTabFunction = function() {
     connTab: v_connTabControl.selectedTab,
     currDatabaseIndex: null,
     state: 0,
+    console_history_modal: document.getElementById('modal_console_history_' + v_tab.id),
     console_history_div: document.getElementById('console_history_div_' + v_tab.id),
     console_history_grid_div: document.getElementById('console_history_grid_' + v_tab.id),
     console_history_grid: null,

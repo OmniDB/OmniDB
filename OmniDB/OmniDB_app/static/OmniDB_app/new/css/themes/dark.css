@@ -40,8 +40,8 @@
   color: #FFF;
 }
 .nav-tabs .nav-link.active {
-  background-color: #28407b !important;
-  border-color: #28407b !important;
+  background-color: #28407b;
+  border-color: #28407b;
   color: #92c7ff;
 }
 
@@ -96,8 +96,9 @@ a:hover {
   border-bottom-color: transparent !important;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
-  background-color: #282A2F !important;
-  border-bottom-color: #5371BD !important;
+  background-color: transparent;
+  border-color: #44464c;
+  border-bottom-color: #5371BD;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
   color: #DCDDDE !important;
@@ -105,13 +106,20 @@ a:hover {
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon {
   background-color: #2F3136 !important;
 }
+.omnidb__tab-menu--secondary .omnidb__tab-menu__link.active {
+  background-color: transparent;
+  border-color: #5371BD;
+  border-bottom-color: #2f3136;
+}
 
 /* TREE TAB */
 .omnidb__tree-tabs .omnidb__tab-menu .nav-tabs {
   border-bottom-color: transparent !important;
 }
 .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link {
-  background-color: #282A2F !important;
+  background-color: transparent;
+  border-color: #44464c;
+  border-bottom-color: #5371BD;
 }
 .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #DCDDDE !important;
@@ -120,7 +128,9 @@ a:hover {
   background-color: #2F3136 !important;
 }
 .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
-  border-color: #5371BD !important;
+  background-color: transparent;
+  border-color: #5371BD;
+  border-bottom-color: #2f3136;
 }
 
 /* QUERY RESULT TABS */
@@ -128,7 +138,9 @@ a:hover {
   border-bottom-color: transparent !important;
 }
 .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link {
-  background-color: #282A2F !important;
+  background-color: transparent;
+  border-color: #44464c;
+  border-bottom-color: #5371BD;
 }
 .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #DCDDDE !important;
@@ -137,10 +149,12 @@ a:hover {
   background-color: #2F3136 !important;
 }
 .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
-  border-color: #5371BD !important;
+  background-color: transparent;
+  border-color: #5371BD;
+  border-bottom-color: #2f3136;
 }
-.omnidb__query-result-tabs .omnidb__query-result-tabs__content {
-  border: 1px solid #94A5E3;
+.omnidb__query-result-tabs .omnidb__tab-content {
+  border: 1px solid #5371BD;
 }
 
 /* CARD */

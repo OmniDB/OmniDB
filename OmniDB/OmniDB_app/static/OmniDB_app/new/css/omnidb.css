@@ -643,10 +643,10 @@
   transition: 0.35s;
   width: 0px;
 }
-.omnidb__utilities-menu:hover .omnidb__menu__btn-user i {
+.omnidb__utilities-menu:hover .omnidb__menu__btn-text i {
   width: 0px;
 }
-.omnidb__utilities-menu:hover .omnidb__menu__btn-user span {
+.omnidb__utilities-menu:hover .omnidb__menu__btn-text span {
   transform: scaleX(1);
   width: auto;
 }

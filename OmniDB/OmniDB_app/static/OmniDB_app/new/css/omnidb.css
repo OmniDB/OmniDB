@@ -582,6 +582,28 @@
   z-index: 1;
 }
 
+/* Resizing Elements */
+#horizontal-resize-line {
+    position: absolute;
+    float: left;
+    width: 0px;
+    height: 100vh;
+    border-left: 1px dashed black;
+    box-sizing: border-box;
+    top: 0;
+    z-index: 99999;
+}
+#vertical-resize-line {
+    position: absolute;
+    float: left;
+    width: 100%;
+    height: 0px;
+    border-top: 1px dashed black;
+    box-sizing: border-box;
+    left: 0;
+    z-index: 99999;
+}
+
 
 /* TAB ACTIONS */
 .omnidb__tab-actions {
@@ -605,6 +627,9 @@
 }
 
 /* UTILITIES MENU */
+.omnidb__utilities-menu .omnidb__menu__btn-text {
+  white-space: nowrap;
+}
 .omnidb__utilities-menu .omnidb__menu__btn-user i {
   height: 27px;
   line-height: 27px;

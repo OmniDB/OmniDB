@@ -212,23 +212,9 @@ a:hover {
 }
 
 #horizontal-resize-line {
-    position: absolute;
-    float: left;
-    width: 0px;
-    height: 100vh;
-    border-left: 1px dashed black;
-    box-sizing: border-box;
-    top: 0;
-    z-index: 99999;
+  border-left-color: black;
 }
 
 #vertical-resize-line {
-    position: absolute;
-    float: left;
-    width: 100%;
-    height: 0px;
-    border-top: 1px dashed black;
-    box-sizing: border-box;
-    left: 0;
-    z-index: 99999;
+  border-top-color: black;
 }

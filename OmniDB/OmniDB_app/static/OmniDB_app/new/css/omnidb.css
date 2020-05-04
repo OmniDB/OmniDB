@@ -630,7 +630,7 @@
 .omnidb__utilities-menu .omnidb__menu__btn-text {
   white-space: nowrap;
 }
-.omnidb__utilities-menu .omnidb__menu__btn-user i {
+.omnidb__utilities-menu .omnidb__menu__btn-text i {
   height: 27px;
   line-height: 27px;
   overflow: hidden;
@@ -638,7 +638,7 @@
   transition: 0.35s;
   width: 27px;
 }
-.omnidb__utilities-menu .omnidb__menu__btn-user span {
+.omnidb__utilities-menu .omnidb__menu__btn-text span {
   transform: scaleX(0);
   transition: 0.35s;
   width: 0px;

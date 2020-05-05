@@ -3534,7 +3534,7 @@ function getTreePostgresql(p_div) {
     var tree = createTree(p_div, '#fcfdfd', context_menu);
     v_connTabControl.selectedTab.tag.tree = tree;
     v_connTabControl.selectedTab.tag.divDetails.innerHTML =
-        'Active database: <b>' + v_connTabControl.selectedTab.tag.selectedDatabase +
+        '<i class="fas fa-server mr-1"></i>selected DB: <b>' + v_connTabControl.selectedTab.tag.selectedDatabase +
         '</b>';
 
     tree.nodeAfterOpenEvent = function(node) {

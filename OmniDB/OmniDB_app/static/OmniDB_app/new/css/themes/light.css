@@ -1,18 +1,22 @@
+.omnidb--theme-light {
+  color: #444;
+}
+
 .omnidb__main {
-  background-color: #F4F4F4 !important;
+  background-color: #F4F4F4;
 }
 
 .omnidb__theme-bg--menu-primary {
-  background-color: #839EC7 !important;
+  background-color: #839EC7;
 }
 .omnidb__workspace__div-left {
-  background-color: #FFF !important;
+  background-color: #FFF;
 }
 .omnidb__workspace__div-right {
-  background-color: #F4F4F4 !important;
+  background-color: #F4F4F4;
 }
 .tab_actions.omnidb__tab-actions {
-  background-color: #FFF !important;
+  background-color: #FFF;
 }
 
 /* ICONS */
@@ -29,7 +33,7 @@
 
 /* BUTTONS */
 .omnidb__theme__btn--primary {
-  background-color: #FFC781 !important;
+  background-color: #FFC781;
 }
 
 /* TABS */
@@ -47,11 +51,10 @@
 
 /* PRIMARY TAB */
 .omnidb__tab-menu--primary .omnidb__menu__btn {
-  /* background-color: #FFF !important; */
+  /* background-color: #FFF; */
 }
 .omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active .omnidb__tab-menu__link-name {
-  background-color: #FFF !important;
-  color: #444444 !important;
+  color: #444444;
 }
 .omnidb__tab-menu--primary .omnidb__tab-menu__link-name{
 	color: #FFF;
@@ -104,7 +107,7 @@ a:hover {
   color: #444444 !important;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon {
-  background-color: #E2E2E2 !important;
+  background-color: unset;
 }
 .omnidb__tab-menu--secondary .omnidb__tab-menu__link.active {
   background-color: transparent;
@@ -188,6 +191,11 @@ a:hover {
   background-color: rgba(255,255,255,.85);
 }
 
+/* CONNECTIONS */
+.omnidb__connections__btn--select svg {
+  fill: #FFF;
+}
+
 /* JSON BUILDER */
 .omnidb--theme-light .jsonBuilder--template-2 .jsonBuilder__label {
     background-color: #E2E2E2;
@@ -203,6 +211,38 @@ a:hover {
   /* color: #FFF;
   background-color: #394E83;
   border-color: #394E83; */
+}
+
+/* Workspace Connection Info */
+.omnidb__workspace__connection-details b {
+  color: #284AC6;
+}
+
+/* Tree Component */
+/* .div_left ul.tree {
+  background-color: #373b41 !important;
+}
+.div_left ul.tree li.last {
+  background-color: #373b41 !important;
+}
+.div_right ul.tree {
+  background-color: #373b41 !important;
+  font-weight: bold;
+}
+.div_right ul.tree li.last {
+  background-color: #373b41 !important;
+} */
+.node:hover {
+  background-color: #e2e2e2 !important;
+}
+/* .node:hover a {
+  color: white !important;
+}
+.node a {
+  color: #ffffff !important;
+} */
+span.node_selected span {
+  color: #284AC6;
 }
 
 .cellNew {

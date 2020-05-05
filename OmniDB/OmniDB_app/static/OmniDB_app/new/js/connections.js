@@ -48,6 +48,10 @@ function showConnectionList(p_open_modal, p_change_group) {
         v_connections_data.technologies = p_return.v_data.v_technologies;
 
         //Building connection cards
+				var v_container = null;
+        var v_container = document.createElement('div');
+        v_container.className = 'container-fluid';
+
         var v_row = null;
 
         var v_target_div = document.getElementById('connection_card_list');
@@ -115,11 +119,11 @@ function showConnectionList(p_open_modal, p_change_group) {
           }
 
 					var v_button_select = document.createElement('button');
-					v_button_select.className = 'btn btn-success btn-sm mx-1 omnidb__connections__btn--select';
+					v_button_select.className = 'btn btn-success btn-sm omnidb__connections__btn--select';
 					v_button_select.title = "Select";
 					if (v_conn_obj.locked==true)
 						v_button_select.setAttribute("disabled",true);
-					v_button_select.innerHTML = '<svg width="15px" height="160px" viewBox="0 0 15 160" style="fill: #FFF;"><path fill="#FFF" stroke="none" d="M 0 0 L 15 80 L 0 160 Z"></path></svg><i class="fas fa-plug"></i>';
+					v_button_select.innerHTML = '<svg width="15px" height="160px" viewBox="0 0 15 160" style="width: auto;height: 100%;stroke: none;stroke-width: 0;"><path stroke-width="0" stroke="none" d="M 0 0 L 15 80 L 0 160 Z"></path></svg><i class="fas fa-plug"></i>';
 					v_card_body_div.appendChild(v_button_select);
 
           var v_button_edit = document.createElement('button');
@@ -166,8 +170,10 @@ function showConnectionList(p_open_modal, p_change_group) {
           );
         }
 
+				v_container.appendChild(v_row);
+
         v_target_div.innerHTML = '';
-        v_target_div.appendChild(v_row);
+        v_target_div.appendChild(v_container);
 
 
         if (p_open_modal)

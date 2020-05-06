@@ -30,9 +30,13 @@ var v_createMonitorDashboardTabFunction = function() {
   v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
 
   var v_html =
-  "<button class='btn btn-secondary btn-sm my-1 mr-1' onclick='refreshMonitorDashboard(true)'>Refresh All</button>" +
-  "<button class='btn btn-secondary btn-sm my-1' onclick='showMonitorUnitList()'>Manage Units</button>" +
-  "<div id='dashboard_" + v_tab.id + "' class='dashboard_all row'></div>";
+  "<div class='omnidb__monitoring-result-tabs'>" +
+    "<div class='container-fluid'>" +
+      "<button class='btn btn-primary btn-sm my-2 mr-1' onclick='refreshMonitorDashboard(true)'><i class='fas fa-sync-alt mr-2'></i>Refresh All</button>" +
+      "<button class='btn btn-primary btn-sm my-2' onclick='showMonitorUnitList()'>Manage Units</button>" +
+      "<div id='dashboard_" + v_tab.id + "' class='dashboard_all row'></div>" +
+    "</div>" +
+  "</div>";
 
   var v_div = document.getElementById('div_' + v_tab.id);
   v_div.innerHTML = v_html;

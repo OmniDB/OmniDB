@@ -18,7 +18,6 @@ var v_createSnippetTabFunction = function(p_index) {
     },
   });
 
-  console.log(v_tab);
 
   v_connTabControl.selectTab(v_tab);
 

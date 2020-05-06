@@ -525,7 +525,7 @@ function refreshHeights(p_all) {
 
 		//Snippet tab, adjust editor only
 		if (v_tab_tag.mode=='snippet') {
-			v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 42 + 'px';
+			v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 60 + 'px';
 			v_tab_tag.editor.resize();
 		}
 		else if (v_tab_tag.mode=='monitor_unit') {

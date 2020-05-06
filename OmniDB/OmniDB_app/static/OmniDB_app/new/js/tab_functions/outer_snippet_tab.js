@@ -38,19 +38,6 @@ var v_createSnippetTabFunction = function(p_index) {
             "<div id='" + v_tab.id + "_details' class='omnidb__workspace__connection-details' ></div>" +
             "<div id='" + v_tab.id + "_tree' style='overflow: auto; flex-grow: 1;'></div>" +
             "<div id='" + v_tab.id + "_left_resize_line_horizontal' onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
-            "<div id='tree_tabs_parent_" + v_tab.id + "' class='omnidb__tree-tabs' style='position: relative;flex-shrink: 0;flex-basis: 40vh;'>" +
-              "<div id='" + v_tab.id + "_loading' class='div_loading' style='z-index: 1000;'>" +
-
-              '<div class="div_loading_cover"></div>' +
-              '<div class="div_loading_content">' +
-              '  <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">' +
-              '    <span class="sr-only ">Loading...</span>' +
-              '  </div>' +
-              '</div>' +
-              "</div>" +
-              "<button type='button' onclick='toggleTreeTabsContainer(" + '"tree_tabs_parent_' + v_tab.id + '","' + v_tab.id + '_left_resize_line_horizontal"' + ")' class='btn btn-secondary omnidb__tree-tabs__toggler'><i class='fas fa-arrows-alt-v'></i></button>" +
-              "<div id='tree_tabs_" + v_tab.id + "' class='omnidb__tree-tabs__container' style='position: relative;'></div>" +
-            "</div>" +
           "</div>" +
         "</div>" +
       "</div>" +//.div_left

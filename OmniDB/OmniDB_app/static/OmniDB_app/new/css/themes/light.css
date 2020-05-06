@@ -160,6 +160,11 @@ a:hover {
   border: 1px solid #94A5E3;
 }
 
+/* MONITORING */
+.omnidb__monitoring-result-tabs {
+  border: 1px solid #94A5E3;
+}
+
 /* CARD */
 .omnidb--theme-dark .card {
   background-color: #FFF;

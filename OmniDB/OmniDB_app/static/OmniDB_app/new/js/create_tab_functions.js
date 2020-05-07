@@ -12,69 +12,6 @@ You should have received a copy of the GNU General Public License along with Omn
 
 function initCreateTabFunctions() {
 
-  var v_createGraphTabFunction = function(p_name) {
-
-		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
-		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-      '<i class="fab fa-hubspot icon-tab-title"></i><span id="tab_title"> ' + p_name + '</span><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
-      false,
-      null,
-      null,
-      null,
-      null,
-      true,
-      function() {
-        if(this.tag != null) {
-          refreshHeights();
-        }
-      });
-		v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
-
-		//Adding unique names to spans
-		var v_tab_title_span = document.getElementById('tab_title');
-		v_tab_title_span.id = 'tab_title_' + v_tab.id;
-		var v_tab_close_span = document.getElementById('tab_close');
-		v_tab_close_span.id = 'tab_close_' + v_tab.id;
-		v_tab_close_span.onclick = function(e) {
-      var v_current_tab = v_tab;
-      beforeCloseTab(e,
-        function() {
-          if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network) {
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network.destroy();
-          }
-          v_current_tab.removeTab();
-        });
-		};
-
-		var v_html = "<div id='graph_" + v_tab.id + "' style=' width: 100%; height: 200px;'></div>";
-
-    var v_div = document.getElementById('div_' + v_tab.id);
-		v_div.innerHTML = v_html;
-
-		var v_tag = {
-			tab_id: v_tab.id,
-			mode: 'graph',
-			graph_div: document.getElementById('graph_' + v_tab.id),
-			tab_title_span : v_tab_title_span,
-			tab_close_span : v_tab_close_span,
-			tabControl: v_connTabControl.selectedTab.tag.tabControl,
-      network: null,
-      tabCloseSpan: v_tab_close_span
-		};
-
-		v_tab.tag = v_tag;
-
-		var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab('+',false,function(e) {showMenuNewTab(e); },null,null,null,null,null,false);
-    v_add_tab.tag = {
-      mode: 'add'
-    }
-
-    setTimeout(function() {
-      refreshHeights();
-    },10);
-
-	};
-
   var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Terminal') {
 
     v_connTabControl.removeTabIndex(v_connTabControl.tabList.length-1);

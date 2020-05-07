@@ -240,6 +240,156 @@ function checkBeforeChangeDatabase(p_cancel_function, p_ok_function) {
 }
 
 /// <summary>
+/// Draws graph.
+/// </summary>
+function drawGraph(p_all, p_schema) {
+
+	execAjax('/draw_graph/',
+			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+											"p_tab_id": v_connTabControl.selectedTab.id,
+											"p_complete": p_all,
+											"p_schema": p_schema}),
+			function(p_return) {
+
+          v_nodes = [];
+          v_edges = [];
+
+          for (var i=0; i<p_return.v_data.v_nodes.length; i++)
+          {
+
+	        	var v_node_object = new Object();
+						v_node_object.data = new Object();
+						v_node_object.position = new Object();
+						v_node_object.data.id = p_return.v_data.v_nodes[i].id;
+						v_node_object.data.label = p_return.v_data.v_nodes[i].label;
+						v_node_object.classes = 'group' + p_return.v_data.v_nodes[i].group;
+
+						v_nodes.push(v_node_object);
+
+          }
+
+          for (var i=0; i<p_return.v_data.v_edges.length; i++)
+          {
+
+          	var v_edge_object = new Object();
+						v_edge_object.data = new Object();
+						v_edge_object.data.source = p_return.v_data.v_edges[i].from;
+						v_edge_object.data.target = p_return.v_data.v_edges[i].to;
+						v_edge_object.data.label = p_return.v_data.v_edges[i].label;
+						v_edge_object.data.faveColor = '#9dbaea';
+						v_edge_object.data.arrowColor = '#9dbaea';
+						v_edges.push(v_edge_object);
+
+          }
+
+					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network = window.cy = cytoscape({
+						container: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.graph_div,
+						boxSelectionEnabled: false,
+						autounselectify: true,
+						layout: {
+							name: 'spread',
+	            			idealEdgeLength: 100,
+	            			nodeOverlap: 20
+						},
+						style: [
+							{
+								selector: 'node',
+								style: {
+									'content': 'data(label)',
+									'text-opacity': 0.5,
+									'text-valign': 'top',
+									'text-halign': 'right',
+									'background-color': '#11479e',
+									'text-wrap': 'wrap',
+
+
+								}
+							},
+							{
+								selector: 'node.group0',
+								style: {
+									'background-color': 'slategrey',
+									'shape': 'square'
+								}
+							},
+							{
+								selector: 'node.group1',
+								style: {
+									'background-color': 'blue'
+								}
+							},
+							{
+								selector: 'node.group2',
+								style: {
+									'background-color': 'cyan'
+								}
+							},
+							{
+								selector: 'node.group3',
+								style: {
+									'background-color': 'lightgreen'
+								}
+							},
+							{
+								selector: 'node.group4',
+								style: {
+									'background-color': 'yellow'
+								}
+							},
+							{
+								selector: 'node.group5',
+								style: {
+									'background-color': 'orange'
+								}
+							},
+							{
+								selector: 'node.group6',
+								style: {
+									'background-color': 'red'
+								}
+							},
+
+							{
+								selector: 'edge',
+								style: {
+									'curve-style': 'bezier',
+							        'target-arrow-shape': 'triangle',
+							        'target-arrow-color': 'data(faveColor)',
+							        'line-color': 'data(arrowColor)',
+							        'text-opacity': 0.75,
+							        'width': 2,
+							        'control-point-distances': 50,
+							        'content': 'data(label)',
+							        'text-wrap': 'wrap',
+							        'edge-text-rotation': 'autorotate',
+							        'line-style': 'solid'
+								}
+							}
+						],
+
+						elements: {
+							nodes: v_nodes,
+							edges: v_edges
+						}
+					});
+
+			},
+			function(p_return) {
+				if (p_return.v_data.password_timeout) {
+					showPasswordPrompt(
+						v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+						function() {
+							drawGraph(p_all, p_schema);
+						},
+						null,
+						p_return.v_data.message
+					);
+				}
+			},
+			'box');
+}
+
+/// <summary>
 /// Rename tab.
 /// </summary>
 function renameTab(p_tab) {

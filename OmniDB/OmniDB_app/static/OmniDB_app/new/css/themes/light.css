@@ -9,6 +9,9 @@
 .omnidb__theme-bg--menu-primary {
   background-color: #839EC7;
 }
+.omnidb__theme-border--primary {
+  border: 1px solid #94A5E3;
+}
 .omnidb__workspace__div-left {
   background-color: #FFF;
 }
@@ -157,7 +160,7 @@ a:hover {
   border-bottom-color: #e4e4e4;
 }
 .omnidb__query-result-tabs .omnidb__tab-content {
-  border: 1px solid #94A5E3;
+  /* border: 1px solid #94A5E3; */
 }
 
 /* MONITORING */

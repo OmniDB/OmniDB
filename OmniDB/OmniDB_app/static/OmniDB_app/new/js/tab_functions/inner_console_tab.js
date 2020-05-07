@@ -5,7 +5,7 @@ var v_createConsoleTabFunction = function() {
 
   // Creating console tab in the inner tab list
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
-    p_icon: '<i class="fas fa-terminal"></i>',
+    p_icon: '<i class="fas fa-terminal icon-tab-title"></i>',
     p_name: '<span> Console</span><span id="tab_stub"><img style="width: 24px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i></span>',
     p_selectFunction: function() {
       if(this.tag != null) {

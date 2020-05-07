@@ -123,7 +123,10 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
         v_selectDataTabFunc();
       }
     });
-  v_data_tab.elementDiv.innerHTML = "<div id='div_result_" + v_tab.id + "' class='omnidb__query-result-tabs__content' style='width: 100%; overflow: hidden;'></div>";
+  v_data_tab.elementDiv.innerHTML =
+  "<div class='p-2 omnidb__query-result-tabs__content omnidb__theme-border--primary'>" +
+    "<div id='div_result_" + v_tab.id + "' class='omnidb__query-result-tabs__content' style='width: 100%; overflow: hidden;'></div>" +
+  "</div>";
   var v_messages_tab = v_curr_tabs.createTab(
     {
       p_name: "Messages <div id='query_result_tabs_count_notices_" + v_tab.id + "' class='count_notices' style='display: none;'></div>",
@@ -132,7 +135,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
         v_selectMessageTabFunc();
       }
     });
-  v_messages_tab.elementDiv.innerHTML = "<div id='div_notices_" + v_tab.id + "' class='omnidb__query-result-tabs__content' style='width: 100%; line-height: 16px; user-select: initial;'></div>";
+  v_messages_tab.elementDiv.innerHTML = "<div id='div_notices_" + v_tab.id + "' class='p-2 omnidb__query-result-tabs__content omnidb__theme-border--primary' style='width: 100%; line-height: 16px; user-select: initial;'></div>";
   v_messages_tab.elementA.classList.add('dbms_object');
   v_messages_tab.elementA.classList.add('postgresql_object');
   var v_explain_tab = v_curr_tabs .createTab(

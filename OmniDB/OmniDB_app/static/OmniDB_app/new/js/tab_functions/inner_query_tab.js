@@ -146,7 +146,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
         v_selectExplainTabFunc();
       }
     });
-  v_explain_tab.elementDiv.innerHTML = "<div id='div_explain_" + v_tab.id + "' style='width: 100%; overflow: auto;'></div>";
+  v_explain_tab.elementDiv.innerHTML = "<div id='div_explain_" + v_tab.id + "' class='p-2 omnidb__query-result-tabs__content omnidb__theme-border--primary' style='width: 100%; overflow: auto;'></div>";
   v_explain_tab.elementA.classList.add('dbms_object');
   v_explain_tab.elementA.classList.add('postgresql_object');
 

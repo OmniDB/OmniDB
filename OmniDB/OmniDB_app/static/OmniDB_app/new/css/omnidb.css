@@ -502,6 +502,9 @@
   position: relative;
   z-index: 1;
 }
+.omnidb__tab-menu--secondary .omnidb__menu__btn {
+  border-radius: 0px;
+}
 
 .omnidb__query-result-tabs .omnidb__tab-content {
   /* padding: 0.5rem; */

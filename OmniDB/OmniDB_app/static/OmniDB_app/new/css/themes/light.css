@@ -12,6 +12,9 @@
 .omnidb__theme-border--primary {
   border: 1px solid #94A5E3;
 }
+.omnidb__theme-border-top--primary {
+  border-top: 1px solid #94A5E3;
+}
 .omnidb__workspace__div-left {
   background-color: #FFF;
 }

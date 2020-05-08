@@ -193,6 +193,22 @@ a:hover {
   background-color: #2F3136;
 }
 
+/* SCROLL */
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+    background: none;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #47505d;
+    cursor: pointer;
+}
+
 /* TOAST */
 .omnidb--theme-dark .toast {
   background-color: #2f3136;
@@ -719,23 +735,6 @@ input, textarea {
 .checkmark {
     background-color: #25282c !important;
     border: 1px solid #585858 !important;
-}
-
-/* width */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-    background: none;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-    background: #47505d;
-    cursor: pointer;
 }
 
 .error_text {

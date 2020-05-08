@@ -193,6 +193,22 @@ a:hover {
   background-color: #FFF;
 }
 
+/* SCROLL */
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+    background: #ecf0f5;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #bbcde8;
+    cursor: pointer;
+}
+
 /* TOAST */
 .omnidb--theme-light .toast {
   background-color: #dadada;

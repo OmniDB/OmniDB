@@ -30,13 +30,13 @@ var v_createSnippetTabFunction = function(p_index) {
       "<div id='" + v_tab.id + "_div_left' class='omnidb__workspace__div-left col-md-2'>" +
         "<div class='row'>" +
 
-          // "<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dotted #c3c3c3;'></div><div style='width:5px;'></div></div>" +
+          // "<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dashed #acc4e8;'></div><div style='width:5px;'></div></div>" +
 
 
           "<div class='omnidb__workspace__content-left'>" +
             "<div id='" + v_tab.id + "_details' class='omnidb__workspace__connection-details' ></div>" +
             "<div id='" + v_tab.id + "_tree' style='overflow: auto; flex-grow: 1;'></div>" +
-            "<div id='" + v_tab.id + "_left_resize_line_horizontal' onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+            "<div id='" + v_tab.id + "_left_resize_line_horizontal' onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dashed #acc4e8;'></div><div style='height:5px;'></div></div>" +
           "</div>" +
         "</div>" +
       "</div>" +//.div_left

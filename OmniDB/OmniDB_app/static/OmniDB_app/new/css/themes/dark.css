@@ -632,10 +632,10 @@ input, textarea {
 }
 
 .resize_line_horizontal {
-	border-bottom: 1px dotted #616771 !important;
+	border-bottom: 1px dashed #6b7284 !important;
 }
 .resize_line_vertical {
-	border-right: 1px dotted #616771 !important;
+	border-right: 1px dashed #6b7284 !important;
 }
 
 .div_chat_header_default {

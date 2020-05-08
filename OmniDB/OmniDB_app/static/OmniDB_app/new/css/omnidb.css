@@ -537,7 +537,7 @@
 }
 .omnidb__workspace-resize-grid__draggable .resize_line_vertical {
   align-items: center;
-  border-right: 1px dotted #c3c3c3;
+  border-right: 1px dashed #acc4e8;
   display: flex;
   height: 100%;
   justify-content: center;

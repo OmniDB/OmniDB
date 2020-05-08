@@ -80,7 +80,7 @@ var v_createEditDataTabFunction = function(p_table) {
       "<button id='bt_saveEditData_" + v_tab.id + "' onclick='saveEditData()' style='visibility: hidden; margin-left: 5px;'>Save Changes</button>" +
     "</div>" +
   "</div>" +
-  "<div class='p-2 omnidb__theme-border-top--primary'>" +
+  "<div class='p-2 omnidb__theme-border--primary'>" +
     "<div id='div_edit_data_data_" + v_tab.id + "' style='width: 100%; overflow: auto;'></div>";
   "</div>";
 

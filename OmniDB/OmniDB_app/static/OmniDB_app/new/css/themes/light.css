@@ -243,8 +243,9 @@ a:hover {
 .div_right ul.tree li.last {
   background-color: #373b41 !important;
 } */
-.node:hover {
-  background-color: #e2e2e2 !important;
+.aimara_tree span.node:hover,
+.aimara_tree span.node_selected:hover {
+  background-color: #ddf3df;
 }
 /* .node:hover a {
   color: white !important;

@@ -16,10 +16,23 @@ i.exp_col {
 }
 
 
-span.node {
+.aimara_tree span.node,
+.aimara_tree span.node_selected {
+  padding-bottom: 4px;
 	padding-right: 3px;
-	margin-bottom: 4px;
-	padding-top: 4px;
+  padding-top: 4px;
+  white-space: nowrap;
+}
+
+.aimara_tree i.fa-chevron-right,
+.aimara_tree i.fa-chevron-down {
+  transition: transform 0.3s;
+}
+.aimara_tree i.fa-chevron-right:hover {
+  transform: rotate(30deg) scale(1.2);
+}
+.aimara_tree i.fa-chevron-down:hover {
+  transform: rotate(-30deg) scale(1.2);
 }
 
 .aimara_tree .nav-link {
@@ -32,6 +45,7 @@ span.node {
       -ms-user-select: none; /* Internet Explorer/Edge */
           user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Opera and Firefox */
+  white-space: nowrap;
 }
 
 .aimara_tree ul ul {

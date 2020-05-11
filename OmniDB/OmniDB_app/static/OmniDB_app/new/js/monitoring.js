@@ -102,9 +102,9 @@ function buildMonitorUnit(p_unit, p_first) {
   var v_unit = null;
 
   var div = document.createElement('div');
-  div.className = 'col-md-6';
+  div.className = 'col-md-6 my-2';
   var div_card = document.createElement('div');
-  //div_card.className = 'card';
+  div_card.className = 'card';
   var div_card_body = document.createElement('div');
   div_card_body.className = 'card-body';
   var div_loading = document.createElement('div');
@@ -147,12 +147,12 @@ function buildMonitorUnit(p_unit, p_first) {
     }
   })(div);
   button_play.innerHTML = "<i class='fas fa-play-circle fa-light'></i>";
-  button_play.className = 'btn btn-secondary btn-sm mr-1';
+  button_play.className = 'btn btn-secondary btn-sm my-2 mr-1';
   button_play.title = 'Play';
   button_play.style.display = 'none';
   var interval = document.createElement('input');
   interval.value = v_return_unit.v_interval;
-  interval.className = 'form-control form-control-sm';
+  interval.className = 'form-control form-control-sm mr-2';
   interval.style.width = '60px';
   interval.onkeypress= function() {
     return event.charCode >= 48 && event.charCode <= 57;

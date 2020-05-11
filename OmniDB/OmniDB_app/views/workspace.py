@@ -28,17 +28,13 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def index(request):
-    print(request.user.id)
-    print(User.objects.get(id=request.user.id))
     try:
-        user_details = UserDetails.objects.get(user=User.objects.get(id=request.user.id))
+        user_details = UserDetails.objects.get(user=request.user)
         print(user_details)
     #user details does not exist, create it.
     except Exception:
         user_details = UserDetails(user=request.user)
         user_details.save()
-
-    print(user_details.font_size)
 
     #Invalid session
     if not request.session.get('omnidb_session'):

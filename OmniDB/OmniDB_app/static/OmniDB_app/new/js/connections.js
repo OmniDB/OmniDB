@@ -127,7 +127,7 @@ function showConnectionList(p_open_modal, p_change_group) {
 					v_card_body_div.appendChild(v_button_select);
 
           var v_button_edit = document.createElement('button');
-          v_button_edit.className = 'btn btn-primary btn-sm mx-1';
+          v_button_edit.className = 'btn btn-sm mx-1 omnidb__theme__btn--primary';
           v_button_edit.title = "Edit";
           if (v_conn_obj.locked==true)
             v_button_edit.setAttribute("disabled",true);

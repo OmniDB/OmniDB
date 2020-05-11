@@ -78,7 +78,7 @@ var v_createConsoleTabFunction = function() {
       "<div id='div_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
     "</div>" +
   "</div>" +
-  "<div id='txt_input_" + v_tab.id + "' style=' width: 100%; height: 150px; border: 1px solid #c3c3c3;'></div>";
+  "<div id='txt_input_" + v_tab.id + "' class='omnidb__console__text-input' style=' width: 100%; height: 150px; border: 1px solid #c3c3c3;'></div>";
 
   var v_div = document.getElementById('div_' + v_tab.id);
   v_tab.elementDiv.innerHTML = v_html;

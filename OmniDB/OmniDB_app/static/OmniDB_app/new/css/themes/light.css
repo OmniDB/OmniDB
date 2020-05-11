@@ -39,7 +39,12 @@
 
 /* BUTTONS */
 .omnidb__theme__btn--primary {
-  background-color: #FFC781;
+  background-color: #4A81D4;
+  color: #FFF;
+}
+.omnidb__theme__btn--secondary {
+  background-color: #6C757D;
+  color: #FFF;
 }
 
 /* TABS */
@@ -238,6 +243,14 @@ a:hover {
   /* color: #FFF;
   background-color: #394E83;
   border-color: #394E83; */
+}
+
+/* RESIZE LINES */
+.resize_line_horizontal {
+  border-bottom: 1px dashed #A2AFC1 !important;
+}
+.omnidb__workspace-resize-grid__draggable .resize_line_vertical {
+  border-right: 1px dashed #A2AFC1 !important;
 }
 
 /* Workspace Connection Info */

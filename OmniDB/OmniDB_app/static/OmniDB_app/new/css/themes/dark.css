@@ -40,6 +40,11 @@
 /* BUTTONS */
 .omnidb__theme__btn--primary {
   background-color: #394E83;
+  color: #FFF;
+}
+.omnidb__theme__btn--secondary {
+  background-color: #4C5365;
+  color: #FFF;
 }
 
 /* TABS */
@@ -238,6 +243,14 @@ a:hover {
   color: #FFF;
   background-color: #394E83;
   border-color: #394E83;
+}
+
+/* RESIZE LINES */
+.resize_line_horizontal {
+  border-bottom: 1px dashed #6b7284 !important;
+}
+.omnidb__workspace-resize-grid__draggable .resize_line_vertical {
+  border-right: 1px dashed #515E71 !important;
 }
 
 /* Workspace Connection Info */
@@ -629,13 +642,6 @@ input, textarea {
 .progress {
     background-color: #484a55;
     border: 1px solid #6d6d6d;
-}
-
-.resize_line_horizontal {
-	border-bottom: 1px dashed #6b7284 !important;
-}
-.resize_line_vertical {
-	border-right: 1px dashed #6b7284 !important;
 }
 
 .div_chat_header_default {

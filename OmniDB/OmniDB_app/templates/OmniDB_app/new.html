@@ -7,15 +7,15 @@
     <link rel="shortcut icon" type="image/x-icon" href="{{url_folder}}/static/OmniDB_app/images/favicon.ico"/>
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/lib/bootstrap/bootstrap.min.css?v3.0.0b22">
-    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/handsontable.full.css?v3.0.0b22"/>
-    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/css/omnidb.css?v3.0.0b22">
-    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/lib/fa/css/all.css?v3.0.0b22">
-    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/css/Aimara.css?v3.0.0b22"/>
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/lib/bootstrap/bootstrap.min.css?v3.0.0b37">
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/handsontable.full.css?v3.0.0b37"/>
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/css/omnidb.css?v3.0.0b37">
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/lib/fa/css/all.css?v3.0.0b37">
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/css/Aimara.css?v3.0.0b37"/>
     <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/node-icon.css?v2"/>
-    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/interface-icon.css?v3.0.0b22"/>
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/interface-icon.css?v3.0.0b37"/>
     <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/jquery.datetimepicker.min.css?v2"/>
-    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/json_html/styles/template-2.css?v3.0.0b22"/>
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/json_html/styles/template-2.css?v3.0.0b37"/>
     <link id="ss_theme" rel="stylesheet" type="text/css">
     <title>OmniDB</title>
   </head>
@@ -112,7 +112,7 @@
           <div class="modal-header">
             <h5 class="modal-title">
               Connections
-              <button type="button" class="btn btn-primary" onclick="newConnection();">New connection</button>
+              <button type="button" class="btn omnidb__theme__btn--primary" onclick="newConnection();">New connection</button>
             </h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
@@ -125,8 +125,8 @@
                 <select id="group_selector" class="form-control mx-1" onchange="groupChange(this.value);" style='display: inline-block; width: 200px;'>
                   <option value=-1 selected>Select Group</option>
                 </select>
-                <button id="button_new_group" type="button" class="btn btn-primary" onclick="newGroup();">New group</button>
-                <button id="button_group_actions" type="button" class="btn btn-secondary dropdown-toggle" style='display: none;' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button id="button_new_group" type="button" class="btn omnidb__theme__btn--primary" onclick="newGroup();">New group</button>
+                <button id="button_group_actions" type="button" class="btn omnidb__theme__btn--secondary dropdown-toggle" style='display: none;' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Group Actions
                 </button>
                 <div class="dropdown-menu dropdown-menu-left">
@@ -139,8 +139,8 @@
                 <button id="button_new_group" type="button" class="btn btn-success" onclick="manageGroupSave();">Save changes</button>
               </span>
               <div class="btn-group ml-auto" role="group" aria-label="Basic example">
-                <button type="button" class="btn btn-secondary active" title="Display connections as a grid with cards" onclick="toggleConnectionsLayout('cards')"><i class="fas fa-th-large"></i></button>
-                <button type="button" class="btn btn-secondary" title="Display connections as a list with rows" onclick="toggleConnectionsLayout('rows')"><i class="fas fa-list"></i></button>
+                <button type="button" class="btn omnidb__theme__btn--secondary active" title="Display connections as a grid with cards" onclick="toggleConnectionsLayout('cards')"><i class="fas fa-th-large"></i></button>
+                <button type="button" class="btn omnidb__theme__btn--secondary" title="Display connections as a list with rows" onclick="toggleConnectionsLayout('rows')"><i class="fas fa-list"></i></button>
               </div>
             </div>
             <div id="connection_card_list" class="text-center omnidb__connections__card-list omnidb__connections__card-list--cards"></div>
@@ -356,343 +356,345 @@
             </button>
           </div>
           <div class="modal-body">
+            <div class="container-fluid">
 
-            <ul class="nav nav-tabs" role="tablist">
-              <li class="nav-item">
-                <a class="nav-link active" id="config_shortcuts-tab" data-toggle="tab" href="#config_shortcuts" role="tab" aria-controls="config_shortcuts" aria-selected="true">Shortcuts</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="config_options-tab" data-toggle="tab" href="#config_options" role="tab" aria-controls="config_options" aria-selected="false">Options</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="config_password-tab" data-toggle="tab" href="#config_password" role="tab" aria-controls="config_password" aria-selected="false">Password</a>
-              </li>
-            </ul>
-            <div class="tab-content">
-              <div class="tab-pane fade show active" id="config_shortcuts" role="tabpanel" aria-labelledby="config_shortcuts-tab">
-                <div id="div_shortcut_background_dark"><div style="position: absolute; top: 50%; width: 100%;">Press key combination... (ESC to cancel)</div></div>
-                <div class="form-group row">
-                  <label for="shortcut_run_query" class="col-sm-6 col-form-label">Run Query</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_run_query" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+              <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active" id="config_shortcuts-tab" data-toggle="tab" href="#config_shortcuts" role="tab" aria-controls="config_shortcuts" aria-selected="true">Shortcuts</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="config_options-tab" data-toggle="tab" href="#config_options" role="tab" aria-controls="config_options" aria-selected="false">Options</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="config_password-tab" data-toggle="tab" href="#config_password" role="tab" aria-controls="config_password" aria-selected="false">Password</a>
+                </li>
+              </ul>
+              <div class="tab-content pt-2">
+                <div class="tab-pane fade show active" id="config_shortcuts" role="tabpanel" aria-labelledby="config_shortcuts-tab">
+                  <div id="div_shortcut_background_dark"><div style="position: absolute; top: 50%; width: 100%;">Press key combination... (ESC to cancel)</div></div>
+                  <div class="form-group row">
+                    <label for="shortcut_run_query" class="col-sm-6 col-form-label">Run Query</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_run_query" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_cancel_query" class="col-sm-6 col-form-label">Cancel Query</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_cancel_query" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_cancel_query" class="col-sm-6 col-form-label">Cancel Query</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_cancel_query" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_indent" class="col-sm-6 col-form-label">Indent</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_indent" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_indent" class="col-sm-6 col-form-label">Indent</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_indent" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_autocomplete" class="col-sm-6 col-form-label">Autocomplete</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_autocomplete" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_autocomplete" class="col-sm-6 col-form-label">Autocomplete</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_autocomplete" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_explain" class="col-sm-6 col-form-label">Explain (PostgreSQL)</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_explain" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_explain" class="col-sm-6 col-form-label">Explain (PostgreSQL)</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_explain" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_analyze" class="col-sm-6 col-form-label">Explain Analyze (PostgreSQL)</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_analyze" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_analyze" class="col-sm-6 col-form-label">Explain Analyze (PostgreSQL)</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_analyze" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_previous_console_command" class="col-sm-6 col-form-label">Previous Command (Console Tab)</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_previous_console_command" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_previous_console_command" class="col-sm-6 col-form-label">Previous Command (Console Tab)</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_previous_console_command" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_next_console_command" class="col-sm-6 col-form-label">Next Command (Console Tab)</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_next_console_command" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_next_console_command" class="col-sm-6 col-form-label">Next Command (Console Tab)</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_next_console_command" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_new_inner_tab" class="col-sm-6 col-form-label">New Inner Tab</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_new_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_new_inner_tab" class="col-sm-6 col-form-label">New Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_new_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_remove_inner_tab" class="col-sm-6 col-form-label">Remove Current Inner Tab</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_remove_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_remove_inner_tab" class="col-sm-6 col-form-label">Remove Current Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_remove_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_left_inner_tab" class="col-sm-6 col-form-label">Select Left Inner Tab</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_left_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_left_inner_tab" class="col-sm-6 col-form-label">Select Left Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_left_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_right_inner_tab" class="col-sm-6 col-form-label">Select Right Inner Tab</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_right_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_right_inner_tab" class="col-sm-6 col-form-label">Select Right Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_right_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_new_outer_tab" class="col-sm-6 col-form-label">New Outer Tab</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_new_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_new_outer_tab" class="col-sm-6 col-form-label">New Outer Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_new_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_remove_outer_tab" class="col-sm-6 col-form-label">Remove Current Connection Tab</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_remove_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_remove_outer_tab" class="col-sm-6 col-form-label">Remove Current Connection Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_remove_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_left_outer_tab" class="col-sm-6 col-form-label">Select Left Outer Tab</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_left_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_left_outer_tab" class="col-sm-6 col-form-label">Select Left Outer Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_left_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label for="shortcut_right_outer_tab" class="col-sm-6 col-form-label">Select Right Outer Tab</label>
-                  <div class="col-sm-6">
-                    <button id="shortcut_right_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                  <div class="form-group row">
+                    <label for="shortcut_right_outer_tab" class="col-sm-6 col-form-label">Select Right Outer Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_right_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
                   </div>
+
+                  <button class='btn btn-success' onclick='saveShortcuts()'>Save</button>
+
                 </div>
+                <div class="tab-pane fade" id="config_options" role="tabpanel" aria-labelledby="config_options-tab">
 
-                <button class='btn btn-success' onclick='saveShortcuts()'>Save</button>
+                  <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                      <label for="sel_interface_font_size">Interface Font Size</label>
+                      <select id="sel_interface_font_size" class="form-control" onchange="changeInterfaceFontSize(this.value)">
+  		                	<option value="10">10</option>
+  		                	<option value="11">11</option>
+  		                	<option value="12">12</option>
+  		                	<option value="13">13</option>
+  		                	<option value="14">14</option>
+  		                	<option value="15">15</option>
+  		                	<option value="16">16</option>
+  		                	<option value="17">17</option>
+  		                	<option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+  		                </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="sel_editor_font_size">Editor Font Size</label>
+                      <select id="sel_editor_font_size" class="form-control" onchange="changeFontSize(this.value)">
+  		                	<option value="10">10</option>
+  		                	<option value="11">11</option>
+  		                	<option value="12">12</option>
+  		                	<option value="13">13</option>
+  		                	<option value="14">14</option>
+  		                	<option value="15">15</option>
+  		                	<option value="16">16</option>
+  		                	<option value="17">17</option>
+  		                	<option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+  		                </select>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col-md-12 mb-3">
+                      <label for="sel_editor_theme">Editor Theme</label>
+                      <select id="sel_editor_theme" class="form-control" onchange="changeTheme(this.value)">
+  		                	<option value="1/omnidb">(Light) OmniDB</option>
+  		                	<option value="2/chrome">(Light) Chrome</option>
+  		                	<option value="3/clouds">(Light) Clouds</option>
+  		                	<option value="4/crimson_editor">(Light) Crimson Editor</option>
+  		                	<option value="5/dawn">(Light) Dawn</option>
+  		                	<option value="6/dreamweaver">(Light) Dreamweaver</option>
+  		                	<option value="7/eclipse">(Light) Eclipse</option>
+  		                	<option value="8/github">(Light) Github</option>
+  		                	<option value="9/iplastic">(Light) Iplastic</option>
+  		                	<option value="10/katzenmilch">(Light) Katzenmilch</option>
+  		                	<option value="11/kuroir">(Light) Kuroir</option>
+  		                	<option value="12/solarized_light">(Light) Solarized Light</option>
+  		                	<option value="13/sqlserver">(Light) SQL Server</option>
+  		                	<option value="14/textmate">(Light) Textmate</option>
+  		                	<option value="15/tomorrow">(Light) Tomorrow</option>
+  		                	<option value="16/xcode">(Light) XCode</option>
+  							        <option value="17/omnidb_dark">(Dark) OmniDB Dark</option>
+  		                	<option value="18/ambiance">(Dark) Ambiance</option>
+  		                	<option value="19/chaos">(Dark) Chaos</option>
+  		                	<option value="20/clouds_midnight">(Dark) Clouds Midnight</option>
+  		                	<option value="21/cobalt">(Dark) Cobalt</option>
+  		                	<option value="22/idle_fingers">(Dark) Idle Fingers</option>
+  		                	<option value="23/kr_theme">(Dark) KR Theme</option>
+  		                	<option value="24/merbivore">(Dark) Merbivore</option>
+  		                	<option value="25/merbivore_soft">(Dark) Merbivore Soft</option>
+  		                	<option value="26/mono_industrial">(Dark) Mono Industrial</option>
+  		                	<option value="27/monokai">(Dark) Monokai</option>
+  		                	<option value="28/pastel_on_dark">(Dark) Pastel On Dark</option>
+  		                	<option value="29/solarized_dark">(Dark) Solarized Dark</option>
+  		                	<option value="30/terminal">(Dark) Terminal</option>
+  		                	<option value="31/tomorrow_night">(Dark) Tomorrow Night</option>
+  		                	<option value="32/tomorrow_night_blue">(Dark) Tomorrow Night Blue</option>
+  		                	<option value="33/tomorrow_night_bright">(Dark) Tomorrow Night Bright</option>
+  		                	<option value="34/tomorrow_night_eighties">(Dark) Tomorrow Night 80s</option>
+  		                	<option value="35/twilight">(Dark) Twilight</option>
+  		                	<option value="36/vibrant_ink">(Dark) Vibrant Ink</option>
+  		                </select>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                      <label for="sel_csv_encoding">CSV Enconding</label>
+                      <select id="sel_csv_encoding" class="form-control">
+                        <option value="ascii">ascii</option>
+                        <option value="big5">big5</option>
+                        <option value="big5hkscs">big5hkscs</option>
+                        <option value="cp037">cp037</option>
+                        <option value="cp273">cp273</option>
+                        <option value="cp424">cp424</option>
+                        <option value="cp437">cp437</option>
+                        <option value="cp500">cp500</option>
+                        <option value="cp720">cp720</option>
+                        <option value="cp737">cp737</option>
+                        <option value="cp775">cp775</option>
+                        <option value="cp850">cp850</option>
+                        <option value="cp852">cp852</option>
+                        <option value="cp855">cp855</option>
+                        <option value="cp856">cp856</option>
+                        <option value="cp857">cp857</option>
+                        <option value="cp858">cp858</option>
+                        <option value="cp860">cp860</option>
+                        <option value="cp861">cp861</option>
+                        <option value="cp862">cp862</option>
+                        <option value="cp863">cp863</option>
+                        <option value="cp864">cp864</option>
+                        <option value="cp865">cp865</option>
+                        <option value="cp866">cp866</option>
+                        <option value="cp869">cp869</option>
+                        <option value="cp874">cp874</option>
+                        <option value="cp875">cp875</option>
+                        <option value="cp932">cp932</option>
+                        <option value="cp949">cp949</option>
+                        <option value="cp950">cp950</option>
+                        <option value="cp1006">cp1006</option>
+                        <option value="cp1026">cp1026</option>
+                        <option value="cp1125">cp1125</option>
+                        <option value="cp1140">cp1140</option>
+                        <option value="cp1250">cp1250</option>
+                        <option value="cp1251">cp1251</option>
+                        <option value="cp1252">cp1252</option>
+                        <option value="cp1253">cp1253</option>
+                        <option value="cp1254">cp1254</option>
+                        <option value="cp1255">cp1255</option>
+                        <option value="cp1256">cp1256</option>
+                        <option value="cp1257">cp1257</option>
+                        <option value="cp1258">cp1258</option>
+                        <option value="cp65001">cp65001</option>
+                        <option value="euc-jp">euc-jp</option>
+                        <option value="euc-jis-2004">euc-jis-2004</option>
+                        <option value="euc-jisx0213">euc-jisx0213</option>
+                        <option value="euc-kr">euc-kr</option>
+                        <option value="gb2312">gb2312</option>
+                        <option value="gbk">gbk</option>
+                        <option value="gb18030">gb18030</option>
+                        <option value="hz">hz</option>
+                        <option value="iso2022-jp">iso2022-jp</option>
+                        <option value="iso2022-jp-1">iso2022-jp-1</option>
+                        <option value="iso2022-jp-2">iso2022-jp-2</option>
+                        <option value="iso2022-jp-2004">iso2022-jp-2004</option>
+                        <option value="iso2022-jp-3">iso2022-jp-3</option>
+                        <option value="iso2022-jp-ext">iso2022-jp-ext</option>
+                        <option value="iso2022-kr">iso2022-kr</option>
+                        <option value="latin-1">latin-1</option>
+                        <option value="iso8859-2">iso8859-2</option>
+                        <option value="iso8859-3">iso8859-3</option>
+                        <option value="iso8859-4">iso8859-4</option>
+                        <option value="iso8859-5">iso8859-5</option>
+                        <option value="iso8859-6">iso8859-6</option>
+                        <option value="iso8859-7">iso8859-7</option>
+                        <option value="iso8859-8">iso8859-8</option>
+                        <option value="iso8859-9">iso8859-9</option>
+                        <option value="iso8859-10">iso8859-10</option>
+                        <option value="iso8859-11">iso8859-11</option>
+                        <option value="iso8859-13">iso8859-13</option>
+                        <option value="iso8859-14">iso8859-14</option>
+                        <option value="iso8859-15">iso8859-15</option>
+                        <option value="iso8859-16">iso8859-16</option>
+                        <option value="johab">johab</option>
+                        <option value="koi8-r">koi8-r</option>
+                        <option value="koi8-t">koi8-t</option>
+                        <option value="koi8-u">koi8-u</option>
+                        <option value="kz1048">kz1048</option>
+                        <option value="mac-cyrillic">mac-cyrillic</option>
+                        <option value="mac-greek">mac-greek</option>
+                        <option value="mac-iceland">mac-iceland</option>
+                        <option value="mac-latin2">mac-latin2</option>
+                        <option value="mac-roman">mac-roman</option>
+                        <option value="mac-turkish">mac-turkish</option>
+                        <option value="ptcp154">ptcp154</option>
+                        <option value="shift-jis">shift-jis</option>
+                        <option value="shift-jis-2004">shift-jis-2004</option>
+                        <option value="shift-jisx0213">shift-jisx0213</option>
+                        <option value="utf-32">utf-32</option>
+                        <option value="utf-32-be">utf-32-be</option>
+                        <option value="utf-32-le">utf-32-le</option>
+                        <option value="utf-16">utf-16</option>
+                        <option value="utf-16-be">utf-16-be</option>
+                        <option value="utf-16-le">utf-16-le</option>
+                        <option value="utf-7">utf-7</option>
+                        <option value="utf-8">utf-8</option>
+                        <option value="utf-8-sig">utf-8-sig</option>
+                        <option value="windows-1252">windows-1252</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="txt_csv_delimiter">CSV Delimiter</label>
+                      <input type="text" class="form-control" id="txt_csv_delimiter" placeholder="Delimiter">
+                    </div>
+                  </div>
+                  <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
 
+                </div>
+                <div class="tab-pane fade" id="config_password" role="tabpanel" aria-labelledby="config_password-tab">
+                  <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                      <label for="txt_new_pwd">New Password</label>
+                      <input id="txt_new_pwd" type="password" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="txt_confirm_new_pwd">Confirm</label>
+                      <input id="txt_confirm_new_pwd" type="password" class="form-control">
+                    </div>
+                  </div>
+                  <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
+                </div>
               </div>
-              <div class="tab-pane fade" id="config_options" role="tabpanel" aria-labelledby="config_options-tab">
 
-                <div class="form-row">
-                  <div class="col-md-6 mb-3">
-                    <label for="sel_interface_font_size">Interface Font Size</label>
-                    <select id="sel_interface_font_size" class="form-control" onchange="changeInterfaceFontSize(this.value)">
-		                	<option value="10">10</option>
-		                	<option value="11">11</option>
-		                	<option value="12">12</option>
-		                	<option value="13">13</option>
-		                	<option value="14">14</option>
-		                	<option value="15">15</option>
-		                	<option value="16">16</option>
-		                	<option value="17">17</option>
-		                	<option value="18">18</option>
-                      <option value="19">19</option>
-                      <option value="20">20</option>
-		                </select>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label for="sel_editor_font_size">Editor Font Size</label>
-                    <select id="sel_editor_font_size" class="form-control" onchange="changeFontSize(this.value)">
-		                	<option value="10">10</option>
-		                	<option value="11">11</option>
-		                	<option value="12">12</option>
-		                	<option value="13">13</option>
-		                	<option value="14">14</option>
-		                	<option value="15">15</option>
-		                	<option value="16">16</option>
-		                	<option value="17">17</option>
-		                	<option value="18">18</option>
-                      <option value="19">19</option>
-                      <option value="20">20</option>
-		                </select>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="col-md-12 mb-3">
-                    <label for="sel_editor_theme">Editor Theme</label>
-                    <select id="sel_editor_theme" class="form-control" onchange="changeTheme(this.value)">
-		                	<option value="1/omnidb">(Light) OmniDB</option>
-		                	<option value="2/chrome">(Light) Chrome</option>
-		                	<option value="3/clouds">(Light) Clouds</option>
-		                	<option value="4/crimson_editor">(Light) Crimson Editor</option>
-		                	<option value="5/dawn">(Light) Dawn</option>
-		                	<option value="6/dreamweaver">(Light) Dreamweaver</option>
-		                	<option value="7/eclipse">(Light) Eclipse</option>
-		                	<option value="8/github">(Light) Github</option>
-		                	<option value="9/iplastic">(Light) Iplastic</option>
-		                	<option value="10/katzenmilch">(Light) Katzenmilch</option>
-		                	<option value="11/kuroir">(Light) Kuroir</option>
-		                	<option value="12/solarized_light">(Light) Solarized Light</option>
-		                	<option value="13/sqlserver">(Light) SQL Server</option>
-		                	<option value="14/textmate">(Light) Textmate</option>
-		                	<option value="15/tomorrow">(Light) Tomorrow</option>
-		                	<option value="16/xcode">(Light) XCode</option>
-							        <option value="17/omnidb_dark">(Dark) OmniDB Dark</option>
-		                	<option value="18/ambiance">(Dark) Ambiance</option>
-		                	<option value="19/chaos">(Dark) Chaos</option>
-		                	<option value="20/clouds_midnight">(Dark) Clouds Midnight</option>
-		                	<option value="21/cobalt">(Dark) Cobalt</option>
-		                	<option value="22/idle_fingers">(Dark) Idle Fingers</option>
-		                	<option value="23/kr_theme">(Dark) KR Theme</option>
-		                	<option value="24/merbivore">(Dark) Merbivore</option>
-		                	<option value="25/merbivore_soft">(Dark) Merbivore Soft</option>
-		                	<option value="26/mono_industrial">(Dark) Mono Industrial</option>
-		                	<option value="27/monokai">(Dark) Monokai</option>
-		                	<option value="28/pastel_on_dark">(Dark) Pastel On Dark</option>
-		                	<option value="29/solarized_dark">(Dark) Solarized Dark</option>
-		                	<option value="30/terminal">(Dark) Terminal</option>
-		                	<option value="31/tomorrow_night">(Dark) Tomorrow Night</option>
-		                	<option value="32/tomorrow_night_blue">(Dark) Tomorrow Night Blue</option>
-		                	<option value="33/tomorrow_night_bright">(Dark) Tomorrow Night Bright</option>
-		                	<option value="34/tomorrow_night_eighties">(Dark) Tomorrow Night 80s</option>
-		                	<option value="35/twilight">(Dark) Twilight</option>
-		                	<option value="36/vibrant_ink">(Dark) Vibrant Ink</option>
-		                </select>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="col-md-6 mb-3">
-                    <label for="sel_csv_encoding">CSV Enconding</label>
-                    <select id="sel_csv_encoding" class="form-control">
-                      <option value="ascii">ascii</option>
-                      <option value="big5">big5</option>
-                      <option value="big5hkscs">big5hkscs</option>
-                      <option value="cp037">cp037</option>
-                      <option value="cp273">cp273</option>
-                      <option value="cp424">cp424</option>
-                      <option value="cp437">cp437</option>
-                      <option value="cp500">cp500</option>
-                      <option value="cp720">cp720</option>
-                      <option value="cp737">cp737</option>
-                      <option value="cp775">cp775</option>
-                      <option value="cp850">cp850</option>
-                      <option value="cp852">cp852</option>
-                      <option value="cp855">cp855</option>
-                      <option value="cp856">cp856</option>
-                      <option value="cp857">cp857</option>
-                      <option value="cp858">cp858</option>
-                      <option value="cp860">cp860</option>
-                      <option value="cp861">cp861</option>
-                      <option value="cp862">cp862</option>
-                      <option value="cp863">cp863</option>
-                      <option value="cp864">cp864</option>
-                      <option value="cp865">cp865</option>
-                      <option value="cp866">cp866</option>
-                      <option value="cp869">cp869</option>
-                      <option value="cp874">cp874</option>
-                      <option value="cp875">cp875</option>
-                      <option value="cp932">cp932</option>
-                      <option value="cp949">cp949</option>
-                      <option value="cp950">cp950</option>
-                      <option value="cp1006">cp1006</option>
-                      <option value="cp1026">cp1026</option>
-                      <option value="cp1125">cp1125</option>
-                      <option value="cp1140">cp1140</option>
-                      <option value="cp1250">cp1250</option>
-                      <option value="cp1251">cp1251</option>
-                      <option value="cp1252">cp1252</option>
-                      <option value="cp1253">cp1253</option>
-                      <option value="cp1254">cp1254</option>
-                      <option value="cp1255">cp1255</option>
-                      <option value="cp1256">cp1256</option>
-                      <option value="cp1257">cp1257</option>
-                      <option value="cp1258">cp1258</option>
-                      <option value="cp65001">cp65001</option>
-                      <option value="euc-jp">euc-jp</option>
-                      <option value="euc-jis-2004">euc-jis-2004</option>
-                      <option value="euc-jisx0213">euc-jisx0213</option>
-                      <option value="euc-kr">euc-kr</option>
-                      <option value="gb2312">gb2312</option>
-                      <option value="gbk">gbk</option>
-                      <option value="gb18030">gb18030</option>
-                      <option value="hz">hz</option>
-                      <option value="iso2022-jp">iso2022-jp</option>
-                      <option value="iso2022-jp-1">iso2022-jp-1</option>
-                      <option value="iso2022-jp-2">iso2022-jp-2</option>
-                      <option value="iso2022-jp-2004">iso2022-jp-2004</option>
-                      <option value="iso2022-jp-3">iso2022-jp-3</option>
-                      <option value="iso2022-jp-ext">iso2022-jp-ext</option>
-                      <option value="iso2022-kr">iso2022-kr</option>
-                      <option value="latin-1">latin-1</option>
-                      <option value="iso8859-2">iso8859-2</option>
-                      <option value="iso8859-3">iso8859-3</option>
-                      <option value="iso8859-4">iso8859-4</option>
-                      <option value="iso8859-5">iso8859-5</option>
-                      <option value="iso8859-6">iso8859-6</option>
-                      <option value="iso8859-7">iso8859-7</option>
-                      <option value="iso8859-8">iso8859-8</option>
-                      <option value="iso8859-9">iso8859-9</option>
-                      <option value="iso8859-10">iso8859-10</option>
-                      <option value="iso8859-11">iso8859-11</option>
-                      <option value="iso8859-13">iso8859-13</option>
-                      <option value="iso8859-14">iso8859-14</option>
-                      <option value="iso8859-15">iso8859-15</option>
-                      <option value="iso8859-16">iso8859-16</option>
-                      <option value="johab">johab</option>
-                      <option value="koi8-r">koi8-r</option>
-                      <option value="koi8-t">koi8-t</option>
-                      <option value="koi8-u">koi8-u</option>
-                      <option value="kz1048">kz1048</option>
-                      <option value="mac-cyrillic">mac-cyrillic</option>
-                      <option value="mac-greek">mac-greek</option>
-                      <option value="mac-iceland">mac-iceland</option>
-                      <option value="mac-latin2">mac-latin2</option>
-                      <option value="mac-roman">mac-roman</option>
-                      <option value="mac-turkish">mac-turkish</option>
-                      <option value="ptcp154">ptcp154</option>
-                      <option value="shift-jis">shift-jis</option>
-                      <option value="shift-jis-2004">shift-jis-2004</option>
-                      <option value="shift-jisx0213">shift-jisx0213</option>
-                      <option value="utf-32">utf-32</option>
-                      <option value="utf-32-be">utf-32-be</option>
-                      <option value="utf-32-le">utf-32-le</option>
-                      <option value="utf-16">utf-16</option>
-                      <option value="utf-16-be">utf-16-be</option>
-                      <option value="utf-16-le">utf-16-le</option>
-                      <option value="utf-7">utf-7</option>
-                      <option value="utf-8">utf-8</option>
-                      <option value="utf-8-sig">utf-8-sig</option>
-                      <option value="windows-1252">windows-1252</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label for="txt_csv_delimiter">CSV Delimiter</label>
-                    <input type="text" class="form-control" id="txt_csv_delimiter" placeholder="Delimiter">
-                  </div>
-                </div>
-                <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
-
-              </div>
-              <div class="tab-pane fade" id="config_password" role="tabpanel" aria-labelledby="config_password-tab">
-                <div class="form-row">
-                  <div class="col-md-6 mb-3">
-                    <label for="txt_new_pwd">New Password</label>
-                    <input id="txt_new_pwd" type="password" class="form-control">
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label for="txt_confirm_new_pwd">Confirm</label>
-                    <input id="txt_confirm_new_pwd" type="password" class="form-control">
-                  </div>
-                </div>
-                <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
-              </div>
-            </div>
-
+            </div><!-- .container-fluid -->
           </div>
         </div>
       </div>
@@ -782,53 +784,61 @@
       </div>
     </div>
 
-    <script src="{{url_folder}}/static/OmniDB_app/new/lib/jquery/jquery.min.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/ajax_control.js?v3.0.0b22"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/lib/jquery/jquery.min.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/ajax_control.js?v3.0.0b37"></script>
     <script type="text/javascript">
     startLoading();
     </script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/lib/popper/popper.min.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/lib/bootstrap/bootstrap.min.js?v3.0.0b22"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/ace.js?v3.0.0b22"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/mode-sql.js?v3.0.0b22"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/ext-language_tools.js?v3.0.0b22"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/handsontable.full.js?v3.0.0b22"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/lib/popper/popper.min.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/lib/bootstrap/bootstrap.min.js?v3.0.0b37"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/ace.js?v3.0.0b37"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/mode-sql.js?v3.0.0b37"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/ext-language_tools.js?v3.0.0b37"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/handsontable.full.js?v3.0.0b37"></script>
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape.min.js"></script>
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/Chart.bundle.js?v3.0.0b22"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/chartjs-plugin-datalabels.js?v3.0.0b22"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/Chart.bundle.js?v3.0.0b37"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/chartjs-plugin-datalabels.js?v3.0.0b37"></script>
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/chartjs-plugin-annotation.min.js?v2"></script>
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/jquery.datetimepicker.full.min.js?v2"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/lib/Aimara.js?v3.0.0b22"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeSnippets.js?v3.0.0b22"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMonitor.js?v3.0.0b22"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreePostgresql.js?v3.0.0b22"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeOracle.js?v3.0.0b22"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMariadb.js?v3.0.0b22"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/lib/Aimara.js?v3.0.0b37"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeSnippets.js?v3.0.0b37"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMonitor.js?v3.0.0b37"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreePostgresql.js?v3.0.0b37"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeOracle.js?v3.0.0b37"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMariadb.js?v3.0.0b37"></script>
 
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Renderers.js?v2"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/websocket_control.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/header_actions.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/query_client.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/query.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/custom_menu.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/notification_control.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/passwords.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/properties.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tabs.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/outer_connection_tab.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_query_tab.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_console_tab.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_monitoring_tab.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/website_tab.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/create_tab_functions.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/monitoring.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/workspace.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/plugin_hook.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/users.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/shortcuts.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/connections.js?v3.0.0b22"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/lib/json_html/components.js?v3.0.0b22"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/websocket_control.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/header_actions.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/query_client.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/query.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/custom_menu.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/notification_control.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/passwords.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/properties.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tabs.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/outer_connection_tab.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/outer_snippet_tab.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_edit_data_tab.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_graph_tab.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_snippet_tab.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_query_tab.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_console_tab.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_monitoring_dashboard_tab.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_monitoring_tab.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/website_tab.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tree_context_functions/edit_data.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/create_tab_functions.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/monitoring.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/workspace.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/plugin_hook.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/users.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/shortcuts.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/connections.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/command_history.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/console.js?v3.0.0b37"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/lib/json_html/components.js?v3.0.0b37"></script>
     <script type="text/javascript">
   	//Global variables
   	var v_editor_theme = '{{ editor_theme }}';

@@ -244,7 +244,7 @@ function getTreeOracle(p_div) {
                         text: 'Edit Data',
                         icon: 'fas cm-all fa-table',
                         action: function(node) {
-                            startEditData(node.text,
+                            v_startEditData(node.text,
                                 node.tree.tag.v_username
                             );
                         }

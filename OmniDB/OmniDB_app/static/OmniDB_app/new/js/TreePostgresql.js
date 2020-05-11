@@ -97,7 +97,7 @@ function tabAdvancedObjectSearch(node) {
     var v_html =
         "<div id='txt_query_" + v_tab.id +
         "' style=' width: 100%; height: 400px; border: 1px solid #c3c3c3;'></div>" +
-        "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dotted #c3c3c3;'></div><div style='height:5px;'></div></div>" +
+        "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dashed #acc4e8;'></div><div style='height:5px;'></div></div>" +
         "<button id='bt_start_" + v_tab.id +
         "' class='bt_execute bt_icon_only' title='Run' style='margin-bottom: 5px; margin-right: 5px; display: inline-block; vertical-align: middle;'><i class='fas fa-play fa-light'></i></button>" +
         "<button id='bt_cancel_" + v_tab.id +
@@ -1377,7 +1377,7 @@ function getTreePostgresql(p_div) {
                         text: 'Edit Data',
                         icon: 'fas cm-all fa-table',
                         action: function(node) {
-                            startEditData(node.text,
+                            v_startEditData(node.text,
                                 node.tag.schema
                             );
                         }
@@ -3256,7 +3256,7 @@ function getTreePostgresql(p_div) {
                         text: 'Edit Data',
                         icon: 'fas cm-all fa-table',
                         action: function(node) {
-                            startEditData(node.text,
+                            v_startEditData(node.text,
                                 node.tag.schema
                             );
                         }
@@ -3534,7 +3534,7 @@ function getTreePostgresql(p_div) {
     var tree = createTree(p_div, '#fcfdfd', context_menu);
     v_connTabControl.selectedTab.tag.tree = tree;
     v_connTabControl.selectedTab.tag.divDetails.innerHTML =
-        'Active database: <b>' + v_connTabControl.selectedTab.tag.selectedDatabase +
+        '<i class="fas fa-server mr-1"></i>selected DB: <b>' + v_connTabControl.selectedTab.tag.selectedDatabase +
         '</b>';
 
     tree.nodeAfterOpenEvent = function(node) {

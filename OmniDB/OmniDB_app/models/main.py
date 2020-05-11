@@ -18,7 +18,7 @@ class Connection(models.Model):
     server = models.CharField(max_length=200, blank=False, default='')
     port = models.CharField(max_length=50, blank=False, default='')
     database = models.CharField(max_length=200, blank=False, default='')
-    user = models.CharField(max_length=200, blank=False, default='')
+    username = models.CharField(max_length=200, blank=False, default='')
     password = models.CharField(max_length=200, blank=False, default='')
     alias = models.CharField(max_length=200, blank=False, default='')
     ssh_server = models.CharField(max_length=200, blank=False, default='')

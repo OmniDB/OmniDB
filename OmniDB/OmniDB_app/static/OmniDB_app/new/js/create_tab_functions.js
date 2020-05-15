@@ -59,7 +59,7 @@ function initCreateTabFunctions() {
 
     var term_div = document.getElementById('txt_console_' + v_tab.id);
     var term = new Terminal({
-          fontSize: v_editor_font_size,
+          fontSize: v_font_size,
           theme: v_current_terminal_theme
     });
     term.open(term_div);
@@ -320,7 +320,7 @@ function initCreateTabFunctions() {
 		v_editor.setTheme("ace/theme/" + v_editor_theme);
 		v_editor.session.setMode("ace/mode/sql");
 
-		v_editor.setFontSize(Number(v_editor_font_size));
+		v_editor.setFontSize(Number(v_font_size));
 
 		v_editor.commands.bindKey("ctrl-space", null);
 

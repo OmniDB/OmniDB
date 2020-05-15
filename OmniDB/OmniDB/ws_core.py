@@ -17,6 +17,7 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 from enum import IntEnum
 from datetime import datetime
+from django.utils.timezone import make_aware
 import sys
 
 from . import settings
@@ -41,6 +42,9 @@ import pexpect
 sys.path.append('OmniDB_app/include')
 from OmniDB_app.include import paramiko
 from OmniDB_app.include import custom_paramiko_expect
+
+from django.contrib.auth.models import User
+from OmniDB_app.models.main import *
 
 class StoppableThread(threading.Thread):
     def __init__(self,p1,p2,p3):
@@ -218,10 +222,8 @@ def thread_dispatcher(self,args,ws_object):
                     #remove from tabs table if db_tab_id is not null
                     if v_tab_close_data['tab_db_id']:
                         try:
-                            ws_object.v_session.v_omnidb_database.v_connection.Execute('''
-                            delete from tabs
-                            where tab_id = {0}
-                            '''.format(v_tab_close_data['tab_db_id']))
+                            tab = Tab.objects.get(id=v_tab_close_data['tab_db_id'])
+                            tab.delete()
                         except Exception as exc:
                             None
 
@@ -704,8 +706,7 @@ def GetDuration(p_start, p_end):
 
     return duration
 
-def LogHistory(p_omnidb_database,
-               p_user_id,
+def LogHistory(p_user_id,
                p_user_name,
                p_sql,
                p_start,
@@ -729,23 +730,17 @@ COMMAND: {5}'''.format(p_user_name,
            p_status,
            p_sql.replace("'","''")))
 
-        p_omnidb_database.v_connection.Execute('''
-            insert into command_list values (
-            {0},
-            (select coalesce(max(cl_in_codigo), 0) + 1 from command_list),
-            '{1}',
-            '{2}',
-            '{3}',
-            '{4}',
-            '{5}',
-            {6})
-        '''.format(p_user_id,
-                   p_sql.replace("'","''"),
-                   p_start.strftime('%Y-%m-%d %H:%M:%S'),
-                   p_end.strftime('%Y-%m-%d %H:%M:%S'),
-                   p_status,
-                   p_duration,
-                   p_conn_id))
+
+        query_object = QueryHistory(
+            user=User.objects.get(id=p_user_id),
+            connection=Connection.objects.get(id=p_conn_id),
+            start_time=make_aware(p_start),
+            end_time=make_aware(p_end),
+            duration=p_duration,
+            status=p_status,
+            snippet=p_sql.replace("'","''")
+        )
+        query_object.save()
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
@@ -877,16 +872,6 @@ def thread_query(self,args,ws_object):
 
         v_session = ws_object.v_session
         v_database = args['v_database']
-        v_omnidb_database = OmniDatabase.Generic.InstantiateDatabase(
-            'sqlite',
-            '',
-            '',
-            settings.OMNIDB_DATABASE,
-            '',
-            '',
-            '0',
-            ''
-        )
 
         log_start_time = datetime.now()
         log_status = 'success'
@@ -896,16 +881,14 @@ def thread_query(self,args,ws_object):
             #insert new tab record
             if not v_tab_object['tab_db_id'] and not v_tab_object['inserted_tab'] and v_log_query:
                 try:
-                    v_omnidb_database.v_connection.Open()
-                    v_omnidb_database.v_connection.Execute('''
-                    insert into tabs (conn_id,user_id,tab_id,snippet,title)
-                    values
-                    ({0},{1},(select coalesce(max(tab_id), 0) + 1 from tabs),'{2}','{3}')
-                    '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, ws_object.v_session.v_user_id, v_tab_object['sql_save'].replace("'","''"),v_tab_title.replace("'","''")))
-                    v_inserted_id = v_omnidb_database.v_connection.ExecuteScalar('''
-                    select coalesce(max(tab_id), 0) from tabs
-                    ''')
-                    v_omnidb_database.v_connection.Close()
+                    tab_object = Tab(
+                        user=User.objects.get(id=v_session.v_user_id),
+                        connection=Connection.objects.get(id=v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id),
+                        title=v_tab_title.replace("'","''"),
+                        snippet=v_tab_object['sql_save'].replace("'","''")
+                    )
+                    tab_object.save()
+                    v_inserted_id = tab_object.id
                     v_tab_object['inserted_tab'] = True
                     v_inserted_tab = True
                 except Exception as exc:
@@ -1149,8 +1132,7 @@ def thread_query(self,args,ws_object):
 
         #Log to history
         if v_mode==0 and v_log_query:
-            LogHistory(v_omnidb_database,
-                    v_session.v_user_id,
+            LogHistory(v_session.v_user_id,
                     v_session.v_user_name,
                     v_sql,
                     log_start_time,
@@ -1162,13 +1144,10 @@ def thread_query(self,args,ws_object):
         #if mode=0 save tab
         if v_mode==0 and v_tab_object['tab_db_id'] and v_log_query:
             try:
-                v_omnidb_database.v_connection.Execute('''
-                update tabs
-                set conn_id = {0},
-                    snippet = '{1}',
-                    title = '{2}'
-                where tab_id = {3}
-                '''.format(ws_object.v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id, v_tab_object['sql_save'].replace("'","''"),v_tab_title.replace("'","''"), v_tab_object['tab_db_id']))
+                tab = Tab.objects.get(id=v_tab_object['tab_db_id'])
+                tab.snippet=v_tab_object['sql_save'].replace("'","''")
+                tab.title=v_tab_title.replace("'","''")
+                tab.save()
             except Exception as exc:
                 None
     except Exception as exc:
@@ -1200,16 +1179,6 @@ def thread_console(self,args,ws_object):
 
         v_session = ws_object.v_session
         v_database = args['v_database']
-        v_omnidb_database = OmniDatabase.Generic.InstantiateDatabase(
-            'sqlite',
-            '',
-            '',
-            settings.OMNIDB_DATABASE,
-            '',
-            '',
-            '0',
-            ''
-        )
 
         log_start_time = datetime.now()
         log_status = 'success'
@@ -1342,47 +1311,30 @@ def thread_console(self,args,ws_object):
 
         if v_mode == 0:
             #logging to console history
-            v_omnidb_database.v_connection.Open()
-            v_omnidb_database.v_connection.Execute('BEGIN TRANSACTION')
-            v_omnidb_database.v_connection.Execute('''
-                insert into console_history values (
-                {0},
-                {1},
-                '{2}',
-                DATETIME('now'))
-            '''.format(v_session.v_user_id,
-                       v_database.v_conn_id,
-                       v_sql.replace("'","''")))
+            query_object = ConsoleHistory(
+                user=User.objects.get(id=v_session.v_user_id),
+                connection=Connection.objects.get(id=v_database.v_conn_id),
+                snippet=v_sql.replace("'","''")
+            )
+            query_object.save()
 
             #keep 100 rows in console history table for current user/connection
-            v_omnidb_database.v_connection.Execute('''
-                delete
-                from console_history
-                where command_date not in (
-                    select command_date
-                    from console_history
-                    where user_id = {0}
-                      and conn_id = {1}
-                    order by command_date desc
-                    limit 100
-                )
-                and user_id = {0}
-                and conn_id = {1}
-            '''.format(v_session.v_user_id,
-                       v_database.v_conn_id,
-                       v_sql.replace("'","''")))
-
-            #Log to history
-            LogHistory(v_omnidb_database,
-                    v_session.v_user_id,
-                    v_session.v_user_name,
-                    v_sql,
-                    log_start_time,
-                    log_end_time,
-                    v_duration,
-                    log_status,
-                    v_database.v_conn_id)
-            v_omnidb_database.v_connection.Close()
+            #v_omnidb_database.v_connection.Execute('''
+            #    delete
+            #    from console_history
+            #    where command_date not in (
+            #        select command_date
+            #        from console_history
+            #        where user_id = {0}
+            #          and conn_id = {1}
+            #        order by command_date desc
+            #        limit 100
+            #    )
+            #    and user_id = {0}
+            #    and conn_id = {1}
+            #'''.format(v_session.v_user_id,
+            #           v_database.v_conn_id,
+            #           v_sql.replace("'","''")))
 
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))

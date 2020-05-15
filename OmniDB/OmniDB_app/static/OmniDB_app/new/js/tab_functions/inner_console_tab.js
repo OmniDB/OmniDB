@@ -88,7 +88,7 @@ var v_createConsoleTabFunction = function() {
   v_editor1.$blockScrolling = Infinity;
   v_editor1.setTheme("ace/theme/" + v_editor_theme);
   v_editor1.session.setMode("ace/mode/sql");
-  v_editor1.setFontSize(Number(v_editor_font_size));
+  v_editor1.setFontSize(Number(v_font_size));
 
   //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
   v_editor1.commands.bindKey("Cmd-,", null)
@@ -109,7 +109,7 @@ var v_createConsoleTabFunction = function() {
   v_editor2.setOptions({});
   v_editor2.$blockScrolling = Infinity;
   v_editor2.setTheme("ace/theme/" + v_editor_theme);
-  v_editor2.setFontSize(Number(v_editor_font_size));
+  v_editor2.setFontSize(Number(v_font_size));
 
   //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
   v_editor2.commands.bindKey("Cmd-,", null)
@@ -123,7 +123,9 @@ var v_createConsoleTabFunction = function() {
     v_editor2.focus();
   };
 
-  v_editor2.setOptions({enableBasicAutocompletion: true});
+  v_editor2.setOptions({
+    enableBasicAutocompletion: true
+  });
   v_editor2.setValue('>> ' + v_connTabControl.selectedTab.tag.consoleHelp)
   v_editor2.setReadOnly(true);
   v_editor2.clearSelection();

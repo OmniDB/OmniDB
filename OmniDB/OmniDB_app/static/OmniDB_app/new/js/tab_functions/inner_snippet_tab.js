@@ -67,7 +67,7 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
   v_editor.setTheme("ace/theme/" + v_editor_theme);
   v_editor.session.setMode("ace/mode/sql");
 
-  v_editor.setFontSize(Number(v_editor_font_size));
+  v_editor.setFontSize(Number(v_font_size));
 
   v_editor.commands.bindKey("ctrl-space", null);
 

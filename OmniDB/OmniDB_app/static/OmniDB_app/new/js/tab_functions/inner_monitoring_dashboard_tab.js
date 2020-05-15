@@ -166,7 +166,7 @@ var v_createNewMonitorUnitTabFunction = function() {
   v_editor.$blockScrolling = Infinity;
   v_editor.setTheme("ace/theme/" + v_editor_theme);
   v_editor.session.setMode("ace/mode/python");
-  v_editor.setFontSize(Number(v_editor_font_size));
+  v_editor.setFontSize(Number(v_font_size));
   v_editor.commands.bindKey("ctrl-space", null);
   v_editor.commands.bindKey("Cmd-,", null)
   v_editor.commands.bindKey("Ctrl-,", null)
@@ -180,7 +180,7 @@ var v_createNewMonitorUnitTabFunction = function() {
   v_editor_data.$blockScrolling = Infinity;
   v_editor_data.setTheme("ace/theme/" + v_editor_theme);
   v_editor_data.session.setMode("ace/mode/python");
-  v_editor_data.setFontSize(Number(v_editor_font_size));
+  v_editor_data.setFontSize(Number(v_font_size));
   v_editor_data.commands.bindKey("ctrl-space", null);
   v_editor_data.commands.bindKey("Cmd-,", null)
   v_editor_data.commands.bindKey("Ctrl-,", null)

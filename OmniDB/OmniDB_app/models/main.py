@@ -12,6 +12,15 @@ class UserDetails(models.Model):
     csv_delimiter = models.CharField(max_length=10, blank=False, default=';')
     welcome_closed = models.BooleanField(default=False)
 
+class Shortcut(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    code = models.CharField(max_length=200, blank=False)
+    ctrl_pressed = models.BooleanField(default=False)
+    shift_pressed = models.BooleanField(default=False)
+    alt_pressed = models.BooleanField(default=False)
+    meta_pressed = models.BooleanField(default=False)
+    key = models.CharField(max_length=200, blank=False)
+
 class Connection(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     technology = models.ForeignKey(Technology,on_delete=models.CASCADE)
@@ -28,3 +37,52 @@ class Connection(models.Model):
     ssh_key = models.TextField(blank=False, default='')
     use_tunnel = models.BooleanField(default=False)
     conn_string = models.TextField(blank=False, default='')
+
+class SnippetFolder(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    parent = models.ForeignKey('self',on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=200, blank=False, default='')
+    create_date = models.DateTimeField()
+    modify_date = models.DateTimeField()
+
+class SnippetFile(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    parent = models.ForeignKey(SnippetFolder,on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=200, blank=False, default='')
+    create_date = models.DateTimeField()
+    modify_date = models.DateTimeField()
+    text = models.TextField(blank=False, default='')
+
+
+class Tab(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    connection = models.ForeignKey(Connection,on_delete=models.CASCADE)
+    title = models.CharField(max_length=200, blank=False, default='')
+    snippet = models.TextField(blank=False, default='')
+
+class QueryHistory(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    connection = models.ForeignKey(Connection,on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    duration = models.TextField(blank=False, default='')
+    status = models.TextField(blank=False, default='')
+    snippet = models.TextField(blank=False, default='')
+
+class ConsoleHistory(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    connection = models.ForeignKey(Connection,on_delete=models.CASCADE)
+    snippet = models.TextField(blank=False, default='')
+
+class Group(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    name = models.CharField(max_length=50, blank=False, default = '')
+
+class GroupConnection(models.Model):
+    group = models.ForeignKey(Group,on_delete=models.CASCADE)
+    connection = models.ForeignKey(Connection,on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['group', 'connection'], name='unique_group_connection')
+        ]

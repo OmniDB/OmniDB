@@ -98,7 +98,7 @@ var v_createEditDataTabFunction = function(p_table) {
   v_editor.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
   v_editor.commands.bindKey(v_keybind_object.v_autocomplete_mac, "startAutocomplete");
 
-  v_editor.setFontSize(Number(v_editor_font_size));
+  v_editor.setFontSize(Number(v_font_size));
 
   //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
   v_editor.commands.bindKey("Cmd-,", null)

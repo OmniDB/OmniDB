@@ -30,7 +30,6 @@ from django.contrib.auth.decorators import login_required
 def index(request):
     try:
         user_details = UserDetails.objects.get(user=request.user)
-        print(user_details)
     #user details does not exist, create it.
     except Exception:
         user_details = UserDetails(user=request.user)
@@ -43,6 +42,8 @@ def index(request):
 
     v_session = request.session.get('omnidb_session')
 
+    v_session.RefreshDatabaseList();
+
     if settings.IS_SSL:
         v_is_secure = 'true'
     else:
@@ -53,56 +54,39 @@ def index(request):
     else:
         v_dev_mode = 'false'
 
-    print(request.user.is_superuser)
-
-
-    #v_shortcuts = v_session.v_omnidb_database.v_connection.Query('''
-    #    select default_shortcut_code as shortcut_code,
-    #           case when user_defined_shortcut_code is null then default_ctrl_pressed else user_defined_ctrl_pressed end as ctrl_pressed,
-    #           case when user_defined_shortcut_code is null then default_shift_pressed else user_defined_shift_pressed end as shift_pressed,
-    #           case when user_defined_shortcut_code is null then default_alt_pressed else user_defined_alt_pressed end as alt_pressed,
-    #           case when user_defined_shortcut_code is null then default_meta_pressed else user_defined_meta_pressed end as meta_pressed,
-    #           case when user_defined_shortcut_code is null then default_shortcut_key else user_defined_shortcut_key end as shortcut_key
-    #    from
-    #    (select defaults.shortcut_code as default_shortcut_code,
-    #           defaults.ctrl_pressed as default_ctrl_pressed,
-    #           defaults.shift_pressed as default_shift_pressed,
-    #           defaults.alt_pressed as default_alt_pressed,
-    #           defaults.meta_pressed as default_meta_pressed,
-    #           defaults.shortcut_key as default_shortcut_key,
-    #           user_defined.shortcut_code as user_defined_shortcut_code,
-    #           user_defined.ctrl_pressed as user_defined_ctrl_pressed,
-    #           user_defined.shift_pressed as user_defined_shift_pressed,
-    #           user_defined.alt_pressed as user_defined_alt_pressed,
-    #           user_defined.meta_pressed as user_defined_meta_pressed,
-    #           user_defined.shortcut_key as user_defined_shortcut_key
-    #    from shortcuts defaults
-    #    left join shortcuts user_defined on (defaults.shortcut_code = user_defined.shortcut_code and user_defined.user_id = {0})
-    #    where defaults.user_id is null) subquery
-    #'''.format(v_session.v_user_id))
-
-    #v_welcome_closed = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
-    #    select welcome_closed from users where user_id = {0}
-    #'''.format(v_session.v_user_id))
+    #Shortcuts
+    default_shortcuts = []
+    user_shortcuts = []
 
     shortcut_object = {}
 
-    #for v_shortcut in v_shortcuts.Rows:
-    #    shortcut_object[v_shortcut['shortcut_code']] = {
-    #        'ctrl_pressed': v_shortcut['ctrl_pressed'],
-    #        'shift_pressed': v_shortcut['shift_pressed'],
-    #        'alt_pressed': v_shortcut['alt_pressed'],
-    #        'meta_pressed': v_shortcut['meta_pressed'],
-    #        'shortcut_key': v_shortcut['shortcut_key'],
-    #        'shortcut_code': v_shortcut['shortcut_code']
-    #    }
+    try:
+        user_shortcuts = Shortcut.objects.filter(user=request.user)
+    except Exception as exc:
+        None
 
+    try:
+        for default_shortcut in Shortcut.objects.filter(user=None):
+            # Search if there is a corresponding user shortcut
+            found = False
+            for user_shortcut in user_shortcuts:
+                if user_shortcut.code == default_shortcut.code:
+                    found = True
+                    current_shortcut = user_shortcut
+            if not found:
+                current_shortcut = default_shortcut
+            # Adding the selected shortctur
+            shortcut_object[current_shortcut.code] = {
+                'ctrl_pressed': 1 if current_shortcut.ctrl_pressed else 0,
+                'shift_pressed': 1 if current_shortcut.shift_pressed else 0,
+                'alt_pressed': 1 if current_shortcut.alt_pressed else 0,
+                'meta_pressed': 1 if current_shortcut.meta_pressed else 0,
+                'shortcut_key': current_shortcut.key,
+                'shortcut_code': current_shortcut.code
+            }
+    except Exception as exc:
+        None
 
-
-    #if not v_session.v_super_user or platform.system()=='Windows':
-    #    v_show_terminal_option = 'false'
-    #else:
-    #    v_show_terminal_option = 'true'
     v_show_terminal_option = 'false'
 
     if user_details.welcome_closed:
@@ -115,18 +99,21 @@ def index(request):
     else:
         superuser = 0
 
+    if user_details.theme=='light':
+        theme = 'omnidb'
+    else:
+        theme = 'omnidb_dark'
+
     context = {
         'session' : None,
-        'editor_theme': 'omnidb',
-        'theme_type': user_details.theme,
-        'theme_id': 1,
-        'editor_font_size': user_details.font_size,
-        'interface_font_size': user_details.font_size,
+        'editor_theme': theme,
+        'theme': user_details.theme,
+        'font_size': user_details.font_size,
         'user_id': request.user.id,
         'user_key': request.session.session_key,
         'user_name': request.user.username,
         'super_user': superuser,
-        'welcome_closed': welcome_closed,
+        'welcome_closed': 1 if user_details.welcome_closed else 0,
         'enable_omnichat': 0,
         'csv_encoding': user_details.csv_encoding,
         'delimiter': user_details.csv_delimiter,
@@ -294,15 +281,11 @@ def close_welcome(request):
     v_session = request.session.get('omnidb_session')
 
     try:
-        v_session.v_omnidb_database.v_connection.Execute('''
-        update users
-        set welcome_closed = 1
-        where user_id = {0}
-        '''.format(v_session.v_user_id))
-
-    except Exception as exc:
-        v_return['v_data'] = str(exc)
-        v_return['v_error'] = True
+        user_details = UserDetails.objects.get(user=request.user)
+        user_details.welcome_closed = True
+        user_details.save()
+    except Exception:
+        None
 
     return JsonResponse(v_return)
 
@@ -320,70 +303,28 @@ def save_config_user(request):
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
-    v_cryptor = request.session.get('cryptor')
 
     json_object = json.loads(request.POST.get('data', None))
     p_font_size = json_object['p_font_size']
-    p_interface_font_size = json_object['p_interface_font_size']
     p_theme = json_object['p_theme']
     p_pwd = json_object['p_pwd']
-    p_chat_enabled = json_object['p_chat_enabled']
     p_csv_encoding = json_object['p_csv_encoding']
     p_csv_delimiter = json_object['p_csv_delimiter']
 
     v_session.v_theme_id = p_theme
-    v_session.v_editor_font_size = p_font_size
-    v_session.v_interface_font_size = p_interface_font_size
-    v_session.v_enable_omnichat = p_chat_enabled
+    v_session.v_font_size = p_font_size
     v_session.v_csv_encoding = p_csv_encoding
     v_session.v_csv_delimiter = p_csv_delimiter
 
-    v_enc_pwd = v_cryptor.Hash(v_cryptor.Encrypt(p_pwd))
-
-    v_update_command = ""
-    v_query_theme_name = "select theme_name, theme_type from themes where theme_id = " + p_theme
-
     if p_pwd!="":
-        v_update_command = '''
-            update users
-            set theme_id = {0},
-            editor_font_size = '{1}',
-            interface_font_size = '{2}',
-            password = '{3}',
-            chat_enabled = {4},
-            csv_encoding = '{5}',
-            csv_delimiter = '{6}'
-            where user_id = {7}
-        '''.format(p_theme,p_font_size,p_interface_font_size,v_enc_pwd,p_chat_enabled,p_csv_encoding,p_csv_delimiter,v_session.v_user_id)
-    else:
-        v_update_command = '''
-            update users
-            set theme_id = {0},
-            editor_font_size = '{1}',
-            interface_font_size = '{2}',
-            chat_enabled = {3},
-            csv_encoding = '{4}',
-            csv_delimiter = '{5}'
-            where user_id = {6}
-        '''.format(p_theme,p_font_size,p_interface_font_size,p_chat_enabled,p_csv_encoding,p_csv_delimiter,v_session.v_user_id)
+        request.user.set_password(p_pwd)
 
-    try:
-        v_session.v_omnidb_database.v_connection.Execute(v_update_command)
-        v_theme_details = v_session.v_omnidb_database.v_connection.Query(v_query_theme_name)
-
-        v_session.v_editor_theme = v_theme_details.Rows[0]["theme_name"]
-        v_session.v_theme_type = v_theme_details.Rows[0]["theme_type"]
-
-        v_details = {
-            'v_theme_name': v_theme_details.Rows[0]["theme_name"],
-            'v_theme_type': v_theme_details.Rows[0]["theme_type"]
-        }
-
-        v_return['v_data'] = v_details
-
-    except Exception as exc:
-        v_return['v_data'] = str(exc)
-        v_return['v_error'] = True
+    user_details = UserDetails.objects.get(user=request.user)
+    user_details.theme = p_theme
+    user_details.font_size = p_font_size
+    user_details.csv_encoding = p_csv_encoding
+    user_details.csv_delimiter = p_csv_delimiter
+    user_details.save()
 
     request.session['omnidb_session'] = v_session
 
@@ -403,29 +344,26 @@ def save_shortcuts(request):
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
-    v_cryptor = request.session.get('cryptor')
 
     json_object = json.loads(request.POST.get('data', None))
     v_shortcuts = json_object['p_shortcuts']
 
     try:
-        v_session.v_omnidb_database.v_connection.Open();
-        v_session.v_omnidb_database.v_connection.Execute('BEGIN');
-        v_session.v_omnidb_database.v_connection.Execute('''
-            delete from shortcuts where user_id = {0}
-        '''.format(v_session.v_user_id))
+        #Delete existing user shortcuts
+        Shortcut.objects.filter(user=request.user).delete()
+
+        #Adding new user shortcuts
         for v_shortcut in v_shortcuts:
-            v_session.v_omnidb_database.v_connection.Execute('''
-                insert into shortcuts values (
-                {0},
-                '{1}',
-                {2},
-                {3},
-                {4},
-                {5},
-                '{6}')
-            '''.format(v_session.v_user_id,v_shortcut['shortcut_code'],v_shortcut['ctrl_pressed'],v_shortcut['shift_pressed'],v_shortcut['alt_pressed'],v_shortcut['meta_pressed'],v_shortcut['shortcut_key']))
-        v_session.v_omnidb_database.v_connection.Close();
+            shortcut_object = Shortcut(
+                user=request.user,
+                code=v_shortcut['shortcut_code'],
+                ctrl_pressed= True if v_shortcut['ctrl_pressed']==1 else False,
+                shift_pressed= True if v_shortcut['shift_pressed']==1 else False,
+                alt_pressed= True if v_shortcut['alt_pressed']==1 else False,
+                meta_pressed= True if v_shortcut['meta_pressed']==1 else False,
+                key=v_shortcut['shortcut_key']
+            )
+            shortcut_object.save()
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -454,50 +392,29 @@ def get_database_list(request):
     v_remote_terminals = []
     v_options = ''
 
-    #Group list
-    try:
-        v_groups_connections = v_session.v_omnidb_database.v_connection.Query('''
-            select c.cgroup_id as cgroup_id,
-                   c.cgroup_name as cgroup_name,
-                   cc.conn_id as conn_id
-            from cgroups c
-            inner join cgroups_connections cc on c.cgroup_id = cc.cgroup_id
-            where c.user_id = {0}
-            order by c.cgroup_id
-        '''.format(v_session.v_user_id))
-    except Exception as exc:
-        v_return['v_data'] = str(exc)
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    v_group_list = []
-
+    #Global group
     v_current_group_data = {
         'v_group_id': 0,
         'v_name': 'All connections',
         'conn_list': []
     }
     v_groups.append(v_current_group_data)
-    v_options = v_options + '<option value="{0}" data-description="{1} {2}"></option>'.format(v_current_group_data['v_group_id'],"<i class='fas fa-layer-group icon-group'></i>",v_current_group_data['v_name'])
 
-    if len(v_groups_connections.Rows)>0:
-        for r in v_groups_connections.Rows:
-            if v_current_group_data['v_group_id'] != r['cgroup_id']:
-                if v_current_group_data['v_group_id'] != 0:
-                    v_groups.append(v_current_group_data)
-                    v_options = v_options + '<option value="{0}" data-description="{1} {2}"></option>'.format(v_current_group_data['v_group_id'],"<i class='fas fa-layer-group icon-group'></i>",v_current_group_data['v_name'])
-                v_current_group_data = {
-                    'v_group_id': r['cgroup_id'],
-                    'v_name': r['cgroup_name'],
-                    'conn_list': []
-                }
-            if r['conn_id']!=None:
-                v_current_group_data['conn_list'].append(r['conn_id'])
+    try:
+        for group in Group.objects.filter(user=request.user):
+            v_current_group_data = {
+                'v_group_id': group.id,
+                'v_name':  group.name,
+                'conn_list': []
+            }
+            for group_conn in GroupConnection.objects.filter(group=group):
+                v_current_group_data['conn_list'].append(group_conn.connection.id)
 
-        v_groups.append(v_current_group_data)
-        v_options = v_options + '<option value="{0}" data-description="{1} {2}"></option>'.format(v_current_group_data['v_group_id'],"<i class='fas fa-layer-group icon-group'></i>",v_current_group_data['v_name'])
+            v_groups.append(v_current_group_data)
 
-    v_html_groups = '<select style="width: 100%; font-weight: bold;" onchange="changeGroup(this.value);">{0}</select>'.format(v_options)
+    # No group connections
+    except Exception as exc:
+        None
 
     v_options = ''
 
@@ -527,9 +444,6 @@ def get_database_list(request):
             else:
                 v_details = v_database.PrintDatabaseDetails() + ' <b>(' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port'] + ')</b>'
 
-            v_options = v_options + '<option data-image="' + settings.PATH + '/static/OmniDB_app/images/{0}_medium.png\" value="{1}" data-description="{2}">{3}{4}</option>'.format(v_database.v_db_type,v_database.v_conn_id,v_details,v_alias,v_database.PrintDatabaseInfo())
-            v_index = v_index + 1
-
             v_database_data = {
                 'v_db_type': v_database.v_db_type,
                 'v_alias': v_database.v_alias,
@@ -542,26 +456,18 @@ def get_database_list(request):
 
             v_databases.append(v_database_data)
 
-    v_html_connections = '<select style="width: 100%; font-weight: bold;" onchange="changeDatabase(this.value);">{0}</select>'.format(v_options)
-
     #retrieving saved tabs
     try:
         v_existing_tabs = []
-        v_tabs = v_session.v_omnidb_database.v_connection.Query('''
-            select conn_id,snippet, tab_id, title
-            from tabs
-            where user_id = {0}
-            order by conn_id, tab_id
-        '''.format(v_session.v_user_id))
-        for v_tab in v_tabs.Rows:
-            v_existing_tabs.append({'index': v_tab['conn_id'], 'snippet': v_tab['snippet'], 'title': v_tab['title'], 'tab_db_id': v_tab['tab_id']})
+        for tab in Tab.objects.filter(user=request.user).order_by('connection'):
+            v_existing_tabs.append({'index': tab.connection.id, 'snippet': tab.snippet, 'title': tab.title, 'tab_db_id': tab.id})
 
     except Exception as exc:
         None
 
     v_return['v_data'] = {
-        'v_select_html': v_html_connections,
-        'v_select_group_html': v_html_groups,
+        'v_select_html': None,
+        'v_select_group_html': None,
         'v_connections': v_databases,
         'v_groups': v_groups,
         'v_remote_terminals': v_remote_terminals,

@@ -102,25 +102,25 @@ WSGI_APPLICATION = 'OmniDB.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(HOME_DIR, 'db.sqlite3'),
-#        #'NAME': ':memory:',
-#    }
-#}
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': '10.33.2.114',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(HOME_DIR, 'omnidb.db'),
+        #'NAME': ':memory:',
     }
 }
+
+
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#        'NAME': 'omnidb',
+#        'USER': 'postgres',
+#        'PASSWORD': '',
+#        'HOST': '10.33.2.114',
+#        'PORT': '5432',
+#    }
+#}
 
 
 # Password validation

@@ -23,23 +23,22 @@ var v_dark_terminal_theme = {
 
 var v_current_terminal_theme;
 
-
 /// <summary>
 /// Startup function.
 /// </summary>
 $(function() {
 
 	var v_fileref = document.getElementById("ss_theme");
-  v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/' + v_theme_type + '.css');
+  v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/' + v_theme + '.css');
 
 
 	//var v_configTabControl = createTabControl('config_tabs',0,null);
 	//v_configTabControl.selectTabIndex(0);
 
 	//setting font size of body
-	document.getElementsByTagName('html')[0].style['font-size'] = v_interface_font_size + 'px';
+	document.getElementsByTagName('html')[0].style['font-size'] = v_font_size + 'px';
 
-	if (v_theme_type=='light') {
+	if (v_theme=='light') {
 		v_current_terminal_theme = v_light_terminal_theme;
 		document.body.classList.remove('omnidb--theme-dark');
 		document.body.classList.add('omnidb--theme-light');
@@ -55,7 +54,7 @@ function adjustChartTheme(p_chart) {
 	var v_chart_font_color = '#666666';
 	var v_chart_grid_color = "rgba(0, 0, 0, 0.1)";
 
-	if (v_theme_type=='dark') {
+	if (v_theme=='dark') {
 		v_chart_font_color = '#d7d7d7';
 		v_chart_grid_color = "rgba(100, 100, 100, 0.3)";
 	}
@@ -78,7 +77,7 @@ function adjustChartTheme(p_chart) {
 function adjustGraphTheme(p_graph) {
 	var v_font_color = '#666666';
 
-	if (v_theme_type=='dark') {
+	if (v_theme=='dark') {
 		v_font_color = '#d7d7d7';
 	}
 
@@ -94,32 +93,28 @@ function adjustGraphTheme(p_graph) {
 
 function changeTheme(p_option) {
 	var v_fileref = document.getElementById("ss_theme");
-	var p_options = p_option.split('/');
 
-	if (parseInt(p_options[0])>=17) {
+	if (p_option=='dark') {
 		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/dark.css');
-		v_theme_type = 'dark';
+		v_theme = 'dark';
+		v_editor_theme = 'omnidb_dark';
+		v_current_terminal_theme = v_dark_terminal_theme;
 		document.body.classList.remove('omnidb--theme-light');
 		document.body.classList.add('omnidb--theme-dark');
 	}
 	else {
 		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/light.css');
-		v_theme_type = 'light';
+		v_theme = 'light';
+		v_editor_theme = 'omnidb';
+		v_current_terminal_theme = v_light_terminal_theme;
 		document.body.classList.remove('omnidb--theme-dark');
 		document.body.classList.add('omnidb--theme-light');
 	}
-	v_editor_theme = p_options[1];
-	v_theme_id = p_options[0];
-
-	if (v_theme_type=='light')
-		v_current_terminal_theme = v_light_terminal_theme;
-	else
-		v_current_terminal_theme = v_dark_terminal_theme;
 
 	var els = document.getElementsByClassName("ace_editor");
 
 	Array.prototype.forEach.call(els, function(el) {
-			ace.edit(el).setTheme("ace/theme/" + p_options[1]);
+			ace.edit(el).setTheme("ace/theme/" + v_editor_theme);
 	});
 
 	Chart.helpers.each(Chart.instances, function(instance){
@@ -159,13 +154,13 @@ function changeTheme(p_option) {
 	//Hooks
 	if (v_connTabControl.tag.hooks.changeTheme.length>0) {
 		for (var i=0; i<v_connTabControl.tag.hooks.changeTheme.length; i++)
-			v_connTabControl.tag.hooks.changeTheme[i](v_editor_theme,v_theme_type);
+			v_connTabControl.tag.hooks.changeTheme[i](null,v_theme);
 	}
 }
 
 function changeFontSize(p_option) {
 	var els = document.getElementsByClassName("ace_editor");
-	v_editor_font_size = p_option;
+	v_font_size = p_option;
 
 	//Adjusting terminal themes
 	for (var i=0; i < v_connTabControl.tabList.length; i++) {
@@ -185,8 +180,8 @@ function changeFontSize(p_option) {
 }
 
 function changeInterfaceFontSize(p_option) {
-	v_interface_font_size = p_option;
-	document.getElementsByTagName('html')[0].style['font-size'] = v_interface_font_size + 'px';
+	v_font_size = p_option;
+	document.getElementsByTagName('html')[0].style['font-size'] = v_font_size + 'px';
 }
 
 /// <summary>
@@ -194,9 +189,8 @@ function changeInterfaceFontSize(p_option) {
 /// </summary>
 function showConfigUser() {
 
-	document.getElementById('sel_editor_font_size').value = v_editor_font_size;
-	document.getElementById('sel_interface_font_size').value = v_interface_font_size;
-	document.getElementById('sel_editor_theme').value = v_theme_id + '/' + v_editor_theme;
+	document.getElementById('sel_interface_font_size').value = v_font_size;
+	document.getElementById('sel_editor_theme').value = v_theme;
 
 	document.getElementById('txt_confirm_new_pwd').value = '';
 	document.getElementById('txt_new_pwd').value = '';
@@ -252,13 +246,11 @@ function showWebsite(p_name, p_url) {
 /// </summary>
 function saveConfigUser() {
 
-	v_editor_font_size = document.getElementById('sel_editor_font_size').value;
+	v_font_size = document.getElementById('sel_interface_font_size').value;
 	v_theme_id = document.getElementById('sel_editor_theme').value.split('/')[0];
 
 	var v_confirm_pwd = document.getElementById('txt_confirm_new_pwd');
 	var v_pwd = document.getElementById('txt_new_pwd');
-
-	v_enable_omnichat = 0;
 
 	v_csv_encoding = document.getElementById('sel_csv_encoding').value;
 	v_csv_delimiter = document.getElementById('txt_csv_delimiter').value;
@@ -266,13 +258,18 @@ function saveConfigUser() {
 	if ((v_confirm_pwd.value!='' || v_pwd.value!='') && (v_pwd.value!=v_confirm_pwd.value))
 		showAlert('New Password and Confirm New Password fields do not match.');
 	else {
-		var input = JSON.stringify({"p_font_size" : v_editor_font_size, "p_interface_font_size" : v_interface_font_size, "p_theme" : v_theme_id, "p_pwd" : v_pwd.value, "p_chat_enabled": v_enable_omnichat, "p_csv_encoding": v_csv_encoding, "p_csv_delimiter": v_csv_delimiter});
+		var input = JSON.stringify(
+			{
+				"p_font_size" : v_font_size,
+				"p_theme" : v_theme,
+				"p_pwd" : v_pwd.value,
+				"p_csv_encoding": v_csv_encoding,
+				"p_csv_delimiter": v_csv_delimiter
+			});
 
 		execAjax('/save_config_user/',
 				input,
 				function(p_return) {
-					v_editor_theme = p_return.v_data.v_theme_name;
-					v_theme_type = p_return.v_data.v_theme_type;
 					$('#modal_config').modal('hide');
 					showAlert('Configuration saved.');
 
@@ -327,7 +324,7 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 	v_editor.session.setMode("ace/mode/text");
 	v_editor.$blockScrolling = Infinity;
 
-	v_editor.setFontSize(Number(v_editor_font_size));
+	v_editor.setFontSize(Number(v_font_size));
 
 	v_editor.setOptions({enableBasicAutocompletion: true});
 

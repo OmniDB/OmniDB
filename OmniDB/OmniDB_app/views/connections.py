@@ -225,6 +225,49 @@ def get_connections_new(request):
 
     return JsonResponse(v_return)
 
+def get_groups_new(request):
+
+    v_return = {}
+    v_return['v_data'] = []
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    v_group_list = []
+
+    v_current_group_data = {
+        'id': None,
+        'name': None,
+        'conn_list': []
+    }
+
+    try:
+        for group in Group.objects.filter(user=request.user):
+            v_current_group_data = {
+                'id': group.id,
+                'name':  group.name,
+                'conn_list': []
+            }
+            for group_conn in GroupConnection.objects.filter(group=group):
+                v_current_group_data['conn_list'].append(group_conn.connection.id)
+
+            v_group_list.append(v_current_group_data)
+
+    # No group connections
+    except Exception as exc:
+        None
+
+    v_return['v_data'] = v_group_list
+
+    return JsonResponse(v_return)
+
 def get_groups(request):
 
     v_return = {}
@@ -282,6 +325,31 @@ def get_groups(request):
     v_group_list.append(v_current_group_data)
 
     v_return['v_data'] = v_group_list
+
+    return JsonResponse(v_return)
+
+def new_group_new(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    json_object = json.loads(request.POST.get('data', None))
+    p_name = json_object['p_name']
+
+    try:
+        new_group = Group(user=request.user,name=p_name)
+        new_group.save()
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     return JsonResponse(v_return)
 
@@ -750,7 +818,7 @@ def save_connection_new(request):
                 ssh_password=json_object['tunnel']['password'],
                 ssh_key=json_object['tunnel']['key'],
                 use_tunnel=json_object['tunnel']['enabled'],
-                conn_string=json_object['server'],
+                conn_string=json_object['connstring'],
 
             )
             connection.save()
@@ -770,7 +838,7 @@ def save_connection_new(request):
             conn.ssh_password=json_object['tunnel']['password']
             conn.ssh_key=json_object['tunnel']['key']
             conn.use_tunnel=json_object['tunnel']['enabled']
-            conn.conn_string=json_object['server']
+            conn.conn_string=json_object['connstring']
             conn.save()
 
     except Exception as exc:

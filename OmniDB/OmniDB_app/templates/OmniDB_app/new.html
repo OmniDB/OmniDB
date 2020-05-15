@@ -491,7 +491,14 @@
 
                   <div class="form-row">
                     <div class="col-md-6 mb-3">
-                      <label for="sel_interface_font_size">Interface Font Size</label>
+                      <label for="sel_editor_theme">Theme</label>
+                      <select id="sel_editor_theme" class="form-control" onchange="changeTheme(this.value)">
+  		                	<option value="light">Light</option>
+  							        <option value="dark">Dark</option>
+  		                </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="sel_interface_font_size">Font Size</label>
                       <select id="sel_interface_font_size" class="form-control" onchange="changeInterfaceFontSize(this.value)">
   		                	<option value="10">10</option>
   		                	<option value="11">11</option>
@@ -504,65 +511,6 @@
   		                	<option value="18">18</option>
                         <option value="19">19</option>
                         <option value="20">20</option>
-  		                </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <label for="sel_editor_font_size">Editor Font Size</label>
-                      <select id="sel_editor_font_size" class="form-control" onchange="changeFontSize(this.value)">
-  		                	<option value="10">10</option>
-  		                	<option value="11">11</option>
-  		                	<option value="12">12</option>
-  		                	<option value="13">13</option>
-  		                	<option value="14">14</option>
-  		                	<option value="15">15</option>
-  		                	<option value="16">16</option>
-  		                	<option value="17">17</option>
-  		                	<option value="18">18</option>
-                        <option value="19">19</option>
-                        <option value="20">20</option>
-  		                </select>
-                    </div>
-                  </div>
-                  <div class="form-row">
-                    <div class="col-md-12 mb-3">
-                      <label for="sel_editor_theme">Editor Theme</label>
-                      <select id="sel_editor_theme" class="form-control" onchange="changeTheme(this.value)">
-  		                	<option value="1/omnidb">(Light) OmniDB</option>
-  		                	<option value="2/chrome">(Light) Chrome</option>
-  		                	<option value="3/clouds">(Light) Clouds</option>
-  		                	<option value="4/crimson_editor">(Light) Crimson Editor</option>
-  		                	<option value="5/dawn">(Light) Dawn</option>
-  		                	<option value="6/dreamweaver">(Light) Dreamweaver</option>
-  		                	<option value="7/eclipse">(Light) Eclipse</option>
-  		                	<option value="8/github">(Light) Github</option>
-  		                	<option value="9/iplastic">(Light) Iplastic</option>
-  		                	<option value="10/katzenmilch">(Light) Katzenmilch</option>
-  		                	<option value="11/kuroir">(Light) Kuroir</option>
-  		                	<option value="12/solarized_light">(Light) Solarized Light</option>
-  		                	<option value="13/sqlserver">(Light) SQL Server</option>
-  		                	<option value="14/textmate">(Light) Textmate</option>
-  		                	<option value="15/tomorrow">(Light) Tomorrow</option>
-  		                	<option value="16/xcode">(Light) XCode</option>
-  							        <option value="17/omnidb_dark">(Dark) OmniDB Dark</option>
-  		                	<option value="18/ambiance">(Dark) Ambiance</option>
-  		                	<option value="19/chaos">(Dark) Chaos</option>
-  		                	<option value="20/clouds_midnight">(Dark) Clouds Midnight</option>
-  		                	<option value="21/cobalt">(Dark) Cobalt</option>
-  		                	<option value="22/idle_fingers">(Dark) Idle Fingers</option>
-  		                	<option value="23/kr_theme">(Dark) KR Theme</option>
-  		                	<option value="24/merbivore">(Dark) Merbivore</option>
-  		                	<option value="25/merbivore_soft">(Dark) Merbivore Soft</option>
-  		                	<option value="26/mono_industrial">(Dark) Mono Industrial</option>
-  		                	<option value="27/monokai">(Dark) Monokai</option>
-  		                	<option value="28/pastel_on_dark">(Dark) Pastel On Dark</option>
-  		                	<option value="29/solarized_dark">(Dark) Solarized Dark</option>
-  		                	<option value="30/terminal">(Dark) Terminal</option>
-  		                	<option value="31/tomorrow_night">(Dark) Tomorrow Night</option>
-  		                	<option value="32/tomorrow_night_blue">(Dark) Tomorrow Night Blue</option>
-  		                	<option value="33/tomorrow_night_bright">(Dark) Tomorrow Night Bright</option>
-  		                	<option value="34/tomorrow_night_eighties">(Dark) Tomorrow Night 80s</option>
-  		                	<option value="35/twilight">(Dark) Twilight</option>
-  		                	<option value="36/vibrant_ink">(Dark) Vibrant Ink</option>
   		                </select>
                     </div>
                   </div>
@@ -841,15 +789,12 @@
     <script src="{{url_folder}}/static/OmniDB_app/new/lib/json_html/components.js?v3.0.0b37"></script>
     <script type="text/javascript">
   	//Global variables
-  	var v_editor_theme = '{{ editor_theme }}';
-  	var	v_theme_type = '{{ theme_type }}';
-  	var	v_theme_id = {{ theme_id }};
-  	var v_editor_font_size = {{ editor_font_size }};
-    var v_interface_font_size = {{ interface_font_size }};
+    var v_editor_theme = '{{ editor_theme }}';
+  	var	v_theme = '{{ theme }}';
+    var v_font_size = {{ font_size }};
   	var v_user_id = {{ user_id }};
     var v_user_key = '{{ user_key }}';
     var v_user_name = '{{ user_name }}';
-  	var v_enable_omnichat = parseInt({{ enable_omnichat }});
     var v_csv_encoding = '{{ csv_encoding }}';
     var v_csv_delimiter = '{{ csv_delimiter }}';
     var v_session_key = v_user_key;

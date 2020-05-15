@@ -16,6 +16,9 @@ import time
 import os
 from collections import OrderedDict
 
+from django.contrib.auth.models import User
+from OmniDB_app.models.main import *
+
 import logging
 logger = logging.getLogger('OmniDB_app.Session')
 
@@ -30,29 +33,17 @@ class Session(object):
     def __init__(self,
                 p_user_id,
                 p_user_name,
-                p_omnidb_database,
-                p_editor_theme,
-                p_theme_type,
-                p_theme_id,
-                p_editor_font_size,
-                p_interface_font_size,
-                p_enable_omnichat,
+                p_theme,
+                p_font_size,
                 p_super_user,
-                p_cryptor,
                 p_user_key,
                 p_csv_encoding,
                 p_csv_delimiter):
         self.v_user_id = p_user_id
         self.v_user_name = p_user_name
-        self.v_omnidb_database = p_omnidb_database
-        self.v_editor_theme = p_editor_theme
-        self.v_theme_type = p_theme_type
-        self.v_theme_id = p_theme_id
-        self.v_editor_font_size = p_editor_font_size
-        self.v_interface_font_size = p_interface_font_size
-        self.v_enable_omnichat = p_enable_omnichat
+        self.v_theme = p_theme
+        self.v_font_size = p_font_size
         self.v_super_user = p_super_user
-        self.v_cryptor = p_cryptor
         self.v_database_index = -1
         self.v_databases = OrderedDict()
         self.v_user_key = p_user_key
@@ -172,94 +163,35 @@ class Session(object):
 
     def RefreshDatabaseList(self):
         self.v_databases = {}
-        table = self.v_omnidb_database.v_connection.Query('''
-            select *
-            from connections
-            where user_id = {0}
-            order by dbt_st_name,
-                     conn_id
-        '''.format(self.v_user_id))
 
-        for r in table.Rows:
-            try:
-                v_server = self.v_cryptor.Decrypt(r["server"])
-            except Exception as exc:
-                v_server = r["server"]
-            try:
-                v_port = self.v_cryptor.Decrypt(r["port"])
-            except Exception as exc:
-                v_port = r["port"]
-            try:
-                v_service = self.v_cryptor.Decrypt(r["service"])
-            except Exception as exc:
-                v_service = r["service"]
-            try:
-                v_user = self.v_cryptor.Decrypt(r["user"])
-            except Exception as exc:
-                v_user = r["user"]
-            try:
-                v_alias = self.v_cryptor.Decrypt(r["alias"])
-            except Exception as exc:
-                v_alias = r["alias"]
-            try:
-                v_conn_string = self.v_cryptor.Decrypt(r["conn_string"])
-            except Exception as exc:
-                v_conn_string = r["conn_string"]
+        try:
+            for conn in Connection.objects.filter(user=User.objects.get(id=self.v_user_id)):
+                tunnel_information = {
+                    'enabled': conn.use_tunnel,
+                    'server': conn.ssh_server,
+                    'port': conn.ssh_port,
+                    'user': conn.ssh_user,
+                    'password': conn.ssh_password,
+                    'key': conn.ssh_key
+                }
 
-            #SSH Tunnel information
-            try:
-                v_ssh_server = self.v_cryptor.Decrypt(r["ssh_server"])
-            except Exception as exc:
-                v_ssh_server = r["ssh_server"]
-            try:
-                v_ssh_port = self.v_cryptor.Decrypt(r["ssh_port"])
-            except Exception as exc:
-                v_ssh_port = r["ssh_port"]
-            try:
-                v_ssh_user = self.v_cryptor.Decrypt(r["ssh_user"])
-            except Exception as exc:
-                v_ssh_user = r["ssh_user"]
-            try:
-                v_ssh_password = self.v_cryptor.Decrypt(r["ssh_password"])
-            except Exception as exc:
-                v_ssh_password = r["ssh_password"]
-            try:
-                v_ssh_key = self.v_cryptor.Decrypt(r["ssh_key"])
-            except Exception as exc:
-                v_ssh_key = r["ssh_key"]
-            try:
-                v_use_tunnel = self.v_cryptor.Decrypt(r["use_tunnel"])
-            except Exception as exc:
-                v_use_tunnel = r["use_tunnel"]
+                database = OmniDatabase.Generic.InstantiateDatabase(
+    				conn.technology.name,
+    				conn.server,
+    				conn.port,
+    				conn.database,
+    				conn.username,
+                    '',
+                    conn.id,
+                    conn.alias,
+                    p_conn_string = conn.conn_string,
+                    p_parse_conn_string = True
+                )
 
-            tunnel_information = {
-                'enabled': False,
-                'server': v_ssh_server,
-                'port': v_ssh_port,
-                'user': v_ssh_user,
-                'password': v_ssh_password,
-                'key': v_ssh_key
-            }
-            if v_use_tunnel == 1:
-                tunnel_information['enabled'] = True
-
-            database = OmniDatabase.Generic.InstantiateDatabase(
-				r["dbt_st_name"],
-				v_server,
-				v_port,
-				v_service,
-				v_user,
-                '',
-                r["conn_id"],
-                v_alias,
-                p_conn_string = v_conn_string,
-                p_parse_conn_string = True
-            )
-
-            if 1==0:
-                self.AddDatabase(r["conn_id"],r["dbt_st_name"],database,False,tunnel_information,v_alias)
-            else:
-                self.AddDatabase(r["conn_id"],r["dbt_st_name"],database,True,tunnel_information,v_alias)
+                self.AddDatabase(conn.id,conn.technology.name,database,True,tunnel_information,conn.alias)
+        # No connections
+        except Exception as exc:
+            None
 
     def Execute(self,
                 p_database,

@@ -14,6 +14,8 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB_app.include.Session import Session
 from OmniDB import settings
+from django.utils import timezone
+from django.contrib.auth.models import User
 
 def get_users(request):
 
@@ -31,36 +33,27 @@ def get_users(request):
     v_session = request.session.get('omnidb_session')
     v_cryptor = request.session.get('cryptor')
 
-    if v_session.v_super_user != 1:
+    v_user_list = []
+    v_user_id_list = []
+
+    if not v_session.v_super_user:
         v_return['v_data'] = 'You must be superuser to manage users.'
         v_return['v_error'] = True
         return JsonResponse(v_return)
     try:
-        v_users = v_session.v_omnidb_database.v_connection.Query('''
-            select *
-            from users
-            order by user_id
-        ''')
+        for user in User.objects.all():
+            v_user_data_list = []
+            v_user_data_list.append(user.username)
+            v_user_data_list.append('')
+            v_user_data_list.append(1 if user.is_superuser else 0)
+            v_user_data_list.append('''<i title="Remove User" class='fas fa-times action-grid action-close' onclick='removeUser("{0}")'></i>'''.format(user.id))
+
+            v_user_list.append(v_user_data_list)
+            v_user_id_list.append(user.id)
     except Exception as exc:
-        v_return['v_data'] = str(exc)
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+        None
 
-    v_user_list = []
-    v_user_id_list = []
 
-    for v_user in v_users.Rows:
-        v_user_data_list = []
-        v_user_data_list.append(v_user["user_name"])
-        try:
-            v_user_data_list.append(v_cryptor.Decrypt(v_user["password"]))
-        except Exception as exc:
-            v_user_data_list.append(v_user["password"])
-        v_user_data_list.append(v_user["super_user"])
-        v_user_data_list.append('''<i title="Remove User" class='fas fa-times action-grid action-close' onclick='removeUser("{0}")'></i>'''.format(v_user["user_id"]))
-
-        v_user_list.append(v_user_data_list)
-        v_user_id_list.append(v_user["user_id"])
 
     v_return['v_data'] = {
         'v_data': v_user_list,
@@ -84,16 +77,22 @@ def new_user(request):
 
     v_session = request.session.get('omnidb_session')
 
-    if v_session.v_super_user != 1:
+    if not v_session.v_super_user:
         v_return['v_data'] = 'You must be superuser to manage users.'
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
     try:
-        v_session.v_omnidb_database.v_connection.Execute('''
-            insert into users values (
-            (select coalesce(max(user_id), 0) + 1 from users),'user' || (select coalesce(max(user_id), 0) + 1 from users),'',1,'14',1,0,'utf-8',';','11',0)
-        ''')
+        new_user = User.objects.create_user(username='new_user',
+                                 password='',
+                                 email='',
+                                 last_login=timezone.now(),
+                                 is_superuser=False,
+                                 first_name='',
+                                 last_name='',
+                                 is_staff=False,
+                                 is_active=True,
+                                 date_joined=timezone.now())
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -116,7 +115,7 @@ def remove_user(request):
 
     v_session = request.session.get('omnidb_session')
 
-    if v_session.v_super_user != 1:
+    if not v_session.v_super_user:
         v_return['v_data'] = 'You must be superuser to manage users.'
         v_return['v_error'] = True
         return JsonResponse(v_return)
@@ -125,10 +124,8 @@ def remove_user(request):
     v_id = json_object['p_id']
 
     try:
-        v_session.v_omnidb_database.v_connection.Execute('''
-            delete from users
-            where user_id = {0}
-        '''.format(v_id))
+        user = User.objects.get(id=v_id)
+        user.delete()
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -150,9 +147,8 @@ def save_users(request):
         return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
-    v_cryptor = request.session.get('cryptor')
 
-    if v_session.v_super_user != 1:
+    if not v_session.v_super_user:
         v_return['v_data'] = 'You must be superuser to manage users.'
         v_return['v_error'] = True
         return JsonResponse(v_return)
@@ -165,13 +161,11 @@ def save_users(request):
 
     try:
         for r in v_data:
-            v_session.v_omnidb_database.v_connection.Execute('''
-                update users
-                set user_name = '{0}',
-                    password = '{1}',
-                    super_user = '{2}'
-                where user_id = {3}
-            '''.format(r[0],v_cryptor.Hash(v_cryptor.Encrypt(r[1])),r[2],v_user_id_list[v_index]))
+            user = User.objects.get(id=v_user_id_list[v_index])
+            user.username = r[0]
+            user.set_password(r[1])
+            user.is_superuser = True if r[2]==1 else False
+            user.save()
             v_index = v_index + 1
     except Exception as exc:
         v_return['v_data'] = str(exc)

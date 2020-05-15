@@ -275,7 +275,7 @@ function manageGroupSave() {
 }
 
 function newGroupConfirm(p_name) {
-	execAjax('/new_group/',
+	execAjax('/new_group_new/',
 			JSON.stringify({"p_name": p_name}),
 			function(p_return) {
 				getGroups();
@@ -355,7 +355,7 @@ function renameGroup() {
 }
 
 function getGroups() {
-	execAjax('/get_groups/',
+	execAjax('/get_groups_new/',
 			JSON.stringify({}),
 			function(p_return) {
 				v_connections_data.v_group_list = p_return.v_data;

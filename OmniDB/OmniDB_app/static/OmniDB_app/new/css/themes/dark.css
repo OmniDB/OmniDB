@@ -47,6 +47,12 @@
   color: #FFF;
 }
 
+/* CONSOLE */
+.omnidb__console__text-input .ace_content {
+  background-color: #282A2F;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
+}
+
 /* TABS */
 .nav-tabs {
   border-color: #5371BD;

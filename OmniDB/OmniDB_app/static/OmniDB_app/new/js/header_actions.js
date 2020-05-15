@@ -54,8 +54,12 @@ function adjustChartTheme(p_chart) {
 	var v_chart_font_color = '#666666';
 	var v_chart_grid_color = "rgba(0, 0, 0, 0.1)";
 
-	if (v_theme=='dark') {
-		v_chart_font_color = '#d7d7d7';
+	if (v_theme=='light') {
+		v_chart_font_color = '#666666';
+		v_chart_grid_color = "rgba(0, 0, 0, 0.1)";
+	}
+ 	else {
+		v_chart_font_color = '#DCDDDE';
 		v_chart_grid_color = "rgba(100, 100, 100, 0.3)";
 	}
 
@@ -77,8 +81,11 @@ function adjustChartTheme(p_chart) {
 function adjustGraphTheme(p_graph) {
 	var v_font_color = '#666666';
 
-	if (v_theme=='dark') {
-		v_font_color = '#d7d7d7';
+	if (v_theme=='light') {
+		v_font_color = '#666666';
+	}
+	else {
+		v_font_color = '#DCDDDE';
 	}
 
 	try {

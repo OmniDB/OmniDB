@@ -4,15 +4,15 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
   if (p_snippet)
     v_name = p_snippet;
 
-  v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
-  var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
+  v_connTabControl.snippet_tag.tabControl.removeTabIndex(v_connTabControl.snippet_tag.tabControl.tabList.length-1);
+  var v_tab = v_connTabControl.snippet_tag.tabControl.createTab({
     p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 24px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
     p_selectFunction: function() {
       if(this.tag != null) {
-        refreshHeights();
+        //refreshHeights();
       }
-      if(this.tag != null && this.tag.editor != null) {
-          this.tag.editor.focus();
+      if(this.tag != null && this.editor != null) {
+          this.editor.focus();
       }
     },
     p_closeFunction: function(e,p_tab) {
@@ -24,7 +24,7 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
     },
     p_dblClickFunction: renameTab
   });
-  v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+  v_connTabControl.snippet_tag.tabControl.selectTab(v_tab);
 
   //Adding unique names to spans
   var v_tab_title_span = document.getElementById('tab_title');
@@ -100,7 +100,7 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
     tab_stub_span : v_tab_stub_span,
     bt_start: document.getElementById('bt_start_' + v_tab.id),
     bt_save: document.getElementById('bt_save_' + v_tab.id),
-    tabControl: v_connTabControl.selectedTab.tag.tabControl,
+    tabControl: v_connTabControl.snippet_tag.tabControl,
     snippetTab: v_connTabControl.selectedTab,
     snippetObject: null
   };
@@ -108,7 +108,7 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
   v_tab.tag = v_tag;
 
   // Creating + tab in the outer tab list
-  var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
+  var v_add_tab = v_connTabControl.snippet_tag.tabControl.createTab(
     {
       p_name: '+',
       p_close: false,
@@ -122,9 +122,9 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
     mode: 'add'
   }
 
-  setTimeout(function() {
-    refreshHeights();
-  },10);
+  //setTimeout(function() {
+  //  refreshHeights();
+  //},10);
 
   v_editor.focus();
 

@@ -521,7 +521,7 @@
   position: absolute;
   top: 0px;
   width: 100%;
-  z-index: 1049;
+  z-index: 199;
 }
 .omnidb__workspace-resize-grid__column {
   width: 30px;
@@ -679,7 +679,8 @@
 .omnidb__panel {
   box-shadow: -3px 0px 8px rgba(0,0,0,0.5);
   /* display: none; */
-  left: 2.5rem;
+  left: 0px;
+  padding-left: 36px;
   position: fixed;
   top: 100%;
   transform: translateY(0px);

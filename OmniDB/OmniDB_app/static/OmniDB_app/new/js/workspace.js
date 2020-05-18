@@ -528,6 +528,70 @@ function resizeTreeVerticalEnd(event) {
 }
 
 /// <summary>
+/// Redefines horizontal resize line position.
+/// </summary>
+function horizontalLinePosition(p_event) {
+	document.getElementById('horizontal-resize-line').style.left = p_event.pageX + 'px';
+}
+
+/// <summary>
+/// Resize Snippet panel editor horizontally.
+/// </summary>
+function resizeSnippetHorizontal(event) {
+	var v_horizontalLine = document.createElement('div');
+	v_horizontalLine.id = 'horizontal-resize-line';
+	v_connTabControl.snippet_tag.divPanel.appendChild(v_horizontalLine);
+
+	document.body.addEventListener(
+		'mousemove',
+		horizontalLinePosition
+	)
+
+	v_start_width = event.screenX;
+	document.body.addEventListener("mouseup", resizeSnippetHorizontalEnd);
+
+}
+
+/// <summary>
+/// Resize Snippet panel editor horizontally.
+/// </summary>
+function resizeSnippetHorizontalEnd(event) {
+
+	document.body.removeEventListener("mouseup", resizeSnippetHorizontalEnd);
+	document.getElementById('horizontal-resize-line').remove();
+
+	document.body.removeEventListener(
+		'mousemove',
+		horizontalLinePosition
+	)
+
+	var v_div_left = v_connTabControl.snippet_tag.divLeft;
+	var v_div_right = v_connTabControl.snippet_tag.divRight;
+
+  var v_fraction = Math.round(12 * event.screenX / v_connTabControl.snippet_tag.divPanel.getBoundingClientRect().width);
+
+	if (v_fraction < 1) {
+    v_div_left.classList = [' omnidb__workspace__div-left col-md-1'];
+    v_div_right.classList = [' omnidb__workspace__div-right col-md-11'];
+	}
+  else if (v_fraction >= 1 && v_fraction <= 11) {
+    v_div_left.classList = [' omnidb__workspace__div-left col-md-' + v_fraction];
+    v_div_right.classList = [' omnidb__workspace__div-right col-md-' + (12 - v_fraction)];
+  }
+	else {
+    v_div_left.classList = [' omnidb__workspace__div-left col-md-11'];
+    v_div_right.classList = [' omnidb__workspace__div-right col-md-1'];
+	}
+
+	var v_tab_tag = v_connTabControl.snippet_tag.tabControl.selectedTab.tag;
+
+	if(v_tab_tag.editor != null) {
+		v_tab_tag.editor.resize();
+	}
+
+}
+
+/// <summary>
 /// Resize SQL editor and result div.
 /// </summary>
 function resizeVertical(event) {

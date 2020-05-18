@@ -675,6 +675,35 @@
   width: auto;
 }
 
+/* PANELS */
+.omnidb__panel {
+  box-shadow: -3px 0px 8px rgba(0,0,0,0.5);
+  /* display: none; */
+  left: 2.5rem;
+  position: fixed;
+  top: 100%;
+  transform: translateY(0px);
+  transition: 0.35s;
+  width: 100%;
+  z-index: 200;
+}
+.omnidb__panel--slide-in {
+  display: block;
+}
+.omnidb__panel__toggler {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  left: 50%;
+  position: absolute;
+  transform-origin: bottom;
+  transform: translateY(-100%) scaleY(0.3);
+  transition: 0.35s;
+  z-index: 1;
+}
+.omnidb__panel__toggler:focus,
+.omnidb__panel__toggler:hover {
+  transform: translateY(-100%);
+}
 
 /* FORMS */
 .omnidb__form-check .form-check-label {

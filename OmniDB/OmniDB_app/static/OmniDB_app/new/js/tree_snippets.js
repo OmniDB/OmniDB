@@ -137,7 +137,7 @@ function getTreeSnippets(p_div) {
   node1.createChildNode('',true,'node-spin',null,null);
 
   tree.drawTree();
-  v_connTabControl.selectedTab.tag.tree = tree;
+  v_connTabControl.snippet_tree = tree;
 
 }
 
@@ -205,10 +205,10 @@ function closeSnippetTab(p_tab) {
 }
 
 function saveSnippetText() {
-  if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.snippetObject) {
+  if (v_connTabControl.snippet_object) {
     var v_save_object = {
-      v_id: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.snippetObject.id,
-      v_name : v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.snippetObject.name
+      v_id: v_connTabControl.snippet_object.id,
+      v_name : v_connTabControl.snippet_object.name
     }
     saveSnippetTextConfirm(v_save_object)
   }
@@ -237,10 +237,10 @@ function saveSnippetTextConfirm(p_save_object) {
   execAjax('/save_snippet_text/',
      JSON.stringify({"p_id": p_save_object.v_id,
                      "p_name": p_save_object.v_name,
-                     "p_text": v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue()}),
+                     "p_text": v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.getValue()}),
      function(p_return) {
         if (p_save_object.v_id==null) {
-          var node = v_connTabControl.selectedTab.tag.tree.childNodes[0];
+          var node = v_connTabControl.snippet_tree.childNodes[0];
           if (node.childNodes==0)
             refreshTreeSnippets(node);
           else {
@@ -327,13 +327,13 @@ function deleteNodeSnippet(p_node) {
 
 function startEditSnippetText(p_node) {
   v_connTabControl.tag.createSnippetTextTab(p_node.tag.name);
-  v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.snippetObject = p_node.tag;
+  v_connTabControl.snippet_object = p_node.tag;
   execAjax('/get_snippet_text/',
 			JSON.stringify({"p_st_id": p_node.tag.id}),
 			function(p_return) {
-        v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
-        v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
-        v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+        v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
+        v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.clearSelection();
+        v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
 
 			},
 			null,
@@ -345,10 +345,10 @@ function executeSnippet(p_node,p_tab) {
 			JSON.stringify({"p_st_id": p_node.tag.id}),
 			function(p_return) {
 				v_connTabControl.selectTab(p_tab);
-				v_connTabControl.tag.createQueryTab();
-				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
-				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
-				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+				v_connTabControl.snippet_tag.createQueryTab();
+				v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
+				v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.clearSelection();
+				v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
 			},
 			null,
 			'box');

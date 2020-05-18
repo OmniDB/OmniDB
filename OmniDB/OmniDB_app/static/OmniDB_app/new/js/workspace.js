@@ -71,8 +71,8 @@ $(function () {
   // of tabs
   initCreateTabFunctions();
 
-  // Creates the snippets tab
-  v_connTabControl.tag.createSnippetTab();
+  // Creates the snippets panel
+  v_connTabControl.tag.createSnippetPanel();
 
   // Retrieving database list
   getDatabaseList(true);

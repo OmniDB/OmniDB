@@ -97,7 +97,7 @@ function initCreateTabFunctions() {
 
   };
 
-  
+
 
 	var v_createAlterTableTabFunction = function(p_table) {
 
@@ -449,11 +449,13 @@ function initCreateTabFunctions() {
 
   //Functions to create tabs globally
   v_connTabControl.tag.createConnTab = v_createConnTabFunction;
-  v_connTabControl.tag.createSnippetTab = v_createSnippetTabFunction;
   //v_connTabControl.tag.createChatTab = v_createChatTabFunction;
   //v_connTabControl.tag.createServerMonitoringTab = v_createServerMonitoringTabFunction;
 
-  //Functions to create tabs inside snippet tab
+  //Functions to create snippet panel globally
+  v_connTabControl.tag.createSnippetPanel = v_createSnippetPanelFunction;
+
+  //Functions to create tabs inside snippet panel
   v_connTabControl.tag.createSnippetTextTab = v_createSnippetTextTabFunction;
 
   //Functions to create tabs inside a connection tab

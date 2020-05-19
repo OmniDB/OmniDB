@@ -448,6 +448,26 @@ function removeTab(p_tab) {
 }
 
 /// <summary>
+/// Resize snippet panel and transforms position when its visible.
+/// </summary>
+var resizeSnippetPanel = function() {
+  if (v_connTabControl.snippet_tag !== undefined) {
+    var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    var v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
+    var v_snippet_tag = v_connTabControl.snippet_tag;
+    var v_inner_snippet_tag = v_snippet_tag.tabControl.selectedTab.tag;
+    if (v_inner_snippet_tag.editor !== undefined) {
+      if (v_snippet_tag.isVisible) {
+        v_snippet_tag.divPanel.style.transform = 'translateY(-' + v_target_tag_div_result_top + 'px)';
+      }
+      v_snippet_tag.divPanel.style.height = v_target_tag_div_result_top;
+      v_snippet_tag.divTree.style.height = v_target_tag_div_result_top;
+      v_inner_snippet_tag.editorDiv.style.height = v_target_tag_div_result_top - 90 + 'px';
+    }
+  }
+}
+
+/// <summary>
 /// Resize SQL editor and result div.
 /// </summary>
 function resizeTreeVertical(event) {
@@ -488,41 +508,86 @@ function resizeTreeVerticalEnd(event) {
 
   var v_tree_tabs_div = v_tag.divTreeTabs;
 
-  v_tree_tabs_div.style.flexBasis = v_tag.divLeft.clientHeight - 14 - event.pageY + 'px';
+  var v_tree_tabs_height = v_tag.divLeft.clientHeight - 14 - event.pageY;
+  v_tree_tabs_div.style.flexBasis = v_tree_tabs_height  + 'px';
 
-	if (v_tag.currTreeTab=='properties') {
+  var v_inner_height = v_tree_tabs_height - 35  + 'px';
+
+  if (v_tag.currTreeTab=='properties')
 		v_result_div = v_tag.divProperties;
-		v_tag.gridProperties.render();
-		v_tag.gridProperties.render();
-	}
-	else if (v_tag.currTreeTab=='ddl') {
+	else if (v_tag.currTreeTab=='ddl')
 		v_result_div = v_tag.divDDL;
-		v_tag.ddlEditor.resize();
-	}
-
-
-	if (v_height_diff < 0) {
-		if (Math.abs(v_height_diff) > parseInt(v_tree_div.clientHeight, 10))
-		 v_height_diff = parseInt(v_tree_div.clientHeight, 10)*-1 + 10;
-	}
-	else {
-		if (Math.abs(v_height_diff) > parseInt(v_result_div.clientHeight, 10))
-		 v_height_diff = parseInt(v_result_div.clientHeight, 10) - 10;
-	}
 
 	v_tree_div.style.height = parseInt(v_tree_div.clientHeight, 10) + v_height_diff + 'px';
-	v_result_div.style.height = parseInt(v_result_div.clientHeight, 10) - v_height_diff + 'px';
+  v_result_div.style.height = v_inner_height;
 
-	if (v_tag.currTreeTab=='properties') {
-		var v_height  = window.innerHeight - $(v_tag.divProperties).offset().top - 21;
-		v_tag.divProperties.style.height = v_height + "px";
+	if (v_tag.currTreeTab=='properties')
 		v_tag.gridProperties.render();
-		v_tag.gridProperties.render();
-	}
-	else if (v_tag.currTreeTab=='ddl') {
-		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 21;
-		v_tag.divDDL.style.height = v_height + "px";
+	else if (v_tag.currTreeTab=='ddl')
 		v_tag.ddlEditor.resize();
+
+}
+
+/// <summary>
+/// Redefines horizontal resize line position.
+/// </summary>
+function horizontalLinePosition(p_event) {
+	document.getElementById('horizontal-resize-line').style.left = p_event.pageX + 'px';
+}
+
+/// <summary>
+/// Resize Snippet panel editor horizontally.
+/// </summary>
+function resizeSnippetHorizontal(event) {
+	var v_horizontalLine = document.createElement('div');
+	v_horizontalLine.id = 'horizontal-resize-line';
+	v_connTabControl.snippet_tag.divPanel.appendChild(v_horizontalLine);
+
+	document.body.addEventListener(
+		'mousemove',
+		horizontalLinePosition
+	)
+
+	v_start_width = event.screenX;
+	document.body.addEventListener("mouseup", resizeSnippetHorizontalEnd);
+
+}
+
+/// <summary>
+/// Resize Snippet panel editor horizontally.
+/// </summary>
+function resizeSnippetHorizontalEnd(event) {
+
+	document.body.removeEventListener("mouseup", resizeSnippetHorizontalEnd);
+	document.getElementById('horizontal-resize-line').remove();
+
+	document.body.removeEventListener(
+		'mousemove',
+		horizontalLinePosition
+	)
+
+	var v_div_left = v_connTabControl.snippet_tag.divLeft;
+	var v_div_right = v_connTabControl.snippet_tag.divRight;
+
+  var v_fraction = Math.round(12 * event.screenX / v_connTabControl.snippet_tag.divPanel.getBoundingClientRect().width);
+
+	if (v_fraction < 1) {
+    v_div_left.classList = [' omnidb__workspace__div-left col-md-1'];
+    v_div_right.classList = [' omnidb__workspace__div-right col-md-11'];
+	}
+  else if (v_fraction >= 1 && v_fraction <= 11) {
+    v_div_left.classList = [' omnidb__workspace__div-left col-md-' + v_fraction];
+    v_div_right.classList = [' omnidb__workspace__div-right col-md-' + (12 - v_fraction)];
+  }
+	else {
+    v_div_left.classList = [' omnidb__workspace__div-left col-md-11'];
+    v_div_right.classList = [' omnidb__workspace__div-right col-md-1'];
+	}
+
+	var v_tab_tag = v_connTabControl.snippet_tag.tabControl.selectedTab.tag;
+
+	if(v_tab_tag.editor != null) {
+		v_tab_tag.editor.resize();
 	}
 
 }
@@ -634,6 +699,8 @@ function resizeVerticalEnd(event) {
 			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
 		}
 	}
+
+  resizeSnippetPanel();
 }
 
 function resizeWindow(){
@@ -701,7 +768,7 @@ function refreshHeights(p_all) {
 			}
 		}
 		else if (v_tab_tag.mode=='console') {
-			v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 59 + 'px';
+			v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 50 + 'px';
 			v_tab_tag.editor_console.resize();
 			v_tab_tag.editor_input.resize();
 
@@ -795,6 +862,9 @@ function refreshHeights(p_all) {
     for (var i=0; i<v_connTabControl.tag.hooks.windowResize.length; i++)
       v_connTabControl.tag.hooks.windowResize[i]();
   }
+
+  //Snippet panel
+  resizeSnippetPanel();
 
 }
 

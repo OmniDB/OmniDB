@@ -1673,91 +1673,43 @@ def start_edit_data(request):
     }
 
     try:
-
         v_pk = v_database.QueryTablesPrimaryKeys (v_table,False,v_schema)
         if v_database.v_has_schema:
             v_table_name = v_schema + '.' + v_table
         else:
             v_table_name = v_table
         v_columns = v_database.QueryTablesFields(v_table,False,v_schema)
-        v_data1 = v_database.QueryDataLimited('select * from ' + v_table_name + ' t', 0)
-        v_query_column_classes = ''
-        v_first = True
 
+        v_pk_cols = None
+        if v_pk != None and len(v_pk.Rows) > 0:
+            v_pk_cols = v_database.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], v_table, False, v_schema)
+            v_return['v_data']['v_ini_orderby'] = 'ORDER BY '
+            v_first = True
+            for v_pk_col in v_pk_cols.Rows:
+                if not v_first:
+                    v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + ', '
+                v_first = False
+                v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + 't.' + v_pk_col['column_name']
+
+        v_index = 0
         for v_column in v_columns.Rows:
-            if not v_first:
-                v_query_column_classes = v_query_column_classes + 'union '
-            v_first = False
-
-            v_query_column_classes = v_query_column_classes + """
-            select '{0}' as column,
-                   dc.cat_st_class as cat_st_class,
-                   dt.dt_type as dt_type,
-                   dt.dt_st_readformat as dt_st_readformat,
-                   dt.dt_st_compareformat as dt_st_compareformat,
-                   dt.dt_st_writeformat as dt_st_writeformat
-            from data_types dt,
-                 data_categories dc
-            where dt.dbt_st_name = '{1}'
-              and dt.dt_type = '{2}'
-              and dt.cat_st_name = dc.cat_st_name
-            union
-            select '{0}' as column,
-                   'other' as cat_st_class,
-                   '{2}' as dt_type,
-                   '#' as dt_st_readformat,
-                   '#' as dt_st_compareformat,
-                   '''#''' as dt_st_writeformat
-            where '{2}' not in (
-                select dt_type from data_types where dbt_st_name='{1}'
-            )""".format(
-                v_column['column_name'],
-                v_database.v_db_type,
-                v_column['data_type'].lower()
-            )
-
-        v_column_classes = v_session.v_omnidb_database.v_connection.Query(v_query_column_classes)
-
-        for v_column in v_data1.Columns:
+            print(v_column)
             v_col = {}
-            for v_column_class in v_column_classes.Rows:
-                if v_column == v_column_class['column'].replace('"',''):
-                    v_col['v_class'] = v_column_class['cat_st_class']
-                    v_col['v_type'] = v_column_class['dt_type']
-                    v_col['v_column'] = v_column_class['column']
-                    v_col['v_readformat'] = v_column_class['dt_st_readformat']
-                    v_col['v_writeformat'] = v_column_class['dt_st_writeformat']
-                    v_col['v_compareformat'] = v_column_class['dt_st_compareformat']
-                    v_col['v_is_pk'] = False
+            v_col['v_type'] = v_column['data_type']
+            v_col['v_column'] = v_column['column_name']
+            v_col['v_is_pk'] = False
+            # Finding corresponding PK column
+            for v_pk_col in v_pk_cols.Rows:
+                if v_pk_col['column_name'].lower() == v_column['column_name'].lower():
+                    v_col['v_is_pk'] = True
+                    v_pk_info = {}
+                    v_pk_info['v_column'] = v_pk_col['column_name']
+                    v_pk_info['v_index'] = v_index
+                    v_pk_info['v_type'] = v_column['data_type']
+                    v_return['v_data']['v_pk'].append(v_pk_info)
                     break
             v_return['v_data']['v_cols'].append(v_col)
-
-        if v_pk != None:
-            if len(v_pk.Rows) > 0:
-                v_return['v_data']['v_ini_orderby'] = 'order by '
-                v_first = True
-                v_index = 0
-                for k in range(0, len(v_return['v_data']['v_cols'])):
-                    v_pk_cols = v_database.QueryTablesPrimaryKeysColumns(v_pk.Rows[0]['constraint_name'], v_table, False, v_schema)
-                    for v_pk_col in v_pk_cols.Rows:
-                        if v_pk_col['column_name'].lower() == v_return['v_data']['v_cols'][k]['v_column'].lower():
-                            v_return['v_data']['v_cols'][k]['v_is_pk'] = True
-
-                            if not v_first:
-                                v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + ', '
-                            v_first = False
-
-                            v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + 't.' + v_pk_col['column_name']
-
-                            v_pk_info = {}
-                            v_pk_info['v_column'] = v_pk_col['column_name']
-                            v_pk_info['v_index'] = v_index
-                            v_pk_info['v_class'] = v_return['v_data']['v_cols'][k]['v_class']
-                            v_pk_info['v_compareformat'] = v_return['v_data']['v_cols'][k]['v_compareformat']
-
-                            v_return['v_data']['v_pk'].append(v_pk_info)
-                            break
-                    v_index = v_index + 1
+            v_index = v_index + 1
 
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }

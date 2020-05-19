@@ -1449,7 +1449,7 @@ def thread_query_edit_data(self,args,ws_object):
                 if not v_first:
                     v_column_list = v_column_list + ','
                 v_first = False
-                v_column_list = v_column_list + v_column['v_readformat'].replace('#', v_column['v_column'])
+                v_column_list = v_column_list + v_column['v_column']
 
             v_data1 = v_database.QueryTableRecords(v_column_list, v_table_name, v_filter, v_count)
 
@@ -1462,6 +1462,7 @@ def thread_query_edit_data(self,args,ws_object):
                 for j in range(0, len(v_pk_list)):
                     v_pk_col = {}
                     v_pk_col['v_column'] = v_pk_list[j]['v_column']
+                    v_pk_col['v_type'] = v_pk_list[j]['v_type']
                     v_pk_col['v_value'] = v_row[v_pk_list[j]['v_column'].replace('"','')]
                     v_row_pk.append(v_pk_col)
                 v_response['v_data']['v_row_pk'].append(v_row_pk)

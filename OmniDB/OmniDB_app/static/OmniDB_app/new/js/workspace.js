@@ -453,7 +453,7 @@ function removeTab(p_tab) {
 var resizeSnippetPanel = function() {
   if (v_connTabControl.snippet_tag !== undefined) {
     var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-    var v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 50;
+    var v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
     var v_snippet_tag = v_connTabControl.snippet_tag;
     var v_inner_snippet_tag = v_snippet_tag.tabControl.selectedTab.tag;
     if (v_inner_snippet_tag.editor !== undefined) {
@@ -718,6 +718,8 @@ function resizeVerticalEnd(event) {
 			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
 		}
 	}
+
+  resizeSnippetPanel();
 }
 
 function resizeWindow(){

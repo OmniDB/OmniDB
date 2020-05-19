@@ -2,7 +2,7 @@ var toggleSnippetPanel = function(p_id) {
   v_panel_id = p_id + '_panel_snippet';
   v_element = $('#' + v_panel_id);
   var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-  var v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 50;
+  var v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
   var v_snippet_tag = v_connTabControl.snippet_tag;
   v_element.toggleClass('omnidb__panel--slide-in');
   if (v_element.hasClass('omnidb__panel--slide-in')) {

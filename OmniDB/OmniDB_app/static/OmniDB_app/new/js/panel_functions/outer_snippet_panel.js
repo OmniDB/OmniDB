@@ -1,16 +1,16 @@
 var toggleSnippetPanel = function(p_id) {
   v_panel_id = p_id + '_panel_snippet';
-  // console.log('panel',v_panel_id);
   v_element = $('#' + v_panel_id);
   var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-  var v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 50;
-  // console.log(v_target_tag.div_result.getBoundingClientRect());
+  var v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
+  var v_snippet_tag = v_connTabControl.snippet_tag;
   v_element.toggleClass('omnidb__panel--slide-in');
   if (v_element.hasClass('omnidb__panel--slide-in')) {
-    // v_element.css('top',v_target_tag_div_result_top + "px");
+    v_snippet_tag.isVisible = true;
     v_element.css('transform', 'translateY(-' + v_target_tag_div_result_top + 'px)');
   }
   else {
+    v_snippet_tag.isVisible = false;
     v_element.css('transform','translateY(0px)');
   }
 }
@@ -48,6 +48,7 @@ var v_createSnippetPanelFunction = function(p_index) {
               "<div id='" + v_tab.id + "_snippet_tree' style='overflow: auto; flex-grow: 1;'></div>" +
             "</div>" +
           "</div>" +
+          "<div onmousedown='resizeSnippetHorizontal(event)' style='position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 8px;'></div>" +
         "</div>" +//.div_left
         "<div id='" + v_tab.id + "_snippet_div_right' class='omnidb__workspace__div-right col-md-10 pt-0' style='position: relative;'>" +
           // "<div class='row'>" +
@@ -84,10 +85,12 @@ var v_createSnippetPanelFunction = function(p_index) {
     tab_id: v_tab.id,
     tabControl: v_currTabControl,
     tabTitle: 'teste',
-    divTree: document.getElementById(v_tab.id + '_snippet_tree'),
     divLeft: document.getElementById(v_tab.id + '_snippet_div_left'),
+    divPanel: document.getElementById(v_tab.id + '_panel_snippet'),
     divRight: document.getElementById(v_tab.id + '_snippet_div_right'),
+    divTree: document.getElementById(v_tab.id + '_snippet_tree'),
     connTabControl: v_connTabControl,
+    isVisible: false,
     mode: 'snippets'
   };
 

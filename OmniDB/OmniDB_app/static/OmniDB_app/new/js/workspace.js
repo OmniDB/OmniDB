@@ -508,42 +508,23 @@ function resizeTreeVerticalEnd(event) {
 
   var v_tree_tabs_div = v_tag.divTreeTabs;
 
-  v_tree_tabs_div.style.flexBasis = v_tag.divLeft.clientHeight - 14 - event.pageY + 'px';
+  var v_tree_tabs_height = v_tag.divLeft.clientHeight - 14 - event.pageY;
+  v_tree_tabs_div.style.flexBasis = v_tree_tabs_height  + 'px';
 
-	if (v_tag.currTreeTab=='properties') {
+  var v_inner_height = v_tree_tabs_height - 35  + 'px';
+
+  if (v_tag.currTreeTab=='properties')
 		v_result_div = v_tag.divProperties;
-		v_tag.gridProperties.render();
-		v_tag.gridProperties.render();
-	}
-	else if (v_tag.currTreeTab=='ddl') {
+	else if (v_tag.currTreeTab=='ddl')
 		v_result_div = v_tag.divDDL;
-		v_tag.ddlEditor.resize();
-	}
-
-
-	if (v_height_diff < 0) {
-		if (Math.abs(v_height_diff) > parseInt(v_tree_div.clientHeight, 10))
-		 v_height_diff = parseInt(v_tree_div.clientHeight, 10)*-1 + 10;
-	}
-	else {
-		if (Math.abs(v_height_diff) > parseInt(v_result_div.clientHeight, 10))
-		 v_height_diff = parseInt(v_result_div.clientHeight, 10) - 10;
-	}
 
 	v_tree_div.style.height = parseInt(v_tree_div.clientHeight, 10) + v_height_diff + 'px';
-	v_result_div.style.height = parseInt(v_result_div.clientHeight, 10) - v_height_diff + 'px';
+  v_result_div.style.height = v_inner_height;
 
-	if (v_tag.currTreeTab=='properties') {
-		var v_height  = window.innerHeight - $(v_tag.divProperties).offset().top - 21;
-		v_tag.divProperties.style.height = v_height + "px";
+	if (v_tag.currTreeTab=='properties')
 		v_tag.gridProperties.render();
-		v_tag.gridProperties.render();
-	}
-	else if (v_tag.currTreeTab=='ddl') {
-		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 21;
-		v_tag.divDDL.style.height = v_height + "px";
+	else if (v_tag.currTreeTab=='ddl')
 		v_tag.ddlEditor.resize();
-	}
 
 }
 

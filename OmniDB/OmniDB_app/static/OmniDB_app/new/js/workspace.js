@@ -448,6 +448,26 @@ function removeTab(p_tab) {
 }
 
 /// <summary>
+/// Resize snippet panel and transforms position when its visible.
+/// </summary>
+var resizeSnippetPanel = function() {
+  if (v_connTabControl.snippet_tag !== undefined) {
+    var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    var v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 50;
+    var v_snippet_tag = v_connTabControl.snippet_tag;
+    var v_inner_snippet_tag = v_snippet_tag.tabControl.selectedTab.tag;
+    if (v_inner_snippet_tag.editor !== undefined) {
+      if (v_snippet_tag.isVisible) {
+        v_snippet_tag.divPanel.style.transform = 'translateY(-' + v_target_tag_div_result_top + 'px)';
+      }
+      v_snippet_tag.divPanel.style.height = v_target_tag_div_result_top;
+      v_snippet_tag.divTree.style.height = v_target_tag_div_result_top;
+      v_inner_snippet_tag.editorDiv.style.height = v_target_tag_div_result_top - 90 + 'px';
+    }
+  }
+}
+
+/// <summary>
 /// Resize SQL editor and result div.
 /// </summary>
 function resizeTreeVertical(event) {
@@ -859,6 +879,9 @@ function refreshHeights(p_all) {
     for (var i=0; i<v_connTabControl.tag.hooks.windowResize.length; i++)
       v_connTabControl.tag.hooks.windowResize[i]();
   }
+
+  //Snippet panel
+  resizeSnippetPanel();
 
 }
 

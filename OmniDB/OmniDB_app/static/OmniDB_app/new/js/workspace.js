@@ -768,7 +768,7 @@ function refreshHeights(p_all) {
 			}
 		}
 		else if (v_tab_tag.mode=='console') {
-			v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 59 + 'px';
+			v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 50 + 'px';
 			v_tab_tag.editor_console.resize();
 			v_tab_tag.editor_input.resize();
 

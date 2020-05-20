@@ -96,6 +96,32 @@ class PostgreSQL:
         self.v_schema = 'public'
         self.v_connection = Spartacus.Database.PostgreSQL(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_application_name, p_conn_string)
 
+        self.v_data_types = {
+            'bigint': { 'quoted': False },
+            'bigserial': { 'quoted': False },
+            'char': { 'quoted': True },
+            'character': { 'quoted': True },
+            'character varying': { 'quoted': True },
+            'date': { 'quoted': True },
+            'decimal': { 'quoted': False },
+            'double precision': { 'quoted': False },
+            'float': { 'quoted': False },
+            'integer': { 'quoted': False },
+            'money': { 'quoted': False },
+            'numeric': { 'quoted': False },
+            'real': { 'quoted': False },
+            'serial': { 'quoted': False },
+            'smallint': { 'quoted': False },
+            'smallserial': { 'quoted': False },
+            'text': { 'quoted': True },
+            'time with time zone': { 'quoted': True },
+            'time without time zone': { 'quoted': True },
+            'timestamp with time zone': { 'quoted': True },
+            'timestamp without time zone': { 'quoted': True },
+            'varchar': { 'quoted': True }
+        }
+
+
         self.v_has_schema = True
         self.v_has_functions = True
         self.v_has_procedures = False
@@ -1621,7 +1647,7 @@ class PostgreSQL:
                 p_table,
                 p_filter,
                 v_limit
-            ), True
+            ), False
         )
 
     def QueryFunctions(self, p_all_schemas=False, p_schema=None):

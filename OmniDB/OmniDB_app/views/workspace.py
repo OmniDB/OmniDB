@@ -1690,24 +1690,23 @@ def start_edit_data(request):
                     v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + ', '
                 v_first = False
                 v_return['v_data']['v_ini_orderby'] = v_return['v_data']['v_ini_orderby'] + 't.' + v_pk_col['column_name']
-
         v_index = 0
         for v_column in v_columns.Rows:
-            print(v_column)
             v_col = {}
             v_col['v_type'] = v_column['data_type']
             v_col['v_column'] = v_column['column_name']
             v_col['v_is_pk'] = False
             # Finding corresponding PK column
-            for v_pk_col in v_pk_cols.Rows:
-                if v_pk_col['column_name'].lower() == v_column['column_name'].lower():
-                    v_col['v_is_pk'] = True
-                    v_pk_info = {}
-                    v_pk_info['v_column'] = v_pk_col['column_name']
-                    v_pk_info['v_index'] = v_index
-                    v_pk_info['v_type'] = v_column['data_type']
-                    v_return['v_data']['v_pk'].append(v_pk_info)
-                    break
+            if v_pk_cols != None:
+                for v_pk_col in v_pk_cols.Rows:
+                    if v_pk_col['column_name'].lower() == v_column['column_name'].lower():
+                        v_col['v_is_pk'] = True
+                        v_pk_info = {}
+                        v_pk_info['v_column'] = v_pk_col['column_name']
+                        v_pk_info['v_index'] = v_index
+                        v_pk_info['v_type'] = v_column['data_type']
+                        v_return['v_data']['v_pk'].append(v_pk_info)
+                        break
             v_return['v_data']['v_cols'].append(v_col)
             v_index = v_index + 1
 

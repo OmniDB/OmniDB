@@ -568,8 +568,8 @@ function saveEditDataReturnRender(p_message,p_context) {
 	var request_time = p_context.duration;
 	v_query_info.innerHTML = "Save time: " + request_time/1000 + " seconds";
 
-	var v_div_commands_log = document.getElementById('div_commands_log_list');
-	v_div_commands_log.innerHTML = '';
+	//var v_div_commands_log = document.getElementById('div_commands_log_list');
+	//v_div_commands_log.innerHTML = '';
 	var v_commands_log = '';
 
 	var v_has_error = false;
@@ -658,8 +658,9 @@ v_currTabTag.bt_cancel.style.display = '';
 	}
 
 	if (v_has_error) {
-		v_div_commands_log.innerHTML = v_commands_log;
-		$('#div_commands_log').addClass('isActive');
+		//v_div_commands_log.innerHTML = v_commands_log;
+		//$('#div_commands_log').addClass('isActive');
+		showAlert(v_commands_log)
 
 	}
 

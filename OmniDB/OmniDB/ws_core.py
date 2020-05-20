@@ -1469,7 +1469,10 @@ def thread_query_edit_data(self,args,ws_object):
 
                 v_row_data.append('')
                 for v_col in v_data1.Columns:
-                    v_row_data.append(str(v_row[v_col]))
+                    if v_row[v_col] == None:
+                        v_row_data.append('[null]')
+                    else:
+                        v_row_data.append(str(v_row[v_col]))
                 v_response['v_data']['v_data'].append(v_row_data)
 
         except Exception as exc:
@@ -1531,15 +1534,20 @@ def thread_save_edit_data(self,args,ws_object):
                         v_command = v_command + ' and '
                     v_first = False
 
-                    for j in range(0, len(v_pk_info)):
-                        if v_pk['v_column'] == v_pk_info[j]['v_column']:
-                            v_pk_index = j
-                            break
+                    # Getting details about the data type
+                    try:
+                        v_type_details = v_database.v_data_types[v_pk['v_type']]
+                        print(v_type_details)
+                    # Type not found
+                    except:
+                        v_type_details = {
+                            'quoted': True
+                        }
 
-                    if v_pk_info[v_pk_index]['v_class'] == 'numeric':
-                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', str(v_pk['v_column'])) + ' = ' + v_pk_info[v_pk_index]['v_compareformat'].replace('#', str(v_pk['v_value']))
+                    if v_type_details['quoted']:
+                        v_command = "{0} {1} = '{2}'".format(v_command,v_pk['v_column'],v_pk['v_value'])
                     else:
-                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', str(v_pk['v_column'])) + ' = ' + v_pk_info[v_pk_index]['v_compareformat'].replace('#', "'" + str(v_pk['v_value']) + "'")
+                        v_command = "{0} {1} = {2}".format(v_command,v_pk['v_column'],v_pk['v_value'])
 
                 v_row_info_return = {}
                 v_row_info_return['mode'] = -1
@@ -1580,13 +1588,21 @@ def thread_save_edit_data(self,args,ws_object):
                     if v_data_rows[i][j] != None:
                         v_value = v_data_rows[i][j]
 
-                    if v_columns[j-1]['v_class'] == 'numeric' or v_columns[j-1]['v_class'] == 'other':
-                        if v_value == '':
-                            v_command = v_command + 'null'
-                        else:
-                            v_command = v_command + v_columns[j-1]['v_writeformat'].replace('#', v_value.replace("'", "''"))
+                    # Getting details about the data type
+                    try:
+                        v_type_details = v_database.v_data_types[v_columns[j-1]['v_type']]
+                    # Type not found
+                    except:
+                        v_type_details = {
+                            'quoted': True
+                        }
+
+                    if v_value == '[null]':
+                        v_command = v_command + 'null'
+                    elif v_type_details['quoted']:
+                        v_command = "{0} '{1}'".format(v_command,v_value)
                     else:
-                        v_command = v_command + v_columns[j-1]['v_writeformat'].replace('#', v_value.replace("'", "''"))
+                        v_command = "{0} {1}".format(v_command,v_value)
 
                 v_command = v_command + ' )'
 
@@ -1622,13 +1638,21 @@ def thread_save_edit_data(self,args,ws_object):
 
                     v_command = v_command + v_columns[v_col_index]['v_column'] + ' = '
 
-                    if v_columns[v_col_index]['v_class'] == 'numeric' or v_columns[v_col_index]['v_class'] == 'other':
-                        if v_value == '':
-                            v_command = v_command + 'null'
-                        else:
-                            v_command = v_command + v_columns[v_col_index]['v_writeformat'].replace('#', v_value)
+                    # Getting details about the data type
+                    try:
+                        v_type_details = v_database.v_data_types[v_columns[v_col_index]['v_type']]
+                    # Type not found
+                    except:
+                        v_type_details = {
+                            'quoted': True
+                        }
+
+                    if v_value == '[null]':
+                        v_command = v_command + 'null'
+                    elif v_type_details['quoted']:
+                        v_command = "{0} '{1}'".format(v_command,v_value)
                     else:
-                        v_command = v_command + v_columns[v_col_index]['v_writeformat'].replace('#', v_value.replace("'", "''"))
+                        v_command = "{0} {1}".format(v_command,v_value)
 
                 v_command = v_command + ' where '
                 v_first = True
@@ -1639,20 +1663,27 @@ def thread_save_edit_data(self,args,ws_object):
                         v_command = v_command + ' and '
                     v_first = False
 
-                    for j in range(0, len(v_pk_info)):
-                        if v_pk['v_column'] == v_pk_info[j]['v_column']:
-                            v_pk_index = j
-                            break
+                    # Getting details about the data type
+                    try:
+                        v_type_details = v_database.v_data_types[v_pk['v_type']]
+                        print(v_type_details)
+                    # Type not found
+                    except:
+                        v_type_details = {
+                            'quoted': True
+                        }
 
-                    if v_pk_info[v_pk_index]['v_class'] == 'numeric':
-                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', v_pk['v_column'] + ' = ' + str(v_pk['v_value']))
+                    if v_type_details['quoted']:
+                        v_command = "{0} {1} = '{2}'".format(v_command,v_pk['v_column'],v_pk['v_value'])
                     else:
-                        v_command = v_command + v_pk_info[v_pk_index]['v_compareformat'].replace('#', v_pk['v_column'] + " = '" + str(v_pk['v_value']) + "'")
+                        v_command = "{0} {1} = {2}".format(v_command,v_pk['v_column'],v_pk['v_value'])
 
                 v_row_info_return = {}
                 v_row_info_return['mode'] = 1
                 v_row_info_return['index'] = v_row_info['index']
                 v_row_info_return['command'] = v_command
+
+                print(v_command)
 
                 try:
                     v_database.v_connection.Execute(v_command)

@@ -71,15 +71,16 @@ function showConnectionList(p_open_modal, p_change_group) {
           v_card_div.className = 'card omnidb__connections__card';
           v_col_div.appendChild(v_card_div);
 
-          var v_cover_div = document.createElement('div');
-          v_cover_div.className = 'connection-card-cover';
-          v_cover_div.style.display = 'none';
+          var v_cover_div = document.createElement('label');
+          v_cover_div.className = 'connection-card-cover m-0';
+					v_cover_div.setAttribute('for','connection_item_input_' + i);
           v_card_div.appendChild(v_cover_div);
 
           var v_checkbox = document.createElement('input');
           v_checkbox.className = 'connection-card-checkbox';
+					v_checkbox.id = 'for','connection_item_input_' + i;
           v_checkbox.type="checkbox";
-          v_cover_div.appendChild(v_checkbox);
+          v_card_div.appendChild(v_checkbox);
 
           v_cover_div.onclick = (function(checkbox) {
               return function() {

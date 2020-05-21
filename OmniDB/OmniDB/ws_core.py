@@ -1453,7 +1453,7 @@ def thread_query_edit_data(self,args,ws_object):
 
             v_data1 = v_database.QueryTableRecords(v_column_list, v_table_name, v_filter, v_count)
 
-            v_response['v_data']['v_query_info'] = 'Number of records: ' + str(len(v_data1.Rows))
+            v_response['v_data']['v_query_info'] = str(len(v_data1.Rows))
 
             for v_row in v_data1.Rows:
                 v_row_data = []

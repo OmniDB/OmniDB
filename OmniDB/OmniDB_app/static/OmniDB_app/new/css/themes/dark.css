@@ -229,6 +229,17 @@ a:hover {
   background-color: #1d1f21;
 }
 
+/* TOOLTIPS */
+.omnidb--theme-dark .bs-tooltip-auto[x-placement^=bottom] .arrow::before,
+.omnidb--theme-dark .bs-tooltip-bottom .arrow::before {
+  border-bottom-color: #5371BD;
+}
+.omnidb--theme-dark .tooltip-inner {
+  color: #FFF;
+  background-color: #2F3136;
+  border: 1px solid #5371BD;
+}
+
 /* CONNECTIONS */
 .omnidb__connections__btn--select svg {
   fill: #1d1f21;

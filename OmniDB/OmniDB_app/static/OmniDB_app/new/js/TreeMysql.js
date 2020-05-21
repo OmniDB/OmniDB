@@ -169,13 +169,7 @@ function getTreeMysql(p_div) {
                     }
                 }
             }, {
-                text: 'Create Table (GUI)',
-                icon: 'fas cm-all fa-plus-square',
-                action: function(node) {
-                    startAlterTable(true, 'new', null, node.parent.text);
-                }
-            }, {
-                text: 'Create Table (SQL)',
+                text: 'Create Table',
                 icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Table', node.tree.tag

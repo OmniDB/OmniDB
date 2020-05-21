@@ -239,6 +239,26 @@ function checkBeforeChangeDatabase(p_cancel_function, p_ok_function) {
 		p_ok_function();
 }
 
+function adjustQueryTabObjects(p_all_tabs) {
+	var v_dbms = v_connTabControl.selectedTab.tag.selectedDBMS;
+
+	var v_target_div = null;
+	if (!p_all_tabs)
+		v_target_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.elementDiv;
+	else
+		v_target_div = v_connTabControl.selectedTab.elementDiv;
+
+	var v_objects = $(v_target_div).find(".dbms_object").each(function() {
+	  $( this ).css('display','none');
+	});
+
+	var v_objects = $(v_target_div).find("." + v_dbms + "_object").each(function() {
+		if (!$( this ).hasClass('dbms_object_hidden'))
+	  	$( this ).css('display','inline-block');
+	});
+
+}
+
 /// <summary>
 /// Draws graph.
 /// </summary>

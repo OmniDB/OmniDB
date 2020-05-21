@@ -1306,13 +1306,7 @@ function getTreePostgresql(p_div) {
                     }
                 }
             }, {
-                text: 'Create Table (GUI)',
-                icon: 'fas cm-all fa-plus-square',
-                action: function(node) {
-                    startAlterTable(true, 'new', null, node.tag.schema);
-                }
-            }, {
-                text: 'Create Table (SQL)',
+                text: 'Create Table',
                 icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     tabSQLTemplate('Create Table', node.tree.tag
@@ -1475,16 +1469,7 @@ function getTreePostgresql(p_div) {
                                     node.text));
                         }
                     }, {
-                        text: 'Alter Table (GUI)',
-                        icon: 'fas cm-all fa-table',
-                        action: function(node) {
-                            startAlterTable(true,
-                                'alter', node.text,
-                                node.tag.schema
-                            );
-                        }
-                    }, {
-                        text: 'Alter Table (SQL)',
+                        text: 'Alter Table',
                         icon: 'fas cm-all fa-edit',
                         action: function(node) {
                             tabSQLTemplate('Alter Table', node.tree.tag

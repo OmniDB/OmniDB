@@ -267,7 +267,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     refreshHeights();
   },10);
 
-  //adjustQueryTabObjects(false);
+  adjustQueryTabObjects(false);
   v_editor.focus();
 
 };

@@ -192,6 +192,6 @@ var v_createConsoleTabFunction = function() {
     refreshHeights();
   },10);
 
-  //adjustQueryTabObjects(false);
+  adjustQueryTabObjects(false);
 
 };

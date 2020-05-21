@@ -265,7 +265,9 @@ function manageGroupSave() {
 
   // Going over the cards and adjusting cover div and checkbox
   for (var i=0; i<v_connections_data.card_list.length; i++) {
+
     var v_conn_obj = v_connections_data.card_list[i];
+		console.log(v_conn_obj.checkbox.checked)
     v_conn_obj.cover_div.style.display = 'none';
     v_conn_obj.checkbox.checked = false;
   }

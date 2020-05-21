@@ -299,7 +299,7 @@ function queryEditDataReturnRender(p_message,p_context) {
 
 		window.scrollTo(0,0);
 
-		v_query_info.innerHTML = v_data.v_query_info + "<br/>Response time: " + request_time/1000 + " seconds";
+		v_query_info.innerHTML = "<span style='font-weight: 900; color: #4a81d4;'>" + v_data.v_query_info +  "</span><span> rows</span><span> in </span><span style='font-weight: 900; color: #4a81d4;'>" + request_time/1000 + "</span><span> seconds</span>";
 
 		var columnProperties = [];
 
@@ -311,10 +311,18 @@ function queryEditDataReturnRender(p_message,p_context) {
 		for (var i = 0; i < v_currTabTag.editDataObject.columns.length; i++) {
 				var col = new Object();
 
+				var v_tooltip_attr =
+				' data-toggle=tooltip ' +
+				'data-placement=bottom ' +
+				'data-html=true ' +
+				'title="<div><b>Type</b> ' + v_currTabTag.editDataObject.columns[i].v_type + '</div>" ';
+
+				var v_tooltip_html = '<i class="ml-1 text-primary fas fa-info-circle"' + v_tooltip_attr + '"></i>';
+
 				if (!v_currTabTag.editDataObject.columns[i].v_is_pk)
-					col.title =  '<b>' + v_currTabTag.editDataObject.columns[i].v_column + '</b> (' + v_currTabTag.editDataObject.columns[i].v_type + ')';
+					col.title =  '<span>' + v_currTabTag.editDataObject.columns[i].v_column + '</span>' + v_tooltip_html;
 				else
-					col.title = '<i class="fas fa-key action-key"></i> <b>' + v_currTabTag.editDataObject.columns[i].v_column + '</b> (' + v_currTabTag.editDataObject.columns[i].v_type + ')';
+					col.title = '<i class="fas fa-key action-key text-secondary"></i> <span>' + v_currTabTag.editDataObject.columns[i].v_column + '</span>' + v_tooltip_html;
 
 				col.renderer = 'text';
 			columnProperties.push(col);
@@ -446,12 +454,13 @@ function queryEditDataReturnRender(p_message,p_context) {
 							cellProperties.renderer = yellowRenderer;
 						}
 						else {
-							if (row % 2 == 0) {
-								cellProperties.renderer = blueRenderer;
-							}
-							else {
-								cellProperties.renderer = whiteRenderer;
-							}
+							cellProperties.renderer = whiteRenderer;
+							// if (row % 2 == 0) {
+							// 	cellProperties.renderer = blueRenderer;
+							// }
+							// else {
+							// 	cellProperties.renderer = whiteRenderer;
+							// }
 						}
 
 				}
@@ -473,6 +482,8 @@ function queryEditDataReturnRender(p_message,p_context) {
 	p_context.tab_tag.tab_check_span.style.display = 'none';
 	p_context.tab_tag.tab_stub_span.style.display = '';
 	p_context.tab_tag.bt_cancel.style.display = 'none';
+
+	$('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 
 }
 

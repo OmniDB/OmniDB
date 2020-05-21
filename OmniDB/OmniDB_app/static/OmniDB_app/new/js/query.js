@@ -372,7 +372,9 @@ function querySQLReturnRender(p_message,p_context) {
 							v_div_result.innerHTML = '<div class="query_info">Done</div>';
 					}
 					else {
-						v_query_info.innerHTML = "Number of records: " + v_data.v_data.length + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+						v_query_info.innerHTML =
+						"<span style='font-weight: 900; color: #4a81d4;'>" + v_data.v_data.length +  "</span><span> rows</span><span> in </span><span style='font-weight: 900; color: #4a81d4;'>" + p_message.v_data.v_duration + "</span>" +
+						"<br/><span>Start time</span>: <span style='font-weight: 900; color: #4a81d4;'>" + p_context.start_datetime + "</span>";
 
 						var columnProperties = [];
 
@@ -429,7 +431,9 @@ function querySQLReturnRender(p_message,p_context) {
 				//Adding fetched data
 				else if (p_context.mode==1 || p_context.mode==2) {
 					v_new_data = p_context.tab_tag.ht.getSourceData();
-					v_query_info.innerHTML = "Number of records: " + (v_new_data.length+v_data.v_data.length) + "<br/><b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
+					v_query_info.innerHTML =
+					"<span style='font-weight: 900; color: #4a81d4;'>" + (v_new_data.length+v_data.v_data.length) +  "</span><span> rows</span><span> in </span><span style='font-weight: 900; color: #4a81d4;'>" + p_message.v_data.v_duration + "</span>" +
+					"<br/><span>Start time</span>: <span style='font-weight: 900; color: #4a81d4;'>" + p_context.start_datetime + "</span>";
 					for (var i = 0; i < v_data.v_data.length; i ++) {
 	            v_new_data.push(v_data.v_data[i]);
 	        }

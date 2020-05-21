@@ -787,6 +787,7 @@
   align-items: center;
   display: flex;
   padding: 5px;
+  padding-left: 2.5rem;
 }
 .omnidb__connections__card-list--rows h5,
 .omnidb__connections__card-list--rows h6,
@@ -930,9 +931,10 @@ body {
 
 .connection-card-cover {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 2rem;
+  height: 2rem;
   cursor: pointer;
+  z-index: 1;
 }
 
 /* Monitoring Dashboard */

@@ -13,6 +13,7 @@ var v_createEditDataTabFunction = function(p_table) {
     p_selectFunction: function() {
       if(this.tag != null) {
         refreshHeights();
+        $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
       }
       if(this.tag != null && this.tag.editor != null) {
           this.tag.editor.focus();
@@ -73,11 +74,11 @@ var v_createEditDataTabFunction = function(p_table) {
   "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dashed #acc4e8;'></div><div style='height:5px;'></div></div>" +
   "<div class='row mb-1'>" +
     "<div class='tab_actions omnidb__tab-actions col-12'>" +
-      "<button id='bt_start_" + v_tab.id + "' class='btn btn-sm btn-primary mr-2' title='Run' onclick='queryEditData();'><i class='fas fa-play'></i></button>" +
+      "<button id='bt_start_" + v_tab.id + "' class='btn btn-sm omnidb__theme__btn--primary omnidb__tab-actions__btn' title='Run' onclick='queryEditData();'><i class='fas fa-play'></i></button>" +
       "<select id='sel_filtered_data_" + v_tab.id + "' class='sel_export_file_type form-control w-auto mr-2' onchange='queryEditData()'><option selected='selected' value='10' >Query 10 rows</option><option value='100'>Query 100 rows</option><option value='1000'>Query 1000 rows</option></select>" +
-      "<button id='bt_cancel_" + v_tab.id + "' class='btn btn-sm btn-danger' title='Cancel' style='display: none;' onclick='cancelEditData();'>Cancel</button>" +
+      "<button id='bt_cancel_" + v_tab.id + "' class='btn btn-sm btn-danger omnidb__tab-actions__btn' title='Cancel' style='display: none;' onclick='cancelEditData();'>Cancel</button>" +
       "<div id='div_edit_data_query_info_" + v_tab.id + "' class='query_info' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
-      "<button id='bt_saveEditData_" + v_tab.id + "' onclick='saveEditData()' style='visibility: hidden; margin-left: 5px;'>Save Changes</button>" +
+      "<button id='bt_saveEditData_" + v_tab.id + "' onclick='saveEditData()' class='btn btn-sm btn-success omnidb__tab-actions__btn' style='visibility: hidden;'>Save Changes</button>" +
     "</div>" +
   "</div>" +
   "<div class='p-2 omnidb__theme-border--primary'>" +

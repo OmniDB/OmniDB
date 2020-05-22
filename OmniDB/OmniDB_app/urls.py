@@ -31,6 +31,7 @@ base_urlpatterns = [
     url(r'^test_connection_new/$', views.connections.test_connection_new, name='test_connection_new'),
     url(r'^get_groups_new/$', views.connections.get_groups_new, name='get_groups_new'),
     url(r'^new_group_new/$', views.connections.new_group_new, name='new_group_new'),
+    url(r'^save_group_connections_new/$', views.connections.save_group_connections_new, name='save_group_connections_new'),
 
     #USERS
     url(r'^get_users/$', views.users.get_users, name='get_users'),

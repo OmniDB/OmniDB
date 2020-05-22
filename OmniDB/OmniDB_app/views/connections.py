@@ -873,6 +873,41 @@ def delete_connection_new(request):
 
     return JsonResponse(v_return)
 
+def save_group_connections_new(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #User not authenticated
+    if not request.user.is_authenticated:
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    json_object = json.loads(request.POST.get('data', None))
+    p_group = json_object['p_group']
+    p_conn_data_list = json_object['p_conn_data_list']
+
+    group_obj = Group.objects.get(id=p_group)
+
+    for v_conn_data in p_conn_data_list:
+        try:
+            if not v_conn_data['selected']:
+                conn = GroupConnection.objects.get(group=group_obj,connection=Connection.objects.get(id=v_conn_data['id']))
+                conn.delete()
+            else:
+                conn = GroupConnection(
+                    group=group_obj,
+                    connection=Connection.objects.get(id=v_conn_data['id'])
+                )
+                conn.save()
+
+        except Exception as exc:
+            None
+
+    return JsonResponse(v_return)
+
 def test_connection(request):
 
     v_return = {}

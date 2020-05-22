@@ -18,6 +18,10 @@ $(function () {
   v_connections_data.technologies = null;
   v_connections_data.card_list = [];
   v_connections_data.current_id = -1;
+
+	$('#modal_connections').on('hide.bs.modal', function (e) {
+    getDatabaseList();
+  });
 });
 
 function startConnectionManagement() {
@@ -74,13 +78,14 @@ function showConnectionList(p_open_modal, p_change_group) {
           var v_cover_div = document.createElement('label');
           v_cover_div.className = 'connection-card-cover m-0';
 					v_cover_div.setAttribute('for','connection_item_input_' + i);
+					v_cover_div.style.display = 'none';
           v_card_div.appendChild(v_cover_div);
 
           var v_checkbox = document.createElement('input');
           v_checkbox.className = 'connection-card-checkbox';
 					v_checkbox.id = 'for','connection_item_input_' + i;
           v_checkbox.type="checkbox";
-          v_card_div.appendChild(v_checkbox);
+          v_cover_div.appendChild(v_checkbox);
 
           v_cover_div.onclick = (function(checkbox) {
               return function() {
@@ -264,16 +269,33 @@ function manageGroupSave() {
   document.getElementById('group_actions_1').style.display = '';
   document.getElementById('group_actions_2').style.display = 'none';
 
+	v_conn_data = []
+
   // Going over the cards and adjusting cover div and checkbox
   for (var i=0; i<v_connections_data.card_list.length; i++) {
-
     var v_conn_obj = v_connections_data.card_list[i];
-		console.log(v_conn_obj.checkbox.checked)
+		v_conn_data.push({
+			'id': v_conn_obj.data.id,
+			'selected': v_conn_obj.checkbox.checked
+		});
     v_conn_obj.cover_div.style.display = 'none';
     v_conn_obj.checkbox.checked = false;
   }
+	console.log(v_conn_data)
 
-  groupChange(document.getElementById('group_selector').value);
+	execAjax('/save_group_connections_new/',
+			JSON.stringify({
+				"p_group": document.getElementById('group_selector').value,
+				"p_conn_data_list": v_conn_data
+		}),
+			function(p_return) {
+				//groupChange(document.getElementById('group_selector').value);
+				getGroups();
+			},
+			null,
+			'box');
+
+
 
 }
 

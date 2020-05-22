@@ -78,23 +78,46 @@ function showConnectionList(p_open_modal, p_change_group) {
           var v_cover_div = document.createElement('label');
           v_cover_div.className = 'connection-card-cover m-0';
 					v_cover_div.setAttribute('for','connection_item_input_' + i);
-					v_cover_div.style.display = 'none';
-          v_card_div.appendChild(v_cover_div);
+          // v_card_div.appendChild(v_cover_div);
+					//
+          // var v_checkbox = document.createElement('input');
+          // v_checkbox.className = 'connection-card-checkbox';
+					// v_checkbox.id = 'for','connection_item_input_' + i;
+          // v_checkbox.type="checkbox";
+          // v_card_div.appendChild(v_checkbox);
 
-          var v_checkbox = document.createElement('input');
-          v_checkbox.className = 'connection-card-checkbox';
-					v_checkbox.id = 'for','connection_item_input_' + i;
-          v_checkbox.type="checkbox";
-          v_cover_div.appendChild(v_checkbox);
+					// var v_check_svg = document.createElement('svg');
+					// v_check_svg.className = 'connection-card-svg';
+					// v_check_svg.setAttribute('width', '40');
+					// v_check_svg.setAttribute('height', '40');
+					// v_check_svg.setAttribute('viewBox', '0 0 40 40');
+					// v_check_svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+					// v_check_svg.innerHTML =
+					// '<path d="M 5 10 L 15 35 L 35 5" stroke-width="1" stroke="#e2e2e2" fill="transparent"></path>' +
+					// '<circle r="20" cx="20" cy="20" stroke-width="1" stroke="#e2e2e2" fill="transparent"></circle>';
+					// v_card_div.appendChild(v_check_svg);
 
-          v_cover_div.onclick = (function(checkbox) {
-              return function() {
-                if(checkbox.checked == false)
-                  checkbox.checked = true;
-                else
-                  checkbox.checked = false;
-              };
-          }(v_checkbox));
+					var v_check_svg =
+					'<svg class="connection-card-svg" width="42" height="42" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">' +
+						'<path d="M 6 18 L 15 32 L 34 13" stroke-width="4" stroke="#4a81d4" fill="transparent"></path>' +
+						'<circle r="19" cx="21" cy="21" stroke-width="2" stroke="#b2b2b2" fill="transparent"></circle>' +
+					'</svg>';
+
+					v_cover_div.innerHTML = v_check_svg;
+
+					var v_checkbox =
+					'<input id="connection_item_input_' + i + '" type="checkbox" class="connection-card-checkbox">';
+
+
+
+          // v_cover_div.onclick = (function(checkbox) {
+          //     return function() {
+          //       if(checkbox.checked == false)
+          //         checkbox.checked = true;
+          //       else
+          //         checkbox.checked = false;
+          //     };
+          // }(v_checkbox));
 
 
 
@@ -121,7 +144,10 @@ function showConnectionList(p_open_modal, p_change_group) {
             v_card_body_div.innerHTML +=
             '<h5 class="card-title"><i class="icon_tree node-' + v_conn_obj.technology + '"></i>' + v_conn_obj.alias + '</h5>' +
             v_tunnel +
-            v_details;
+            v_details +
+						v_checkbox;
+
+						v_card_body_div.appendChild(v_cover_div);
           }
 
 					var v_button_select = document.createElement('button');
@@ -239,6 +265,14 @@ function manageGroup() {
   document.getElementById('group_actions_1').style.display = 'none';
   document.getElementById('group_actions_2').style.display = '';
 
+	document.getElementById('button_new_connection').setAttribute('disabled',true);
+	document.getElementById('group_selector').setAttribute('disabled',true);
+	document.getElementById('button_new_group').setAttribute('disabled',true);
+	document.getElementById('button_group_actions').setAttribute('disabled',true);
+
+
+	$('.omnidb__connections__card-list').addClass('omnidb__connections__card-list--connection-management');
+
 
   var v_current_group_id = document.getElementById('group_selector').value;
   var v_group_obj = null;
@@ -254,7 +288,7 @@ function manageGroup() {
   // Going over the cards and adjusting cover div and checkbox
   for (var i=0; i<v_connections_data.card_list.length; i++) {
     var v_conn_obj = v_connections_data.card_list[i];
-    v_conn_obj.cover_div.style.display = '';
+    // v_conn_obj.cover_div.style.display = '';
     $(v_conn_obj.card_div).fadeIn(400);
 
     // Check the div if it belongs to the currently selected group
@@ -269,6 +303,13 @@ function manageGroupSave() {
   document.getElementById('group_actions_1').style.display = '';
   document.getElementById('group_actions_2').style.display = 'none';
 
+	document.getElementById('button_new_connection').removeAttribute('disabled');
+	document.getElementById('group_selector').removeAttribute('disabled');
+	document.getElementById('button_new_group').removeAttribute('disabled');
+	document.getElementById('button_group_actions').removeAttribute('disabled');
+
+	$('.omnidb__connections__card-list').removeClass('omnidb__connections__card-list--connection-management');
+
 	v_conn_data = []
 
   // Going over the cards and adjusting cover div and checkbox
@@ -278,7 +319,7 @@ function manageGroupSave() {
 			'id': v_conn_obj.data.id,
 			'selected': v_conn_obj.checkbox.checked
 		});
-    v_conn_obj.cover_div.style.display = 'none';
+    // v_conn_obj.cover_div.style.display = 'none';
     v_conn_obj.checkbox.checked = false;
   }
 	console.log(v_conn_data)

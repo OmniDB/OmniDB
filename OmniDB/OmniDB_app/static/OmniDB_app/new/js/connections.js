@@ -80,10 +80,10 @@ function showConnectionList(p_open_modal, p_change_group) {
 					v_cover_div.setAttribute('for','connection_item_input_' + i);
           // v_card_div.appendChild(v_cover_div);
 					//
-          // var v_checkbox = document.createElement('input');
-          // v_checkbox.className = 'connection-card-checkbox';
-					// v_checkbox.id = 'for','connection_item_input_' + i;
-          // v_checkbox.type="checkbox";
+          var v_checkbox = document.createElement('input');
+          v_checkbox.className = 'connection-card-checkbox';
+					v_checkbox.id = 'connection_item_input_' + i;
+          v_checkbox.type="checkbox";
           // v_card_div.appendChild(v_checkbox);
 
 					// var v_check_svg = document.createElement('svg');
@@ -105,8 +105,8 @@ function showConnectionList(p_open_modal, p_change_group) {
 
 					v_cover_div.innerHTML = v_check_svg;
 
-					var v_checkbox =
-					'<input id="connection_item_input_' + i + '" type="checkbox" class="connection-card-checkbox">';
+					// var v_checkbox =
+					// '<input id="connection_item_input_' + i + '" type="checkbox" class="connection-card-checkbox">';
 
 
 
@@ -144,9 +144,8 @@ function showConnectionList(p_open_modal, p_change_group) {
             v_card_body_div.innerHTML +=
             '<h5 class="card-title"><i class="icon_tree node-' + v_conn_obj.technology + '"></i>' + v_conn_obj.alias + '</h5>' +
             v_tunnel +
-            v_details +
-						v_checkbox;
-
+            v_details;
+						v_card_body_div.appendChild(v_checkbox);
 						v_card_body_div.appendChild(v_cover_div);
           }
 

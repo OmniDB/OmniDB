@@ -7,15 +7,15 @@
     <link rel="shortcut icon" type="image/x-icon" href="{{url_folder}}/static/OmniDB_app/images/favicon.ico"/>
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/lib/bootstrap/bootstrap.min.css?v3.0.0b40">
-    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/handsontable.full.css?v3.0.0b40"/>
-    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/css/omnidb.css?v3.0.0b40">
-    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/lib/fa/css/all.css?v3.0.0b40">
-    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/css/Aimara.css?v3.0.0b40"/>
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/lib/bootstrap/bootstrap.min.css?v3.0.0b41">
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/handsontable.full.css?v3.0.0b41"/>
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/css/omnidb.css?v3.0.0b41">
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/lib/fa/css/all.css?v3.0.0b41">
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/css/Aimara.css?v3.0.0b41"/>
     <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/node-icon.css?v2"/>
-    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/interface-icon.css?v3.0.0b40"/>
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/interface-icon.css?v3.0.0b41"/>
     <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/jquery.datetimepicker.min.css?v2"/>
-    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/json_html/styles/template-2.css?v3.0.0b40"/>
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/json_html/styles/template-2.css?v3.0.0b41"/>
     <link id="ss_theme" rel="stylesheet" type="text/css">
     <title>OmniDB</title>
   </head>
@@ -112,7 +112,7 @@
           <div class="modal-header">
             <h5 class="modal-title">
               Connections
-              <button type="button" class="btn omnidb__theme__btn--primary" onclick="newConnection();">New connection</button>
+              <button id="button_new_connection" type="button" class="btn omnidb__theme__btn--primary" onclick="newConnection();">New connection</button>
             </h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
@@ -125,8 +125,8 @@
                 <select id="group_selector" class="form-control mx-1" onchange="groupChange(this.value);" style='display: inline-block; width: 200px;'>
                   <option value=-1 selected>Select Group</option>
                 </select>
-                <button id="button_new_group" type="button" class="btn omnidb__theme__btn--primary" onclick="newGroup();">New group</button>
-                <button id="button_group_actions" type="button" class="btn omnidb__theme__btn--secondary dropdown-toggle" style='display: none;' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button id="button_new_group" type="button" class="btn ml-2 omnidb__theme__btn--primary" onclick="newGroup();">New group</button>
+                <button id="button_group_actions" type="button" class="btn ml-2 omnidb__theme__btn--secondary dropdown-toggle" style='display: none;' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Group Actions
                 </button>
                 <div class="dropdown-menu dropdown-menu-left">
@@ -136,7 +136,7 @@
                 </div>
               </span>
               <span id="group_actions_2" style='display: none;'>
-                <button id="button_new_group" type="button" class="btn btn-success" onclick="manageGroupSave();">Save changes</button>
+                <button id="button_new_group" type="button" class="btn btn-success ml-2" onclick="manageGroupSave();">Save changes</button>
               </span>
               <div class="btn-group ml-auto" role="group" aria-label="Basic example">
                 <button type="button" class="btn omnidb__theme__btn--secondary active" title="Display connections as a grid with cards" onclick="toggleConnectionsLayout('cards')"><i class="fas fa-th-large"></i></button>
@@ -732,7 +732,6 @@
       </div>
     </div>
 
-
     <div id="div_autocomplete">
       <div id='div_autocomplete_loading' class='div_loading_local' style='z-index: 1000;'></div>
       <div id="div_test_length"></div>
@@ -843,62 +842,62 @@
       <input type="text" id="div_autocomplete_input2" onkeyup="autocomplete_keyup(event,this)" onkeydown="autocomplete_keydown(event,this)"/>
     </div>
 
-    <script src="{{url_folder}}/static/OmniDB_app/new/lib/jquery/jquery.min.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/ajax_control.js?v3.0.0b40"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/lib/jquery/jquery.min.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/ajax_control.js?v3.0.0b41"></script>
     <script type="text/javascript">
     startLoading();
     </script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/lib/popper/popper.min.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/lib/bootstrap/bootstrap.min.js?v3.0.0b40"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/ace.js?v3.0.0b40"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/mode-sql.js?v3.0.0b40"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/ext-language_tools.js?v3.0.0b40"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/handsontable.full.js?v3.0.0b40"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/lib/popper/popper.min.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/lib/bootstrap/bootstrap.min.js?v3.0.0b41"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/ace.js?v3.0.0b41"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/mode-sql.js?v3.0.0b41"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/ace/ext-language_tools.js?v3.0.0b41"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/handsontable.full.js?v3.0.0b41"></script>
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape.min.js"></script>
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/Chart.bundle.js?v3.0.0b40"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/chartjs-plugin-datalabels.js?v3.0.0b40"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/Chart.bundle.js?v3.0.0b41"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/chartjs-plugin-datalabels.js?v3.0.0b41"></script>
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/chartjs-plugin-annotation.min.js?v2"></script>
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/jquery.datetimepicker.full.min.js?v2"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/lib/Aimara.js?v3.0.0b40"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/tree_snippets.js?v3.0.0b40"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMonitor.js?v3.0.0b40"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreePostgresql.js?v3.0.0b40"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeOracle.js?v3.0.0b40"></script>
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMariadb.js?v3.0.0b40"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/lib/Aimara.js?v3.0.0b41"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/tree_snippets.js?v3.0.0b41"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMonitor.js?v3.0.0b41"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreePostgresql.js?v3.0.0b41"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeOracle.js?v3.0.0b41"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMariadb.js?v3.0.0b41"></script>
 
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Renderers.js?v2"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/websocket_control.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/header_actions.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/query_client.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/query.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/custom_menu.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/notification_control.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/panel_functions/outer_snippet_panel.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/passwords.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/properties.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tabs.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/outer_connection_tab.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_edit_data_tab.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_graph_tab.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_snippet_tab.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_query_tab.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_console_tab.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_monitoring_dashboard_tab.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_monitoring_tab.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/website_tab.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/tree_context_functions/edit_data.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/create_tab_functions.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/monitoring.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/workspace.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/plugin_hook.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/users.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/shortcuts.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/connections.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/command_history.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/console.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/lib/json_html/components.js?v3.0.0b40"></script>
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/autocomplete.js?v3.0.0b40"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/websocket_control.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/header_actions.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/query_client.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/query.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/custom_menu.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/notification_control.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/panel_functions/outer_snippet_panel.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/passwords.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/properties.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tabs.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/outer_connection_tab.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_edit_data_tab.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_graph_tab.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_snippet_tab.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_query_tab.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_console_tab.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_monitoring_dashboard_tab.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/inner_monitoring_tab.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tab_functions/website_tab.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/tree_context_functions/edit_data.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/create_tab_functions.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/monitoring.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/workspace.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/plugin_hook.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/users.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/shortcuts.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/connections.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/command_history.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/console.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/lib/json_html/components.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/new/js/autocomplete.js?v3.0.0b41"></script>
     <script type="text/javascript">
   	//Global variables
     var v_editor_theme = '{{ editor_theme }}';

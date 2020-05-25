@@ -806,6 +806,189 @@
   display: none;
 }
 
+/* CONNECTION MANAGEMENT LIST */
+.connection-card-checkbox {
+  display: none;
+  left: 5px;
+  opacity: 0;
+  position: absolute;
+  top: 5px;
+}
+.connection-card-cover {
+  cursor: pointer;
+  display: none;
+  height: 100%;
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  z-index: 2;
+}
+.connection-card-svg {
+  display: none;
+  height: 40px;
+  left: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  z-index: 1;
+}
+.omnidb__connections__card-list--rows .connection-card-svg {
+  left: 5px;
+  width: 20px;
+}
+.omnidb__connections__card-list--connection-management .connection-card-checkbox,
+.omnidb__connections__card-list--connection-management .connection-card-cover {
+  display: block;
+}
+/* .omnidb__connections__card-list--connection-management .connection-card-svg {
+  -o-animation-name: svgFadeIn;
+  -moz-animation-name: svgFadeIn;
+  -webkit-animation-name: svgFadeIn;
+  animation-name: svgFadeIn;
+  -o-animation-delay: .01s;
+  -moz-animation-delay: .01s;
+  -webkit-animation-delay: .01s;
+  animation-delay: .01s;
+  -o-animation-duration: .35s;
+  -moz-animation-duration: .35s;
+  -webkit-animation-duration: .35s;
+  animation-duration: .35s;
+  -o-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -o-animation-timing-function: linear;
+  -moz-animation-timing-function: linear;
+  -webkit-animation-timing-function: linear;
+  animation-timing-function: linear;
+} */
+
+.omnidb__connections__card-list--connection-management .connection-card-svg {
+  opacity:0;
+}
+.omnidb__connections__card-list--connection-management .connection-card-svg circle,
+.omnidb__connections__card-list--connection-management .connection-card-svg path {
+  stroke-dasharray: 125;
+  stroke-dashoffset: 125;
+}
+.connection-card-checkbox:checked+label.connection-card-cover .connection-card-svg {
+  display: block;
+  -o-animation-name:svgFadeIn;
+  -moz-animation-name:svgFadeIn;
+  -webkit-animation-name:svgFadeIn;
+  animation-name:svgFadeIn;
+  -o-animation-delay:.01s;
+  -moz-animation-delay:.01s;
+  -webkit-animation-delay:.01s;
+  animation-delay:.01s;
+  -o-animation-duration:.35s;
+  -moz-animation-duration:.35s;
+  -webkit-animation-duration:.35s;
+  animation-duration:.35s;
+  -o-animation-fill-mode:forwards;
+  -moz-animation-fill-mode:forwards;
+  -webkit-animation-fill-mode:forwards;
+  animation-fill-mode:forwards;
+  -o-animation-timing-function:linear;
+  -moz-animation-timing-function:linear;
+  -webkit-animation-timing-function:linear;
+  animation-timing-function:linear;
+}
+.connection-card-checkbox:checked+label.connection-card-cover .connection-card-svg circle,
+.connection-card-checkbox:checked+label.connection-card-cover .connection-card-svg path {
+  -o-animation-name:svgDrawStrokes;
+  -moz-animation-name:svgDrawStrokes;
+  -webkit-animation-name:svgDrawStrokes;
+  animation-name:svgDrawStrokes;
+  -o-animation-fill-mode:forwards;
+  -moz-animation-fill-mode:forwards;
+  -webkit-animation-fill-mode:forwards;
+  animation-fill-mode:forwards;
+  -o-animation-timing-function:linear;
+  -moz-animation-timing-function:linear;
+  -webkit-animation-timing-function:linear;
+  animation-timing-function:linear;
+}
+.connection-card-checkbox:checked+label.connection-card-cover .connection-card-svg circle {
+  -o-animation-duration:.4s;
+  -moz-animation-duration:.4s;
+  -webkit-animation-duration:.4s;
+  animation-duration:.4s;
+  -o-animation-delay:.1s;
+  -moz-animation-delay:.1s;
+  -webkit-animation-delay:.1s;
+  animation-delay:.1s;
+}
+.connection-card-checkbox:checked+label.connection-card-cover .connection-card-svg path {
+  -o-animation-duration:.5s;
+  -moz-animation-duration:.5s;
+  -webkit-animation-duration:.5s;
+  animation-duration:.5s;
+  -o-animation-delay:.5s;
+  -moz-animation-delay:.5s;
+  -webkit-animation-delay:.5s;
+  animation-delay:.5s;
+}
+@-o-keyframes svgFadeIn{
+  to{opacity:1;}
+}
+@-moz-keyframes svgFadeIn{
+  to{opacity:1;}
+}
+@-webkit-keyframes svgFadeIn{
+  to{opacity:1;}
+}
+@-keyframes svgFadeIn{
+  to{opacity:1;}
+}
+@keyframes svgFadeIn{
+  to{opacity:1;}
+}
+@-o-keyframes svgDrawStrokes{
+  to{stroke-dashoffset:0;}
+}
+@-moz-keyframes svgDrawStrokes{
+  to{stroke-dashoffset:0;}
+}
+@-webkit-keyframes svgDrawStrokes{
+  to{stroke-dashoffset:0;}
+}
+@-keyframes svgDrawStrokes{
+  to{stroke-dashoffset:0;}
+}
+@keyframes svgDrawStrokes{
+  to{stroke-dashoffset:0;}
+}
+@-o-keyframes svgFadeStrokes{
+  to{stroke:transparent;}
+}
+@-moz-keyframes svgFadeStrokes{
+  to{stroke:transparent;}
+}
+@-webkit-keyframes svgFadeStrokes{
+  to{stroke:transparent;}
+}
+@-keyframes svgFadeStrokes{
+  to{stroke:transparent;}
+}
+@keyframes svgFadeStrokes{
+  to{stroke:transparent;}
+}
+
+
+
+
+
+
+
+
+
+.omnidb__connections__card-list--connection-management button {
+  display: none !important;
+}
+
 /* POPOVER */
 .popover {
   font-size: 1rem;
@@ -919,22 +1102,6 @@ body {
 
 .ht_invisible .ht_master:not(.innerBorderTop) thead tr:last-child th, .ht_invisible .ht_master:not(.innerBorderTop) ~ .handsontable thead tr:last-child th, .ht_invisible .ht_master:not(.innerBorderTop) thead tr.lastChild th, .ht_invisible .ht_master:not(.innerBorderTop) ~ .handsontable thead tr.lastChild th {
   border-bottom-width: 1px;
-}
-
-/* Connection modal */
-
-.connection-card-checkbox {
-  position: absolute;
-  left: 5px;
-  top: 5px;
-}
-
-.connection-card-cover {
-  position: absolute;
-  width: 2rem;
-  height: 2rem;
-  cursor: pointer;
-  z-index: 1;
 }
 
 /* Monitoring Dashboard */

@@ -82,17 +82,21 @@ def new_user(request):
         v_return['v_error'] = True
         return JsonResponse(v_return)
 
+    json_object = json.loads(request.POST.get('data', None))
+    v_data = json_object['p_data']
+
     try:
-        new_user = User.objects.create_user(username='new_user',
-                                 password='',
-                                 email='',
-                                 last_login=timezone.now(),
-                                 is_superuser=False,
-                                 first_name='',
-                                 last_name='',
-                                 is_staff=False,
-                                 is_active=True,
-                                 date_joined=timezone.now())
+        for user in v_data:
+            new_user = User.objects.create_user(username=user[0],
+                                     password=user[1],
+                                     email='',
+                                     last_login=timezone.now(),
+                                     is_superuser=False,
+                                     first_name='',
+                                     last_name='',
+                                     is_staff=False,
+                                     is_active=True,
+                                     date_joined=timezone.now())
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True

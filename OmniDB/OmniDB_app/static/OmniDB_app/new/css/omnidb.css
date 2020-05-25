@@ -977,21 +977,71 @@
   to{stroke:transparent;}
 }
 
-
-
-
-
-
-
-
-
 .omnidb__connections__card-list--connection-management button {
   display: none !important;
+}
+
+/* USER MANAGEMENT LIST */
+.omnidb__user-list__item {
+  padding: 2rem 1rem 1rem 1rem;
+  position: relative;
+}
+.omnidb__user-list__item--changed {
+  border-color: lightgreen;
+}
+.omnidb__user-list__close {
+  position: absolute;
+  right: 0px;
+  top: 0px;
 }
 
 /* POPOVER */
 .popover {
   font-size: 1rem;
+}
+
+/* SWITCH */
+.omnidb__switch {
+  position: relative;
+}
+label.omnidb__switch--label {
+  align-items: center;
+  background-color: #e2e2e2;
+  border-radius: calc(1rem + 2px);
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 0px;
+  padding: 2px;
+  position: relative;
+  width: 40px;
+}
+label.omnidb__switch--label span {
+  align-items: center;
+  color: #888;
+  background-color: #FFF;
+  border-radius: 50%;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+  display: flex;
+  flex-basis: 24px;
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 12px;
+  justify-content: center;
+  height: 24px;
+  margin-left: 0px;
+  transition: 0.35s;
+  width: 24px;
+}
+.omnidb__switch--input {
+  cursor: pointer;
+  position: absolute;
+  transform: translate(10px,10px);
+}
+.omnidb__switch--input:checked ~ .omnidb__switch--label {
+  background-color: #809dde;
+}
+.omnidb__switch--input:checked ~ .omnidb__switch--label span {
+  margin-left: 15px;
 }
 
 /* TOOLTIPS */

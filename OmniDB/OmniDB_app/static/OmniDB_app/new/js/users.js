@@ -18,6 +18,9 @@ function newUserConfirm() {
 	execAjax('/new_user/',
 			JSON.stringify({'p_data':window.newUsersObject.newUsers}),
 			function(p_return) {
+
+				v_usersObject.v_cellChanges = [];
+				document.getElementById('div_save_users').style.visibility = 'hidden';
 				listUsers(true);
 			},
 			null,
@@ -29,12 +32,16 @@ function newUserConfirm() {
 /// Displays question to create new user.
 /// </summary>
 function newUser() {
-
-	if (window.newUsersObject.newUsers.length > 0)
-		window.newUsersObject.newUsers.push(["","",0,"<i title=\"Remove User\" class='fas fa-times action-grid action-close' onclick='removeNewUser(\"" + window.newUsersObject.newUsers.length + "\")'></i>"]);
-	else
-		window.newUsersObject.newUsers = [["","",0,"<i title=\"Remove User\" class='fas fa-times action-grid action-close' onclick='removeNewUser(\"" + 0 + "\")'></i>"]];
-	listUsers(true);
+	var v_index = 0;
+	if (window.newUsersObject.newUsers.length > 0) {
+		v_index = window.newUsersObject.newUsers.length
+		window.newUsersObject.newUsers.push(["","",0]);
+	}
+	else {
+		v_index = 0
+		window.newUsersObject.newUsers = [["","",0]];
+	}
+	listUsers(true,{focus_last:true});
 }
 
 /// <summary>
@@ -88,31 +95,33 @@ function removeUser(p_id) {
 }
 
 /// <summary>
+/// Undo adding specific new user.
+/// </summary>
+/// <param name="p_index">Connection index in the connection list.</param>
+function removeNewUserConfirm(p_index) {
+
+	if (window.newUsersObject.newUsers.length == 1)
+		window.newUsersObject.newUsers = [];
+	else if (p_index == 0)
+		window.newUsersObject.newUsers.shift();
+	else if (p_index + 1 == window.newUsersObject.newUsers.length)
+		window.newUsersObject.newUsers.pop();
+	else
+		window.newUsersObject.newUsers.splice(p_index,1);
+	listUsers(true);
+
+}
+
+/// <summary>
 /// Displays question to remove specific new temporary user.
 /// </summary>
 /// <param name="p_id">User ID.</param>
-function removeNewUser(p_id) {
+function removeNewUser(p_index) {
 
-	showConfirm('Are you sure you want to remove this user?',
+	showConfirm('Are you sure you want to undo adding this user?',
 	            function() {
 
-								removeUserConfirm(p_id);
-
-					// if (v_usersObject.v_cellChanges.length>0)
-					// showConfirm2('There are changes on the users list, would you like to save them?',
-					//             function() {
-					//
-					//             	saveUsers();
-					//             	removeUserConfirm(p_id);
-					//
-					//             },
-					//             function() {
-					//
-					//             	removeUserConfirm(p_id);
-					//
-					//             });
-					// else
-					// 	removeUserConfirm(p_id);
+								removeNewUserConfirm(p_index);
 
 	});
 
@@ -123,7 +132,7 @@ function removeNewUser(p_id) {
 /// </summary>
 function saveUsers() {
 
-	if (v_usersObject.v_cellChanges.length==0)
+	if (v_usersObject.v_cellChanges.length==0 && window.newUsersObject.newUsers.length==0)
 			return;
 
 	var v_unique_rows_changed = [];
@@ -147,9 +156,7 @@ function saveUsers() {
 			input,
 			function() {
 
-				v_usersObject.v_cellChanges = [];
-				document.getElementById('div_save_users').style.visibility = 'hidden';
-				listUsers(true);
+				newUserConfirm();
 
 			},
 			null,
@@ -203,12 +210,12 @@ function changeUser(event, p_row_index, p_col_index) {
 }
 
 function changeNewUser(event, p_row_index, p_col_index) {
-	var v_user_is_superuser = (document.getElementById("user_item_superuser_" + p_row_index).checked) ? 1 : 0;
+	var v_user_is_superuser = (document.getElementById("new_user_item_superuser_" + p_row_index).checked) ? 1 : 0;
 	var p_data_template = [
-		document.getElementById("user_item_username_" + p_row_index).value,
-		document.getElementById("user_item_password_" + p_row_index).value,
+		document.getElementById("new_user_item_username_" + p_row_index).value,
+		document.getElementById("new_user_item_password_" + p_row_index).value,
 		v_user_is_superuser,
-		"<i title=\"Remove User\" class='fas fa-times action-grid action-close' onclick='removeNewUser(\"" + v_user_id + "\")'></i>"
+		"<i title=\"Remove User\" class='fas fa-times action-grid action-close' onclick='removeNewUser(\"" + p_row_index + "\")'></i>"
 	];
 
 	window.newUsersObject.newUsers[p_row_index] = p_data_template;
@@ -216,7 +223,7 @@ function changeNewUser(event, p_row_index, p_col_index) {
 
 }
 
-function getUsers() {
+function getUsers(p_options = false) {
 	if (!window.newUsersObject) {
 		window.newUsersObject = new Object();
 	}
@@ -373,6 +380,13 @@ function getUsers() {
 				// 									});
 
 					container.appendChild(v_user_list_element);
+					if (p_options) {
+						if (p_options.focus_last) {
+							setTimeout(function(){
+								$('#omnidb_user_select option:last-child').trigger('change');
+							},300);
+						}
+					}
 					$('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
           endLoading();
 				},
@@ -384,7 +398,7 @@ function getUsers() {
 /// <summary>
 /// Retrieving and displaying users.
 /// </summary>
-function listUsers(p_refresh) {
+function listUsers(p_refresh,p_options = false) {
 
   startLoading();
 
@@ -403,7 +417,7 @@ function listUsers(p_refresh) {
   if (p_refresh==null)
     $('#modal_users').modal();
   else
-    getUsers();
+    getUsers(p_options);
 
 
 }
@@ -469,37 +483,34 @@ function renderSelectedUser(event) {
 			"<div class='d-flex align-items-center'>" +
 				"<div class='input-group mb-2'>" +
 					"<div class='input-group-prepend'>" +
-						"<label for='user_item_username_" + i  + "' type='button' class='input-group-text'>" +
+						"<label for='new_user_item_username_" + i  + "' type='button' class='input-group-text'>" +
 							"<i class='fas fa-user'></i>" +
 						"</label>" +
 					"</div>" +
-					"<input autofill='false' autocomplete='disabled' name='notChromeUsername' id='user_item_username_" + i  + "' type='text' class='form-control my-0' placeholder='User name' value='" + v_user_item[0] + "' onchange='changeNewUser(event," + i + ",0)'>" +
+					"<input autofill='false' autocomplete='off' name='off' id='new_user_item_username_" + i  + "' type='text' class='form-control my-0' placeholder='User name' value='" + v_user_item[0] + "' onchange='changeNewUser(event," + i + ",0)'>" +
 				"</div>" +
 				"<span class='ml-2'>Superuser?</span>" +
 				"<div class='ml-2 mb-2'>" +
 					// "<input id='user_item_superuser_" + i  + "' type='checkbox' " + v_superuser_checked + ">" +
 					// "<label for='user_item_superuser_" + i  + "' class='ml-2'>superuser</label>" +
 					"<div class='omnidb__switch mr-2' data-toggle='tooltip' data-placement='bottom' data-html='true' title='<h5>Toggle superuser status. To enable again, simply turn the switch on.</h5>'>" +
-						"<input type='checkbox' id='user_item_superuser_" + i  + "' class='omnidb__switch--input' " + v_superuser_checked + " onchange='changeNewUser(event," + i + ",2)'>" +
-						"<label for='user_item_superuser_" + i  + "' class='omnidb__switch--label'><span><i class='fas fa-star'></i></span></label>" +
+						"<input type='checkbox' id='new_user_item_superuser_" + i  + "' class='omnidb__switch--input' " + v_superuser_checked + " onchange='changeNewUser(event," + i + ",2)'>" +
+						"<label for='new_user_item_superuser_" + i  + "' class='omnidb__switch--label'><span><i class='fas fa-star'></i></span></label>" +
 					"</div>" +
 				"</div>" +
 			"</div>" +
 			"<div class='input-group w-100 mb-2'>" +
 			"<div class='input-group-prepend'>" +
-			"<label for='user_item_password_" + i  + "' type='button' class='input-group-text'>" +
+			"<label for='new_user_item_password_" + i  + "' type='button' class='input-group-text'>" +
 			"<i class='fas fa-key'></i>" +
 			"</label>" +
 			"</div>" +
-			"<input autofill='false' autocomplete='disabled' name='new-password' id='user_item_password_" + i  + "' type='password' class='form-control my-0' placeholder='New password' value='" + v_user_item[1] + "' onchange='changeNewUser(event," + i + ",1)'>" +
+			"<input autofill='false' autocomplete='off' name='off' id='new_user_item_password_" + i  + "' type='password' class='form-control my-0' placeholder='New password' value='" + v_user_item[1] + "' onchange='changeNewUser(event," + i + ",1)'>" +
 			"</div>" +
 			"<span class='mr-2 text-danger omnidb__user-list__close'>" +
-			v_user_item[3] +
+				"<i title=\"Remove User\" class='fas fa-times action-grid action-close' onclick='removeNewUser(\"" + i + "\")'></i>" +
 			"</span>" +
 			"</div>" +
-			"</div>" +
-			"<div class='col-12 mb-4 text-center'>" +
-				"<button id='div_save_new_users' class='btn btn-success ml-1' onclick='newUserConfirm()'>Save</button>" +
 			"</div>";
 		}
 	}

@@ -6,8 +6,8 @@
   background-color: #F4F4F4;
 }
 
-.omnidb__theme-bg--menu-primary {
-  background-color: #839EC7;
+.omnidb--theme-light .omnidb__theme-bg--menu-primary {
+  background-color: #4a81d4;
 }
 .omnidb__theme-border--primary {
   border: 1px solid #94A5E3;

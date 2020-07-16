@@ -1090,12 +1090,12 @@ def get_command_list(request):
         v_command_data_list.append(v_command.duration)
 
         if v_command.status=='success':
-            v_command_data_list.append("<i title='Success' class='fas fa-circle action-grid action-status-ok'></i>")
+            v_command_data_list.append("<div class='text-center'><i title='Success' class='fas fa-check text-success action-grid action-status-ok'></i></div>")
         else:
-            v_command_data_list.append("<i title='Error' class='fas fa-circle action-grid action-status-error'></i>")
+            v_command_data_list.append("<div class='text-center'><i title='Error' class='fas fa-exclamation-circle text-danger action-grid action-status-error'></i></div>")
 
+        # v_command_data_list.append("<div class='text-center'><button type='button' class='btn btn-sm btn-secondary my-1'><i title='Open command in the current tab' class='fas fa-bolt action-grid action-bolt' onclick='commandHistoryOpenCmd({0})'></i></button></div>".format(index))
         v_command_data_list.append(v_command.snippet)
-        v_command_data_list.append("<i title='Open command in the current tab' class='fas fa-bolt action-grid action-bolt' onclick='commandHistoryOpenCmd({0})'></i>".format(index))
 
         v_command_list.append(v_command_data_list)
 
@@ -1281,18 +1281,18 @@ def test_ws(request):
 
 def get_console_history(request):
 
+    #User not authenticated
+    if not request.user.is_authenticated:
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
+    # v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']

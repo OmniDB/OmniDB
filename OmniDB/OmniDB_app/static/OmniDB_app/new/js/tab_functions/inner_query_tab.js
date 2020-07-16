@@ -44,7 +44,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
   var command_history_modal =
   "<div class='modal fade' id='modal_command_history_" + v_tab.id + "' tabindex='-1' role='dialog' aria-hidden='true'>" +
-    "<div class='modal-dialog modal-xl modal-dialog-scrollable' role='document'>" +
+    "<div class='modal-dialog modal-xl' role='document'>" +
       "<div class='modal-content'>" +
         "<div class='modal-header'>" +
           "<h5 class='modal-title'>" +
@@ -57,7 +57,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
         "<div class='modal-body'>" +
           "<div id='command_history_div_" + v_tab.id + "' class='query_command_history'>" +
             "<div id='command_history_header_" + v_tab.id + "' class='query_command_history_header'></div>" +
-            "<div id='command_history_grid_" + v_tab.id + "' class='query_command_history_grid'></div>" +
+            "<div id='command_history_grid_" + v_tab.id + "' class='query_command_history_grid' style='width: 100%; height: calc(100vh - 16.5rem); overflow: hidden;'></div>" +
           "</div>" +
         "</div>" +
       "</div>" +
@@ -76,7 +76,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
       "<button id='bt_explain_" + v_tab.id + "' class='dbms_object postgresql_object btn btn-sm omnidb__theme__btn--secondary omnidb__tab-actions__btn' onclick='getExplain(0)' title='Explain' style='display: none;'><i class='fas fa-search fa-light'></i></button>" +
       "<button id='bt_analyze_" + v_tab.id + "' class='dbms_object postgresql_object btn btn-sm omnidb__theme__btn--secondary omnidb__tab-actions__btn' onclick='getExplain(1)' title='Explain Analyze' style='display: none;'><i class='fas fa-search-plus fa-light'></i></button>" +
       "<div class='omnidb__form-check form-check form-check-inline'><input id='check_autocommit_" + v_tab.id + "' class='form-check-input' type='checkbox' checked='checked'><label class='form-check-label dbms_object postgresql_object custom_checkbox query_info' for='check_autocommit_" + v_tab.id + "'>Autocommit</label></div>" +
-      "<div class='omnidb__tab-status'><i id='query_tab_status_" + v_tab.id + "' title='Not connected' class='fas fa-dot-circle tab-status tab-status-closed dbms_object postgresql_object omnidb__tab-status__icon'></i><span id='query_tab_status_text_" + v_tab.id + "' title='Not connected' class='tab-status-text query_info dbms_object postgresql_object'>Not connected</span></div>" +
+      "<div class='omnidb__tab-status'><i id='query_tab_status_" + v_tab.id + "' title='Not connected' class='fas fa-dot-circle tab-status tab-status-closed dbms_object postgresql_object omnidb__tab-status__icon'></i><span id='query_tab_status_text_" + v_tab.id + "' title='Not connected' class='tab-status-text query_info dbms_object postgresql_object ml-1'>Not connected</span></div>" +
       "<button id='bt_fetch_more_" + v_tab.id + "' class='btn btn-sm omnidb__theme__btn--secondary omnidb__tab-actions__btn' title='Run' style='display: none; ' onclick='querySQL(1);'>Fetch more</button>" +
       "<button id='bt_fetch_all_" + v_tab.id + "' class='btn btn-sm omnidb__theme__btn--secondary omnidb__tab-actions__btn' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(2);'>Fetch all</button>" +
       "<button id='bt_commit_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object btn btn-sm omnidb__theme__btn--primary omnidb__tab-actions__btn' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(3);'>Commit</button>" +
@@ -269,5 +269,14 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
   adjustQueryTabObjects(false);
   v_editor.focus();
+
+  // Sets a render refresh for the grid on the commandHistory.modal after the modal is fully loaded
+  $(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.modal).on('shown.bs.modal', function () {
+    setTimeout(function(){
+      v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.grid.render();
+      v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.grid.selectCell(0,0);
+      $("#cl_input_contains_" + v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id).click();
+    },500);
+  });
 
 };

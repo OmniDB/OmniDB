@@ -511,6 +511,13 @@
 }
 
 
+/* NAV */
+.omnidb__tab-menu .nav-tabs .nav-link {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+
 /* RESIZE GRID */
 /* grid z-index is (modal_z-index - 1) */
 .omnidb__workspace-resize-grid {

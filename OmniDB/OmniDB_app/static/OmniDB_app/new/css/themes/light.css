@@ -275,6 +275,20 @@ a:hover {
   color: #284AC6;
 }
 
+/* HANDSONTABLE */
+.omnidb--theme-light .handsontable th {
+  background-color: #FFF;
+  color: #9a9a9a;
+  font-weight: bold;
+}
+.omnidb--theme-light .handsontable .cellEven {
+  background-color: #efefef;
+}
+.omnidb--theme-light .handsontable th,
+.omnidb--theme-light .handsontable td {
+  border-color: #c4d9ef !important;
+}
+
 /* Tree Component */
 /* .div_left ul.tree {
   background-color: #373b41 !important;
@@ -319,9 +333,9 @@ span.node_selected span {
 	background-color: rgb(242, 242, 242) !important;
 }
 
-.cellEven {
+/*.cellEven {
 	background-color: rgb(234, 237, 249) !important;
-}
+}*/
 
 #horizontal-resize-line {
   border-left-color: black;

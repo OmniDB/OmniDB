@@ -62,11 +62,11 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
   var v_tab_menu = document.createElement('div');
   v_tab_menu.className = 'omnidb__tab-menu';
 
-  if (p_hierarchy != undefined) {
-    let css_tab_menu_variations = [
-      'omnidb__tab-menu--',
-      'omnidb__theme-bg--menu-'
-    ];
+  var css_tab_menu_variations = [
+    'omnidb__tab-menu--',
+    'omnidb__theme-bg--menu-'
+  ];
+  if (p_hierarchy !== undefined) {
     for (let i = 0; i < css_tab_menu_variations.length; i++) {
       v_tab_menu.classList.add(css_tab_menu_variations[i] + p_hierarchy);
     }
@@ -85,54 +85,26 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
   }
 
 	var v_tabControl = {
+    // Params
 		id: p_div,
-		tabColor: null,
 		selectedTab: null,
 		selectedDiv: null,
 		selectedA: null,
+    tabColor: null,
+    tabCounter : 0,
 		tabListContentDiv: v_div_tab_content_list,
-		tabList : [],
-		tabListDiv : v_div_tab_list,
-		tabCounter : 0,
+		tabList: [],
+		tabListDiv: v_div_tab_list,
+    tabMenu: v_tab_menu,
+    tabCssVariation: css_tab_menu_variations[0],
 		tag: new Object(),
-    selectTabIndex : function(p_index) {
-
-			if (this.tabList[p_index].selectable) {
-
-				if (this.selectedTab!=null)
-					this.selectedTab.selected = false;
-
-				this.tabList[p_index].selected = true;
-
-				this.selectedTab = this.tabList[p_index];
-
-        //$(this.tabList[p_index].elementA).tab('show');
-
-				if (this.selectedDiv!=null) {
-          this.selectedDiv.classList.remove('active');
-          this.selectedA.classList.remove('active');
-				}
-
-				this.tabList[p_index].elementA.classList.add('active');
-				this.tabList[p_index].elementDiv.classList.add('active');
-
-				this.selectedA = this.tabList[p_index].elementA;
-				this.selectedDiv = this.tabList[p_index].elementDiv;
-
-				if(this.tabList[p_index].selectFunction != null) {
-					this.tabList[p_index].selectFunction();
-				}
-			}
-
-		},
+    isToggleable: (p_hierarchy === 'primary'),
+    // Actions
     disableTabIndex : function(p_index) {
       this.tabList[p_index].elementA.classList.add('disabled');
 		},
     enableTabIndex : function(p_index) {
-      console.log(this.tabList[p_index].elementA.classList)
       this.tabList[p_index].elementA.classList.remove('disabled');
-      console.log(this.tabList[p_index].elementA.classList)
-      console.log(this.tabList[p_index].elementA)
 		},
     disableSelectableTabIndex : function(p_index) {
       this.tabList[p_index].selectable = false;
@@ -168,6 +140,36 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
 					}
 				}
 			}
+		},
+    selectTabIndex : function(p_index) {
+
+			if (this.tabList[p_index].selectable) {
+
+				if (this.selectedTab!=null)
+					this.selectedTab.selected = false;
+
+				this.tabList[p_index].selected = true;
+
+				this.selectedTab = this.tabList[p_index];
+
+        //$(this.tabList[p_index].elementA).tab('show');
+
+				if (this.selectedDiv!=null) {
+          this.selectedDiv.classList.remove('active');
+          this.selectedA.classList.remove('active');
+				}
+
+				this.tabList[p_index].elementA.classList.add('active');
+				this.tabList[p_index].elementDiv.classList.add('active');
+
+				this.selectedA = this.tabList[p_index].elementA;
+				this.selectedDiv = this.tabList[p_index].elementDiv;
+
+				if(this.tabList[p_index].selectFunction != null) {
+					this.tabList[p_index].selectFunction();
+				}
+			}
+
 		},
     disableTab : function(p_tab) {
       p_tab.elementA.classList.add('disabled');
@@ -268,6 +270,19 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
         }
       }
     },
+    hideTabMenu : function() {
+      this.tabMenu.classList.remove(this.tabCssVariation + 'shown');
+    },
+    showTabMenu : function() {
+      this.tabMenu.classList.add(this.tabCssVariation + 'shown');
+    },
+    toggleTabMenu : function(e) {
+      if (this.tabMenu === e.target)
+        this.showTabMenu();
+      else
+        this.hideTabMenu();
+    },
+    // Template
 		createTab : function({
       p_clickFunction = null,
       p_close = true,
@@ -307,6 +322,10 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
         dragEndFunction: function(e,p_tab,p_index) { v_control.dragEndFunction(e,p_tab) },
 				isDraggable: p_isDraggable
 			};
+
+      // Sets tabMenu toggle action based on page interaction
+      if (this.isToggleable && v_index === 1)
+        document.body.addEventListener("click", v_control.toggleTabMenu.bind(v_control));
 
 			var v_a = document.createElement('a');
       v_a.setAttribute('id','a_' + p_div + '_tab' + v_index);

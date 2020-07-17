@@ -134,14 +134,19 @@
   }
   .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
     display: inline-block;
-    width: 0px;
     overflow: hidden;
     transition: 0.35s;
     white-space: nowrap;
+    width: 0px;
   }
-
-  .omnidb__tab-menu.omnidb__tab-menu--primary:hover .omnidb__tab-menu__link-name {
+  .omnidb__tab-menu--primary.omnidb__tab-menu--shown .omnidb__tab-menu__link-name {
     width: 160px;
+  }
+  .omnidb__tab-menu--primary:hover {
+    cursor: sw-resize;
+  }
+  .omnidb__tab-menu--primary .omnidb__tab-menu__link:hover {
+    cursor: pointer;
   }
 
   /* TAB MENU -- SECONDARY */
@@ -278,14 +283,19 @@
   }
   .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
     display: inline-block;
-    width: 0px;
     overflow: hidden;
     transition: 0.35s;
     white-space: nowrap;
+    width: 0px;
   }
-
-  .omnidb__tab-menu.omnidb__tab-menu--primary:hover .omnidb__tab-menu__link-name {
+  .omnidb__tab-menu--primary.omnidb__tab-menu--shown .omnidb__tab-menu__link-name {
     width: 160px;
+  }
+  .omnidb__tab-menu--primary:hover {
+    cursor: sw-resize;
+  }
+  .omnidb__tab-menu--primary .omnidb__tab-menu__link:hover {
+    cursor: pointer;
   }
 
   /* TAB MENU -- SECONDARY */
@@ -423,14 +433,19 @@
   }
   .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
     display: inline-block;
-    width: 0px;
     overflow: hidden;
     transition: 0.35s;
     white-space: nowrap;
+    width: 0px;
   }
-
-  .omnidb__tab-menu.omnidb__tab-menu--primary:hover .omnidb__tab-menu__link-name {
+  .omnidb__tab-menu--primary.omnidb__tab-menu--shown .omnidb__tab-menu__link-name {
     width: 160px;
+  }
+  .omnidb__tab-menu--primary:hover {
+    cursor: sw-resize;
+  }
+  .omnidb__tab-menu--primary .omnidb__tab-menu__link:hover {
+    cursor: pointer;
   }
 
   /* TAB MENU -- SECONDARY */

@@ -228,8 +228,12 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
 		},
 		renameTab : function(p_tab,p_name) {
 
-			var v_span = p_tab.elementA.childNodes[0];
-			v_span.innerHTML = p_name;
+      var v_tab_title_span = $(p_tab.elementA).find('.omnidb__tab-menu__link-name');
+      if (v_tab_title_span)
+        v_tab_title_span.innerHTML = p_name;
+
+			// var v_span = p_tab.elementA.childNodes[0];
+			// v_span.innerHTML = p_name;
 
 			p_tab.text = p_name;
 
@@ -363,9 +367,12 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
           v_tab.closeFunction(e,v_tab);
         }
 			};
+
+      var v_icon = (p_icon !== false) ? '<span class="omnidb__menu__btn omnidb__tab-menu__link-icon">' + p_icon + '</span>' : '';
+      var v_name = (p_name !== undefined && p_name !== null && p_name !== '') ? p_name : '{unnamed}';
 			v_a.innerHTML = '<span class="omnidb__tab-menu__link-content">' +
-                        ((p_icon !== false) ? '<span class="omnidb__menu__btn omnidb__tab-menu__link-icon">' + p_icon + '</span>' : '') +
-                        '<span class="omnidb__tab-menu__link-name">' + p_name + '<span>' +
+                        v_icon +
+                        '<span class="omnidb__tab-menu__link-name">' + v_name + '<span>' +
                       '<span>';
       if (p_close) {
   			v_a.appendChild(v_close);

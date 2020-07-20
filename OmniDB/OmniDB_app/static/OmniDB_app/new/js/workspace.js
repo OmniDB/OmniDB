@@ -1024,7 +1024,7 @@ function showMenuNewTabOuter(e) {
 						text: v_conn.v_details1 + ' - ' + v_conn.v_details2,
 						icon: 'fas cm-all node-' + v_conn.v_db_type,
 						action: function() {
-								v_connTabControl.tag.createConnTab(v_conn.v_conn_id);
+								v_connTabControl.tag.createConnTab(v_conn.v_conn_id, true, v_conn.v_alias);
 						}
 					});
 				})(i);

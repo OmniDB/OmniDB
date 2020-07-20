@@ -1,4 +1,4 @@
-var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
+var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name = false) {
 
   if (v_connTabControl.tag.connections.length==0) {
     v_connTabControl.selectTabIndex(v_connTabControl.tabList.length-2);
@@ -8,11 +8,11 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
 
     v_connTabControl.removeLastTab();
 
-
+    var v_conn_name = (p_name) ? p_name : v_connTabControl.tag.connections[0].v_alias;
 
     var v_tab = v_connTabControl.createTab({
       p_icon: '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/>',
-      p_name: '<span id="tab_title">' + v_connTabControl.tag.connections[0].v_alias + '</span>',
+      p_name: v_conn_name,
       p_selectFunction: function() {
         document.title = 'OmniDB'
         if(this.tag != null) {
@@ -123,8 +123,12 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true) {
 
     "</div>";
 
-    var v_tab_title_span = document.getElementById('tab_title');
-    v_tab_title_span.id = 'tab_title_' + v_tab.id;
+    // var v_tab_title_span = document.getElementById('tab_title');
+    // v_tab_title_span.id = 'tab_title_' + v_tab.id;
+    var v_tab_title_span = $(v_tab.elementA).find('.omnidb__tab-menu__link-name');
+    if (v_tab_title_span)
+      v_tab_title_span.attr('id', 'tab_title_' + v_tab.id);
+
 
     v_tab.elementDiv.innerHTML = v_html;
 

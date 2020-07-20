@@ -617,6 +617,8 @@
   flex-shrink: 1;
 }
 .omnidb__tree-tabs__toggler {
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
   cursor: pointer;
   position: absolute;
   right: 10px;

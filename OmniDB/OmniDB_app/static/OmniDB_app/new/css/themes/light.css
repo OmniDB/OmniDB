@@ -76,7 +76,7 @@
   /* background-color: #FFF; */
 }
 .omnidb--theme-light .omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active .omnidb__tab-menu__link-name {
-  color: #444444;
+  color: #585858;
 }
 .omnidb--theme-light .omnidb__tab-menu--primary .omnidb__tab-menu__link-name{
 	color: #FFF;
@@ -88,14 +88,14 @@
 /* UTILITIES MENU */
 .omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn {
   background-color: #FFF !important;
-  color: #444444 !important;
+  color: #585858 !important;
 }
 .omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn-text {
   color: #FFF !important;
 }
 
 .omnidb--theme-light a {
-  color: #444444;
+  color: #585858;
 }
 .omnidb--theme-light a:hover {
   color: #000000;
@@ -126,7 +126,7 @@
   border-bottom-color: #94A5E3;
 }
 .omnidb--theme-light .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
-  color: #444444 !important;
+  color: #585858 !important;
 }
 .omnidb--theme-light .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon {
   background-color: unset;
@@ -147,7 +147,7 @@
   border-bottom-color: #94A5E3;
 }
 .omnidb--theme-light .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
-  color: #444444 !important;
+  color: #585858 !important;
 }
 .omnidb--theme-light .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link-icon {
   background-color: #E2E2E2 !important;
@@ -168,7 +168,7 @@
   border-bottom-color: #94A5E3;
 }
 .omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
-  color: #444444 !important;
+  color: #585858 !important;
 }
 .omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-icon {
   background-color: #E2E2E2 !important;

@@ -559,6 +559,7 @@ function horizontalLinePosition(p_event) {
 /// Resize Snippet panel editor horizontally.
 /// </summary>
 function resizeSnippetHorizontal(event) {
+  event.preventDefault();
 	var v_horizontalLine = document.createElement('div');
 	v_horizontalLine.id = 'horizontal-resize-line';
 	v_connTabControl.snippet_tag.divPanel.appendChild(v_horizontalLine);
@@ -577,6 +578,42 @@ function resizeSnippetHorizontal(event) {
 /// Resize Snippet panel editor horizontally.
 /// </summary>
 function resizeSnippetHorizontalEnd(event) {
+
+	document.body.removeEventListener("mouseup", resizeSnippetHorizontalEnd);
+	document.getElementById('horizontal-resize-line').remove();
+
+	document.body.removeEventListener(
+		'mousemove',
+		horizontalLinePosition
+	)
+
+	var v_div_left = v_connTabControl.snippet_tag.divLeft;
+	var v_div_right = v_connTabControl.snippet_tag.divRight;
+
+  var v_offsetLeft = v_connTabControl.snippet_tag.divLeft.getBoundingClientRect().left;
+  var v_totalWidth = v_connTabControl.snippet_tag.divPanel.getBoundingClientRect().width;
+
+  var v_mousePosX = event.screenX;
+  var v_paddingCompensation = 16;
+
+  var v_fraction = (v_mousePosX > v_offsetLeft)
+  ? 100*((v_paddingCompensation + v_mousePosX - v_offsetLeft) / v_totalWidth)
+  : 0;
+
+  v_div_left.style['flex'] = '0 0 ' + v_fraction + '%';
+
+	var v_tab_tag = v_connTabControl.snippet_tag.tabControl.selectedTab.tag;
+
+	if(v_tab_tag.editor != null) {
+		v_tab_tag.editor.resize();
+	}
+
+}
+
+/// <summary>
+/// Resize Snippet panel editor horizontally.
+/// </summary>
+function old_resizeSnippetHorizontalEnd(event) {
 
 	document.body.removeEventListener("mouseup", resizeSnippetHorizontalEnd);
 	document.getElementById('horizontal-resize-line').remove();
@@ -616,6 +653,7 @@ function resizeSnippetHorizontalEnd(event) {
 /// Resize SQL editor and result div.
 /// </summary>
 function resizeVertical(event) {
+  event.preventDefault();
 	var v_verticalLine = document.createElement('div');
 	v_verticalLine.id = 'vertical-resize-line';
 	v_connTabControl.selectedTab.tag.divRight.appendChild(v_verticalLine);

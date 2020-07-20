@@ -1,5 +1,5 @@
 .omnidb--theme-dark {
-  color: #FFF;
+  color: #c5c5c5;
 }
 
 .omnidb--theme-dark .omnidb__main {
@@ -40,11 +40,11 @@
 /* BUTTONS */
 .omnidb--theme-dark .omnidb__theme__btn--primary {
   background-color: #394E83;
-  color: #FFF;
+  color: #DCDDDE;
 }
 .omnidb--theme-dark .omnidb__theme__btn--secondary {
   background-color: #4C5365;
-  color: #FFF;
+  color: #DCDDDE;
 }
 
 /* CONSOLE */
@@ -78,11 +78,11 @@
 .omnidb--theme-dark .omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active .omnidb__tab-menu__link-name {
   color: #DCDDDE;
 }
-.omnidb--theme-dark .omnidb__tab-menu--primary .omnidb__tab-menu__link-name{
-	color: #FFF;
+.omnidb--theme-dark .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
+	color: #DCDDDE;
 }
 .omnidb--theme-dark .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
-	color: #FFF;
+	color: #DCDDDE;
 }
 
 /* UTILITIES MENU */
@@ -462,9 +462,9 @@ div.header {
 			Right Div
 ---------------------*/
 /* Right Div Colors */
-.query_info {
+/* .query_info {
     color: #ffffff !important;
-}
+} */
 .div_right div > div.tab {
   background-color: #373b41 !important;
 }

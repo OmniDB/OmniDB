@@ -620,6 +620,7 @@
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 0px;
   cursor: pointer;
+  height: 26px;
   position: absolute;
   right: 10px;
   z-index: 1;
@@ -728,6 +729,14 @@
 .omnidb__panel__toggler:focus,
 .omnidb__panel__toggler:hover {
   transform: translateY(-100%);
+}
+
+/* QUERY INFO */
+.omnidb__query-info {
+  display: inline-block;
+  line-height: 1.2;
+  margin-left: 5px;
+  vertical-align: middle;
 }
 
 /* FORMS */

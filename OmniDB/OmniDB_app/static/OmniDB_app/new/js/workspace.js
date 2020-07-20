@@ -79,6 +79,10 @@ $(function () {
 
   startQueryWebSocket();
 
+  // Create tutorial
+  if (true)
+    startTutorial('main');
+
 });
 
 /// <summary>

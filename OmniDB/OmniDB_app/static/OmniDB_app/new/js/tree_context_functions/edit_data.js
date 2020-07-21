@@ -212,7 +212,8 @@ function queryEditData() {
 		v_context.tab_tag.div_result.innerHTML = 'Running...';
 		v_context.tab_tag.query_info.innerHTML = '';
 
-		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.QueryEditData, v_message_data, false, v_context);
+		//sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.QueryEditData, v_message_data, false, v_context);
+		createRequest(v_queryRequestCodes.QueryEditData, v_message_data, v_context);
 
 		setTimeout(function() {
 			if (!v_context.acked) {

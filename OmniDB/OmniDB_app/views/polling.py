@@ -90,9 +90,7 @@ def long_polling(request):
     try:
         global_lock.acquire()
         client_object = global_object[v_client_id]
-        print(client_object)
     except Exception as exc:
-        print("doesn't exist, creating")
         client_object = {
             'id': v_client_id,
             'polling_lock': threading.Lock(),
@@ -110,8 +108,6 @@ def long_polling(request):
     while len(client_object['returning_data'])>0:
         v_returning_data.append(client_object['returning_data'].pop(0))
     global_lock.release()
-
-    print('ACQUIRED')
 
     return JsonResponse(
     {
@@ -272,7 +268,6 @@ def LogHistory(p_user_id,
         )
         query_object.save()
     except Exception as exc:
-        print(str(exc))
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
 
 def thread_query(self,args):
@@ -706,7 +701,7 @@ def thread_query_edit_data(self,args):
         if not self.cancel:
             ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
 
-def thread_save_edit_data(self,args,ws_object):
+def thread_save_edit_data(self,args):
     v_response = {
         'v_code': response.SaveEditDataResult,
         'v_context_code': args['v_context_code'],
@@ -755,7 +750,6 @@ def thread_save_edit_data(self,args,ws_object):
                     # Getting details about the data type
                     try:
                         v_type_details = v_database.v_data_types[v_pk['v_type']]
-                        print(v_type_details)
                     # Type not found
                     except:
                         v_type_details = {
@@ -884,7 +878,6 @@ def thread_save_edit_data(self,args,ws_object):
                     # Getting details about the data type
                     try:
                         v_type_details = v_database.v_data_types[v_pk['v_type']]
-                        print(v_type_details)
                     # Type not found
                     except:
                         v_type_details = {
@@ -900,8 +893,6 @@ def thread_save_edit_data(self,args,ws_object):
                 v_row_info_return['mode'] = 1
                 v_row_info_return['index'] = v_row_info['index']
                 v_row_info_return['command'] = v_command
-
-                print(v_command)
 
                 try:
                     v_database.v_connection.Execute(v_command)

@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 .node-all {
-  color: #22477d;
+  color: #4a81d4;
 }
 
 .cm-all {
@@ -67,7 +67,7 @@ SOFTWARE.
 .node-keyword {
   color: #cc933f;
 }
-
+/*
 .node-database-list {
   color: #3e9dfb;
 }
@@ -322,4 +322,4 @@ SOFTWARE.
 
 .node-domain {
   color: #5078b3;
-}
+}*/

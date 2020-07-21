@@ -77,7 +77,7 @@ $(function () {
   // Retrieving database list
   getDatabaseList(true);
 
-  startQueryWebSocket();
+  //startQueryWebSocket();
 
 });
 

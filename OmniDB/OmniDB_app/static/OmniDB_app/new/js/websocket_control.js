@@ -92,15 +92,6 @@ function createContext(p_connection, p_context) {
 	return v_context;
 }
 
-function removeContext(p_connection, p_context_code) {
-	for (var i=0; i<p_connection.contextList.length; i++) {
-		if (p_connection.contextList[i].code == p_context_code) {
-			p_connection.contextList.splice(i,1);
-			break;
-		}
-	}
-}
-
 /// <summary>
 /// Sends a message through the websocket connection to the server.
 /// </summary>

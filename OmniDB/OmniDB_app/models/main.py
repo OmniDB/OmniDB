@@ -86,3 +86,20 @@ class GroupConnection(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['group', 'connection'], name='unique_group_connection')
         ]
+
+class MonUnits(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE, null=True)
+    technology = models.ForeignKey(Technology,on_delete=models.CASCADE)
+    script_chart = models.TextField(blank=False, default='')
+    script_data = models.TextField(blank=False, default='')
+    type = models.TextField(blank=False, default='')
+    title = models.TextField(blank=False, default='')
+    is_default = models.BooleanField(default=False)
+    interval = models.IntegerField(blank=False,default=60)
+
+class MonUnitsConnections(models.Model):
+    unit = models.IntegerField(blank=False,default=60)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    connection = models.ForeignKey(Connection,on_delete=models.CASCADE)
+    interval = models.IntegerField(blank=False,default=60)
+    plugin_name = models.TextField(blank=False, default='')

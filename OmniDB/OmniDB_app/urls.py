@@ -42,21 +42,6 @@ base_urlpatterns = [
     url(r'^remove_user/$', views.users.remove_user, name='remove_user'),
     url(r'^save_users/$', views.users.save_users, name='save_users'),
 
-    #MONITORING
-    url(r'^monitoring/', views.monitoring.index, name='monitoring'),
-    url(r'^get_nodes/$', views.monitoring.get_nodes, name='get_nodes'),
-    url(r'^new_node/$', views.monitoring.new_node, name='new_node'),
-    url(r'^remove_node/$', views.monitoring.remove_node, name='remove_node'),
-    url(r'^refresh_node_key/$', views.monitoring.refresh_node_key, name='refresh_node_key'),
-    url(r'^save_nodes/$', views.monitoring.save_nodes, name='save_nodes'),
-    url(r'^get_alerts/$', views.monitoring.get_alerts, name='get_alerts'),
-    url(r'^new_alert/$', views.monitoring.new_alert, name='new_alert'),
-    url(r'^remove_alert/$', views.monitoring.remove_alert, name='remove_alert'),
-    url(r'^save_alerts/$', views.monitoring.save_alerts, name='save_alerts'),
-    url(r'^get_alert_data_list/$', views.monitoring.get_alert_data_list, name='get_alert_data_list'),
-    url(r'^view_alert_chart/$', views.monitoring.view_alert_chart, name='view_alert_chart'),
-    url(r'^receive_alert_data/', views.monitoring.receive_alert_data, name='receive_alert_data'),
-
     #WORKSPACE
     url(r'^old/', views.workspace.old, name='old'),
 
@@ -275,7 +260,6 @@ base_urlpatterns = [
     url(r'^template_update_mariadb/', views.tree_mariadb.template_update, name='template_update'),
 
     #MONITORING SYSTEM
-    url(r'^get_monitor_nodes/', views.monitor_dashboard.get_monitor_nodes, name='get_monitor_nodes'),
     url(r'^test_monitor_script/', views.monitor_dashboard.test_monitor_script, name='test_monitor_script'),
     url(r'^get_monitor_unit_list/', views.monitor_dashboard.get_monitor_unit_list, name='get_monitor_unit_list'),
     url(r'^get_monitor_unit_details/', views.monitor_dashboard.get_monitor_unit_details, name='get_monitor_unit_details'),

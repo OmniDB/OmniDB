@@ -79,6 +79,10 @@ $(function () {
 
   //startQueryWebSocket();
 
+  // Create tutorial
+  if (true)
+    startTutorial('main');
+
 });
 
 /// <summary>
@@ -558,6 +562,64 @@ function horizontalLinePosition(p_event) {
 /// <summary>
 /// Resize Snippet panel editor horizontally.
 /// </summary>
+function resizeConnectionHorizontal(event) {
+  event.preventDefault();
+	var v_horizontalLine = document.createElement('div');
+	v_horizontalLine.id = 'horizontal-resize-line';
+	v_connTabControl.selectedDiv.appendChild(v_horizontalLine);
+
+	document.body.addEventListener(
+		'mousemove',
+		horizontalLinePosition
+	)
+
+	v_start_width = event.screenX;
+	document.body.addEventListener("mouseup", resizeConnectionHorizontalEnd);
+
+}
+
+/// <summary>
+/// Resize Snippet panel editor horizontally.
+/// </summary>
+function resizeConnectionHorizontalEnd(event) {
+
+	document.body.removeEventListener("mouseup", resizeConnectionHorizontalEnd);
+	document.getElementById('horizontal-resize-line').remove();
+
+	document.body.removeEventListener(
+		'mousemove',
+		horizontalLinePosition
+	)
+
+	var v_div_left = v_connTabControl.selectedTab.tag.divLeft;
+	var v_div_right = v_connTabControl.selectedTab.tag.divRight;
+
+  var v_offsetLeft = v_connTabControl.selectedTab.tag.divLeft.getBoundingClientRect().left;
+  var v_totalWidth = v_connTabControl.selectedDiv.getBoundingClientRect().width;
+
+  var v_mousePosX = event.screenX;
+  var v_paddingCompensation = 16;
+
+  var v_fraction = (v_mousePosX > v_offsetLeft)
+  ? 100*((v_paddingCompensation + v_mousePosX - v_offsetLeft) / v_totalWidth)
+  : 0;
+
+  var v_width_value = v_fraction + '%';
+
+  v_div_left.style['max-width'] = v_width_value;
+  v_div_left.style['flex'] = '0 0 ' + v_width_value;
+
+	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+	if(v_tab_tag.editor != null) {
+		v_tab_tag.editor.resize();
+	}
+
+}
+
+/// <summary>
+/// Resize Snippet panel editor horizontally.
+/// </summary>
 function resizeSnippetHorizontal(event) {
   event.preventDefault();
 	var v_horizontalLine = document.createElement('div');
@@ -600,7 +662,10 @@ function resizeSnippetHorizontalEnd(event) {
   ? 100*((v_paddingCompensation + v_mousePosX - v_offsetLeft) / v_totalWidth)
   : 0;
 
-  v_div_left.style['flex'] = '0 0 ' + v_fraction + '%';
+  var v_width_value = v_fraction + '%';
+
+  v_div_left.style['max-width'] = v_width_value;
+  v_div_left.style['flex'] = '0 0 ' + v_width_value;
 
 	var v_tab_tag = v_connTabControl.snippet_tag.tabControl.selectedTab.tag;
 
@@ -1024,7 +1089,7 @@ function showMenuNewTabOuter(e) {
 						text: v_conn.v_details1 + ' - ' + v_conn.v_details2,
 						icon: 'fas cm-all node-' + v_conn.v_db_type,
 						action: function() {
-								v_connTabControl.tag.createConnTab(v_conn.v_conn_id);
+								v_connTabControl.tag.createConnTab(v_conn.v_conn_id, true, v_conn.v_alias);
 						}
 					});
 				})(i);

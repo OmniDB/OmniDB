@@ -82,7 +82,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
       "<button id='bt_commit_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object btn btn-sm omnidb__theme__btn--primary omnidb__tab-actions__btn' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(3);'>Commit</button>" +
       "<button id='bt_rollback_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object btn btn-sm omnidb__theme__btn--secondary omnidb__tab-actions__btn' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(4);'>Rollback</button>" +
       "<button id='bt_cancel_" + v_tab.id + "' class='btn btn-sm btn-danger omnidb__tab-actions__btn' title='Cancel' style='display: none; ' onclick='cancelSQL();'>Cancel</button>" +
-      "<div id='div_query_info_" + v_tab.id + "' class='query_info query_info_summary' style='display: inline-block; margin-left: 5px; vertical-align: middle;'></div>" +
+      "<div id='div_query_info_" + v_tab.id + "' class='omnidb__query-info'></div>" +
       "<button class='btn btn-sm omnidb__theme__btn--primary omnidb__tab-actions__btn ml-auto' title='Export Data' onclick='exportData();'><i class='far fa-file fa-light'></i></button>" +
       "<select id='sel_export_type_" + v_tab.id + "' class='form-control omnidb__tab-actions__select' style='width: 80px;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option></select>" +
     "</div>" +

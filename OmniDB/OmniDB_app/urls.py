@@ -7,6 +7,9 @@ from django.conf.urls.static import static
 base_urlpatterns = [
     url(r'^upload/$', views.plugins.upload_view, name='sign_in'),
 
+    url(r'^long_polling/$', views.polling.long_polling, name='long_polling'),
+    url(r'^create_request/$', views.polling.create_request, name='create_request'),
+
     #LOGIN
     url(r'^$', views.login.check_session, name='check_session'),
     url(r'^login/', views.login.index, name='login'),

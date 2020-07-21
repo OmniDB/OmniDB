@@ -184,14 +184,15 @@ function querySQL(p_mode,
 			}
 			v_context.tab_tag.query_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
 
-			sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Query, v_message_data, false, v_context);
+			//sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Query, v_message_data, false, v_context);
+			createRequest(v_queryRequestCodes.Query, v_message_data, v_context);
 
-			setTimeout(function() {
+			/*setTimeout(function() {
 				if (!v_context.acked) {
 					cancelSQLTab(v_context.tab_tag);
 					showAlert('No response from query server.');
 				}
-			},10000);
+			},10000);*/
 
 		}
 	}

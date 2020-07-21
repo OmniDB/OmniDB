@@ -91,7 +91,6 @@ function createOmnis(p_steps = []) {
         target: p_target
 			};
 
-      console.log('adding step', v_step);
 
       this.stepList.push(v_step);
 
@@ -132,6 +131,9 @@ function createOmnis(p_steps = []) {
 
         this.divElement.innerHTML = v_step_html;
 
+        this.divElement.style.display = 'block';
+
+        this.updateOmnisPosition();
 
         var v_next_btn = document.getElementById('omnis_step_btn_next');
         if (v_next_btn !== undefined && v_next_btn !== null)
@@ -144,10 +146,6 @@ function createOmnis(p_steps = []) {
         var v_close_btn = document.getElementById('omnis_step_btn_close');
         if (v_close_btn !== undefined && v_close_btn !== null)
           v_close_btn.onclick = function(){v_control.setStateDisabled()};
-
-        this.divElement.style.display = 'block';
-
-        this.updateOmnisPosition();
       }
       else {
         this.divElement.style.display = 'none';
@@ -166,10 +164,20 @@ function createOmnis(p_steps = []) {
       var v_target_position = this.getPosition(v_target);
 
       this.divElement.style.top = v_target_position.y + 20 + 'px';
-      if (v_target_position.x >= (window.innerWidth / 2))
-        this.divElement.style.left = v_target_position.x - this.divElement.offsetWidth - 10 + 'px';
-      else
-        this.divElement.style.left = v_target_position.x + v_target.offsetWidth + 10 + 'px';
+      if (v_target_position.x >= (window.innerWidth / 2)) {
+        this.divElement.style.left = v_target_position.x - this.divElement.offsetWidth - 16 + 'px';
+        this.divElement.innerHTML +=
+        '<div class="omnis__step__arrow" style="background-color: #ffb100; right: -16px; padding: 0px 3px; position: absolute; top: 0px;">' +
+          '<i class="fas fa-arrow-right" style="transform: rotate(325deg);"></i>' +
+        '</div>';
+      }
+      else {
+        this.divElement.style.left = v_target_position.x + v_target.offsetWidth + 16 + 'px';
+        this.divElement.innerHTML +=
+        '<div class="omnis__step__arrow" style="background-color: #ffb100; left: -16px; padding: 0px 3px; position: absolute; top: 0px;">' +
+          '<i class="fas fa-arrow-right" style="transform: rotate(235deg);"></i>' +
+        '</div>';
+      }
     }
   }
 

@@ -604,16 +604,19 @@ function resizeConnectionHorizontalEnd(event) {
   ? 100*((v_paddingCompensation + v_mousePosX - v_offsetLeft) / v_totalWidth)
   : 0;
 
-  var v_width_value = v_fraction + '%';
+  var v_left_width_value = v_fraction + '%';
 
-  v_div_left.style['max-width'] = v_width_value;
-  v_div_left.style['flex'] = '0 0 ' + v_width_value;
+  v_div_left.style['max-width'] = v_left_width_value;
+  v_div_left.style['flex'] = '0 0 ' + v_left_width_value;
+
+  var v_right_width_value = (100 - v_fraction) + '%';
+
+  v_div_right.style['max-width'] = v_right_width_value;
+  v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-	if(v_tab_tag.editor != null) {
-		v_tab_tag.editor.resize();
-	}
+  refreshHeights();
 
 }
 
@@ -662,55 +665,19 @@ function resizeSnippetHorizontalEnd(event) {
   ? 100*((v_paddingCompensation + v_mousePosX - v_offsetLeft) / v_totalWidth)
   : 0;
 
-  var v_width_value = v_fraction + '%';
+  var v_left_width_value = v_fraction + '%';
 
-  v_div_left.style['max-width'] = v_width_value;
-  v_div_left.style['flex'] = '0 0 ' + v_width_value;
+  v_div_left.style['max-width'] = v_left_width_value;
+  v_div_left.style['flex'] = '0 0 ' + v_left_width_value;
 
-	var v_tab_tag = v_connTabControl.snippet_tag.tabControl.selectedTab.tag;
+  var v_right_width_value = (100 - v_fraction) + '%';
 
-	if(v_tab_tag.editor != null) {
-		v_tab_tag.editor.resize();
-	}
-
-}
-
-/// <summary>
-/// Resize Snippet panel editor horizontally.
-/// </summary>
-function old_resizeSnippetHorizontalEnd(event) {
-
-	document.body.removeEventListener("mouseup", resizeSnippetHorizontalEnd);
-	document.getElementById('horizontal-resize-line').remove();
-
-	document.body.removeEventListener(
-		'mousemove',
-		horizontalLinePosition
-	)
-
-	var v_div_left = v_connTabControl.snippet_tag.divLeft;
-	var v_div_right = v_connTabControl.snippet_tag.divRight;
-
-  var v_fraction = Math.round(12 * event.screenX / v_connTabControl.snippet_tag.divPanel.getBoundingClientRect().width);
-
-	if (v_fraction < 1) {
-    v_div_left.classList = [' omnidb__workspace__div-left col-md-1'];
-    v_div_right.classList = [' omnidb__workspace__div-right col-md-11'];
-	}
-  else if (v_fraction >= 1 && v_fraction <= 11) {
-    v_div_left.classList = [' omnidb__workspace__div-left col-md-' + v_fraction];
-    v_div_right.classList = [' omnidb__workspace__div-right col-md-' + (12 - v_fraction)];
-  }
-	else {
-    v_div_left.classList = [' omnidb__workspace__div-left col-md-11'];
-    v_div_right.classList = [' omnidb__workspace__div-right col-md-1'];
-	}
+  v_div_right.style['max-width'] = v_right_width_value;
+  v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
 
 	var v_tab_tag = v_connTabControl.snippet_tag.tabControl.selectedTab.tag;
 
-	if(v_tab_tag.editor != null) {
-		v_tab_tag.editor.resize();
-	}
+  refreshHeights();
 
 }
 

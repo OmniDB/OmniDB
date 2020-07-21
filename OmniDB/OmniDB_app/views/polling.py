@@ -192,17 +192,33 @@ def create_request(request):
         v_data['v_context_code'] = v_context_code
         v_data['v_database'] = tab_object['omnidatabase']
         v_data['v_client_object'] = client_object
+        v_data['v_session'] = v_session
         #Query request
         if v_code == requestType.Query:
             tab_object['tab_db_id'] = v_data['v_tab_db_id']
             v_data['v_tab_object'] = tab_object
-            v_data['v_session'] = v_session
             t = StoppableThread(thread_query,v_data)
             tab_object['thread'] = t
             tab_object['type'] = 'query'
             tab_object['sql_cmd'] = v_data['v_sql_cmd']
             tab_object['sql_save'] = v_data['v_sql_save']
             tab_object['tab_id'] = v_data['v_tab_id']
+            #t.setDaemon(True)
+            t.start()
+
+        #Query edit data
+        elif v_code == requestType.QueryEditData:
+            t = StoppableThread(thread_query_edit_data,v_data)
+            tab_object['thread'] = t
+            tab_object['type'] = 'edit'
+            #t.setDaemon(True)
+            t.start()
+
+        #Save edit data
+        elif v_code == requestType.SaveEditData:
+            t = StoppableThread(thread_save_edit_data,v_data)
+            tab_object['thread'] = t
+            tab_object['type'] = 'edit'
             #t.setDaemon(True)
             t.start()
 
@@ -252,7 +268,7 @@ def LogHistory(p_user_id,
             end_time=make_aware(p_end),
             duration=p_duration,
             status=p_status,
-            snippet=p_sql.replace("'","''")
+            snippet=p_sql
         )
         query_object.save()
     except Exception as exc:
@@ -298,8 +314,8 @@ def thread_query(self,args):
                     tab_object = Tab(
                         user=User.objects.get(id=v_session.v_user_id),
                         connection=Connection.objects.get(id=v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id),
-                        title=v_tab_title.replace("'","''"),
-                        snippet=v_tab_object['sql_save'].replace("'","''")
+                        title=v_tab_title,
+                        snippet=v_tab_object['sql_save']
                     )
                     tab_object.save()
                     v_inserted_id = tab_object.id
@@ -593,13 +609,322 @@ def thread_query(self,args):
         if v_mode==0 and v_tab_object['tab_db_id'] and v_log_query:
             try:
                 tab = Tab.objects.get(id=v_tab_object['tab_db_id'])
-                tab.snippet=v_tab_object['sql_save'].replace("'","''")
-                tab.title=v_tab_title.replace("'","''")
+                tab.snippet=v_tab_object['sql_save']
+                tab.title=v_tab_title
                 tab.save()
             except Exception as exc:
                 None
     except Exception as exc:
         raise
+        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+        v_response['v_error'] = True
+        v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
+        if not self.cancel:
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+def thread_query_edit_data(self,args):
+    v_response = {
+        'v_code': response.QueryEditDataResult,
+        'v_context_code': args['v_context_code'],
+        'v_error': False,
+        'v_data': {
+            'v_data' : [],
+            'v_row_pk' : [],
+            'v_query_info' : ''
+        }
+    }
+
+    try:
+        v_database_index = args['v_db_index']
+        v_table          = args['v_table']
+        v_schema         = args['v_schema']
+        v_filter         = args['v_filter']
+        v_count          = args['v_count']
+        v_pk_list        = args['v_pk_list']
+        v_columns        = args['v_columns']
+        v_tab_id         = args['v_tab_id']
+        v_client_object  = args['v_client_object']
+
+        v_session = args['v_session']
+        v_database = args['v_database']
+
+        try:
+            if v_database.v_has_schema:
+                v_table_name = v_schema + '.' + v_table
+            else:
+                v_table_name = v_table
+
+            v_column_list = ''
+            v_first = True
+            for v_column in v_columns:
+                if not v_first:
+                    v_column_list = v_column_list + ','
+                v_first = False
+                v_column_list = v_column_list + v_column['v_column']
+
+            v_data1 = v_database.QueryTableRecords(v_column_list, v_table_name, v_filter, v_count)
+
+            v_response['v_data']['v_query_info'] = str(len(v_data1.Rows))
+
+            for v_row in v_data1.Rows:
+                v_row_data = []
+
+                v_row_pk = []
+                for j in range(0, len(v_pk_list)):
+                    v_pk_col = {}
+                    v_pk_col['v_column'] = v_pk_list[j]['v_column']
+                    v_pk_col['v_type'] = v_pk_list[j]['v_type']
+                    v_pk_col['v_value'] = v_row[v_pk_list[j]['v_column'].replace('"','')]
+                    v_row_pk.append(v_pk_col)
+                v_response['v_data']['v_row_pk'].append(v_row_pk)
+
+                v_row_data.append('')
+                for v_col in v_data1.Columns:
+                    if v_row[v_col] == None:
+                        v_row_data.append('[null]')
+                    else:
+                        v_row_data.append(str(v_row[v_col]))
+                v_response['v_data']['v_data'].append(v_row_data)
+
+        except Exception as exc:
+            v_response['v_data'] = str(exc)
+            v_response['v_error'] = True
+
+        if not self.cancel:
+            global_lock.acquire()
+            v_client_object['returning_data'].append(v_response)
+            try:
+                # Attempt to release client polling lock so that the polling thread can read data
+                v_client_object['polling_lock'].release()
+            except Exception:
+                None
+            global_lock.release()
+    except Exception as exc:
+        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+        v_response['v_error'] = True
+        v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
+        if not self.cancel:
+            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+def thread_save_edit_data(self,args,ws_object):
+    v_response = {
+        'v_code': response.SaveEditDataResult,
+        'v_context_code': args['v_context_code'],
+        'v_error': False,
+        'v_data': []
+    }
+
+    try:
+        v_database_index = args['v_db_index']
+        v_table          = args['v_table']
+        v_schema         = args['v_schema']
+        v_data_rows      = args['v_data_rows']
+        v_rows_info      = args['v_rows_info']
+        v_pk_info        = args['v_pk_info']
+        v_columns        = args['v_columns']
+        v_client_object  = args['v_client_object']
+
+        v_session = args['v_session']
+        v_database = args['v_database']
+
+        if v_database.v_has_schema:
+            v_table_name = v_schema + '.' + v_table
+        else:
+            v_table_name = v_table
+
+        i = 0
+        for v_row_info in v_rows_info:
+
+            if (self.cancel):
+                return
+
+            v_command = ''
+
+            # Deleting row
+            if v_row_info['mode'] == -1:
+
+                v_command = 'delete from ' + v_table_name + ' where '
+                v_first = True
+                v_pk_index = 0
+
+                for v_pk in v_row_info['pk']:
+                    if not v_first:
+                        v_command = v_command + ' and '
+                    v_first = False
+
+                    # Getting details about the data type
+                    try:
+                        v_type_details = v_database.v_data_types[v_pk['v_type']]
+                        print(v_type_details)
+                    # Type not found
+                    except:
+                        v_type_details = {
+                            'quoted': True
+                        }
+
+                    if v_type_details['quoted']:
+                        v_command = "{0} {1} = '{2}'".format(v_command,v_pk['v_column'],v_pk['v_value'])
+                    else:
+                        v_command = "{0} {1} = {2}".format(v_command,v_pk['v_column'],v_pk['v_value'])
+
+                v_row_info_return = {}
+                v_row_info_return['mode'] = -1
+                v_row_info_return['index'] = v_row_info['index']
+                v_row_info_return['command'] = v_command
+
+                try:
+                    v_database.v_connection.Execute(v_command)
+                    v_row_info_return['error'] = False
+                    v_row_info_return['v_message'] = 'Success.'
+                except Exception as exc:
+                    v_row_info_return['error'] = True
+                    v_row_info_return['v_message'] = str(exc)
+
+                v_response['v_data'].append(v_row_info_return)
+
+            # Inserting new row
+            elif v_row_info['mode'] == 2:
+
+                v_command = 'insert into ' + v_table_name + ' ( '
+                v_first = True
+
+                for v_col in v_columns:
+                    if not v_first:
+                        v_command = v_command + ', '
+                    v_first = False
+                    v_command = v_command + v_col['v_column']
+
+                v_command = v_command + ' ) values ( '
+                v_first = True
+
+                for j in range(1, len(v_data_rows[i])):
+                    if not v_first:
+                        v_command = v_command + ', '
+                    v_first = False
+
+                    v_value = ''
+                    if v_data_rows[i][j] != None:
+                        v_value = v_data_rows[i][j]
+
+                    # Getting details about the data type
+                    try:
+                        v_type_details = v_database.v_data_types[v_columns[j-1]['v_type']]
+                    # Type not found
+                    except:
+                        v_type_details = {
+                            'quoted': True
+                        }
+
+                    if v_value == '[null]':
+                        v_command = v_command + 'null'
+                    elif v_type_details['quoted']:
+                        v_command = "{0} '{1}'".format(v_command,v_value)
+                    else:
+                        v_command = "{0} {1}".format(v_command,v_value)
+
+                v_command = v_command + ' )'
+
+                v_row_info_return = {}
+                v_row_info_return['mode'] = 2
+                v_row_info_return['index'] = v_row_info['index']
+                v_row_info_return['command'] = v_command
+
+                try:
+                    v_database.v_connection.Execute(v_command)
+                    v_row_info_return['error'] = False
+                    v_row_info_return['v_message'] = 'Success.'
+                except Exception as exc:
+                    v_row_info_return['error'] = True
+                    v_row_info_return['v_message'] = str(exc)
+
+                v_response['v_data'].append(v_row_info_return)
+
+            # Updating existing row
+            elif v_row_info['mode'] == 1:
+
+                v_command = 'update ' + v_table_name + ' set '
+                v_first = True
+
+                for v_col_index in v_rows_info[i]['changed_cols']:
+                    if not v_first:
+                        v_command = v_command + ', '
+                    v_first = False
+
+                    v_value = ''
+                    if v_data_rows[i][v_col_index+1] != None:
+                        v_value = v_data_rows[i][v_col_index+1]
+
+                    v_command = v_command + v_columns[v_col_index]['v_column'] + ' = '
+
+                    # Getting details about the data type
+                    try:
+                        v_type_details = v_database.v_data_types[v_columns[v_col_index]['v_type']]
+                    # Type not found
+                    except:
+                        v_type_details = {
+                            'quoted': True
+                        }
+
+                    if v_value == '[null]':
+                        v_command = v_command + 'null'
+                    elif v_type_details['quoted']:
+                        v_command = "{0} '{1}'".format(v_command,v_value)
+                    else:
+                        v_command = "{0} {1}".format(v_command,v_value)
+
+                v_command = v_command + ' where '
+                v_first = True
+                v_pk_index = 0
+
+                for v_pk in v_row_info['pk']:
+                    if not v_first:
+                        v_command = v_command + ' and '
+                    v_first = False
+
+                    # Getting details about the data type
+                    try:
+                        v_type_details = v_database.v_data_types[v_pk['v_type']]
+                        print(v_type_details)
+                    # Type not found
+                    except:
+                        v_type_details = {
+                            'quoted': True
+                        }
+
+                    if v_type_details['quoted']:
+                        v_command = "{0} {1} = '{2}'".format(v_command,v_pk['v_column'],v_pk['v_value'])
+                    else:
+                        v_command = "{0} {1} = {2}".format(v_command,v_pk['v_column'],v_pk['v_value'])
+
+                v_row_info_return = {}
+                v_row_info_return['mode'] = 1
+                v_row_info_return['index'] = v_row_info['index']
+                v_row_info_return['command'] = v_command
+
+                print(v_command)
+
+                try:
+                    v_database.v_connection.Execute(v_command)
+                    v_row_info_return['error'] = False
+                    v_row_info_return['v_message'] = 'Success.'
+                except Exception as exc:
+                    v_row_info_return['error'] = True
+                    v_row_info_return['v_message'] = str(exc)
+
+                v_response['v_data'].append(v_row_info_return)
+
+            i = i + 1
+
+        if not self.cancel:
+            global_lock.acquire()
+            v_client_object['returning_data'].append(v_response)
+            try:
+                # Attempt to release client polling lock so that the polling thread can read data
+                v_client_object['polling_lock'].release()
+            except Exception:
+                None
+            global_lock.release()
+    except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')

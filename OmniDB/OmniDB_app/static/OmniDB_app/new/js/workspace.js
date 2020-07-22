@@ -79,9 +79,12 @@ $(function () {
 
   //startQueryWebSocket();
 
-  // Create tutorial
+  // Create tutorial - tmp always active
   if (true)
     startTutorial('main');
+
+  // Create explain - tmp always active
+  createExplainJson();
 
 });
 
@@ -1336,4 +1339,19 @@ function drop(event, grid_container, div_left, div_right) {
 /// </summary>
 function verticalLinePosition(p_event) {
 	document.getElementById('vertical-resize-line').style.top = p_event.pageY + 'px';
+}
+
+
+
+function createExplainJson(p_json) {
+  // Instanciate the component
+  var v_explainControl = createLagere();
+  // temp tests
+  v_connTabControl.explainControl = v_explainControl;
+
+  v_connTabControl.explainControl.createPlans();
+
+  setTimeout(function(){
+    v_connTabControl.explainControl.renderPlans();
+  }, 1000);
 }

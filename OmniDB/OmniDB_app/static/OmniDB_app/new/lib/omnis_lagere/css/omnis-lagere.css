@@ -12,10 +12,10 @@
   -moz-animation-timing-function:linear;
   -webkit-animation-timing-function:linear;
   animation-timing-function:linear;
-  -o-animation-duration:.5s;
-  -moz-animation-duration:.5s;
-  -webkit-animation-duration:.5s;
-  animation-duration:.5s;
+  -o-animation-duration:.25s;
+  -moz-animation-duration:.25s;
+  -webkit-animation-duration:.25s;
+  animation-duration:.25s;
   -o-animation-delay:0s;
   -moz-animation-delay:0s;
   -webkit-animation-delay:0s;
@@ -39,10 +39,10 @@
   -moz-animation-duration:.5s;
   -webkit-animation-duration:.5s;
   animation-duration:.5s;
-  -o-animation-delay:1s;
-  -moz-animation-delay:1s;
-  -webkit-animation-delay:1s;
-  animation-delay:1s;
+  -o-animation-delay:.20s;
+  -moz-animation-delay:.20s;
+  -webkit-animation-delay:.20s;
+  animation-delay:.20s;
 }
 
 @-o-keyframes lagereWrapperFadeIn{

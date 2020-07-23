@@ -8245,9 +8245,7 @@ function getExplainReturn(p_data) {
         v_tab_tag.explainControl.updatePlanList(JSON.parse(v_explain_text));
         v_tab_tag.explainControl.setStateEnabled();
 
-        setTimeout(function(){
-          v_tab_tag.explainControl.renderPlans();
-        }, 1000);
+        v_tab_tag.explainControl.renderPlans();
 
         // console.log(JSON.parse(v_explain_text))
 

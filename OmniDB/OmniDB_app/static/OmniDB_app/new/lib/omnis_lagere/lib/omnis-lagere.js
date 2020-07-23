@@ -25,8 +25,15 @@ function createLagere(p_options) {
     totalRows: 0,
     // Actions
     emptyPlanList : function() {
-      this.planCounter = 0;
       this.data = [];
+      this.dataMatrix = [];
+      this.planCounter = 0;
+      this.planList = [];
+      this.planCounter = 0;
+      this.planList = [];
+      this.planCountMatrix = [0];
+      this.totalCols = 0;
+      this.totalRows = 0;
     },
     updatePlanList : function(p_data) {
       this.emptyPlanList();
@@ -308,6 +315,10 @@ function createLagere(p_options) {
       return v_plans_html;
     },
     renderPlans : function() {
+      if (this.divGrid) {
+        this.divGrid.innerHTML = '';
+      }
+
       if (this.stateActive) {
         var v_control = this;
 
@@ -320,7 +331,6 @@ function createLagere(p_options) {
       }
       else {
         this.divElement.style.display = 'none';
-        this.divGrid.innerHTML = '';
       }
     },
     renderSvg : function(p_plan_list) {
@@ -363,39 +373,45 @@ function createLagere(p_options) {
       for (let i = 0; i < p_plan_list.length; i++) {
         // Compare existence of child_nodes inside each node
         var v_node = p_plan_list[i];
-        var v_node_child_list = v_node.planList;
+        if (v_node) {
+          var v_node_child_list = v_node.planList;
 
-        if (v_node_child_list) {
-          // Get position attributes of the v_node (source of the line)
-          var v_source = document.getElementById(v_node.id);
-          // var v_source_rect = v_source.getBoundingClientRect();
-          var v_source_x = (v_source.offsetWidth / 2) + v_source.offsetLeft;
-          var v_source_y = v_source.offsetTop + v_source.offsetHeight;
+          if (v_node_child_list) {
+            // Get position attributes of the v_node (source of the line)
+            var v_source = document.getElementById(v_node.id);
+            if (v_source) {
+              // var v_source_rect = v_source.getBoundingClientRect();
+              var v_source_x = (v_source.offsetWidth / 2) + v_source.offsetLeft;
+              var v_source_y = v_source.offsetTop + v_source.offsetHeight;
 
-          for (let j = 0; j < v_node_child_list.length; j++) {
-            // Get the position of each v_child_node (target of the line)
-            var v_child_node = v_node_child_list[j];
-            var v_target = document.getElementById(v_child_node.id);
-            // var v_target_rect = v_target.getBoundingClientRect();
-            var v_target_x = (v_target.offsetWidth / 2) + v_target.offsetLeft;
-            var v_target_y = v_target.offsetTop;
+              for (let j = 0; j < v_node_child_list.length; j++) {
+                // Get the position of each v_child_node (target of the line)
+                var v_child_node = v_node_child_list[j];
+                var v_target = document.getElementById(v_child_node.id);
+                if (v_target) {
+                  // var v_target_rect = v_target.getBoundingClientRect();
+                  var v_target_x = (v_target.offsetWidth / 2) + v_target.offsetLeft;
+                  var v_target_y = v_target.offsetTop;
 
-            var v_avg_width = v_target_x - v_source_x + 40;
-            var v_path_style = 'style="stroke-dasharray:' + v_avg_width + '; stroke-dashoffset:' + v_avg_width + '"';
+                  var v_avg_width = v_target_x - v_source_x + 40;
+                  var v_path_style = 'style="stroke-dasharray:' + v_avg_width + '; stroke-dashoffset:' + v_avg_width + '"';
 
-            // Create a path between the node and the node_child (source - target)
-            if (j > 0) {
-              // Account for line curves with 20 radius
-              v_target_x = v_target_x - 20;
-              // v_target_y = v_target_y + 40;
-              v_svg_html += '<path ' + v_path_style + ' d="M ' + v_source_x + ' ' + v_source_y + ' c 0 20, 0 20, 20 20 H ' + v_target_x + ' c 20 0, 20 0, 20 20 V ' + v_target_y + '" stroke="#4a81d4" stroke-width="1" fill="none" /></path>';
-            }
-            else {
-              v_svg_html += '<path ' + v_path_style + ' d="M ' + v_source_x + ' ' + v_source_y + ' L ' + v_target_x + ' ' + v_target_y + '" stroke="#4a81d4" stroke-width="1" fill="none" /></path>';
+                  // Create a path between the node and the node_child (source - target)
+                  if (j > 0) {
+                    // Account for line curves with 20 radius
+                    v_target_x = v_target_x - 20;
+                    // v_target_y = v_target_y + 40;
+                    v_svg_html += '<path ' + v_path_style + ' d="M ' + v_source_x + ' ' + v_source_y + ' c 0 20, 0 20, 20 20 H ' + v_target_x + ' c 20 0, 20 0, 20 20 V ' + v_target_y + '" stroke="#4a81d4" stroke-width="1" fill="none" /></path>';
+                  }
+                  else {
+                    v_svg_html += '<path ' + v_path_style + ' d="M ' + v_source_x + ' ' + v_source_y + ' L ' + v_target_x + ' ' + v_target_y + '" stroke="#4a81d4" stroke-width="1" fill="none" /></path>';
+                  }
+                }
+              }
+              // Recursively adds path for each subsequent child of thid v_child_node
+              v_svg_html += this.renderSvgPath(v_node_child_list, p_parent_params);
             }
           }
-          // Recursively adds path for each subsequent child of thid v_child_node
-          v_svg_html += this.renderSvgPath(v_node_child_list, p_parent_params);
         }
       }
 

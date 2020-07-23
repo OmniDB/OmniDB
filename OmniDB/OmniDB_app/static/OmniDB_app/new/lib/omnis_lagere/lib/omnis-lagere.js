@@ -277,10 +277,12 @@ function createLagere(p_options) {
         // Find number of children on previous nodes in the same row and add to the col_offset_shit
         for (let i = 0; i < v_index; i++) {
 
-          var v_previous_node = v_parent_row[v_index_map[v_row_depth]].planList[i];
-          if (v_previous_node && v_plan_item.planList) {
-            if (v_previous_node.planList && v_plan_item.planList.length > 0) {
-              v_col_offset_shift += v_previous_node.planList.length;
+          if (v_parent_row[v_index_map[v_row_depth]]) {
+            var v_previous_node = v_parent_row[v_index_map[v_row_depth]].planList[i];
+            if (v_previous_node && v_plan_item.planList) {
+              if (v_previous_node.planList && v_plan_item.planList.length > 0) {
+                v_col_offset_shift += v_previous_node.planList.length;
+              }
             }
           }
 
@@ -545,7 +547,7 @@ function createLagere(p_options) {
           `
         );
 
-        v_lagereControl.divElementContent.setAttribute('style', 'width:' + v_parent_width + 'px; height:' + v_parent_height + 'px; overflow: auto;');
+        v_lagereControl.divElementContent.setAttribute('style', 'width:' + v_parent_width + 'px; height:' + v_parent_height + 'px; overflow: auto; padding: 10px;');
 
         if (v_lagereControl.stateActive) {
           this.divElement.style.display = 'block';

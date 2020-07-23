@@ -6,23 +6,21 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
-function createLagere(p_plan = []) {
-
-  // tmp plan
-  var v_plan = (p_plan.length > 0) ? p_plan : v_explain_sample;
-
-  // tmp state control
-  var v_state_active = true;
+function createLagere(p_options) {
 
   var v_lagereControl = {
     // Params
-    data: v_plan,
+    data: [],
     dataMatrix: [],
+    defaultClass: (p_options.bem_class_root) ? p_options.bem_class_root : 'omnis-lagere',
+    defaultMessage: 'No content',
+    divElement: false,
 		id: 'omnis_lagere_control_' + Date.now(),
     planCounter: 0,
     planList: [],
     planCountMatrix: [0],
-		stateActive: v_state_active,
+		stateActive: false,
+    targetDiv: (p_options.target) ? p_options.target : false,
     totalCols: 0,
     totalRows: 0,
     // Actions
@@ -230,7 +228,7 @@ function createLagere(p_plan = []) {
       if (v_plan_item.data['Node Type']) {
         var v_child_count = (v_plan_item['planList'] !== undefined) ? v_plan_item['planList'].length : 0;
         v_title +=
-        '<div class="omnis-lagere__title card-title p-2"><h5 class="mb-0">' +
+        '<div class="' + this.defaultClass + '__title card-title p-2"><h5 class="mb-0">' +
           '<strong>' + v_plan_item.data['Node Type'] + '</strong>' +
           '<span>(' + v_child_count + ')</span>' +
         '</h5></div>';
@@ -293,8 +291,8 @@ function createLagere(p_plan = []) {
 
 
       var v_plans_html =
-      '<div ' + v_test_attr + ' id="' + v_plan_item.id + '" class="omnis-lagere" style="grid-row: ' + v_grid_row + '; grid-column:' + v_grid_col + '">' +
-        '<div class="omnis-lagere__card card">' +
+      '<div ' + v_test_attr + ' id="' + v_plan_item.id + '" class="' + this.defaultClass + '__item" style="grid-row: ' + v_grid_row + '; grid-column:' + v_grid_col + '">' +
+        '<div class="' + this.defaultClass + '__card card">' +
           v_title +
         '</div>' +
       '</div>';
@@ -318,48 +316,35 @@ function createLagere(p_plan = []) {
         for (let i = 0; i < this.planList.length; i++)
           v_plans_html += this.renderPlan(this.planList[i]);
 
-        // TODO: validate with other smaples the need of fixed row and column widths
-
-        // var v_grid_col_attr = '200px';
-        // for (let i = 1; i < this.totalCols; i++) {
-          // v_grid_col_attr += ' 200px';
-        // }
-
-        // var v_grid_row_attr = '1fr';
-        // for (let i = 0; i < this.totalRows; i++) {
-          // v_grid_row_attr += ' 1fr';
-        // }
-
-        // this.divGrid.style['grid-template-columns'] = v_grid_col_attr;
-        // this.divGrid.style['grid-template-rows'] = v_grid_row_attr;
-
-        this.divGrid.innerHTML = v_plans_html;
-
-        this.divElement.style.display = 'block';
-
-        this.renderSvg(this.planList);
-
+        this.renderTarget(v_plans_html);
       }
       else {
         this.divElement.style.display = 'none';
+        this.divGrid.innerHTML = '';
       }
     },
     renderSvg : function(p_plan_list) {
 
-      var v_parent_rect = this.divGridContainer.getBoundingClientRect();
+      var v_parent_container = this.divGridContainer;
+
       var v_parent_params = {
-        container: this.divGridContainer,
-        x: v_parent_rect.left,
-        y: v_parent_rect.top,
-        width: v_parent_rect.width,
-        height: v_parent_rect.height
+        container: v_parent_container,
+        width: v_parent_container.offsetWidth,
+        height: v_parent_container.offsetHeight
       }
       // Create svg paths for each combination of node - child_node
       var v_svg_paths_html = this.renderSvgPath(p_plan_list, v_parent_params);
 
+      var v_svg_id = this.id + '_svg';
+      var v_svg_element = document.getElementById(v_svg_id);
+      if (v_svg_element) {
+        v_svg_element.remove();
+      }
+
       var v_svg_html =
       '<svg ' +
-        'class="omnis-lagere__svg"' +
+        'id="' + v_svg_id + '"' +
+        'class="' + this.defaultClass + '__svg"' +
         'xmlns="http://www.w3.org/2000/svg"' +
         'width="' + v_parent_params.width + '"' +
         'height="' + v_parent_params.height + '" ' +
@@ -383,17 +368,17 @@ function createLagere(p_plan = []) {
         if (v_node_child_list) {
           // Get position attributes of the v_node (source of the line)
           var v_source = document.getElementById(v_node.id);
-          var v_source_rect = v_source.getBoundingClientRect();
-          var v_source_x = (v_source_rect.right + v_source_rect.left)/2 - p_parent_params.x;
-          var v_source_y = v_source_rect.bottom - p_parent_params.y;
+          // var v_source_rect = v_source.getBoundingClientRect();
+          var v_source_x = (v_source.offsetWidth / 2) + v_source.offsetLeft;
+          var v_source_y = v_source.offsetTop + v_source.offsetHeight;
 
           for (let j = 0; j < v_node_child_list.length; j++) {
             // Get the position of each v_child_node (target of the line)
             var v_child_node = v_node_child_list[j];
             var v_target = document.getElementById(v_child_node.id);
-            var v_target_rect = v_target.getBoundingClientRect();
-            var v_target_x = (v_target_rect.right + v_target_rect.left)/2 - p_parent_params.x;
-            var v_target_y = v_target_rect.top - p_parent_params.y;
+            // var v_target_rect = v_target.getBoundingClientRect();
+            var v_target_x = (v_target.offsetWidth / 2) + v_target.offsetLeft;
+            var v_target_y = v_target.offsetTop;
 
             var v_avg_width = v_target_x - v_source_x + 40;
             var v_path_style = 'style="stroke-dasharray:' + v_avg_width + '; stroke-dashoffset:' + v_avg_width + '"';
@@ -416,11 +401,151 @@ function createLagere(p_plan = []) {
 
       return v_svg_html;
     },
+    renderTarget : function(p_plans_html) {
+      var v_lagereControl = this;
+
+      var v_parent = v_lagereControl.targetDiv;
+      var v_parent_width = v_parent.clientWidth;
+      var v_parent_height = v_parent.clientHeight;
+
+      // Creates outter element of the component once
+      if (!v_lagereControl.divElement) {
+        v_lagereControl.divElement = document.createElement('div');
+        v_lagereControl.divElement.setAttribute('id', v_lagereControl.id);
+        v_lagereControl.divElement.classList = this.defaultClass + '__wrapper';
+
+        // Template options when there's no targetDiv and the component needs a modal to render to render inside
+        if (!v_lagereControl.targetDiv) {
+          v_lagereControl.divElement.setAttribute(
+            'style',
+            `
+            background-color: #e2e2e2;
+            box-shadow: 1px 0px 3px rgba(0,0,0,0.15);
+            display:none;
+            height: 90vh;
+            left: 5vw;
+            max-width: 90vw;
+            padding: 5px;
+            position:fixed;
+            top: 5vh;
+            width: 90vw;
+            z-index: 99999999;
+            `
+          );
+
+          document.body.appendChild(v_lagereControl.divElement);
+
+          // Adds close button to the modal
+          var v_close_btn_html = '<div style="position:relative;"><button id="' + v_lagereControl.id + '_btn_close" type="button" class="btn btn-sm btn-danger ml-auto" style="position: absolute; top: -10px; right: -10px;"><i class="fas fa-times"></i></button></div>';
+          v_lagereControl.divElement.innerHTML = v_close_btn_html;
+        }
+        // Template options when there's a targetDiv to render inside
+        else {
+          v_lagereControl.divElement.setAttribute(
+            'style',
+            `
+            background-color: #e2e2e2;
+            display:none;
+            height:` + v_parent_height + `px;
+            max-width: 100%;
+            padding: 5px;
+            width:` + v_parent_width + `px;
+            z-index: 99999999;
+            `
+          );
+          v_lagereControl.targetDiv.appendChild(v_lagereControl.divElement);
+        }
+
+        v_lagereControl.divElementContent = document.createElement('div');
+        v_lagereControl.divElementContent.setAttribute('id', v_lagereControl.id + '_content');
+        v_lagereControl.divElementContent.setAttribute('style', 'width:' + v_parent_width + 'px; height:' + v_parent_height + 'px; overflow: auto;');
+
+        v_lagereControl.divElement.appendChild(v_lagereControl.divElementContent);
+
+        v_lagereControl.divGrid = document.createElement('div');
+        v_lagereControl.divGrid.style['grid-gap'] = '40px 10px';
+        v_lagereControl.divGrid.style.display = 'grid';
+        v_lagereControl.divGrid.style.position = 'relative';
+        v_lagereControl.divGrid.style['z-index'] = 1;
+        v_lagereControl.divGridContainer = document.createElement('div');
+        v_lagereControl.divGridContainer.style.position = 'relative';
+        v_lagereControl.divGridContainer.appendChild(v_lagereControl.divGrid);
+        v_lagereControl.divElementContent.appendChild(v_lagereControl.divGridContainer);
+      }
+
+      // TODO:
+      // - validate with other smaples the need of fixed row and column widths
+      // - fix totalCols evaluation
+
+      // var v_grid_col_attr = '200px';
+      // for (let i = 1; i < this.totalCols; i++) {
+        // v_grid_col_attr += ' 200px';
+      // }
+
+      // var v_grid_row_attr = '1fr';
+      // for (let i = 0; i < this.totalRows; i++) {
+        // v_grid_row_attr += ' 1fr';
+      // }
+
+      // this.divGrid.style['grid-template-columns'] = v_grid_col_attr;
+      // this.divGrid.style['grid-template-rows'] = v_grid_row_attr;
+
+      // Sets the new content for the divGrid
+      this.divGrid.innerHTML = p_plans_html;
+
+      // Render the svg with path lines based on the content positions
+      setTimeout(function(){
+        v_lagereControl.renderSvg(v_lagereControl.planList);
+      }, 150);
+
+      // Adds the click event to the button when there's no targetDiv and the component needs a modal to render to render inside
+      if (!v_lagereControl.targetDiv) {
+        var v_close_btn = document.getElementById(v_lagereControl.id + '_btn_close');
+        if (v_close_btn !== undefined && v_close_btn !== null) {
+          v_close_btn.onclick = function(){v_lagereControl.setStateDisabled()};
+        }
+      }
+
+      this.divElement.style.display = 'block';
+    },
+    resize() {
+      v_lagereControl = this;
+
+      if (v_lagereControl.divElement) {
+        var v_parent = v_lagereControl.targetDiv;
+        var v_parent_width = v_parent.clientWidth;
+        var v_parent_height = v_parent.clientHeight;
+
+        v_lagereControl.divElement.setAttribute(
+          'style',
+          `
+          background-color: #e2e2e2;
+          display:none;
+          height:` + v_parent_height + `px;
+          max-width: 100%;
+          padding: 5px;
+          width:` + v_parent_width + `px;
+          z-index: 99999999;
+          `
+        );
+
+        v_lagereControl.divElementContent.setAttribute('style', 'width:' + v_parent_width + 'px; height:' + v_parent_height + 'px; overflow: auto;');
+
+        if (v_lagereControl.stateActive) {
+          this.divElement.style.display = 'block';
+
+          // Render the svg with path lines based on the content positions
+          setTimeout(function(){
+            v_lagereControl.renderSvg(v_lagereControl.planList);
+          }, 150);
+        }
+
+      }
+    },
     setStateEnabled: function() {
       this.stateActive = true;
-      this.renderStep();
     },
-    setStateDisabled: function() {
+    setStateDisabled : function() {
       this.stateActive = false;
       this.updatePlanList([]);
       this.renderPlans();
@@ -442,36 +567,6 @@ function createLagere(p_plan = []) {
     updateLagerePosition : function() {
       // TODO
     }
-  }
-
-  v_lagereControl.divElement = document.createElement('div');
-  v_lagereControl.divElement.setAttribute('id', v_lagereControl.id);
-  v_lagereControl.divElement.setAttribute('style', 'background-color: #e2e2e2; padding: 5px; position:fixed; width:90vw; left: 5vw; max-width: 90vw; height: 90vh; display:none; z-index: 99999999; box-shadow: 1px 0px 3px rgba(0,0,0,0.15); top: 5vh; transition: 0.45s;');
-  v_lagereControl.divElement.classList = 'omnis-lagere__wrapper';
-
-  var v_close_btn_html = '<div style="position:relative;"><button id="' + v_lagereControl.id + '_btn_close" type="button" class="btn btn-sm btn-danger ml-auto" style="position: absolute; top: -10px; right: -10px;"><i class="fas fa-times"></i></button></div>';
-  v_lagereControl.divElement.innerHTML = v_close_btn_html;
-
-  v_lagereControl.divElementContent = document.createElement('div');
-  v_lagereControl.divElementContent.setAttribute('id', v_lagereControl.id + '_content');
-  v_lagereControl.divElementContent.setAttribute('style', 'width:100%; height: 100%; overflow: auto;');
-
-  v_lagereControl.divElement.appendChild(v_lagereControl.divElementContent);
-
-  v_lagereControl.divGrid = document.createElement('div');
-  v_lagereControl.divGrid.style['grid-gap'] = '40px 10px';
-  v_lagereControl.divGrid.style.display = 'grid';
-  v_lagereControl.divGrid.style.position = 'relative';
-  v_lagereControl.divGrid.style['z-index'] = 1;
-  v_lagereControl.divGridContainer = document.createElement('div');
-  v_lagereControl.divGridContainer.style.position = 'relative';
-  v_lagereControl.divGridContainer.appendChild(v_lagereControl.divGrid);
-  v_lagereControl.divElementContent.appendChild(v_lagereControl.divGridContainer);
-  document.body.appendChild(v_lagereControl.divElement);
-
-  var v_close_btn = document.getElementById(v_lagereControl.id + '_btn_close');
-  if (v_close_btn !== undefined && v_close_btn !== null) {
-    v_close_btn.onclick = function(){v_lagereControl.setStateDisabled()};
   }
 
   return v_lagereControl;

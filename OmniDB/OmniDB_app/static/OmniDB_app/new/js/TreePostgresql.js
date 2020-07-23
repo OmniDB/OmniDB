@@ -8208,9 +8208,9 @@ function getExplain(p_mode) {
         showAlert('Please provide a string.');
     } else {
         if (p_mode == 0)
-            v_query = 'explain ' + v_query;
+            v_query = 'explain (format json) ' + v_query;
         else if (p_mode == 1)
-            v_query = 'explain analyze ' + v_query;
+            v_query = 'explain (analyze, format json) ' + v_query;
 
         querySQL(0, true, v_query, getExplainReturn, true);
     }
@@ -8228,6 +8228,14 @@ function getExplainReturn(p_data) {
         var v_explain_text = '';
         for (var i = 0; i < p_data.v_data.v_data.length; i++)
             v_explain_text += p_data.v_data.v_data[i] + '\n';
+
+        v_connTabControl.selectedTab.tag.tabControl.selectedTab
+            .tag.div_explain.innerHTML = v_explain_text;
+
+        console.log(JSON.parse(v_explain_text))
+
+
+        /*
 
         var resultset = [];
         v_explain_text.split(/\n/).forEach(function(item) {
@@ -8250,7 +8258,7 @@ function getExplainReturn(p_data) {
                 nodes: planNodes
             }, null);
             ReactDOM.render(pgplan, mountNode);
-        }
+        }*/
     }
 
     refreshHeights();

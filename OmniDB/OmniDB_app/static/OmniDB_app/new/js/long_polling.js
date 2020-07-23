@@ -13,8 +13,6 @@ var v_context_object = {
 $(function () {
 
   v_client_id = v_user_key + (new Date().getTime())
-  console.log(v_client_id);
-
   call_polling();
 });
 
@@ -24,7 +22,6 @@ function call_polling() {
         'p_client_id': v_client_id
       }),
 			function(p_return) {
-        console.log(p_return);
         for (var i=0; i<p_return.returning_rows.length; i++)
           polling_response(p_return.returning_rows[i]);
         call_polling();
@@ -201,7 +198,6 @@ function createRequest(p_messageCode, p_messageData, p_context) {
         v_data: p_messageData
       }),
 			function(p_return) {
-        console.log(p_return);
 
 			},
 			null,

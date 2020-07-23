@@ -8218,10 +8218,12 @@ function getExplain(p_mode) {
 
 function getExplainReturn(p_data) {
 
-    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectExplainTabFunc();
+    var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+
+    v_tab_tag.selectExplainTabFunc();
 
     if (p_data.v_error) {
-        v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain
+        v_tab_tag.div_explain
             .innerHTML = '<div class="error_text">' + p_data.v_data.message +
             '</div>';
     } else {
@@ -8229,10 +8231,25 @@ function getExplainReturn(p_data) {
         for (var i = 0; i < p_data.v_data.v_data.length; i++)
             v_explain_text += p_data.v_data.v_data[i] + '\n';
 
-        v_connTabControl.selectedTab.tag.tabControl.selectedTab
-            .tag.div_explain.innerHTML = v_explain_text;
+        // v_connTabControl.selectedTab.tag.tabControl.selectedTab
+        //     .tag.div_explain.innerHTML = v_explain_text;
 
-        console.log(JSON.parse(v_explain_text))
+        // Instanciate the explain component
+        if (!v_tab_tag.explainControl) {
+          var v_lagere_options = {
+            target: v_tab_tag.div_explain
+          }
+          v_tab_tag.explainControl = createLagere(v_lagere_options);
+        }
+
+        v_tab_tag.explainControl.updatePlanList(JSON.parse(v_explain_text));
+        v_tab_tag.explainControl.setStateEnabled();
+
+        setTimeout(function(){
+          v_tab_tag.explainControl.renderPlans();
+        }, 1000);
+
+        // console.log(JSON.parse(v_explain_text))
 
 
         /*

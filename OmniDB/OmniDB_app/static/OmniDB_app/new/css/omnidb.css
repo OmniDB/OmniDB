@@ -526,6 +526,12 @@
 }
 
 
+/* TAB MENU */
+.omnidb__tab-menu__link-name span {
+  vertical-align: middle;
+}
+
+
 /* NAV */
 .omnidb__tab-menu .nav-tabs .nav-link {
   border-top-left-radius: 0px;

@@ -9,7 +9,7 @@ var v_createGraphTabFunction = function(p_name) {
 
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
     p_icon: `<i class="fab fa-hubspot icon-tab-title"></i>`,
-    p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 24px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
+    p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
     p_selectFunction: function() {
       document.title = 'OmniDB'
       if(this.tag != null) {
@@ -38,8 +38,6 @@ var v_createGraphTabFunction = function(p_name) {
   v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
   var v_tab_check_span = document.getElementById('tab_check');
   v_tab_check_span.id = 'tab_check_' + v_tab.id;
-  var v_tab_stub_span = document.getElementById('tab_stub');
-  v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
   var v_html =
   "<div class='omnidb__theme-border--primary'>" +

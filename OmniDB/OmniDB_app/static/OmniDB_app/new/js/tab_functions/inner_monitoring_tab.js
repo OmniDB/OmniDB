@@ -10,7 +10,7 @@ var v_createMonitoringTabFunction = function(p_name, p_query, p_actions) {
   // Creating console tab in the inner tab list
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
     p_icon: `<i class="fas fa-desktop icon-tab-title"></i>`,
-    p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 24px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
+    p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
     p_selectFunction: function() {
       document.title = 'OmniDB'
       if(this.tag != null) {
@@ -37,8 +37,6 @@ var v_createMonitoringTabFunction = function(p_name, p_query, p_actions) {
   v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
   var v_tab_check_span = document.getElementById('tab_check');
   v_tab_check_span.id = 'tab_check_' + v_tab.id;
-  var v_tab_stub_span = document.getElementById('tab_stub');
-  v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
   // v_tab_close_span.id = 'tab_close_' + v_tab.id;
   // v_tab_close_span.onclick = function(e) {
   //   var v_current_tab = v_tab;

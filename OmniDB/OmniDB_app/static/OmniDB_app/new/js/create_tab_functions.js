@@ -227,7 +227,7 @@ function initCreateTabFunctions() {
 
 		v_connTabControl.selectedTab.tag.tabControl.removeTabIndex(v_connTabControl.selectedTab.tag.tabControl.tabList.length-1);
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-            '<i class="fas fa-code-branch icon-tab-title"></i><span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 24px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
+            '<i class="fas fa-code-branch icon-tab-title"></i><span id="tab_title">' + v_name + '</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i></span>',
             false,
             null,
             renameTab,
@@ -267,8 +267,6 @@ function initCreateTabFunctions() {
 		};
     var v_tab_check_span = document.getElementById('tab_check');
 		v_tab_check_span.id = 'tab_check_' + v_tab.id;
-    var v_tab_stub_span = document.getElementById('tab_stub');
-		v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
 		var v_html = "<div id='txt_func_body_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
 
@@ -357,7 +355,6 @@ function initCreateTabFunctions() {
 			tab_loading_span : v_tab_loading_span,
 			tab_close_span : v_tab_close_span,
 			tab_check_span : v_tab_check_span,
-      tab_stub_span : v_tab_stub_span,
       bt_reload: document.getElementById('bt_reload_' + v_tab.id),
 			bt_start: document.getElementById('bt_start_' + v_tab.id),
       bt_step_over: document.getElementById('bt_step_over_' + v_tab.id),

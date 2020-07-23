@@ -282,9 +282,8 @@ function consoleSQL(p_check_command = true, p_mode = 0) {
         sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Console, v_message_data, false, v_context);
 
         v_tag.state = v_consoleState.Executing;
-        v_tag.tab_loading_span.style.display = '';
+        v_tag.tab_loading_span.style.visibility = 'visible';
         v_tag.tab_check_span.style.display = 'none';
-        v_tag.tab_stub_span.style.display = 'none';
         v_tag.bt_cancel.style.display = '';
         v_tag.query_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Running...</b>';
 				v_tag.bt_fetch_more.style.display = 'none';
@@ -331,9 +330,8 @@ function cancelConsoleTab(p_tab_tag) {
 	}
 
 	v_tab_tag.state = v_consoleState.Idle;
-	v_tab_tag.tab_loading_span.style.display = 'none';
+	v_tab_tag.tab_loading_span.style.visibility = 'hidden';
 	v_tab_tag.tab_check_span.style.display = 'none';
-	v_tab_tag.tab_stub_span.style.display = '';
 	v_tab_tag.bt_cancel.style.display = 'none';
 	v_tab_tag.query_info.innerHTML = 'Canceled.';
 
@@ -363,7 +361,7 @@ function consoleReturn(p_data,p_context) {
 			p_context.tab_tag.context = p_context;
 			p_context.tab_tag.data = p_data;
 
-			p_context.tab_tag.tab_loading_span.style.display = 'none';
+			p_context.tab_tag.tab_loading_span.style.visibility = 'hidden';
 			p_context.tab_tag.tab_check_span.style.display = '';
 
 		}
@@ -385,10 +383,9 @@ function consoleReturnRender(p_message,p_context) {
   v_tag.editor_input.clearSelection();
 
   v_tag.query_info.innerHTML = "<b>Start time</b>: " + p_context.start_datetime + " <b>Duration</b>: " + p_message.v_data.v_duration;
-  v_tag.tab_loading_span.style.display = 'none';
+  v_tag.tab_loading_span.style.visibility = 'hidden';
   v_tag.tab_check_span.style.display = 'none';
   v_tag.bt_cancel.style.display = 'none';
-	v_tag.tab_stub_span.style.display = '';
 	if (p_message.v_data.v_show_fetch_button) {
 		v_tag.bt_fetch_more.style.display = '';
 		v_tag.bt_fetch_all.style.display = '';

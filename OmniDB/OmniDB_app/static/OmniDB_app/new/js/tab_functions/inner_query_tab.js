@@ -9,7 +9,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
   // Creating console tab in the inner tab list
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
-    p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 24px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
+    p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
     p_selectFunction: function() {
       if(this.tag != null) {
         refreshHeights();
@@ -39,8 +39,6 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
   var v_tab_check_span = document.getElementById('tab_check');
   v_tab_check_span.id = 'tab_check_' + v_tab.id;
-  var v_tab_stub_span = document.getElementById('tab_stub');
-  v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
   var command_history_modal =
   "<div class='modal fade' id='modal_command_history_" + v_tab.id + "' tabindex='-1' role='dialog' aria-hidden='true'>" +
@@ -197,7 +195,6 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     tab_title_span : v_tab_title_span,
     tab_loading_span : v_tab_loading_span,
     tab_check_span : v_tab_check_span,
-    tab_stub_span : v_tab_stub_span,
     query_tab_status: document.getElementById('query_tab_status_' + v_tab.id),
     query_tab_status_text: document.getElementById('query_tab_status_text_' + v_tab.id),
     bt_start: document.getElementById('bt_start_' + v_tab.id),

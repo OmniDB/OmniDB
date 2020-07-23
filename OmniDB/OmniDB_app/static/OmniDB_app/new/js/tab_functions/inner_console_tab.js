@@ -6,7 +6,7 @@ var v_createConsoleTabFunction = function() {
   // Creating console tab in the inner tab list
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
     p_icon: '<i class="fas fa-terminal icon-tab-title"></i>',
-    p_name: '<span> Console</span><span id="tab_stub"><img style="width: 24px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i></span>',
+    p_name: '<span> Console</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i></span>',
     p_selectFunction: function() {
       if(this.tag != null) {
         refreshHeights();
@@ -33,8 +33,6 @@ var v_createConsoleTabFunction = function() {
   v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
   var v_tab_check_span = document.getElementById('tab_check');
   v_tab_check_span.id = 'tab_check_' + v_tab.id;
-  var v_tab_stub_span = document.getElementById('tab_stub');
-  v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
   var console_history_modal =
   "<div class='modal fade' id='modal_console_history_" + v_tab.id + "' tabindex='-1' role='dialog' aria-hidden='true'>" +
@@ -158,7 +156,6 @@ var v_createConsoleTabFunction = function() {
     check_autocommit: document.getElementById('check_autocommit_' + v_tab.id),
     tab_loading_span : v_tab_loading_span,
     tab_check_span : v_tab_check_span,
-    tab_stub_span : v_tab_stub_span,
     context: null,
     tabControl: v_connTabControl.selectedTab.tag.tabControl,
     connTab: v_connTabControl.selectedTab,

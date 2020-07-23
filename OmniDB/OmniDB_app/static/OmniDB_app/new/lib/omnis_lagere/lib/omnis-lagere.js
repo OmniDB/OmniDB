@@ -10,6 +10,7 @@ function createLagere(p_options) {
 
   var v_lagereControl = {
     // Params
+    backgroundColor: (p_options.backgroundColor) ? p_options.backgroundColor : '#e2e2e2',
     data: [],
     dataMatrix: [],
     defaultClass: (p_options.bem_class_root) ? p_options.bem_class_root : 'omnis-lagere',
@@ -437,7 +438,7 @@ function createLagere(p_options) {
           v_lagereControl.divElement.setAttribute(
             'style',
             `
-            background-color: #e2e2e2;
+            background-color: ` + v_lagereControl.backgroundColor + `;
             box-shadow: 1px 0px 3px rgba(0,0,0,0.15);
             display:none;
             height: 90vh;
@@ -462,7 +463,7 @@ function createLagere(p_options) {
           v_lagereControl.divElement.setAttribute(
             'style',
             `
-            background-color: #e2e2e2;
+            background-color: ` + v_lagereControl.backgroundColor + `;
             display:none;
             height:` + v_parent_height + `px;
             max-width: 100%;
@@ -537,7 +538,7 @@ function createLagere(p_options) {
         v_lagereControl.divElement.setAttribute(
           'style',
           `
-          background-color: #e2e2e2;
+          background-color: ` + v_lagereControl.backgroundColor + `;
           display:none;
           height:` + v_parent_height + `px;
           max-width: 100%;

@@ -8237,6 +8237,7 @@ function getExplainReturn(p_data) {
         // Instanciate the explain component
         if (!v_tab_tag.explainControl) {
           var v_lagere_options = {
+            backgroundColor: (v_editor_theme === 'omnidb_dark') ? '#282a2f' : '#e2e2e2',
             target: v_tab_tag.div_explain
           }
           v_tab_tag.explainControl = createLagere(v_lagere_options);

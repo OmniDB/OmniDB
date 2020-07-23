@@ -6,11 +6,12 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
-function createLagere(p_options) {
+function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_options) {
 
   var v_lagereControl = {
     // Params
     backgroundColor: (p_options.backgroundColor) ? p_options.backgroundColor : '#e2e2e2',
+    context: p_context,
     data: [],
     dataMatrix: [],
     defaultClass: (p_options.bem_class_root) ? p_options.bem_class_root : 'omnis-lagere',
@@ -40,6 +41,10 @@ function createLagere(p_options) {
       this.emptyPlanList();
       this.data = p_data;
       this.createPlans();
+
+      this.setStateEnabled();
+
+      this.renderPlans();
     },
     goToPlan : function(p_index) {
       this.stepSelected = p_index;
@@ -227,6 +232,13 @@ function createLagere(p_options) {
 
         this.planList.push(v_new_plan);
       }
+    },
+    destroy : function() {
+      v_lagereControl = this;
+
+      v_lagereControl.divElement.remove();
+
+      delete v_lagereControl.context.parent[v_lagereControl.context.self];
     },
     renderPlan : function(p_plan_item) {
       var v_plan_item = p_plan_item;
@@ -510,7 +522,7 @@ function createLagere(p_options) {
       // this.divGrid.style['grid-template-rows'] = v_grid_row_attr;
 
       // Sets the new content for the divGrid
-      this.divGrid.innerHTML = p_plans_html;
+      v_lagereControl.divGrid.innerHTML = p_plans_html;
 
       // Render the svg with path lines based on the content positions
       setTimeout(function(){
@@ -525,7 +537,7 @@ function createLagere(p_options) {
         }
       }
 
-      this.divElement.style.display = 'block';
+      v_lagereControl.divElement.style.display = 'block';
     },
     resize() {
       v_lagereControl = this;

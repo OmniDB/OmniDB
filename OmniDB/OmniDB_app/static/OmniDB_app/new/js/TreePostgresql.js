@@ -8235,18 +8235,23 @@ function getExplainReturn(p_data) {
         //     .tag.div_explain.innerHTML = v_explain_text;
 
         // Instanciate the explain component
-        if (!v_tab_tag.explainControl) {
-          var v_lagere_options = {
-            backgroundColor: (v_editor_theme === 'omnidb_dark') ? '#282a2f' : '#e2e2e2',
-            target: v_tab_tag.div_explain
-          }
-          v_tab_tag.explainControl = createLagere(v_lagere_options);
+        if (v_tab_tag.explainControl) {
+          v_tab_tag.explainControl.destroy();
         }
 
-        v_tab_tag.explainControl.updatePlanList(JSON.parse(v_explain_text));
-        v_tab_tag.explainControl.setStateEnabled();
+        var v_lagere_options = {
+          backgroundColor: (v_editor_theme === 'omnidb_dark') ? '#282a2f' : '#e2e2e2',
+          target: v_tab_tag.div_explain
+        }
 
-        v_tab_tag.explainControl.renderPlans();
+        var v_context = {
+          parent: v_tab_tag,
+          self: 'explainControl'
+        };
+
+        v_tab_tag.explainControl = createLagere(v_context, v_lagere_options);
+
+        v_tab_tag.explainControl.updatePlanList(JSON.parse(v_explain_text));
 
         // console.log(JSON.parse(v_explain_text))
 

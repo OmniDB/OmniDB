@@ -6,7 +6,7 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
 
   v_connTabControl.snippet_tag.tabControl.removeTabIndex(v_connTabControl.snippet_tag.tabControl.tabList.length-1);
   var v_tab = v_connTabControl.snippet_tag.tabControl.createTab({
-    p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_stub"><img style="width: 24px; display: inline-block;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
+    p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
     p_selectFunction: function() {
       if(this.tag != null) {
         //refreshHeights();
@@ -33,8 +33,6 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
   v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
   var v_tab_check_span = document.getElementById('tab_check');
   v_tab_check_span.id = 'tab_check_' + v_tab.id;
-  var v_tab_stub_span = document.getElementById('tab_stub');
-  v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
   //var v_tab_close_span = document.getElementById('tab_close');
   //v_tab_close_span.id = 'tab_close_' + v_tab.id;
   //v_tab_close_span.onclick = function(e) {
@@ -97,7 +95,6 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
     tab_title_span : v_tab_title_span,
     tab_loading_span : v_tab_loading_span,
     tab_check_span : v_tab_check_span,
-    tab_stub_span : v_tab_stub_span,
     bt_start: document.getElementById('bt_start_' + v_tab.id),
     bt_save: document.getElementById('bt_save_' + v_tab.id),
     tabControl: v_connTabControl.snippet_tag.tabControl,

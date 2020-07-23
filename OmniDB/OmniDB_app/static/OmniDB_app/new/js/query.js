@@ -52,9 +52,8 @@ function cancelSQLTab(p_tab_tag) {
 	}
 
 	v_tab_tag.state = v_queryState.Idle;
-	v_tab_tag.tab_loading_span.style.display = 'none';
+	v_tab_tag.tab_loading_span.style.visibility = 'hidden';
 	v_tab_tag.tab_check_span.style.display = 'none';
-	v_tab_tag.tab_stub_span.style.display = '';
 	v_tab_tag.bt_cancel.style.display = 'none';
 	v_tab_tag.query_info.innerHTML = 'Canceled.';
 	setTabStatus(v_tab_tag,0);
@@ -141,8 +140,7 @@ function querySQL(p_mode,
 	               d.getMinutes().padLeft(),
 	               d.getSeconds().padLeft()].join(':');
 
-			v_tab_tag.tab_loading_span.style.display = '';
-			v_tab_tag.tab_stub_span.style.display = 'none';
+			v_tab_tag.tab_loading_span.style.visibility = 'visible';
 			v_tab_tag.bt_cancel.style.display = 'inline-block';
 			v_tab_tag.bt_fetch_more.style.display = 'none';
 			v_tab_tag.bt_fetch_all.style.display = 'none';
@@ -228,7 +226,7 @@ function querySQLReturn(p_data,p_context) {
 			p_context.tab_tag.context = p_context;
 			p_context.tab_tag.data = p_data;
 
-			p_context.tab_tag.tab_loading_span.style.display = 'none';
+			p_context.tab_tag.tab_loading_span.style.visibility = 'hidden';
 			p_context.tab_tag.tab_check_span.style.display = '';
 
 		}
@@ -456,9 +454,8 @@ function querySQLReturnRender(p_message,p_context) {
 		}
 	}
 
-	p_context.tab_tag.tab_loading_span.style.display = 'none';
+	p_context.tab_tag.tab_loading_span.style.visibility = 'hidden';
 	p_context.tab_tag.tab_check_span.style.display = 'none';
-	p_context.tab_tag.tab_stub_span.style.display = '';
 	p_context.tab_tag.bt_cancel.style.display = 'none';
 
 }

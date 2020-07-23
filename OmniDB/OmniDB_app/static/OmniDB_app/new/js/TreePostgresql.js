@@ -40,7 +40,7 @@ function tabAdvancedObjectSearch(node) {
 
     var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
         '<span id="tab_title">' + v_name +
-        '</span><span id="tab_stub"><img style="width: 16px;"/></span><span id="tab_loading" style="display:none;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
+        '</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i><i title="Close" id="tab_close" class="fas fa-times tab-icon icon-close"></i>',
         false,
         null,
         renameTab,
@@ -90,9 +90,6 @@ function tabAdvancedObjectSearch(node) {
 
     var v_tab_check_span = document.getElementById('tab_check');
     v_tab_check_span.id = 'tab_check_' + v_tab.id;
-
-    var v_tab_stub_span = document.getElementById('tab_stub');
-    v_tab_stub_span.id = 'tab_stub_' + v_tab.id;
 
     var v_html =
         "<div id='txt_query_" + v_tab.id +
@@ -909,7 +906,6 @@ function tabAdvancedObjectSearch(node) {
         tab_loading_span: v_tab_loading_span,
         tab_close_span: v_tab_close_span,
         tab_check_span: v_tab_check_span,
-        tab_stub_span: v_tab_stub_span,
         bt_start: document.getElementById('bt_start_' + v_tab.id),
         bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
         state: 0,

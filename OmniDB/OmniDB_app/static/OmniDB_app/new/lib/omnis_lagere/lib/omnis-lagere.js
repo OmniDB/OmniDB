@@ -176,7 +176,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         index_map: v_index_map,
         grid: {
           // col: (v_children_count === 0) ? v_index + 1 : v_index + v_lagereControl.global_children_count + 1,
-          col: v_index + v_lagereControl.global_children_count + 1,
+          col: v_lagereControl.global_children_count + 1,
           row: v_row
         },
         planList: []
@@ -215,11 +215,14 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
             v_plan_node_cost.value -= v_new_plan.data[v_lagereControl.total_progress_key_name];
 
-            if (i > 0) {
-              v_lagereControl.global_children_count += 1;
-            }
           }
         }
+        else {
+          v_lagereControl.global_children_count += 1;
+        }
+      }
+      else {
+        v_lagereControl.global_children_count += 1;
       }
 
       // v_plan.grid.row = v_row + 1;

@@ -45,6 +45,11 @@
   animation-delay:.20s;
 }
 
+.omnis-lagere__svg text {
+  fill: #d2d2d2;
+  font-size: 0.9rem;
+}
+
 @-o-keyframes lagereWrapperFadeIn{
   to{opacity:1;}
 }

@@ -40,10 +40,8 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
     updatePlanList : function(p_data) {
       this.emptyPlanList();
       this.data = p_data;
-      this.createPlans();
-
       this.setStateEnabled();
-
+      this.createPlans();
       this.renderPlans();
     },
     goToPlan : function(p_index) {
@@ -62,8 +60,9 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       var v_index_map = [];
 
       // Update v_index_map with parent p_index_map
-      for (let i = 0; i < p_index_map.length; i++)
+      for (let i = 0; i < p_index_map.length; i++) {
         v_index_map.push(p_index_map[i]);
+      }
 
       // Add current index to v_index_map
       v_index_map.push(v_index);
@@ -71,14 +70,16 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       // Updates planCountMatrix
       var v_row = v_index_map.length - 1;
 
-      if (this.planCountMatrix[v_row] === undefined)
+      if (this.planCountMatrix[v_row] === undefined) {
         this.planCountMatrix.push(1);
-      else
+      }
+      else {
         this.planCountMatrix[v_row] += 1;
+      }
 
       // Create child plans
-      if (p_data['Plans'])
-        if (p_data['Plans'].length > 0)
+      if (p_data['Plans']) {
+        if (p_data['Plans'].length > 0) {
           for (let i = 0; i < p_data['Plans'].length; i++) {
             this.createPlanCountMatrix({
               p_data: p_data['Plans'][i],
@@ -86,6 +87,8 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
               p_index_map: v_index_map
             });
           }
+        }
+      }
 
     },
     createDataMatrixRow: function({
@@ -203,8 +206,20 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
 
       // Create child plans
-      var v_plan_progress_cost_total = 0;
-      v_plan_progress_cost_total += v_plan.data[v_control.total_progress_key_name];
+      var v_plan_cost = v_plan.data[v_control.total_progress_key_name];
+
+      var v_plan_total_cost = {
+        label: v_control.total_progress_key_name + ' (accumulated cost)',
+        percentage: v_plan_cost / v_control.total_progress_cost,
+        value: v_plan_cost
+      }
+
+      v_plan.total_cost = v_plan_total_cost;
+
+      var v_plan_node_cost = {
+        label: v_control.total_progress_key_name + ' (node cost)',
+        value: v_plan_cost
+      }
 
       if (p_data['Plans']) {
         if (p_data['Plans'].length > 0) {
@@ -221,15 +236,16 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
             v_child_max_children_count += v_new_plan.max_children_count;
 
-            v_plan_progress_cost_total -= v_new_plan.data[v_control.total_progress_key_name];
+            v_plan_node_cost.value -= v_new_plan.data[v_control.total_progress_key_name];
           }
         }
       }
 
       // console.log(v_plan_progress_cost_total, v_new_plan_progress_cost_total);
 
-      v_plan.progress_cost_percentage = v_plan_progress_cost_total / v_control.total_progress_cost;
-      v_plan.progress_cost_value = v_plan_progress_cost_total;
+      v_plan_node_cost.percentage = v_plan_node_cost.value / v_control.total_progress_cost;
+
+      v_plan.node_cost = v_plan_node_cost;
 
       return v_plan;
     },
@@ -252,27 +268,51 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
       v_lagereControl.divElement.remove();
 
+      v_lagereControl.context.parent[v_lagereControl.context.self] = null;
+
       delete v_lagereControl.context.parent[v_lagereControl.context.self];
     },
     renderPlan : function(p_plan_item) {
       var v_plan_item = p_plan_item;
       var v_plans_html = '';
 
-
       var v_title = '';
       var v_progress_cost_html = '';
       if (v_plan_item.data['Node Type']) {
         var v_child_count = (v_plan_item['planList'] !== undefined) ? v_plan_item['planList'].length : 0;
         v_title +=
-        '<div class="' + this.defaultClass + '__title card-title p-2"><h5 class="mb-0">' +
+        '<div class="' + this.defaultClass + '__title card-title p-2 mb-0"><h5 class="mb-0">' +
           '<strong>' + v_plan_item.data['Node Type'] + '</strong>' +
           '<span>(' + v_child_count + ')</span>' +
-          '<span class="ml-4" style="font-weight:400;">cost: ' + v_plan_item.progress_cost_value + '</span>' +
         '</h5></div>';
 
+        var v_temp_progress_bars_data = [
+          v_plan_item.total_cost,
+          v_plan_item.node_cost
+        ];
+
         v_progress_cost_html +=
-        '<div class="' + this.defaultClass + '__body card-body p-2">' +
-          '<div id="' + v_plan_item.id + '_svg_progress"></div>' +
+        '<div class="' + this.defaultClass + '__body card-body p-2">';
+
+        for (let i = 0; i < v_temp_progress_bars_data.length; i++) {
+          var temp_bar_data = v_temp_progress_bars_data[i];
+          v_progress_cost_html +=
+          '<div id="' + v_plan_item.id + '_svg_progress_' + i + '"></div>' +
+          '<div>' + temp_bar_data.label + '</div>' +
+          '<div>- percentage: ' + (100*temp_bar_data.percentage) + '%</div>' +
+          '<div>- value: ' + temp_bar_data.value + '</div>';
+        }
+
+        v_progress_cost_html +=
+        '<div class="alert alert-info mt-2">';
+        Object.keys(v_plan_item.data).forEach(function (p_data_key) {
+          v_progress_cost_html +=
+          '<div>' + p_data_key + ': <span class="text-danger">' + v_plan_item.data[p_data_key] + '</span></div>';
+        });
+        v_progress_cost_html +=
+        '</div>';
+
+        v_progress_cost_html +=
         '</div>';
       }
       // CSS Grid ROWxCOL starts from 1, take this into account for p_index_map
@@ -372,7 +412,6 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       }
     },
     renderProgressBar : function(p_plan_list) {
-      var v_progress_bar_html = '';
       var v_node = null;
 
       for (let i = 0; i < p_plan_list.length; i++) {
@@ -380,34 +419,66 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         var v_node_element = document.getElementById(v_node.id);
 
         var v_bar_width = 100;
-        var v_bar_progress_width = v_bar_width - 4;
-        var v_bar_progress_width_value = v_bar_progress_width*v_node.progress_cost_percentage;
-        if (v_bar_progress_width_value < 0) {
-          v_bar_progress_width_value = v_bar_progress_width_value*(-1);
-        }
+        // temp_params_for_style_construction
+        var v_temp_progress_bars_data = [
+          v_node.total_cost,
+          v_node.node_cost
+        ]
+        var temp_svg_path_html = '';
+        // Style construction
+        for (let j = 0; j < v_temp_progress_bars_data.length; j++) {
+          var v_bar_data = v_temp_progress_bars_data[j];
+          var v_bar_data_label = v_bar_data.label;
+          var v_bar_data_percentage = v_bar_data.percentage;
+          var v_bar_data_value = v_bar_data.value;
+          var v_bar_progress_width = v_bar_width - 4;
+          var v_bar_progress_width_value = v_bar_progress_width*v_bar_data_percentage;
+          if (v_bar_progress_width_value < 0) {
+            v_bar_progress_width_value = v_bar_progress_width_value*(-1);
+          }
 
-        var v_fill_color = '#4a81d4';
-        if (v_node.progress_cost_percentage > 0.3 && v_node.progress_cost_percentage < 0.6) {
-          v_fill_color = '#ceb22b';
-        }
-        else if (v_node.progress_cost_percentage >= 0.6) {
-          v_fill_color = '#ce2b2b';
-        }
+          var v_fill_color = '#4a81d4';
+          if (v_bar_data_percentage > 0.3 && v_bar_data_percentage < 0.6) {
+            v_fill_color = '#ceb22b';
+          }
+          else if (v_bar_data_percentage >= 0.6) {
+            v_fill_color = '#ce2b2b';
+          }
 
-        v_progress_bar_html =
-        '<svg ' +
-          'class="' + this.defaultClass + '__progress-bar"' +
-          'xmlns="http://www.w3.org/2000/svg"' +
-          'width="' + v_bar_width + '"' +
-          'height="8"' +
-          'viewBox="0 0 ' + v_bar_width + ' 8" ' +
-        '>' +
-          '<path d="M 2 2 H ' + v_bar_progress_width_value + ' v 6 H -' + v_bar_progress_width_value + ' z" stroke="none" stroke-width="0" fill="' + v_fill_color + '" /></path>' +
-          '<path d="M 2 2 H ' + v_bar_progress_width + ' v 6 H -' + v_bar_progress_width + ' z" stroke="#d2d2d2" stroke-width="1" fill="none" /></path>' +
-        '</svg>';
-
-        var v_node_svg_container = document.getElementById(v_node.id + '_svg_progress');
-        v_node_svg_container.innerHTML = v_progress_bar_html;
+          var v_progress_bar_html =
+          '<svg ' +
+            'class="' + this.defaultClass + '__progress-bar"' +
+            'xmlns="http://www.w3.org/2000/svg"' +
+            'width="' + v_bar_width + '"' +
+            'height="8"' +
+            'viewBox="0 0 ' + v_bar_width + ' 8" ' +
+          '>' +
+            // path progress bar
+            '<path ' +
+              'd="M 2 2 ' +
+              'H ' + v_bar_progress_width_value + ' ' +
+              'v 6 ' +
+              'H 2 z" ' +
+              'stroke="none" ' +
+              'stroke-width="0" ' +
+              'fill="' + v_fill_color + '" ' +
+            '></path>' +
+            // path progress border
+            '<path ' +
+              'd="M 2 2 ' +
+              'H ' + v_bar_progress_width + ' ' +
+              'v 6 ' +
+              'H 2 z" ' +
+              'stroke="#d2d2d2" ' +
+              'stroke-width="1" ' +
+              'fill="none" ' +
+            '></path>' +
+          '</svg>';
+          var v_node_svg_container = document.getElementById(v_node.id + '_svg_progress_' + j);
+          if (v_node_svg_container) {
+            v_node_svg_container.innerHTML = v_progress_bar_html;
+          }
+        }
 
         if (v_node.planList) {
           this.renderProgressBar(v_node.planList);
@@ -462,38 +533,43 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
           if (v_node_child_list) {
             // Get position attributes of the v_node (source of the line)
-            var v_source = document.getElementById(v_node.id);
-            if (v_source) {
-              // var v_source_rect = v_source.getBoundingClientRect();
-              var v_source_x = (v_source.offsetWidth / 2) + v_source.offsetLeft;
-              var v_source_y = v_source.offsetTop + v_source.offsetHeight;
+            var v_source_id = document.getElementById(v_node.id);
+            if (v_source_id) {
+              var v_source = document.getElementById(v_node.id).lastChild;
+              if (v_source) {
+                // var v_source_rect = v_source.getBoundingClientRect();
+                var v_source_x = (v_source.offsetWidth / 2) + v_source.offsetLeft;
+                var v_source_y = v_source.offsetTop + v_source.offsetHeight;
 
-              for (let j = 0; j < v_node_child_list.length; j++) {
-                // Get the position of each v_child_node (target of the line)
-                var v_child_node = v_node_child_list[j];
-                var v_target = document.getElementById(v_child_node.id);
-                if (v_target) {
-                  // var v_target_rect = v_target.getBoundingClientRect();
-                  var v_target_x = (v_target.offsetWidth / 2) + v_target.offsetLeft;
-                  var v_target_y = v_target.offsetTop;
+                for (let j = 0; j < v_node_child_list.length; j++) {
+                  // Get the position of each v_child_node (target of the line)
+                  var v_child_node = v_node_child_list[j];
+                  var v_target = document.getElementById(v_child_node.id).firstChild;
+                  if (v_target) {
+                    // var v_target_rect = v_target.getBoundingClientRect();
+                    var v_target_x = (v_target.offsetWidth / 2) + v_target.offsetLeft;
+                    var v_target_y = v_target.offsetTop;
 
-                  var v_avg_width = v_target_x - v_source_x + 40;
-                  var v_path_style = 'style="stroke-dasharray:' + v_avg_width + '; stroke-dashoffset:' + v_avg_width + '"';
+                    var v_avg_width = v_target_x - v_source_x + v_source_y - v_target_y;
+                    // var v_path_style = 'style="stroke-dasharray:' + (v_avg_width + 40) + '; stroke-dashoffset:' + v_avg_width + '"';
+                    var v_path_style = '';
 
-                  // Create a path between the node and the node_child (source - target)
-                  if (j > 0) {
-                    // Account for line curves with 20 radius
-                    v_target_x = v_target_x - 20;
-                    // v_target_y = v_target_y + 40;
-                    v_svg_html += '<path ' + v_path_style + ' d="M ' + v_source_x + ' ' + v_source_y + ' c 0 20, 0 20, 20 20 H ' + v_target_x + ' c 20 0, 20 0, 20 20 V ' + v_target_y + '" stroke="#4a81d4" stroke-width="1" fill="none" /></path>';
-                  }
-                  else {
-                    v_svg_html += '<path ' + v_path_style + ' d="M ' + v_source_x + ' ' + v_source_y + ' L ' + v_target_x + ' ' + v_target_y + '" stroke="#4a81d4" stroke-width="1" fill="none" /></path>';
+                    // Create a path between the node and the node_child (source - target)
+                    if (j > 0) {
+                      // Account for line curves with 20 radius
+                      v_target_x = v_target_x - 20;
+                      v_target_y = v_target_y - 40;
+                      // v_target_y = v_target_y + 40;
+                      v_svg_html += '<path ' + v_path_style + ' d="M ' + v_source_x + ' ' + v_source_y + ' V ' + v_target_y  + ' c 0 20, 0 20, 20 20 H ' + v_target_x + ' c 20 0, 20 0, 20 20 ' + '" stroke="#4a81d4" stroke-width="1" fill="none" /></path>';
+                    }
+                    else {
+                      v_svg_html += '<path ' + v_path_style + ' d="M ' + v_source_x + ' ' + v_source_y + ' L ' + v_target_x + ' ' + v_target_y + '" stroke="#4a81d4" stroke-width="1" fill="none" /></path>';
+                    }
                   }
                 }
+                // Recursively adds path for each subsequent child of thid v_child_node
+                v_svg_html += this.renderSvgPath(v_node_child_list, p_parent_params);
               }
-              // Recursively adds path for each subsequent child of thid v_child_node
-              v_svg_html += this.renderSvgPath(v_node_child_list, p_parent_params);
             }
           }
         }
@@ -563,7 +639,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         v_lagereControl.divElement.appendChild(v_lagereControl.divElementContent);
 
         v_lagereControl.divGrid = document.createElement('div');
-        v_lagereControl.divGrid.style['grid-gap'] = '40px 10px';
+        v_lagereControl.divGrid.style['grid-gap'] = '40px 40px';
         v_lagereControl.divGrid.style.display = 'grid';
         v_lagereControl.divGrid.style.position = 'relative';
         v_lagereControl.divGrid.style['z-index'] = 1;

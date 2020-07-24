@@ -8247,6 +8247,7 @@ function getExplainReturn(p_data) {
 
         v_tab_tag.explainControl = createLagere(v_context, v_lagere_options);
 
+
         v_tab_tag.explainControl.updatePlanList(JSON.parse(v_explain_text));
 
         // console.log(JSON.parse(v_explain_text))

@@ -131,8 +131,11 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
     },
     createDataMatrix: function() {
+      this.total_progress_key_name = (this.data[0]['Plan']['Actual Total Time']) ? 'Actual Total Time' : 'Total Cost';
+      this.total_progress_cost = 0;
       // Creates the planCountMatrix to evaluate row and col range
       for (let i = 0; i < this.data.length; i++) {
+        this.total_progress_cost += this.data[i]['Plan'][this.total_progress_key_name];
         this.createPlanCountMatrix({
           p_data: this.data[i]['Plan'],
           p_index: i,
@@ -200,6 +203,9 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
 
       // Create child plans
+      var v_plan_progress_cost_total = 0;
+      v_plan_progress_cost_total += v_plan.data[v_control.total_progress_key_name];
+
       if (p_data['Plans']) {
         if (p_data['Plans'].length > 0) {
           var v_child_max_children_count = 1;
@@ -214,14 +220,22 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
             v_plan.planList.push(v_new_plan);
 
             v_child_max_children_count += v_new_plan.max_children_count;
+
+            v_plan_progress_cost_total -= v_new_plan.data[v_control.total_progress_key_name];
           }
         }
       }
+
+      // console.log(v_plan_progress_cost_total, v_new_plan_progress_cost_total);
+
+      v_plan.progress_cost_percentage = v_plan_progress_cost_total / v_control.total_progress_cost;
+      v_plan.progress_cost_value = v_plan_progress_cost_total;
 
       return v_plan;
     },
     createPlans : function() {
       this.createDataMatrix();
+
 			for (let i = 0; i < this.data.length; i++) {
         var v_new_plan = this.createPlan({
           p_data: this.data[i]['Plan'],
@@ -244,14 +258,22 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       var v_plan_item = p_plan_item;
       var v_plans_html = '';
 
+
       var v_title = '';
+      var v_progress_cost_html = '';
       if (v_plan_item.data['Node Type']) {
         var v_child_count = (v_plan_item['planList'] !== undefined) ? v_plan_item['planList'].length : 0;
         v_title +=
         '<div class="' + this.defaultClass + '__title card-title p-2"><h5 class="mb-0">' +
           '<strong>' + v_plan_item.data['Node Type'] + '</strong>' +
           '<span>(' + v_child_count + ')</span>' +
+          '<span class="ml-4" style="font-weight:400;">cost: ' + v_plan_item.progress_cost_value + '</span>' +
         '</h5></div>';
+
+        v_progress_cost_html +=
+        '<div class="' + this.defaultClass + '__body card-body p-2">' +
+          '<div id="' + v_plan_item.id + '_svg_progress"></div>' +
+        '</div>';
       }
       // CSS Grid ROWxCOL starts from 1, take this into account for p_index_map
       var v_index = v_plan_item.index;
@@ -316,6 +338,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       '<div ' + v_test_attr + ' id="' + v_plan_item.id + '" class="' + this.defaultClass + '__item" style="grid-row: ' + v_grid_row + '; grid-column:' + v_grid_col + '">' +
         '<div class="' + this.defaultClass + '__card card">' +
           v_title +
+          v_progress_cost_html +
         '</div>' +
       '</div>';
 
@@ -348,7 +371,53 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         this.divElement.style.display = 'none';
       }
     },
+    renderProgressBar : function(p_plan_list) {
+      var v_progress_bar_html = '';
+      var v_node = null;
+
+      for (let i = 0; i < p_plan_list.length; i++) {
+        v_node = p_plan_list[i];
+        var v_node_element = document.getElementById(v_node.id);
+
+        var v_bar_width = 100;
+        var v_bar_progress_width = v_bar_width - 4;
+        var v_bar_progress_width_value = v_bar_progress_width*v_node.progress_cost_percentage;
+        if (v_bar_progress_width_value < 0) {
+          v_bar_progress_width_value = v_bar_progress_width_value*(-1);
+        }
+
+        var v_fill_color = '#4a81d4';
+        if (v_node.progress_cost_percentage > 0.3 && v_node.progress_cost_percentage < 0.6) {
+          v_fill_color = '#ceb22b';
+        }
+        else if (v_node.progress_cost_percentage >= 0.6) {
+          v_fill_color = '#ce2b2b';
+        }
+
+        v_progress_bar_html =
+        '<svg ' +
+          'class="' + this.defaultClass + '__progress-bar"' +
+          'xmlns="http://www.w3.org/2000/svg"' +
+          'width="' + v_bar_width + '"' +
+          'height="8"' +
+          'viewBox="0 0 ' + v_bar_width + ' 8" ' +
+        '>' +
+          '<path d="M 2 2 H ' + v_bar_progress_width_value + ' v 6 H -' + v_bar_progress_width_value + ' z" stroke="none" stroke-width="0" fill="' + v_fill_color + '" /></path>' +
+          '<path d="M 2 2 H ' + v_bar_progress_width + ' v 6 H -' + v_bar_progress_width + ' z" stroke="#d2d2d2" stroke-width="1" fill="none" /></path>' +
+        '</svg>';
+
+        var v_node_svg_container = document.getElementById(v_node.id + '_svg_progress');
+        v_node_svg_container.innerHTML = v_progress_bar_html;
+
+        if (v_node.planList) {
+          this.renderProgressBar(v_node.planList);
+        }
+      }
+    },
     renderSvg : function(p_plan_list) {
+
+      // Create progress bars for each node and subsequent child;
+      this.renderProgressBar(p_plan_list);
 
       var v_parent_container = this.divGridContainer;
 

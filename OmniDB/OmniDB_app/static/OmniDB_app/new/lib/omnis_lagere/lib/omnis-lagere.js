@@ -18,14 +18,15 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
     defaultMessage: 'No content',
     divElement: false,
     global_children_count: 0,
+    global_collapse: false,
     grid: {
       col_count: 0,
       row_count: 0,
     },
 		id: 'omnis_lagere_control_' + Date.now(),
     planCounter: 0,
-    planList: [],
     planCountMatrix: [0],
+    planList: [],
 		stateActive: false,
     targetDiv: (p_options.target) ? p_options.target : false,
     totalCols: 0,
@@ -34,17 +35,24 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
     emptyPlanList : function() {
       this.data = [];
       this.dataMatrix = [];
+      this.global_children_count = 0;
+      this.grid = {
+        col_count: 0,
+        row_count: 0,
+      };
       this.planCounter = 0;
+      this.planCountMatrix = [0];
       this.planList = [];
-      this.planCounter = 0;
-      this.planList = [];
-      this.planCountMatrix = [];
       this.totalCols = 0;
       this.totalRows = 0;
     },
     updatePlanList : function(p_data) {
+      var v_data = [];
+      for (let i = 0; i < p_data.length; i++) {
+        v_data.push(p_data[i]);
+      }
       this.emptyPlanList();
-      this.data = p_data;
+      this.data = v_data;
       this.setStateEnabled();
       this.createPlans();
       this.renderPlans();
@@ -133,6 +141,15 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       // Updates total_count of nodes
       v_lagereControl.planCounter++;
 
+      if (p_data.omnis_lagere_control === undefined) {
+        p_data.omnis_lagere_control = {
+          is_collapsed: v_lagereControl.global_collapse
+        }
+      }
+      else if (p_data.omnis_lagere_control.is_collapsed === undefined) {
+        p_data.omnis_lagere_control.is_collapsed = v_lagereControl.global_collapse;
+      }
+
       var v_id = v_lagereControl.id + '_plan';
       var v_node = p_data;
       var v_index = p_index;
@@ -156,8 +173,9 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
       var v_data = {};
       Object.keys(p_data).forEach(function (p_data_key) {
-        if (p_data_key !== 'Plans')
+        if (p_data_key !== 'Plans' && p_data_key !== 'omnis_lagere_control') {
           v_data[p_data_key] = p_data[p_data_key];
+        }
       });
 
       // var v_children_count = 0;
@@ -171,14 +189,15 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       var v_plan = {
         // children_count: v_children_count,
         data: v_data,
-				id: v_id,
-        index: v_index,
-        index_map: v_index_map,
         grid: {
           // col: (v_children_count === 0) ? v_index + 1 : v_index + v_lagereControl.global_children_count + 1,
           col: v_lagereControl.global_children_count + 1,
           row: v_row
         },
+				id: v_id,
+        index: v_index,
+        index_map: v_index_map,
+        omnis_lagere_control: p_data.omnis_lagere_control,
         planList: []
 			};
 
@@ -273,6 +292,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       var v_progress_cost_html = '';
       if (v_plan_item.data['Node Type']) {
         var v_child_count = (v_plan_item['planList'] !== undefined) ? v_plan_item['planList'].length : 0;
+
         v_title +=
         '<div class="' + this.defaultClass + '__title card-title p-2 mb-0"><h5 class="mb-0">' +
           '<strong>' + v_plan_item.data['Node Type'] + '</strong>' +
@@ -296,16 +316,17 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
           '<div>- value: ' + temp_bar_data.value + '</div>';
         }
 
-        v_progress_cost_html +=
+        var v_data_html =
+        '<div class="mb-2">Toggle node data <button id="' + v_plan_item.id + '_button_toggle_collapse_update" class="btn btn-sm btn-secondary ml-2"></button></div>' +
         '<div class="alert alert-info mt-2">';
         Object.keys(v_plan_item.data).forEach(function (p_data_key) {
-          v_progress_cost_html +=
+          v_data_html +=
           '<div>' + p_data_key + ': <span class="text-danger">' + v_plan_item.data[p_data_key] + '</span></div>';
         });
-        v_progress_cost_html +=
+        v_data_html +=
         '</div>';
 
-        v_progress_cost_html +=
+        v_data_html +=
         '</div>';
       }
       // CSS Grid ROWxCOL starts from 1, take this into account for p_index_map
@@ -378,11 +399,19 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       v_grid_row = v_plan_item.grid.row;
       v_grid_col = v_plan_item.grid.col;
 
+
+      var v_plan_item_state_classes = ' ';
+      if (v_plan_item.omnis_lagere_control.is_collapsed) {
+        v_plan_item_state_classes += this.defaultClass + '__item--is_collapsed ';
+      }
+
+
       var v_plans_html =
-      '<div id="' + v_plan_item.id + '" class="' + this.defaultClass + '__item" style="grid-row: ' + v_grid_row + '; grid-column:' + v_grid_col + '">' +
+      '<div id="' + v_plan_item.id + '" class="' + this.defaultClass + '__item ' + v_plan_item_state_classes + '" style="grid-row: ' + v_grid_row + '; grid-column:' + v_grid_col + '">' +
         '<div class="' + this.defaultClass + '__card card">' +
           v_title +
           v_progress_cost_html +
+          v_data_html +
         '</div>' +
       '</div>';
 
@@ -406,8 +435,9 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
         var v_plans_html = '';
 
-        for (let i = 0; i < this.planList.length; i++)
+        for (let i = 0; i < this.planList.length; i++) {
           v_plans_html += this.renderPlan(this.planList[i]);
+        }
 
         this.renderTarget(v_plans_html);
       }
@@ -416,11 +446,29 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       }
     },
     renderProgressBar : function(p_plan_list) {
+      var v_lagereControl = this;
       var v_node = null;
 
       for (let i = 0; i < p_plan_list.length; i++) {
         v_node = p_plan_list[i];
         var v_node_element = document.getElementById(v_node.id);
+
+
+        var node_button_toggle_collapse_update = document.getElementById(v_node.id + '_button_toggle_collapse_update');
+
+        if (node_button_toggle_collapse_update !== null) {
+          if (v_node.omnis_lagere_control.is_collapsed) {
+            node_button_toggle_collapse_update.innerHTML = '<i class="fas fa-eye-slash"></i>';
+          }
+          else {
+            node_button_toggle_collapse_update.innerHTML = '<i class="fas fa-eye"></i>';
+          }
+
+          node_button_toggle_collapse_update.onclick = function(){
+            v_lagereControl.toggleCollapseNodeUpdate(v_node.index_map);
+          }
+        }
+
 
         var v_bar_width = 100;
         // temp_params_for_style_construction
@@ -591,7 +639,8 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       // Creates outter element of the component once
       if (!v_lagereControl.divElement) {
         v_lagereControl.divElement = document.createElement('div');
-        v_lagereControl.divElement.setAttribute('id', v_lagereControl.id);
+        v_lagereControl.divElementId = v_lagereControl.id;
+        v_lagereControl.divElement.setAttribute( 'id', v_lagereControl.divElementId );
         v_lagereControl.divElement.classList = this.defaultClass + '__wrapper';
 
         // Template options when there's no targetDiv and the component needs a modal to render to render inside
@@ -638,19 +687,22 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         }
 
         v_lagereControl.divElementContent = document.createElement('div');
-        v_lagereControl.divElementContent.setAttribute('id', v_lagereControl.id + '_content');
+        v_lagereControl.divElementContentId = v_lagereControl.id + '_content';
+        v_lagereControl.divElementContent.setAttribute('id', v_lagereControl.divElementContentId);
         v_lagereControl.divElementContent.setAttribute('style', 'width:' + v_parent_width + 'px; height:' + v_parent_height + 'px; overflow: auto; padding: 10px;');
 
         v_lagereControl.divElement.appendChild(v_lagereControl.divElementContent);
 
         v_lagereControl.divGrid = document.createElement('div');
-        v_lagereControl.divGrid.setAttribute('id', v_lagereControl.id + '_div_grid');
+        v_lagereControl.divGridId = v_lagereControl.id + '_div_grid';
+        v_lagereControl.divGrid.setAttribute('id', v_lagereControl.divGridId);
         v_lagereControl.divGrid.style['grid-gap'] = '40px 40px';
         v_lagereControl.divGrid.style.display = 'grid';
         v_lagereControl.divGrid.style.position = 'relative';
         v_lagereControl.divGrid.style['z-index'] = 1;
         v_lagereControl.divGridContainer = document.createElement('div');
-        v_lagereControl.divGridContainer.setAttribute('id', v_lagereControl.id + '_div_grid_container');
+        v_lagereControl.divGridContainerId = v_lagereControl.id + '_div_grid_container';
+        v_lagereControl.divGridContainer.setAttribute('id', v_lagereControl.divGridContainerId);
         v_lagereControl.divGridContainer.style.position = 'relative';
         v_lagereControl.divGridContainer.style['transform-origin'] = 'top left';
         v_lagereControl.divGridContainer.style['transform'] = 'scale(1)';
@@ -664,7 +716,8 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         v_control_panel_div.setAttribute('style', 'align-items: center; display: flex; position: absolute; right: 15px; top: 15px;');
 
         v_control_panel_div.innerHTML =
-        '<button id="' + v_lagereControl.id + '_control_panel_button_zoomin" class="btn btn-sm btn-secondary"><i class="fas fa-search-plus"></i></button>' +
+        '<button id="' + v_lagereControl.id + '_control_panel_button_toggle_collapse_update" class="btn btn-sm btn-secondary"><i class="fas fa-eye"></i></button>' +
+        '<button id="' + v_lagereControl.id + '_control_panel_button_zoomin" class="btn btn-sm btn-secondary ml-2"><i class="fas fa-search-plus"></i></button>' +
         '<button id="' + v_lagereControl.id + '_control_panel_button_zoomout" class="btn btn-sm btn-secondary ml-2"><i class="fas fa-search-minus"></i></button>' +
         '<button id="' + v_lagereControl.id + '_control_panel_button_fit" class="btn btn-sm btn-secondary ml-2"><i class="fas fa-vector-square"></i></button>' +
         '<button id="' + v_lagereControl.id + '_control_panel_button_reset" class="btn btn-sm btn-secondary ml-2">reset</button>';
@@ -691,10 +744,24 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       // this.divGrid.style['grid-template-rows'] = v_grid_row_attr;
 
       // Sets the new content for the divGrid
-      v_lagereControl.divGrid.innerHTML = p_plans_html;
+      document.getElementById(v_lagereControl.divGridId).innerHTML = p_plans_html;
 
-      v_lagereControl.id + '_control_panel_button_zoomin'
+
       // Adds the click event to the control panel buttons
+      var v_toggle_collapse_update_btn = document.getElementById(v_lagereControl.id + '_control_panel_button_toggle_collapse_update');
+      if (v_toggle_collapse_update_btn !== undefined && v_toggle_collapse_update_btn !== null) {
+        v_toggle_collapse_update_btn.onclick = function(){
+          v_lagereControl.global_collapse = !v_lagereControl.global_collapse;
+          var v_toggle_collapse = v_lagereControl.global_collapse;
+          if (v_toggle_collapse) {
+            v_toggle_collapse_update_btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+          }
+          else {
+            v_toggle_collapse_update_btn.innerHTML = '<i class="fas fa-eye"></i>';
+          }
+          v_lagereControl.toggleCollapseUpdate('all', false, v_toggle_collapse);
+        };
+      }
       var v_div_grid_container = document.getElementById(v_lagereControl.id + '_div_grid_container');
       var v_zoomin_btn = document.getElementById(v_lagereControl.id + '_control_panel_button_zoomin');
       if (v_zoomin_btn !== undefined && v_zoomin_btn !== null) {
@@ -800,7 +867,66 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
     setStateDisabled : function() {
       this.stateActive = false;
       this.updatePlanList([]);
-      this.renderPlans();
+    },
+    toggleCollapse: function(p_type = false, p_node = false, p_set_state = null) {
+      var v_lagereControl = this;
+      if (p_type === 'all') {
+        var v_node_list = [];
+        if (p_node) {
+          v_lagereControl.toggleCollapse(false, p_node, p_set_state);
+          v_node_list = p_node.Plans;
+          if (v_node_list) {
+            for (let i = 0; i < v_node_list.length; i++) {
+              var v_child_node = v_node_list[i];
+              v_lagereControl.toggleCollapse('all', v_child_node, p_set_state);
+            }
+          }
+        }
+        else {
+          var v_data = v_lagereControl.data;
+          if (v_data) {
+            v_node_list = v_lagereControl.data;
+            if (v_node_list) {
+              for (let i = 0; i < v_node_list.length; i++) {
+                if (v_node_list[i].Plan) {
+                  var v_node = v_node_list[i].Plan;
+                  v_lagereControl.toggleCollapse('all', v_node, p_set_state);
+                }
+              }
+            }
+          }
+        }
+      }
+      else if (p_set_state !== null && p_node) {
+        p_node.omnis_lagere_control.is_collapsed = p_set_state;
+      }
+      else if (p_node) {
+        p_node.omnis_lagere_control.is_collapsed = !p_node.omnis_lagere_control.is_collapsed;
+      }
+    },
+    toggleCollapseNodeUpdate: function(p_index_map) {
+      var v_lagereControl = this;
+
+      var v_parent_node = v_lagereControl.data[p_index_map[0]];
+
+      if (p_index_map.length === 1) {
+        v_lagereControl.toggleCollapseNodeUpdate(false, v_parent_node, null);
+      }
+      else {
+        var v_node_list = v_parent_node.Plans;
+
+        for (let i = 0; i < p_index_map.length - 1; i++) {
+          var v_index = p_index_map[i];
+          var v_parent_node = v_lagereControl.data[p_index_map[i]];
+
+        }
+      }
+
+    },
+    toggleCollapseUpdate: function(p_type = 'all', p_node = false, p_set_state = null) {
+      this.toggleCollapse(p_type, p_node, p_set_state);
+      var v_lagereControl = this;
+      this.updatePlanList(v_lagereControl.data);
     },
     updateRowsColsCount : function() {
 

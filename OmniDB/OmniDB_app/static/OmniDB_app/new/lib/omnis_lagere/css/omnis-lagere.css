@@ -22,6 +22,10 @@
   animation-delay:0s;
 }
 
+.omnis-lagere__item.omnis-lagere__item--is_collapsed .alert-info {
+  display: none;
+}
+
 .omnis-lagere__svg path {
   -o-animation-name:lagereSvgDrawStrokes;
   -moz-animation-name:lagereSvgDrawStrokes;

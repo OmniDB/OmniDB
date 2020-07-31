@@ -284,7 +284,28 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
       delete v_lagereControl.context.parent[v_lagereControl.context.self];
     },
+    setClickEventButtonToggleCollapse: function(p_node) {
+      var v_lagereControl = this;
+
+
+      var node_button_toggle_collapse_update = document.getElementById(p_node.id + '_button_toggle_collapse_update');
+
+      node_button_toggle_collapse_update.onclick = function(event){
+        v_lagereControl.toggleCollapseNodeUpdate(p_node.index_map);
+      }
+
+      var v_child_node = null;
+
+      // Recursively creates the buttons for the children
+      if (p_node.planList) {
+        for (let i = 0; i < p_node.planList.length; i++) {
+          v_child_node = p_node.planList[i];
+          this.setClickEventButtonToggleCollapse(v_child_node);
+        }
+      }
+    },
     renderPlan : function(p_plan_item) {
+      var v_lagereControl = this;
       var v_plan_item = p_plan_item;
       var v_plans_html = '';
 
@@ -317,7 +338,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         }
 
         var v_data_html =
-        '<div class="mb-2">Toggle node data <button id="' + v_plan_item.id + '_button_toggle_collapse_update" class="btn btn-sm btn-secondary ml-2"></button></div>' +
+        '<div class="mb-2">Toggle node data <button id="' + v_plan_item.id + '_button_toggle_collapse_update" class="btn btn-sm btn-secondary ml-2 ' + v_lagereControl.defaultClass + '__btn-toggle-collapse-update" data-index-map="' + v_plan_item.index_map + '"></button></div>' +
         '<div class="alert alert-info mt-2">';
         Object.keys(v_plan_item.data).forEach(function (p_data_key) {
           v_data_html +=
@@ -463,10 +484,6 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
           else {
             node_button_toggle_collapse_update.innerHTML = '<i class="fas fa-eye"></i>';
           }
-
-          node_button_toggle_collapse_update.onclick = function(){
-            v_lagereControl.toggleCollapseNodeUpdate(v_node.index_map);
-          }
         }
 
 
@@ -571,7 +588,17 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         v_svg_paths_html +
       '</svg>';
 
-      this.divGridContainer.innerHTML += v_svg_html;
+      this.divGridContainer = document.getElementById(v_lagereControl.divGridContainerId);
+
+      if (this.divGridContainer !== null) {
+        this.divGridContainer.innerHTML += v_svg_html;
+
+        // Create node button toggle collapse content and events
+        for (let i = 0; i < p_plan_list.length; i++) {
+          var v_node = p_plan_list[i];
+          this.setClickEventButtonToggleCollapse(v_node);
+        }
+      }
 
     },
     renderSvgPath : function(p_plan_list) {
@@ -825,6 +852,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       }
 
       v_lagereControl.divElement.style.display = 'block';
+
     },
     resize() {
       v_lagereControl = this;
@@ -857,6 +885,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
           setTimeout(function(){
             v_lagereControl.renderSvg(v_lagereControl.planList);
           }, 150);
+
         }
 
       }
@@ -910,15 +939,29 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       var v_parent_node = v_lagereControl.data[p_index_map[0]];
 
       if (p_index_map.length === 1) {
-        v_lagereControl.toggleCollapseNodeUpdate(false, v_parent_node, null);
+        v_lagereControl.toggleCollapseUpdate(false, v_parent_node.Plan, null);
       }
       else {
         var v_node_list = v_parent_node.Plans;
+        let v_temp_node = null;
+        let v_temp_list = null;
 
-        for (let i = 0; i < p_index_map.length - 1; i++) {
+        for (let i = 0; i < p_index_map.length; i++) {
           var v_index = p_index_map[i];
-          var v_parent_node = v_lagereControl.data[p_index_map[i]];
-
+          if (i === 0) {
+            v_temp_node = v_parent_node;
+          }
+          else {
+            if (v_temp_node.Plan) {
+              v_temp_list = v_temp_node.Plan.Plans;
+              if (v_temp_list) {
+                v_temp_node = v_temp_list[v_index];
+                if (i === p_index_map.length - 1) {
+                  v_lagereControl.toggleCollapseUpdate(false, v_temp_node, null);
+                }
+              }
+            }
+          }
         }
       }
 

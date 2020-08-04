@@ -49,7 +49,7 @@ def index(request):
         else:
             return HttpResponse("INVALID APP TOKEN")
 
-    template = loader.get_template('OmniDB_app/login.html')
+    template = loader.get_template('OmniDB_app/new_login.html')
     return HttpResponse(template.render(context, request))
 
 def logout(request):

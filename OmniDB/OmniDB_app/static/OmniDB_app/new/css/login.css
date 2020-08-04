@@ -7,91 +7,98 @@ body {
 	font-family: monospace;
 	background-color: #F2F2F2;
 }
-#div_form {
+.omnidb__login {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 
 	height: 100%;
 }
-#div_form .loginWrap {
+.omnidb__login__wrapper {
 	padding: 10px;
 	width: 280px;
 	text-align: center;
 	background-color: #FFFFFF;
-	box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.07);
+	box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.2);
 	border-radius: 3px;
 	box-sizing: border-box;
 }
-#div_form .div_time {
+.omnidb__login .div_time {
 	display: inline-block;
 }
-#div_form .version {
-	padding-right: 34px;
-	text-align: right;
-    color: #828282;
+.omnidb__login .omnidb__login__version {
+	color: #828282;
+	position: relative;
 }
-#div_form small {
-	display: inline-block:
+.omnidb__login small {
+	display: block;
+	position: absolute;
+	right: 34px;
+  bottom: 10px;
 }
-#div_form .inputWrap {
+.omnidb__login .omnidb__login__input-wrapper {
 	position: relative;
 	display: block;
 	margin: 20px 0px;
 	padding-top: 2px;
 	padding-bottom: 2px;
 	background-color: #FFFFFF;
-	box-shadow: 1px 1px 0px rgba(0,0,0,0.2);
 	transition: 0.45s;
 }
-#div_form .inputWrap.isActive input {
-	margin-left: 2px;
-	width: calc(100% - 4px);
-}
-#div_form .inputWrap label {
-	position: absolute;
-	display: block;
-	padding: 2px 3px;
-	bottom: 6px;
-	left: 3px;
-	font-size: 12px;
+.omnidb__login .omnidb__login__input-wrapper label {
+	background-color: #8DEB85;
+	border-radius: 6px;
 	color: #152d50;
-	background-color: #96da58;
-	z-index: 1;
+	display: block;
+	font-size: 12px;
+	left: 20px;
+  padding: 2px 6px;
+	position: absolute;
+  top: -5px;
+	transform: translateX(200px);
+  z-index: 1;
 }
-#div_form button {
+.omnidb__login .omnidb__login__input-wrapper.isEmpty label {
+	background-color: #EB8585;
+}
+.omnidb__login .omnidb__login__input-wrapper.isEmpty label::after {
+	content: " (empty)";
+	display: inline-block;
+}
+.omnidb__login button {
+	border-radius: 6px;
 	transition: transform 0.45s;
 }
-#div_form button:hover,
-#div_form button:focus {
+.omnidb__login button:hover,
+.omnidb__login button:focus {
 	transform: scale(1.2);
 }
-#div_form #user_title {
+.omnidb__login #user_title {
 	content: "user";
 }
-#div_form #pwd_title {
+.omnidb__login #pwd_title {
 	content: "password";
 }
-#div_form input {
-	background-color: #fbfbfb;
-	border-bottom: 1px solid #FFFFFF;
-	border-left: 2px solid #5d9eff;
-	border-right: 2px solid #FFFFFF;
-	border-top: 2px solid #FFFFFF;
+.omnidb__login input,
+.omnidb__login input:-internal-autofill-selected {
+	appearance: unset !important;
+	background-color: #FBFBFB !important;
+	box-shadow: 2px 2px 4px inset rgba(0,0,0,0.1) !important;
+	border-radius: 6px;
+	border-width: 1px !important;
+	border-color: #e2e2e2 !important;
 	box-sizing: border-box;
-	color: #839ec7;
-	font-family: monospace;
+	color: #2461BE !important;
 	display: block;
-	margin-left: 40px;
-	margin-right: 2px;
-	padding: 14px 8px 6px 14px;
+	font-family: monospace;
+	padding: 14px 18px 6px 18px;
 	position: relative;
 	transition: 0.45s;
-	width: 220px;
-	z-index: 1;
+	width: 100%;
+	z-index: 0;
 }
-#div_form input::placeholder {
-	color: #c2c2c2;
+.omnidb__login input::placeholder {
+	color: #c2c2c2 !important;
 }
 button {
 	display: inline-block;
@@ -150,7 +157,7 @@ body.loading .div_loading {
   left: 0;
   height: 100%;
   width: 100%;
-  background: rgba(252, 253, 253, 0.6) url(../images/omnidb_loading.svg) 50% 50% no-repeat
+  background: rgba(252, 253, 253, 0.6) url(../../images/omnidb_loading.svg) 50% 50% no-repeat
 }
 
 /* MODAL State controls */
@@ -164,34 +171,27 @@ body.loading .div_loading {
 
 
 /** ANIMATIONS **/
-#div_form {
+.omnidb__login {
 	opacity: 0;
 
 	animation: fadeIn 0.3s linear forwards 0s;
 }
 
-#div_form .loginWrap-body {
+.omnidb__login .loginWrap-body {
 	height: 0px;
 	overflow: hidden;
 
 	animation:	growInFromTop 0.4s linear forwards 1.4s;
 }
 
-#div_form .version,
-#div_form .inputWrap,
-#div_form button {
+.omnidb__login .omnidb__login__version,
+.omnidb__login .omnidb__login__input-wrapper,
+.omnidb__login button {
 	opacity: 0;
 
 	animation:	fadeIn 0.6s linear forwards 1.8s;
 }
 
-#div_form .inputWrap {
-	overflow: hidden;
-}
-#div_form .inputWrap label {
-	transform: translateX(260px);
-
-}
 #user_title {
 	animation: slideInFromRight 0.45s ease forwards 2s;
 }
@@ -200,8 +200,8 @@ body.loading .div_loading {
 }
 
 /* Animated Logo Omnidb styles */
-#div_time .logo svg {
-	width: 220px;
+.omnidb__login__logo svg {
+	width: 100%;
 }
 
 .logo_omnidb path,

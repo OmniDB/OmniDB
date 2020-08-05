@@ -1,4 +1,4 @@
-i.exp_col {
+.aimara_tree i.exp_col {
   width: 16px;
 	text-align: center;
   font-size: 12px;
@@ -18,6 +18,8 @@ i.exp_col {
 
 .aimara_tree span.node,
 .aimara_tree span.node_selected {
+  display: inline-block;
+  flex-grow: 1;
   padding-bottom: 4px;
 	padding-right: 3px;
   padding-top: 4px;
@@ -36,8 +38,13 @@ i.exp_col {
 }
 
 .aimara_tree .nav-link {
-  padding-left: 0px;
+  align-items: center;
   cursor: pointer;
+  display: flex;
+  justify-content: flex-star;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  padding-top: 0px;
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
    -khtml-user-select: none; /* Konqueror HTML */
@@ -49,7 +56,7 @@ i.exp_col {
 }
 
 .aimara_tree ul ul {
-  margin-left: 10px;
+  /* margin-left: 10px; */
 }
 
 

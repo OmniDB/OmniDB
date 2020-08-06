@@ -401,6 +401,9 @@
 .node a {
   color: #ffffff !important;
 }
+.aimara_tree a.nav-link:hover {
+  background-color: #2f3136;
+}
 span.node_selected span {
   color: #8DEB85;
 }

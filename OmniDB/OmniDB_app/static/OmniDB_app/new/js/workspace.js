@@ -79,9 +79,11 @@ $(function () {
 
   //startQueryWebSocket();
 
+  // TODO: design a worthy tutorial.
   // Create tutorial - tmp always active
-  if (true)
+  if (true) {
     startTutorial('main');
+  }
 
 });
 
@@ -501,7 +503,7 @@ function resizeTreeVertical(event) {
 
 	document.body.addEventListener(
 		'mousemove',
-		verticalLinePosition
+		getVerticalLinePosition
 	)
 
 	v_start_height = event.screenY;
@@ -520,7 +522,7 @@ function resizeTreeVerticalEnd(event) {
 
 	document.body.removeEventListener(
 		'mousemove',
-		verticalLinePosition
+		getVerticalLinePosition
 	)
 
 	var v_height_diff = event.screenY - v_start_height;
@@ -692,7 +694,7 @@ function resizeVertical(event) {
 
 	document.body.addEventListener(
 		'mousemove',
-		verticalLinePosition
+		getVerticalLinePosition
 	)
 
 	v_start_height = event.screenY;
@@ -710,7 +712,7 @@ function resizeVerticalEnd(event) {
 
 	document.body.removeEventListener(
 		'mousemove',
-		verticalLinePosition
+		getVerticalLinePosition
 	)
 
 	var v_height_diff = event.screenY - v_start_height;
@@ -845,10 +847,12 @@ function refreshHeights(p_all) {
 		else if (v_tab_tag.mode=='query') {
 			if (v_tab_tag.currQueryTab=='data') {
 				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
-				if (v_tab_tag.ht!=null)
-					v_tab_tag.ht.render();
-				if(v_tab_tag.editor != null)
-					v_tab_tag.editor.resize();
+				if (v_tab_tag.ht!=null) {
+          v_tab_tag.ht.render();
+        }
+				if(v_tab_tag.editor != null) {
+          v_tab_tag.editor.resize();
+        }
 			}
 			else if (v_tab_tag.currQueryTab=='message') {
 				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 15 + 'px';
@@ -1209,7 +1213,7 @@ function showMenuNewTab(e) {
 				v_connTabControl.tag.createConsoleTab();
 			}
 		}
-	]
+	];
 
 	if (v_connTabControl.selectedTab.tag.selectedDBMS=='postgresql' ||
 			v_connTabControl.selectedTab.tag.selectedDBMS=='mysql' ||
@@ -1261,8 +1265,9 @@ function showMenuNewTab(e) {
 
 	//Hooks
 	if (v_connTabControl.tag.hooks.innerTabMenu.length>0) {
-		for (var i=0; i<v_connTabControl.tag.hooks.innerTabMenu.length; i++)
-			v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.innerTabMenu[i]());
+		for (var i=0; i<v_connTabControl.tag.hooks.innerTabMenu.length; i++) {
+      v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.innerTabMenu[i]());
+    }
 	}
 
 	customMenu(
@@ -1334,9 +1339,23 @@ function drop(event, grid_container, div_left, div_right) {
 
 }
 
-/// <summary>
-/// Redefines vertical resize line position.
-/// </summary>
-function verticalLinePosition(p_event) {
+/**
+ * ## getVerticalLinePosition
+ * @desc Gets the Y position of the pointer event.
+ *
+ * @param  {Object} p_event UI action pointer event.
+ * @return {String}         The Y position of the pointer in pixels.
+ */
+function getVerticalLinePosition(p_event) {
 	document.getElementById('vertical-resize-line').style.top = p_event.pageY + 'px';
+}
+
+function toggleExpandToPanelView(p_target_id) {
+  let v_target = document.getElementById(p_target_id);
+  if (v_target) {
+    v_target.classList.toggle('omnidb__panel-view--full');
+    setTimeout(function(){
+      refreshHeights();
+    },350);
+  }
 }

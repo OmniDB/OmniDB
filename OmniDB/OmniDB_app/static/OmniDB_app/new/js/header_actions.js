@@ -189,6 +189,10 @@ function changeFontSize(p_option) {
 function changeInterfaceFontSize(p_option) {
 	v_font_size = p_option;
 	document.getElementsByTagName('html')[0].style['font-size'] = v_font_size + 'px';
+	$('.ace_editor').each(function(index) {
+		let editor = ace.edit(this);
+		editor.setFontSize(v_font_size + 'px');
+	});
 }
 
 /// <summary>

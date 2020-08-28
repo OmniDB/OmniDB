@@ -419,12 +419,25 @@ function getPluginMessage() {
     showError(v_connTabControl.tag.plugin_message_list[v_row])
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-function callPluginFunction({ p_plugin_name, p_function_name, p_data = null, p_callback = null, p_loading = true, p_check_database_connection = true }) {
+/**
+ * ## callPluginFunction
+ * @desc callPluginFunction
+ *
+ * @param  {String} p_plugin_name                       String mapping the context on which python should seek for the `pfunction_name`.
+ * @param  {String} p_function_name                     String mapping the name of the function to be run.
+ * @param  {[Object, Array, String, Number, Boolean]}   p_data = null                      Data relevant to the function.
+ * @param  {String} p_callback = null                   String mapping the name of the function to be run as callback when the plugin function returns successfully with valid data.
+ * @param  {Boolean} p_loading = true                   Defines if the loading animation should be used during the request.
+ * @param  {Boolean} p_check_database_connection = true Defines if the active connection to the selected database should be checked.
+ * @param  {Boolean} p_cancel_button = null             Defines if the default cancel button must be displayed or not.
+ * @param  {String} p_onAjaxErrorCallBack = false       String mapping the name of the function to be run as callback if the ajax request fails with an error.
+ * @return {Function}                                   Triggers the `p_callback` function with the returned data.
+ */
+function callPluginFunction({ p_plugin_name, p_function_name, p_data = null, p_callback = null, p_loading = true, p_check_database_connection = true, p_cancel_button = null, p_onAjaxErrorCallBack = false }) {
   var v_database_index = null;
-  if (v_connTabControl.selectedTab.tag.selectedDatabaseIndex)
+  if (v_connTabControl.selectedTab.tag.selectedDatabaseIndex) {
     v_database_index = v_connTabControl.selectedTab.tag.selectedDatabaseIndex;
+  }
   execAjax('/exec_plugin_function/',
       JSON.stringify({'p_plugin_name': p_plugin_name,
                       'p_function_name': p_function_name,
@@ -441,7 +454,7 @@ function callPluginFunction({ p_plugin_name, p_function_name, p_data = null, p_c
             showPasswordPrompt(
                 v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
                 function() {
-                    callPluginFunction({ p_plugin_name, p_function_name, p_data, p_callback, p_loading, p_check_database_connection })
+                    callPluginFunction({ p_plugin_name, p_function_name, p_data, p_callback, p_loading, p_check_database_connection, p_cancel_button, p_onAjaxErrorCallBack })
                 },
                 null,
                 p_return.v_data.message
@@ -451,7 +464,9 @@ function callPluginFunction({ p_plugin_name, p_function_name, p_data = null, p_c
         }
       },
       'box',
-      p_loading);
+      p_loading,
+      p_cancel_button,
+      p_onAjaxErrorCallBack);
 }
 
 function createSQLTab({ p_name = '', p_template = '', p_show_tip = true }) {

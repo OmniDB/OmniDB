@@ -521,10 +521,23 @@
   border-radius: 0px;
 }
 
-.omnidb__query-result-tabs .omnidb__tab-content {
-  /* padding: 0.5rem; */
+/* QUERY RESULT */
+.omnidb__query-result-tabs {
+  position: relative;
 }
 
+/* PANEL VIEW FULL */
+.omnidb__panel-view--full {
+  background-color: #FFF;
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.25);
+  height: calc(100vh - 50px);
+  left: 45px;
+  position: fixed;
+  top: 40px;
+  transition: 0.35s;
+  width: calc(100vw - 60px);
+  z-index: 900;
+}
 
 /* TAB MENU */
 .omnidb__tab-menu__link-name span {

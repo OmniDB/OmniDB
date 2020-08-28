@@ -85,7 +85,11 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
       "<select id='sel_export_type_" + v_tab.id + "' class='form-control omnidb__tab-actions__select' style='width: 80px;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option></select>" +
     "</div>" +
   "</div>" +
-  "<div id='query_result_tabs_" + v_tab.id + "' class='omnidb__query-result-tabs'></div>";
+  "<div id='query_result_tabs_container" + v_tab.id + "' class='omnidb__query-result-tabs'>" +
+    "<button style='position:absolute;top:0.25rem;right:0.25rem;' type='button' class='btn btn-sm btn-secondary' onclick=toggleExpandToPanelView('query_result_tabs_container" + v_tab.id + "')><i class='fas fa-expand'></i></button>" +
+    "<div id='query_result_tabs_" + v_tab.id + "'>" +
+    "</div>" +
+  "</div>";
 
   v_tab.elementDiv.innerHTML = v_html;
 
@@ -275,5 +279,4 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
       $("#cl_input_contains_" + v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id).click();
     },500);
   });
-
 };

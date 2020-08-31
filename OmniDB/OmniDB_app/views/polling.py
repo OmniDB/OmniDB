@@ -18,6 +18,8 @@ from datetime import datetime
 from django.utils.timezone import make_aware
 import sys
 
+import sqlparse
+
 from django.contrib.auth.models import User
 from OmniDB_app.models.main import *
 
@@ -66,6 +68,49 @@ class StoppableThread(threading.Thread):
         self.cancel = False
     def stop(self):
         self.cancel = True
+
+def closeTabHandler(p_client_object,p_tab_object_id):
+    try:
+        tab_object = p_client_object['tab_list'][p_tab_object_id]
+        del p_client_object['tab_list'][p_tab_object_id]
+        if tab_object['type'] == 'query':
+            try:
+                tab_object['omnidatabase'].v_connection.Cancel(False)
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase'].v_connection.Close()
+            except Exception as exc:
+                None
+        elif tab_object['type'] == 'debug':
+            tab_object['cancelled'] = True
+            try:
+                tab_object['omnidatabase_control'].v_connection.Cancel(False)
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase_control'].v_connection.Terminate(tab_object['debug_pid'])
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase_control'].v_connection.Close()
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase_debug'].v_connection.Close()
+            except Exception:
+                None
+        elif tab_object['type'] == 'terminal':
+            if tab_object['thread']!=None:
+                tab_object['thread'].stop()
+            if tab_object['terminal_type'] == 'local':
+                tab_object['terminal_object'].terminate()
+            else:
+                tab_object['terminal_object'].close()
+                tab_object['terminal_ssh_client'].close()
+
+    except Exception as exc:
+        None
 
 global_object = {}
 global_lock = threading.Lock()
@@ -144,8 +189,43 @@ def create_request(request):
         None
     global_lock.release()
 
+    #Cancel thread
+    if v_code == requestType.CancelThread:
+        try:
+            thread_data = client_object['tab_list'][v_data]
+            if thread_data:
+                if thread_data['type'] == 'advancedobjectsearch':
+                    def callback(self):
+                        try:
+                            self.tag['lock'].acquire()
 
-    if v_code == requestType.Query or v_code == requestType.QueryEditData or v_code == requestType.SaveEditData or v_code == requestType.AdvancedObjectSearch or v_code == requestType.Console:
+                            for v_activeConnection in self.tag['activeConnections']:
+                                v_activeConnection.Cancel(False)
+                        finally:
+                            self.tag['lock'].release()
+
+                    thread_data['thread_pool'].stop(p_callback=callback)
+                else:
+                    thread_data['thread'].stop()
+                    thread_data['omnidatabase'].v_connection.Cancel(False)
+        except Exception as exc:
+            print(str(exc))
+            None;
+
+    #Close Tab
+    elif v_code == requestType.CloseTab:
+        for v_tab_close_data in v_data:
+            closeTabHandler(client_object,v_tab_close_data['tab_id'])
+            #remove from tabs table if db_tab_id is not null
+            if v_tab_close_data['tab_db_id']:
+                try:
+                    tab = Tab.objects.get(id=v_tab_close_data['tab_db_id'])
+                    tab.delete()
+                except Exception as exc:
+                    None
+
+
+    elif v_code == requestType.Query or v_code == requestType.QueryEditData or v_code == requestType.SaveEditData or v_code == requestType.AdvancedObjectSearch or v_code == requestType.Console:
 
         #create tab object if it doesn't exist
         try:
@@ -198,6 +278,17 @@ def create_request(request):
             tab_object['type'] = 'query'
             tab_object['sql_cmd'] = v_data['v_sql_cmd']
             tab_object['sql_save'] = v_data['v_sql_save']
+            tab_object['tab_id'] = v_data['v_tab_id']
+            #t.setDaemon(True)
+            t.start()
+
+        #Console request
+        elif v_code == requestType.Console:
+            v_data['v_tab_object'] = tab_object
+            t = StoppableThread(thread_console,v_data)
+            tab_object['thread'] = t
+            tab_object['type'] = 'console'
+            tab_object['sql_cmd'] = v_data['v_sql_cmd']
             tab_object['tab_id'] = v_data['v_tab_id']
             #t.setDaemon(True)
             t.start()
@@ -380,7 +471,14 @@ def thread_query(self,args):
                 }
 
                 if not self.cancel:
-                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                    global_lock.acquire()
+                    v_client_object['returning_data'].append(v_response)
+                    try:
+                        # Attempt to release client polling lock so that the polling thread can read data
+                        v_client_object['polling_lock'].release()
+                    except Exception:
+                        None
+                    global_lock.release()
 
             else:
                 if v_mode==0:
@@ -615,7 +713,231 @@ def thread_query(self,args):
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         if not self.cancel:
-            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            global_lock.acquire()
+            v_client_object['returning_data'].append(v_response)
+            try:
+                # Attempt to release client polling lock so that the polling thread can read data
+                v_client_object['polling_lock'].release()
+            except Exception:
+                None
+            global_lock.release()
+
+def thread_console(self,args):
+    v_response = {
+        'v_code': response.ConsoleResult,
+        'v_context_code': args['v_context_code'],
+        'v_error': False,
+        'v_data': 1
+    }
+
+    try:
+        v_database_index = args['v_db_index']
+        v_sql            = args['v_sql_cmd']
+        v_tab_id         = args['v_tab_id']
+        v_tab_object     = args['v_tab_object']
+        v_autocommit     = args['v_autocommit']
+        v_mode           = args['v_mode']
+        v_client_object  = args['v_client_object']
+
+        v_session = args['v_session']
+        v_database = args['v_database']
+
+        #Removing last character if it is a semi-colon
+        if v_sql[-1:]==';':
+            v_sql = v_sql[:-1]
+
+        log_start_time = datetime.now()
+        log_status = 'success'
+
+        try:
+            list_sql = sqlparse.split(v_sql)
+
+            v_data_return = ''
+            run_command_list = True
+
+            if v_mode==0:
+                v_database.v_connection.v_autocommit = v_autocommit
+                if not v_database.v_connection.v_con or v_database.v_connection.GetConStatus() == 0:
+                    v_database.v_connection.Open()
+                else:
+                    v_database.v_connection.v_start=True
+
+            if v_mode == 1 or v_mode ==2:
+                v_table = v_database.v_connection.QueryBlock('', 50, True, True)
+                #need to stop again
+                if not v_database.v_connection.v_start or len(v_table.Rows)>=50:
+                    v_data_return += '\n' + v_table.Pretty(v_database.v_connection.v_expanded) + '\n' + v_database.v_connection.GetStatus()
+                    run_command_list = False
+                    v_show_fetch_button = True
+                else:
+                    v_data_return += '\n' + v_table.Pretty(v_database.v_connection.v_expanded) + '\n' + v_database.v_connection.GetStatus()
+                    run_command_list = True
+                    list_sql = v_tab_object['remaining_commands']
+
+            if v_mode == 3:
+                run_command_list = True
+                list_sql = v_tab_object['remaining_commands']
+
+            if run_command_list:
+                counter = 0
+                v_show_fetch_button = False
+                for sql in list_sql:
+                    counter = counter + 1
+                    try:
+                        formated_sql = sql.strip()
+                        v_data_return += '\n>> ' + formated_sql + '\n'
+
+                        v_database.v_connection.ClearNotices()
+                        v_database.v_connection.v_start=True
+                        v_data1 = v_database.v_connection.Special(sql);
+
+                        v_notices = v_database.v_connection.GetNotices()
+                        v_notices_text = ''
+                        if len(v_notices) > 0:
+                            for v_notice in v_notices:
+                                v_notices_text += v_notice
+                            v_data_return += v_notices_text
+
+                        v_data_return += v_data1
+
+                        if v_database.v_use_server_cursor:
+                            if v_database.v_connection.v_last_fetched_size == 50:
+                                v_tab_object['remaining_commands'] = list_sql[counter:]
+                                v_show_fetch_button = True
+                                break
+                    except Exception as exc:
+                        try:
+                            v_notices = v_database.v_connection.GetNotices()
+                            v_notices_text = ''
+                            if len(v_notices) > 0:
+                                for v_notice in v_notices:
+                                    v_notices_text += v_notice
+                                v_data_return += v_notices_text
+                        except Exception as exc:
+                            None
+                        v_data_return += str(exc)
+                    v_tab_object['remaining_commands'] = []
+
+            log_end_time = datetime.now()
+            v_duration = GetDuration(log_start_time,log_end_time)
+
+            v_response['v_data'] = {
+                'v_data' : v_data_return,
+                'v_last_block': True,
+                'v_duration': v_duration
+            }
+
+            #send data in chunks to avoid blocking the websocket server
+            chunks = [v_data_return[x:x+10000] for x in range(0, len(v_data_return), 10000)]
+            if len(chunks)>0:
+                for count in range(0,len(chunks)):
+                    if self.cancel:
+                        break
+                    if not count==len(chunks)-1:
+                        v_response['v_data'] = {
+                            'v_data' : chunks[count],
+                            'v_last_block': False,
+                            'v_duration': v_duration,
+                            'v_show_fetch_button': v_show_fetch_button,
+                            'v_con_status': '',
+                        }
+                    else:
+                        v_response['v_data'] = {
+                            'v_data' : chunks[count],
+                            'v_last_block': True,
+                            'v_duration': v_duration,
+                            'v_show_fetch_button': v_show_fetch_button,
+                            'v_con_status': v_database.v_connection.GetConStatus(),
+                        }
+                    if not self.cancel:
+                        global_lock.acquire()
+                        v_client_object['returning_data'].append(v_response)
+                        try:
+                            # Attempt to release client polling lock so that the polling thread can read data
+                            v_client_object['polling_lock'].release()
+                        except Exception:
+                            None
+                        global_lock.release()
+            else:
+                if not self.cancel:
+                    global_lock.acquire()
+                    v_client_object['returning_data'].append(v_response)
+                    try:
+                        # Attempt to release client polling lock so that the polling thread can read data
+                        v_client_object['polling_lock'].release()
+                    except Exception:
+                        None
+                    global_lock.release()
+
+            try:
+                v_database.v_connection.ClearNotices()
+            except Exception:
+                None
+        except Exception as exc:
+            #try:
+            #    v_database.v_connection.Close()
+            #except:
+            #    pass
+            log_end_time = datetime.now()
+            v_duration = GetDuration(log_start_time,log_end_time)
+            log_status = 'error'
+            v_response['v_data'] = {
+                'v_data': str(exc),
+                'v_duration': v_duration
+            }
+
+            if not self.cancel:
+                global_lock.acquire()
+                v_client_object['returning_data'].append(v_response)
+                try:
+                    # Attempt to release client polling lock so that the polling thread can read data
+                    v_client_object['polling_lock'].release()
+                except Exception:
+                    None
+                global_lock.release()
+
+        if v_mode == 0:
+            #logging to console history
+            query_object = ConsoleHistory(
+                user=User.objects.get(id=v_session.v_user_id),
+                connection=Connection.objects.get(id=v_database.v_conn_id),
+                snippet=v_sql.replace("'","''")
+            )
+            query_object.save()
+
+            #keep 100 rows in console history table for current user/connection
+            #v_omnidb_database.v_connection.Execute('''
+            #    delete
+            #    from console_history
+            #    where command_date not in (
+            #        select command_date
+            #        from console_history
+            #        where user_id = {0}
+            #          and conn_id = {1}
+            #        order by command_date desc
+            #        limit 100
+            #    )
+            #    and user_id = {0}
+            #    and conn_id = {1}
+            #'''.format(v_session.v_user_id,
+            #           v_database.v_conn_id,
+            #           v_sql.replace("'","''")))
+
+    except Exception as exc:
+        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+        v_response['v_data'] = {
+            'v_data': str(exc),
+            'v_duration': ''
+        }
+        if not self.cancel:
+            global_lock.acquire()
+            v_client_object['returning_data'].append(v_response)
+            try:
+                # Attempt to release client polling lock so that the polling thread can read data
+                v_client_object['polling_lock'].release()
+            except Exception:
+                None
+            global_lock.release()
 
 def thread_query_edit_data(self,args):
     v_response = {
@@ -699,7 +1021,14 @@ def thread_query_edit_data(self,args):
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         if not self.cancel:
-            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            global_lock.acquire()
+            v_client_object['returning_data'].append(v_response)
+            try:
+                # Attempt to release client polling lock so that the polling thread can read data
+                v_client_object['polling_lock'].release()
+            except Exception:
+                None
+            global_lock.release()
 
 def thread_save_edit_data(self,args):
     v_response = {
@@ -920,4 +1249,11 @@ def thread_save_edit_data(self,args):
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         if not self.cancel:
-            ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+            global_lock.acquire()
+            v_client_object['returning_data'].append(v_response)
+            try:
+                # Attempt to release client polling lock so that the polling thread can read data
+                v_client_object['polling_lock'].release()
+            except Exception:
+                None
+            global_lock.release()

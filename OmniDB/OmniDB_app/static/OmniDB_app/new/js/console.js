@@ -202,17 +202,19 @@ function consoleHistorySelectCommand() {
 }
 
 function appendToEditor(p_editor, p_text) {
-  var v_last_row = p_editor.session.getLength() - 1;
+  /*var v_last_row = p_editor.session.getLength() - 1;
   var v_last_col = p_editor.session.getLine(v_last_row).length;
   p_editor.session.insert({ row: v_last_row, column: v_last_col},p_text);
   p_editor.gotoLine(Infinity);
-  p_editor.resize();
+  p_editor.resize();*/
+
+	p_editor.write(p_text);
 }
 
 function clearConsole() {
   var v_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-  v_tag.editor_console.setValue('>> ' + v_connTabControl.selectedTab.tag.consoleHelp);
-  v_tag.editor_console.clearSelection();
+  v_tag.editor_console.write('>> ' + v_connTabControl.selectedTab.tag.consoleHelp);
+  v_tag.editor_console.clear();
 
 }
 
@@ -227,6 +229,7 @@ function consoleSQL(p_check_command = true, p_mode = 0) {
     //last character is semi-colon or first is backslash
   //if (!p_check_command || (v_content[v_content.length-1]==';' || v_content[0]=='\\') {
   if (!p_check_command || v_content[0]=='\\') {
+
 
     if (v_tag.state!=v_consoleState.Idle) {
   		showAlert('Tab with activity in progress.');
@@ -279,7 +282,8 @@ function consoleSQL(p_check_command = true, p_mode = 0) {
         }
         v_context.tab_tag.context = v_context;
 
-        sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Console, v_message_data, false, v_context);
+        //sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Console, v_message_data, false, v_context);
+				createRequest(v_queryRequestCodes.Console, v_message_data, v_context);
 
         v_tag.state = v_consoleState.Executing;
         v_tag.tab_loading_span.style.visibility = 'visible';
@@ -293,11 +297,6 @@ function consoleSQL(p_check_command = true, p_mode = 0) {
 				v_tag.bt_rollback.style.display = 'none';
 				setTabStatus(v_tag,2);
 
-        setTimeout(function() {
-          if (!v_context.acked) {
-            cancelConsoleTab(v_context.tab_tag);
-          }
-        },20000);
       }
     }
   }

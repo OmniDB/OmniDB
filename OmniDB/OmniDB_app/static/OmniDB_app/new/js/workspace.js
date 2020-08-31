@@ -871,7 +871,7 @@ function refreshHeights(p_all) {
         v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 50 + 'px';
         v_tab_tag.editor_console.resize();
         v_tab_tag.editor_input.resize();
-
+        v_tab_tag.editor_console.fit();
       }
       else if (v_tab_tag.mode=='debug') {
         if (v_tab_tag.currDebugTab=='variable') {

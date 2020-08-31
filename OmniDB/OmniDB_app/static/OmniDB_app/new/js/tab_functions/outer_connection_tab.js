@@ -60,41 +60,40 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     var v_complement_width = 100 - v_width;
 
     var v_html =
-    "<div class='container-fluid' style='position: relative;'>" +
-      "<div class='row'>" +
-        "<div id='" + v_tab.id + "_div_left' class='omnidb__workspace__div-left col' style='flex: 0 0 16.667%'>" +
+    '<div class="container-fluid" style="position: relative;">' +
+      '<div class="row">' +
+        '<div id="' + v_tab.id + '_div_left" class="omnidb__workspace__div-left col" style="flex: 0 0 16.667%; max-width: 16.667%;">' +
           "<div class='row'>" +
 
             // "<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dashed #acc4e8;'></div><div style='width:5px;'></div></div>" +
 
 
-            "<div class='omnidb__workspace__content-left'>" +
-              "<div id='" + v_tab.id + "_details' class='omnidb__workspace__connection-details' ></div>" +
-              "<div id='" + v_tab.id + "_tree' style='overflow: auto; flex-grow: 1;'></div>" +
-              "<div id='" + v_tab.id + "_left_resize_line_horizontal' onmousedown='resizeTreeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dashed #acc4e8;'></div><div style='height:5px;'></div></div>" +
-              "<div id='tree_tabs_parent_" + v_tab.id + "' class='omnidb__tree-tabs' style='position: relative;flex-shrink: 0;flex-basis: 40vh;'>" +
-                "<div id='" + v_tab.id + "_loading' class='div_loading' style='z-index: 1000;'>" +
-
-                '<div class="div_loading_cover"></div>' +
-                '<div class="div_loading_content">' +
-                '  <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">' +
-                '    <span class="sr-only ">Loading...</span>' +
-                '  </div>' +
+            '<div class="omnidb__workspace__content-left">' +
+              '<div id="' + v_tab.id + '_details" class="omnidb__workspace__connection-details"></div>' +
+              '<div id="' + v_tab.id + '_tree" style="overflow: auto; flex-grow: 1;"></div>' +
+              '<div id="' + v_tab.id + '_left_resize_line_horizontal" onmousedown="resizeTreeVertical(event)" style="width: 100%; height: 10px; cursor: ns-resize;"><div class="resize_line_horizontal" style="height: 5px; border-bottom: 1px dashed #acc4e8;"></div><div style="height:5px;"></div></div>' +
+              '<div id="tree_tabs_parent_' + v_tab.id + '" class="omnidb__tree-tabs" style="position: relative;flex-shrink: 0;flex-basis: 40vh;">' +
+                '<div id="' + v_tab.id + '_loading" class="div_loading" style="z-index: 1000;">' +
+                  '<div class="div_loading_cover"></div>' +
+                  '<div class="div_loading_content">' +
+                  '  <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">' +
+                  '    <span class="sr-only ">Loading...</span>' +
+                  '  </div>' +
+                  '</div>' +
                 '</div>' +
-                "</div>" +
-                "<button type='button' onclick='toggleTreeTabsContainer(" + '"tree_tabs_parent_' + v_tab.id + '","' + v_tab.id + '_left_resize_line_horizontal"' + ")' class='btn btn-secondary omnidb__tree-tabs__toggler'><i class='fas fa-arrows-alt-v'></i></button>" +
-                "<div id='tree_tabs_" + v_tab.id + "' class='omnidb__tree-tabs__container' style='position: relative;'></div>" +
-              "</div>" +
-            "</div>" +
-          "</div>" +
-          "<div onmousedown='resizeConnectionHorizontal(event)' style='position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 8px;'></div>" +
-        "</div>" +//.div_left
-        "<div id='" + v_tab.id + "_div_right' class='omnidb__workspace__div-right col' style='position: relative;'>" +
+                '<button type="button" onclick="toggleTreeTabsContainer(' + "'tree_tabs_parent_" + v_tab.id + "','" + v_tab.id + "_left_resize_line_horizontal'" + ')" class="btn btn-secondary omnidb__tree-tabs__toggler"><i class="fas fa-arrows-alt-v"></i></button>' +
+                '<div id="tree_tabs_' + v_tab.id + '" class="omnidb__tree-tabs__container" style="position: relative;"></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div onmousedown="resizeConnectionHorizontal(event)" style="position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 8px;"></div>' +
+        '</div>' +//.div_left
+        '<div id="' + v_tab.id + '_div_right" class="omnidb__workspace__div-right col" style="position: relative; flex: 0 0 83.333%; max-width: 83.333%;">' +
           // "<div class='row'>" +
-            "<div id='" + v_tab.id + "_tabs' class='w-100'></div>" +
+            '<div id="' + v_tab.id + '_tabs" class="w-100"></div>' +
           // "</div>" +
-        "</div>" +//.div_right
-      "</div>" +//.row
+        '</div>' +//.div_right
+      '</div>' +//.row
 
       // "<div id='" + v_tab.id + "_workspace_resize_grid' class='omnidb__workspace-resize-grid'>" +
       //   "<div class='container-fluid h-100'>" +
@@ -122,13 +121,14 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
       //   "</div>" +
       // "</div>" +
 
-    "</div>";
+    '</div>';
 
     // var v_tab_title_span = document.getElementById('tab_title');
     // v_tab_title_span.id = 'tab_title_' + v_tab.id;
     var v_tab_title_span = $(v_tab.elementA).find('.omnidb__tab-menu__link-name');
-    if (v_tab_title_span)
+    if (v_tab_title_span) {
       v_tab_title_span.attr('id', 'tab_title_' + v_tab.id);
+    }
 
 
     v_tab.elementDiv.innerHTML = v_html;
@@ -186,23 +186,23 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     //DDL editor
     var v_ddl_div = v_ddl_tab.elementDiv;
 
-    var langTools = ace.require("ace/ext/language_tools");
+    var langTools = ace.require('ace/ext/language_tools');
     var v_editor = ace.edit(v_ddl_tab.elementDiv);
     v_editor.$blockScrolling = Infinity;
-    v_editor.setTheme("ace/theme/" + v_editor_theme);
-    v_editor.session.setMode("ace/mode/sql");
+    v_editor.setTheme('ace/theme/' + v_editor_theme);
+    v_editor.session.setMode('ace/mode/sql');
 
     v_editor.setFontSize(Number(v_font_size));
 
-    v_editor.commands.bindKey("ctrl-space", null);
+    v_editor.commands.bindKey('ctrl-space', null);
 
     //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
-    v_editor.commands.bindKey("Cmd-,", null)
-    v_editor.commands.bindKey("Ctrl-,", null)
-    v_editor.commands.bindKey("Cmd-Delete", null)
-    v_editor.commands.bindKey("Ctrl-Delete", null)
-    v_editor.commands.bindKey("Ctrl-Up", null)
-    v_editor.commands.bindKey("Ctrl-Down", null)
+    v_editor.commands.bindKey('Cmd-,', null)
+    v_editor.commands.bindKey('Ctrl-,', null)
+    v_editor.commands.bindKey('Cmd-Delete', null)
+    v_editor.commands.bindKey('Ctrl-Delete', null)
+    v_editor.commands.bindKey('Ctrl-Up', null)
+    v_editor.commands.bindKey('Ctrl-Down', null)
     v_editor.setReadOnly(true);
 
     v_ddl_div.onclick = function() {
@@ -252,8 +252,8 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
                               }
                             },
                             items: {
-                              "copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
-                              "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
+                              'copy': {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+                              'view_data': {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
                             }
                           },
                           cells: function (row, col, prop) {
@@ -309,7 +309,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     // Creating + tab in the outer tab list
     v_connTabControl.createTab(
       {
-        p_icon: "<i class='fas fa-plus'></i>",
+        p_icon: '<i class="fas fa-plus"></i>',
         p_name: 'Add connection',
         p_close: false,
         p_selectable: false,

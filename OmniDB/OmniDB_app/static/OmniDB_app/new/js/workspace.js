@@ -731,68 +731,72 @@ function resizeVerticalEnd(event) {
 	v_editor_div.style.height = parseInt(v_editor_div.style.height, 10) + v_height_diff + 'px';
 	v_result_div.style.height = parseInt(v_result_div.style.height, 10) - v_height_diff + 'px';
 
+  refreshHeights();
 
-	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-
-	if(v_tab_tag.editor != null) {
-		v_tab_tag.editor.resize();
-	}
-
-	if (v_tab_tag.mode=='query') {
-		if (v_tab_tag.currQueryTab=='data') {
-			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
-			if (v_tab_tag.ht!=null)
-				v_tab_tag.ht.render();
-		}
-		else if (v_tab_tag.currQueryTab=='message') {
-			v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
-		}
-		else if (v_tab_tag.currQueryTab=='explain') {
-			v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 29 + 'px';
-		}
-	}
-	else if (v_tab_tag.mode=='debug') {
-		v_tab_tag.editor.resize();
-		if (v_tab_tag.currDebugTab=='variable') {
-			v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - 29 + 'px';
-			if (v_tab_tag.htVariable!=null)
-				v_tab_tag.htVariable.render();
-		}
-		if (v_tab_tag.currDebugTab=='parameter') {
-			v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - 29 + 'px';
-			if (v_tab_tag.htParameter!=null)
-				v_tab_tag.htParameter.render();
-		}
-		if (v_tab_tag.currDebugTab=='result') {
-			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
-			if (v_tab_tag.htResult!=null)
-				v_tab_tag.htResult.render();
-		}
-		else if (v_tab_tag.currDebugTab=='message') {
-			v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
-		}
-		else if (v_tab_tag.currDebugTab=='statistics') {
-			v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - 29 + 'px';
-			if (v_tab_tag.chart!=null)
-				v_tab_tag.chart.update();
-		}
-	}
-	else if (v_tab_tag.mode=='edit') {
-		if (v_tab_tag.editDataObject.ht!=null) {
-			v_tab_tag.editDataObject.ht.render();
-		}
-	}
-	else if (v_tab_tag.mode=='console') {
-		v_tab_tag.editor_input.resize();
-		v_tab_tag.editor_console.resize();
-	}
-	else if(v_tab_tag.mode == 'data_mining') {
-		if(v_tab_tag.currQueryTab == 'data') {
-			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
-		}
-	}
-
-  resizeSnippetPanel();
+  // Centralizing all adjusts on refreshHeights.
+  //
+	// var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+  //
+	// if(v_tab_tag.editor != null) {
+	// 	v_tab_tag.editor.resize();
+	// }
+  //
+	// if (v_tab_tag.mode=='query') {
+	// 	if (v_tab_tag.currQueryTab=='data') {
+	// 		v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+	// 		if (v_tab_tag.ht!=null)
+	// 			v_tab_tag.ht.render();
+	// 	}
+	// 	else if (v_tab_tag.currQueryTab=='message') {
+	// 		v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+	// 	}
+	// 	else if (v_tab_tag.currQueryTab=='explain') {
+	// 		v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 29 + 'px';
+	// 	}
+	// }
+	// else if (v_tab_tag.mode=='debug') {
+	// 	v_tab_tag.editor.resize();
+	// 	if (v_tab_tag.currDebugTab=='variable') {
+	// 		v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - 29 + 'px';
+	// 		if (v_tab_tag.htVariable!=null)
+	// 			v_tab_tag.htVariable.render();
+	// 	}
+	// 	if (v_tab_tag.currDebugTab=='parameter') {
+	// 		v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - 29 + 'px';
+	// 		if (v_tab_tag.htParameter!=null)
+	// 			v_tab_tag.htParameter.render();
+	// 	}
+	// 	if (v_tab_tag.currDebugTab=='result') {
+	// 		v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+	// 		if (v_tab_tag.htResult!=null)
+	// 			v_tab_tag.htResult.render();
+	// 	}
+	// 	else if (v_tab_tag.currDebugTab=='message') {
+	// 		v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
+	// 	}
+	// 	else if (v_tab_tag.currDebugTab=='statistics') {
+	// 		v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - 29 + 'px';
+	// 		if (v_tab_tag.chart!=null)
+	// 			v_tab_tag.chart.update();
+	// 	}
+	// }
+	// else if (v_tab_tag.mode=='edit') {
+	// 	if (v_tab_tag.editDataObject.ht!=null) {
+	// 		v_tab_tag.editDataObject.ht.render();
+	// 	}
+	// }
+	// else if (v_tab_tag.mode=='console') {
+	// 	v_tab_tag.editor_input.resize();
+	// 	v_tab_tag.editor_console.resize();
+	// }
+	// else if(v_tab_tag.mode == 'data_mining') {
+	// 	if(v_tab_tag.currQueryTab == 'data') {
+	// 		v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
+	// 	}
+	// }
+  //
+  // resizeSnippetPanel();
+  //
 }
 
 function resizeWindow(){
@@ -810,159 +814,161 @@ $(window).resize(function() {
 /// </summary>
 function refreshHeights(p_all) {
 
-	//Adjusting tree height
-	if (p_all) {
-		refreshTreeHeight();
-	}
+  setTimeout(function(){
+    //Adjusting tree height
+    if (p_all) {
+      refreshTreeHeight();
+    }
 
-	if (v_connections_data && v_connections_data.v_active) {
-		v_connections_data.ht.render();
-	}
+    if (v_connections_data && v_connections_data.v_active) {
+      v_connections_data.ht.render();
+    }
 
-	if (v_connTabControl.selectedTab.tag.mode=='monitor_all') {
-		v_connTabControl.selectedTab.tag.tabControlDiv.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.tabControlDiv).offset().top - 18 + 'px';
-	}
-	else if (v_connTabControl.selectedTab.tag.mode=='outer_terminal') {
-		v_connTabControl.selectedTab.tag.div_console.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.div_console).offset().top - 10 + 'px';
-		v_connTabControl.selectedTab.tag.editor_console.fit();
+    if (v_connTabControl.selectedTab.tag.mode=='monitor_all') {
+      v_connTabControl.selectedTab.tag.tabControlDiv.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.tabControlDiv).offset().top - 18 + 'px';
+    }
+    else if (v_connTabControl.selectedTab.tag.mode=='outer_terminal') {
+      v_connTabControl.selectedTab.tag.div_console.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.div_console).offset().top - 10 + 'px';
+      v_connTabControl.selectedTab.tag.editor_console.fit();
 
-	}
+    }
 
-	//If inner tab exists
-	if (v_connTabControl.selectedTab.tag.tabControl != null && v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
-		var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    //If inner tab exists
+    if (v_connTabControl.selectedTab.tag.tabControl != null && v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
+      var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-		//Snippet tab, adjust editor only
-		if (v_tab_tag.mode=='snippet') {
-			v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 60 + 'px';
-			v_tab_tag.editor.resize();
-		}
-		else if (v_tab_tag.mode=='monitor_unit') {
-			var v_new_height = window.innerHeight - $(v_tab_tag.editorDataDiv).offset().top - 12 + 'px';
-			v_tab_tag.editorDiv.style.height = v_new_height;
-			v_tab_tag.editorDataDiv.style.height = v_new_height;
-			v_tab_tag.editor.resize();
-			v_tab_tag.editor_data.resize();
-		}
-		else if (v_tab_tag.mode=='query') {
-			if (v_tab_tag.currQueryTab=='data') {
-				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
-				if (v_tab_tag.ht!=null) {
-          v_tab_tag.ht.render();
+      //Snippet tab, adjust editor only
+      if (v_tab_tag.mode=='snippet') {
+        v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 60 + 'px';
+        v_tab_tag.editor.resize();
+      }
+      else if (v_tab_tag.mode=='monitor_unit') {
+        var v_new_height = window.innerHeight - $(v_tab_tag.editorDataDiv).offset().top - 12 + 'px';
+        v_tab_tag.editorDiv.style.height = v_new_height;
+        v_tab_tag.editorDataDiv.style.height = v_new_height;
+        v_tab_tag.editor.resize();
+        v_tab_tag.editor_data.resize();
+      }
+      else if (v_tab_tag.mode=='query') {
+        if (v_tab_tag.currQueryTab=='data') {
+          v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
+          if (v_tab_tag.ht!=null) {
+            v_tab_tag.ht.render();
+          }
+          if(v_tab_tag.editor != null) {
+            v_tab_tag.editor.resize();
+          }
         }
-				if(v_tab_tag.editor != null) {
-          v_tab_tag.editor.resize();
+        else if (v_tab_tag.currQueryTab=='message') {
+          v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 15 + 'px';
         }
-			}
-			else if (v_tab_tag.currQueryTab=='message') {
-				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 15 + 'px';
-			}
-			else if (v_tab_tag.currQueryTab=='explain') {
-				v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 15 + 'px';
-        if (v_tab_tag.explainControl) {
-          v_tab_tag.explainControl.resize();
+        else if (v_tab_tag.currQueryTab=='explain') {
+          v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 15 + 'px';
+          if (v_tab_tag.explainControl) {
+            v_tab_tag.explainControl.resize();
+          }
         }
-			}
-		}
-		else if (v_tab_tag.mode=='console') {
-			v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 50 + 'px';
-			v_tab_tag.editor_console.resize();
-			v_tab_tag.editor_input.resize();
+      }
+      else if (v_tab_tag.mode=='console') {
+        v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - 50 + 'px';
+        v_tab_tag.editor_console.resize();
+        v_tab_tag.editor_input.resize();
 
-		}
-		else if (v_tab_tag.mode=='debug') {
-			if (v_tab_tag.currDebugTab=='variable') {
-				v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - 15 + 'px';
-				if (v_tab_tag.htVariable!=null)
-					v_tab_tag.htVariable.render();
-			}
-			else if (v_tab_tag.currDebugTab=='parameter') {
-				v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - 15 + 'px';
-				if (v_tab_tag.htParameter!=null)
-					v_tab_tag.htParameter.render();
-			}
-			else if (v_tab_tag.currDebugTab=='result') {
-				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
-				if (v_tab_tag.htResult!=null)
-					v_tab_tag.htResult.render();
-			}
-			else if (v_tab_tag.currDebugTab=='message') {
-				v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 15 + 'px';
-			}
-			else if (v_tab_tag.currDebugTab=='statistics') {
-				v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - 15 + 'px';
-				if (v_tab_tag.chart!=null)
-					v_tab_tag.chart.update();
-			}
-		}
-		else if (v_tab_tag.mode=='monitor_grid') {
-			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
-			if (v_tab_tag.ht!=null)
-				v_tab_tag.ht.render();
-		}
-		else if (v_tab_tag.mode=='query_history') {
-			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
-			if (v_tab_tag.ht!=null)
-				v_tab_tag.ht.render();
-		}
-		else if (v_tab_tag.mode=='graph') {
-			v_tab_tag.graph_div.style.height = window.innerHeight - $(v_tab_tag.graph_div).offset().top - 10 + "px";
+      }
+      else if (v_tab_tag.mode=='debug') {
+        if (v_tab_tag.currDebugTab=='variable') {
+          v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - 15 + 'px';
+          if (v_tab_tag.htVariable!=null)
+          v_tab_tag.htVariable.render();
+        }
+        else if (v_tab_tag.currDebugTab=='parameter') {
+          v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - 15 + 'px';
+          if (v_tab_tag.htParameter!=null)
+          v_tab_tag.htParameter.render();
+        }
+        else if (v_tab_tag.currDebugTab=='result') {
+          v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
+          if (v_tab_tag.htResult!=null)
+          v_tab_tag.htResult.render();
+        }
+        else if (v_tab_tag.currDebugTab=='message') {
+          v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 15 + 'px';
+        }
+        else if (v_tab_tag.currDebugTab=='statistics') {
+          v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - 15 + 'px';
+          if (v_tab_tag.chart!=null)
+          v_tab_tag.chart.update();
+        }
+      }
+      else if (v_tab_tag.mode=='monitor_grid') {
+        v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
+        if (v_tab_tag.ht!=null)
+        v_tab_tag.ht.render();
+      }
+      else if (v_tab_tag.mode=='query_history') {
+        v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
+        if (v_tab_tag.ht!=null)
+        v_tab_tag.ht.render();
+      }
+      else if (v_tab_tag.mode=='graph') {
+        v_tab_tag.graph_div.style.height = window.innerHeight - $(v_tab_tag.graph_div).offset().top - 10 + "px";
 
-		}
-		else if (v_tab_tag.mode=='website') {
-			v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 10 + "px";
-		}
-		else if (v_tab_tag.mode=='website_outer') {
-			v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 10 + "px";
-		}
-		else if (v_tab_tag.mode=='edit') {
-			v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 10 + 'px';
-			if (v_tab_tag.editDataObject.ht!=null) {
-				v_tab_tag.editDataObject.ht.render();
-			}
-		}
-		else if (v_tab_tag.mode=='monitor_dashboard') {
-			v_tab_tag.dashboard_div.style.height = window.innerHeight - $(v_tab_tag.dashboard_div).offset().top - $(v_tab_tag.dashboard_div.parentElement).scrollTop() - 10 + "px";
-		}
-		else if (v_tab_tag.mode=='alter') {
-			if (v_tab_tag.alterTableObject.window=='columns') {
-				var v_height = window.innerHeight - $(v_tab_tag.htDivColumns).offset().top - 45;
-				v_tab_tag.htDivColumns.style.height = v_height + 'px';
-				if (v_tab_tag.alterTableObject.htColumns!=null) {
-					v_tab_tag.alterTableObject.htColumns.render();
-				}
-			}
-			else if (v_tab_tag.alterTableObject.window=='constraints') {
-				var v_height = window.innerHeight - $(v_tab_tag.htDivConstraints).offset().top - 45;
-				v_tab_tag.htDivConstraints.style.height = v_height + 'px';
-				if (v_tab_tag.alterTableObject.htConstraints!=null) {
-					v_tab_tag.alterTableObject.htConstraints.render();
-				}
-			}
-			else {
-				var v_height = window.innerHeight - $(v_tab_tag.htDivIndexes).offset().top - 45;
-				v_tab_tag.htDivIndexes.style.height = v_height + 'px';
-				if (v_tab_tag.alterTableObject.htIndexes!=null) {
-					v_tab_tag.alterTableObject.htIndexes.render();
-				}
-			}
-		}
-		else if(v_tab_tag.mode == 'data_mining') {
-			if(v_tab_tag.currQueryTab == 'data') {
-				v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
-			}
-		}
-	}
+      }
+      else if (v_tab_tag.mode=='website') {
+        v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 10 + "px";
+      }
+      else if (v_tab_tag.mode=='website_outer') {
+        v_tab_tag.iframe.style.height = window.innerHeight - $(v_tab_tag.iframe).offset().top - 10 + "px";
+      }
+      else if (v_tab_tag.mode=='edit') {
+        v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 10 + 'px';
+        if (v_tab_tag.editDataObject.ht!=null) {
+          v_tab_tag.editDataObject.ht.render();
+        }
+      }
+      else if (v_tab_tag.mode=='monitor_dashboard') {
+        v_tab_tag.dashboard_div.style.height = window.innerHeight - $(v_tab_tag.dashboard_div).offset().top - $(v_tab_tag.dashboard_div.parentElement).scrollTop() - 10 + "px";
+      }
+      else if (v_tab_tag.mode=='alter') {
+        if (v_tab_tag.alterTableObject.window=='columns') {
+          var v_height = window.innerHeight - $(v_tab_tag.htDivColumns).offset().top - 45;
+          v_tab_tag.htDivColumns.style.height = v_height + 'px';
+          if (v_tab_tag.alterTableObject.htColumns!=null) {
+            v_tab_tag.alterTableObject.htColumns.render();
+          }
+        }
+        else if (v_tab_tag.alterTableObject.window=='constraints') {
+          var v_height = window.innerHeight - $(v_tab_tag.htDivConstraints).offset().top - 45;
+          v_tab_tag.htDivConstraints.style.height = v_height + 'px';
+          if (v_tab_tag.alterTableObject.htConstraints!=null) {
+            v_tab_tag.alterTableObject.htConstraints.render();
+          }
+        }
+        else {
+          var v_height = window.innerHeight - $(v_tab_tag.htDivIndexes).offset().top - 45;
+          v_tab_tag.htDivIndexes.style.height = v_height + 'px';
+          if (v_tab_tag.alterTableObject.htIndexes!=null) {
+            v_tab_tag.alterTableObject.htIndexes.render();
+          }
+        }
+      }
+      else if(v_tab_tag.mode == 'data_mining') {
+        if(v_tab_tag.currQueryTab == 'data') {
+          v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
+        }
+      }
+    }
 
-	//Hooks
-  if (v_connTabControl.tag.hooks.windowResize.length>0) {
-    for (var i=0; i<v_connTabControl.tag.hooks.windowResize.length; i++)
+    //Hooks
+    if (v_connTabControl.tag.hooks.windowResize.length>0) {
+      for (var i=0; i<v_connTabControl.tag.hooks.windowResize.length; i++)
       v_connTabControl.tag.hooks.windowResize[i]();
-  }
+    }
 
-  //Snippet panel
-  resizeSnippetPanel();
+    //Snippet panel
+    resizeSnippetPanel();
 
+  },351);
 }
 
 function refreshTreeHeight() {

@@ -34,7 +34,8 @@ function cancelSQL(p_tab_tag) {
 		v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-	sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CancelThread, v_tab_tag.tab_id, false);
+	//sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CancelThread, v_tab_tag.tab_id, false);
+	createRequest(v_queryRequestCodes.CancelThread, v_tab_tag.tab_id);
 
 	cancelSQLTab();
 }

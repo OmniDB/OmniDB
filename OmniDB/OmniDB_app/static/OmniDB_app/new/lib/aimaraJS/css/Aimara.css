@@ -30,10 +30,10 @@
 .aimara_tree i.fa-chevron-down {
   transition: transform 0.3s;
 }
-.aimara_tree i.fa-chevron-right:hover {
+.aimara_tree a.nav-link:hover > span > i.fa-chevron-right {
   transform: rotate(30deg) scale(1.2);
 }
-.aimara_tree i.fa-chevron-down:hover {
+.aimara_tree a.nav-link:hover > span > i.fa-chevron-down {
   transform: rotate(-30deg) scale(1.2);
 }
 

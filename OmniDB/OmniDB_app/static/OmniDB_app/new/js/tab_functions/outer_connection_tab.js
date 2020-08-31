@@ -211,7 +211,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
 
     //Properties Grid
     var v_divProperties = v_properties_tab.elementDiv;
-    v_divProperties.classList.add('ht_invisible');
+    // v_divProperties.classList.add('ht_invisible');
     v_divProperties.classList.add('omnidb__theme-border--primary');
     v_divProperties.style.overflow = 'hidden';
     var v_ddlProperties = v_ddl_tab.elementDiv;

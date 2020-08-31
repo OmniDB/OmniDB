@@ -3,7 +3,6 @@ from django.template import loader
 from django.http import JsonResponse
 from django.core import serializers
 from django.shortcuts import redirect
-from OmniDB import ws_core
 from OmniDB import settings
 import json
 

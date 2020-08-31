@@ -313,8 +313,7 @@ def load_plugins():
     except Exception as exc:
         None
 
-load_plugins()
-
+#load_plugins()
 
 #upload plugin
 def upload_view(request):

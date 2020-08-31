@@ -9,7 +9,6 @@ data_files = [
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates'),
   ('OmniDB_app/plugins','OmniDB_app/plugins'),
-  ('OmniDB/migrations','OmniDB/migrations'),
 ]
 
 a = Analysis(['omnidb-server.py'],
@@ -23,48 +22,24 @@ a = Analysis(['omnidb-server.py'],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher)
-pyz_a = PYZ(a.pure, a.zipped_data,
-             cipher=block_cipher)
-exe_a = EXE(pyz_a,
-          a.scripts,
-          exclude_binaries=True,
-          name='omnidb-server',
-          debug=False,
-          strip=False,
-          upx=True,
-          console=True )
-coll_a = COLLECT(exe_a,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=True,
-               name='omnidb-server')
 
-b = Analysis(['omnidb-config.py'],
-            binaries=[],
-            datas=[],
-            hiddenimports=[],
-            hookspath=[],
-            runtime_hooks=[],
-            excludes=[],
-            win_no_prefer_redirects=False,
-            win_private_assemblies=False,
+pyz = PYZ(a.pure, a.zipped_data,
             cipher=block_cipher)
-pyz_b = PYZ(b.pure, b.zipped_data,
-            cipher=block_cipher)
-exe_b = EXE(pyz_b,
-         b.scripts,
-         exclude_binaries=True,
-         name='omnidb-config',
+
+exe = EXE(pyz,
+         a.scripts,
+         [
+             ('W ignore:WELL_KNOWN_CUSTOMER_ID_PLACEHOLDER:Warning:datacollector.cid:0', None, 'OPTION'),
+             ('W ignore:WELL_KNOWN_DOWNLOAD_TIMESTAMP_PLACEHOLDER:Warning:datacollector.dts:0', None, 'OPTION'),
+             ('W ignore:WELL_KNOWN_DEFAULT_DEPTH_PLACEHOLDER:Warning:datacollector.dd:0', None, 'OPTION'),
+             ('W ignore:WELL_KNOWN_EXTERNAL_ACCESS_PLACEHOLDER:Warning:datacollector.ea:0', None, 'OPTION'),
+         ],
+         a.binaries,
+         a.zipfiles,
+         a.datas,
+         name='omnidb-server',
          debug=False,
          strip=False,
          upx=True,
+         runtime_tmpdir=None,
          console=True )
-coll_b = COLLECT(exe_b,
-              b.binaries,
-              b.zipfiles,
-              b.datas,
-              strip=False,
-              upx=True,
-              name='omnidb-config')

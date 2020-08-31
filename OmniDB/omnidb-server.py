@@ -23,14 +23,6 @@ parser.add_option("-p", "--port", dest="port",
                   default=None, type=int,
                   help="listening port")
 
-parser.add_option("-w", "--wsport", dest="wsport",
-                  default=None, type=int,
-                  help="websocket port")
-
-parser.add_option("-e", "--ewsport", dest="ewsport",
-                  default=None, type=int,
-                  help="external websocket port")
-
 parser.add_option("-d", "--homedir", dest="homedir",
                   default='', type=str,
                   help="home directory containing local databases config and log files")
@@ -98,22 +90,6 @@ else:
     except:
         listening_port = 8000
 
-if options.wsport!=None:
-    ws_port = options.wsport
-else:
-    try:
-        ws_port = Config.getint('webserver', 'websocket_port')
-    except:
-        ws_port = OmniDB.custom_settings.OMNIDB_WEBSOCKET_PORT
-
-if options.ewsport!=None:
-    ews_port = options.ewsport
-else:
-    try:
-        ews_port = Config.getint('webserver', 'external_websocket_port')
-    except:
-        ews_port = None
-
 if options.path!='':
     OmniDB.custom_settings.PATH = options.path
 else:
@@ -180,6 +156,7 @@ import OmniDB_app
 import OmniDB_app.apps
 os.environ['DJANGO_SETTINGS_MODULE'] = 'OmniDB.settings'
 import django
+from django.core.management import call_command
 django.setup()
 import html.parser
 import http.cookies
@@ -205,7 +182,7 @@ import django.views.defaults
 import django.contrib.auth.password_validation
 
 from django.core.handlers.wsgi import WSGIHandler
-from OmniDB import startup, ws_core
+from OmniDB import startup
 
 import time
 import cherrypy
@@ -314,56 +291,25 @@ class DjangoApplication(object):
 
 if __name__ == "__main__":
 
-    #Choosing empty port
-    port = ws_port
-    num_attempts_port = 0
+    call_command("migrate", interactive=False)
+    call_command("clearsessions")
 
-    print('''Starting OmniDB websocket...''',flush=True)
-    logger.info('''Starting OmniDB websocket...''')
-    print('''Checking port availability...''',flush=True)
-    logger.info('''Checking port availability...''')
+    OmniDB.settings.OMNIDB_ADDRESS                 = listening_address
+    OmniDB.settings.IS_SSL                         = is_ssl
+    OmniDB.settings.SSL_CERTIFICATE                = ssl_certificate_file
+    OmniDB.settings.SSL_KEY                        = ssl_key_file
+    OmniDB.settings.SESSION_COOKIE_SECURE          = True
+    OmniDB.settings.CSRF_COOKIE_SECURE             = True
 
-    while not check_port(port):
-        print("Port {0} is busy, trying another port...".format(port),flush=True)
-        logger.info("Port {0} is busy, trying another port...".format(port))
-        port = random.randint(1025,32676)
-        num_attempts_port = num_attempts_port + 1
+    #Removing Expired Sessions
+    SessionStore.clear_expired()
 
-        if num_attempts_port == 20:
-            break
-
-    if num_attempts_port < 20:
-        OmniDB.settings.OMNIDB_WEBSOCKET_PORT          = port
-        if ews_port==None:
-            OmniDB.settings.OMNIDB_EXTERNAL_WEBSOCKET_PORT = port
-        else:
-            OmniDB.settings.OMNIDB_EXTERNAL_WEBSOCKET_PORT = ews_port
-        OmniDB.settings.OMNIDB_ADDRESS                 = listening_address
-        OmniDB.settings.IS_SSL                         = is_ssl
-        OmniDB.settings.SSL_CERTIFICATE                = ssl_certificate_file
-        OmniDB.settings.SSL_KEY                        = ssl_key_file
-        OmniDB.settings.SESSION_COOKIE_SECURE          = True
-        OmniDB.settings.CSRF_COOKIE_SECURE             = True
-
-        print ("Starting websocket server at port {0}.".format(str(port)),flush=True)
-        logger.info("Starting websocket server at port {0}.".format(str(port)))
-
-        #Removing Expired Sessions
-        SessionStore.clear_expired()
-
-        #Websocket Core
-        ws_core.start_wsserver_thread()
-        DjangoApplication().run(
-            {
-                'listening_address'   : listening_address,
-                'listening_port'      : listening_port,
-                'is_ssl'              : is_ssl,
-                'ssl_certificate_file': ssl_certificate_file,
-                'ssl_key_file'        : ssl_key_file
-            }
-        )
-
-
-    else:
-        print('Tried 20 different ports without success, closing...',flush=True)
-        logger.info('Tried 20 different ports without success, closing...')
+    DjangoApplication().run(
+        {
+            'listening_address'   : listening_address,
+            'listening_port'      : listening_port,
+            'is_ssl'              : is_ssl,
+            'ssl_certificate_file': ssl_certificate_file,
+            'ssl_key_file'        : ssl_key_file
+        }
+    )

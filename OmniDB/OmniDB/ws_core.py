@@ -2,13 +2,6 @@ import threading, time, datetime, json, uuid
 from concurrent.futures.thread import ThreadPoolExecutor
 import traceback
 
-import tornado.ioloop
-import tornado.web
-import tornado.websocket
-import tornado.template
-import tornado.httpserver
-from tornado import gen
-import ssl,os
 
 import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
@@ -151,9 +144,6 @@ def closeTabHandler(ws_object,p_tab_object_id):
             else:
                 tab_object['terminal_object'].close()
                 tab_object['terminal_ssh_client'].close()
-
-
-
 
     except Exception as exc:
         None

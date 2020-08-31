@@ -102,7 +102,7 @@ var v_createConsoleTabFunction = function() {
 
   v_editor1.focus();
 
-  var v_editor2 = ace.edit('txt_console_' + v_tab.id);
+  /*var v_editor2 = ace.edit('txt_console_' + v_tab.id);
   v_editor2.renderer.setOption('showLineNumbers', false);
   v_editor2.setOptions({});
   v_editor2.$blockScrolling = Infinity;
@@ -126,7 +126,14 @@ var v_createConsoleTabFunction = function() {
   });
   v_editor2.setValue('>> ' + v_connTabControl.selectedTab.tag.consoleHelp)
   v_editor2.setReadOnly(true);
-  v_editor2.clearSelection();
+  v_editor2.clearSelection();*/
+
+  var v_editor2 = new Terminal({
+        fontSize: v_font_size,
+        theme: v_current_terminal_theme
+  });
+  v_editor2.open(document.getElementById('txt_console_' + v_tab.id));
+  v_editor2.write('>> ' + v_connTabControl.selectedTab.tag.consoleHelp);
 
   v_editor1.commands.bindKey("Enter",
   function() {

@@ -207,6 +207,8 @@ function appendToEditor(p_editor, p_text) {
   p_editor.session.insert({ row: v_last_row, column: v_last_col},p_text);
   p_editor.gotoLine(Infinity);
   p_editor.resize();*/
+	let v_text = p_text.replace(/(\r\n|\n|\r)/gm, "\n\r");
+	console.log(v_text);
 
 	p_editor.write(p_text);
 }

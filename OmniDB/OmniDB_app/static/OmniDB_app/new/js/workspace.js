@@ -77,8 +77,6 @@ $(function () {
   // Retrieving database list
   getDatabaseList(true);
 
-  //startQueryWebSocket();
-
   // TODO: design a worthy tutorial.
   // Create tutorial - tmp always active
   if (true) {
@@ -467,7 +465,7 @@ function removeTab(p_tab) {
 		if (p_tab.tag.mode=='query')
 			v_message_data.tab_db_id = p_tab.tag.tab_db_id;
 
-		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CloseTab, [v_message_data], false, null);
+    createRequest(v_queryRequestCodes.CloseTab, [v_message_data]);
 	}
 	p_tab.removeTab();
 

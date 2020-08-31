@@ -18,9 +18,3 @@ application = get_wsgi_application()
 
 # Startup Procedure
 #startup.startup_procedure()
-
-#Monitoring Core
-#monitoring_core.start_monitoring_thread()
-
-#Websocket Core
-ws_core.start_wsserver_thread()

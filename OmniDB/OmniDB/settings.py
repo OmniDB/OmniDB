@@ -139,19 +139,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/1.10/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 PATH = custom_settings.PATH
 # Processing PATH
@@ -228,8 +220,6 @@ OMNIDB_VERSION                 = custom_settings.OMNIDB_VERSION
 OMNIDB_SHORT_VERSION           = custom_settings.OMNIDB_SHORT_VERSION
 BINDKEY_AUTOCOMPLETE           = 'ctrl+space'
 BINDKEY_AUTOCOMPLETE_MAC       = 'cmd+space'
-OMNIDB_WEBSOCKET_PORT          = custom_settings.OMNIDB_WEBSOCKET_PORT
-OMNIDB_EXTERNAL_WEBSOCKET_PORT = 25482
 OMNIDB_ADDRESS                 = custom_settings.OMNIDB_ADDRESS
 IS_SSL                         = False
 SSL_CERTIFICATE                = ""

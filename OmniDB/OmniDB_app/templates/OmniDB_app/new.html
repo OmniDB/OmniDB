@@ -875,7 +875,6 @@
 
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Renderers.js?v2"></script>
 
-    <script src="{{url_folder}}/static/OmniDB_app/new/js/websocket_control.js?v3.0.0b42"></script>
     <script src="{{url_folder}}/static/OmniDB_app/new/js/header_actions.js?v3.0.0b42"></script>
     <script src="{{url_folder}}/static/OmniDB_app/new/js/query_client.js?v3.0.0b42"></script>
     <script src="{{url_folder}}/static/OmniDB_app/new/js/query.js?v3.0.0b42"></script>
@@ -927,17 +926,12 @@
     var v_short_version = '{{ omnidb_short_version }}';
     var v_url_folder = '{{ url_folder }}';
     var v_welcome_closed = {{ welcome_closed }};
-
-    var v_query_port = {{ query_port }};
-  	var v_query_port_external = {{ query_port_external }};
   	var v_is_secure = {{ is_secure }};
   	var v_dev_mode = {{ dev_mode }};
   	var v_keybind_object = { v_autocomplete: '{{ autocomplete }}',
    							 v_autocomplete_mac: '{{ autocomplete_mac }}' };
   							 //Global variables
   	var v_connections_data;
-  	var gv_chatWebSocketPort = v_query_port;
-  	var gv_chatAttachmentPath = '{{ chat_link }}';
   	var gv_desktopMode = ('{{ desktop_mode }}' == 'True');
   	var v_tab_token = '{{ tab_token }}';
   	var v_show_terminal_option = {{ show_terminal_option }};

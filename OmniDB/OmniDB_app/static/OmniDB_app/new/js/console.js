@@ -213,8 +213,9 @@ function appendToEditor(p_editor, p_text) {
 
 function clearConsole() {
   var v_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+	v_tag.editor_console.write('\x1b[H\x1b[2J');
   v_tag.editor_console.write('>> ' + v_connTabControl.selectedTab.tag.consoleHelp);
-  v_tag.editor_console.clear();
+  //v_tag.editor_console.clear();
 
 }
 

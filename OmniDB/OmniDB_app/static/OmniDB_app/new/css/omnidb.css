@@ -525,6 +525,9 @@
 .omnidb__query-result-tabs {
   position: relative;
 }
+.omnidb__query-result-tabs__content {
+  transition: 0.35s;
+}
 
 /* PANEL VIEW FULL */
 .omnidb__panel-view--full {
@@ -628,7 +631,7 @@
 
 .omnidb__tree-tabs {
   overflow: hidden;
-  transition: 0.45s;
+  transition: 0.35s;
 }
 .omnidb__tree-tabs--not-in-view {
   height: 2.2rem;

@@ -164,6 +164,25 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_editor.setTheme("ace/theme/" + v_editor_theme);
   v_editor.session.setMode("ace/mode/sql");
 
+  v_editor.setOptions({
+    enableBasicAutocompletion: true
+  })
+
+  document.getElementById('txt_query_' + v_tab.id).addEventListener('keyup',function(event) {
+    console.log(event.keyCode)
+
+    //var v_last_word = getEditorLastWord(v_editor);
+
+    //if (v_last_word!='' && v_last_word != '*' && v_last_word.length==1)
+    autocomplete_start(v_editor,0, event);
+
+
+  })
+
+  document.getElementById('txt_query_' + v_tab.id).addEventListener('keydown',function(event) {
+    autocomplete_keydown(v_editor, event);
+  })
+
   v_editor.setFontSize(Number(v_font_size));
 
   //v_editor.commands.bindKey("ctrl-space", null);
@@ -175,6 +194,10 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_editor.commands.bindKey("Ctrl-Delete", null)
   v_editor.commands.bindKey("Ctrl-Up", null)
   v_editor.commands.bindKey("Ctrl-Down", null)
+
+  v_editor.commands.bindKey("Up", null)
+  v_editor.commands.bindKey("Down", null)
+
 
   document.getElementById('txt_query_' + v_tab.id).onclick = function() {
     v_editor.focus();

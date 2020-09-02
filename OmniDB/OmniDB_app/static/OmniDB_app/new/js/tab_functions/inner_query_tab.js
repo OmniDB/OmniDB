@@ -126,7 +126,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
       }
     });
   v_data_tab.elementDiv.innerHTML =
-  "<div class='omnidb__query-result-tabs__content omnidb__theme-border--primary'>" +
+  "<div class='p-2 omnidb__query-result-tabs__content omnidb__theme-border--primary'>" +
     "<div id='div_result_" + v_tab.id + "' class='omnidb__query-result-tabs__content' style='width: 100%; overflow: hidden;'></div>" +
   "</div>";
   var v_messages_tab = v_curr_tabs.createTab(
@@ -138,7 +138,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
       }
     });
   v_messages_tab.elementDiv.innerHTML =
-  "<div class='omnidb__query-result-tabs__content omnidb__theme-border--primary'>" +
+  "<div class='p-2 omnidb__query-result-tabs__content omnidb__theme-border--primary'>" +
     "<div id='div_notices_" + v_tab.id + "' class='omnidb__query-result-tabs__content' style='width: 100%; overflow: hidden;'></div>" +
   "</div>";
   v_messages_tab.elementA.classList.add('dbms_object');
@@ -152,7 +152,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
       }
     });
   v_explain_tab.elementDiv.innerHTML =
-  "<div class='omnidb__query-result-tabs__content omnidb__theme-border--primary'>" +
+  "<div class='p-2 omnidb__query-result-tabs__content omnidb__theme-border--primary'>" +
     "<div id='div_explain_" + v_tab.id + "' class='omnidb__query-result-tabs__content' style='width: 100%; overflow: hidden;'></div>" +
   "</div>";
   v_explain_tab.elementA.classList.add('dbms_object');
@@ -169,7 +169,6 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   })
 
   document.getElementById('txt_query_' + v_tab.id).addEventListener('keyup',function(event) {
-    console.log(event.keyCode)
 
     //var v_last_word = getEditorLastWord(v_editor);
 

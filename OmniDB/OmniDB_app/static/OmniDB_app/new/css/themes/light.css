@@ -49,7 +49,7 @@
 
 /* CONSOLE */
 .omnidb--theme-light .omnidb__console__text-input .ace_content {
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
   box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
 }
 

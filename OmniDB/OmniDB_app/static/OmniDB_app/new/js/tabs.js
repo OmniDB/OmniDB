@@ -19,7 +19,7 @@ function composedPath(el) {
     }
 }
 
-function createTabControl({ p_div, p_hierarchy, p_layout }) {
+function createTabControl({ p_div, p_hierarchy, p_layout}) {
 
 	// Get an element's exact position
 	function getPosition(el) {
@@ -296,8 +296,10 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
       p_icon = false,
       p_isDraggable = true,
       p_name = '',
+      p_rightClickFunction = false,
       p_selectFunction = null,
-      p_selectable = true
+      p_selectable = true,
+      p_tooltip = false
     }) {
 			var v_control = this;
 			var v_index = this.tabCounter;
@@ -328,8 +330,9 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
 			};
 
       // Sets tabMenu toggle action based on page interaction
-      if (this.isToggleable && v_index === 1)
+      if (this.isToggleable && v_index === 1) {
         document.body.addEventListener("click", v_control.toggleTabMenu.bind(v_control));
+      }
 
 			var v_a = document.createElement('a');
       v_a.setAttribute('id','a_' + p_div + '_tab' + v_index);
@@ -349,11 +352,12 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
   			}.bind(this);
       }
 
-      if (p_disabled)
+      if (p_disabled) {
         v_a.className = 'omnidb__tab-menu__link nav-item nav-link disabled';
-      else
+      }
+      else {
         v_a.className = 'omnidb__tab-menu__link nav-item nav-link';
-
+      }
 
       var v_close = document.createElement('i');
       v_close.className = 'fas fa-times tab-icon icon-close omnidb__tab-menu__link-close';
@@ -368,8 +372,20 @@ function createTabControl({ p_div, p_hierarchy, p_layout }) {
         }
 			};
 
+      if (p_rightClickFunction) {
+        v_a.oncontextmenu = function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          p_rightClickFunction(e);
+        }
+      }
+
       var v_icon = (p_icon !== false) ? '<span class="omnidb__menu__btn omnidb__tab-menu__link-icon">' + p_icon + '</span>' : '';
       var v_name = (p_name !== undefined && p_name !== null && p_name !== '') ? p_name : '{unnamed}';
+
+      if (p_tooltip) {
+        getAttributesTooltip(v_a, v_name, null, 'right');
+      }
 			v_a.innerHTML = '<span class="omnidb__tab-menu__link-content">' +
                         v_icon +
                         '<span class="omnidb__tab-menu__link-name">' + v_name + '<span>' +

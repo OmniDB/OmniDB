@@ -39,16 +39,18 @@ $(function () {
                 <path d="M18.6008 9.68901C16.6757 10.7922 16.0177 13.2345 17.1283 15.1507C18.2375 17.0633 20.6995 17.7184 22.6225 16.6152C24.5476 15.5106 25.2041 13.0612 24.095 11.1522C22.9809 9.23957 20.5252 8.5809 18.6008 9.68901Z" fill="#525678"/>
                 <path d="M18.6043 48.0832C20.5308 49.1878 22.9864 48.5334 24.097 46.6208C25.2062 44.7082 24.5475 42.2609 22.6259 41.1577C20.6994 40.051 18.2409 40.7076 17.1353 42.6188C16.0226 44.5349 16.6792 46.9808 18.6043 48.0832Z" fill="#525678"/>
               </svg>`,
-      p_name: `<svg class="omnidb-icon__theme--branding" height="27" viewBox="0 0 133 58" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.8526 21.4207H15.0254C11.1455 21.4207 8 24.8352 8 29.0471C8 33.2612 11.1455 36.6757 15.0254 36.6757H22.8526C26.734 36.6757 29.8795 33.2612 29.8795 29.0471C29.8795 24.8345 26.734 21.4207 22.8526 21.4207ZM21.271 33.2118H16.607C14.2952 33.2118 12.4204 31.3486 12.4204 29.0471C12.4204 26.7478 14.2945 24.8845 16.607 24.8845H21.271C23.5843 24.8845 25.4577 26.7485 25.4577 29.0471C25.4584 31.3486 23.5843 33.2118 21.271 33.2118Z" fill="#878FC6"/>
-                <path d="M52.2109 23.7824C51.7439 22.2256 50.9429 21.4169 49.5109 21.4169C48.5809 21.4169 47.4339 21.712 46.8079 22.9406C45.6479 25.216 43.1874 30.1549 43.1874 30.1549C43.1874 30.1549 40.7339 25.2435 39.573 22.9681C38.9469 21.7388 37.7931 21.4169 36.8638 21.4169C35.4324 21.4169 34.6321 22.2256 34.1639 23.7824C33.7 25.328 30.4199 36.4366 30.4199 36.4366H34.9281L37.2768 27.4738C37.2768 27.4738 38.4355 30.5748 39.4916 33.0693C40.2183 34.7867 41.7559 35.4046 43.0238 35.4046C44.2916 35.4046 45.5389 34.8375 46.4529 33.2116C47.5729 31.2229 49.0979 27.4005 49.0979 27.4005L51.4459 36.4366H55.9539C55.9539 36.4366 52.6749 25.3287 52.2109 23.7824Z" fill="#878FC6"/>
-                <path d="M57.6339 36.4366C57.6339 36.4366 57.6339 25.3689 57.6339 24.1783C57.6339 22.9871 58.4759 21.4169 59.9319 21.4169C61.3879 21.4169 62.5749 22.7335 63.2519 23.3393C63.9299 23.9452 71.3249 30.5163 71.3249 30.5163V21.6599H75.2899C75.2899 21.6599 75.2899 32.6706 75.2899 34.0302C75.2899 35.3898 74.4459 36.6796 72.7579 36.6796C71.0699 36.6796 70.2499 35.6391 69.1759 34.5719C68.1029 33.5046 61.7879 27.0067 61.7879 27.0067V36.438H57.6339V36.4366Z" fill="#878FC6"/>
-                <path d="M82.0319 21.6599H78.0659V36.4373H82.0319V21.6599Z" fill="#878FC6"/>
-                <path d="M84.8739 27.2261C84.8739 27.2261 84.8739 33.5598 84.8739 34.4644C84.8739 35.3689 85.2319 36.4368 86.7609 36.4368C88.2899 36.4368 91.1979 36.4368 94.8219 36.4368C98.4459 36.4368 103.774 33.5901 103.774 28.9048C103.774 24.2194 99.5759 21.6602 94.6979 21.6602C89.8199 21.6602 87.8059 21.6602 87.8059 21.6602L84.8749 25.5037C84.8749 25.5037 90.8709 25.5037 94.8229 25.5037C98.7749 25.5037 99.2219 28.2412 99.2219 29.1034C99.2219 29.9657 98.5889 32.637 94.8229 32.637C91.0569 32.637 89.4929 32.637 89.4929 32.637V27.2261H84.8739Z" fill="#515579"/>
-                <path d="M122.871 28.8383C122.871 28.8383 124.892 27.8542 124.892 25.7457C124.892 23.6373 123.387 21.6592 119.053 21.6592C114.718 21.6592 109.213 21.6592 109.213 21.6592L106.104 25.5027C106.104 25.5027 117.651 25.5027 118.794 25.5027C119.938 25.5027 120.54 25.7521 120.54 26.4516C120.54 27.1511 119.997 27.4463 118.724 27.4463C117.449 27.4463 106.105 27.4463 106.105 27.4463C106.105 27.4463 106.105 33.1249 106.105 34.102C106.105 35.0791 106.564 36.4359 109.294 36.4359C112.025 36.4359 116.689 36.4359 119.163 36.4359C121.635 36.4359 125.198 35.0812 125.198 32.3282C125.196 29.5766 122.871 28.8383 122.871 28.8383ZM118.685 32.6367C117.449 32.6367 110.722 32.6367 110.722 32.6367V30.6051C110.722 30.6051 117.75 30.6051 118.794 30.6051C119.838 30.6051 120.605 30.6544 120.605 31.5998C120.605 32.5451 119.923 32.6367 118.685 32.6367Z" fill="#515579"/>
-              </svg>`,
+      // p_name: `<svg class="omnidb-icon__theme--branding" height="27" viewBox="0 0 133 58" xmlns="http://www.w3.org/2000/svg">
+      //           <path d="M22.8526 21.4207H15.0254C11.1455 21.4207 8 24.8352 8 29.0471C8 33.2612 11.1455 36.6757 15.0254 36.6757H22.8526C26.734 36.6757 29.8795 33.2612 29.8795 29.0471C29.8795 24.8345 26.734 21.4207 22.8526 21.4207ZM21.271 33.2118H16.607C14.2952 33.2118 12.4204 31.3486 12.4204 29.0471C12.4204 26.7478 14.2945 24.8845 16.607 24.8845H21.271C23.5843 24.8845 25.4577 26.7485 25.4577 29.0471C25.4584 31.3486 23.5843 33.2118 21.271 33.2118Z" fill="#878FC6"/>
+      //           <path d="M52.2109 23.7824C51.7439 22.2256 50.9429 21.4169 49.5109 21.4169C48.5809 21.4169 47.4339 21.712 46.8079 22.9406C45.6479 25.216 43.1874 30.1549 43.1874 30.1549C43.1874 30.1549 40.7339 25.2435 39.573 22.9681C38.9469 21.7388 37.7931 21.4169 36.8638 21.4169C35.4324 21.4169 34.6321 22.2256 34.1639 23.7824C33.7 25.328 30.4199 36.4366 30.4199 36.4366H34.9281L37.2768 27.4738C37.2768 27.4738 38.4355 30.5748 39.4916 33.0693C40.2183 34.7867 41.7559 35.4046 43.0238 35.4046C44.2916 35.4046 45.5389 34.8375 46.4529 33.2116C47.5729 31.2229 49.0979 27.4005 49.0979 27.4005L51.4459 36.4366H55.9539C55.9539 36.4366 52.6749 25.3287 52.2109 23.7824Z" fill="#878FC6"/>
+      //           <path d="M57.6339 36.4366C57.6339 36.4366 57.6339 25.3689 57.6339 24.1783C57.6339 22.9871 58.4759 21.4169 59.9319 21.4169C61.3879 21.4169 62.5749 22.7335 63.2519 23.3393C63.9299 23.9452 71.3249 30.5163 71.3249 30.5163V21.6599H75.2899C75.2899 21.6599 75.2899 32.6706 75.2899 34.0302C75.2899 35.3898 74.4459 36.6796 72.7579 36.6796C71.0699 36.6796 70.2499 35.6391 69.1759 34.5719C68.1029 33.5046 61.7879 27.0067 61.7879 27.0067V36.438H57.6339V36.4366Z" fill="#878FC6"/>
+      //           <path d="M82.0319 21.6599H78.0659V36.4373H82.0319V21.6599Z" fill="#878FC6"/>
+      //           <path d="M84.8739 27.2261C84.8739 27.2261 84.8739 33.5598 84.8739 34.4644C84.8739 35.3689 85.2319 36.4368 86.7609 36.4368C88.2899 36.4368 91.1979 36.4368 94.8219 36.4368C98.4459 36.4368 103.774 33.5901 103.774 28.9048C103.774 24.2194 99.5759 21.6602 94.6979 21.6602C89.8199 21.6602 87.8059 21.6602 87.8059 21.6602L84.8749 25.5037C84.8749 25.5037 90.8709 25.5037 94.8229 25.5037C98.7749 25.5037 99.2219 28.2412 99.2219 29.1034C99.2219 29.9657 98.5889 32.637 94.8229 32.637C91.0569 32.637 89.4929 32.637 89.4929 32.637V27.2261H84.8739Z" fill="#515579"/>
+      //           <path d="M122.871 28.8383C122.871 28.8383 124.892 27.8542 124.892 25.7457C124.892 23.6373 123.387 21.6592 119.053 21.6592C114.718 21.6592 109.213 21.6592 109.213 21.6592L106.104 25.5027C106.104 25.5027 117.651 25.5027 118.794 25.5027C119.938 25.5027 120.54 25.7521 120.54 26.4516C120.54 27.1511 119.997 27.4463 118.724 27.4463C117.449 27.4463 106.105 27.4463 106.105 27.4463C106.105 27.4463 106.105 33.1249 106.105 34.102C106.105 35.0791 106.564 36.4359 109.294 36.4359C112.025 36.4359 116.689 36.4359 119.163 36.4359C121.635 36.4359 125.198 35.0812 125.198 32.3282C125.196 29.5766 122.871 28.8383 122.871 28.8383ZM118.685 32.6367C117.449 32.6367 110.722 32.6367 110.722 32.6367V30.6051C110.722 30.6051 117.75 30.6051 118.794 30.6051C119.838 30.6051 120.605 30.6544 120.605 31.5998C120.605 32.5451 119.923 32.6367 118.685 32.6367Z" fill="#515579"/>
+      //         </svg>`,
+      p_name: 'Manage Connections',
       p_close: false,
       p_selectable: false,
+      p_tooltip: true,
       p_clickFunction: function(e) {
         return startConnectionManagement();
       }
@@ -67,8 +69,7 @@ $(function () {
     }
   );
 
-  // Instantiating functions responsible for creating all the different types
-  // of tabs
+  // Instantiating functions responsible for creating all the different types of tabs
   initCreateTabFunctions();
 
   // Creates the snippets panel
@@ -82,6 +83,8 @@ $(function () {
   if (true) {
     startTutorial('main');
   }
+
+  $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 
 });
 
@@ -112,7 +115,8 @@ function getDatabaseList(p_init, p_callback) {
 						for (var i=0; i < p_return.v_data.v_existing_tabs.length; i++) {
 							if (v_current_parent == null || v_current_parent != p_return.v_data.v_existing_tabs[i].index) {
                 startLoading();
-								v_connTabControl.tag.createConnTab(p_return.v_data.v_existing_tabs[i].index,false);
+                let v_name = (p_return.v_data.v_existing_tabs[i].v_alias) ? p_return.v_data.v_existing_tabs[i].v_alias : p_return.v_data.v_existing_tabs[i].v_details1;
+								v_connTabControl.tag.createConnTab(p_return.v_data.v_existing_tabs[i].index,false,v_name);
 								v_connTabControl.tag.createConsoleTab();
 							}
 
@@ -188,8 +192,9 @@ function changeDatabase(p_value) {
   		break;
   	}
   }
-  if (!v_conn_object)
-  	v_conn_object = v_connTabControl.tag.connections[0];
+  if (!v_conn_object) {
+    v_conn_object = v_connTabControl.tag.connections[0];
+  }
 
   v_connTabControl.selectedTab.tag.selectedDatabaseIndex = parseInt(p_value);
   v_connTabControl.selectedTab.tag.selectedDBMS = v_conn_object.v_db_type;
@@ -210,14 +215,18 @@ function changeDatabase(p_value) {
   		"p_database": v_connTabControl.selectedTab.tag.selectedDatabase
   });
 
-  if (v_conn_object.v_db_type=='postgresql')
-  	getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
-    else if (v_conn_object.v_db_type=='oracle')
-  	getTreeOracle(v_connTabControl.selectedTab.tag.divTree.id);
-    else if (v_conn_object.v_db_type=='mysql')
-  	getTreeMysql(v_connTabControl.selectedTab.tag.divTree.id);
-    else if (v_conn_object.v_db_type=='mariadb')
-  	getTreeMariadb(v_connTabControl.selectedTab.tag.divTree.id);
+  if (v_conn_object.v_db_type=='postgresql') {
+    getTreePostgresql(v_connTabControl.selectedTab.tag.divTree.id);
+  }
+  else if (v_conn_object.v_db_type=='oracle') {
+    getTreeOracle(v_connTabControl.selectedTab.tag.divTree.id);
+  }
+  else if (v_conn_object.v_db_type=='mysql') {
+    getTreeMysql(v_connTabControl.selectedTab.tag.divTree.id);
+  }
+  else if (v_conn_object.v_db_type=='mariadb') {
+    getTreeMariadb(v_connTabControl.selectedTab.tag.divTree.id);
+  }
 
 }
 
@@ -230,35 +239,41 @@ function checkBeforeChangeDatabase(p_cancel_function, p_ok_function) {
 	for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
 
 		var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
-		if (v_tab.tag!=null)
-			if (v_tab.tag.mode=='edit' || v_tab.tag.mode=='alter' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='monitor_dashboard' || v_tab.tag.mode=='data_mining') {
-				showAlert('Before changing connection please close any tab that belongs to the following types: <br/><br/><b>Edit Data<br/><br/>Alter Table<br/><br/>Function Debugging<br/><br/>Monitoring Dashboard<br/><br/>Advanced Object Search');
-				v_connTabControl.selectedTab.tag.dd_object.set("selectedIndex",v_connTabControl.selectedTab.tag.dd_selected_index);
-				if (p_cancel_function!=null)
-					p_cancel_function();
-				return null;
-			}
+		if (v_tab.tag!=null) {
+      if (v_tab.tag.mode=='edit' || v_tab.tag.mode=='alter' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='monitor_dashboard' || v_tab.tag.mode=='data_mining') {
+        showAlert('Before changing connection please close any tab that belongs to the following types: <br/><br/><b>Edit Data<br/><br/>Alter Table<br/><br/>Function Debugging<br/><br/>Monitoring Dashboard<br/><br/>Advanced Object Search');
+        v_connTabControl.selectedTab.tag.dd_object.set("selectedIndex",v_connTabControl.selectedTab.tag.dd_selected_index);
+        if (p_cancel_function!=null) {
+          p_cancel_function();
+        }
+        return null;
+      }
+    }
 	}
-	if (p_ok_function!=null)
-		p_ok_function();
+	if (p_ok_function!=null) {
+    p_ok_function();
+  }
 }
 
 function adjustQueryTabObjects(p_all_tabs) {
 	var v_dbms = v_connTabControl.selectedTab.tag.selectedDBMS;
 
 	var v_target_div = null;
-	if (!p_all_tabs)
-		v_target_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.elementDiv;
-	else
-		v_target_div = v_connTabControl.selectedTab.elementDiv;
+	if (!p_all_tabs) {
+    v_target_div = v_connTabControl.selectedTab.tag.tabControl.selectedTab.elementDiv;
+  }
+	else {
+    v_target_div = v_connTabControl.selectedTab.elementDiv;
+  }
 
 	var v_objects = $(v_target_div).find(".dbms_object").each(function() {
 	  $( this ).css('display','none');
 	});
 
 	var v_objects = $(v_target_div).find("." + v_dbms + "_object").each(function() {
-		if (!$( this ).hasClass('dbms_object_hidden'))
-	  	$( this ).css('display','inline-block');
+		if (!$( this ).hasClass('dbms_object_hidden')) {
+      $( this ).css('display','inline-block');
+    }
 	});
 
 }
@@ -1041,8 +1056,9 @@ function showMenuNewTabOuter(e) {
 	var v_option_list = [];
 	//Hooks
 	if (v_connTabControl.tag.hooks.outerTabMenu.length>0) {
-		for (var i=0; i<v_connTabControl.tag.hooks.outerTabMenu.length; i++)
-			v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.outerTabMenu[i]());
+		for (var i=0; i<v_connTabControl.tag.hooks.outerTabMenu.length; i++) {
+      v_option_list = v_option_list.concat(v_connTabControl.tag.hooks.outerTabMenu[i]());
+    }
 	}
 
 	if (v_show_terminal_option)
@@ -1063,11 +1079,12 @@ function showMenuNewTabOuter(e) {
 
 				for (var i=0; i<v_connTabControl.tag.connections.length; i++) (function(i){
 					var v_conn = v_connTabControl.tag.connections[i];
+          let v_name = (v_conn.v_alias) ? v_conn.v_alias : v_conn.v_details1;
 					v_submenu_connection_list.push({
 						text: v_conn.v_details1 + ' - ' + v_conn.v_details2,
 						icon: 'fas cm-all node-' + v_conn.v_db_type,
 						action: function() {
-								v_connTabControl.tag.createConnTab(v_conn.v_conn_id, true, v_conn.v_alias);
+								v_connTabControl.tag.createConnTab(v_conn.v_conn_id, true, v_name);
 						}
 					});
 				})(i);
@@ -1172,7 +1189,7 @@ function showMenuNewTabOuter(e) {
 					elements: v_submenu_terminal_list
 			}
 		});
-}
+  }
 
 
 
@@ -1362,4 +1379,55 @@ function toggleExpandToPanelView(p_target_id) {
       refreshHeights();
     },350);
   }
+}
+/**
+ * ## getAttributesTooltip
+ * @desc Creates and applies tooltip attributes to the target.
+ *
+ * @param  {string} title   Title string.
+ * @param  {string} message Message string, accepts html.
+ * @return {string}         HTML string.
+ */
+function getAttributesTooltip(p_target, p_title, p_message, p_position = false) {
+  let v_html = '';
+  if (p_message) {
+    v_html += (p_title != undefined) ? '<h4>' + p_title + '</h4>' : '';
+    v_html += (p_message != undefined) ? '<div>' + p_message + '</div>' : '';
+  }
+  else {
+    v_html += (p_title != undefined) ? '<h4 class=\"mb-0\">' + p_title + '</h4>' : '';
+  }
+  let v_position = (p_position) ? p_position : 'bottom';
+  p_target.setAttribute('data-html',true);
+  p_target.setAttribute('data-placement',v_position);
+  p_target.setAttribute('data-toggle','tooltip');
+  p_target.setAttribute('title',v_html);
+}
+/**
+ * ## getStringTooltip
+ * @desc Creates html string that renders as a tooltip.
+ *
+ * @param  {string} title   Title string.
+ * @param  {string} message Message string, accepts html.
+ * @return {string}         HTML string.
+ */
+function getStringTooltip(p_target, p_title, p_message, p_position = false) {
+  let v_html = '';
+  if (p_message) {
+    v_html += (p_title != undefined) ? '<h4>' + p_title + '</h4>' : '';
+    v_html += (p_message != undefined) ? '<div>' + p_message + '</div>' : '';
+  }
+  else {
+    v_html += (p_title != undefined) ? '<h4 class=\"mb-0\">' + p_title + '</h4>' : '';
+  }
+  let v_tooltipAttr =
+    'data-toggle=tooltip ' +
+    'data-html=true ' +
+    'title="' + v_html + '" ';
+  if (p_position) {
+    v_tooltipAttr += 'data-placement=' + p_position + ' ';
+  } else {
+    v_tooltipAttr += 'data-placement=bottom ';
+  }
+  return v_tooltipAttr;
 }

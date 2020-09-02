@@ -27,6 +27,7 @@ var v_createSnippetPanelFunction = function(p_index) {
     p_clickFunction: function() {
       toggleSnippetPanel(this.id);
     },
+    p_tooltip: true
   });
 
   v_connTabControl.selectTab(v_tab);

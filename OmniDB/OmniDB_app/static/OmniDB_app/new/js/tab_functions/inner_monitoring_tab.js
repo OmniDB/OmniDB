@@ -190,14 +190,14 @@ function refreshMonitoring(p_tab_tag) {
               "copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
               "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
             }
-            },
-              cells: function (row, col, prop) {
-              var cellProperties = {};
-              if (row % 2 == 0)
+          },
+          cells: function (row, col, prop) {
+            var cellProperties = {};
+            if (row % 2 == 0)
               cellProperties.renderer = blueHtmlRenderer;
             else
               cellProperties.renderer = whiteHtmlRenderer;
-              return cellProperties;
+            return cellProperties;
           }
         });
 

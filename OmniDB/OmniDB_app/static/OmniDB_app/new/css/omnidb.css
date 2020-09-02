@@ -1318,6 +1318,12 @@ body {
   display: none;
 }
 
+#div_autocomplete_searching {
+  font-size: 18px;
+  margin: 10px;
+  display: none;
+}
+
 .div_autocomplete_row {
   display: none;
   height: 80px;

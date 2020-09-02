@@ -41,6 +41,7 @@ $(function() {
     test_length: document.getElementById('div_test_length'),
     scroll: document.getElementById('div_autocomplete_scroll'),
     no_results: document.getElementById('div_autocomplete_noresults'),
+    searching: document.getElementById('div_autocomplete_searching'),
     loading: document.getElementById('div_autocomplete_loading'),
     elements: [
       { 'type': 'keyword', 'container': document.getElementById('autocomplete_grid_keyword'), 'count_div': document.getElementById('autocomplete_count_keyword'), elements: [], 'num_visible': 0 },
@@ -126,8 +127,10 @@ function build_autocomplete_elements(p_data, p_value) {
   //hiding nodes
   for (var k=0; k<v_autocomplete_object.elements.length; k++) {
     v_autocomplete_object.elements[k].container.parentNode.style.display = 'none';
-    if (v_autocomplete_object.elements[k].type=='keyword')
+    if (v_autocomplete_object.elements[k].type=='keyword') {
       v_autocomplete_object.elements[k].container.parentNode.scrollTop = 0;
+      v_autocomplete_object.elements[k].container.innerHTML = '';
+    }
     v_autocomplete_object.elements[k].elements = [];
   }
 
@@ -216,10 +219,11 @@ function build_autocomplete_elements(p_data, p_value) {
   for (var k=0; k<v_autocomplete_object.elements.length; k++) {
     if (v_autocomplete_object.elements[k].type!='keyword') {
       v_autocomplete_object.elements[k].grid.render();
-      //v_autocomplete_object.elements[k].grid.selectCell(0,0);
-      //v_autocomplete_object.elements[k].grid.deselectCell();
+      v_autocomplete_object.elements[k].grid.selectCell(0,0);
+      v_autocomplete_object.elements[k].grid.deselectCell();
     }
   }
+  v_autocomplete_object.editor.focus();
 }
 
 function renew_autocomplete(p_new_value) {
@@ -292,14 +296,41 @@ function renew_autocomplete(p_new_value) {
   for (var k=0; k<v_autocomplete_object.elements.length; k++) {
     if (v_autocomplete_object.elements[k].type!='keyword') {
       v_autocomplete_object.elements[k].grid.render();
-      //v_autocomplete_object.elements[k].grid.selectCell(0,0);
-      //v_autocomplete_object.elements[k].grid.deselectCell();
+      v_autocomplete_object.elements[k].grid.selectCell(0,0);
+      v_autocomplete_object.elements[k].grid.deselectCell();
     }
   }
+  v_autocomplete_object.editor.focus();
 }
 
 function autocomplete_get_results(p_sql,p_value,p_pos) {
-  v_autocomplete_object.div.style.width = '200px';
+  v_autocomplete_object.div.style.width = '500px';
+
+  var v_data = [
+    {
+      "type": "keyword",
+      "elements": [
+
+      ]
+    }
+  ]
+
+  for (var i=0; i<v_keywords.length; i++) {
+    v_data[0].elements.push(
+      {
+        "value" : v_keywords[i],
+        "select_value": v_keywords[i]
+      }
+    )
+  }
+
+  build_autocomplete_elements(v_data,p_value);
+
+  renew_autocomplete(p_value);
+  v_autocomplete_object.ready = true;
+
+  v_autocomplete_object.searching.style.display = 'block';
+
   execAjax('/get_autocomplete_results/',
       JSON.stringify({
           "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
@@ -309,32 +340,56 @@ function autocomplete_get_results(p_sql,p_value,p_pos) {
           "p_pos": p_pos
       }),
       function(p_return) {
-        v_autocomplete_object.test_length.innerHTML = p_return.v_data.max_result_word;
-        var v_new_width_result = v_autocomplete_object.test_length.clientWidth;
-        v_autocomplete_object.test_length.innerHTML = p_return.v_data.max_complement_word;
-        var v_new_width_complement = v_autocomplete_object.test_length.clientWidth;
-        if (v_autocomplete_object.mode==0)
-          v_autocomplete_object.scroll.style['max-height'] = window.innerHeight - $(v_autocomplete_object.div).offset().top - 50 + 'px';
-        else
-          v_autocomplete_object.scroll.style['max-height'] = $(v_autocomplete_object.div).offset().top - 20 + 'px';
-        var v_new_width = v_new_width_result + v_new_width_complement + 160;
-        if (v_new_width<400)
-          v_new_width = 400;
 
-        v_autocomplete_object.div.style.width = v_new_width + 'px';
+        v_autocomplete_object.searching.style.display = 'none';
 
-        //adjust grid columns widths
-        for (var i=0; i<v_autocomplete_object.elements.length; i++) {
-          if (v_autocomplete_object.elements[i].type!='keyword') {
-            var v_columns = v_autocomplete_object.elements[i].grid.getSettings().columns
-            v_columns[0].width = v_new_width_result + 30;
-            v_autocomplete_object.elements[i].grid.updateSettings({ columns: v_columns});
+        // Check that the autocomplete is still active
+        if (v_autocomplete_object.active) {
+
+          v_autocomplete_object.test_length.innerHTML = p_return.v_data.max_result_word;
+          var v_new_width_result = v_autocomplete_object.test_length.clientWidth;
+          v_autocomplete_object.test_length.innerHTML = p_return.v_data.max_complement_word;
+          var v_new_width_complement = v_autocomplete_object.test_length.clientWidth;
+          if (v_autocomplete_object.mode==0)
+            v_autocomplete_object.scroll.style['max-height'] = window.innerHeight - $(v_autocomplete_object.div).offset().top - 50 + 'px';
+          else
+            v_autocomplete_object.scroll.style['max-height'] = $(v_autocomplete_object.div).offset().top - 20 + 'px';
+          var v_new_width = v_new_width_result + v_new_width_complement + 160;
+          if (v_new_width<500)
+            v_new_width = 500;
+
+          v_autocomplete_object.div.style.width = v_new_width + 'px';
+
+          //adjust grid columns widths
+          for (var i=0; i<v_autocomplete_object.elements.length; i++) {
+            if (v_autocomplete_object.elements[i].type!='keyword') {
+              var v_columns = v_autocomplete_object.elements[i].grid.getSettings().columns
+              v_columns[0].width = v_new_width_result + 30;
+              v_autocomplete_object.elements[i].grid.updateSettings({ columns: v_columns});
+            }
           }
-        }
 
-        build_autocomplete_elements(p_return.v_data.data,p_value);
-        renew_autocomplete(get_editor_last_word(v_autocomplete_object.editor));
-        v_autocomplete_object.ready = true;
+          var v_selected_value = null;
+          if (v_autocomplete_object.selected!=null) {
+            v_selected_value = v_autocomplete_object.selected.value;
+          }
+
+          v_data = v_data.concat(p_return.v_data.data);
+
+
+          build_autocomplete_elements(v_data,p_value);
+
+          if (v_selected_value!=null) {
+            var v_new_selected = find_element_by_value(v_autocomplete_object.first_element,v_selected_value);
+            setTimeout(function() {
+                autocomplete_select_element(v_new_selected);
+            },100);
+          }
+
+          renew_autocomplete(get_editor_last_word(v_autocomplete_object.editor));
+          v_autocomplete_object.ready = true;
+
+        }
 
       },
       function(p_return) {
@@ -358,7 +413,13 @@ function autocomplete_get_results(p_sql,p_value,p_pos) {
 function autocomplete_keyup(p_event) {
   if (p_event.keyCode != 27 && p_event.keyCode != 40 && p_event.keyCode != 38 && p_event.keyCode != 13 && p_event.keyCode != 16 && p_event.keyCode != 17 && p_event.keyCode != 18) {
     if (v_autocomplete_object.ready) {
-      renew_autocomplete(get_editor_last_word(v_autocomplete_object.editor));
+
+      var v_last_word = get_editor_last_word(v_autocomplete_object.editor);
+
+      if (v_last_word.length < v_autocomplete_object.search_base.length)
+        close_autocomplete();
+      else
+        renew_autocomplete(get_editor_last_word(v_autocomplete_object.editor));
     }
   }
 }
@@ -370,6 +431,11 @@ function autocomplete_keydown(p_editor, p_event) {
     if(p_event.keyCode === 27){
       p_event.stopPropagation();
       p_event.preventDefault();
+      close_autocomplete();
+    }
+    //space
+    if(p_event.keyCode === 32){
+      console.log('CLOSE')
       close_autocomplete();
     }
     //enter
@@ -404,8 +470,9 @@ function autocomplete_keydown(p_editor, p_event) {
           v_new_selected = find_previous_visible_element(v_autocomplete_object.selected.previous);
       }
 
-      if (v_new_selected)
+      if (v_new_selected) {
         autocomplete_select_element(v_new_selected);
+      }
     }
   }
   else {
@@ -438,6 +505,23 @@ function find_next_visible_element(p_element) {
       return null;
   }
   return v_element.next;
+}
+
+function find_element_by_value(p_first_element, p_value) {
+  //avoid infinite loop
+  var v_element = p_first_element;
+  var v_first = p_first_element;
+  if (v_element.visible==true && v_element.value == p_value)
+    return v_element;
+  if (v_element.next==v_element)
+    return null;
+  while (v_element.next.visible==false || v_element.value != p_value) {
+    v_element = v_element.next;
+    //searched all, avoid infinite
+    if (v_element == v_first)
+      return null;
+  }
+  return v_element;
 }
 
 function find_previous_visible_element(p_element) {
@@ -550,41 +634,8 @@ function autocomplete_start(editor, mode, event) {
 
     if (!v_autocomplete_object.active) {
 
-      // Backspace and space shouldn't start autocomplete
-      if (event.keyCode != 8 && event.keyCode != 32) {
-        v_autocomplete_object.editor = editor;
-        v_autocomplete_object.active = true;
-        v_autocomplete_object.mode = mode;
-
-
-        var v_pixel_position = editor.renderer.$cursorLayer.getPixelPosition();
-        var v_editor_position = editor.container.getBoundingClientRect();
-        var v_pos = { 'left': v_editor_position.left + v_pixel_position.left, 'top': v_editor_position.top + v_pixel_position.top + 20}
-
-        var v_top_pos = v_pos.top - editor.renderer.scrollTop;
-
-
-        var v_autocomplete_div = v_autocomplete_object.div;
-        v_autocomplete_div.style.left = v_pos.left + editor.renderer.gutterWidth + 'px';
-
-        if (mode==0) {
-          v_autocomplete_div.style.top = v_top_pos - 4 + 'px';
-          v_autocomplete_div.style.bottom = 'unset';
-        }
-        else {
-          v_autocomplete_div.style.top = 'unset';
-          v_autocomplete_div.style.bottom = window.innerHeight - v_top_pos - 26 + 'px';
-
-        }
-        v_autocomplete_div.style.display = 'block';
-
-        var v_closediv = document.createElement('div');
-        v_autocomplete_object.close_div = v_closediv;
-        v_closediv.className = 'div_close_cm';
-        v_closediv.onmousedown = function() {
-          close_autocomplete();
-        };
-        document.body.appendChild(v_closediv);
+      // autocomplete starts only with characters from A to Z
+      if (event.keyCode >= 65 && event.keyCode < 90 && event.ctrlKey!=true && event.altKey!=true && event.metaKey!=true) {
 
         //get editor word before cursor
         var v_cursor = editor.selection.getCursor();
@@ -607,8 +658,48 @@ function autocomplete_start(editor, mode, event) {
           v_autocomplete_object.range = new Range(v_cursor.row, v_cursor.column-v_word_length-1, v_cursor.row, v_cursor.column);
           var v_last_word = v_editor_text.substring(v_pos_iterator,v_pos_iterator+v_word_length+1);
         }
-        v_autocomplete_object.search_base = v_last_word;
-        autocomplete_get_results(editor.getValue(),v_last_word,editor.session.doc.positionToIndex(v_cursor));
+
+        if (v_last_word != '') {
+
+          v_autocomplete_object.editor = editor;
+          v_autocomplete_object.active = true;
+          v_autocomplete_object.mode = mode;
+
+
+          var v_pixel_position = editor.renderer.$cursorLayer.getPixelPosition();
+          var v_editor_position = editor.container.getBoundingClientRect();
+          var v_pos = { 'left': v_editor_position.left + v_pixel_position.left, 'top': v_editor_position.top + v_pixel_position.top + 25}
+
+          var v_top_pos = v_pos.top - editor.renderer.scrollTop;
+
+
+          var v_autocomplete_div = v_autocomplete_object.div;
+          v_autocomplete_div.style.left = v_pos.left + editor.renderer.gutterWidth + 'px';
+
+          if (mode==0) {
+            v_autocomplete_div.style.top = v_top_pos - 4 + 'px';
+            v_autocomplete_div.style.bottom = 'unset';
+          }
+          else {
+            v_autocomplete_div.style.top = 'unset';
+            v_autocomplete_div.style.bottom = window.innerHeight - v_top_pos - 26 + 'px';
+
+          }
+          v_autocomplete_div.style.display = 'block';
+
+          var v_closediv = document.createElement('div');
+          v_autocomplete_object.close_div = v_closediv;
+          v_closediv.className = 'div_close_cm';
+          v_closediv.onmousedown = function() {
+            close_autocomplete();
+          };
+          document.body.appendChild(v_closediv);
+
+          v_autocomplete_object.search_base = v_last_word;
+
+          autocomplete_get_results(editor.getValue(),v_last_word,editor.session.doc.positionToIndex(v_cursor));
+
+        }
       }
     }
     else {

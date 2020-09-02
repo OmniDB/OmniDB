@@ -1510,15 +1510,15 @@ def get_autocomplete_results(request):
             return JsonResponse(v_return)
 
     #get reserved words list if there are no dots
-    if v_num_dots == 0:
-        v_reserved_words_list = v_database.v_reserved_words
-        v_value_upper = v_value.upper()
-        v_filtered_words_list = [k for k in v_reserved_words_list if k.startswith(v_value_upper)]
-        v_current_group = { 'type': 'keyword', 'elements': [] }
-        for v_filtered_word in v_filtered_words_list:
-            v_current_group['elements'].append({ 'value': v_filtered_word, 'select_value': v_filtered_word, 'complement': ''})
-        if len(v_current_group['elements']) > 0:
-            v_result.append(v_current_group)
+    #if v_num_dots == 0:
+    #    v_reserved_words_list = v_database.v_reserved_words
+    #    v_value_upper = v_value.upper()
+    #    v_filtered_words_list = [k for k in v_reserved_words_list if k.startswith(v_value_upper)]
+    #    v_current_group = { 'type': 'keyword', 'elements': [] }
+    #    for v_filtered_word in v_filtered_words_list:
+    #        v_current_group['elements'].append({ 'value': v_filtered_word, 'select_value': v_filtered_word, 'complement': ''})
+    #    if len(v_current_group['elements']) > 0:
+    #        v_result.append(v_current_group)
 
     v_return['v_data'] = {
                             'data': v_result,

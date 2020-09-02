@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 """
 
 import os
-from . import startup, ws_core, monitoring_core
+from . import startup
 
 from django.core.wsgi import get_wsgi_application
 

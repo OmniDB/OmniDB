@@ -634,8 +634,8 @@ function autocomplete_start(editor, mode, event) {
 
     if (!v_autocomplete_object.active) {
 
-      // autocomplete starts only with characters from A to Z
-      if (event.keyCode >= 65 && event.keyCode < 90 && event.ctrlKey!=true && event.altKey!=true && event.metaKey!=true) {
+      // autocomplete starts only with characters from A to Z or dot
+      if (((event.keyCode >= 65 && event.keyCode < 90) || event.keyCode == 190) && event.ctrlKey!=true && event.altKey!=true && event.metaKey!=true) {
 
         //get editor word before cursor
         var v_cursor = editor.selection.getCursor();
@@ -659,7 +659,7 @@ function autocomplete_start(editor, mode, event) {
           var v_last_word = v_editor_text.substring(v_pos_iterator,v_pos_iterator+v_word_length+1);
         }
 
-        if (v_last_word != '') {
+        if (v_last_word != '' && v_last_word[0]!="'") {
 
           v_autocomplete_object.editor = editor;
           v_autocomplete_object.active = true;

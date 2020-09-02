@@ -821,6 +821,8 @@ def thread_console(self,args):
             log_end_time = datetime.now()
             v_duration = GetDuration(log_start_time,log_end_time)
 
+            v_data_return = v_data_return.replace("\n","\r\n")
+
             v_response['v_data'] = {
                 'v_data' : v_data_return,
                 'v_last_block': True,

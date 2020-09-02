@@ -164,18 +164,8 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_editor.setTheme("ace/theme/" + v_editor_theme);
   v_editor.session.setMode("ace/mode/sql");
 
-  v_editor.setOptions({
-    enableBasicAutocompletion: true
-  })
-
   document.getElementById('txt_query_' + v_tab.id).addEventListener('keyup',function(event) {
-
-    //var v_last_word = getEditorLastWord(v_editor);
-
-    //if (v_last_word!='' && v_last_word != '*' && v_last_word.length==1)
     autocomplete_start(v_editor,0, event);
-
-
   })
 
   document.getElementById('txt_query_' + v_tab.id).addEventListener('keydown',function(event) {
@@ -184,7 +174,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
   v_editor.setFontSize(Number(v_font_size));
 
-  //v_editor.commands.bindKey("ctrl-space", null);
+  v_editor.commands.bindKey("ctrl-space", null);
 
   //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
   v_editor.commands.bindKey("Cmd-,", null)

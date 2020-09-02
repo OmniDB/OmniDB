@@ -22,7 +22,9 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
         if(this.tag != null && this.tag.tabControl != null && this.tag.tabControl.selectedTab.tag.editor != null) {
             this.tag.tabControl.selectedTab.tag.editor.focus();
         }
+        $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
       },
+      p_close: false,// Replacing default close icon with contextMenu.
       p_closeFunction: function(e,p_tab) {
         var v_this_tab = p_tab;
         beforeCloseTab(e,
@@ -52,7 +54,28 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
             }
             v_this_tab.removeTab();
           });
-      }
+      },
+      p_rightClickFunction: function(e) {
+        var v_option_list = [
+          {
+            text: '<p class=\"mb-0 text-danger\">Close Connection Tab</p>',
+            // icon: 'fas cm-all fa-terminal text-danger',
+            action: function() {
+              if (v_tab.closeFunction!=null) {
+                v_tab.closeFunction(e,v_tab);
+              }
+            }
+          }
+        ];
+        customMenu(
+          {
+            x:e.clientX+5,
+            y:e.clientY+5
+          },
+          v_option_list,
+          null);
+      },
+      p_tooltip: true
     });
 
     v_connTabControl.selectTab(v_tab);
@@ -230,41 +253,41 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     columnProperties.push(col);
 
     var ht = new Handsontable(v_divProperties,
-                        {
-                          licenseKey: 'non-commercial-and-evaluation',
-                          data: [],
-                          columns : columnProperties,
-                          colHeaders : true,
-                          stretchH: 'all',
-                          autoColumnSize : true,
-                          manualColumnResize: false,
-                          minSpareCols :0,
-                          minSpareRows :0,
-                          fillHandle:false,
-                          disableVisualSelection: true,
-                          contextMenu: {
-                            callback: function (key, options) {
-                              if (key === 'view_data') {
-                                  editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
-                              }
-                              else if (key === 'copy') {
-                                this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
-                                document.execCommand('copy');
-                              }
-                            },
-                            items: {
-                              'copy': {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
-                              'view_data': {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
-                            }
-                          },
-                          cells: function (row, col, prop) {
+    {
+      licenseKey: 'non-commercial-and-evaluation',
+      data: [],
+      columns : columnProperties,
+      colHeaders : true,
+      stretchH: 'all',
+      autoColumnSize : true,
+      manualColumnResize: false,
+      minSpareCols :0,
+      minSpareRows :0,
+      fillHandle:false,
+      disableVisualSelection: true,
+      contextMenu: {
+        callback: function (key, options) {
+          if (key === 'view_data') {
+              editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
+          }
+          else if (key === 'copy') {
+            this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+            document.execCommand('copy');
+          }
+        },
+        items: {
+          'copy': {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+          'view_data': {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
+        }
+      },
+      cells: function (row, col, prop) {
 
-                            var cellProperties = {};
-                            cellProperties.renderer = whiteHtmlRenderer;
-                            return cellProperties;
+        var cellProperties = {};
+        cellProperties.renderer = whiteHtmlRenderer;
+        return cellProperties;
 
-                          }
-                        });
+      }
+    });
 
     var v_tag = {
       tab_id: v_tab.id,
@@ -297,8 +320,9 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     v_tag.selectDDLTabFunc = v_selectDDLTabFunc;
 
     var v_index = v_connTabControl.tag.connections[0].v_conn_id;
-    if (p_index)
+    if (p_index) {
       v_index = p_index;
+    }
 
     changeDatabase(v_index);
 

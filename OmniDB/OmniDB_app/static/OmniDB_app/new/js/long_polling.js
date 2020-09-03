@@ -158,6 +158,18 @@ function polling_response(p_message) {
   }
 }
 
+function createContext(p_connection, p_context) {
+	v_context_object.contextCode += 1;
+	v_context_code = v_context_object.contextCode;
+	p_context.v_context_code = v_context_code;
+	var v_context = {
+		code: v_context_code,
+		context: p_context
+	}
+	v_context_object.contextList.push(v_context);
+	return v_context;
+}
+
 function removeContext(p_context_code) {
 	for (var i=0; i<v_context_object.contextList.length; i++) {
 		if (v_context_object.contextList[i].code == p_context_code) {

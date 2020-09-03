@@ -373,7 +373,6 @@ var v_keywords = [
         'PRIVILEGES',
         'PROCEDURAL',
         'PROCEDURE',
-        'PUBLIC',
         'READ',
         'READS',
         'REAL',

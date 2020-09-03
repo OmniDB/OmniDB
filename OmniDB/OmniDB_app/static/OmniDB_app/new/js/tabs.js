@@ -299,7 +299,7 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
       p_rightClickFunction = false,
       p_selectFunction = null,
       p_selectable = true,
-      p_tooltip = false
+      p_tooltip_name = false
     }) {
 			var v_control = this;
 			var v_index = this.tabCounter;
@@ -383,8 +383,8 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
       var v_icon = (p_icon !== false) ? '<span class="omnidb__menu__btn omnidb__tab-menu__link-icon">' + p_icon + '</span>' : '';
       var v_name = (p_name !== undefined && p_name !== null && p_name !== '') ? p_name : '{unnamed}';
 
-      if (p_tooltip) {
-        getAttributesTooltip(v_a, v_name, null, 'right');
+      if (p_tooltip_name) {
+        getAttributesTooltip(v_a, p_tooltip_name, null, 'right');
       }
 			v_a.innerHTML = '<span class="omnidb__tab-menu__link-content">' +
                         v_icon +

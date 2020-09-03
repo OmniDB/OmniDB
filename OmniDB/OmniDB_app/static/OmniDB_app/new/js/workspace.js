@@ -50,7 +50,7 @@ $(function () {
       p_name: 'Manage Connections',
       p_close: false,
       p_selectable: false,
-      p_tooltip: true,
+      p_tooltip_name: '<h5 class="my-1">Manage Connections</h5>',
       p_clickFunction: function(e) {
         return startConnectionManagement();
       }
@@ -1079,12 +1079,22 @@ function showMenuNewTabOuter(e) {
 
 				for (var i=0; i<v_connTabControl.tag.connections.length; i++) (function(i){
 					var v_conn = v_connTabControl.tag.connections[i];
-          let v_name = (v_conn.v_alias) ? v_conn.v_alias : v_conn.v_details1;
+          let v_name = v_conn.v_details1 + ' - ' + v_conn.v_details2;
+          let p_tooltip_name = '';
+          if (v_conn.v_alias) {
+            p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';
+          }
+          if (v_conn.v_details1) {
+            p_tooltip_name += '<div class="mb-1">' + v_conn.v_details1 + '</div>';
+          }
+          if (v_conn.v_details2) {
+            p_tooltip_name += '<div class="mb-1">' + v_conn.v_details2 + '</div>';
+          }
 					v_submenu_connection_list.push({
-						text: v_conn.v_details1 + ' - ' + v_conn.v_details2,
+						text: v_name,
 						icon: 'fas cm-all node-' + v_conn.v_db_type,
 						action: function() {
-								v_connTabControl.tag.createConnTab(v_conn.v_conn_id, true, v_name);
+							v_connTabControl.tag.createConnTab(v_conn.v_conn_id, true, v_name, p_tooltip_name);
 						}
 					});
 				})(i);
@@ -1391,7 +1401,7 @@ function toggleExpandToPanelView(p_target_id) {
 function getAttributesTooltip(p_target, p_title, p_message, p_position = false) {
   let v_html = '';
   if (p_message) {
-    v_html += (p_title != undefined) ? '<h4>' + p_title + '</h4>' : '';
+    v_html += (p_title != undefined) ? '<div>' + p_title + '</div>' : '';
     v_html += (p_message != undefined) ? '<div>' + p_message + '</div>' : '';
   }
   else {
@@ -1411,14 +1421,14 @@ function getAttributesTooltip(p_target, p_title, p_message, p_position = false) 
  * @param  {string} message Message string, accepts html.
  * @return {string}         HTML string.
  */
-function getStringTooltip(p_target, p_title, p_message, p_position = false) {
+function getStringTooltip(p_title, p_message, p_position = false) {
   let v_html = '';
   if (p_message) {
-    v_html += (p_title != undefined) ? '<h4>' + p_title + '</h4>' : '';
+    v_html += (p_title != undefined) ? '<div>' + p_title + '</div>' : '';
     v_html += (p_message != undefined) ? '<div>' + p_message + '</div>' : '';
   }
   else {
-    v_html += (p_title != undefined) ? '<h4 class=\"mb-0\">' + p_title + '</h4>' : '';
+    v_html += (p_title != undefined) ? '<div class=\"mb-0\">' + p_title + '</div>' : '';
   }
   let v_tooltipAttr =
     'data-toggle=tooltip ' +

@@ -20,14 +20,14 @@ var v_createSnippetPanelFunction = function(p_index) {
   v_connTabControl.removeLastTab();
 
   var v_tab = v_connTabControl.createTab({
-    p_icon: `<i class="fas fa-align-left icon-tab-title"></i>`,
+    p_icon: `<i class="fas fa-book"></i>`,
     p_name: `Snippets`,
     p_close: false,
     p_selectable: false,
     p_clickFunction: function() {
       toggleSnippetPanel(this.id);
     },
-    p_tooltip: true
+    p_tooltip_name: '<h5 class="my-1">Snippets Panel</h5>'
   });
 
   v_connTabControl.selectTab(v_tab);

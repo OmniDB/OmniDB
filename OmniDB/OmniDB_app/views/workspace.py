@@ -462,6 +462,8 @@ def get_database_list(request):
     except Exception as exc:
         None
 
+    request.session['omnidb_session'] = v_session
+
     v_return['v_data'] = {
         'v_select_html': None,
         'v_select_group_html': None,

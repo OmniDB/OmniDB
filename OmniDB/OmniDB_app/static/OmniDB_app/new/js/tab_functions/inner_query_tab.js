@@ -186,6 +186,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
   v_editor.commands.bindKey("Up", null)
   v_editor.commands.bindKey("Down", null)
+  v_editor.commands.bindKey("Tab", null)
 
 
   document.getElementById('txt_query_' + v_tab.id).onclick = function() {

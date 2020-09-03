@@ -9506,7 +9506,7 @@ DROP COLUMN #column_name#
         return self.v_connection.Query('''
             select {0}
             from (
-            select 'database' as type,
+            (select 'database' as type,
                    0 as sequence,
                    0 as num_dots,
                    quote_ident(datname) as result,
@@ -9514,11 +9514,11 @@ DROP COLUMN #column_name#
                    quote_ident(datname) as select_value,
                    '' as complement,
                    '' as complement_complete
-            from pg_database
+            from pg_database LIMIT 500)
 
             UNION ALL
 
-            select 'tablespace' as type,
+            (select 'tablespace' as type,
                    2 as sequence,
                    0 as num_dots,
                    quote_ident(spcname) as result,
@@ -9526,11 +9526,11 @@ DROP COLUMN #column_name#
                    quote_ident(spcname) as select_value,
                    '' as complement,
                    '' as complement_complete
-            from pg_tablespace
+            from pg_tablespace LIMIT 500)
 
             UNION ALL
 
-            select 'role' as type,
+            (select 'role' as type,
                    1 as sequence,
                    0 as num_dots,
                    quote_ident(rolname) as result,
@@ -9538,11 +9538,11 @@ DROP COLUMN #column_name#
                    quote_ident(rolname) as select_value,
                    '' as complement,
                    '' as complement_complete
-            from pg_roles
+            from pg_roles LIMIT 500)
 
             UNION ALL
 
-            select 'extension' as type,
+            (select 'extension' as type,
                    4 as sequence,
                    0 as num_dots,
                    quote_ident(extname) as result,
@@ -9550,11 +9550,11 @@ DROP COLUMN #column_name#
                    quote_ident(extname) as select_value,
                    '' as complement,
                    '' as complement_complete
-            from pg_extension
+            from pg_extension LIMIT 500)
 
             UNION ALL
 
-            select 'schema' as type,
+            (select 'schema' as type,
                    3 as sequence,
                    0 as num_dots,
                    quote_ident(nspname) as result,
@@ -9563,11 +9563,11 @@ DROP COLUMN #column_name#
                    '' as complement,
                    '' as complement_complete
             from pg_catalog.pg_namespace
-            where nspname not in ('pg_toast') and nspname not like 'pg%%temp%%'
+            where nspname not in ('pg_toast') and nspname not like 'pg%%temp%%' LIMIT 500)
 
             UNION ALL
 
-            select 'table' as type,
+            (select 'table' as type,
                    5 as sequence,
                    1 as num_dots,
                    quote_ident(c.relname) as result,
@@ -9579,11 +9579,11 @@ DROP COLUMN #column_name#
             from pg_class c
             inner join pg_namespace n
             on n.oid = c.relnamespace
-            where c.relkind in ('r', 'p')
+            where c.relkind in ('r', 'p') LIMIT 500)
 
             UNION ALL
 
-            select 'view' as type,
+            (select 'view' as type,
                    6 as sequence,
                    1 as num_dots,
                    quote_ident(table_name) as result,
@@ -9591,11 +9591,11 @@ DROP COLUMN #column_name#
                    quote_ident(table_schema) || '.' || quote_ident(table_name) as select_value,
                    quote_ident(table_schema) as complement,
                    '' as complement_complete
-            from information_schema.views
+            from information_schema.views LIMIT 500)
 
             UNION ALL
 
-            select 'function' as type,
+            (select 'function' as type,
                    8 as sequence,
                    1 as num_dots,
                    quote_ident(p.proname) as result,
@@ -9606,11 +9606,11 @@ DROP COLUMN #column_name#
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
-            where format_type(p.prorettype, null) not in ('trigger', 'event_trigger')
+            where format_type(p.prorettype, null) not in ('trigger', 'event_trigger') LIMIT 500)
 
             UNION ALL
 
-            select 'index' as type,
+            (select 'index' as type,
                    9 as sequence,
                    1 as num_dots,
                    quote_ident(i.indexname) as result,
@@ -9618,7 +9618,8 @@ DROP COLUMN #column_name#
                    quote_ident(i.schemaname) || '.' || quote_ident(i.indexname) as select_value,
                    quote_ident(i.schemaname) || '.' || quote_ident(i.tablename) as complement,
                    quote_ident(i.tablename) as complement_complete
-            from pg_indexes i) search
+            from pg_indexes i
+            LIMIT 500 )) search
             {1}
             order by sequence,result_complete
         '''.format(p_columns,p_filter), True)

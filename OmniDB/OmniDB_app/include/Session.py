@@ -166,6 +166,7 @@ class Session(object):
 
         try:
             for conn in Connection.objects.filter(user=User.objects.get(id=self.v_user_id)):
+                print(conn)
                 tunnel_information = {
                     'enabled': conn.use_tunnel,
                     'server': conn.ssh_server,

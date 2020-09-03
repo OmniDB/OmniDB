@@ -229,9 +229,10 @@ function build_autocomplete_elements(p_data, p_value) {
 function renew_autocomplete(p_new_value) {
   var v_search_regex = null;
 
-  v_search_regex = new RegExp('^(' + p_new_value + ')', 'i');
+  //v_search_regex = new RegExp('^(' + p_new_value + ')', 'i');
 
-  autocomplete_deselect_element();
+  v_search_regex = new RegExp('^' + p_new_value.split('').join('.*'), 'i');
+
   var v_num_results = 0;
   for (var i=v_autocomplete_object.elements.length-1; i>=0; i--) {
     var v_group = v_autocomplete_object.elements[i];
@@ -300,6 +301,28 @@ function renew_autocomplete(p_new_value) {
       v_autocomplete_object.elements[k].grid.deselectCell();
     }
   }
+
+  var v_new_selected = null;
+
+  //select first visible element if null
+  if (v_autocomplete_object.selected==null) {
+    v_new_selected = find_next_visible_element(v_autocomplete_object.first_element);
+  }
+  else {
+    v_new_selected = find_element_by_value(v_autocomplete_object.first_element,v_autocomplete_object.selected.value);
+
+    // Currently selected doesn`t exist anymore, get the first
+    if (v_new_selected==null) {
+      v_new_selected = find_next_visible_element(v_autocomplete_object.first_element);
+    }
+  }
+
+  autocomplete_deselect_element();
+
+  if (v_new_selected) {
+    autocomplete_select_element(v_new_selected);
+  }
+
   v_autocomplete_object.editor.focus();
 }
 
@@ -386,7 +409,7 @@ function autocomplete_get_results(p_sql,p_value,p_pos) {
             },100);
           }
 
-          renew_autocomplete(get_editor_last_word(v_autocomplete_object.editor));
+          renew_autocomplete(get_editor_last_word(v_autocomplete_object.editor).last_word);
           v_autocomplete_object.ready = true;
 
         }
@@ -414,17 +437,18 @@ function autocomplete_keyup(p_event) {
   if (p_event.keyCode != 27 && p_event.keyCode != 40 && p_event.keyCode != 38 && p_event.keyCode != 13 && p_event.keyCode != 16 && p_event.keyCode != 17 && p_event.keyCode != 18) {
     if (v_autocomplete_object.ready) {
 
-      var v_last_word = get_editor_last_word(v_autocomplete_object.editor);
+      var v_last_word = get_editor_last_word(v_autocomplete_object.editor).last_word;
 
       if (v_last_word.length < v_autocomplete_object.search_base.length)
         close_autocomplete();
       else
-        renew_autocomplete(get_editor_last_word(v_autocomplete_object.editor));
+        renew_autocomplete(v_last_word);
     }
   }
 }
 
 function autocomplete_keydown(p_editor, p_event) {
+
   if (v_autocomplete_object.active) {
 
     //esc
@@ -435,11 +459,10 @@ function autocomplete_keydown(p_editor, p_event) {
     }
     //space
     if(p_event.keyCode === 32){
-      console.log('CLOSE')
       close_autocomplete();
     }
-    //enter
-    if(p_event.keyCode === 13){
+    //enter or tab
+    if(p_event.keyCode === 13 || p_event.keyCode === 9){
       p_event.stopPropagation();
       p_event.preventDefault();
       //get remaining string to include in editor
@@ -479,13 +502,18 @@ function autocomplete_keydown(p_editor, p_event) {
     // Handle UP or DOWN if autocomplete is not enbled, just move cursor position
     if(p_event.keyCode === 40 || p_event.keyCode === 38){
       var v_cursor_pos = p_editor.getCursorPosition();
-      console.log(v_cursor_pos)
+  
       //p_editor.moveCursorTo(p_editor.getCursorPosition().row+1,p_editor.getCursorPosition().column);
       if(p_event.keyCode === 40)
         p_editor.moveCursorTo(v_cursor_pos.row+1,v_cursor_pos.column);
       else
         p_editor.moveCursorTo(v_cursor_pos.row-1,v_cursor_pos.column);
       p_editor.clearSelection();
+    }
+    // Handle TAB if autocomplete is not enbled
+    if(p_event.keyCode === 9){
+      p_editor.insert('\t');
+      p_editor.focus();
     }
   }
 }
@@ -630,36 +658,53 @@ function close_autocomplete(p_additional_text) {
 
 function autocomplete_start(editor, mode, event) {
 
-  if (event.keyCode != 27 && event.keyCode != 39 && event.keyCode != 37 && event.keyCode != 40 && event.keyCode != 38 && event.keyCode != 13 && event.keyCode != 16 && event.keyCode != 17 && event.keyCode != 18) {
+  // Autocomplete doesn't start nor filters with the following keys:
+  // 32 = SPACE
+  // 27 = ESC
+  // 13 = ENTER
+  // 39 = RIGHT
+  // 37 = LEFT
+  // 40 = DOWN
+  // 38 = UP
+
+  // 16 = SHIFT
+  // 17 = CTRL
+  // 18 = ALT
+  // 91 = META
+  if (event.keyCode != 32 &&
+      event.keyCode != 27 &&
+      event.keyCode != 39 &&
+      event.keyCode != 37 &&
+      event.keyCode != 40 &&
+      event.keyCode != 38 &&
+      event.keyCode != 13 &&
+      event.keyCode != 16 &&
+      event.keyCode != 17 &&
+      event.keyCode != 18 &&
+      event.keyCode != 91
+    ) {
 
     if (!v_autocomplete_object.active) {
 
-      // autocomplete starts only with characters from A to Z or dot
-      if (((event.keyCode >= 65 && event.keyCode < 90) || (event.keyCode >= 48 && event.keyCode < 57 && event.shiftKey!=true) || event.keyCode == 190) && event.ctrlKey!=true && event.altKey!=true && event.metaKey!=true) {
+      // autocomplete starts only with characters from A to Z or NUMBERS or dot or dash
+      if (
+          (
+            (event.keyCode >= 65 && event.keyCode < 90) ||
+             event.keyCode == 189 ||
+             (event.keyCode >= 48 && event.keyCode < 57 && event.shiftKey!=true) ||
+             event.keyCode == 190
+           ) &&
+           event.ctrlKey!=true &&
+           event.altKey!=true &&
+           event.metaKey!=true
+         ) {
 
         //get editor word before cursor
-        var v_cursor = editor.selection.getCursor();
-        var v_prefix_pos = editor.session.doc.positionToIndex(v_cursor)-1;
-        var v_editor_text = editor.getValue();
-        //v_editor_text = v_editor_text.substring(0,v_prefix_pos);
-        var v_pos_iterator = v_prefix_pos;
-        var v_word_length = 0;
-        while (v_editor_text[v_pos_iterator]!= ' ' && v_editor_text[v_pos_iterator]!= '\n' && v_pos_iterator>=0) {
-          v_pos_iterator--;
-          v_word_length++;
-        }
+        var v_last_word_object = get_editor_last_word(editor);
+        var v_last_word = v_last_word_object.last_word;
+        var v_character_position = v_last_word_object.character_position;
 
-        if (v_pos_iterator>=0) {
-          v_pos_iterator++;
-          v_autocomplete_object.range = new Range(v_cursor.row, v_cursor.column-v_word_length, v_cursor.row, v_cursor.column);
-          var v_last_word = v_editor_text.substring(v_pos_iterator,v_pos_iterator+v_word_length);
-        }
-        else {
-          v_autocomplete_object.range = new Range(v_cursor.row, v_cursor.column-v_word_length-1, v_cursor.row, v_cursor.column);
-          var v_last_word = v_editor_text.substring(v_pos_iterator,v_pos_iterator+v_word_length+1);
-        }
-
-        if (v_last_word != '' && v_last_word[0]!="'" && v_last_word.length>1) {
+        if (v_last_word != '' && v_last_word[0]!="'" && (v_last_word.length>2 || (v_last_word.length==2 && v_last_word[1]=='.'))) {
 
           v_autocomplete_object.editor = editor;
           v_autocomplete_object.active = true;
@@ -697,7 +742,7 @@ function autocomplete_start(editor, mode, event) {
 
           v_autocomplete_object.search_base = v_last_word;
 
-          autocomplete_get_results(editor.getValue(),v_last_word,editor.session.doc.positionToIndex(v_cursor));
+          autocomplete_get_results(editor.getValue(),v_last_word,v_character_position);
 
         }
       }
@@ -711,6 +756,7 @@ function autocomplete_start(editor, mode, event) {
 
 function get_editor_last_word(p_editor) {
   var v_cursor = p_editor.selection.getCursor();
+  var v_character_position = p_editor.session.doc.positionToIndex(v_cursor)
   var v_prefix_pos = p_editor.session.doc.positionToIndex(v_cursor)-1;
   var v_editor_text = p_editor.getValue();
   //v_editor_text = v_editor_text.substring(0,v_prefix_pos);
@@ -731,5 +777,8 @@ function get_editor_last_word(p_editor) {
     var v_last_word = v_editor_text.substring(v_pos_iterator,v_pos_iterator+v_word_length+1);
   }
 
-  return v_last_word;
+  return {
+    'last_word': v_last_word,
+    'character_position': v_character_position
+  }
 }

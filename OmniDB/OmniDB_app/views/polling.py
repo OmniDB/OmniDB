@@ -20,6 +20,11 @@ import sys
 
 import sqlparse
 
+import pexpect
+sys.path.append('OmniDB_app/include')
+from OmniDB_app.include import paramiko
+from OmniDB_app.include import custom_paramiko_expect
+
 from django.contrib.auth.models import User
 from OmniDB_app.models.main import *
 
@@ -152,6 +157,7 @@ def long_polling(request):
     global_lock.acquire()
     while len(client_object['returning_data'])>0:
         v_returning_data.append(client_object['returning_data'].pop(0))
+
     global_lock.release()
 
     return JsonResponse(
@@ -223,6 +229,64 @@ def create_request(request):
                     tab.delete()
                 except Exception as exc:
                     None
+
+    elif v_code == requestType.Terminal:
+        #create tab object if it doesn't exist
+        try:
+            tab_object = client_object['tab_list'][v_data['v_tab_id']]
+            try:
+                tab_object['terminal_object'].send(v_data['v_cmd'])
+            except:
+                None
+        except Exception as exc:
+            tab_object =  {
+                            'thread': None,
+                            'terminal_object': None
+                          }
+            client_object['tab_list'][v_data['v_tab_id']] = tab_object
+
+            start_thread = True
+
+            try:
+                v_conn_object = v_session.v_databases[v_data['v_ssh_id']]
+
+                client = paramiko.SSHClient()
+                client.load_system_host_keys()
+                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+                #ssh key provided
+                if v_conn_object['tunnel']['key'].strip() != '':
+                    v_file_name = '{0}'.format(str(time.time())).replace('.','_')
+                    v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
+                    with open(v_full_file_name,'w') as f:
+                        f.write(v_conn_object['tunnel']['key'])
+                    client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+                else:
+                    client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+                tab_object['terminal_ssh_client'] = client
+                tab_object['terminal_object'] = custom_paramiko_expect.SSHClientInteraction(client,timeout=60, display=False)
+                tab_object['terminal_object'].send(v_data['v_cmd'])
+
+                tab_object['terminal_type'] = 'remote'
+
+            except Exception as exc:
+                start_thread = False
+                print(str(exc))
+                logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+                v_response['v_code'] = response.MessageException
+                v_response['v_data'] = str(exc)
+                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+            if start_thread:
+                v_data['v_context_code'] = v_context_code
+                v_data['v_tab_object'] = tab_object
+                v_data['v_client_object'] = client_object
+                v_data['v_session'] = v_session
+                t = StoppableThread(thread_terminal,v_data)
+                tab_object['thread'] = t
+                tab_object['type'] = 'terminal'
+                tab_object['tab_id'] = v_data['v_tab_id']
+                t.start()
 
 
     elif v_code == requestType.Query or v_code == requestType.QueryEditData or v_code == requestType.SaveEditData or v_code == requestType.AdvancedObjectSearch or v_code == requestType.Console:
@@ -360,6 +424,92 @@ def LogHistory(p_user_id,
         query_object.save()
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+
+def thread_terminal(self,args):
+
+    try:
+        v_cmd             = args['v_cmd']
+        v_tab_id          = args['v_tab_id']
+        v_tab_object      = args['v_tab_object']
+        v_terminal_object = v_tab_object['terminal_object']
+        v_terminal_ssh_client = v_tab_object['terminal_ssh_client']
+        v_client_object  = args['v_client_object']
+
+        while not self.cancel:
+            try:
+                if v_tab_object['terminal_type'] == 'local':
+                    v_data_return = v_terminal_object.read_nonblocking(size=1024)
+                else:
+                    v_data_return = v_terminal_object.read_current()
+
+                #send data in chunks to avoid blocking the websocket server
+                chunks = [v_data_return[x:x+10000] for x in range(0, len(v_data_return), 10000)]
+
+                if len(chunks)>0:
+                    for count in range(0,len(chunks)):
+                        if self.cancel:
+                            break
+
+                        v_response = {
+                            'v_code': response.TerminalResult,
+                            'v_context_code': args['v_context_code'],
+                            'v_error': False,
+                            'v_data': 1
+                        }
+
+                        if not count==len(chunks)-1:
+                            v_response['v_data'] = {
+                                'v_data' : chunks[count],
+                                'v_last_block': False
+                            }
+                        else:
+                            v_response['v_data'] = {
+                                'v_data' : chunks[count],
+                                'v_last_block': True
+                            }
+                        if not self.cancel:
+                            global_lock.acquire()
+                            v_client_object['returning_data'].append(v_response)
+                            try:
+                                # Attempt to release client polling lock so that the polling thread can read data
+                                v_client_object['polling_lock'].release()
+                            except Exception:
+                                None
+                            global_lock.release()
+                else:
+                    if not self.cancel:
+                        global_lock.acquire()
+                        v_client_object['returning_data'].append(v_response)
+                        try:
+                            # Attempt to release client polling lock so that the polling thread can read data
+                            v_client_object['polling_lock'].release()
+                        except Exception:
+                            None
+                        global_lock.release()
+
+            except Exception as exc:
+                transport = v_terminal_ssh_client.get_transport()
+                if transport == None or transport.is_active() == False:
+                    break
+                if 'EOF' in str(exc):
+                    break
+
+
+    except Exception as exc:
+        logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+        v_response['v_data'] = {
+            'v_data': str(exc),
+            'v_duration': ''
+        }
+        if not self.cancel:
+            global_lock.acquire()
+            v_client_object['returning_data'].append(v_response)
+            try:
+                # Attempt to release client polling lock so that the polling thread can read data
+                v_client_object['polling_lock'].release()
+            except Exception:
+                None
+            global_lock.release()
 
 def thread_query(self,args):
     v_response = {

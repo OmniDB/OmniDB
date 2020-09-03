@@ -1,14 +1,26 @@
-var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name = false) {
+var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name = false, p_tooltip_name = false) {
 
   if (v_connTabControl.tag.connections.length==0) {
     v_connTabControl.selectTabIndex(v_connTabControl.tabList.length-2);
     showAlert('Create connections first.');
   }
   else {
-
     v_connTabControl.removeLastTab();
 
-    var v_conn_name = (p_name) ? p_name : v_connTabControl.tag.connections[0].v_alias;
+    let v_conn = v_connTabControl.tag.connections[0];
+    let v_conn_name = (p_name) ? p_name : v_conn.v_alias;
+    if (!p_tooltip_name) {
+      p_tooltip_name = '';
+      if (v_conn.v_alias) {
+        p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
+      }
+      if (v_conn.v_details1) {
+        p_tooltip_name += '<div class="mb-1">' + v_conn.v_details1 + '</div>';
+      }
+      if (v_conn.v_details2) {
+        p_tooltip_name += '<div class="mb-1">' + v_conn.v_details2 + '</div>';
+      }
+    }
 
     var v_tab = v_connTabControl.createTab({
       p_icon: '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/>',
@@ -75,7 +87,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
           v_option_list,
           null);
       },
-      p_tooltip: true
+      p_tooltip_name: p_tooltip_name
     });
 
     v_connTabControl.selectTab(v_tab);
@@ -340,9 +352,11 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
         p_selectable: false,
         p_clickFunction: function(e) {
           showMenuNewTabOuter(e);
-        }
+        },
+        p_tooltip_name: '<h5 class="my-1">Add/Select Connections</h5>'
       });
 
+    $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 
     setTimeout(function() {
       v_selectPropertiesTabFunc();

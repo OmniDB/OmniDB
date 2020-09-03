@@ -3,25 +3,6 @@
 }
 
 @media (min-width: 1440px) {
-  /* .omnidb__utilities-menu__branding {
-    background-image: url('/static/OmniDB_app/images/utilities-menu-branding.svg');
-    background-repeat: no-repeat;
-    background-size: contain;
-    display: block;
-    height: 40px;
-    width: 160px;
-  }
-  .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
-    margin-right: 3px;
-  }
-  .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon {
-    margin-right: 3px;
-  }
-
-  /* MAIN */
-  /* .omnidb__main__tablist-toggler {
-    display: none;
-  } */
   .omnidb__rounded--lg {
     border-radius: 18px;
   }
@@ -128,9 +109,6 @@
   }
   .omnidb__tab-menu.omnidb__tab-menu--primary:hover .omnidb__tab-menu__link-close {
     opacity: 1;
-  }
-  .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
-    margin-right: 3px;
   }
   .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
     display: inline-block;
@@ -277,9 +255,6 @@
   }
   .omnidb__tab-menu.omnidb__tab-menu--primary:hover .omnidb__tab-menu__link-close {
     opacity: 1;
-  }
-  .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
-    margin-right: 3px;
   }
   .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
     display: inline-block;
@@ -428,9 +403,6 @@
   .omnidb__tab-menu.omnidb__tab-menu--primary:hover .omnidb__tab-menu__link-close {
     opacity: 1;
   }
-  .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
-    margin-right: 3px;
-  }
   .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
     display: inline-block;
     overflow: hidden;
@@ -496,6 +468,9 @@
 }
 .omnidb__tab-menu--primary .nav-tabs .nav-item:first-child img {
   height: 32px;
+}
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
+  font-size: 1.2rem;
 }
 .omnidb__tab-menu--secondary .nav-tabs,
 .omnidb__tree-tabs .nav-tabs,

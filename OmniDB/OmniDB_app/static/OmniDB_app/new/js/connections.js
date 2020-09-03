@@ -63,7 +63,6 @@ function showConnectionList(p_open_modal, p_change_group) {
         var v_row = document.createElement('div');
         v_row.className = 'row';
 
-
         for (var i=0; i<p_return.v_data.v_conn_list.length; i++) {
           var v_conn_obj = p_return.v_data.v_conn_list[i];
 
@@ -125,53 +124,80 @@ function showConnectionList(p_open_modal, p_change_group) {
           v_card_body_div.className = 'card-body';
           v_card_div.appendChild(v_card_body_div);
 
-          if (v_conn_obj.technology=='terminal')
-            v_card_body_div.innerHTML +=
-            '<h5 class="card-title"><i class="fas fa-terminal"></i> ' + v_conn_obj.alias + '</h5>' +
-            '<h6 class="card-subtitle mb-2 text-muted"><i title="Tunnel" class="fas fa-archway"></i> ' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</h6>';
+					var v_icon = '';
+
+					// Showing terminal connection info
+          if (v_conn_obj.technology=='terminal') {
+						v_icon = '<i class="fas fa-terminal"></i>';
+						v_card_body_div.innerHTML +=
+						'<h5 class="card-title">' + v_icon + ' ' + v_conn_obj.alias + '</h5>' +
+						'<h6 class="card-subtitle mb-2 text-muted"><i title="Tunnel" class="fas fa-archway"></i> ' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</h6>';
+					}
           else {
-            var v_tunnel = '';
+						v_icon = '<i class="technology-icon node-' + v_conn_obj.technology + '"></i>';
+						// Showing NO-TUNNEL info
+            var v_tunnel = '<div class="card-subtitle tunnel text-muted">No Tunnel Configured</div>';
             var v_details = '';
-            if (v_conn_obj.conn_string!='')
-              v_details = '<h6 class="card-subtitle mb-2 text-muted"><i title="Connection String" class="fas fa-quote-left"></i> ' + v_conn_obj.conn_string + '</h6>';
-            else
-              v_details =
-              '      <h6 class="card-subtitle mb-2 text-muted">' + v_conn_obj.server + ':' + v_conn_obj.port + '</h6>' +
-              '      <p class="card-text">' + v_conn_obj.user + '@' + v_conn_obj.service + '</p>';
-            if (v_conn_obj.tunnel.enabled==true)
-              v_tunnel = '<h6 class="card-subtitle mb-2 text-muted"><i title="Tunnel" class="fas fa-archway"></i> ' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</h6>';
+						// Showing connection string info
+            if (v_conn_obj.conn_string && v_conn_obj.conn_string!='') {
+							v_details = '<h6 class="card-subtitle mb-2 text-muted"><i title="Connection String" class="fas fa-quote-left"></i> ' + v_conn_obj.conn_string + '</h6>';
+						}
+						// Showing connection server and port info
+            else {
+							v_details =
+							'<h6 class="card-subtitle mb-2 text-muted">' + v_conn_obj.server + ':' + v_conn_obj.port + '</h6>' +
+							'<p class="card-text">' + v_conn_obj.user + '@' + v_conn_obj.service + '</p>';
+						}
+						// Showing tunnel info
+            if (v_conn_obj.tunnel.enabled===true) {
+							v_tunnel = '<div class="card-subtitle tunnel text-muted">' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</div>';
+						}
 
             v_card_body_div.innerHTML +=
-            '<h5 class="card-title"><i class="icon_tree node-' + v_conn_obj.technology + '"></i>' + v_conn_obj.alias + '</h5>' +
-            v_tunnel +
-            v_details;
+						'<div class="card-body-icon">' +
+							v_icon +
+						'</div>' +
+						'<div class="card-body-details">' +
+	            '<h5 class="card-title">' + v_conn_obj.alias + '</h5>' +
+	            v_details +
+						'</div>' +
+						'<div class="card-body-tunnel">' +
+							v_tunnel +
+						'</div>';
 						v_card_body_div.appendChild(v_checkbox);
 						v_card_body_div.appendChild(v_cover_div);
           }
 
+					var v_card_body_buttons = document.createElement('div');
+					v_card_body_buttons.className = 'card-body-buttons';
+					v_card_body_div.appendChild(v_card_body_buttons);
+
 					var v_button_select = document.createElement('button');
 					v_button_select.className = 'btn btn-success btn-sm omnidb__connections__btn--select';
 					v_button_select.title = "Select";
-					if (v_conn_obj.locked==true)
+					if (v_conn_obj.locked==true) {
 						v_button_select.setAttribute("disabled",true);
+					}
 					v_button_select.innerHTML = '<svg width="15px" height="160px" viewBox="0 0 15 160" style="width: auto;height: 100%;stroke: none;stroke-width: 0;"><path stroke-width="0" stroke="none" d="M 0 0 L 15 80 L 0 160 Z"></path></svg><i class="fas fa-plug"></i>';
-					v_card_body_div.appendChild(v_button_select);
+					v_card_body_buttons.appendChild(v_button_select);
 
           var v_button_edit = document.createElement('button');
           v_button_edit.className = 'btn btn-sm mx-1 omnidb__theme__btn--primary';
           v_button_edit.title = "Edit";
-          if (v_conn_obj.locked==true)
-            v_button_edit.setAttribute("disabled",true);
+          if (v_conn_obj.locked==true) {
+						v_button_edit.setAttribute("disabled",true);
+					}
           v_button_edit.innerHTML = '<i class="fas fa-pen"</i>'
-          v_card_body_div.appendChild(v_button_edit);
+          v_card_body_buttons.appendChild(v_button_edit);
 
           var v_button_delete = document.createElement('button');
           v_button_delete.className = 'btn btn-danger btn-sm mx-1';
           v_button_delete.title = "Delete";
-          if (v_conn_obj.locked==true)
-            v_button_delete.setAttribute("disabled",true);
+          if (v_conn_obj.locked==true) {
+						v_button_delete.setAttribute("disabled",true);
+					}
           v_button_delete.innerHTML = '<i class="fas fa-trash-alt"></i>'
-          v_card_body_div.appendChild(v_button_delete);
+          v_card_body_buttons.appendChild(v_button_delete);
 
 					v_button_select.onclick = (function(conn_obj) {
 						return function() {

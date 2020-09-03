@@ -445,7 +445,8 @@
 
 
 .omnidb__main {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 .omnidb__menu__btn {
   transition: 0.35s;
@@ -662,6 +663,7 @@
   align-items: center;
   display: flex;
   justify-content: flex-start;
+  min-height: 35px;
 }
 .tab_actions.omnidb__tab-actions {
   padding-bottom: 3px;
@@ -814,6 +816,15 @@
   flex: 0 1 350px;
   padding: 15px;
 }
+.omnidb__connections__card-list--cards .technology-icon {
+  display: inline-block;
+  width: 24px;
+  height: 16px;
+  font-size: 15px;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+  text-align: center;
+}
 
 .omnidb__connections__card-list--rows .omnidb__connections__cols {
   flex: 1 1;
@@ -821,9 +832,47 @@
 }
 .omnidb__connections__card-list--rows .card-body {
   align-items: center;
-  display: flex;
+  display: grid;
+  grid-template:
+  'icon details buttons' 24px
+  'icon tunnel buttons' 24px;
   padding: 5px;
   padding-left: 2.5rem;
+}
+.omnidb__connections__card-list--rows .card-body-icon {
+  grid-area: icon;
+}
+.omnidb__connections__card-list--rows .card-body-details {
+  grid-area: details;
+}
+.omnidb__connections__card-list--rows .card-body-buttons {
+  grid-area: buttons;
+}
+.omnidb__connections__card-list--rows .card-body-tunnel {
+  grid-area: tunnel;
+}
+.omnidb__connections__card-list--rows .card-body-icon {
+  width: 24px;
+}
+.omnidb__connections__card-list--rows .technology-icon {
+  display: inline-block;
+  width: 24px;
+  height: 16px;
+  font-size: 15px;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+  text-align: center;
+}
+.omnidb__connections__card-list--rows .card-body-details,
+.omnidb__connections__card-list--rows .card-body-buttons {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  text-align: left;
+}
+.omnidb__connections__card-list--rows .card-body-tunnel {
+  margin-top: 5px;
+  text-align: left;
 }
 .omnidb__connections__card-list--rows h5,
 .omnidb__connections__card-list--rows h6,

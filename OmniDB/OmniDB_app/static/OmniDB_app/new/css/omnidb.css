@@ -707,7 +707,7 @@
 
 /* PANELS */
 .omnidb__panel {
-  box-shadow: -3px 0px 8px rgba(0,0,0,0.5);
+  box-shadow: 0px 0px 0px rgba(255,255,255,0);
   /* display: none; */
   left: 0px;
   padding-left: 36px;
@@ -720,6 +720,7 @@
 }
 .omnidb__panel--slide-in {
   display: block;
+  box-shadow: -3px 0px 8px rgba(0,0,0,0.5);
 }
 .omnidb__panel__toggler {
   border-bottom-left-radius: 0px;
@@ -825,9 +826,13 @@
   vertical-align: middle;
   text-align: center;
 }
+.omnidb__connections__card-list--cards .card-body-buttons {
+    margin-top: 5px;
+}
 
 .omnidb__connections__card-list--rows .omnidb__connections__cols {
   flex: 1 1;
+  max-width: 50%;
   padding: 5px 15px;
 }
 .omnidb__connections__card-list--rows .card-body {

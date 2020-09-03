@@ -123,50 +123,53 @@ function showConnectionList(p_open_modal, p_change_group) {
           var v_card_body_div = document.createElement('div');
           v_card_body_div.className = 'card-body';
           v_card_div.appendChild(v_card_body_div);
-
+					// Empty icon info
 					var v_icon = '';
+					// Empty details info
+					var v_details = '';
+					// Empty tunnel info
+					var v_tunnel = '<div class="card-subtitle tunnel text-muted">No Tunnel Configured</div>';
 
 					// Showing terminal connection info
           if (v_conn_obj.technology=='terminal') {
 						v_icon = '<i class="fas fa-terminal"></i>';
-						v_card_body_div.innerHTML +=
-						'<h5 class="card-title">' + v_icon + ' ' + v_conn_obj.alias + '</h5>' +
-						'<h6 class="card-subtitle mb-2 text-muted"><i title="Tunnel" class="fas fa-archway"></i> ' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</h6>';
+						// Showing connection string info
+						v_details = '<h5 class="card-title">Terminal connection</h5>';
+						// Showing tunnel info
+						v_tunnel = '<h6 class="card-subtitle text-muted">' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</h6>';
 					}
           else {
 						v_icon = '<i class="technology-icon node-' + v_conn_obj.technology + '"></i>';
-						// Showing NO-TUNNEL info
-            var v_tunnel = '<div class="card-subtitle tunnel text-muted">No Tunnel Configured</div>';
-            var v_details = '';
+						v_details = '<h5 class="card-title">' + v_conn_obj.alias + '</h5>';
 						// Showing connection string info
             if (v_conn_obj.conn_string && v_conn_obj.conn_string!='') {
-							v_details = '<h6 class="card-subtitle mb-2 text-muted"><i title="Connection String" class="fas fa-quote-left"></i> ' + v_conn_obj.conn_string + '</h6>';
+							v_details += '<h6 class="card-subtitle mb-2 text-muted"><i title="Connection String" class="fas fa-quote-left"></i> ' + v_conn_obj.conn_string + '</h6>';
 						}
 						// Showing connection server and port info
             else {
-							v_details =
+							v_details +=
 							'<h6 class="card-subtitle mb-2 text-muted">' + v_conn_obj.server + ':' + v_conn_obj.port + '</h6>' +
 							'<p class="card-text">' + v_conn_obj.user + '@' + v_conn_obj.service + '</p>';
 						}
 						// Showing tunnel info
-            if (v_conn_obj.tunnel.enabled===true) {
+						if (v_conn_obj.tunnel.enabled===true) {
 							v_tunnel = '<div class="card-subtitle tunnel text-muted">' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</div>';
 						}
-
-            v_card_body_div.innerHTML +=
-						'<div class="card-body-icon">' +
-							v_icon +
-						'</div>' +
-						'<div class="card-body-details">' +
-	            '<h5 class="card-title">' + v_conn_obj.alias + '</h5>' +
-	            v_details +
-						'</div>' +
-						'<div class="card-body-tunnel">' +
-							v_tunnel +
-						'</div>';
-						v_card_body_div.appendChild(v_checkbox);
-						v_card_body_div.appendChild(v_cover_div);
           }
+
+
+					v_card_body_div.innerHTML +=
+					'<div class="card-body-icon">' +
+						v_icon +
+					'</div>' +
+					'<div class="card-body-details">' +
+						v_details +
+					'</div>' +
+					'<div class="card-body-tunnel">' +
+						v_tunnel +
+					'</div>';
+					v_card_body_div.appendChild(v_checkbox);
+					v_card_body_div.appendChild(v_cover_div);
 
 					var v_card_body_buttons = document.createElement('div');
 					v_card_body_buttons.className = 'card-body-buttons';

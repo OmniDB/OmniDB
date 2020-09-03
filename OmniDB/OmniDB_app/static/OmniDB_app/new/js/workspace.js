@@ -528,8 +528,6 @@ function resizeTreeVertical(event) {
 /// Resize SQL editor and result div.
 /// </summary>
 function resizeTreeVerticalEnd(event) {
-  console.log(v_connTabControl.selectedTab.tag.mode);
-
 	document.body.removeEventListener("mouseup", resizeTreeVerticalEnd);
 	document.getElementById('vertical-resize-line').remove();
 

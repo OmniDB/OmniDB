@@ -22,7 +22,7 @@
   background-color: #2F3136;
 }
 .omnidb--theme-dark .omnidb__tab-actions.tab_actions {
-  background-color: #282A2F;
+  /* background-color: #282A2F; */
 }
 
 /* ICONS */
@@ -354,6 +354,9 @@
 /* RESIZE LINES */
 .omnidb--theme-dark .resize_line_horizontal {
   border-bottom: 1px dashed #6b7284 !important;
+}
+.omnidb--theme-dark .resize_line_vertical {
+  border-right: 1px dashed #6b7284 !important;
 }
 .omnidb--theme-dark .omnidb__workspace-resize-grid__draggable .resize_line_vertical {
   border-right: 1px dashed #515E71 !important;

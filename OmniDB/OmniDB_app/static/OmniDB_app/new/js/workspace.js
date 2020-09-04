@@ -619,7 +619,7 @@ function resizeConnectionHorizontalEnd(event) {
   var v_totalWidth = v_connTabControl.selectedDiv.getBoundingClientRect().width;
 
   var v_mousePosX = event.screenX;
-  var v_paddingCompensation = 16;
+  var v_paddingCompensation = 8;
 
   var v_fraction = (v_mousePosX > v_offsetLeft)
   ? 100*((v_paddingCompensation + v_mousePosX - v_offsetLeft) / v_totalWidth)
@@ -680,7 +680,7 @@ function resizeSnippetHorizontalEnd(event) {
   var v_totalWidth = v_connTabControl.snippet_tag.divPanel.getBoundingClientRect().width;
 
   var v_mousePosX = event.screenX;
-  var v_paddingCompensation = 16;
+  var v_paddingCompensation = 8;
 
   var v_fraction = (v_mousePosX > v_offsetLeft)
   ? 100*((v_paddingCompensation + v_mousePosX - v_offsetLeft) / v_totalWidth)

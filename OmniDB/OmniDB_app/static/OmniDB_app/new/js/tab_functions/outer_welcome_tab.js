@@ -55,8 +55,11 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
 
   // Intro html string
   let v_html_intro =
-  '<h1 class="text-center mb-4">Hi, welcome to <span style="color:#4a6cbb;">OmniDB!</span></h1>' +
-  '<div class="card p-3">' +
+  '<h1 class="mb-4" style="padding-left: 100px; position: relative;">' +
+    '<span class="omnidb__welcome__loading"></span>' +
+    '<span class="omnidb__welcome__intro-text">Hi, welcome to <span style="color:#4a6cbb;">OmniDB!</span></span>' +
+  '</h1>' +
+  '<div class="card p-3 omnidb__welcome__intro-card">' +
     '<p class="text-center"><span class="badge badge-danger" style="vertical-align: middle;">disclaimer</span> OmniDB is a powerful tool, and with great power...<br/>Please <strong><span class="text-danger">learn how to use it on a testing environment, NOT on production</span></strong>!</p>' +
     '<div class="alert-info p-2 rounded" style="display: grid; grid-template: \'icon text\';">' +
       '<i class="fas fa-exclamation-triangle p-4" style="grid-area: icon;"></i>' +
@@ -70,7 +73,7 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
   '</div>';
   // Usel links html string
   let v_html_useful_links =
-  '<div class="alert alert-success p-3">' +
+  '<div class="alert alert-success p-3 omnidb__welcome__useful-card">' +
     '<h2 class="text-center mb-4">Useful stuff</h2>' +
     '<ul>' +
       '<li class="mb-2"><a class="btn btn-success text-white" target="_blank" href="https://omnidb.org"><i class="fas fa-user"></i> <span>OmniDB website</span></a></li>' +

@@ -358,18 +358,35 @@ function initCreateTabFunctions() {
 
 	};
 
-  //Functions to create tabs globally
+	// Functions to create a default `add` tab
+	v_connTabControl.tag.createAddTab = v_connTabControl.createTab(
+    {
+      p_icon: '<i class="fas fa-plus"></i>',
+      p_name: 'Add connection',
+      p_close: false,
+      p_selectable: false,
+      p_clickFunction: function(e) {
+        showMenuNewTabOuter(e);
+      },
+      p_tooltip_name: '<h5 class="my-1">Add/Select Connections</h5>'
+    }
+  );
+
+  // Functions to create tabs globally
   v_connTabControl.tag.createConnTab = v_createConnTabFunction;
   //v_connTabControl.tag.createChatTab = v_createChatTabFunction;
   //v_connTabControl.tag.createServerMonitoringTab = v_createServerMonitoringTabFunction;
 
-  //Functions to create snippet panel globally
+  // Functions to create snippet panel globally
   v_connTabControl.tag.createSnippetPanel = v_createSnippetPanelFunction;
 
-  //Functions to create tabs inside snippet panel
+  // Functions to create tabs inside snippet panel
   v_connTabControl.tag.createSnippetTextTab = v_createSnippetTextTabFunction;
 
-  //Functions to create tabs inside a connection tab
+	// Functions to create welcome tab globally
+	v_connTabControl.tag.createWelcomeTab = v_createWelcomeTabFunction;
+
+  // Functions to create tabs inside a connection tab
 	v_connTabControl.tag.createQueryTab = v_createQueryTabFunction;
   v_connTabControl.tag.createConsoleTab = v_createConsoleTabFunction;
   v_connTabControl.tag.createWebsiteTab = v_createWebsiteTabFunction;
@@ -383,7 +400,7 @@ function initCreateTabFunctions() {
   v_connTabControl.tag.createDebuggerTab = v_createDebuggerTabFunction;
   v_connTabControl.tag.createOuterTerminalTab = v_createOuterTerminalTabFunction;
 
-  //Functions to create tabs inside monitor tab
+  // Functions to create tabs inside monitor tab
   //v_connTabControl.tag.createNewMonitorNodeTab = v_createNewMonitorNodeTabFunction;
 }
 

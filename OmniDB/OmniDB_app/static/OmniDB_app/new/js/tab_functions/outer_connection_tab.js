@@ -1,5 +1,4 @@
 var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name = false, p_tooltip_name = false) {
-
   if (v_connTabControl.tag.connections.length==0) {
     v_connTabControl.selectTabIndex(v_connTabControl.tabList.length-2);
     showAlert('Create connections first.');
@@ -122,7 +121,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
               '</div>' +
             '</div>' +
           '</div>' +
-          '<div onmousedown="resizeConnectionHorizontal(event)" style="position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 8px;"></div>' +
+          '<div class="resize_line_vertical" onmousedown="resizeConnectionHorizontal(event)" style="position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 0px;"></div>' +
         '</div>' +//.div_left
         '<div id="' + v_tab.id + '_div_right" class="omnidb__workspace__div-right col" style="position: relative; flex: 0 0 83.333%; max-width: 83.333%;">' +
           // "<div class='row'>" +
@@ -354,7 +353,8 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
           showMenuNewTabOuter(e);
         },
         p_tooltip_name: '<h5 class="my-1">Add/Select Connections</h5>'
-      });
+      }
+    );
 
     $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 

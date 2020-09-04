@@ -23,6 +23,7 @@ from django.contrib.auth.models import User
 
 import logging
 logger = logging.getLogger(__name__)
+print(logger)
 
 def check_session(request):
     #Invalid session

@@ -1,8 +1,24 @@
 var toggleSnippetPanel = function(p_id) {
   v_panel_id = p_id + '_panel_snippet';
   v_element = $('#' + v_panel_id);
-  var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-  var v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
+  // Getting the selected tab
+  var v_selected_tab = v_connTabControl.selectedTab;
+  // Setting a default max top position for the toggling event.
+  var v_target_tag_div_result_top = 30;
+  // Updating the max top position considering if a tab is selected.
+  if (v_connTabControl.selectedTab && v_connTabControl.selectedTab !== null) {
+    if (v_connTabControl.selectedTab.tag.tabControl) {
+      var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+      v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
+    }
+    else {
+      v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+    }
+  }
+  else {
+    v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+  }
+
   var v_snippet_tag = v_connTabControl.snippet_tag;
   v_element.toggleClass('omnidb__panel--slide-in');
   if (v_element.hasClass('omnidb__panel--slide-in')) {
@@ -45,7 +61,7 @@ var v_createSnippetPanelFunction = function(p_index) {
               "<div id='" + v_tab.id + "_snippet_tree' style='overflow: auto; flex-grow: 1;'></div>" +
             "</div>" +
           "</div>" +
-          "<div onmousedown='resizeSnippetHorizontal(event)' style='position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 8px;'></div>" +
+          "<div class='resize_line_vertical' onmousedown='resizeSnippetHorizontal(event)' style='position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 0px;'></div>" +
         "</div>" +//.div_left
         "<div id='" + v_tab.id + "_snippet_div_right' class='omnidb__workspace__div-right col pt-0' style='position: relative;'>" +
           // "<div class='row'>" +
@@ -102,7 +118,20 @@ var v_createSnippetPanelFunction = function(p_index) {
   v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.clearSelection();
   v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
 
-  v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
+  // Creating + tab in the outer tab list
+  v_connTabControl.createTab(
+    {
+      p_icon: '<i class="fas fa-plus"></i>',
+      p_name: 'Add connection',
+      p_close: false,
+      p_selectable: false,
+      p_clickFunction: function(e) {
+        showMenuNewTabOuter(e);
+      },
+      p_tooltip_name: '<h5 class="my-1">Add/Select Connections</h5>'
+    }
+  );
+  // v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
 
   //setTimeout(function() {
   //  refreshTreeHeight();

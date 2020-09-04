@@ -291,7 +291,7 @@
 
   /* TAB-CONTENT */
   .omnidb__tab-content--primary {
-    border-left: 36px solid #f8f9fa;
+    border-left: 33px solid #f8f9fa;
   }
 }
 
@@ -438,7 +438,7 @@
 
   /* TAB-CONTENT */
   .omnidb__tab-content--primary {
-    border-left: 36px solid #f8f9fa;
+    border-left: 33px solid #f8f9fa;
   }
 }
 /* END QUERYS */
@@ -501,6 +501,38 @@
 }
 .omnidb__tab-menu--secondary .omnidb__menu__btn {
   border-radius: 0px;
+}
+
+/* WELCOME */
+.omnidb__welcome__loading {
+  animation: workspaceFadeIn 0.45s ease forwards 0.3s;
+  background: url('../../images/omnidb_loading.svg') no-repeat;
+  background-size: 84px 84px;
+  display: inline-block;
+  height: 84px;
+  width: 84px;
+  opacity: 0;
+  position: absolute;
+  z-index: 1;
+  left: 0px;
+  bottom: -36px;
+}
+.omnidb__welcome__intro-text {
+  animation: workspaceSlideInFromRight 0.45s ease forwards 0.85s;
+  display: inline-block;
+  transform: translateX(100vw);
+}
+.omnidb__welcome__intro-card {
+  animation: workspaceFadeIn 0.45s ease forwards 1.15s;
+  opacity: 0;
+}
+.omnidb__welcome__intro-card {
+  animation: workspaceFadeIn 0.45s ease forwards 1.55s;
+  opacity: 0;
+}
+.omnidb__welcome__useful-card {
+  animation: workspaceFadeIn 0.45s ease forwards 1.90s;
+  opacity: 0;
 }
 
 /* QUERY RESULT */
@@ -1455,4 +1487,16 @@ body {
 
 #div_autocomplete .handsontable tr:first-child th, #div_autocomplete .handsontable tr:first-child td {
   border-top: none;
+}
+
+/* ANIMATIONS */
+@keyframes workspaceFadeIn {
+	to {
+		opacity: 1;
+	}
+}
+@keyframes workspaceSlideInFromRight {
+	to {
+		transform: translateX(0);
+	}
 }

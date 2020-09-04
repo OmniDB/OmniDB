@@ -57,22 +57,27 @@ $(function () {
     });
   }
 
-  // Creating first tab of the outer tab
+  // Creating + tab in the outer tab list
   v_connTabControl.createTab(
     {
-      p_name: '+',
+      p_icon: '<i class="fas fa-plus"></i>',
+      p_name: 'Add connection',
       p_close: false,
       p_selectable: false,
       p_clickFunction: function(e) {
         showMenuNewTabOuter(e);
-      }
+      },
+      p_tooltip_name: '<h5 class="my-1">Add/Select Connections</h5>'
     }
   );
 
   // Instantiating functions responsible for creating all the different types of tabs
   initCreateTabFunctions();
 
-  // Creates the snippets panel
+  // Creating the welcome tab
+  v_connTabControl.tag.createWelcomeTab();
+
+  // Creating the snippets panel
   v_connTabControl.tag.createSnippetPanel();
 
   // Retrieving database list
@@ -109,8 +114,9 @@ function getDatabaseList(p_init, p_callback) {
 						//Create existing tabs
 						var v_current_parent = null;
 						var v_has_old_tabs = false;
-						if (p_return.v_data.v_existing_tabs.length>0)
-							v_has_old_tabs = true;
+						if (p_return.v_data.v_existing_tabs.length>0) {
+              v_has_old_tabs = true;
+            }
 
 						for (var i=0; i < p_return.v_data.v_existing_tabs.length; i++) {
 							if (v_current_parent == null || v_current_parent != p_return.v_data.v_existing_tabs[i].index) {
@@ -134,7 +140,8 @@ function getDatabaseList(p_init, p_callback) {
             }
 
 					}
-					else {/*
+					else {
+            /*
 						var v_instance = new Tooltip($('#menu_connections'),{
 					    title: 'Create your first connection!',
 					    placement: "bottom",
@@ -146,8 +153,9 @@ function getDatabaseList(p_init, p_callback) {
 					}
 				}
 
-				if (p_callback)
-					p_callback();
+				if (p_callback) {
+          p_callback();
+        }
 
         endLoading();
 

@@ -1,5 +1,4 @@
 var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name = false, p_tooltip_name = false) {
-
   if (v_connTabControl.tag.connections.length==0) {
     v_connTabControl.selectTabIndex(v_connTabControl.tabList.length-2);
     showAlert('Create connections first.');
@@ -354,7 +353,8 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
           showMenuNewTabOuter(e);
         },
         p_tooltip_name: '<h5 class="my-1">Add/Select Connections</h5>'
-      });
+      }
+    );
 
     $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 

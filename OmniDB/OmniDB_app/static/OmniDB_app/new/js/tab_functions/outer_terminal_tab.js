@@ -29,7 +29,7 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
 
   v_connTabControl.selectTab(v_tab);
 
-  var v_html = "<div id='txt_console_" + v_tab.id + "' style=' width: 100%; height: 120px;'></div>";
+  var v_html = "<div id='txt_console_" + v_tab.id + "' class='omnidb__txt-console' style=' width: 100%; height: 120px;'></div>";
 
   var v_div = document.getElementById('div_' + v_tab.id);
   v_div.innerHTML = v_html;

@@ -61,7 +61,7 @@ var v_createSnippetPanelFunction = function(p_index) {
               "<div id='" + v_tab.id + "_snippet_tree' style='overflow: auto; flex-grow: 1;'></div>" +
             "</div>" +
           "</div>" +
-          "<div class='resize_line_vertical' onmousedown='resizeSnippetHorizontal(event)' style='position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 0px;'></div>" +
+          "<div class='resize_line_vertical omnidb__resize-line__container' onmousedown='resizeSnippetHorizontal(event)' style='position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 0px;'></div>" +
         "</div>" +//.div_left
         "<div id='" + v_tab.id + "_snippet_div_right' class='omnidb__workspace__div-right col pt-0' style='position: relative;'>" +
           // "<div class='row'>" +

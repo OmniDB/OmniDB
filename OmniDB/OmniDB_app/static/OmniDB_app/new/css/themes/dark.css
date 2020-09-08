@@ -64,13 +64,13 @@
   color: #FFF;
 }
 .nav-tabs .nav-link.active {
-  background-color: #28407b;
-  border-color: #28407b;
+  background-color: #282A2F;
+  border-color: #282A2F;
   color: #92c7ff;
 }
 .omnidb--theme-dark .nav-tabs .nav-link:focus,
 .omnidb--theme-dark .nav-tabs .nav-link:hover {
-  border-color: #e9ecef #e9ecef #dee2e6;
+  border-color: #4C5365 #4C5365 #4C5365;
   color: #555;
 }
 
@@ -158,7 +158,7 @@
 .omnidb--theme-dark .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
   background-color: transparent;
   border-color: #4C5365;
-  border-bottom-color: #2f3136;
+  border-bottom-color: #282A2F;
 }
 
 /* QUERY RESULT TABS */
@@ -293,17 +293,21 @@
 /* SCROLL */
 /* width */
 ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+  width: 10px;
+  height: 10px;
 }
 /* Track */
 ::-webkit-scrollbar-track {
-    background: none;
+  background: none;
 }
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: #47505d;
-    cursor: pointer;
+  background: #47505d;
+  cursor: pointer;
+}
+/* Corner */
+::-webkit-scrollbar-corner {
+  background: none;
 }
 
 /* TOAST */
@@ -509,33 +513,33 @@ select {
 }
 .handsontable tr:nth-of-type(2n + 1) td {
   color: #c5c5c5;
-  border-right: 1px solid #484a55 !important;
-  border-bottom: 1px solid #484a55 !important;
+  border-right: 1px solid #2F3136 !important;
+  border-bottom: 1px solid #2F3136 !important;
   background-color: #25282c;
 }
 .handsontable tr:nth-of-type(2n) td {
   color: #c5c5c5;
-  border-right: 1px solid #484a55 !important;
-  border-bottom: 1px solid #484a55 !important;
+  border-right: 1px solid #2F3136 !important;
+  border-bottom: 1px solid #2F3136 !important;
   background-color: #25282c;
 }
 
 .handsontable tr:first-child th, .handsontable tr:first-child td {
-  border-top: 1px solid #484a55 !important;
+  border-top: 1px solid #2F3136 !important;
 }
 
 .handsontable th:first-child, .handsontable td:first-of-type, .handsontable .htNoFrame + th, .handsontable .htNoFrame + td {
-  border-left: 1px solid #484a55 !important;
+  border-left: 1px solid #2F3136 !important;
 }
 
 .handsontable th:last-child {
-  border-right: 1px solid #484a55 !important;
-  border-bottom: 1px solid #484a55 !important;
+  border-right: 1px solid #2F3136 !important;
+  border-bottom: 1px solid #2F3136 !important;
 }
 
 .handsontable th, .handsontable td {
-  border-right: 1px solid #484a55 !important;
-  border-bottom: 1px solid #484a55 !important;
+  border-right: 1px solid #2F3136 !important;
+  border-bottom: 1px solid #2F3136 !important;
 }
 
 .handsontable tr {
@@ -543,7 +547,7 @@ select {
 }
 
 .handsontable.htRowHeaders thead tr th:nth-child(2) {
-  border-left: 1px solid #484a55 !important;
+  border-left: 1px solid #2F3136 !important;
 }
 
 .handsontable input, .handsontable textarea {
@@ -558,7 +562,7 @@ select {
 }
 .handsontable.listbox .ht_master table {
     color: #d7d7d7 !important;
-    border: 1px solid #484a55 !important;
+    border: 1px solid #2F3136 !important;
     border-collapse: separate;
     background: red;
 }

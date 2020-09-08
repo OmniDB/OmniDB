@@ -293,17 +293,21 @@
 /* SCROLL */
 /* width */
 ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+  width: 10px;
+  height: 10px;
 }
 /* Track */
 ::-webkit-scrollbar-track {
-    background: #ecf0f5;
+  background: #ecf0f5;
 }
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: #bbcde8;
-    cursor: pointer;
+  background: #bbcde8;
+  cursor: pointer;
+}
+/* Corner */
+::-webkit-scrollbar-corner {
+  background: none;
 }
 
 /* TOAST */

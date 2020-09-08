@@ -245,10 +245,13 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     };
 
     //Properties Grid
-    var v_divProperties = v_properties_tab.elementDiv;
-    // v_divProperties.classList.add('ht_invisible');
-    v_divProperties.classList.add('omnidb__theme-border--primary');
-    v_divProperties.style.overflow = 'hidden';
+    v_properties_tab.elementDiv.innerHTML =
+    "<div class='p-2 omnidb__theme-border--primary'>" +
+      "<div id='div_properties_result_" + v_tab.id + "' style='width: 100%; overflow: hidden;'></div>" +
+    "</div>";
+    var v_divProperties = document.getElementById('div_properties_result_' + v_tab.id);
+    // v_divProperties.classList.add('omnidb__theme-border--primary');
+    // v_divProperties.style.overflow = 'hidden';
     var v_ddlProperties = v_ddl_tab.elementDiv;
 
     var columnProperties = [];

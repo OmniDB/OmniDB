@@ -663,6 +663,12 @@
 }
 
 /* Resizing Elements */
+.omnidb__resize-line__container {
+  opacity: 0;
+}
+.omnidb__resize-line__container:hover {
+  opacity: 1;
+}
 #horizontal-resize-line {
   position: absolute;
   float: left;

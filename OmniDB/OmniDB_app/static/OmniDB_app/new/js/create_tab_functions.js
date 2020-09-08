@@ -184,7 +184,7 @@ function initCreateTabFunctions() {
 
 		var v_html = "<div id='txt_func_body_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
 
-					"<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dashed #acc4e8;'></div><div style='height:5px;'></div></div>" +
+					"<div class='omnidb__resize-line__container' onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dashed #acc4e8;'></div><div style='height:5px;'></div></div>" +
           "<div style='margin-bottom: 5px;'>" +
           "<button id='bt_start_" + v_tab.id + "' class='bt_icon_only' title='Start' onclick='startDebug();'><i class='fas fa-bolt fa-light'></i></button>" +
           "<button id='bt_reload_" + v_tab.id + "' class='bt_icon_only' title='Reload Function Attributes'><i class='fas fa-sync-alt fa-light'></i></button>" +

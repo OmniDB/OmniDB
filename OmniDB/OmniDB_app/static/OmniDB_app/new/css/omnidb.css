@@ -543,6 +543,12 @@
   transition: 0.35s;
 }
 
+/* CONSOLE */
+.omnidb__txt-console {
+  border-width: 1px;
+  border-style: solid;
+}
+
 /* PANEL VIEW FULL */
 .omnidb__panel-view--full {
   background-color: #FFF;

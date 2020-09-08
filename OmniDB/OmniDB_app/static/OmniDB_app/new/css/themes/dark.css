@@ -7,13 +7,13 @@
 }
 
 .omnidb--theme-dark .omnidb__theme-bg--menu-primary {
-  background-color: #4b5265;
+  background-color: #4C5365;
 }
 .omnidb--theme-dark .omnidb__theme-border--primary {
-  border: 1px solid #43464E;
+  border: 1px solid #4C5365;
 }
 .omnidb--theme-dark .omnidb__theme-border-top--primary {
-  border-top: 1px solid #43464E;
+  border-top: 1px solid #4C5365;
 }
 .omnidb--theme-dark .omnidb__workspace__div-left {
   background-color: #282A2F;
@@ -51,6 +51,9 @@
 .omnidb--theme-dark .omnidb__console__text-input .ace_content {
   background-color: #282A2F;
   box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
+}
+.omnidb--theme-dark .omnidb__txt-console {
+  border-color: #4C5365;
 }
 
 /* TABS */
@@ -104,7 +107,7 @@
 /* ACE EDITOR */
 .omnidb--theme-dark .ace_editor.ace-tomorrow-night {
   background-color: #2F3136 !important;
-  border: 1px solid #43464E !important;
+  border: 1px solid #4C5365 !important;
 }
 .omnidb--theme-dark .ace_editor.ace-tomorrow-night .ace_gutter {
 	background-color: #282A2F;
@@ -122,7 +125,7 @@
 }
 .omnidb--theme-dark .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
   background-color: transparent;
-  border-color: #44464c;
+  border-color: #44464C;
   border-bottom-color: #43464E;
 }
 .omnidb--theme-dark .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
@@ -133,7 +136,7 @@
 }
 .omnidb--theme-dark .omnidb__tab-menu--secondary .omnidb__tab-menu__link.active {
   background-color: transparent;
-  border-color: #43464E;
+  border-color: #4C5365;
   border-bottom-color: #2f3136;
 }
 
@@ -154,7 +157,7 @@
 }
 .omnidb--theme-dark .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
   background-color: transparent;
-  border-color: #43464E;
+  border-color: #4C5365;
   border-bottom-color: #2f3136;
 }
 
@@ -175,7 +178,7 @@
 }
 .omnidb--theme-dark .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
   background-color: transparent;
-  border-color: #43464E;
+  border-color: #4C5365;
   border-bottom-color: #2f3136;
 }
 .omnidb--theme-dark .omnidb__query-result-tabs .omnidb__tab-content {
@@ -508,13 +511,13 @@ select {
   color: #c5c5c5;
   border-right: 1px solid #484a55 !important;
   border-bottom: 1px solid #484a55 !important;
-  background-color: #1D1F21;
+  background-color: #25282c;
 }
 .handsontable tr:nth-of-type(2n) td {
   color: #c5c5c5;
   border-right: 1px solid #484a55 !important;
   border-bottom: 1px solid #484a55 !important;
-  background-color: #1D1F21;
+  background-color: #25282c;
 }
 
 .handsontable tr:first-child th, .handsontable tr:first-child td {

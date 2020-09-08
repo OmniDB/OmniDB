@@ -381,6 +381,16 @@
   border-color: #DEE2E6;
 }
 
+/* Query Info */
+.omnidb--theme-light .omnidb__query-info__value {
+  color: #4A81D4;
+}
+
+/* Aimara Tree */
+.omnidb--theme-light .node-all {
+  color: #4A81D4;
+}
+
 /* Tree Component */
 /* .div_left ul.tree {
   background-color: #373b41 !important;

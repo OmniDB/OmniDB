@@ -64,7 +64,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
   var v_html =
   "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 200px;'></div>" +
-  "<div onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dashed #acc4e8;'></div><div style='height:5px;'></div></div>" +
+  "<div class='omnidb__resize-line__container' onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dashed #acc4e8;'></div><div style='height:5px;'></div></div>" +
   command_history_modal +
   "<div class='row mb-1'>" +
     "<div class='tab_actions omnidb__tab-actions col-12'>" +
@@ -86,7 +86,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     "</div>" +
   "</div>" +
   "<div id='query_result_tabs_container" + v_tab.id + "' class='omnidb__query-result-tabs'>" +
-    "<button style='position:absolute;top:0.25rem;right:0.25rem;' type='button' class='btn btn-sm btn-secondary' onclick=toggleExpandToPanelView('query_result_tabs_container" + v_tab.id + "')><i class='fas fa-expand'></i></button>" +
+    "<button style='position:absolute;top:0.25rem;right:0.25rem;' type='button' class='btn btn-sm omnidb__theme__btn--secondary' onclick=toggleExpandToPanelView('query_result_tabs_container" + v_tab.id + "')><i class='fas fa-expand'></i></button>" +
     "<div id='query_result_tabs_" + v_tab.id + "'>" +
     "</div>" +
   "</div>";

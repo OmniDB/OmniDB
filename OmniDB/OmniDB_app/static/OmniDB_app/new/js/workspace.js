@@ -556,20 +556,25 @@ function resizeTreeVerticalEnd(event) {
   var v_tree_tabs_height = v_tag.divLeft.clientHeight - 14 - event.pageY;
   v_tree_tabs_div.style.flexBasis = v_tree_tabs_height  + 'px';
 
-  var v_inner_height = v_tree_tabs_height - 35  + 'px';
+  var v_inner_height = v_tree_tabs_height - 49  + 'px';
 
-  if (v_tag.currTreeTab=='properties')
-		v_result_div = v_tag.divProperties;
-	else if (v_tag.currTreeTab=='ddl')
-		v_result_div = v_tag.divDDL;
+  if (v_tag.currTreeTab=='properties') {
+    v_result_div = v_tag.divProperties;
+  }
+	else if (v_tag.currTreeTab=='ddl') {
+    v_result_div = v_tag.divDDL;
+  }
 
 	v_tree_div.style.height = parseInt(v_tree_div.clientHeight, 10) + v_height_diff + 'px';
   v_result_div.style.height = v_inner_height;
 
-	if (v_tag.currTreeTab=='properties')
-		v_tag.gridProperties.render();
-	else if (v_tag.currTreeTab=='ddl')
-		v_tag.ddlEditor.resize();
+	if (v_tag.currTreeTab=='properties') {
+    v_tag.gridProperties.render();
+  }
+	else if (v_tag.currTreeTab=='ddl') {
+    v_tag.ddlEditor.resize();
+  }
+  console.log('resized from resizeTreeVerticalEnd');
 
 }
 
@@ -976,6 +981,8 @@ function refreshHeights(p_all) {
           v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
         }
       }
+      // Updating tree sizes
+      refreshTreeHeight();
     }
 
     //Hooks
@@ -994,12 +1001,12 @@ function refreshTreeHeight() {
   var v_tag = v_connTabControl.selectedTab.tag;
 
 	if (v_tag.currTreeTab=='properties') {
-		var v_height  = window.innerHeight - $(v_tag.divProperties).offset().top - 8;
+		var v_height  = window.innerHeight - $(v_tag.divProperties).offset().top - 15;
 		v_tag.divProperties.style.height = v_height + "px";
 		v_tag.gridProperties.render();
 	}
 	else if (v_tag.currTreeTab=='ddl') {
-		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 8;
+		var v_height  = window.innerHeight - $(v_tag.divDDL).offset().top - 15;
 		v_tag.divDDL.style.height = v_height + "px";
 		v_tag.ddlEditor.resize();
 	}
@@ -1007,7 +1014,7 @@ function refreshTreeHeight() {
 		var v_height  = window.innerHeight - $(v_tag.divTree).offset().top;
 		v_tag.divTree.style.height = v_height + "px";
 	}
-
+  console.log('resized from refreshTreeHeight');
 }
 
 function checkTabStatus(v_tab) {

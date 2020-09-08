@@ -574,7 +574,6 @@ function resizeTreeVerticalEnd(event) {
 	else if (v_tag.currTreeTab=='ddl') {
     v_tag.ddlEditor.resize();
   }
-  console.log('resized from resizeTreeVerticalEnd');
 
 }
 
@@ -1014,7 +1013,6 @@ function refreshTreeHeight() {
 		var v_height  = window.innerHeight - $(v_tag.divTree).offset().top;
 		v_tag.divTree.style.height = v_height + "px";
 	}
-  console.log('resized from refreshTreeHeight');
 }
 
 function checkTabStatus(v_tab) {

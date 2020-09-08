@@ -106,7 +106,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
             '<div class="omnidb__workspace__content-left">' +
               '<div id="' + v_tab.id + '_details" class="omnidb__workspace__connection-details"></div>' +
               '<div id="' + v_tab.id + '_tree" style="overflow: auto; flex-grow: 1;"></div>' +
-              '<div id="' + v_tab.id + '_left_resize_line_horizontal" onmousedown="resizeTreeVertical(event)" style="width: 100%; height: 10px; cursor: ns-resize;"><div class="resize_line_horizontal" style="height: 5px; border-bottom: 1px dashed #acc4e8;"></div><div style="height:5px;"></div></div>' +
+              '<div id="' + v_tab.id + '_left_resize_line_horizontal" class="omnidb__resize-line__container" onmousedown="resizeTreeVertical(event)" style="width: 100%; height: 10px; cursor: ns-resize;"><div class="resize_line_horizontal" style="height: 5px; border-bottom: 1px dashed #acc4e8;"></div><div style="height:5px;"></div></div>' +
               '<div id="tree_tabs_parent_' + v_tab.id + '" class="omnidb__tree-tabs" style="position: relative;flex-shrink: 0;flex-basis: 40vh;">' +
                 '<div id="' + v_tab.id + '_loading" class="div_loading" style="z-index: 1000;">' +
                   '<div class="div_loading_cover"></div>' +
@@ -116,12 +116,12 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
                   '  </div>' +
                   '</div>' +
                 '</div>' +
-                '<button type="button" onclick="toggleTreeTabsContainer(' + "'tree_tabs_parent_" + v_tab.id + "','" + v_tab.id + "_left_resize_line_horizontal'" + ')" class="btn btn-secondary omnidb__tree-tabs__toggler"><i class="fas fa-arrows-alt-v"></i></button>' +
+                '<button type="button" onclick="toggleTreeTabsContainer(' + "'tree_tabs_parent_" + v_tab.id + "','" + v_tab.id + "_left_resize_line_horizontal'" + ')" class="btn omnidb__theme__btn--secondary omnidb__tree-tabs__toggler"><i class="fas fa-arrows-alt-v"></i></button>' +
                 '<div id="tree_tabs_' + v_tab.id + '" class="omnidb__tree-tabs__container" style="position: relative;"></div>' +
               '</div>' +
             '</div>' +
           '</div>' +
-          '<div class="resize_line_vertical" onmousedown="resizeConnectionHorizontal(event)" style="position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 0px;"></div>' +
+          '<div class="resize_line_vertical omnidb__resize-line__container" onmousedown="resizeConnectionHorizontal(event)" style="position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 0px;"></div>' +
         '</div>' +//.div_left
         '<div id="' + v_tab.id + '_div_right" class="omnidb__workspace__div-right col" style="position: relative; flex: 0 0 83.333%; max-width: 83.333%;">' +
           // "<div class='row'>" +

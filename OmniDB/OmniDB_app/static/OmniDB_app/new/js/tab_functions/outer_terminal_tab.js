@@ -3,7 +3,7 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
   v_connTabControl.removeLastTab();
 
   var v_tab = v_connTabControl.createTab({
-    p_icon: '<i class="fas fa-terminal icon-tab-title"></i>',
+    p_icon: '<i class="fas fa-terminal"></i>',
     p_name: p_alias,
     p_selectFunction: function() {
       if(this.tag != null) {

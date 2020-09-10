@@ -1517,9 +1517,9 @@ body {
 
 /* Animated Logo Omnidb styles */
 .animated-omnis {
-  transform-origin: center;
+  /* transform-origin: center;
   transform: translate(0px, 0px);
-  animation: animatedOmnisSvgTranslate 16s linear infinite 0s;
+  animation: animatedOmnisSvgTranslate 16s linear infinite 0s; */
 }
 .animated-omnis path,
 .animated-omnis rect {

@@ -118,19 +118,8 @@ var v_createSnippetPanelFunction = function(p_index) {
   v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.clearSelection();
   v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
 
-  // Creating + tab in the outer tab list
-  v_connTabControl.createTab(
-    {
-      p_icon: '<i class="fas fa-plus"></i>',
-      p_name: 'Add connection',
-      p_close: false,
-      p_selectable: false,
-      p_clickFunction: function(e) {
-        showMenuNewTabOuter(e);
-      },
-      p_tooltip_name: '<h5 class="my-1">Add/Select Connections</h5>'
-    }
-  );
+  // Creating `Add` tab in the outer tab list
+  v_connTabControl.tag.createAddTab();
   // v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
 
   //setTimeout(function() {

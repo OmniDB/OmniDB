@@ -26,6 +26,8 @@ import custom_paramiko_expect
 from django.contrib.auth.models import User
 from OmniDB_app.models.main import *
 
+from OmniDB_app.views.memory_objects import *
+
 class requestType(IntEnum):
   Login          = 0
   Query          = 1
@@ -114,9 +116,6 @@ def closeTabHandler(p_client_object,p_tab_object_id):
 
     except Exception as exc:
         None
-
-global_object = {}
-global_lock = threading.Lock()
 
 def long_polling(request):
 
@@ -288,7 +287,6 @@ def create_request(request):
 
 
     elif v_code == requestType.Query or v_code == requestType.QueryEditData or v_code == requestType.SaveEditData or v_code == requestType.AdvancedObjectSearch or v_code == requestType.Console:
-
         #create tab object if it doesn't exist
         try:
             tab_object = client_object['tab_list'][v_data['v_tab_id']]

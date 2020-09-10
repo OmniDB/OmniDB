@@ -23,7 +23,11 @@ thread_pool_max_workers = 2
 # Number of seconds between each prompt password request. Default: 30 minutes
 pwd_timeout_total = 1800
 
+# List of domains that OmniDB can serve. '*' serves all domains
 allowed_hosts = ['*']
 
+# Session cookie name
 session_cookie_name = 'omnidb_sessionid'
+
+# CSRF cookie name
 csrf_cookie_name = 'omnidb_csrftoken'

@@ -12,6 +12,8 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 from OmniDB_app.include.Session import Session
 from datetime import datetime
 
+from OmniDB_app.views.memory_objects import *
+
 def get_tree_info(request):
 
     v_return = {}
@@ -1422,12 +1424,18 @@ def get_schemas(request):
 
     v_database = v_session.v_tab_connections[v_tab_id]
 
+    a = datetime.now()
+
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
     if v_timeout['timeout']:
         v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
         v_return['v_error'] = True
         return JsonResponse(v_return)
+
+    print('Check duration: ' + str(datetime.now()-a))
+
+    a = datetime.now()
 
     v_list_schemas = []
 
@@ -1442,6 +1450,8 @@ def get_schemas(request):
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
+
+    print('Query duration: ' + str(datetime.now()-a))
 
     v_return['v_data'] = v_list_schemas
 

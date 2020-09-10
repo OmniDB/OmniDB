@@ -64,18 +64,8 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
 
   v_tab.tag = v_tag;
 
-  // Creating + tab in the outer tab list
-  v_connTabControl.createTab(
-    {
-      p_icon: '<i class="fas fa-plus"></i>',
-      p_name: 'Add connection',
-      p_close: false,
-      p_selectable: false,
-      p_clickFunction: function(e) {
-        showMenuNewTabOuter(e);
-      },
-      p_tooltip_name: '<h5 class="my-1">Add/Select Connections</h5>'
-    });
+  // Creating `Add` tab in the outer tab list
+  v_connTabControl.tag.createAddTab();
 
   $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 

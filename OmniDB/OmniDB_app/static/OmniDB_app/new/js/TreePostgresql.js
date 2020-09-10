@@ -4050,6 +4050,16 @@ function getTreePostgresql(p_div) {
 
     tree.nodeAfterOpenEvent = function(node) {
         refreshTreePostgresql(node);
+        // Adjusting scroll position of tree
+        try {
+          let v_first_child_toggle = node.elementUl.childNodes[0].childNodes[0].childNodes[0].childNodes[0];
+          let pos_x = v_first_child_toggle.offsetLeft - 24;
+          let pos_y = v_first_child_toggle.offsetTop - 64;
+          v_connTabControl.selectedTab.tag.divTree.scroll(pos_x, pos_y);
+        }
+        catch(e) {
+
+        }
     }
 
     tree.clickNodeEvent = function(node) {
@@ -4172,7 +4182,7 @@ function refreshTreePostgresql(p_node) {
         refreshTreePostgresqlConfirm(p_node);
     }, function() {
         p_node.collapseNode();
-    })
+    });
 }
 
 /// <summary>

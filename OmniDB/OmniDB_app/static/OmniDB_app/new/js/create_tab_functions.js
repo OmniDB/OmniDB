@@ -359,18 +359,20 @@ function initCreateTabFunctions() {
 	};
 
 	// Functions to create a default `add` tab
-	v_connTabControl.tag.createAddTab = v_connTabControl.createTab(
-    {
-      p_icon: '<i class="fas fa-plus"></i>',
-      p_name: 'Add connection',
-      p_close: false,
-      p_selectable: false,
-      p_clickFunction: function(e) {
-        showMenuNewTabOuter(e);
-      },
-      p_tooltip_name: '<h5 class="my-1">Add/Select Connections</h5>'
-    }
-  );
+	v_connTabControl.tag.createAddTab = function(){
+		v_connTabControl.createTab(
+	    {
+	      p_icon: '<i class="fas fa-plus"></i>',
+	      p_name: 'Add Connection',
+	      p_close: false,
+	      p_selectable: false,
+	      p_clickFunction: function(e) {
+	        showMenuNewTabOuter(e);
+	      },
+	      p_tooltip_name: '<h5 class="my-1">Add/Select Connections</h5>'
+	    }
+	  );
+	}
 
   // Functions to create tabs globally
   v_connTabControl.tag.createConnTab = v_createConnTabFunction;

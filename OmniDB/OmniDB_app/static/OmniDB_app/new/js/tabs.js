@@ -414,11 +414,16 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
 
         e.stopPropagation();
         e.preventDefault();
-        if (v_tab.selectable)
-				    v_control.selectTab(v_tab);
-
-				if (v_tab.clickFunction!=null)
-					v_tab.clickFunction(e);
+        if (v_tab.selectable) {
+          v_control.selectTab(v_tab);
+        }
+				if (v_tab.clickFunction!=null) {
+          v_tab.clickFunction(e);
+        }
+        // Hiding the tooltip on click if the has tooltips.
+        if (p_tooltip_name) {
+          $(v_a).tooltip('hide');
+        }
 			};
 
 			this.tabListDiv.appendChild(v_a);

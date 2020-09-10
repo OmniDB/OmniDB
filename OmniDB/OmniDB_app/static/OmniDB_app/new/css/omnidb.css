@@ -1512,3 +1512,78 @@ body {
 		transform: translateX(0);
 	}
 }
+
+
+
+/* Animated Logo Omnidb styles */
+.animated-omnis {
+  transform-origin: center;
+  transform: translate(0px, 0px);
+  animation: animatedOmnisSvgTranslate 16s linear infinite 0s;
+}
+.animated-omnis path,
+.animated-omnis rect {
+	fill: transparent;
+	stroke: #818181;
+	stroke-width: 1px;
+
+	stroke-dasharray: 100;
+	stroke-dashoffset: 100;
+}
+.animated-omnis__group--to-blue path,
+.animated-omnis__group--to-blue rect {
+	animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
+				animatedOmnisSvgToBlue 1.2s linear infinite alternate 1s,
+				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 1s;
+}
+.animated-omnis__group--to-darkblue path,
+.animated-omnis__group--to-darkblue rect {
+	animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
+				animatedOmnisSvgToDarkblue 1.2s linear infinite alternate 2s,
+				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 2s;
+}
+.animated-omnis__icon-external {
+  transform: rotate(0deg);
+  transform-origin: center;
+  animation: animatedOmnisSvgRotate 5s linear infinite 0s;
+}
+
+@keyframes animatedOmnisSvgTranslate {
+  25% {
+    transform: translate(10px, 5px);
+  }
+  50% {
+    transform: translate(15px, -15px);
+  }
+  75% {
+    transform: translate(-15px, 15px);
+  }
+  100% {
+    transform: translate(0px, 0px);
+  }
+}
+@keyframes  animatedOmnisSvgDrawStrokes {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+@keyframes animatedOmnisSvgFadeStrokes {
+	to {
+		stroke: transparent;
+	}
+}
+@keyframes animatedOmnisSvgToBlue {
+	to {
+		fill: #878FC6;
+	}
+}
+@keyframes animatedOmnisSvgToDarkblue {
+	to {
+		fill: #515579;
+	}
+}
+@keyframes animatedOmnisSvgRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

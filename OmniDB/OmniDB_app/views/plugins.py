@@ -16,8 +16,6 @@ import time
 import shutil
 import os
 
-import OmniDB_app.include.OmniDatabase as OmniDatabase
-
 from django import forms
 
 class UploadFileForm(forms.Form):
@@ -27,17 +25,6 @@ class UploadFileForm(forms.Form):
 plugins = {}
 failed_plugins = {}
 monitoring_units = []
-omnidb_database = OmniDatabase.Generic.InstantiateDatabase(
-    'sqlite',
-    '',
-    '',
-    settings.OMNIDB_DATABASE,
-    '',
-    '',
-    '0',
-    '',
-    True
-)
 
 def load_plugin(plugin_folder, p_load):
     plugin_name = ''

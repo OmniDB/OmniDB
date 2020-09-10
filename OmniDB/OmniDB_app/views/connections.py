@@ -19,8 +19,7 @@ import time, os
 
 from OmniDB_app.models.main import *
 
-sys.path.append('OmniDB_app/include')
-from OmniDB_app.include import paramiko
+import paramiko
 from sshtunnel import SSHTunnelForwarder
 
 def index(request):

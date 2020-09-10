@@ -229,9 +229,9 @@ function build_autocomplete_elements(p_data, p_value) {
 function renew_autocomplete(p_new_value) {
   var v_search_regex = null;
 
-  //v_search_regex = new RegExp('^(' + p_new_value + ')', 'i');
+  v_search_regex = new RegExp('^(' + p_new_value + ')', 'i');
 
-  v_search_regex = new RegExp('^' + p_new_value.split('').join('.*'), 'i');
+  //v_search_regex = new RegExp('^' + p_new_value.split('').join('.*'), 'i');
 
   var v_num_results = 0;
   for (var i=v_autocomplete_object.elements.length-1; i>=0; i--) {
@@ -502,7 +502,7 @@ function autocomplete_keydown(p_editor, p_event) {
     // Handle UP or DOWN if autocomplete is not enbled, just move cursor position
     if(p_event.keyCode === 40 || p_event.keyCode === 38){
       var v_cursor_pos = p_editor.getCursorPosition();
-  
+
       //p_editor.moveCursorTo(p_editor.getCursorPosition().row+1,p_editor.getCursorPosition().column);
       if(p_event.keyCode === 40)
         p_editor.moveCursorTo(v_cursor_pos.row+1,v_cursor_pos.column);

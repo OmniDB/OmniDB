@@ -8,7 +8,7 @@ function showAbout() {
 }
 
 var v_light_terminal_theme = {
-	background: '#fcfdfd',
+	background: '#f4f4f4',
 	brightBlue: '#006de2',
 	brightGreen: '#4b9800',
 	foreground: '#353535',

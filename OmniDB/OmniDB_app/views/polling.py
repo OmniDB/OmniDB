@@ -20,10 +20,8 @@ import sys
 
 import sqlparse
 
-import pexpect
-sys.path.append('OmniDB_app/include')
-from OmniDB_app.include import paramiko
-from OmniDB_app.include import custom_paramiko_expect
+import paramiko
+import custom_paramiko_expect
 
 from django.contrib.auth.models import User
 from OmniDB_app.models.main import *

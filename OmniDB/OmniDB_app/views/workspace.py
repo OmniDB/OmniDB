@@ -26,6 +26,8 @@ from OmniDB_app.models.main import *
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
+from OmniDB_app.views.memory_objects import *
+
 @login_required
 def index(request):
     try:
@@ -37,8 +39,8 @@ def index(request):
 
     #Invalid session
     if not request.session.get('omnidb_session'):
-        request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
-        return redirect('login')
+        #request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
+        return redirect('/')
 
     v_session = request.session.get('omnidb_session')
 
@@ -1219,6 +1221,14 @@ def refresh_monitoring(request):
     v_sql            = json_object['p_query']
 
     v_database = v_session.v_tab_connections[v_tab_id]
+
+    v_database = get_database_object(
+        p_session = v_session,
+        p_client_id = request.session.session_key,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True,
+        p_check_database_timeout = False
+    )
 
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))

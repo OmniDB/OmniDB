@@ -30,6 +30,10 @@ else:
     SECRET_KEY = ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(50))
 
 
+LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+
+
 
 INSTALLED_APPS = [
     'OmniDB_app.apps.OmnidbAppConfig',
@@ -39,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_django'
 ]
 
 MIDDLEWARE = [
@@ -70,6 +75,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'OmniDB.wsgi.application'
+
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.github.GithubOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+SOCIAL_AUTH_GITHUB_KEY = 'Iv1.b66f09dc30df16f3'
+SOCIAL_AUTH_GITHUB_SECRET = '3403a3cc31a991d48ef72fbd73fa45e3af5b62ba'
 
 # Database
 DATABASES = {

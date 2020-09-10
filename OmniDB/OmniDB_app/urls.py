@@ -5,6 +5,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 base_urlpatterns = [
+
+    path('social-auth/', include('social_django.urls', namespace="social")),
+
     url(r'^upload/$', views.plugins.upload_view, name='sign_in'),
 
     url(r'^long_polling/$', views.polling.long_polling, name='long_polling'),
@@ -12,7 +15,7 @@ base_urlpatterns = [
 
     #LOGIN
     url(r'^$', views.login.check_session, name='check_session'),
-    url(r'^login/', views.login.index, name='login'),
+    url(r'^omnidb_login/', views.login.index, name='login'),
     url(r'^logout/', views.login.logout, name='logout'),
     url(r'^check_session_message/$', views.login.check_session_message, name='check_session_message'),
     url(r'^sign_in/$', views.login.sign_in, name='sign_in'),

@@ -38,7 +38,8 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
   var term_div = document.getElementById('txt_console_' + v_tab.id);
   var term = new Terminal({
         fontSize: v_font_size,
-        theme: v_current_terminal_theme
+        theme: v_current_terminal_theme,
+        fontFamily: 'Monospace'
   });
   term.open(term_div);
 

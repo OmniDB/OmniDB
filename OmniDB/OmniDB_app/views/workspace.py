@@ -44,16 +44,6 @@ def index(request):
 
     v_session.RefreshDatabaseList();
 
-    if settings.IS_SSL:
-        v_is_secure = 'true'
-    else:
-        v_is_secure = 'false'
-
-    if settings.DEV_MODE:
-        v_dev_mode = 'true'
-    else:
-        v_dev_mode = 'false'
-
     #Shortcuts
     default_shortcuts = []
     user_shortcuts = []
@@ -121,10 +111,6 @@ def index(request):
         'omnidb_version': settings.OMNIDB_VERSION,
         'omnidb_short_version': settings.OMNIDB_SHORT_VERSION,
         'menu_item': 'workspace',
-        'is_secure' : v_is_secure,
-        'dev_mode': v_dev_mode,
-        'autocomplete': settings.BINDKEY_AUTOCOMPLETE,
-        'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC,
         'shortcuts': shortcut_object,
         'tab_token': ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(20)),
         'show_terminal_option': v_show_terminal_option,

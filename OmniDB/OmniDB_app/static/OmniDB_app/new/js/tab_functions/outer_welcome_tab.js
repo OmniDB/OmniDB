@@ -4,17 +4,9 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
 
   var v_tab = v_connTabControl.createTab({
     p_icon: '<i class="fas fa-hand-spock"></i>',
-    // p_icon: '<strong>W</strong>',
     p_name: 'Welcome',
     p_selectFunction: function() {
       document.title = 'Welcome toOmniDB'
-      // if(this.tag != null) {
-      //   checkTabStatus(this);
-      //   refreshHeights(true);
-      // }
-      // if(this.tag != null && this.tag.tabControl != null && this.tag.tabControl.selectedTab.tag.editor != null) {
-      //     this.tag.tabControl.selectedTab.tag.editor.focus();
-      // }
       $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
     },
     p_close: false,// Replacing default close icon with contextMenu.
@@ -29,7 +21,6 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
       var v_option_list = [
         {
           text: '<p class=\"mb-0 text-danger\">Close Welcome Tab</p>',
-          // icon: 'fas cm-all fa-terminal text-danger',
           action: function() {
             if (v_tab.closeFunction!=null) {
               v_tab.closeFunction(e,v_tab);
@@ -128,6 +119,12 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
   '</h1>' +
   '<div class="card p-3 omnidb__welcome__intro-card">' +
     '<p class="text-center"><span class="badge badge-danger" style="vertical-align: middle;">disclaimer</span> OmniDB is a powerful tool, and with great power...<br/>Please <strong><span class="text-danger">learn how to use it on a testing environment, NOT on production</span></strong>!</p>' +
+    '<div class="text-center mb-4">' +
+      '<button type="button" class="btn btn-lg btn-primary" onclick="startTutorial(\'utilities_menu\');">' +
+        '<i class="fas fa-question-circle mr-2"></i>' +
+        'Getting started' +
+      '</button>' +
+    '</div>' +
     '<div class="alert-info p-2 rounded" style="display: grid; grid-template: \'icon text\';">' +
       '<i class="fas fa-exclamation-triangle p-4" style="grid-area: icon;"></i>' +
       '<div style="grid-area: text;">' +

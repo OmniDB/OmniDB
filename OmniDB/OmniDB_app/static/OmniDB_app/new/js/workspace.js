@@ -84,10 +84,10 @@ $(function () {
   getDatabaseList(true);
 
   // TODO: design a worthy tutorial.
-  // Create tutorial - tmp always active
-  if (true) {
-    startTutorial('main');
-  }
+  // Create tutorial - For now it's being started manually from the welcome screen
+  // if (v_user_tutorial !== false) {
+  //   startTutorial('main');
+  // }
 
   $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 

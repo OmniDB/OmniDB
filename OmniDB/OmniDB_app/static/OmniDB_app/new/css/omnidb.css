@@ -21,7 +21,8 @@
     width: 0px;
     transition: 0.35s;
   }
-  .omnidb__utilities-menu:hover .omnidb__menu__btn.nav-link {
+  .omnidb__utilities-menu:hover .omnidb__menu__btn.nav-link,
+  .omnidb__utilities-menu.omnidb__utilities-menu--show .omnidb__menu__btn.nav-link {
     width: 27px;
     margin-left: 0.25rem;
     margin-right: 0.25rem;
@@ -167,7 +168,8 @@
     width: 0px;
     transition: 0.35s;
   }
-  .omnidb__utilities-menu:hover .omnidb__menu__btn.nav-link {
+  .omnidb__utilities-menu:hover .omnidb__menu__btn.nav-link,
+  .omnidb__utilities-menu.omnidb__utilities-menu--show .omnidb__menu__btn.nav-link {
     width: 27px;
     margin-left: 0.25rem;
     margin-right: 0.25rem;
@@ -314,7 +316,8 @@
     width: 0px;
     transition: 0.35s;
   }
-  .omnidb__utilities-menu:hover .omnidb__menu__btn.nav-link {
+  .omnidb__utilities-menu:hover .omnidb__menu__btn.nav-link,
+  .omnidb__utilities-menu.omnidb__utilities-menu--show .omnidb__menu__btn.nav-link {
     width: 27px;
     margin-left: 0.25rem;
     margin-right: 0.25rem;
@@ -1515,8 +1518,23 @@ body {
 
 
 
+/* Omnis UI Assistant */
+.omnis__step__arrow {
+  padding: 0px;
+  position: absolute;
+  border-radius: 50%;
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  text-align: center;
+}
+
+
+
 /* Animated Logo Omnidb styles */
 .animated-omnis {
+  max-height: 100%;
+  max-width: 100%;
   /* transform-origin: center;
   transform: translate(0px, 0px);
   animation: animatedOmnisSvgTranslate 16s linear infinite 0s; */

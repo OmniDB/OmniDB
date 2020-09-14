@@ -28,11 +28,11 @@ function startTutorial(p_tutorial_name) {
           <p>Contains general settings and options:</p>
           <ul>
           <li>Username and versioning.</li>
-          <li><i class="fas fa-plug mr-2"></i>Connection management.</li>
-          <li><i class="fas fa-user mr-2"></i>User management.</li>
-          <li><i class="fas fa-cog mr-2"></i>UI settings (shortcuts, theme, fonts...).</li>
-          <li><i class="fas fa-cube mr-2"></i>Plugins management.</li>
-          <li><i class="fas fa-sign-out-alt mr-2"></i>About.</li>
+          <li><i class="fas fa-plug omnidb__theme__text--primary mr-2"></i>Connection management.</li>
+          <li><i class="fas fa-user omnidb__theme__text--primary mr-2"></i>User management.</li>
+          <li><i class="fas fa-cog omnidb__theme__text--primary mr-2"></i>UI settings (shortcuts, theme, fonts...).</li>
+          <li><i class="fas fa-cube omnidb__theme__text--primary mr-2"></i>Plugins management.</li>
+          <li><i class="fas fa-sign-out-alt omnidb__theme__text--primary mr-2"></i>About.</li>
           </ul>
           `,
           p_target: document.getElementsByClassName('omnidb__utilities-menu')[0],
@@ -42,30 +42,33 @@ function startTutorial(p_tutorial_name) {
         {
           p_callback_end: function() {$('.omnidb__utilities-menu').removeClass('omnidb__utilities-menu--show');},
           p_callback_start: function() {$('.omnidb__utilities-menu').addClass('omnidb__utilities-menu--show');},
+          p_clone_target: true,
           p_message: `
           <p>If you just configured OmniDB and logged with the default <strong>admin</strong> user, you should create the first user.</p>
           `,
-          p_target: $('.omnidb__utilities-menu').find('.fa-user')[1],
+          p_next_button: false,
+          p_target: document.getElementById('omnidb__utilities-menu__link-user'),
           p_title: 'Managing Users'
         },
         {
-          p_callback_end: function() {$('.omnidb__utilities-menu').removeClass('omnidb__utilities-menu--show');},
-          p_callback_start: function() {listUsers();},
+          p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById('omnidb_utilities_menu_btn_new_user'); window.omnis_ui_assistant.divClonedElement.children[0].classList.remove('ml-2');},50);},
+          p_clone_target: true,
           p_message: `
           <p>Click on <strong>Add new user</strong>.</p>
           `,
+          p_next_button: false,
           p_target: function() {var v_target = document.getElementById('omnidb_utilities_menu_btn_new_user'); return v_target},
           p_title: 'Add a New User',
           p_update_delay: 600
         },
         {
-          p_callback_start: function() {newUser();},
           p_message: `
           <ul>
-          <li><i class="fas fa-user mr-2"></i>OmniDB login name.</li>
-          <li><i class="fas fa-key mr-2"></i>OmniDB login password.</li>
-          <li><i class="fas fa-star mr-2"></i>Defines if the user can manage other OmniDB users.</li>
+          <li><i class="fas fa-user omnidb__theme__text--primary mr-2"></i>OmniDB login name.</li>
+          <li><i class="fas fa-key omnidb__theme__text--primary mr-2"></i>OmniDB login password.</li>
+          <li><i class="fas fa-star omnidb__theme__text--primary mr-2"></i>Defines if the user can manage other OmniDB users.</li>
           </ul>
+          <div class="alert alert-danger">The default <strong>admin user</strong> should be deleted once a new super user has been created.</div>
           `,
           p_target: function() {var v_target = document.getElementById('omnidb_user_content'); return v_target},
           p_title: 'User Options',

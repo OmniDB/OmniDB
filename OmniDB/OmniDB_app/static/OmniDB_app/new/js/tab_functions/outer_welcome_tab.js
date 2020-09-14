@@ -119,13 +119,21 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
   '</h1>' +
   '<div class="card p-3 omnidb__welcome__intro-card">' +
     '<p class="text-center"><span class="badge badge-danger" style="vertical-align: middle;">disclaimer</span> OmniDB is a powerful tool, and with great power...<br/>Please <strong><span class="text-danger">learn how to use it on a testing environment, NOT on production</span></strong>!</p>' +
-    '<div class="text-center mb-4">' +
-      '<button type="button" class="btn btn-lg btn-primary" onclick="startTutorial(\'utilities_menu\');">' +
-        '<i class="fas fa-question-circle mr-2"></i>' +
+    '<div class="text-center my-4">' +
+      '<h3>' +
+        '<i class="fas fa-list mr-2"></i>' +
         'Getting started' +
-      '</button>' +
+      '</h3>' +
     '</div>' +
-    '<div class="alert-info p-2 rounded" style="display: grid; grid-template: \'icon text\';">' +
+    '<ol>' +
+      '<li>' +
+        '<button type="button" class="btn btn-lg omnidb__theme__btn--primary" onclick="startTutorial(\'utilities_menu\');">' +
+          '<i class="fas fa-user-plus mr-2"></i>' +
+          'Create the first omnidb user' +
+        '</button>' +
+      '</li>' +
+    '</ol>' +
+    '<div class="alert-info p-2 rounded mt-4" style="display: grid; grid-template: \'icon text\';">' +
       '<i class="fas fa-exclamation-triangle p-4" style="grid-area: icon;"></i>' +
       '<div style="grid-area: text;">' +
         `

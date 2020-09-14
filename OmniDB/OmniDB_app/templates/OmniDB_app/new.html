@@ -71,7 +71,7 @@
               <a class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="startConnectionManagement();"><i class="fas fa-plug" title="Connections"></i></a>
               {% if not desktop_mode %}
               {% if super_user == 1 %}
-              <a class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="listUsers();"><i class="fas fa-user" title="Users"></i></a>
+              <a id="omnidb__utilities-menu__link-user" class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="listUsers();"><i class="fas fa-user" title="Users"></i></a>
               {% endif %}
               {% endif %}
               <a class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="showConfigUser();"><i class="fas fa-cog" title="Settings"></i></a>

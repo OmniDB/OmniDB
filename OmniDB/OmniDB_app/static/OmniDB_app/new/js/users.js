@@ -306,21 +306,23 @@ function listUsers(p_refresh,p_options = false) {
 
   var v_save_button = document.getElementById('div_save_users');
 	if (v_save_button !== null) {
-		if (v_usersObject.v_cellChanges.length === 0 && window.newUsersObject.newUsers.length === 0)
+		if (v_usersObject.v_cellChanges.length === 0 && window.newUsersObject.newUsers.length === 0) {
 			document.getElementById('div_save_users').style.visibility = 'hidden';
+		}
 	}
 
   var v_div_result = document.getElementById('div_user_list');
 
-	if (v_div_result.innerHTML!='')
-    v_div_result.innerHTML = '';
+	if (v_div_result.innerHTML!='') {
+		v_div_result.innerHTML = '';
+	}
 
-  if (p_refresh==null)
-    $('#modal_users').modal();
-  else
-    getUsers(p_options);
-
-
+  if (p_refresh==null) {
+		$('#modal_users').modal();
+	}
+  else {
+		getUsers(p_options);
+	}
 }
 
 /// <summary>

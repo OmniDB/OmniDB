@@ -448,6 +448,7 @@
 
 
 .omnidb__main {
+  width: 100vw;
   height: 100vh;
   overflow: hidden;
 }
@@ -1190,10 +1191,11 @@ label.omnidb__switch--label span {
   text-align: left;
 }
 
-/* OLD TEMPLATE */
 body {
+  max-width: 100vw;
+  overflow-x: hidden;
 }
-
+/* OLD TEMPLATE */
 #div_shortcut_background_dark {
     display: none;
     position: fixed;
@@ -1528,8 +1530,65 @@ body {
   height: 28px;
   text-align: center;
 }
+.omnis__cloned-element__waves {
+  display: inline-block;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+.omnis__cloned-element__waves span {
+  background-color: #4A81D4;
+  border-radius: 8px;
+  display: inline-block;
+  height: 100%;
+  left: 0px;
+  pointer-events: none;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+.omnis__cloned-element__waves span:nth-of-type(1) {
+  animation: waves 2.5s linear .1s;
+  animation-iteration-count: infinite;
+}
 
+.omnis__cloned-element__waves span:nth-of-type(2) {
+  animation: waves 2.5s linear .7s forwards;
+  animation-iteration-count: infinite;
+}
 
+.omnis__cloned-element__waves span:nth-of-type(3) {
+  animation: waves 2.5s linear 1.3s forwards;
+  animation-iteration-count: infinite;
+}
+
+.omnis__cloned-element__waves span:nth-of-type(4) {
+  animation: waves 2.5s linear 1.9s forwards;
+  animation-iteration-count: infinite;
+}
+@keyframes waves {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+@-webkit-keyframes waves {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
 
 /* Animated Logo Omnidb styles */
 .animated-omnis {

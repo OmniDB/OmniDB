@@ -110,15 +110,50 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
       </g>
   </svg>`;
 
-  // Intro html string
-  let v_html_intro =
+
+  // Title html string
+  let v_html_title =
   '<h1 class="mb-4" style="padding-left: 100px; position: relative;">' +
     // '<span class="omnidb__welcome__loading"></span>' +
     '<span class="omnidb__welcome__loading" style="background: none;">' + v_animated_omnis + '</span>' +
     '<span class="omnidb__welcome__intro-text">Hi, welcome to <span style="color:#4a6cbb;">OmniDB!</span></span>' +
-  '</h1>' +
+  '</h1>';
+  // Intro html string
+  let v_html_intro =
   '<div class="card p-3 omnidb__welcome__intro-card">' +
+
     '<p class="text-center"><span class="badge badge-danger" style="vertical-align: middle;">disclaimer</span> OmniDB is a powerful tool, and with great power...<br/>Please <strong><span class="text-danger">learn how to use it on a testing environment, NOT on production</span></strong>!</p>' +
+
+
+    // '<div class="text-center my-4">' +
+    //   '<h3>' +
+    //     '<i class="fas fa-list mr-2"></i>' +
+    //     'Getting started' +
+    //   '</h3>' +
+    // '</div>' +
+    // '<ol>' +
+    //   '<li>' +
+    //     '<button type="button" class="btn btn-lg omnidb__theme__btn--primary" onclick="startTutorial(\'utilities_menu\');">' +
+    //       '<i class="fas fa-user-plus mr-2"></i>' +
+    //       'Create an omnidb user' +
+    //     '</button>' +
+    //   '</li>' +
+    // '</ol>' +
+
+
+    '<div class="alert-info p-2 rounded mt-4" style="display: grid; grid-template: \'icon text\';">' +
+      '<i class="fas fa-exclamation-triangle p-4" style="grid-area: icon;"></i>' +
+      '<div style="grid-area: text;">' +
+        `
+        Our focus is to provide a very flexible, secure and work-effective environment for multiple DBMS.<br>
+        With that in mind, you should <strong>be aware the many actions on the UI can lead to a direct interaction with the database</strong> that you are connected with.</br>
+        ` +
+      '</div>' +
+    '</div>' +
+  '</div>';
+  // Getting started
+  let v_html_getting_started =
+  '<div class="card p-3 omnidb__welcome__intro-card">' +
     '<div class="text-center my-4">' +
       '<h3>' +
         '<i class="fas fa-list mr-2"></i>' +
@@ -129,19 +164,10 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
       '<li>' +
         '<button type="button" class="btn btn-lg omnidb__theme__btn--primary" onclick="startTutorial(\'utilities_menu\');">' +
           '<i class="fas fa-user-plus mr-2"></i>' +
-          'Create the first omnidb user' +
+          'Create an omnidb user' +
         '</button>' +
       '</li>' +
     '</ol>' +
-    '<div class="alert-info p-2 rounded mt-4" style="display: grid; grid-template: \'icon text\';">' +
-      '<i class="fas fa-exclamation-triangle p-4" style="grid-area: icon;"></i>' +
-      '<div style="grid-area: text;">' +
-        `
-        Our focus is to provide a very flexible, secure and work-effective environment for multiple DBMS.<br>
-        With that in mind, you should <strong>be aware the many actions on the UI can lead to a direct interaction with the database</strong> that you are connected with.</br>
-        ` +
-      '</div>' +
-    '</div>' +
   '</div>';
   // Usel links html string
   let v_html_useful_links =
@@ -161,15 +187,23 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
 
         // Welcome main block
         '<div id="' + v_tab.id + '_welcome" class="omnidb__welcome" style="height: 100vh;display: flex;align-items: center;font-size: 1.2rem;justify-content: center;">' +
-          // Welcome grid
-          '<div style="display: grid; grid-template: \'intro links\'; grid-gap: 64px;">' +
-            // Intro area
-            '<div style="grid-area: intro;">' +
-              v_html_intro +
-            '</div>' +
-            // Links area
-            '<div style="grid-area: links;">' +
-              v_html_useful_links +
+          '<div>' +
+            // Title
+            v_html_title +
+            // Welcome grid
+            '<div style="display: grid; grid-template: \'intro getting_started links\'; grid-gap: 64px;">' +
+              // Intro area
+              '<div style="grid-area: intro;">' +
+                v_html_intro +
+              '</div>' +
+              // Getting started area
+              '<div style="grid-area: getting_started">' +
+                v_html_getting_started +
+              '</div>' +
+              // Links area
+              '<div style="grid-area: links;">' +
+                v_html_useful_links +
+              '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +

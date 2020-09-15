@@ -24,6 +24,7 @@ function startTutorial(p_tutorial_name) {
         {
           p_callback_end: function() {$('.omnidb__utilities-menu').removeClass('omnidb__utilities-menu--show');},
           p_callback_start: function() {$('.omnidb__utilities-menu').addClass('omnidb__utilities-menu--show');},
+          p_clone_target: true,
           p_message: `
           <p>Contains general settings and options:</p>
           <ul>
@@ -45,6 +46,7 @@ function startTutorial(p_tutorial_name) {
           p_clone_target: true,
           p_message: `
           <p>If you just configured OmniDB and logged with the default <strong>admin</strong> user, you should create the first user.</p>
+          <p>Follow this walkthrough if you want to create other users as well.</p>
           `,
           p_next_button: false,
           p_target: document.getElementById('omnidb__utilities-menu__link-user'),

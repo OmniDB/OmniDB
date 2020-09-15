@@ -64,7 +64,7 @@ function createOmnis({p_callback_end = false, p_steps = []}) {
     self_destruct: function() {
       var v_control = this;
       v_control.setStateDisabled();
-      document.body.removeChild(v_control.divElement);
+      document.getElementById('omnidb__main').removeChild(v_control.divElement);
       for (let i = 0; i < v_control.stepList.length; i++) {
         if (v_control.stepList[i].callback_end !== false) {
           v_control.stepList[i].callback_end();
@@ -142,6 +142,8 @@ function createOmnis({p_callback_end = false, p_steps = []}) {
         v_control.divClonedElement.style.left = '';
         v_control.divClonedElement.style.top = '';
         v_control.divBackdropElement.style.display = '';
+        // Emptying the divWavesElement.
+        v_control.divWavesElement.innerHTML = '';
 
         var v_title = '';
         if (v_step_item.title) {
@@ -279,7 +281,7 @@ function createOmnis({p_callback_end = false, p_steps = []}) {
               v_control.divClonedElement.style.left = v_target_bounding_rect.x + 'px';
               v_control.divClonedElement.style.top = v_target_bounding_rect.y + 'px';
               v_cloned_element.style.width = v_target_bounding_rect.width + 'px';
-              v_control.divClonedElement.appendChild(v_cloned_element);
+              v_control.updateClonedElementContent(v_cloned_element);
               v_control.divBackdropElement.style.display = '';
               v_cloned_element.addEventListener('click',function(){v_control.goToStep(v_control.stepSelected + 1)});
             // },v_update_delay);
@@ -312,6 +314,8 @@ function createOmnis({p_callback_end = false, p_steps = []}) {
       }
       else {
         this.divElement.style.display = 'none';
+        // Emptying the divWavesElement.
+        this.divWavesElement.innerHTML = '';
       }
     },
     setStateEnabled: function() {
@@ -321,6 +325,31 @@ function createOmnis({p_callback_end = false, p_steps = []}) {
     setStateDisabled: function() {
       this.stateActive = false;
       this.renderStep();
+    },
+    updateClonedElementContent: function(p_content_element) {
+      var v_control = this;
+      var v_cloned_element = v_control.divClonedElement;
+      var v_waves_element = v_control.divWavesElement;
+      v_cloned_element.innerHTML = '';
+      v_waves_element.innerHTML = '';
+      v_cloned_element.appendChild(p_content_element);
+      v_waves_element.innerHTML =
+      '<span id="' + v_control.id + '_cloned_element_waves" class="omnis__cloned-element__waves">' +
+        '<span></span>' +
+        '<span></span>' +
+        '<span></span>' +
+        '<span></span>' +
+      '</span>';
+      let v_target = (typeof v_control.stepList[v_control.stepSelected].target === 'function')
+      ? v_control.stepList[v_control.stepSelected].target()
+      : v_control.stepList[v_control.stepSelected].target;
+      let v_cloned_element_bounding_rect = v_target.getBoundingClientRect();
+      v_waves_element.style.left = v_cloned_element_bounding_rect.x + 'px';
+      v_waves_element.style.top = v_cloned_element_bounding_rect.y + 'px';
+      v_waves_element.style.width = v_cloned_element_bounding_rect.width + 'px';
+      v_waves_element.style.height = v_cloned_element_bounding_rect.height + 'px';
+      v_waves_element.style.display = 'block';
+      var v_cloned_element_waves = document.getElementById(v_control.id + '_cloned_element_waves');
     },
     updateOmnisPosition : function() {
       var v_target = (typeof this.stepList[this.stepSelected].target === 'function')
@@ -347,10 +376,13 @@ function createOmnis({p_callback_end = false, p_steps = []}) {
   }
 
   v_omnisControl.divCardElement = document.createElement('div');
-  v_omnisControl.divCardElement.setAttribute('style', 'position:fixed; width:240px; max-width: 90vw; z-index: ' + v_omnisControl.z_index + 2 + '; box-shadow: 1px 0px 3px rgba(0,0,0,0.15); transition: 0.45s;');
+  v_omnisControl.divCardElement.setAttribute('style', 'position:fixed; width:240px; max-width: 90vw; z-index: ' + v_omnisControl.z_index + 3 + '; box-shadow: 1px 0px 3px rgba(0,0,0,0.15); transition: 0.45s;');
 
   v_omnisControl.divClonedElement = document.createElement('div');
-  v_omnisControl.divClonedElement.setAttribute('style', 'position:absolute; width:0px; height:0px; overflow:visible; z-index:' + v_omnisControl.z_index + 1 + ';');
+  v_omnisControl.divClonedElement.setAttribute('style', 'position:absolute; width:0px; height:0px; overflow:visible; z-index:' + v_omnisControl.z_index + 2 + ';');
+
+  v_omnisControl.divWavesElement = document.createElement('div');
+  v_omnisControl.divWavesElement.setAttribute('style', 'position:absolute; width:0px; height:0px; overflow:visible; z-index:' + v_omnisControl.z_index + 1 + ';');
 
   v_omnisControl.divBackdropElement = document.createElement('div');
   v_omnisControl.divBackdropElement.setAttribute('style', 'position:fixed; width:100vw; height:100vh; top: 0; left: 0; z-index:' + v_omnisControl.z_index + '; background-color:rgba(0,0,0,0.25); transition: 0.45s;');
@@ -360,8 +392,9 @@ function createOmnis({p_callback_end = false, p_steps = []}) {
 
   v_omnisControl.divElement.appendChild(v_omnisControl.divCardElement);
   v_omnisControl.divElement.appendChild(v_omnisControl.divClonedElement);
+  v_omnisControl.divElement.appendChild(v_omnisControl.divWavesElement);
   v_omnisControl.divElement.appendChild(v_omnisControl.divBackdropElement);
-  document.body.appendChild(v_omnisControl.divElement);
+  document.getElementById('omnidb__main').appendChild(v_omnisControl.divElement);
 
   return v_omnisControl;
 

@@ -1504,3 +1504,111 @@ function getStringTooltip(p_title, p_message, p_position = false) {
   }
   return v_tooltipAttr;
 }
+
+function updateModalEditConnectionState(e) {
+  let v_e_target = e.target;
+  let v_e_target_id = v_e_target.getAttribute('id');
+  let v_e_value = e.target.value;
+  let v_disable_list = [];
+  let v_enable_list = [];
+  if (v_e_target_id === 'conn_form_connstring') {
+    if (typeof v_e_value === 'string') {
+      v_e_value = v_e_value.trim();
+    }
+    if (v_e_value !== '' && v_e_value !== null) {
+      v_disable_list = [
+        'conn_form_server',
+        'conn_form_port',
+        'conn_form_database',
+        'conn_form_user'
+      ];
+    }
+    else {
+      v_enable_list = [
+        'conn_form_server',
+        'conn_form_port',
+        'conn_form_database',
+        'conn_form_user'
+      ];
+    }
+  }
+  else if (v_e_target_id === 'conn_form_server' || v_e_target_id === 'conn_form_port' || v_e_target_id === 'conn_form_database' || v_e_target_id === 'conn_form_user') {
+    let v_check_inputs = [
+      'conn_form_server',
+      'conn_form_port',
+      'conn_form_database',
+      'conn_form_user'
+    ];
+    let v_check_inputs_empty = true;
+    for (let i = 0; i < v_check_inputs.length; i++) {
+      var v_check_input_value = document.getElementById(v_check_inputs[i]).value;
+      if (typeof v_check_input_value === 'string') {
+        v_check_input_value = v_check_input_value.trim();
+      }
+      if (v_check_input_value !== '' && v_check_input_value !== null) {
+        v_check_inputs_empty = false;
+      }
+    }
+    if (!v_check_inputs_empty) {
+      v_disable_list = [
+        'conn_form_connstring'
+      ];
+      v_enable_list = [
+        'conn_form_server',
+        'conn_form_port',
+        'conn_form_database',
+        'conn_form_user'
+      ];
+    }
+    else {
+      v_enable_list = [
+        'conn_form_connstring'
+      ];
+    }
+  }
+  else if (v_e_target_id === 'conn_form_use_tunnel') {
+    if (v_e_target.checked) {
+      v_enable_list = [
+        'conn_form_ssh_server',
+        'conn_form_ssh_port',
+        'conn_form_ssh_user',
+        'conn_form_ssh_password',
+        'conn_form_ssh_key'
+      ];
+    }
+    else {
+      v_disable_list = [
+        'conn_form_ssh_server',
+        'conn_form_ssh_port',
+        'conn_form_ssh_user',
+        'conn_form_ssh_password',
+        'conn_form_ssh_key'
+      ];
+    }
+  }
+  else if (v_e_target_id === 'conn_form_type') {
+    if (v_e_value === 'terminal') {
+      v_enable_list = [
+        'conn_form_ssh_server',
+        'conn_form_ssh_port',
+        'conn_form_ssh_user',
+        'conn_form_ssh_password',
+        'conn_form_ssh_key'
+      ];
+      document.getElementById('conn_form_use_tunnel').checked = true;
+      document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
+    }
+    else {
+      document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
+    }
+  }
+  for (let i = 0; i < v_disable_list.length; i++) {
+    var v_item = document.getElementById(v_disable_list[i]);
+    v_item.setAttribute('readonly',true);
+    v_item.value = null;
+  }
+  for (let i = 0; i < v_enable_list.length; i++) {
+    var v_item = document.getElementById(v_enable_list[i]);
+    v_item.removeAttribute('readonly');
+  }
+}

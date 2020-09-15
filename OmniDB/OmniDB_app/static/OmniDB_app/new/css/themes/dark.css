@@ -74,6 +74,14 @@
   color: #555;
 }
 
+/* TEXT */
+.omnidb--theme-dark .omnidb__theme__text--primary {
+  color: #394E83;
+}
+.omnidb--theme-dark .omnidb__theme__text--secondary {
+  color: #4C5365;
+}
+
 /* PRIMARY TAB */
 .omnidb--theme-dark .omnidb__tab-menu--primary .omnidb__menu__btn {
   background-color: #282A2F;

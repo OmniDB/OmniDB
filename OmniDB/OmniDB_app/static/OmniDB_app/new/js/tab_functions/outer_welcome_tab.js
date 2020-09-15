@@ -6,7 +6,7 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
     p_icon: '<i class="fas fa-hand-spock"></i>',
     p_name: 'Welcome',
     p_selectFunction: function() {
-      document.title = 'Welcome toOmniDB'
+      document.title = 'Welcome to OmniDB'
       $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
     },
     p_close: false,// Replacing default close icon with contextMenu.
@@ -151,6 +151,30 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
       '</div>' +
     '</div>' +
   '</div>';
+  // Getting started buttons
+  let v_getting_started_buttons_list = [
+    {
+      icon: '<i class="fas fa-user-plus mr-2"></i>',
+      text: 'Create an omnidb user',
+      tutorial: "\'utilities_menu\'"
+    },
+    {
+      icon: '<i class="fas fa-plug mr-2"></i>',
+      text: 'Create a connection',
+      tutorial: "\'connections_menu\'"
+    }
+  ]
+  let v_getting_started_buttons_list_html = '';
+  for (let i = 0; i < v_getting_started_buttons_list.length; i++) {
+    let v_getting_started_buttons_list_item = v_getting_started_buttons_list[i];
+    v_getting_started_buttons_list_html +=
+    '<li class="mb-2">' +
+      '<button type="button" class="btn btn-lg omnidb__theme__btn--primary" onclick="startTutorial(' + v_getting_started_buttons_list_item.tutorial + ');">' +
+        v_getting_started_buttons_list_item.icon +
+        v_getting_started_buttons_list_item.text +
+      '</button>' +
+    '</li>';
+  }
   // Getting started
   let v_html_getting_started =
   '<div class="card p-3 omnidb__welcome__intro-card">' +
@@ -161,12 +185,7 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
       '</h3>' +
     '</div>' +
     '<ol>' +
-      '<li>' +
-        '<button type="button" class="btn btn-lg omnidb__theme__btn--primary" onclick="startTutorial(\'utilities_menu\');">' +
-          '<i class="fas fa-user-plus mr-2"></i>' +
-          'Create an omnidb user' +
-        '</button>' +
-      '</li>' +
+      v_getting_started_buttons_list_html +
     '</ol>' +
   '</div>';
   // Usel links html string

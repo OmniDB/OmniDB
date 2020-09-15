@@ -283,7 +283,9 @@ function createOmnis({p_callback_end = false, p_steps = []}) {
               v_cloned_element.style.width = v_target_bounding_rect.width + 'px';
               v_control.updateClonedElementContent(v_cloned_element);
               v_control.divBackdropElement.style.display = '';
-              v_cloned_element.addEventListener('click',function(){v_control.goToStep(v_control.stepSelected + 1)});
+              // if (v_control[v_control.stepSelected + 1]) {
+                v_cloned_element.addEventListener('click',function(){v_control.goToStep(v_control.stepSelected + 1)});
+              // }
             // },v_update_delay);
           }
           else {
@@ -357,20 +359,44 @@ function createOmnis({p_callback_end = false, p_steps = []}) {
       : this.stepList[this.stepSelected].target;
       var v_target_position = this.getPosition(v_target);
 
-      this.divCardElement.style.top = v_target_position.y + 20 + 'px';
+      // this.divCardElement.style.top = v_target_position.y + 20 + 'px';
       if (v_target_position.x >= (window.innerWidth / 2)) {
         this.divCardElement.style.left = v_target_position.x - this.divCardElement.offsetWidth - 16 + 'px';
-        this.divCardElement.innerHTML +=
-        '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="right: -8px; top: -8px;">' +
-          '<i class="fas fa-arrow-right" style="transform: rotate(325deg);"></i>' +
-        '</div>';
+        let v_arrow_html = '';
+        if (v_target_position.y <= (window.innerHeight / 2)) {
+          this.divCardElement.style.top = v_target_position.y + 20 + 'px';
+          v_arrow_html +=
+          '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="right: -8px; top: -8px;">' +
+            '<i class="fas fa-arrow-right" style="transform: rotate(325deg);"></i>' +
+          '</div>';
+        }
+        else {
+          this.divCardElement.style.top = v_target_position.y - this.divCardElement.offsetHeight - 20 + 'px';
+          v_arrow_html +=
+          '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="right: -8px; bottom: -8px;">' +
+            '<i class="fas fa-arrow-right" style="transform: rotate(45deg);"></i>' +
+          '</div>';
+        }
+        this.divCardElement.innerHTML += v_arrow_html;
       }
       else {
         this.divCardElement.style.left = v_target_position.x + v_target.offsetWidth + 16 + 'px';
-        this.divCardElement.innerHTML +=
-        '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="left: -8px; top: -8px;">' +
-          '<i class="fas fa-arrow-right" style="transform: rotate(235deg);"></i>' +
-        '</div>';
+        let v_arrow_html = '';
+        if (v_target_position.y <= (window.innerHeight / 2)) {
+          this.divCardElement.style.top = v_target_position.y + 20 + 'px';
+          v_arrow_html +=
+          '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="left: -8px; top: -8px;">' +
+            '<i class="fas fa-arrow-right" style="transform: rotate(235deg);"></i>' +
+          '</div>';
+        }
+        else {
+          this.divCardElement.style.top = v_target_position.y - this.divCardElement.offsetHeight - 20 + 'px';
+          v_arrow_html +=
+          '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="left: -8px; bottom: -8px;">' +
+            '<i class="fas fa-arrow-right" style="transform: rotate(145deg);"></i>' +
+          '</div>';
+        }
+        this.divCardElement.innerHTML += v_arrow_html;
       }
     }
   }

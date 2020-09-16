@@ -1405,6 +1405,7 @@ class PostgreSQL(Generic):
         try:
             v_keep = None
             if self.v_con is None:
+                print('OPENING')
                 self.Open()
                 v_keep = False
             else:

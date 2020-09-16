@@ -12,6 +12,10 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 from OmniDB_app.include.Session import Session
 from datetime import datetime
 
+from OmniDB_app.views.memory_objects import *
+
+@user_authenticated
+@database_timeout
 def get_tree_info(request):
 
     v_return = {}
@@ -19,26 +23,15 @@ def get_tree_info(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = {
@@ -166,6 +159,8 @@ def get_tree_info(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_database_objects(request):
 
     v_return = {}
@@ -173,26 +168,15 @@ def get_database_objects(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = {}
@@ -203,6 +187,8 @@ def get_database_objects(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_properties(request):
 
     v_return = {}
@@ -210,27 +196,16 @@ def get_properties(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_data = json_object['p_data']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_properties = []
     v_ddl = ''
@@ -252,6 +227,8 @@ def get_properties(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_tables(request):
 
     v_return = {}
@@ -259,27 +236,16 @@ def get_tables(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_tables = []
 
@@ -308,6 +274,8 @@ def get_tables(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_columns(request):
 
     v_return = {}
@@ -315,28 +283,17 @@ def get_columns(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_columns = []
 
@@ -359,6 +316,8 @@ def get_columns(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_pk(request):
 
     v_return = {}
@@ -366,28 +325,17 @@ def get_pk(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_pk = []
 
@@ -406,20 +354,14 @@ def get_pk(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_pk_columns(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
@@ -428,14 +370,11 @@ def get_pk_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_pk = []
 
@@ -454,6 +393,8 @@ def get_pk_columns(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_fks(request):
 
     v_return = {}
@@ -461,28 +402,17 @@ def get_fks(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_fk = []
 
@@ -504,20 +434,14 @@ def get_fks(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_fks_columns(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
@@ -526,14 +450,11 @@ def get_fks_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_fk = []
 
@@ -556,6 +477,8 @@ def get_fks_columns(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_uniques(request):
 
     v_return = {}
@@ -563,28 +486,17 @@ def get_uniques(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_uniques = []
 
@@ -603,20 +515,14 @@ def get_uniques(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_uniques_columns(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
@@ -625,14 +531,11 @@ def get_uniques_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_uniques = []
 
@@ -651,6 +554,8 @@ def get_uniques_columns(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_indexes(request):
 
     v_return = {}
@@ -658,28 +563,17 @@ def get_indexes(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_indexes = []
 
@@ -699,20 +593,14 @@ def get_indexes(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_indexes_columns(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
@@ -721,14 +609,11 @@ def get_indexes_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_indexes = []
 
@@ -747,6 +632,8 @@ def get_indexes_columns(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_checks(request):
 
     v_return = {}
@@ -754,28 +641,17 @@ def get_checks(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_checks = []
 
@@ -795,6 +671,8 @@ def get_checks(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_excludes(request):
 
     v_return = {}
@@ -802,28 +680,17 @@ def get_excludes(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_excludes = []
 
@@ -844,6 +711,8 @@ def get_excludes(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_rules(request):
 
     v_return = {}
@@ -851,28 +720,17 @@ def get_rules(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_rules = []
 
@@ -891,20 +749,14 @@ def get_rules(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_rule_definition(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
@@ -913,14 +765,11 @@ def get_rule_definition(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = v_database.GetRuleDefinition(v_rule, v_table, v_schema)
@@ -931,6 +780,8 @@ def get_rule_definition(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_triggers(request):
 
     v_return = {}
@@ -938,28 +789,17 @@ def get_triggers(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_triggers = []
 
@@ -982,6 +822,8 @@ def get_triggers(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_eventtriggers(request):
 
     v_return = {}
@@ -989,26 +831,15 @@ def get_eventtriggers(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_triggers = []
 
@@ -1032,6 +863,8 @@ def get_eventtriggers(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_inheriteds(request):
 
     v_return = {}
@@ -1039,28 +872,17 @@ def get_inheriteds(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_partitions = []
 
@@ -1079,6 +901,8 @@ def get_inheriteds(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_partitions(request):
 
     v_return = {}
@@ -1086,28 +910,17 @@ def get_partitions(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_partitions = []
 
@@ -1126,6 +939,8 @@ def get_partitions(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_views(request):
 
     v_return = {}
@@ -1133,27 +948,16 @@ def get_views(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_tables = []
 
@@ -1175,6 +979,8 @@ def get_views(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_views_columns(request):
 
     v_return = {}
@@ -1182,28 +988,17 @@ def get_views_columns(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_columns = []
 
@@ -1225,6 +1020,8 @@ def get_views_columns(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_view_definition(request):
 
     v_return = {}
@@ -1232,28 +1029,17 @@ def get_view_definition(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_view = json_object['p_view']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = v_database.GetViewDefinition(v_view, v_schema)
@@ -1264,6 +1050,8 @@ def get_view_definition(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_mviews(request):
 
     v_return = {}
@@ -1271,27 +1059,16 @@ def get_mviews(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_tables = []
 
@@ -1312,6 +1089,8 @@ def get_mviews(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_mviews_columns(request):
 
     v_return = {}
@@ -1319,28 +1098,17 @@ def get_mviews_columns(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_columns = []
 
@@ -1362,6 +1130,8 @@ def get_mviews_columns(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_mview_definition(request):
 
     v_return = {}
@@ -1369,28 +1139,17 @@ def get_mview_definition(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_view = json_object['p_view']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = v_database.GetMaterializedViewDefinition(v_view, v_schema)
@@ -1401,6 +1160,8 @@ def get_mview_definition(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_schemas(request):
 
     v_return = {}
@@ -1408,26 +1169,15 @@ def get_schemas(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_schemas = []
 
@@ -1447,6 +1197,8 @@ def get_schemas(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_databases(request):
 
     v_return = {}
@@ -1454,26 +1206,15 @@ def get_databases(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_databases = []
 
@@ -1493,6 +1234,8 @@ def get_databases(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_tablespaces(request):
 
     v_return = {}
@@ -1500,26 +1243,15 @@ def get_tablespaces(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_tablespaces = []
 
@@ -1539,6 +1271,8 @@ def get_tablespaces(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_roles(request):
 
     v_return = {}
@@ -1546,26 +1280,15 @@ def get_roles(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_roles = []
 
@@ -1585,6 +1308,8 @@ def get_roles(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_functions(request):
 
     v_return = {}
@@ -1592,27 +1317,16 @@ def get_functions(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_functions = []
 
@@ -1633,6 +1347,8 @@ def get_functions(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_function_fields(request):
 
     v_return = {}
@@ -1640,28 +1356,17 @@ def get_function_fields(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_function = json_object['p_function']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_fields = []
 
@@ -1682,6 +1387,8 @@ def get_function_fields(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_function_definition(request):
 
     v_return = {}
@@ -1689,27 +1396,16 @@ def get_function_definition(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_function = json_object['p_function']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = v_database.GetFunctionDefinition(v_function)
@@ -1720,6 +1416,8 @@ def get_function_definition(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_function_debug(request):
 
     v_return = {}
@@ -1727,27 +1425,16 @@ def get_function_debug(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_function = json_object['p_function']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = v_database.GetFunctionDebug(v_function)
@@ -1758,6 +1445,8 @@ def get_function_debug(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_procedures(request):
 
     v_return = {}
@@ -1765,27 +1454,16 @@ def get_procedures(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_functions = []
 
@@ -1806,6 +1484,8 @@ def get_procedures(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_procedure_fields(request):
 
     v_return = {}
@@ -1813,28 +1493,17 @@ def get_procedure_fields(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_function = json_object['p_procedure']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_fields = []
 
@@ -1855,6 +1524,8 @@ def get_procedure_fields(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_procedure_definition(request):
 
     v_return = {}
@@ -1862,27 +1533,16 @@ def get_procedure_definition(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_function = json_object['p_procedure']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = v_database.GetProcedureDefinition(v_function)
@@ -1893,6 +1553,8 @@ def get_procedure_definition(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_procedure_debug(request):
 
     v_return = {}
@@ -1900,27 +1562,16 @@ def get_procedure_debug(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_function = json_object['p_procedure']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = v_database.GetProcedureDebug(v_function)
@@ -1931,6 +1582,8 @@ def get_procedure_debug(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_triggerfunctions(request):
 
     v_return = {}
@@ -1938,27 +1591,16 @@ def get_triggerfunctions(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_functions = []
 
@@ -1979,6 +1621,8 @@ def get_triggerfunctions(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_triggerfunction_definition(request):
 
     v_return = {}
@@ -1986,27 +1630,16 @@ def get_triggerfunction_definition(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_function = json_object['p_function']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = v_database.GetTriggerFunctionDefinition(v_function)
@@ -2017,6 +1650,8 @@ def get_triggerfunction_definition(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_eventtriggerfunctions(request):
 
     v_return = {}
@@ -2024,27 +1659,16 @@ def get_eventtriggerfunctions(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_functions = []
 
@@ -2065,6 +1689,8 @@ def get_eventtriggerfunctions(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_eventtriggerfunction_definition(request):
 
     v_return = {}
@@ -2072,27 +1698,16 @@ def get_eventtriggerfunction_definition(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_function = json_object['p_function']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = v_database.GetEventTriggerFunctionDefinition(v_function)
@@ -2103,6 +1718,8 @@ def get_eventtriggerfunction_definition(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_sequences(request):
 
     v_return = {}
@@ -2110,27 +1727,16 @@ def get_sequences(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_sequences = []
 
@@ -2150,6 +1756,8 @@ def get_sequences(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_extensions(request):
 
     v_return = {}
@@ -2157,26 +1765,15 @@ def get_extensions(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_extensions = []
 
@@ -2196,6 +1793,8 @@ def get_extensions(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_physicalreplicationslots(request):
 
     v_return = {}
@@ -2203,26 +1802,15 @@ def get_physicalreplicationslots(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_repslots = []
 
@@ -2242,6 +1830,8 @@ def get_physicalreplicationslots(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_logicalreplicationslots(request):
 
     v_return = {}
@@ -2249,26 +1839,15 @@ def get_logicalreplicationslots(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_repslots = []
 
@@ -2288,6 +1867,8 @@ def get_logicalreplicationslots(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_publications(request):
 
     v_return = {}
@@ -2295,26 +1876,15 @@ def get_publications(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_pubs = []
 
@@ -2339,6 +1909,8 @@ def get_publications(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_publication_tables(request):
 
     v_return = {}
@@ -2346,27 +1918,16 @@ def get_publication_tables(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
     v_pub = json_object['p_pub']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_tables = []
 
@@ -2386,6 +1947,8 @@ def get_publication_tables(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_subscriptions(request):
 
     v_return = {}
@@ -2393,26 +1956,15 @@ def get_subscriptions(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_subs = []
 
@@ -2435,6 +1987,8 @@ def get_subscriptions(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_subscription_tables(request):
 
     v_return = {}
@@ -2442,27 +1996,16 @@ def get_subscription_tables(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
     v_sub = json_object['p_sub']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_tables = []
 
@@ -2482,6 +2025,8 @@ def get_subscription_tables(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_foreign_data_wrappers(request):
 
     v_return = {}
@@ -2489,26 +2034,15 @@ def get_foreign_data_wrappers(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_fdws = []
 
@@ -2528,6 +2062,8 @@ def get_foreign_data_wrappers(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_foreign_servers(request):
 
     v_return = {}
@@ -2535,27 +2071,16 @@ def get_foreign_servers(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_fdw = json_object['p_fdw']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_servers = []
 
@@ -2578,6 +2103,8 @@ def get_foreign_servers(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_user_mappings(request):
 
     v_return = {}
@@ -2585,27 +2112,16 @@ def get_user_mappings(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_foreign_server = json_object['p_foreign_server']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_mappings = []
 
@@ -2626,6 +2142,8 @@ def get_user_mappings(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_foreign_tables(request):
 
     v_return = {}
@@ -2633,27 +2151,16 @@ def get_foreign_tables(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_tables = []
 
@@ -2673,6 +2180,8 @@ def get_foreign_tables(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_foreign_columns(request):
 
     v_return = {}
@@ -2680,28 +2189,17 @@ def get_foreign_columns(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_columns = []
 
@@ -2729,6 +2227,8 @@ def get_foreign_columns(request):
     return JsonResponse(v_return)
 
 
+@user_authenticated
+@database_timeout
 def get_types(request):
 
     v_return = {}
@@ -2736,27 +2236,16 @@ def get_types(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_types = []
 
@@ -2777,6 +2266,8 @@ def get_types(request):
     return JsonResponse(v_return)
 
 
+@user_authenticated
+@database_timeout
 def get_domains(request):
 
     v_return = {}
@@ -2784,27 +2275,16 @@ def get_domains(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_domains = []
 
@@ -2824,6 +2304,8 @@ def get_domains(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_inheriteds_parents(request):
 
     v_return = {}
@@ -2831,27 +2313,16 @@ def get_inheriteds_parents(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_tables = []
 
@@ -2871,6 +2342,8 @@ def get_inheriteds_parents(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_inheriteds_children(request):
 
     v_return = {}
@@ -2878,28 +2351,17 @@ def get_inheriteds_children(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_tables = []
 
@@ -2928,6 +2390,8 @@ def get_inheriteds_children(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_partitions_parents(request):
 
     v_return = {}
@@ -2935,27 +2399,16 @@ def get_partitions_parents(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_tables = []
 
@@ -2975,6 +2428,8 @@ def get_partitions_parents(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_partitions_children(request):
 
     v_return = {}
@@ -2982,28 +2437,17 @@ def get_partitions_children(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     v_list_tables = []
 
@@ -3033,6 +2477,8 @@ def get_partitions_children(request):
     return JsonResponse(v_return)
 
 
+@user_authenticated
+@database_timeout
 def kill_backend(request):
 
     v_return = {}
@@ -3040,27 +2486,16 @@ def kill_backend(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_pid            = json_object['p_pid']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_database.v_connection.Terminate(v_pid)
@@ -3071,20 +2506,14 @@ def kill_backend(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def template_select(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
@@ -3093,14 +2522,11 @@ def template_select(request):
     v_schema = json_object['p_schema']
     v_kind = json_object['p_kind']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_template = v_database.TemplateSelect(v_schema, v_table, v_kind).v_text
@@ -3115,6 +2541,8 @@ def template_select(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def template_insert(request):
 
     v_return = {}
@@ -3122,28 +2550,17 @@ def template_insert(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_template = v_database.TemplateInsert(v_schema, v_table).v_text
@@ -3158,6 +2575,8 @@ def template_insert(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def template_update(request):
 
     v_return = {}
@@ -3165,28 +2584,17 @@ def template_update(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_template = v_database.TemplateUpdate(v_schema, v_table).v_text
@@ -3201,20 +2609,14 @@ def template_update(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def template_select_function(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
@@ -3223,14 +2625,11 @@ def template_select_function(request):
     v_functionid = json_object['p_functionid']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_template = v_database.TemplateSelectFunction(v_schema, v_function, v_functionid).v_text
@@ -3245,20 +2644,14 @@ def template_select_function(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def template_call_procedure(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
@@ -3267,14 +2660,11 @@ def template_call_procedure(request):
     v_procedureid = json_object['p_procedureid']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_template = v_database.TemplateCallProcedure(v_schema, v_procedure, v_procedureid).v_text
@@ -3289,32 +2679,23 @@ def template_call_procedure(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
+@database_timeout
 def get_version(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
+    )
 
     try:
         v_return['v_data'] = {

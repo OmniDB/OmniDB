@@ -1605,6 +1605,13 @@ function updateModalEditConnectionState(e) {
   }
   else if (v_e_target_id === 'conn_form_type') {
     if (v_e_value === 'terminal') {
+      v_disable_list = [
+        'conn_form_connstring',
+        'conn_form_server',
+        'conn_form_port',
+        'conn_form_database',
+        'conn_form_user'
+      ];
       v_enable_list = [
         'conn_form_ssh_server',
         'conn_form_ssh_port',
@@ -1616,6 +1623,13 @@ function updateModalEditConnectionState(e) {
       document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
     }
     else {
+      v_enable_list = [
+        'conn_form_connstring',
+        'conn_form_server',
+        'conn_form_port',
+        'conn_form_database',
+        'conn_form_user'
+      ];
       document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
     }
   }

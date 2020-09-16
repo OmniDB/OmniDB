@@ -525,16 +525,33 @@ function removeTab(p_tab) {
 /// </summary>
 var resizeSnippetPanel = function() {
   if (v_connTabControl.snippet_tag !== undefined) {
-    var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-    var v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
     var v_snippet_tag = v_connTabControl.snippet_tag;
     var v_inner_snippet_tag = v_snippet_tag.tabControl.selectedTab.tag;
+    // Updating the max top position considering if a tab is selected.
+    if (v_connTabControl.selectedTab && v_connTabControl.selectedTab !== null) {
+      if (v_connTabControl.selectedTab.tag.tabControl) {
+        var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+        if (v_target_tag.div_result) {
+          v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
+        }
+        else {
+          v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+        }
+      }
+      else {
+        v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+      }
+    }
+    else {
+      v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+    }
+    // Updating the inner_sinnpet_tag divs size.
     if (v_inner_snippet_tag.editor !== undefined) {
       if (v_snippet_tag.isVisible) {
         v_snippet_tag.divPanel.style.transform = 'translateY(-' + v_target_tag_div_result_top + 'px)';
       }
-      v_snippet_tag.divPanel.style.height = v_target_tag_div_result_top;
-      v_snippet_tag.divTree.style.height = v_target_tag_div_result_top;
+      v_snippet_tag.divPanel.style.height = v_target_tag_div_result_top + 'px';
+      v_snippet_tag.divTree.style.height = v_target_tag_div_result_top + 'px';
       v_inner_snippet_tag.editorDiv.style.height = v_target_tag_div_result_top - 90 + 'px';
     }
   }

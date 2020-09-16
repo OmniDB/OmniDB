@@ -10,8 +10,8 @@
   .omnidb__utilities-menu {
     padding: 0.25rem 0.125rem;
     position: fixed;
-    right: 2px;
-    top: 2px;
+    right: 1rem;
+    top: 0.5rem;
     z-index: 1001;
   }
   .omnidb__utilities-menu .omnidb__menu__btn.nav-link {
@@ -157,8 +157,8 @@
   .omnidb__utilities-menu {
     padding: 0.25rem 0.125rem;
     position: fixed;
-    right: 2px;
-    top: 2px;
+    right: 1rem;
+    top: 0.5rem;
     z-index: 1001;
   }
   .omnidb__utilities-menu .omnidb__menu__btn.nav-link {
@@ -1538,11 +1538,12 @@ body {
   z-index: 0;
 }
 .omnis__cloned-element__waves span {
-  background-color: #4A81D4;
-  border-radius: 8px;
+  background-color: #F77DFF;
+  border-radius: 18px;
   display: inline-block;
   height: 100%;
   left: 0px;
+  opacity: 0;
   pointer-events: none;
   position: absolute;
   top: 0px;

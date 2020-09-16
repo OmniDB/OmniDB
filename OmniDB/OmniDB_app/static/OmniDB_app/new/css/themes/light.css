@@ -1,5 +1,5 @@
 .omnidb--theme-light {
-  color: #444;
+  color: #454545;
 }
 
 .omnidb--theme-light .omnidb__main {
@@ -7,16 +7,16 @@
 }
 
 .omnidb--theme-light .omnidb__theme-bg--menu-primary {
-  background-color: #4a81d4;
+  background-color: #4A81D4;
 }
 .omnidb--theme-light .omnidb__theme-border--primary {
-  border: 1px solid #94A5E3;
+  border: 1px solid #DEDEDE;
 }
 .omnidb--theme-light .omnidb__theme-border-top--primary {
   border-top: 1px solid #94A5E3;
 }
 .omnidb--theme-light .omnidb__workspace__div-left {
-  background-color: #FFF;
+  background-color: #FFFFFF;
 }
 .omnidb--theme-light .omnidb__workspace__div-right {
   background-color: #F4F4F4;
@@ -43,8 +43,8 @@
   color: #FFF;
 }
 .omnidb--theme-light .omnidb__theme__btn--secondary {
-  background-color: #6C757D;
-  color: #FFF;
+  background-color: #DEDEDE;
+  color: #6C757D;
 }
 
 /* CONSOLE */
@@ -99,7 +99,7 @@
 /* UTILITIES MENU */
 .omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn {
   background-color: #FFF !important;
-  color: #585858 !important;
+  color: #6C757D !important;
 }
 .omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn-text {
   color: #FFF !important;
@@ -115,7 +115,7 @@
 /* ACE EDITOR */
 .omnidb--theme-light .ace_editor.ace-omnidb {
   background-color: #F4F4F4 !important;
-  border: 1px solid #94A5E3 !important;
+  border: 1px solid #DEDEDE !important;
 }
 .omnidb--theme-light .ace_editor.ace-omnidb .ace_gutter {
 	background-color: #FFF;
@@ -144,8 +144,9 @@
 }
 .omnidb--theme-light .omnidb__tab-menu--secondary .omnidb__tab-menu__link.active {
   background-color: transparent;
-  border-color: #94A5E3;
-  border-bottom-color: #f4f4f4;
+  border-color: #DEDEDE;
+  border-bottom-color: #F4F4F4;
+  border-top: 2px solid #68A4FF;
 }
 
 /* TREE TAB */
@@ -154,8 +155,8 @@
 }
 .omnidb--theme-light .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link {
   background-color: transparent;
-  border-color: #e2e2e2;
-  border-bottom-color: #94A5E3;
+  border-color: #DEDEDE;
+  border-bottom-color: #DEDEDE;
 }
 .omnidb--theme-light .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #585858 !important;
@@ -165,8 +166,9 @@
 }
 .omnidb--theme-light .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
   background-color: transparent;
-  border-color: #94A5E3;
-  border-bottom-color: #e4e4e4;
+  border-color: #DEDEDE;
+  border-bottom-color: #FFFFFF;
+  border-top: 2px solid #68A4FF;
 }
 
 /* QUERY RESULT TABS */
@@ -176,7 +178,7 @@
 .omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link {
   background-color: transparent;
   border-color: #e2e2e2;
-  border-bottom-color: #94A5E3;
+  border-bottom-color: #DEDEDE;
 }
 .omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #585858 !important;
@@ -186,8 +188,9 @@
 }
 .omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
   background-color: transparent;
-  border-color: #94A5E3;
-  border-bottom-color: #e4e4e4;
+  border-color: #DEDEDE;
+  border-bottom-color: #F4F4F4;
+  border-top: 2px solid #68a4ff;
 }
 .omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-content {
   /* border: 1px solid #94A5E3; */
@@ -263,7 +266,7 @@
 
 /* FORMS */
 .omnidb--theme-light .omnidb__form-check .form-check-label::before {
-  background-color: #f4f4f4 !important;
+  background-color: #F4F4F4 !important;
   border: 1px solid #94A5E3 !important;
 }
 .omnidb--theme-light .omnidb__form-check input:checked~.form-check-label::after {

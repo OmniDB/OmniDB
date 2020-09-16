@@ -177,6 +177,7 @@
   background-color: transparent;
   border-color: #44464c;
   border-bottom-color: #43464E;
+  border-top: 2px solid #44464C;
 }
 .omnidb--theme-dark .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #DCDDDE !important;

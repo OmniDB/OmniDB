@@ -658,9 +658,11 @@ function newConnection() {
   $('#modal_edit_connection').modal();
 }
 
-function selectConnection(p_tech,p_index) {
+function selectConnection(p_conn_obj) {
 
-	alert('TODO: Try connection');
+	// alert('TODO: Try connection');
+	$('#modal_connections').modal('hide');
+	v_connTabControl.tag.createConnTab(p_conn_obj.id, true, p_conn_obj.alias);
 
 }
 

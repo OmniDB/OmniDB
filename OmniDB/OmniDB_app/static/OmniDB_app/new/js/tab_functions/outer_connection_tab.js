@@ -7,6 +7,11 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     v_connTabControl.removeLastTab();
 
     let v_conn = v_connTabControl.tag.connections[0];
+    for (let i = 0; i < v_connTabControl.tag.connections.length) {
+      if (v_connTabControl.tag.connections[i].v_conn_id === p_index) {
+        v_conn = v_connTabControl.tag.connections[i];
+      }
+    }
     let v_conn_name = (p_name) ? p_name : v_conn.v_alias;
     if (!p_tooltip_name) {
       p_tooltip_name = '';

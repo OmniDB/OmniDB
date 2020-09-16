@@ -87,7 +87,7 @@ $(function() {
                             if (v_autocomplete_object.selected_grid==this) {
                               var v_cell = this.getCell(v_autocomplete_object.selected_grid_row,0);
                               if (v_cell!=null) {
-                                this.getCell(v_autocomplete_object.selected_grid_row,0).parentNode.classList.add('div_autocomplete_data_row_selected');
+                                this.getCell(v_autocomplete_object.selected_grid_row,0).parentNode.classList.add('omnidb__autocomplete__data-row--selected');
                               }
                             }
                         },
@@ -159,7 +159,7 @@ function build_autocomplete_elements(p_data, p_value) {
 
       var div = document.createElement('div');
       if (v_local_group.type=='keyword') {
-        div.className = 'div_autocomplete_data_word';
+        div.className = 'omnidb__autocomplete__data-word';
         div.innerHTML = v_local_group.elements[j].value.replace(p_value,'<b>' + p_value + '</b>');
         var v_element = {'value': v_local_group.elements[j].value, 'select_value': v_local_group.elements[j].select_value,'complement': v_local_group.elements[j].complement, 'container': div, 'visible': true, 'group_reference': v_global_group };
         v_global_group.container.appendChild(div);
@@ -585,7 +585,7 @@ function autocomplete_select_element(p_element) {
 
   //keyword element
   if (p_element.visible_index==null) {
-    p_element.container.classList.add('div_autocomplete_data_row_selected');
+    p_element.container.classList.add('omnidb__autocomplete__data-row--selected');
 
     if (p_element.container.offsetTop<p_element.container.parentNode.scrollTop)
       p_element.container.parentNode.scrollTop = p_element.container.offsetTop;
@@ -615,11 +615,11 @@ function autocomplete_deselect_element() {
   if (v_autocomplete_object.selected) {
     var v_previous = v_autocomplete_object.selected
     if (v_previous.visible_index==null)
-      v_previous.container.classList.remove('div_autocomplete_data_row_selected');
+      v_previous.container.classList.remove('omnidb__autocomplete__data-row--selected');
     else {
       var v_cell = v_previous.grid_reference.getCell(v_previous.visible_index,0);
       if (v_cell!=null) {
-        v_previous.grid_reference.getCell(v_previous.visible_index,0).parentNode.classList.remove('div_autocomplete_data_row_selected');
+        v_previous.grid_reference.getCell(v_previous.visible_index,0).parentNode.classList.remove('omnidb__autocomplete__data-row--selected');
       }
       v_autocomplete_object.selected_grid = null;
       v_autocomplete_object.selected_grid_row = null;
@@ -630,7 +630,7 @@ function autocomplete_deselect_element() {
 
 function update_selected_grid_row_position(p_cell) {
   p_cell.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.scrollTop = p_cell.offsetTop + parseInt(p_cell.parentNode.parentNode.parentNode.parentNode.style.top,10);
-  p_cell.parentNode.classList.add('div_autocomplete_data_row_selected');
+  p_cell.parentNode.classList.add('omnidb__autocomplete__data-row--selected');
 }
 
 function close_autocomplete(p_additional_text) {

@@ -22,6 +22,8 @@ from OmniDB_app.models.main import *
 import paramiko
 from sshtunnel import SSHTunnelForwarder
 
+from OmniDB_app.views.memory_objects import *
+
 def index(request):
 
     #Invalid session
@@ -907,20 +909,13 @@ def save_group_connections_new(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def test_connection(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     p_index = json_object['p_index']

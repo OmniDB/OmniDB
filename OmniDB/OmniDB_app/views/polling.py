@@ -26,6 +26,8 @@ import custom_paramiko_expect
 from django.contrib.auth.models import User
 from OmniDB_app.models.main import *
 
+from OmniDB_app.views.memory_objects import *
+
 class requestType(IntEnum):
   Login          = 0
   Query          = 1
@@ -115,9 +117,6 @@ def closeTabHandler(p_client_object,p_tab_object_id):
     except Exception as exc:
         None
 
-global_object = {}
-global_lock = threading.Lock()
-
 def long_polling(request):
 
     v_return = {}
@@ -135,18 +134,7 @@ def long_polling(request):
     v_client_id = json_object['p_client_id']
 
     #get client attribute in global object or create if it doesn't exist
-    try:
-        global_lock.acquire()
-        client_object = global_object[v_client_id]
-    except Exception as exc:
-        client_object = {
-            'id': v_client_id,
-            'polling_lock': threading.Lock(),
-            'returning_data': [],
-            'tab_list': {}
-        }
-        global_object[v_client_id] = client_object
-    global_lock.release()
+    client_object = get_client_object(v_client_id)
 
     # Acquire client polling lock to read returning data
     client_object['polling_lock'].acquire()
@@ -163,6 +151,17 @@ def long_polling(request):
         'returning_rows': v_returning_data
     }
     )
+
+def queue_response(p_client_object, p_data):
+    p_client_object['returning_data_lock'].acquire()
+    p_client_object['returning_data'].append(p_data)
+    try:
+        # Attempt to release client polling lock so that the polling thread can read data
+        p_client_object['polling_lock'].release()
+    except Exception:
+        None
+    p_client_object['returning_data_lock'].release()
+
 
 def create_request(request):
 
@@ -269,7 +268,6 @@ def create_request(request):
 
             except Exception as exc:
                 start_thread = False
-                print(str(exc))
                 logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
                 v_response['v_code'] = response.MessageException
                 v_response['v_data'] = str(exc)
@@ -288,7 +286,6 @@ def create_request(request):
 
 
     elif v_code == requestType.Query or v_code == requestType.QueryEditData or v_code == requestType.SaveEditData or v_code == requestType.AdvancedObjectSearch or v_code == requestType.Console:
-
         #create tab object if it doesn't exist
         try:
             tab_object = client_object['tab_list'][v_data['v_tab_id']]
@@ -371,16 +368,6 @@ def create_request(request):
             #t.setDaemon(True)
             t.start()
 
-
-    #global_lock.acquire()
-    #client_object['returning_data'].append('test1')
-    #client_object['returning_data'].append('test2')
-    #try:
-        # Attempt to release client polling lock so that the polling thread can read data
-    #    client_object['polling_lock'].release()
-    #except Exception:
-    #    None
-    #global_lock.release()
     return JsonResponse(
     {}
     )
@@ -466,24 +453,10 @@ def thread_terminal(self,args):
                                 'v_last_block': True
                             }
                         if not self.cancel:
-                            global_lock.acquire()
-                            v_client_object['returning_data'].append(v_response)
-                            try:
-                                # Attempt to release client polling lock so that the polling thread can read data
-                                v_client_object['polling_lock'].release()
-                            except Exception:
-                                None
-                            global_lock.release()
+                            queue_response(v_client_object,v_response)
                 else:
                     if not self.cancel:
-                        global_lock.acquire()
-                        v_client_object['returning_data'].append(v_response)
-                        try:
-                            # Attempt to release client polling lock so that the polling thread can read data
-                            v_client_object['polling_lock'].release()
-                        except Exception:
-                            None
-                        global_lock.release()
+                        queue_response(v_client_object,v_response)
 
             except Exception as exc:
                 transport = v_terminal_ssh_client.get_transport()
@@ -500,14 +473,7 @@ def thread_terminal(self,args):
             'v_duration': ''
         }
         if not self.cancel:
-            global_lock.acquire()
-            v_client_object['returning_data'].append(v_response)
-            try:
-                # Attempt to release client polling lock so that the polling thread can read data
-                v_client_object['polling_lock'].release()
-            except Exception:
-                None
-            global_lock.release()
+            queue_response(v_client_object,v_response)
 
 def thread_query(self,args):
     v_response = {
@@ -619,14 +585,7 @@ def thread_query(self,args):
                 }
 
                 if not self.cancel:
-                    global_lock.acquire()
-                    v_client_object['returning_data'].append(v_response)
-                    try:
-                        # Attempt to release client polling lock so that the polling thread can read data
-                        v_client_object['polling_lock'].release()
-                    except Exception:
-                        None
-                    global_lock.release()
+                    queue_response(v_client_object,v_response)
 
             else:
                 if v_mode==0:
@@ -636,7 +595,6 @@ def thread_query(self,args):
                     else:
                         v_database.v_connection.v_start=True
                 if (v_mode==0 or v_mode==1) and not v_all_data:
-
                     v_data1 = v_database.v_connection.QueryBlock(v_sql, 50, True, True)
 
                     v_notices = v_database.v_connection.GetNotices()
@@ -664,14 +622,7 @@ def thread_query(self,args):
                     }
 
                     if not self.cancel:
-                        global_lock.acquire()
-                        v_client_object['returning_data'].append(v_response)
-                        try:
-                            # Attempt to release client polling lock so that the polling thread can read data
-                            v_client_object['polling_lock'].release()
-                        except Exception:
-                            None
-                        global_lock.release()
+                        queue_response(v_client_object,v_response)
 
                     #if len(v_data1.Rows) < 50 and v_autocommit:
                     #    try:
@@ -724,14 +675,7 @@ def thread_query(self,args):
                         if self.cancel:
                             break
                         elif v_hasmorerecords:
-                            global_lock.acquire()
-                            v_client_object['returning_data'].append(v_response)
-                            try:
-                                # Attempt to release client polling lock so that the polling thread can read data
-                                v_client_object['polling_lock'].release()
-                            except Exception:
-                                None
-                            global_lock.release()
+                            queue_response(v_client_object,v_response)
 
                     if not self.cancel:
 
@@ -758,14 +702,7 @@ def thread_query(self,args):
                             'v_chunks': True
                         }
 
-                        global_lock.acquire()
-                        v_client_object['returning_data'].append(v_response)
-                        try:
-                            # Attempt to release client polling lock so that the polling thread can read data
-                            v_client_object['polling_lock'].release()
-                        except Exception:
-                            None
-                        global_lock.release()
+                        queue_response(v_client_object,v_response)
 
                 elif v_mode==3 or v_mode==4:
                     v_duration = GetDuration(log_start_time,log_end_time)
@@ -787,14 +724,7 @@ def thread_query(self,args):
                         'v_con_status': v_database.v_connection.GetConStatus(),
                         'v_chunks': False
                     }
-                    global_lock.acquire()
-                    v_client_object['returning_data'].append(v_response)
-                    try:
-                        # Attempt to release client polling lock so that the polling thread can read data
-                        v_client_object['polling_lock'].release()
-                    except Exception:
-                        None
-                    global_lock.release()
+                    queue_response(v_client_object,v_response)
         except Exception as exc:
             if not self.cancel:
                 try:
@@ -826,14 +756,7 @@ def thread_query(self,args):
                 }
                 v_response['v_error'] = True
 
-                global_lock.acquire()
-                v_client_object['returning_data'].append(v_response)
-                try:
-                    # Attempt to release client polling lock so that the polling thread can read data
-                    v_client_object['polling_lock'].release()
-                except Exception:
-                    None
-                global_lock.release()
+                queue_response(v_client_object,v_response)
 
         #Log to history
         if v_mode==0 and v_log_query:
@@ -861,14 +784,7 @@ def thread_query(self,args):
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         if not self.cancel:
-            global_lock.acquire()
-            v_client_object['returning_data'].append(v_response)
-            try:
-                # Attempt to release client polling lock so that the polling thread can read data
-                v_client_object['polling_lock'].release()
-            except Exception:
-                None
-            global_lock.release()
+            queue_response(v_client_object,v_response)
 
 def thread_console(self,args):
     v_response = {
@@ -1000,24 +916,10 @@ def thread_console(self,args):
                             'v_con_status': v_database.v_connection.GetConStatus(),
                         }
                     if not self.cancel:
-                        global_lock.acquire()
-                        v_client_object['returning_data'].append(v_response)
-                        try:
-                            # Attempt to release client polling lock so that the polling thread can read data
-                            v_client_object['polling_lock'].release()
-                        except Exception:
-                            None
-                        global_lock.release()
+                        queue_response(v_client_object,v_response)
             else:
                 if not self.cancel:
-                    global_lock.acquire()
-                    v_client_object['returning_data'].append(v_response)
-                    try:
-                        # Attempt to release client polling lock so that the polling thread can read data
-                        v_client_object['polling_lock'].release()
-                    except Exception:
-                        None
-                    global_lock.release()
+                    queue_response(v_client_object,v_response)
 
             try:
                 v_database.v_connection.ClearNotices()
@@ -1037,14 +939,7 @@ def thread_console(self,args):
             }
 
             if not self.cancel:
-                global_lock.acquire()
-                v_client_object['returning_data'].append(v_response)
-                try:
-                    # Attempt to release client polling lock so that the polling thread can read data
-                    v_client_object['polling_lock'].release()
-                except Exception:
-                    None
-                global_lock.release()
+                queue_response(v_client_object,v_response)
 
         if v_mode == 0:
             #logging to console history
@@ -1080,14 +975,7 @@ def thread_console(self,args):
             'v_duration': ''
         }
         if not self.cancel:
-            global_lock.acquire()
-            v_client_object['returning_data'].append(v_response)
-            try:
-                # Attempt to release client polling lock so that the polling thread can read data
-                v_client_object['polling_lock'].release()
-            except Exception:
-                None
-            global_lock.release()
+            queue_response(v_client_object,v_response)
 
 def thread_query_edit_data(self,args):
     v_response = {
@@ -1158,27 +1046,13 @@ def thread_query_edit_data(self,args):
             v_response['v_error'] = True
 
         if not self.cancel:
-            global_lock.acquire()
-            v_client_object['returning_data'].append(v_response)
-            try:
-                # Attempt to release client polling lock so that the polling thread can read data
-                v_client_object['polling_lock'].release()
-            except Exception:
-                None
-            global_lock.release()
+            queue_response(v_client_object,v_response)
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         if not self.cancel:
-            global_lock.acquire()
-            v_client_object['returning_data'].append(v_response)
-            try:
-                # Attempt to release client polling lock so that the polling thread can read data
-                v_client_object['polling_lock'].release()
-            except Exception:
-                None
-            global_lock.release()
+            queue_response(v_client_object,v_response)
 
 def thread_save_edit_data(self,args):
     v_response = {
@@ -1386,24 +1260,10 @@ def thread_save_edit_data(self,args):
             i = i + 1
 
         if not self.cancel:
-            global_lock.acquire()
-            v_client_object['returning_data'].append(v_response)
-            try:
-                # Attempt to release client polling lock so that the polling thread can read data
-                v_client_object['polling_lock'].release()
-            except Exception:
-                None
-            global_lock.release()
+            queue_response(v_client_object,v_response)
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
         v_response['v_error'] = True
         v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
         if not self.cancel:
-            global_lock.acquire()
-            v_client_object['returning_data'].append(v_response)
-            try:
-                # Attempt to release client polling lock so that the polling thread can read data
-                v_client_object['polling_lock'].release()
-            except Exception:
-                None
-            global_lock.release()
+            queue_response(v_client_object,v_response)

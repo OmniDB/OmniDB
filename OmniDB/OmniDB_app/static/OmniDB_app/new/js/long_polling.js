@@ -12,7 +12,7 @@ var v_context_object = {
 /// </summary>
 $(function () {
 
-  v_client_id = v_user_key + (new Date().getTime())
+  v_client_id = v_user_key
   call_polling();
 });
 

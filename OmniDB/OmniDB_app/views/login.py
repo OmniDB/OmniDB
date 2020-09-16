@@ -26,11 +26,37 @@ logger = logging.getLogger(__name__)
 print(logger)
 
 def check_session(request):
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        return redirect('login')
+    if not request.user.is_authenticated:
+        return redirect('/omnidb_login')
     else:
-        return redirect('workspace')
+        # User is authenticated, check if user details object exists.
+        try:
+            user_details = UserDetails.objects.get(user=request.user)
+        # User details does not exist, create it.
+        except Exception:
+            user_details = UserDetails(user=request.user)
+            user_details.save()
+
+        #Invalid session
+        if not request.session.get('omnidb_session'):
+            print('creating')
+            #creating session key to use it
+            request.session.save()
+
+            v_session = Session(
+                request.user.id,
+                request.user.username,
+                'light',
+                user_details.font_size,
+                request.user.is_superuser,
+                request.session.session_key,
+                user_details.csv_encoding,
+                user_details.csv_delimiter
+            )
+
+            request.session['omnidb_session'] = v_session
+
+        return redirect('/workspace')
 
 def index(request):
     context = {
@@ -54,20 +80,11 @@ def index(request):
 
 def logout(request):
 
+    v_session = request.session.get('omnidb_session')
+    logger.info('User "{0}" logged out.'.format(v_session.v_user_name))
     logout_django(request)
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        request.session ["omnidb_alert_message"] = "Session object was already destroyed."
-        return redirect('login')
-
-    v_session = request.session.get('omnidb_session')
-
-    logger.info('User "{0}" logged out.'.format(v_session.v_user_name))
-
-    request.session['omnidb_session'] = None
-
-    return redirect('login')
+    return redirect('/omnidb_login')
 
 def check_session_message(request):
 
@@ -160,6 +177,24 @@ def sign_in_automatic(request, username, pwd):
 
     return -1
 
+def create_user_session(request, user, user_details):
+    #creating session key to use it
+    request.session.save()
+
+    v_session = Session(
+        user.id,
+        user.username,
+        'light',
+        user_details.font_size,
+        request.user.is_superuser,
+        request.session.session_key,
+        user_details.csv_encoding,
+        user_details.csv_delimiter
+    )
+
+    request.session['omnidb_session'] = v_session
+
+
 def sign_in(request):
     v_return = {}
     v_return['v_data'] = -1
@@ -182,31 +217,8 @@ def sign_in(request):
     else:
         return JsonResponse(v_return)
 
-    try:
-        user_details = UserDetails.objects.get(user=request.user)
-    #user details does not exist, create it.
-    except Exception:
-        user_details = UserDetails(user=request.user)
-        user_details.save()
-
-    #creating session key to use it
-    request.session.save()
-
     logger.info('User "{0}" logged in.'.format(username))
 
-    v_session = Session(
-        user.id,
-        user.username,
-        'light',
-        user_details.font_size,
-        request.user.is_superuser,
-        request.session.session_key,
-        user_details.csv_encoding,
-        user_details.csv_delimiter
-    )
-
-    request.session['omnidb_session'] = v_session
-
-    v_return['v_data'] = len(v_session.v_databases)
+    v_return['v_data'] = 0
 
     return JsonResponse(v_return)

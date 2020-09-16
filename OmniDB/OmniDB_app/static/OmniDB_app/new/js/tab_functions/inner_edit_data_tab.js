@@ -94,8 +94,6 @@ var v_createEditDataTabFunction = function(p_table) {
   v_editor.$blockScrolling = Infinity;
   v_editor.setTheme("ace/theme/" + v_editor_theme);
   v_editor.session.setMode("ace/mode/sql");
-  v_editor.commands.bindKey(v_keybind_object.v_autocomplete, "startAutocomplete");
-  v_editor.commands.bindKey(v_keybind_object.v_autocomplete_mac, "startAutocomplete");
 
   v_editor.setFontSize(Number(v_font_size));
 

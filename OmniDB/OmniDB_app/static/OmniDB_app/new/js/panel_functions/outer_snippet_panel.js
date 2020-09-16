@@ -9,7 +9,12 @@ var toggleSnippetPanel = function(p_id) {
   if (v_connTabControl.selectedTab && v_connTabControl.selectedTab !== null) {
     if (v_connTabControl.selectedTab.tag.tabControl) {
       var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-      v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
+      if (v_target_tag.div_result) {
+        v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
+      }
+      else {
+        v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+      }
     }
     else {
       v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;

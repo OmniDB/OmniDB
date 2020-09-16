@@ -6,7 +6,7 @@ function showAbout() {
 	$('#modal_about').modal();
 
 }
-
+/*
 var v_light_terminal_theme = {
 	background: '#f4f4f4',
 	brightBlue: '#006de2',
@@ -14,6 +14,16 @@ var v_light_terminal_theme = {
 	foreground: '#353535',
 	cursor: '#353535',
 	cursorAccent: '#353535',
+	selection: '#00000030'
+}
+*/
+var v_light_terminal_theme = {
+	background: '#f4f4f4',
+	brightBlue: '#006de2',
+	brightGreen: '#4b9800',
+	foreground: '#454545',
+	cursor: '#454545',
+	cursorAccent: '#454545',
 	selection: '#00000030'
 }
 

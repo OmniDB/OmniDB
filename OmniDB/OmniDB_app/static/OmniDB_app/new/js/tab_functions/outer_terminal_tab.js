@@ -33,7 +33,9 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
   '<div class="container-fluid mt-2">' +
     '<div class="row">' +
       '<div class="col">' +
-        '<div id="txt_console_' + v_tab.id + '" class="omnidb__txt-console" style="width: 100%; height: 120px;">' +
+        '<div class="omnidb__txt-console p-2">' +
+          '<div id="txt_console_' + v_tab.id + '" style="width: 100%; height: 120px;">' +
+          '</div>' +
         '</div>' +
       '</div>' +
     '</div>' +

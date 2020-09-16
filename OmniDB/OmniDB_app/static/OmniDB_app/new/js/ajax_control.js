@@ -138,7 +138,7 @@ function cancelAjax() {
 			// Intercepting the workflow when the request returns with evaluated server errors.
  			if(p_return.v_error) {
  				if(p_return.v_error_id == 1) {
- 					showAlert('Session object was destroyed, click <a href="/login">here</a> to be redirected to login screen or finish what you were doing and reload the page.');
+ 					showAlert('User not authenticated, please reload the page.');
  				}
  				else if(p_errorFunc) {
  					p_errorFunc(p_return);

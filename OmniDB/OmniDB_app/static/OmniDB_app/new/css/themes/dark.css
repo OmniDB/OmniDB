@@ -1,5 +1,5 @@
 .omnidb--theme-dark {
-  color: #c5c5c5;
+  color: #dcddde;
 }
 
 .omnidb--theme-dark .omnidb__main {
@@ -7,7 +7,7 @@
 }
 
 .omnidb--theme-dark .omnidb__theme-bg--menu-primary {
-  background-color: #4C5365;
+  background-color: #373b46;
 }
 .omnidb--theme-dark .omnidb__theme-border--primary {
   border: 1px solid #4C5365;
@@ -200,7 +200,7 @@
 
 /* CARD */
 .omnidb--theme-dark .card {
-  background-color: #1D1F21;
+  background-color: #282A2F;
 }
 .omnidb--theme-dark .card .card-header {
   border-bottom-color: #42578c;
@@ -379,7 +379,7 @@
 
 /* Workspace Connection Info */
 .omnidb--theme-dark .omnidb__workspace__connection-details b {
-  color: #8DEB85;
+  color: #56acff;
 }
 
 /* HANDSONTABLE */
@@ -398,12 +398,12 @@
 
 /* Query Info */
 .omnidb--theme-dark .omnidb__query-info__value {
-  color: #67FF81;
+  color: #56acff;
 }
 
 /* Aimara Tree */
 .omnidb--theme-dark .node-all {
-  color: #67FF81;
+  color: #dcddde;
 }
 
 /* Tree Component */
@@ -433,7 +433,7 @@
   background-color: #2f3136;
 }
 span.node_selected span {
-  color: #8DEB85;
+  color: #56acff;
 }
 
 body {
@@ -511,25 +511,24 @@ div.header {
   color: #d7d7d7 !important;
 }
 select {
-  background: #1D1F21 !important;
-  border: solid #484a55 1px !important;
-  color: #ffffff !important;
+  background: #282A2F !important;
+  border: solid #4C5365 1px !important;
+  color: #dcddde !important;
 }
 .handsontable th {
   color: #2bb2d8 !important;
-  background-color: #25282c !important;
+  background-color: #282a2f !important;
 }
 .handsontable tr:nth-of-type(2n + 1) td {
-  color: #c5c5c5;
   border-right: 1px solid #2F3136 !important;
   border-bottom: 1px solid #2F3136 !important;
-  background-color: #25282c;
+  background-color: #282a2f;
 }
 .handsontable tr:nth-of-type(2n) td {
   color: #c5c5c5;
   border-right: 1px solid #2F3136 !important;
   border-bottom: 1px solid #2F3136 !important;
-  background-color: #25282c;
+  background-color: #282a2f;
 }
 
 .handsontable tr:first-child th, .handsontable tr:first-child td {
@@ -635,14 +634,13 @@ select {
 -----------------------*/
 .aimara_menu,
 .aimara_sub-menu {
-  color: #ffffff !important;
-  background-color: #1D1F21 !important;
-  border-color: #484a55 !important;
+  background-color: #25282c !important;
+  border-color: #4c5365 !important;
   box-shadow: none !important;
 }
 .aimara_menu li:hover,
 .aimara_sub-menu li:hover {
-  background-color: #4e5a6b !important;
+  background-color: #373b46 !important;
   color: white !important;
 }
 .cm-all {
@@ -759,9 +757,9 @@ button:hover {
   background: #1E90FF !important;
 }
 input, textarea {
-    background-color: #1D1F21 !important;
+    background-color: #282A2F !important;
 	color: #d7d7d7 !important;
-	border-color: #484a55 !important;
+	border-color: #4C5365 !important;
 }
 
 .cellNew {
@@ -907,12 +905,11 @@ i.action-test {
 
 
 #div_autocomplete {
-    background: #25282c;
+    background: #282a2f;
     box-shadow: none !important;
     border-top: 1px solid #484a55;
     border-left: 1px solid #484a55;
     border-right: 1px solid #484a55;
-    color: white;
 }
 
 .div_autocomplete_row {

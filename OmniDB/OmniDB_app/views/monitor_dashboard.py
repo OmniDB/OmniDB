@@ -327,13 +327,6 @@ def save_monitor_unit(request):
 
     v_database = v_session.v_tab_connections[v_tab_id]
 
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
     if v_unit_interval==None:
         v_unit_interval = 30
 

@@ -409,6 +409,21 @@
   color: #4A81D4;
 }
 
+/* Autocomplete */
+.omnidb--theme-light .omnidb__autocomplete {
+  background: #FFFFFF;
+}
+.omnidb--theme-light .omnidb__autocomplete__data-row--selected {
+  background-color: #EFEFEF !important;
+}
+.omnidb--theme-dark .omnidb__autocomplete__data {
+  background-color: #FBFBFB;
+}
+#div_autocomplete .handsontable tr:hover {
+  background-color: #c7d6ff !important;
+  cursor: pointer;
+}
+
 /* Tree Component */
 /* .div_left ul.tree {
   background-color: #373b41 !important;

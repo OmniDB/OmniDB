@@ -309,11 +309,11 @@
 }
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #ecf0f5;
+  background: #EFEFEF;
 }
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #bbcde8;
+  background: #DEDEDE;
   cursor: pointer;
 }
 /* Corner */

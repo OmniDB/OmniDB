@@ -373,8 +373,8 @@ function querySQLReturnRender(p_message,p_context) {
 					}
 					else {
 						v_query_info.innerHTML =
-						"<span class='omnidb__query-info__value' style='font-weight: 900;'>" + v_data.v_data.length +  "</span><span> rows</span><span> in </span><span class='omnidb__query-info__value' style='font-weight: 900;'>" + p_message.v_data.v_duration + "</span>" +
-						"<br/><span>Start time</span>: <span class='omnidb__query-info__value' style='font-weight: 900;'>" + p_context.start_datetime + "</span>";
+						"<span class='omnidb__query-info__value' style='font-weight: 900;'>" + v_data.v_data.length +  "</span><span> rows</span><span> in </span><span class='omnidb__query-info__value' style='font-weight: 600;'>" + p_message.v_data.v_duration + "</span>" +
+						"<br/><span>Start time</span>: <span class='omnidb__query-info__value' style='font-weight: 600;'>" + p_context.start_datetime + "</span>";
 
 						var columnProperties = [];
 
@@ -433,8 +433,8 @@ function querySQLReturnRender(p_message,p_context) {
 				else if (p_context.mode==1 || p_context.mode==2) {
 					v_new_data = p_context.tab_tag.ht.getSourceData();
 					v_query_info.innerHTML =
-					"<span class='omnidb__query-info__value' style='font-weight: 900;'>" + (v_new_data.length+v_data.v_data.length) +  "</span><span> rows</span><span> in </span><span class='omnidb__query-info__value' style='font-weight: 900;'>" + p_message.v_data.v_duration + "</span>" +
-					"<br/><span>Start time</span>: <span class='omnidb__query-info__value' style='font-weight: 900;'>" + p_context.start_datetime + "</span>";
+					"<span class='omnidb__query-info__value' style='font-weight: 900;'>" + (v_new_data.length+v_data.v_data.length) +  "</span><span> rows</span><span> in </span><span class='omnidb__query-info__value' style='font-weight: 600;'>" + p_message.v_data.v_duration + "</span>" +
+					"<br/><span>Start time</span>: <span class='omnidb__query-info__value' style='font-weight: 600;'>" + p_context.start_datetime + "</span>";
 					for (var i = 0; i < v_data.v_data.length; i ++) {
 	            v_new_data.push(v_data.v_data[i]);
 	        }

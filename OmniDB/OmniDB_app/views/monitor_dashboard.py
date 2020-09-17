@@ -29,12 +29,14 @@ from django.db.models import Q
 #load plugins to retrieve list of monitoring units of all loaded plugins
 from OmniDB_app.views.plugins import monitoring_units
 
+from OmniDB_app.views.memory_objects import *
+
 monitoring_units_default = {}
 
 def get_unit_data():
     #Retrieving non plugin monitoring units from database to use as reference
     try:
-        for mon_unit in MonUnits.objects.filter(user=None):
+        for mon_unit in MonUnits.objects.all():
             monitoring_units_default[mon_unit.id] = mon_unit
     # No mon units connections
     except Exception as exc:
@@ -333,7 +335,7 @@ def save_monitor_unit(request):
     try:
         #new unit
         if not v_unit_id:
-            mon_unit = MonUnits(
+            unit = MonUnits(
                 user=request.user,
                 technology=Technology.objects.get(name=v_database.v_db_type),
                 script_chart=v_unit_script_chart,
@@ -343,8 +345,8 @@ def save_monitor_unit(request):
                 is_default=False,
                 interval=v_unit_interval
             )
-            mon_unit.save()
-            v_return['v_data'] = mon_unit.id
+            unit.save()
+            v_return['v_data'] = unit.id
         #existing unit
         else:
             v_return['v_data'] = v_unit_id
@@ -355,6 +357,8 @@ def save_monitor_unit(request):
             unit.title = v_unit_name
             unit.interval = v_unit_interval
             unit.save()
+
+        monitoring_units_default[unit.id] = unit
 
         #updating global data
         get_unit_data()
@@ -476,26 +480,19 @@ def refresh_monitor_units(request):
     v_tab_id = json_object['p_tab_id']
     v_ids = json_object['p_ids']
 
-    v_database_orig = v_session.v_tab_connections[v_tab_id]
-    v_database = OmniDatabase.Generic.InstantiateDatabase(
-        v_database_orig.v_db_type,
-        v_database_orig.v_connection.v_host,
-        str(v_database_orig.v_connection.v_port),
-        v_database_orig.v_active_service,
-        v_database_orig.v_active_user,
-        v_database_orig.v_connection.v_password,
-        v_database_orig.v_conn_id,
-        v_database_orig.v_alias,
-        p_conn_string = v_database_orig.v_conn_string,
-        p_parse_conn_string = False
+    v_database = get_database_object(
+        p_session = request.session,
+        p_tab_id = v_tab_id,
+        p_attempt_to_open_connection = True
     )
+
     v_return['v_data'] = []
 
     if len(v_ids) > 0:
         v_first = True
         v_query = ''
         unit_counter = 0
-        conn_object = Connection.objects.get(id=v_database_orig.v_conn_id)
+        conn_object = Connection.objects.get(id=v_database.v_conn_id)
 
         for v_id in v_ids:
             #save new user/connection unit
@@ -717,6 +714,8 @@ def test_monitor_script(request):
             'v_message': str(exc)
         }
         v_return['v_data'] = v_unit_data
+
+    print(v_return)
 
 
     return JsonResponse(v_return)

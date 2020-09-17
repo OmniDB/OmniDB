@@ -136,7 +136,7 @@ var v_createConsoleTabFunction = function() {
   // var v_editor2_fit_addon = new FitAddon();
   // v_editor2.loadAddon(v_editor2_fit_addon);
   v_editor2.open(document.getElementById('txt_console_' + v_tab.id));
-  v_editor2.write('>> ' + v_connTabControl.selectedTab.tag.consoleHelp);
+  v_editor2.write(v_connTabControl.selectedTab.tag.consoleHelp);
   // v_editor2_fit_addon.fit();
   //Loading Xterm Fit Addon
 	Terminal.applyAddon(fit);

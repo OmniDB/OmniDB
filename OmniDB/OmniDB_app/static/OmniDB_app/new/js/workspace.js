@@ -905,12 +905,12 @@ function refreshHeights(p_all) {
       v_connTabControl.selectedTab.tag.divLeft
       var v_div_left = v_connTabControl.selectedTab.tag.divLeft;
       var v_div_right = v_connTabControl.selectedTab.tag.divRight;
-      var v_offsetLeft = v_div_left.getBoundingClientRect().right;
       var v_totalWidth = v_connTabControl.selectedDiv.getBoundingClientRect().width;
       var v_div_left_width = v_connTabControl.selectedTab.tag.divLeft.getBoundingClientRect().width + 'px';
-      var v_right_width_value = v_totalWidth - v_offsetLeft + 'px';
       v_div_left.style['max-width'] = v_div_left_width;
       v_div_left.style['flex'] = '0 0 ' + v_div_left_width;
+      var v_offsetLeft = v_div_left.getBoundingClientRect().right;
+      var v_right_width_value = v_totalWidth - v_div_left_width + 'px';
       v_div_right.style['max-width'] = v_right_width_value;
       v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
     }

@@ -7,7 +7,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     v_connTabControl.removeLastTab();
 
     let v_conn = v_connTabControl.tag.connections[0];
-    for (let i = 0; i < v_connTabControl.tag.connections.length) {
+    for (let i = 0; i < v_connTabControl.tag.connections.length; i++) {
       if (v_connTabControl.tag.connections[i].v_conn_id === p_index) {
         v_conn = v_connTabControl.tag.connections[i];
       }

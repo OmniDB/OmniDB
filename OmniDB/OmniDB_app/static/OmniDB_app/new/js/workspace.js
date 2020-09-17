@@ -667,17 +667,25 @@ function resizeConnectionHorizontalEnd(event) {
 
   var v_mousePosX = event.screenX;
   var v_paddingCompensation = 8;
-
+  /*
   var v_fraction = (v_mousePosX > v_offsetLeft)
   ? 100*((v_paddingCompensation + v_mousePosX - v_offsetLeft) / v_totalWidth)
   : 0;
 
   var v_left_width_value = v_fraction + '%';
+  */
+  var v_pixel_value = (v_mousePosX > v_offsetLeft)
+  ? (v_paddingCompensation + v_mousePosX - v_offsetLeft)
+  : 0;
+
+  var v_left_width_value = v_pixel_value + 'px';
 
   v_div_left.style['max-width'] = v_left_width_value;
   v_div_left.style['flex'] = '0 0 ' + v_left_width_value;
-
+  /*
   var v_right_width_value = (100 - v_fraction) + '%';
+  */
+  var v_right_width_value = (v_totalWidth - v_pixel_value) + 'px';
 
   v_div_right.style['max-width'] = v_right_width_value;
   v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
@@ -893,10 +901,22 @@ function refreshHeights(p_all) {
     if (v_connTabControl.selectedTab.tag.mode=='monitor_all') {
       v_connTabControl.selectedTab.tag.tabControlDiv.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.tabControlDiv).offset().top - 18 + 'px';
     }
+    if (v_connTabControl.selectedTab.tag.mode=='connection') {
+      v_connTabControl.selectedTab.tag.divLeft
+      var v_div_left = v_connTabControl.selectedTab.tag.divLeft;
+      var v_div_right = v_connTabControl.selectedTab.tag.divRight;
+      var v_offsetLeft = v_div_left.getBoundingClientRect().right;
+      var v_totalWidth = v_connTabControl.selectedDiv.getBoundingClientRect().width;
+      var v_div_left_width = v_connTabControl.selectedTab.tag.divLeft.getBoundingClientRect().width + 'px';
+      var v_right_width_value = v_totalWidth - v_offsetLeft + 'px';
+      v_div_left.style['max-width'] = v_div_left_width;
+      v_div_left.style['flex'] = '0 0 ' + v_div_left_width;
+      v_div_right.style['max-width'] = v_right_width_value;
+      v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
+    }
     else if (v_connTabControl.selectedTab.tag.mode=='outer_terminal') {
       v_connTabControl.selectedTab.tag.div_console.style.height = window.innerHeight - $(v_connTabControl.selectedTab.tag.div_console).offset().top - 10 + 'px';
       v_connTabControl.selectedTab.tag.editor_console.fit();
-
     }
 
     //If inner tab exists

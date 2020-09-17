@@ -7,7 +7,10 @@
 }
 
 .omnidb--theme-dark .omnidb__theme-bg--menu-primary {
-  background-color: #4A81D4;
+  background-color: #373944;
+}
+.omnidb--theme-dark .omnidb__theme-bg--menu-utilities {
+  background-color: #394e83;
 }
 .omnidb--theme-dark .omnidb__theme-border--primary {
   border: 1px solid #4C5365;
@@ -404,7 +407,7 @@
 
 /* Aimara Tree */
 .omnidb--theme-dark .node-all {
-  color: #dcddde;
+  color: rgb(90, 187, 255);
 }
 
 /* Autocomplete */

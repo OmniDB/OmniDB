@@ -129,7 +129,7 @@ function buildMonitorUnit(p_unit, p_first) {
     }
   })(div);
   button_refresh.innerHTML = "<i class='fas fa-sync-alt fa-light'></i>";
-  button_refresh.className = 'btn btn-secondary btn-sm mr-1';
+  button_refresh.className = 'btn omnidb__theme__btn--secondary btn-sm mr-1';
   button_refresh.title = 'Refresh';
   var button_pause = document.createElement('button');
   button_pause.onclick = (function(div) {
@@ -138,7 +138,7 @@ function buildMonitorUnit(p_unit, p_first) {
     }
   })(div);
   button_pause.innerHTML = "<i class='fas fa-pause-circle fa-light'></i>";
-  button_pause.className = 'btn btn-secondary btn-sm mr-1';
+  button_pause.className = 'btn omnidb__theme__btn--secondary btn-sm mr-1';
   button_pause.title = 'Pause';
   var button_play = document.createElement('button');
   button_play.onclick = (function(div) {
@@ -147,7 +147,7 @@ function buildMonitorUnit(p_unit, p_first) {
     }
   })(div);
   button_play.innerHTML = "<i class='fas fa-play-circle fa-light'></i>";
-  button_play.className = 'btn btn-secondary btn-sm my-2 mr-1';
+  button_play.className = 'btn omnidb__theme__btn--secondary btn-sm my-2 mr-1';
   button_play.title = 'Play';
   button_play.style.display = 'none';
   var interval = document.createElement('input');

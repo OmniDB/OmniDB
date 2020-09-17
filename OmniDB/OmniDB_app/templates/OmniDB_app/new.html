@@ -44,7 +44,7 @@
     </div>
   </div>
 
-  <div class="omnidb__utilities-menu omnidb__theme-bg--menu-primary omnidb__rounded--lg">
+  <div class="omnidb__utilities-menu omnidb__theme-bg--menu-utilities omnidb__rounded--lg">
     <nav class="navbar navbar-expand-lg navbar-light p-0">
       <!-- <img style='height: 40px;' src='/static/OmniDB_app/images/omnidb_logo.svg'/> -->
       <span class="omnidb__utilities-menu__branding"></span>
@@ -233,7 +233,7 @@
                   <textarea class="form-control" id="conn_form_ssh_key" rows="4" readonly></textarea>
                 </div>
               </div>
-              <button id="conn_form_button_test_connection" class="btn btn-primary" onclick="testConnection();">Test</button>
+              <button id="conn_form_button_test_connection" class="btn omnidb__theme__btn--primary" onclick="testConnection();">Test</button>
               <button id="conn_form_button_save_connection" class="btn btn-success" onclick="saveConnection();">Save</button>
 
           </div>
@@ -319,12 +319,12 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <button class='btn btn-secondary btn-sm mb-2' onclick='editMonitorUnit()'>New Unit</button>
+            <button class='btn omnidb__theme__btn--primary btn-sm mb-2' onclick='editMonitorUnit()'>New Unit</button>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body ht_invisible">
+          <div class="modal-body">
             <div id="monitoring_units_grid" style="width: 100%; height: 300px; overflow: hidden;"></div>
           </div>
         </div>
@@ -663,7 +663,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body ht_invisible">
+          <div class="modal-body">
             <div id="plugin_grid" style="width: 100%; height: 300px; overflow: hidden;"></div>
           </div>
         </div>
@@ -703,10 +703,10 @@
           <div id="modal_message_content" class="modal-body" style='white-space: pre-line;'>
           </div>
           <div class="modal-footer">
-            <button id="modal_message_yes" type="button" class="btn btn-primary" data-dismiss="modal">Yes</button>
-            <button id="modal_message_ok" type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+            <button id="modal_message_yes" type="button" class="btn omnidb__theme__btn--primary" data-dismiss="modal">Yes</button>
+            <button id="modal_message_ok" type="button" class="btn omnidb__theme__btn--primary" data-dismiss="modal">Ok</button>
             <button id="modal_message_no" type="button" class="btn btn-danger" data-dismiss="modal">No</button>
-            <button id="modal_message_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button id="modal_message_cancel" type="button" class="btn omnidb__theme__btn--secondary" data-dismiss="modal">Cancel</button>
           </div>
         </div>
       </div>
@@ -727,7 +727,7 @@
             <input id="txt_password_prompt" class="form-control" type="password" placeholder="Password" style="margin-top: 20px; margin-bottom:20px; text-align: center;"/>
           </div>
           <div class="modal-footer">
-            <button id="modal_password_ok" type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+            <button id="modal_password_ok" type="button" class="btn omnidb__theme__btn--primary" data-dismiss="modal">Ok</button>
             <button id="modal_password_cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           </div>
         </div>
@@ -873,7 +873,7 @@
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeOracle.js?v3.0.0b42"></script>
     <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/TreeMariadb.js?v3.0.0b42"></script>
 
-    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Renderers.js?v2"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/renderers.js?v3.0.0b42"></script>
 
     <script src="{{url_folder}}/static/OmniDB_app/new/js/header_actions.js?v3.0.0b42"></script>
     <script src="{{url_folder}}/static/OmniDB_app/new/js/query_client.js?v3.0.0b42"></script>

@@ -9,11 +9,14 @@
 .omnidb--theme-light .omnidb__theme-bg--menu-primary {
   background-color: #4A81D4;
 }
+.omnidb--theme-light .omnidb__theme-bg--menu-utilities {
+  background-color: #4A81D4;
+}
 .omnidb--theme-light .omnidb__theme-border--primary {
   border: 1px solid #DEDEDE;
 }
 .omnidb--theme-light .omnidb__theme-border-top--primary {
-  border-top: 1px solid #94A5E3;
+  border-top: 1px solid #DEDEDE;
 }
 .omnidb--theme-light .omnidb__workspace__div-left {
   background-color: #FFFFFF;
@@ -48,7 +51,7 @@
 }
 
 /* CONSOLE */
-.omnidb--theme-light .omnidb__console__text-input .ace_content {
+.omnidb--theme-light .ace_content {
   /* background-color: #ffffff; */
   box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
 }
@@ -126,7 +129,7 @@
 
 /* SECONDARY TAB */
 .omnidb--theme-light .omnidb__tab-menu--secondary {
-  border-bottom-color: #94A5E3;
+  border-bottom-color: #DEDEDE;
 }
 .omnidb--theme-light .omnidb__tab-menu--secondary .nav-tabs {
   border-bottom-color: transparent !important;
@@ -134,7 +137,7 @@
 .omnidb--theme-light .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
   background-color: transparent;
   border-color: #e2e2e2;
-  border-bottom-color: #94A5E3;
+  border-bottom-color: #DEDEDE;
 }
 .omnidb--theme-light .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
   color: #585858 !important;
@@ -198,7 +201,7 @@
 
 /* MONITORING */
 .omnidb--theme-light .omnidb__monitoring-result-tabs {
-  border: 1px solid #94A5E3;
+  border: 1px solid #DEDEDE;
 }
 
 /* CARD */
@@ -267,7 +270,7 @@
 /* FORMS */
 .omnidb--theme-light .omnidb__form-check .form-check-label::before {
   background-color: #F4F4F4 !important;
-  border: 1px solid #94A5E3 !important;
+  border: 1px solid #DEDEDE !important;
 }
 .omnidb--theme-light .omnidb__form-check input:checked~.form-check-label::after {
   background-color: #43afd2;
@@ -387,16 +390,21 @@
 
 /* HANDSONTABLE */
 .omnidb--theme-light .handsontable th {
-  background-color: #FFF;
+  background-color: #FFFFFF;
   color: #9a9a9a;
   font-weight: bold;
 }
 .omnidb--theme-light .handsontable .cellEven {
-  background-color: #efefef;
+  background-color: #FFFFFF;
 }
 .omnidb--theme-light .handsontable thead th,
+.omnidb--theme-light .handsontable tr th,
 .omnidb--theme-light .handsontable td {
-  border-color: #DEE2E6;
+  border-color: #DEE2E6 !important;
+  border-bottom-color: #DEE2E6 !important;
+  border-left-color: #DEE2E6 !important;
+  border-right-color: #DEE2E6 !important;
+  border-top-color: #DEE2E6 !important;
 }
 
 /* Query Info */

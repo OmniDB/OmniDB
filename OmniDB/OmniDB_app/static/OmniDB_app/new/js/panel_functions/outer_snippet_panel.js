@@ -56,7 +56,7 @@ var v_createSnippetPanelFunction = function(p_index) {
   var v_html =
   "<div id='" + v_tab.id + "_panel_snippet' class='omnidb__panel omnidb__panel--snippet'>" +
 
-    "<button type='button' onclick='toggleSnippetPanel(" + '"' + v_tab.id + '"' + ")' class='px-4 btn btn-secondary omnidb__panel__toggler'><i class='fas fa-arrows-alt-v'></i></button>" +
+    "<button type='button' onclick='toggleSnippetPanel(" + '"' + v_tab.id + '"' + ")' class='px-4 btn omnidb__theme__btn--secondary omnidb__panel__toggler'><i class='fas fa-arrows-alt-v'></i></button>" +
 
     "<div class='container-fluid' style='position: relative;'>" +
       "<div class='row'>" +

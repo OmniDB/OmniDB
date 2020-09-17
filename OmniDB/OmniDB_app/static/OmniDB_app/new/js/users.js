@@ -261,7 +261,7 @@ function getUsers(p_options = false) {
 						}
 						v_user_list_html +=
 						"</select>" +
-						"<button id='omnidb_utilities_menu_btn_new_user' type='button' class='btn btn-primary ml-2' onclick='newUser()'><i class='fas fa-user-plus'></i><span class='ml-2'>Add new user</span></button>" +
+						"<button id='omnidb_utilities_menu_btn_new_user' type='button' class='btn omnidb__theme__btn--primary ml-2' onclick='newUser()'><i class='fas fa-user-plus'></i><span class='ml-2'>Add new user</span></button>" +
 					"</div>" +
 					"<div id='omnidb_user_content' class='row'>" +
 					"</div>" +

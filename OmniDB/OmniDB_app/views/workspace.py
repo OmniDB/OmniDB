@@ -538,6 +538,8 @@ def renew_password(request):
     v_database_object = v_session.v_databases[v_database_index]
     v_database_object['database'].v_connection.v_password = v_password
 
+    print(v_password)
+
     v_test = v_database_object['database'].TestConnection()
 
     if v_test=='Connection successful.':

@@ -2,6 +2,10 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
 
   v_connTabControl.removeLastTab();
 
+  let v_tooltip_name =
+  '<h5 class="my-1">Terminal</h5>' +
+  '<div class="mb-1">' + p_alias + '</div>';
+
   var v_tab = v_connTabControl.createTab({
     p_icon: '<i class="fas fa-terminal"></i>',
     p_name: p_alias,
@@ -24,7 +28,7 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
     p_rightClickFunction: function(e) {
       terminalContextMenu(e);
     },
-    p_tooltip_name: p_alias
+    p_tooltip_name: v_tooltip_name
   });
 
   v_connTabControl.selectTab(v_tab);

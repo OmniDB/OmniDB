@@ -140,11 +140,9 @@ def long_polling(request):
     client_object['polling_lock'].acquire()
 
     v_returning_data = []
-    global_lock.acquire()
+    
     while len(client_object['returning_data'])>0:
         v_returning_data.append(client_object['returning_data'].pop(0))
-
-    global_lock.release()
 
     return JsonResponse(
     {
@@ -849,7 +847,7 @@ def thread_console(self,args):
                     counter = counter + 1
                     try:
                         formated_sql = sql.strip()
-                        v_data_return += '\n>> ' + formated_sql + '\n'
+                        v_data_return += '\n' + v_database.v_active_service + '=# ' + formated_sql + '\n'
 
                         v_database.v_connection.ClearNotices()
                         v_database.v_connection.v_start=True

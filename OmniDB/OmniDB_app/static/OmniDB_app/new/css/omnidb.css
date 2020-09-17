@@ -2,6 +2,10 @@
   background-color: #f8f9fa;
 }
 
+.nav-tabs {
+  border-bottom: none;
+}
+
 @media (min-width: 1440px) {
   .omnidb__rounded--lg {
     border-radius: 18px;

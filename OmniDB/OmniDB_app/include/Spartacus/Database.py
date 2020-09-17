@@ -1373,7 +1373,6 @@ class PostgreSQL(Generic):
         return value
     def Open(self, p_autocommit=True):
         try:
-            print(self.GetConnectionString())
             self.v_con = psycopg2.connect(
                 self.GetConnectionString(),
                 cursor_factory=psycopg2.extras.DictCursor
@@ -1406,7 +1405,6 @@ class PostgreSQL(Generic):
         try:
             v_keep = None
             if self.v_con is None:
-                print('OPENING')
                 self.Open()
                 v_keep = False
             else:

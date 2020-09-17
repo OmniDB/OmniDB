@@ -140,7 +140,7 @@ def long_polling(request):
     client_object['polling_lock'].acquire()
 
     v_returning_data = []
-    
+
     while len(client_object['returning_data'])>0:
         v_returning_data.append(client_object['returning_data'].pop(0))
 
@@ -182,13 +182,7 @@ def create_request(request):
     v_context_code = json_object['v_context_code']
     v_data = json_object['v_data']
 
-    #get client attribute in global object or create if it doesn't exist
-    try:
-        global_lock.acquire()
-        client_object = global_object[v_client_id]
-    except Exception as exc:
-        None
-    global_lock.release()
+    client_object = get_client_object(v_client_id)
 
     #Cancel thread
     if v_code == requestType.CancelThread:

@@ -64,7 +64,7 @@ function showCommandList() {
 			"<span class='my-auto'>Select a daterange:</span>&nbsp;" +
 			"<input type='text' class='form-control form-control-sm d-none' placeholder='Start Time' id='cl_input_from_" + v_tabTag.tab_id + "'>" +
 			"<input type='text' class='form-control form-control-sm d-none' placeholder='End Time' id='cl_input_to_" + v_tabTag.tab_id + "'>" +
-			"<button type='button' class='btn btn-sm btn-primary' id='cl_time_range_" + v_tabTag.tab_id + "'>" +
+			"<button type='button' class='btn btn-sm omnidb__theme__btn--primary' id='cl_time_range_" + v_tabTag.tab_id + "'>" +
 				"<i class='far fa-calendar-alt'></i>&nbsp;" +
 				"<span>Last 6 Hours</span> <i class='fa fa-caret-down'></i>" +
 			"</button>" +
@@ -74,12 +74,12 @@ function showCommandList() {
 	"</div>" +
 	"<div id='command_history_daterangepicker_container_" + v_tabTag.id  + "' style='position:relative;'></div>" +
 	"<div class='mb-2 d-flex justify-content-center align-items-center'>" +
-		"<button id='bt_first_" + v_tabTag.tab_id + "' onclick='commandHistoryFirstPage()' class='bt_execute btn btn-sm btn-secondary mx-1' title='First'>First</button>" +
-		"<button id='bt_previous_" + v_tabTag.tab_id + "' onclick='commandHistoryPreviousPage()' class='bt_execute btn btn-sm btn-secondary mx-1' title='Previous'>Previous</button>" +
+		"<button id='bt_first_" + v_tabTag.tab_id + "' onclick='commandHistoryFirstPage()' class='bt_execute btn btn-sm omnidb__theme__btn--secondary mx-1' title='First'>First</button>" +
+		"<button id='bt_previous_" + v_tabTag.tab_id + "' onclick='commandHistoryPreviousPage()' class='bt_execute btn btn-sm omnidb__theme__btn--secondary mx-1' title='Previous'>Previous</button>" +
 		"<span id='cl_curr_page_" + v_tabTag.tab_id + "'></span> / <span id='cl_num_pages_" + v_tabTag.tab_id + "'></span>" +
-		"<button id='bt_next_" + v_tabTag.tab_id + "' onclick='commandHistoryNextPage()' class='bt_execute btn btn-sm btn-secondary mx-1' title='Next'>Next</button>" +
-		"<button id='bt_last_" + v_tabTag.tab_id + "' onclick='commandHistoryLastPage()' class='bt_execute btn btn-sm btn-secondary mx-1' title='Last'>Last</button>" +
-		"<button id='bt_refresh_" + v_tabTag.tab_id + "' onclick='refreshCommandList()' class='bt_execute btn btn-sm btn-primary mx-1' title='Refresh'><i class='fas fa-sync-alt mr-1'></i>Refresh</button>" +
+		"<button id='bt_next_" + v_tabTag.tab_id + "' onclick='commandHistoryNextPage()' class='bt_execute btn btn-sm omnidb__theme__btn--secondary mx-1' title='Next'>Next</button>" +
+		"<button id='bt_last_" + v_tabTag.tab_id + "' onclick='commandHistoryLastPage()' class='bt_execute btn btn-sm omnidb__theme__btn--secondary mx-1' title='Last'>Last</button>" +
+		"<button id='bt_refresh_" + v_tabTag.tab_id + "' onclick='refreshCommandList()' class='bt_execute btn btn-sm omnidb__theme__btn--primary mx-1' title='Refresh'><i class='fas fa-sync-alt mr-1'></i>Refresh</button>" +
 		"<button id='bt_clear_" + v_tabTag.tab_id + "' onclick='deleteCommandList()' class='bt_execute btn btn-sm btn-danger mx-1' title='Clear List'><i class='fas fa-broom mr-1'></i>Clear List</button>" +
 	"</div>";
 

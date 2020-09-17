@@ -719,7 +719,7 @@ class PostgreSQL:
     def GetVersion(self):
         self.v_version = self.v_connection.ExecuteScalar('show server_version')
         self.v_version_num = self.v_connection.ExecuteScalar('show server_version_num')
-        return 'PostgreSQL ' + self.v_version
+        return 'PostgreSQL ' + self.v_version.split(' ')[0]
 
     def GetUserSuper(self):
         return self.v_connection.ExecuteScalar("select rolsuper from pg_roles where rolname = '{0}'".format(self.v_user))

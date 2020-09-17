@@ -23,6 +23,13 @@ def user_authenticated(function):
 
 def database_timeout(function):
     def wrap(request, *args, **kwargs):
+
+        v_return = {
+            'v_data': '',
+            'v_error': False,
+            'v_error_id': -1
+        }
+
         v_session = request.session.get('omnidb_session')
 
         json_object = json.loads(request.POST.get('data', None))
@@ -43,7 +50,6 @@ def database_timeout(function):
 def clear_client_object(
     p_client_id = None
 ):
-    print(global_object)
     try:
         del global_object[p_client_id]
     except Exception as exc:

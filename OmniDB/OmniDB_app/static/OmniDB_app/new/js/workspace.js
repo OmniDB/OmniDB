@@ -1410,8 +1410,20 @@ function showMenuNewTab(e) {
 }
 
 function toggleTreeTabsContainer(p_target_id,p_horizonta_line_id) {
-  $('#' + p_target_id).toggleClass('omnidb__tree-tabs--not-in-view');
-  $('#' + p_horizonta_line_id).toggleClass('d-none');
+  var v_tab_tag = v_connTabControl.selectedTab.tag;
+  var v_target_element = $('#' + p_target_id);
+  if (v_target_element.hasClass('omnidb__tree-tabs--not-in-view')) {
+    $('#' + p_target_id).removeClass('omnidb__tree-tabs--not-in-view');
+    $('#' + p_horizonta_line_id).removeClass('d-none');
+    v_tab_tag.treeTabsVisible = true;
+  }
+  else {
+    $('#' + p_target_id).addClass('omnidb__tree-tabs--not-in-view');
+    $('#' + p_horizonta_line_id).addClass('d-none');
+    v_tab_tag.treeTabsVisible = false;
+  }
+  // $('#' + p_target_id).toggleClass('omnidb__tree-tabs--not-in-view');
+  // $('#' + p_horizonta_line_id).toggleClass('d-none');
 }
 
 function dragStart(event, gridContainer) {

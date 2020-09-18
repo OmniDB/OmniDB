@@ -327,6 +327,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
       mode: 'connection',
       firstTimeOpen: true,
       TreeTabControl: v_treeTabs,
+      treeTabsVisible: true,
       currTreeTab: null,
       ddlEditor: v_editor,
       consoleHistoryFecthed: false,

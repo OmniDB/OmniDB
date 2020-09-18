@@ -4063,7 +4063,12 @@ function getTreePostgresql(p_div) {
     }
 
     tree.clickNodeEvent = function(node) {
+      if (v_connTabControl.selectedTab.tag.treeTabsVisible) {
         getPropertiesPostgresql(node);
+      }
+      else {
+        // Do nothing
+      }
     }
 
     tree.beforeContextMenuEvent = function(node, callback) {

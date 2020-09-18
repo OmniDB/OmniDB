@@ -1186,6 +1186,14 @@ label.omnidb__switch--label span {
   margin-left: 15px;
 }
 
+/* Handsontable */
+.omnidb__ht__first-col-actions td:first-child {
+  align-items: center;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+}
+
 /* TOOLTIPS */
 .tooltip h5 {
   font-size: 1.2rem;

@@ -406,6 +406,9 @@
   border-right-color: #DEE2E6 !important;
   border-top-color: #DEE2E6 !important;
 }
+.omnidb--theme-light .omnidb__ht__first-col-actions td:first-child {
+  color: #4A81D4;
+}
 
 /* Query Info */
 .omnidb--theme-light .omnidb__query-info__value {

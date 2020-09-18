@@ -777,70 +777,6 @@ function resizeVerticalEnd(event) {
 
   refreshHeights();
 
-  // Centralizing all adjusts on refreshHeights.
-  //
-	// var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-  //
-	// if(v_tab_tag.editor != null) {
-	// 	v_tab_tag.editor.resize();
-	// }
-  //
-	// if (v_tab_tag.mode=='query') {
-	// 	if (v_tab_tag.currQueryTab=='data') {
-	// 		v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
-	// 		if (v_tab_tag.ht!=null)
-	// 			v_tab_tag.ht.render();
-	// 	}
-	// 	else if (v_tab_tag.currQueryTab=='message') {
-	// 		v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
-	// 	}
-	// 	else if (v_tab_tag.currQueryTab=='explain') {
-	// 		v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 29 + 'px';
-	// 	}
-	// }
-	// else if (v_tab_tag.mode=='debug') {
-	// 	v_tab_tag.editor.resize();
-	// 	if (v_tab_tag.currDebugTab=='variable') {
-	// 		v_tab_tag.div_variable.style.height = window.innerHeight - $(v_tab_tag.div_variable).offset().top - 29 + 'px';
-	// 		if (v_tab_tag.htVariable!=null)
-	// 			v_tab_tag.htVariable.render();
-	// 	}
-	// 	if (v_tab_tag.currDebugTab=='parameter') {
-	// 		v_tab_tag.div_parameter.style.height = window.innerHeight - $(v_tab_tag.div_parameter).offset().top - 29 + 'px';
-	// 		if (v_tab_tag.htParameter!=null)
-	// 			v_tab_tag.htParameter.render();
-	// 	}
-	// 	if (v_tab_tag.currDebugTab=='result') {
-	// 		v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
-	// 		if (v_tab_tag.htResult!=null)
-	// 			v_tab_tag.htResult.render();
-	// 	}
-	// 	else if (v_tab_tag.currDebugTab=='message') {
-	// 		v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 29 + 'px';
-	// 	}
-	// 	else if (v_tab_tag.currDebugTab=='statistics') {
-	// 		v_tab_tag.div_statistics.style.height = window.innerHeight - $(v_tab_tag.div_statistics).offset().top - 29 + 'px';
-	// 		if (v_tab_tag.chart!=null)
-	// 			v_tab_tag.chart.update();
-	// 	}
-	// }
-	// else if (v_tab_tag.mode=='edit') {
-	// 	if (v_tab_tag.editDataObject.ht!=null) {
-	// 		v_tab_tag.editDataObject.ht.render();
-	// 	}
-	// }
-	// else if (v_tab_tag.mode=='console') {
-	// 	v_tab_tag.editor_input.resize();
-	// 	v_tab_tag.editor_console.resize();
-	// }
-	// else if(v_tab_tag.mode == 'data_mining') {
-	// 	if(v_tab_tag.currQueryTab == 'data') {
-	// 		v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 29 + 'px';
-	// 	}
-	// }
-  //
-  // resizeSnippetPanel();
-  //
 }
 
 function resizeWindow(){
@@ -901,21 +837,25 @@ function refreshHeights(p_all) {
       else if (v_tab_tag.mode=='query') {
         if (v_tab_tag.currQueryTab=='data') {
           v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 15 + 'px';
-          if (v_tab_tag.ht!=null) {
-            v_tab_tag.ht.render();
-          }
-          if(v_tab_tag.editor != null) {
-            v_tab_tag.editor.resize();
-          }
+          setTimeout(function(){
+            if (v_tab_tag.ht!=null) {
+              v_tab_tag.ht.render();
+            }
+            if(v_tab_tag.editor != null) {
+              v_tab_tag.editor.resize();
+            }
+          },400);
         }
         else if (v_tab_tag.currQueryTab=='message') {
           v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - 15 + 'px';
         }
         else if (v_tab_tag.currQueryTab=='explain') {
           v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - 15 + 'px';
-          if (v_tab_tag.explainControl) {
-            v_tab_tag.explainControl.resize();
-          }
+          setTimeout(function(){
+            if (v_tab_tag.explainControl) {
+              v_tab_tag.explainControl.resize();
+            }
+          },400);
         }
       }
       else if (v_tab_tag.mode=='console') {

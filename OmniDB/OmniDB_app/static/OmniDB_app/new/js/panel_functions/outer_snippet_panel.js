@@ -59,7 +59,7 @@ var v_createSnippetPanelFunction = function(p_index) {
     "<button type='button' onclick='toggleSnippetPanel(" + '"' + v_tab.id + '"' + ")' class='px-4 btn omnidb__theme__btn--secondary omnidb__panel__toggler'><i class='fas fa-arrows-alt-v'></i></button>" +
 
     "<div class='container-fluid' style='position: relative;'>" +
-      "<div class='row'>" +
+      "<div id='" + v_tab.id + "_snippet_div_layout_grid' class='row'>" +
         "<div id='" + v_tab.id + "_snippet_div_left' class='omnidb__workspace__div-left col' style='flex: 0 0 16.667%'>" +
           "<div class='row'>" +
             "<div class='omnidb__workspace__content-left'>" +
@@ -103,6 +103,7 @@ var v_createSnippetPanelFunction = function(p_index) {
     tab_id: v_tab.id,
     tabControl: v_currTabControl,
     tabTitle: 'teste',
+    divLayoutGrid: document.getElementById(v_tab.id + '_snippet_div_layout_grid'),
     divLeft: document.getElementById(v_tab.id + '_snippet_div_left'),
     divPanel: document.getElementById(v_tab.id + '_panel_snippet'),
     divRight: document.getElementById(v_tab.id + '_snippet_div_right'),

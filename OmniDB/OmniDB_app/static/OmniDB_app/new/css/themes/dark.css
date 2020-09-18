@@ -399,6 +399,9 @@
 .omnidb--theme-dark .handsontable td {
   border-color: #DEE2E6;
 } */
+.omnidb--theme-dark .omnidb__ht__first-col-actions td:first-child {
+  color: #1CF58A;
+}
 
 /* Query Info */
 .omnidb--theme-dark .omnidb__query-info__value {
@@ -927,7 +930,7 @@ input, textarea {
 }
 
 i.action-check {
-    color: #1cf58a !important;
+    color: #1CF58A !important;
 }
 
 i.action-test {

@@ -629,6 +629,7 @@ $('#modal_monitoring_units').on('shown.bs.modal', function (e) {
           var col = new Object();
           col.readOnly = true;
           col.title =  'Actions';
+
           columnProperties.push(col);
 
           var col = new Object();
@@ -658,6 +659,7 @@ $('#modal_monitoring_units').on('shown.bs.modal', function (e) {
             columns : columnProperties,
             colHeaders : true,
             stretchH: 'all',
+            tableClassName: 'omnidb__ht__first-col-actions',
             //copyRowsLimit : 1000000000,
             //copyColsLimit : 1000000000,
             copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
@@ -666,24 +668,24 @@ $('#modal_monitoring_units').on('shown.bs.modal', function (e) {
             disableVisualSelection: true,
             fixedColumnsLeft: 1,
             contextMenu: {
-              callback: function (key, options) {
-                if (key === 'view_data') {
-                    editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
-                }
-                else if (key === 'copy') {
-                  this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
-                  document.execCommand('copy');
-                }
-              },
-              items: {
-                "copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
-                "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
+            callback: function (key, options) {
+              if (key === 'view_data') {
+                  editCellData(this,options[0].start.row,options[0].start.col,this.getDataAtCell(options[0].start.row,options[0].start.col),false);
               }
-              },
-                cells: function (row, col, prop) {
-                var cellProperties = {};
-                cellProperties.renderer =whiteHtmlRenderer;
-                return cellProperties;
+              else if (key === 'copy') {
+                this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
+                document.execCommand('copy');
+              }
+            },
+            items: {
+              "copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+              "view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
+            }
+            },
+            cells: function (row, col, prop) {
+              var cellProperties = {};
+              cellProperties.renderer =whiteHtmlRenderer;
+              return cellProperties;
             }
           });
 

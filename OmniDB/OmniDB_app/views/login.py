@@ -23,7 +23,6 @@ from django.contrib.auth.models import User
 
 import logging
 logger = logging.getLogger(__name__)
-print(logger)
 
 def check_session(request):
     if not request.user.is_authenticated:
@@ -39,7 +38,6 @@ def check_session(request):
 
         #Invalid session
         if not request.session.get('omnidb_session'):
-            print('creating')
             #creating session key to use it
             request.session.save()
 

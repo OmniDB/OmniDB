@@ -1198,7 +1198,7 @@ def kill_backend(request):
         return JsonResponse(v_return)
 
     try:
-        v_data = v_database.v_connection.Terminate(v_pid)
+        v_data = v_database.Terminate(v_pid)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True

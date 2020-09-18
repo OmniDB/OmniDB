@@ -218,6 +218,15 @@ class MariaDB:
             }
         return v_return
 
+    def Query(self, p_sql, p_alltypesstr=False, p_simple=False):
+        return self.v_connection.Query(p_sql, p_alltypesstr, p_simple)
+
+    def ExecuteScalar(self, p_sql):
+        return self.v_connection.ExecuteScalar(p_sql)
+
+    def Terminate(self, p_type):
+        return self.v_connection.Terminate(p_type)
+
     def QueryRoles(self):
         return self.v_connection.Query("""
             select concat('''',user,'''','@','''',host,'''') as role_name

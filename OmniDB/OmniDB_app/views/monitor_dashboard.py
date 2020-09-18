@@ -112,7 +112,6 @@ def get_monitor_unit_list(request):
                 v_actions = '''<i title='Edit' class='fas fa-check-circle action-grid action-check' onclick='includeMonitorUnit({0})'></i>'''.format(mon_unit.id)
                 #v_actions = '<button class="btn btn-secondary btn-sm my-1">Actions</button>'
                 #custom unit, add edit and delete actions
-                print(mon_unit.user)
                 if mon_unit.user!=None:
                     v_actions += '''
                     <i title='Edit' class='fas fa-edit action-grid action-edit-monitor' onclick='editMonitorUnit({0})'></i>
@@ -498,7 +497,6 @@ def refresh_monitor_units(request):
             #save new user/connection unit
             if v_id['saved_id'] == -1:
                 try:
-                    print(v_id)
                     user_unit = MonUnitsConnections(
                         unit=v_id['id'],
                         user=request.user,
@@ -530,7 +528,7 @@ def refresh_monitor_units(request):
                     }
 
                     loc = {
-                        "connection": v_database.v_connection,
+                        "connection": v_database,
                         "previous_data": v_ids[unit_counter]['object_data']
                     }
 
@@ -595,7 +593,7 @@ def refresh_monitor_units(request):
                     }
 
                     loc = {
-                        "connection": v_database.v_connection,
+                        "connection": v_database,
                         "previous_data": v_ids[unit_counter]['object_data']
                     }
 
@@ -666,6 +664,8 @@ def test_monitor_script(request):
 
     v_database = v_session.v_tab_connections[v_tab_id]
 
+    print(v_database)
+
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
     if v_timeout['timeout']:
@@ -680,7 +680,7 @@ def test_monitor_script(request):
 
     try:
         loc = {
-            "connection": v_database.v_connection,
+            "connection": v_database,
             "previous_data": None
         }
 

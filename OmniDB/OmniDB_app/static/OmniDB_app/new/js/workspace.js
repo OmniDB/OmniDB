@@ -1661,3 +1661,12 @@ function updateModalEditConnectionState(e) {
     v_item.removeAttribute('readonly');
   }
 }
+
+function monitoringAction(p_row_index, p_function) {
+	var v_fn = window[p_function];
+	var v_row_data = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.ht.getDataAtRow(p_row_index);
+	v_row_data.shift();
+	if(typeof v_fn === 'function') {
+		v_fn(v_row_data);
+	}
+}

@@ -47,10 +47,58 @@ def database_timeout(function):
     wrap.__name__ = function.__name__
     return wrap
 
+def close_tab_handler(p_client_object,p_tab_object_id):
+    try:
+        tab_object = p_client_object['tab_list'][p_tab_object_id]
+        del p_client_object['tab_list'][p_tab_object_id]
+        if tab_object['type'] == 'query':
+            try:
+                tab_object['omnidatabase'].v_connection.Cancel(False)
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase'].v_connection.Close()
+            except Exception as exc:
+                None
+        elif tab_object['type'] == 'debug':
+            tab_object['cancelled'] = True
+            try:
+                tab_object['omnidatabase_control'].v_connection.Cancel(False)
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase_control'].v_connection.Terminate(tab_object['debug_pid'])
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase_control'].v_connection.Close()
+            except Exception:
+                None
+            try:
+                tab_object['omnidatabase_debug'].v_connection.Close()
+            except Exception:
+                None
+        elif tab_object['type'] == 'terminal':
+            if tab_object['thread']!=None:
+                tab_object['thread'].stop()
+            if tab_object['terminal_type'] == 'local':
+                tab_object['terminal_object'].terminate()
+            else:
+                tab_object['terminal_object'].close()
+                tab_object['terminal_ssh_client'].close()
+
+    except Exception as exc:
+        None
+
 def clear_client_object(
     p_client_id = None
 ):
     try:
+        client_object = global_object[p_client_id]
+
+        for tab_id in list(client_object['tab_list']):
+            close_tab_handler(client_object,tab_id)
+
         del global_object[p_client_id]
     except Exception as exc:
         None
@@ -87,9 +135,10 @@ def get_database_object(
     try:
         tab_object = v_client_object['tab_list'][p_tab_id]
     except Exception as exc:
+        # Create global lock object
+        v_tab_global_database_object.v_lock = threading.Lock()
         tab_object =  {
-            'omnidatabase': v_tab_global_database_object,
-            'database_object_lock': threading.Lock()
+            'omnidatabase': v_tab_global_database_object
         }
         v_client_object['tab_list'][p_tab_id] = tab_object
 

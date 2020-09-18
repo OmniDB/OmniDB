@@ -32,6 +32,8 @@ import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
 from urllib.parse import urlparse
 
+import threading
+
 '''
 ------------------------------------------------------------------------
 Template
@@ -53,6 +55,8 @@ PostgreSQL
 '''
 class PostgreSQL:
     def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias='', p_application_name='OmniDB', p_conn_string='', p_parse_conn_string = False):
+        self.lock = None
+
         self.v_alias = p_alias
         self.v_db_type = 'postgresql'
         self.v_conn_id = p_conn_id
@@ -713,14 +717,43 @@ class PostgreSQL:
         self.v_version_num = ''
         self.v_use_server_cursor = True
 
+    # Decorator to acquire lock before performing action
+    def lock_required(function):
+        def wrap(self, *args, **kwargs):
+            try:
+                if self.v_lock != None:
+                    self.v_lock.acquire()
+            except:
+                None
+            try:
+                r = function(self, *args, **kwargs)
+            except:
+                try:
+                    if self.v_lock != None:
+                        self.v_lock.release()
+                except:
+                    None
+                raise
+            try:
+                if self.v_lock != None:
+                    self.v_lock.release()
+            except:
+                None
+            return r
+        wrap.__doc__ = function.__doc__
+        wrap.__name__ = function.__name__
+        return wrap
+
     def GetName(self):
         return self.v_service
 
+    @lock_required
     def GetVersion(self):
         self.v_version = self.v_connection.ExecuteScalar('show server_version')
         self.v_version_num = self.v_connection.ExecuteScalar('show server_version_num')
         return 'PostgreSQL ' + self.v_version.split(' ')[0]
 
+    @lock_required
     def GetUserSuper(self):
         return self.v_connection.ExecuteScalar("select rolsuper from pg_roles where rolname = '{0}'".format(self.v_user))
 
@@ -757,7 +790,7 @@ class PostgreSQL:
         except Exception as exc:
             v_return = str(exc)
         return v_return
-
+    @lock_required
     def GetErrorPosition(self, p_error_message):
         vector = str(p_error_message).split('\n')
         v_return = None
@@ -768,6 +801,19 @@ class PostgreSQL:
             }
         return v_return
 
+    @lock_required
+    def Query(self, p_sql, p_alltypesstr=False, p_simple=False):
+        return self.v_connection.Query(p_sql, p_alltypesstr, p_simple)
+
+    @lock_required
+    def ExecuteScalar(self, p_sql):
+        return self.v_connection.ExecuteScalar(p_sql)
+
+    @lock_required
+    def Terminate(self, p_type):
+        return self.v_connection.Terminate(p_type)
+
+    @lock_required
     def QueryRoles(self):
         return self.v_connection.Query('''
             select quote_ident(rolname) as role_name
@@ -775,6 +821,7 @@ class PostgreSQL:
             order by rolname
         ''', True)
 
+    @lock_required
     def QueryTablespaces(self):
         return self.v_connection.Query('''
             select quote_ident(spcname) as tablespace_name
@@ -782,6 +829,7 @@ class PostgreSQL:
             order by spcname
         ''', True)
 
+    @lock_required
     def QueryDatabases(self):
         return self.v_connection.Query('''
             select database_name
@@ -804,6 +852,7 @@ class PostgreSQL:
             order by sort
         ''', True)
 
+    @lock_required
     def QueryExtensions(self):
         return self.v_connection.Query('''
             select quote_ident(extname) as extension_name
@@ -811,6 +860,7 @@ class PostgreSQL:
             order by extname
         ''', True)
 
+    @lock_required
     def QuerySchemas(self):
         return self.v_connection.Query('''
             select schema_name
@@ -837,6 +887,7 @@ class PostgreSQL:
             order by sort
         ''', True)
 
+    @lock_required
     def QueryTables(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -886,6 +937,7 @@ class PostgreSQL:
             order by 2, 1
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -970,6 +1022,7 @@ class PostgreSQL:
                      a.attnum
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesForeignKeys(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1014,6 +1067,7 @@ class PostgreSQL:
                      quote_ident(table_name)
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesForeignKeysColumns(self, p_fkey, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1061,6 +1115,7 @@ class PostgreSQL:
             order by ordinal_position
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesPrimaryKeys(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1088,6 +1143,7 @@ class PostgreSQL:
                      quote_ident(tc.table_name)
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesPrimaryKeysColumns(self, p_pkey, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1117,6 +1173,7 @@ class PostgreSQL:
             order by kc.ordinal_position
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesUniques(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1144,6 +1201,7 @@ class PostgreSQL:
                      quote_ident(tc.table_name)
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesUniquesColumns(self, p_unique, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1173,6 +1231,7 @@ class PostgreSQL:
             order by kc.ordinal_position
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesIndexes(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1209,6 +1268,7 @@ class PostgreSQL:
             order by 1, 2
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesIndexesColumns(self, p_index, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1245,6 +1305,7 @@ class PostgreSQL:
             ) t
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesChecks(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1276,6 +1337,7 @@ class PostgreSQL:
             order by 1, 2, 3
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesExcludes(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1365,6 +1427,7 @@ class PostgreSQL:
             order by 1, 2, 3
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesRules(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1391,6 +1454,7 @@ class PostgreSQL:
             order by 1, 2, 3
         '''.format(v_filter), True)
 
+    @lock_required
     def GetRuleDefinition(self, p_rule, p_table, p_schema):
         return self.v_connection.ExecuteScalar('''
             select definition
@@ -1400,6 +1464,7 @@ class PostgreSQL:
               and quote_ident(rulename) = '{2}'
         '''.format(p_schema, p_table, p_rule)).replace('CREATE RULE', 'CREATE OR REPLACE RULE')
 
+    @lock_required
     def QueryEventTriggers(self):
         return self.v_connection.Query('''
             select quote_ident(t.evtname) as trigger_name,
@@ -1414,6 +1479,7 @@ class PostgreSQL:
             on np.oid = p.pronamespace
         ''')
 
+    @lock_required
     def QueryTablesTriggers(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1451,6 +1517,7 @@ class PostgreSQL:
             order by 1, 2, 3
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesInheriteds(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1498,6 +1565,7 @@ class PostgreSQL:
                 order by 1, 2, 3, 4
             '''.format(v_filter))
 
+    @lock_required
     def QueryTablesInheritedsParents(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1520,6 +1588,7 @@ class PostgreSQL:
             order by 2, 1
         '''.format(v_filter))
 
+    @lock_required
     def QueryTablesInheritedsChildren(self, p_table, p_schema):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
             return self.v_connection.Query('''
@@ -1549,6 +1618,7 @@ class PostgreSQL:
                 order by 2, 1
             '''.format(p_table, p_schema))
 
+    @lock_required
     def QueryTablesPartitions(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1580,6 +1650,7 @@ class PostgreSQL:
             order by 1, 2, 3, 4
         '''.format(v_filter))
 
+    @lock_required
     def QueryTablesPartitionsParents(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1602,6 +1673,7 @@ class PostgreSQL:
             order by 2, 1
         '''.format(v_filter))
 
+    @lock_required
     def QueryTablesPartitionsChildren(self, p_table, p_schema):
         return self.v_connection.Query('''
             select quote_ident(cc.relname) as table_name,
@@ -1617,6 +1689,7 @@ class PostgreSQL:
             order by 2, 1
         '''.format(p_table, p_schema))
 
+    @lock_required
     def QueryDataLimited(self, p_query, p_count=-1):
         if p_count != -1:
             try:
@@ -1633,6 +1706,7 @@ class PostgreSQL:
         else:
             return self.v_connection.Query(p_query, True)
 
+    @lock_required
     def QueryTableRecords(self, p_column_list, p_table, p_filter, p_count=-1):
         v_limit = ''
         if p_count != -1:
@@ -1650,6 +1724,7 @@ class PostgreSQL:
             ), False
         )
 
+    @lock_required
     def QueryFunctions(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1686,6 +1761,7 @@ class PostgreSQL:
                 order by 1
             '''.format(v_filter), True)
 
+    @lock_required
     def QueryFunctionFields(self, p_function, p_schema):
         if p_schema:
             return self.v_connection.Query('''
@@ -1744,9 +1820,11 @@ class PostgreSQL:
                 order by 3
             '''.format(self.v_schema, p_function), True)
 
+    @lock_required
     def GetFunctionDefinition(self, p_function):
         return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_function))
 
+    @lock_required
     def GetFunctionDebug(self, p_function):
         return self.v_connection.ExecuteScalar('''
             select p.prosrc
@@ -1756,6 +1834,7 @@ class PostgreSQL:
             where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
         '''.format(p_function))
 
+    @lock_required
     def QueryProcedures(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1777,6 +1856,7 @@ class PostgreSQL:
             order by 1
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryProcedureFields(self, p_procedure, p_schema):
         if p_schema:
             return self.v_connection.Query('''
@@ -1809,9 +1889,11 @@ class PostgreSQL:
                 order by 3
             '''.format(self.v_schema, p_procedure), True)
 
+    @lock_required
     def GetProcedureDefinition(self, p_procedure):
         return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_procedure))
 
+    @lock_required
     def GetProcedureDebug(self, p_procedure):
         return self.v_connection.ExecuteScalar('''
             select p.prosrc
@@ -1821,6 +1903,7 @@ class PostgreSQL:
             where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
         '''.format(p_procedure))
 
+    @lock_required
     def QueryTriggerFunctions(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1842,9 +1925,11 @@ class PostgreSQL:
             order by 1
         '''.format(v_filter), True)
 
+    @lock_required
     def GetTriggerFunctionDefinition(self, p_function):
         return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_function))
 
+    @lock_required
     def QueryEventTriggerFunctions(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1866,9 +1951,11 @@ class PostgreSQL:
             order by 1
         '''.format(v_filter), True)
 
+    @lock_required
     def GetEventTriggerFunctionDefinition(self, p_function):
         return self.v_connection.ExecuteScalar("select pg_get_functiondef('{0}'::regprocedure)".format(p_function))
 
+    @lock_required
     def QuerySequences(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1888,6 +1975,7 @@ class PostgreSQL:
         '''.format(v_filter), True)
         return v_table
 
+    @lock_required
     def QueryViews(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1906,6 +1994,7 @@ class PostgreSQL:
             order by 2, 1
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryViewFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -1969,6 +2058,7 @@ class PostgreSQL:
                      a.attnum
         '''.format(v_filter), True)
 
+    @lock_required
     def GetViewDefinition(self, p_view, p_schema):
         return '''CREATE OR REPLACE VIEW {0}.{1} AS
 {2}
@@ -1981,6 +2071,7 @@ class PostgreSQL:
             '''.format(p_schema, p_view)
     ))
 
+    @lock_required
     def QueryMaterializedViews(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -2001,6 +2092,7 @@ class PostgreSQL:
             order by 2, 1
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryMaterializedViewFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -2064,6 +2156,7 @@ class PostgreSQL:
                      a.attnum
         '''.format(v_filter), True)
 
+    @lock_required
     def GetMaterializedViewDefinition(self, p_view, p_schema):
         return '''DROP MATERIALIZED VIEW {0}.{1};
 
@@ -2075,6 +2168,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             '''.format(p_schema, p_view)
     ))
 
+    @lock_required
     def QueryPhysicalReplicationSlots(self):
         return self.v_connection.Query('''
             select quote_ident(slot_name) as slot_name
@@ -2083,6 +2177,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         ''', True)
 
+    @lock_required
     def QueryLogicalReplicationSlots(self):
         return self.v_connection.Query('''
             select quote_ident(slot_name) as slot_name
@@ -2091,6 +2186,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         ''', True)
 
+    @lock_required
     def QueryPublications(self):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 110000:
             return self.v_connection.Query('''
@@ -2115,6 +2211,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 order by 1
             ''', True)
 
+    @lock_required
     def QueryPublicationTables(self, p_pub):
         return self.v_connection.Query('''
             select quote_ident(schemaname) || '.' || quote_ident(tablename) as table_name
@@ -2123,6 +2220,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         '''.format(p_pub), True)
 
+    @lock_required
     def QuerySubscriptions(self):
         return self.v_connection.Query('''
             select quote_ident(s.subname) as subname,
@@ -2136,6 +2234,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         '''.format(self.v_service), True)
 
+    @lock_required
     def QuerySubscriptionTables(self, p_sub):
         return self.v_connection.Query('''
             select quote_ident(n.nspname) || '.' || quote_ident(c.relname) as table_name
@@ -2153,6 +2252,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         '''.format(self.v_service, p_sub), True)
 
+    @lock_required
     def QueryForeignDataWrappers(self):
         return self.v_connection.Query('''
             select fdwname
@@ -2160,6 +2260,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         ''')
 
+    @lock_required
     def QueryForeignServers(self, v_fdw):
         return self.v_connection.Query('''
             select s.srvname,
@@ -2173,6 +2274,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by 1
         '''.format(v_fdw))
 
+    @lock_required
     def QueryUserMappings(self, v_foreign_server):
         return self.v_connection.Query('''
             select rolname,
@@ -2220,6 +2322,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             order by seq
 '''.format(v_foreign_server))
 
+    @lock_required
     def QueryForeignTables(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -2256,6 +2359,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 order by 2, 1
             '''.format(v_filter), True)
 
+    @lock_required
     def QueryForeignTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -2329,6 +2433,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                      a.attnum
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTypes(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -2352,6 +2457,7 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
         '''.format(v_filter), True)
         return v_table
 
+    @lock_required
     def QueryDomains(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -5227,7 +5333,7 @@ ADD COLUMN name data_type
 DROP COLUMN #column_name#
 --CASCADE
 ''')
-
+    @lock_required
     def GetPropertiesRole(self, p_object):
         return self.v_connection.Query('''
             select rolname as "Role",
@@ -5243,7 +5349,7 @@ DROP COLUMN #column_name#
             from pg_roles
             where quote_ident(rolname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetPropertiesTablespace(self, p_object):
         return self.v_connection.Query('''
             select t.spcname as "Tablespace",
@@ -5257,7 +5363,7 @@ DROP COLUMN #column_name#
             on r.oid = t.spcowner
             where quote_ident(t.spcname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetPropertiesDatabase(self, p_object):
         return self.v_connection.Query('''
             select d.datname as "Database",
@@ -5278,7 +5384,7 @@ DROP COLUMN #column_name#
             on t.oid = d.dattablespace
             where quote_ident(d.datname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetPropertiesExtension(self, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -5294,7 +5400,7 @@ DROP COLUMN #column_name#
             on n.oid = e.extnamespace
             where e.extname = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetPropertiesSchema(self, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -5306,7 +5412,7 @@ DROP COLUMN #column_name#
             on r.oid = n.nspowner
             where quote_ident(n.nspname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetPropertiesTable(self, p_schema, p_object):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
             return self.v_connection.Query('''
@@ -5504,7 +5610,7 @@ DROP COLUMN #column_name#
                 where quote_ident(n.nspname) = '{0}'
                   and quote_ident(c.relname) = '{1}'
             '''.format(p_schema, p_object))
-
+    @lock_required
     def GetPropertiesIndex(self, p_schema, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -5546,7 +5652,7 @@ DROP COLUMN #column_name#
             where quote_ident(n.nspname) = '{0}'
               and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object))
-
+    @lock_required
     def GetPropertiesSequence(self, p_schema, p_object):
         v_table1 = self.v_connection.Query('''
             select current_database() as "Database",
@@ -5603,7 +5709,7 @@ DROP COLUMN #column_name#
             v_table1.Merge(v_table2)
         v_table1.Merge(v_table2)
         return v_table1
-
+    @lock_required
     def GetPropertiesView(self, p_schema, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -5619,7 +5725,7 @@ DROP COLUMN #column_name#
             where quote_ident(n.nspname) = '{0}'
               and quote_ident(c.relname) = '{1}'
         '''.format(p_schema, p_object))
-
+    @lock_required
     def GetPropertiesFunction(self, p_object):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
             return self.v_connection.Query('''
@@ -5719,7 +5825,7 @@ DROP COLUMN #column_name#
                 where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
                   and p.prokind = 'f'
             '''.format(p_object))
-
+    @lock_required
     def GetPropertiesProcedure(self, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -5751,7 +5857,7 @@ DROP COLUMN #column_name#
             where quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' = '{0}'
               and p.prokind = 'p'
         '''.format(p_object))
-
+    @lock_required
     def GetPropertiesTrigger(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -5812,7 +5918,7 @@ DROP COLUMN #column_name#
             and y.table_name = x.table_name
             and y.trigger_name = x.trigger_name
         '''.format(p_schema, p_table, p_object))
-
+    @lock_required
     def GetPropertiesEventTrigger(self, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -5832,7 +5938,7 @@ DROP COLUMN #column_name#
             on r.oid = t.evtowner
             where quote_ident(t.evtname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetPropertiesPK(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
             create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
@@ -5891,7 +5997,7 @@ DROP COLUMN #column_name#
               and quote_ident(t.relname) = '{1}'
               and quote_ident(c.conname) = '{2}'
         '''.format(p_schema, p_table, p_object))
-
+    @lock_required
     def GetPropertiesFK(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
             create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
@@ -6074,7 +6180,7 @@ DROP COLUMN #column_name#
               and quote_ident(t.relname) = '{1}'
               and quote_ident(c.conname) = '{2}'
         '''.format(p_schema, p_table, p_object))
-
+    @lock_required
     def GetPropertiesUnique(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
             create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
@@ -6133,7 +6239,7 @@ DROP COLUMN #column_name#
               and quote_ident(t.relname) = '{1}'
               and quote_ident(c.conname) = '{2}'
         '''.format(p_schema, p_table, p_object))
-
+    @lock_required
     def GetPropertiesCheck(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
             create or replace function pg_temp.fnc_omnidb_constraint_attrs(text, text, text)
@@ -6190,7 +6296,7 @@ DROP COLUMN #column_name#
               and quote_ident(t.relname) = '{1}'
               and quote_ident(c.conname) = '{2}'
         '''.format(p_schema, p_table, p_object))
-
+    @lock_required
     def GetPropertiesExclude(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
             create or replace function pg_temp.fnc_omnidb_constraint_ops(text, text, text)
@@ -6274,7 +6380,7 @@ DROP COLUMN #column_name#
               and quote_ident(t.relname) = '{1}'
               and quote_ident(c.conname) = '{2}'
         '''.format(p_schema, p_table, p_object))
-
+    @lock_required
     def GetPropertiesRule(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -6286,7 +6392,7 @@ DROP COLUMN #column_name#
               and quote_ident(tablename) = '{1}'
               and quote_ident(rulename) = '{2}'
         '''.format(p_schema, p_table, p_object))
-
+    @lock_required
     def GetPropertiesForeignTable(self, p_schema, p_object):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
             return self.v_connection.Query('''
@@ -6459,7 +6565,7 @@ DROP COLUMN #column_name#
                 where quote_ident(n.nspname) = '{0}'
                   and quote_ident(c.relname) = '{1}'
             '''.format(p_schema, p_object))
-
+    @lock_required
     def GetPropertiesUserMapping(self, p_server, p_object):
         if p_object == 'PUBLIC':
             return self.v_connection.Query('''
@@ -6495,7 +6601,7 @@ DROP COLUMN #column_name#
                 where quote_ident(s.srvname) = '{0}'
                   and quote_ident(r.rolname) = '{1}'
             '''.format(p_server, p_object))
-
+    @lock_required
     def GetPropertiesForeignServer(self, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -6513,7 +6619,7 @@ DROP COLUMN #column_name#
             on r.oid = s.srvowner
             where quote_ident(s.srvname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetPropertiesForeignDataWrapper(self, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -6532,7 +6638,7 @@ DROP COLUMN #column_name#
             on v.oid = w.fdwvalidator
             where quote_ident(w.fdwname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetPropertiesType(self, p_schema, p_object):
         return self.v_connection.Query('''
             select current_database() as "Database",
@@ -6703,7 +6809,7 @@ DROP COLUMN #column_name#
                 raise Exception('Object {0} does not exist anymore. Please refresh the tree view.'.format(p_object))
             else:
                 raise exc
-
+    @lock_required
     def GetDDLRole(self, p_object):
         return self.v_connection.ExecuteScalar('''
             with
@@ -6759,7 +6865,7 @@ DROP COLUMN #column_name#
             select ddl||coalesce(ddl_config||E'\n','')
               from q1,q2
         '''.format(p_object))
-
+    @lock_required
     def GetDDLTablespace(self, p_object):
         return self.v_connection.ExecuteScalar('''
             select format(E'CREATE TABLESPACE %s\nLOCATION %s\nOWNER %s;',
@@ -6771,7 +6877,7 @@ DROP COLUMN #column_name#
             on r.oid = t.spcowner
             where quote_ident(t.spcname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetDDLDatabase(self, p_object):
         return self.v_connection.ExecuteScalar('''
             select format(E'CREATE DATABASE %s\nOWNER %s\nTABLESPACE %s;',
@@ -6785,10 +6891,10 @@ DROP COLUMN #column_name#
             on t.oid = d.dattablespace
             where quote_ident(d.datname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetDDLExtension(self, p_object):
         return 'CREATE EXTENSION {0};'.format(p_object)
-
+    @lock_required
     def GetDDLSchema(self, p_object):
         return self.v_connection.ExecuteScalar('''
             with obj as (
@@ -6875,7 +6981,7 @@ DROP COLUMN #column_name#
               inner join grants on 1=1
              where quote_ident(n.nspname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetDDLClass(self, p_schema, p_object):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
             return self.v_connection.ExecuteScalar('''
@@ -8677,7 +8783,7 @@ DROP COLUMN #column_name#
                        (select text from alterowner) ||
                        (select text from grants)
             '''.format(p_schema, p_object))
-
+    @lock_required
     def GetDDLTrigger(self, p_trigger, p_table, p_schema):
         return self.v_connection.ExecuteScalar('''
             select 'CREATE TRIGGER ' || x.trigger_name || chr(10) ||
@@ -8709,7 +8815,7 @@ DROP COLUMN #column_name#
               and quote_ident(t.trigger_name) = '{2}'
             ) x
         '''.format(p_schema, p_table, p_trigger))
-
+    @lock_required
     def GetDDLEventTrigger(self, p_trigger):
         return self.v_connection.ExecuteScalar('''
             select format(E'CREATE EVENT TRIGGER %s\n  ON %s%s\n  EXECUTE PROCEDURE %s;\n\nALTER EVENT TRIGGER %s OWNER TO %s;\n',
@@ -8732,7 +8838,7 @@ DROP COLUMN #column_name#
             on r.oid = t.evtowner
             where quote_ident(t.evtname) = '{0}'
         '''.format(p_trigger))
-
+    @lock_required
     def GetDDLFunction(self, p_function):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
             return self.v_connection.ExecuteScalar('''
@@ -8888,7 +8994,7 @@ DROP COLUMN #column_name#
                        (select text from alterowner) ||
                        (select text from grants)
         '''.format(p_function))
-
+    @lock_required
     def GetDDLProcedure(self, p_procedure):
         return self.v_connection.ExecuteScalar('''
             with obj as (
@@ -8966,7 +9072,7 @@ DROP COLUMN #column_name#
                    (select text from alterowner) ||
                    (select text from grants)
         '''.format(p_procedure))
-
+    @lock_required
     def GetDDLConstraint(self, p_schema, p_table, p_object):
         return self.v_connection.ExecuteScalar('''
             with cs as (
@@ -8986,7 +9092,7 @@ DROP COLUMN #column_name#
             select coalesce(string_agg(sql,E';\n') || E';\n\n','') as text
             from cs
         '''.format(p_schema, p_table, p_object))
-
+    @lock_required
     def GetDDLUserMapping(self, p_server, p_object):
         if p_object == 'PUBLIC':
             return self.v_connection.ExecuteScalar('''
@@ -9045,7 +9151,7 @@ DROP COLUMN #column_name#
                 where quote_ident(s.srvname) = '{0}'
                   and quote_ident(r.rolname) = '{1}'
             '''.format(p_server, p_object))
-
+    @lock_required
     def GetDDLForeignServer(self, p_object):
         return self.v_connection.ExecuteScalar('''
             WITH privileges AS (
@@ -9156,7 +9262,7 @@ DROP COLUMN #column_name#
             inner join grants g on 1=1
             where quote_ident(s.srvname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetDDLForeignDataWrapper(self, p_object):
         return self.v_connection.ExecuteScalar('''
             WITH privileges AS (
@@ -9264,7 +9370,7 @@ DROP COLUMN #column_name#
             inner join grants g on 1=1
             where quote_ident(w.fdwname) = '{0}'
         '''.format(p_object))
-
+    @lock_required
     def GetDDLType(self, p_schema, p_object):
         v_type = self.v_connection.ExecuteScalar('''
             select t.typtype
@@ -9387,7 +9493,7 @@ DROP COLUMN #column_name#
                 where quote_ident(n.nspname) = '{0}'
                   and quote_ident(t.typname) = '{1}'
             '''.format(p_schema, p_object))
-
+    @lock_required
     def GetDDLDomain(self, p_schema, p_object):
         return self.v_connection.ExecuteScalar('''
             with domain as (
@@ -9501,7 +9607,7 @@ DROP COLUMN #column_name#
         else:
             return ''
 
-
+    @lock_required
     def GetAutocompleteValues(self, p_columns, p_filter):
         return self.v_connection.Query('''
             select {0}

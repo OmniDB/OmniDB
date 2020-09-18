@@ -74,49 +74,6 @@ class StoppableThread(threading.Thread):
     def stop(self):
         self.cancel = True
 
-def closeTabHandler(p_client_object,p_tab_object_id):
-    try:
-        tab_object = p_client_object['tab_list'][p_tab_object_id]
-        del p_client_object['tab_list'][p_tab_object_id]
-        if tab_object['type'] == 'query':
-            try:
-                tab_object['omnidatabase'].v_connection.Cancel(False)
-            except Exception:
-                None
-            try:
-                tab_object['omnidatabase'].v_connection.Close()
-            except Exception as exc:
-                None
-        elif tab_object['type'] == 'debug':
-            tab_object['cancelled'] = True
-            try:
-                tab_object['omnidatabase_control'].v_connection.Cancel(False)
-            except Exception:
-                None
-            try:
-                tab_object['omnidatabase_control'].v_connection.Terminate(tab_object['debug_pid'])
-            except Exception:
-                None
-            try:
-                tab_object['omnidatabase_control'].v_connection.Close()
-            except Exception:
-                None
-            try:
-                tab_object['omnidatabase_debug'].v_connection.Close()
-            except Exception:
-                None
-        elif tab_object['type'] == 'terminal':
-            if tab_object['thread']!=None:
-                tab_object['thread'].stop()
-            if tab_object['terminal_type'] == 'local':
-                tab_object['terminal_object'].terminate()
-            else:
-                tab_object['terminal_object'].close()
-                tab_object['terminal_ssh_client'].close()
-
-    except Exception as exc:
-        None
-
 def long_polling(request):
 
     v_return = {}
@@ -139,6 +96,7 @@ def long_polling(request):
     # Acquire client polling lock to read returning data
     client_object['polling_lock'].acquire()
 
+
     v_returning_data = []
 
     while len(client_object['returning_data'])>0:
@@ -151,6 +109,7 @@ def long_polling(request):
     )
 
 def queue_response(p_client_object, p_data):
+
     p_client_object['returning_data_lock'].acquire()
     p_client_object['returning_data'].append(p_data)
     try:
@@ -210,7 +169,7 @@ def create_request(request):
     #Close Tab
     elif v_code == requestType.CloseTab:
         for v_tab_close_data in v_data:
-            closeTabHandler(client_object,v_tab_close_data['tab_id'])
+            close_tab_handler(client_object,v_tab_close_data['tab_id'])
             #remove from tabs table if db_tab_id is not null
             if v_tab_close_data['tab_db_id']:
                 try:

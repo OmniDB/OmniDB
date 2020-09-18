@@ -538,8 +538,6 @@ def renew_password(request):
     v_database_object = v_session.v_databases[v_database_index]
     v_database_object['database'].v_connection.v_password = v_password
 
-    print(v_password)
-
     v_test = v_database_object['database'].TestConnection()
 
     if v_test=='Connection successful.':
@@ -1189,7 +1187,7 @@ def refresh_monitoring(request):
     )
 
     try:
-        v_data = v_database.v_connection.Query(v_sql,True,True)
+        v_data = v_database.Query(v_sql,True,True)
         v_return['v_data'] = {
             'v_col_names' : v_data.Columns,
             'v_data' : v_data.Rows,

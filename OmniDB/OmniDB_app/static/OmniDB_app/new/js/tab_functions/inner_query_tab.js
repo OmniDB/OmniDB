@@ -285,11 +285,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_editor.focus();
 
   // Sets a render refresh for the grid on the commandHistory.modal after the modal is fully loaded
-  $(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.modal).on('shown.bs.modal', function () {
-    setTimeout(function(){
-      v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.grid.render();
-      v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.grid.selectCell(0,0);
-      $("#cl_input_contains_" + v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tab_id).click();
-    },500);
+  $(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.modal).on('shown.bs.modal', function () {
+    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.grid.render();
   });
 };

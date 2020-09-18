@@ -3,17 +3,18 @@
 /// </summary>
 $(function () {
 
-  // Instantiating outer tab component
+  // Instantiating outer tab component.
   v_connTabControl = createTabControl({
     p_div: 'omnidb_main_tablist',
     p_hierarchy: 'primary'
   });
-  // Objects to control sequential change of active database tabs
+
+  // Objects to control sequential change of active database tabs.
   v_connTabControl.tag.change_active_database_call_list = [];
   v_connTabControl.tag.change_active_database_call_running = false;
 
+  // Create the branding item for omnidb.
   if (v_connTabControl.tabList.length === 0) {
-    // Create the branding item for omnidb
     v_connTabControl.createTab({
       p_icon: `<svg class="omnidb-icon__theme--branding" height="27" viewBox="0 0 58 58" xmlns="http://www.w3.org/2000/svg">
                 <path d="M40.8635 21.9291C39.8124 20.2722 38.403 18.8703 36.7378 17.827C37.1953 18.7168 37.5976 19.6889 37.9355 20.7357C38.9901 21.0739 39.9683 21.4761 40.8635 21.9291Z" fill="#878FC6"/>
@@ -39,14 +40,6 @@ $(function () {
                 <path d="M18.6008 9.68901C16.6757 10.7922 16.0177 13.2345 17.1283 15.1507C18.2375 17.0633 20.6995 17.7184 22.6225 16.6152C24.5476 15.5106 25.2041 13.0612 24.095 11.1522C22.9809 9.23957 20.5252 8.5809 18.6008 9.68901Z" fill="#525678"/>
                 <path d="M18.6043 48.0832C20.5308 49.1878 22.9864 48.5334 24.097 46.6208C25.2062 44.7082 24.5475 42.2609 22.6259 41.1577C20.6994 40.051 18.2409 40.7076 17.1353 42.6188C16.0226 44.5349 16.6792 46.9808 18.6043 48.0832Z" fill="#525678"/>
               </svg>`,
-      // p_name: `<svg class="omnidb-icon__theme--branding" height="27" viewBox="0 0 133 58" xmlns="http://www.w3.org/2000/svg">
-      //           <path d="M22.8526 21.4207H15.0254C11.1455 21.4207 8 24.8352 8 29.0471C8 33.2612 11.1455 36.6757 15.0254 36.6757H22.8526C26.734 36.6757 29.8795 33.2612 29.8795 29.0471C29.8795 24.8345 26.734 21.4207 22.8526 21.4207ZM21.271 33.2118H16.607C14.2952 33.2118 12.4204 31.3486 12.4204 29.0471C12.4204 26.7478 14.2945 24.8845 16.607 24.8845H21.271C23.5843 24.8845 25.4577 26.7485 25.4577 29.0471C25.4584 31.3486 23.5843 33.2118 21.271 33.2118Z" fill="#878FC6"/>
-      //           <path d="M52.2109 23.7824C51.7439 22.2256 50.9429 21.4169 49.5109 21.4169C48.5809 21.4169 47.4339 21.712 46.8079 22.9406C45.6479 25.216 43.1874 30.1549 43.1874 30.1549C43.1874 30.1549 40.7339 25.2435 39.573 22.9681C38.9469 21.7388 37.7931 21.4169 36.8638 21.4169C35.4324 21.4169 34.6321 22.2256 34.1639 23.7824C33.7 25.328 30.4199 36.4366 30.4199 36.4366H34.9281L37.2768 27.4738C37.2768 27.4738 38.4355 30.5748 39.4916 33.0693C40.2183 34.7867 41.7559 35.4046 43.0238 35.4046C44.2916 35.4046 45.5389 34.8375 46.4529 33.2116C47.5729 31.2229 49.0979 27.4005 49.0979 27.4005L51.4459 36.4366H55.9539C55.9539 36.4366 52.6749 25.3287 52.2109 23.7824Z" fill="#878FC6"/>
-      //           <path d="M57.6339 36.4366C57.6339 36.4366 57.6339 25.3689 57.6339 24.1783C57.6339 22.9871 58.4759 21.4169 59.9319 21.4169C61.3879 21.4169 62.5749 22.7335 63.2519 23.3393C63.9299 23.9452 71.3249 30.5163 71.3249 30.5163V21.6599H75.2899C75.2899 21.6599 75.2899 32.6706 75.2899 34.0302C75.2899 35.3898 74.4459 36.6796 72.7579 36.6796C71.0699 36.6796 70.2499 35.6391 69.1759 34.5719C68.1029 33.5046 61.7879 27.0067 61.7879 27.0067V36.438H57.6339V36.4366Z" fill="#878FC6"/>
-      //           <path d="M82.0319 21.6599H78.0659V36.4373H82.0319V21.6599Z" fill="#878FC6"/>
-      //           <path d="M84.8739 27.2261C84.8739 27.2261 84.8739 33.5598 84.8739 34.4644C84.8739 35.3689 85.2319 36.4368 86.7609 36.4368C88.2899 36.4368 91.1979 36.4368 94.8219 36.4368C98.4459 36.4368 103.774 33.5901 103.774 28.9048C103.774 24.2194 99.5759 21.6602 94.6979 21.6602C89.8199 21.6602 87.8059 21.6602 87.8059 21.6602L84.8749 25.5037C84.8749 25.5037 90.8709 25.5037 94.8229 25.5037C98.7749 25.5037 99.2219 28.2412 99.2219 29.1034C99.2219 29.9657 98.5889 32.637 94.8229 32.637C91.0569 32.637 89.4929 32.637 89.4929 32.637V27.2261H84.8739Z" fill="#515579"/>
-      //           <path d="M122.871 28.8383C122.871 28.8383 124.892 27.8542 124.892 25.7457C124.892 23.6373 123.387 21.6592 119.053 21.6592C114.718 21.6592 109.213 21.6592 109.213 21.6592L106.104 25.5027C106.104 25.5027 117.651 25.5027 118.794 25.5027C119.938 25.5027 120.54 25.7521 120.54 26.4516C120.54 27.1511 119.997 27.4463 118.724 27.4463C117.449 27.4463 106.105 27.4463 106.105 27.4463C106.105 27.4463 106.105 33.1249 106.105 34.102C106.105 35.0791 106.564 36.4359 109.294 36.4359C112.025 36.4359 116.689 36.4359 119.163 36.4359C121.635 36.4359 125.198 35.0812 125.198 32.3282C125.196 29.5766 122.871 28.8383 122.871 28.8383ZM118.685 32.6367C117.449 32.6367 110.722 32.6367 110.722 32.6367V30.6051C110.722 30.6051 117.75 30.6051 118.794 30.6051C119.838 30.6051 120.605 30.6544 120.605 31.5998C120.605 32.5451 119.923 32.6367 118.685 32.6367Z" fill="#515579"/>
-      //         </svg>`,
       p_name: 'Manage Connections',
       p_close: false,
       p_selectable: false,
@@ -57,7 +50,7 @@ $(function () {
     });
   }
 
-  // Creating `Add` tab in the outer tab list
+  // Creating `Add` tab in the outer tab list.
   v_connTabControl.createTab(
     {
       p_icon: '<i class="fas fa-plus"></i>',
@@ -71,25 +64,20 @@ $(function () {
     }
   );
 
-  // Instantiating functions responsible for creating all the different types of tabs
+  // Instantiating functions responsible for creating all the different types of tabs.
   initCreateTabFunctions();
 
-  // Creating the welcome tab
+  // Creating the welcome tab.
   v_connTabControl.tag.createWelcomeTab();
 
-  // Creating the snippets panel
+  // Creating the snippets panel.
   v_connTabControl.tag.createSnippetPanel();
 
-  // Retrieving database list
+  // Retrieving database list.
   getDatabaseList(true);
 
-  // TODO: design a worthy tutorial.
-  // Create tutorial - For now it's being started manually from the welcome screen
-  // if (v_user_tutorial !== false) {
-  //   startTutorial('main');
-  // }
-
-  $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
+  // Loads or Updates all tooltips.
+  $('[data-toggle="tooltip"]').tooltip({animation:true});
 
 });
 
@@ -144,12 +132,6 @@ function getDatabaseList(p_init, p_callback) {
                   v_connTabControl.tag.createConnTab(p_return.v_data.v_existing_tabs[i].index, false, v_name, p_tooltip_name);
   								v_connTabControl.tag.createConsoleTab();
                 }
-
-                // let v_name = (p_return.v_data.v_existing_tabs[i].v_alias)
-                // ? p_return.v_data.v_existing_tabs[i].v_alias
-                // : p_return.v_data.v_existing_tabs[i].v_details1;
-								// v_connTabControl.tag.createConnTab(p_return.v_data.v_existing_tabs[i].index,false,v_name);
-								// v_connTabControl.tag.createConsoleTab();
 							}
 
 							v_current_parent = p_return.v_data.v_existing_tabs[i].index;
@@ -167,31 +149,19 @@ function getDatabaseList(p_init, p_callback) {
 
 					}
 					else {
-            /*
-						var v_instance = new Tooltip($('#menu_connections'),{
-					    title: 'Create your first connection!',
-					    placement: "bottom",
-					  });
-						v_instance.show();
-				    window.setTimeout(function() {
-				        v_instance.dispose();
-				    }, 4000);*/
+            // When there are no connections, default initial screen is now a welcome tab with tutorials.
 					}
 				}
-
 				if (p_callback) {
           p_callback();
         }
-
         endLoading();
-
 			},
 			null,
 			'box');
 }
 
 function queueChangeActiveDatabaseThreadSafe(p_data) {
-
 	v_connTabControl.tag.change_active_database_call_list.push(p_data);
 	if (!v_connTabControl.tag.change_active_database_call_running) {
 		changeActiveDatabaseThreadSafe(v_connTabControl.tag.change_active_database_call_list.pop());
@@ -201,24 +171,25 @@ function queueChangeActiveDatabaseThreadSafe(p_data) {
 function changeActiveDatabaseThreadSafe(p_data) {
 	v_connTabControl.tag.change_active_database_call_running = true;
 	execAjax('/change_active_database/',
-			JSON.stringify(p_data),
-			function(p_return) {
-				v_connTabControl.tag.change_active_database_call_running = false;
-				if (v_connTabControl.tag.change_active_database_call_list.length>0)
-					changeActiveDatabaseThreadSafe(v_connTabControl.tag.change_active_database_call_list.pop());
-			},
-			null,
-			'box');
+		JSON.stringify(p_data),
+		function(p_return) {
+			v_connTabControl.tag.change_active_database_call_running = false;
+			if (v_connTabControl.tag.change_active_database_call_list.length>0)
+				changeActiveDatabaseThreadSafe(v_connTabControl.tag.change_active_database_call_list.pop());
+		},
+		null,
+		'box'
+  );
 }
 
 /// <summary>
 /// Changing database in the current connection tab.
 /// </summary>
 function changeDatabase(p_value) {
-
+  // Emptying the details of the connected db.
   v_connTabControl.selectedTab.tag.divDetails.innerHTML = '';
 
-  //finding connection object
+  // Finding the connection object.
   var v_conn_object = null;
   for (var i=0; i<v_connTabControl.tag.connections.length; i++) {
   	if (p_value==v_connTabControl.tag.connections[i].v_conn_id) {
@@ -226,6 +197,7 @@ function changeDatabase(p_value) {
   		break;
   	}
   }
+  // Selecting the first connection when none is found.
   if (!v_conn_object) {
     v_conn_object = v_connTabControl.tag.connections[0];
   }
@@ -235,13 +207,6 @@ function changeDatabase(p_value) {
   v_connTabControl.selectedTab.tag.consoleHelp = v_conn_object.v_console_help;
   v_connTabControl.selectedTab.tag.selectedDatabase = v_conn_object.v_database;
   v_connTabControl.selectedTab.tag.selectedTitle = v_conn_object.v_alias;
-
-  // Icons are now built inside the function with p_icon
-  // if (v_connTabControl.selectedTab.tag.selectedTitle!='')
-  // 	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedTitle + ' - ' + v_connTabControl.selectedTab.tag.selectedDatabase;
-  // else
-  // 	v_connTabControl.selectedTab.tag.tabTitle.innerHTML = '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.selectedTab.tag.selectedDBMS + '_medium.png"/> ' + v_connTabControl.selectedTab.tag.selectedDatabase;
-
 
   queueChangeActiveDatabaseThreadSafe({
   		"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
@@ -318,148 +283,147 @@ function adjustQueryTabObjects(p_all_tabs) {
 function drawGraph(p_all, p_schema) {
 
 	execAjax('/draw_graph/',
-			JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-											"p_tab_id": v_connTabControl.selectedTab.id,
-											"p_complete": p_all,
-											"p_schema": p_schema}),
-			function(p_return) {
+		JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+										"p_tab_id": v_connTabControl.selectedTab.id,
+										"p_complete": p_all,
+										"p_schema": p_schema}),
+		function(p_return) {
+      v_nodes = [];
+      v_edges = [];
 
-          v_nodes = [];
-          v_edges = [];
+      for (var i=0; i<p_return.v_data.v_nodes.length; i++)
+      {
 
-          for (var i=0; i<p_return.v_data.v_nodes.length; i++)
-          {
+      	var v_node_object = new Object();
+				v_node_object.data = new Object();
+				v_node_object.position = new Object();
+				v_node_object.data.id = p_return.v_data.v_nodes[i].id;
+				v_node_object.data.label = p_return.v_data.v_nodes[i].label;
+				v_node_object.classes = 'group' + p_return.v_data.v_nodes[i].group;
 
-	        	var v_node_object = new Object();
-						v_node_object.data = new Object();
-						v_node_object.position = new Object();
-						v_node_object.data.id = p_return.v_data.v_nodes[i].id;
-						v_node_object.data.label = p_return.v_data.v_nodes[i].label;
-						v_node_object.classes = 'group' + p_return.v_data.v_nodes[i].group;
+				v_nodes.push(v_node_object);
 
-						v_nodes.push(v_node_object);
+      }
 
-          }
+      for (var i=0; i<p_return.v_data.v_edges.length; i++)
+      {
 
-          for (var i=0; i<p_return.v_data.v_edges.length; i++)
-          {
+      	var v_edge_object = new Object();
+				v_edge_object.data = new Object();
+				v_edge_object.data.source = p_return.v_data.v_edges[i].from;
+				v_edge_object.data.target = p_return.v_data.v_edges[i].to;
+				v_edge_object.data.label = p_return.v_data.v_edges[i].label;
+				v_edge_object.data.faveColor = '#9dbaea';
+				v_edge_object.data.arrowColor = '#9dbaea';
+				v_edges.push(v_edge_object);
 
-          	var v_edge_object = new Object();
-						v_edge_object.data = new Object();
-						v_edge_object.data.source = p_return.v_data.v_edges[i].from;
-						v_edge_object.data.target = p_return.v_data.v_edges[i].to;
-						v_edge_object.data.label = p_return.v_data.v_edges[i].label;
-						v_edge_object.data.faveColor = '#9dbaea';
-						v_edge_object.data.arrowColor = '#9dbaea';
-						v_edges.push(v_edge_object);
+      }
 
-          }
-
-					v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network = window.cy = cytoscape({
-						container: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.graph_div,
-						boxSelectionEnabled: false,
-						autounselectify: true,
-						layout: {
-							name: 'spread',
-	            			idealEdgeLength: 100,
-	            			nodeOverlap: 20
-						},
-						style: [
-							{
-								selector: 'node',
-								style: {
-									'content': 'data(label)',
-									'text-opacity': 0.5,
-									'text-valign': 'top',
-									'text-halign': 'right',
-									'background-color': '#11479e',
-									'text-wrap': 'wrap',
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.network = window.cy = cytoscape({
+				container: v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.graph_div,
+				boxSelectionEnabled: false,
+				autounselectify: true,
+				layout: {
+					name: 'spread',
+          			idealEdgeLength: 100,
+          			nodeOverlap: 20
+				},
+				style: [
+					{
+						selector: 'node',
+						style: {
+							'content': 'data(label)',
+							'text-opacity': 0.5,
+							'text-valign': 'top',
+							'text-halign': 'right',
+							'background-color': '#11479e',
+							'text-wrap': 'wrap',
 
 
-								}
-							},
-							{
-								selector: 'node.group0',
-								style: {
-									'background-color': 'slategrey',
-									'shape': 'square'
-								}
-							},
-							{
-								selector: 'node.group1',
-								style: {
-									'background-color': 'blue'
-								}
-							},
-							{
-								selector: 'node.group2',
-								style: {
-									'background-color': 'cyan'
-								}
-							},
-							{
-								selector: 'node.group3',
-								style: {
-									'background-color': 'lightgreen'
-								}
-							},
-							{
-								selector: 'node.group4',
-								style: {
-									'background-color': 'yellow'
-								}
-							},
-							{
-								selector: 'node.group5',
-								style: {
-									'background-color': 'orange'
-								}
-							},
-							{
-								selector: 'node.group6',
-								style: {
-									'background-color': 'red'
-								}
-							},
-
-							{
-								selector: 'edge',
-								style: {
-									'curve-style': 'bezier',
-							        'target-arrow-shape': 'triangle',
-							        'target-arrow-color': 'data(faveColor)',
-							        'line-color': 'data(arrowColor)',
-							        'text-opacity': 0.75,
-							        'width': 2,
-							        'control-point-distances': 50,
-							        'content': 'data(label)',
-							        'text-wrap': 'wrap',
-							        'edge-text-rotation': 'autorotate',
-							        'line-style': 'solid'
-								}
-							}
-						],
-
-						elements: {
-							nodes: v_nodes,
-							edges: v_edges
 						}
-					});
+					},
+					{
+						selector: 'node.group0',
+						style: {
+							'background-color': 'slategrey',
+							'shape': 'square'
+						}
+					},
+					{
+						selector: 'node.group1',
+						style: {
+							'background-color': 'blue'
+						}
+					},
+					{
+						selector: 'node.group2',
+						style: {
+							'background-color': 'cyan'
+						}
+					},
+					{
+						selector: 'node.group3',
+						style: {
+							'background-color': 'lightgreen'
+						}
+					},
+					{
+						selector: 'node.group4',
+						style: {
+							'background-color': 'yellow'
+						}
+					},
+					{
+						selector: 'node.group5',
+						style: {
+							'background-color': 'orange'
+						}
+					},
+					{
+						selector: 'node.group6',
+						style: {
+							'background-color': 'red'
+						}
+					},
 
-			},
-			function(p_return) {
-				if (p_return.v_data.password_timeout) {
-					showPasswordPrompt(
-						v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
-						function() {
-							drawGraph(p_all, p_schema);
-						},
-						null,
-						p_return.v_data.message
-					);
+					{
+						selector: 'edge',
+						style: {
+							'curve-style': 'bezier',
+					        'target-arrow-shape': 'triangle',
+					        'target-arrow-color': 'data(faveColor)',
+					        'line-color': 'data(arrowColor)',
+					        'text-opacity': 0.75,
+					        'width': 2,
+					        'control-point-distances': 50,
+					        'content': 'data(label)',
+					        'text-wrap': 'wrap',
+					        'edge-text-rotation': 'autorotate',
+					        'line-style': 'solid'
+						}
+					}
+				],
+
+				elements: {
+					nodes: v_nodes,
+					edges: v_edges
 				}
-			},
-			'box');
+			});
+		},
+		function(p_return) {
+			if (p_return.v_data.password_timeout) {
+				showPasswordPrompt(
+					v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+					function() {
+						drawGraph(p_all, p_schema);
+					},
+					null,
+					p_return.v_data.message
+				);
+			}
+		},
+		'box'
+  );
 }
 
 /// <summary>
@@ -468,21 +432,25 @@ function drawGraph(p_all, p_schema) {
 function renameTab(p_tab) {
 
 	showConfirm('<input id="tab_name"/ class="form-control" value="' + p_tab.tag.tab_title_span.innerHTML + '" style="width: 100%;">',
-        function() {
-					renameTabConfirm(p_tab,document.getElementById('tab_name').value);
-        },
-        null,
-        function() {
-          var v_input = document.getElementById('tab_name');
-          v_input.focus();
-          v_input.selectionStart = v_input.selectionEnd = 10000;
-        });
+    function() {
+			renameTabConfirm(p_tab,document.getElementById('tab_name').value);
+    },
+    null,
+    function() {
+      var v_input = document.getElementById('tab_name');
+      v_input.focus();
+      v_input.selectionStart = 0;
+      v_input.selectionEnd = 10000;
+    }
+  );
 	var v_input = document.getElementById('tab_name');
 	v_input.onkeydown = function() {
-		if (event.keyCode == 13)
-			document.getElementById('modal_message_ok').click();
-		else if (event.keyCode == 27)
-			document.getElementById('modal_message_cancel').click();
+		if (event.keyCode == 13) {
+      document.getElementById('modal_message_ok').click();
+    }
+		else if (event.keyCode == 27) {
+      document.getElementById('modal_message_cancel').click();
+    }
 	}
 
 }
@@ -492,7 +460,7 @@ function renameTab(p_tab) {
 /// </summary>
 function renameTabConfirm(p_tab, p_name) {
 
-	p_tab.tag.tab_title_span.innerHTML=p_name;
+	p_tab.tag.tab_title_span.innerHTML = p_name;
 
 }
 
@@ -511,8 +479,9 @@ function removeTab(p_tab) {
 
 	if (p_tab.tag.mode=='query' || p_tab.tag.mode=='edit' || p_tab.tag.mode=='console' || p_tab.tag.mode=='outer_terminal') {
 		var v_message_data = { tab_id: p_tab.tag.tab_id, tab_db_id: null };
-		if (p_tab.tag.mode=='query')
-			v_message_data.tab_db_id = p_tab.tag.tab_db_id;
+		if (p_tab.tag.mode=='query') {
+      v_message_data.tab_db_id = p_tab.tag.tab_db_id;
+    }
 
     createRequest(v_queryRequestCodes.CloseTab, [v_message_data]);
 	}
@@ -523,10 +492,42 @@ function removeTab(p_tab) {
 /// <summary>
 /// Resize snippet panel and transforms position when its visible.
 /// </summary>
-var resizeSnippetPanel = function() {
+var resizeSnippetPanel = function(p_left_pos_x = false) {
   if (v_connTabControl.snippet_tag !== undefined) {
+
+    console.log('p_left_pos_x', p_left_pos_x);
+
     var v_snippet_tag = v_connTabControl.snippet_tag;
     var v_inner_snippet_tag = v_snippet_tag.tabControl.selectedTab.tag;
+
+    var v_totalWidth = v_snippet_tag.divLayoutGrid.getBoundingClientRect().width;
+    var v_max_allowed_left_width = v_totalWidth - 50;
+    var v_div_left = v_snippet_tag.divLeft;
+
+    let v_left_pos_x = v_div_left.getBoundingClientRect().width;
+    if (p_left_pos_x) {
+      v_left_pos_x = p_left_pos_x;
+    }
+
+    var v_pixel_value = (v_left_pos_x > 50 && v_left_pos_x < v_max_allowed_left_width)
+    ? v_left_pos_x
+    : 80;
+
+    var v_left_width_value = v_pixel_value + 'px';
+
+    v_div_left.style['max-width'] = v_left_width_value;
+    v_div_left.style['flex'] = '0 0 ' + v_left_width_value;
+
+    var v_div_left_width = v_snippet_tag.divLeft.getBoundingClientRect().width;
+
+  	var v_div_right = v_snippet_tag.divRight;
+    var v_right_width_value = (v_totalWidth - v_div_left_width) + 'px';
+
+    v_div_right.style['max-width'] = v_right_width_value;
+    v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
+
+    let v_target_tag_div_result_top = 100;
+
     // Updating the max top position considering if a tab is selected.
     if (v_connTabControl.selectedTab && v_connTabControl.selectedTab !== null) {
       if (v_connTabControl.selectedTab.tag.tabControl) {
@@ -641,7 +642,7 @@ function resizeConnectionHorizontal(event) {
 		horizontalLinePosition
 	)
 
-	v_start_width = event.screenX;
+	v_start_width = event.x;
 	document.body.addEventListener("mouseup", resizeConnectionHorizontalEnd);
 
 }
@@ -665,15 +666,9 @@ function resizeConnectionHorizontalEnd(event) {
   var v_offsetLeft = v_connTabControl.selectedTab.tag.divLeft.getBoundingClientRect().left;
   var v_totalWidth = v_connTabControl.selectedDiv.getBoundingClientRect().width;
 
-  var v_mousePosX = event.screenX;
+  var v_mousePosX = event.x;
   var v_paddingCompensation = 8;
-  /*
-  var v_fraction = (v_mousePosX > v_offsetLeft)
-  ? 100*((v_paddingCompensation + v_mousePosX - v_offsetLeft) / v_totalWidth)
-  : 0;
 
-  var v_left_width_value = v_fraction + '%';
-  */
   var v_pixel_value = (v_mousePosX > v_offsetLeft)
   ? (v_paddingCompensation + v_mousePosX - v_offsetLeft)
   : 0;
@@ -682,9 +677,7 @@ function resizeConnectionHorizontalEnd(event) {
 
   v_div_left.style['max-width'] = v_left_width_value;
   v_div_left.style['flex'] = '0 0 ' + v_left_width_value;
-  /*
-  var v_right_width_value = (100 - v_fraction) + '%';
-  */
+
   var v_right_width_value = (v_totalWidth - v_pixel_value) + 'px';
 
   v_div_right.style['max-width'] = v_right_width_value;
@@ -710,7 +703,7 @@ function resizeSnippetHorizontal(event) {
 		horizontalLinePosition
 	)
 
-	v_start_width = event.screenX;
+	v_start_width = event.x;
 	document.body.addEventListener("mouseup", resizeSnippetHorizontalEnd);
 
 }
@@ -728,32 +721,9 @@ function resizeSnippetHorizontalEnd(event) {
 		horizontalLinePosition
 	)
 
-	var v_div_left = v_connTabControl.snippet_tag.divLeft;
-	var v_div_right = v_connTabControl.snippet_tag.divRight;
+  var v_mousePosX = event.x;
 
-  var v_offsetLeft = v_connTabControl.snippet_tag.divLeft.getBoundingClientRect().left;
-  var v_totalWidth = v_connTabControl.snippet_tag.divPanel.getBoundingClientRect().width;
-
-  var v_mousePosX = event.screenX;
-  var v_paddingCompensation = 8;
-
-  var v_fraction = (v_mousePosX > v_offsetLeft)
-  ? 100*((v_paddingCompensation + v_mousePosX - v_offsetLeft) / v_totalWidth)
-  : 0;
-
-  var v_left_width_value = v_fraction + '%';
-
-  v_div_left.style['max-width'] = v_left_width_value;
-  v_div_left.style['flex'] = '0 0 ' + v_left_width_value;
-
-  var v_right_width_value = (100 - v_fraction) + '%';
-
-  v_div_right.style['max-width'] = v_right_width_value;
-  v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
-
-	var v_tab_tag = v_connTabControl.snippet_tag.tabControl.selectedTab.tag;
-
-  refreshHeights();
+  resizeSnippetPanel(v_mousePosX);
 
 }
 
@@ -921,12 +891,7 @@ function refreshHeights(p_all) {
     if (v_connTabControl.selectedTab.tag.tabControl != null && v_connTabControl.selectedTab.tag.tabControl.selectedTab) {
       var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
-      //Snippet tab, adjust editor only
-      if (v_tab_tag.mode=='snippet') {
-        v_tab_tag.editorDiv.style.height = window.innerHeight - $(v_tab_tag.editorDiv).offset().top - 60 + 'px';
-        v_tab_tag.editor.resize();
-      }
-      else if (v_tab_tag.mode=='monitor_unit') {
+      if (v_tab_tag.mode=='monitor_unit') {
         var v_new_height = window.innerHeight - $(v_tab_tag.editorDataDiv).offset().top - 12 + 'px';
         v_tab_tag.editorDiv.style.height = v_new_height;
         v_tab_tag.editorDataDiv.style.height = v_new_height;

@@ -112,7 +112,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
               '<div id="' + v_tab.id + '_details" class="omnidb__workspace__connection-details"></div>' +
               '<div id="' + v_tab.id + '_tree" style="overflow: auto; flex-grow: 1; transition: scroll 0.3s;"></div>' +
               '<div id="' + v_tab.id + '_left_resize_line_horizontal" class="omnidb__resize-line__container" onmousedown="resizeTreeVertical(event)" style="width: 100%; height: 10px; cursor: ns-resize;"><div class="resize_line_horizontal" style="height: 5px; border-bottom: 1px dashed #acc4e8;"></div><div style="height:5px;"></div></div>' +
-              '<div id="tree_tabs_parent_' + v_tab.id + '" class="omnidb__tree-tabs" style="position: relative;flex-shrink: 0;flex-basis: 40vh;">' +
+              '<div id="tree_tabs_parent_' + v_tab.id + '" class="omnidb__tree-tabs omnidb__tree-tabs--not-in-view" style="position: relative;flex-shrink: 0;flex-basis: 40vh;">' +
                 '<div id="' + v_tab.id + '_loading" class="div_loading" style="z-index: 1000;">' +
                   '<div class="div_loading_cover"></div>' +
                   '<div class="div_loading_content">' +
@@ -327,7 +327,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
       mode: 'connection',
       firstTimeOpen: true,
       TreeTabControl: v_treeTabs,
-      treeTabsVisible: true,
+      treeTabsVisible: false,
       currTreeTab: null,
       ddlEditor: v_editor,
       consoleHistoryFecthed: false,

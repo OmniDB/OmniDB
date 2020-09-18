@@ -679,6 +679,7 @@
 /* Resizing Elements */
 .omnidb__resize-line__container {
   opacity: 0;
+  transition: opacity 0.3s 0.4s;
 }
 .omnidb__resize-line__container:hover {
   opacity: 1;
@@ -762,7 +763,7 @@
   box-shadow: 0px 0px 0px rgba(255,255,255,0);
   /* display: none; */
   left: 0px;
-  padding-left: 36px;
+  padding-left: 33px;
   position: fixed;
   top: 100%;
   transform: translateY(0px);

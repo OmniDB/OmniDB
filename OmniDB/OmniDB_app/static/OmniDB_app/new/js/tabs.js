@@ -307,7 +307,7 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
 			this.tabCounter++;
 
 			var v_tab = {
-				id : p_div + '_tab' + v_index,
+				id : p_div + '_tab' + v_index + '_' + Date.now(),
 				seq: v_index,
 				text: p_name,
 				selected : false,
@@ -335,13 +335,13 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
       }
 
 			var v_a = document.createElement('a');
-      v_a.setAttribute('id','a_' + p_div + '_tab' + v_index);
+      v_a.setAttribute('id','a_' + v_tab.id);
       v_a.setAttribute('data-toggle','tab');
       v_a.setAttribute('role','tab');
       v_a.setAttribute('aria-selected','false');
       v_a.setAttribute('aria-selected','false');
-      v_a.setAttribute('href','#' + 'div_' + p_div + '_tab' + v_index);
-      v_a.setAttribute('aria-controls','div_' + p_div + '_tab' + v_index);
+      v_a.setAttribute('href','#' + 'div_' + v_tab.id);
+      v_a.setAttribute('aria-controls','div_' + v_tab.id);
 
       if (v_tab.isDraggable) {
         v_a.setAttribute('draggable','true');
@@ -402,9 +402,9 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
 
 			var v_div = document.createElement('div');
       v_div.className = 'tab-pane';
-      v_div.setAttribute('id','div_' + p_div + '_tab' + v_index);
+      v_div.setAttribute('id','div_' + v_tab.id);
       v_div.setAttribute('role','tabpanel');
-      v_div.setAttribute('aria-labelledby','a_' + p_div + '_tab' + v_index);
+      v_div.setAttribute('aria-labelledby','a_' + v_tab.id);
 
 
 			v_tab.elementA = v_a;

@@ -11,6 +11,7 @@ base_urlpatterns = [
     url(r'^upload/$', views.plugins.upload_view, name='sign_in'),
 
     url(r'^long_polling/$', views.polling.long_polling, name='long_polling'),
+    url(r'^print_global_object/$', views.polling.print_global_object, name='print_global_object'),
     url(r'^create_request/$', views.polling.create_request, name='create_request'),
 
     #LOGIN

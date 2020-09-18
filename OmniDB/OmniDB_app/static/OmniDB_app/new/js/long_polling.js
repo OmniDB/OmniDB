@@ -7,25 +7,34 @@ var v_context_object = {
   'contextList': []
 }
 
+var v_polling_started = false;
+
 /// <summary>
 /// Startup function.
 /// </summary>
 $(function () {
-
-  v_client_id = v_user_key
-  call_polling();
 });
 
-function call_polling() {
+function call_polling(p_startup) {
   execAjax('/long_polling/',
 			JSON.stringify({
-        'p_client_id': v_client_id
+        'p_startup': p_startup
       }),
 			function(p_return) {
         for (var i=0; i<p_return.returning_rows.length; i++)
           polling_response(p_return.returning_rows[i]);
-        call_polling();
+        call_polling(false);
 
+			},
+			null,
+			'box',
+      false);
+}
+
+function print_global_object() {
+  execAjax('/print_global_object/',
+			JSON.stringify({}),
+			function(p_return) {
 			},
 			null,
 			'box',
@@ -204,13 +213,15 @@ function createRequest(p_messageCode, p_messageData, p_context) {
 
   execAjax('/create_request/',
 			JSON.stringify({
-        v_client_id: v_client_id,
         v_code: p_messageCode,
         v_context_code: v_context_code,
         v_data: p_messageData
       }),
 			function(p_return) {
-
+        if (!v_polling_started) {
+          v_polling_started=true;
+          call_polling(true);
+        }
 			},
 			null,
 			'box',

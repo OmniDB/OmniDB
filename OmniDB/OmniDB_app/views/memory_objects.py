@@ -1,10 +1,27 @@
 import os
 import json
 import threading
+import time
 from django.http import JsonResponse
 
 global_object = {}
 global_lock = threading.Lock()
+
+def cleanup_thread():
+
+    while True:
+        for client in list(global_object):
+            for tab_id in list(global_object[client]['tab_list']):
+                try:
+                    if global_object[client]['tab_list'][tab_id]['to_be_removed'] == True:
+                        close_tab_handler(global_object[client],tab_id)
+                except Exception as exc:
+                    None
+        time.sleep(60)
+
+t = threading.Thread(target=cleanup_thread)
+t.setDaemon(True)
+t.start()
 
 def user_authenticated(function):
     def wrap(request, *args, **kwargs):
@@ -51,7 +68,7 @@ def close_tab_handler(p_client_object,p_tab_object_id):
     try:
         tab_object = p_client_object['tab_list'][p_tab_object_id]
         del p_client_object['tab_list'][p_tab_object_id]
-        if tab_object['type'] == 'query':
+        if tab_object['type'] == 'query' or tab_object['type'] == 'connection':
             try:
                 tab_object['omnidatabase'].v_connection.Cancel(False)
             except Exception:
@@ -97,10 +114,18 @@ def clear_client_object(
         client_object = global_object[p_client_id]
 
         for tab_id in list(client_object['tab_list']):
-            close_tab_handler(client_object,tab_id)
-
-        del global_object[p_client_id]
+            global_object[p_client_id]['tab_list'][tab_id]['to_be_removed'] = True
+        try:
+            client_object['polling_lock'].release()
+        except:
+            None
+        try:
+            client_object['returning_data_lock'].release()
+        except:
+            None
+        #del global_object[p_client_id]
     except Exception as exc:
+        print(str(exc))
         None
 
 def get_client_object(p_client_id):
@@ -138,9 +163,14 @@ def get_database_object(
         # Create global lock object
         v_tab_global_database_object.v_lock = threading.Lock()
         tab_object =  {
-            'omnidatabase': v_tab_global_database_object
+            'omnidatabase': v_tab_global_database_object,
+            'type': 'connection',
+            'to_be_removed': False
         }
         v_client_object['tab_list'][p_tab_id] = tab_object
+
+    if tab_object['to_be_removed']:
+        raise('Database object marked to be destroyed.')
 
     #tab_object['database_object_lock'].acquire()
 

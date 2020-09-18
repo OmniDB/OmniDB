@@ -19,12 +19,13 @@ $(function () {
   v_connections_data.card_list = [];
   v_connections_data.current_id = -1;
 
-	$('#modal_connections').on('hide.bs.modal', function (e) {
-    getDatabaseList();
-  });
+	// $('#modal_connections').on('hide.bs.modal', function (e) {
+  //   startConnectionManagement();
+  // });
 });
 
 function startConnectionManagement() {
+	getDatabaseList();
   getGroups();
   showConnectionList(true,true);
 }
@@ -45,210 +46,185 @@ function showConnectionList(p_open_modal, p_change_group) {
 	var input = JSON.stringify({"p_conn_id_list": v_conn_id_list});
 
 	execAjax('/get_connections_new/',
-			input,
-			function(p_return) {
+		input,
+		function(p_return) {
 
-        v_connections_data.card_list = [];
-        v_connections_data.technologies = p_return.v_data.v_technologies;
+      v_connections_data.card_list = [];
+      v_connections_data.technologies = p_return.v_data.v_technologies;
 
-        //Building connection cards
-				var v_container = null;
-        var v_container = document.createElement('div');
-        v_container.className = 'container-fluid';
+      //Building connection cards
+			var v_container = null;
+      var v_container = document.createElement('div');
+      v_container.className = 'container-fluid';
 
-        var v_row = null;
+      var v_row = null;
 
-        var v_target_div = document.getElementById('connection_card_list');
+      var v_target_div = document.getElementById('connection_card_list');
 
-        var v_row = document.createElement('div');
-        v_row.className = 'row';
+      var v_row = document.createElement('div');
+      v_row.className = 'row';
 
-        for (var i=0; i<p_return.v_data.v_conn_list.length; i++) {
-          var v_conn_obj = p_return.v_data.v_conn_list[i];
+      for (var i=0; i<p_return.v_data.v_conn_list.length; i++) {
+        var v_conn_obj = p_return.v_data.v_conn_list[i];
 
-          var v_col_div = document.createElement('div');
-          v_col_div.className = 'omnidb__connections__cols';
-          v_row.appendChild(v_col_div);
+        var v_col_div = document.createElement('div');
+        v_col_div.className = 'omnidb__connections__cols';
+        v_row.appendChild(v_col_div);
 
-          var v_card_div = document.createElement('div');
-          v_card_div.className = 'card omnidb__connections__card';
-          v_col_div.appendChild(v_card_div);
+        var v_card_div = document.createElement('div');
+        v_card_div.className = 'card omnidb__connections__card';
+        v_col_div.appendChild(v_card_div);
 
-          var v_cover_div = document.createElement('label');
-          v_cover_div.className = 'connection-card-cover m-0';
-					v_cover_div.setAttribute('for','connection_item_input_' + i);
-          // v_card_div.appendChild(v_cover_div);
-					//
-          var v_checkbox = document.createElement('input');
-          v_checkbox.className = 'connection-card-checkbox';
-					v_checkbox.id = 'connection_item_input_' + i;
-          v_checkbox.type="checkbox";
-          // v_card_div.appendChild(v_checkbox);
+        var v_cover_div = document.createElement('label');
+        v_cover_div.className = 'connection-card-cover m-0';
+				v_cover_div.setAttribute('for','connection_item_input_' + i);
 
-					// var v_check_svg = document.createElement('svg');
-					// v_check_svg.className = 'connection-card-svg';
-					// v_check_svg.setAttribute('width', '40');
-					// v_check_svg.setAttribute('height', '40');
-					// v_check_svg.setAttribute('viewBox', '0 0 40 40');
-					// v_check_svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-					// v_check_svg.innerHTML =
-					// '<path d="M 5 10 L 15 35 L 35 5" stroke-width="1" stroke="#e2e2e2" fill="transparent"></path>' +
-					// '<circle r="20" cx="20" cy="20" stroke-width="1" stroke="#e2e2e2" fill="transparent"></circle>';
-					// v_card_div.appendChild(v_check_svg);
-
-					var v_check_svg =
-					'<svg class="connection-card-svg" width="42" height="42" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">' +
-						'<path d="M 6 18 L 15 32 L 34 13" stroke-width="4" stroke="#4a81d4" fill="transparent"></path>' +
-						'<circle r="19" cx="21" cy="21" stroke-width="2" stroke="#b2b2b2" fill="transparent"></circle>' +
-					'</svg>';
-
-					v_cover_div.innerHTML = v_check_svg;
-
-					// var v_checkbox =
-					// '<input id="connection_item_input_' + i + '" type="checkbox" class="connection-card-checkbox">';
+        var v_checkbox = document.createElement('input');
+        v_checkbox.className = 'connection-card-checkbox';
+				v_checkbox.id = 'connection_item_input_' + i;
+        v_checkbox.type="checkbox";
 
 
+				var v_check_svg =
+				'<svg class="connection-card-svg" width="42" height="42" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">' +
+					'<path d="M 6 18 L 15 32 L 34 13" stroke-width="4" stroke="#4a81d4" fill="transparent"></path>' +
+					'<circle r="19" cx="21" cy="21" stroke-width="2" stroke="#b2b2b2" fill="transparent"></circle>' +
+				'</svg>';
 
-          // v_cover_div.onclick = (function(checkbox) {
-          //     return function() {
-          //       if(checkbox.checked == false)
-          //         checkbox.checked = true;
-          //       else
-          //         checkbox.checked = false;
-          //     };
-          // }(v_checkbox));
+				v_cover_div.innerHTML = v_check_svg;
 
+        var v_card_body_div = document.createElement('div');
+        v_card_body_div.className = 'card-body';
+        v_card_div.appendChild(v_card_body_div);
+				// Empty icon info
+				var v_icon = '';
+				// Empty details info
+				var v_details = '';
+				// Empty tunnel info
+				var v_tunnel = '<div class="card-subtitle tunnel text-muted">No Tunnel Configured</div>';
 
-
-          var v_card_body_div = document.createElement('div');
-          v_card_body_div.className = 'card-body';
-          v_card_div.appendChild(v_card_body_div);
-					// Empty icon info
-					var v_icon = '';
-					// Empty details info
-					var v_details = '';
-					// Empty tunnel info
-					var v_tunnel = '<div class="card-subtitle tunnel text-muted">No Tunnel Configured</div>';
-
-					// Showing terminal connection info
-          if (v_conn_obj.technology=='terminal') {
-						v_icon = '<i class="fas fa-terminal"></i>';
-						// Showing connection string info
-						v_details = '<h5 class="card-title">Terminal connection</h5>';
-						// Showing tunnel info
-						v_tunnel = '<h6 class="card-subtitle text-muted">' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</h6>';
+				// Showing terminal connection info
+        if (v_conn_obj.technology=='terminal') {
+					v_icon = '<i class="fas fa-terminal"></i>';
+					// Showing connection string info
+					v_details = '<h5 class="card-title">Terminal connection</h5>';
+					// Showing tunnel info
+					v_tunnel = '<h6 class="card-subtitle text-muted">' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</h6>';
+				}
+        else {
+					v_icon = '<i class="technology-icon node-' + v_conn_obj.technology + '"></i>';
+					v_details = '<h5 class="card-title">' + v_conn_obj.alias + '</h5>';
+					// Showing connection string info
+          if (v_conn_obj.conn_string && v_conn_obj.conn_string!='') {
+						v_details += '<h6 class="card-subtitle mb-2 text-muted"><i title="Connection String" class="fas fa-quote-left"></i> ' + v_conn_obj.conn_string + '</h6>';
 					}
+					// Showing connection server and port info
           else {
-						v_icon = '<i class="technology-icon node-' + v_conn_obj.technology + '"></i>';
-						v_details = '<h5 class="card-title">' + v_conn_obj.alias + '</h5>';
-						// Showing connection string info
-            if (v_conn_obj.conn_string && v_conn_obj.conn_string!='') {
-							v_details += '<h6 class="card-subtitle mb-2 text-muted"><i title="Connection String" class="fas fa-quote-left"></i> ' + v_conn_obj.conn_string + '</h6>';
-						}
-						// Showing connection server and port info
-            else {
-							v_details +=
-							'<h6 class="card-subtitle mb-2 text-muted">' + v_conn_obj.server + ':' + v_conn_obj.port + '</h6>' +
-							'<p class="card-text">' + v_conn_obj.user + '@' + v_conn_obj.service + '</p>';
-						}
-						// Showing tunnel info
-						if (v_conn_obj.tunnel.enabled===true) {
-							v_tunnel = '<div class="card-subtitle tunnel text-muted">' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</div>';
-						}
-          }
-
-
-					v_card_body_div.innerHTML +=
-					'<div class="card-body-icon">' +
-						v_icon +
-					'</div>' +
-					'<div class="card-body-details">' +
-						v_details +
-					'</div>' +
-					'<div class="card-body-tunnel">' +
-						v_tunnel +
-					'</div>';
-					v_card_body_div.appendChild(v_checkbox);
-					v_card_body_div.appendChild(v_cover_div);
-
-					var v_card_body_buttons = document.createElement('div');
-					v_card_body_buttons.className = 'card-body-buttons';
-					v_card_body_div.appendChild(v_card_body_buttons);
-
-					var v_button_select = document.createElement('button');
-					v_button_select.className = 'btn btn-success btn-sm omnidb__connections__btn--select';
-					v_button_select.title = "Select";
-					if (v_conn_obj.locked==true) {
-						v_button_select.setAttribute("disabled",true);
+						v_details +=
+						'<h6 class="card-subtitle mb-2 text-muted">' + v_conn_obj.server + ':' + v_conn_obj.port + '</h6>' +
+						'<p class="card-text">' + v_conn_obj.user + '@' + v_conn_obj.service + '</p>';
 					}
-					v_button_select.innerHTML = '<svg width="15px" height="160px" viewBox="0 0 15 160" style="width: auto;height: 100%;stroke: none;stroke-width: 0;"><path stroke-width="0" stroke="none" d="M 0 0 L 15 80 L 0 160 Z"></path></svg><i class="fas fa-plug"></i>';
-					v_card_body_buttons.appendChild(v_button_select);
-
-          var v_button_edit = document.createElement('button');
-          v_button_edit.className = 'btn btn-sm mx-1 omnidb__theme__btn--primary';
-          v_button_edit.title = "Edit";
-          if (v_conn_obj.locked==true) {
-						v_button_edit.setAttribute("disabled",true);
+					// Showing tunnel info
+					if (v_conn_obj.tunnel.enabled===true) {
+						v_tunnel = '<div class="card-subtitle tunnel text-muted">' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</div>';
 					}
-          v_button_edit.innerHTML = '<i class="fas fa-pen"</i>'
-          v_card_body_buttons.appendChild(v_button_edit);
-
-          var v_button_delete = document.createElement('button');
-          v_button_delete.className = 'btn btn-danger btn-sm mx-1';
-          v_button_delete.title = "Delete";
-          if (v_conn_obj.locked==true) {
-						v_button_delete.setAttribute("disabled",true);
-					}
-          v_button_delete.innerHTML = '<i class="fas fa-trash-alt"></i>'
-          v_card_body_buttons.appendChild(v_button_delete);
-
-					v_button_select.onclick = (function(conn_obj) {
-						return function() {
-							selectConnection(conn_obj);
-						};
-					}(v_conn_obj));
-
-          v_button_edit.onclick = (function(conn_obj) {
-              return function() {
-                editConnection(conn_obj);
-              };
-          }(v_conn_obj));
-
-          v_button_delete.onclick = (function(conn_obj) {
-              return function() {
-                deleteConnection(conn_obj);
-              };
-          }(v_conn_obj));
-
-          v_connections_data.card_list.push(
-            {
-              'data': v_conn_obj,
-              'card_div': v_col_div,
-              'cover_div': v_cover_div,
-              'checkbox': v_checkbox
-            }
-          );
         }
 
-				v_container.appendChild(v_row);
 
-        v_target_div.innerHTML = '';
-        v_target_div.appendChild(v_container);
+				v_card_body_div.innerHTML +=
+				'<div class="card-body-icon">' +
+					v_icon +
+				'</div>' +
+				'<div class="card-body-details">' +
+					v_details +
+				'</div>' +
+				'<div class="card-body-tunnel">' +
+					v_tunnel +
+				'</div>';
+				v_card_body_div.appendChild(v_checkbox);
+				v_card_body_div.appendChild(v_cover_div);
+
+				var v_card_body_buttons = document.createElement('div');
+				v_card_body_buttons.className = 'card-body-buttons';
+				v_card_body_div.appendChild(v_card_body_buttons);
+
+				var v_button_select = document.createElement('button');
+				v_button_select.className = 'btn btn-success btn-sm omnidb__connections__btn--select';
+				v_button_select.title = "Select";
+				if (v_conn_obj.locked==true) {
+					v_button_select.setAttribute("disabled",true);
+				}
+				v_button_select.innerHTML = '<svg width="15px" height="160px" viewBox="0 0 15 160" style="width: auto;height: 100%;stroke: none;stroke-width: 0;"><path stroke-width="0" stroke="none" d="M 0 0 L 15 80 L 0 160 Z"></path></svg><i class="fas fa-plug"></i>';
+				v_card_body_buttons.appendChild(v_button_select);
+
+        var v_button_edit = document.createElement('button');
+        v_button_edit.className = 'btn btn-sm mx-1 omnidb__theme__btn--primary';
+        v_button_edit.title = "Edit";
+        if (v_conn_obj.locked==true) {
+					v_button_edit.setAttribute("disabled",true);
+				}
+        v_button_edit.innerHTML = '<i class="fas fa-pen"</i>'
+        v_card_body_buttons.appendChild(v_button_edit);
+
+        var v_button_delete = document.createElement('button');
+        v_button_delete.className = 'btn btn-danger btn-sm mx-1';
+        v_button_delete.title = "Delete";
+        if (v_conn_obj.locked==true) {
+					v_button_delete.setAttribute("disabled",true);
+				}
+        v_button_delete.innerHTML = '<i class="fas fa-trash-alt"></i>'
+        v_card_body_buttons.appendChild(v_button_delete);
+
+				v_button_select.onclick = (function(conn_obj) {
+					return function() {
+						selectConnection(conn_obj);
+					};
+				}(v_conn_obj));
+
+        v_button_edit.onclick = (function(conn_obj) {
+            return function() {
+              editConnection(conn_obj);
+            };
+        }(v_conn_obj));
+
+        v_button_delete.onclick = (function(conn_obj) {
+            return function() {
+              deleteConnection(conn_obj);
+            };
+        }(v_conn_obj));
+
+        v_connections_data.card_list.push(
+          {
+            'data': v_conn_obj,
+            'card_div': v_col_div,
+            'cover_div': v_cover_div,
+            'checkbox': v_checkbox
+          }
+        );
+      }
+
+			v_container.appendChild(v_row);
+
+      v_target_div.innerHTML = '';
+      v_target_div.appendChild(v_container);
 
 
-        if (p_open_modal)
-          $('#modal_connections').modal();
+      if (p_open_modal) {
+				$('#modal_connections').modal();
+			}
 
-        if (p_change_group)
-          groupChange(document.getElementById('group_selector').value);
-			},
-			null,
-			'box',
-			true);
+      if (p_change_group) {
+				groupChange(document.getElementById('group_selector').value);
+			}
+
+		},
+		null,
+		'box',
+		true
+	);
 }
 
 function groupChange(p_value) {
-
   if (p_value!=-1) {
     document.getElementById('button_group_actions').style.display = '';
 
@@ -268,13 +244,13 @@ function groupChange(p_value) {
       var v_conn_obj = v_connections_data.card_list[i];
 
       // Check the div if it belongs to the currently selected group
-      if (v_group_obj.conn_list.includes(v_conn_obj.data.id))
-        $(v_conn_obj.card_div).fadeIn(400);
-      else
-        $(v_conn_obj.card_div).fadeOut(400);
+      if (v_group_obj.conn_list.includes(v_conn_obj.data.id)) {
+				$(v_conn_obj.card_div).fadeIn(400);
+			}
+      else {
+				$(v_conn_obj.card_div).fadeOut(400);
+			}
     }
-
-
   }
   else {
     document.getElementById('button_group_actions').style.display = 'none';
@@ -289,18 +265,14 @@ function groupChange(p_value) {
 }
 
 function manageGroup() {
-
   document.getElementById('group_actions_1').style.display = 'none';
   document.getElementById('group_actions_2').style.display = '';
-
 	document.getElementById('button_new_connection').setAttribute('disabled',true);
 	document.getElementById('group_selector').setAttribute('disabled',true);
 	document.getElementById('button_new_group').setAttribute('disabled',true);
 	document.getElementById('button_group_actions').setAttribute('disabled',true);
 
-
 	$('.omnidb__connections__card-list').addClass('omnidb__connections__card-list--connection-management');
-
 
   var v_current_group_id = document.getElementById('group_selector').value;
   var v_group_obj = null;
@@ -338,7 +310,7 @@ function manageGroupSave() {
 
 	$('.omnidb__connections__card-list').removeClass('omnidb__connections__card-list--connection-management');
 
-	v_conn_data = []
+	v_conn_data = [];
 
   // Going over the cards and adjusting cover div and checkbox
   for (var i=0; i<v_connections_data.card_list.length; i++) {
@@ -350,77 +322,83 @@ function manageGroupSave() {
     // v_conn_obj.cover_div.style.display = 'none';
     v_conn_obj.checkbox.checked = false;
   }
-	console.log(v_conn_data)
 
 	execAjax('/save_group_connections_new/',
-			JSON.stringify({
-				"p_group": document.getElementById('group_selector').value,
-				"p_conn_data_list": v_conn_data
+		JSON.stringify({
+			"p_group": document.getElementById('group_selector').value,
+			"p_conn_data_list": v_conn_data
 		}),
-			function(p_return) {
-				//groupChange(document.getElementById('group_selector').value);
-				getGroups();
-			},
-			null,
-			'box');
-
-
-
+		function(p_return) {
+			getDatabaseList();
+			getGroups();
+		},
+		null,
+		'box'
+	);
 }
 
 function newGroupConfirm(p_name) {
 	execAjax('/new_group_new/',
-			JSON.stringify({"p_name": p_name}),
-			function(p_return) {
-				getGroups();
-			},
-			null,
-			'box');
+		JSON.stringify({"p_name": p_name}),
+		function(p_return) {
+			getDatabaseList();
+			getGroups();
+		},
+		null,
+		'box'
+	);
 }
 
 function renameGroupConfirm(p_id, p_name) {
 	execAjax('/edit_group/',
-			JSON.stringify({"p_id": p_id,"p_name": p_name}),
-			function(p_return) {
-				getGroups();
-			},
-			null,
-			'box');
+		JSON.stringify({"p_id": p_id,"p_name": p_name}),
+		function(p_return) {
+			getDatabaseList();
+			getGroups();
+		},
+		null,
+		'box'
+	);
 }
 
 function deleteGroup() {
-
 	var v_group_id = document.getElementById('group_selector').value;
 
 	showConfirm('Are you sure you want to delete the current group?',
-							function() {
-								deleteGroupConfirm(v_group_id);
-							});
+		function() {
+			deleteGroupConfirm(v_group_id);
+		}
+	);
 }
 
 function deleteGroupConfirm(p_group_id) {
 	execAjax('/delete_group/',
-			JSON.stringify({"p_id": p_group_id}),
-			function(p_return) {
-				getGroups();
-			},
-			null,
-			'box');
+		JSON.stringify({"p_id": p_group_id}),
+		function(p_return) {
+			getDatabaseList();
+			getGroups();
+		},
+		null,
+		'box'
+	);
 }
 
 function newGroup() {
 	showConfirm('<input id="group_name_input"/ class="form-control" placeholder="Group Name" style="width: 100%;">',
-							function() {
-								newGroupConfirm(document.getElementById('group_name_input').value);
-							});
+		function() {
+			newGroupConfirm(document.getElementById('group_name_input').value);
+		}
+	);
 
   var v_input = document.getElementById('group_name_input');
 
 	v_input.onkeydown = function() {
-		if (event.keyCode == 13)
+		if (event.keyCode == 13) {
 			document.getElementById('modal_message_ok').click();
-		else if (event.keyCode == 27)
+		}
+		else if (event.keyCode == 27) {
 			document.getElementById('modal_message_cancel').click();
+		}
 	}
   setTimeout(function () {
   	v_input.focus();
@@ -430,17 +408,21 @@ function newGroup() {
 function renameGroup() {
 	var v_select = document.getElementById('group_selector');
 	showConfirm('<input id="group_name_input"/ class="form-control" placeholder="Group Name" value="' + v_select.options[v_select.selectedIndex].text + '" style="width: 100%;">',
-							function() {
-								renameGroupConfirm(
-									document.getElementById('group_selector').value,
-									document.getElementById('group_name_input').value);
-							});
+		function() {
+			renameGroupConfirm(
+				document.getElementById('group_selector').value,
+				document.getElementById('group_name_input').value
+			);
+		}
+	);
 	var v_input = document.getElementById('group_name_input');
 	v_input.onkeydown = function() {
-		if (event.keyCode == 13)
+		if (event.keyCode == 13) {
 			document.getElementById('modal_message_ok').click();
-		else if (event.keyCode == 27)
+		}
+		else if (event.keyCode == 27) {
 			document.getElementById('modal_message_cancel').click();
+		}
 	}
   setTimeout(function () {
   	v_input.focus();
@@ -450,45 +432,43 @@ function renameGroup() {
 
 function getGroups() {
 	execAjax('/get_groups_new/',
-			JSON.stringify({}),
-			function(p_return) {
-				v_connections_data.v_group_list = p_return.v_data;
-				var select = document.getElementById('group_selector');
-				var current_value = select.value;
-				select.innerHTML = '';
-				var option = document.createElement('option');
-				option.value = -1;
-				option.textContent = 'Select group';
+		JSON.stringify({}),
+		function(p_return) {
+			v_connections_data.v_group_list = p_return.v_data;
+			var select = document.getElementById('group_selector');
+			var current_value = select.value;
+			select.innerHTML = '';
+			var option = document.createElement('option');
+			option.value = -1;
+			option.textContent = 'Select group';
+			select.appendChild(option);
+			var found = false;
+			for (var i=0; i<p_return.v_data.length; i++) {
+				option = document.createElement('option');
+				option.value = p_return.v_data[i].id;
+				option.textContent = p_return.v_data[i].name;
+				if (option.value == current_value) {
+					option.selected = true;
+					found = true;
+				}
 				select.appendChild(option);
-				var found = false;
-				for (var i=0; i<p_return.v_data.length; i++) {
-					option = document.createElement('option');
-					option.value = p_return.v_data[i].id;
-					option.textContent = p_return.v_data[i].name;
-					if (option.value == current_value) {
-						option.selected = true;
-						found = true;
-					}
-					select.appendChild(option);
-				}
-				if (!found==true && current_value!=-1) {
-					groupChange(-1);
-				}
-        else {
-          groupChange(document.getElementById('group_selector').value);
-        }
-
-			},
-			null,
-			'box');
-
+			}
+			if (!found==true && current_value!=-1) {
+				groupChange(-1);
+			}
+      else {
+        groupChange(document.getElementById('group_selector').value);
+      }
+		},
+		null,
+		'box'
+	);
 }
 
 /// <summary>
 /// Tests specific connection.
 /// </summary>
 function testConnection(p_password = null) {
-
 	var input = JSON.stringify({
     "type": document.getElementById('conn_form_type').value,
     "connstring": document.getElementById('conn_form_connstring').value,
@@ -507,39 +487,39 @@ function testConnection(p_password = null) {
   });
 
 	execAjax('/test_connection_new/',
-			input,
-			function(p_return) {
-				if (p_return.v_data=="Connection successful.")
-					showAlert(p_return.v_data);
-				else
-          showError(p_return.v_data);
-			},
-			function(p_return) {
-        showConfirm(
-          p_return.v_data +
-          '<input id="txt_test_password_prompt" class="form-control" type="password" placeholder="Password" style="margin-bottom:20px; margin-top: 20px; text-align: center;"/>',
-        function() {
-          testConnection(document.getElementById('txt_test_password_prompt').value);
-        },
-        null,
-        function() {
-          var v_input = document.getElementById('txt_test_password_prompt');
-          v_input.focus();
-        });
-
-        var v_input = document.getElementById('txt_test_password_prompt');
-      	v_input.onkeydown = function() {
-      		if (event.keyCode == 13)
-      			document.getElementById('modal_message_ok').click();
-      		else if (event.keyCode == 27)
-      			document.getElementById('modal_message_cancel').click();
-      	}
-
+		input,
+		function(p_return) {
+			if (p_return.v_data=="Connection successful.")
+				showAlert(p_return.v_data);
+			else
+        showError(p_return.v_data);
+		},
+		function(p_return) {
+      showConfirm(
+        p_return.v_data +
+        '<input id="txt_test_password_prompt" class="form-control" type="password" placeholder="Password" style="margin-bottom:20px; margin-top: 20px; text-align: center;"/>',
+      function() {
+        testConnection(document.getElementById('txt_test_password_prompt').value);
       },
-			'box',
-			true,
-			true);
+      null,
+      function() {
+        var v_input = document.getElementById('txt_test_password_prompt');
+        v_input.focus();
+      });
 
+      var v_input = document.getElementById('txt_test_password_prompt');
+    	v_input.onkeydown = function() {
+    		if (event.keyCode == 13)
+    			document.getElementById('modal_message_ok').click();
+    		else if (event.keyCode == 27)
+    			document.getElementById('modal_message_cancel').click();
+    	}
+
+    },
+		'box',
+		true,
+		true
+	);
 }
 
 function saveConnection() {
@@ -564,39 +544,36 @@ function saveConnection() {
   });
 
 	execAjax('/save_connection_new/',
-			input,
-			function(p_return) {
-				console.log('foi');
-        $('#modal_edit_connection').modal('hide');
-        showConnectionList(false,true);
-
-			},
-			null,
-			'box');
-
+		input,
+		function(p_return) {
+      $('#modal_edit_connection').modal('hide');
+			getDatabaseList();
+      showConnectionList(false,true);
+		},
+		null,
+		'box'
+	);
 }
 
 function deleteConnection(p_conn_obj) {
-
   showConfirm("Are you sure you want to delete this connection?",
-  function() {
+	  function() {
 
-    var input = JSON.stringify({
-      "id": p_conn_obj.id
-    });
+	    var input = JSON.stringify({
+	      "id": p_conn_obj.id
+	    });
 
-  	execAjax('/delete_connection_new/',
-  			input,
-  			function(p_return) {
-  				console.log('foi');
-          showConnectionList(false,true);
-
-  			},
-  			null,
-  			'box');
-
-  })
-
+	  	execAjax('/delete_connection_new/',
+				input,
+				function(p_return) {
+					getDatabaseList();
+	        showConnectionList(false,true);
+				},
+				null,
+				'box'
+			);
+		}
+	);
 }
 
 function adjustTechSelector() {

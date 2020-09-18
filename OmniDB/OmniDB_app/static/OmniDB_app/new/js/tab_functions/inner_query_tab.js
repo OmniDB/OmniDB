@@ -1,15 +1,24 @@
 var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
-
-  var v_name = 'Query';
-  if (p_table)
-    v_name = p_table;
-
-  // Removing last tab of the inner tab list
+  // Removing last tab of the inner tab list.
   v_connTabControl.selectedTab.tag.tabControl.removeLastTab();
 
-  // Creating console tab in the inner tab list
+  // Updating inner tab_name.
+  var v_name = 'Query';
+  if (p_table) {
+    v_name = p_table;
+  }
+  let v_name_html =
+  '<span id="tab_title">' +
+    v_name +
+  '</span>' +
+  '<span id="tab_loading" style="visibility:hidden;">' +
+    '<i class="tab-icon node-spin"></i>' +
+  '</span>' +
+  '<i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>';
+
+  // Creating console tab in the inner tab list.
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
-    p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
+    p_name: v_name_html,
     p_selectFunction: function() {
       if(this.tag != null) {
         refreshHeights();
@@ -29,10 +38,10 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     p_dblClickFunction: renameTab
   });
 
-  // Selecting newly created tab
+  // Selecting newly created tab.
   v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
 
-  // Adding unique names to spans
+  // Adding unique names to spans.
   var v_tab_title_span = document.getElementById('tab_title');
   v_tab_title_span.id = 'tab_title_' + v_tab.id;
   var v_tab_loading_span = document.getElementById('tab_loading');
@@ -40,6 +49,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   var v_tab_check_span = document.getElementById('tab_check');
   v_tab_check_span.id = 'tab_check_' + v_tab.id;
 
+  // Creating the template for the command_history_modal.
   var command_history_modal =
   "<div class='modal fade' id='modal_command_history_" + v_tab.id + "' tabindex='-1' role='dialog' aria-hidden='true'>" +
     "<div class='modal-dialog modal-xl' role='document'>" +
@@ -62,9 +72,10 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     "</div>" +
   "</div>";
 
+  // Creating the template for the inner_query_tab.
   var v_html =
   "<div id='txt_query_" + v_tab.id + "' style=' width: 100%; height: 200px;'></div>" +
-  "<div class='omnidb__resize-line__container' onmousedown='resizeVertical(event)' style='width: 100%; height: 10px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 5px; border-bottom: 1px dashed #acc4e8;'></div><div style='height:5px;'></div></div>" +
+  "<div class='omnidb__resize-line__container' onmousedown='resizeVertical(event)' style='width: 100%; height: 5px; cursor: ns-resize;'><div class='resize_line_horizontal' style='height: 0px; border-bottom: 1px dashed #acc4e8;'></div><div style='height:5px;'></div></div>" +
   command_history_modal +
   "<div class='row mb-1'>" +
     "<div class='tab_actions omnidb__tab-actions col-12'>" +
@@ -91,66 +102,70 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     "</div>" +
   "</div>";
 
+  // Updating the html.
   v_tab.elementDiv.innerHTML = v_html;
 
-  // Creating tab list at the bottom of the query tab
+  // Creating tab list at the bottom of the query tab.
   var v_curr_tabs = createTabControl({ p_div: 'query_result_tabs_' + v_tab.id });
 
-  // Functions called when each tab is clicked on
+  // Tab selection callback for `data` tab.
   var v_selectDataTabFunc = function() {
     v_curr_tabs.selectTabIndex(0);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currQueryTab = 'data';
     refreshHeights();
   }
 
+  // Tab selection callback for `message` tab.
   var v_selectMessageTabFunc = function() {
-
     v_curr_tabs.selectTabIndex(1);
     v_tag.currQueryTab = 'message';
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_count_notices.style.display = 'none';
     refreshHeights();
   }
 
+  // Tab selection callback for `explain` tab.
   var v_selectExplainTabFunc = function() {
     v_curr_tabs.selectTabIndex(2);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currQueryTab = 'explain';
     refreshHeights();
   }
 
-  var v_data_tab = v_curr_tabs.createTab(
-    {
-      p_name: 'Data',
-      p_close: false,
-      p_clickFunction: function(e) {
-        v_selectDataTabFunc();
-      }
-    });
+  // Creating the `data` tab.
+  var v_data_tab = v_curr_tabs.createTab({
+    p_name: 'Data',
+    p_close: false,
+    p_clickFunction: function(e) {
+      v_selectDataTabFunc();
+    }
+  });
   v_data_tab.elementDiv.innerHTML =
   "<div class='p-2 omnidb__query-result-tabs__content omnidb__theme-border--primary'>" +
     "<div id='div_result_" + v_tab.id + "' class='omnidb__query-result-tabs__content' style='width: 100%; overflow: hidden;'></div>" +
   "</div>";
-  var v_messages_tab = v_curr_tabs.createTab(
-    {
-      p_name: "Messages <div id='query_result_tabs_count_notices_" + v_tab.id + "' class='count_notices' style='display: none;'></div>",
-      p_close: false,
-      p_clickFunction: function(e) {
-        v_selectMessageTabFunc();
-      }
-    });
+
+  // Creating the `message` tab.
+  var v_messages_tab = v_curr_tabs.createTab({
+    p_name: "Messages <div id='query_result_tabs_count_notices_" + v_tab.id + "' class='count_notices' style='display: none;'></div>",
+    p_close: false,
+    p_clickFunction: function(e) {
+      v_selectMessageTabFunc();
+    }
+  });
   v_messages_tab.elementDiv.innerHTML =
   "<div class='p-2 omnidb__query-result-tabs__content omnidb__theme-border--primary'>" +
     "<div id='div_notices_" + v_tab.id + "' class='omnidb__query-result-tabs__content' style='width: 100%; overflow: hidden;'></div>" +
   "</div>";
   v_messages_tab.elementA.classList.add('dbms_object');
   v_messages_tab.elementA.classList.add('postgresql_object');
-  var v_explain_tab = v_curr_tabs .createTab(
-    {
-      p_name: "Explain",
-      p_close: false,
-      p_clickFunction: function(e) {
-        v_selectExplainTabFunc();
-      }
-    });
+
+  // Creating the `explain` tab.
+  var v_explain_tab = v_curr_tabs .createTab({
+    p_name: "Explain",
+    p_close: false,
+    p_clickFunction: function(e) {
+      v_selectExplainTabFunc();
+    }
+  });
   v_explain_tab.elementDiv.innerHTML =
   "<div class='p-2 omnidb__query-result-tabs__content omnidb__theme-border--primary'>" +
     "<div id='div_explain_" + v_tab.id + "' class='omnidb__query-result-tabs__content' style='width: 100%; overflow: hidden;'></div>" +
@@ -158,45 +173,46 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_explain_tab.elementA.classList.add('dbms_object');
   v_explain_tab.elementA.classList.add('postgresql_object');
 
+  // Creating the editor for `query`.
   var langTools = ace.require("ace/ext/language_tools");
   var v_editor = ace.edit('txt_query_' + v_tab.id);
   v_editor.$blockScrolling = Infinity;
   v_editor.setTheme("ace/theme/" + v_editor_theme);
   v_editor.session.setMode("ace/mode/sql");
-
-  document.getElementById('txt_query_' + v_tab.id).addEventListener('keyup',function(event) {
-    autocomplete_start(v_editor,0, event);
-  })
-
-  document.getElementById('txt_query_' + v_tab.id).addEventListener('keydown',function(event) {
-    autocomplete_keydown(v_editor, event);
-  })
-
   v_editor.setFontSize(Number(v_font_size));
 
+  // Setting custom keyboard shortcuts callbacks.
+  document.getElementById('txt_query_' + v_tab.id).addEventListener('keyup',function(event) {
+    autocomplete_start(v_editor,0, event);
+  });
+  document.getElementById('txt_query_' + v_tab.id).addEventListener('keydown',function(event) {
+    autocomplete_keydown(v_editor, event);
+  });
+
+  // Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
   v_editor.commands.bindKey("ctrl-space", null);
+  v_editor.commands.bindKey("Cmd-,", null);
+  v_editor.commands.bindKey("Ctrl-,", null);
+  v_editor.commands.bindKey("Cmd-Delete", null);
+  v_editor.commands.bindKey("Ctrl-Delete", null);
+  v_editor.commands.bindKey("Ctrl-Up", null);
+  v_editor.commands.bindKey("Ctrl-Down", null);
+  v_editor.commands.bindKey("Up", null);
+  v_editor.commands.bindKey("Down", null);
+  v_editor.commands.bindKey("Tab", null);
 
-  //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
-  v_editor.commands.bindKey("Cmd-,", null)
-  v_editor.commands.bindKey("Ctrl-,", null)
-  v_editor.commands.bindKey("Cmd-Delete", null)
-  v_editor.commands.bindKey("Ctrl-Delete", null)
-  v_editor.commands.bindKey("Ctrl-Up", null)
-  v_editor.commands.bindKey("Ctrl-Down", null)
-
-  v_editor.commands.bindKey("Up", null)
-  v_editor.commands.bindKey("Down", null)
-  v_editor.commands.bindKey("Tab", null)
-
-
+  // Setting the autofocus for the editor component.
   document.getElementById('txt_query_' + v_tab.id).onclick = function() {
     v_editor.focus();
   };
 
+  // Updating the tab_db_id.
   var v_tab_db_id = null;
-  if (p_tab_db_id)
+  if (p_tab_db_id) {
     v_tab_db_id = p_tab_db_id;
+  }
 
+  // Setting all tab_tag params.
   var v_tag = {
     tab_id: v_tab.id,
     mode: 'query',
@@ -255,32 +271,32 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
      }
   };
 
+  // Setting the v_tab_tag.
   v_tab.tag = v_tag;
-
   v_tag.selectDataTabFunc    = v_selectDataTabFunc;
   v_tag.selectMessageTabFunc = v_selectMessageTabFunc;
   v_tag.selectExplainTabFunc = v_selectExplainTabFunc;
 
+  // Selecting the `data` tab by default.
   v_selectDataTabFunc();
 
-  // Creating + tab in the outer tab list
-  var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab(
-    {
-      p_name: '+',
-      p_close: false,
-      p_selectable: false,
-      p_clickFunction: function(e) {
-        showMenuNewTab(e);
-      }
-    });
+  // Creating `Add` tab in the `inner_query` tab list
+  var v_add_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
+    p_name: '+',
+    p_close: false,
+    p_selectable: false,
+    p_clickFunction: function(e) {
+      showMenuNewTab(e);
+    }
+  });
   v_add_tab.tag = {
     mode: 'add'
   }
 
+  // Requesting an update on the workspace layout and sizes.
   setTimeout(function() {
     refreshHeights();
   },10);
-
   adjustQueryTabObjects(false);
   v_editor.focus();
 

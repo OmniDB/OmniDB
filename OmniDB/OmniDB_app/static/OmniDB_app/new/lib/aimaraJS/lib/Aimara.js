@@ -10,6 +10,16 @@ You should have received a copy of the GNU General Public License along with Omn
 // p_div: ID of the div where the tree will be rendered;
 // p_backColor: Background color of the region where the tree is being rendered;
 // p_contextMenu: Object containing all the context menus. Set null for no context menu;
+
+/**
+ * ## createTree
+ * @desc Creating the tree component.
+ *
+ * @param  {string} p_div         ID of the div where the tree will be rendered.
+ * @param  {string} p_backColor   Background color of the region where the tree is being rendered.
+ * @param  {object} p_contextMenu Object containing all the context menus. Set null for no context menu.
+ * @return {object}               Tree component.
+ */
 function createTree(p_div,p_backColor,p_contextMenu) {
 	var v_tree_object = {
 		name: 'tree_' + p_div,
@@ -115,21 +125,21 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				this.childNodes.push(node);
 				node.parent=this;
 			}
-			else
+			else {
 				p_parentNode.childNodes.push(node);
+			}
 
 			return node;
 		},
 		///// Render the tree;
 		drawTree: function() {
-
 			this.rendered = true;
 
 			var div_tree = document.getElementById(this.div);
 
 			div_tree.innerHTML = '';
 
-			ulElement = createSimpleElement('ul',this.name,'nav flex-column');
+			ulElement = this.createSimpleElement('ul',this.name,'nav flex-column');
 			this.ulElement = ulElement;
 
 			for (var i=0; i<this.childNodes.length; i++) {
@@ -137,23 +147,19 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			}
 
 			div_tree.appendChild(ulElement);
-
-
 		},
 		///// Drawing child nodes. This function is used when drawing nodes of the tree
 		// p_node: Reference to the node object;
 		// p_level: Depth of the node inside the tree
 		drawChildNodes: function(p_node,p_level = 1) {
-
-
 			if (p_node.childNodes.length>0) {
 				if (p_node.expanded) {
-				p_node.elementDiv.style.display = 'block';
-				var v_img = p_node.elementExpCol;
-				v_img.style.visibility = "visible";
-				v_img.classList.remove('fa-chevron-right');
-				v_img.classList.add('fa-chevron-down');
-				v_img.id = 'toggle_off';
+					p_node.elementDiv.style.display = 'block';
+					var v_img = p_node.elementExpCol;
+					v_img.style.visibility = "visible";
+					v_img.classList.remove('fa-chevron-right');
+					v_img.classList.add('fa-chevron-down');
+					v_img.id = 'toggle_off';
 				}
 				else {
 					p_node.elementDiv.style.display = 'none';
@@ -164,7 +170,7 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 					v_img.id = 'toggle_on';
 				}
 
-				var v_ul = createSimpleElement('ul','ul_' + p_node.id,'nav flex-column');
+				var v_ul = this.createSimpleElement('ul','ul_' + p_node.id,'nav flex-column');
 
 				for (var i=0; i<p_node.childNodes.length; i++) {
 					this.drawNode(v_ul,p_node.childNodes[i],p_level);
@@ -174,8 +180,6 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				p_node.elementDiv.appendChild(v_ul);
 				p_node.elementUl = v_ul;
 			}
-
-
 		},
 		//Set note text as bold
 		setNodeBold: function(p_node) {
@@ -196,36 +200,36 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		// p_node: Reference to the node object;
 		// p_level: Depth of the node inside the tree
 		drawNode: function(p_ulElement,p_node,p_level = 1) {
-
 			var v_tree = this;
 
 			var v_icon = null;
 
-			if (p_node.icon!=null)
-				v_icon = createSimpleElement('i',null,'icon_tree ' + p_node.icon);
-				//v_icon.innerHTML = '<i class="' + p_node.icon + '" style="display: block;"></i>';
-				//v_icon.style.backgroundImage = 'url(' + p_node.icon + ')';
+			if (p_node.icon!=null) {
+				v_icon = this.createSimpleElement('i',null,'icon_tree ' + p_node.icon);
+			}
+			//v_icon.innerHTML = '<i class="' + p_node.icon + '" style="display: block;"></i>';
+			//v_icon.style.backgroundImage = 'url(' + p_node.icon + ')';
 
-			var v_li = createSimpleElement('li',null,'nav-item');
+			var v_li = this.createSimpleElement('li',null,'nav-item');
 			p_node.elementLi = v_li;
 
-			var v_a = createSimpleElement('a',null,'nav-link');
+			var v_a = this.createSimpleElement('a',null,'nav-link');
 
-			var v_span_outer = createSimpleElement('span',null,'node');
+			var v_span_outer = this.createSimpleElement('span',null,'node');
 			v_span_outer.style['padding-left'] = (p_level - 1)*16 + 'px';
 
 			var v_exp_col = null;
 
 			if (p_node.childNodes.length == 0) {
-				v_exp_col = createSimpleElement('i','toggle_off','exp_col fas fa-chevron-down');
+				v_exp_col = this.createSimpleElement('i','toggle_off','exp_col fas fa-chevron-down');
 				v_exp_col.style.visibility = "hidden";
 			}
 			else {
 				if (p_node.expanded) {
-					v_exp_col = createSimpleElement('i','toggle_off','exp_col fas fa-chevron-down');
+					v_exp_col = this.createSimpleElement('i','toggle_off','exp_col fas fa-chevron-down');
 				}
 				else {
-					v_exp_col = createSimpleElement('i','toggle_on','exp_col fas fa-chevron-right');
+					v_exp_col = this.createSimpleElement('i','toggle_on','exp_col fas fa-chevron-right');
 				}
 			}
 
@@ -252,7 +256,6 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 			};
 
 			v_a.oncontextmenu = function(e) {
-
 				v_tree.clickNode(p_node);
 				v_tree.selectNode(p_node);
 
@@ -272,34 +275,38 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 
 			v_span_outer.appendChild(v_exp_col);
 
-			if (v_icon!=undefined)
+			if (v_icon!=undefined) {
 				v_span_outer.appendChild(v_icon);
+			}
 
-			var v_span_inner = createSimpleElement('span',null,null);
+			var v_span_inner = this.createSimpleElement('span',null,null);
 
-			if (p_node.color!=null)
+			if (p_node.color!=null) {
 				v_span_inner.style.color = p_node.color;
+			}
 
-		  if (p_node.isBold)
+		  if (p_node.isBold) {
 				v_span_inner.innerHTML= '<b>' + p_node.text.replace(/"/g, '') + '</b>';
-			else
+			}
+			else {
 				v_span_inner.innerHTML= p_node.text.replace(/"/g, '');
+			}
 			p_node.elementA = v_span_inner;
 			v_span_outer.appendChild(v_span_inner);
 			v_a.appendChild(v_span_outer);
 			v_li.appendChild(v_a);
 			p_ulElement.appendChild(v_li);
 
-			var v_div = createSimpleElement('div',null,'collapse');
+			var v_div = this.createSimpleElement('div',null,'collapse');
 
-			var v_ul = createSimpleElement('ul','ul_' + p_node.id,'nav flex-column');
+			var v_ul = this.createSimpleElement('ul','ul_' + p_node.id,'nav flex-column');
 			v_div.appendChild(v_ul);
 			v_li.appendChild(v_div);
 
 			if (p_node.childNodes.length > 0) {
-
-				if (!p_node.expanded)
+				if (!p_node.expanded) {
 					v_div.style.display = 'none';
+				}
 
 				var v_level = p_level + 1;
 
@@ -354,12 +361,24 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				}
 			}
 		},
+		//Create a HTML element specified by parameter 'p_type'
+		createSimpleElement: function(p_type,p_id,p_class) {
+			var v_element = document.createElement(p_type);
+			if (p_id!=undefined) {
+				v_element.id = p_id;
+			}
+			if (p_class!=undefined) {
+				v_element.className = p_class;
+			}
+			return v_element;
+		},
 		///// Expanding node
 		// p_node: Reference to the node;
 		expandNode: function(p_node) {
 			if (p_node.childNodes.length>0 && p_node.expanded==false) {
-				if (this.nodeBeforeOpenEvent!=undefined)
+				if (this.nodeBeforeOpenEvent!=undefined) {
 					this.nodeBeforeOpenEvent(p_node);
+				}
 
 				var img=p_node.elementExpCol;
 				p_node.expanded = true;
@@ -370,8 +389,9 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				elem_ul = p_node.elementDiv;
 				elem_ul.style.display = 'block';
 
-				if (this.nodeAfterOpenEvent!=undefined)
+				if (this.nodeAfterOpenEvent!=undefined) {
 					this.nodeAfterOpenEvent(p_node);
+				}
 			}
 		},
 		///// Collapsing node
@@ -381,8 +401,9 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 				var img=p_node.elementExpCol;
 
 				p_node.expanded = false;
-				if (this.nodeBeforeCloseEvent!=undefined)
+				if (this.nodeBeforeCloseEvent!=undefined) {
 					this.nodeBeforeCloseEvent(p_node);
+				}
 
 				img.classList.add('fa-chevron-right');
 				img.classList.remove('fa-chevron-down');
@@ -395,37 +416,43 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		// p_node: Reference to the node;
 		toggleNode: function(p_node) {
 			if (p_node.childNodes.length>0) {
-				if (p_node.expanded)
+				if (p_node.expanded) {
 					p_node.collapseNode();
-				else
+				}
+				else {
 					p_node.expandNode();
+				}
 			}
 		},
 		///// Clicking node
 		// p_node: Reference to the node;
 		clickNode: function(p_node) {
 			//global event
-			if (this.clickNodeEvent)
+			if (this.clickNodeEvent) {
 				this.clickNodeEvent(p_node);
+			}
 
 			//node event
-			if (p_node.clickNodeEvent)
+			if (p_node.clickNodeEvent) {
 				p_node.clickNodeEvent(p_node);
+			}
 		},
 		///// Double clicking node
 		// p_node: Reference to the node;
 		doubleClickNode: function(p_node) {
 			this.toggleNode(p_node);
-			if (p_node.doubleClickNodeEvent)
+			if (p_node.doubleClickNodeEvent) {
 				p_node.doubleClickNodeEvent(p_node);
+			}
 		},
 		///// Selecting node
 		// p_node: Reference to the node;
 		selectNode: function(p_node) {
 			var span = p_node.elementLi.getElementsByTagName("span")[0];
 			span.className = 'node_selected';
-			if (this.selectedNode!=null && this.selectedNode!=p_node)
+			if (this.selectedNode!=null && this.selectedNode!=p_node) {
 				this.selectedNode.elementLi.getElementsByTagName("span")[0].className = 'node';
+			}
 			this.selectedNode = p_node;
 		},
 		///// Deleting node
@@ -450,7 +477,6 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		///// Deleting all node children
 		// p_node: Reference to the node;
 		removeChildNodes: function(p_node) {
-
 			if (p_node.childNodes.length>0) {
 				var v_ul = p_node.elementUl;
 
@@ -465,20 +491,23 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 		// p_event: Event triggered when right clicking;
 		// p_node: Reference to the node;
 		nodeContextMenu: function(p_event,p_node, p_items) {
-
 			var v_items_list = [];
+
 			if (p_node.contextMenu!=undefined) {
 				try {
 						var v_menu_list = null;
-						if (typeof(this.contextMenu[p_node.contextMenu].elements)=='function')
+						if (typeof(this.contextMenu[p_node.contextMenu].elements)=='function') {
 							v_menu_list = this.contextMenu[p_node.contextMenu].elements(p_node);
-						else
+						}
+						else {
 							v_menu_list = this.contextMenu[p_node.contextMenu].elements;
+						}
 						v_items_list = v_items_list.concat(v_menu_list);
 				}
 				catch(err) {
 				}
 			}
+
 			if (p_items!=null) {
 				v_items_list = v_items_list.concat(p_items);
 			}
@@ -499,28 +528,4 @@ function createTree(p_div,p_backColor,p_contextMenu) {
 	v_div.classList.add('aimara_tree');
 
 	return v_tree_object;
-}
-
-// Helper Functions
-
-//Create a HTML element specified by parameter 'p_type'
-function createSimpleElement(p_type,p_id,p_class) {
-	var element = document.createElement(p_type);
-	if (p_id!=undefined)
-		element.id = p_id;
-	if (p_class!=undefined)
-		element.className = p_class;
-	return element;
-}
-
-//Create img element
-function createImgElement(p_id,p_class,p_src) {
-	var element = document.createElement('img');
-	if (p_id!=undefined)
-		element.id = p_id;
-	if (p_class!=undefined)
-		element.className = p_class;
-	if (p_src!=undefined)
-		element.src = p_src;
-	return element;
 }

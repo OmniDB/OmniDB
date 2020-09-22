@@ -1472,7 +1472,8 @@ function updateModalEditConnectionState(e) {
         'conn_form_server',
         'conn_form_port',
         'conn_form_database',
-        'conn_form_user'
+        'conn_form_user',
+        'conn_form_user_pass'
       ];
     }
     else {
@@ -1480,7 +1481,8 @@ function updateModalEditConnectionState(e) {
         'conn_form_server',
         'conn_form_port',
         'conn_form_database',
-        'conn_form_user'
+        'conn_form_user',
+        'conn_form_user_pass'
       ];
     }
   }
@@ -1489,7 +1491,8 @@ function updateModalEditConnectionState(e) {
       'conn_form_server',
       'conn_form_port',
       'conn_form_database',
-      'conn_form_user'
+      'conn_form_user',
+      'conn_form_user_pass'
     ];
     let v_check_inputs_empty = true;
     for (let i = 0; i < v_check_inputs.length; i++) {
@@ -1509,7 +1512,8 @@ function updateModalEditConnectionState(e) {
         'conn_form_server',
         'conn_form_port',
         'conn_form_database',
-        'conn_form_user'
+        'conn_form_user',
+        'conn_form_user_pass'
       ];
     }
     else {
@@ -1545,7 +1549,8 @@ function updateModalEditConnectionState(e) {
         'conn_form_server',
         'conn_form_port',
         'conn_form_database',
-        'conn_form_user'
+        'conn_form_user',
+        'conn_form_user_pass'
       ];
       v_enable_list = [
         'conn_form_ssh_server',
@@ -1563,7 +1568,8 @@ function updateModalEditConnectionState(e) {
         'conn_form_server',
         'conn_form_port',
         'conn_form_database',
-        'conn_form_user'
+        'conn_form_user',
+        'conn_form_user_pass'
       ];
       document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
     }

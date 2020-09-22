@@ -1143,6 +1143,51 @@
   font-size: 1rem;
 }
 
+/* CIRCLE WAVES */
+.omnis__circle-waves {
+  display: inline-block;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+.omnis__circle-waves--idle span {
+  background-color: #7DFF81;
+}
+.omnis__circle-waves--running span {
+  background-color: #6A96d8;
+}
+.omnis__circle-waves span {
+  border-radius: 18px;
+  display: inline-block;
+  height: 100%;
+  left: 0px;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+.omnis__circle-waves span:nth-of-type(1) {
+  animation: waves 2.5s linear .1s;
+  animation-iteration-count: infinite;
+}
+
+.omnis__circle-waves span:nth-of-type(2) {
+  animation: waves 2.5s linear .7s forwards;
+  animation-iteration-count: infinite;
+}
+
+.omnis__circle-waves span:nth-of-type(3) {
+  animation: waves 2.5s linear 1.3s forwards;
+  animation-iteration-count: infinite;
+}
+
+.omnis__circle-waves span:nth-of-type(4) {
+  animation: waves 2.5s linear 1.9s forwards;
+  animation-iteration-count: infinite;
+}
+
 /* SWITCH */
 .omnidb__switch {
   position: relative;

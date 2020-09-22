@@ -239,26 +239,47 @@ function setTabStatus(p_tab_tag, p_con_status) {
 		p_tab_tag.query_tab_status_text.innerHTML = 'Not connected';
 		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-closed';
 		p_tab_tag.query_tab_status.title = 'Not connected';
+		p_tab_tag.query_tab_status.innerHTML = '';
 	}
 	else if (p_con_status==1) {
 		p_tab_tag.query_tab_status_text.innerHTML = 'Idle';
-		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-idle';
+		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-idle position-relative';
 		p_tab_tag.query_tab_status.title = 'Idle';
+		p_tab_tag.query_tab_status.innerHTML =
+		'<div style="position: absolute; width: 12px; height: 12px; overflow: visible; left: 0px; top: 0px; display: block;">' +
+			'<span class="omnis__circle-waves omnis__circle-waves--idle">' +
+				'<span></span>' +
+				'<span></span>' +
+				'<span></span>' +
+				'<span></span>' +
+			'</span>' +
+		'</div>';
 	}
 	else if (p_con_status==2) {
 		p_tab_tag.query_tab_status_text.innerHTML = 'Running'
-		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-running';
+		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-running position-relative';
 		p_tab_tag.query_tab_status.title = 'Running';
+		p_tab_tag.query_tab_status.innerHTML =
+		'<div style="position: absolute; width: 12px; height: 12px; overflow: visible; left: 0px; top: 0px; display: block;">' +
+			'<span class="omnis__circle-waves omnis__circle-waves--running">' +
+				'<span></span>' +
+				'<span></span>' +
+				'<span></span>' +
+				'<span></span>' +
+			'</span>' +
+		'</div>';
 	}
 	else if (p_con_status==3) {
 		p_tab_tag.query_tab_status_text.innerHTML = 'Idle in transaction'
 		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-idle_in_transaction';
 		p_tab_tag.query_tab_status.title = 'Idle in transaction';
+		p_tab_tag.query_tab_status.innerHTML = '';
 	}
 	else if (p_con_status==4) {
 		p_tab_tag.query_tab_status_text.innerHTML = 'Idle in transaction (aborted)'
 		p_tab_tag.query_tab_status.className = 'fas fa-dot-circle tab-status tab-status-idle_in_transaction_aborted';
 		p_tab_tag.query_tab_status.title = 'Idle in transaction (aborted)';
+		p_tab_tag.query_tab_status.innerHTML = '';
 	}
 
 

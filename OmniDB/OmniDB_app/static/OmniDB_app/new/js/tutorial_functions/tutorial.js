@@ -174,6 +174,95 @@ function startTutorial(p_tutorial_name) {
           p_target: function() {var v_target = document.getElementById('conn_form_button_test_connection'); return v_target},
           p_title: 'Test the Connection'
         }
+      ],
+      'terminal_connection': [
+        {
+          p_clone_target: true,
+          p_message: `
+          <p>First let's open the <strong>connections management</strong> interface.</p>
+          <p>Please, click on the OmniDB Icon button.</p>
+          `,
+          p_target: document.getElementsByClassName('omnidb__tab-menu omnidb__tab-menu--primary')[0],
+          p_title: 'Accessing connections managemnet'
+        },
+        {
+          p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById('button_new_connection'); window.omnis_ui_assistant.divClonedElement.children[0].classList.remove('ml-2');},50);},
+          p_callback_start: function() {startConnectionManagement();},
+          p_clone_target: true,
+          p_message: `
+          <p>Click on <strong>New Connection</strong>.</p>
+          `,
+          p_next_button: false,
+          p_target: function() {var v_target = document.getElementById('button_new_connection'); return v_target},
+          p_title: 'Add a New Connection',
+          p_update_delay: 600
+        },
+        {
+          p_message: `
+          <p>Select the Terminal technology.</p>
+          `,
+          p_target: function() {var v_target = document.getElementById('conn_form_type'); return v_target},
+          p_title: 'Connection Type',
+          p_update_delay: 300
+        },
+        {
+          p_message: `
+          <p>Type a helpful name for the terminal connection.</p>
+          <p>This is used as name reference on many UI areas.</p>
+          <p>i.e: Local terminal.</p>
+          `,
+          p_target: function() {var v_target = document.getElementById('conn_form_title'); return v_target},
+          p_title: 'Title'
+        },
+        {
+          p_message: `
+          <p>The terminal utilizes SSH technology.</p>
+          <p>Type the ssh server address. Do not include ports.</p>
+          <p>i.e:127.0.0.1</p>
+          `,
+          p_target: function() {var v_target = document.getElementById('conn_form_ssh_server'); return v_target},
+          p_title: 'SSH server'
+        },
+        {
+          p_message: `
+          <p>Type the port of the SSH server.</p>
+          <p>i.e: 22 is a default port for working with SSH tunnels.</p>
+          `,
+          p_target: function() {var v_target = document.getElementById('conn_form_ssh_port'); return v_target},
+          p_title: 'SSH Port'
+        },
+        {
+          p_message: `
+          <p>Type the name of the SSH user.</p>
+          <p>i.e: If you are on linux, your linux user is available for a local connection.</p>
+          `,
+          p_target: function() {var v_target = document.getElementById('conn_form_ssh_user'); return v_target},
+          p_title: 'SSH User'
+        },
+        {
+          p_message: `
+          <p>Type the password of your user.</p>
+          <p>i.e: If you are on linux, your linux user is available for a local connection.</p>
+          `,
+          p_target: function() {var v_target = document.getElementById('conn_form_ssh_password'); return v_target},
+          p_title: 'SSH Password'
+        },
+        {
+          p_message: `
+          <p>This is <strong>optional</strong>.</p>
+          <p>It allows you to configure a SSH key.</p>
+          `,
+          p_target: function() {var v_target = document.getElementById('conn_form_ssh_key'); return v_target},
+          p_title: 'SSH Key'
+        },
+        {
+          p_message: `
+          <p>You may want to hit 'test' before saving the conntion.</p>
+          <p>After that, click save.</p>
+          `,
+          p_target: function() {var v_target = document.getElementById('conn_form_button_test_connection'); return v_target},
+          p_title: 'Test the Connection'
+        }
       ]
     }
     // Selecting a tutorial

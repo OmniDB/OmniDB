@@ -160,8 +160,13 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
     },
     {
       icon: '<i class="fas fa-plug mr-2"></i>',
-      text: 'Create a connection',
+      text: 'Create a database connection',
       tutorial: "\'connections_menu\'"
+    },
+    {
+      icon: '<i class="fas fa-terminal mr-2"></i>',
+      text: 'Create a terminal connection',
+      tutorial: "\'terminal_connection\'"
     }
   ]
   let v_getting_started_buttons_list_html = '';

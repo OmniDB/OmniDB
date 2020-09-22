@@ -2,6 +2,7 @@ function startTutorial(p_tutorial_name) {
   if (!window.omnis_ui_assistant) {
     // Instantiate the component.
     window.omnis_ui_assistant = createOmnis({
+      // Configuring to delete the componente when it's no longer used.
       p_callback_end: function(){ delete window.omnis_ui_assistant; }
     });
     // Setting the tutorial to the default example tutorial `main`.
@@ -38,7 +39,7 @@ function startTutorial(p_tutorial_name) {
           `,
           p_target: document.getElementsByClassName('omnidb__utilities-menu')[0],
           p_title: 'Utilities Menu',
-          p_update_delay: 300
+          p_update_delay: 350
         },
         {
           p_callback_end: function() {$('.omnidb__utilities-menu').removeClass('omnidb__utilities-menu--show');},

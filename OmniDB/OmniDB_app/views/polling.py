@@ -74,6 +74,24 @@ class StoppableThread(threading.Thread):
     def stop(self):
         self.cancel = True
 
+import time
+
+def clear_client(request):
+    clear_client_object(
+        p_client_id = request.session.session_key
+    )
+    return JsonResponse(
+    {}
+    )
+
+def client_keep_alive(request):
+    client_object = get_client_object(request.session.session_key)
+    client_object['last_update'] = datetime.now()
+
+    return JsonResponse(
+    {}
+    )
+
 def long_polling(request):
 
     v_return = {}
@@ -88,14 +106,19 @@ def long_polling(request):
         return JsonResponse(v_return)
 
     json_object = json.loads(request.POST.get('data', None))
-    v_client_id = json_object['p_client_id']
+    startup = json_object['p_startup']
 
     #get client attribute in global object or create if it doesn't exist
-    client_object = get_client_object(v_client_id)
+    client_object = get_client_object(request.session.session_key)
+
+    if startup:
+        try:
+            client_object['polling_lock'].release()
+        except:
+            None
 
     # Acquire client polling lock to read returning data
     client_object['polling_lock'].acquire()
-
 
     v_returning_data = []
 
@@ -115,7 +138,7 @@ def queue_response(p_client_object, p_data):
     try:
         # Attempt to release client polling lock so that the polling thread can read data
         p_client_object['polling_lock'].release()
-    except Exception:
+    except Exception as exc:
         None
     p_client_object['returning_data_lock'].release()
 
@@ -136,12 +159,11 @@ def create_request(request):
     v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
-    v_client_id = json_object['v_client_id']
     v_code = json_object['v_code']
     v_context_code = json_object['v_context_code']
     v_data = json_object['v_data']
 
-    client_object = get_client_object(v_client_id)
+    client_object = get_client_object(request.session.session_key)
 
     #Cancel thread
     if v_code == requestType.CancelThread:
@@ -169,6 +191,7 @@ def create_request(request):
     #Close Tab
     elif v_code == requestType.CloseTab:
         for v_tab_close_data in v_data:
+            print('CLOSING: ' + v_tab_close_data['tab_id'])
             close_tab_handler(client_object,v_tab_close_data['tab_id'])
             #remove from tabs table if db_tab_id is not null
             if v_tab_close_data['tab_db_id']:
@@ -178,146 +201,148 @@ def create_request(request):
                 except Exception as exc:
                     None
 
-    elif v_code == requestType.Terminal:
-        #create tab object if it doesn't exist
-        try:
-            tab_object = client_object['tab_list'][v_data['v_tab_id']]
+    else:
+
+        #Check database prompt timeout
+        if v_data['v_db_index']!=None:
+            v_timeout = v_session.DatabaseReachPasswordTimeout(v_data['v_db_index'])
+            if v_timeout['timeout']:
+                v_response['v_code'] = response.PasswordRequired
+                v_response['v_data'] = v_timeout['message']
+                queue_response(v_client_object,v_response)
+                return
+
+        if v_code == requestType.Terminal:
+            #create tab object if it doesn't exist
             try:
-                tab_object['terminal_object'].send(v_data['v_cmd'])
-            except:
-                None
-        except Exception as exc:
-            tab_object =  {
-                            'thread': None,
-                            'terminal_object': None
-                          }
-            client_object['tab_list'][v_data['v_tab_id']] = tab_object
-
-            start_thread = True
-
-            try:
-                v_conn_object = v_session.v_databases[v_data['v_ssh_id']]
-
-                client = paramiko.SSHClient()
-                client.load_system_host_keys()
-                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-                #ssh key provided
-                if v_conn_object['tunnel']['key'].strip() != '':
-                    v_file_name = '{0}'.format(str(time.time())).replace('.','_')
-                    v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
-                    with open(v_full_file_name,'w') as f:
-                        f.write(v_conn_object['tunnel']['key'])
-                    client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
-                else:
-                    client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
-                tab_object['terminal_ssh_client'] = client
-                tab_object['terminal_object'] = custom_paramiko_expect.SSHClientInteraction(client,timeout=60, display=False)
-                tab_object['terminal_object'].send(v_data['v_cmd'])
-
-                tab_object['terminal_type'] = 'remote'
-
+                tab_object = client_object['tab_list'][v_data['v_tab_id']]
+                try:
+                    tab_object['terminal_object'].send(v_data['v_cmd'])
+                except:
+                    None
             except Exception as exc:
-                start_thread = False
-                logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
-                v_response['v_code'] = response.MessageException
-                v_response['v_data'] = str(exc)
-                ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
-
-            if start_thread:
-                v_data['v_context_code'] = v_context_code
-                v_data['v_tab_object'] = tab_object
-                v_data['v_client_object'] = client_object
-                v_data['v_session'] = v_session
-                t = StoppableThread(thread_terminal,v_data)
-                tab_object['thread'] = t
-                tab_object['type'] = 'terminal'
-                tab_object['tab_id'] = v_data['v_tab_id']
-                t.start()
-
-
-    elif v_code == requestType.Query or v_code == requestType.QueryEditData or v_code == requestType.SaveEditData or v_code == requestType.AdvancedObjectSearch or v_code == requestType.Console:
-        #create tab object if it doesn't exist
-        try:
-            tab_object = client_object['tab_list'][v_data['v_tab_id']]
-        except Exception as exc:
-            tab_object =  { 'thread': None,
-                         'omnidatabase': None,
-                         'database_index': -1,
-                         'inserted_tab': False }
-            client_object['tab_list'][v_data['v_tab_id']] = tab_object
-        try:
-            v_conn_tab_connection = v_session.v_tab_connections[v_data['v_conn_tab_id']]
-            #create database object
-            if (tab_object['database_index']!=v_data['v_db_index'] or
-            v_conn_tab_connection.v_db_type!=tab_object['omnidatabase'].v_db_type or
-            v_conn_tab_connection.v_connection.v_host!=tab_object['omnidatabase'].v_connection.v_host or
-            str(v_conn_tab_connection.v_connection.v_port)!=str(tab_object['omnidatabase'].v_connection.v_port) or
-            v_conn_tab_connection.v_active_service!=tab_object['omnidatabase'].v_active_service or
-            v_conn_tab_connection.v_user!=tab_object['omnidatabase'].v_user or
-            v_conn_tab_connection.v_connection.v_password!=tab_object['omnidatabase'].v_connection.v_password):
-                v_database_new = OmniDatabase.Generic.InstantiateDatabase(
-                    v_conn_tab_connection.v_db_type,
-                    v_conn_tab_connection.v_connection.v_host,
-                    str(v_conn_tab_connection.v_connection.v_port),
-                    v_conn_tab_connection.v_active_service,
-                    v_conn_tab_connection.v_active_user,
-                    v_conn_tab_connection.v_connection.v_password,
-                    v_conn_tab_connection.v_conn_id,
-                    v_conn_tab_connection.v_alias,
-                    p_conn_string = v_conn_tab_connection.v_conn_string,
-                    p_parse_conn_string = False
+                tab_object = create_tab_object(
+                    request.session,
+                    v_data['v_tab_id'],
+                    {
+                        'thread': None,
+                        'terminal_object': None
+                    }
                 )
 
-                tab_object['omnidatabase'] = v_database_new
-                tab_object['database_index'] = v_data['v_db_index']
+                start_thread = True
 
-        except Exception as exc:
-            raise
+                try:
+                    v_conn_object = v_session.v_databases[v_data['v_ssh_id']]
 
-        v_data['v_context_code'] = v_context_code
-        v_data['v_database'] = tab_object['omnidatabase']
-        v_data['v_client_object'] = client_object
-        v_data['v_session'] = v_session
-        #Query request
-        if v_code == requestType.Query:
-            tab_object['tab_db_id'] = v_data['v_tab_db_id']
-            v_data['v_tab_object'] = tab_object
-            t = StoppableThread(thread_query,v_data)
-            tab_object['thread'] = t
-            tab_object['type'] = 'query'
-            tab_object['sql_cmd'] = v_data['v_sql_cmd']
-            tab_object['sql_save'] = v_data['v_sql_save']
-            tab_object['tab_id'] = v_data['v_tab_id']
-            #t.setDaemon(True)
-            t.start()
+                    client = paramiko.SSHClient()
+                    client.load_system_host_keys()
+                    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-        #Console request
-        elif v_code == requestType.Console:
-            v_data['v_tab_object'] = tab_object
-            t = StoppableThread(thread_console,v_data)
-            tab_object['thread'] = t
-            tab_object['type'] = 'console'
-            tab_object['sql_cmd'] = v_data['v_sql_cmd']
-            tab_object['tab_id'] = v_data['v_tab_id']
-            #t.setDaemon(True)
-            t.start()
+                    #ssh key provided
+                    if v_conn_object['tunnel']['key'].strip() != '':
+                        v_file_name = '{0}'.format(str(time.time())).replace('.','_')
+                        v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
+                        with open(v_full_file_name,'w') as f:
+                            f.write(v_conn_object['tunnel']['key'])
+                        client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+                    else:
+                        client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+                    tab_object['terminal_ssh_client'] = client
+                    tab_object['terminal_object'] = custom_paramiko_expect.SSHClientInteraction(client,timeout=60, display=False)
+                    tab_object['terminal_object'].send(v_data['v_cmd'])
 
-        #Query edit data
-        elif v_code == requestType.QueryEditData:
-            t = StoppableThread(thread_query_edit_data,v_data)
-            tab_object['thread'] = t
-            tab_object['type'] = 'edit'
-            #t.setDaemon(True)
-            t.start()
+                    tab_object['terminal_type'] = 'remote'
 
-        #Save edit data
-        elif v_code == requestType.SaveEditData:
-            t = StoppableThread(thread_save_edit_data,v_data)
-            tab_object['thread'] = t
-            tab_object['type'] = 'edit'
-            #t.setDaemon(True)
-            t.start()
+                except Exception as exc:
+                    start_thread = False
+                    logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+                    v_response['v_code'] = response.MessageException
+                    v_response['v_data'] = str(exc)
+                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+
+                if start_thread:
+                    v_data['v_context_code'] = v_context_code
+                    v_data['v_tab_object'] = tab_object
+                    v_data['v_client_object'] = client_object
+                    v_data['v_session'] = v_session
+                    t = StoppableThread(thread_terminal,v_data)
+                    tab_object['thread'] = t
+                    tab_object['type'] = 'terminal'
+                    tab_object['tab_id'] = v_data['v_tab_id']
+                    t.start()
+
+
+        elif v_code == requestType.Query or v_code == requestType.QueryEditData or v_code == requestType.SaveEditData or v_code == requestType.AdvancedObjectSearch or v_code == requestType.Console:
+            #create tab object if it doesn't exist
+            try:
+                tab_object = client_object['tab_list'][v_data['v_tab_id']]
+            except Exception as exc:
+                tab_object = create_tab_object(
+                    request.session,
+                    v_data['v_tab_id'],
+                    {
+                        'thread': None,
+                        'omnidatabase': None,
+                        'inserted_tab': False
+                     }
+                )
+
+            try:
+                get_database_tab_object(
+                    v_session,
+                    client_object,
+                    tab_object,
+                    v_data['v_conn_tab_id'],
+                    False
+                )
+
+            except Exception as exc:
+                raise
+
+            v_data['v_context_code'] = v_context_code
+            v_data['v_database'] = tab_object['omnidatabase']
+            v_data['v_client_object'] = client_object
+            v_data['v_session'] = v_session
+            #Query request
+            if v_code == requestType.Query:
+                tab_object['tab_db_id'] = v_data['v_tab_db_id']
+                v_data['v_tab_object'] = tab_object
+                t = StoppableThread(thread_query,v_data)
+                tab_object['thread'] = t
+                tab_object['type'] = 'query'
+                tab_object['sql_cmd'] = v_data['v_sql_cmd']
+                tab_object['sql_save'] = v_data['v_sql_save']
+                tab_object['tab_id'] = v_data['v_tab_id']
+                #t.setDaemon(True)
+                t.start()
+
+            #Console request
+            elif v_code == requestType.Console:
+                v_data['v_tab_object'] = tab_object
+                t = StoppableThread(thread_console,v_data)
+                tab_object['thread'] = t
+                tab_object['type'] = 'console'
+                tab_object['sql_cmd'] = v_data['v_sql_cmd']
+                tab_object['tab_id'] = v_data['v_tab_id']
+                #t.setDaemon(True)
+                t.start()
+
+            #Query edit data
+            elif v_code == requestType.QueryEditData:
+                t = StoppableThread(thread_query_edit_data,v_data)
+                tab_object['thread'] = t
+                tab_object['type'] = 'edit'
+                #t.setDaemon(True)
+                t.start()
+
+            #Save edit data
+            elif v_code == requestType.SaveEditData:
+                t = StoppableThread(thread_save_edit_data,v_data)
+                tab_object['thread'] = t
+                tab_object['type'] = 'edit'
+                #t.setDaemon(True)
+                t.start()
 
     return JsonResponse(
     {}
@@ -435,7 +460,6 @@ def thread_query(self,args):
     }
 
     try:
-        v_database_index = args['v_db_index']
         v_sql            = args['v_sql_cmd']
         v_cmd_type       = args['v_cmd_type']
         v_tab_id         = args['v_tab_id']
@@ -464,7 +488,7 @@ def thread_query(self,args):
                 try:
                     tab_object = Tab(
                         user=User.objects.get(id=v_session.v_user_id),
-                        connection=Connection.objects.get(id=v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id),
+                        connection=Connection.objects.get(id=v_database.v_conn_id),
                         title=v_tab_title,
                         snippet=v_tab_object['sql_save']
                     )
@@ -718,7 +742,7 @@ def thread_query(self,args):
                     log_end_time,
                     v_duration,
                     log_status,
-                    v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id)
+                    v_database.v_conn_id)
 
         #if mode=0 save tab
         if v_mode==0 and v_tab_object['tab_db_id'] and v_log_query:
@@ -746,7 +770,6 @@ def thread_console(self,args):
     }
 
     try:
-        v_database_index = args['v_db_index']
         v_sql            = args['v_sql_cmd']
         v_tab_id         = args['v_tab_id']
         v_tab_object     = args['v_tab_object']
@@ -941,7 +964,6 @@ def thread_query_edit_data(self,args):
     }
 
     try:
-        v_database_index = args['v_db_index']
         v_table          = args['v_table']
         v_schema         = args['v_schema']
         v_filter         = args['v_filter']
@@ -1014,7 +1036,6 @@ def thread_save_edit_data(self,args):
     }
 
     try:
-        v_database_index = args['v_db_index']
         v_table          = args['v_table']
         v_schema         = args['v_schema']
         v_data_rows      = args['v_data_rows']

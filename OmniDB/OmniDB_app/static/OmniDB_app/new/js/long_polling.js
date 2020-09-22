@@ -7,29 +7,66 @@ var v_context_object = {
   'contextList': []
 }
 
+var v_polling_started = false;
+
 /// <summary>
 /// Startup function.
 /// </summary>
 $(function () {
 
-  v_client_id = v_user_key
-  call_polling();
+  setInterval(function() {
+    execAjax('/client_keep_alive/',
+  			JSON.stringify({}),
+  			function(p_return) {
+  			},
+  			null,
+  			'box',
+        false);
+
+  },60000);
 });
 
-function call_polling() {
+function call_polling(p_startup) {
   execAjax('/long_polling/',
 			JSON.stringify({
-        'p_client_id': v_client_id
+        'p_startup': p_startup
       }),
 			function(p_return) {
         for (var i=0; i<p_return.returning_rows.length; i++)
           polling_response(p_return.returning_rows[i]);
-        call_polling();
+        call_polling(false);
 
 			},
 			null,
 			'box',
       false);
+}
+
+$(window).on('beforeunload', function() {
+  clear_client().then(function() {});
+});
+
+async function clear_client() {
+  // Setting the token.
+ 	var csrftoken = getCookie('omnidb_csrftoken');
+	// Requesting data with ajax.
+ 	const v_ajax_call = await $.ajax({
+ 		url: v_url_folder + '/clear_client',
+ 		data: null,
+ 		type: "get",
+ 		dataType: "json",
+ 		beforeSend: function(xhr, settings) {
+ 			if(!csrfSafeMethod(settings.type) && !this.crossDomain) {
+ 				xhr.setRequestHeader("X-CSRFToken", csrftoken);
+ 			}
+ 		},
+ 		success: function(p_return) {
+ 		},
+ 		error: function(msg) {
+ 		}
+ 	});
+
+  return v_ajax_call;
 }
 
 function polling_response(p_message) {
@@ -204,13 +241,15 @@ function createRequest(p_messageCode, p_messageData, p_context) {
 
   execAjax('/create_request/',
 			JSON.stringify({
-        v_client_id: v_client_id,
         v_code: p_messageCode,
         v_context_code: v_context_code,
         v_data: p_messageData
       }),
 			function(p_return) {
-
+        if (!v_polling_started) {
+          v_polling_started=true;
+          call_polling(true);
+        }
 			},
 			null,
 			'box',

@@ -1007,8 +1007,9 @@ def get_command_list(request):
 
         v_query = QueryHistory.objects.filter(
             user=request.user,
-            connection=conn
-        )
+            connection=conn,
+            snippet__icontains=v_command_contains
+        ).order_by('-start_time')
 
         if v_command_from is not None and v_command_from != '':
             v_query = v_query.filter(

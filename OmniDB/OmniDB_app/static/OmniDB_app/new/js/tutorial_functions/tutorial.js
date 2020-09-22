@@ -159,6 +159,15 @@ function startTutorial(p_tutorial_name) {
         },
         {
           p_message: `
+          <p>This is <strong>optional</strong>.</p>
+          <p>If you don't save the user password, you will be required to manually input it everytime a new connection to this database is started.</p>
+          <p>If saved, this password will be stored in the database configured for OmniDB (default is omnidb.db).</p>
+          `,
+          p_target: function() {var v_target = document.getElementById('conn_form_user_pass'); return v_target},
+          p_title: 'User password'
+        },
+        {
+          p_message: `
           <p>You may want to hit 'test' before saving the conntion.</p>
           <p>After that, click save.</p>
           `,

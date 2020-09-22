@@ -20,10 +20,7 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
     p_close: false,// Replacing default close icon with contextMenu.
     p_closeFunction: function(e,p_tab) {
       var v_this_tab = p_tab;
-      beforeCloseTab(e,
-        function() {
-          v_this_tab.removeTab();
-        });
+      v_this_tab.removeTab();
     },
     p_rightClickFunction: function(e) {
       terminalContextMenu(e);

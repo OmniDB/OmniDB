@@ -664,8 +664,6 @@ def test_monitor_script(request):
 
     v_database = v_session.v_tab_connections[v_tab_id]
 
-    print(v_database)
-
     #Check database prompt timeout
     v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
     if v_timeout['timeout']:

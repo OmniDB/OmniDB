@@ -8,7 +8,6 @@ from datetime import datetime,timedelta
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 
 global_object = {}
-global_lock = threading.Lock()
 to_be_removed = []
 
 def cleanup_thread():
@@ -232,7 +231,7 @@ def get_database_tab_object(
         v_new_database_object.v_active_service!=p_tab_object['omnidatabase'].v_active_service or
         v_new_database_object.v_user!=p_tab_object['omnidatabase'].v_user or
         v_new_database_object.v_connection.v_password!=p_tab_object['omnidatabase'].v_connection.v_password):
-        print('NEW')
+
         v_database_new = OmniDatabase.Generic.InstantiateDatabase(
             v_new_database_object.v_db_type,
             v_new_database_object.v_connection.v_host,

@@ -1541,6 +1541,10 @@ body {
   cursor: pointer;
 }
 
+.unit_graph {
+  height: 300px;
+}
+
 #div_autocomplete .handsontable tr:hover {
   background-color: #c7d6ff;
   cursor: pointer;

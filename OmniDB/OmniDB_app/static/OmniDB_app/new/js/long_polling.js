@@ -13,6 +13,17 @@ var v_polling_started = false;
 /// Startup function.
 /// </summary>
 $(function () {
+
+  setInterval(function() {
+    execAjax('/client_keep_alive/',
+  			JSON.stringify({}),
+  			function(p_return) {
+  			},
+  			null,
+  			'box',
+        false);
+
+  },60000);
 });
 
 function call_polling(p_startup) {
@@ -31,14 +42,31 @@ function call_polling(p_startup) {
       false);
 }
 
-function print_global_object() {
-  execAjax('/print_global_object/',
-			JSON.stringify({}),
-			function(p_return) {
-			},
-			null,
-			'box',
-      false);
+$(window).on('beforeunload', function() {
+  clear_client().then(function() {});
+});
+
+async function clear_client() {
+  // Setting the token.
+ 	var csrftoken = getCookie('omnidb_csrftoken');
+	// Requesting data with ajax.
+ 	const v_ajax_call = await $.ajax({
+ 		url: v_url_folder + '/clear_client',
+ 		data: null,
+ 		type: "get",
+ 		dataType: "json",
+ 		beforeSend: function(xhr, settings) {
+ 			if(!csrfSafeMethod(settings.type) && !this.crossDomain) {
+ 				xhr.setRequestHeader("X-CSRFToken", csrftoken);
+ 			}
+ 		},
+ 		success: function(p_return) {
+ 		},
+ 		error: function(msg) {
+ 		}
+ 	});
+
+  return v_ajax_call;
 }
 
 function polling_response(p_message) {

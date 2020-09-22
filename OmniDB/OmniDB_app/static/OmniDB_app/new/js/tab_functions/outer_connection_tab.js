@@ -47,6 +47,10 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
         beforeCloseTab(e,
           function() {
             var v_tabs_to_remove = [];
+
+            var v_message_data = { tab_id: p_tab.tag.tab_id, tab_db_id: null };
+            v_tabs_to_remove.push(v_message_data);
+
             for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
 
               var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];

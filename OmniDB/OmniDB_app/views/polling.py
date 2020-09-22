@@ -74,19 +74,23 @@ class StoppableThread(threading.Thread):
     def stop(self):
         self.cancel = True
 
-from pprint import pprint
+import time
 
-def print_global_object(request):
-
-    #get client attribute in global object or create if it doesn't exist
-    client_object = get_client_object(request.session.session_key)
-
-    pprint(client_object)
-
+def clear_client(request):
+    clear_client_object(
+        p_client_id = request.session.session_key
+    )
     return JsonResponse(
     {}
     )
 
+def client_keep_alive(request):
+    client_object = get_client_object(request.session.session_key)
+    client_object['last_update'] = datetime.now()
+
+    return JsonResponse(
+    {}
+    )
 
 def long_polling(request):
 
@@ -187,6 +191,7 @@ def create_request(request):
     #Close Tab
     elif v_code == requestType.CloseTab:
         for v_tab_close_data in v_data:
+            print('CLOSING: ' + v_tab_close_data['tab_id'])
             close_tab_handler(client_object,v_tab_close_data['tab_id'])
             #remove from tabs table if db_tab_id is not null
             if v_tab_close_data['tab_db_id']:
@@ -216,12 +221,14 @@ def create_request(request):
                 except:
                     None
             except Exception as exc:
-                tab_object = {
-                                'thread': None,
-                                'terminal_object': None,
-                                'to_be_removed': False
-                              }
-                client_object['tab_list'][v_data['v_tab_id']] = tab_object
+                tab_object = create_tab_object(
+                    request.session,
+                    v_data['v_tab_id'],
+                    {
+                        'thread': None,
+                        'terminal_object': None
+                    }
+                )
 
                 start_thread = True
 
@@ -271,38 +278,24 @@ def create_request(request):
             try:
                 tab_object = client_object['tab_list'][v_data['v_tab_id']]
             except Exception as exc:
-                tab_object = { 'thread': None,
-                             'omnidatabase': None,
-                             'database_index': -1,
-                             'inserted_tab': False,
-                             'to_be_removed': False }
-                client_object['tab_list'][v_data['v_tab_id']] = tab_object
-            try:
-                v_conn_tab_connection = v_session.v_tab_connections[v_data['v_conn_tab_id']]
-                print(v_conn_tab_connection)
-                #create database object
-                if (tab_object['database_index']!=v_data['v_db_index'] or
-                v_conn_tab_connection.v_db_type!=tab_object['omnidatabase'].v_db_type or
-                v_conn_tab_connection.v_connection.v_host!=tab_object['omnidatabase'].v_connection.v_host or
-                str(v_conn_tab_connection.v_connection.v_port)!=str(tab_object['omnidatabase'].v_connection.v_port) or
-                v_conn_tab_connection.v_active_service!=tab_object['omnidatabase'].v_active_service or
-                v_conn_tab_connection.v_user!=tab_object['omnidatabase'].v_user or
-                v_conn_tab_connection.v_connection.v_password!=tab_object['omnidatabase'].v_connection.v_password):
-                    v_database_new = OmniDatabase.Generic.InstantiateDatabase(
-                        v_conn_tab_connection.v_db_type,
-                        v_conn_tab_connection.v_connection.v_host,
-                        str(v_conn_tab_connection.v_connection.v_port),
-                        v_conn_tab_connection.v_active_service,
-                        v_conn_tab_connection.v_active_user,
-                        v_conn_tab_connection.v_connection.v_password,
-                        v_conn_tab_connection.v_conn_id,
-                        v_conn_tab_connection.v_alias,
-                        p_conn_string = v_conn_tab_connection.v_conn_string,
-                        p_parse_conn_string = False
-                    )
+                tab_object = create_tab_object(
+                    request.session,
+                    v_data['v_tab_id'],
+                    {
+                        'thread': None,
+                        'omnidatabase': None,
+                        'inserted_tab': False
+                     }
+                )
 
-                    tab_object['omnidatabase'] = v_database_new
-                    tab_object['database_index'] = v_data['v_db_index']
+            try:
+                get_database_tab_object(
+                    v_session,
+                    client_object,
+                    tab_object,
+                    v_data['v_conn_tab_id'],
+                    False
+                )
 
             except Exception as exc:
                 raise
@@ -467,7 +460,6 @@ def thread_query(self,args):
     }
 
     try:
-        v_database_index = args['v_db_index']
         v_sql            = args['v_sql_cmd']
         v_cmd_type       = args['v_cmd_type']
         v_tab_id         = args['v_tab_id']
@@ -496,7 +488,7 @@ def thread_query(self,args):
                 try:
                     tab_object = Tab(
                         user=User.objects.get(id=v_session.v_user_id),
-                        connection=Connection.objects.get(id=v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id),
+                        connection=Connection.objects.get(id=v_database.v_conn_id),
                         title=v_tab_title,
                         snippet=v_tab_object['sql_save']
                     )
@@ -750,7 +742,7 @@ def thread_query(self,args):
                     log_end_time,
                     v_duration,
                     log_status,
-                    v_session.v_databases[v_tab_object['database_index']]['database'].v_conn_id)
+                    v_database.v_conn_id)
 
         #if mode=0 save tab
         if v_mode==0 and v_tab_object['tab_db_id'] and v_log_query:
@@ -778,7 +770,6 @@ def thread_console(self,args):
     }
 
     try:
-        v_database_index = args['v_db_index']
         v_sql            = args['v_sql_cmd']
         v_tab_id         = args['v_tab_id']
         v_tab_object     = args['v_tab_object']
@@ -973,7 +964,6 @@ def thread_query_edit_data(self,args):
     }
 
     try:
-        v_database_index = args['v_db_index']
         v_table          = args['v_table']
         v_schema         = args['v_schema']
         v_filter         = args['v_filter']
@@ -1046,7 +1036,6 @@ def thread_save_edit_data(self,args):
     }
 
     try:
-        v_database_index = args['v_db_index']
         v_table          = args['v_table']
         v_schema         = args['v_schema']
         v_data_rows      = args['v_data_rows']

@@ -191,7 +191,6 @@ def create_request(request):
     #Close Tab
     elif v_code == requestType.CloseTab:
         for v_tab_close_data in v_data:
-            print('CLOSING: ' + v_tab_close_data['tab_id'])
             close_tab_handler(client_object,v_tab_close_data['tab_id'])
             #remove from tabs table if db_tab_id is not null
             if v_tab_close_data['tab_db_id']:
@@ -207,15 +206,20 @@ def create_request(request):
         if v_data['v_db_index']!=None:
             v_timeout = v_session.DatabaseReachPasswordTimeout(v_data['v_db_index'])
             if v_timeout['timeout']:
-                v_response['v_code'] = response.PasswordRequired
-                v_response['v_data'] = v_timeout['message']
-                queue_response(v_client_object,v_response)
-                return
+                v_return['v_code'] = response.PasswordRequired
+                v_return['v_context_code'] = v_context_code
+                v_return['v_data'] = v_timeout['message']
+                queue_response(client_object,v_return)
+                return JsonResponse(
+                {}
+                )
 
         if v_code == requestType.Terminal:
             #create tab object if it doesn't exist
             try:
                 tab_object = client_object['tab_list'][v_data['v_tab_id']]
+                if not tab_object['terminal_transport'].is_active():
+                    raise
                 try:
                     tab_object['terminal_object'].send(v_data['v_cmd'])
                 except:
@@ -248,13 +252,19 @@ def create_request(request):
                         client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
                     else:
                         client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
+
+                    transport = client.get_transport()
+                    transport.set_keepalive(120)
+
                     tab_object['terminal_ssh_client'] = client
+                    tab_object['terminal_transport'] = transport
                     tab_object['terminal_object'] = custom_paramiko_expect.SSHClientInteraction(client,timeout=60, display=False)
                     tab_object['terminal_object'].send(v_data['v_cmd'])
 
                     tab_object['terminal_type'] = 'remote'
 
                 except Exception as exc:
+                    print(str(exc))
                     start_thread = False
                     logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
                     v_response['v_code'] = response.MessageException

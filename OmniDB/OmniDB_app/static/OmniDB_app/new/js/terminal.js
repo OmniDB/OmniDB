@@ -48,14 +48,15 @@ function startTerminal(p_conn_id) {
 	v_tag.editor_console.focus();
 	v_tag.editor_console.write('Starting terminal...')
 	v_tag.clear_terminal = true;
-	terminalRun(true,p_conn_id,'stty rows ' + v_tag.editor_console.rows + ' cols ' + v_tag.editor_console.cols + '\n');
+	terminalRun(true,'stty rows ' + v_tag.editor_console.rows + ' cols ' + v_tag.editor_console.cols + '\n');
 }
 
 function terminalKey(p_key) {
-	terminalRun(false,-1, p_key);
+	terminalRun(false, p_key);
 }
 
-function terminalContextMenu(p_event) {
+function terminalContextMenu(e) {
+	var v_tab = v_connTabControl.selectedTab;
 	var v_tag = v_connTabControl.selectedTab.tag;
 	var v_option_list = [];
 
@@ -64,17 +65,52 @@ function terminalContextMenu(p_event) {
 		text: 'Adjust Terminal Dimensions',
 		icon: 'fas cm-all fa-window-maximize',
 		action: function() {
-			terminalRun(false,-1,'stty rows ' + v_tag.editor_console.rows + ' cols ' + v_tag.editor_console.cols + '\n');
+			terminalRun(false,'stty rows ' + v_tag.editor_console.rows + ' cols ' + v_tag.editor_console.cols + '\n');
 			setTimeout(function() {
 				v_tag.editor_console.focus();
 			},10);
 		}
 	});
 
+	v_option_list.push(
+		{
+			text: '<p class=\"mb-0 text-danger\">Close Terminal</p>',
+			// icon: 'fas cm-all fa-terminal text-danger',
+			action: function() {
+				customMenu(
+		      {
+		        x:e.clientX+5,
+		        y:e.clientY+5
+		      },
+		      [
+		        {
+		          text: 'Confirm',
+		          icon: 'fas cm-all fa-check',
+		          action: function() {
+								createRequest(v_queryRequestCodes.CloseTab, [{ tab_id: v_tag.tab_id, tab_db_id: null }]);
+								if (v_tab.closeFunction!=null) {
+									v_tab.closeFunction(e,v_tab);
+								}
+		          }
+		        },
+		        {
+		          text: 'Cancel',
+		          icon: 'fas cm-all fa-times',
+		          action: function() {
+		          }
+		        }
+		      ],
+		      null);
+			}
+		});
+
+
+
+
 	customMenu(
 		{
-			x:p_event.clientX+5,
-			y:p_event.clientY+5
+			x:e.clientX+5,
+			y:e.clientY+5
 		},
 		v_option_list,
 		null);
@@ -82,7 +118,7 @@ function terminalContextMenu(p_event) {
 
 }
 
-function terminalRun(p_spawn = false, p_ssh_id = -1, p_query = '') {
+function terminalRun(p_spawn = false, p_query = '') {
   var v_tag = v_connTabControl.selectedTab.tag;
 	v_tag.tempData = '';
   var v_content = p_query;
@@ -94,7 +130,7 @@ function terminalRun(p_spawn = false, p_ssh_id = -1, p_query = '') {
       v_tab_id: v_tag.tab_id,
       v_db_index: null,
       v_spawn: p_spawn,
-			v_ssh_id: p_ssh_id
+			v_ssh_id: v_tag.connId
     }
 
     var d = new Date,

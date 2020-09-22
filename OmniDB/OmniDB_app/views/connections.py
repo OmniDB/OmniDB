@@ -213,6 +213,7 @@ def get_connections_new(request):
                 v_conn_object['port'] = conn.port
                 v_conn_object['service'] = conn.database
                 v_conn_object['user'] = conn.username
+                v_conn_object['password'] = conn.password
 
             v_connection_list.append(v_conn_object)
     # No connections
@@ -445,244 +446,6 @@ def delete_group(request):
 
     return JsonResponse(v_return)
 
-
-def save_connections(request):
-
-    v_return = {}
-    v_return['v_data'] = ''
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-    v_cryptor = request.session.get('cryptor')
-
-    json_object = json.loads(request.POST.get('data', None))
-    v_data_list = json_object['p_data_list']
-    v_conn_id_list = json_object['p_conn_id_list']
-    v_group_id = json_object['p_group_id']
-
-    v_index = 0
-
-    try:
-        v_session.v_omnidb_database.v_connection.Open();
-        v_session.v_omnidb_database.v_connection.Execute('BEGIN TRANSACTION;');
-
-        for r in v_data_list:
-            is_delete = False
-            conn_id = v_conn_id_list[v_index]['id']
-            #update
-            if v_conn_id_list[v_index]['mode'] == 1:
-                if r[7]:
-                    v_use_tunnel = 1
-                else:
-                    v_use_tunnel = 0
-
-
-                if r[0]=='terminal':
-                    database = None
-                    r[1] = ''
-                    r[2] = ''
-                    r[3] = ''
-                    r[4] = ''
-                    r[5] = ''
-
-
-
-                else:
-                    database = OmniDatabase.Generic.InstantiateDatabase(
-        				r[0],
-        				r[2],
-        				r[3],
-        				r[4],
-        				r[5],
-                        '',
-                        conn_id,
-                        r[6],
-                        p_conn_string = r[1],
-                        p_parse_conn_string = True
-                    )
-
-                v_session.v_omnidb_database.v_connection.Execute('''
-                    update connections
-                    set dbt_st_name = '{0}',
-                        conn_string = '{1}',
-                        server = '{2}',
-                        port = '{3}',
-                        service = '{4}',
-                        user = '{5}',
-                        alias = '{6}',
-                        ssh_server = '{7}',
-                        ssh_port = '{8}',
-                        ssh_user = '{9}',
-                        ssh_password = '{10}',
-                        ssh_key = '{11}',
-                        use_tunnel = '{12}'
-                    where conn_id = {13}
-                '''.format(
-                    r[0],
-                    v_cryptor.Encrypt(r[1]),
-                    v_cryptor.Encrypt(r[2]),
-                    v_cryptor.Encrypt(r[3]),
-                    v_cryptor.Encrypt(r[4]),
-                    v_cryptor.Encrypt(r[5]),
-                    v_cryptor.Encrypt(r[6]),
-                    v_cryptor.Encrypt(r[8]),
-                    v_cryptor.Encrypt(r[9]),
-                    v_cryptor.Encrypt(r[10]),
-                    v_cryptor.Encrypt(r[11]),
-                    v_cryptor.Encrypt(r[12]),
-                    v_use_tunnel,
-                    conn_id)
-                )
-
-                #v_session.v_databases[conn_id]['database'].v_db_type     = r[0]
-                #v_session.v_databases[conn_id]['database'].v_conn_string = r[1]
-                #v_session.v_databases[conn_id]['database'].v_server      = r[2]
-                #v_session.v_databases[conn_id]['database'].v_port        = r[3]
-                #v_session.v_databases[conn_id]['database'].v_service     = r[4]
-                #v_session.v_databases[conn_id]['database'].v_user        = r[5]
-                #v_session.v_databases[conn_id]['database'].v_alias       = r[6]
-
-                v_session.v_databases[conn_id]['tunnel']['enabled'] = r[7]
-                v_session.v_databases[conn_id]['tunnel']['server'] = r[8]
-                v_session.v_databases[conn_id]['tunnel']['port'] = r[9]
-                v_session.v_databases[conn_id]['tunnel']['user'] = r[10]
-                v_session.v_databases[conn_id]['tunnel']['password'] = r[11]
-                v_session.v_databases[conn_id]['tunnel']['key'] = r[12]
-
-                v_session.v_databases[conn_id]['database'] = database
-                v_session.v_databases[conn_id]['technology'] = r[0]
-                v_session.v_databases[conn_id]['tunnel_object'] = None
-                v_session.v_databases[conn_id]['alias'] = r[6]
-            #new
-            elif v_conn_id_list[v_index]['mode'] == 2:
-                if r[7]:
-                    v_use_tunnel = 1
-                else:
-                    v_use_tunnel = 0
-
-                if r[0]=='terminal':
-                    r[1] = ''
-                    r[2] = ''
-                    r[3] = ''
-                    r[4] = ''
-                    r[5] = ''
-                v_session.v_omnidb_database.v_connection.Execute('''
-                    insert into connections values (
-                    (select coalesce(max(conn_id), 0) + 1 from connections),
-                    {0},
-                    '{1}',
-                    '{2}',
-                    '{3}',
-                    '{4}',
-                    '{5}',
-                    '{6}',
-                    '{7}',
-                    '{8}',
-                    '{9}',
-                    '{10}',
-                    '{11}',
-                    '{12}',
-                    '{13}')
-                '''.format(
-                    v_session.v_user_id,
-                    r[0],
-                    v_cryptor.Encrypt(r[2]),
-                    v_cryptor.Encrypt(r[3]),
-                    v_cryptor.Encrypt(r[4]),
-                    v_cryptor.Encrypt(r[5]),
-                    v_cryptor.Encrypt(r[6]),
-                    v_cryptor.Encrypt(r[8]),
-                    v_cryptor.Encrypt(r[9]),
-                    v_cryptor.Encrypt(r[10]),
-                    v_cryptor.Encrypt(r[11]),
-                    v_cryptor.Encrypt(r[12]),
-                    v_use_tunnel,
-                    v_cryptor.Encrypt(r[1])
-                ))
-                conn_id = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
-                select coalesce(max(conn_id), 0) from connections
-                ''')
-
-                if r[0]=='terminal':
-                    database=None
-                else:
-                    database = OmniDatabase.Generic.InstantiateDatabase(
-        				r[0],
-        				r[2],
-        				r[3],
-        				r[4],
-        				r[5],
-                        '',
-                        conn_id,
-                        r[6],
-                        p_conn_string = r[1],
-                        p_parse_conn_string = True
-                    )
-
-                tunnel_information = {
-                    'enabled': r[7],
-                    'server': r[8],
-                    'port': r[9],
-                    'user': r[10],
-                    'password': r[11],
-                    'key': r[12]
-                }
-
-                if 1==0:
-                    v_session.AddDatabase(conn_id,r[0],database,False,tunnel_information,r[6])
-                else:
-                    v_session.AddDatabase(conn_id,r[0],database,True,tunnel_information,r[6])
-
-            #delete
-            elif v_conn_id_list[v_index]['mode'] == -1:
-                is_delete = True
-                v_session.v_omnidb_database.v_connection.Execute('''
-                    delete from connections
-                    where conn_id = {0}
-                '''.format(conn_id))
-                del v_session.v_databases[conn_id]
-
-            if not is_delete and v_conn_id_list[v_index]['group_changed']:
-                if v_conn_id_list[v_index]['group_value']==False:
-                    v_session.v_omnidb_database.v_connection.Execute('''
-                        delete from cgroups_connections
-                        where cgroup_id = {0}
-                          and conn_id = {1}
-                    '''.format(
-                        v_group_id,
-                        conn_id)
-                    )
-                else:
-                    v_session.v_omnidb_database.v_connection.Execute('''
-                        insert into cgroups_connections
-                        select {0},{1}
-                        where not exists (select 1 from cgroups_connections where cgroup_id = {0} and conn_id = {1})
-                    '''.format(
-                        v_group_id,
-                        conn_id)
-                    )
-
-
-            v_index = v_index + 1
-        v_session.v_omnidb_database.v_connection.Execute('COMMIT;');
-        v_session.v_omnidb_database.v_connection.Close();
-    except Exception as exc:
-        v_return['v_data'] = str(exc)
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    #v_session.RefreshDatabaseList()
-    request.session['omnidb_session'] = v_session
-
-    return JsonResponse(v_return)
-
 def test_connection_new(request):
     v_return = {}
     v_return['v_data'] = ''
@@ -699,7 +462,6 @@ def test_connection_new(request):
 
     json_object = json.loads(request.POST.get('data', None))
     p_type = json_object['type']
-    #p_index = json_object['p_index']
 
     if p_type=='terminal':
 
@@ -731,7 +493,7 @@ def test_connection_new(request):
             json_object['port'],
             json_object['database'],
             json_object['user'],
-            '',
+            json_object['password'],
             -1,
             '',
             p_conn_string = json_object['connstring'],
@@ -811,7 +573,7 @@ def save_connection_new(request):
                 port=json_object['port'],
                 database=json_object['database'],
                 username=json_object['user'],
-                password='',
+                password=json_object['password'],
                 alias=json_object['title'],
                 ssh_server=json_object['tunnel']['server'],
                 ssh_port=json_object['tunnel']['port'],
@@ -831,7 +593,7 @@ def save_connection_new(request):
             conn.port=json_object['port']
             conn.database=json_object['database']
             conn.username=json_object['user']
-            conn.password=''
+            conn.password=json_object['password']
             conn.alias=json_object['title']
             conn.ssh_server=json_object['tunnel']['server']
             conn.ssh_port=json_object['tunnel']['port']

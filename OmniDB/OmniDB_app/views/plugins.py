@@ -509,7 +509,7 @@ def exec_plugin_function(request):
     if 'p_data' not in json_object or json_object['p_data'] == None:
         p_data = {}
     else:
-        pg_data = json_object['p_data']
+        p_data = json_object['p_data']
 
     p_data['omnidb_user'] = v_session.v_user_name
     p_data['omnidb_user_superuser'] = v_session.v_super_user

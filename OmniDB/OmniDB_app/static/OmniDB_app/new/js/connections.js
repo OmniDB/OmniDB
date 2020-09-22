@@ -476,6 +476,7 @@ function testConnection(p_password = null) {
     "port": document.getElementById('conn_form_port').value,
     "database": document.getElementById('conn_form_database').value,
     "user": document.getElementById('conn_form_user').value,
+		"password": document.getElementById('conn_form_user_pass').value,
     "tunnel": {
       "enabled": document.getElementById('conn_form_use_tunnel').checked,
       "server": document.getElementById('conn_form_ssh_server').value,
@@ -532,6 +533,7 @@ function saveConnection() {
     "port": document.getElementById('conn_form_port').value,
     "database": document.getElementById('conn_form_database').value,
     "user": document.getElementById('conn_form_user').value,
+		"password": document.getElementById('conn_form_user_pass').value,
     "title": document.getElementById('conn_form_title').value,
     "tunnel": {
       "enabled": document.getElementById('conn_form_use_tunnel').checked,
@@ -603,6 +605,7 @@ function editConnection(p_conn_obj) {
   document.getElementById('conn_form_port').value = p_conn_obj.port;
   document.getElementById('conn_form_database').value = p_conn_obj.service;
   document.getElementById('conn_form_user').value = p_conn_obj.user;
+	document.getElementById('conn_form_user_pass').value = p_conn_obj.password;
   document.getElementById('conn_form_use_tunnel').checked = p_conn_obj.tunnel.enabled;
   document.getElementById('conn_form_ssh_server').value = p_conn_obj.tunnel.server;
   document.getElementById('conn_form_ssh_port').value = p_conn_obj.tunnel.port;
@@ -625,6 +628,7 @@ function newConnection() {
   document.getElementById('conn_form_port').value = '';
   document.getElementById('conn_form_database').value = '';
   document.getElementById('conn_form_user').value = '';
+	document.getElementById('conn_form_user_pass').value = '';
   document.getElementById('conn_form_use_tunnel').checked = false;
   document.getElementById('conn_form_ssh_server').value = '';
   document.getElementById('conn_form_ssh_port').value = '22';

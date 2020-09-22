@@ -195,6 +195,60 @@ function polling_response(p_message) {
   }
 }
 
+function QueryPasswordRequired(p_context, p_message) {
+	if (p_context.tab_tag.mode=='query') {
+		showPasswordPrompt(
+			p_context.database_index,
+			function() {
+				cancelSQLTab(p_context.tab_tag);
+				//querySQL(p_context.mode);
+				querySQL(p_context.mode,
+								 p_context.all_data,
+								 p_context.query,
+								 p_context.callback,
+								 p_context.log_query,
+								 p_context.save_query,
+								 p_context.cmd_type,
+								 p_context.clear_data,
+								 p_context.tab_title);
+			},
+			function() {
+				cancelSQLTab(p_context.tab_tag);
+			},
+			p_message
+		);
+	}
+	else if (p_context.tab_tag.mode=='edit') {
+		showPasswordPrompt(
+			p_context.database_index,
+			function() {
+				cancelEditDataTab(p_context.tab_tag);
+				//queryEditData();
+			},
+			function() {
+				cancelEditDataTab(p_context.tab_tag);
+			},
+			p_message
+		);
+	}
+	else if (p_context.tab_tag.mode=='console') {
+		showPasswordPrompt(
+			p_context.database_index,
+			function() {
+				cancelConsoleTab(p_context.tab_tag);
+				p_context.tab_tag.editor_input.setValue(p_context.tab_tag.last_command);
+        p_context.tab_tag.editor_input.clearSelection();
+				consoleSQL(p_context.check_command,
+									 p_context.mode);
+			},
+			function() {
+				cancelConsoleTab(p_context.tab_tag);
+			},
+			p_message
+		);
+	}
+}
+
 function createContext(p_connection, p_context) {
 	v_context_object.contextCode += 1;
 	v_context_code = v_context_object.contextCode;

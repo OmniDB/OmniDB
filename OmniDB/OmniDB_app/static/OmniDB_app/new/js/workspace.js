@@ -495,8 +495,6 @@ function removeTab(p_tab) {
 var resizeSnippetPanel = function(p_left_pos_x = false) {
   if (v_connTabControl.snippet_tag !== undefined) {
 
-    console.log('p_left_pos_x', p_left_pos_x);
-
     var v_snippet_tag = v_connTabControl.snippet_tag;
     var v_inner_snippet_tag = v_snippet_tag.tabControl.selectedTab.tag;
 
@@ -997,35 +995,49 @@ function checkTabStatus(v_tab) {
 /// <summary>
 /// Indent SQL.
 /// </summary>
-function indentSQL() {
-
-	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+function indentSQL(p_mode = false) {
+  var v_tab_tag = null;
 	var v_editor = null;
-	if (v_tab_tag.mode=='query')
-		v_editor = v_tab_tag.editor;
-	else if (v_tab_tag.mode=='console')
-		v_editor = v_tab_tag.editor_input;
-  else if (v_tab_tag.mode=='snippet')
-		v_editor = v_tab_tag.editor;
+  let v_mode = p_mode;
 
-	var v_sql_value = v_editor.getValue();
+  if (v_mode=='snippet') {
+    v_tab_tag = v_connTabControl.snippet_tag.tabControl.selectedTab.tag;
+    v_editor = v_tab_tag.editor;
+  }
+  else {
+    if (v_connTabControl.selectedTab.tag.tabControl) {
+      v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+      v_mode = v_tab_tag.mode;
 
-	if (v_sql_value.trim()=='') {
-		showAlert('Please provide a string.');
-	}
-	else {
-		execAjax('/indent_sql/',
-				JSON.stringify({"p_sql": v_sql_value}),
-				function(p_return) {
+      if (v_mode=='query') {
+        v_editor = v_tab_tag.editor;
+      }
+    	else if (v_mode=='console') {
+        v_editor = v_tab_tag.editor_input;
+      }
+    }
+  }
 
-					v_editor.setValue(p_return.v_data);
-					v_editor.clearSelection();
-					v_editor.gotoLine(0, 0, true);
+  if (v_mode) {
+    var v_sql_value = v_editor.getValue();
 
-				},
-				null,
-				'box');
-	}
+  	if (v_sql_value.trim()=='') {
+  		showAlert('Please provide a string.');
+  	}
+  	else {
+  		execAjax('/indent_sql/',
+  				JSON.stringify({"p_sql": v_sql_value}),
+  				function(p_return) {
+
+  					v_editor.setValue(p_return.v_data);
+  					v_editor.clearSelection();
+  					v_editor.gotoLine(0, 0, true);
+
+  				},
+  				null,
+  				'box');
+  	}
+  }
 }
 
 function showMenuNewTabOuter(e) {

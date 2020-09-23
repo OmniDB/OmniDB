@@ -1,8 +1,14 @@
 var v_createSnippetTextTabFunction = function(p_snippet) {
 
   var v_name = 'New Snippet';
-  if (p_snippet)
-    v_name = p_snippet;
+  if (p_snippet) {
+    if (typeof p_snippet === 'string') {
+      v_name = p_snippet;
+    }
+    else {
+      v_name = p_snippet.name;
+    }
+  }
 
   v_connTabControl.snippet_tag.tabControl.removeTabIndex(v_connTabControl.snippet_tag.tabControl.tabList.length-1);
   var v_tab = v_connTabControl.snippet_tag.tabControl.createTab({
@@ -44,13 +50,13 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
   //};
 
   var v_html =
-  "<div id='txt_snippet_" + v_tab.id + "' style=' width: 100%; height: 200px; border: 1px solid #c3c3c3;'></div>" +
-  "<div class='row mt-2'>" +
-    "<div class='tab_actions omnidb__tab-actions col-12'>" +
-      "<button id='bt_indent_" + v_tab.id + "' class='btn omnidb__theme__btn--secondary omnidb__tab-actions__btn' title='Indent SQL' onclick='indentSQL();'><i class='fas fa-indent mr-2'></i>indent</button>" +
-      "<button id='bt_save_" + v_tab.id + "' class='btn omnidb__theme__btn--primary omnidb__tab-actions__btn' title='Save' style='margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;' onclick='saveSnippetText();'><i class='fas fa-save mr-2'></i>save</button>" +
-    "</div>" +
-  "</div>";
+  '<div id="txt_snippet_' + v_tab.id + '" style="width: 100%; height: 200px; border: 1px solid #c3c3c3;"></div>' +
+  '<div class="row mt-2">' +
+    '<div class="tab_actions omnidb__tab-actions col-12">' +
+      '<button id="bt_indent_' + v_tab.id + '" class="btn omnidb__theme__btn--secondary omnidb__tab-actions__btn" title="Indent SQL" onclick="indentSQL(' + "'" + 'snippet' + "'" + ');"><i class="fas fa-indent mr-2"></i>indent</button>' +
+      '<button id="bt_save_' + v_tab.id + '" class="btn omnidb__theme__btn--primary omnidb__tab-actions__btn" title="Save" style="margin-top: 5px; margin-bottom: 5px; margin-right: 5px; display: inline-block;" onclick="saveSnippetText();"><i class="fas fa-save mr-2"></i>save</button>' +
+    '</div>' +
+  '</div>';
 
   var v_div = document.getElementById('div_' + v_tab.id);
   v_div.innerHTML = v_html;
@@ -99,7 +105,7 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
     bt_save: document.getElementById('bt_save_' + v_tab.id),
     tabControl: v_connTabControl.snippet_tag.tabControl,
     snippetTab: v_connTabControl.selectedTab,
-    snippetObject: null
+    snippetObject: (p_snippet) ? p_snippet : null
   };
 
   v_tab.tag = v_tag;

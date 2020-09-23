@@ -29,6 +29,9 @@ var toggleSnippetPanel = function(p_id) {
   if (v_element.hasClass('omnidb__panel--slide-in')) {
     v_snippet_tag.isVisible = true;
     v_element.css('transform', 'translateY(-' + v_target_tag_div_result_top + 'px)');
+    setTimeout(function(){
+      resizeSnippetPanel();
+    },400);
   }
   else {
     v_snippet_tag.isVisible = false;
@@ -119,6 +122,9 @@ var v_createSnippetPanelFunction = function(p_index) {
 
   getTreeSnippets(v_tag.divTree.id);
 
+  if (v_connTabControl.snippet_tag.tabControl.tabList.length > 0) {
+    v_connTabControl.snippet_tag.tabControl.selectTab(v_connTabControl.snippet_tag.tabControl.tabList[0]);
+  }
   v_connTabControl.tag.createSnippetTextTab('Welcome');
   v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.setValue('Welcome to OmniDB!');
   v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.clearSelection();

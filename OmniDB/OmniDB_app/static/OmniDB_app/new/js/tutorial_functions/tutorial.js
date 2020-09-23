@@ -263,6 +263,51 @@ function startTutorial(p_tutorial_name) {
           p_target: function() {var v_target = document.getElementById('conn_form_button_test_connection'); return v_target},
           p_title: 'Test the Connection'
         }
+      ],
+      'snippets': [
+        {
+          p_clone_target: true,
+          p_message: `
+          <p>The snippet panel is now accessible globally.</p>
+          <p>Please, click on the <i class="fas fa-book"></i> button.</p>
+          `,
+          p_target: document.getElementsByClassName('omnidb__tab-menu omnidb__tab-menu--primary')[0],
+          p_title: 'Global Snippet Panel'
+        },
+        {
+          // p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById(v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editorDivId);},50);},
+          p_callback_start: function() {toggleSnippetPanel(v_connTabControl.snippet_tag.tab_id);},
+          p_message: `
+          <p>Inside this tab you can create and edit a snippet.</p>
+          <p>Go ahead and try to create some simple snippet, i.e:</p>
+          <code>WHERE true SELECT 1;</code>
+          <p>Then experiment clicking on the <strong>indent button</strong> below the editor, and then <strong>next</strong>.</p>
+          `,
+          p_next_button: true,
+          p_target: function() {var v_target = document.getElementById('a_' + v_connTabControl.snippet_tag.tabControl.selectedTab.tag.tab_id); return v_target},
+          p_title: 'Snippets editor',
+          p_update_delay: 600
+        },
+        {
+          p_message: `
+          <p>As you can see, the identation feature automatically adjusts your code following a pattern.</p>
+          <p>Now go ahead and click <strong>save</strong></p>
+          `,
+          p_next_button: true,
+          p_target: function() {var v_target = document.getElementById(v_connTabControl.snippet_tag.tabControl.selectedTab.tag.bt_save.getAttribute('id')); return v_target},
+          p_title: 'Indenting',
+          p_update_delay: 600
+        },
+        {
+          p_message: `
+          <p>Every snippet you save is stored under your user.</p>
+          <p>The tree on the left allows you to easily access it by double-clicking on the snippet.</p>
+          `,
+          p_next_button: false,
+          p_target: function() {var v_target = document.getElementById(v_connTabControl.snippet_tag.divTree.getAttribute('id')); return v_target},
+          p_title: 'Saved snippets',
+          p_update_delay: 600
+        }
       ]
     }
     // Selecting a tutorial

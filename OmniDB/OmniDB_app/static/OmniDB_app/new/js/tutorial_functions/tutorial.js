@@ -276,7 +276,7 @@ function startTutorial(p_tutorial_name) {
         },
         {
           // p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById(v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editorDivId);},50);},
-          p_callback_start: function() {toggleSnippetPanel(v_connTabControl.snippet_tag.tab_id);},
+          p_callback_start: function() {toggleSnippetPanel();},
           p_message: `
           <p>Inside this tab you can create and edit a snippet.</p>
           <p>Go ahead and try to create some simple snippet, i.e:</p>

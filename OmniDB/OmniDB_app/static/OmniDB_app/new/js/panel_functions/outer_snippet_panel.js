@@ -1,42 +1,19 @@
-var toggleSnippetPanel = function(p_id) {
-  v_panel_id = p_id + '_panel_snippet';
-  v_element = $('#' + v_panel_id);
-  // Getting the selected tab
-  var v_selected_tab = v_connTabControl.selectedTab;
-  // Setting a default max top position for the toggling event.
-  var v_target_tag_div_result_top = 30;
-  // Updating the max top position considering if a tab is selected.
-  if (v_connTabControl.selectedTab && v_connTabControl.selectedTab !== null) {
-    if (v_connTabControl.selectedTab.tag.tabControl) {
-      var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-      if (v_target_tag.div_result) {
-        v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
-      }
-      else {
-        v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
-      }
-    }
-    else {
-      v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
-    }
+var toggleSnippetPanel = function(p_set_state = false) {
+  v_element = $('#' + v_connTabControl.snippet_tag.divPanel.getAttribute('id'));
+  var v_snippet_tag = v_connTabControl.snippet_tag;
+
+  let v_set_state = p_set_state;
+  if (v_set_state === 'visible') {
+    v_element.addClass('omnidb__panel--slide-in');
+  }
+  else if (v_set_state === 'hidden') {
+    v_element.removeClass('omnidb__panel--slide-in');
   }
   else {
-    v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+    v_element.toggleClass('omnidb__panel--slide-in');
   }
 
-  var v_snippet_tag = v_connTabControl.snippet_tag;
-  v_element.toggleClass('omnidb__panel--slide-in');
-  if (v_element.hasClass('omnidb__panel--slide-in')) {
-    v_snippet_tag.isVisible = true;
-    v_element.css('transform', 'translateY(-' + v_target_tag_div_result_top + 'px)');
-    setTimeout(function(){
-      resizeSnippetPanel();
-    },400);
-  }
-  else {
-    v_snippet_tag.isVisible = false;
-    v_element.css('transform','translateY(0px)');
-  }
+  resizeSnippetPanel();
 }
 
 var v_createSnippetPanelFunction = function(p_index) {
@@ -49,7 +26,7 @@ var v_createSnippetPanelFunction = function(p_index) {
     p_close: false,
     p_selectable: false,
     p_clickFunction: function() {
-      toggleSnippetPanel(this.id);
+      toggleSnippetPanel();
     },
     p_tooltip_name: '<h5 class="my-1">Snippets Panel</h5>'
   });
@@ -59,7 +36,7 @@ var v_createSnippetPanelFunction = function(p_index) {
   var v_html =
   "<div id='" + v_tab.id + "_panel_snippet' class='omnidb__panel omnidb__panel--snippet'>" +
 
-    "<button type='button' onclick='toggleSnippetPanel(" + '"' + v_tab.id + '"' + ")' class='px-4 btn omnidb__theme__btn--secondary omnidb__panel__toggler'><i class='fas fa-arrows-alt-v'></i></button>" +
+    "<button type='button' onclick='toggleSnippetPanel()' class='px-4 btn omnidb__theme__btn--secondary omnidb__panel__toggler'><i class='fas fa-arrows-alt-v'></i></button>" +
 
     "<div class='container-fluid' style='position: relative;'>" +
       "<div id='" + v_tab.id + "_snippet_div_layout_grid' class='row'>" +

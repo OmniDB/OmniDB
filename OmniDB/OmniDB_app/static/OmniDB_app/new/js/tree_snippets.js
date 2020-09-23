@@ -326,8 +326,27 @@ function deleteNodeSnippet(p_node) {
 }
 
 function startEditSnippetText(p_node) {
-  v_connTabControl.tag.createSnippetTextTab(p_node.tag.name);
+  // Checking if there is a tab for this snippet.
+  var v_snippet_tab_list = v_connTabControl.snippet_tag.tabControl.tabList;
+  var v_avaiable_tab = false;
+  for (let i = 0; i < v_snippet_tab_list.length; i++) {
+    var v_snippet_tab_snippet_object = v_snippet_tab_list[i].tag.snippetObject;
+    if (typeof v_snippet_tab_snippet_object === 'object') {
+      if (v_snippet_tab_snippet_object.id === p_node.tag.id) {
+        v_avaiable_tab = v_snippet_tab_list[i];
+      }
+    }
+  }
+
+  if (v_avaiable_tab) {
+    v_connTabControl.snippet_tag.tabControl.selectTab(v_avaiable_tab);
+  }
+  else {
+    v_connTabControl.tag.createSnippetTextTab(p_node.tag);
+  }
+
   v_connTabControl.snippet_object = p_node.tag;
+
   execAjax('/get_snippet_text/',
 			JSON.stringify({"p_st_id": p_node.tag.id}),
 			function(p_return) {

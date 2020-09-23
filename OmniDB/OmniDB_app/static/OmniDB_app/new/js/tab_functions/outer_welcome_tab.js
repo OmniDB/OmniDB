@@ -167,6 +167,11 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
       icon: '<i class="fas fa-terminal mr-2"></i>',
       text: 'Create a terminal connection',
       tutorial: "\'terminal_connection\'"
+    },
+    {
+      icon: '<i class="fas fa-book mr-2"></i>',
+      text: 'Meet the snippets panel',
+      tutorial: "\'snippets\'"
     }
   ]
   let v_getting_started_buttons_list_html = '';

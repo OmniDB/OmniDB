@@ -494,44 +494,23 @@ function removeTab(p_tab) {
 /// </summary>
 var resizeSnippetPanel = function(p_left_pos_x = false) {
   if (v_connTabControl.snippet_tag !== undefined) {
-
+    var v_element = $(v_connTabControl.snippet_tag.divPanel);
     var v_snippet_tag = v_connTabControl.snippet_tag;
-    var v_inner_snippet_tag = v_snippet_tag.tabControl.selectedTab.tag;
-
-    var v_totalWidth = v_snippet_tag.divLayoutGrid.getBoundingClientRect().width;
-    var v_max_allowed_left_width = v_totalWidth - 50;
-    var v_div_left = v_snippet_tag.divLeft;
-
-    let v_left_pos_x = v_div_left.getBoundingClientRect().width;
-    if (p_left_pos_x) {
-      v_left_pos_x = p_left_pos_x;
-    }
-
-    var v_pixel_value = (v_left_pos_x > 50 && v_left_pos_x < v_max_allowed_left_width)
-    ? v_left_pos_x
-    : 80;
-
-    var v_left_width_value = v_pixel_value + 'px';
-
-    v_div_left.style['max-width'] = v_left_width_value;
-    v_div_left.style['flex'] = '0 0 ' + v_left_width_value;
-
-    var v_div_left_width = v_snippet_tag.divLeft.getBoundingClientRect().width;
-
-  	var v_div_right = v_snippet_tag.divRight;
-    var v_right_width_value = (v_totalWidth - v_div_left_width) + 'px';
-
-    v_div_right.style['max-width'] = v_right_width_value;
-    v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
-
-    let v_target_tag_div_result_top = 100;
-
-    // Updating the max top position considering if a tab is selected.
-    if (v_connTabControl.selectedTab && v_connTabControl.selectedTab !== null) {
-      if (v_connTabControl.selectedTab.tag.tabControl) {
-        var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-        if (v_target_tag.div_result) {
-          v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
+    if (v_element.hasClass('omnidb__panel--slide-in')) {
+      // Getting the selected tab
+      var v_selected_tab = v_connTabControl.selectedTab;
+      // Setting a default max top position for the toggling event.
+      var v_target_tag_div_result_top = 30;
+      // Updating the max top position considering if a tab is selected.
+      if (v_connTabControl.selectedTab && v_connTabControl.selectedTab !== null) {
+        if (v_connTabControl.selectedTab.tag.tabControl) {
+          var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+          if (v_target_tag.div_result) {
+            v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
+          }
+          else {
+            v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+          }
         }
         else {
           v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
@@ -540,19 +519,76 @@ var resizeSnippetPanel = function(p_left_pos_x = false) {
       else {
         v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
       }
+
+
+      v_snippet_tag.isVisible = true;
+      v_element.css('transform', 'translateY(-' + v_target_tag_div_result_top + 'px)');
     }
     else {
-      v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+      v_snippet_tag.isVisible = false;
+      v_element.css('transform','translateY(0px)');
     }
-    // Updating the inner_sinnpet_tag divs size.
-    if (v_inner_snippet_tag.editor !== undefined) {
-      if (v_snippet_tag.isVisible) {
-        v_snippet_tag.divPanel.style.transform = 'translateY(-' + v_target_tag_div_result_top + 'px)';
+
+    setTimeout(function(){
+      var v_snippet_tag = v_connTabControl.snippet_tag;
+      var v_inner_snippet_tag = v_snippet_tag.tabControl.selectedTab.tag;
+
+      var v_totalWidth = v_snippet_tag.divLayoutGrid.getBoundingClientRect().width;
+      var v_max_allowed_left_width = v_totalWidth - 50;
+      var v_div_left = v_snippet_tag.divLeft;
+
+      let v_left_pos_x = v_div_left.getBoundingClientRect().width;
+      if (p_left_pos_x) {
+        v_left_pos_x = p_left_pos_x;
       }
-      v_snippet_tag.divPanel.style.height = v_target_tag_div_result_top + 'px';
-      v_snippet_tag.divTree.style.height = v_target_tag_div_result_top + 'px';
-      v_inner_snippet_tag.editorDiv.style.height = v_target_tag_div_result_top - 90 + 'px';
-    }
+
+      var v_pixel_value = (v_left_pos_x > 50 && v_left_pos_x < v_max_allowed_left_width)
+      ? v_left_pos_x
+      : 80;
+
+      var v_left_width_value = v_pixel_value + 'px';
+
+      v_div_left.style['max-width'] = v_left_width_value;
+      v_div_left.style['flex'] = '0 0 ' + v_left_width_value;
+
+      var v_div_left_width = v_snippet_tag.divLeft.getBoundingClientRect().width;
+
+    	var v_div_right = v_snippet_tag.divRight;
+      var v_right_width_value = (v_totalWidth - v_div_left_width) + 'px';
+
+      v_div_right.style['max-width'] = v_right_width_value;
+      v_div_right.style['flex'] = '0 0 ' + v_right_width_value;
+
+      let v_target_tag_div_result_top = 100;
+
+      // Updating the max top position considering if a tab is selected.
+      if (v_connTabControl.selectedTab && v_connTabControl.selectedTab !== null) {
+        if (v_connTabControl.selectedTab.tag.tabControl) {
+          var v_target_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+          if (v_target_tag.div_result) {
+            v_target_tag_div_result_top = v_target_tag.div_result.getBoundingClientRect().height - 25;
+          }
+          else {
+            v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+          }
+        }
+        else {
+          v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+        }
+      }
+      else {
+        v_target_tag_div_result_top = document.getElementsByClassName('omnidb__main')[0].getBoundingClientRect().height - 25;
+      }
+      // Updating the inner_sinnpet_tag divs size.
+      if (v_inner_snippet_tag.editor !== undefined) {
+        if (v_snippet_tag.isVisible) {
+          v_snippet_tag.divPanel.style.transform = 'translateY(-' + v_target_tag_div_result_top + 'px)';
+        }
+        v_snippet_tag.divPanel.style.height = v_target_tag_div_result_top + 'px';
+        v_snippet_tag.divTree.style.height = v_target_tag_div_result_top + 'px';
+        v_inner_snippet_tag.editorDiv.style.height = v_target_tag_div_result_top - 90 + 'px';
+      }
+    },400);
   }
 }
 

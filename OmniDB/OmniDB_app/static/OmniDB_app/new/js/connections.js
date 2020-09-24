@@ -182,15 +182,15 @@ function showConnectionList(p_open_modal, p_change_group) {
 				}(v_conn_obj));
 
         v_button_edit.onclick = (function(conn_obj) {
-            return function() {
-              editConnection(conn_obj);
-            };
+          return function() {
+            editConnection(conn_obj);
+          };
         }(v_conn_obj));
 
         v_button_delete.onclick = (function(conn_obj) {
-            return function() {
-              deleteConnection(conn_obj);
-            };
+          return function() {
+            deleteConnection(conn_obj);
+          };
         }(v_conn_obj));
 
         v_connections_data.card_list.push(
@@ -710,11 +710,13 @@ function newConnection() {
 }
 
 function selectConnection(p_conn_obj) {
-
-	// alert('TODO: Try connection');
 	$('#modal_connections').modal('hide');
-	v_connTabControl.tag.createConnTab(p_conn_obj.id);
-
+	if (p_conn_obj.technology === 'terminal') {
+		v_connTabControl.tag.createOuterTerminalTab(p_conn_obj.id, p_conn_obj.alias);
+	}
+	else {
+		v_connTabControl.tag.createConnTab(p_conn_obj.id);
+	}
 }
 
 function toggleConnectionsLayout(l_type) {

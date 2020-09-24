@@ -182,15 +182,15 @@ function showConnectionList(p_open_modal, p_change_group) {
 				}(v_conn_obj));
 
         v_button_edit.onclick = (function(conn_obj) {
-            return function() {
-              editConnection(conn_obj);
-            };
+          return function() {
+            editConnection(conn_obj);
+          };
         }(v_conn_obj));
 
         v_button_delete.onclick = (function(conn_obj) {
-            return function() {
-              deleteConnection(conn_obj);
-            };
+          return function() {
+            deleteConnection(conn_obj);
+          };
         }(v_conn_obj));
 
         v_connections_data.card_list.push(
@@ -613,6 +613,75 @@ function editConnection(p_conn_obj) {
   document.getElementById('conn_form_ssh_password').value = p_conn_obj.tunnel.password;
   document.getElementById('conn_form_ssh_key').value = p_conn_obj.tunnel.key;
 
+	if (p_conn_obj.technology === 'terminal') {
+		v_disable_list = [
+			'conn_form_connstring',
+			'conn_form_server',
+			'conn_form_port',
+			'conn_form_database',
+			'conn_form_user',
+			'conn_form_user_pass'
+		];
+		v_enable_list = [
+			'conn_form_ssh_server',
+			'conn_form_ssh_port',
+			'conn_form_ssh_user',
+			'conn_form_ssh_password',
+			'conn_form_ssh_key'
+		];
+		document.getElementById('conn_form_use_tunnel').checked = true;
+		document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
+	}
+	else {
+		// Has connection string.
+		if (p_conn_obj.conn_string.trim() !== '' && p_conn_obj.conn_string.trim() !== null) {
+			v_disable_list = [
+				'conn_form_server',
+				'conn_form_port',
+				'conn_form_database',
+				'conn_form_user',
+				'conn_form_user_pass'
+			];
+			v_enable_list = [
+				'conn_form_connstring'
+			];
+		}
+		// Has server config per input.
+		else if (p_conn_obj.server.trim() !== '' && p_conn_obj.server.trim() !== null) {
+			v_disable_list = [
+				'conn_form_connstring'
+			];
+			v_enable_list = [
+				'conn_form_server',
+				'conn_form_port',
+				'conn_form_database',
+				'conn_form_user',
+				'conn_form_user_pass'
+			];
+		}
+		if (p_conn_obj.tunnel.enabled) {
+			v_enable_list = [
+				'conn_form_ssh_server',
+				'conn_form_ssh_port',
+				'conn_form_ssh_user',
+				'conn_form_ssh_password',
+				'conn_form_ssh_key'
+			];
+		}
+		else {
+			v_disable_list = [
+			 'conn_form_ssh_server',
+			 'conn_form_ssh_port',
+			 'conn_form_ssh_user',
+			 'conn_form_ssh_password',
+			 'conn_form_ssh_key'
+		 ];
+		}
+	}
+
+	// Updating the fields.
+	updateModalEditConnectionFields(v_disable_list, v_enable_list);
+
   $('#modal_edit_connection').modal();
 
 }
@@ -623,6 +692,7 @@ function newConnection() {
   adjustTechSelector();
 
   document.getElementById('conn_form_type').value = -1;
+	document.getElementById('conn_form_title').value = '';
   document.getElementById('conn_form_connstring').value = '';
   document.getElementById('conn_form_server').value = '';
   document.getElementById('conn_form_port').value = '';
@@ -640,11 +710,13 @@ function newConnection() {
 }
 
 function selectConnection(p_conn_obj) {
-
-	// alert('TODO: Try connection');
 	$('#modal_connections').modal('hide');
-	v_connTabControl.tag.createConnTab(p_conn_obj.id);
-
+	if (p_conn_obj.technology === 'terminal') {
+		v_connTabControl.tag.createOuterTerminalTab(p_conn_obj.id, p_conn_obj.alias);
+	}
+	else {
+		v_connTabControl.tag.createConnTab(p_conn_obj.id);
+	}
 }
 
 function toggleConnectionsLayout(l_type) {
@@ -656,4 +728,137 @@ function toggleConnectionsLayout(l_type) {
 		$('.omnidb__connections__card-list').removeClass('omnidb__connections__card-list--cards');
 		$('.omnidb__connections__card-list').addClass('omnidb__connections__card-list--rows');
 	}
+}
+
+function updateModalEditConnectionState(e) {
+  let v_e_target = e.target;
+  let v_e_target_id = v_e_target.getAttribute('id');
+  let v_e_value = e.target.value;
+  let v_disable_list = [];
+  let v_enable_list = [];
+  if (v_e_target_id === 'conn_form_connstring') {
+    if (typeof v_e_value === 'string') {
+      v_e_value = v_e_value.trim();
+    }
+    if (v_e_value !== '' && v_e_value !== null) {
+      v_disable_list = [
+        'conn_form_server',
+        'conn_form_port',
+        'conn_form_database',
+        'conn_form_user',
+        'conn_form_user_pass'
+      ];
+    }
+    else {
+      v_enable_list = [
+        'conn_form_server',
+        'conn_form_port',
+        'conn_form_database',
+        'conn_form_user',
+        'conn_form_user_pass'
+      ];
+    }
+  }
+  else if (v_e_target_id === 'conn_form_server' || v_e_target_id === 'conn_form_port' || v_e_target_id === 'conn_form_database' || v_e_target_id === 'conn_form_user') {
+    let v_check_inputs = [
+      'conn_form_server',
+      'conn_form_port',
+      'conn_form_database',
+      'conn_form_user',
+      'conn_form_user_pass'
+    ];
+    let v_check_inputs_empty = true;
+    for (let i = 0; i < v_check_inputs.length; i++) {
+      var v_check_input_value = document.getElementById(v_check_inputs[i]).value;
+      if (typeof v_check_input_value === 'string') {
+        v_check_input_value = v_check_input_value.trim();
+      }
+      if (v_check_input_value !== '' && v_check_input_value !== null) {
+        v_check_inputs_empty = false;
+      }
+    }
+    if (!v_check_inputs_empty) {
+      v_disable_list = [
+        'conn_form_connstring'
+      ];
+      v_enable_list = [
+        'conn_form_server',
+        'conn_form_port',
+        'conn_form_database',
+        'conn_form_user',
+        'conn_form_user_pass'
+      ];
+    }
+    else {
+      v_enable_list = [
+        'conn_form_connstring'
+      ];
+    }
+  }
+  else if (v_e_target_id === 'conn_form_use_tunnel') {
+    if (v_e_target.checked) {
+      v_enable_list = [
+        'conn_form_ssh_server',
+        'conn_form_ssh_port',
+        'conn_form_ssh_user',
+        'conn_form_ssh_password',
+        'conn_form_ssh_key'
+      ];
+    }
+    else {
+      v_disable_list = [
+        'conn_form_ssh_server',
+        'conn_form_ssh_port',
+        'conn_form_ssh_user',
+        'conn_form_ssh_password',
+        'conn_form_ssh_key'
+      ];
+    }
+  }
+  else if (v_e_target_id === 'conn_form_type') {
+    if (v_e_value === 'terminal') {
+      v_disable_list = [
+        'conn_form_connstring',
+        'conn_form_server',
+        'conn_form_port',
+        'conn_form_database',
+        'conn_form_user',
+        'conn_form_user_pass'
+      ];
+      v_enable_list = [
+        'conn_form_ssh_server',
+        'conn_form_ssh_port',
+        'conn_form_ssh_user',
+        'conn_form_ssh_password',
+        'conn_form_ssh_key'
+      ];
+      document.getElementById('conn_form_use_tunnel').checked = true;
+      document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
+    }
+    else {
+      v_enable_list = [
+        'conn_form_connstring',
+        'conn_form_server',
+        'conn_form_port',
+        'conn_form_database',
+        'conn_form_user',
+        'conn_form_user_pass'
+      ];
+      document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
+    }
+  }
+	// Updating the fields.
+	updateModalEditConnectionFields(v_disable_list, v_enable_list);
+}
+
+function updateModalEditConnectionFields(p_disable_list, p_enable_list) {
+	for (let i = 0; i < p_disable_list.length; i++) {
+    var v_item = document.getElementById(p_disable_list[i]);
+    v_item.setAttribute('readonly',true);
+    v_item.value = null;
+  }
+  for (let i = 0; i < p_enable_list.length; i++) {
+    var v_item = document.getElementById(p_enable_list[i]);
+    v_item.removeAttribute('readonly');
+  }
 }

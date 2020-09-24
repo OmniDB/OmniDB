@@ -146,8 +146,8 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
         this.callback_end();
       }
       var v_omnis_div = p_omnis.div;
-      v_omnis_div.style.bottom = '5px';
-      v_omnis_div.style.right = '5px';
+      v_omnis_div.style.top = p_omnis.root.getBoundingClientRect().height - 45 + 'px';
+      v_omnis_div.style.left = p_omnis.root.getBoundingClientRect().width - 45 + 'px';
     },
     emptyStepList : function() {
       this.stepCounter = 0;
@@ -384,19 +384,19 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
           v_target_position = v_control.getPosition(v_target);
         }
         else {
-          v_target_position = {x:v_window_width, y:v_window_height}
+          v_target_position = {x:v_window_width - 5, y:v_window_height - 5}
         }
         var v_omnis_div = p_omnis.div;
 
         // Target contextual cases for positioning:
         // Right side of the screen.
         if (v_target_position.x >= v_window_width_half) {
-          v_omnis_div.style.right = v_window_width - v_target_position.x + 16 + 'px';
+          v_omnis_div.style.left = v_target_position.x - 56 + 'px';
           v_control.divCardElement.style.left = v_target_position.x - v_control.divCardElement.offsetWidth - 56 + 'px';
           // let v_arrow_html = '';
           // Above vertical middle of the screen.
           if (v_target_position.y <= v_window_height_half) {
-            v_omnis_div.style.bottom = v_window_height - v_target_position.y - 56 + 'px';
+            v_omnis_div.style.top = v_target_position.y + 16 + 'px';
             v_control.divCardElement.style.top = v_target_position.y + 20 + 'px';
             // v_arrow_html +=
             // '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="right: -8px; top: -8px;">' +
@@ -405,7 +405,7 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
           }
           // Below vertical middle of the screen.
           else {
-            v_omnis_div.style.bottom = v_window_height - v_target_position.y + 16 + 'px';
+            v_omnis_div.style.top = v_target_position.y - 56 + 'px';
             v_control.divCardElement.style.top = v_target_position.y - v_control.divCardElement.offsetHeight - 20 + 'px';
             // v_arrow_html +=
             // '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="right: -8px; bottom: -8px;">' +
@@ -416,12 +416,12 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
         }
         // Left side of the screen.
         else {
-          v_omnis_div.style.right = v_window_width - v_target_position.x - v_target.offsetWidth - 56 + 'px';
+          v_omnis_div.style.left = v_target_position.x + v_target.offsetWidth + 16 + 'px';
           v_control.divCardElement.style.left = v_target_position.x + v_target.offsetWidth + 56 + 'px';
           // let v_arrow_html = '';
           // Above vertical middle of the screen.
           if (v_target_position.y <= v_window_height_half) {
-            v_omnis_div.style.bottom = v_window_height - v_target_position.y - 56 + 'px';
+            v_omnis_div.style.top = v_target_position.y + 16 + 'px';
             v_control.divCardElement.style.top = v_target_position.y + 20 + 'px';
             // v_arrow_html +=
             // '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="left: -8px; top: -8px;">' +
@@ -430,7 +430,7 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
           }
           // Below vertical middle of the screen.
           else {
-            v_omnis_div.style.bottom = v_window_height - v_target_position.y + 16 + 'px';
+            v_omnis_div.style.top = v_target_position.y - 56 + 'px';
             v_control.divCardElement.style.top = v_target_position.y - v_control.divCardElement.offsetHeight - 20 + 'px';
             // v_arrow_html +=
             // '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="left: -8px; bottom: -8px;">' +

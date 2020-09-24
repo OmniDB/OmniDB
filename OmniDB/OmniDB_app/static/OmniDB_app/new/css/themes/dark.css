@@ -274,6 +274,12 @@
   background-color: #67ff81;
 }
 
+/* DISABLED */
+.omnidb--theme-dark .form-control:disabled,
+.omnidb--theme-dark .form-control[readonly] {
+    background-color: #B5B6B7 !important;
+}
+
 /* Input-group */
 .omnidb--theme-dark span.input-group-text {
   border-color: #484a55;

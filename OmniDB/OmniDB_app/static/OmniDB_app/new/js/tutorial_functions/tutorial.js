@@ -1,9 +1,11 @@
 function startTutorial(p_tutorial_name) {
-  if (!window.omnis_ui_assistant) {
+  if (!v_omnis.omnis_ui_assistant) {
     // Instantiate the component.
-    window.omnis_ui_assistant = createOmnis({
+    v_omnis.omnis_ui_assistant = createOmnisUiAssistant({
       // Configuring to delete the componente when it's no longer used.
-      p_callback_end: function(){ delete window.omnis_ui_assistant; }
+      p_callback_end: function(){ delete v_omnis.omnis_ui_assistant; },
+      // Omnis Object
+      p_omnis: v_omnis
     });
     // Setting the tutorial to the default example tutorial `main`.
     var v_tutorial_name = (p_tutorial_name) ? p_tutorial_name : 'main';
@@ -54,7 +56,7 @@ function startTutorial(p_tutorial_name) {
           p_title: 'Managing Users'
         },
         {
-          p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById('omnidb_utilities_menu_btn_new_user'); window.omnis_ui_assistant.divClonedElement.children[0].classList.remove('ml-2');},50);},
+          p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById('omnidb_utilities_menu_btn_new_user'); v_omnis.omnis_ui_assistant.divClonedElement.children[0].classList.remove('ml-2');},50);},
           p_clone_target: true,
           p_message: `
           <p>Click on <strong>Add new user</strong>.</p>
@@ -97,7 +99,7 @@ function startTutorial(p_tutorial_name) {
           p_title: 'Primary menu'
         },
         {
-          p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById('button_new_connection'); window.omnis_ui_assistant.divClonedElement.children[0].classList.remove('ml-2');},50);},
+          p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById('button_new_connection'); v_omnis.omnis_ui_assistant.divClonedElement.children[0].classList.remove('ml-2');},50);},
           p_callback_start: function() {startConnectionManagement();},
           p_clone_target: true,
           p_message: `
@@ -186,7 +188,7 @@ function startTutorial(p_tutorial_name) {
           p_title: 'Accessing connections managemnet'
         },
         {
-          p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById('button_new_connection'); window.omnis_ui_assistant.divClonedElement.children[0].classList.remove('ml-2');},50);},
+          p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById('button_new_connection'); v_omnis.omnis_ui_assistant.divClonedElement.children[0].classList.remove('ml-2');},50);},
           p_callback_start: function() {startConnectionManagement();},
           p_clone_target: true,
           p_message: `
@@ -313,8 +315,8 @@ function startTutorial(p_tutorial_name) {
     // Selecting a tutorial
     var v_steps = v_tutorials[v_tutorial_name];
     // Update the step list with the new walkthrough
-    window.omnis_ui_assistant.updateStepList(v_steps);
+    v_omnis.omnis_ui_assistant.updateStepList(v_steps);
     // Go to the first step of the walkthrough
-    window.omnis_ui_assistant.goToStep(0);
+    v_omnis.omnis_ui_assistant.goToStep(0);
   }
 }

@@ -69,7 +69,7 @@ def index(request):
         num_connections = sign_in_automatic(request,user,pwd)
 
         if num_connections >= 0:
-            return redirect('workspace')
+            return redirect('/')
         else:
             return HttpResponse("INVALID APP TOKEN")
 
@@ -105,75 +105,15 @@ def sign_in_automatic(request, username, pwd):
     if valid_token and token != valid_token:
         return -1
 
-    database = OmniDatabase.Generic.InstantiateDatabase(
-        'sqlite',
-        '',
-        '',
-        settings.OMNIDB_DATABASE,
-        '',
-        '',
-        '0',
-        '',
-        True
-    )
+    user = authenticate(username=username, password=pwd)
+    if user is not None:
+        login(request, user)
+    else:
+        return -1
 
-    table = database.v_connection.Query('''
-        select u.user_id,
-               u.password,
-               t.theme_id,
-               t.theme_name,
-               t.theme_type,
-               u.editor_font_size,
-               (case when u.chat_enabled is null then 1 else u.chat_enabled end) as chat_enabled,
-               (case when u.super_user is null then 0 else u.super_user end) as super_user,
-               u.csv_encoding,
-               u.csv_delimiter,
-               u.interface_font_size
-        from users u,
-             themes t
-         where u.theme_id = t.theme_id
-        and u.user_name = '{0}'
-    '''.format(username))
+    logger.info('User "{0}" logged in.'.format(username))
 
-    if len(table.Rows) > 0:
-        cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
-
-        if cryptor.Hash(cryptor.Encrypt(pwd)) == table.Rows[0]['password']:
-
-            #creating session key to use it
-            try:
-                request.session.save()
-            except Exception as exc:
-                request.session.create()
-
-            logger.info('User "{0}" logged in.'.format(username))
-
-            v_session = Session(
-                table.Rows[0]["user_id"],
-                username,
-                database,
-                table.Rows[0]["theme_name"],
-                table.Rows[0]["theme_type"],
-                table.Rows[0]["theme_id"],
-                table.Rows[0]["editor_font_size"],
-                table.Rows[0]["interface_font_size"],
-                int(table.Rows[0]["chat_enabled"]),
-                int(table.Rows[0]["super_user"]),
-                cryptor,
-                request.session.session_key,
-                table.Rows[0]["csv_encoding"],
-                table.Rows[0]["csv_delimiter"]
-            )
-
-            #v_session.RefreshDatabaseList()
-            request.session['omnidb_session'] = v_session
-
-            if not request.session.get('cryptor'):
-                request.session['cryptor'] = cryptor
-
-            return len(v_session.v_databases)
-
-    return -1
+    return 0
 
 def create_user_session(request, user, user_details):
     #creating session key to use it

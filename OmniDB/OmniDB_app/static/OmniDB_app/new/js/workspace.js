@@ -1380,6 +1380,7 @@ function toggleTreeTabsContainer(p_target_id,p_horizonta_line_id) {
     $('#' + p_target_id).removeClass('omnidb__tree-tabs--not-in-view');
     $('#' + p_horizonta_line_id).removeClass('d-none');
     v_tab_tag.treeTabsVisible = true;
+    setTimeout(function(){refreshTreeHeight();},360);
   }
   else {
     $('#' + p_target_id).addClass('omnidb__tree-tabs--not-in-view');

@@ -1534,10 +1534,10 @@ body {
   font-style: italic;
 }
 
-.omnidb__autocomplete__data-row:hover, .omnidb__autocomplete__data-word:hover, .omnidb__autocomplete__data-row--selected:hover {
+.omnidb__autocomplete__data-row:hover, .omnidb__autocomplete__data-word:hover, .omnidb__autocomplete__data-row--selected:hover, .omnidb__autocomplete__data-row--selected {
   padding: 0px 5px;
-  border: 1px solid #5278de;
-  background-color: #c7d6ff;
+  border: 1px solid #72aaff !important;
+  background-color: #cfe2ff !important;
   cursor: pointer;
 }
 

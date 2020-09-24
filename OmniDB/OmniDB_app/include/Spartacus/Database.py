@@ -34,6 +34,7 @@ import OmniDB_app.include.Spartacus.prettytable as prettytable
 from urllib.parse import urlparse
 
 v_supported_rdbms = []
+
 try:
     import sqlite3
     v_supported_rdbms.append('SQLite')

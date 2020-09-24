@@ -13,6 +13,7 @@ import importlib
 import optparse
 import configparser
 import OmniDB.custom_settings
+
 OmniDB.custom_settings.DEV_MODE = False
 OmniDB.custom_settings.DESKTOP_MODE = False
 
@@ -57,9 +58,6 @@ group = optparse.OptionGroup(parser, "Management Options",
 group.add_option("-r", "--resetdatabase", dest="reset",
                   default=False, action="store_true",
                   help="reset user and session databases")
-group.add_option("-t", "--deletetemp", dest="deletetemp",
-                  default=False, action="store_true",
-                  help="delete temporary files")
 group.add_option("-j", "--jsonoutput", dest="jsonoutput",
                   default=False, action="store_true",
                   help="format list output as json")
@@ -79,7 +77,7 @@ group.add_option("-m", "--listconnections", dest="listconnections",
                   nargs=1,metavar="username",
                   help="list connections: -m username")
 group.add_option("-c", "--createconnection", dest="createconnection",
-                  nargs=6,metavar="username technology host port database dbuser",
+                  nargs=7,metavar="username technology title host port database dbuser",
                   help="create connection: -c username technology host port database dbuser")
 group.add_option("-z", "--dropconnection", dest="dropconnection",
                   nargs=1,metavar="connid",
@@ -128,60 +126,6 @@ spec = importlib.util.spec_from_file_location("omnidb_settings", config_file)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 omnidb_settings = module
-
-maintenance_action = False
-
-if options.reset:
-    maintenance_action = True
-    print('*** ATENTION *** ALL USERS DATA WILL BE LOST')
-    try:
-        value = input('Would you like to continue? (y/n) ')
-        if value.lower()=='y':
-            #clean_chat()
-            clean_users()
-            clean_sessions()
-            vacuum()
-            clean_temp()
-            create_superuser('admin', 'admin')
-    except Exception as exc:
-        print('Error:')
-        print(exc)
-
-if options.deletetemp:
-    maintenance_action = True
-    clean_temp()
-
-if options.listusers:
-    maintenance_action = True
-    list_users()
-
-if options.createuser:
-    maintenance_action = True
-    create_user(options.createuser[0], options.createuser[1])
-
-if options.createsuperuser:
-    maintenance_action = True
-    create_superuser(options.createsuperuser[0], options.createsuperuser[1])
-
-if options.dropuser:
-    maintenance_action = True
-    drop_user(options.dropuser)
-
-if options.listconnections:
-    maintenance_action = True
-    list_connections(options.listconnections)
-
-if options.createconnection:
-    maintenance_action = True
-    create_connection(options.createconnection[0], options.createconnection[1], options.createconnection[2], options.createconnection[3], options.createconnection[4], options.createconnection[5])
-
-if options.dropconnection:
-    maintenance_action = True
-    drop_connection(options.dropconnection)
-
-# Maintenance performed, exit before starting webserver
-if maintenance_action == True:
-    sys.exit()
 
 if options.host!=None:
     listening_address = options.host
@@ -266,6 +210,140 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'OmniDB.settings'
 import django
 from django.core.management import call_command
 django.setup()
+from OmniDB_app.models.main import *
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+maintenance_action = False
+
+def create_user(p_user,p_pwd,p_superuser):
+    User.objects.create_user(username=p_user,
+                             password=p_pwd,
+                             email='',
+                             last_login=timezone.now(),
+                             is_superuser=p_superuser,
+                             first_name='',
+                             last_name='',
+                             is_staff=False,
+                             is_active=True,
+                             date_joined=timezone.now())
+
+if options.reset:
+    maintenance_action = True
+    print('*** ATENTION *** ALL USERS DATA WILL BE LOST')
+    try:
+        value = input('Would you like to continue? (y/n) ')
+        if value.lower()=='y':
+            # Removing users
+            User.objects.all().delete()
+            # Create default admin user
+            create_user('admin', 'admin', True)
+    except Exception as exc:
+        print('Error:')
+        print(exc)
+
+if options.listusers:
+    from OmniDB_app.include.Spartacus.Database import DataTable
+    table = DataTable()
+    table.AddColumn('id')
+    table.AddColumn('username')
+    table.AddColumn('superuser')
+
+    maintenance_action = True
+    users = User.objects.all()
+    for user in users:
+        table.AddRow([user.id,user.username,user.is_superuser])
+    if options.jsonoutput:
+        print(table.Jsonify())
+    else:
+        print(table.Pretty())
+
+if options.createuser:
+    maintenance_action = True
+    create_user(options.createuser[0], options.createuser[1], False)
+
+if options.createsuperuser:
+    maintenance_action = True
+    create_user(options.createsuperuser[0], options.createsuperuser[1], True)
+
+if options.dropuser:
+    maintenance_action = True
+    User.objects.get(username=options.dropuser).delete()
+
+if options.listconnections:
+    maintenance_action = True
+
+    from OmniDB_app.include.Spartacus.Database import DataTable
+    table = DataTable()
+    table.AddColumn('id')
+    table.AddColumn('technology')
+    table.AddColumn('alias')
+    table.AddColumn('connstring')
+    table.AddColumn('host')
+    table.AddColumn('port')
+    table.AddColumn('database')
+    table.AddColumn('user')
+    table.AddColumn('tunnel enabled')
+    table.AddColumn('tunnel server')
+    table.AddColumn('tunnel port')
+    table.AddColumn('tunnel user')
+
+    maintenance_action = True
+
+    for conn in Connection.objects.filter(user=User.objects.get(username=options.listconnections)):
+        table.AddRow(
+            [
+                conn.id,
+                conn.technology.name,
+                conn.alias,
+                conn.conn_string,
+                conn.server,
+                conn.port,
+                conn.database,
+                conn.username,
+                conn.use_tunnel,
+                conn.ssh_server,
+                conn.ssh_port,
+                conn.ssh_user
+            ]
+        )
+
+    if options.jsonoutput:
+        print(table.Jsonify())
+    else:
+        print(table.Pretty())
+
+if options.createconnection:
+    maintenance_action = True
+
+    connection = Connection(
+        user=User.objects.get(username=options.createconnection[0]),
+        technology=Technology.objects.get(name=options.createconnection[1]),
+        server=options.createconnection[3],
+        port=options.createconnection[4],
+        database=options.createconnection[5],
+        username=options.createconnection[6],
+        password='',
+        alias=options.createconnection[2],
+        ssh_server='',
+        ssh_port='',
+        ssh_user='',
+        ssh_password='',
+        ssh_key='',
+        use_tunnel=False,
+        conn_string='',
+
+    )
+    connection.save()
+
+if options.dropconnection:
+    maintenance_action = True
+    Connection.objects.get(id=options.dropconnection).delete()
+
+# Maintenance performed, exit before starting webserver
+if maintenance_action == True:
+    sys.exit()
+
 import html.parser
 import http.cookies
 

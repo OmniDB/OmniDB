@@ -76,6 +76,17 @@ $(function () {
   // Retrieving database list.
   getDatabaseList(true);
 
+  // Creating omnis.
+  v_omnis.div = document.createElement('div');
+  v_omnis.div.setAttribute('id', 'omnis');
+  v_omnis.div.style.position = 'fixed';
+  v_omnis.div.style.bottom = '5px';
+  v_omnis.div.style.right = '5px';
+  v_omnis.div.style.transition = 'all 0.35s linear 0s';
+  v_omnis.div.style['z-index'] = '99999999';
+  v_omnis.div.innerHTML = v_omnis.template;
+  document.body.appendChild(v_omnis.div);
+
   // Loads or Updates all tooltips.
   $('[data-toggle="tooltip"]').tooltip({animation:true});
 

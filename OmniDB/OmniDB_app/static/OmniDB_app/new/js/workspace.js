@@ -77,11 +77,12 @@ $(function () {
   getDatabaseList(true);
 
   // Creating omnis.
+  v_omnis.root = document.getElementById('omnidb__main');
   v_omnis.div = document.createElement('div');
   v_omnis.div.setAttribute('id', 'omnis');
   v_omnis.div.classList.add('omnis');
-  v_omnis.div.style.bottom = '5px';
-  v_omnis.div.style.right = '5px';
+  v_omnis.div.style.top = v_omnis.root.getBoundingClientRect().height - 45 + 'px';
+  v_omnis.div.style.left = v_omnis.root.getBoundingClientRect().width - 45 + 'px';
   v_omnis.div.style['z-index'] = '99999999';
   v_omnis.div.innerHTML = v_omnis.template;
   document.body.appendChild(v_omnis.div);
@@ -997,14 +998,19 @@ function refreshHeights(p_all) {
       refreshTreeHeight();
     }
 
-    //Hooks
+    // Hooks
     if (v_connTabControl.tag.hooks.windowResize.length>0) {
       for (var i=0; i<v_connTabControl.tag.hooks.windowResize.length; i++)
       v_connTabControl.tag.hooks.windowResize[i]();
     }
 
-    //Snippet panel
+    // Snippet panel
     resizeSnippetPanel();
+
+    // Updating position of omnis.
+    if (v_omnis.omnis_ui_assistant) {
+      v_omnis.omnis_ui_assistant.goToStep(v_omnis.omnis_ui_assistant.stepSelected);
+    }
 
   },351);
 }

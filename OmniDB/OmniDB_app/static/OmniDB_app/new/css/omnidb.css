@@ -1583,7 +1583,29 @@ body {
 	}
 }
 
-
+/* OMNIS */
+.omnis {
+  border-radius: 50%;
+  cursor: pointer;
+  position: fixed;
+  transition: all 0.35s linear 0s;
+}
+.omnis--active {
+  cursor: unset;
+  pointer-events: none;
+}
+.omnis--active .animated-omnis__group--to-blue path,
+.omnis--active .animated-omnis__group--to-blue rect {
+  animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
+				animatedOmnisSvgToActiveBlue 1.2s linear infinite alternate 1s,
+				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 1s;
+}
+.omnis--active .animated-omnis__group--to-darkblue path,
+.omnis--active .animated-omnis__group--to-darkblue rect {
+  animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
+        animatedOmnisSvgToActiveBlue 1.2s linear infinite alternate 2s,
+        animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 2s;
+}
 
 /* Omnis UI Assistant */
 .omnis__step__arrow {
@@ -1729,4 +1751,10 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+/* Used only by omnis when its active */
+@keyframes animatedOmnisSvgToActiveBlue {
+	to {
+		fill: #009bff;
+	}
 }

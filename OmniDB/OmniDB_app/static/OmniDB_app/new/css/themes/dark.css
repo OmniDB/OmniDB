@@ -28,6 +28,14 @@
   /* background-color: #282A2F; */
 }
 
+/* OMNIS */
+.omnidb--theme-dark .omnis {
+  background-color: rgba(47,49,54,0.25);
+}
+.omnidb--theme-dark .omnis.omnis--active {
+  background-color: rgba(47,49,54,1);
+}
+
 /* ICONS */
 .omnidb--theme-dark .close,
 .omnidb--theme-dark i.icon-close {

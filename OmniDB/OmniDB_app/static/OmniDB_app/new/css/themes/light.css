@@ -424,9 +424,6 @@
 .omnidb--theme-light .omnidb__autocomplete {
   background: #FFFFFF;
 }
-.omnidb--theme-light .omnidb__autocomplete__data-row--selected {
-  background-color: #EFEFEF !important;
-}
 .omnidb--theme-dark .omnidb__autocomplete__data {
   background-color: #FBFBFB;
 }

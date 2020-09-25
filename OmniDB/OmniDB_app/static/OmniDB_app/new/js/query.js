@@ -424,6 +424,11 @@ function querySQLReturnRender(p_message,p_context) {
 							//copyColsLimit : 1000000000,
                             copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
 							manualColumnResize: true,
+							modifyColWidth: function(width, col){
+					      if(width > 150){
+					        return 100
+					      }
+					    },
 							fillHandle:false,
 							contextMenu: {
 								callback: function (key, options) {
@@ -439,8 +444,8 @@ function querySQLReturnRender(p_message,p_context) {
 									"copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
 									"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
 								}
-						    },
-					        cells: function (row, col, prop) {
+					    },
+			        cells: function (row, col, prop) {
 							    var cellProperties = {};
 							    cellProperties.renderer = whiteRenderer;
 							    return cellProperties;

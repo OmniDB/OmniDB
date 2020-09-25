@@ -330,6 +330,36 @@ function saveShortcuts() {
 /// <param name="p_content">Cell content.</param>
 /// <param name="p_can_alter">If ready only or not.</param>
 function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
+	var v_edit_modal = document.getElementById('div_edit_content');
+	if (!v_edit_modal) {
+		v_edit_modal = document.createElement('div');
+		v_edit_modal.setAttribute('id','div_edit_content');
+		v_edit_modal.setAttribute('tabindex','-1');
+		v_edit_modal.setAttribute('role','dialog');
+		v_edit_modal.setAttribute('aria-hidden','true');
+		v_edit_modal.classList = 'modal fade';
+		v_edit_modal.innerHTML =
+    '<div id="modal_message_dialog" class="modal-dialog" role="document">' +
+      '<div class="modal-content">' +
+        '<div class="modal-header">' +
+					'<h4 class="mb-0">Edit Data</h4>' +
+          '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+            '<span aria-hidden="true">&times;</span>' +
+          '</button>' +
+        '</div>' +
+        '<div id="modal_message_content" class="modal-body" style="white-space: pre-line;">' +
+					'<div id="txt_edit_content" style="width: 100%; height: 70vh; font-size: 12px; border: 1px solid rgb(195, 195, 195);">' +
+					'</div>' +
+        '</div>' +
+        '<div class="modal-footer">' +
+          '<button type="button" class="btn omnidb__theme__btn--primary" data-dismiss="modal" onclick="saveEditContent()">Save</button>' +
+          '<button type="button" class="btn omnidb__theme__btn--secondary" data-dismiss="modal" onclick="cancelEditContent()">Cancel</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+		document.body.append(v_edit_modal);
+	}
 
 	v_canEditContent = p_can_alter;
 
@@ -377,8 +407,27 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 	v_editContentObject.col = p_col;
 	v_editContentObject.ht = p_ht;
 
-	$('#div_edit_content').addClass('isActive');
+	$('#div_edit_content').modal();
 
+}
+
+function saveEditContent() {
+	$('#div_edit_content').modal('hide');
+
+	if (v_canEditContent) {
+		v_editContentObject.ht.setDataAtCell(v_editContentObject.row, v_editContentObject.col, v_editContentObject.editor.getValue());
+	}
+	else {
+		alert('No permissions.');
+	}
+
+	v_editContentObject.editor.setValue('');
+}
+
+function cancelEditContent() {
+	$('#div_edit_content').modal('hide');
+
+	v_editContentObject.editor.setValue('');
 }
 
 /// <summary>
@@ -386,7 +435,7 @@ function editCellData(p_ht, p_row, p_col, p_content, p_can_alter) {
 /// </summary>
 function hideEditContent() {
 
-	$('#div_edit_content').removeClass('isActive');
+	$('#div_edit_content').modal('hide');
 
 	if (v_canEditContent)
 		v_editContentObject.ht.setDataAtCell(v_editContentObject.row, v_editContentObject.col, v_editContentObject.editor.getValue());

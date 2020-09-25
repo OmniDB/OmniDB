@@ -43,6 +43,11 @@ function startTutorial(p_tutorial_name) {
               <i class="fas fa-book mr-2"></i>Meet the snippets panel
             </button>
           </li>
+          <li class="mb-2">
+            <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('using_connection');">
+              <i class="fas fa-plus mr-2"></i>Using a connection
+            </button>
+          </li>
         </ol>
         `,
         p_title: '<i class="fas fa-list mr-2"></i> Getting started'
@@ -317,6 +322,59 @@ function startTutorial(p_tutorial_name) {
         `,
         p_target: document.getElementsByClassName('omnidb__tab-menu omnidb__tab-menu--primary')[0],
         p_title: 'Global Snippet Panel'
+      },
+      {
+        // p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById(v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editorDivId);},50);},
+        p_callback_start: function() {toggleSnippetPanel();},
+        p_message: `
+        <p>Inside this tab you can create and edit a snippet.</p>
+        <p>Go ahead and try to create some simple snippet, i.e:</p>
+        <code>WHERE true SELECT 1;</code>
+        <p>Then experiment clicking on the <strong>indent button</strong> below the editor, and then <strong>next</strong>.</p>
+        `,
+        p_next_button: true,
+        p_target: function() {var v_target = document.getElementById('a_' + v_connTabControl.snippet_tag.tabControl.selectedTab.tag.tab_id); return v_target},
+        p_title: 'Snippets editor',
+        p_update_delay: 600
+      },
+      {
+        p_message: `
+        <p>As you can see, the identation feature automatically adjusts your code following a pattern.</p>
+        <p>Now go ahead and click <strong>save</strong></p>
+        `,
+        p_next_button: true,
+        p_target: function() {var v_target = document.getElementById('a_' + v_connTabControl.snippet_tag.tabControl.selectedTab.tag.tab_id); return v_target},
+        p_title: 'Indenting'
+      },
+      {
+        p_message: `
+        <p>Every snippet you save is stored under your user.</p>
+        <p>The tree on the left allows you to easily access it by double-clicking on the snippet.</p>
+        `,
+        p_next_button: false,
+        p_target: function() {var v_target = document.getElementById(v_connTabControl.snippet_tag.divTree.getAttribute('id')); return v_target},
+        p_title: 'Saved Snippets',
+        p_update_delay: 600
+      }
+    ],
+    'using_connection': [
+      {
+        p_message: `
+        <p>The <strong>outer_tab</strong> contains global panels related to workspace and also access to created connections.</p>
+        <ol style="padding-left: 1.5rem;">
+          <li class="mb-2">
+            To access a connection, click on the <i class="fas fa-plus"></i> button.
+          </li>
+          <li class="mb-2">
+            Navigate to the proper technology on the custom menu.
+          </li>
+          <li class="mb-2">
+            Click on the connection.
+          </li>
+        </ol>
+        `,
+        p_target: document.getElementsByClassName('omnidb__tab-menu omnidb__tab-menu--primary')[0],
+        p_title: 'Using Connections'
       },
       {
         // p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById(v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editorDivId);},50);},

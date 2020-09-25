@@ -51,9 +51,9 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
             var v_message_data = { tab_id: p_tab.tag.tab_id, tab_db_id: null };
             v_tabs_to_remove.push(v_message_data);
 
-            for (var i=0; i < v_connTabControl.selectedTab.tag.tabControl.tabList.length; i++) {
+            for (var i=0; i < p_tab.tag.tabControl.tabList.length; i++) {
 
-              var v_tab = v_connTabControl.selectedTab.tag.tabControl.tabList[i];
+              var v_tab = p_tab.tag.tabControl.tabList[i];
               if (v_tab.tag!=null) {
                 if (v_tab.tag.mode=='query' || v_tab.tag.mode=='edit' || v_tab.tag.mode=='debug' || v_tab.tag.mode=='console') {
                   var v_message_data = { tab_id: v_tab.tag.tab_id, tab_db_id: null };

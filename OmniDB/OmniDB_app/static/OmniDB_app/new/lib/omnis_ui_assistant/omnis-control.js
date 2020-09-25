@@ -194,7 +194,7 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
             }
 
             console.log('target',v_target);
-            v_control.updateOmnisPosition(v_target);
+            v_control.updateOmnisPosition(v_target,v_step_item.position);
             resolve(v_target);
 
           }, v_step_item.update_delay);
@@ -265,6 +265,7 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
       p_clone_target = false,
       p_message = 'Example',
       p_next_button = true,
+      p_position = ()=>{return false},
       p_target = null,
       p_title = 'Omnis',
       p_update_delay = 0
@@ -282,6 +283,7 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
 				id: v_control.id + '_step_' + v_index,
         message: p_message,
         next_button: p_next_button,
+        position: p_position(),
         target: p_target,
         title: p_title,
         update_delay: p_update_delay
@@ -395,7 +397,7 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
       v_waves_element.style.display = 'block';
       var v_cloned_element_waves = document.getElementById(v_control.id + '_cloned_element_waves');
     },
-    updateOmnisPosition : function(v_target) {
+    updateOmnisPosition : function(p_target, p_pos = false) {
       try {
         let v_root = document.getElementById('omnidb__main');
         let v_window_width = v_root.offsetWidth;
@@ -403,14 +405,20 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
         let v_window_height = v_root.offsetHeight;
         let v_window_height_half = Math.round(v_window_height / 2);
         var v_control = this;
+        var v_target = p_target;
         if (!v_target) {
           v_target = (typeof v_control.stepList[v_control.stepSelected].target === 'function')
           ? v_control.stepList[v_control.stepSelected].target()
           : v_control.stepList[v_control.stepSelected].target;
         }
         var v_target_position;
-        if (v_target) {
+        var v_target_offset_width = 0;
+        if (p_pos) {
+          v_target_position = {x:p_pos.x, y:p_pos.y}
+        }
+        else if (v_target) {
           v_target_position = v_control.getPosition(v_target);
+          v_target_offset_width = v_target.offsetWidth;
         }
         else {
           v_target_position = {x:v_window_width - 5, y:v_window_height - 5}
@@ -435,8 +443,8 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
         }
         // Left side of the screen.
         else {
-          v_omnis_div.style.left = v_target_position.x + v_target.offsetWidth + 16 + 'px';
-          v_control.divCardElement.style.left = v_target_position.x + v_target.offsetWidth + 56 + 'px';
+          v_omnis_div.style.left = v_target_position.x + v_target_offset_width + 16 + 'px';
+          v_control.divCardElement.style.left = v_target_position.x + v_target_offset_width + 56 + 'px';
           // Above vertical middle of the screen.
           if (v_target_position.y <= v_window_height_half) {
             v_omnis_div.style.top = v_target_position.y + 16 + 'px';

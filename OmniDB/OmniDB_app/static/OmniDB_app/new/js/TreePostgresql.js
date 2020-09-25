@@ -2302,6 +2302,15 @@ function getTreePostgresql(p_div) {
                                 '')));
                 }
             }, {
+                text: 'Reindex',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate('Reindex', node.tree.tag.reindex
+                        .replace('#index_name#', node.tag.schema + '.' + node.text.replace(
+                                ' (Unique)', '').replace(
+                                ' (Non Unique)', '')));
+                }
+            }, {
                 text: 'Drop Index',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -4707,6 +4716,7 @@ function getTreeDetailsPostgresql(node) {
                 drop_foreignkey: p_return.v_data.v_database_return.drop_foreignkey,
                 create_index: p_return.v_data.v_database_return.create_index,
                 alter_index: p_return.v_data.v_database_return.alter_index,
+                reindex: p_return.v_data.v_database_return.reindex,
                 drop_index: p_return.v_data.v_database_return.drop_index,
                 create_check: p_return.v_data.v_database_return.create_check,
                 drop_check: p_return.v_data.v_database_return.drop_check,
@@ -5414,7 +5424,7 @@ function getTablesPostgresql(node) {
 function getSequencesPostgresql(node) {
     node.removeChildNodes();
     node.createChildNode('', false, 'node-spin', null,
-        null, null, false);
+        null);
 
     execAjax('/get_sequences_postgresql/',
         JSON.stringify({

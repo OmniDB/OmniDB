@@ -4195,7 +4195,8 @@ LOCATION 'directory'
         return Template('DROP TABLESPACE #tablespace_name#')
 
     def TemplateCreateDatabase(self):
-        return Template('''CREATE DATABASE name
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90500:
+            return Template('''CREATE DATABASE name
 --OWNER user_name
 --TEMPLATE template
 --ENCODING encoding
@@ -4203,6 +4204,31 @@ LOCATION 'directory'
 --LC_CTYPE lc_ctype
 --TABLESPACE tablespace
 --CONNECTION LIMIT connlimit
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''CREATE DATABASE name
+--OWNER user_name
+--TEMPLATE template
+--ENCODING encoding
+--LC_COLLATE lc_collate
+--LC_CTYPE lc_ctype
+--TABLESPACE tablespace
+--ALLOW_CONNECTIONS allowconn
+--CONNECTION LIMIT connlimit
+--IS_TEMPLATE istemplate
+''')
+        else:
+            return Template('''CREATE DATABASE name
+--OWNER user_name
+--TEMPLATE template
+--ENCODING encoding
+--LOCALE locale
+--LC_COLLATE lc_collate
+--LC_CTYPE lc_ctype
+--TABLESPACE tablespace
+--ALLOW_CONNECTIONS allowconn
+--CONNECTION LIMIT connlimit
+--IS_TEMPLATE istemplate
 ''')
 
     def TemplateAlterDatabase(self):
@@ -4220,13 +4246,24 @@ LOCATION 'directory'
 ''')
 
     def TemplateDropDatabase(self):
-        return Template('DROP DATABASE #database_name#')
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('DROP DATABASE #database_name#')
+        else:
+            return Template('''DROP DATABASE #database_name#
+--WITH ( FORCE )
+''')
 
     def TemplateCreateExtension(self):
-        return Template('''CREATE EXTENSION name
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''CREATE EXTENSION name
 --SCHEMA schema_name
 --VERSION VERSION
 --FROM old_version
+''')
+        else:
+            return Template('''CREATE EXTENSION name
+--SCHEMA schema_name
+--VERSION VERSION
 ''')
 
     def TemplateAlterExtension(self):
@@ -4384,7 +4421,10 @@ $function$
 ''')
 
     def TemplateCreateView(self):
-        return Template('''CREATE OR REPLACE VIEW #schema_name#.name AS
+        return Template('''CREATE [ OR REPLACE ] [ TEMP | TEMPORARY ] [ RECURSIVE ] VIEW #schema_name#.name
+--WITH ( check_option = local | cascaded )
+--WITH ( security_barrier = true | false )
+AS
 SELECT ...
 ''')
 
@@ -4412,7 +4452,8 @@ SELECT ...
 ''')
 
     def TemplateCreateTable(self):
-        return Template('''CREATE
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 120000:
+            return Template('''CREATE
 --TEMPORARY
 --UNLOGGED
 TABLE #schema_name#.table_name
@@ -4455,9 +4496,53 @@ TABLE #schema_name#.table_name
 --ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP }
 --TABLESPACE tablespace_name
 ''')
+        else:
+            return Template('''CREATE
+--TEMPORARY
+--UNLOGGED
+TABLE #schema_name#.table_name
+--OF type_name
+--AS query [ WITH [ NO ] DATA ]
+--PARTITION OF parent_table
+(
+    column_name data_type
+    --COLLATE collation
+    --CONSTRAINT constraint_name
+    --NOT NULL
+    --NULL
+    --CHECK ( expression ) [ NO INHERIT ]
+    --DEFAULT default_expr
+    --GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ]
+    --GENERATED ALWAYS AS ( generation_expr ) STORED
+    --UNIQUE [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --PRIMARY KEY [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ] [ ON UPDATE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ]
+    --CHECK ( expression ) [ NO INHERIT ]
+    --UNIQUE ( column_name [, ... ] ) [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --PRIMARY KEY ( column_name [, ... ] ) [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ]
+    --EXCLUDE [ USING index_method ] ( { column_name | ( expression ) } [ opclass ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] WITH operator [, ... ] ) [ WITH ( storage_parameter [= value] [, ... ] ) ] [ USING INDEX TABLESPACE tablespace_name ] [ WHERE ( predicate ) ]
+    --FOREIGN KEY ( column_name [, ... ] ) REFERENCES reftable [ ( refcolumn [, ... ] ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ] [ ON UPDATE { NO ACTION | RESTRICT | CASCADE | SET NULL | SET DEFAULT } ]
+    --DEFERRABLE
+    --NOT DEFERRABLE
+    --INITIALLY DEFERRED
+    --INITIALLY IMMEDIATE
+    --LIKE source_table [ { INCLUDING | EXCLUDING } { COMMENTS | CONSTRAINTS | DEFAULTS | IDENTITY | INDEXES | STATISTICS | STORAGE | ALL } ... ]
+)
+--FOR VALUES IN ( { numeric_literal | string_literal | TRUE | FALSE | NULL } [, ...] )
+--FOR VALUES FROM ( { numeric_literal | string_literal | TRUE | FALSE | MINVALUE | MAXVALUE } [, ...] ) TO ( { numeric_literal | string_literal | TRUE | FALSE | MINVALUE | MAXVALUE } [, ...] )
+--FOR VALUES WITH ( MODULUS numeric_literal, REMAINDER numeric_literal )
+--DEFAULT
+--INHERITS ( parent_table [, ... ] )
+--PARTITION BY { RANGE | LIST | HASH } ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [, ... ] )
+--WITH ( storage_parameter [= value] [, ... ] )
+--WITHOUT OIDS
+--ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP }
+--TABLESPACE tablespace_name
+''')
 
     def TemplateAlterTable(self):
-        return Template('''ALTER TABLE
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 120000:
+            return Template('''ALTER TABLE
 --ONLY
 #table_name#
 --ADD [ COLUMN ] [ IF NOT EXISTS ] column_name data_type [ COLLATE collation ] [ column_constraint [ ... ] ]
@@ -4493,6 +4578,117 @@ TABLE #schema_name#.table_name
 --CLUSTER ON index_name
 --SET WITHOUT CLUSTER
 --SET WITH OIDS
+--SET WITHOUT OIDS
+--SET TABLESPACE new_tablespace
+--SET { LOGGED | UNLOGGED }
+--SET ( storage_parameter = value [, ... ] )
+--RESET ( storage_parameter [, ... ] )
+--INHERIT parent_table
+--NO INHERIT parent_table
+--OF type_name
+--NOT OF
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--REPLICA IDENTITY { DEFAULT | USING INDEX index_name | FULL | NOTHING }
+--RENAME [ COLUMN ] column_name TO new_column_name
+--RENAME CONSTRAINT constraint_name TO new_constraint_name
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--ALL IN TABLESPACE name [ OWNED BY role_name [, ... ] ] SET TABLESPACE new_tablespace [ NOWAIT ]
+--ATTACH PARTITION partition_name FOR VALUES partition_bound_spec
+--DETACH PARTITION partition_name
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''ALTER TABLE
+--ONLY
+#table_name#
+--ADD [ COLUMN ] [ IF NOT EXISTS ] column_name data_type [ COLLATE collation ] [ column_constraint [ ... ] ]
+--DROP [ COLUMN ] [ IF EXISTS ] column_name [ RESTRICT | CASCADE ]
+--ALTER [ COLUMN ] column_name [ SET DATA ] TYPE data_type [ COLLATE collation ] [ USING expression ]
+--ALTER [ COLUMN ] column_name SET DEFAULT expression
+--ALTER [ COLUMN ] column_name DROP DEFAULT
+--ALTER [ COLUMN ] column_name { SET | DROP } NOT NULL
+--ALTER [ COLUMN ] column_name ADD GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ]
+--ALTER [ COLUMN ] column_name { SET GENERATED { ALWAYS | BY DEFAULT } | SET sequence_option | RESTART [ [ WITH ] restart ] } [...]
+--ALTER [ COLUMN ] column_name DROP IDENTITY [ IF EXISTS ]
+--ALTER [ COLUMN ] column_name SET STATISTICS integer
+--ALTER [ COLUMN ] column_name SET ( attribute_option = value [, ... ] )
+--ALTER [ COLUMN ] column_name RESET ( attribute_option [, ... ] )
+--ALTER [ COLUMN ] column_name SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+--ADD table_constraint [ NOT VALID ]
+--ADD CONSTRAINT constraint_name { UNIQUE | PRIMARY KEY } USING INDEX index_name [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+--ALTER CONSTRAINT constraint_name [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+--VALIDATE CONSTRAINT constraint_name
+--DROP CONSTRAINT [ IF EXISTS ]  constraint_name [ RESTRICT | CASCADE ]
+--DISABLE TRIGGER [ trigger_name | ALL | USER ]
+--ENABLE TRIGGER [ trigger_name | ALL | USER ]
+--ENABLE REPLICA TRIGGER trigger_name
+--ENABLE ALWAYS TRIGGER trigger_name
+--DISABLE RULE rewrite_rule_name
+--ENABLE RULE rewrite_rule_name
+--ENABLE REPLICA RULE rewrite_rule_name
+--ENABLE ALWAYS RULE rewrite_rule_name
+--DISABLE ROW LEVEL SECURITY
+--ENABLE ROW LEVEL SECURITY
+--FORCE ROW LEVEL SECURITY
+--NO FORCE ROW LEVEL SECURITY
+--CLUSTER ON index_name
+--SET WITHOUT CLUSTER
+--SET WITHOUT OIDS
+--SET TABLESPACE new_tablespace
+--SET { LOGGED | UNLOGGED }
+--SET ( storage_parameter = value [, ... ] )
+--RESET ( storage_parameter [, ... ] )
+--INHERIT parent_table
+--NO INHERIT parent_table
+--OF type_name
+--NOT OF
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--REPLICA IDENTITY { DEFAULT | USING INDEX index_name | FULL | NOTHING }
+--RENAME [ COLUMN ] column_name TO new_column_name
+--RENAME CONSTRAINT constraint_name TO new_constraint_name
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--ALL IN TABLESPACE name [ OWNED BY role_name [, ... ] ] SET TABLESPACE new_tablespace [ NOWAIT ]
+--ATTACH PARTITION partition_name FOR VALUES partition_bound_spec
+--DETACH PARTITION partition_name
+''')
+        else:
+            return Template('''ALTER TABLE
+--ONLY
+#table_name#
+--ADD [ COLUMN ] [ IF NOT EXISTS ] column_name data_type [ COLLATE collation ] [ column_constraint [ ... ] ]
+--DROP [ COLUMN ] [ IF EXISTS ] column_name [ RESTRICT | CASCADE ]
+--ALTER [ COLUMN ] column_name [ SET DATA ] TYPE data_type [ COLLATE collation ] [ USING expression ]
+--ALTER [ COLUMN ] column_name SET DEFAULT expression
+--ALTER [ COLUMN ] column_name DROP DEFAULT
+--ALTER [ COLUMN ] column_name { SET | DROP } NOT NULL
+--ALTER [ COLUMN ] column_name DROP EXPRESSION
+--ALTER [ COLUMN ] column_name ADD GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( sequence_options ) ]
+--ALTER [ COLUMN ] column_name { SET GENERATED { ALWAYS | BY DEFAULT } | SET sequence_option | RESTART [ [ WITH ] restart ] } [...]
+--ALTER [ COLUMN ] column_name DROP IDENTITY [ IF EXISTS ]
+--ALTER [ COLUMN ] column_name SET STATISTICS integer
+--ALTER [ COLUMN ] column_name SET ( attribute_option = value [, ... ] )
+--ALTER [ COLUMN ] column_name RESET ( attribute_option [, ... ] )
+--ALTER [ COLUMN ] column_name SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+--ADD table_constraint [ NOT VALID ]
+--ADD CONSTRAINT constraint_name { UNIQUE | PRIMARY KEY } USING INDEX index_name [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+--ALTER CONSTRAINT constraint_name [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+--VALIDATE CONSTRAINT constraint_name
+--DROP CONSTRAINT [ IF EXISTS ]  constraint_name [ RESTRICT | CASCADE ]
+--DISABLE TRIGGER [ trigger_name | ALL | USER ]
+--ENABLE TRIGGER [ trigger_name | ALL | USER ]
+--ENABLE REPLICA TRIGGER trigger_name
+--ENABLE ALWAYS TRIGGER trigger_name
+--DISABLE RULE rewrite_rule_name
+--ENABLE RULE rewrite_rule_name
+--ENABLE REPLICA RULE rewrite_rule_name
+--ENABLE ALWAYS RULE rewrite_rule_name
+--DISABLE ROW LEVEL SECURITY
+--ENABLE ROW LEVEL SECURITY
+--FORCE ROW LEVEL SECURITY
+--NO FORCE ROW LEVEL SECURITY
+--CLUSTER ON index_name
+--SET WITHOUT CLUSTER
 --SET WITHOUT OIDS
 --SET TABLESPACE new_tablespace
 --SET { LOGGED | UNLOGGED }
@@ -4597,18 +4793,65 @@ DROP CONSTRAINT #constraint_name#
 ''')
 
     def TemplateCreateIndex(self):
-        return Template('''CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ] name
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return Template('''CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ] name
 ON #table_name#
 --USING method
 ( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] )
 --WITH ( storage_parameter = value [, ... ] )
 --WHERE predicate
 ''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ] name
+ON [ ONLY ] #table_name#
+--USING method
+( { column_name | ( expression ) } [ COLLATE collation ] [ opclass ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] )
+--INCLUDE ( column_name [, ...] )
+--WITH ( storage_parameter = value [, ... ] )
+--WHERE predicate
+''')
+        else:
+            return Template('''CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ] name
+ON [ ONLY ] #table_name#
+--USING method
+( { column_name | ( expression ) } [ COLLATE collation ] [ opclass [ ( opclass_parameter = value [, ... ] ) ] ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] )
+--INCLUDE ( column_name [, ...] )
+--WITH ( storage_parameter = value [, ... ] )
+--WHERE predicate
+''')
 
     def TemplateAlterIndex(self):
-        return Template('''ALTER INDEX #index_name#
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return Template('''ALTER INDEX #index_name#
 --RENAME to new_name
 --SET TABLESPACE tablespace_name
+--SET ( storage_parameter = value [, ... ] )
+--RESET ( storage_parameter [, ... ] )
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return Template('''ALTER INDEX #index_name#
+--RENAME to new_name
+--SET TABLESPACE tablespace_name
+--DEPENDS ON EXTENSION extension_name
+--SET ( storage_parameter = value [, ... ] )
+--RESET ( storage_parameter [, ... ] )
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''ALTER INDEX #index_name#
+--RENAME to new_name
+--SET TABLESPACE tablespace_name
+--ATTACH PARTITION index_name
+--DEPENDS ON EXTENSION extension_name
+--SET ( storage_parameter = value [, ... ] )
+--RESET ( storage_parameter [, ... ] )
+''')
+        else:
+            return Template('''ALTER INDEX #index_name#
+--RENAME to new_name
+--SET TABLESPACE tablespace_name
+--ATTACH PARTITION index_name
+--DEPENDS ON EXTENSION extension_name
+--NO DEPENDS ON EXTENSION extension_name
 --SET ( storage_parameter = value [, ... ] )
 --RESET ( storage_parameter [, ... ] )
 ''')
@@ -4618,6 +4861,22 @@ ON #table_name#
 --VERBOSE
 #table_name#
 USING #index_name#
+''')
+
+    def TemplateReindex(self):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90500:
+            return Template('REINDEX INDEX #index_name#')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 120000:
+            return Template('''REINDEX
+--( VERBOSE )
+INDEX #index_name#
+''')
+        else:
+            return Template('''REINDEX
+--( VERBOSE )
+INDEX
+--CONCURRENTLY
+#index_name#
 ''')
 
     def TemplateDropIndex(self):
@@ -4811,7 +5070,8 @@ EXECUTE PROCEDURE function_name()
 ''')
 
     def TemplateAlterType(self):
-        return Template('''ALTER TYPE #type_name#
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
+            return Template('''ALTER TYPE #type_name#
 --ADD ATTRIBUTE attribute_name data_type [ COLLATE collation ] [ CASCADE | RESTRICT ]
 --DROP ATTRIBUTE [ IF EXISTS ] attribute_name [ CASCADE | RESTRICT ]
 --ALTER ATTRIBUTE attribute_name [ SET DATA ] TYPE data_type [ COLLATE collation ] [ CASCADE | RESTRICT ]
@@ -4820,6 +5080,36 @@ EXECUTE PROCEDURE function_name()
 --RENAME TO new_name
 --SET SCHEMA new_schema
 --ADD VALUE [ IF NOT EXISTS ] new_enum_value [ { BEFORE | AFTER } existing_enum_value ]
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''ALTER TYPE #type_name#
+--ADD ATTRIBUTE attribute_name data_type [ COLLATE collation ] [ CASCADE | RESTRICT ]
+--DROP ATTRIBUTE [ IF EXISTS ] attribute_name [ CASCADE | RESTRICT ]
+--ALTER ATTRIBUTE attribute_name [ SET DATA ] TYPE data_type [ COLLATE collation ] [ CASCADE | RESTRICT ]
+--RENAME ATTRIBUTE attribute_name TO new_attribute_name [ CASCADE | RESTRICT ]
+--OWNER TO new_owner
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--ADD VALUE [ IF NOT EXISTS ] new_enum_value [ { BEFORE | AFTER } existing_enum_value ]
+--RENAME VALUE existing_enum_value TO new_enum_value
+''')
+        else:
+            return Template('''ALTER TYPE #type_name#
+--ADD ATTRIBUTE attribute_name data_type [ COLLATE collation ] [ CASCADE | RESTRICT ]
+--DROP ATTRIBUTE [ IF EXISTS ] attribute_name [ CASCADE | RESTRICT ]
+--ALTER ATTRIBUTE attribute_name [ SET DATA ] TYPE data_type [ COLLATE collation ] [ CASCADE | RESTRICT ]
+--RENAME ATTRIBUTE attribute_name TO new_attribute_name [ CASCADE | RESTRICT ]
+--OWNER TO new_owner
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--ADD VALUE [ IF NOT EXISTS ] new_enum_value [ { BEFORE | AFTER } existing_enum_value ]
+--RENAME VALUE existing_enum_value TO new_enum_value
+--SET ( RECEIVE = value )
+--SET ( SEND = value )
+--SET ( TYPMOD_IN = value )
+--SET ( TYPMOD_OUT = value )
+--SET ( ANALYZE = value )
+--SET ( STORAGE = plain | extended | external | main )
 ''')
 
     def TemplateDropType(self):
@@ -4857,17 +5147,82 @@ EXECUTE PROCEDURE function_name()
 ''')
 
     def TemplateVacuum(self):
-        return Template('''VACUUM
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return Template('''VACUUM
 --FULL
 --FREEZE
 --ANALYZE
 ''')
-
-    def TemplateVacuumTable(self):
-        return Template('''VACUUM
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 120000:
+            return Template('''VACUUM
 --FULL
 --FREEZE
 --ANALYZE
+--DISABLE_PAGE_SKIPPING
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''VACUUM
+--FULL
+--FREEZE
+--ANALYZE
+--DISABLE_PAGE_SKIPPING
+--SKIP_LOCKED
+--INDEX_CLEANUP
+--TRUNCATE
+''')
+        else:
+            return Template('''VACUUM
+--FULL
+--FREEZE
+--ANALYZE
+--DISABLE_PAGE_SKIPPING
+--SKIP_LOCKED
+--INDEX_CLEANUP
+--TRUNCATE
+--PARALLEL number_of_parallel_workers
+''')
+
+    def TemplateVacuumTable(self):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return Template('''VACUUM
+--FULL
+--FREEZE
+--ANALYZE
+#table_name#
+--(column_name, [, ...])
+''')
+
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 120000:
+            return Template('''VACUUM
+--FULL
+--FREEZE
+--ANALYZE
+--DISABLE_PAGE_SKIPPING
+#table_name#
+--(column_name, [, ...])
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''VACUUM
+--FULL
+--FREEZE
+--ANALYZE
+--DISABLE_PAGE_SKIPPING
+--SKIP_LOCKED
+--INDEX_CLEANUP
+--TRUNCATE
+#table_name#
+--(column_name, [, ...])
+''')
+        else:
+            return Template('''VACUUM
+--FULL
+--FREEZE
+--ANALYZE
+--DISABLE_PAGE_SKIPPING
+--SKIP_LOCKED
+--INDEX_CLEANUP
+--TRUNCATE
+--PARALLEL number_of_parallel_workers
 #table_name#
 --(column_name, [, ...])
 ''')
@@ -5108,18 +5463,37 @@ WHERE condition
         return Template('''SELECT pg_drop_replication_slot('#slot_name#')''')
 
     def TemplateCreatePublication(self):
-        return Template('''CREATE PUBLICATION name
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''CREATE PUBLICATION name
 --FOR TABLE [ ONLY ] table_name [ * ] [, ...]
 --FOR ALL TABLES
 --WITH ( publish = 'insert, update, delete, truncate' )
 ''')
+        else:
+            return Template('''CREATE PUBLICATION name
+--FOR TABLE [ ONLY ] table_name [ * ] [, ...]
+--FOR ALL TABLES
+--WITH ( publish = 'insert, update, delete, truncate' )
+--WITH ( publish_via_partition_root = true | false )
+''')
 
     def TemplateAlterPublication(self):
-        return Template('''ALTER PUBLICATION #pub_name#
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''ALTER PUBLICATION #pub_name#
 --ADD TABLE [ ONLY ] table_name [ * ] [, ...]
 --SET TABLE [ ONLY ] table_name [ * ] [, ...]
 --DROP TABLE [ ONLY ] table_name [ * ] [, ...]
 --SET ( publish = 'insert, update, delete, truncate' )
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--RENAME TO new_name
+''')
+        else:
+            return Template('''ALTER PUBLICATION #pub_name#
+--ADD TABLE [ ONLY ] table_name [ * ] [, ...]
+--SET TABLE [ ONLY ] table_name [ * ] [, ...]
+--DROP TABLE [ ONLY ] table_name [ * ] [, ...]
+--SET ( publish = 'insert, update, delete, truncate' )
+--SET ( publish_via_partition_root = true | false )
 --OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
 --RENAME TO new_name
 ''')
@@ -6879,18 +7253,42 @@ DROP COLUMN #column_name#
         '''.format(p_object))
     @lock_required
     def GetDDLDatabase(self, p_object):
-        return self.v_connection.ExecuteScalar('''
-            select format(E'CREATE DATABASE %s\nOWNER %s\nTABLESPACE %s;',
-                          quote_ident(d.datname),
-                          quote_ident(r.rolname),
-                          quote_ident(t.spcname))
-            from pg_database d
-            inner join pg_roles r
-            on r.oid = d.datdba
-            inner join pg_tablespace t
-            on t.oid = d.dattablespace
-            where quote_ident(d.datname) = '{0}'
-        '''.format(p_object))
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90500:
+            return self.v_connection.ExecuteScalar('''
+                select format(E'CREATE DATABASE %s\nOWNER %s\nENCODING %s\nLC_COLLATE ''%s''\nLC_CTYPE ''%s''\nTABLESPACE %s\CONNECTION LIMIT %s;',
+                              quote_ident(d.datname),
+                              quote_ident(r.rolname),
+                              pg_encoding_to_char(encoding),
+                              datcollate,
+                              datctype,
+                              quote_ident(t.spcname),
+                              datconnlimit), *
+                from pg_database d
+                inner join pg_roles r
+                on r.oid = d.datdba
+                inner join pg_tablespace t
+                on t.oid = d.dattablespace
+                where quote_ident(d.datname) = '{0}'
+            '''.format(p_object))
+        else:
+            return self.v_connection.ExecuteScalar('''
+                select format(E'CREATE DATABASE %s\nOWNER %s\nENCODING %s\nLC_COLLATE ''%s''\nLC_CTYPE ''%s''\nTABLESPACE %s\nALLOW_CONNECTIONS %s\nCONNECTION LIMIT %s\nIS_TEMPLATE %s;',
+                              quote_ident(d.datname),
+                              quote_ident(r.rolname),
+                              pg_encoding_to_char(encoding),
+                              datcollate,
+                              datctype,
+                              quote_ident(t.spcname),
+                              datallowconn::text,
+                              datconnlimit,
+                              datistemplate::text), *
+                from pg_database d
+                inner join pg_roles r
+                on r.oid = d.datdba
+                inner join pg_tablespace t
+                on t.oid = d.dattablespace
+                where quote_ident(d.datname) = '{0}'
+            '''.format(p_object))
     @lock_required
     def GetDDLExtension(self, p_object):
         return 'CREATE EXTENSION {0};'.format(p_object)

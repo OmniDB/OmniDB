@@ -25,8 +25,8 @@ function startTutorial(p_tutorial_name) {
   }
   var v_button_inner_query =
   '<li class="mb-2">' +
-    `<button ` + v_button_inner_query_attr + ` type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('terminal_connection');">` +
-      '<i class="fas fa-list mr-2"></i>Using the connection tab' +
+    `<button ` + v_button_inner_query_attr + ` type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('connection_tab');">` +
+      '<i class="fas fa-list mr-2"></i>The Connection Tab' +
     '</button>' +
   '</li>';
   // Configuring the available tutorials.
@@ -57,7 +57,7 @@ function startTutorial(p_tutorial_name) {
             </button>
           </li>
           <li class="mb-2">
-            <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('using_connection');">
+            <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('selecting_connection');">
               <i class="fas fa-plus mr-2"></i>Using a connection
             </button>
           </li>
@@ -371,7 +371,7 @@ function startTutorial(p_tutorial_name) {
         p_update_delay: 600
       }
     ],
-    'using_connection': [
+    'selecting_connection': [
       {
         p_message: `
         <p>The <strong>outer_tab</strong> contains global panels related to workspace and also access to created connections.</p>
@@ -390,8 +390,60 @@ function startTutorial(p_tutorial_name) {
         `,
         p_position: function() {var v_target = v_connTabControl.tabList[v_connTabControl.tabList.length - 1].elementA; return {x:v_target.getBoundingClientRect().x + 40,y:v_target.getBoundingClientRect().y}},
         p_target: function(){var v_target = v_connTabControl.tabList[v_connTabControl.tabList.length - 1].elementA; return v_target;},
-        p_title: 'Using Connections'
+        p_title: 'Selecting a Connection'
       }
+    ],
+    'connection_tab': [
+      {
+        p_message: `
+        <p>This identifies the database you are connected with:</p>
+        `,
+        p_target: function(){var v_target = v_connTabControl.selectedTab.tag.divDetails; return v_target;},
+        p_title: 'Current Connection'
+      },
+      {
+        p_message: `
+        <p>This tree is main your access point to this connection.</p>
+        <p><strong>How-to</strong>:</p>
+        <ul style="padding-left: 1.5rem;">
+          <li class="mb-1">
+            <strong>Double-click</strong>: expands child nodes based on the database internal structure.
+          </li>
+          <li class="mb-2">
+            <strong>Right-click</strong>: Context menu with actions based on the node type.
+          </li>
+        </ul>
+        `,
+        p_target: function(){var v_target = v_connTabControl.selectedTab.tag.divTree; return v_target;},
+        p_title: 'Aimara Tree'
+      },
+      {
+        p_message: `
+        <p>These tabs provide additional info to the node you interact with in the Aimara Tree.</p>
+        <p>Keep in mind that every node interaction that returns this type of info needs to query for consistency.</p>
+        <p>To minimize queries, these only run when one of these tabs is visible.</p>
+        <p><strong>Recommendation</strong>: Only open the property/ddl when you need to update this info.</p>
+        `,
+        p_target: function(){var v_target = v_connTabControl.selectedTab.tag.divTreeTabs; return v_target;},
+        p_title: 'Properties / DDL'
+      },
+      {
+        p_message: `
+        <p>There are two types of inner_tabs available.</p>
+        <ol style="padding-left: 1.5rem;">
+          <li class="mb-1">
+            <strong><i class="fas fa-terminal"></i> Console Tab</strong>: Contains a psql console.
+          </li>
+          <li class="mb-1">
+            <strong>Query Tabs</strong>: These have SQL editors whose commands are executed on the selected database.
+          </li>
+        </ol>
+        <div class="alert-info p-2">Keep in mind that when you run a query from the contextual menu of the Aimara Tree, it will open a new query tab and execute it.</div>
+        `,
+        p_target: function(){var v_target = v_connTabControl.selectedTab.tag.tabControl.tabList[0].elementA; return v_target;},
+        p_title: 'Inner Tabs'
+      }
+
     ]
   }
   // Selecting a tutorial

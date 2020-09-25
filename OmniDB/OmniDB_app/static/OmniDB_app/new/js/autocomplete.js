@@ -718,7 +718,7 @@ function autocomplete_start(editor, mode, event, force = null) {
         var v_last_word = v_last_word_object.last_word;
         var v_character_position = v_last_word_object.character_position;
 
-        if (v_last_word != '' && v_last_word[0]!="'" && (v_last_word.length>2 || (v_last_word.length==2 && v_last_word[1]=='.'))) {
+        if (v_last_word != '' && v_last_word[0]!="'" && (v_last_word.length>2 || (v_last_word.length==2 && v_last_word[1]=='.') || force)) {
 
           v_autocomplete_object.editor = editor;
           v_autocomplete_object.active = true;

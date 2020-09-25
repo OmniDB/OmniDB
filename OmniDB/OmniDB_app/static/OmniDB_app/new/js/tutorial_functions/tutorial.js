@@ -338,9 +338,8 @@ function startTutorial(p_tutorial_name) {
         <p>Now go ahead and click <strong>save</strong></p>
         `,
         p_next_button: true,
-        p_target: function() {var v_target = document.getElementById(v_connTabControl.snippet_tag.tabControl.selectedTab.tag.bt_save.getAttribute('id')); return v_target},
-        p_title: 'Indenting',
-        p_update_delay: 600
+        p_target: function() {var v_target = document.getElementById('a_' + v_connTabControl.snippet_tag.tabControl.selectedTab.tag.tab_id); return v_target},
+        p_title: 'Indenting'
       },
       {
         p_message: `

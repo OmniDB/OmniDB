@@ -1625,7 +1625,6 @@ body {
   z-index: 0;
 }
 .omnis__cloned-element__waves span {
-  background-color: #7DFF81;
   border-radius: 18px;
   display: inline-block;
   height: 100%;
@@ -1638,22 +1637,22 @@ body {
 }
 .omnis__cloned-element__waves span:nth-of-type(1) {
   animation: waves 2.5s linear .1s;
-  animation-iteration-count: infinite;
+  animation-iteration-count: 4;
 }
 
 .omnis__cloned-element__waves span:nth-of-type(2) {
   animation: waves 2.5s linear .7s forwards;
-  animation-iteration-count: infinite;
+  animation-iteration-count: 4;
 }
 
 .omnis__cloned-element__waves span:nth-of-type(3) {
   animation: waves 2.5s linear 1.3s forwards;
-  animation-iteration-count: infinite;
+  animation-iteration-count: 4;
 }
 
 .omnis__cloned-element__waves span:nth-of-type(4) {
   animation: waves 2.5s linear 1.9s forwards;
-  animation-iteration-count: infinite;
+  animation-iteration-count: 4;
 }
 @keyframes waves {
   0% {

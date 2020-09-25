@@ -266,7 +266,7 @@ function getUsers(p_options = false) {
 					"<div id='omnidb_user_content' class='row'>" +
 					"</div>" +
 					"<div class='text-center'>" +
-						"<button id='div_save_users' class='btn btn-success ml-1' style='visibility: hidden;' onclick='saveUsers()'>Save</button>" +
+						"<button type='button' id='div_save_users' class='btn btn-success ml-1' style='visibility: hidden;' onclick='saveUsers()'>Save</button>" +
 					"</div>" +
 					"<button type='submit' disabled style='display: none' aria-hidden='true'></button>" +
 				"</div>";

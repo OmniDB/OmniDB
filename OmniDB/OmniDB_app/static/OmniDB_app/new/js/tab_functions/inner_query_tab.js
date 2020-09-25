@@ -180,14 +180,14 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_editor.setTheme("ace/theme/" + v_editor_theme);
   v_editor.session.setMode("ace/mode/sql");
   v_editor.setFontSize(Number(v_font_size));
-/*
+
   // Setting custom keyboard shortcuts callbacks.
   document.getElementById('txt_query_' + v_tab.id).addEventListener('keyup',function(event) {
     autocomplete_start(v_editor,0, event);
   });
   document.getElementById('txt_query_' + v_tab.id).addEventListener('keydown',function(event) {
     autocomplete_keydown(v_editor, event);
-  });*/
+  });
 
   // Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
   v_editor.commands.bindKey("ctrl-space", null);
@@ -197,8 +197,8 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_editor.commands.bindKey("Ctrl-Delete", null);
   v_editor.commands.bindKey("Ctrl-Up", null);
   v_editor.commands.bindKey("Ctrl-Down", null);
-  //v_editor.commands.bindKey("Up", null);
-  //v_editor.commands.bindKey("Down", null);
+  v_editor.commands.bindKey("Up", null);
+  v_editor.commands.bindKey("Down", null);
   v_editor.commands.bindKey("Tab", null);
 
   // Setting the autofocus for the editor component.

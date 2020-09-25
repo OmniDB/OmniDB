@@ -160,18 +160,17 @@ $(function () {
           v_tabControl.tabList[v_actualIndex + 1].elementLi.click();
 
     },
-    shortcut_autocomplete: function() {
-
+    shortcut_autocomplete: function(e) {
       if (v_connTabControl.selectedTab.tag.mode=='connection') {
         if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query' || v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='console') {
           var v_editor = null;
           if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query') {
             v_editor = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor
-            autocomplete_start(v_editor,0);
+            autocomplete_start(v_editor,0,e, true);
           }
           else if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='console') {
             v_editor = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor_input
-            autocomplete_start(v_editor,1);
+            autocomplete_start(v_editor,1,e, true);
           }
         }
       }
@@ -304,7 +303,7 @@ var v_keyBoardShortcuts = function(p_event) {
           p_event.stopPropagation();
           var v_action = v_shortcut_object.actions[property];
           if (v_action)
-            v_action();
+            v_action(p_event);
         }
     }
   }

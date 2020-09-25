@@ -88,13 +88,25 @@ var v_createConsoleTabFunction = function() {
   v_editor1.session.setMode("ace/mode/sql");
   v_editor1.setFontSize(Number(v_font_size));
 
-  //Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
-  v_editor1.commands.bindKey("Cmd-,", null)
-  v_editor1.commands.bindKey("Ctrl-,", null)
-  v_editor1.commands.bindKey("Cmd-Delete", null)
-  v_editor1.commands.bindKey("Ctrl-Delete", null)
-  v_editor1.commands.bindKey("Ctrl-Up", null)
-  v_editor1.commands.bindKey("Ctrl-Down", null)
+  // Setting custom keyboard shortcuts callbacks.
+  document.getElementById('txt_input_' + v_tab.id).addEventListener('keyup',function(event) {
+    autocomplete_start(v_editor1,1, event);
+  });
+  document.getElementById('txt_input_' + v_tab.id).addEventListener('keydown',function(event) {
+    autocomplete_keydown(v_editor1, event);
+  });
+
+  // Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
+  v_editor1.commands.bindKey("ctrl-space", null);
+  v_editor1.commands.bindKey("Cmd-,", null);
+  v_editor1.commands.bindKey("Ctrl-,", null);
+  v_editor1.commands.bindKey("Cmd-Delete", null);
+  v_editor1.commands.bindKey("Ctrl-Delete", null);
+  v_editor1.commands.bindKey("Ctrl-Up", null);
+  v_editor1.commands.bindKey("Ctrl-Down", null);
+  v_editor1.commands.bindKey("Up", null);
+  v_editor1.commands.bindKey("Down", null);
+  v_editor1.commands.bindKey("Tab", null);
 
   document.getElementById('txt_input_' + v_tab.id).onclick = function() {
     v_editor1.focus();
@@ -141,12 +153,12 @@ var v_createConsoleTabFunction = function() {
   //Loading Xterm Fit Addon
 	Terminal.applyAddon(fit);
   v_editor2.fit();
-
+/*
   v_editor1.commands.bindKey("Enter",
   function() {
     v_editor1.session.insert(v_editor1.getCursorPosition(),'\n');
     consoleSQL();
-  });
+  });*/
 
   var v_tag = {
     tab_id: v_tab.id,

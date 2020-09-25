@@ -98,7 +98,7 @@
     padding: 0px;
     position: fixed;
     top: 0px;
-    z-index: 2100;
+    z-index: 950;
   }
   .omnidb__tab-menu--primary .nav-tabs {
     align-items: center;
@@ -245,7 +245,7 @@
     padding: 0px;
     position: fixed;
     top: 0px;
-    z-index: 2100;
+    z-index: 950;
   }
   .omnidb__tab-menu--primary .nav-tabs {
     align-items: center;
@@ -393,7 +393,7 @@
     padding: 0px;
     position: fixed;
     top: 0px;
-    z-index: 2100;
+    z-index: 950;
   }
   .omnidb__tab-menu--primary .nav-tabs {
     align-items: center;

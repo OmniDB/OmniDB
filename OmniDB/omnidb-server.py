@@ -344,6 +344,17 @@ if options.dropconnection:
 if maintenance_action == True:
     sys.exit()
 
+# This line was reached, so not a maintenance run, lock HOME DIR if not on Windows
+
+if platform.system() != 'Windows':
+    import fcntl
+    try:
+        lockfile_pointer = os.open(OmniDB.custom_settings.HOME_DIR, os.O_RDONLY)
+        fcntl.flock(lockfile_pointer, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except Exception as exc:
+        print("OmniDB is already running pointing to directoy '{0}'.".format(OmniDB.custom_settings.HOME_DIR))
+        exit()
+
 import html.parser
 import http.cookies
 

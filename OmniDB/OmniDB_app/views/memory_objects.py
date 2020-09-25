@@ -142,7 +142,6 @@ def clear_client_object(
         except:
             None
     except Exception as exc:
-        print(str(exc))
         None
 
 def create_tab_object(

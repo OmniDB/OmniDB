@@ -74,9 +74,6 @@ function showConsoleHistory() {
             v_tab_tag.console_history_grid.destroy();
           }
 
-					console.log(p_return);
-
-
           v_tab_tag.console_history_grid = new Handsontable(v_grid_div,
           {
 						licenseKey: 'non-commercial-and-evaluation',
@@ -208,7 +205,6 @@ function appendToEditor(p_editor, p_text) {
   p_editor.gotoLine(Infinity);
   p_editor.resize();*/
 	//let v_text = p_text.replace(/(\r\n|\n|\r)/gm, "XXX");
-	console.log(p_text);
 
 	p_editor.write(p_text);
 }

@@ -1239,6 +1239,10 @@ label.omnidb__switch--label span {
   flex-wrap: nowrap;
   justify-content: space-around;
 }
+.handsontable td {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* TOOLTIPS */
 .tooltip h5 {

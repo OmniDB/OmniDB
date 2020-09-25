@@ -1011,6 +1011,10 @@ function refreshHeights(p_all) {
     if (v_omnis.omnis_ui_assistant) {
       v_omnis.omnis_ui_assistant.goToStep(v_omnis.omnis_ui_assistant.stepSelected);
     }
+    else {
+      v_omnis.div.style.top = v_omnis.root.getBoundingClientRect().height - 45 + 'px';
+      v_omnis.div.style.left = v_omnis.root.getBoundingClientRect().width - 45 + 'px';
+    }
 
   },351);
 }

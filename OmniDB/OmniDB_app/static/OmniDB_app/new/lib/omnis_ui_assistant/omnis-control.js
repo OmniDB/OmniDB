@@ -159,7 +159,7 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
         this.createStep(p_list[i]);
       }
     },
-    goToStep : function(p_index) {
+    goToStep : async function(p_index) {
       for (let i = 0; i < this.stepList.length; i++) {
         if (p_index !== i) {
           if (this.stepList[i].callback_end !== false) {
@@ -172,7 +172,90 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
       }
       var v_control = this;
       v_control.stepSelected = p_index;
-      v_control.renderStep();
+
+      var v_step_item = await v_control.renderStep();
+      console.log('update position after ' + v_step_item.update_delay);
+      if (v_step_item !== 'stop') {
+
+        var get_v_target = new Promise(resolve => {
+          setTimeout(function(){
+            var v_next_btn = document.getElementById('omnis_step_btn_next');
+            if (v_next_btn !== undefined && v_next_btn !== null) {
+              v_next_btn.onclick = function(){console.log(v_next_btn);v_control.goToStep(v_control.stepSelected + 1)};
+            }
+
+            console.log('getting the target...');
+            var v_target;
+            if (typeof v_step_item.target === 'function') {
+              v_target = v_step_item.target();
+            }
+            else {
+              v_target = v_step_item.target;
+            }
+
+            console.log('target',v_target);
+            v_control.updateOmnisPosition(v_target);
+            resolve(v_target);
+
+          }, v_step_item.update_delay);
+
+
+        });
+
+        await get_v_target.then(function(v_target){
+          if (v_step_item.clone_target && v_target) {
+            let v_update_delay = v_step_item.update_delay;
+
+            if (v_target !== null) {
+              console.log('v_target', v_target);
+              let v_target_bounding_rect = v_target.getBoundingClientRect();
+              let v_target_bounding_rect_left = v_target_bounding_rect.x + 'px';
+              let v_target_bounding_rect_top = v_target_bounding_rect.y + 'px';
+              let v_target_bounding_rect_width = v_target_bounding_rect.width + 'px';
+              var v_cloned_element = v_target.cloneNode(true);
+              console.log(v_target_bounding_rect);
+              v_control.divClonedElement.style.left = v_target_bounding_rect_left;
+              v_control.divClonedElement.style.top = v_target_bounding_rect_top;
+              v_cloned_element.style.width = v_target_bounding_rect_width;
+              v_control.updateClonedElementContent(v_cloned_element);
+              v_control.divBackdropElement.style.display = '';
+              v_cloned_element.addEventListener('click',function(){v_control.goToStep(v_control.stepSelected + 1)});
+            }
+            else {
+              // Emptying the divClonedElement.
+              v_control.divClonedElement.innerHTML = '';
+              v_control.divClonedElement.style.left = '';
+              v_control.divClonedElement.style.top = '';
+              v_control.divBackdropElement.style.display = 'none';
+            }
+          }
+          else {
+            // Emptying the divClonedElement.
+            v_control.divClonedElement.innerHTML = '';
+            v_control.divClonedElement.style.left = '';
+            v_control.divClonedElement.style.top = '';
+            v_control.divBackdropElement.style.display = 'none';
+          }
+
+
+          var v_previous_btn = document.getElementById('omnis_step_btn_previous');
+          if (v_previous_btn !== undefined && v_previous_btn !== null) {
+            v_previous_btn.onclick = function(){v_control.goToStep(v_control.stepSelected - 1)};
+          }
+
+          var v_close_btn = document.getElementById('omnis_step_btn_close');
+          if (v_close_btn !== undefined && v_close_btn !== null) {
+            v_close_btn.onclick = function(){
+              v_control.self_destruct();
+            }
+          }
+
+          if (v_control.stepList[v_control.stepSelected].callback_after_update_start) {
+            v_control.stepList[v_control.stepSelected].callback_after_update_start();
+          }
+        });
+
+      }
     },
     // Template
     createStep : function({
@@ -265,74 +348,18 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
 
         this.divElement.style.display = 'block';
 
-        console.log('update position after ' + v_step_item.update_delay);
-        setTimeout(function(){
-          console.log('updating position...');
-          v_control.updateOmnisPosition();
-
-          var v_next_btn = document.getElementById('omnis_step_btn_next');
-          if (v_next_btn !== undefined && v_next_btn !== null) {
-            v_next_btn.onclick = function(){console.log(v_next_btn);v_control.goToStep(v_control.stepSelected + 1)};
-          }
-
-          console.log('target',v_control.stepList[v_control.stepSelected].target);
-
-          if (v_control.stepList[v_control.stepSelected].clone_target && v_control.stepList[v_control.stepSelected].target) {
-            let v_update_delay = v_control.stepList[v_control.stepSelected].update_delay;
-            let v_target = (typeof v_control.stepList[v_control.stepSelected].target === 'function')
-            ? v_control.stepList[v_control.stepSelected].target()
-            : v_control.stepList[v_control.stepSelected].target;
-
-            if (v_target !== null) {
-              console.log('v_target', v_target);
-              let v_target_bounding_rect = v_target.getBoundingClientRect();
-              let v_cloned_element = v_target.cloneNode(true);
-              console.log(v_target_bounding_rect);
-              v_control.divClonedElement.style.left = v_target_bounding_rect.x + 'px';
-              v_control.divClonedElement.style.top = v_target_bounding_rect.y + 'px';
-              v_cloned_element.style.width = v_target_bounding_rect.width + 'px';
-              v_control.updateClonedElementContent(v_cloned_element);
-              v_control.divBackdropElement.style.display = '';
-              v_cloned_element.addEventListener('click',function(){v_control.goToStep(v_control.stepSelected + 1)});
-            }
-            else {
-              // Emptying the divClonedElement.
-              v_control.divClonedElement.innerHTML = '';
-              v_control.divClonedElement.style.left = '';
-              v_control.divClonedElement.style.top = '';
-              v_control.divBackdropElement.style.display = 'none';
-            }
-          }
-          else {
-            // Emptying the divClonedElement.
-            v_control.divClonedElement.innerHTML = '';
-            v_control.divClonedElement.style.left = '';
-            v_control.divClonedElement.style.top = '';
-            v_control.divBackdropElement.style.display = 'none';
-          }
-
-
-          var v_previous_btn = document.getElementById('omnis_step_btn_previous');
-          if (v_previous_btn !== undefined && v_previous_btn !== null) {
-            v_previous_btn.onclick = function(){v_control.goToStep(v_control.stepSelected - 1)};
-          }
-
-          var v_close_btn = document.getElementById('omnis_step_btn_close');
-          if (v_close_btn !== undefined && v_close_btn !== null) {
-            v_close_btn.onclick = function(){
-              v_control.self_destruct();
-            }
-          }
-
-          if (v_control.stepList[v_control.stepSelected].callback_after_update_start) {
-            v_control.stepList[v_control.stepSelected].callback_after_update_start();
-          }
-        },v_step_item.update_delay);
+        return new Promise(resolve => {
+          resolve(v_step_item);
+        });
       }
       else {
         this.divElement.style.display = 'none';
         // Emptying the divWavesElement.
         this.divWavesElement.innerHTML = '';
+
+        return new Promise(resolve => {
+          resolve('stop');
+        });
       }
     },
     setStateEnabled: function() {
@@ -368,7 +395,7 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
       v_waves_element.style.display = 'block';
       var v_cloned_element_waves = document.getElementById(v_control.id + '_cloned_element_waves');
     },
-    updateOmnisPosition : function() {
+    updateOmnisPosition : function(v_target) {
       try {
         let v_root = document.getElementById('omnidb__main');
         let v_window_width = v_root.offsetWidth;
@@ -376,9 +403,11 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
         let v_window_height = v_root.offsetHeight;
         let v_window_height_half = Math.round(v_window_height / 2);
         var v_control = this;
-        var v_target = (typeof v_control.stepList[v_control.stepSelected].target === 'function')
-        ? v_control.stepList[v_control.stepSelected].target()
-        : v_control.stepList[v_control.stepSelected].target;
+        if (!v_target) {
+          v_target = (typeof v_control.stepList[v_control.stepSelected].target === 'function')
+          ? v_control.stepList[v_control.stepSelected].target()
+          : v_control.stepList[v_control.stepSelected].target;
+        }
         var v_target_position;
         if (v_target) {
           v_target_position = v_control.getPosition(v_target);
@@ -393,51 +422,31 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
         if (v_target_position.x >= v_window_width_half) {
           v_omnis_div.style.left = v_target_position.x - 56 + 'px';
           v_control.divCardElement.style.left = v_target_position.x - v_control.divCardElement.offsetWidth - 56 + 'px';
-          // let v_arrow_html = '';
           // Above vertical middle of the screen.
           if (v_target_position.y <= v_window_height_half) {
             v_omnis_div.style.top = v_target_position.y + 16 + 'px';
             v_control.divCardElement.style.top = v_target_position.y + 20 + 'px';
-            // v_arrow_html +=
-            // '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="right: -8px; top: -8px;">' +
-            //   '<i class="fas fa-arrow-right" style="transform: rotate(325deg);"></i>' +
-            // '</div>';
           }
           // Below vertical middle of the screen.
           else {
             v_omnis_div.style.top = v_target_position.y - 56 + 'px';
             v_control.divCardElement.style.top = v_target_position.y - v_control.divCardElement.offsetHeight - 20 + 'px';
-            // v_arrow_html +=
-            // '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="right: -8px; bottom: -8px;">' +
-            //   '<i class="fas fa-arrow-right" style="transform: rotate(45deg);"></i>' +
-            // '</div>';
           }
-          // v_control.divCardElement.innerHTML += v_arrow_html;
         }
         // Left side of the screen.
         else {
           v_omnis_div.style.left = v_target_position.x + v_target.offsetWidth + 16 + 'px';
           v_control.divCardElement.style.left = v_target_position.x + v_target.offsetWidth + 56 + 'px';
-          // let v_arrow_html = '';
           // Above vertical middle of the screen.
           if (v_target_position.y <= v_window_height_half) {
             v_omnis_div.style.top = v_target_position.y + 16 + 'px';
             v_control.divCardElement.style.top = v_target_position.y + 20 + 'px';
-            // v_arrow_html +=
-            // '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="left: -8px; top: -8px;">' +
-            //   '<i class="fas fa-arrow-right" style="transform: rotate(235deg);"></i>' +
-            // '</div>';
           }
           // Below vertical middle of the screen.
           else {
             v_omnis_div.style.top = v_target_position.y - 56 + 'px';
             v_control.divCardElement.style.top = v_target_position.y - v_control.divCardElement.offsetHeight - 20 + 'px';
-            // v_arrow_html +=
-            // '<div class="omnis__step__arrow omnidb__theme__btn--primary" style="left: -8px; bottom: -8px;">' +
-            //   '<i class="fas fa-arrow-right" style="transform: rotate(145deg);"></i>' +
-            // '</div>';
           }
-          // v_control.divCardElement.innerHTML += v_arrow_html;
         }
       }
       catch(e) {

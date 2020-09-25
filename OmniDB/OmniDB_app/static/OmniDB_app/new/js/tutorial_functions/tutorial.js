@@ -95,7 +95,6 @@ function startTutorial(p_tutorial_name) {
       {
         p_callback_after_update_start: function() {setTimeout(function(){
             if (v_omnis.omnis_ui_assistant.divClonedElement.children[0]) {
-              var v_target = document.getElementById('omnidb_utilities_menu_btn_new_user');
               v_omnis.omnis_ui_assistant.divClonedElement.children[0].classList.remove('ml-2');
             }
           },50);
@@ -107,7 +106,7 @@ function startTutorial(p_tutorial_name) {
         p_next_button: false,
         p_target: function() {var v_target = document.getElementById('omnidb_utilities_menu_btn_new_user'); return v_target},
         p_title: 'Add a New User',
-        p_update_delay: 600
+        p_update_delay: 1000
       },
       {
         p_message: `
@@ -151,7 +150,7 @@ function startTutorial(p_tutorial_name) {
         p_next_button: false,
         p_target: function() {var v_target = document.getElementById('button_new_connection'); return v_target},
         p_title: 'Add a New Connection',
-        p_update_delay: 600
+        p_update_delay: 1000
       },
       {
         p_message: `
@@ -339,9 +338,8 @@ function startTutorial(p_tutorial_name) {
         <p>Now go ahead and click <strong>save</strong></p>
         `,
         p_next_button: true,
-        p_target: function() {var v_target = document.getElementById(v_connTabControl.snippet_tag.tabControl.selectedTab.tag.bt_save.getAttribute('id')); return v_target},
-        p_title: 'Indenting',
-        p_update_delay: 600
+        p_target: function() {var v_target = document.getElementById('a_' + v_connTabControl.snippet_tag.tabControl.selectedTab.tag.tab_id); return v_target},
+        p_title: 'Indenting'
       },
       {
         p_message: `

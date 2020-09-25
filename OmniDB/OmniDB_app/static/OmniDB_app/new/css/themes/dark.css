@@ -35,6 +35,9 @@
 .omnidb--theme-dark .omnis.omnis--active {
   background-color: rgba(47,49,54,1);
 }
+.omnidb--theme-dark .omnis__cloned-element__waves span {
+  background-color: #7DFF81;
+}
 
 /* ICONS */
 .omnidb--theme-dark .close,

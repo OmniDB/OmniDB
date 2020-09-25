@@ -1,5 +1,6 @@
 
 var v_client_id;
+var v_polling_ajax = null;
 
 
 var v_context_object = {
@@ -27,7 +28,7 @@ $(function () {
 });
 
 function call_polling(p_startup) {
-  execAjax('/long_polling/',
+  v_polling_ajax = execAjax('/long_polling/',
 			JSON.stringify({
         'p_startup': p_startup
       }),
@@ -293,6 +294,12 @@ function createRequest(p_messageCode, p_messageData, p_context) {
 		}
 	}
 
+  if (v_polling_ajax == null)
+    call_polling(true);
+  else if (v_polling_ajax.readyState == 0) {
+    call_polling(false);
+  }
+
   execAjax('/create_request/',
 			JSON.stringify({
         v_code: p_messageCode,
@@ -300,10 +307,10 @@ function createRequest(p_messageCode, p_messageData, p_context) {
         v_data: p_messageData
       }),
 			function(p_return) {
-        if (!v_polling_started) {
+        /*if (!v_polling_started) {
           v_polling_started=true;
           call_polling(true);
-        }
+        }*/
 			},
 			null,
 			'box',

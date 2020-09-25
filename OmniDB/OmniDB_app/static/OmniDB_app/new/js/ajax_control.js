@@ -174,6 +174,8 @@ function cancelAjax() {
  			}
  		}
  	});
+
+	return v_ajax_call;
  }
 
 /**

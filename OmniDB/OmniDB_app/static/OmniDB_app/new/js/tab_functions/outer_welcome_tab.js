@@ -125,20 +125,10 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
     '<p class="text-center"><span class="badge badge-danger" style="vertical-align: middle;">disclaimer</span> OmniDB is a powerful tool, and with great power...<br/>Please <strong><span class="text-danger">learn how to use it on a testing environment, NOT on production</span></strong>!</p>' +
 
 
-    // '<div class="text-center my-4">' +
-    //   '<h3>' +
-    //     '<i class="fas fa-list mr-2"></i>' +
-    //     'Getting started' +
-    //   '</h3>' +
-    // '</div>' +
-    // '<ol>' +
-    //   '<li>' +
-    //     '<button type="button" class="btn btn-lg omnidb__theme__btn--primary" onclick="startTutorial(\'utilities_menu\');">' +
-    //       '<i class="fas fa-user-plus mr-2"></i>' +
-    //       'Create an omnidb user' +
-    //     '</button>' +
-    //   '</li>' +
-    // '</ol>' +
+    '<button type="button" class="btn btn-lg omnidb__theme__btn--primary w-auto mx-auto my-4" onclick="startTutorial(' + "'getting_started'" + ');">' +
+      '<i class="fas fa-list mr-2"></i>' +
+      'Getting started' +
+    '</button>' +
 
 
     '<div class="alert-info p-2 rounded mt-4" style="display: grid; grid-template: \'icon text\';">' +
@@ -152,52 +142,52 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
     '</div>' +
   '</div>';
   // Getting started buttons
-  let v_getting_started_buttons_list = [
-    {
-      icon: '<i class="fas fa-user-plus mr-2"></i>',
-      text: 'Create an omnidb user',
-      tutorial: "\'utilities_menu\'"
-    },
-    {
-      icon: '<i class="fas fa-plug mr-2"></i>',
-      text: 'Create a database connection',
-      tutorial: "\'connections_menu\'"
-    },
-    {
-      icon: '<i class="fas fa-terminal mr-2"></i>',
-      text: 'Create a terminal connection',
-      tutorial: "\'terminal_connection\'"
-    },
-    {
-      icon: '<i class="fas fa-book mr-2"></i>',
-      text: 'Meet the snippets panel',
-      tutorial: "\'snippets\'"
-    }
-  ]
-  let v_getting_started_buttons_list_html = '';
-  for (let i = 0; i < v_getting_started_buttons_list.length; i++) {
-    let v_getting_started_buttons_list_item = v_getting_started_buttons_list[i];
-    v_getting_started_buttons_list_html +=
-    '<li class="mb-2">' +
-      '<button type="button" class="btn btn-lg omnidb__theme__btn--primary" onclick="startTutorial(' + v_getting_started_buttons_list_item.tutorial + ');">' +
-        v_getting_started_buttons_list_item.icon +
-        v_getting_started_buttons_list_item.text +
-      '</button>' +
-    '</li>';
-  }
+  // let v_getting_started_buttons_list = [
+  //   {
+  //     icon: '<i class="fas fa-user-plus mr-2"></i>',
+  //     text: 'Create an omnidb user',
+  //     tutorial: "\'utilities_menu\'"
+  //   },
+  //   {
+  //     icon: '<i class="fas fa-plug mr-2"></i>',
+  //     text: 'Create a database connection',
+  //     tutorial: "\'connections_menu\'"
+  //   },
+  //   {
+  //     icon: '<i class="fas fa-terminal mr-2"></i>',
+  //     text: 'Create a terminal connection',
+  //     tutorial: "\'terminal_connection\'"
+  //   },
+  //   {
+  //     icon: '<i class="fas fa-book mr-2"></i>',
+  //     text: 'Meet the snippets panel',
+  //     tutorial: "\'snippets\'"
+  //   }
+  // ]
+  // let v_getting_started_buttons_list_html = '';
+  // for (let i = 0; i < v_getting_started_buttons_list.length; i++) {
+  //   let v_getting_started_buttons_list_item = v_getting_started_buttons_list[i];
+  //   v_getting_started_buttons_list_html +=
+  //   '<li class="mb-2">' +
+  //     '<button type="button" class="btn btn-lg omnidb__theme__btn--primary" onclick="startTutorial(' + v_getting_started_buttons_list_item.tutorial + ');">' +
+  //       v_getting_started_buttons_list_item.icon +
+  //       v_getting_started_buttons_list_item.text +
+  //     '</button>' +
+  //   '</li>';
+  // }
   // Getting started
-  let v_html_getting_started =
-  '<div class="card p-3 omnidb__welcome__intro-card">' +
-    '<div class="text-center my-4">' +
-      '<h3>' +
-        '<i class="fas fa-list mr-2"></i>' +
-        'Getting started' +
-      '</h3>' +
-    '</div>' +
-    '<ol>' +
-      v_getting_started_buttons_list_html +
-    '</ol>' +
-  '</div>';
+  // let v_html_getting_started =
+  // '<div class="card p-3 omnidb__welcome__intro-card">' +
+  //   '<div class="text-center my-4">' +
+  //     '<h3>' +
+  //       '<i class="fas fa-list mr-2"></i>' +
+  //       'Getting started' +
+  //     '</h3>' +
+  //   '</div>' +
+  //   '<ol>' +
+  //     v_getting_started_buttons_list_html +
+  //   '</ol>' +
+  // '</div>';
   // Usel links html string
   let v_html_useful_links =
   '<div class="alert alert-success p-3 omnidb__welcome__useful-card">' +
@@ -226,9 +216,9 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
                 v_html_intro +
               '</div>' +
               // Getting started area
-              '<div style="grid-area: getting_started">' +
-                v_html_getting_started +
-              '</div>' +
+              // '<div style="grid-area: getting_started">' +
+              //   v_html_getting_started +
+              // '</div>' +
               // Links area
               '<div style="grid-area: links;">' +
                 v_html_useful_links +

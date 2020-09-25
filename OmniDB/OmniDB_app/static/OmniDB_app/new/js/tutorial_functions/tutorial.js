@@ -17,12 +17,25 @@ function startTutorial(p_tutorial_name) {
   });
   // Setting the tutorial to the default example tutorial `main`.
   var v_tutorial_name = (p_tutorial_name) ? p_tutorial_name : 'main';
+  var v_button_inner_query_attr = ' disabled title="Open a new connection first." ';
+  if (v_connTabControl.selectedTab.tag.tabControl) {
+    if (v_connTabControl.selectedTab.tag.tabControl.tabList.length > 0) {
+      v_button_inner_query_attr = '';
+    }
+  }
+  var v_button_inner_query =
+  '<li class="mb-2">' +
+    `<button ` + v_button_inner_query_attr + ` type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('terminal_connection');">` +
+      '<i class="fas fa-list mr-2"></i>Using the connection tab' +
+    '</button>' +
+  '</li>';
   // Configuring the available tutorials.
   var v_tutorials = {
     'getting_started': [
       {
-        p_message: `
-        <ol style="padding-left: 1.5rem;">
+        p_message:
+        '<ol style="padding-left: 1.5rem;">' +
+          `
           <li class="mb-2">
             <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('utilities_menu');">
               <i class="fas fa-user-plus mr-2"></i>Create an omnidb user
@@ -48,8 +61,9 @@ function startTutorial(p_tutorial_name) {
               <i class="fas fa-plus mr-2"></i>Using a connection
             </button>
           </li>
-        </ol>
-        `,
+          ` +
+          v_button_inner_query +
+        '</ol>',
         p_title: '<i class="fas fa-list mr-2"></i> Getting started'
       }
     ],
@@ -372,42 +386,11 @@ function startTutorial(p_tutorial_name) {
             Click on the connection.
           </li>
         </ol>
+        <p>Now you can close this walkthrough and open a new connection.</p>
         `,
-        p_target: document.getElementsByClassName('omnidb__tab-menu omnidb__tab-menu--primary')[0],
+        p_position: function() {var v_target = v_connTabControl.tabList[v_connTabControl.tabList.length - 1].elementA; return {x:v_target.getBoundingClientRect().x + 40,y:v_target.getBoundingClientRect().y}},
+        p_target: function(){var v_target = v_connTabControl.tabList[v_connTabControl.tabList.length - 1].elementA; return v_target;},
         p_title: 'Using Connections'
-      },
-      {
-        // p_callback_after_update_start: function() {setTimeout(function(){var v_target = document.getElementById(v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editorDivId);},50);},
-        p_callback_start: function() {toggleSnippetPanel();},
-        p_message: `
-        <p>Inside this tab you can create and edit a snippet.</p>
-        <p>Go ahead and try to create some simple snippet, i.e:</p>
-        <code>WHERE true SELECT 1;</code>
-        <p>Then experiment clicking on the <strong>indent button</strong> below the editor, and then <strong>next</strong>.</p>
-        `,
-        p_next_button: true,
-        p_target: function() {var v_target = document.getElementById('a_' + v_connTabControl.snippet_tag.tabControl.selectedTab.tag.tab_id); return v_target},
-        p_title: 'Snippets editor',
-        p_update_delay: 600
-      },
-      {
-        p_message: `
-        <p>As you can see, the identation feature automatically adjusts your code following a pattern.</p>
-        <p>Now go ahead and click <strong>save</strong></p>
-        `,
-        p_next_button: true,
-        p_target: function() {var v_target = document.getElementById('a_' + v_connTabControl.snippet_tag.tabControl.selectedTab.tag.tab_id); return v_target},
-        p_title: 'Indenting'
-      },
-      {
-        p_message: `
-        <p>Every snippet you save is stored under your user.</p>
-        <p>The tree on the left allows you to easily access it by double-clicking on the snippet.</p>
-        `,
-        p_next_button: false,
-        p_target: function() {var v_target = document.getElementById(v_connTabControl.snippet_tag.divTree.getAttribute('id')); return v_target},
-        p_title: 'Saved snippets',
-        p_update_delay: 600
       }
     ]
   }

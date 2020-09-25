@@ -35,6 +35,7 @@ $(function() {
     active: false,
     ready: false,
     selected: null,
+    alt_shift_meta_pressed: false,
     //label: document.getElementById('div_autocomplete_label'),
     active_input: null,
     div: document.getElementById('div_autocomplete'),
@@ -449,6 +450,15 @@ function autocomplete_keyup(p_event) {
 
 function autocomplete_keydown(p_editor, p_event) {
 
+  if (event.ctrlKey==true ||
+  event.altKey==true ||
+  event.metaKey==true ) {
+    v_autocomplete_object.alt_shift_meta_pressed = true;
+  }
+  else {
+    v_autocomplete_object.alt_shift_meta_pressed = false;
+  }
+
   if (v_autocomplete_object.active) {
 
     //esc
@@ -514,6 +524,12 @@ function autocomplete_keydown(p_editor, p_event) {
     if(p_event.keyCode === 9){
       p_editor.insert('\t');
       p_editor.focus();
+    }
+    // Enter
+    if (p_event.keyCode === 13) {
+      if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='console') {
+        consoleSQL();
+      }
     }
   }
 }
@@ -656,7 +672,7 @@ function close_autocomplete(p_additional_text) {
   v_autocomplete_object.no_results.style.display = 'none';
 }
 
-function autocomplete_start(editor, mode, event) {
+function autocomplete_start(editor, mode, event, force = null) {
 
   // Autocomplete doesn't start nor filters with the following keys:
   // 32 = SPACE
@@ -671,7 +687,7 @@ function autocomplete_start(editor, mode, event) {
   // 17 = CTRL
   // 18 = ALT
   // 91 = META
-  if (event.keyCode != 32 &&
+  if ((event.keyCode != 32 &&
       event.keyCode != 27 &&
       event.keyCode != 39 &&
       event.keyCode != 37 &&
@@ -682,22 +698,20 @@ function autocomplete_start(editor, mode, event) {
       event.keyCode != 17 &&
       event.keyCode != 18 &&
       event.keyCode != 91
-    ) {
+    ) || force) {
 
     if (!v_autocomplete_object.active) {
 
       // autocomplete starts only with characters from A to Z or NUMBERS or dot or dash
-      if (
+      if ((
           (
             (event.keyCode >= 65 && event.keyCode < 90) ||
              event.keyCode == 189 ||
              (event.keyCode >= 48 && event.keyCode < 57 && event.shiftKey!=true) ||
              event.keyCode == 190
            ) &&
-           event.ctrlKey!=true &&
-           event.altKey!=true &&
-           event.metaKey!=true
-         ) {
+           !v_autocomplete_object.alt_shift_meta_pressed
+         ) || force) {
 
         //get editor word before cursor
         var v_last_word_object = get_editor_last_word(editor);
@@ -727,7 +741,7 @@ function autocomplete_start(editor, mode, event) {
           }
           else {
             v_autocomplete_div.style.top = 'unset';
-            v_autocomplete_div.style.bottom = window.innerHeight - v_top_pos - 26 + 'px';
+            v_autocomplete_div.style.bottom = window.innerHeight - v_top_pos + 30 + 'px';
 
           }
           v_autocomplete_div.style.display = 'block';
@@ -762,7 +776,15 @@ function get_editor_last_word(p_editor) {
   //v_editor_text = v_editor_text.substring(0,v_prefix_pos);
   var v_pos_iterator = v_prefix_pos;
   var v_word_length = 0;
-  while (v_editor_text[v_pos_iterator]!= ' ' && v_editor_text[v_pos_iterator]!= '\n' && v_pos_iterator>=0) {
+
+  while (v_editor_text[v_pos_iterator]!= ' ' &&
+         v_editor_text[v_pos_iterator]!= '\n' &&
+         v_editor_text[v_pos_iterator]!= "'" &&
+         v_editor_text[v_pos_iterator]!= '(' &&
+         v_editor_text[v_pos_iterator]!= ')' &&
+         v_editor_text[v_pos_iterator]!= ',' &&
+         v_pos_iterator>=0
+       ) {
     v_pos_iterator--;
     v_word_length++;
   }

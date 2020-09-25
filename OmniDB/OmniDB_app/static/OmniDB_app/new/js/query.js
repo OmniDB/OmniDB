@@ -425,8 +425,8 @@ function querySQLReturnRender(p_message,p_context) {
                             copyPaste: {pasteMode: '', rowsLimit: 1000000000, columnsLimit: 1000000000},
 							manualColumnResize: true,
 							modifyColWidth: function(width, col){
-					      if(width > 150){
-					        return 100
+					      if(width > 300){
+					        return 280
 					      }
 					    },
 							fillHandle:false,

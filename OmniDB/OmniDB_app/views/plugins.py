@@ -463,11 +463,7 @@ def delete_plugin(request):
     try:
         plugin = plugins[p_plugin_name]
         try:
-            shutil.rmtree(join(settings.PLUGINS_STATIC_DIR,plugin['folder']))
-        except:
-            None
-        try:
-            shutil.rmtree(join(settings.PLUGINS_DIR,plugin['folder']))
+            shutil.rmtree(join(settings.HOME_DIR,'plugins',plugin['folder']))
         except:
             None
         del plugins[p_plugin_name]

@@ -1465,7 +1465,7 @@ body {
 
 .omnidb__autocomplete__row {
   display: none;
-  height: 80px;
+  height: 100px;
   border-bottom: 1px solid lightgray;
   position: relative;
   box-sizing: content-box;
@@ -1474,8 +1474,8 @@ body {
 .omnidb__autocomplete__type {
   align-items: center;
   display: grid;
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   float: left;
   text-align: center;
   border-right: 1px solid lightgray;
@@ -1494,15 +1494,15 @@ body {
 }
 
 .omnidb__autocomplete__data {
-  height: 80px;
+  height: 100px;
   /* Firefox */
-  width: -moz-calc(100% - 80px);
+  width: -moz-calc(100% - 100px);
   /* WebKit */
-  width: -webkit-calc(100% - 80px);
+  width: -webkit-calc(100% - 100px);
   /* Opera */
-  width: -o-calc(100% - 80px);
+  width: -o-calc(100% - 100px);
   /* Standard */
-  width: calc(100% - 80px);
+  width: calc(100% - 100px);
   float: right;
   overflow: auto;
   background-color: #fbfbfb;

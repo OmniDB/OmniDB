@@ -189,6 +189,44 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     autocomplete_keydown(v_editor, event);
   });
 
+  document.getElementById('txt_query_' + v_tab.id).addEventListener('contextmenu',function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    var v_option_list = [
+      {
+        text: 'Copy',
+        icon: 'fas cm-all fa-terminal',
+        action: function() {
+          console.log('ae')
+        }
+      },
+      {
+        text: 'Save as snippet',
+        icon: 'fas cm-all fa-terminal',
+        action: function() {
+          console.log('ae')
+        }
+      },
+      {
+        text: 'Use snippet',
+        icon: 'fas cm-all fa-terminal',
+        action: function() {
+          console.log('ae')
+        }
+      }
+
+    ];
+    customMenu(
+      {
+        x:event.clientX+5,
+        y:event.clientY+5
+      },
+      v_option_list,
+      null
+    );
+  });
+
+
   // Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
   v_editor.commands.bindKey("ctrl-space", null);
   v_editor.commands.bindKey("Cmd-,", null);

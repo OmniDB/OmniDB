@@ -408,7 +408,6 @@ def get_database_list(request):
 
     #Connection list
     v_index = 0
-    v_session.RefreshDatabaseList();
     for key,v_database_object in v_session.v_databases.items():
         if v_database_object['tunnel']['enabled'] or v_database_object['technology']=='terminal':
             if v_database_object['alias']!='':

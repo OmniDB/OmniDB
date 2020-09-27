@@ -17,6 +17,60 @@ from OmniDB_app.models.main import *
 from datetime import datetime
 from django.utils.timezone import make_aware
 
+def get_all_snippets(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    v_session = request.session.get('omnidb_session')
+
+    v_folders = SnippetFolder.objects.filter(user=request.user)
+    v_files = SnippetFile.objects.filter(user=request.user)
+
+    v_root = {
+        'id': None,
+        'files': [],
+        'folders': []
+    }
+
+    build_snippets_object_recursive(v_folders,v_files,v_root)
+
+    return JsonResponse(v_root)
+
+def build_snippets_object_recursive(p_folders,p_files,p_current_object):
+    # Adding files
+    for file in p_files:
+        # Match
+        if ((file.parent == None and p_current_object['id'] == None) or (file.parent!=None and file.parent.id == p_current_object['id'])):
+            p_current_object['files'].append(
+            {
+                'id': file.id,
+                'name': file.name
+            }
+            )
+    # Adding folders
+    for folder in p_folders:
+        # Match
+        if ((folder.parent == None and p_current_object['id'] == None) or (folder.parent!=None and folder.parent.id == p_current_object['id'])):
+            v_folder = {
+                'id': folder.id,
+                'name': folder.name,
+                'files': [],
+                'folders': []
+            }
+
+            build_snippets_object_recursive(p_folders,p_files,v_folder)
+
+            p_current_object['folders'].append(v_folder)
+
+
 def get_node_children(request):
 
     v_return = {}
@@ -197,7 +251,13 @@ def save_snippet_text(request):
     json_object = json.loads(request.POST.get('data', None))
     v_id = json_object['p_id']
     v_name = json_object['p_name']
+    v_parent_id = json_object['p_parent']
     v_text = json_object['p_text']
+
+    if v_parent_id:
+        v_parent = SnippetFolder.objects.get(id=v_parent_id)
+    else:
+        v_parent = None
 
     try:
         #new snippet
@@ -205,7 +265,7 @@ def save_snippet_text(request):
         if not v_id:
             file = SnippetFile(
                 user=request.user,
-                parent=None,
+                parent=v_parent,
                 name=v_name,
                 create_date=new_date,
                 modify_date=new_date,
@@ -219,13 +279,18 @@ def save_snippet_text(request):
             file.modify_date=new_date
             file.save()
 
+        v_return['v_data'] = {
+            'type': 'snippet',
+            'id': file.id,
+            'parent': v_parent_id,
+            'name': file.name
+        }
+
 
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
         return JsonResponse(v_return)
-
-        v_return['v_data'] = ''
 
     return JsonResponse(v_return)
 

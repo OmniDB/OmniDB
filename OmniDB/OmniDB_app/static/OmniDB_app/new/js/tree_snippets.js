@@ -10,6 +10,19 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
+function getAllSnippets() {
+  execAjax('/get_all_snippets/',
+			JSON.stringify({}),
+			function(p_return) {
+
+        v_connTabControl.tag.globalSnippets = p_return;
+
+			},
+			null,
+			'box',
+			false);
+}
+
 /// <summary>
 /// Retrieving tree.
 /// </summary>
@@ -112,13 +125,6 @@ function getTreeSnippets(p_div) {
           action : function(node) {
             deleteNodeSnippet(node);
           }
-        },
-        {
-          text : 'Run Snippet',
-          icon: 'fas cm-all fa-play',
-          submenu : {
-            elements: function(node) { return getOpenedConnTabs(node) }
-          }
         }
       ]
     }
@@ -204,51 +210,88 @@ function closeSnippetTab(p_tab) {
 
 }
 
-function saveSnippetText() {
+function saveSnippetText(event) {
+
+  var v_callback = function(p_return_object) {
+    v_connTabControl.snippet_tag.tabControl.selectedTab.tag.snippetObject = p_return_object;
+    v_connTabControl.snippet_tag.tabControl.selectedTab.tag.tab_title_span.innerHTML = p_return_object.name;
+  }
+
   if (v_connTabControl.snippet_object) {
     var v_save_object = {
       v_id: v_connTabControl.snippet_object.id,
-      v_name : v_connTabControl.snippet_object.name
+      v_name : v_connTabControl.snippet_object.name,
+      v_parent : null
     }
-    saveSnippetTextConfirm(v_save_object)
+    saveSnippetTextConfirm(
+      v_save_object,
+      v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.getValue(),
+      v_callback
+    )
   }
   else {
-    showConfirm('<input id="element_name"/ placeholder="Snippet Name" style="width: 200px;">',
-  	            function() {
-                  var v_save_object = {
-                    v_id: null,
-                    v_name : document.getElementById('element_name').value
-                  }
-                  saveSnippetTextConfirm(v_save_object)
-  	            });
+    customMenu(
+      {
+        x:event.clientX+5,
+        y:event.clientY+5
+      },
+      buildSnippetContextMenuObjects('save',
+                                     v_connTabControl.tag.globalSnippets,
+                                     v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor,
+                                     v_callback
+                                   ),
+      null
+    );
 
-    var v_input = document.getElementById('element_name');
-  	v_input.onkeydown = function() {
-  		if (event.keyCode == 13)
-  			document.getElementById('button_confirm_ok').click();
-  		else if (event.keyCode == 27)
-  			document.getElementById('button_confirm_cancel').click();
-  	}
-    v_input.focus();
+
   }
 }
 
-function saveSnippetTextConfirm(p_save_object) {
+function snippetTreeFindNode(p_id, p_current_node) {
+  var v_node = null;
+
+  for (var i=0; i < p_current_node.childNodes.length; i++) {
+    if (p_current_node.childNodes[i].tag.id == p_id)
+      return p_current_node.childNodes[i];
+    else {
+      v_node = snippetTreeFindNode(p_id, p_current_node.childNodes[i]);
+      if (v_node!=null)
+        return v_node;
+    }
+  }
+  return v_node;
+}
+
+function saveSnippetTextConfirm(p_save_object, p_text, p_callback) {
   execAjax('/save_snippet_text/',
      JSON.stringify({"p_id": p_save_object.v_id,
+                     "p_parent": p_save_object.v_parent,
                      "p_name": p_save_object.v_name,
-                     "p_text": v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.getValue()}),
+                     "p_text": p_text}),
      function(p_return) {
-        if (p_save_object.v_id==null) {
-          var node = v_connTabControl.snippet_tree.childNodes[0];
-          if (node.childNodes==0)
-            refreshTreeSnippets(node);
-          else {
-            node.collapseNode();
-            node.expandNode();
-          }
-        }
-        showAlert('Snippet saved.')
+       var v_node = null;
+       if (p_return.v_data.parent==null) {
+         v_node = v_connTabControl.snippet_tree.childNodes[0];
+       }
+       else {
+         v_node = snippetTreeFindNode(p_return.v_data.parent, v_connTabControl.snippet_tree.childNodes[0]);
+       }
+
+       if (v_node!=null) {
+         if (v_node.childNodes==0)
+           refreshTreeSnippets(v_node);
+         else {
+           v_node.collapseNode();
+           v_node.expandNode();
+         }
+       }
+
+      if (p_callback!=null)
+        p_callback(p_return.v_data);
+
+      showAlert('Snippet saved.')
+
+      getAllSnippets();
      },
      null,
      'box');
@@ -261,7 +304,7 @@ function newNodeSnippet(p_node,p_mode) {
   if (p_mode=='node')
     v_placeholder = 'Node Name';
 
-  showConfirm('<input id="element_name"/ placeholder="' + v_placeholder + '" style="width: 200px;">',
+  showConfirm('<input id="element_name"/ class="form-control" placeholder="' + v_placeholder + '" style="width: 100%;">',
 	            function() {
                      execAjax('/new_node_snippet/',
                    			JSON.stringify({"p_sn_id_parent": p_node.tag.id,
@@ -269,6 +312,8 @@ function newNodeSnippet(p_node,p_mode) {
                                         "p_name": document.getElementById('element_name').value}),
                    			function(p_return) {
                            refreshTreeSnippets(p_node);
+
+                           getAllSnippets();
                    			},
                    			null,
                    			'box');
@@ -286,7 +331,7 @@ function newNodeSnippet(p_node,p_mode) {
 
 function renameNodeSnippet(p_node) {
 
-  showConfirm('<input id="element_name"/ value="' + p_node.text + '" style="width: 200px;">',
+  showConfirm('<input id="element_name"/ class="form-control" value="' + p_node.text + '" style="width: 100%;">',
 	            function() {
                      execAjax('/rename_node_snippet/',
                    			JSON.stringify({"p_id": p_node.tag.id,
@@ -294,6 +339,8 @@ function renameNodeSnippet(p_node) {
                                         "p_name": document.getElementById('element_name').value}),
                    			function(p_return) {
                            refreshTreeSnippets(p_node.parent);
+
+                           getAllSnippets();
                    			},
                    			null,
                    			'box');
@@ -318,6 +365,8 @@ function deleteNodeSnippet(p_node) {
                                         "p_mode": p_node.tag.type}),
                    			function(p_return) {
                            refreshTreeSnippets(p_node.parent);
+
+                           getAllSnippets();
                    			},
                    			null,
                    			'box');
@@ -359,16 +408,92 @@ function startEditSnippetText(p_node) {
 			'box');
 }
 
-function executeSnippet(p_node,p_tab) {
+function executeSnippet(p_id,p_editor) {
 	execAjax('/get_snippet_text/',
-			JSON.stringify({"p_st_id": p_node.tag.id}),
+			JSON.stringify({"p_st_id": p_id}),
 			function(p_return) {
-				v_connTabControl.selectTab(p_tab);
-				v_connTabControl.snippet_tag.createQueryTab();
-				v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.setValue(p_return.v_data);
-				v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.clearSelection();
-				v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+				p_editor.insert(p_return.v_data);
+				p_editor.clearSelection();
 			},
 			null,
 			'box');
+}
+
+function buildSnippetContextMenuObjects(p_mode, p_object, p_editor, p_callback) {
+
+  var v_elements = [];
+
+  if (p_mode == 'save') {
+    v_elements.push(
+      {
+        text: 'New Snippet',
+        icon: 'fas cm-all fa-save',
+        action: function() {
+          showConfirm('<input id="element_name"/ class="form-control" placeholder="Snippet Name" style="width: 100%;">',
+        	            function() {
+                        saveSnippetTextConfirm(
+                          {
+                            v_id: null,
+                            v_name : document.getElementById('element_name').value,
+                            v_parent: p_object.id
+                          },
+                          p_editor.getValue(),
+                          p_callback
+                        );
+        	            });
+        }
+      }
+    );
+  }
+
+  for (var i=0; i<p_object.files.length; i++) (function(i){
+    var v_file = p_object.files[i];
+
+    if (p_mode == 'save')
+      v_elements.push(
+        {
+          text: '<b>OVERWRITE</b> ' + v_file.name,
+          icon: 'fas cm-all fa-align-left',
+          action: function() {
+            showConfirm("<b>WARNING</b>, are you sure you want to overwrite file '" + v_file.name + "'?",
+          	            function() {
+                          saveSnippetTextConfirm(
+                            {
+                              v_id: v_file.id,
+                              v_name : null,
+                              v_parent: null
+                            },
+                            p_editor.getValue(),
+                            p_callback
+                          );
+          	            });
+          }
+        }
+      );
+    else
+      v_elements.push(
+        {
+          text: v_file.name,
+          icon: 'fas cm-all fa-align-left',
+          action: function() {
+              executeSnippet(v_file.id, p_editor)
+          }
+        }
+      );
+  })(i);
+
+  for (var i=0; i<p_object.folders.length; i++) (function(i){
+    var v_folder = p_object.folders[i];
+    v_elements.push(
+      {
+        text: v_folder.name,
+        icon: 'fas cm-all fa-folder',
+        submenu: {
+          elements: buildSnippetContextMenuObjects(p_mode, v_folder, p_editor, p_callback)
+        }
+      }
+    );
+  })(i);
+
+  return v_elements;
 }

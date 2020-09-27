@@ -16,6 +16,7 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 from enum import IntEnum
 from datetime import datetime
 from django.utils.timezone import make_aware
+from OmniDB import settings
 import sys
 
 import sqlparse
@@ -627,6 +628,7 @@ def thread_query(self,args):
                         k = k + 1
 
                         v_data1 = v_database.v_connection.QueryBlock(v_sql, 10000, True, True)
+                        print('D1')
 
                         v_notices = v_database.v_connection.GetNotices()
                         v_notices_text = ''

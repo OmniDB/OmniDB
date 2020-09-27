@@ -73,6 +73,9 @@ $(function () {
   // Creating the snippets panel.
   v_connTabControl.tag.createSnippetPanel();
 
+  // Retrieving global snippets
+  getAllSnippets();
+
   // Retrieving database list.
   getDatabaseList(true);
 
@@ -157,8 +160,8 @@ function getDatabaseList(p_init, p_callback) {
 						}
 
 						if (!v_has_old_tabs) {
-              startLoading();
-							v_connTabControl.tag.createConnTab(v_connTabControl.tag.connections[0].v_conn_id);
+              //startLoading();
+							//v_connTabControl.tag.createConnTab(v_connTabControl.tag.connections[0].v_conn_id);
             }
 
 					}

@@ -90,6 +90,17 @@ function customMenu(p_position,p_menu,p_object) {
         }
 
       })(i);
+
+      // Repositioning the menu if its out of the frame.
+      let v_div_rect = v_div.getBoundingClientRect();
+      let v_div_h_diff = v_div_rect.x + v_div_rect.width - window.innerWidth;
+      if (v_div_h_diff > 0) {
+        v_div.style.left = v_div_rect.x - v_div_h_diff - 5 + 'px';
+      }
+      let v_div_v_diff = v_div_rect.y + v_div_rect.height - window.innerHeight;
+      if (v_div_v_diff > 0) {
+        v_div.style.top = v_div_rect.y - v_div_v_diff - 5 + 'px';
+      }
 }
 
 function customMenuRecursive(p_submenu,p_ul,p_object,p_closediv, p_cm_div, p_level) {

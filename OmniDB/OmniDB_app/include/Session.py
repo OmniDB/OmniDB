@@ -73,6 +73,10 @@ class Session(object):
                                 'technology': p_technology
                                 }
 
+    def RemoveDatabase(self,
+                       p_conn_id = None):
+       del self.v_databases[p_conn_id]
+
     def DatabaseReachPasswordTimeout(self,p_database_index):
         #Create tunnel if enabled
         if self.v_databases[p_database_index]['tunnel']['enabled']:

@@ -82,6 +82,7 @@ base_urlpatterns = [
     url(r'^delete_node_snippet/', views.tree_snippets.delete_node_snippet, name='delete_node_snippet'),
     url(r'^save_snippet_text/', views.tree_snippets.save_snippet_text, name='save_snippet_text'),
     url(r'^rename_node_snippet/', views.tree_snippets.rename_node_snippet, name='rename_node_snippet'),
+    url(r'^get_all_snippets/', views.tree_snippets.get_all_snippets, name='get_all_snippets'),
 
     #TREE_POSTGRESQL
     url(r'^get_tree_info_postgresql/', views.tree_postgresql.get_tree_info, name='get_tree_info'),

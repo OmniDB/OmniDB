@@ -561,12 +561,14 @@ def save_connection_new(request):
         v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
+    v_session = request.session.get('omnidb_session')
+
     json_object = json.loads(request.POST.get('data', None))
     p_id = json_object['id']
     try:
         # New connection
         if p_id == -1:
-            connection = Connection(
+            conn = Connection(
                 user=request.user,
                 technology=Technology.objects.get(name=json_object['type']),
                 server=json_object['server'],
@@ -584,7 +586,7 @@ def save_connection_new(request):
                 conn_string=json_object['connstring'],
 
             )
-            connection.save()
+            conn.save()
         #update
         else:
             conn = Connection.objects.get(id=p_id)
@@ -604,10 +606,38 @@ def save_connection_new(request):
             conn.conn_string=json_object['connstring']
             conn.save()
 
+        tunnel_information = {
+            'enabled': conn.use_tunnel,
+            'server': conn.ssh_server,
+            'port': conn.ssh_port,
+            'user': conn.ssh_user,
+            'password': conn.ssh_password,
+            'key': conn.ssh_key
+        }
+
+        database = OmniDatabase.Generic.InstantiateDatabase(
+            conn.technology.name,
+            conn.server,
+            conn.port,
+            conn.database,
+            conn.username,
+            conn.password,
+            conn.id,
+            conn.alias,
+            p_conn_string = conn.conn_string,
+            p_parse_conn_string = True
+        )
+
+        prompt_password = conn.password == ''
+
+        v_session.AddDatabase(conn.id,conn.technology.name,database,prompt_password,tunnel_information,conn.alias)
+
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
         return JsonResponse(v_return)
+
+    request.session['omnidb_session'] = v_session
 
     return JsonResponse(v_return)
 
@@ -623,16 +653,21 @@ def delete_connection_new(request):
         v_return['v_error_id'] = 1
         return JsonResponse(v_return)
 
+    v_session = request.session.get('omnidb_session')
+
     json_object = json.loads(request.POST.get('data', None))
     p_id = json_object['id']
 
     try:
         conn = Connection.objects.get(id=p_id)
         conn.delete()
+        v_session.RemoveDatabase(p_id)
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
         return JsonResponse(v_return)
+
+    request.session['omnidb_session'] = v_session
 
     return JsonResponse(v_return)
 

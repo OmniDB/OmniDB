@@ -192,6 +192,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   document.getElementById('txt_query_' + v_tab.id).addEventListener('contextmenu',function(event) {
     event.stopPropagation();
     event.preventDefault();
+
     var v_option_list = [
       {
         text: 'Copy',
@@ -202,20 +203,23 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
       },
       {
         text: 'Save as snippet',
-        icon: 'fas cm-all fa-terminal',
-        action: function() {
-          console.log('ae')
-        }
-      },
-      {
-        text: 'Use snippet',
-        icon: 'fas cm-all fa-terminal',
-        action: function() {
-          console.log('ae')
+        icon: 'fas cm-all fa-save',
+        submenu: {
+          elements: buildSnippetContextMenuObjects('save', v_connTabControl.tag.globalSnippets, v_editor)
         }
       }
-
     ];
+
+    if (v_connTabControl.tag.globalSnippets.files.length != 0 || v_connTabControl.tag.globalSnippets.folders.length != 0)
+      v_option_list.push(
+        {
+          text: 'Use snippet',
+          icon: 'fas cm-all fa-book',
+          submenu: {
+            elements: buildSnippetContextMenuObjects('load', v_connTabControl.tag.globalSnippets, v_editor)
+          }
+        }
+      )
     customMenu(
       {
         x:event.clientX+5,

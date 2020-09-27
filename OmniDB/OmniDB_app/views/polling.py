@@ -251,6 +251,10 @@ def create_request(request):
                             f.write(v_conn_object['tunnel']['key'])
                         client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
                     else:
+                        print(v_conn_object['tunnel']['server'])
+                        print(v_conn_object['tunnel']['user'])
+                        print(v_conn_object['tunnel']['password'])
+                        print(v_conn_object['tunnel']['port'])
                         client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
 
                     transport = client.get_transport()
@@ -264,12 +268,11 @@ def create_request(request):
                     tab_object['terminal_type'] = 'remote'
 
                 except Exception as exc:
-                    print(str(exc))
                     start_thread = False
-                    logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
-                    v_response['v_code'] = response.MessageException
-                    v_response['v_data'] = str(exc)
-                    ws_object.event_loop.add_callback(send_response_thread_safe,ws_object,json.dumps(v_response))
+                    v_return['v_code'] = response.MessageException
+                    v_return['v_context_code'] = v_context_code
+                    v_return['v_data'] = str(exc)
+                    queue_response(client_object,v_return)
 
                 if start_thread:
                     v_data['v_context_code'] = v_context_code

@@ -141,9 +141,20 @@
 	z-index: 999999;
 }
 
-.aimara_menu .aimara_sub-menu {
+.aimara_menu .aimara_sub-menu,
+ul.aimara_sub-menu.aimara_menu_right {
   top: 0;
   left: 100%;
+}
+/* Case where it escapes the screen on the right */
+ul.aimara_sub-menu.aimara_menu_left,
+.aimara_menu_left ul.aimara_sub-menu {
+  left: unset;
+  right: 100%;
+}
+ul.aimara_sub-menu.aimara_menu_bottom {
+  top: unset;
+  bottom: 0px;
 }
 
 .div_close_cm {

@@ -4214,7 +4214,7 @@ function getPropertiesPostgresql(p_node) {
 /// </summary>
 /// <param name="node">Node object.</param>
 function getPropertiesPostgresqlConfirm(node) {
-    if (node.tag != undefined)
+    if (node.tag != undefined) {
         if (node.tag.type == 'role') {
             getProperties('/get_properties_postgresql/', {
                 p_schema: null,
@@ -4223,211 +4223,226 @@ function getPropertiesPostgresqlConfirm(node) {
                 p_type: node.tag.type
             });
         } else if (node.tag.type == 'tablespace') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: null,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'database') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: null,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'extension') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: null,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'schema') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: null,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'table') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'sequence') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'view') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'mview') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'function') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.tag.id,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'procedure') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.tag.id,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'trigger') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: node.parent.parent.text,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'eventtrigger') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: null,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'triggerfunction') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.tag.id,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'direct_triggerfunction') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.tag.id,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'eventtriggerfunction') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.tag.id,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'direct_eventtriggerfunction') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: null,
-            p_table: null,
-            p_object: node.tag.id,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'index') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: node.parent.parent.text,
-            p_object: node.text.replace(' (Non Unique)', '').replace(
-                ' (Unique)', ''),
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'pk') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: node.parent.parent.text,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'foreign_key') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: node.parent.parent.text,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'unique') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: node.parent.parent.text,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'check') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: node.parent.parent.text,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'exclude') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: node.parent.parent.text,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'rule') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: node.parent.parent.text,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'foreign_table') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'user_mapping') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'foreign_server') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: null,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'fdw') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: null,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'type') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else if (node.tag.type == 'domain') {
-        getProperties('/get_properties_postgresql/', {
-            p_schema: node.tag.schema,
-            p_table: null,
-            p_object: node.text,
-            p_type: node.tag.type
-        });
-    } else {
-        clearProperties();
+            getProperties('/get_properties_postgresql/', {
+                p_schema: null,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'database') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: null,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'extension') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: null,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'schema') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: null,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'table') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'sequence') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'view') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'mview') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'function') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.tag.id,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'procedure') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.tag.id,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'trigger') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'eventtrigger') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: null,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'triggerfunction') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.tag.id,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'direct_triggerfunction') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.tag.id,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'eventtriggerfunction') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.tag.id,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'direct_eventtriggerfunction') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: null,
+                p_table: null,
+                p_object: node.tag.id,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'index') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: node.parent.parent.text,
+                p_object: node.text.replace(' (Non Unique)', '').replace(
+                    ' (Unique)', ''),
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'pk') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'foreign_key') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'unique') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'check') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'exclude') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'rule') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'foreign_table') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'user_mapping') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'foreign_server') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: null,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'fdw') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: null,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'type') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'domain') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'publication') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: null,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else if (node.tag.type == 'subscription') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: null,
+                p_table: null,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
+        } else {
+            clearProperties();
+        }
     }
 
     //Hooks

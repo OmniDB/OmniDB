@@ -312,7 +312,13 @@ def create_request(request):
                 )
 
             except Exception as exc:
-                raise
+                v_return['v_code'] = response.PasswordRequired
+                v_return['v_context_code'] = v_context_code
+                v_return['v_data'] = str(exc)
+                queue_response(client_object,v_return)
+                return JsonResponse(
+                {}
+                )
 
             v_data['v_context_code'] = v_context_code
             v_data['v_database'] = tab_object['omnidatabase']

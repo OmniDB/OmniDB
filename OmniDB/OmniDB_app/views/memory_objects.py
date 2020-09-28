@@ -252,9 +252,8 @@ def get_database_tab_object(
         to_be_removed.append(p_tab_object['omnidatabase'])
 
         p_tab_object['omnidatabase'] = v_database_new
-
     # Try to open connection if not opened yet
-    if p_attempt_to_open_connection and not p_tab_object['omnidatabase'].v_connection.v_con or p_tab_object['omnidatabase'].v_connection.GetConStatus() == 0:
+    if p_attempt_to_open_connection and (not p_tab_object['omnidatabase'].v_connection.v_con or p_tab_object['omnidatabase'].v_connection.GetConStatus() == 0):
         p_tab_object['omnidatabase'].v_connection.Open()
 
     return p_tab_object['omnidatabase']

@@ -80,12 +80,12 @@ WSGI_APPLICATION = 'OmniDB.wsgi.application'
 #import ldap
 #from django_auth_ldap.config import LDAPSearch
 
-AUTH_LDAP_SERVER_URI = 'ldap://ldap.forumsys.com'
-AUTH_LDAP_BIND_DN = "uid=tesla,dc=example,dc=com"
-AUTH_LDAP_BIND_PASSWORD = "password"
-AUTH_LDAP_USER_SEARCH = LDAPSearch(
-            "uid=tesla,dc=example,dc=com", ldap.SCOPE_SUBTREE, "uid=%(user)s"
-            )
+#AUTH_LDAP_SERVER_URI = 'ldap://ldap.forumsys.com'
+#AUTH_LDAP_BIND_DN = "uid=tesla,dc=example,dc=com"
+#AUTH_LDAP_BIND_PASSWORD = "password"
+#AUTH_LDAP_USER_SEARCH = LDAPSearch(
+#            "uid=tesla,dc=example,dc=com", ldap.SCOPE_SUBTREE, "uid=%(user)s"
+#            )
 
 #AUTH_LDAP_USER_ATTR_MAP = {
 #            "username": "sAMAccountName",

@@ -280,10 +280,14 @@ function refreshConsoleHistoryList() {
 		}),
 		function(p_return) {
 			v_conn_tag.consoleHistoryFecthed = true;
-			v_conn_tag.consoleHistoryList = p_return.v_data.data_clean;
+			v_conn_tag.consoleHistoryList = p_return.v_data.commandList;
 			console.log(p_return.v_data);
 			if(v_conn_tag.consoleHistoryList.length == 0) {
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.currentPage = 1;
+			}
+			let v_icon = '<i title="Select" class="fas fa-check text-success action-grid action-status-ok" onclick="consoleHistorySelectCommand()"></i>';
+			for (let i = 0; i < v_conn_tag.consoleHistoryList.length; i++) {
+				v_conn_tag.consoleHistoryList[i].unshift(v_icon);
 			}
 
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.pages = p_return.v_data.pages;
@@ -296,7 +300,7 @@ function refreshConsoleHistoryList() {
 			// 	p_return.v_data.consoleHistoryList[i][1] = new Date(p_return.v_data.consoleHistoryList[i][1]).toLocaleString();
 			// }
 
-			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.grid.loadData(p_return.v_data.data);
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.grid.loadData(v_conn_tag.consoleHistoryList);
 
 			// v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.gridDivParent.style.height = '200px';
 		},

@@ -18,11 +18,10 @@ from datetime import datetime
 from django.utils.timezone import make_aware
 from OmniDB import settings
 import sys
-
 import sqlparse
 
 import paramiko
-import custom_paramiko_expect
+import OmniDB_app.include.custom_paramiko_expect as custom_paramiko_expect
 
 from django.contrib.auth.models import User
 from OmniDB_app.models.main import *

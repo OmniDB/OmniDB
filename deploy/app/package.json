@@ -1,0 +1,8 @@
+{
+ "name": "OmniDB 3.0",
+ "main": "index.html",
+"window": {
+    "frame": false,
+    "transparent": true
+  }
+}

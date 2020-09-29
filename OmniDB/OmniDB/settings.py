@@ -36,7 +36,8 @@ LOGIN_REDIRECT_URL = '/'
 
 
 INSTALLED_APPS = [
-    'OmniDB_app.apps.OmnidbAppConfig',
+#    'OmniDB_app.apps.OmnidbAppConfig',
+    'OmniDB_app',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

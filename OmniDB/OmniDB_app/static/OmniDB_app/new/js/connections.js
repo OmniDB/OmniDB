@@ -736,10 +736,13 @@ function updateModalEditConnectionState(e) {
   let v_e_value = e.target.value;
   let v_disable_list = [];
   let v_enable_list = [];
+	let v_form_cases = [];
+	// When input changed is connection string, needs to lock either for string or single inputs.
   if (v_e_target_id === 'conn_form_connstring') {
     if (typeof v_e_value === 'string') {
       v_e_value = v_e_value.trim();
     }
+		// Case where connection string is being typed.
     if (v_e_value !== '' && v_e_value !== null) {
       v_disable_list = [
         'conn_form_server',
@@ -748,7 +751,10 @@ function updateModalEditConnectionState(e) {
         'conn_form_user',
         'conn_form_user_pass'
       ];
+			// Form cases will check the connection string.
+			v_form_cases.push('conn_form_connstring');
     }
+		// Case where connection string is being empty.
     else {
       v_enable_list = [
         'conn_form_server',
@@ -757,8 +763,14 @@ function updateModalEditConnectionState(e) {
         'conn_form_user',
         'conn_form_user_pass'
       ];
+			// Form cases will check for single connection inputs, except password.
+			v_form_cases.push('conn_form_server');
+			v_form_cases.push('conn_form_port');
+			v_form_cases.push('conn_form_database');
+			v_form_cases.push('conn_form_user');
     }
   }
+	// When single connection inputs are being type, needs to lock connection string.
   else if (v_e_target_id === 'conn_form_server' || v_e_target_id === 'conn_form_port' || v_e_target_id === 'conn_form_database' || v_e_target_id === 'conn_form_user') {
     let v_check_inputs = [
       'conn_form_server',
@@ -777,6 +789,7 @@ function updateModalEditConnectionState(e) {
         v_check_inputs_empty = false;
       }
     }
+		// Case where single inputs are being type.
     if (!v_check_inputs_empty) {
       v_disable_list = [
         'conn_form_connstring'
@@ -788,14 +801,24 @@ function updateModalEditConnectionState(e) {
         'conn_form_user',
         'conn_form_user_pass'
       ];
+			// Form cases will check for single connection inputs, except password.
+			v_form_cases.push('conn_form_server');
+			v_form_cases.push('conn_form_port');
+			v_form_cases.push('conn_form_database');
+			v_form_cases.push('conn_form_user');
     }
+		// Case where connection string is avaiable.
     else {
       v_enable_list = [
         'conn_form_connstring'
       ];
+			// Form cases will check the connection string.
+			v_form_cases.push('conn_form_connstring');
     }
   }
+	// When SSH tunnel is checked, needs to validate its inputs.
   else if (v_e_target_id === 'conn_form_use_tunnel') {
+		// Case where SSH is checked.
     if (v_e_target.checked) {
       v_enable_list = [
         'conn_form_ssh_server',
@@ -805,6 +828,7 @@ function updateModalEditConnectionState(e) {
         'conn_form_ssh_key'
       ];
     }
+		// Case where SSH is NOT checked. Locks ssh config.
     else {
       v_disable_list = [
         'conn_form_ssh_server',
@@ -815,7 +839,9 @@ function updateModalEditConnectionState(e) {
       ];
     }
   }
+	// When user picks a connection type in the selector, needs to validate if the technology is a terminal.
   else if (v_e_target_id === 'conn_form_type') {
+		// Case where the user picked a terminal needs to lock all server config inputs.
     if (v_e_value === 'terminal') {
       v_disable_list = [
         'conn_form_connstring',
@@ -832,9 +858,10 @@ function updateModalEditConnectionState(e) {
         'conn_form_ssh_password',
         'conn_form_ssh_key'
       ];
-      document.getElementById('conn_form_use_tunnel').checked = true;
-      document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
+			document.getElementById('conn_form_use_tunnel').checked = true;
+			document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
     }
+		// Case where user picked DB technologies require server config.
     else {
       v_enable_list = [
         'conn_form_connstring',
@@ -845,13 +872,27 @@ function updateModalEditConnectionState(e) {
         'conn_form_user_pass'
       ];
       document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
+			// Form cases will check for single connection inputs, except password.
+			v_form_cases.push('conn_form_server');
+			v_form_cases.push('conn_form_port');
+			v_form_cases.push('conn_form_database');
+			v_form_cases.push('conn_form_user');
     }
   }
+
+	if (document.getElementById('conn_form_use_tunnel').checked) {
+		// Form cases will check for single SSH connection inputs, except password.
+		v_form_cases.push('conn_form_ssh_server');
+		v_form_cases.push('conn_form_ssh_port');
+		v_form_cases.push('conn_form_ssh_user');
+		v_form_cases.push('conn_form_ssh_password');
+	}
+
 	// Updating the fields.
-	updateModalEditConnectionFields(v_disable_list, v_enable_list);
+	updateModalEditConnectionFields(v_disable_list, v_enable_list, v_form_cases);
 }
 
-function updateModalEditConnectionFields(p_disable_list, p_enable_list) {
+function updateModalEditConnectionFields(p_disable_list, p_enable_list, p_form_cases) {
 	for (let i = 0; i < p_disable_list.length; i++) {
     var v_item = document.getElementById(p_disable_list[i]);
     v_item.setAttribute('readonly',true);
@@ -861,4 +902,30 @@ function updateModalEditConnectionFields(p_disable_list, p_enable_list) {
     var v_item = document.getElementById(p_enable_list[i]);
     v_item.removeAttribute('readonly');
   }
+
+	let v_has_invalid = false;
+	if (p_form_cases) {
+		for (let i = 0; i < p_form_cases.length; i++) {
+			if (p_form_cases[i] === 'conn_form_type') {
+				if (document.getElementById(p_form_cases[i]).selectedIndex === 0) {
+					v_has_invalid = true;
+					break;
+				}
+			}
+			else {
+				let v_value_check = document.getElementById(p_form_cases[i]).value.trim();
+				if (v_value_check === '' || v_value_check === null) {
+					v_has_invalid = true;
+					break;
+				}
+			}
+		}
+	}
+	if (v_has_invalid) {
+		document.getElementById('conn_form_button_save_connection').setAttribute('disabled', true);
+	}
+	else {
+		document.getElementById('conn_form_button_save_connection').removeAttribute('disabled');
+	}
+
 }

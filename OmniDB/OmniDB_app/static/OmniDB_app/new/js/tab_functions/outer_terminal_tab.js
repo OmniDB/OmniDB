@@ -23,7 +23,7 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
       v_this_tab.removeTab();
     },
     p_rightClickFunction: function(e) {
-      terminalContextMenu(e);
+      terminalContextMenu(e,v_tab);
     },
     p_tooltip_name: v_tooltip_name
   });
@@ -58,6 +58,8 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
   term.on('data', (key, ev) => {
           terminalKey(key);
   });
+
+  Terminal.applyAddon(fit);
 
   var v_tag = {
     tab_id: v_tab.id,

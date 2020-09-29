@@ -55,6 +55,47 @@ def user_authenticated(function):
     wrap.__name__ = function.__name__
     return wrap
 
+def database_required(p_check_timeout = True, p_open_connection = True):
+    def decorator(function):
+        def wrap(request, *args, **kwargs):
+
+            v_return = {
+                'v_data': '',
+                'v_error': False,
+                'v_error_id': -1
+            }
+
+            v_session = request.session.get('omnidb_session')
+
+            json_object = json.loads(request.POST.get('data', None))
+            v_database_index = json_object['p_database_index']
+            v_tab_id = json_object['p_tab_id']
+
+            try:
+                if p_check_timeout:
+                    #Check database prompt timeout
+                    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+                    if v_timeout['timeout']:
+                        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+                        v_return['v_error'] = True
+                        return JsonResponse(v_return)
+
+                v_database = get_database_object(
+                    p_session = request.session,
+                    p_tab_id = v_tab_id,
+                    p_attempt_to_open_connection = p_open_connection
+                )
+            except Exception as exc:
+                v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+                v_return['v_error'] = True
+                return JsonResponse(v_return)
+
+            return function(request, v_database, *args, **kwargs)
+        wrap.__doc__ = function.__doc__
+        wrap.__name__ = function.__name__
+        return wrap
+    return decorator
+
 def database_timeout(function):
     def wrap(request, *args, **kwargs):
 
@@ -85,7 +126,7 @@ def close_tab_handler(p_client_object,p_tab_object_id):
     try:
         tab_object = p_client_object['tab_list'][p_tab_object_id]
         del p_client_object['tab_list'][p_tab_object_id]
-        if tab_object['type'] == 'query' or tab_object['type'] == 'connection':
+        if tab_object['type'] == 'query' or tab_object['type'] == 'console' or tab_object['type'] == 'connection':
             try:
                 tab_object['omnidatabase'].v_connection.Cancel(False)
             except Exception:
@@ -252,6 +293,7 @@ def get_database_tab_object(
         to_be_removed.append(p_tab_object['omnidatabase'])
 
         p_tab_object['omnidatabase'] = v_database_new
+
     # Try to open connection if not opened yet
     if p_attempt_to_open_connection and (not p_tab_object['omnidatabase'].v_connection.v_con or p_tab_object['omnidatabase'].v_connection.GetConStatus() == 0):
         p_tab_object['omnidatabase'].v_connection.Open()

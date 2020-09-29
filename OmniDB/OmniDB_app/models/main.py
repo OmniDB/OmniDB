@@ -72,6 +72,7 @@ class QueryHistory(models.Model):
 class ConsoleHistory(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     connection = models.ForeignKey(Connection,on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
     snippet = models.TextField(blank=False, default='')
 
 class Group(models.Model):

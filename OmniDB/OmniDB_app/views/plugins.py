@@ -489,8 +489,8 @@ def delete_plugin(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def exec_plugin_function(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def exec_plugin_function(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -512,12 +512,6 @@ def exec_plugin_function(request):
     p_check_database_connection = json_object['p_check_database_connection']
     p_database_index = json_object['p_database_index']
     p_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = p_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     #Check database prompt timeout
     if p_check_database_connection and p_database_index:

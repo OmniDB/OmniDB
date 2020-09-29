@@ -33,8 +33,14 @@ function call_polling(p_startup) {
         'p_startup': p_startup
       }),
 			function(p_return) {
-        for (var i=0; i<p_return.returning_rows.length; i++)
-          polling_response(p_return.returning_rows[i]);
+        for (var i=0; i<p_return.returning_rows.length; i++) {
+          try {
+            polling_response(p_return.returning_rows[i]);
+          }
+          catch(err) {
+
+          }
+        }
         call_polling(false);
 
 			},

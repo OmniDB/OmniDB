@@ -210,6 +210,23 @@
   /* border: 1px solid #94A5E3; */
 }
 
+/* MODAL CONFIG */
+.omnidb--theme-light .omnidb__modal-config .nav-tabs {
+  border-bottom-color: transparent !important;
+}
+.omnidb--theme-light .omnidb__modal-config .nav-link {
+  background-color: transparent;
+  border-color: #e2e2e2;
+  border-bottom-color: #FFFFFF;
+  color: #585858 !important;
+}
+.omnidb--theme-light .omnidb__modal-config .nav-link.active {
+  background-color: transparent;
+  border-color: #DEDEDE;
+  border-bottom-color: #FFFFFF;
+  border-top: 2px solid #68a4ff;
+}
+
 /* MONITORING */
 .omnidb--theme-light .omnidb__monitoring-result-tabs {
   border: 1px solid #DEDEDE;

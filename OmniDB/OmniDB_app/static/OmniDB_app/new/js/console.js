@@ -98,16 +98,16 @@ function showConsoleHistory() {
 
 	var columnProperties = [];
 
-	var col = new Object();
-	col.readOnly = true;
-	col.title =  ' ';
-	col.width = '26px';
-	columnProperties.push(col);
+	// var col = new Object();
+	// col.readOnly = true;
+	// col.title =  ' ';
+	// col.width = '26px';
+	// columnProperties.push(col);
 
 	var col = new Object();
 	col.readOnly = true;
 	col.title =  'Date';
-	col.width = '115px';
+	col.width = '141px';
 	columnProperties.push(col);
 
 	var col = new Object();
@@ -121,9 +121,9 @@ function showConsoleHistory() {
 		licenseKey: 'non-commercial-and-evaluation',
 		// data: p_return.v_data.data,
 		data: [
-			["<i title='Select' class='fas fa-check text-success action-grid action-status-ok' onclick='consoleHistorySelectCommand()'></i>", "2020-05-01 19:19:21", "\?"],
-			["<i title='Select' class='fas fa-check text-success action-grid action-status-ok' onclick='consoleHistorySelectCommand()'></i>", "2020-05-01 19:19:20", "\?"],
-			["<i title='Select' class='fas fa-check text-success action-grid action-status-ok' onclick='consoleHistorySelectCommand()'></i>", "2020-05-01 19:19:19", "\?"]
+			["2020-05-01 19:19:21", "\?"],
+			["2020-05-01 19:19:20", "\?"],
+			["2020-05-01 19:19:19", "\?"]
 		],
 
 		columns : columnProperties,
@@ -144,9 +144,13 @@ function showConsoleHistory() {
 					this.selectCell(options[0].start.row,options[0].start.col,options[0].end.row,options[0].end.col);
 					document.execCommand('copy');
 				}
+				else if (key === 'copy_to_console') {
+					consoleHistoryOpenCmd(options[0].start.row);
+				}
 			},
 			items: {
 				"copy": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-copy cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">Copy</div>'},
+				'copy_to_console': {name: '<div style="position: absolute;"><i class=\"fas fa-bolt cm-all\" style=\"vertical-align: middle;\"></i></div><div style="padding-left: 30px;">Copy Content To Console Tab</div>'},
 				"view_data": {name: '<div style=\"position: absolute;\"><i class=\"fas fa-edit cm-all\" style=\"vertical-align: middle;\"></i></div><div style=\"padding-left: 30px;\">View Content</div>'}
 			}
 			},
@@ -251,10 +255,10 @@ function consoleHistoryLastPage() {
 }
 
 function consoleHistoryOpenCmd(p_index) {
-	var v_command = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.grid.getDataAtRow(p_index)[4];
-	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.setValue(v_command);
-	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.clearSelection();
-	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
+	var v_command = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.grid.getDataAtRow(p_index)[1];
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor_input.setValue(v_command);
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor_input.clearSelection();
+	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor_input.gotoLine(0, 0, true);
 	closeConsoleHistory();
 }
 
@@ -285,10 +289,10 @@ function refreshConsoleHistoryList() {
 			if(v_conn_tag.consoleHistoryList.length == 0) {
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.currentPage = 1;
 			}
-			let v_icon = '<i title="Select" class="fas fa-check text-success action-grid action-status-ok" onclick="consoleHistorySelectCommand()"></i>';
-			for (let i = 0; i < v_conn_tag.consoleHistoryList.length; i++) {
-				v_conn_tag.consoleHistoryList[i].unshift(v_icon);
-			}
+			// let v_icon = '<i title="Select" class="fas fa-check text-success action-grid action-status-ok" onclick="consoleHistorySelectCommand()"></i>';
+			// for (let i = 0; i < v_conn_tag.consoleHistoryList.length; i++) {
+			// 	v_conn_tag.consoleHistoryList[i].unshift(v_icon);
+			// }
 
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.pages = p_return.v_data.pages;
 			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.spanNumPages.innerHTML = p_return.v_data.pages;

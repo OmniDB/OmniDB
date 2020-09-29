@@ -154,7 +154,6 @@ function showCommandList() {
 						// 	this.getDataAtCell(p_options[0].start.row, p_options[0].start.col),
 						// 	false
 						// );
-						console.log(p_options);
 						commandHistoryOpenCmd(p_options[0].start.row);
 					}
 				},

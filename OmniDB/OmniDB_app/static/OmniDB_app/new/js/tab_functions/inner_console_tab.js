@@ -235,4 +235,8 @@ var v_createConsoleTabFunction = function() {
 
   adjustQueryTabObjects(false);
 
-};
+  // Sets a render refresh for the grid on the consoleHistory.modal after the modal is fully loaded
+  $(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.modal).on('shown.bs.modal', function () {
+    v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.grid.render();
+  });
+}

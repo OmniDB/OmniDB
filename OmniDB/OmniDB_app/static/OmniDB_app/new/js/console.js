@@ -281,7 +281,7 @@ function refreshConsoleHistoryList() {
 		function(p_return) {
 			v_conn_tag.consoleHistoryFecthed = true;
 			v_conn_tag.consoleHistoryList = p_return.v_data.data_clean;
-
+			console.log(p_return.v_data);
 			if(v_conn_tag.consoleHistoryList.length == 0) {
 				v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.currentPage = 1;
 			}
@@ -296,7 +296,7 @@ function refreshConsoleHistoryList() {
 			// 	p_return.v_data.consoleHistoryList[i][1] = new Date(p_return.v_data.consoleHistoryList[i][1]).toLocaleString();
 			// }
 
-			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.grid.loadData(v_conn_tag.consoleHistoryList);
+			v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.grid.loadData(p_return.v_data.data);
 
 			// v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.gridDivParent.style.height = '200px';
 		},
@@ -375,7 +375,7 @@ function closeConsoleHistory() {
 
 function consoleHistorySelectCommand() {
   var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-  var v_grid = v_tab_tag.console_history_grid;
+  var v_grid = v_tab_tag.consoleHistory.grid;
 
   var v_command = v_grid.getDataAtRow(v_grid.getSelected()[0][0])[2];
   closeConsoleHistory();

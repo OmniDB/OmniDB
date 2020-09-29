@@ -1200,7 +1200,7 @@ def get_console_history(request):
         ).order_by('id')
 
         for command in v_console:
-            v_actions = "<i title='Select' class='fas fa-check-circle action-grid action-check' onclick='consoleHistorySelectCommand()'></i>"
+            v_actions = "<i title='Select' class='fas fa-check text-success action-grid action-status-ok' onclick='consoleHistorySelectCommand()'></i>"
 
             v_data.append([v_actions,command.start_time,command.snippet])
             v_data_clean.append(command.snippet)

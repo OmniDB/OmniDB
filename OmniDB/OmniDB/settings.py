@@ -112,9 +112,9 @@ SOCIAL_AUTH_OIDCONNECT_KEY = 'test'
 SOCIAL_AUTH_OIDCONNECT_SECRET = ''
 
 AUTHENTICATION_BACKENDS = [
-    'OmniDB.auth_oidconnect.OmniDBOpenIdConnect',
-    'django_auth_ldap.backend.LDAPBackend',
-    'social_core.backends.github.GithubOAuth2',
+    #'OmniDB.auth_oidconnect.OmniDBOpenIdConnect',
+    #'django_auth_ldap.backend.LDAPBackend',
+    #'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 ]
 

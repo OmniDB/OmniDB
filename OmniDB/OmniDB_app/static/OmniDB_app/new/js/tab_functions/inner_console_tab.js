@@ -36,7 +36,7 @@ var v_createConsoleTabFunction = function() {
 
   var console_history_modal =
   "<div class='modal fade' id='modal_console_history_" + v_tab.id + "' tabindex='-1' role='dialog' aria-hidden='true'>" +
-    "<div class='modal-dialog modal-xl modal-dialog-scrollable' role='document'>" +
+    "<div class='modal-dialog modal-xl' role='document'>" +
       "<div class='modal-content'>" +
         "<div class='modal-header'>" +
           "<h5 class='modal-title'>" +
@@ -48,7 +48,8 @@ var v_createConsoleTabFunction = function() {
         "</div>" +
         "<div class='modal-body'>" +
           "<div id='console_history_div_" + v_tab.id + "' class='console_command_history'>" +
-            "<div id='console_history_grid_" + v_tab.id + "' class='console_command_history_grid'></div>" +
+            "<div id='console_history_header_" + v_tab.id + "' class='console_command_history_header'></div>" +
+            "<div id='console_history_grid_" + v_tab.id + "' class='console_command_history_grid' style='width: 100%; height: calc(100vh - 16.5rem); overflow: hidden;'></div>" +
           "</div>" +
         "</div>" +
       "</div>" +
@@ -187,12 +188,29 @@ var v_createConsoleTabFunction = function() {
     connTab: v_connTabControl.selectedTab,
     currDatabaseIndex: null,
     state: 0,
-    console_history_modal: document.getElementById('modal_console_history_' + v_tab.id),
-    console_history_div: document.getElementById('console_history_div_' + v_tab.id),
-    console_history_grid_div: document.getElementById('console_history_grid_' + v_tab.id),
-    console_history_grid: null,
+    // console_history_modal: document.getElementById('modal_console_history_' + v_tab.id),
+    // console_history_div: document.getElementById('console_history_div_' + v_tab.id),
+    // console_history_grid_div: document.getElementById('console_history_grid_' + v_tab.id),
+    // console_history_grid: null,
     console_history_cmd_index: -1,
-    tempData: []
+    tempData: [],
+    consoleHistory: {
+      modal: document.getElementById('modal_console_history_' + v_tab.id),
+      div: document.getElementById('console_history_div_' + v_tab.id),
+      headerDiv: document.getElementById('console_history_header_' + v_tab.id),
+      gridDiv: document.getElementById('console_history_grid_' + v_tab.id),
+      grid: null,
+      currentPage: 1,
+      pages: 1,
+      spanNumPages: null,
+      spanCurrPage: null,
+      inputStartedFrom: null,
+      inputStartedFromLastValue: null,
+      inputStartedTo: null,
+      inputStartedToLastValue: null,
+      inputCommandContains: null,
+      inputCommandContainsLastValue: null
+    }
   };
 
   v_tab.tag = v_tag;

@@ -28,6 +28,9 @@ from OmniDB_app.models.main import *
 
 from OmniDB_app.views.memory_objects import *
 
+import logging
+logger = logging.getLogger('OmniDB_app.QueryServer')
+
 class requestType(IntEnum):
   Login          = 0
   Query          = 1
@@ -251,10 +254,6 @@ def create_request(request):
                             f.write(v_conn_object['tunnel']['key'])
                         client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
                     else:
-                        print(v_conn_object['tunnel']['server'])
-                        print(v_conn_object['tunnel']['user'])
-                        print(v_conn_object['tunnel']['password'])
-                        print(v_conn_object['tunnel']['port'])
                         client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
 
                     transport = client.get_transport()
@@ -307,7 +306,7 @@ def create_request(request):
                     client_object,
                     tab_object,
                     v_data['v_conn_tab_id'],
-                    False
+                    True
                 )
 
             except Exception as exc:
@@ -633,7 +632,6 @@ def thread_query(self,args):
                         k = k + 1
 
                         v_data1 = v_database.v_connection.QueryBlock(v_sql, 10000, True, True)
-                        print('D1')
 
                         v_notices = v_database.v_connection.GetNotices()
                         v_notices_text = ''
@@ -731,10 +729,7 @@ def thread_query(self,args):
                 except:
                     v_notices = []
                     v_notices_text = ''
-                #try:
-                #    v_database.v_connection.Close()
-                #except:
-                #    pass
+
                 log_end_time = datetime.now()
                 v_duration = GetDuration(log_start_time,log_end_time)
                 log_status = 'error'
@@ -940,8 +935,10 @@ def thread_console(self,args):
             query_object = ConsoleHistory(
                 user=User.objects.get(id=v_session.v_user_id),
                 connection=Connection.objects.get(id=v_database.v_conn_id),
+                start_time=make_aware(datetime.now()),
                 snippet=v_sql.replace("'","''")
             )
+
             query_object.save()
 
             #keep 100 rows in console history table for current user/connection

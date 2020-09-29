@@ -55,9 +55,9 @@ function terminalKey(p_key) {
 	terminalRun(false, p_key);
 }
 
-function terminalContextMenu(e) {
-	var v_tab = v_connTabControl.selectedTab;
-	var v_tag = v_connTabControl.selectedTab.tag;
+function terminalContextMenu(e,p_tab) {
+	var v_tab = (p_tab) ? p_tab : v_connTabControl.selectedTab;
+	var v_tag = v_tab.tag;
 	var v_option_list = [];
 
 	v_option_list.push(

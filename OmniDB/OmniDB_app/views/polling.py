@@ -18,11 +18,10 @@ from datetime import datetime
 from django.utils.timezone import make_aware
 from OmniDB import settings
 import sys
-
 import sqlparse
 
 import paramiko
-import custom_paramiko_expect
+import OmniDB_app.include.custom_paramiko_expect as custom_paramiko_expect
 
 from django.contrib.auth.models import User
 from OmniDB_app.models.main import *
@@ -312,7 +311,13 @@ def create_request(request):
                 )
 
             except Exception as exc:
-                raise
+                v_return['v_code'] = response.PasswordRequired
+                v_return['v_context_code'] = v_context_code
+                v_return['v_data'] = str(exc)
+                queue_response(client_object,v_return)
+                return JsonResponse(
+                {}
+                )
 
             v_data['v_context_code'] = v_context_code
             v_data['v_database'] = tab_object['omnidatabase']

@@ -77,8 +77,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'OmniDB.wsgi.application'
 
-import ldap
-from django_auth_ldap.config import LDAPSearch
+#import ldap
+#from django_auth_ldap.config import LDAPSearch
 
 AUTH_LDAP_SERVER_URI = 'ldap://ldap.forumsys.com'
 AUTH_LDAP_BIND_DN = "uid=tesla,dc=example,dc=com"

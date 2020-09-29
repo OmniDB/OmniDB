@@ -2,12 +2,22 @@
 
 block_cipher = None
 
+data_files_server = [
+  ('omnidb.db','.'),
+  ('config.py','.'),
+  ('OmniDB_app/static','OmniDB_app/static'),
+  ('OmniDB_app/include','OmniDB_app/include'),
+  ('OmniDB_app/templates','OmniDB_app/templates'),
+  ('OmniDB/migrations','OmniDB/migrations'),
+  ('OmniDB_app/plugins','OmniDB_app/plugins')
+]
+
 
 a = Analysis(['omnidb-server.py'],
-             pathex=['/home/rafaelthca/Repositories/github/rafaelthca/OmniDB/OmniDB'],
+             pathex=['C:\\Users\\omnidb\\OmniDB\\OmniDB\\OmniDB'],
              binaries=[],
-             datas=[],
-             hiddenimports=[],
+             datas=data_files_server,
+             hiddenimports=['social_django'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

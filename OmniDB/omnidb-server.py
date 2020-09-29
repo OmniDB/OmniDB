@@ -483,7 +483,7 @@ class DjangoApplication(object):
                     print ("Press Ctrl+C to exit",flush=True)
             else:
                 #Sending response to electron app
-                print ("http://localhost:{0}/login/?user=admin&pwd=admin&token={1}".format(str(port),OmniDB.custom_settings.APP_TOKEN),flush=True)
+                print ("http://localhost:{0}/omnidb_login/?user=admin&pwd=admin&token={1}".format(str(port),OmniDB.custom_settings.APP_TOKEN),flush=True)
 
 
             cherrypy.engine.block()

@@ -557,8 +557,8 @@ def renew_password(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def draw_graph(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def draw_graph(request, v_database):
 
     v_return = {
         'v_data': '',
@@ -571,12 +571,6 @@ def draw_graph(request):
     v_tab_id = json_object['p_tab_id']
     v_complete = json_object['p_complete']
     v_schema = json_object['p_schema']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_nodes = []
     v_edges = []
@@ -678,8 +672,8 @@ def draw_graph(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def start_edit_data(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def start_edit_data(request, v_database):
 
     v_return = {
         'v_data': '',
@@ -692,12 +686,6 @@ def start_edit_data(request):
     v_tab_id = json_object['p_tab_id']
     v_table          = json_object['p_table']
     v_schema         = json_object['p_schema']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_return['v_data'] = {
         'v_pk' : [],
@@ -795,8 +783,8 @@ def is_reference(p_sql, p_prefix, p_occurence_index,p_cursor_index):
     return False
 
 @user_authenticated
-@database_timeout
-def get_completions(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_completions(request, v_database):
 
     v_return = {
         'v_data': '',
@@ -810,12 +798,6 @@ def get_completions(request):
     p_prefix = json_object['p_prefix']
     p_sql = json_object['p_sql']
     p_prefix_pos = json_object['p_prefix_pos']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list = []
 
@@ -893,8 +875,8 @@ def get_completions(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_completions_table(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_completions_table(request, v_database):
 
     v_return = {
         'v_data': '',
@@ -907,12 +889,6 @@ def get_completions_table(request):
     p_tab_id = json_object['p_tab_id']
     p_table = json_object['p_table']
     p_schema = json_object['p_schema']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     if v_database.v_has_schema:
         v_table_name = p_schema + "." + p_table
@@ -1168,8 +1144,8 @@ def indent_sql(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def refresh_monitoring(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def refresh_monitoring(request, v_database):
     v_return = {
         'v_data': '',
         'v_error': False,
@@ -1179,12 +1155,6 @@ def refresh_monitoring(request):
     json_object = json.loads(request.POST.get('data', None))
     v_tab_id = json_object['p_tab_id']
     v_sql = json_object['p_query']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     try:
         v_data = v_database.Query(v_sql,True,True)
@@ -1216,31 +1186,24 @@ def get_console_history(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
-    v_tab_id = json_object['p_tab_id']
-
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    v_query = '''
-        select command_text,
-               command_date
-        from console_history
-        where user_id = {0}
-          and conn_id = {1}
-        order by command_date desc
-    '''.format(v_session.v_user_id,v_database_index)
-
 
     v_return['v_data'] = []
     v_data = []
     v_data_clean = []
 
     try:
-        v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
-        for v_unit in v_units.Rows:
+        conn = Connection.objects.get(id=json_object['p_database_index'])
+
+        v_console = ConsoleHistory.objects.filter(
+            user=request.user,
+            connection=conn
+        ).order_by('id')
+
+        for command in v_console:
             v_actions = "<i title='Select' class='fas fa-check-circle action-grid action-check' onclick='consoleHistorySelectCommand()'></i>"
 
-            v_data.append([v_actions,v_unit['command_date'],v_unit['command_text']])
-            v_data_clean.append(v_unit['command_text'])
+            v_data.append([v_actions,command.start_time,command.snippet])
+            v_data_clean.append(command.snippet)
         v_return['v_data'] = { 'data': v_data, 'data_clean': v_data_clean }
 
     except Exception as exc:
@@ -1324,8 +1287,8 @@ def get_alias(p_sql,p_pos,p_val):
 
 
 @user_authenticated
-@database_timeout
-def get_autocomplete_results(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_autocomplete_results(request, v_database):
 
     v_return = {
         'v_data': '',
@@ -1340,12 +1303,6 @@ def get_autocomplete_results(request):
     v_value = json_object['p_value']
     v_pos = json_object['p_pos']
     v_num_dots = v_value.count('.')
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_result = []
     max_result_word = ''

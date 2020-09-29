@@ -1,12 +1,20 @@
-var v_createSnippetTextTabFunction = function(p_snippet) {
+var v_createSnippetTextTabFunction = function(p_snippet = null) {
 
   var v_name = 'New Snippet';
+  var v_details = {
+    id: null,
+    name: null,
+    parent: null,
+    type: 'snippet'
+  }
+
   if (p_snippet) {
-    if (typeof p_snippet === 'string') {
-      v_name = p_snippet;
-    }
-    else {
-      v_name = p_snippet.name;
+    v_name = p_snippet.name;
+    v_details = {
+      id: p_snippet.id,
+      name: p_snippet.name,
+      parent: p_snippet.id_parent,
+      type: 'snippet'
     }
   }
 
@@ -105,7 +113,7 @@ var v_createSnippetTextTabFunction = function(p_snippet) {
     bt_save: document.getElementById('bt_save_' + v_tab.id),
     tabControl: v_connTabControl.snippet_tag.tabControl,
     snippetTab: v_connTabControl.selectedTab,
-    snippetObject: (p_snippet) ? p_snippet : null
+    snippetObject: v_details
   };
 
   v_tab.tag = v_tag;

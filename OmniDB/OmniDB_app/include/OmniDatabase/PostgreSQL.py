@@ -7114,6 +7114,62 @@ DROP COLUMN #column_name#
               and quote_ident(t.typname) = '{1}'
         '''.format(p_schema, p_object))
 
+    @lock_required
+    def GetPropertiesPublication(self, p_object):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return self.v_connection.Query('''
+                SELECT current_database() as "Database",
+                       p.pubname AS "Name",
+                       p.oid AS "OID",
+                       r.rolname as "Owner",
+                       p.puballtables AS "All Tables",
+                       p.pubinsert AS "Inserts",
+                       p.pubupdate AS "Updates",
+                       p.pubdelete AS "Deletes",
+                       p.pubtruncate AS "Truncates"
+                FROM pg_publication p
+                INNER JOIN pg_roles r
+                        ON p.pubowner = r.oid
+                WHERE quote_ident(p.pubname) = '{0}'
+            '''.format(p_object))
+        else:
+            return self.v_connection.Query('''
+                SELECT current_database() as "Database",
+                       p.pubname AS "Name",
+                       p.oid AS "OID",
+                       r.rolname as "Owner",
+                       p.puballtables AS "All Tables",
+                       p.pubinsert AS "Inserts",
+                       p.pubupdate AS "Updates",
+                       p.pubdelete AS "Deletes",
+                       p.pubtruncate AS "Truncates",
+                       p.pubviaroot AS "Via Partition Root"
+                FROM pg_publication p
+                INNER JOIN pg_roles r
+                        ON p.pubowner = r.oid
+                WHERE quote_ident(p.pubname) = '{0}'
+            '''.format(p_object))
+
+    @lock_required
+    def GetPropertiesSubscription(self, p_object):
+        return self.v_connection.Query('''
+            SELECT d.datname AS "Database",
+                   s.subname AS "Name",
+                   s.oid AS "OID",
+                   r.rolname AS "Owner",
+                   s.subenabled AS "Enabled",
+                   s.subconninfo AS "Connection",
+                   s.subslotname AS "Slot Name",
+                   s.subslotname AS "Sync Commit",
+                   s.subpublications AS "Publications"
+            FROM pg_subscription s
+            INNER JOIN pg_database d
+                    ON s.subdbid = d.oid
+            INNER JOIN pg_roles r
+                    ON s.subowner = r.oid
+            WHERE quote_ident(s.subname) = '{0}'
+        '''.format(p_object))
+
     def GetProperties(self, p_schema, p_table, p_object, p_type):
         try:
             if p_type == 'role':
@@ -7176,6 +7232,10 @@ DROP COLUMN #column_name#
                 return self.GetPropertiesType(p_schema, p_object).Transpose('Property', 'Value')
             elif p_type == 'domain':
                 return self.GetPropertiesType(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'publication':
+                return self.GetPropertiesPublication(p_object).Transpose('Property', 'Value')
+            elif p_type == 'subscription':
+                return self.GetPropertiesSubscription(p_object).Transpose('Property', 'Value')
             else:
                 return None
         except Spartacus.Database.Exception as exc:
@@ -9941,6 +10001,226 @@ DROP COLUMN #column_name#
                    )
         '''.format(p_schema, p_object))
 
+    @lock_required
+    def GetDDLPublication(self, p_object):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return self.v_connection.ExecuteScalar("""
+                WITH publication AS (
+                    SELECT oid,
+                           pubname,
+                           pubowner,
+                           puballtables,
+                           pubinsert,
+                           pubupdate,
+                           pubdelete,
+                           pubtruncate
+                    FROM pg_publication
+                    WHERE quote_ident(pubname) = '{0}'
+                ),
+                tables AS (
+                    SELECT string_agg(x.pubtable, ', ' ORDER BY x.pubtable) AS pubtables
+                    FROM (
+                        SELECT format(
+                                   '%s.%s',
+                                   quote_ident(n.nspname),
+                                   quote_ident(c.relname)
+                               )::regclass::text AS pubtable
+                        FROM publication p
+                        INNER JOIN pg_publication_rel pr
+                                ON p.oid = pr.prpubid
+                        INNER JOIN pg_class c
+                                ON pr.prrelid = c.oid
+                        INNER JOIN pg_namespace n
+                                ON c.relnamespace = n.oid
+                    ) x
+                ),
+                for_tables AS (
+                    SELECT (CASE WHEN puballtables
+                                 THEN E'  FOR ALL TABLES\n'
+                                 WHEN coalesce(t.pubtables, '') <> ''
+                                 THEN format(E'  FOR TABLES %s\n', t.pubtables)
+                                 ELSE E''
+                            END) AS text
+                    FROM publication p
+                    LEFT JOIN tables t
+                           ON 1 = 1
+                ),
+                options AS (
+                    SELECT (CASE WHEN z.puboptions <> ''
+                                 THEN format(E'  WITH ( %s )', z.puboptions)
+                                 ELSE ''
+                            END) AS text
+                    FROM (
+                        SELECT string_agg(y.puboption, ', ') AS puboptions
+                        FROM (
+                            SELECT format('publish = ''%s''', x.publish) AS puboption
+                            FROM (
+                                SELECT array_to_string(
+                                           array[
+                                               (CASE WHEN pubinsert THEN 'insert' ELSE NULL END),
+                                               (CASE WHEN pubupdate THEN 'update' ELSE NULL END),
+                                               (CASE WHEN pubdelete THEN 'delete' ELSE NULL END),
+                                               (CASE WHEN pubtruncate THEN 'truncate' ELSE NULL END)
+                                           ]::text[],
+                                           ', '
+                                        ) AS publish
+                                FROM publication
+                            ) x
+                            WHERE x.publish <> ''
+                        ) y
+                    ) z
+                )
+                SELECT format(E'CREATE PUBLICATION %s\n%s%s;\n\nALTER PUBLICATION %s OWNER TO %s;',
+                         quote_ident(p.pubname),
+                         ft.text,
+                         o.text,
+                         quote_ident(p.pubname),
+                         quote_ident(r.rolname)
+                       )
+                FROM publication p
+                INNER JOIN pg_roles r
+                        ON r.oid = p.pubowner
+                INNER JOIN for_tables ft
+                        ON 1 = 1
+                INNER JOIN options o
+                        ON 1 = 1
+            """.format(p_object))
+        else:
+            return self.v_connection.ExecuteScalar("""
+                WITH publication AS (
+                    SELECT oid,
+                           pubname,
+                           pubowner,
+                           puballtables,
+                           pubinsert,
+                           pubupdate,
+                           pubdelete,
+                           pubtruncate,
+                           pubviaroot
+                    FROM pg_publication
+                    WHERE quote_ident(pubname) = '{0}'
+                ),
+                tables AS (
+                    SELECT string_agg(x.pubtable, ', ' ORDER BY x.pubtable) AS pubtables
+                    FROM (
+                        SELECT format(
+                                   '%s.%s',
+                                   quote_ident(n.nspname),
+                                   quote_ident(c.relname)
+                               )::regclass::text AS pubtable
+                        FROM publication p
+                        INNER JOIN pg_publication_rel pr
+                                ON p.oid = pr.prpubid
+                        INNER JOIN pg_class c
+                                ON pr.prrelid = c.oid
+                        INNER JOIN pg_namespace n
+                                ON c.relnamespace = n.oid
+                    ) x
+                ),
+                for_tables AS (
+                    SELECT (CASE WHEN puballtables
+                                 THEN E'  FOR ALL TABLES\n'
+                                 WHEN coalesce(t.pubtables, '') <> ''
+                                 THEN format(E'  FOR TABLES %s\n', t.pubtables)
+                                 ELSE E''
+                            END) AS text
+                    FROM publication p
+                    LEFT JOIN tables t
+                           ON 1 = 1
+                ),
+                options AS (
+                    SELECT (CASE WHEN z.puboptions <> ''
+                                 THEN format(E'  WITH ( %s )', z.puboptions)
+                                 ELSE ''
+                            END) AS text
+                    FROM (
+                        SELECT string_agg(y.puboption, ', ') AS puboptions
+                        FROM (
+                            SELECT format('publish = ''%s''', x.publish) AS puboption
+                            FROM (
+                                SELECT array_to_string(
+                                           array[
+                                               (CASE WHEN pubinsert THEN 'insert' ELSE NULL END),
+                                               (CASE WHEN pubupdate THEN 'update' ELSE NULL END),
+                                               (CASE WHEN pubdelete THEN 'delete' ELSE NULL END),
+                                               (CASE WHEN pubtruncate THEN 'truncate' ELSE NULL END)
+                                           ]::text[],
+                                           ', '
+                                        ) AS publish
+                                FROM publication
+                            ) x
+                            WHERE x.publish <> ''
+
+                            UNION ALL
+
+                            SELECT format('publish_via_partition_root = %s', pubviaroot::text) AS puboption
+                            FROM publication
+                        ) y
+                    ) z
+                )
+                SELECT format(E'CREATE PUBLICATION %s\n%s%s;\n\nALTER PUBLICATION %s OWNER TO %s;',
+                         quote_ident(p.pubname),
+                         ft.text,
+                         o.text,
+                         quote_ident(p.pubname),
+                         quote_ident(r.rolname)
+                       )
+                FROM publication p
+                INNER JOIN pg_roles r
+                        ON r.oid = p.pubowner
+                INNER JOIN for_tables ft
+                        ON 1 = 1
+                INNER JOIN options o
+                        ON 1 = 1
+            """.format(p_object))
+
+    @lock_required
+    def GetDDLSubscription(self, p_object):
+        return self.v_connection.ExecuteScalar("""
+            WITH subscription AS (
+                SELECT oid,
+                       subname,
+                       subowner,
+                       subenabled,
+                       subconninfo,
+                       subslotname,
+                       subsynccommit,
+                       subpublications
+                FROM pg_subscription
+                WHERE quote_ident(subname) = '{0}'
+            ),
+            options AS (
+                SELECT (CASE WHEN z.suboptions <> ''
+                             THEN format(E'  WITH ( %s )', z.suboptions)
+                             ELSE ''
+                        END) AS text
+                FROM (
+                    SELECT array_to_string(y.suboption, ', ') AS suboptions
+                    FROM (
+                        SELECT array[
+                                   format('enabled = %s', subenabled::text),
+                                   format('slot_name = ''%s''', subslotname),
+                                   format('synchronous_commit = ''%s''', subsynccommit)
+                               ]::text[] AS suboption
+                        FROM subscription
+                    ) y
+                ) z
+            )
+            SELECT format(E'CREATE subscription %s\n  CONNECTION ''%s''\n  PUBLICATION %s\n%s;\n\nALTER subscription %s OWNER TO %s;',
+                     quote_ident(s.subname),
+                     s.subconninfo,
+                     array_to_string(s.subpublications, ', '),
+                     o.text,
+                     quote_ident(s.subname),
+                     quote_ident(r.rolname)
+                   )
+            FROM subscription s
+            INNER JOIN pg_roles r
+                    ON r.oid = s.subowner
+            INNER JOIN options o
+                    ON 1 = 1
+        """.format(p_object))
+
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetDDLRole(p_object)
@@ -10002,6 +10282,10 @@ DROP COLUMN #column_name#
             return self.GetDDLType(p_schema, p_object)
         elif p_type == 'domain':
             return self.GetDDLDomain(p_schema, p_object)
+        elif p_type == 'publication':
+            return self.GetDDLPublication(p_object)
+        elif p_type == 'subscription':
+            return self.GetDDLSubscription(p_object)
         else:
             return ''
 

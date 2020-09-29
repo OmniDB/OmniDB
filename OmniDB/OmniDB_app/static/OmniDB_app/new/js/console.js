@@ -121,9 +121,9 @@ function showConsoleHistory() {
 		licenseKey: 'non-commercial-and-evaluation',
 		// data: p_return.v_data.data,
 		data: [
-			["<i title='Select' class='fas fa-check-circle actio…eck' onclick='consoleHistorySelectCommand()'></i>", "2020-05-01 19:19:21", "\?"],
-			["<i title='Select' class='fas fa-check-circle actio…eck' onclick='consoleHistorySelectCommand()'></i>", "2020-05-01 19:19:20", "\?"],
-			["<i title='Select' class='fas fa-check-circle actio…eck' onclick='consoleHistorySelectCommand()'></i>", "2020-05-01 19:19:19", "\?"]
+			["<i title='Select' class='fas fa-check text-success action-grid action-status-ok' onclick='consoleHistorySelectCommand()'></i>", "2020-05-01 19:19:21", "\?"],
+			["<i title='Select' class='fas fa-check text-success action-grid action-status-ok' onclick='consoleHistorySelectCommand()'></i>", "2020-05-01 19:19:20", "\?"],
+			["<i title='Select' class='fas fa-check text-success action-grid action-status-ok' onclick='consoleHistorySelectCommand()'></i>", "2020-05-01 19:19:19", "\?"]
 		],
 
 		columns : columnProperties,

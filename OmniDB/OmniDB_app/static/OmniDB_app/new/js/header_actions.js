@@ -203,6 +203,25 @@ function changeInterfaceFontSize(p_option) {
 		let editor = ace.edit(this);
 		editor.setFontSize(v_font_size + 'px');
 	});
+	var v_outer_tab_list = v_connTabControl.tabList;
+	for (let i = 0; i < v_outer_tab_list.length; i++) {
+		var v_outer_tab_tag = v_outer_tab_list[i].tag;
+		if (v_outer_tab_tag) {
+			var v_outer_tab_tag_inner_tab_control = v_outer_tab_tag.tabControl;
+			if (v_outer_tab_tag_inner_tab_control) {
+				var v_outer_tab_tag_inner_tab_list = v_outer_tab_tag_inner_tab_control.tabList;
+				for (let j = 0; j < v_outer_tab_tag_inner_tab_list.length; j++) {
+					console.log(v_outer_tab_tag_inner_tab_list);
+					var v_inner_tab_tag = v_outer_tab_tag_inner_tab_list[j].tag;
+					if (v_inner_tab_tag) {
+						if (v_inner_tab_tag.editor_console) {
+							v_inner_tab_tag.editor_console.setOption('fontSize', Number(v_font_size));
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 /// <summary>

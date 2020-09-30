@@ -36,7 +36,8 @@ LOGIN_REDIRECT_URL = '/'
 
 
 INSTALLED_APPS = [
-    'OmniDB_app.apps.OmnidbAppConfig',
+#    'OmniDB_app.apps.OmnidbAppConfig',
+    'OmniDB_app',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,8 +77,44 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'OmniDB.wsgi.application'
 
+#import ldap
+#from django_auth_ldap.config import LDAPSearch
+
+#AUTH_LDAP_SERVER_URI = 'ldap://ldap.forumsys.com'
+#AUTH_LDAP_BIND_DN = "uid=tesla,dc=example,dc=com"
+#AUTH_LDAP_BIND_PASSWORD = "password"
+#AUTH_LDAP_USER_SEARCH = LDAPSearch(
+#            "uid=tesla,dc=example,dc=com", ldap.SCOPE_SUBTREE, "uid=%(user)s"
+#            )
+
+#AUTH_LDAP_USER_ATTR_MAP = {
+#            "username": "sAMAccountName",
+#                "first_name": "givenName",
+#                    "last_name": "sn",
+#                        "email": "mail",
+#}
+#from django_auth_ldap.config import ActiveDirectoryGroupType
+#AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+#            "dc=tech,dc=local", ldap.SCOPE_SUBTREE, "(objectCategory=Group)"
+#            )
+#AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType(name_attr="cn")
+#AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+#            "is_superuser": "CN=django-admins,CN=Users,DC=TECH,DC=LOCAL",
+#            "is_staff": "CN=django-admins,CN=Users,DC=TECH,DC=LOCAL",
+#            }
+#AUTH_LDAP_FIND_GROUP_PERMS = True
+#AUTH_LDAP_CACHE_GROUPS = True
+#AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
+
+
+SOCIAL_AUTH_OIDCONNECT_URL = "https://sso.2ndquadrant.com/auth/realms/sso"
+SOCIAL_AUTH_OIDCONNECT_KEY = 'test'
+SOCIAL_AUTH_OIDCONNECT_SECRET = ''
+
 AUTHENTICATION_BACKENDS = [
-    'social_core.backends.github.GithubOAuth2',
+    #'OmniDB.auth_oidconnect.OmniDBOpenIdConnect',
+    #'django_auth_ldap.backend.LDAPBackend',
+    #'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 ]
 

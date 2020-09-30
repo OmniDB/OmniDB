@@ -149,6 +149,9 @@ def sign_in(request):
     username = json_object['p_username']
     pwd = json_object['p_pwd']
 
+    print(username)
+    print(pwd)
+
     user = authenticate(username=username, password=pwd)
     if user is not None:
         login(request, user)

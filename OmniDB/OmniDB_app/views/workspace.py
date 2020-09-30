@@ -557,8 +557,8 @@ def renew_password(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def draw_graph(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def draw_graph(request, v_database):
 
     v_return = {
         'v_data': '',
@@ -571,12 +571,6 @@ def draw_graph(request):
     v_tab_id = json_object['p_tab_id']
     v_complete = json_object['p_complete']
     v_schema = json_object['p_schema']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_nodes = []
     v_edges = []
@@ -678,8 +672,8 @@ def draw_graph(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def start_edit_data(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def start_edit_data(request, v_database):
 
     v_return = {
         'v_data': '',
@@ -692,12 +686,6 @@ def start_edit_data(request):
     v_tab_id = json_object['p_tab_id']
     v_table          = json_object['p_table']
     v_schema         = json_object['p_schema']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_return['v_data'] = {
         'v_pk' : [],
@@ -795,8 +783,8 @@ def is_reference(p_sql, p_prefix, p_occurence_index,p_cursor_index):
     return False
 
 @user_authenticated
-@database_timeout
-def get_completions(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_completions(request, v_database):
 
     v_return = {
         'v_data': '',
@@ -810,12 +798,6 @@ def get_completions(request):
     p_prefix = json_object['p_prefix']
     p_sql = json_object['p_sql']
     p_prefix_pos = json_object['p_prefix_pos']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list = []
 
@@ -893,8 +875,8 @@ def get_completions(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_completions_table(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_completions_table(request, v_database):
 
     v_return = {
         'v_data': '',
@@ -907,12 +889,6 @@ def get_completions_table(request):
     p_tab_id = json_object['p_tab_id']
     p_table = json_object['p_table']
     p_schema = json_object['p_schema']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     if v_database.v_has_schema:
         v_table_name = p_schema + "." + p_table
@@ -942,6 +918,62 @@ def get_completions_table(request):
 
     return JsonResponse(v_return)
 
+def indent_sql(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        v_return['v_error'] = True
+        v_return['v_error_id'] = 1
+        return JsonResponse(v_return)
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_sql = json_object['p_sql']
+
+    v_session = request.session.get('omnidb_session')
+
+    v_return['v_data'] = v_sql
+
+
+    try:
+        v_return['v_data'] = sqlparse.format(v_sql, reindent=True)
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def refresh_monitoring(request, v_database):
+    v_return = {
+        'v_data': '',
+        'v_error': False,
+        'v_error_id': -1
+    }
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_tab_id = json_object['p_tab_id']
+    v_sql = json_object['p_query']
+
+    try:
+        v_data = v_database.Query(v_sql,True,True)
+        v_return['v_data'] = {
+            'v_col_names' : v_data.Columns,
+            'v_data' : v_data.Rows,
+            'v_query_info' : "Number of records: {0}".format(len(v_data.Rows))
+        }
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+
+    return JsonResponse(v_return)
+
 def get_command_list(request):
 
     v_return = {}
@@ -968,41 +1000,6 @@ def get_command_list(request):
 
     try:
         conn = Connection.objects.get(id=v_database.v_conn_id)
-
-        v_filter = '''\
-            where user_id = {0}
-              and conn_id = {1}
-        '''.format(
-            str(v_session.v_user_id),
-            str(v_database.v_conn_id)
-        )
-
-        if v_command_contains is not None and v_command_contains != '':
-            v_filter = '''\
-                {0}
-                  and cl_st_command like '%{1}%'
-            '''.format(
-                v_filter,
-                v_command_contains
-            )
-
-        if v_command_from is not None and v_command_from != '':
-            v_filter = '''\
-                {0}
-                  and date(cl_st_start) >= date('{1}')
-            '''.format(
-                v_filter,
-                v_command_from
-            )
-
-        if v_command_to is not None and v_command_to != '':
-            v_filter = '''\
-                {0}
-                  and date(cl_st_start) <= date('{1}')
-            '''.format(
-                v_filter,
-                v_command_to
-            )
 
         v_query = QueryHistory.objects.filter(
             user=request.user,
@@ -1137,68 +1134,6 @@ def clear_command_list(request):
 
     return JsonResponse(v_return)
 
-def indent_sql(request):
-
-    v_return = {}
-    v_return['v_data'] = ''
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    json_object = json.loads(request.POST.get('data', None))
-    v_sql = json_object['p_sql']
-
-    v_session = request.session.get('omnidb_session')
-
-    v_return['v_data'] = v_sql
-
-
-    try:
-        v_return['v_data'] = sqlparse.format(v_sql, reindent=True)
-    except Exception as exc:
-        v_return['v_data'] = str(exc)
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    return JsonResponse(v_return)
-
-@user_authenticated
-@database_timeout
-def refresh_monitoring(request):
-    v_return = {
-        'v_data': '',
-        'v_error': False,
-        'v_error_id': -1
-    }
-
-    json_object = json.loads(request.POST.get('data', None))
-    v_tab_id = json_object['p_tab_id']
-    v_sql = json_object['p_query']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
-
-    try:
-        v_data = v_database.Query(v_sql,True,True)
-        v_return['v_data'] = {
-            'v_col_names' : v_data.Columns,
-            'v_data' : v_data.Rows,
-            'v_query_info' : "Number of records: {0}".format(len(v_data.Rows))
-        }
-    except Exception as exc:
-        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
-        v_return['v_error'] = True
-
-    return JsonResponse(v_return)
-
 def get_console_history(request):
 
     #User not authenticated
@@ -1212,41 +1147,76 @@ def get_console_history(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    # v_session = request.session.get('omnidb_session')
+    v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
+    v_current_page = json_object['p_current_page']
     v_database_index = json_object['p_database_index']
-    v_tab_id = json_object['p_tab_id']
-
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    v_query = '''
-        select command_text,
-               command_date
-        from console_history
-        where user_id = {0}
-          and conn_id = {1}
-        order by command_date desc
-    '''.format(v_session.v_user_id,v_database_index)
-
+    v_command_contains = json_object['p_command_contains']
+    v_command_from = json_object['p_command_from']
+    v_command_to = json_object['p_command_to']
 
     v_return['v_data'] = []
     v_data = []
     v_data_clean = []
 
     try:
-        v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
-        for v_unit in v_units.Rows:
-            v_actions = "<i title='Select' class='fas fa-check-circle action-grid action-check' onclick='consoleHistorySelectCommand()'></i>"
+        conn = Connection.objects.get(id=v_database_index)
 
-            v_data.append([v_actions,v_unit['command_date'],v_unit['command_text']])
-            v_data_clean.append(v_unit['command_text'])
-        v_return['v_data'] = { 'data': v_data, 'data_clean': v_data_clean }
+        v_filter = '''\
+            where user_id = {0}
+              and conn_id = {1}
+        '''.format(
+            str(v_session.v_user_id),
+            str(v_database_index)
+        )
+
+        v_query = ConsoleHistory.objects.filter(
+            user=request.user,
+            connection=conn,
+            snippet__icontains=v_command_contains
+        ).order_by('-start_time')
+
+        if v_command_from is not None and v_command_from != '':
+            v_query = v_query.filter(
+                start_time__gte=v_command_from
+            )
+
+        if v_command_to is not None and v_command_to != '':
+            v_query = v_query.filter(
+                start_time__lte=v_command_to
+            )
+
+        v_count = v_query.count()
+
+        offset = ((v_current_page-1) * settings.CH_CMDS_PER_PAGE)
+
+        v_commands = v_query[offset:offset+settings.CH_CMDS_PER_PAGE]
 
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
         return JsonResponse(v_return)
+
+    v_command_list = []
+
+    for v_command in v_commands:
+        v_command_data_list = []
+
+        v_command_data_list.append(v_command.start_time)
+        v_command_data_list.append(v_command.snippet)
+
+        v_command_list.append(v_command_data_list)
+
+
+    v_page = ceil(v_count/settings.CH_CMDS_PER_PAGE)
+    if v_page==0:
+        v_page=1
+
+    v_return['v_data'] = {
+        'commandList': v_command_list,
+        'pages': v_page
+    }
 
     return JsonResponse(v_return)
 
@@ -1324,8 +1294,8 @@ def get_alias(p_sql,p_pos,p_val):
 
 
 @user_authenticated
-@database_timeout
-def get_autocomplete_results(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_autocomplete_results(request, v_database):
 
     v_return = {
         'v_data': '',
@@ -1340,12 +1310,6 @@ def get_autocomplete_results(request):
     v_value = json_object['p_value']
     v_pos = json_object['p_pos']
     v_num_dots = v_value.count('.')
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_result = []
     max_result_word = ''

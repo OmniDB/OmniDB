@@ -15,8 +15,8 @@ from datetime import datetime
 from OmniDB_app.views.memory_objects import *
 
 @user_authenticated
-@database_timeout
-def get_tree_info(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_tree_info(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -26,12 +26,6 @@ def get_tree_info(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     try:
         v_return['v_data'] = {
@@ -95,8 +89,8 @@ def get_tree_info(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_properties(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_properties(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -107,12 +101,6 @@ def get_properties(request):
     v_database_index = json_object['p_database_index']
     v_data = json_object['p_data']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_properties = []
     v_ddl = ''
@@ -135,8 +123,8 @@ def get_properties(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_tables(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_tables(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -147,12 +135,6 @@ def get_tables(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_tables = []
 
@@ -183,8 +165,8 @@ def get_tables(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_columns(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -196,12 +178,6 @@ def get_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_columns = []
 
@@ -225,8 +201,8 @@ def get_columns(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_pk(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_pk(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -238,12 +214,6 @@ def get_pk(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_pk = []
 
@@ -263,8 +233,8 @@ def get_pk(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_pk_columns(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_pk_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -277,12 +247,6 @@ def get_pk_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_pk = []
 
@@ -302,8 +266,8 @@ def get_pk_columns(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_fks(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_fks(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -315,12 +279,6 @@ def get_fks(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_fk = []
 
@@ -343,8 +301,8 @@ def get_fks(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_fks_columns(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_fks_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -357,12 +315,6 @@ def get_fks_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_fk = []
 
@@ -386,8 +338,8 @@ def get_fks_columns(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_uniques(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_uniques(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -399,12 +351,6 @@ def get_uniques(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_uniques = []
 
@@ -424,8 +370,8 @@ def get_uniques(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_uniques_columns(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_uniques_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -438,12 +384,6 @@ def get_uniques_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_uniques = []
 
@@ -463,8 +403,8 @@ def get_uniques_columns(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_indexes(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_indexes(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -476,12 +416,6 @@ def get_indexes(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_indexes = []
 
@@ -502,8 +436,8 @@ def get_indexes(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_indexes_columns(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_indexes_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -516,12 +450,6 @@ def get_indexes_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_indexes = []
 
@@ -541,8 +469,8 @@ def get_indexes_columns(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_databases(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_databases(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -552,12 +480,6 @@ def get_databases(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_databases = []
 
@@ -578,8 +500,8 @@ def get_databases(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_roles(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_roles(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -589,12 +511,6 @@ def get_roles(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_roles = []
 
@@ -615,8 +531,8 @@ def get_roles(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_functions(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_functions(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -627,12 +543,6 @@ def get_functions(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_functions = []
 
@@ -654,8 +564,8 @@ def get_functions(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_function_fields(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_function_fields(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -667,12 +577,6 @@ def get_function_fields(request):
     v_function = json_object['p_function']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_fields = []
 
@@ -694,8 +598,8 @@ def get_function_fields(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_function_definition(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_function_definition(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -707,12 +611,6 @@ def get_function_definition(request):
     v_function = json_object['p_function']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
-
     try:
         v_return['v_data'] = v_database.GetFunctionDefinition(v_function)
     except Exception as exc:
@@ -723,8 +621,8 @@ def get_function_definition(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_procedures(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_procedures(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -735,12 +633,6 @@ def get_procedures(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_functions = []
 
@@ -762,8 +654,8 @@ def get_procedures(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_procedure_fields(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_procedure_fields(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -775,12 +667,6 @@ def get_procedure_fields(request):
     v_function = json_object['p_procedure']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_fields = []
 
@@ -802,8 +688,8 @@ def get_procedure_fields(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_procedure_definition(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_procedure_definition(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -815,12 +701,6 @@ def get_procedure_definition(request):
     v_function = json_object['p_procedure']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
-
     try:
         v_return['v_data'] = v_database.GetProcedureDefinition(v_function)
     except Exception as exc:
@@ -831,8 +711,8 @@ def get_procedure_definition(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_views(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_views(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -843,12 +723,6 @@ def get_views(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_tables = []
 
@@ -870,8 +744,8 @@ def get_views(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_views_columns(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_views_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -883,12 +757,6 @@ def get_views_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_list_columns = []
 
@@ -911,8 +779,8 @@ def get_views_columns(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def get_view_definition(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_view_definition(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -925,12 +793,6 @@ def get_view_definition(request):
     v_schema = json_object['p_schema']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
-
     try:
         v_return['v_data'] = v_database.GetViewDefinition(v_view, v_schema)
     except Exception as exc:
@@ -941,8 +803,8 @@ def get_view_definition(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def kill_backend(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def kill_backend(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -954,12 +816,6 @@ def kill_backend(request):
     v_pid            = json_object['p_pid']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
-
     try:
         v_data = v_database.Terminate(v_pid)
     except Exception as exc:
@@ -970,8 +826,8 @@ def kill_backend(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def template_select(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def template_select(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -983,12 +839,6 @@ def template_select(request):
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     try:
         v_template = v_database.TemplateSelect(v_schema, v_table).v_text
@@ -1004,8 +854,8 @@ def template_select(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def template_insert(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def template_insert(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -1017,12 +867,6 @@ def template_insert(request):
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     try:
         v_template = v_database.TemplateInsert(v_schema, v_table).v_text
@@ -1038,8 +882,8 @@ def template_insert(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_timeout
-def template_update(request):
+@database_required(p_check_timeout = True, p_open_connection = True)
+def template_update(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -1051,12 +895,6 @@ def template_update(request):
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     try:
         v_template = v_database.TemplateUpdate(v_schema, v_table).v_text

@@ -211,19 +211,19 @@
               <div class="form-row">
                 <div class="col-md-4 mb-3">
                   <label for="conn_form_ssh_server">SSH Server</label>
-                  <input type="text" class="form-control" id="conn_form_ssh_server" placeholder="SSH server" readonly>
+                  <input type="text" class="form-control" id="conn_form_ssh_server" placeholder="SSH server" readonly onchange="updateModalEditConnectionState(event)">
                 </div>
                 <div class="col-md-2 mb-3">
                   <label for="conn_form_ssh_port">SSH Port</label>
-                  <input type="text" class="form-control" id="conn_form_ssh_port" placeholder="SSH port" readonly>
+                  <input type="text" class="form-control" id="conn_form_ssh_port" placeholder="SSH port" readonly onchange="updateModalEditConnectionState(event)">
                 </div>
                 <div class="col-md-3 mb-3">
                   <label for="conn_form_ssh_user">SSH User</label>
-                  <input type="text" class="form-control" id="conn_form_ssh_user" placeholder="SSH user" readonly>
+                  <input type="text" class="form-control" id="conn_form_ssh_user" placeholder="SSH user" readonly onchange="updateModalEditConnectionState(event)">
                 </div>
                 <div class="col-md-3 mb-3">
                   <label for="conn_form_ssh_password">Password / Passphrase</label>
-                  <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" readonly>
+                  <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" readonly onchange="updateModalEditConnectionState(event)">
                 </div>
               </div>
               <div class="form-row">
@@ -233,7 +233,7 @@
                 </div>
               </div>
               <button id="conn_form_button_test_connection" class="btn omnidb__theme__btn--primary" onclick="testConnection();">Test</button>
-              <button id="conn_form_button_save_connection" class="btn btn-success" onclick="saveConnection();">Save</button>
+              <button id="conn_form_button_save_connection" class="btn btn-success" onclick="saveConnection();" disabled>Save</button>
 
           </div>
         </div>
@@ -357,7 +357,7 @@
             </button>
           </div>
           <div class="modal-body">
-            <div class="container-fluid">
+            <div class="omnidb__modal-config">
 
               <ul class="nav nav-tabs" role="tablist">
                 <li class="nav-item">
@@ -370,7 +370,7 @@
                   <a class="nav-link" id="config_password-tab" data-toggle="tab" href="#config_password" role="tab" aria-controls="config_password" aria-selected="false">Password</a>
                 </li>
               </ul>
-              <div class="tab-content pt-2">
+              <div class="tab-content p-2 omnidb__theme-border--primary">
                 <div class="tab-pane fade show active" id="config_shortcuts" role="tabpanel" aria-labelledby="config_shortcuts-tab">
                   <div id="div_shortcut_background_dark"><div style="position: absolute; top: 50%; width: 100%;">Press key combination... (ESC to cancel)</div></div>
                   <div class="form-group row">
@@ -484,9 +484,9 @@
                       <button id="shortcut_right_outer_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
                     </div>
                   </div>
-
-                  <button class='btn btn-success' onclick='saveShortcuts()'>Save</button>
-
+                  <div style="text-align:right;">
+                    <button class='btn btn-success' onclick='saveShortcuts()'>Save</button>
+                  </div>
                 </div>
                 <div class="tab-pane fade" id="config_options" role="tabpanel" aria-labelledby="config_options-tab">
 
@@ -625,7 +625,9 @@
                       <input type="text" class="form-control" id="txt_csv_delimiter" placeholder="Delimiter">
                     </div>
                   </div>
-                  <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
+                  <div style="text-align:right;">
+                    <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
+                  </div>
 
                 </div>
                 <div class="tab-pane fade" id="config_password" role="tabpanel" aria-labelledby="config_password-tab">
@@ -639,7 +641,9 @@
                       <input id="txt_confirm_new_pwd" type="password" class="form-control">
                     </div>
                   </div>
-                  <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
+                  <div style="text-align:right;">
+                    <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
+                  </div>
                 </div>
               </div>
 

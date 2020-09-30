@@ -459,7 +459,9 @@ def update_saved_monitor_unit_interval(request):
 
     return JsonResponse(v_return)
 
-def refresh_monitor_units(request):
+@user_authenticated
+@database_required(p_check_timeout = False, p_open_connection = True)
+def refresh_monitor_units(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -478,12 +480,6 @@ def refresh_monitor_units(request):
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_ids = json_object['p_ids']
-
-    v_database = get_database_object(
-        p_session = request.session,
-        p_tab_id = v_tab_id,
-        p_attempt_to_open_connection = True
-    )
 
     v_return['v_data'] = []
 

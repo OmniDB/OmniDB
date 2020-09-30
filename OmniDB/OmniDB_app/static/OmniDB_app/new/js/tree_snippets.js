@@ -217,11 +217,13 @@ function saveSnippetText(event) {
     v_connTabControl.snippet_tag.tabControl.selectedTab.tag.tab_title_span.innerHTML = p_return_object.name;
   }
 
-  if (v_connTabControl.snippet_object) {
+  //var v_snippet_tab_list = v_connTabControl.snippet_tag.tabControl.tabList;
+
+  if (v_connTabControl.snippet_tag.tabControl.selectedTab.tag.snippetObject.id != null) {
     var v_save_object = {
-      v_id: v_connTabControl.snippet_object.id,
-      v_name : v_connTabControl.snippet_object.name,
-      v_parent : null
+      v_id: v_connTabControl.snippet_tag.tabControl.selectedTab.tag.snippetObject.id,
+      v_name : v_connTabControl.snippet_tag.tabControl.selectedTab.tag.snippetObject.name,
+      v_parent : v_connTabControl.snippet_tag.tabControl.selectedTab.tag.snippetObject.parent
     }
     saveSnippetTextConfirm(
       v_save_object,
@@ -393,8 +395,6 @@ function startEditSnippetText(p_node) {
   else {
     v_connTabControl.tag.createSnippetTextTab(p_node.tag);
   }
-
-  v_connTabControl.snippet_object = p_node.tag;
 
   execAjax('/get_snippet_text/',
 			JSON.stringify({"p_st_id": p_node.tag.id}),

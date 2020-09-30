@@ -139,6 +139,7 @@ class PostgreSQL:
         self.v_has_rules = True
         self.v_has_triggers = True
         self.v_has_partitions = True
+        self.v_has_statistics = True
 
         self.v_has_update_rule = True
         self.v_can_rename_table = True
@@ -1688,6 +1689,89 @@ class PostgreSQL:
               and quote_ident(nc.nspname) = '{1}'
             order by 2, 1
         '''.format(p_table, p_schema))
+
+    @lock_required
+    def QueryTablesStatistics(self, p_table=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+
+        if not p_all_schemas:
+            if p_table and p_schema:
+                v_filter = "AND quote_ident(n.nspname) = '{0}' AND quote_ident(c.relname) = '{1}' ".format(p_schema, p_table)
+            elif p_table:
+                v_filter = "AND quote_ident(n.nspname) = '{0}' AND quote_ident(c.relname) = '{1}' ".format(self.v_schema, p_table)
+            elif p_schema:
+                v_filter = "AND quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "AND quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            if p_table:
+                v_filter = "AND quote_ident(n.nspname) not in ('information_schema','pg_catalog') AND quote_ident(c.relname) = {0}".format(p_table)
+            else:
+                v_filter = "AND quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+
+        return self.v_connection.Query(
+            '''
+                select quote_ident(c.relname) AS table_name,
+                       quote_ident(se.stxname) AS statistic_name,
+                       quote_ident(n2.nspname) AS schema_name
+                FROM pg_statistic_ext se
+                INNER JOIN pg_class c
+                        ON se.stxrelid = c.oid
+                INNER JOIN pg_namespace n
+                        ON c.relnamespace = n.oid
+                INNER JOIN pg_namespace n2
+                        ON se.stxnamespace = n2.oid
+                WHERE 1 = 1
+                  {0}
+                order by 1, 2
+            '''.format(
+                v_filter
+            ),
+            True
+        )
+
+    @lock_required
+    def QueryStatisticsFields(self, p_statistics=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+
+        if not p_all_schemas:
+            if p_statistics and p_schema:
+                v_filter = "AND quote_ident(n2.nspname) = '{0}' AND quote_ident(se.stxname) = '{1}' ".format(p_schema, p_statistics)
+            elif p_statistics:
+                v_filter = "AND quote_ident(n2.nspname) = '{0}' AND quote_ident(se.stxname) = '{1}' ".format(self.v_schema, p_statistics)
+            elif p_schema:
+                v_filter = "AND quote_ident(n2.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "AND quote_ident(n2.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            if p_statistics:
+                v_filter = "AND quote_ident(n2.nspname) not in ('information_schema','pg_catalog') AND quote_ident(se.stxname) = {0}".format(p_statistics)
+            else:
+                v_filter = "AND quote_ident(n2.nspname) not in ('information_schema','pg_catalog') "
+
+        return self.v_connection.Query(
+            '''
+                select quote_ident(n2.nspname) AS schema_name,
+                       quote_ident(se.stxname) AS statistic_name,
+                       quote_ident(a.attname) AS column_name
+                FROM pg_statistic_ext se
+                INNER JOIN pg_class c
+                        ON se.stxrelid = c.oid
+                INNER JOIN pg_namespace n
+                        ON c.relnamespace = n.oid
+                INNER JOIN pg_namespace n2
+                        ON se.stxnamespace = n2.oid
+                INNER JOIN pg_attribute a
+                        ON c.oid = a.attrelid
+                       AND a.attnum = ANY(se.stxkeys)
+                WHERE 1 = 1
+                  {0}
+                order by 1, 2
+            '''.format(
+                v_filter
+            ),
+            True
+        )
 
     @lock_required
     def QueryDataLimited(self, p_query, p_count=-1):
@@ -5707,6 +5791,34 @@ ADD COLUMN name data_type
 DROP COLUMN #column_name#
 --CASCADE
 ''')
+
+    def TemplateCreateStatistics(self):
+        return Template('''CREATE STATISTICS #schema_name#.statistics_name
+--( ndistinct )
+--( dependencies )
+--( mcv )
+ON column_name, column_name [, ...]
+FROM #table_name#
+''')
+
+    def TemplateAlterStatistics(self):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''ALTER STATISTICS #statistics_name#
+--OWNER to { new_owner | CURRENT_USER | SESSION_USER }
+--RENAME TO new_name
+--SET SCHEMA new_schema
+''')
+        else:
+            return Template('''ALTER STATISTICS #statistics_name#
+--OWNER to { new_owner | CURRENT_USER | SESSION_USER }
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--SET STATISTICS new_target
+''')
+
+    def TemplateDropStatistics(self):
+        return Template('DROP STATISTICS #statistics_name#')
+
     @lock_required
     def GetPropertiesRole(self, p_object):
         return self.v_connection.Query('''
@@ -7170,6 +7282,30 @@ DROP COLUMN #column_name#
             WHERE quote_ident(s.subname) = '{0}'
         '''.format(p_object))
 
+    @lock_required
+    def GetPropertiesStatistic(self, p_schema, p_object):
+        return self.v_connection.Query(
+            '''
+                SELECT current_database() AS "Database",
+                       n.nspname AS "Schema",
+                       se.stxname AS "Name",
+                       se.oid AS "OID",
+                       r.rolname AS "Owner",
+                       se.stxstattarget AS "Statistic Target",
+                       se.stxkind AS "kinds"
+                FROM pg_statistic_ext se
+                INNER JOIN pg_namespace n
+                        ON se.stxnamespace = n.oid
+                INNER JOIN pg_roles r
+                        ON se.stxowner = r.oid
+                WHERE quote_ident(n.nspname) = '{0}'
+                  AND quote_ident(se.stxname) = '{1}'
+            '''.format(
+                p_schema,
+                p_object
+            )
+        )
+
     def GetProperties(self, p_schema, p_table, p_object, p_type):
         try:
             if p_type == 'role':
@@ -7236,6 +7372,8 @@ DROP COLUMN #column_name#
                 return self.GetPropertiesPublication(p_object).Transpose('Property', 'Value')
             elif p_type == 'subscription':
                 return self.GetPropertiesSubscription(p_object).Transpose('Property', 'Value')
+            elif p_type == 'statistic':
+                return self.GetPropertiesStatistic(p_schema, p_object).Transpose('Property', 'Value')
             else:
                 return None
         except Spartacus.Database.Exception as exc:
@@ -10206,7 +10344,7 @@ DROP COLUMN #column_name#
                     ) y
                 ) z
             )
-            SELECT format(E'CREATE subscription %s\n  CONNECTION ''%s''\n  PUBLICATION %s\n%s;\n\nALTER subscription %s OWNER TO %s;',
+            SELECT format(E'CREATE SUBSCRIPTION %s\n  CONNECTION ''%s''\n  PUBLICATION %s\n%s;\n\nALTER SUBSCRIPTION %s OWNER TO %s;',
                      quote_ident(s.subname),
                      s.subconninfo,
                      array_to_string(s.subpublications, ', '),
@@ -10220,6 +10358,100 @@ DROP COLUMN #column_name#
             INNER JOIN options o
                     ON 1 = 1
         """.format(p_object))
+
+    @lock_required
+    def GetDDLStatistic(self, p_schema, p_object):
+        return self.v_connection.ExecuteScalar(
+            """
+                WITH statistics AS (
+                    SELECT x.oid,
+                           x.statistics_schema,
+                           x.stxname,
+                           x.table_schema,
+                           x.table_name,
+                           x.stxowner,
+                           x.stxkind,
+                           array_agg(x.attname) AS columns
+                    FROM (
+                        SELECT se.oid,
+                               n2.nspname AS statistics_schema,
+                               se.stxname,
+                               n.nspname AS table_schema,
+                               c.relname AS table_name,
+                               se.stxowner,
+                               se.stxkind,
+                               a.attname
+                        FROM pg_statistic_ext se
+                        INNER JOIN pg_class c
+                                ON se.stxrelid = c.oid
+                        INNER JOIN pg_namespace n
+                                ON c.relnamespace = n.oid
+                        INNER JOIN pg_attribute a
+                                ON c.oid = a.attrelid
+                               AND a.attnum = ANY(se.stxkeys)
+                        INNER JOIN pg_namespace n2
+                                ON se.stxnamespace = n2.oid
+                    ) x
+                    WHERE quote_ident(x.statistics_schema) = '{0}'
+                      AND quote_ident(x.stxname) = '{1}'
+                    GROUP BY x.oid,
+                             x.statistics_schema,
+                             x.stxname,
+                             x.table_schema,
+                             x.table_name,
+                             x.stxowner,
+                             x.stxkind
+                ),
+                options AS (
+                    SELECT format(
+                               E'  ( %s )\n',
+                               string_agg(y.kind, ', ')
+                           ) AS text
+                    FROM (
+                        SELECT (CASE kind WHEN 'd'
+                                          THEN 'dependencies'
+                                          WHEN 'f'
+                                          THEN 'ndistinct'
+                                          WHEN 'm'
+                                          THEN 'mcv'
+                                END) AS kind
+                        FROM (
+                            SELECT unnest(stxkind) AS kind
+                            FROM statistics
+                        ) x
+                    ) y
+                )
+                SELECT format(
+                           E'CREATE STATISTICS %s\n%s  ON %s\n  FROM %s;\n\nALTER STATISTICS %s OWNER TO %s;',
+                           format(
+                               '%s.%s',
+                               quote_ident(s.statistics_schema),
+                               quote_ident(s.stxname)
+                           ),
+                           o.text,
+                           array_to_string(s.columns, ', '),
+                           format(
+                               '%s.%s',
+                               quote_ident(s.table_schema),
+                               quote_ident(s.table_name)
+                           )::regclass::text,
+                           format(
+                               '%s.%s',
+                               quote_ident(s.statistics_schema),
+                               quote_ident(s.stxname)
+                           ),
+                           quote_ident(r.rolname)
+                       )
+                FROM statistics s
+                INNER JOIN pg_roles r
+                        ON r.oid = s.stxowner
+                INNER JOIN options o
+                        ON 1 = 1
+            """.format(
+                p_schema,
+                p_object
+            )
+        )
 
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
@@ -10286,6 +10518,8 @@ DROP COLUMN #column_name#
             return self.GetDDLPublication(p_object)
         elif p_type == 'subscription':
             return self.GetDDLSubscription(p_object)
+        elif p_type == 'statistic':
+            return self.GetDDLStatistic(p_schema, p_object)
         else:
             return ''
 

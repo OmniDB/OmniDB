@@ -108,6 +108,7 @@ class MySQL:
         self.v_has_rules = False
         self.v_has_triggers = False
         self.v_has_partitions = False
+        self.v_has_statistics = False
 
         self.v_has_update_rule = True
         self.v_can_rename_table = True

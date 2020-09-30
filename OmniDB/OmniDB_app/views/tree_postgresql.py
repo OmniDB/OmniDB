@@ -151,6 +151,9 @@ def get_tree_info(request):
                 'create_domain': v_database.TemplateCreateDomain().v_text,
                 'alter_domain': v_database.TemplateAlterDomain().v_text,
                 'drop_domain': v_database.TemplateDropDomain().v_text,
+                'create_statistics': v_database.TemplateCreateStatistics().v_text,
+                'alter_statistics': v_database.TemplateAlterStatistics().v_text,
+                'drop_statistics': v_database.TemplateDropStatistics().v_text,
             }
         }
     except Exception as exc:
@@ -263,7 +266,8 @@ def get_tables(request):
                 'v_has_excludes': v_database.v_has_excludes,
                 'v_has_rules': v_database.v_has_rules,
                 'v_has_triggers': v_database.v_has_triggers,
-                'v_has_partitions': v_database.v_has_partitions
+                'v_has_partitions': v_database.v_has_partitions,
+                'v_has_statistics': v_database.v_has_statistics
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -942,6 +946,44 @@ def get_partitions(request):
 
 @user_authenticated
 @database_timeout
+def get_statistics(request):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_table = json_object['p_table']
+    v_schema = json_object['p_schema']
+
+    v_database = get_database_object(
+        p_session=request.session,
+        p_tab_id=v_tab_id,
+        p_attempt_to_open_connection=True
+    )
+
+    v_list_statistics = []
+
+    try:
+        v_statistics = v_database.QueryTablesStatistics(v_table, False, v_schema)
+        for v_statistic in v_statistics.Rows:
+            v_statistic_data = []
+            v_statistic_data.append(v_statistic['statistic_name'])
+            v_statistic_data.append(v_statistic['schema_name'])
+            v_list_statistics.append(v_statistic_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_statistics
+
+    return JsonResponse(v_return)
+
+@user_authenticated
+@database_timeout
 def get_views(request):
 
     v_return = {}
@@ -1078,7 +1120,8 @@ def get_mviews(request):
         for v_table in v_tables.Rows:
             v_table_data = {
                 'v_name': v_table['table_name'],
-                'v_has_indexes': v_database.v_has_indexes
+                'v_has_indexes': v_database.v_has_indexes,
+                'v_has_statistics': v_database.v_has_statistics
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -2169,7 +2212,8 @@ def get_foreign_tables(request):
         v_tables = v_database.QueryForeignTables(False,v_schema)
         for v_table in v_tables.Rows:
             v_table_data = {
-                'v_name': v_table['table_name']
+                'v_name': v_table['table_name'],
+                'v_has_statistics': v_database.v_has_statistics
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -2379,7 +2423,8 @@ def get_inheriteds_children(request):
                 'v_has_excludes': v_database.v_has_excludes,
                 'v_has_rules': v_database.v_has_rules,
                 'v_has_triggers': v_database.v_has_triggers,
-                'v_has_partitions': v_database.v_has_partitions
+                'v_has_partitions': v_database.v_has_partitions,
+                'v_has_statistics': v_database.v_has_statistics
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -2465,7 +2510,8 @@ def get_partitions_children(request):
                 'v_has_excludes': v_database.v_has_excludes,
                 'v_has_rules': v_database.v_has_rules,
                 'v_has_triggers': v_database.v_has_triggers,
-                'v_has_partitions': v_database.v_has_partitions
+                'v_has_partitions': v_database.v_has_partitions,
+                'v_has_statistics': v_database.v_has_statistics
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:

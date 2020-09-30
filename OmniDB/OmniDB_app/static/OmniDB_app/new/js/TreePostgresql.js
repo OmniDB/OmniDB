@@ -2739,6 +2739,73 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
+        'cm_statistics': {
+            elements: [{
+                text: 'Refresh',
+                icon: 'fas cm-all fa-sync-alt',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Statistics',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Create Statistics',
+                        node.tree.tag.create_statistics.replace(
+                            '#table_name#',
+                            node.tag.schema + '.' + node.parent.text
+                        ).replace(
+                            '#schema_name#',
+                            node.tag.schema
+                        )
+                    );
+                }
+            }, {
+                text: 'Doc: Statistics',
+                icon: 'fas cm-all fa-globe-americas',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Statistics',
+                        'https://www.postgresql.org/docs/' +
+                        getMajorVersionPostgresql(node.tree.tag.version) +
+                        '/static/planner-stats.html'
+                    );
+                }
+            }]
+        },
+        'cm_statistic': {
+            elements: [{
+                text: 'Alter Statistics',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter Statistics',
+                        node.tree.tag.alter_statistics.replace(
+                            '#statistics_name#',
+                            node.text
+                        )
+                    );
+                }
+            }, {
+                text: 'Drop Statistics',
+                icon: 'fas cm-all fa-times',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Drop Statistics',
+                        node.tree.tag.drop_statistics.replace(
+                            '#statistics_name#',
+                            node.text
+                        )
+                    );
+                }
+            }]
+        },
         'cm_functions': {
             elements: [{
                 text: 'Refresh',
@@ -4440,6 +4507,13 @@ function getPropertiesPostgresqlConfirm(node) {
                 p_object: node.text,
                 p_type: node.tag.type
             });
+        } else if (node.tag.type == 'statistic') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.tag.object,
+                p_type: node.tag.type
+            });
         } else {
             clearProperties();
         }
@@ -4562,6 +4636,8 @@ function refreshTreePostgresqlConfirm(node) {
         getPartitionedChildrenPostgresql(node);
     } else if (node.tag.type == 'inherited_parent') {
         getInheritedsChildrenPostgresql(node);
+    } else if (node.tag.type == 'statistics_list') {
+        getStatisticsPostgresql(node);
     }
     else {
       afterNodeOpenedCallbackPostgreSQL(node);
@@ -4799,7 +4875,10 @@ function getTreeDetailsPostgresql(node) {
                 drop_type: p_return.v_data.v_database_return.drop_type,
                 create_domain: p_return.v_data.v_database_return.create_domain,
                 alter_domain: p_return.v_data.v_database_return.alter_domain,
-                drop_domain: p_return.v_data.v_database_return.drop_domain
+                drop_domain: p_return.v_data.v_database_return.drop_domain,
+                create_statistics: p_return.v_data.v_database_return.create_statistics,
+                alter_statistics: p_return.v_data.v_database_return.alter_statistics,
+                drop_statistics: p_return.v_data.v_database_return.drop_statistics,
             }
 
             node.setText(p_return.v_data.v_database_return.version);
@@ -5409,6 +5488,7 @@ function getTablesPostgresql(node) {
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         has_partitions: p_return.v_data[i].v_has_partitions,
+                        has_statistics: p_return.v_data[i].v_has_statistics,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
                         schema: node.tag.schema
                     }, 'cm_table', null, false);
@@ -5695,6 +5775,7 @@ function getMaterializedViewsPostgresql(node) {
                     false, 'fas node-all fa-eye node-mview', {
                         type: 'mview',
                         has_indexes: p_return.v_data[i].v_has_indexes,
+                        has_statistics: p_return.v_data[i].v_has_statistics,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
                         schema: node.tag.schema
                     }, 'cm_mview', null, false);
@@ -5771,6 +5852,34 @@ function getMaterializedViewsColumnsPostgresql(node) {
                 v_node.createChildNode('', false,
                     'node-spin', null, null,
                     null, false);
+            }
+
+            if (node.tag.has_statistics) {
+                if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
+                    v_node = node.createChildNode(
+                        'Statistics',
+                        false,
+                        'fas node-all fa-chart-bar node-statistics',
+                        {
+                            type: 'statistics_list',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                            schema: node.tag.schema
+                        },
+                        'cm_statistics',
+                        null,
+                        false
+                    );
+
+                    v_node.createChildNode(
+                        '',
+                        false,
+                        'node-spin',
+                        null,
+                        null,
+                        null,
+                        false
+                    );
+                }
             }
 
             node.drawChildNodes();
@@ -6002,6 +6111,34 @@ function getColumnsPostgresql(node) {
                     v_node.createChildNode('', false,
                         'node-spin', null,
                         null, null, false);
+                }
+            }
+
+            if (node.tag.has_statistics) {
+                if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
+                    v_node = node.createChildNode(
+                        'Statistics',
+                        false,
+                        'fas node-all fa-chart-bar node-statistics',
+                        {
+                            type: 'statistics_list',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                            schema: node.tag.schema
+                        },
+                        'cm_statistics',
+                        null,
+                        false
+                    );
+
+                    v_node.createChildNode(
+                        '',
+                        false,
+                        'node-spin',
+                        null,
+                        null,
+                        null,
+                        false
+                    );
                 }
             }
 
@@ -6925,6 +7062,69 @@ function getPartitionsPostgresql(node) {
 
                 node.drawChildNodes();
 
+            }
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false);
+}
+
+/// <summary>
+/// Retrieving Statistics.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getStatisticsPostgresql(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_statistics_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_table": node.parent.text,
+            "p_schema": node.tag.schema
+        }),
+        function(p_return) {
+            node.setText('Statistics (' + p_return.v_data.length + ')');
+
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            var v_node;
+
+            if (p_return.v_data.length > 0) {
+                for (i = 0; i < p_return.v_data.length; i++) {
+                    v_node = node.createChildNode(
+                        p_return.v_data[i][1] + '.' + p_return.v_data[i][0],
+                        false,
+                        'fas node-all fa-chart-bar node-statistic',
+                        {
+                            type: 'statistic',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                            schema: p_return.v_data[i][1],
+                            object: p_return.v_data[i][0],
+                        },
+                        'cm_statistic',
+                        null,
+                        false
+                    );
+                }
+
+                node.drawChildNodes();
             }
 
             afterNodeOpenedCallbackPostgreSQL(node);
@@ -8087,6 +8287,7 @@ function getForeignTablesPostgresql(node) {
                     false, 'fas node-all fa-table node-ftable', {
                         type: 'foreign_table',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                        has_statistics: p_return.v_data[i].v_has_statistics,
                         schema: node.tag.schema
                     }, 'cm_foreign_table', null, false);
 
@@ -8196,6 +8397,34 @@ function getForeignColumnsPostgresql(node) {
                     database: v_connTabControl.selectedTab.tag.selectedDatabase,
                     schema: node.tag.schema
                 }, null, null, false);
+
+            if (node.tag.has_statistics) {
+                if (parseInt(getMajorVersionPostgresql(node.tree.tag.version)) >= 10) {
+                    v_node = node.createChildNode(
+                        'Statistics',
+                        false,
+                        'fas node-all fa-chart-bar node-statistics',
+                        {
+                            type: 'statistics_list',
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                            schema: node.tag.schema
+                        },
+                        'cm_statistics',
+                        null,
+                        false
+                    );
+
+                    v_node.createChildNode(
+                        '',
+                        false,
+                        'node-spin',
+                        null,
+                        null,
+                        null,
+                        false
+                    );
+                }
+            }
 
             node.drawChildNodes();
 
@@ -8397,6 +8626,7 @@ function getPartitionedChildrenPostgresql(node) {
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         has_partitions: p_return.v_data[i].v_has_partitions,
+                        has_statistics: p_return.v_data[i].v_has_statistics,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
                         schema: node.tag.schema
                     }, 'cm_table', null, false);
@@ -8512,6 +8742,7 @@ function getInheritedsChildrenPostgresql(node) {
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         has_partitions: p_return.v_data[i].v_has_partitions,
+                        has_statistics: p_return.v_data[i].v_has_statistics,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
                         schema: node.tag.schema
                     }, 'cm_table', null, false);

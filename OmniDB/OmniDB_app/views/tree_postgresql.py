@@ -854,6 +854,39 @@ def get_statistics(request, v_database):
 
 @user_authenticated
 @database_required(p_check_timeout = True, p_open_connection = True)
+def get_statistics_columns(request, v_database):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_statistics = json_object['p_statistics']
+    v_schema = json_object['p_schema']
+
+    v_list_columns = []
+
+    try:
+        v_columns = v_database.QueryStatisticsFields(v_statistics,False,v_schema)
+        for v_column in v_columns.Rows:
+            v_column_data = {
+                'v_column_name': v_column['column_name']
+            }
+            v_list_columns.append(v_column_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_columns
+
+    return JsonResponse(v_return)
+
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
 def get_views(request, v_database):
 
     v_return = {}

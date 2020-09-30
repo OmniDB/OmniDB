@@ -885,7 +885,7 @@
 }
 
 .omnidb__connections__card-list--rows .omnidb__connections__cols {
-  flex: 1 1;
+  flex: 1 1 50%;
   max-width: 50%;
   padding: 5px 15px;
 }

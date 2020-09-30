@@ -1559,6 +1559,7 @@ function getTablesMariadb(node) {
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         has_partitions: p_return.v_data[i].v_has_partitions,
+                        has_statistics: p_return.v_data[i].v_has_statistics,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase
                     }, 'cm_table',null,false);
                 v_node.createChildNode('', false,

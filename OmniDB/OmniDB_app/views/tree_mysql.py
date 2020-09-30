@@ -169,7 +169,8 @@ def get_tables(request):
                 'v_has_excludes': v_database.v_has_excludes,
                 'v_has_rules': v_database.v_has_rules,
                 'v_has_triggers': v_database.v_has_triggers,
-                'v_has_partitions': v_database.v_has_partitions
+                'v_has_partitions': v_database.v_has_partitions,
+                'v_has_statistics': v_database.v_has_statistics
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:

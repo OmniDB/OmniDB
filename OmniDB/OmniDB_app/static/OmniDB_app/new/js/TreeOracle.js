@@ -1779,7 +1779,8 @@ function getTablesOracle(node) {
                         has_excludes: p_return.v_data[i].v_has_excludes,
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
-                        has_partitions: p_return.v_data[i].v_has_partitions
+                        has_partitions: p_return.v_data[i].v_has_partitions,
+                        has_statistics: p_return.v_data[i].v_has_statistics
                     }, 'cm_table',null,false);
                 v_node.createChildNode('', false,
                     'node-spin', {

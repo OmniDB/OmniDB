@@ -816,7 +816,7 @@ def get_partitions(request, v_database):
 
 @user_authenticated
 @database_required(p_check_timeout = True, p_open_connection = True)
-def get_statistics(request):
+def get_statistics(request, v_database):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False

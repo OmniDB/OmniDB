@@ -922,9 +922,11 @@ function updateModalEditConnectionFields(p_disable_list, p_enable_list, p_form_c
 		}
 	}
 	if (v_has_invalid) {
+		document.getElementById('conn_form_button_test_connection').setAttribute('disabled', true);
 		document.getElementById('conn_form_button_save_connection').setAttribute('disabled', true);
 	}
 	else {
+		document.getElementById('conn_form_button_test_connection').removeAttribute('disabled');
 		document.getElementById('conn_form_button_save_connection').removeAttribute('disabled');
 	}
 

@@ -2781,6 +2781,17 @@ function getTreePostgresql(p_div) {
         },
         'cm_statistic': {
             elements: [{
+                text: 'Refresh',
+                icon: 'fas cm-all fa-sync-alt',
+                action: function(node) {
+                    if (node.childNodes == 0)
+                        refreshTreePostgresql(node);
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
                 text: 'Alter Statistics',
                 icon: 'fas cm-all fa-edit',
                 action: function(node) {
@@ -4511,7 +4522,7 @@ function getPropertiesPostgresqlConfirm(node) {
             getProperties('/get_properties_postgresql/', {
                 p_schema: node.tag.schema,
                 p_table: null,
-                p_object: node.tag.object,
+                p_object: node.tag.statistics,
                 p_type: node.tag.type
             });
         } else {
@@ -4638,8 +4649,9 @@ function refreshTreePostgresqlConfirm(node) {
         getInheritedsChildrenPostgresql(node);
     } else if (node.tag.type == 'statistics_list') {
         getStatisticsPostgresql(node);
-    }
-    else {
+    } else if (node.tag.type == 'statistic') {
+        getStatisticsColumnsPostgresql(node);
+    } else {
       afterNodeOpenedCallbackPostgreSQL(node);
     }
 }
@@ -7116,9 +7128,19 @@ function getStatisticsPostgresql(node) {
                             type: 'statistic',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase,
                             schema: p_return.v_data[i][1],
-                            object: p_return.v_data[i][0],
+                            statistics: p_return.v_data[i][0],
                         },
                         'cm_statistic',
+                        null,
+                        false
+                    );
+
+                    v_node.createChildNode(
+                        '',
+                        true,
+                        'node-spin',
+                        null,
+                        null,
                         null,
                         false
                     );
@@ -7135,6 +7157,64 @@ function getStatisticsPostgresql(node) {
         },
         'box',
         false);
+}
+
+/// <summary>
+/// Retrieving Statistics Columns.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getStatisticsColumnsPostgresql(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_statistics_columns_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_statistics": node.tag.statistics,
+            "p_schema": node.tag.schema
+        }),
+        function(p_return) {
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+            console.log(p_return);
+
+            if (p_return.v_data.length > 0) {
+                for (i = 0; i < p_return.v_data.length; i++) {
+                    node.createChildNode(
+                        p_return.v_data[i]['v_column_name'],
+                        false,
+                        'fas node-all fa-columns node-column',
+                        {
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                            schema: node.tag.schema
+                        },
+                        null,
+                        null,
+                        false
+                    );
+                }
+
+                node.drawChildNodes();
+            }
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
 }
 
 /// <summary>

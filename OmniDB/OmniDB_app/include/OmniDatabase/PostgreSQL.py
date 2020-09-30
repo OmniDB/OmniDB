@@ -1731,6 +1731,49 @@ class PostgreSQL:
         )
 
     @lock_required
+    def QueryStatisticsFields(self, p_statistics=None, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+
+        if not p_all_schemas:
+            if p_statistics and p_schema:
+                v_filter = "AND quote_ident(n2.nspname) = '{0}' AND quote_ident(se.stxname) = '{1}' ".format(p_schema, p_statistics)
+            elif p_statistics:
+                v_filter = "AND quote_ident(n2.nspname) = '{0}' AND quote_ident(se.stxname) = '{1}' ".format(self.v_schema, p_statistics)
+            elif p_schema:
+                v_filter = "AND quote_ident(n2.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "AND quote_ident(n2.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            if p_statistics:
+                v_filter = "AND quote_ident(n2.nspname) not in ('information_schema','pg_catalog') AND quote_ident(se.stxname) = {0}".format(p_statistics)
+            else:
+                v_filter = "AND quote_ident(n2.nspname) not in ('information_schema','pg_catalog') "
+
+        return self.v_connection.Query(
+            '''
+                select quote_ident(n2.nspname) AS schema_name,
+                       quote_ident(se.stxname) AS statistic_name,
+                       quote_ident(a.attname) AS column_name
+                FROM pg_statistic_ext se
+                INNER JOIN pg_class c
+                        ON se.stxrelid = c.oid
+                INNER JOIN pg_namespace n
+                        ON c.relnamespace = n.oid
+                INNER JOIN pg_namespace n2
+                        ON se.stxnamespace = n2.oid
+                INNER JOIN pg_attribute a
+                        ON c.oid = a.attrelid
+                       AND a.attnum = ANY(se.stxkeys)
+                WHERE 1 = 1
+                  {0}
+                order by 1, 2
+            '''.format(
+                v_filter
+            ),
+            True
+        )
+
+    @lock_required
     def QueryDataLimited(self, p_query, p_count=-1):
         if p_count != -1:
             try:

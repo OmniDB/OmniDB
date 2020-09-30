@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import os
 import shutil
 import sys
@@ -213,6 +212,12 @@ django.setup()
 from OmniDB_app.models.main import *
 from django.contrib.auth.models import User
 from django.utils import timezone
+import social_django
+import social_django.urls
+import social_django.config
+import social_django.strategy
+import social_django.models
+import social_core.backends.github
 
 maintenance_action = False
 
@@ -478,7 +483,7 @@ class DjangoApplication(object):
                     print ("Press Ctrl+C to exit",flush=True)
             else:
                 #Sending response to electron app
-                print ("http://localhost:{0}/login/?user=admin&pwd=admin&token={1}".format(str(port),OmniDB.custom_settings.APP_TOKEN),flush=True)
+                print ("http://localhost:{0}/omnidb_login/?user=admin&pwd=admin&token={1}".format(str(port),OmniDB.custom_settings.APP_TOKEN),flush=True)
 
 
             cherrypy.engine.block()

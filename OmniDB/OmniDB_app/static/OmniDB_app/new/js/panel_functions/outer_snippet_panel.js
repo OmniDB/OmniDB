@@ -102,7 +102,7 @@ var v_createSnippetPanelFunction = function(p_index) {
   if (v_connTabControl.snippet_tag.tabControl.tabList.length > 0) {
     v_connTabControl.snippet_tag.tabControl.selectTab(v_connTabControl.snippet_tag.tabControl.tabList[0]);
   }
-  v_connTabControl.tag.createSnippetTextTab('New Snippet');
+  v_connTabControl.tag.createSnippetTextTab();
   v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.setValue('');
   v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.clearSelection();
   v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);

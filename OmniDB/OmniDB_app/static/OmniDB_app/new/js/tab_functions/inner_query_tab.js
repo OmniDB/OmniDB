@@ -295,22 +295,22 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     tab_db_id: v_tab_db_id,
     tempData: [],
     commandHistory: {
-        modal: document.getElementById('modal_command_history_' + v_tab.id),
-        div: document.getElementById('command_history_div_' + v_tab.id),
-        headerDiv: document.getElementById('command_history_header_' + v_tab.id),
-        gridDiv: document.getElementById('command_history_grid_' + v_tab.id),
-        grid: null,
-        currentPage: 1,
-        pages: 1,
-        spanNumPages: null,
-        spanCurrPage: null,
-        inputStartedFrom: null,
-        inputStartedFromLastValue: null,
-        inputStartedTo: null,
-        inputStartedToLastValue: null,
-        inputCommandContains: null,
-        inputCommandContainsLastValue: null
-     }
+      modal: document.getElementById('modal_command_history_' + v_tab.id),
+      div: document.getElementById('command_history_div_' + v_tab.id),
+      headerDiv: document.getElementById('command_history_header_' + v_tab.id),
+      gridDiv: document.getElementById('command_history_grid_' + v_tab.id),
+      grid: null,
+      currentPage: 1,
+      pages: 1,
+      spanNumPages: null,
+      spanCurrPage: null,
+      inputStartedFrom: null,
+      inputStartedFromLastValue: null,
+      inputStartedTo: null,
+      inputStartedToLastValue: null,
+      inputCommandContains: null,
+      inputCommandContainsLastValue: null
+    }
   };
 
   // Setting the v_tab_tag.
@@ -346,4 +346,4 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   $(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.modal).on('shown.bs.modal', function () {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.grid.render();
   });
-};
+}

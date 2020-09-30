@@ -154,7 +154,6 @@ function showCommandList() {
 						// 	this.getDataAtCell(p_options[0].start.row, p_options[0].start.col),
 						// 	false
 						// );
-						console.log(p_options);
 						commandHistoryOpenCmd(p_options[0].start.row);
 					}
 				},
@@ -288,11 +287,11 @@ function refreshCommandList() {
 	execAjax(
 		'/get_command_list/',
 		JSON.stringify({
-			'p_current_page': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.currentPage,
-			'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
 			'p_command_from': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedFrom.value,
 			'p_command_to': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputStartedTo.value,
-			'p_command_contains': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputCommandContains.value
+			'p_command_contains': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.inputCommandContains.value,
+			'p_current_page': v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.commandHistory.currentPage,
+			'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex
 		}),
 		function(p_return) {
 

@@ -56,6 +56,8 @@ def get_tree_info(request, v_database):
                 'drop_triggerfunction': v_database.TemplateDropTriggerFunction().v_text,
                 'create_eventtriggerfunction': v_database.TemplateCreateEventTriggerFunction().v_text,
                 'drop_eventtriggerfunction': v_database.TemplateDropEventTriggerFunction().v_text,
+                'create_aggregate': v_database.TemplateCreateAggregate().v_text,
+                'drop_aggregate': v_database.TemplateDropAggregate().v_text,
                 'create_view': v_database.TemplateCreateView().v_text,
                 'drop_view': v_database.TemplateDropView().v_text,
                 'create_mview': v_database.TemplateCreateMaterializedView().v_text,
@@ -1530,6 +1532,38 @@ def get_eventtriggerfunction_definition(request, v_database):
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_aggregates(request, v_database):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+    v_tab_id = json_object['p_tab_id']
+    v_schema = json_object['p_schema']
+
+    v_list_aggregates = []
+
+    try:
+        v_aggregates = v_database.QueryAggregates(False,v_schema)
+        for v_aggregate in v_aggregates.Rows:
+            v_aggregate_data = {
+                'v_name': v_aggregate['name'],
+                'v_id': v_aggregate['id']
+            }
+            v_list_aggregates.append(v_aggregate_data)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_list_aggregates
 
     return JsonResponse(v_return)
 

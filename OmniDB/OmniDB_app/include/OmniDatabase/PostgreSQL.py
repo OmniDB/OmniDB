@@ -1705,9 +1705,9 @@ class PostgreSQL:
                 v_filter = "AND quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "AND quote_ident(n.nspname) not in ('information_schema','pg_catalog') AND quote_ident(c.relname) = {0}".format(p_table)
+                v_filter = "AND quote_ident(n.nspname) NOT IN ('information_schema','pg_catalog') AND quote_ident(c.relname) = {0}".format(p_table)
             else:
-                v_filter = "AND quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
+                v_filter = "AND quote_ident(n.nspname) NOT IN ('information_schema','pg_catalog') "
 
         return self.v_connection.Query(
             '''
@@ -1723,7 +1723,9 @@ class PostgreSQL:
                         ON se.stxnamespace = n2.oid
                 WHERE 1 = 1
                   {0}
-                order by 1, 2
+                ORDER BY 1,
+                         3,
+                         2
             '''.format(
                 v_filter
             ),
@@ -1745,9 +1747,9 @@ class PostgreSQL:
                 v_filter = "AND quote_ident(n2.nspname) = '{0}' ".format(self.v_schema)
         else:
             if p_statistics:
-                v_filter = "AND quote_ident(n2.nspname) not in ('information_schema','pg_catalog') AND quote_ident(se.stxname) = {0}".format(p_statistics)
+                v_filter = "AND quote_ident(n2.nspname) NOT IN ('information_schema','pg_catalog') AND quote_ident(se.stxname) = {0}".format(p_statistics)
             else:
-                v_filter = "AND quote_ident(n2.nspname) not in ('information_schema','pg_catalog') "
+                v_filter = "AND quote_ident(n2.nspname) NOT IN ('information_schema','pg_catalog') "
 
         return self.v_connection.Query(
             '''
@@ -1766,7 +1768,9 @@ class PostgreSQL:
                        AND a.attnum = ANY(se.stxkeys)
                 WHERE 1 = 1
                   {0}
-                order by 1, 2
+                ORDER BY 1,
+                         2,
+                         3
             '''.format(
                 v_filter
             ),
@@ -2034,6 +2038,57 @@ class PostgreSQL:
             {0}
             order by 1
         '''.format(v_filter), True)
+
+    @lock_required
+    def QueryAggregates(self, p_all_schemas=False, p_schema=None):
+        v_filter = ''
+
+        if not p_all_schemas:
+            if p_schema:
+                v_filter = "AND quote_ident(n.nspname) = '{0}' ".format(p_schema)
+            else:
+                v_filter = "AND quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
+        else:
+            v_filter = "AND quote_ident(n.nspname) NOT IN ('information_schema','pg_catalog') "
+
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return self.v_connection.Query(
+                '''
+                    SELECT quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' AS id,
+                           quote_ident(p.proname) AS name,
+                           quote_ident(n.nspname) AS schema_name
+                    FROM pg_aggregate a
+                    INNER JOIN pg_proc p
+                            ON a.aggfnoid = p.oid
+                    INNER JOIN pg_namespace n
+                            ON p.pronamespace = n.oid
+                    WHERE p.proisagg
+                      {0}
+                    ORDER BY 1
+                '''.format(
+                    v_filter
+                ),
+                True
+            )
+        else:
+            return self.v_connection.Query(
+                '''
+                    SELECT quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' AS id,
+                           quote_ident(p.proname) AS name,
+                           quote_ident(n.nspname) AS schema_name
+                    FROM pg_aggregate a
+                    INNER JOIN pg_proc p
+                            ON a.aggfnoid = p.oid
+                    INNER JOIN pg_namespace n
+                            ON p.pronamespace = n.oid
+                    WHERE p.prokind = 'a'
+                      {0}
+                    ORDER BY 1
+                '''.format(
+                    v_filter
+                ),
+                True
+            )
 
     @lock_required
     def GetEventTriggerFunctionDefinition(self, p_function):
@@ -4501,6 +4556,87 @@ $function$
 
     def TemplateDropEventTriggerFunction(self):
         return Template('''DROP FUNCTION #function_name#
+--CASCADE
+''')
+
+    def TemplateCreateAggregate(self):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return Template('''CREATE AGGREGATE #schema_name#.name
+--([ argmode ] [ argname ] arg_data_type [ , ... ])
+--ORDER BY [ argmode ] [ argname ] arg_data_type [ , ... ] )
+(
+    SFUNC = sfunc,
+    STYPE = state_data_type
+--    , SSPACE = state_data_size
+--    , FINALFUNC = ffunc
+--    , FINALFUNC_EXTRA
+--    , INITCOND = initial_condition
+--    , MSFUNC = msfunc
+--    , MINVFUNC = minvfunc
+--    , MSTYPE = mstate_data_type
+--    , MSSPACE = mstate_data_size
+--    , MFINALFUNC = mffunc
+--    , MFINALFUNC_EXTRA
+--    , MINITCOND = minitial_condition
+--    , SORTOP = sort_operator
+)
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return Template('''CREATE AGGREGATE #schema_name#.name
+--([ argmode ] [ argname ] arg_data_type [ , ... ])
+--ORDER BY [ argmode ] [ argname ] arg_data_type [ , ... ] )
+(
+SFUNC = sfunc,
+STYPE = state_data_type
+--    , SSPACE = state_data_size
+--    , FINALFUNC = ffunc
+--    , FINALFUNC_EXTRA
+--    , COMBINEFUNC = combinefunc
+--    , SERIALFUNC = serialfunc
+--    , DESERIALFUNC = deserialfunc
+--    , INITCOND = initial_condition
+--    , MSFUNC = msfunc
+--    , MINVFUNC = minvfunc
+--    , MSTYPE = mstate_data_type
+--    , MSSPACE = mstate_data_size
+--    , MFINALFUNC = mffunc
+--    , MFINALFUNC_EXTRA
+--    , MINITCOND = minitial_condition
+--    , SORTOP = sort_operator
+--    , PARALLEL = { SAFE | RESTRICTED | UNSAFE }
+)
+''')
+        else:
+            return Template('''CREATE AGGREGATE #schema_name#.name
+--([ argmode ] [ argname ] arg_data_type [ , ... ])
+--ORDER BY [ argmode ] [ argname ] arg_data_type [ , ... ] )
+(
+SFUNC = sfunc,
+STYPE = state_data_type
+--    , SSPACE = state_data_size
+--    , FINALFUNC = ffunc
+--    , FINALFUNC_EXTRA
+--    , FINALFUNC_MODIFY = { READ_ONLY | SHAREABLE | READ_WRITE }
+--    , COMBINEFUNC = combinefunc
+--    , SERIALFUNC = serialfunc
+--    , DESERIALFUNC = deserialfunc
+--    , INITCOND = initial_condition
+--    , MSFUNC = msfunc
+--    , MINVFUNC = minvfunc
+--    , MSTYPE = mstate_data_type
+--    , MSSPACE = mstate_data_size
+--    , MFINALFUNC = mffunc
+--    , MFINALFUNC_EXTRA
+--    , MFINALFUNC_MODIFY = { READ_ONLY | SHAREABLE | READ_WRITE }
+--    , MINITCOND = minitial_condition
+--    , SORTOP = sort_operator
+--    , PARALLEL = { SAFE | RESTRICTED | UNSAFE }
+)
+''')
+
+    def TemplateDropAggregate(self):
+        return Template('''DROP AGGREGATE #aggregate_name#
+--RESTRICT
 --CASCADE
 ''')
 

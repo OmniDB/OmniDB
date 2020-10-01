@@ -83,6 +83,7 @@ def database_required(p_check_timeout = True, p_open_connection = True):
                 v_database = get_database_object(
                     p_session = request.session,
                     p_tab_id = v_tab_id,
+                    p_database_index = v_database_index,
                     p_attempt_to_open_connection = p_open_connection
                 )
             except Exception as exc:
@@ -96,37 +97,11 @@ def database_required(p_check_timeout = True, p_open_connection = True):
         return wrap
     return decorator
 
-def database_timeout(function):
-    def wrap(request, *args, **kwargs):
-
-        v_return = {
-            'v_data': '',
-            'v_error': False,
-            'v_error_id': -1
-        }
-
-        v_session = request.session.get('omnidb_session')
-
-        json_object = json.loads(request.POST.get('data', None))
-        v_database_index = json_object['p_database_index']
-
-        #Check database prompt timeout
-        v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-        if v_timeout['timeout']:
-            v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-            v_return['v_error'] = True
-            return JsonResponse(v_return)
-        else:
-            return function(request, *args, **kwargs)
-    wrap.__doc__ = function.__doc__
-    wrap.__name__ = function.__name__
-    return wrap
-
 def close_tab_handler(p_client_object,p_tab_object_id):
     try:
         tab_object = p_client_object['tab_list'][p_tab_object_id]
         del p_client_object['tab_list'][p_tab_object_id]
-        if tab_object['type'] == 'query' or tab_object['type'] == 'console' or tab_object['type'] == 'connection':
+        if tab_object['type'] == 'query' or tab_object['type'] == 'console' or tab_object['type'] == 'connection' or tab_object['type'] == 'edit':
             try:
                 tab_object['omnidatabase'].v_connection.Cancel(False)
             except Exception:
@@ -217,6 +192,7 @@ def get_client_object(p_client_id):
 def get_database_object(
     p_session = None,
     p_tab_id = None,
+    p_database_index = None,
     p_attempt_to_open_connection = False
 ):
     v_session = p_session.get('omnidb_session')
@@ -242,6 +218,7 @@ def get_database_object(
         v_client_object,
         v_tab_object,
         p_tab_id,
+        p_database_index,
         p_attempt_to_open_connection,
         True
     )
@@ -250,38 +227,38 @@ def get_database_tab_object(
     p_session = None,
     p_client_object = None,
     p_tab_object = None,
-    p_con_tab_id = None,
+    p_connection_tab_id = None,
+    p_database_index = None,
     p_attempt_to_open_connection = False,
     p_use_lock = False
 ):
-    v_new_database_object = p_session.v_tab_connections[p_con_tab_id]
+    v_global_database_object = p_session.v_databases[p_database_index]['database']
+    v_current_tab_database = p_session.v_tabs_databases[p_connection_tab_id]
+
+
 
     # Updating time
     p_tab_object['last_update'] = datetime.now()
 
-    if p_tab_object['omnidatabase'] == None:
-        p_tab_object['omnidatabase'] = v_new_database_object
-        if p_use_lock:
-            v_new_database_object.v_lock = threading.Lock()
-
-    # Check if database attributes changed and create a new database object if it did
-    if (v_new_database_object.v_db_type!=p_tab_object['omnidatabase'].v_db_type or
-        v_new_database_object.v_connection.v_host!=p_tab_object['omnidatabase'].v_connection.v_host or
-        str(v_new_database_object.v_connection.v_port)!=str(p_tab_object['omnidatabase'].v_connection.v_port) or
-        v_new_database_object.v_active_service!=p_tab_object['omnidatabase'].v_active_service or
-        v_new_database_object.v_user!=p_tab_object['omnidatabase'].v_user or
-        v_new_database_object.v_connection.v_password!=p_tab_object['omnidatabase'].v_connection.v_password):
+    if (p_tab_object['omnidatabase'] == None or
+        (v_global_database_object.v_db_type!=p_tab_object['omnidatabase'].v_db_type or
+            v_global_database_object.v_connection.v_host!=p_tab_object['omnidatabase'].v_connection.v_host or
+            str(v_global_database_object.v_connection.v_port)!=str(p_tab_object['omnidatabase'].v_connection.v_port) or
+            v_current_tab_database!=p_tab_object['omnidatabase'].v_active_service or
+            v_global_database_object.v_user!=p_tab_object['omnidatabase'].v_user or
+            v_global_database_object.v_connection.v_password!=p_tab_object['omnidatabase'].v_connection.v_password)
+            ):
 
         v_database_new = OmniDatabase.Generic.InstantiateDatabase(
-            v_new_database_object.v_db_type,
-            v_new_database_object.v_connection.v_host,
-            str(v_new_database_object.v_connection.v_port),
-            v_new_database_object.v_active_service,
-            v_new_database_object.v_active_user,
-            v_new_database_object.v_connection.v_password,
-            v_new_database_object.v_conn_id,
-            v_new_database_object.v_alias,
-            p_conn_string = v_new_database_object.v_conn_string,
+            v_global_database_object.v_db_type,
+            v_global_database_object.v_connection.v_host,
+            str(v_global_database_object.v_connection.v_port),
+            v_current_tab_database,
+            v_global_database_object.v_active_user,
+            v_global_database_object.v_connection.v_password,
+            v_global_database_object.v_conn_id,
+            v_global_database_object.v_alias,
+            p_conn_string = v_global_database_object.v_conn_string,
             p_parse_conn_string = False
         )
         if p_use_lock:
@@ -290,7 +267,9 @@ def get_database_tab_object(
         # Instead of waiting for garbage collector to clear existing connection,
         # put it in the list of to be removed connections and let the cleaning
         # thread close it
-        to_be_removed.append(p_tab_object['omnidatabase'])
+        if (p_tab_object['omnidatabase']):
+            to_be_removed.append(p_tab_object['omnidatabase'])
+
 
         p_tab_object['omnidatabase'] = v_database_new
     # Try to open connection if not opened yet

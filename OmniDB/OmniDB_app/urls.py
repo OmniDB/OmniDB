@@ -47,8 +47,6 @@ base_urlpatterns = [
     url(r'^save_users/$', views.users.save_users, name='save_users'),
 
     #WORKSPACE
-    url(r'^old/', views.workspace.old, name='old'),
-
     url(r'^workspace/', views.workspace.index, name='workspace'),
     url(r'^shortcuts/', views.workspace.shortcuts, name='shortcuts'),
     url(r'^close_welcome/', views.workspace.close_welcome, name='close_welcome'),
@@ -65,7 +63,6 @@ base_urlpatterns = [
     url(r'^indent_sql/', views.workspace.indent_sql, name='indent_sql'),
     url(r'^refresh_monitoring/', views.workspace.refresh_monitoring, name='refresh_monitoring'),
     url(r'^get_console_history/', views.workspace.get_console_history, name='get_console_history'),
-    url(r'^get_console_history_clean/', views.workspace.get_console_history_clean, name='get_console_history_clean'),
     url(r'^get_autocomplete_results/', views.workspace.get_autocomplete_results, name='get_autocomplete_results'),
     url(r'^delete_plugin/', views.plugins.delete_plugin, name='delete_plugin'),
 

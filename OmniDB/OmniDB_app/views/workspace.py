@@ -119,8 +119,8 @@ def index(request):
         'url_folder': settings.PATH
     }
 
-    #wiping tab connection list
-    v_session.v_tab_connections = dict([])
+    #wiping saved tabs databases list
+    v_session.v_tabs_databases = dict([])
     request.session['omnidb_session'] = v_session
 
     clear_client_object(
@@ -128,109 +128,6 @@ def index(request):
     )
 
     template = loader.get_template('OmniDB_app/new.html')
-    return HttpResponse(template.render(context, request))
-
-def old(request):
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
-        return redirect('login')
-
-    v_session = request.session.get('omnidb_session')
-
-    if settings.IS_SSL:
-        v_is_secure = 'true'
-    else:
-        v_is_secure = 'false'
-
-    if settings.DEV_MODE:
-        v_dev_mode = 'true'
-    else:
-        v_dev_mode = 'false'
-
-
-    v_shortcuts = v_session.v_omnidb_database.v_connection.Query('''
-        select default_shortcut_code as shortcut_code,
-               case when user_defined_shortcut_code is null then default_ctrl_pressed else user_defined_ctrl_pressed end as ctrl_pressed,
-               case when user_defined_shortcut_code is null then default_shift_pressed else user_defined_shift_pressed end as shift_pressed,
-               case when user_defined_shortcut_code is null then default_alt_pressed else user_defined_alt_pressed end as alt_pressed,
-               case when user_defined_shortcut_code is null then default_meta_pressed else user_defined_meta_pressed end as meta_pressed,
-               case when user_defined_shortcut_code is null then default_shortcut_key else user_defined_shortcut_key end as shortcut_key
-        from
-        (select defaults.shortcut_code as default_shortcut_code,
-               defaults.ctrl_pressed as default_ctrl_pressed,
-               defaults.shift_pressed as default_shift_pressed,
-               defaults.alt_pressed as default_alt_pressed,
-               defaults.meta_pressed as default_meta_pressed,
-               defaults.shortcut_key as default_shortcut_key,
-               user_defined.shortcut_code as user_defined_shortcut_code,
-               user_defined.ctrl_pressed as user_defined_ctrl_pressed,
-               user_defined.shift_pressed as user_defined_shift_pressed,
-               user_defined.alt_pressed as user_defined_alt_pressed,
-               user_defined.meta_pressed as user_defined_meta_pressed,
-               user_defined.shortcut_key as user_defined_shortcut_key
-        from shortcuts defaults
-        left join shortcuts user_defined on (defaults.shortcut_code = user_defined.shortcut_code and user_defined.user_id = {0})
-        where defaults.user_id is null) subquery
-    '''.format(v_session.v_user_id))
-
-    v_welcome_closed = v_session.v_omnidb_database.v_connection.ExecuteScalar('''
-        select welcome_closed from users where user_id = {0}
-    '''.format(v_session.v_user_id))
-
-    shortcut_object = {}
-
-    for v_shortcut in v_shortcuts.Rows:
-        shortcut_object[v_shortcut['shortcut_code']] = {
-            'ctrl_pressed': v_shortcut['ctrl_pressed'],
-            'shift_pressed': v_shortcut['shift_pressed'],
-            'alt_pressed': v_shortcut['alt_pressed'],
-            'meta_pressed': v_shortcut['meta_pressed'],
-            'shortcut_key': v_shortcut['shortcut_key'],
-            'shortcut_code': v_shortcut['shortcut_code']
-        }
-
-
-
-    #if not v_session.v_super_user or platform.system()=='Windows':
-    #    v_show_terminal_option = 'false'
-    #else:
-    #    v_show_terminal_option = 'true'
-    v_show_terminal_option = 'false'
-    context = {
-        'session' : None,
-        'editor_theme': v_session.v_editor_theme,
-        'theme_type': v_session.v_theme_type,
-        'theme_id': v_session.v_theme_id,
-        'editor_font_size': v_session.v_editor_font_size,
-        'interface_font_size': v_session.v_interface_font_size,
-        'user_id': v_session.v_user_id,
-        'user_key': v_session.v_user_key,
-        'user_name': v_session.v_user_name,
-        'super_user': v_session.v_super_user,
-        'welcome_closed': v_welcome_closed,
-        'enable_omnichat': v_session.v_enable_omnichat,
-        'csv_encoding': v_session.v_csv_encoding,
-        'delimiter': v_session.v_csv_delimiter,
-        'desktop_mode': settings.DESKTOP_MODE,
-        'omnidb_version': settings.OMNIDB_VERSION,
-        'omnidb_short_version': settings.OMNIDB_SHORT_VERSION,
-        'menu_item': 'workspace',
-        'is_secure' : v_is_secure,
-        'dev_mode': v_dev_mode,
-        'autocomplete': settings.BINDKEY_AUTOCOMPLETE,
-        'autocomplete_mac': settings.BINDKEY_AUTOCOMPLETE_MAC,
-        'shortcuts': shortcut_object,
-        'tab_token': ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(20)),
-        'show_terminal_option': v_show_terminal_option,
-        'url_folder': settings.PATH
-    }
-
-    #wiping tab connection list
-    v_session.v_tab_connections = dict([])
-    request.session['omnidb_session'] = v_session
-
-    template = loader.get_template('OmniDB_app/workspace.html')
     return HttpResponse(template.render(context, request))
 
 def welcome(request):
@@ -485,27 +382,9 @@ def change_active_database(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
-    v_data = json_object['p_database']
+    v_new_database = json_object['p_database']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    v_database_new = OmniDatabase.Generic.InstantiateDatabase(
-        v_database.v_db_type,
-        v_database.v_connection.v_host,
-        str(v_database.v_connection.v_port),
-        v_database.v_active_service,
-        v_database.v_active_user,
-        v_database.v_connection.v_password,
-        v_database.v_conn_id,
-        v_database.v_alias,
-        p_conn_string = v_database.v_conn_string,
-        p_parse_conn_string = False
-    )
-
-    v_database_new.v_active_service = v_data;
-    v_database_new.v_connection.v_service = v_data;
-
-    v_session.v_tab_connections[v_tab_id] = v_database_new
+    v_session.v_tabs_databases[v_tab_id] = v_new_database
 
     request.session['omnidb_session'] = v_session
 
@@ -541,13 +420,6 @@ def renew_password(request):
 
     if v_test=='Connection successful.':
         v_database_object['prompt_timeout'] = datetime.now()
-        #changing password of tab connection
-        try:
-            v_tab_connection = v_session.v_tab_connections[v_tab_id]
-            v_tab_connection.v_connection.v_password = v_password
-            v_session.v_tab_connections[v_tab_id] = v_tab_connection
-        except Exception:
-            None
     else:
         v_return['v_error'] = True
         v_return['v_data'] = v_test
@@ -1217,53 +1089,6 @@ def get_console_history(request):
         'commandList': v_command_list,
         'pages': v_page
     }
-
-    return JsonResponse(v_return)
-
-def get_console_history_clean(request):
-
-    v_return = {}
-    v_return['v_data'] = ''
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
-    json_object = json.loads(request.POST.get('data', None))
-    v_database_index = json_object['p_database_index']
-    v_tab_id = json_object['p_tab_id']
-
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    v_query = '''
-        select command_text,
-               command_date
-        from console_history
-        where user_id = {0}
-          and conn_id = {1}
-        order by command_date desc
-    '''.format(v_session.v_user_id,v_database_index)
-
-
-    v_return['v_data'] = []
-    v_data_clean = []
-
-    try:
-        v_units = v_session.v_omnidb_database.v_connection.Query(v_query)
-        for v_unit in v_units.Rows:
-            v_data_clean.append(v_unit['command_text'])
-        v_return['v_data'] = v_data_clean
-
-    except Exception as exc:
-        v_return['v_data'] = str(exc)
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     return JsonResponse(v_return)
 

@@ -92,7 +92,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
       "<button id='bt_rollback_" + v_tab.id + "' class='dbms_object dbms_object_hidden postgresql_object btn btn-sm omnidb__theme__btn--secondary omnidb__tab-actions__btn' title='Run' style='margin-left: 5px; display: none; ' onclick='querySQL(4);'>Rollback</button>" +
       "<button id='bt_cancel_" + v_tab.id + "' class='btn btn-sm btn-danger omnidb__tab-actions__btn' title='Cancel' style='display: none; ' onclick='cancelSQL();'>Cancel</button>" +
       "<div id='div_query_info_" + v_tab.id + "' class='omnidb__query-info'></div>" +
-      "<button class='btn btn-sm omnidb__theme__btn--primary omnidb__tab-actions__btn ml-auto' title='Export Data' onclick='exportData();'><i class='far fa-file fa-light'></i></button>" +
+      "<button class='btn btn-sm omnidb__theme__btn--primary omnidb__tab-actions__btn ml-auto' title='Export Data' onclick='v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.exportData();'><i class='far fa-file fa-light'></i></button>" +
       "<select id='sel_export_type_" + v_tab.id + "' class='form-control omnidb__tab-actions__select' style='width: 80px;'><option selected='selected' value='csv' >CSV</option><option value='xlsx' >XLSX</option></select>" +
     "</div>" +
   "</div>" +
@@ -254,12 +254,27 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     v_tab_db_id = p_tab_db_id;
   }
 
+  // Creating the exportData action for the tab.
+  var v_export_data = function() {
+    var v_exp_callback = function(p_data) {
+      console.log('exportData callback: ', p_data);
+    	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectDataTabFunc();
+    	var v_text = '<div style="font-size: 14px;">The file is ready. <a class="link_text" href="' + p_data.v_data.v_filename + '" download="'+ p_data.v_data.v_downloadname + '">Save</a></div>';
+    	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.innerHTML = v_text;
+    }
+
+  	var v_exp_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
+  	var v_exp_type = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_export_type.value;
+  	querySQL(0, true, v_exp_query, v_exp_callback,true,v_exp_query,'export_' + v_exp_type,true);
+  }
+
   // Setting all tab_tag params.
   var v_tag = {
     tab_id: v_tab.id,
     mode: 'query',
     editor: v_editor,
     editorDivId: 'txt_query_' + v_tab.id,
+    exportData: v_export_data,
     query_info: document.getElementById('div_query_info_' + v_tab.id),
     div_result: document.getElementById('div_result_' + v_tab.id),
     div_notices: document.getElementById('div_notices_' + v_tab.id),

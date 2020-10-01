@@ -3161,6 +3161,68 @@ function getTreePostgresql(p_div) {
                 }
             }]
         },
+        'cm_aggregates': {
+            elements: [{
+                text: 'Refresh',
+                icon: 'fas cm-all fa-sync-alt',
+                action: function(node) {
+                    if (node.childNodes == 0) {
+                        refreshTreePostgresql(node);
+                    }
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Create Aggregate',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Create Aggregate',
+                        node.tree.tag.create_aggregate.replace(
+                            '#schema_name#',
+                            node.tag.schema
+                        )
+                    );
+                }
+            }, {
+                text: 'Doc: Aggregates',
+                icon: 'fas cm-all fa-globe-americas',
+                action: function(node) {
+                    v_connTabControl.tag.createWebsiteTab(
+                        'Documentation: Aggregates',
+                        'https://www.postgresql.org/docs/' + getMajorVersionPostgresql(node.tree.tag.version) + '/static/sql-createaggregate.html');
+                }
+            }]
+        },
+        'cm_aggregate': {
+            elements: [{
+                text: 'Refresh',
+                icon: 'fas cm-all fa-sync-alt',
+                action: function(node) {
+                    if (node.childNodes == 0) {
+                        refreshTreePostgresql(node);
+                    }
+                    else {
+                        node.collapseNode();
+                        node.expandNode();
+                    }
+                }
+            }, {
+                text: 'Drop Aggregate',
+                icon: 'fas cm-all fa-times',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Drop Aggregate',
+                        node.tree.tag.drop_aggregate.replace(
+                            '#aggregate_name#',
+                            node.tag.id
+                        )
+                    );
+                }
+            }]
+        },
         'cm_sequences': {
             elements: [{
                 text: 'Refresh',
@@ -4651,6 +4713,8 @@ function refreshTreePostgresqlConfirm(node) {
         getStatisticsPostgresql(node);
     } else if (node.tag.type == 'statistic') {
         getStatisticsColumnsPostgresql(node);
+    } else if (node.tag.type == 'aggregate_list') {
+        getAggregatesPostgresql(node);
     } else {
       afterNodeOpenedCallbackPostgreSQL(node);
     }
@@ -4800,6 +4864,8 @@ function getTreeDetailsPostgresql(node) {
                     .create_eventtriggerfunction,
                 drop_eventtriggerfunction: p_return.v_data.v_database_return
                     .drop_eventtriggerfunction,
+                create_aggregate: p_return.v_data.v_database_return.create_aggregate,
+                drop_aggregate: p_return.v_data.v_database_return.drop_aggregate,
                 create_view: p_return.v_data.v_database_return.create_view,
                 drop_view: p_return.v_data.v_database_return.drop_view,
                 create_mview: p_return.v_data.v_database_return.create_mview,
@@ -5421,6 +5487,32 @@ function getSchemasPostgresql(node) {
                         'node-spin', null, null,
                         null, false);
                 }
+
+                var node_aggregates = v_node.createChildNode(
+                    'Aggregates',
+                    false,
+                    'fas node-all fa-cog node-aggregate-list',
+                    {
+                        type: 'aggregate_list',
+                        schema: p_return.v_data[i].v_name,
+                        num_aggregates: 0,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                        schema: p_return.v_data[i].v_name
+                    },
+                    'cm_aggregates',
+                    null,
+                    false
+                );
+
+                node_aggregates.createChildNode(
+                    '',
+                    true,
+                    'node-spin',
+                    null,
+                    null,
+                    null,
+                    false
+                );
 
                 var node_types = v_node.createChildNode('Types',
                     false,
@@ -7799,6 +7891,78 @@ function getEventTriggerFunctionDefinitionPostgresql(node) {
         'box',
         true);
 
+}
+
+/// <summary>
+/// Retrieving aggregates.
+/// </summary>
+/// <param name="node">Node object.</param>
+function getAggregatesPostgresql(node) {
+    node.removeChildNodes();
+
+    node.createChildNode(
+        '',
+        false,
+        'node-spin',
+        null,
+        null
+    );
+
+    execAjax(
+        '/get_aggregates_postgresql/',
+        JSON.stringify({
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            "p_tab_id": v_connTabControl.selectedTab.id,
+            "p_schema": node.tag.schema
+        }),
+        function(p_return) {
+            if (node.childNodes.length > 0) {
+                node.removeChildNodes();
+            }
+
+            node.setText('Aggregates (' + p_return.v_data.length + ')');
+            node.tag.num_aggregates = p_return.v_data.length;
+
+            for (i = 0; i < p_return.v_data.length; i++) {
+                v_node = node.createChildNode(
+                    p_return.v_data[i].v_name,
+                    false,
+                    'fas node-all fa-cog node-aggregate',
+                    {
+                        type: 'aggregate',
+                        id: p_return.v_data[i].v_id,
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                        schema: node.tag.schema
+                    },
+                    'cm_aggregate',
+                    null,
+                    false
+                );
+
+                v_node.createChildNode(
+                    '',
+                    false,
+                    'node-spin',
+                    {
+                        type: 'aggregate_field',
+                        schema: node.tag.schema
+                    },
+                    null,
+                    null,
+                    false
+                );
+            }
+
+            node.drawChildNodes();
+
+            afterNodeOpenedCallbackPostgreSQL(node);
+        },
+        function(p_return) {
+            nodeOpenError(p_return, node);
+        },
+        'box',
+        false
+    );
 }
 
 /// <summary>

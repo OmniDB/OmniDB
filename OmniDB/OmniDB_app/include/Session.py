@@ -49,7 +49,7 @@ class Session(object):
         self.v_user_key = p_user_key
         self.v_csv_encoding = p_csv_encoding
         self.v_csv_delimiter = p_csv_delimiter
-        self.v_tab_connections = dict([])
+        self.v_tabs_databases = dict([])
 
         self.RefreshDatabaseList()
 
@@ -125,14 +125,6 @@ class Session(object):
                     self.v_databases[p_database_index]['database'].v_connection.v_host = '127.0.0.1'
                     self.v_databases[p_database_index]['database'].v_connection.v_port = server.local_bind_port
 
-                    #GO OVER ALL TABS CONNECTION OBJECTS AND UPDATE HOST AND PORT FOR THIS CONN_ID
-                    try:
-                        for k in list(self.v_tab_connections.keys()):
-                            if self.v_tab_connections[k].v_conn_id == p_database_index:
-                                self.v_tab_connections[k].v_connection.v_host = '127.0.0.1'
-                                self.v_tab_connections[k].v_connection.v_port = server.local_bind_port
-                    except Exception:
-                        None
                     s['omnidb_session'] = self
                     s.save()
 

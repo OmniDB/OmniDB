@@ -64,26 +64,6 @@ def get_monitor_unit_list(request):
     v_tab_id = json_object['p_tab_id']
     v_mode = json_object['p_mode']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    v_query = '''
-        select unit_id,
-        title,
-        case type
-          when 'chart' then 'Chart'
-          when 'chart_append' then 'Chart (Append)'
-          when 'grid' then 'Grid'
-          when 'graph' then 'Graph'
-        end type,
-        user_id,
-        interval
-        from mon_units
-        where dbt_st_name = '{0}'
-        and (user_id is null or user_id = {1})
-        order by user_id desc, type
-    '''.format(v_database.v_db_type,v_session.v_user_id)
-
-
     v_return['v_data'] = []
     v_data = []
     v_id_list = []
@@ -185,16 +165,16 @@ def get_monitor_units(request):
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
+    v_database = v_session.v_databases[v_database_index]
 
     v_return['v_data'] = []
 
     try:
-        user_units = MonUnitsConnections.objects.filter(user=request.user,connection=v_database.v_conn_id)
+        user_units = MonUnitsConnections.objects.filter(user=request.user,connection=v_database_index)
         # There are no units for this user/connection pair, create defaults
         if len(user_units)==0:
             # Non plugin defaults
-            conn_object = Connection.objects.get(id=v_database.v_conn_id)
+            conn_object = Connection.objects.get(id=v_database_index)
             for default_unit in MonUnits.objects.filter(user=None):
                 user_unit = MonUnitsConnections(
                     unit=default_unit.id,
@@ -217,7 +197,7 @@ def get_monitor_units(request):
                     user_unit.save()
 
             # Retrieve user units again
-            user_units = MonUnitsConnections.objects.filter(user=request.user,connection=v_database.v_conn_id)
+            user_units = MonUnitsConnections.objects.filter(user=request.user,connection=v_database_index)
 
         for user_unit in user_units:
             if user_unit.plugin_name=='':
@@ -326,7 +306,7 @@ def save_monitor_unit(request):
     v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
+    v_database = v_session.v_databases[v_database_index]
 
     if v_unit_interval==None:
         v_unit_interval = 30
@@ -636,7 +616,9 @@ def refresh_monitor_units(request, v_database):
 
         return JsonResponse(v_return)
 
-def test_monitor_script(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def test_monitor_script(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -652,20 +634,11 @@ def test_monitor_script(request):
     v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
-    v_database_index = json_object['p_database_index']
     v_tab_id = json_object['p_tab_id']
     v_script_chart = json_object['p_script_chart']
     v_script_data = json_object['p_script_data']
     v_type = json_object['p_type']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_return['v_data'] = {
         'v_object': None,
@@ -708,8 +681,6 @@ def test_monitor_script(request):
             'v_message': str(exc)
         }
         v_return['v_data'] = v_unit_data
-
-    print(v_return)
 
 
     return JsonResponse(v_return)

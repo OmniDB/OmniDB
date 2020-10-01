@@ -36,22 +36,6 @@ $(function () {
             v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.bt_cancel.click();
       }
     },
-    shortcut_previous_console_command: function() {
-
-      if (v_connTabControl.selectedTab.tag.mode=='connection') {
-        if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='console') {
-          getConsoleHistoryCommand('previous');
-        }
-      }
-    },
-    shortcut_next_console_command: function() {
-
-      if (v_connTabControl.selectedTab.tag.mode=='connection') {
-        if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='console') {
-          getConsoleHistoryCommand('next');
-        }
-      }
-    },
     shortcut_indent: function() {
 
       if (v_connTabControl.selectedTab.tag.mode=='connection') {
@@ -106,12 +90,6 @@ $(function () {
       }
 
     },
-    shortcut_remove_outer_tab: function() {
-
-      if (v_connTabControl.selectedTab.tag.mode=='connection' || v_connTabControl.selectedTab.tag.mode=='website_outer')
-        v_connTabControl.selectedTab.tag.tabCloseSpan.click();
-
-    },
     shortcut_left_inner_tab: function() {
 
       if (v_connTabControl.selectedTab.tag.mode=='connection' || v_connTabControl.selectedTab.tag.mode=='snippets') {
@@ -119,45 +97,23 @@ $(function () {
         var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
 
         if (v_actualIndex == 0) //avoid triggering click on '+' tab
-          v_tabControl.tabList[v_tabControl.tabList.length - 2].elementLi.click();
+          v_tabControl.tabList[v_tabControl.tabList.length - 2].elementA.click();
         else
-            v_tabControl.tabList[v_actualIndex - 1].elementLi.click();
+            v_tabControl.tabList[v_actualIndex - 1].elementA.click();
       }
-
-    },
-    shortcut_left_outer_tab: function() {
-
-        var v_tabControl = v_connTabControl;
-        var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
-
-        if (v_actualIndex == 0) //avoid triggering click on '+' tab
-          v_tabControl.tabList[v_tabControl.tabList.length - 2].elementLi.click();
-        else
-            v_tabControl.tabList[v_actualIndex - 1].elementLi.click();
 
     },
     shortcut_right_inner_tab: function() {
 
-      if (v_connTabControl.selectedTab.tag.mode=='connection' || v_connTabControl.selectedTab.tag.mode=='snippets') {
+      if (v_connTabControl.selectedTab.tag.mode=='connection') {
         var v_tabControl = v_connTabControl.selectedTab.tag.tabControl;
         var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
 
         if (v_actualIndex == v_tabControl.tabList.length - 2) //avoid triggering click on '+' tab
-          v_tabControl.tabList[0].elementLi.click();
+          v_tabControl.tabList[0].elementA.click();
         else
-            v_tabControl.tabList[v_actualIndex + 1].elementLi.click();
+            v_tabControl.tabList[v_actualIndex + 1].elementA.click();
       }
-
-    },
-    shortcut_right_outer_tab: function() {
-
-      var v_tabControl = v_connTabControl;
-      var v_actualIndex = v_tabControl.tabList.indexOf(v_tabControl.selectedTab);
-
-      if (v_actualIndex == v_tabControl.tabList.length - 2) //avoid triggering click on '+' tab
-        v_tabControl.tabList[0].elementLi.click();
-      else
-          v_tabControl.tabList[v_actualIndex + 1].elementLi.click();
 
     },
     shortcut_autocomplete: function(e) {

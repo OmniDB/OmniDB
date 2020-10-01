@@ -168,6 +168,12 @@ def create_request(request):
 
     client_object = get_client_object(request.session.session_key)
 
+    # Release lock to avoid dangling ajax polling requests
+    try:
+        client_object['polling_lock'].release()
+    except:
+        None
+
     #Cancel thread
     if v_code == requestType.CancelThread:
         try:
@@ -306,6 +312,7 @@ def create_request(request):
                     client_object,
                     tab_object,
                     v_data['v_conn_tab_id'],
+                    v_data['v_db_index'],
                     True
                 )
 

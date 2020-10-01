@@ -31,7 +31,6 @@ session_cookie_name = 'omnidb_sessionid'
 
 # CSRF cookie name
 csrf_cookie_name = 'omnidb_csrftoken'
-<<<<<<< HEAD
 
 # OmniDB database settings
 
@@ -47,5 +46,3 @@ database = {
     'HOST': '192.168.100.22',
     'PORT': '5432',
 }
-=======
->>>>>>> 98cf54b085c130c7b916e0f76a49d102d154ee0a

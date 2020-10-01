@@ -258,8 +258,6 @@ if hasattr(omnidb_settings,'thread_pool_max_workers'):
 if hasattr(omnidb_settings,'pwd_timeout_total'):
     OmniDB.custom_settings.PWD_TIMEOUT_TOTAL = omnidb_settings.pwd_timeout_total
 
-<<<<<<< HEAD
-print(omnidb_settings.pwd_timeout_total)
 if hasattr(omnidb_settings,'database'):
     if 'TECHNOLOGY' in omnidb_settings.database:
         if omnidb_settings.database['TECHNOLOGY'] == 'sqlite':
@@ -284,8 +282,6 @@ else:
     print("Database setting not specified in the config file.",flush=True)
     sys.exit()
 
-=======
->>>>>>> 98cf54b085c130c7b916e0f76a49d102d154ee0a
 #importing settings after setting HOME_DIR and other required parameters
 import OmniDB.settings
 

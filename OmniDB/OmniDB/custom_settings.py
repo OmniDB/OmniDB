@@ -21,6 +21,7 @@ CSRF_TRUSTED_ORIGINS = []
 ALLOWED_HOSTS = ['*']
 SESSION_COOKIE_NAME = 'omnidb_sessionid'
 CSRF_COOKIE_NAME = 'omnidb_csrftoken'
+<<<<<<< HEAD
 
 DATABASE = {
     'default': {
@@ -39,3 +40,5 @@ DATABASE = {
 #        'PORT': '5432',
 #    }
 #}
+=======
+>>>>>>> 98cf54b085c130c7b916e0f76a49d102d154ee0a

@@ -18,6 +18,9 @@
 .omnidb--theme-light .omnidb__theme-border-top--primary {
   border-top: 1px solid #DEDEDE;
 }
+.omnidb--theme-light .omnidb__theme-text--primary {
+  color: #4A81D4;
+}
 .omnidb--theme-light .omnidb__workspace__div-left {
   background-color: #FFFFFF;
 }

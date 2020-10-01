@@ -95,7 +95,7 @@ def get_monitor_unit_list(request):
                 if mon_unit.user!=None:
                     v_actions += '''
                     <i title='Edit' class='fas fa-edit action-grid action-edit-monitor' onclick='editMonitorUnit({0})'></i>
-                    <i title='Delete' class='fas fa-times action-grid action-close' onclick='deleteMonitorUnit({0})'></i>
+                    <i title='Delete' class='fas fa-times action-grid action-close text-danger' onclick='deleteMonitorUnit({0})'></i>
                     '''.format(mon_unit.id)
 
                 if v_mode==0:

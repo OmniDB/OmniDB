@@ -31,3 +31,18 @@ session_cookie_name = 'omnidb_sessionid'
 
 # CSRF cookie name
 csrf_cookie_name = 'omnidb_csrftoken'
+
+# OmniDB database settings
+
+#database = {
+#    'TECHNOLOGY': 'sqlite'
+#}
+
+database = {
+    'TECHNOLOGY': 'postgresql',
+    'NAME': 'postgres',
+    'USER': 'postgres',
+    'PASSWORD': '',
+    'HOST': '192.168.100.22',
+    'PORT': '5432',
+}

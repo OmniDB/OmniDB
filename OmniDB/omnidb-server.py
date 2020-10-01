@@ -161,7 +161,6 @@ if hasattr(omnidb_settings,'ssl_certificate_file'):
 
     if is_ssl and not os.path.exists(ssl_certificate_file):
         print("Certificate file not found. Please specify a file that exists.",flush=True)
-        logger.info("Certificate file not found. Please specify a file that exists.")
         sys.exit()
 else:
     ssl_certificate_file = ''
@@ -171,7 +170,6 @@ if hasattr(omnidb_settings,'ssl_key_file'):
 
     if is_ssl and not os.path.exists(ssl_key_file):
         print("Key file not found. Please specify a file that exists.",flush=True)
-        logger.info("Key file not found. Please specify a file that exists.")
         sys.exit()
 else:
     ssl_key_file = ''
@@ -193,6 +191,31 @@ if hasattr(omnidb_settings,'thread_pool_max_workers'):
 
 if hasattr(omnidb_settings,'pwd_timeout_total'):
     OmniDB.custom_settings.PWD_TIMEOUT_TOTAL = omnidb_settings.pwd_timeout_total
+
+print(omnidb_settings.pwd_timeout_total)
+if hasattr(omnidb_settings,'database'):
+    if 'TECHNOLOGY' in omnidb_settings.database:
+        if omnidb_settings.database['TECHNOLOGY'] == 'sqlite':
+            OmniDB.custom_settings.DATABASE = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': os.path.join(OmniDB.custom_settings.HOME_DIR, 'omnidb.db')
+                }
+            }
+        elif omnidb_settings.database['TECHNOLOGY'] == 'postgresql':
+            omnidb_settings.database['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+            OmniDB.custom_settings.DATABASE = {
+                'default': omnidb_settings.database
+            }
+        else:
+            print("Database technology is not supported.",flush=True)
+            sys.exit()
+    else:
+        print("Database setting does not specify the technology.",flush=True)
+        sys.exit()
+else:
+    print("Database setting not specified in the config file.",flush=True)
+    sys.exit()
 
 #importing settings after setting HOME_DIR and other required parameters
 import OmniDB.settings

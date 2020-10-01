@@ -122,23 +122,7 @@ SOCIAL_AUTH_GITHUB_KEY = 'Iv1.b66f09dc30df16f3'
 SOCIAL_AUTH_GITHUB_SECRET = '3403a3cc31a991d48ef72fbd73fa45e3af5b62ba'
 
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(HOME_DIR, 'omnidb.db')
-    }
-}
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#        'NAME': 'omnidb',
-#        'USER': 'postgres',
-#        'PASSWORD': '',
-#        'HOST': '10.33.2.114',
-#        'PORT': '5432',
-#    }
-#}
+DATABASES = custom_settings.DATABASE
 
 AUTH_PASSWORD_VALIDATORS = [
     {

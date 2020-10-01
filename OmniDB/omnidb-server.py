@@ -107,7 +107,6 @@ else:
 
     if not os.path.exists(OmniDB.custom_settings.HOME_DIR):
         os.makedirs(OmniDB.custom_settings.HOME_DIR)
-<<<<<<< HEAD
 
 
 if options.conf!='':
@@ -166,76 +165,11 @@ if hasattr(omnidb_settings,'ssl_certificate_file'):
 else:
     ssl_certificate_file = ''
 
-=======
-
-
-if options.conf!='':
-    if not os.path.exists(options.conf):
-        print("Config file not found. Please specify a file that exists.",flush=True)
-        sys.exit()
-    else:
-        config_file = options.conf
-else:
-    config_file = os.path.join(OmniDB.custom_settings.HOME_DIR, 'config.py')
-    if not os.path.exists(config_file):
-        shutil.copyfile(os.path.join(OmniDB.custom_settings.BASE_DIR, 'config.py'), config_file)
-
-# Loading config file
-spec = importlib.util.spec_from_file_location("omnidb_settings", config_file)
-module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(module)
-omnidb_settings = module
-
-if options.host!=None:
-    listening_address = options.host
-else:
-    if hasattr(omnidb_settings,'listening_address'):
-        listening_address = omnidb_settings.listening_address
-    else:
-        listening_address = OmniDB.custom_settings.OMNIDB_ADDRESS
-
-if options.port!=None:
-    listening_port = options.port
-else:
-    if hasattr(omnidb_settings,'listening_port'):
-        listening_port = omnidb_settings.listening_port
-    else:
-        listening_port = 8000
-
-if options.path!='':
-    OmniDB.custom_settings.PATH = options.path
-else:
-    if hasattr(omnidb_settings,'path'):
-        OmniDB.custom_settings.PATH = omnidb_settings.path
-
-if hasattr(omnidb_settings,'is_ssl'):
-    is_ssl = omnidb_settings.is_ssl
-    if is_ssl:
-        OmniDB.custom_settings.SESSION_COOKIE_SECURE = True
-        OmniDB.custom_settings.CSRF_COOKIE_SECURE = True
-else:
-    is_ssl = False
-
-if hasattr(omnidb_settings,'ssl_certificate_file'):
-    ssl_certificate_file = omnidb_settings.ssl_certificate_file
-
-    if is_ssl and not os.path.exists(ssl_certificate_file):
-        print("Certificate file not found. Please specify a file that exists.",flush=True)
-        logger.info("Certificate file not found. Please specify a file that exists.")
-        sys.exit()
-else:
-    ssl_certificate_file = ''
-
->>>>>>> 98cf54b085c130c7b916e0f76a49d102d154ee0a
 if hasattr(omnidb_settings,'ssl_key_file'):
     ssl_key_file = omnidb_settings.ssl_key_file
 
     if is_ssl and not os.path.exists(ssl_key_file):
         print("Key file not found. Please specify a file that exists.",flush=True)
-<<<<<<< HEAD
-=======
-        logger.info("Key file not found. Please specify a file that exists.")
->>>>>>> 98cf54b085c130c7b916e0f76a49d102d154ee0a
         sys.exit()
 else:
     ssl_key_file = ''
@@ -579,8 +513,6 @@ class DjangoApplication(object):
         else:
             print('Tried 20 different ports without success, closing...',flush=True)
             logger.info('Tried 20 different ports without success, closing...')
-
-# OmniDB config actions
 
 call_command("migrate", interactive=False)
 call_command("clearsessions")

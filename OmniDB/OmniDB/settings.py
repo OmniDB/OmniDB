@@ -5,7 +5,7 @@ import random
 import string
 import getpass
 from . import custom_settings
-import config
+#import config
 
 # Development Mode
 DEBUG = custom_settings.DEV_MODE

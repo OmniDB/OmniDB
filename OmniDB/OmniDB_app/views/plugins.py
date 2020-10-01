@@ -509,6 +509,7 @@ def exec_plugin_function(request, v_database):
 
     p_data['omnidb_user'] = v_session.v_user_name
     p_data['omnidb_user_superuser'] = v_session.v_super_user
+    p_data['request'] = request
     p_check_database_connection = json_object['p_check_database_connection']
     p_database_index = json_object['p_database_index']
     p_tab_id = json_object['p_tab_id']

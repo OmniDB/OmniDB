@@ -71,25 +71,28 @@ def database_required(p_check_timeout = True, p_open_connection = True):
             v_database_index = json_object['p_database_index']
             v_tab_id = json_object['p_tab_id']
 
-            try:
-                if p_check_timeout:
-                    #Check database prompt timeout
-                    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-                    if v_timeout['timeout']:
-                        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-                        v_return['v_error'] = True
-                        return JsonResponse(v_return)
+            if v_database_index != None:
+                try:
+                    if p_check_timeout:
+                        #Check database prompt timeout
+                        v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
+                        if v_timeout['timeout']:
+                            v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
+                            v_return['v_error'] = True
+                            return JsonResponse(v_return)
 
-                v_database = get_database_object(
-                    p_session = request.session,
-                    p_tab_id = v_tab_id,
-                    p_database_index = v_database_index,
-                    p_attempt_to_open_connection = p_open_connection
-                )
-            except Exception as exc:
-                v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
-                v_return['v_error'] = True
-                return JsonResponse(v_return)
+                    v_database = get_database_object(
+                        p_session = request.session,
+                        p_tab_id = v_tab_id,
+                        p_database_index = v_database_index,
+                        p_attempt_to_open_connection = p_open_connection
+                    )
+                except Exception as exc:
+                    v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+                    v_return['v_error'] = True
+                    return JsonResponse(v_return)
+            else:
+                v_database = None
 
             return function(request, v_database, *args, **kwargs)
         wrap.__doc__ = function.__doc__

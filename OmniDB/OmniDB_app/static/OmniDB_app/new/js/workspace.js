@@ -1345,7 +1345,7 @@ function showMenuNewTab(e) {
 					v_connTabControl.tag.createMonitoringTab(
 							'Backends',
 							'select * from pg_stat_activity', [{
-									icon: 'fas fa-times action-grid action-close',
+									icon: 'fas fa-times action-grid action-close text-danger',
 									title: 'Terminate',
 									action: 'postgresqlTerminateBackend'
 							}]);
@@ -1362,7 +1362,7 @@ function showMenuNewTab(e) {
 					v_connTabControl.tag.createMonitoringTab(
 							'Process List',
 							'select * from information_schema.processlist', [{
-									icon: 'fas fa-times action-grid action-close',
+									icon: 'fas fa-times action-grid action-close text-danger',
 									title: 'Terminate',
 									action: 'mysqlTerminateBackend'
 							}]);

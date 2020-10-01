@@ -170,7 +170,7 @@ function changeUser(event, p_row_index, p_col_index) {
 		document.getElementById("user_item_username_" + p_row_index).value,
 		document.getElementById("user_item_password_" + p_row_index).value,
 		v_user_is_superuser,
-		"<i title=\"Remove User\" class='fas fa-times action-grid action-close' onclick='removeUser(\"" + v_user_id + "\")'></i>"
+		"<i title=\"Remove User\" class='fas fa-times action-grid action-close text-danger' onclick='removeUser(\"" + v_user_id + "\")'></i>"
 	];
 
 	var cellChange = {
@@ -193,7 +193,7 @@ function changeNewUser(event, p_row_index, p_col_index) {
 		document.getElementById("new_user_item_username_" + p_row_index).value,
 		document.getElementById("new_user_item_password_" + p_row_index).value,
 		v_user_is_superuser,
-		"<i title=\"Remove User\" class='fas fa-times action-grid action-close' onclick='removeNewUser(\"" + p_row_index + "\")'></i>"
+		"<i title=\"Remove User\" class='fas fa-times action-grid action-close text-danger' onclick='removeNewUser(\"" + p_row_index + "\")'></i>"
 	];
 
 	window.newUsersObject.newUsers[p_row_index] = p_data_template;
@@ -411,7 +411,7 @@ function renderSelectedUser(event) {
 				"<input autofill='false' autocomplete='off' name='off' id='new_user_item_password_" + i  + "' type='password' class='form-control my-0' placeholder='New password' value='" + v_user_item[1] + "' onchange='changeNewUser(event," + i + ",1)'>" +
 				"</div>" +
 				"<span class='mr-2 text-danger omnidb__user-list__close'>" +
-					"<i title=\"Remove User\" class='fas fa-times action-grid action-close' onclick='removeNewUser(\"" + i + "\")'></i>" +
+					"<i title=\"Remove User\" class='fas fa-times action-grid action-close text-danger' onclick='removeNewUser(\"" + i + "\")'></i>" +
 				"</span>" +
 				"</div>" +
 				"</div>";

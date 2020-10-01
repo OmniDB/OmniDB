@@ -142,7 +142,13 @@ function refreshMonitoring(p_tab_tag) {
           for (var i=0; i<v_data.v_data.length; i++) {
             var v_actions_html = '';
             for (var j=0; j<p_tab_tag.actions.length; j++) {
-              v_actions_html += '<i class="' + p_tab_tag.actions[j].icon + '" onclick="monitoringAction(' + i + ',&apos;' + p_tab_tag.actions[j].action + '&apos;)">';
+              if (p_tab_tag.actions[j].icon.includes('fa-times')) {
+                p_tab_tag.actions[j].icon += ' text-danger';
+              }
+              else {
+                p_tab_tag.actions[j].icon += ' omnidb__theme-text--primary';
+              }
+              v_actions_html += '<div class="text-center"><i class="' + p_tab_tag.actions[j].icon + '" onclick="monitoringAction(' + i + ',&apos;' + p_tab_tag.actions[j].action + '&apos;)"></div>';
             }
             v_data.v_data[i].unshift(v_actions_html);
           }

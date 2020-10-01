@@ -316,7 +316,7 @@ function queryEditDataReturnRender(p_message,p_context) {
 				'data-html=true ' +
 				'title="<div><b>Type</b> ' + v_currTabTag.editDataObject.columns[i].v_type + '</div>" ';
 
-				var v_tooltip_html = '<i class="ml-1 text-primary fas fa-info-circle"' + v_tooltip_attr + '"></i>';
+				var v_tooltip_html = '<i class="ml-1 omnidb__theme-text--primary fas fa-info-circle"' + v_tooltip_attr + '"></i>';
 
 				if (!v_currTabTag.editDataObject.columns[i].v_is_pk)
 					col.title =  '<span>' + v_currTabTag.editDataObject.columns[i].v_column + '</span>' + v_tooltip_html;

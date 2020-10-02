@@ -57,6 +57,7 @@ def get_tree_info(request, v_database):
                 'create_eventtriggerfunction': v_database.TemplateCreateEventTriggerFunction().v_text,
                 'drop_eventtriggerfunction': v_database.TemplateDropEventTriggerFunction().v_text,
                 'create_aggregate': v_database.TemplateCreateAggregate().v_text,
+                'alter_aggregate': v_database.TemplateAlterAggregate().v_text,
                 'drop_aggregate': v_database.TemplateDropAggregate().v_text,
                 'create_view': v_database.TemplateCreateView().v_text,
                 'drop_view': v_database.TemplateDropView().v_text,
@@ -2397,6 +2398,26 @@ def get_version(request, v_database):
         v_return['v_data'] = {
             'v_version': v_database.GetVersion()
         }
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def change_role_password(request, v_database):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_database_index = json_object['p_database_index']
+
+    try:
+        v_database.ChangeRolePassword(json_object['p_role'], json_object['p_password'])
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True

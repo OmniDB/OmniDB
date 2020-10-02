@@ -33,6 +33,7 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 from urllib.parse import urlparse
 
 import threading
+import hashlib
 
 '''
 ------------------------------------------------------------------------
@@ -4634,6 +4635,13 @@ STYPE = state_data_type
 )
 ''')
 
+    def TemplateAlterAggregate(self):
+        return Template('''ALTER AGGREGATE #aggregate_name#
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+''')
+
     def TemplateDropAggregate(self):
         return Template('''DROP AGGREGATE #aggregate_name#
 --RESTRICT
@@ -6560,6 +6568,271 @@ FROM #table_name#
             on r.oid = t.evtowner
             where quote_ident(t.evtname) = '{0}'
         '''.format(p_object))
+
+    @lock_required
+    def GetPropertiesAggregate(self, p_object):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return self.v_connection.Query(
+                '''
+                    WITH procs AS (
+                        SELECT p.oid AS function_oid,
+                               quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' AS function_id,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(p.proname) AS function_name,
+                               r.rolname AS function_owner,
+                               p.proisagg AS is_aggregate
+                        FROM pg_proc p
+                        INNER JOIN pg_namespace n
+                                ON p.pronamespace = n.oid
+                        INNER JOIN pg_roles r
+                                ON p.proowner = r.oid
+                    ),
+                    operators AS (
+                        SELECT o.oid AS operator_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(o.oprname) AS operator_name
+                        FROM pg_operator o
+                        INNER JOIN pg_namespace n
+                                ON o.oprnamespace = n.oid
+                    ),
+                    types AS (
+                        SELECT t.oid AS type_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(t.typname) AS type_name
+                        FROM pg_type t
+                        INNER JOIN pg_namespace n
+                                ON t.typnamespace = n.oid
+                    )
+                    SELECT current_database() as "Database",
+                           p1.schema_name AS "Schema",
+                           p1.function_name AS "Aggregate",
+                           p1.function_id AS "Aggregate ID",
+                           a.aggfnoid AS "OID",
+                           p1.function_owner as "Owner",
+                           a.aggkind AS "Kind",
+                           a.aggnumdirectargs AS "Number of Direct Args",
+                           p2.function_id AS "Transition Function ID",
+                           p3.function_id AS "Final Function ID",
+                           p7.function_id AS "Forward Transition Function ID",
+                           p8.function_id AS "Inverse Transition Function ID",
+                           p9.function_id AS "Final Moving Function ID",
+                           a.aggfinalextra AS "Extra Dummy to Final Function",
+                           a.aggmfinalextra AS "Extra Dummy to Final Moving Function",
+                           o.operator_name AS "Sort Operator",
+                           format('%s.%s', t1.schema_name, t1.type_name)::regtype AS "Internal Transition Data Type",
+                           a.aggtransspace AS "Average Size of Transition",
+                           format('%s.%s', t1.schema_name, t1.type_name)::regtype AS "Internal Transition Moving Data Type",
+                           a.aggmtransspace AS "Average Size of Transition Moving",
+                           a.agginitval AS "Transition Init Value",
+                           a.aggminitval AS "Transition Moving Init Value"
+                    FROM pg_aggregate a
+                    INNER JOIN procs p1
+                            ON a.aggfnoid = p1.function_oid
+                    LEFT JOIN procs p2
+                           ON a.aggtransfn = p2.function_oid
+                    LEFT JOIN procs p3
+                           ON a.aggfinalfn = p3.function_oid
+                    LEFT JOIN procs p7
+                           ON a.aggmtransfn = p7.function_oid
+                    LEFT JOIN procs p8
+                           ON a.aggminvtransfn = p8.function_oid
+                    LEFT JOIN procs p9
+                           ON a.aggmfinalfn = p9.function_oid
+                    LEFT JOIN operators o
+                           ON a.aggsortop = o.operator_oid
+                    LEFT JOIN types t1
+                           ON a.aggtranstype = t1.type_oid
+                    LEFT JOIN types t2
+                           ON a.aggmtranstype = t2.type_oid
+                    WHERE p1.is_aggregate
+                      AND p1.function_id = '{0}'
+                '''.format(
+                    p_object
+                )
+            )
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return self.v_connection.Query(
+                '''
+                    WITH procs AS (
+                        SELECT p.oid AS function_oid,
+                               quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' AS function_id,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(p.proname) AS function_name,
+                               r.rolname AS function_owner,
+                               p.proisagg AS is_aggregate,
+                               p.proparallel
+                        FROM pg_proc p
+                        INNER JOIN pg_namespace n
+                                ON p.pronamespace = n.oid
+                        INNER JOIN pg_roles r
+                                ON p.proowner = r.oid
+                    ),
+                    operators AS (
+                        SELECT o.oid AS operator_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(o.oprname) AS operator_name
+                        FROM pg_operator o
+                        INNER JOIN pg_namespace n
+                                ON o.oprnamespace = n.oid
+                    ),
+                    types AS (
+                        SELECT t.oid AS type_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(t.typname) AS type_name
+                        FROM pg_type t
+                        INNER JOIN pg_namespace n
+                                ON t.typnamespace = n.oid
+                    )
+                    SELECT current_database() as "Database",
+                           p1.schema_name AS "Schema",
+                           p1.function_name AS "Aggregate",
+                           p1.function_id AS "Aggregate ID",
+                           a.aggfnoid AS "OID",
+                           p1.function_owner as "Owner",
+                           a.aggkind AS "Kind",
+                           a.aggnumdirectargs AS "Number of Direct Args",
+                           p2.function_id AS "Transition Function ID",
+                           p3.function_id AS "Final Function ID",
+                           p4.function_id AS "Combine Function ID",
+                           p5.function_id AS "Serialization Function ID",
+                           p6.function_id AS "Deerialization Function ID",
+                           p7.function_id AS "Forward Transition Function ID",
+                           p8.function_id AS "Inverse Transition Function ID",
+                           p9.function_id AS "Final Moving Function ID",
+                           a.aggfinalextra AS "Extra Dummy to Final Function",
+                           a.aggmfinalextra AS "Extra Dummy to Final Moving Function",
+                           o.operator_name AS "Sort Operator",
+                           format('%s.%s', t1.schema_name, t1.type_name)::regtype AS "Internal Transition Data Type",
+                           a.aggtransspace AS "Average Size of Transition",
+                           format('%s.%s', t1.schema_name, t1.type_name)::regtype AS "Internal Transition Moving Data Type",
+                           a.aggmtransspace AS "Average Size of Transition Moving",
+                           a.agginitval AS "Transition Init Value",
+                           a.aggminitval AS "Transition Moving Init Value",
+                           p1.proparallel AS "Parallel Mode"
+                    FROM pg_aggregate a
+                    INNER JOIN procs p1
+                            ON a.aggfnoid = p1.function_oid
+                    LEFT JOIN procs p2
+                           ON a.aggtransfn = p2.function_oid
+                    LEFT JOIN procs p3
+                           ON a.aggfinalfn = p3.function_oid
+                    LEFT JOIN procs p4
+                           ON a.aggcombinefn = p4.function_oid
+                    LEFT JOIN procs p5
+                           ON a.aggserialfn = p5.function_oid
+                    LEFT JOIN procs p6
+                           ON a.aggdeserialfn = p6.function_oid
+                    LEFT JOIN procs p7
+                           ON a.aggmtransfn = p7.function_oid
+                    LEFT JOIN procs p8
+                           ON a.aggminvtransfn = p8.function_oid
+                    LEFT JOIN procs p9
+                           ON a.aggmfinalfn = p9.function_oid
+                    LEFT JOIN operators o
+                           ON a.aggsortop = o.operator_oid
+                    LEFT JOIN types t1
+                           ON a.aggtranstype = t1.type_oid
+                    LEFT JOIN types t2
+                           ON a.aggmtranstype = t2.type_oid
+                    WHERE p1.is_aggregate
+                      AND p1.function_id = '{0}'
+                '''.format(
+                    p_object
+                )
+            )
+        else:
+            return self.v_connection.Query(
+                '''
+                    WITH procs AS (
+                        SELECT p.oid AS function_oid,
+                               quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' AS function_id,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(p.proname) AS function_name,
+                               r.rolname AS function_owner,
+                               p.prokind AS function_kind,
+                               p.proparallel
+                        FROM pg_proc p
+                        INNER JOIN pg_namespace n
+                                ON p.pronamespace = n.oid
+                        INNER JOIN pg_roles r
+                                ON p.proowner = r.oid
+                    ),
+                    operators AS (
+                        SELECT o.oid AS operator_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(o.oprname) AS operator_name
+                        FROM pg_operator o
+                        INNER JOIN pg_namespace n
+                                ON o.oprnamespace = n.oid
+                    ),
+                    types AS (
+                        SELECT t.oid AS type_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(t.typname) AS type_name
+                        FROM pg_type t
+                        INNER JOIN pg_namespace n
+                                ON t.typnamespace = n.oid
+                    )
+                    SELECT current_database() as "Database",
+                           p1.schema_name AS "Schema",
+                           p1.function_name AS "Aggregate",
+                           p1.function_id AS "Aggregate ID",
+                           a.aggfnoid AS "OID",
+                           p1.function_owner as "Owner",
+                           a.aggkind AS "Kind",
+                           a.aggnumdirectargs AS "Number of Direct Args",
+                           p2.function_id AS "Transition Function ID",
+                           p3.function_id AS "Final Function ID",
+                           p4.function_id AS "Combine Function ID",
+                           p5.function_id AS "Serialization Function ID",
+                           p6.function_id AS "Deerialization Function ID",
+                           p7.function_id AS "Forward Transition Function ID",
+                           p8.function_id AS "Inverse Transition Function ID",
+                           p9.function_id AS "Final Moving Function ID",
+                           a.aggfinalextra AS "Extra Dummy to Final Function",
+                           a.aggmfinalextra AS "Extra Dummy to Final Moving Function",
+                           a.aggfinalmodify AS "Final Function Modifier",
+                           a.aggmfinalmodify AS "Final Moving Function Modifier",
+                           o.operator_name AS "Sort Operator",
+                           format('%s.%s', t1.schema_name, t1.type_name)::regtype AS "Internal Transition Data Type",
+                           a.aggtransspace AS "Average Size of Transition",
+                           format('%s.%s', t1.schema_name, t1.type_name)::regtype AS "Internal Transition Moving Data Type",
+                           a.aggmtransspace AS "Average Size of Transition Moving",
+                           a.agginitval AS "Transition Init Value",
+                           a.aggminitval AS "Transition Moving Init Value",
+                           p1.proparallel AS "Parallel Mode"
+                    FROM pg_aggregate a
+                    INNER JOIN procs p1
+                            ON a.aggfnoid = p1.function_oid
+                    LEFT JOIN procs p2
+                           ON a.aggtransfn = p2.function_oid
+                    LEFT JOIN procs p3
+                           ON a.aggfinalfn = p3.function_oid
+                    LEFT JOIN procs p4
+                           ON a.aggcombinefn = p4.function_oid
+                    LEFT JOIN procs p5
+                           ON a.aggserialfn = p5.function_oid
+                    LEFT JOIN procs p6
+                           ON a.aggdeserialfn = p6.function_oid
+                    LEFT JOIN procs p7
+                           ON a.aggmtransfn = p7.function_oid
+                    LEFT JOIN procs p8
+                           ON a.aggminvtransfn = p8.function_oid
+                    LEFT JOIN procs p9
+                           ON a.aggmfinalfn = p9.function_oid
+                    LEFT JOIN operators o
+                           ON a.aggsortop = o.operator_oid
+                    LEFT JOIN types t1
+                           ON a.aggtranstype = t1.type_oid
+                    LEFT JOIN types t2
+                           ON a.aggmtranstype = t2.type_oid
+                    WHERE p1.function_kind = 'a'
+                      AND p1.function_id = '{0}'
+                '''.format(
+                    p_object
+                )
+            )
+
     @lock_required
     def GetPropertiesPK(self, p_schema, p_table, p_object):
         return self.v_connection.Query('''
@@ -7480,6 +7753,8 @@ FROM #table_name#
                 return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
             elif p_type == 'direct_eventtriggerfunction':
                 return self.GetPropertiesFunction(p_object).Transpose('Property', 'Value')
+            elif p_type == 'aggregate':
+                return self.GetPropertiesAggregate(p_object).Transpose('Property', 'Value')
             elif p_type == 'pk':
                 return self.GetPropertiesPK(p_schema, p_table, p_object).Transpose('Property', 'Value')
             elif p_type == 'foreign_key':
@@ -10589,6 +10864,632 @@ FROM #table_name#
             )
         )
 
+    def GetDDLAggregate(self, p_object):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return self.v_connection.ExecuteScalar(
+                '''
+                    WITH procs AS (
+                        SELECT p.oid AS function_oid,
+                               quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' AS function_id,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(p.proname) AS function_name,
+                               format(
+                                   '%s.%s',
+                                   quote_ident(n.nspname),
+                                   quote_ident(p.proname)
+                               ) AS function_full_name,
+                               r.rolname AS function_owner,
+                               p.proisagg AS is_aggregate
+                        FROM pg_proc p
+                        INNER JOIN pg_namespace n
+                                ON p.pronamespace = n.oid
+                        INNER JOIN pg_roles r
+                                ON p.proowner = r.oid
+                    ),
+                    operators AS (
+                        SELECT o.oid AS operator_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(o.oprname) AS operator_name
+                        FROM pg_operator o
+                        INNER JOIN pg_namespace n
+                                ON o.oprnamespace = n.oid
+                    ),
+                    types AS (
+                        SELECT t.oid AS type_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(t.typname) AS type_name,
+                               format(
+                                   '%s.%s',
+                                   quote_ident(n.nspname),
+                                   quote_ident(t.typname)
+                               )::regtype AS type_full_name
+                        FROM pg_type t
+                        INNER JOIN pg_namespace n
+                                ON t.typnamespace = n.oid
+                    ),
+                    privileges AS (
+                        SELECT (u_grantor.rolname)::information_schema.sql_identifier AS grantor,
+                               (grantee.rolname)::information_schema.sql_identifier AS grantee,
+                               (p.privilege_type)::information_schema.character_data AS privilege_type,
+                               (CASE WHEN (pg_has_role(grantee.oid, p.proowner, 'USAGE'::text) OR p.is_grantable)
+                                     THEN 'YES'::text
+                                     ELSE 'NO'::text
+                                END)::information_schema.yes_or_no AS is_grantable
+                        FROM (
+                            SELECT p.pronamespace,
+                                   p.proowner,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantor AS grantor,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantee AS grantee,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type AS privilege_type,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable AS is_grantable
+                            FROM pg_proc p
+                            WHERE p.proisagg
+                              AND p.oid = '{0}'::regprocedure
+                        ) p
+                        INNER JOIN pg_namespace n
+                                ON n.oid = p.pronamespace
+                        INNER JOIN pg_roles u_grantor
+                                ON u_grantor.oid = p.grantor
+                        INNER JOIN (
+                            SELECT r.oid,
+                                   r.rolname
+                            FROM pg_roles r
+
+                            UNION ALL
+
+                            SELECT (0)::oid AS oid,
+                                   'PUBLIC'::name
+                        ) grantee
+                                ON grantee.oid = p.grantee
+                    ),
+                    grants AS (
+                        SELECT coalesce(
+                                   string_agg(
+                                       format(
+                        	               E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                                           privilege_type,
+                                           (CASE grantee WHEN 'PUBLIC'
+                                                         THEN 'PUBLIC'
+                                                         ELSE quote_ident(grantee)
+                                            END),
+                        	               (CASE is_grantable WHEN 'YES'
+                        	                                  THEN ' WITH GRANT OPTION'
+                        	                                  ELSE ''
+                                            END)
+                                        ),
+                                        ''
+                                   ),
+                                   ''
+                               ) AS text
+                        FROM privileges
+                    )
+                    SELECT format(
+                               E'CREATE AGGREGATE %s (\n\tSFUNC = %s\n  , STYPE = %s%s%s%s%s%s%s%s%s%s%s%s%s\n);\n\nALTER AGGREGATE %s OWNER TO %s;\n\n%s',
+                               p1.function_id,
+                               p2.function_full_name,
+                               t1.type_full_name,
+                               (CASE WHEN a.aggtransspace <> 0
+                                     THEN format(E'\n  , SSPACE = %s', a.aggtransspace)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p3.function_id IS NOT NULL
+                                     THEN format(E'\n  , FINALFUNC = %s', p3.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN aggfinalextra
+                                     THEN E'\n  , FINALFUNC_EXTRA'
+                                     ELSE ''
+                                END),
+                               (CASE WHEN a.agginitval IS NOT NULL
+                                     THEN format(E'\n  , INITCOND = %s', a.agginitval)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p7.function_id IS NOT NULL
+                                     THEN format(E'\n  , MSFUNC = %s', p7.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p8.function_id IS NOT NULL
+                                     THEN format(E'\n  , MINVFUNC = %s', p8.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN t2.type_oid IS NOT NULL
+                                     THEN format(E'\n  , MSTYPE = %s', t2.type_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN a.aggmtransspace <> 0
+                                     THEN format(E'\n  , MSSPACE = %s', a.aggmtransspace)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p9.function_id IS NOT NULL
+                                     THEN format(E'\n  , MFINALFUNC = %s', p9.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN aggmfinalextra
+                                     THEN E'\n  , MFINALFUNC_EXTRA'
+                                     ELSE ''
+                                END),
+                               (CASE WHEN a.aggminitval IS NOT NULL
+                                     THEN format(E'\n  , MINITCOND = %s', a.aggminitval)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN o.operator_oid IS NOT NULL
+                                     THEN format(E'\n  , SORTOP = %s', o.operator_oid::regoperator)
+                                     ELSE ''
+                                END),
+                               p1.function_id,
+                               p1.function_owner,
+                               g.text
+                           )
+                    FROM pg_aggregate a
+                    INNER JOIN procs p1
+                            ON a.aggfnoid = p1.function_oid
+                    LEFT JOIN procs p2
+                           ON a.aggtransfn = p2.function_oid
+                    LEFT JOIN procs p3
+                           ON a.aggfinalfn = p3.function_oid
+                    LEFT JOIN procs p7
+                           ON a.aggmtransfn = p7.function_oid
+                    LEFT JOIN procs p8
+                           ON a.aggminvtransfn = p8.function_oid
+                    LEFT JOIN procs p9
+                           ON a.aggmfinalfn = p9.function_oid
+                    LEFT JOIN operators o
+                           ON a.aggsortop = o.operator_oid
+                    LEFT JOIN types t1
+                           ON a.aggtranstype = t1.type_oid
+                    LEFT JOIN types t2
+                           ON a.aggmtranstype = t2.type_oid
+                    INNER JOIN grants g
+                            ON 1 = 1
+                    WHERE p1.is_aggregate
+                      AND p1.function_id = '{0}'
+                '''.format(
+                    p_object
+                )
+            )
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return self.v_connection.ExecuteScalar(
+                '''
+                    WITH procs AS (
+                        SELECT p.oid AS function_oid,
+                               quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' AS function_id,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(p.proname) AS function_name,
+                               format(
+                                   '%s.%s',
+                                   quote_ident(n.nspname),
+                                   quote_ident(p.proname)
+                               ) AS function_full_name,
+                               r.rolname AS function_owner,
+                               p.proisagg AS is_aggregate,
+                               p.proparallel
+                        FROM pg_proc p
+                        INNER JOIN pg_namespace n
+                                ON p.pronamespace = n.oid
+                        INNER JOIN pg_roles r
+                                ON p.proowner = r.oid
+                    ),
+                    operators AS (
+                        SELECT o.oid AS operator_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(o.oprname) AS operator_name
+                        FROM pg_operator o
+                        INNER JOIN pg_namespace n
+                                ON o.oprnamespace = n.oid
+                    ),
+                    types AS (
+                        SELECT t.oid AS type_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(t.typname) AS type_name,
+                               format(
+                                   '%s.%s',
+                                   quote_ident(n.nspname),
+                                   quote_ident(t.typname)
+                               )::regtype AS type_full_name
+                        FROM pg_type t
+                        INNER JOIN pg_namespace n
+                                ON t.typnamespace = n.oid
+                    ),
+                    privileges AS (
+                        SELECT (u_grantor.rolname)::information_schema.sql_identifier AS grantor,
+                               (grantee.rolname)::information_schema.sql_identifier AS grantee,
+                               (p.privilege_type)::information_schema.character_data AS privilege_type,
+                               (CASE WHEN (pg_has_role(grantee.oid, p.proowner, 'USAGE'::text) OR p.is_grantable)
+                                     THEN 'YES'::text
+                                     ELSE 'NO'::text
+                                END)::information_schema.yes_or_no AS is_grantable
+                        FROM (
+                            SELECT p.pronamespace,
+                                   p.proowner,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantor AS grantor,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantee AS grantee,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type AS privilege_type,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable AS is_grantable
+                            FROM pg_proc p
+                            WHERE p.proisagg
+                              AND p.oid = '{0}'::regprocedure
+                        ) p
+                        INNER JOIN pg_namespace n
+                                ON n.oid = p.pronamespace
+                        INNER JOIN pg_roles u_grantor
+                                ON u_grantor.oid = p.grantor
+                        INNER JOIN (
+                            SELECT r.oid,
+                                   r.rolname
+                            FROM pg_roles r
+
+                            UNION ALL
+
+                            SELECT (0)::oid AS oid,
+                                   'PUBLIC'::name
+                        ) grantee
+                                ON grantee.oid = p.grantee
+                    ),
+                    grants AS (
+                        SELECT coalesce(
+                                   string_agg(
+                                       format(
+                        	               E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                                           privilege_type,
+                                           (CASE grantee WHEN 'PUBLIC'
+                                                         THEN 'PUBLIC'
+                                                         ELSE quote_ident(grantee)
+                                            END),
+                        	               (CASE is_grantable WHEN 'YES'
+                        	                                  THEN ' WITH GRANT OPTION'
+                        	                                  ELSE ''
+                                            END)
+                                        ),
+                                        ''
+                                   ),
+                                   ''
+                               ) AS text
+                        FROM privileges
+                    )
+                    SELECT format(
+                               E'CREATE AGGREGATE %s (\n\tSFUNC = %s\n  , STYPE = %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n);\n\nALTER AGGREGATE %s OWNER TO %s;\n\n%s',
+                               p1.function_id,
+                               p2.function_full_name,
+                               t1.type_full_name,
+                               (CASE WHEN a.aggtransspace <> 0
+                                     THEN format(E'\n  , SSPACE = %s', a.aggtransspace)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p3.function_id IS NOT NULL
+                                     THEN format(E'\n  , FINALFUNC = %s', p3.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN aggfinalextra
+                                     THEN E'\n  , FINALFUNC_EXTRA'
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p4.function_id IS NOT NULL
+                                     THEN format(E'\n  , COMBINEFUNC = %s', p4.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p5.function_id IS NOT NULL
+                                     THEN format(E'\n  , SERIALFUNC = %s', p5.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p6.function_id IS NOT NULL
+                                     THEN format(E'\n  , DESERIALFUNC = %s', p6.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN a.agginitval IS NOT NULL
+                                     THEN format(E'\n  , INITCOND = %s', a.agginitval)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p7.function_id IS NOT NULL
+                                     THEN format(E'\n  , MSFUNC = %s', p7.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p8.function_id IS NOT NULL
+                                     THEN format(E'\n  , MINVFUNC = %s', p8.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN t2.type_oid IS NOT NULL
+                                     THEN format(E'\n  , MSTYPE = %s', t2.type_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN a.aggmtransspace <> 0
+                                     THEN format(E'\n  , MSSPACE = %s', a.aggmtransspace)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p9.function_id IS NOT NULL
+                                     THEN format(E'\n  , MFINALFUNC = %s', p9.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN aggmfinalextra
+                                     THEN E'\n  , MFINALFUNC_EXTRA'
+                                     ELSE ''
+                                END),
+                               (CASE WHEN a.aggminitval IS NOT NULL
+                                     THEN format(E'\n  , MINITCOND = %s', a.aggminitval)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN o.operator_oid IS NOT NULL
+                                     THEN format(E'\n  , SORTOP = %s', o.operator_oid::regoperator)
+                                     ELSE ''
+                                END),
+                               format(
+                                   E'\n  , PARALLEL = %s',
+                                   (CASE p1.proparallel WHEN 's'
+                                                        THEN 'SAFE'
+                                                        WHEN 'r'
+                                                        THEN 'RESTRICTED'
+                                                        WHEN 'u'
+                                                        THEN 'UNSAFE'
+                                    END)
+                               ),
+                               p1.function_id,
+                               p1.function_owner,
+                               g.text
+                           )
+                    FROM pg_aggregate a
+                    INNER JOIN procs p1
+                            ON a.aggfnoid = p1.function_oid
+                    LEFT JOIN procs p2
+                           ON a.aggtransfn = p2.function_oid
+                    LEFT JOIN procs p3
+                           ON a.aggfinalfn = p3.function_oid
+                    LEFT JOIN procs p4
+                           ON a.aggcombinefn = p4.function_oid
+                    LEFT JOIN procs p5
+                           ON a.aggserialfn = p5.function_oid
+                    LEFT JOIN procs p6
+                           ON a.aggdeserialfn = p6.function_oid
+                    LEFT JOIN procs p7
+                           ON a.aggmtransfn = p7.function_oid
+                    LEFT JOIN procs p8
+                           ON a.aggminvtransfn = p8.function_oid
+                    LEFT JOIN procs p9
+                           ON a.aggmfinalfn = p9.function_oid
+                    LEFT JOIN operators o
+                           ON a.aggsortop = o.operator_oid
+                    LEFT JOIN types t1
+                           ON a.aggtranstype = t1.type_oid
+                    LEFT JOIN types t2
+                           ON a.aggmtranstype = t2.type_oid
+                    INNER JOIN grants g
+                            ON 1 = 1
+                    WHERE p1.is_aggregate
+                      AND p1.function_id = '{0}'
+                '''.format(
+                    p_object
+                )
+            )
+        else:
+            return self.v_connection.ExecuteScalar(
+                '''
+                    WITH procs AS (
+                        SELECT p.oid AS function_oid,
+                               quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' AS function_id,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(p.proname) AS function_name,
+                               format(
+                                   '%s.%s',
+                                   quote_ident(n.nspname),
+                                   quote_ident(p.proname)
+                               ) AS function_full_name,
+                               r.rolname AS function_owner,
+                               p.prokind AS function_kind,
+                               p.proparallel
+                        FROM pg_proc p
+                        INNER JOIN pg_namespace n
+                                ON p.pronamespace = n.oid
+                        INNER JOIN pg_roles r
+                                ON p.proowner = r.oid
+                    ),
+                    operators AS (
+                        SELECT o.oid AS operator_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(o.oprname) AS operator_name
+                        FROM pg_operator o
+                        INNER JOIN pg_namespace n
+                                ON o.oprnamespace = n.oid
+                    ),
+                    types AS (
+                        SELECT t.oid AS type_oid,
+                               quote_ident(n.nspname) AS schema_name,
+                               quote_ident(t.typname) AS type_name,
+                               format(
+                                   '%s.%s',
+                                   quote_ident(n.nspname),
+                                   quote_ident(t.typname)
+                               )::regtype AS type_full_name
+                        FROM pg_type t
+                        INNER JOIN pg_namespace n
+                                ON t.typnamespace = n.oid
+                    ),
+                    privileges AS (
+                        SELECT (u_grantor.rolname)::information_schema.sql_identifier AS grantor,
+                               (grantee.rolname)::information_schema.sql_identifier AS grantee,
+                               (p.privilege_type)::information_schema.character_data AS privilege_type,
+                               (CASE WHEN (pg_has_role(grantee.oid, p.proowner, 'USAGE'::text) OR p.is_grantable)
+                                     THEN 'YES'::text
+                                     ELSE 'NO'::text
+                                END)::information_schema.yes_or_no AS is_grantable
+                        FROM (
+                            SELECT p.pronamespace,
+                                   p.proowner,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantor AS grantor,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).grantee AS grantee,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).privilege_type AS privilege_type,
+                                   (aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner)))).is_grantable AS is_grantable
+                            FROM pg_proc p
+                            WHERE p.prokind = 'a'
+                              AND p.oid = '{0}'::regprocedure
+                        ) p
+                        INNER JOIN pg_namespace n
+                                ON n.oid = p.pronamespace
+                        INNER JOIN pg_roles u_grantor
+                                ON u_grantor.oid = p.grantor
+                        INNER JOIN (
+                            SELECT r.oid,
+                                   r.rolname
+                            FROM pg_roles r
+
+                            UNION ALL
+
+                            SELECT (0)::oid AS oid,
+                                   'PUBLIC'::name
+                        ) grantee
+                                ON grantee.oid = p.grantee
+                    ),
+                    grants AS (
+                        SELECT coalesce(
+                                   string_agg(
+                                       format(
+                        	               E'GRANT %s ON FUNCTION {0} TO %s%s;\n',
+                                           privilege_type,
+                                           (CASE grantee WHEN 'PUBLIC'
+                                                         THEN 'PUBLIC'
+                                                         ELSE quote_ident(grantee)
+                                            END),
+                        	               (CASE is_grantable WHEN 'YES'
+                        	                                  THEN ' WITH GRANT OPTION'
+                        	                                  ELSE ''
+                                            END)
+                                        ),
+                                        ''
+                                   ),
+                                   ''
+                               ) AS text
+                        FROM privileges
+                    )
+                    SELECT format(
+                               E'CREATE AGGREGATE %s (\n\tSFUNC = %s\n  , STYPE = %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n);\n\nALTER AGGREGATE %s OWNER TO %s;\n\n%s',
+                               p1.function_id,
+                               p2.function_full_name,
+                               t1.type_full_name,
+                               (CASE WHEN a.aggtransspace <> 0
+                                     THEN format(E'\n  , SSPACE = %s', a.aggtransspace)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p3.function_id IS NOT NULL
+                                     THEN format(E'\n  , FINALFUNC = %s', p3.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN aggfinalextra
+                                     THEN E'\n  , FINALFUNC_EXTRA'
+                                     ELSE ''
+                                END),
+                               format(
+                                   E'\n  , FINALFUNC_MODIFY = %s',
+                                   (CASE aggfinalmodify WHEN 'r'
+                                                        THEN 'READ_ONLY'
+                                                        WHEN 's'
+                                                        THEN 'SHAREABLE'
+                                                        WHEN 'w'
+                                                        THEN 'READ_WRITE'
+                                    END)
+                               ),
+                               (CASE WHEN p4.function_id IS NOT NULL
+                                     THEN format(E'\n  , COMBINEFUNC = %s', p4.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p5.function_id IS NOT NULL
+                                     THEN format(E'\n  , SERIALFUNC = %s', p5.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p6.function_id IS NOT NULL
+                                     THEN format(E'\n  , DESERIALFUNC = %s', p6.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN a.agginitval IS NOT NULL
+                                     THEN format(E'\n  , INITCOND = %s', a.agginitval)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p7.function_id IS NOT NULL
+                                     THEN format(E'\n  , MSFUNC = %s', p7.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p8.function_id IS NOT NULL
+                                     THEN format(E'\n  , MINVFUNC = %s', p8.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN t2.type_oid IS NOT NULL
+                                     THEN format(E'\n  , MSTYPE = %s', t2.type_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN a.aggmtransspace <> 0
+                                     THEN format(E'\n  , MSSPACE = %s', a.aggmtransspace)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN p9.function_id IS NOT NULL
+                                     THEN format(E'\n  , MFINALFUNC = %s', p9.function_full_name)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN aggmfinalextra
+                                     THEN E'\n  , MFINALFUNC_EXTRA'
+                                     ELSE ''
+                                END),
+                               format(
+                                   E'\n  , MFINALFUNC_MODIFY = %s',
+                                   (CASE aggmfinalmodify WHEN 'r'
+                                                         THEN 'READ_ONLY'
+                                                         WHEN 's'
+                                                         THEN 'SHAREABLE'
+                                                         WHEN 'w'
+                                                         THEN 'READ_WRITE'
+                                    END)
+                               ),
+                               (CASE WHEN a.aggminitval IS NOT NULL
+                                     THEN format(E'\n  , MINITCOND = %s', a.aggminitval)
+                                     ELSE ''
+                                END),
+                               (CASE WHEN o.operator_oid IS NOT NULL
+                                     THEN format(E'\n  , SORTOP = %s', o.operator_oid::regoperator)
+                                     ELSE ''
+                                END),
+                               format(
+                                   E'\n  , PARALLEL = %s',
+                                   (CASE p1.proparallel WHEN 's'
+                                                        THEN 'SAFE'
+                                                        WHEN 'r'
+                                                        THEN 'RESTRICTED'
+                                                        WHEN 'u'
+                                                        THEN 'UNSAFE'
+                                    END)
+                               ),
+                               p1.function_id,
+                               p1.function_owner,
+                               g.text
+                           )
+                    FROM pg_aggregate a
+                    INNER JOIN procs p1
+                            ON a.aggfnoid = p1.function_oid
+                    LEFT JOIN procs p2
+                           ON a.aggtransfn = p2.function_oid
+                    LEFT JOIN procs p3
+                           ON a.aggfinalfn = p3.function_oid
+                    LEFT JOIN procs p4
+                           ON a.aggcombinefn = p4.function_oid
+                    LEFT JOIN procs p5
+                           ON a.aggserialfn = p5.function_oid
+                    LEFT JOIN procs p6
+                           ON a.aggdeserialfn = p6.function_oid
+                    LEFT JOIN procs p7
+                           ON a.aggmtransfn = p7.function_oid
+                    LEFT JOIN procs p8
+                           ON a.aggminvtransfn = p8.function_oid
+                    LEFT JOIN procs p9
+                           ON a.aggmfinalfn = p9.function_oid
+                    LEFT JOIN operators o
+                           ON a.aggsortop = o.operator_oid
+                    LEFT JOIN types t1
+                           ON a.aggtranstype = t1.type_oid
+                    LEFT JOIN types t2
+                           ON a.aggmtranstype = t2.type_oid
+                    INNER JOIN grants g
+                            ON 1 = 1
+                    WHERE p1.function_kind = 'a'
+                      AND p1.function_id = '{0}'
+                '''.format(
+                    p_object
+                )
+            )
+
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetDDLRole(p_object)
@@ -10656,6 +11557,8 @@ FROM #table_name#
             return self.GetDDLSubscription(p_object)
         elif p_type == 'statistic':
             return self.GetDDLStatistic(p_schema, p_object)
+        elif p_type == 'aggregate':
+            return self.GetDDLAggregate(p_object)
         else:
             return ''
 
@@ -10807,3 +11710,17 @@ FROM #table_name#
             {1}
             order by sequence,result_complete
         '''.format(p_columns,p_filter), True)
+
+    @lock_required
+    def ChangeRolePassword(self, p_role, p_password):
+        self.v_connection.Execute(
+            '''
+                ALTER ROLE {0}
+                    WITH PASSWORD '{1}'
+            '''.format(
+                p_role,
+                'md5{0}'.format(
+                    hashlib.md5(p_password.encode('utf-8') + p_role.encode('utf-8')).hexdigest()
+                )
+            )
+        )

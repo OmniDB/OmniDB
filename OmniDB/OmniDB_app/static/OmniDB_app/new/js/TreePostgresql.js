@@ -3210,6 +3210,18 @@ function getTreePostgresql(p_div) {
                     }
                 }
             }, {
+                text: 'Alter Aggregate',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter Aggregate',
+                        node.tree.tag.alter_aggregate.replace(
+                            '#aggregate_name#',
+                            node.tag.id
+                        )
+                    );
+                }
+            }, {
                 text: 'Drop Aggregate',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -4587,6 +4599,13 @@ function getPropertiesPostgresqlConfirm(node) {
                 p_object: node.tag.statistics,
                 p_type: node.tag.type
             });
+        } else if (node.tag.type == 'aggregate') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.tag.id,
+                p_type: node.tag.type
+            });
         } else {
             clearProperties();
         }
@@ -4715,6 +4734,8 @@ function refreshTreePostgresqlConfirm(node) {
         getStatisticsColumnsPostgresql(node);
     } else if (node.tag.type == 'aggregate_list') {
         getAggregatesPostgresql(node);
+    } else if (node.tag.type == 'aggregate') {
+        getFunctionFieldsPostgresql(node);
     } else {
       afterNodeOpenedCallbackPostgreSQL(node);
     }
@@ -4865,6 +4886,7 @@ function getTreeDetailsPostgresql(node) {
                 drop_eventtriggerfunction: p_return.v_data.v_database_return
                     .drop_eventtriggerfunction,
                 create_aggregate: p_return.v_data.v_database_return.create_aggregate,
+                alter_aggregate: p_return.v_data.v_database_return.alter_aggregate,
                 drop_aggregate: p_return.v_data.v_database_return.drop_aggregate,
                 create_view: p_return.v_data.v_database_return.create_view,
                 drop_view: p_return.v_data.v_database_return.drop_view,

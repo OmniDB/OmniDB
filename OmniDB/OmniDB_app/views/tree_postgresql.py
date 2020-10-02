@@ -57,6 +57,7 @@ def get_tree_info(request, v_database):
                 'create_eventtriggerfunction': v_database.TemplateCreateEventTriggerFunction().v_text,
                 'drop_eventtriggerfunction': v_database.TemplateDropEventTriggerFunction().v_text,
                 'create_aggregate': v_database.TemplateCreateAggregate().v_text,
+                'alter_aggregate': v_database.TemplateAlterAggregate().v_text,
                 'drop_aggregate': v_database.TemplateDropAggregate().v_text,
                 'create_view': v_database.TemplateCreateView().v_text,
                 'drop_view': v_database.TemplateDropView().v_text,

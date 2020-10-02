@@ -121,6 +121,13 @@
 .omnidb--theme-dark .omnidb__utilities-menu .omnidb__menu__btn-text {
   color: #DCDDDE !important;
 }
+.omnidb--theme-dark .omnidb__utilities-menu .fa-code-branch {
+  color: #FFF;
+}
+.omnidb--theme-dark .omnidb__utilities-menu .badge-info {
+  color: #585858;
+  background-color: #FFF;
+}
 
 .omnidb--theme-dark a {
   color: #92c7ff;

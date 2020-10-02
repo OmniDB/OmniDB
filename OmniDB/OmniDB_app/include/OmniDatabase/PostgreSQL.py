@@ -33,6 +33,7 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 from urllib.parse import urlparse
 
 import threading
+import hashlib
 
 '''
 ------------------------------------------------------------------------
@@ -11709,3 +11710,17 @@ FROM #table_name#
             {1}
             order by sequence,result_complete
         '''.format(p_columns,p_filter), True)
+
+    @lock_required
+    def ChangeRolePassword(self, p_role, p_password):
+        self.v_connection.Execute(
+            '''
+                ALTER ROLE {0}
+                    WITH PASSWORD '{1}'
+            '''.format(
+                p_role,
+                'md5{0}'.format(
+                    hashlib.md5(p_password.encode('utf-8') + p_role.encode('utf-8')).hexdigest()
+                )
+            )
+        )

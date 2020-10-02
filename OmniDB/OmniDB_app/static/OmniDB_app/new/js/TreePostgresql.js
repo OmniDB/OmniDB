@@ -1679,6 +1679,63 @@ function getTreePostgresql(p_div) {
         },
         'cm_role': {
             elements: [{
+                text: 'Change Password',
+                icon: 'fas cm-all fa-key',
+                action: function(node) {
+                    var v_html =
+                        '<div class="form-row">' +
+                        '    <div class="col-md-12 mb-3">' +
+                        '        <label for="change_pwd_role">Password</label>' +
+                        '        <input type="password" id="change_pwd_role" class="form-control" placeholder="password" />' +
+                        '    </div>' +
+                        '    <div class="col-md-12 mb-3">' +
+                        '        <label for="change_pwd_role_confirm">Password confirmation</label>' +
+                        '        <input type="password" id="change_pwd_role_confirm" class="form-control" placeholder="password confirmation" />' +
+                        '    </div>' +
+                        '</div>';
+
+                    showConfirm(
+                        v_html,
+                        function(p_node) {
+                            var v_password = document.getElementById('change_pwd_role').value;
+                            var v_password_confirm = document.getElementById('change_pwd_role_confirm').value;
+
+                            if(v_password == '') {
+                                showAlert('Password is empty.');
+                                return;
+                            }
+
+                            if(v_password_confirm == '') {
+                                showAlert('Password confirmation is empty.');
+                                return;
+                            }
+
+                            if(v_password != v_password_confirm) {
+                                showAlert('Passwords do not match.');
+                                return;
+                            }
+
+                            execAjax(
+                                '/change_role_password_postgresql/',
+                                JSON.stringify({
+                                    "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                                    "p_tab_id": v_connTabControl.selectedTab.id,
+                                    "p_role": p_node.text,
+                                    "p_password": v_password
+                                }),
+                                function(p_return) {
+                                    showAlert('Password changed successfully.');
+                                },
+                                function(p_return) {
+                                    showAlert(p_return.v_data.message);
+                                },
+                                'box',
+                                false
+                            );
+                        }.bind(null, node)
+                    )
+                }
+            }, {
                 text: 'Alter Role',
                 icon: 'fas cm-all fa-edit',
                 action: function(node) {

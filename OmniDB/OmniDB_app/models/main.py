@@ -15,6 +15,7 @@ class UserDetails(models.Model):
 class Shortcut(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     code = models.CharField(max_length=200, blank=False)
+    os = models.CharField(max_length=200, blank=False)
     ctrl_pressed = models.BooleanField(default=False)
     shift_pressed = models.BooleanField(default=False)
     alt_pressed = models.BooleanField(default=False)

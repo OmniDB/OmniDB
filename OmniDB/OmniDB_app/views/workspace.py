@@ -54,27 +54,15 @@ def index(request):
 
     try:
         user_shortcuts = Shortcut.objects.filter(user=request.user)
-    except Exception as exc:
-        None
-
-    try:
-        for default_shortcut in Shortcut.objects.filter(user=None):
-            # Search if there is a corresponding user shortcut
-            found = False
-            for user_shortcut in user_shortcuts:
-                if user_shortcut.code == default_shortcut.code:
-                    found = True
-                    current_shortcut = user_shortcut
-            if not found:
-                current_shortcut = default_shortcut
-            # Adding the selected shortctur
-            shortcut_object[current_shortcut.code] = {
-                'ctrl_pressed': 1 if current_shortcut.ctrl_pressed else 0,
-                'shift_pressed': 1 if current_shortcut.shift_pressed else 0,
-                'alt_pressed': 1 if current_shortcut.alt_pressed else 0,
-                'meta_pressed': 1 if current_shortcut.meta_pressed else 0,
-                'shortcut_key': current_shortcut.key,
-                'shortcut_code': current_shortcut.code
+        for shortcut in user_shortcuts:
+            shortcut_object[shortcut.code] = {
+                'ctrl_pressed': 1 if shortcut.ctrl_pressed else 0,
+                'shift_pressed': 1 if shortcut.shift_pressed else 0,
+                'alt_pressed': 1 if shortcut.alt_pressed else 0,
+                'meta_pressed': 1 if shortcut.meta_pressed else 0,
+                'shortcut_key': shortcut.key,
+                'os': shortcut.os,
+                'shortcut_code': shortcut.code
             }
     except Exception as exc:
         None
@@ -232,6 +220,7 @@ def save_shortcuts(request):
 
     json_object = json.loads(request.POST.get('data', None))
     v_shortcuts = json_object['p_shortcuts']
+    v_current_os = json_object['p_current_os']
 
     try:
         #Delete existing user shortcuts
@@ -242,6 +231,7 @@ def save_shortcuts(request):
             shortcut_object = Shortcut(
                 user=request.user,
                 code=v_shortcut['shortcut_code'],
+                os=v_current_os,
                 ctrl_pressed= True if v_shortcut['ctrl_pressed']==1 else False,
                 shift_pressed= True if v_shortcut['shift_pressed']==1 else False,
                 alt_pressed= True if v_shortcut['alt_pressed']==1 else False,

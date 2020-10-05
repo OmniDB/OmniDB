@@ -21,40 +21,40 @@ from django.contrib.auth import logout as logout_django
 from OmniDB_app.models.main import *
 from django.contrib.auth.models import User
 
+from django.contrib.auth.decorators import login_required
+
 import logging
 logger = logging.getLogger(__name__)
 
+@login_required
 def check_session(request):
-    if not request.user.is_authenticated:
-        return redirect('/omnidb_login')
-    else:
-        # User is authenticated, check if user details object exists.
-        try:
-            user_details = UserDetails.objects.get(user=request.user)
-        # User details does not exist, create it.
-        except Exception:
-            user_details = UserDetails(user=request.user)
-            user_details.save()
+    # User is authenticated, check if user details object exists.
+    try:
+        user_details = UserDetails.objects.get(user=request.user)
+    # User details does not exist, create it.
+    except Exception:
+        user_details = UserDetails(user=request.user)
+        user_details.save()
 
-        #Invalid session
-        if not request.session.get('omnidb_session'):
-            #creating session key to use it
-            request.session.save()
+    #Invalid session
+    if not request.session.get('omnidb_session'):
+        #creating session key to use it
+        request.session.save()
 
-            v_session = Session(
-                request.user.id,
-                request.user.username,
-                'light',
-                user_details.font_size,
-                request.user.is_superuser,
-                request.session.session_key,
-                user_details.csv_encoding,
-                user_details.csv_delimiter
-            )
+        v_session = Session(
+            request.user.id,
+            request.user.username,
+            'light',
+            user_details.font_size,
+            request.user.is_superuser,
+            request.session.session_key,
+            user_details.csv_encoding,
+            user_details.csv_delimiter
+        )
 
-            request.session['omnidb_session'] = v_session
+        request.session['omnidb_session'] = v_session
 
-        return redirect('/workspace')
+    return redirect('/workspace')
 
 def index(request):
     context = {
@@ -148,9 +148,6 @@ def sign_in(request):
     json_object = json.loads(request.POST.get('data', None))
     username = json_object['p_username']
     pwd = json_object['p_pwd']
-
-    print(username)
-    print(pwd)
 
     user = authenticate(username=username, password=pwd)
     if user is not None:

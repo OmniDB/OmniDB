@@ -330,7 +330,10 @@ function saveShortcuts() {
     }
   }
 
-	var input = JSON.stringify({"p_shortcuts": v_shortcut_list});
+	var input = JSON.stringify({
+		"p_shortcuts": v_shortcut_list,
+		"p_current_os": v_current_os
+	});
 
 	execAjax('/save_shortcuts/',
 			input,

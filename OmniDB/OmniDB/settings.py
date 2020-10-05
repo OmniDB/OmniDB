@@ -12,31 +12,35 @@ DEBUG = custom_settings.DEV_MODE
 DESKTOP_MODE = custom_settings.DESKTOP_MODE
 BASE_DIR = custom_settings.BASE_DIR
 HOME_DIR = custom_settings.HOME_DIR
-SESSION_COOKIE_SECURE = custom_settings.SESSION_COOKIE_SECURE
-CSRF_COOKIE_SECURE = custom_settings.CSRF_COOKIE_SECURE
-CSRF_TRUSTED_ORIGINS = custom_settings.CSRF_TRUSTED_ORIGINS
-SESSION_COOKIE_NAME = custom_settings.SESSION_COOKIE_NAME
-CSRF_COOKIE_NAME = custom_settings.CSRF_COOKIE_NAME
-ALLOWED_HOSTS = custom_settings.ALLOWED_HOSTS
-
 TEMP_DIR = os.path.join(BASE_DIR,'OmniDB_app','static','temp')
 PLUGINS_DIR = os.path.join(BASE_DIR,'OmniDB_app','plugins')
 PLUGINS_STATIC_DIR = os.path.join(BASE_DIR,'OmniDB_app','static','plugins')
 APP_DIR = os.path.join(BASE_DIR,'OmniDB_app')
+
+SESSION_COOKIE_SECURE = custom_settings.SESSION_COOKIE_SECURE
+CSRF_COOKIE_SECURE = custom_settings.CSRF_COOKIE_SECURE
+CSRF_TRUSTED_ORIGINS = []
+SESSION_COOKIE_NAME = 'omnidb_sessionid'
+CSRF_COOKIE_NAME = 'omnidb_csrftoken'
+ALLOWED_HOSTS = ['*']
+
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(HOME_DIR, 'omnidb.db')
+    }
+}
 
 if DEBUG:
     SECRET_KEY = 'ijbq-+%n_(_^ct+qnqp%ir8fzu3n#q^i71j4&y#-6#qe(dx!h3'
 else:
     SECRET_KEY = ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(50))
 
-
-LOGIN_URL = '/'
+LOGIN_URL = '/omnidb_login'
 LOGIN_REDIRECT_URL = '/'
 
-
-
 INSTALLED_APPS = [
-#    'OmniDB_app.apps.OmnidbAppConfig',
     'OmniDB_app',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -120,9 +124,6 @@ AUTHENTICATION_BACKENDS = [
 
 SOCIAL_AUTH_GITHUB_KEY = 'Iv1.b66f09dc30df16f3'
 SOCIAL_AUTH_GITHUB_SECRET = '3403a3cc31a991d48ef72fbd73fa45e3af5b62ba'
-
-# Database
-DATABASES = custom_settings.DATABASE
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -219,6 +220,6 @@ LOGGING = {
 OMNIDB_VERSION                 = custom_settings.OMNIDB_VERSION
 OMNIDB_SHORT_VERSION           = custom_settings.OMNIDB_SHORT_VERSION
 CH_CMDS_PER_PAGE               = 20
-PWD_TIMEOUT_TOTAL              = custom_settings.PWD_TIMEOUT_TOTAL
+PWD_TIMEOUT_TOTAL              = 1800
 PWD_TIMEOUT_REFRESH            = 300
-THREAD_POOL_MAX_WORKERS        = custom_settings.THREAD_POOL_MAX_WORKERS
+THREAD_POOL_MAX_WORKERS        = 2

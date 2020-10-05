@@ -284,7 +284,7 @@ function deleteMonitorUnit(p_unit_id) {
         execAjax('/delete_monitor_unit/',
               input,
               function(p_return) {
-                showMonitorUnitList();
+                refreshMonitorUnitsList();
               },
               null,
               'box');
@@ -463,7 +463,7 @@ $('#modal_monitoring_unit_test').on('shown.bs.modal', function (e) {
             if (p_return.v_data.v_error) {
               v_div_result.innerHTML = '<div class=error_text>' + p_return.v_data.v_message + '</div>';
             }
-            else if (v_type=='chart_append' || v_type=='chart') {
+            else if (v_type=='timeseries' || v_type=='chart') {
               var canvas = document.createElement('canvas');
               canvas.style.height = '250px';
               canvas.style.width = v_div_result.offsetWidth;
@@ -598,20 +598,7 @@ function testMonitorScript() {
 
 }
 
-function refreshMonitorUnitsObjects() {
-  v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-  for (var i=0; i<v_tab_tag.units.length; i++) {
-    if (v_tab_tag.units[i].type=='grid') {
-      if (v_tab_tag.units[i].object) {
-        v_tab_tag.units[i].object.render();
-      }
-    }
-  }
-
-}
-
-$('#modal_monitoring_units').on('shown.bs.modal', function (e) {
-
+function refreshMonitorUnitsList() {
   var input = JSON.stringify({"p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
                               "p_tab_id": v_connTabControl.selectedTab.id,
                               "p_mode": 0});
@@ -694,6 +681,23 @@ $('#modal_monitoring_units').on('shown.bs.modal', function (e) {
         },
         null,
         'box');
+}
+
+function refreshMonitorUnitsObjects() {
+  v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+  for (var i=0; i<v_tab_tag.units.length; i++) {
+    if (v_tab_tag.units[i].type=='grid') {
+      if (v_tab_tag.units[i].object) {
+        v_tab_tag.units[i].object.render();
+      }
+    }
+  }
+
+}
+
+$('#modal_monitoring_units').on('shown.bs.modal', function (e) {
+
+  refreshMonitorUnitsList();
 
 });
 
@@ -787,7 +791,7 @@ function refreshMonitorDashboard(p_loading,p_tab_tag,p_div) {
 
               try {
                 // Chart unit
-                if (v_return_unit.v_type=='chart_append' || v_return_unit.v_type=='chart') {
+                if (v_return_unit.v_type=='timeseries' || v_return_unit.v_type=='chart') {
 
                   $(v_unit.div_loading).fadeOut(100);
 

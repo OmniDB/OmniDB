@@ -6,5 +6,5 @@ class OmniDBOpenIdConnect(OpenIdConnectAuth):
     """
     SecondQuadrant authentication provider
     """
-    name = 'oidconnect'
+    name = settings.SOCIAL_AUTH_OIDCONNECT_NAME
     OIDC_ENDPOINT = settings.SOCIAL_AUTH_OIDCONNECT_URL

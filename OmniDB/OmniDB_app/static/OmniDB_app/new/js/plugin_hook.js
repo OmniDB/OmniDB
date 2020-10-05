@@ -226,7 +226,7 @@ $.ajax({
     success: function(data) {
         if (!data.v_error) {
           showAlert('Plugin successfully installed, please restart OmniDB.');
-          showPlugins();
+          showPluginsRender();
         }
         else
         {
@@ -255,7 +255,7 @@ function reloadPlugins() {
                 execAjax('/reload_plugins/',
               			JSON.stringify({}),
               			function(p_return) {
-                      showPlugins();
+                      showPluginsRender();
                       showAlert('Plugins reloaded, please reload this page to reload client changes.<br><br><button onclick="location.reload();">Reload now</button>')
               			},
               			null,
@@ -291,15 +291,14 @@ function deletePlugin(p_plugin_name,p_plugin_folder) {
   			JSON.stringify({'p_plugin_name': p_plugin_name, "p_plugin_folder": p_plugin_folder}),
   			function(p_return) {
           showAlert(p_return.v_data);
-          showPlugins();
+          showPluginsRender();
         },
         null,
         'box');
   })
 }
 
-$('#modal_plugins').on('shown.bs.modal', function (e) {
-
+function showPluginsRender() {
   execAjax('/list_plugins/',
 			JSON.stringify({}),
 			function(p_return) {
@@ -396,6 +395,11 @@ $('#modal_plugins').on('shown.bs.modal', function (e) {
 				},
 				null,
 				'box');
+}
+
+$('#modal_plugins').on('shown.bs.modal', function (e) {
+
+  showPluginsRender();
 
 });
 

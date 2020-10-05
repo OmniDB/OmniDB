@@ -129,35 +129,35 @@ omnidb_settings = module
 if options.host!=None:
     listening_address = options.host
 else:
-    if hasattr(omnidb_settings,'listening_address'):
-        listening_address = omnidb_settings.listening_address
+    if hasattr(omnidb_settings,'LISTENING_ADDRESS'):
+        listening_address = omnidb_settings.LISTENING_ADDRESS
     else:
-        listening_address = OmniDB.custom_settings.OMNIDB_ADDRESS
+        listening_address = '127.0.0.1'
 
 if options.port!=None:
     listening_port = options.port
 else:
-    if hasattr(omnidb_settings,'listening_port'):
-        listening_port = omnidb_settings.listening_port
+    if hasattr(omnidb_settings,'LISTENING_PORT'):
+        listening_port = omnidb_settings.LISTENING_PORT
     else:
         listening_port = 8000
 
 if options.path!='':
     OmniDB.custom_settings.PATH = options.path
 else:
-    if hasattr(omnidb_settings,'path'):
-        OmniDB.custom_settings.PATH = omnidb_settings.path
+    if hasattr(omnidb_settings,'CUSTOM_PATH'):
+        OmniDB.custom_settings.PATH = omnidb_settings.CUSTOM_PATH
 
-if hasattr(omnidb_settings,'is_ssl'):
-    is_ssl = omnidb_settings.is_ssl
+if hasattr(omnidb_settings,'IS_SSL'):
+    is_ssl = omnidb_settings.IS_SSL
     if is_ssl:
         OmniDB.custom_settings.SESSION_COOKIE_SECURE = True
         OmniDB.custom_settings.CSRF_COOKIE_SECURE = True
 else:
     is_ssl = False
 
-if hasattr(omnidb_settings,'ssl_certificate_file'):
-    ssl_certificate_file = omnidb_settings.ssl_certificate_file
+if hasattr(omnidb_settings,'SSL_CERTIFICATE_FILE'):
+    ssl_certificate_file = omnidb_settings.SSL_CERTIFICATE_FILE
 
     if is_ssl and not os.path.exists(ssl_certificate_file):
         print("Certificate file not found. Please specify a file that exists.",flush=True)
@@ -165,8 +165,8 @@ if hasattr(omnidb_settings,'ssl_certificate_file'):
 else:
     ssl_certificate_file = ''
 
-if hasattr(omnidb_settings,'ssl_key_file'):
-    ssl_key_file = omnidb_settings.ssl_key_file
+if hasattr(omnidb_settings,'SSL_KEY_FILE'):
+    ssl_key_file = omnidb_settings.SSL_KEY_FILE
 
     if is_ssl and not os.path.exists(ssl_key_file):
         print("Key file not found. Please specify a file that exists.",flush=True)
@@ -174,50 +174,14 @@ if hasattr(omnidb_settings,'ssl_key_file'):
 else:
     ssl_key_file = ''
 
-if hasattr(omnidb_settings,'allowed_hosts'):
-    OmniDB.custom_settings.ALLOWED_HOSTS = omnidb_settings.allowed_hosts
-
-if hasattr(omnidb_settings,'session_cookie_name'):
-    OmniDB.custom_settings.SESSION_COOKIE_NAME = omnidb_settings.session_cookie_name
-
-if hasattr(omnidb_settings,'csrf_cookie_name'):
-    OmniDB.custom_settings.CSRF_COOKIE_NAME = omnidb_settings.csrf_cookie_name
-
-if hasattr(omnidb_settings,'csrf_trusted_origins'):
-    OmniDB.custom_settings.CSRF_TRUSTED_ORIGINS = omnidb_settings.csrf_trusted_origins
-
-if hasattr(omnidb_settings,'thread_pool_max_workers'):
-    OmniDB.custom_settings.THREAD_POOL_MAX_WORKERS = omnidb_settings.thread_pool_max_workers
-
-if hasattr(omnidb_settings,'pwd_timeout_total'):
-    OmniDB.custom_settings.PWD_TIMEOUT_TOTAL = omnidb_settings.pwd_timeout_total
-
-if hasattr(omnidb_settings,'database'):
-    if 'TECHNOLOGY' in omnidb_settings.database:
-        if omnidb_settings.database['TECHNOLOGY'] == 'sqlite':
-            OmniDB.custom_settings.DATABASE = {
-                'default': {
-                    'ENGINE': 'django.db.backends.sqlite3',
-                    'NAME': os.path.join(OmniDB.custom_settings.HOME_DIR, 'omnidb.db')
-                }
-            }
-        elif omnidb_settings.database['TECHNOLOGY'] == 'postgresql':
-            omnidb_settings.database['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
-            OmniDB.custom_settings.DATABASE = {
-                'default': omnidb_settings.database
-            }
-        else:
-            print("Database technology is not supported.",flush=True)
-            sys.exit()
-    else:
-        print("Database setting does not specify the technology.",flush=True)
-        sys.exit()
-else:
-    print("Database setting not specified in the config file.",flush=True)
-    sys.exit()
-
 #importing settings after setting HOME_DIR and other required parameters
 import OmniDB.settings
+
+# Adjust OmniDB settings based on the content of the config file
+for attribute, value in omnidb_settings.__dict__.items():
+    setattr(OmniDB.settings,attribute,value)
+
+
 
 import logging
 import logging.config
@@ -234,12 +198,6 @@ django.setup()
 from OmniDB_app.models.main import *
 from django.contrib.auth.models import User
 from django.utils import timezone
-import social_django
-import social_django.urls
-import social_django.config
-import social_django.strategy
-import social_django.models
-import social_core.backends.github
 
 maintenance_action = False
 
@@ -381,6 +339,14 @@ if platform.system() != 'Windows':
     except Exception as exc:
         print("OmniDB is already running pointing to directoy '{0}'.".format(OmniDB.custom_settings.HOME_DIR))
         exit()
+
+import social_django
+import social_django.urls
+import social_django.config
+import social_django.strategy
+import social_django.models
+import social_core.backends.github
+import django_auth_ldap
 
 import html.parser
 import http.cookies

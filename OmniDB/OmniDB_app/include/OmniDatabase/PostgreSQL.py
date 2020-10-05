@@ -6240,6 +6240,190 @@ FROM #table_name#
                 where quote_ident(n.nspname) = '{0}'
                   and quote_ident(c.relname) = '{1}'
             '''.format(p_schema, p_object))
+
+    @lock_required
+    def GetPropertiesTableField(self, p_schema, p_table, p_object):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
+            return self.v_connection.Query(
+                '''
+                    SELECT current_database() AS "Database",
+                           n.nspname AS "Schema",
+                           c.relname AS "Table",
+                           a.attname AS "Column",
+                           c.oid AS "OID",
+                           r.rolname AS "Owner",
+                           a.atttypid::regtype AS "Type",
+                           a.attstattarget AS "Statistics Target",
+                           a.attlen AS "Type Length",
+                           a.attnum AS "Position",
+                           a.attndims AS "Dimension",
+                           a.attcacheoff AS "Cache Offset",
+                           a.atttypmod AS "Type Mod",
+                           a.attbyval AS "By Value",
+                           a.attstorage AS "Storage Type",
+                           a.attalign AS "Storage Alignment",
+                           a.attnotnull AS "Not Null",
+                           a.atthasdef AS "Has Default",
+                           a.attisdropped AS "Is Dropped",
+                           a.attislocal AS "Is Local",
+                           a.attinhcount AS "Inherited Count",
+                           a.attcollation AS "Collate",
+                           a.attacl AS "ACL",
+                           a.attoptions AS "Options",
+                           a.attfdwoptions AS "FDW Options"
+                    FROM pg_class c
+                    INNER JOIN pg_namespace n
+                            ON c.relnamespace = n.oid
+                    INNER JOIN pg_roles r
+                            ON c.relowner = r.oid
+                    INNER JOIN pg_attribute a
+                            ON c.oid = a.attrelid
+                    WHERE c.oid = '{0}.{1}'::regclass
+                      AND a.attname = quote_ident('{2}')
+                '''.format(
+                    p_schema,
+                    p_table,
+                    p_object
+                )
+            )
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
+            return self.v_connection.Query(
+                '''
+                    SELECT current_database() AS "Database",
+                           n.nspname AS "Schema",
+                           c.relname AS "Table",
+                           a.attname AS "Column",
+                           c.oid AS "OID",
+                           r.rolname AS "Owner",
+                           a.atttypid::regtype AS "Type",
+                           a.attstattarget AS "Statistics Target",
+                           a.attlen AS "Type Length",
+                           a.attnum AS "Position",
+                           a.attndims AS "Dimension",
+                           a.attcacheoff AS "Cache Offset",
+                           a.atttypmod AS "Type Mod",
+                           a.attbyval AS "By Value",
+                           a.attstorage AS "Storage Type",
+                           a.attalign AS "Storage Alignment",
+                           a.attnotnull AS "Not Null",
+                           a.atthasdef AS "Has Default",
+                           a.attidentity AS "Identitiy",
+                           a.attisdropped AS "Is Dropped",
+                           a.attislocal AS "Is Local",
+                           a.attinhcount AS "Inherited Count",
+                           a.attcollation AS "Collate",
+                           a.attacl AS "ACL",
+                           a.attoptions AS "Options",
+                           a.attfdwoptions AS "FDW Options"
+                    FROM pg_class c
+                    INNER JOIN pg_namespace n
+                            ON c.relnamespace = n.oid
+                    INNER JOIN pg_roles r
+                            ON c.relowner = r.oid
+                    INNER JOIN pg_attribute a
+                            ON c.oid = a.attrelid
+                    WHERE c.oid = '{0}.{1}'::regclass
+                      AND a.attname = quote_ident('{2}')
+                '''.format(
+                    p_schema,
+                    p_table,
+                    p_object
+                )
+            )
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 120000:
+            return self.v_connection.Query(
+                '''
+                    SELECT current_database() AS "Database",
+                           n.nspname AS "Schema",
+                           c.relname AS "Table",
+                           a.attname AS "Column",
+                           c.oid AS "OID",
+                           r.rolname AS "Owner",
+                           a.atttypid::regtype AS "Type",
+                           a.attstattarget AS "Statistics Target",
+                           a.attlen AS "Type Length",
+                           a.attnum AS "Position",
+                           a.attndims AS "Dimension",
+                           a.attcacheoff AS "Cache Offset",
+                           a.atttypmod AS "Type Mod",
+                           a.attbyval AS "By Value",
+                           a.attstorage AS "Storage Type",
+                           a.attalign AS "Storage Alignment",
+                           a.attnotnull AS "Not Null",
+                           a.atthasdef AS "Has Default",
+                           a.atthasmissing AS "Has Missing",
+                           a.attidentity AS "Identitiy",
+                           a.attisdropped AS "Is Dropped",
+                           a.attislocal AS "Is Local",
+                           a.attinhcount AS "Inherited Count",
+                           a.attcollation AS "Collate",
+                           a.attacl AS "ACL",
+                           a.attoptions AS "Options",
+                           a.attfdwoptions AS "FDW Options",
+                           attmissingval AS "Missing Value"
+                    FROM pg_class c
+                    INNER JOIN pg_namespace n
+                            ON c.relnamespace = n.oid
+                    INNER JOIN pg_roles r
+                            ON c.relowner = r.oid
+                    INNER JOIN pg_attribute a
+                            ON c.oid = a.attrelid
+                    WHERE c.oid = '{0}.{1}'::regclass
+                      AND a.attname = quote_ident('{2}')
+                '''.format(
+                    p_schema,
+                    p_table,
+                    p_object
+                )
+            )
+        else:
+            return self.v_connection.Query(
+                '''
+                    SELECT current_database() AS "Database",
+                           n.nspname AS "Schema",
+                           c.relname AS "Table",
+                           a.attname AS "Column",
+                           c.oid AS "OID",
+                           r.rolname AS "Owner",
+                           a.atttypid::regtype AS "Type",
+                           a.attstattarget AS "Statistics Target",
+                           a.attlen AS "Type Length",
+                           a.attnum AS "Position",
+                           a.attndims AS "Dimension",
+                           a.attcacheoff AS "Cache Offset",
+                           a.atttypmod AS "Type Mod",
+                           a.attbyval AS "By Value",
+                           a.attstorage AS "Storage Type",
+                           a.attalign AS "Storage Alignment",
+                           a.attnotnull AS "Not Null",
+                           a.atthasdef AS "Has Default",
+                           a.atthasmissing AS "Has Missing",
+                           a.attidentity AS "Identitiy",
+                           a.attgenerated AS "Generated",
+                           a.attisdropped AS "Is Dropped",
+                           a.attislocal AS "Is Local",
+                           a.attinhcount AS "Inherited Count",
+                           a.attcollation AS "Collate",
+                           a.attacl AS "ACL",
+                           a.attoptions AS "Options",
+                           a.attfdwoptions AS "FDW Options",
+                           attmissingval AS "Missing Value"
+                    FROM pg_class c
+                    INNER JOIN pg_namespace n
+                            ON c.relnamespace = n.oid
+                    INNER JOIN pg_roles r
+                            ON c.relowner = r.oid
+                    INNER JOIN pg_attribute a
+                            ON c.oid = a.attrelid
+                    WHERE c.oid = '{0}.{1}'::regclass
+                      AND a.attname = quote_ident('{2}')
+                '''.format(
+                    p_schema,
+                    p_table,
+                    p_object
+                )
+            )
+
     @lock_required
     def GetPropertiesIndex(self, p_schema, p_object):
         return self.v_connection.Query('''
@@ -7729,6 +7913,8 @@ FROM #table_name#
                 return self.GetPropertiesSchema(p_object).Transpose('Property', 'Value')
             elif p_type == 'table':
                 return self.GetPropertiesTable(p_schema, p_object).Transpose('Property', 'Value')
+            elif p_type == 'table_field':
+                return self.GetPropertiesTableField(p_schema, p_table, p_object).Transpose('Property', 'Value')
             elif p_type == 'index':
                 return self.GetPropertiesIndex(p_schema, p_object).Transpose('Property', 'Value')
             elif p_type == 'sequence':
@@ -11490,6 +11676,276 @@ FROM #table_name#
                 )
             )
 
+    def GetDDLTableField(self, p_schema, p_table, p_object):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
+            return self.v_connection.ExecuteScalar(
+                '''
+                    WITH columns AS (
+                        SELECT format(
+                                   '%I %s%s%s',
+                                   a.attname::text,
+                                   format_type(t.oid, a.atttypmod),
+                                   (CASE WHEN length(col.collcollate) > 0
+                                         THEN ' COLLATE ' || quote_ident(col.collcollate::text)
+                                         ELSE ''
+                                    END),
+                                   (CASE WHEN a.attnotnull
+                                         THEN ' NOT NULL'::text
+                                         ELSE ''::text
+                                    END)
+                               ) AS definition,
+                               a.attname AS name,
+                               col_description(c.oid, a.attnum::integer) AS comment,
+                               pg_get_expr(def.adbin, def.adrelid) AS default_value
+                        FROM pg_class c
+                        INNER JOIN pg_namespace s
+                                ON s.oid = c.relnamespace
+                        INNER JOIN pg_attribute a
+                                ON c.oid = a.attrelid
+                        LEFT JOIN pg_attrdef def
+                               ON c.oid = def.adrelid
+                              AND a.attnum = def.adnum
+                        LEFT JOIN pg_constraint con
+                               ON con.conrelid = c.oid
+                              AND (a.attnum = ANY (con.conkey))
+                              AND con.contype = 'p'
+                        LEFT JOIN pg_type t
+                               ON t.oid = a.atttypid
+                        LEFT JOIN pg_collation col
+                               ON col.oid = a.attcollation
+                        INNER JOIN pg_namespace tn
+                                ON tn.oid = t.typnamespace
+                        WHERE c.relkind IN ('r', 'p')
+                          AND a.attnum > 0
+                          AND NOT a.attisdropped
+                          AND has_table_privilege(c.oid, 'select')
+                          AND has_schema_privilege(s.oid, 'usage')
+                          AND c.oid = '{0}.{1}'::regclass
+                          AND a.attname = '{2}'
+                    ),
+                    comments AS (
+                        SELECT format(
+                                   E'\n\nCOMMENT ON COLUMN %s.%s IS %s;',
+                                   '{0}.{1}',
+                                   quote_ident(name),
+                                   quote_nullable(comment)
+                               ) AS definition
+                        FROM columns
+                        WHERE comment IS NOT NULL
+                    ),
+                    defaults AS (
+                        SELECT format(
+                                   E'\n\nALTER TABLE %s\n\tALTER %s SET DEFAULT %s;',
+                                   '{0}.{1}'::regclass,
+                                   quote_ident(name),
+                                   default_value
+                               ) AS definition
+                    FROM columns
+                    WHERE default_value IS NOT NULL
+                    )
+                    SELECT format(
+                                E'ALTER TABLE %s\n\tADD COLUMN %s;%s%s',
+                                '{0}.{1}'::regclass,
+                                col.definition,
+                                coalesce(com.definition, ''),
+                                coalesce(def.definition, '')
+                           )
+                    FROM columns col
+                    LEFT JOIN comments com
+                           ON 1 = 1
+                    LEFT JOIN defaults def
+                           ON 1 = 1
+                '''.format(
+                    p_schema,
+                    p_table,
+                    p_object
+                )
+            )
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return self.v_connection.ExecuteScalar(
+                '''
+                    WITH columns AS (
+                        SELECT format(
+                                   '%I %s%s%s%s',
+                                   a.attname::text,
+                                   format_type(t.oid, a.atttypmod),
+                                   (CASE WHEN length(col.collcollate) > 0
+                                         THEN ' COLLATE ' || quote_ident(col.collcollate::text)
+                                         ELSE ''
+                                    END),
+                                   (CASE WHEN a.attnotnull
+                                         THEN ' NOT NULL'::text
+                                         ELSE ''::text
+                                    END),
+                                   (CASE WHEN a.attidentity = 'a'
+                                         THEN ' GENERATED ALWAYS AS IDENTITY'::text
+                                         WHEN a.attidentity = 'd'
+                                         THEN ' GENERATED BY DEFAULT AS IDENTITY'::text
+                                         ELSE ''::text
+                                    END)
+                               ) AS definition,
+                               a.attname AS name,
+                               col_description(c.oid, a.attnum::integer) AS comment,
+                               pg_get_expr(def.adbin, def.adrelid) AS default_value
+                        FROM pg_class c
+                        INNER JOIN pg_namespace s
+                                ON s.oid = c.relnamespace
+                        INNER JOIN pg_attribute a
+                                ON c.oid = a.attrelid
+                        LEFT JOIN pg_attrdef def
+                               ON c.oid = def.adrelid
+                              AND a.attnum = def.adnum
+                        LEFT JOIN pg_constraint con
+                               ON con.conrelid = c.oid
+                              AND (a.attnum = ANY (con.conkey))
+                              AND con.contype = 'p'
+                        LEFT JOIN pg_type t
+                               ON t.oid = a.atttypid
+                        LEFT JOIN pg_collation col
+                               ON col.oid = a.attcollation
+                        INNER JOIN pg_namespace tn
+                                ON tn.oid = t.typnamespace
+                        WHERE c.relkind IN ('r', 'p')
+                          AND a.attnum > 0
+                          AND NOT a.attisdropped
+                          AND has_table_privilege(c.oid, 'select')
+                          AND has_schema_privilege(s.oid, 'usage')
+                          AND c.oid = '{0}.{1}'::regclass
+                          AND a.attname = '{2}'
+                    ),
+                    comments AS (
+                        SELECT format(
+                                   E'\n\nCOMMENT ON COLUMN %s.%s IS %s;',
+                                   '{0}.{1}',
+                                   quote_ident(name),
+                                   quote_nullable(comment)
+                               ) AS definition
+                        FROM columns
+                        WHERE comment IS NOT NULL
+                    ),
+                    defaults AS (
+                        SELECT format(
+                                   E'\n\nALTER TABLE %s\n\tALTER %s SET DEFAULT %s;',
+                                   '{0}.{1}'::regclass,
+                                   quote_ident(name),
+                                   default_value
+                               ) AS definition
+                    FROM columns
+                    WHERE default_value IS NOT NULL
+                    )
+                    SELECT format(
+                                E'ALTER TABLE %s\n\tADD COLUMN %s;%s%s',
+                                '{0}.{1}'::regclass,
+                                col.definition,
+                                coalesce(com.definition, ''),
+                                coalesce(def.definition, '')
+                           )
+                    FROM columns col
+                    LEFT JOIN comments com
+                           ON 1 = 1
+                    LEFT JOIN defaults def
+                           ON 1 = 1
+                '''.format(
+                    p_schema,
+                    p_table,
+                    p_object
+                )
+            )
+        else:
+            return self.v_connection.ExecuteScalar(
+                '''
+                    WITH columns AS (
+                        SELECT format(
+                                   '%I %s%s%s%s',
+                                   a.attname::text,
+                                   format_type(t.oid, a.atttypmod),
+                                   (CASE WHEN length(col.collcollate) > 0
+                                         THEN ' COLLATE ' || quote_ident(col.collcollate::text)
+                                         ELSE ''
+                                    END),
+                                   (CASE WHEN a.attnotnull
+                                         THEN ' NOT NULL'::text
+                                         ELSE ''::text
+                                    END),
+                                   (CASE WHEN a.attidentity = 'a'
+                                         THEN ' GENERATED ALWAYS AS IDENTITY'::text
+                                         WHEN a.attidentity = 'd'
+                                         THEN ' GENERATED BY DEFAULT AS IDENTITY'::text
+                                         WHEN a.attgenerated = 's'
+                                         THEN format(' GENERATED ALWAYS AS %s STORED', pg_get_expr(def.adbin, def.adrelid))::text
+                                         ELSE ''::text
+                                    END)
+                               ) AS definition,
+                               a.attname AS name,
+                               col_description(c.oid, a.attnum::integer) AS comment,
+                               pg_get_expr(def.adbin, def.adrelid) AS default_value,
+                               a.attgenerated AS generated
+                        FROM pg_class c
+                        INNER JOIN pg_namespace s
+                                ON s.oid = c.relnamespace
+                        INNER JOIN pg_attribute a
+                                ON c.oid = a.attrelid
+                        LEFT JOIN pg_attrdef def
+                               ON c.oid = def.adrelid
+                              AND a.attnum = def.adnum
+                        LEFT JOIN pg_constraint con
+                               ON con.conrelid = c.oid
+                              AND (a.attnum = ANY (con.conkey))
+                              AND con.contype = 'p'
+                        LEFT JOIN pg_type t
+                               ON t.oid = a.atttypid
+                        LEFT JOIN pg_collation col
+                               ON col.oid = a.attcollation
+                        INNER JOIN pg_namespace tn
+                                ON tn.oid = t.typnamespace
+                        WHERE c.relkind IN ('r', 'p')
+                          AND a.attnum > 0
+                          AND NOT a.attisdropped
+                          AND has_table_privilege(c.oid, 'select')
+                          AND has_schema_privilege(s.oid, 'usage')
+                          AND c.oid = '{0}.{1}'::regclass
+                          AND a.attname = '{2}'
+                    ),
+                    comments AS (
+                        SELECT format(
+                                   E'\n\nCOMMENT ON COLUMN %s.%s IS %s;',
+                                   '{0}.{1}',
+                                   quote_ident(name),
+                                   quote_nullable(comment)
+                               ) AS definition
+                        FROM columns
+                        WHERE comment IS NOT NULL
+                    ),
+                    defaults AS (
+                        SELECT format(
+                                   E'\n\nALTER TABLE %s\n\tALTER %s SET DEFAULT %s;',
+                                   '{0}.{1}'::regclass,
+                                   quote_ident(name),
+                                   default_value
+                               ) AS definition
+                    FROM columns
+                    WHERE default_value IS NOT NULL
+                      AND generated = ''
+                    )
+                    SELECT format(
+                                E'ALTER TABLE %s\n\tADD COLUMN %s;%s%s',
+                                '{0}.{1}'::regclass,
+                                col.definition,
+                                coalesce(com.definition, ''),
+                                coalesce(def.definition, '')
+                           )
+                    FROM columns col
+                    LEFT JOIN comments com
+                           ON 1 = 1
+                    LEFT JOIN defaults def
+                           ON 1 = 1
+                '''.format(
+                    p_schema,
+                    p_table,
+                    p_object
+                )
+            )
+
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role':
             return self.GetDDLRole(p_object)
@@ -11503,6 +11959,8 @@ FROM #table_name#
             return self.GetDDLSchema(p_object)
         elif p_type == 'table':
             return self.GetDDLClass(p_schema, p_object)
+        elif p_type == 'table_field':
+            return self.GetDDLTableField(p_schema, p_table, p_object)
         elif p_type == 'index':
             return self.GetDDLClass(p_schema, p_object)
         elif p_type == 'sequence':

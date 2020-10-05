@@ -392,9 +392,8 @@
 }
 
 /* JSON BUILDER */
-.omnidb--theme-dark .jsonBuilder--template-2 .jsonBuilder__label,
-.omnidb--theme-dark .jsonBuilder--template-2 .jsonBuilder__li {
-    background-color: #1D1F21;
+.omnidb--theme-dark .jsonBuilder--template-2 .jsonBuilder__label {
+  background-color: #1D1F21;
 }
 
 /* PAGINATION */

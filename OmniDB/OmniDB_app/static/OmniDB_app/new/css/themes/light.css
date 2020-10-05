@@ -394,8 +394,7 @@
 }
 
 /* JSON BUILDER */
-.omnidb--theme-light .jsonBuilder--template-2 .jsonBuilder__label,
-.omnidb--theme-light .jsonBuilder--template-2 .jsonBuilder__li {
+.omnidb--theme-light .jsonBuilder--template-2 .jsonBuilder__label {
   background-color: #E2E2E2;
 }
 

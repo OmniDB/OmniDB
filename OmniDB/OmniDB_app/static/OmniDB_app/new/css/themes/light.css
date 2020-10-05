@@ -90,6 +90,14 @@
   border-color: #e9ecef #e9ecef #dee2e6;
   color: #555;
 }
+/* TABS WITH CARD-HEADERS */
+/* .omnidb--theme-light .omnidb__tab-menu.card-header .nav-tabs .nav-link.active {
+  border-color: #4C5365;
+  border-bottom-color: #27292E;
+} */
+.omnidb--theme-light .card .card-header {
+  border-bottom-color: #D2D2D2;
+}
 
 /* TEXT */
 .omnidb--theme-light .omnidb__theme__text--primary {

@@ -229,11 +229,9 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
 		renameTab : function(p_tab,p_name) {
 
       var v_tab_title_span = $(p_tab.elementA).find('.omnidb__tab-menu__link-name');
-      if (v_tab_title_span)
-        v_tab_title_span.innerHTML = p_name;
-
-			// var v_span = p_tab.elementA.childNodes[0];
-			// v_span.innerHTML = p_name;
+      if (v_tab_title_span) {
+        v_tab_title_span.html(p_name);
+      }
 
 			p_tab.text = p_name;
 

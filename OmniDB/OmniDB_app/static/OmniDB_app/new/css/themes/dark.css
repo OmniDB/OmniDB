@@ -97,6 +97,7 @@
 .omnidb--theme-dark .omnidb__tab-menu.card-header .nav-tabs .nav-link.active {
   border-color: #4C5365;
   border-bottom-color: #27292E;
+  border-top: 2px solid #394E83;
 }
 
 /* TEXT */

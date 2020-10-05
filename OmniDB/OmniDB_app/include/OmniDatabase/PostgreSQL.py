@@ -11050,6 +11050,7 @@ FROM #table_name#
             )
         )
 
+    @lock_required
     def GetDDLAggregate(self, p_object):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
             return self.v_connection.ExecuteScalar(
@@ -11676,6 +11677,7 @@ FROM #table_name#
                 )
             )
 
+    @lock_required
     def GetDDLTableField(self, p_schema, p_table, p_object):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) < 100000:
             return self.v_connection.ExecuteScalar(

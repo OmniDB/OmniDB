@@ -151,7 +151,7 @@ var v_createNewMonitorUnitTabFunction = function() {
   '  <div class="col-md-3 mb-3">' +
   '    <label for="conn_form_type">Type</label>' +
   '    <select id="select_type_' + v_tab.id + '" class="form-control">' +
-  '      <option value="chart_append">Chart (Append)</option>' +
+  '      <option value="timeseries">Timeseries</option>' +
   '      <option value="chart">Chart (No Append)</option>' +
   '      <option value="grid">Grid</option>' +
   '      <option value="graph">Graph</option>' +

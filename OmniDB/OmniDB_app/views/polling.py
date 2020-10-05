@@ -230,6 +230,7 @@ def create_request(request):
                 if not tab_object['terminal_transport'].is_active():
                     raise
                 try:
+                    tab_object['last_update'] = datetime.now()
                     tab_object['terminal_object'].send(v_data['v_cmd'])
                 except:
                     None

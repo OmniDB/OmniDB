@@ -19,6 +19,7 @@ import os
 from django import forms
 
 from OmniDB_app.views.memory_objects import *
+from OmniDB_app.views.monitor_dashboard import monitoring_units
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
@@ -26,7 +27,6 @@ class UploadFileForm(forms.Form):
 #loading python plugins
 plugins = {}
 failed_plugins = {}
-monitoring_units = []
 
 def load_plugin(plugin_folder, p_load):
     plugin_name = ''

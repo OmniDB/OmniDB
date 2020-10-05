@@ -10,8 +10,201 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
+var v_default_shortcuts = {
+  'shortcut_run_query': {
+    'windows': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'Q',
+    },
+    'linux': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'Q',
+    },
+    'macos': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'Q',
+    }
+  },
+  'shortcut_cancel_query': {
+    'windows': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'C',
+    },
+    'linux': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'C',
+    },
+    'macos': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'C',
+    }
+  },
+  'shortcut_indent': {
+    'windows': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'S',
+    },
+    'linux': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'S',
+    },
+    'macos': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'S',
+    }
+  },
+  'shortcut_new_inner_tab': {
+    'windows': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'I',
+    },
+    'linux': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'I',
+    },
+    'macos': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'I',
+    }
+  },
+  'shortcut_remove_inner_tab': {
+    'windows': {
+        'ctrl_pressed': true,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'Q',
+    },
+    'linux': {
+        'ctrl_pressed': true,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'Q',
+    },
+    'macos': {
+        'ctrl_pressed': true,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'Q',
+    }
+  },
+  'shortcut_left_inner_tab': {
+    'windows': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'O',
+    },
+    'linux': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'O',
+    },
+    'macos': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'O',
+    }
+  },
+  'shortcut_right_inner_tab': {
+    'windows': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'P',
+    },
+    'linux': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'P',
+    },
+    'macos': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'P',
+    }
+  },
+  'shortcut_autocomplete': {
+    'windows': {
+        'ctrl_pressed': true,
+        'shift_pressed': false,
+        'alt_pressed': false,
+        'meta_pressed': false,
+        'shortcut_key': 'SPACE',
+    },
+    'linux': {
+        'ctrl_pressed': true,
+        'shift_pressed': false,
+        'alt_pressed': false,
+        'meta_pressed': false,
+        'shortcut_key': 'SPACE',
+    },
+    'macos': {
+        'ctrl_pressed': true,
+        'shift_pressed': false,
+        'alt_pressed': false,
+        'meta_pressed': false,
+        'shortcut_key': 'SPACE',
+    }
+  }
+}
+
 //Initializing shortcut buttons
 $(function () {
+
+  v_current_os="Unknown OS";
+  if (navigator.appVersion.indexOf("Win")!=-1) v_current_os="windows";
+  if (navigator.appVersion.indexOf("Mac")!=-1) v_current_os="macos";
+  if (navigator.appVersion.indexOf("X11")!=-1) v_current_os="linux";
+  if (navigator.appVersion.indexOf("Linux")!=-1) v_current_os="linux";
 
   //Shortcut actions
   v_shortcut_object.actions = {
@@ -44,26 +237,6 @@ $(function () {
       }
 
     },
-    shortcut_explain: function() {
-
-      if (v_connTabControl.selectedTab.tag.mode=='connection') {
-        if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query') {
-          if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.bt_explain.style.display!='none')
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.bt_explain.click();
-        }
-      }
-
-    },
-    shortcut_analyze: function() {
-
-      if (v_connTabControl.selectedTab.tag.mode=='connection') {
-        if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query') {
-          if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.bt_analyze.style.display!='none')
-            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.bt_analyze.click();
-        }
-      }
-
-    },
     shortcut_new_inner_tab: function() {
 
       if (v_connTabControl.selectedTab.tag.mode=='connection' || v_connTabControl.selectedTab.tag.mode=='snippets') {
@@ -76,13 +249,8 @@ $(function () {
 
 
     },
-    shortcut_new_outer_tab: function() {
-
-      var v_tabControl = v_connTabControl;
-      v_tabControl.tabList[v_tabControl.tabList.length - 1].elementLi.click();
-
-    },
     shortcut_remove_inner_tab: function() {
+      console.log('ae')
 
       if (v_connTabControl.selectedTab.tag.mode=='connection' || v_connTabControl.selectedTab.tag.mode=='snippets') {
         if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabCloseSpan)
@@ -131,10 +299,30 @@ $(function () {
         }
       }
     }
-
   }
 
+  // Go over default shortcuts
+  for (var default_code in v_default_shortcuts) {
+    if (v_default_shortcuts.hasOwnProperty(default_code)) {
+        var v_object = v_default_shortcuts[default_code];
+        // Find corresponding user defined
+        var v_found = false;
 
+        for (var user_code in v_shortcut_object.shortcuts) {
+          if (v_shortcut_object.shortcuts.hasOwnProperty(user_code)) {
+             if ((default_code == user_code) && (v_current_os == v_shortcut_object.shortcuts[user_code]['os'])) {
+               v_found = true;
+               break
+             }
+          }
+        }
+
+        if (!v_found) {
+          v_shortcut_object.shortcuts[default_code] = v_default_shortcuts[default_code][v_current_os]
+          v_shortcut_object.shortcuts[default_code]['shortcut_code'] = default_code
+        }
+    }
+  }
 
   for (var property in v_shortcut_object.shortcuts) {
     if (v_shortcut_object.shortcuts.hasOwnProperty(property)) {

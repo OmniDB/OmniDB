@@ -4656,6 +4656,35 @@ AS
 SELECT ...
 ''')
 
+    def TemplateAlterView(self):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''ALTER VIEW #view_name#
+--ALTER COLUMN column_name SET DEFAULT expression
+--ALTER COLUMN column_name DROP DEFAULT
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--SET ( check_option = value )
+--SET ( security_barrier = { true | false } )
+--RESET ( check_option )
+--RESET ( security_barrier )
+
+--ALTER TABLE #view_name# RENAME COLUMN column_name TO new_column_name
+''')
+        else:
+            return Template('''ALTER VIEW #view_name#
+--ALTER COLUMN column_name SET DEFAULT expression
+--ALTER COLUMN column_name DROP DEFAULT
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--RENAME COLUMN column_name TO new_column_name
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--SET ( check_option = value )
+--SET ( security_barrier = { true | false } )
+--RESET ( check_option )
+--RESET ( security_barrier )
+''')
+
     def TemplateDropView(self):
         return Template('''DROP VIEW #view_name#
 --CASCADE

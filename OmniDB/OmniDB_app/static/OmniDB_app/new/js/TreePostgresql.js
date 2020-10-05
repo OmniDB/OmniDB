@@ -3433,6 +3433,18 @@ function getTreePostgresql(p_div) {
                     getViewDefinitionPostgresql(node);
                 }
             }, {
+                text: 'Alter View',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter View',
+                        node.tree.tag.alter_view.replace(
+                            /#view_name#/g,
+                            node.tag.schema + '.' + node.text
+                        )
+                    );
+                }
+            }, {
                 text: 'Drop View',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -4953,6 +4965,7 @@ function getTreeDetailsPostgresql(node) {
                 alter_aggregate: p_return.v_data.v_database_return.alter_aggregate,
                 drop_aggregate: p_return.v_data.v_database_return.drop_aggregate,
                 create_view: p_return.v_data.v_database_return.create_view,
+                alter_view: p_return.v_data.v_database_return.alter_view,
                 drop_view: p_return.v_data.v_database_return.drop_view,
                 create_mview: p_return.v_data.v_database_return.create_mview,
                 refresh_mview: p_return.v_data.v_database_return.refresh_mview,

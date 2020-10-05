@@ -60,6 +60,7 @@ def get_tree_info(request, v_database):
                 'alter_aggregate': v_database.TemplateAlterAggregate().v_text,
                 'drop_aggregate': v_database.TemplateDropAggregate().v_text,
                 'create_view': v_database.TemplateCreateView().v_text,
+                'alter_view': v_database.TemplateAlterView().v_text,
                 'drop_view': v_database.TemplateDropView().v_text,
                 'create_mview': v_database.TemplateCreateMaterializedView().v_text,
                 'refresh_mview': v_database.TemplateRefreshMaterializedView().v_text,

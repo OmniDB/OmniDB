@@ -90,6 +90,9 @@
   border-color: #4C5365 #4C5365 #4C5365;
   color: #555;
 }
+.omnidb--theme-dark .nav-tabs .nav-link.active {
+  border-top: 2px solid #394E83;
+}
 /* TABS WITH CARD-HEADERS */
 .omnidb--theme-dark .omnidb__tab-menu.card-header .nav-tabs .nav-link.active {
   border-color: #4C5365;

@@ -95,9 +95,6 @@
   border-color: #4C5365;
   border-bottom-color: #27292E;
 } */
-.omnidb--theme-light .card .card-header {
-  border-bottom-color: #D2D2D2;
-}
 
 /* TEXT */
 .omnidb--theme-light .omnidb__theme__text--primary {
@@ -222,7 +219,7 @@
   background-color: transparent;
   border-color: #DEDEDE;
   border-bottom-color: #F4F4F4;
-  border-top: 2px solid #68a4ff;
+  border-top: 2px solid #68A4FF;
 }
 .omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-content {
   /* border: 1px solid #94A5E3; */
@@ -242,7 +239,7 @@
   background-color: transparent;
   border-color: #DEDEDE;
   border-bottom-color: #FFFFFF;
-  border-top: 2px solid #68a4ff;
+  border-top: 2px solid #68A4FF;
 }
 
 /* MONITORING */
@@ -255,7 +252,7 @@
   background-color: #FFF;
 }
 .omnidb--theme-light .card .card-header {
-  border-bottom-color: #d2d2d2;
+  border-bottom-color: #D2D2D2;
 }
 .omnidb--theme-light .card .card-header .nav.nav-tabs {
   border-color: transparent;

@@ -95,9 +95,6 @@
   border-color: #4C5365;
   border-bottom-color: #27292E;
 }
-.omnidb--theme-dark .card .card-header {
-  border-bottom-color: #4C5365;
-}
 
 /* TEXT */
 .omnidb--theme-dark .omnidb__theme__text--primary {
@@ -165,7 +162,7 @@
 }
 .omnidb--theme-dark .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
   background-color: transparent;
-  border-color: #44464C;
+  border-color: #4C5365;
   border-bottom-color: #43464E;
 }
 .omnidb--theme-dark .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
@@ -177,7 +174,8 @@
 .omnidb--theme-dark .omnidb__tab-menu--secondary .omnidb__tab-menu__link.active {
   background-color: transparent;
   border-color: #4C5365;
-  border-bottom-color: #2f3136;
+  border-bottom-color: #2F3136;
+  border-top: 2px solid #394E83;
 }
 
 /* TREE TAB */
@@ -199,6 +197,7 @@
   background-color: transparent;
   border-color: #4C5365;
   border-bottom-color: #282A2F;
+  border-top: 2px solid #394E83;
 }
 
 /* QUERY RESULT TABS */
@@ -209,7 +208,6 @@
   background-color: transparent;
   border-color: #44464c;
   border-bottom-color: #43464E;
-  border-top: 2px solid #44464C;
 }
 .omnidb--theme-dark .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #DCDDDE !important;
@@ -221,6 +219,7 @@
   background-color: transparent;
   border-color: #4C5365;
   border-bottom-color: #2f3136;
+  border-top: 2px solid #394E83;
 }
 .omnidb--theme-dark .omnidb__query-result-tabs .omnidb__tab-content {
   /* border: 1px solid #43464E; */
@@ -234,13 +233,13 @@
   background-color: transparent;
   border-color: #44464c;
   border-bottom-color: #43464E;
-  border-top: 2px solid #44464C;
   color: #DCDDDE !important;
 }
 .omnidb--theme-dark .omnidb__modal-config .nav-link.active {
   background-color: transparent;
   border-color: #4C5365;
   border-bottom-color: #2f3136;
+  border-top: 2px solid #394E83;
 }
 
 /* MONITORING */
@@ -253,7 +252,7 @@
   background-color: #282A2F;
 }
 .omnidb--theme-dark .card .card-header {
-  border-bottom-color: #42578c;
+  border-bottom-color: #4C5365;
 }
 .omnidb--theme-dark .card .card-header .nav.nav-tabs {
   border-color: transparent;

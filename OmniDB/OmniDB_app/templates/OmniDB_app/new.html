@@ -291,12 +291,15 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
+            {% if v_omnidb_enabled %}
             <h5 class="modal-title">{{ omnidb_version }}</h5>
+            {% endif %}
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body text-center">
+            {% if v_omnidb_enabled %}
             <div class="my-3">
               <img src="{{url_folder}}/static/OmniDB_app/images/postgresql_medium.png" title="PostgreSQL"/>
                   <img src="{{url_folder}}/static/OmniDB_app/images/oracle_medium.png" title="Oracle"/>
@@ -312,6 +315,7 @@
               <h2>Primary Supporter:</h2>
               <a onclick="showWebsite('2ndQuadrant', 'https://www.2ndquadrant.com')" ><img style="width: 120px;" src="{{url_folder}}/static/OmniDB_app/images/supporters/2ndquadrant.png" title="2ndQuadrant"/></a>
             </div>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -364,17 +368,22 @@
             <div class="omnidb__modal-config">
 
               <ul class="nav nav-tabs" role="tablist">
+                {% if v_omnidb_enabled %}
                 <li class="nav-item">
                   <a class="nav-link active" id="config_shortcuts-tab" data-toggle="tab" href="#config_shortcuts" role="tab" aria-controls="config_shortcuts" aria-selected="true">Shortcuts</a>
                 </li>
+                {% endif %}
                 <li class="nav-item">
                   <a class="nav-link" id="config_options-tab" data-toggle="tab" href="#config_options" role="tab" aria-controls="config_options" aria-selected="false">Options</a>
                 </li>
+                {% if v_omnidb_enabled %}
                 <li class="nav-item">
                   <a class="nav-link" id="config_password-tab" data-toggle="tab" href="#config_password" role="tab" aria-controls="config_password" aria-selected="false">Password</a>
                 </li>
+                {% endif %}
               </ul>
               <div class="tab-content p-2 omnidb__theme-border--primary">
+                {% if v_omnidb_enabled %}
                 <div class="tab-pane fade show active" id="config_shortcuts" role="tabpanel" aria-labelledby="config_shortcuts-tab">
                   <div id="div_shortcut_background_dark"><div style="position: absolute; top: 50%; width: 100%;">Press key combination... (ESC to cancel)</div></div>
                   <div class="form-group row">
@@ -437,6 +446,7 @@
                     <button class='btn btn-success' onclick='saveShortcuts()'>Save</button>
                   </div>
                 </div>
+                {% endif %}
                 <div class="tab-pane fade" id="config_options" role="tabpanel" aria-labelledby="config_options-tab">
 
                   <div class="form-row">
@@ -579,6 +589,7 @@
                   </div>
 
                 </div>
+                {% if v_omnidb_enabled %}
                 <div class="tab-pane fade" id="config_password" role="tabpanel" aria-labelledby="config_password-tab">
                   <div class="form-row">
                     <div class="col-md-6 mb-3">
@@ -594,6 +605,7 @@
                     <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
                   </div>
                 </div>
+                {% endif %}
               </div>
 
             </div><!-- .container-fluid -->

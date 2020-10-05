@@ -90,6 +90,15 @@
   border-color: #4C5365 #4C5365 #4C5365;
   color: #555;
 }
+.omnidb--theme-dark .nav-tabs .nav-link.active {
+  border-top: 2px solid #394E83;
+}
+/* TABS WITH CARD-HEADERS */
+.omnidb--theme-dark .omnidb__tab-menu.card-header .nav-tabs .nav-link.active {
+  border-color: #4C5365;
+  border-bottom-color: #27292E;
+  border-top: 2px solid #394E83;
+}
 
 /* TEXT */
 .omnidb--theme-dark .omnidb__theme__text--primary {
@@ -157,7 +166,7 @@
 }
 .omnidb--theme-dark .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
   background-color: transparent;
-  border-color: #44464C;
+  border-color: #4C5365;
   border-bottom-color: #43464E;
 }
 .omnidb--theme-dark .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
@@ -169,7 +178,8 @@
 .omnidb--theme-dark .omnidb__tab-menu--secondary .omnidb__tab-menu__link.active {
   background-color: transparent;
   border-color: #4C5365;
-  border-bottom-color: #2f3136;
+  border-bottom-color: #2F3136;
+  border-top: 2px solid #394E83;
 }
 
 /* TREE TAB */
@@ -191,6 +201,7 @@
   background-color: transparent;
   border-color: #4C5365;
   border-bottom-color: #282A2F;
+  border-top: 2px solid #394E83;
 }
 
 /* QUERY RESULT TABS */
@@ -201,7 +212,6 @@
   background-color: transparent;
   border-color: #44464c;
   border-bottom-color: #43464E;
-  border-top: 2px solid #44464C;
 }
 .omnidb--theme-dark .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
   color: #DCDDDE !important;
@@ -213,6 +223,7 @@
   background-color: transparent;
   border-color: #4C5365;
   border-bottom-color: #2f3136;
+  border-top: 2px solid #394E83;
 }
 .omnidb--theme-dark .omnidb__query-result-tabs .omnidb__tab-content {
   /* border: 1px solid #43464E; */
@@ -226,13 +237,13 @@
   background-color: transparent;
   border-color: #44464c;
   border-bottom-color: #43464E;
-  border-top: 2px solid #44464C;
   color: #DCDDDE !important;
 }
 .omnidb--theme-dark .omnidb__modal-config .nav-link.active {
   background-color: transparent;
   border-color: #4C5365;
   border-bottom-color: #2f3136;
+  border-top: 2px solid #394E83;
 }
 
 /* MONITORING */
@@ -245,7 +256,7 @@
   background-color: #282A2F;
 }
 .omnidb--theme-dark .card .card-header {
-  border-bottom-color: #42578c;
+  border-bottom-color: #4C5365;
 }
 .omnidb--theme-dark .card .card-header .nav.nav-tabs {
   border-color: transparent;
@@ -392,9 +403,8 @@
 }
 
 /* JSON BUILDER */
-.omnidb--theme-dark .jsonBuilder--template-2 .jsonBuilder__label,
-.omnidb--theme-dark .jsonBuilder--template-2 .jsonBuilder__li {
-    background-color: #1D1F21;
+.omnidb--theme-dark .jsonBuilder--template-2 .jsonBuilder__label {
+  background-color: #1D1F21;
 }
 
 /* PAGINATION */

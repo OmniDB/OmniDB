@@ -9110,21 +9110,12 @@ function TemplateSelectPostgresql(p_schema, p_table, p_kind) {
             "p_kind": p_kind
         }),
         function(p_return) {
-            v_connTabControl.tag.createQueryTab(
-                p_schema + '.' + p_table);
+            let v_tab_name = p_schema + '.' + p_table;
+            v_connTabControl.tag.createQueryTab(v_tab_name);
 
-            v_connTabControl.selectedTab
-                .tag.tabControl.selectedTab
-                .tag.editor.setValue(p_return.v_data.v_template);
-            v_connTabControl.selectedTab
-                .tag.tabControl.selectedTab
-                .tag.editor.clearSelection();
-            renameTabConfirm(
-                v_connTabControl.selectedTab
-                .tag.tabControl.selectedTab,
-                p_schema + '.' + p_table);
-
-            //minimizeEditor();
+            var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+            v_tab_tag.editor.setValue(p_return.v_data.v_template);
+            v_tab_tag.editor.clearSelection();
 
             querySQL(0);
         },

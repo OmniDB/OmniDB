@@ -4491,6 +4491,113 @@ END;
 $function$
 ''')
 
+    def TemplateAlterFunction(self):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--COST execution_cost
+--ROWS result_rows
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 120000:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--PARALLEL { UNSAFE | RESTRICTED | SAFE }
+--COST execution_cost
+--ROWS result_rows
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+--DEPENDS ON EXTENSION extension_name
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--PARALLEL { UNSAFE | RESTRICTED | SAFE }
+--COST execution_cost
+--ROWS result_rows
+--SUPPORT support_function
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+--DEPENDS ON EXTENSION extension_name
+''')
+        else:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--PARALLEL { UNSAFE | RESTRICTED | SAFE }
+--COST execution_cost
+--ROWS result_rows
+--SUPPORT support_function
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+--DEPENDS ON EXTENSION extension_name
+--NO DEPENDS ON EXTENSION extension_name
+''')
+
     def TemplateDropFunction(self):
         return Template('''DROP FUNCTION #function_name#
 --CASCADE
@@ -4511,6 +4618,22 @@ BEGIN
 -- definition
 END;
 $procedure$
+''')
+
+    def TemplateAlterProcedure(self):
+        return Template('''ALTER PROCEDURE #procedure_name#
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+--DEPENDS ON EXTENSION extension_name
 ''')
 
     def TemplateDropProcedure(self):
@@ -4534,6 +4657,113 @@ END;
 $function$
 ''')
 
+    def TemplateAlterTriggerFunction(self):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--COST execution_cost
+--ROWS result_rows
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 120000:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--PARALLEL { UNSAFE | RESTRICTED | SAFE }
+--COST execution_cost
+--ROWS result_rows
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+--DEPENDS ON EXTENSION extension_name
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--PARALLEL { UNSAFE | RESTRICTED | SAFE }
+--COST execution_cost
+--ROWS result_rows
+--SUPPORT support_function
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+--DEPENDS ON EXTENSION extension_name
+''')
+        else:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--PARALLEL { UNSAFE | RESTRICTED | SAFE }
+--COST execution_cost
+--ROWS result_rows
+--SUPPORT support_function
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+--DEPENDS ON EXTENSION extension_name
+--NO DEPENDS ON EXTENSION extension_name
+''')
+
     def TemplateDropTriggerFunction(self):
         return Template('''DROP FUNCTION #function_name#
 --CASCADE
@@ -4553,6 +4783,113 @@ BEGIN
 -- definition
 END;
 $function$
+''')
+
+    def TemplateAlterEventTriggerFunction(self):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--COST execution_cost
+--ROWS result_rows
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 120000:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--PARALLEL { UNSAFE | RESTRICTED | SAFE }
+--COST execution_cost
+--ROWS result_rows
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+--DEPENDS ON EXTENSION extension_name
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--PARALLEL { UNSAFE | RESTRICTED | SAFE }
+--COST execution_cost
+--ROWS result_rows
+--SUPPORT support_function
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+--DEPENDS ON EXTENSION extension_name
+''')
+        else:
+            return Template('''ALTER FUNCTION #function_name#
+--CALLED ON NULL INPUT
+--RETURNS NULL ON NULL INPUT
+--STRICT
+--IMMUTABLE
+--STABLE
+--VOLATILE
+--NOT LEAKPROOF
+--LEAKPROOF
+--EXTERNAL SECURITY INVOKER
+--SECURITY INVOKER
+--EXTERNAL SECURITY DEFINER
+--SECURITY DEFINER
+--PARALLEL { UNSAFE | RESTRICTED | SAFE }
+--COST execution_cost
+--ROWS result_rows
+--SUPPORT support_function
+--SET configuration_parameter { TO | = } { value | DEFAULT }
+--SET configuration_parameter FROM CURRENT
+--RESET configuration_parameter
+--RESET ALL
+--RENAME TO new_name
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--SET SCHEMA new_schema
+--DEPENDS ON EXTENSION extension_name
+--NO DEPENDS ON EXTENSION extension_name
 ''')
 
     def TemplateDropEventTriggerFunction(self):
@@ -4701,6 +5038,41 @@ SELECT ...
 --CONCURRENTLY
 #view_name#
 --WITH NO DATA
+''')
+
+    def TemplateAlterMaterializedView(self):
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return Template('''ALTER MATERIALIZED VIEW #view_name#
+--ALTER COLUMN column_name SET STATISTICS integer
+--ALTER COLUMN column_name SET ( attribute_option = value )
+--ALTER COLUMN column_name RESET ( attribute_option )
+--ALTER COLUMN column_name SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+--CLUSTER ON index_name
+--SET WITHOUT CLUSTER
+--SET ( storage_parameter = value )
+--RESET ( storage_parameter )
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--RENAME COLUMN column_name TO new_column_name
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--SET TABLESPACE new_tablespace [ NOWAIT ]
+''')
+        else:
+            return Template('''ALTER MATERIALIZED VIEW #view_name#
+--ALTER COLUMN column_name SET STATISTICS integer
+--ALTER COLUMN column_name SET ( attribute_option = value )
+--ALTER COLUMN column_name RESET ( attribute_option )
+--ALTER COLUMN column_name SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+--CLUSTER ON index_name
+--SET WITHOUT CLUSTER
+--SET ( storage_parameter = value )
+--RESET ( storage_parameter )
+--OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+--DEPENDS ON EXTENSION extension_name
+--RENAME COLUMN column_name TO new_column_name
+--RENAME TO new_name
+--SET SCHEMA new_schema
+--SET TABLESPACE new_tablespace [ NOWAIT ]
 ''')
 
     def TemplateDropMaterializedView(self):
@@ -5213,7 +5585,21 @@ ON #table_name#
 ''')
 
     def TemplateAlterTrigger(self):
-        return Template('ALTER TRIGGER #trigger_name# ON #table_name# RENAME TO new_name')
+        if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90600:
+            return Template('''ALTER TRIGGER #trigger_name# ON #table_name#
+--RENAME TO new_name
+''')
+        elif int(self.v_connection.ExecuteScalar('show server_version_num')) < 130000:
+            return Template('''ALTER TRIGGER #trigger_name# ON #table_name#
+--RENAME TO new_name
+--DEPENDS ON EXTENSION extension_name
+''')
+        else:
+            return Template('''ALTER TRIGGER #trigger_name# ON #table_name#
+--RENAME TO new_name
+--DEPENDS ON EXTENSION extension_name
+--NO DEPENDS ON EXTENSION extension_name
+''')
 
     def TemplateEnableTrigger(self):
         return Template('''ALTER TABLE #table_name# ENABLE

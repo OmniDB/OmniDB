@@ -2907,6 +2907,17 @@ function getTreePostgresql(p_div) {
                     getFunctionDefinitionPostgresql(node);
                 }
             }, {
+                text: 'Alter Function',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter Function', node.tree.tag.alter_function.replace(
+                            '#function_name#',
+                            node.tag.id
+                        )
+                    );
+                }
+            }, {
                 text: 'Debug Function',
                 icon: 'fas cm-all fa-bug',
                 action: function(node) {
@@ -2985,6 +2996,18 @@ function getTreePostgresql(p_div) {
                     getProcedureDefinitionPostgresql(node);
                 }
             }, {
+                text: 'Alter Procedure',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter Procedure',
+                        node.tree.tag.alter_procedure.replace(
+                            '#procedure_name#',
+                            node.tag.id
+                        )
+                    );
+                }
+            }, {
                 text: 'Debug Procedure',
                 icon: 'fas cm-all fa-bug',
                 action: function(node) {
@@ -3056,6 +3079,18 @@ function getTreePostgresql(p_div) {
                     getTriggerFunctionDefinitionPostgresql(node);
                 }
             }, {
+                text: 'Alter Trigger Function',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter Trigger Function',
+                        node.tree.tag.alter_triggerfunction.replace(
+                            '#function_name#',
+                            node.tag.id
+                        )
+                    );
+                }
+            }, {
                 text: 'Drop Trigger Function',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -3087,6 +3122,18 @@ function getTreePostgresql(p_div) {
                     getTriggerFunctionDefinitionPostgresql(node);
                 }
             }, {
+                text: 'Alter Trigger Function',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter Trigger Function',
+                        node.tree.tag.alter_triggerfunction.replace(
+                            '#function_name#',
+                            node.tag.id
+                        )
+                    );
+                }
+            }, {
                 text: 'Drop Trigger Function',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -3115,7 +3162,7 @@ function getTreePostgresql(p_div) {
                 action: function(node) {
                     tabSQLTemplate('Create Event Trigger Function',
                         node.tree.tag.create_eventtriggerfunction
-                        .replace('#schema_name#', nnode.tag.schema));
+                        .replace('#schema_name#', node.tag.schema));
                 }
             }, {
                 text: 'Doc: Event Trigger Functions',
@@ -3150,6 +3197,18 @@ function getTreePostgresql(p_div) {
                     getEventTriggerFunctionDefinitionPostgresql(node);
                 }
             }, {
+                text: 'Alter Event Trigger Function',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter Event Trigger Function',
+                        node.tree.tag.alter_eventtriggerfunction.replace(
+                            '#function_name#',
+                            node.tag.id
+                        )
+                    );
+                }
+            }, {
                 text: 'Drop Event Trigger Function',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -3179,6 +3238,18 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createQueryTab(
                         node.text);
                     getEventTriggerFunctionDefinitionPostgresql(node);
+                }
+            }, {
+                text: 'Alter Event Trigger Function',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter Event Trigger Function',
+                        node.tree.tag.alter_eventtriggerfunction.replace(
+                            '#function_name#',
+                            node.tag.id
+                        )
+                    );
                 }
             }, {
                 text: 'Drop Event Trigger Function',
@@ -3461,6 +3532,18 @@ function getTreePostgresql(p_div) {
                         node.text);
                     getMaterializedViewDefinitionPostgresql(
                         node);
+                }
+            }, {
+                text: 'Alter Mat. View',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter Materialized View',
+                        node.tree.tag.alter_mview.replace(
+                            '#view_name#',
+                            node.tag.schema + '.' + node.text
+                        )
+                    );
                 }
             }, {
                 text: 'Refresh Mat. View',
@@ -4842,15 +4925,19 @@ function getTreeDetailsPostgresql(node) {
                 alter_sequence: p_return.v_data.v_database_return.alter_sequence,
                 drop_sequence: p_return.v_data.v_database_return.drop_sequence,
                 create_function: p_return.v_data.v_database_return.create_function,
+                alter_function: p_return.v_data.v_database_return.alter_function,
                 drop_function: p_return.v_data.v_database_return.drop_function,
                 create_procedure: p_return.v_data.v_database_return.create_procedure,
+                alter_procedure: p_return.v_data.v_database_return.alter_procedure,
                 drop_procedure: p_return.v_data.v_database_return.drop_procedure,
                 create_triggerfunction: p_return.v_data.v_database_return
                     .create_triggerfunction,
+                alter_triggerfunction: p_return.v_data.v_database_return.alter_triggerfunction,
                 drop_triggerfunction: p_return.v_data.v_database_return
                     .drop_triggerfunction,
                 create_eventtriggerfunction: p_return.v_data.v_database_return
                     .create_eventtriggerfunction,
+                alter_eventtriggerfunction: p_return.v_data.v_database_return.drop_eventtriggerfunction,
                 drop_eventtriggerfunction: p_return.v_data.v_database_return
                     .drop_eventtriggerfunction,
                 create_aggregate: p_return.v_data.v_database_return.create_aggregate,
@@ -4861,6 +4948,7 @@ function getTreeDetailsPostgresql(node) {
                 drop_view: p_return.v_data.v_database_return.drop_view,
                 create_mview: p_return.v_data.v_database_return.create_mview,
                 refresh_mview: p_return.v_data.v_database_return.refresh_mview,
+                alter_mview: p_return.v_data.v_database_return.alter_mview,
                 drop_mview: p_return.v_data.v_database_return.drop_mview,
                 create_table: p_return.v_data.v_database_return.create_table,
                 alter_table: p_return.v_data.v_database_return.alter_table,

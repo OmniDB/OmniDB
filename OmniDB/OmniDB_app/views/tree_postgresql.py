@@ -832,12 +832,6 @@ def get_statistics(request, v_database):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = get_database_object(
-        p_session=request.session,
-        p_tab_id=v_tab_id,
-        p_attempt_to_open_connection=True
-    )
-
     v_list_statistics = []
 
     try:

@@ -13,7 +13,7 @@ var v_createMonitorDashboardTabFunction = function() {
   '</span>' +
   '<i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>';
 
-  // Creating console tab in the inner tab list
+  // Creating monitoring tab in the inner tab list
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
     p_icon: '<i class="fas fa-chart-bar icon-tab-title"></i>',
     p_name: v_name_html,

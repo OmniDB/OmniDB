@@ -4466,6 +4466,13 @@ function getPropertiesPostgresqlConfirm(node) {
                 p_object: node.text,
                 p_type: node.tag.type
             });
+        } else if (node.tag.type == 'table_field') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
         } else if (node.tag.type == 'sequence') {
             getProperties('/get_properties_postgresql/', {
                 p_schema: node.tag.schema,

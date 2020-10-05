@@ -3,9 +3,20 @@ var v_createMonitorDashboardTabFunction = function() {
   // Removing last tab of the inner tab list
   v_connTabControl.selectedTab.tag.tabControl.removeLastTab();
 
-  // Creating console tab in the inner tab list
+  // Creating tab name pattern.
+  let v_name_html =
+  '<span id="tab_title">' +
+    ' Monitoring' +
+  '</span>' +
+  '<span id="tab_loading" style="visibility:hidden;">' +
+    '<i class="tab-icon node-spin"></i>' +
+  '</span>' +
+  '<i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>';
+
+  // Creating monitoring tab in the inner tab list
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
-    p_name: '<i class="fas fa-chart-bar icon-tab-title"></i><span id="tab_title"> Monitoring</span>',
+    p_icon: '<i class="fas fa-chart-bar icon-tab-title"></i>',
+    p_name: v_name_html,
     p_selectFunction: function() {
       if(this.tag != null) {
         refreshHeights();
@@ -27,7 +38,16 @@ var v_createMonitorDashboardTabFunction = function() {
     p_dblClickFunction: renameTab
   });
 
+  // Selecting newly created tab.
   v_connTabControl.selectedTab.tag.tabControl.selectTab(v_tab);
+
+  // Adding unique names to spans.
+  var v_tab_title_span = document.getElementById('tab_title');
+  v_tab_title_span.id = 'tab_title_' + v_tab.id;
+  var v_tab_loading_span = document.getElementById('tab_loading');
+  v_tab_loading_span.id = 'tab_loading_' + v_tab.id;
+  var v_tab_check_span = document.getElementById('tab_check');
+  v_tab_check_span.id = 'tab_check_' + v_tab.id;
 
   var v_html =
   "<div class='omnidb__monitoring-result-tabs'>" +
@@ -38,10 +58,8 @@ var v_createMonitorDashboardTabFunction = function() {
     "</div>" +
   "</div>";
 
-  var v_div = document.getElementById('div_' + v_tab.id);
-  v_div.innerHTML = v_html;
-
-  var v_txt_snippet = document.getElementById('txt_snippet_' + v_tab.id);
+  // Updating the html.
+  v_tab.elementDiv.innerHTML = v_html;
 
   var v_tag = {
     tab_id: v_tab.id,
@@ -51,6 +69,9 @@ var v_createMonitorDashboardTabFunction = function() {
     unit_list_grid_div: document.getElementById('unit_list_grid_' + v_tab.id),
     unit_list_grid: null,
     unit_list_id_list: [],
+    tab_title_span : v_tab_title_span,
+    tab_loading_span : v_tab_loading_span,
+    tab_check_span : v_tab_check_span,
     tabControl: v_connTabControl.selectedTab.tag.tabControl,
     units: [],
     unit_sequence: 0,

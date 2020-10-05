@@ -1679,6 +1679,63 @@ function getTreePostgresql(p_div) {
         },
         'cm_role': {
             elements: [{
+                text: 'Change Password',
+                icon: 'fas cm-all fa-key',
+                action: function(node) {
+                    var v_html =
+                        '<div class="form-row">' +
+                        '    <div class="col-md-12 mb-3">' +
+                        '        <label for="change_pwd_role">Password</label>' +
+                        '        <input type="password" id="change_pwd_role" class="form-control" placeholder="password" />' +
+                        '    </div>' +
+                        '    <div class="col-md-12 mb-3">' +
+                        '        <label for="change_pwd_role_confirm">Password confirmation</label>' +
+                        '        <input type="password" id="change_pwd_role_confirm" class="form-control" placeholder="password confirmation" />' +
+                        '    </div>' +
+                        '</div>';
+
+                    showConfirm(
+                        v_html,
+                        function(p_node) {
+                            var v_password = document.getElementById('change_pwd_role').value;
+                            var v_password_confirm = document.getElementById('change_pwd_role_confirm').value;
+
+                            if(v_password == '') {
+                                showAlert('Password is empty.');
+                                return;
+                            }
+
+                            if(v_password_confirm == '') {
+                                showAlert('Password confirmation is empty.');
+                                return;
+                            }
+
+                            if(v_password != v_password_confirm) {
+                                showAlert('Passwords do not match.');
+                                return;
+                            }
+
+                            execAjax(
+                                '/change_role_password_postgresql/',
+                                JSON.stringify({
+                                    "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+                                    "p_tab_id": v_connTabControl.selectedTab.id,
+                                    "p_role": p_node.text,
+                                    "p_password": v_password
+                                }),
+                                function(p_return) {
+                                    showAlert('Password changed successfully.');
+                                },
+                                function(p_return) {
+                                    showAlert(p_return.v_data.message);
+                                },
+                                'box',
+                                false
+                            );
+                        }.bind(null, node)
+                    )
+                }
+            }, {
                 text: 'Alter Role',
                 icon: 'fas cm-all fa-edit',
                 action: function(node) {
@@ -1912,33 +1969,6 @@ function getTreePostgresql(p_div) {
                         icon: 'fas cm-all fa-edit',
                         action: function(node) {
                             TemplateUpdatePostgresql(node.tag.schema, node.text);
-                        }
-                    }, {
-                        text: 'Count Records',
-                        icon: 'fas cm-all fa-sort-numeric-down',
-                        action: function(node) {
-
-                            var v_table_name = '';
-                            v_table_name = node.tag.schema + '.' + node.text;
-
-                            v_connTabControl.tag.createQueryTab(
-                                node.text);
-
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.setValue(
-                                    "-- Counting Records\nSELECT count(*) AS count\nFROM " +
-                                    v_table_name + " t"
-                                );
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.clearSelection();
-                            renameTabConfirm(
-                                v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab,
-                                node.text);
-
-                            querySQL(0);
                         }
                     }, {
                         text: 'Delete Records',
@@ -3210,6 +3240,18 @@ function getTreePostgresql(p_div) {
                     }
                 }
             }, {
+                text: 'Alter Aggregate',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter Aggregate',
+                        node.tree.tag.alter_aggregate.replace(
+                            '#aggregate_name#',
+                            node.tag.id
+                        )
+                    );
+                }
+            }, {
                 text: 'Drop Aggregate',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -3329,39 +3371,24 @@ function getTreePostgresql(p_div) {
                       .parent.text, node.text, 'v');
                 }
             }, {
-                text: 'Count Records',
-                icon: 'fas cm-all fa-sort-numeric-down',
-                action: function(node) {
-
-                    var v_table_name = '';
-                    v_table_name = node.tag.schema + '.' + node.text;
-
-                    v_connTabControl.tag.createQueryTab(
-                        node.text);
-
-                    v_connTabControl.selectedTab
-                        .tag.tabControl.selectedTab
-                        .tag.editor.setValue(
-                            "-- Counting Records\nSELECT count(*) AS count\nFROM " +
-                            v_table_name + " t"
-                        );
-                    v_connTabControl.selectedTab
-                        .tag.tabControl.selectedTab
-                        .tag.editor.clearSelection();
-                    renameTabConfirm(
-                        v_connTabControl.selectedTab
-                        .tag.tabControl.selectedTab,
-                        node.text);
-
-                    querySQL(0);
-                }
-            }, {
                 text: 'Edit View',
                 icon: 'fas cm-all fa-edit',
                 action: function(node) {
                     v_connTabControl.tag.createQueryTab(
                         node.text);
                     getViewDefinitionPostgresql(node);
+                }
+            }, {
+                text: 'Alter View',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    tabSQLTemplate(
+                        'Alter View',
+                        node.tree.tag.alter_view.replace(
+                            /#view_name#/g,
+                            node.tag.schema + '.' + node.text
+                        )
+                    );
                 }
             }, {
                 text: 'Drop View',
@@ -3425,33 +3452,6 @@ function getTreePostgresql(p_div) {
                 icon: 'fas cm-all fa-search',
                 action: function(node) {
                     TemplateSelectPostgresql(node.tag.schema, node.text, 'm');
-                }
-            }, {
-                text: 'Count Records',
-                icon: 'fas cm-all fa-sort-numeric-down',
-                action: function(node) {
-
-                    var v_table_name = '';
-                    v_table_name = node.tag.schema + '.' + node.text;
-
-                    v_connTabControl.tag.createQueryTab(
-                        node.text);
-
-                    v_connTabControl.selectedTab
-                        .tag.tabControl.selectedTab
-                        .tag.editor.setValue(
-                            "-- Counting Records\nSELECT count(*) AS count\nFROM " +
-                            v_table_name + " t"
-                        );
-                    v_connTabControl.selectedTab
-                        .tag.tabControl.selectedTab
-                        .tag.editor.clearSelection();
-                    renameTabConfirm(
-                        v_connTabControl.selectedTab
-                        .tag.tabControl.selectedTab,
-                        node.text);
-
-                    querySQL(0);
                 }
             }, {
                 text: 'Edit Mat. View',
@@ -3933,33 +3933,6 @@ function getTreePostgresql(p_div) {
                             TemplateUpdatePostgresql(node.tag.schema, node.text);
                         }
                     }, {
-                        text: 'Count Records',
-                        icon: 'fas cm-all fa-sort-numeric-down',
-                        action: function(node) {
-
-                            var v_table_name = '';
-                            v_table_name = node.tag.schema + '.' + node.text;
-
-                            v_connTabControl.tag.createQueryTab(
-                                node.text);
-
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.setValue(
-                                    "-- Counting Records\nSELECT count(*) AS count\nFROM " +
-                                    v_table_name + " t"
-                                );
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.clearSelection();
-                            renameTabConfirm(
-                                v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab,
-                                node.text);
-
-                            querySQL(0);
-                        }
-                    }, {
                         text: 'Delete Records',
                         icon: 'fas cm-all fa-times',
                         action: function(node) {
@@ -4397,6 +4370,13 @@ function getPropertiesPostgresqlConfirm(node) {
                 p_object: node.text,
                 p_type: node.tag.type
             });
+        } else if (node.tag.type == 'table_field') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: node.parent.parent.text,
+                p_object: node.text,
+                p_type: node.tag.type
+            });
         } else if (node.tag.type == 'sequence') {
             getProperties('/get_properties_postgresql/', {
                 p_schema: node.tag.schema,
@@ -4587,6 +4567,13 @@ function getPropertiesPostgresqlConfirm(node) {
                 p_object: node.tag.statistics,
                 p_type: node.tag.type
             });
+        } else if (node.tag.type == 'aggregate') {
+            getProperties('/get_properties_postgresql/', {
+                p_schema: node.tag.schema,
+                p_table: null,
+                p_object: node.tag.id,
+                p_type: node.tag.type
+            });
         } else {
             clearProperties();
         }
@@ -4715,6 +4702,8 @@ function refreshTreePostgresqlConfirm(node) {
         getStatisticsColumnsPostgresql(node);
     } else if (node.tag.type == 'aggregate_list') {
         getAggregatesPostgresql(node);
+    } else if (node.tag.type == 'aggregate') {
+        getFunctionFieldsPostgresql(node);
     } else {
       afterNodeOpenedCallbackPostgreSQL(node);
     }
@@ -4865,8 +4854,10 @@ function getTreeDetailsPostgresql(node) {
                 drop_eventtriggerfunction: p_return.v_data.v_database_return
                     .drop_eventtriggerfunction,
                 create_aggregate: p_return.v_data.v_database_return.create_aggregate,
+                alter_aggregate: p_return.v_data.v_database_return.alter_aggregate,
                 drop_aggregate: p_return.v_data.v_database_return.drop_aggregate,
                 create_view: p_return.v_data.v_database_return.create_view,
+                alter_view: p_return.v_data.v_database_return.alter_view,
                 drop_view: p_return.v_data.v_database_return.drop_view,
                 create_mview: p_return.v_data.v_database_return.create_mview,
                 refresh_mview: p_return.v_data.v_database_return.refresh_mview,
@@ -9024,21 +9015,12 @@ function TemplateSelectPostgresql(p_schema, p_table, p_kind) {
             "p_kind": p_kind
         }),
         function(p_return) {
-            v_connTabControl.tag.createQueryTab(
-                p_schema + '.' + p_table);
+            let v_tab_name = p_schema + '.' + p_table;
+            v_connTabControl.tag.createQueryTab(v_tab_name);
 
-            v_connTabControl.selectedTab
-                .tag.tabControl.selectedTab
-                .tag.editor.setValue(p_return.v_data.v_template);
-            v_connTabControl.selectedTab
-                .tag.tabControl.selectedTab
-                .tag.editor.clearSelection();
-            renameTabConfirm(
-                v_connTabControl.selectedTab
-                .tag.tabControl.selectedTab,
-                p_schema + '.' + p_table);
-
-            //minimizeEditor();
+            var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+            v_tab_tag.editor.setValue(p_return.v_data.v_template);
+            v_tab_tag.editor.clearSelection();
 
             querySQL(0);
         },

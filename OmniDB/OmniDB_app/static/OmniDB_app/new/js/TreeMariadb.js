@@ -254,33 +254,6 @@ function getTreeMariadb(p_div) {
                               .parent.text, node.text);
                         }
                     }, {
-                        text: 'Count Records',
-                        icon: 'fas cm-all fa-sort-numeric-down',
-                        action: function(node) {
-
-                            var v_table_name = '';
-                            v_table_name = node.parent.parent.text + '.' + node.text;
-
-                            v_connTabControl.tag.createQueryTab(
-                                node.text);
-
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.setValue(
-                                    "-- Counting Records\nselect count(*) as count\nfrom " +
-                                    v_table_name + " t"
-                                );
-                            v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab
-                                .tag.editor.clearSelection();
-                            renameTabConfirm(
-                                v_connTabControl.selectedTab
-                                .tag.tabControl.selectedTab,
-                                node.text);
-
-                            querySQL(0);
-                        }
-                    }, {
                         text: 'Delete Records',
                         icon: 'fas cm-all fa-times',
                         action: function(node) {

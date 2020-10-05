@@ -18,9 +18,11 @@
     top: 0.5rem;
     z-index: 1001;
   }
-  .omnidb__utilities-menu .omnidb__menu__btn.nav-link {
+  .omnidb__utilities-menu .omnidb__menu__btn.nav-link,
+  .omnidb__utilities-menu .badge-info {
     margin-left: 0px;
     margin-right: 0px;
+    overflow: hidden;
     padding: 0px;
     width: 0px;
     transition: 0.35s;
@@ -30,6 +32,13 @@
     width: 27px;
     margin-left: 0.25rem;
     margin-right: 0.25rem;
+  }
+  .omnidb__utilities-menu:hover .badge-info,
+  .omnidb__utilities-menu.omnidb__utilities-menu--show .badge-info {
+    padding: .25em .4em;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    width: 27px;
   }
   .omnidb__utilities-menu .omnidb__menu__btn-text {
     padding: 0px;
@@ -165,9 +174,11 @@
     top: 0.5rem;
     z-index: 1001;
   }
-  .omnidb__utilities-menu .omnidb__menu__btn.nav-link {
+  .omnidb__utilities-menu .omnidb__menu__btn.nav-link,
+  .omnidb__utilities-menu .badge-info {
     margin-left: 0px;
     margin-right: 0px;
+    overflow: hidden;
     padding: 0px;
     width: 0px;
     transition: 0.35s;
@@ -177,6 +188,13 @@
     width: 27px;
     margin-left: 0.25rem;
     margin-right: 0.25rem;
+  }
+  .omnidb__utilities-menu:hover .badge-info,
+  .omnidb__utilities-menu.omnidb__utilities-menu--show .badge-info {
+    padding: .25em .4em;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    width: 27px;
   }
   .omnidb__utilities-menu .omnidb__menu__btn-text {
     padding: 0px;
@@ -313,9 +331,11 @@
     top: 2px;
     z-index: 1001;
   }
-  .omnidb__utilities-menu .omnidb__menu__btn.nav-link {
+  .omnidb__utilities-menu .omnidb__menu__btn.nav-link,
+  .omnidb__utilities-menu .badge-info {
     margin-left: 0px;
     margin-right: 0px;
+    overflow: hidden;
     padding: 0px;
     width: 0px;
     transition: 0.35s;
@@ -325,6 +345,13 @@
     width: 27px;
     margin-left: 0.25rem;
     margin-right: 0.25rem;
+  }
+  .omnidb__utilities-menu:hover .badge-info,
+  .omnidb__utilities-menu.omnidb__utilities-menu--show .badge-info {
+    padding: .25em .4em;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    width: 27px;
   }
   .omnidb__utilities-menu .omnidb__menu__btn-text {
     padding: 0px;

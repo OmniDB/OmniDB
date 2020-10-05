@@ -155,6 +155,7 @@ base_urlpatterns = [
     url(r'^template_call_procedure_postgresql/', views.tree_postgresql.template_call_procedure, name='template_call_procedure'),
     url(r'^change_active_database/', views.workspace.change_active_database, name='change_active_database'),
     url(r'^get_postgresql_version/', views.tree_postgresql.get_version, name='get_version'),
+    url(r'^change_role_password_postgresql/', views.tree_postgresql.change_role_password, name='change_role_password'),
 
     #TREE_ORACLE
     url(r'^get_tree_info_oracle/', views.tree_oracle.get_tree_info, name='get_tree_info'),

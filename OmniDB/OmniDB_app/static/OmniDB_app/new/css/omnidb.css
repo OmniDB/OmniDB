@@ -922,8 +922,9 @@
   grid-template:
   'icon details buttons' 24px
   'icon tunnel buttons' 24px;
+  grid-template-columns: 24px auto;
   padding: 5px;
-  padding-left: 2.5rem;
+  padding-left: 14px;
 }
 .omnidb__connections__card-list--rows .card-body-icon {
   grid-area: icon;

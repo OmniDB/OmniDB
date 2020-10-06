@@ -8634,6 +8634,7 @@ FROM #table_name#
                         c.relname AS class_name,
                         format('%s.%I',text(c.oid::regclass),a.attname) AS sql_identifier,
                         c.oid,
+                        a.attacl,
                         format('%I %s%s%s',
                         	a.attname::text,
                         	format_type(t.oid, a.atttypmod),
@@ -9012,6 +9013,35 @@ FROM #table_name#
                      WHERE table_schema=obj.namespace
                        AND table_name=obj.name
                        AND grantee<>obj.owner
+                ),
+                columnsprivileges as (
+                    SELECT r.rolname AS grantee,
+                           c.name AS column_name,
+                           c.privilege_type
+                    FROM (
+                        SELECT name,
+                               (aclexplode(attacl)).grantee AS grantee,
+                               (aclexplode(attacl)).privilege_type AS privilege_type
+                        FROM columns
+                    ) c
+                    INNER JOIN pg_roles r
+                            ON c.grantee = r.oid
+                ),
+                columnsgrants as (
+                    SELECT coalesce(
+                               string_agg(
+                                   format(
+                                       E'GRANT %s(%s) ON %s TO %s;\n',
+                                       privilege_type,
+                                       column_name,
+                                       '{0}.{1}',
+                                       quote_ident(grantee)
+                                   ),
+                                   ''
+                               ),
+                               ''
+                           ) AS text
+                     FROM columnsprivileges
                 )
                 select (select text from createclass) ||
                        (select text from altertabledefaults) ||
@@ -9020,7 +9050,8 @@ FROM #table_name#
                        (select text from createtriggers) ||
                        (select text from createrules) ||
                        (select text from alterowner) ||
-                       (select text from grants)
+                       (select text from grants) ||
+                       (SELECT text FROM columnsgrants)
         '''.format(p_schema, p_object))
         elif int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000 and int(self.v_connection.ExecuteScalar('show server_version_num')) < 110000:
             return self.v_connection.ExecuteScalar('''
@@ -9067,6 +9098,7 @@ FROM #table_name#
                         c.relname AS class_name,
                         format('%s.%I',text(c.oid::regclass),a.attname) AS sql_identifier,
                         c.oid,
+                        a.attacl,
                         format('%I %s%s%s%s',
                         	a.attname::text,
                         	format_type(t.oid, a.atttypmod),
@@ -9468,6 +9500,35 @@ FROM #table_name#
                      WHERE table_schema=obj.namespace
                        AND table_name=obj.name
                        AND grantee<>obj.owner
+                ),
+                columnsprivileges as (
+                    SELECT r.rolname AS grantee,
+                           c.name AS column_name,
+                           c.privilege_type
+                    FROM (
+                        SELECT name,
+                               (aclexplode(attacl)).grantee AS grantee,
+                               (aclexplode(attacl)).privilege_type AS privilege_type
+                        FROM columns
+                    ) c
+                    INNER JOIN pg_roles r
+                            ON c.grantee = r.oid
+                ),
+                columnsgrants as (
+                    SELECT coalesce(
+                               string_agg(
+                                   format(
+                                       E'GRANT %s(%s) ON %s TO %s;\n',
+                                       privilege_type,
+                                       column_name,
+                                       '{0}.{1}',
+                                       quote_ident(grantee)
+                                   ),
+                                   ''
+                               ),
+                               ''
+                           ) AS text
+                     FROM columnsprivileges
                 )
                 select (select text from createclass) ||
                        (select text from altertabledefaults) ||
@@ -9476,7 +9537,8 @@ FROM #table_name#
                        (select text from createtriggers) ||
                        (select text from createrules) ||
                        (select text from alterowner) ||
-                       (select text from grants)
+                       (select text from grants) ||
+                       (SELECT text FROM columnsgrants)
             '''.format(p_schema, p_object))
         elif int(self.v_connection.ExecuteScalar('show server_version_num')) >= 110000 and int(self.v_connection.ExecuteScalar('show server_version_num')) < 120000:
             return self.v_connection.ExecuteScalar('''
@@ -9523,6 +9585,7 @@ FROM #table_name#
                         c.relname AS class_name,
                         format('%s.%I',text(c.oid::regclass),a.attname) AS sql_identifier,
                         c.oid,
+                        a.attacl,
                         format('%I %s%s%s%s',
                         	a.attname::text,
                         	format_type(t.oid, a.atttypmod),
@@ -9924,6 +9987,35 @@ FROM #table_name#
                      WHERE table_schema=obj.namespace
                        AND table_name=obj.name
                        AND grantee<>obj.owner
+                ),
+                columnsprivileges as (
+                    SELECT r.rolname AS grantee,
+                           c.name AS column_name,
+                           c.privilege_type
+                    FROM (
+                        SELECT name,
+                               (aclexplode(attacl)).grantee AS grantee,
+                               (aclexplode(attacl)).privilege_type AS privilege_type
+                        FROM columns
+                    ) c
+                    INNER JOIN pg_roles r
+                            ON c.grantee = r.oid
+                ),
+                columnsgrants as (
+                    SELECT coalesce(
+                               string_agg(
+                                   format(
+                                       E'GRANT %s(%s) ON %s TO %s;\n',
+                                       privilege_type,
+                                       column_name,
+                                       '{0}.{1}',
+                                       quote_ident(grantee)
+                                   ),
+                                   ''
+                               ),
+                               ''
+                           ) AS text
+                     FROM columnsprivileges
                 )
                 select (select text from createclass) ||
                        (select text from altertabledefaults) ||
@@ -9932,7 +10024,8 @@ FROM #table_name#
                        (select text from createtriggers) ||
                        (select text from createrules) ||
                        (select text from alterowner) ||
-                       (select text from grants)
+                       (select text from grants) ||
+                       (SELECT text FROM columnsgrants)
             '''.format(p_schema, p_object))
         else:
             return self.v_connection.ExecuteScalar('''
@@ -9980,6 +10073,7 @@ FROM #table_name#
                         c.relname AS class_name,
                         format('%s.%I',text(c.oid::regclass),a.attname) AS sql_identifier,
                         c.oid,
+                        a.attacl,
                         format('%I %s%s%s%s',
                         	a.attname::text,
                         	format_type(t.oid, a.atttypmod),
@@ -10381,6 +10475,35 @@ FROM #table_name#
                      WHERE table_schema=obj.namespace
                        AND table_name=obj.name
                        AND grantee<>obj.owner
+                ),
+                columnsprivileges as (
+                    SELECT r.rolname AS grantee,
+                           c.name AS column_name,
+                           c.privilege_type
+                    FROM (
+                        SELECT name,
+                               (aclexplode(attacl)).grantee AS grantee,
+                               (aclexplode(attacl)).privilege_type AS privilege_type
+                        FROM columns
+                    ) c
+                    INNER JOIN pg_roles r
+                            ON c.grantee = r.oid
+                ),
+                columnsgrants as (
+                    SELECT coalesce(
+                               string_agg(
+                                   format(
+                                       E'GRANT %s(%s) ON %s TO %s;\n',
+                                       privilege_type,
+                                       column_name,
+                                       '{0}.{1}',
+                                       quote_ident(grantee)
+                                   ),
+                                   ''
+                               ),
+                               ''
+                           ) AS text
+                     FROM columnsprivileges
                 )
                 select (select text from createclass) ||
                        (select text from altertabledefaults) ||
@@ -10389,7 +10512,8 @@ FROM #table_name#
                        (select text from createtriggers) ||
                        (select text from createrules) ||
                        (select text from alterowner) ||
-                       (select text from grants)
+                       (select text from grants) ||
+                       (SELECT text FROM columnsgrants)
             '''.format(p_schema, p_object))
     @lock_required
     def GetDDLTrigger(self, p_trigger, p_table, p_schema):
@@ -12113,7 +12237,8 @@ FROM #table_name#
                                ) AS definition,
                                a.attname AS name,
                                col_description(c.oid, a.attnum::integer) AS comment,
-                               pg_get_expr(def.adbin, def.adrelid) AS default_value
+                               pg_get_expr(def.adbin, def.adrelid) AS default_value,
+                               a.attacl
                         FROM pg_class c
                         INNER JOIN pg_namespace s
                                 ON s.oid = c.relnamespace
@@ -12157,20 +12282,58 @@ FROM #table_name#
                                    quote_ident(name),
                                    default_value
                                ) AS definition
-                    FROM columns
-                    WHERE default_value IS NOT NULL
+                        FROM columns
+                        WHERE default_value IS NOT NULL
+                    ),
+                    columnsprivileges as (
+                        SELECT r.rolname AS grantee,
+                               c.name AS column_name,
+                               c.privilege_type
+                        FROM (
+                            SELECT name,
+                                   (aclexplode(attacl)).grantee AS grantee,
+                                   (aclexplode(attacl)).privilege_type AS privilege_type
+                            FROM columns
+                        ) c
+                        INNER JOIN pg_roles r
+                                ON c.grantee = r.oid
+                    ),
+                    columnsgrants as (
+                        SELECT coalesce(
+                                   nullif(
+                                       format(
+                                           E'\n\n%s',
+                                           string_agg(
+                                               format(
+                                                   E'GRANT %s(%s) ON %s TO %s;\n',
+                                                   privilege_type,
+                                                   column_name,
+                                                   '{0}.{1}',
+                                                   quote_ident(grantee)
+                                               ),
+                                               ''
+                                           )
+                                       ),
+                                       '\n\n'
+                                   ),
+                                   ''
+                               ) AS definition
+                         FROM columnsprivileges
                     )
                     SELECT format(
-                                E'ALTER TABLE %s\n\tADD COLUMN %s;%s%s',
+                                E'ALTER TABLE %s\n\tADD COLUMN %s;%s%s%s',
                                 '{0}.{1}'::regclass,
                                 col.definition,
                                 coalesce(com.definition, ''),
-                                coalesce(def.definition, '')
+                                coalesce(def.definition, ''),
+                                coalesce(cg.definition, '')
                            )
                     FROM columns col
                     LEFT JOIN comments com
                            ON 1 = 1
                     LEFT JOIN defaults def
+                           ON 1 = 1
+                    LEFT JOIN columnsgrants cg
                            ON 1 = 1
                 '''.format(
                     p_schema,
@@ -12203,7 +12366,8 @@ FROM #table_name#
                                ) AS definition,
                                a.attname AS name,
                                col_description(c.oid, a.attnum::integer) AS comment,
-                               pg_get_expr(def.adbin, def.adrelid) AS default_value
+                               pg_get_expr(def.adbin, def.adrelid) AS default_value,
+                               a.attacl
                         FROM pg_class c
                         INNER JOIN pg_namespace s
                                 ON s.oid = c.relnamespace
@@ -12247,20 +12411,58 @@ FROM #table_name#
                                    quote_ident(name),
                                    default_value
                                ) AS definition
-                    FROM columns
-                    WHERE default_value IS NOT NULL
+                        FROM columns
+                        WHERE default_value IS NOT NULL
+                    ),
+                    columnsprivileges as (
+                        SELECT r.rolname AS grantee,
+                               c.name AS column_name,
+                               c.privilege_type
+                        FROM (
+                            SELECT name,
+                                   (aclexplode(attacl)).grantee AS grantee,
+                                   (aclexplode(attacl)).privilege_type AS privilege_type
+                            FROM columns
+                        ) c
+                        INNER JOIN pg_roles r
+                                ON c.grantee = r.oid
+                    ),
+                    columnsgrants as (
+                        SELECT coalesce(
+                                   nullif(
+                                       format(
+                                           E'\n\n%s',
+                                           string_agg(
+                                               format(
+                                                   E'GRANT %s(%s) ON %s TO %s;\n',
+                                                   privilege_type,
+                                                   column_name,
+                                                   '{0}.{1}',
+                                                   quote_ident(grantee)
+                                               ),
+                                               ''
+                                           )
+                                       ),
+                                       '\n\n'
+                                   ),
+                                   ''
+                               ) AS definition
+                         FROM columnsprivileges
                     )
                     SELECT format(
-                                E'ALTER TABLE %s\n\tADD COLUMN %s;%s%s',
+                                E'ALTER TABLE %s\n\tADD COLUMN %s;%s%s%s',
                                 '{0}.{1}'::regclass,
                                 col.definition,
                                 coalesce(com.definition, ''),
-                                coalesce(def.definition, '')
+                                coalesce(def.definition, ''),
+                                coalesce(cg.definition, '')
                            )
                     FROM columns col
                     LEFT JOIN comments com
                            ON 1 = 1
                     LEFT JOIN defaults def
+                           ON 1 = 1
+                    LEFT JOIN columnsgrants cg
                            ON 1 = 1
                 '''.format(
                     p_schema,
@@ -12296,7 +12498,8 @@ FROM #table_name#
                                a.attname AS name,
                                col_description(c.oid, a.attnum::integer) AS comment,
                                pg_get_expr(def.adbin, def.adrelid) AS default_value,
-                               a.attgenerated AS generated
+                               a.attgenerated AS generated,
+                               a.attacl
                         FROM pg_class c
                         INNER JOIN pg_namespace s
                                 ON s.oid = c.relnamespace
@@ -12340,21 +12543,59 @@ FROM #table_name#
                                    quote_ident(name),
                                    default_value
                                ) AS definition
-                    FROM columns
-                    WHERE default_value IS NOT NULL
-                      AND generated = ''
+                        FROM columns
+                        WHERE default_value IS NOT NULL
+                          AND generated = ''
+                    ),
+                    columnsprivileges as (
+                        SELECT r.rolname AS grantee,
+                               c.name AS column_name,
+                               c.privilege_type
+                        FROM (
+                            SELECT name,
+                                   (aclexplode(attacl)).grantee AS grantee,
+                                   (aclexplode(attacl)).privilege_type AS privilege_type
+                            FROM columns
+                        ) c
+                        INNER JOIN pg_roles r
+                                ON c.grantee = r.oid
+                    ),
+                    columnsgrants as (
+                        SELECT coalesce(
+                                   nullif(
+                                       format(
+                                           E'\n\n%s',
+                                           string_agg(
+                                               format(
+                                                   E'GRANT %s(%s) ON %s TO %s;\n',
+                                                   privilege_type,
+                                                   column_name,
+                                                   '{0}.{1}',
+                                                   quote_ident(grantee)
+                                               ),
+                                               ''
+                                           )
+                                       ),
+                                       '\n\n'
+                                   ),
+                                   ''
+                               ) AS definition
+                         FROM columnsprivileges
                     )
                     SELECT format(
-                                E'ALTER TABLE %s\n\tADD COLUMN %s;%s%s',
+                                E'ALTER TABLE %s\n\tADD COLUMN %s;%s%s%s',
                                 '{0}.{1}'::regclass,
                                 col.definition,
                                 coalesce(com.definition, ''),
-                                coalesce(def.definition, '')
+                                coalesce(def.definition, ''),
+                                coalesce(cg.definition, '')
                            )
                     FROM columns col
                     LEFT JOIN comments com
                            ON 1 = 1
                     LEFT JOIN defaults def
+                           ON 1 = 1
+                    LEFT JOIN columnsgrants cg
                            ON 1 = 1
                 '''.format(
                     p_schema,

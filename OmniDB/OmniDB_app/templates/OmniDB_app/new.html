@@ -368,86 +368,20 @@
             <div class="omnidb__modal-config">
 
               <ul class="nav nav-tabs" role="tablist">
-                {% if v_omnidb_enabled %}
                 <li class="nav-item">
-                  <a class="nav-link active" id="config_shortcuts-tab" data-toggle="tab" href="#config_shortcuts" role="tab" aria-controls="config_shortcuts" aria-selected="true">Shortcuts</a>
-                </li>
-                {% endif %}
-                <li class="nav-item">
-                  <a class="nav-link" id="config_options-tab" data-toggle="tab" href="#config_options" role="tab" aria-controls="config_options" aria-selected="false">Options</a>
+                  <a class="nav-link active" id="config_options-tab" data-toggle="tab" href="#config_options" role="tab" aria-controls="config_options" aria-selected="true">Options</a>
                 </li>
                 {% if v_omnidb_enabled %}
+                <li class="nav-item">
+                  <a class="nav-link" id="config_shortcuts-tab" data-toggle="tab" href="#config_shortcuts" role="tab" aria-controls="config_shortcuts" aria-selected="false">Shortcuts</a>
+                </li>
                 <li class="nav-item">
                   <a class="nav-link" id="config_password-tab" data-toggle="tab" href="#config_password" role="tab" aria-controls="config_password" aria-selected="false">Password</a>
                 </li>
                 {% endif %}
               </ul>
               <div class="tab-content p-2 omnidb__theme-border--primary">
-                {% if v_omnidb_enabled %}
-                <div class="tab-pane fade show active" id="config_shortcuts" role="tabpanel" aria-labelledby="config_shortcuts-tab">
-                  <div id="div_shortcut_background_dark"><div style="position: absolute; top: 50%; width: 100%;">Press key combination... (ESC to cancel)</div></div>
-                  <div class="form-group row">
-                    <label for="shortcut_run_query" class="col-sm-6 col-form-label">Run Query</label>
-                    <div class="col-sm-6">
-                      <button id="shortcut_run_query" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <label for="shortcut_cancel_query" class="col-sm-6 col-form-label">Cancel Query</label>
-                    <div class="col-sm-6">
-                      <button id="shortcut_cancel_query" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <label for="shortcut_indent" class="col-sm-6 col-form-label">Indent</label>
-                    <div class="col-sm-6">
-                      <button id="shortcut_indent" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <label for="shortcut_autocomplete" class="col-sm-6 col-form-label">Autocomplete</label>
-                    <div class="col-sm-6">
-                      <button id="shortcut_autocomplete" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <label for="shortcut_new_inner_tab" class="col-sm-6 col-form-label">New Inner Tab</label>
-                    <div class="col-sm-6">
-                      <button id="shortcut_new_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <label for="shortcut_remove_inner_tab" class="col-sm-6 col-form-label">Remove Current Inner Tab</label>
-                    <div class="col-sm-6">
-                      <button id="shortcut_remove_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <label for="shortcut_left_inner_tab" class="col-sm-6 col-form-label">Select Left Inner Tab</label>
-                    <div class="col-sm-6">
-                      <button id="shortcut_left_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <label for="shortcut_right_inner_tab" class="col-sm-6 col-form-label">Select Right Inner Tab</label>
-                    <div class="col-sm-6">
-                      <button id="shortcut_right_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
-                    </div>
-                  </div>
-
-                  <div style="text-align:right;">
-                    <button class='btn btn-success' onclick='saveShortcuts()'>Save</button>
-                  </div>
-                </div>
-                {% endif %}
-                <div class="tab-pane fade" id="config_options" role="tabpanel" aria-labelledby="config_options-tab">
+                <div class="tab-pane fade show active" id="config_options" role="tabpanel" aria-labelledby="config_options-tab">
 
                   <div class="form-row">
                     <div class="col-md-6 mb-3">
@@ -474,6 +408,7 @@
   		                </select>
                     </div>
                   </div>
+                  {% if v_omnidb_enabled %}
                   <div class="form-row">
                     <div class="col-md-6 mb-3">
                       <label for="sel_csv_encoding">CSV Enconding</label>
@@ -584,12 +519,75 @@
                       <input type="text" class="form-control" id="txt_csv_delimiter" placeholder="Delimiter">
                     </div>
                   </div>
+                  {% endif %}
                   <div style="text-align:right;">
                     <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
                   </div>
 
                 </div>
                 {% if v_omnidb_enabled %}
+                <div class="tab-pane fade" id="config_shortcuts" role="tabpanel" aria-labelledby="config_shortcuts-tab">
+                  <div id="div_shortcut_background_dark"><div style="position: absolute; top: 50%; width: 100%;">Press key combination... (ESC to cancel)</div></div>
+                  <div class="form-group row">
+                    <label for="shortcut_run_query" class="col-sm-6 col-form-label">Run Query</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_run_query" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_cancel_query" class="col-sm-6 col-form-label">Cancel Query</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_cancel_query" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_indent" class="col-sm-6 col-form-label">Indent</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_indent" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_autocomplete" class="col-sm-6 col-form-label">Autocomplete</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_autocomplete" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_new_inner_tab" class="col-sm-6 col-form-label">New Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_new_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_remove_inner_tab" class="col-sm-6 col-form-label">Remove Current Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_remove_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_left_inner_tab" class="col-sm-6 col-form-label">Select Left Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_left_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_right_inner_tab" class="col-sm-6 col-form-label">Select Right Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_right_inner_tab" class='btn btn-secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div style="text-align:right;">
+                    <button class='btn btn-success' onclick='saveShortcuts()'>Save</button>
+                  </div>
+                </div>
                 <div class="tab-pane fade" id="config_password" role="tabpanel" aria-labelledby="config_password-tab">
                   <div class="form-row">
                     <div class="col-md-6 mb-3">
@@ -894,9 +892,10 @@
     var v_url_folder = '{{ url_folder }}';
     var v_welcome_closed = {{ welcome_closed }};
   	var v_connections_data;
-  	var gv_desktopMode = ('{{ desktop_mode }}' == 'True');
+  	var gv_desktopMode = ('{{ desktop_mode }}' === 'True');
   	var v_tab_token = '{{ tab_token }}';
   	var v_show_terminal_option = {{ show_terminal_option }};
+    var v_omnidb_enabled = ('{{ v_omnidb_enabled }}' === 'True');
     var v_omnis = createOmnis();
 
     var v_menu_item = '{{ menu_item }}'

@@ -1235,6 +1235,9 @@ class PostgreSQL:
 
     @lock_required
     def QueryTablesIndexes(self, p_table=None, p_all_schemas=False, p_schema=None):
+        return self.QueryTablesIndexesHelper(p_table, p_all_schemas, p_schema)
+
+    def QueryTablesIndexesHelper(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
@@ -1254,7 +1257,11 @@ class PostgreSQL:
             select quote_ident(c.relname) as table_name,
                    quote_ident(ci.relname) as index_name,
                    (case when i.indisunique then 'Unique' else 'Non Unique' end) as uniqueness,
-                   quote_ident(n.nspname) as schema_name
+                   quote_ident(n.nspname) as schema_name,
+                   format(
+                       '%s;',
+                       pg_get_indexdef(i.indexrelid)
+                   ) AS definition
             from pg_index i
             inner join pg_class ci
             on ci.oid = i.indexrelid
@@ -2302,11 +2309,23 @@ class PostgreSQL:
 
 CREATE MATERIALIZED VIEW {0}.{1} AS
 {2}
-'''.format(p_schema, p_view,
-        self.v_connection.ExecuteScalar('''
-                select pg_get_viewdef('{0}.{1}'::regclass)
-            '''.format(p_schema, p_view)
-    ))
+
+{3}
+'''.format(
+    p_schema,
+    p_view,
+    self.v_connection.ExecuteScalar(
+        '''
+            select pg_get_viewdef('{0}.{1}'::regclass)
+        '''.format(
+            p_schema, p_view
+        )
+    ),
+    '\n'.join([
+        v_row['definition']
+        for v_row in self.QueryTablesIndexesHelper(p_view, False, p_schema).Rows
+    ])
+)
 
     @lock_required
     def QueryPhysicalReplicationSlots(self):

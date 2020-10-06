@@ -93,6 +93,9 @@
 .omnidb--theme-light .nav-tabs .nav-link.active {
   border-top: 2px solid #68A4FF;
 }
+.omnidb--theme-light .omnidb__tab-menu--primary .nav-tabs .nav-link.active {
+  border-top: none;
+}
 /* TABS WITH CARD-HEADERS */
 /* .omnidb--theme-light .omnidb__tab-menu.card-header .nav-tabs .nav-link.active {
   border-color: #4C5365;

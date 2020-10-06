@@ -200,6 +200,13 @@ function showConnectionList(p_open_modal, p_change_group) {
 					v_public_icon.classList = 'fas fa-users';
 					v_card_body_div.appendChild(v_public_icon);
 					v_card_div.style['border-color'] = '#c57dd2';
+					v_card_div.classList.add('omnidb__connections__card--public');
+					v_card_div.classList.add('d-none');
+					v_card_div.classList.add('fade');
+					if (v_connections_data.show_public) {
+						v_card_div.classList.remove('d-none');
+						v_card_div.classList.add('show');
+					}
 				}
 
         v_connections_data.card_list.push(
@@ -738,6 +745,20 @@ function toggleConnectionsLayout(l_type) {
 	else if (l_type === 'rows') {
 		$('.omnidb__connections__card-list').removeClass('omnidb__connections__card-list--cards');
 		$('.omnidb__connections__card-list').addClass('omnidb__connections__card-list--rows');
+	}
+}
+
+function toggleConnectionsPublic() {
+	var v_public = document.getElementById('conn_list_public').checked;
+	if (v_public) {
+		v_connections_data.show_public = true;
+		$('.omnidb__connections__card--public').removeClass('d-none');
+		$('.omnidb__connections__card--public').addClass('show');
+	}
+	else {
+		v_connections_data.show_public = false;
+		$('.omnidb__connections__card--public').addClass('d-none');
+		$('.omnidb__connections__card--public').removeClass('show');
 	}
 }
 

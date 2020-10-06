@@ -242,13 +242,25 @@
                   <input type="text" class="form-control" id="conn_form_ssh_user" placeholder="SSH user" readonly onchange="updateModalEditConnectionState(event)">
                 </div>
                 <div class="col-md-3 mb-3">
-                  <label for="conn_form_ssh_password">Password / Passphrase</label>
+                  <label for="conn_form_ssh_password">
+                    Password / Passphrase
+                    <i
+                      class="fas fa-question-circle text-info ml-2" data-toggle="tooltip" data-html="true" data-placement="bottom"
+                      title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh password / passphrase</h5></h4><ul><li><strong>If provided:</strong> Lorem.</li><li><strong>Leaving blank:</strong> Lorem.</li></ul>"
+                    ></i>
+                  </label>
                   <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" readonly>
                 </div>
               </div>
               <div class="form-row">
                 <div class="col-md mb-3">
-                  <label for="conn_form_ssh_key">SSH Key Text File</label>
+                  <label for="conn_form_ssh_key">
+                    SSH Key Text File
+                    <i
+                      class="fas fa-question-circle text-info ml-2" data-toggle="tooltip" data-html="true" data-placement="bottom"
+                      title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh key</h5></h4><ul><li><strong>If provided:</strong> Lorem.</li><li><strong>Leaving blank:</strong> Lorem.</li></ul>"
+                    ></i>
+                  </label>
                   <textarea style="display:none;" class="form-control" id="conn_form_ssh_key" rows="4" readonly></textarea>
                   <div class="ml-4 d-inline-block custom-file" style="width: 200px;">
                     <input type="file" id="conn_form_ssh_key_input" onchange="updateConnectionKey(event)" style="width: 200px;height: 100%;" disabled/>

@@ -628,7 +628,7 @@ function editConnection(p_conn_obj) {
   document.getElementById('conn_form_ssh_port').value = p_conn_obj.tunnel.port;
   document.getElementById('conn_form_ssh_user').value = p_conn_obj.tunnel.user;
   document.getElementById('conn_form_ssh_password').value = '';
-  document.getElementById('conn_form_ssh_key').value = p_conn_obj.tunnel.key;
+  document.getElementById('conn_form_ssh_key').value = '';
 
 
 	if (p_conn_obj.password && p_conn_obj.password !== null && p_conn_obj.password !== '') {
@@ -647,6 +647,15 @@ function editConnection(p_conn_obj) {
 	}
 	else {
 		$('#conn_form_ssh_password_check_icon').remove();
+	}
+
+	if (p_conn_obj.tunnel.key && p_conn_obj.tunnel.key !== null && p_conn_obj.tunnel.key !== '') {
+		if ($('#conn_form_ssh_key_check_icon').length === 0) {
+			$('#conn_form_ssh_key').prev().append('<i id="conn_form_ssh_key_check_icon" class="fas fa-check text-success ml-2"></i>');
+		}
+	}
+	else {
+		$('#conn_form_ssh_key_check_icon').remove();
 	}
 
 	if (p_conn_obj.technology === 'terminal') {
@@ -750,6 +759,7 @@ function newConnection() {
 
 	$('#conn_form_user_pass_check_icon').remove();
 	$('#conn_form_ssh_password_check_icon').remove();
+	$('#conn_form_ssh_key_check_icon').remove();
 
   $('#modal_edit_connection').modal();
 }

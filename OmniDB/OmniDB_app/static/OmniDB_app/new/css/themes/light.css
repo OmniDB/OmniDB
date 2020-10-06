@@ -247,6 +247,10 @@
   border-bottom-color: #FFFFFF;
   border-top: 2px solid #68A4FF;
 }
+.omnidb--theme-light .omnidb__modal-config .nav-tabs .nav-link:focus,
+.omnidb--theme-light .omnidb__modal-config .nav-tabs .nav-link:hover {
+  border-bottom-color: #FFFFFF;
+}
 
 /* MONITORING */
 .omnidb--theme-light .omnidb__monitoring-result-tabs {

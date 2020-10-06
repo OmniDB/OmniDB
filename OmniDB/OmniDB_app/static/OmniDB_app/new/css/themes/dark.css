@@ -245,8 +245,12 @@
 .omnidb--theme-dark .omnidb__modal-config .nav-link.active {
   background-color: transparent;
   border-color: #4C5365;
-  border-bottom-color: #2f3136;
+  border-bottom-color: #2F3136;
   border-top: 2px solid #394E83;
+}
+.omnidb--theme-dark .omnidb__modal-config .nav-tabs .nav-link:focus,
+.omnidb--theme-dark .omnidb__modal-config .nav-tabs .nav-link:hover {
+  border-bottom-color: #2F3136;
 }
 
 /* MONITORING */

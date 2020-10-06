@@ -211,6 +211,7 @@ function changeInterfaceFontSize(p_option) {
 			if (v_outer_tab_tag_inner_tab_control) {
 				var v_outer_tab_tag_inner_tab_list = v_outer_tab_tag_inner_tab_control.tabList;
 				for (let j = 0; j < v_outer_tab_tag_inner_tab_list.length; j++) {
+					console.log(v_outer_tab_tag_inner_tab_list);
 					var v_inner_tab_tag = v_outer_tab_tag_inner_tab_list[j].tag;
 					if (v_inner_tab_tag) {
 						if (v_inner_tab_tag.editor_console) {
@@ -231,13 +232,11 @@ function showConfigUser() {
 	document.getElementById('sel_interface_font_size').value = v_font_size;
 	document.getElementById('sel_editor_theme').value = v_theme;
 
-	if (v_omnidb_enabled) {
-		document.getElementById('txt_confirm_new_pwd').value = '';
-		document.getElementById('txt_new_pwd').value = '';
+	document.getElementById('txt_confirm_new_pwd').value = '';
+	document.getElementById('txt_new_pwd').value = '';
 
-		document.getElementById('sel_csv_encoding').value = v_csv_encoding;
-		document.getElementById('txt_csv_delimiter').value = v_csv_delimiter;
-	}
+	document.getElementById('sel_csv_encoding').value = v_csv_encoding;
+	document.getElementById('txt_csv_delimiter').value = v_csv_delimiter;
 
 	$('#modal_config').modal();
 
@@ -290,18 +289,16 @@ function saveConfigUser() {
 	v_font_size = document.getElementById('sel_interface_font_size').value;
 	v_theme_id = document.getElementById('sel_editor_theme').value.split('/')[0];
 
-	if (v_omnidb_enabled) {
-		var v_confirm_pwd = document.getElementById('txt_confirm_new_pwd');
-		var v_pwd = document.getElementById('txt_new_pwd');
+	var v_confirm_pwd = document.getElementById('txt_confirm_new_pwd');
+	var v_pwd = document.getElementById('txt_new_pwd');
 
-		v_csv_encoding = document.getElementById('sel_csv_encoding').value;
-		v_csv_delimiter = document.getElementById('txt_csv_delimiter').value;
+	v_csv_encoding = document.getElementById('sel_csv_encoding').value;
+	v_csv_delimiter = document.getElementById('txt_csv_delimiter').value;
 
-		if ((v_confirm_pwd.value!='' || v_pwd.value!='') && (v_pwd.value!=v_confirm_pwd.value)) {
-			showAlert('New Password and Confirm New Password fields do not match.');
-		}
-		else {
-			var input = JSON.stringify(
+	if ((v_confirm_pwd.value!='' || v_pwd.value!='') && (v_pwd.value!=v_confirm_pwd.value))
+		showAlert('New Password and Confirm New Password fields do not match.');
+	else {
+		var input = JSON.stringify(
 			{
 				"p_font_size" : v_font_size,
 				"p_theme" : v_theme,
@@ -310,34 +307,14 @@ function saveConfigUser() {
 				"p_csv_delimiter": v_csv_delimiter
 			});
 
-			execAjax('/save_config_user/',
-			input,
-			function(p_return) {
-				$('#modal_config').modal('hide');
-				showAlert('Configuration saved.');
-
-			});
-		}
-	}
-	else {
-		var input = JSON.stringify(
-		{
-			"p_font_size" : v_font_size,
-			"p_theme" : v_theme,
-			"p_pwd" : '',
-			"p_csv_encoding": v_csv_encoding,
-			"p_csv_delimiter": v_csv_delimiter
-		});
-
 		execAjax('/save_config_user/',
-		input,
-		function(p_return) {
-			$('#modal_config').modal('hide');
-			showAlert('Configuration saved.');
+				input,
+				function(p_return) {
+					$('#modal_config').modal('hide');
+					showAlert('Configuration saved.');
 
-		});
+				});
 	}
-
 }
 
 /// <summary>

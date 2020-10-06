@@ -153,6 +153,7 @@
         @keyframes growInFromTop {
         	to {
         		height: 400px;
+            overflow-y: auto;
         	}
         }
 
@@ -295,7 +296,7 @@
             </div>
           </div>
 
-          <div class="loginWrap-body">
+          <div id="login_wrap_body" class="loginWrap-body">
             <div class="omnidb__login__input-wrapper">
 
                 <div class="loginWrap">
@@ -406,6 +407,7 @@
     let django = null;
     let v_loading_data_container = document.getElementById('loading_interface');
     let v_loading_data_content = document.getElementById('loading');
+    let v_login_wrap_body = document.getElementById('login_wrap_body');
     let v_webview = document.getElementById('view');
 
     const child_process = require('child_process')
@@ -444,8 +446,12 @@
         lines = data.toString().split('\n');
 
         for (var i=0; i<lines.length-1; i++) {
-          if (lines[i].substring(0, 4)!='http')
+          if (lines[i].substring(0, 4)!='http') {
             v_loading_data_content.innerHTML += lines[i] + '<br/>';
+            if (v_login_wrap_body) {
+              v_login_wrap_body.scrollTo(0,99999);
+            }
+          }
           else {
             v_loading_data_content.innerHTML += 'Opening OmniDB...<br/>';
             (function(value) { setTimeout( function() {

@@ -335,6 +335,9 @@
 .omnidb--theme-dark .form-control[readonly] {
     background-color: #B5B6B7 !important;
 }
+.custom-file > input[disabled]+label {
+  background-color: #B5B6B7;
+}
 
 /* Input-group */
 .omnidb--theme-dark span.input-group-text {

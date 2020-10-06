@@ -332,7 +332,10 @@
 /* DISABLED */
 .omnidb--theme-light .form-control:disabled,
 .omnidb--theme-light .form-control[readonly] {
-    background-color: #E9ECEF !important;
+  background-color: #E9ECEF !important;
+}
+.custom-file > input[disabled]+label {
+  background-color: #E9ECEF;
 }
 
 /* Input-group */

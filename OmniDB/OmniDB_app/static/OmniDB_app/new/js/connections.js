@@ -622,13 +622,32 @@ function editConnection(p_conn_obj) {
   document.getElementById('conn_form_port').value = p_conn_obj.port;
   document.getElementById('conn_form_database').value = p_conn_obj.service;
   document.getElementById('conn_form_user').value = p_conn_obj.user;
-	document.getElementById('conn_form_user_pass').value = p_conn_obj.password;
+	document.getElementById('conn_form_user_pass').value = '';
   document.getElementById('conn_form_use_tunnel').checked = p_conn_obj.tunnel.enabled;
   document.getElementById('conn_form_ssh_server').value = p_conn_obj.tunnel.server;
   document.getElementById('conn_form_ssh_port').value = p_conn_obj.tunnel.port;
   document.getElementById('conn_form_ssh_user').value = p_conn_obj.tunnel.user;
-  document.getElementById('conn_form_ssh_password').value = p_conn_obj.tunnel.password;
+  document.getElementById('conn_form_ssh_password').value = '';
   document.getElementById('conn_form_ssh_key').value = p_conn_obj.tunnel.key;
+
+
+	if (p_conn_obj.password && p_conn_obj.password !== null && p_conn_obj.password !== '') {
+		if ($('#conn_form_user_pass_check_icon').length === 0) {
+			$('#conn_form_user_pass').prev().append('<i id="conn_form_user_pass_check_icon" class="fas fa-check text-success ml-2"></i>');
+		}
+	}
+	else {
+		$('#conn_form_user_pass_check_icon').remove();
+	}
+
+	if (p_conn_obj.tunnel.password && p_conn_obj.tunnel.password !== null && p_conn_obj.tunnel.password !== '') {
+		if ($('#conn_form_ssh_password_check_icon').length === 0) {
+			$('#conn_form_ssh_password').prev().append('<i id="conn_form_ssh_password_check_icon" class="fas fa-check text-success ml-2"></i>');
+		}
+	}
+	else {
+		$('#conn_form_ssh_password_check_icon').remove();
+	}
 
 	if (p_conn_obj.technology === 'terminal') {
 		v_disable_list = [
@@ -644,7 +663,8 @@ function editConnection(p_conn_obj) {
 			'conn_form_ssh_port',
 			'conn_form_ssh_user',
 			'conn_form_ssh_password',
-			'conn_form_ssh_key'
+			'conn_form_ssh_key',
+			'conn_form_ssh_key_input'
 		];
 		document.getElementById('conn_form_use_tunnel').checked = true;
 		document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
@@ -682,7 +702,8 @@ function editConnection(p_conn_obj) {
 				'conn_form_ssh_port',
 				'conn_form_ssh_user',
 				'conn_form_ssh_password',
-				'conn_form_ssh_key'
+				'conn_form_ssh_key',
+				'conn_form_ssh_key_input'
 			];
 		}
 		else {
@@ -691,7 +712,8 @@ function editConnection(p_conn_obj) {
 			 'conn_form_ssh_port',
 			 'conn_form_ssh_user',
 			 'conn_form_ssh_password',
-			 'conn_form_ssh_key'
+			 'conn_form_ssh_key',
+			 'conn_form_ssh_key_input'
 		 ];
 		}
 	}
@@ -723,6 +745,11 @@ function newConnection() {
   document.getElementById('conn_form_ssh_user').value = '';
   document.getElementById('conn_form_ssh_password').value = '';
   document.getElementById('conn_form_ssh_key').value = '';
+	document.getElementById('conn_form_ssh_key_input').value = null;
+	document.getElementById('conn_form_ssh_key_input_label').innerHTML = 'Click to select';
+
+	$('#conn_form_user_pass_check_icon').remove();
+	$('#conn_form_ssh_password_check_icon').remove();
 
   $('#modal_edit_connection').modal();
 }
@@ -857,7 +884,8 @@ function updateModalEditConnectionState(e) {
         'conn_form_ssh_port',
         'conn_form_ssh_user',
         'conn_form_ssh_password',
-        'conn_form_ssh_key'
+        'conn_form_ssh_key',
+				'conn_form_ssh_key_input'
       ];
     }
 		// Case where SSH is NOT checked. Locks ssh config.
@@ -867,7 +895,8 @@ function updateModalEditConnectionState(e) {
         'conn_form_ssh_port',
         'conn_form_ssh_user',
         'conn_form_ssh_password',
-        'conn_form_ssh_key'
+        'conn_form_ssh_key',
+				'conn_form_ssh_key_input'
       ];
     }
   }
@@ -888,7 +917,8 @@ function updateModalEditConnectionState(e) {
         'conn_form_ssh_port',
         'conn_form_ssh_user',
         'conn_form_ssh_password',
-        'conn_form_ssh_key'
+        'conn_form_ssh_key',
+				'conn_form_ssh_key_input'
       ];
 			document.getElementById('conn_form_use_tunnel').checked = true;
 			document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
@@ -917,7 +947,6 @@ function updateModalEditConnectionState(e) {
 		v_form_cases.push('conn_form_ssh_server');
 		v_form_cases.push('conn_form_ssh_port');
 		v_form_cases.push('conn_form_ssh_user');
-		v_form_cases.push('conn_form_ssh_password');
 	}
 
 	// Updating the fields.
@@ -928,11 +957,13 @@ function updateModalEditConnectionFields(p_disable_list, p_enable_list, p_form_c
 	for (let i = 0; i < p_disable_list.length; i++) {
     var v_item = document.getElementById(p_disable_list[i]);
     v_item.setAttribute('readonly',true);
+		v_item.setAttribute('disabled', true);
     v_item.value = null;
   }
   for (let i = 0; i < p_enable_list.length; i++) {
     var v_item = document.getElementById(p_enable_list[i]);
     v_item.removeAttribute('readonly');
+		v_item.removeAttribute('disabled');
   }
 
 	let v_has_invalid = false;
@@ -962,4 +993,21 @@ function updateModalEditConnectionFields(p_disable_list, p_enable_list, p_form_c
 		document.getElementById('conn_form_button_save_connection').removeAttribute('disabled');
 	}
 
+}
+
+function updateConnectionKey(e) {
+  var file = e.target.files[0];
+	var v_input = document.getElementById('conn_form_ssh_key');
+  if (!file) {
+		v_input.value = null;
+		document.getElementById('conn_form_ssh_key_input_label').innerHTML = 'Click to select';
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var v_contents = e.target.result;
+		v_input.value = v_contents;
+		document.getElementById('conn_form_ssh_key_input_label').innerHTML = 'Key text loaded';
+  };
+  reader.readAsText(file);
 }

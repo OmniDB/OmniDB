@@ -1,0 +1,555 @@
+.omnidb--theme-light {
+  color: #454545;
+}
+
+.omnidb--theme-light .omnidb__main {
+  background-color: #F4F4F4;
+}
+
+.omnidb--theme-light .omnidb__theme-bg--menu-primary {
+  background-color: #4A81D4;
+}
+.omnidb--theme-light .omnidb__theme-bg--menu-utilities {
+  background-color: #4A81D4;
+}
+.omnidb--theme-light .omnidb__theme-border--primary {
+  border: 1px solid #DEDEDE;
+}
+.omnidb--theme-light .omnidb__theme-border-top--primary {
+  border-top: 1px solid #DEDEDE;
+}
+.omnidb--theme-light .omnidb__theme-text--primary {
+  color: #4A81D4;
+}
+.omnidb--theme-light .omnidb__workspace__div-left {
+  background-color: #FFFFFF;
+}
+.omnidb--theme-light .omnidb__workspace__div-right {
+  background-color: #F4F4F4;
+}
+.omnidb--theme-light .omnidb__tab-actions.tab_actions {
+  /* background-color: #FFF; */
+}
+
+/* OMNIS */
+.omnidb--theme-light .omnis {
+  background-color: rgba(255,255,255,0.25);
+}
+.omnidb--theme-light .omnis.omnis--active {
+  background-color: rgba(255,255,255,1);
+}
+.omnidb--theme-light .omnis__cloned-element__waves span {
+  background-color: #2E53B9;
+}
+
+/* ICONS */
+.omnidb--theme-light .close,
+.omnidb--theme-light i.icon-close {
+  color: #d85656;
+}
+
+/* BRANDING ICON */
+.omnidb--theme-light .omnidb-icon__theme--branding,
+.omnidb--theme-light .omnidb-icon__theme--branding path {
+	fill: #FFF;
+}
+
+/* BUTTONS */
+.omnidb--theme-light .omnidb__theme__btn--primary {
+  background-color: #4A81D4;
+  color: #FFF;
+}
+.omnidb--theme-light .omnidb__theme__btn--secondary {
+  background-color: #DEDEDE;
+  color: #6C757D;
+}
+
+/* CONSOLE */
+.omnidb--theme-light .ace_content {
+  /* background-color: #ffffff; */
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
+}
+.omnidb--theme-light .omnidb__txt-console {
+  border-color: #DEDEDE;
+}
+
+/* TABS */
+/* .nav-tabs {
+  border-color: #E2E2E2 !important;
+}
+.nav-tabs .nav-link {
+  color: #FFF;
+}
+.nav-tabs .nav-link.active {
+  background-color: #FFF !important;
+  border-color: #FFF !important;
+  color: #444;
+} */
+.omnidb--theme-light .nav-tabs .nav-link:focus,
+.omnidb--theme-light .nav-tabs .nav-link:hover {
+  border-color: #e9ecef #e9ecef #dee2e6;
+  color: #555;
+}
+.omnidb--theme-light .nav-tabs .nav-link.active {
+  border-top: 2px solid #68A4FF;
+}
+.omnidb--theme-light .omnidb__tab-menu--primary .nav-tabs .nav-link.active {
+  border-top: none;
+  background-color: #3869b3;
+}
+/* TABS WITH CARD-HEADERS */
+/* .omnidb--theme-light .omnidb__tab-menu.card-header .nav-tabs .nav-link.active {
+  border-color: #4C5365;
+  border-bottom-color: #27292E;
+} */
+
+/* TEXT */
+.omnidb--theme-light .omnidb__theme__text--primary {
+  color: #4A81D4;
+}
+.omnidb--theme-light .omnidb__theme__text--secondary {
+  color: #6C757D;
+}
+
+/* PRIMARY TAB */
+.omnidb--theme-light .omnidb__tab-menu--primary .omnidb__menu__btn {
+  /* background-color: #FFF; */
+}
+.omnidb--theme-light .omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active .omnidb__tab-menu__link-name {
+  color: #585858;
+}
+.omnidb--theme-light .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
+	color: #FFF;
+}
+.omnidb--theme-light .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
+  background-color: unset;
+  color: #F9F9F9;
+}
+
+/* UTILITIES MENU */
+.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn {
+  background-color: unset;
+  color: #F9F9F9;
+}
+.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn:hover,
+.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn-user:hover {
+  color: #F9F9F9;
+}
+.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn-text {
+  color: #F9F9F9;
+}
+.omnidb--theme-light .omnidb__utilities-menu .fa-code-branch {
+  color: #F9F9F9;
+}
+.omnidb--theme-light .omnidb__utilities-menu .badge-info {
+  color: #585858;
+  background-color: #FFF;
+}
+
+.omnidb--theme-light a {
+  color: #4A81D4;
+}
+/* .omnidb--theme-light a:hover {
+  color: #000000;
+} */
+
+/* ACE EDITOR */
+.omnidb--theme-light .ace_editor.ace-omnidb {
+  background-color: #F4F4F4 !important;
+  border: 1px solid #DEDEDE !important;
+}
+.omnidb--theme-light .ace_editor.ace-omnidb .ace_gutter {
+	background-color: #FFF;
+}
+.omnidb--theme-light .ace_editor.ace-omnidb .ace_folding-enabled > .ace_gutter-cell {
+  color: #828282;
+}
+
+/* SECONDARY TAB */
+.omnidb--theme-light .omnidb__tab-menu--secondary {
+  border-bottom-color: #DEDEDE;
+}
+.omnidb--theme-light .omnidb__tab-menu--secondary .nav-tabs {
+  border-bottom-color: transparent !important;
+}
+.omnidb--theme-light .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
+  background-color: transparent;
+  border-color: #e2e2e2;
+  border-bottom-color: #DEDEDE;
+}
+.omnidb--theme-light .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
+  color: #585858 !important;
+}
+.omnidb--theme-light .omnidb__tab-menu--secondary .omnidb__tab-menu__link-icon {
+  background-color: unset;
+}
+.omnidb--theme-light .omnidb__tab-menu--secondary .omnidb__tab-menu__link.active {
+  background-color: transparent;
+  border-color: #DEDEDE;
+  border-bottom-color: #F4F4F4;
+  border-top: 2px solid #68A4FF;
+}
+
+/* TREE TAB */
+.omnidb--theme-light .omnidb__tree-tabs .omnidb__tab-menu .nav-tabs {
+  border-bottom-color: transparent !important;
+}
+.omnidb--theme-light .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link {
+  background-color: transparent;
+  border-color: #DEDEDE;
+  border-bottom-color: #DEDEDE;
+}
+.omnidb--theme-light .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
+  color: #585858 !important;
+}
+.omnidb--theme-light .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link-icon {
+  background-color: #E2E2E2 !important;
+}
+.omnidb--theme-light .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
+  background-color: transparent;
+  border-color: #DEDEDE;
+  border-bottom-color: #FFFFFF;
+  border-top: 2px solid #68A4FF;
+}
+
+/* QUERY RESULT TABS */
+.omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-menu .nav-tabs {
+  border-bottom-color: transparent !important;
+}
+.omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link {
+  background-color: transparent;
+  border-color: #e2e2e2;
+  border-bottom-color: #DEDEDE;
+}
+.omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-name {
+  color: #585858 !important;
+}
+.omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link-icon {
+  background-color: #E2E2E2 !important;
+}
+.omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
+  background-color: transparent;
+  border-color: #DEDEDE;
+  border-bottom-color: #F4F4F4;
+  border-top: 2px solid #68A4FF;
+}
+.omnidb--theme-light .omnidb__query-result-tabs .omnidb__tab-content {
+  /* border: 1px solid #94A5E3; */
+}
+
+/* MODAL CONFIG */
+.omnidb--theme-light .omnidb__modal-config .nav-tabs {
+  border-bottom-color: transparent !important;
+}
+.omnidb--theme-light .omnidb__modal-config .nav-link {
+  background-color: transparent;
+  border-color: #e2e2e2;
+  border-bottom-color: #FFFFFF;
+  color: #585858 !important;
+}
+.omnidb--theme-light .omnidb__modal-config .nav-link.active {
+  background-color: transparent;
+  border-color: #DEDEDE;
+  border-bottom-color: #FFFFFF;
+  border-top: 2px solid #68A4FF;
+}
+.omnidb--theme-light .omnidb__modal-config .nav-tabs .nav-link:focus,
+.omnidb--theme-light .omnidb__modal-config .nav-tabs .nav-link:hover {
+  border-bottom-color: #FFFFFF;
+}
+
+/* MONITORING */
+.omnidb--theme-light .omnidb__monitoring-result-tabs {
+  border: 1px solid #DEDEDE;
+}
+
+/* CARD */
+.omnidb--theme-light .card {
+  background-color: #FFF;
+}
+.omnidb--theme-light .card .card-header {
+  border-bottom-color: #D2D2D2;
+}
+.omnidb--theme-light .card .card-header .nav.nav-tabs {
+  border-color: transparent;
+}
+
+/* DATERANGEPICKER */
+.omnidb--theme-light .daterangepicker {
+  background-color: #ffffff;
+  border: 1px solid #dfdfdf;
+}
+.omnidb--theme-light .daterangepicker:after,
+.omnidb--theme-light .daterangepicker:before {
+  /* top: -7px;
+  border-right: 7px solid transparent;
+  border-left: 7px solid transparent; */
+  border-bottom: 7px solid #007bff;
+}
+.omnidb--theme-light .daterangepicker .ranges {
+  background-color: #f8f9fa;
+}
+.omnidb--theme-light .daterangepicker .ranges li:hover {
+  background-color: #eee;
+}
+.omnidb--theme-light .daterangepicker .drp-buttons {
+  border-top: 1px solid #dfdfdf;
+}
+.omnidb--theme-light .daterangepicker .cancelBtn {
+  color: #FFF;
+  background-color: #d26363;
+}
+.omnidb--theme-light .daterangepicker.show-ranges.ltr .drp-calendar.left {
+  border-left: 1px solid #dfdfdf;
+}
+.omnidb--theme-light .daterangepicker .calendar-table {
+  background-color: #ffffff;
+  border: 1px solid #dfdfdf;
+}
+.omnidb--theme-light .daterangepicker td.off,
+.omnidb--theme-light .daterangepicker td.off.in-range,
+.omnidb--theme-light .daterangepicker td.off.start-date,
+.omnidb--theme-light .daterangepicker td.off.end-date {
+  background-color: #ffffff;
+  color: #999;
+}
+.omnidb--theme-light .daterangepicker td.in-range {
+  background-color: #ebf4f8;
+}
+.omnidb--theme-light .daterangepicker td.available:hover,
+.omnidb--theme-light .daterangepicker th.available:hover {
+  background-color: #eee;
+}
+.omnidb--theme-light .daterangepicker td.active,
+.omnidb--theme-light .daterangepicker td.active:hover {
+  background-color: #357ebd;
+  color: #fff;
+}
+
+/* FORMS */
+.omnidb--theme-light .omnidb__form-check .form-check-label::before {
+  background-color: #F4F4F4 !important;
+  border: 1px solid #DEDEDE !important;
+}
+.omnidb--theme-light .omnidb__form-check input:checked~.form-check-label::after {
+  background-color: #43afd2;
+}
+
+/* DISABLED */
+.omnidb--theme-light .form-control:disabled,
+.omnidb--theme-light .form-control[readonly] {
+  background-color: #E9ECEF !important;
+}
+.custom-file > input[disabled]+label {
+  background-color: #E9ECEF;
+}
+
+/* Input-group */
+.omnidb--theme-light span.input-group-text {
+  border-color: #ced4da;
+}
+
+/* Switch */
+.omnidb--theme-light label.omnidb__switch--label {
+  background-color: #e2e2e2;
+}
+.omnidb--theme-light label.omnidb__switch--label span {
+  color: #888;
+  background-color: #FFF;
+}
+.omnidb--theme-light .secondq__omnidb--input:checked ~ .omnidb__switch--label {
+  background-color: #809dde;
+}
+
+/* MODAL */
+.omnidb--theme-light .modal-header {
+  border-color: #E2E2E2;
+}
+.omnidb--theme-light .modal-content {
+  background-color: #FFF;
+}
+.omnidb--theme-light .modal-footer {
+  border-top-color: #d2d2d2;
+}
+
+/* SCROLL */
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+  background: #EFEFEF;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #DEDEDE;
+  cursor: pointer;
+}
+/* Corner */
+::-webkit-scrollbar-corner {
+  background: none;
+}
+
+/* TOAST */
+.omnidb--theme-light .toast {
+  background-color: #dadada;
+  border-color: rgba(0,0,0,.1);
+ }
+.omnidb--theme-light .toast-header {
+  background-color: rgba(255,255,255,.85);
+}
+
+/* TOOLTIPS */
+.omnidb--theme-light .bs-tooltip-auto[x-placement^=bottom] .arrow::before,
+.omnidb--theme-light .bs-tooltip-bottom .arrow::before {
+  border-bottom-color: #D2D2D2;
+}
+.omnidb--theme-light .tooltip-inner {
+  color: #555;
+  background-color: #FFF;
+  border: 1px solid #D2D2D2;
+}
+
+/* CONNECTIONS */
+.omnidb__connections__btn--select svg {
+  fill: #FFF;
+}
+
+/* JSON BUILDER */
+.omnidb--theme-light .jsonBuilder--template-2 .jsonBuilder__label {
+  background-color: #E2E2E2;
+}
+
+/* PAGINATION */
+.omnidb--theme-light .page-link {
+  /* color: #7CBAFB;
+  background-color: #1d1f21;
+  border: 1px solid #484a55; */
+}
+.omnidb--theme-light .page-item.active .page-link {
+  /* color: #FFF;
+  background-color: #394E83;
+  border-color: #394E83; */
+}
+.omnidb--theme-light .page-item.disabled .page-link {
+  color: #6c757d;
+  background-color: #fff;
+  border-color: #dee2e6;
+}
+
+/* RESIZE LINES */
+.omnidb--theme-light .resize_line_horizontal {
+  border-bottom: 1px dashed #A2AFC1 !important;
+}
+.omnidb--theme-light .resize_line_vertical {
+  border-right: 1px dashed #A2AFC1 !important;
+}
+.omnidb--theme-light .omnidb__workspace-resize-grid__draggable .resize_line_vertical {
+  border-right: 1px dashed #A2AFC1 !important;
+}
+
+/* Workspace Connection Info */
+.omnidb--theme-light .omnidb__workspace__connection-details b {
+  color: #284AC6;
+}
+
+/* HANDSONTABLE */
+.omnidb--theme-light .handsontable th {
+  background-color: #FFFFFF;
+  color: #9a9a9a;
+  font-weight: bold;
+}
+.omnidb--theme-light .handsontable .cellEven {
+  background-color: #FFFFFF;
+}
+.omnidb--theme-light .handsontable thead th,
+.omnidb--theme-light .handsontable tr th,
+.omnidb--theme-light .handsontable td {
+  border-color: #DEE2E6 !important;
+  border-bottom-color: #DEE2E6 !important;
+  border-left-color: #DEE2E6 !important;
+  border-right-color: #DEE2E6 !important;
+  border-top-color: #DEE2E6 !important;
+}
+.omnidb--theme-light .omnidb__ht__first-col-actions td:first-child {
+  color: #4A81D4;
+}
+
+/* Query Info */
+.omnidb--theme-light .omnidb__query-info__value {
+  color: #4A81D4;
+}
+
+/* Aimara Tree */
+.omnidb--theme-light .node-all {
+  color: #4A81D4;
+}
+
+/* Autocomplete */
+.omnidb--theme-light .omnidb__autocomplete {
+  background: #FFFFFF;
+}
+.omnidb--theme-dark .omnidb__autocomplete__data {
+  background-color: #FBFBFB;
+}
+#div_autocomplete .handsontable tr:hover {
+  background-color: #c7d6ff !important;
+  cursor: pointer;
+}
+
+/* Tree Component */
+/* .div_left ul.tree {
+  background-color: #373b41 !important;
+}
+.div_left ul.tree li.last {
+  background-color: #373b41 !important;
+}
+.div_right ul.tree {
+  background-color: #373b41 !important;
+  font-weight: bold;
+}
+.div_right ul.tree li.last {
+  background-color: #373b41 !important;
+} */
+.aimara_tree a.nav-link:hover {
+  background-color: #f3f3f3;
+}
+/* .node:hover a {
+  color: white !important;
+}
+.node a {
+  color: #ffffff !important;
+} */
+span.node_selected span {
+  color: #284AC6;
+}
+
+.cellNew {
+	background-color: rgb(216, 236, 218) !important;
+}
+
+.cellEdit {
+	background-color: rgb(255, 251, 215) !important;
+}
+
+.cellRemove {
+	background-color: rgb(255, 213, 213) !important;
+}
+
+.cellReadOnly {
+	background-color: rgb(242, 242, 242) !important;
+}
+
+/*.cellEven {
+	background-color: rgb(234, 237, 249) !important;
+}*/
+
+#horizontal-resize-line {
+  border-left-color: black;
+}
+
+#vertical-resize-line {
+  border-top-color: black;
+}

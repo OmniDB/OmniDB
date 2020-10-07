@@ -28,6 +28,8 @@ from OmniDB_app.models.main import *
 
 from OmniDB_app.views.memory_objects import *
 
+import traceback
+
 import logging
 logger = logging.getLogger('OmniDB_app.QueryServer')
 

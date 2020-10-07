@@ -169,6 +169,7 @@ def get_connections_new(request):
             v_conn_object = {
                 'id': conn.id,
                 'locked': False,
+                'public': conn.public,
                 'technology': conn.technology.name,
                 'alias': conn.alias,
                 'conn_string': '',

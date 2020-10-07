@@ -238,8 +238,6 @@ def get_database_tab_object(
     v_global_database_object = p_session.v_databases[p_database_index]['database']
     v_current_tab_database = p_session.v_tabs_databases[p_connection_tab_id]
 
-
-
     # Updating time
     p_tab_object['last_update'] = datetime.now()
 

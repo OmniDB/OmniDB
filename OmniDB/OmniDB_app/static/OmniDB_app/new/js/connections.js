@@ -486,6 +486,7 @@ function getGroups() {
 /// </summary>
 function testConnection(p_password = null) {
 	var input = JSON.stringify({
+		"id": v_connections_data.current_id,
     "type": document.getElementById('conn_form_type').value,
     "connstring": document.getElementById('conn_form_connstring').value,
     "server": document.getElementById('conn_form_server').value,

@@ -38,6 +38,7 @@ class Connection(models.Model):
     ssh_key = models.TextField(blank=False, default='')
     use_tunnel = models.BooleanField(default=False)
     conn_string = models.TextField(blank=False, default='')
+    public = models.BooleanField(default=False)
 
 class SnippetFolder(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)

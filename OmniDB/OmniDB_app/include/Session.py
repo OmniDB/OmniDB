@@ -22,6 +22,8 @@ from OmniDB_app.models.main import *
 import logging
 logger = logging.getLogger('OmniDB_app.Session')
 
+from django.db.models import Q
+
 tunnels = dict([])
 
 '''
@@ -159,7 +161,7 @@ class Session(object):
         self.v_databases = {}
 
         try:
-            for conn in Connection.objects.filter(user=User.objects.get(id=self.v_user_id)):
+            for conn in Connection.objects.filter(Q(user=User.objects.get(id=self.v_user_id)) | Q(public=True)):
                 tunnel_information = {
                     'enabled': conn.use_tunnel,
                     'server': conn.ssh_server,

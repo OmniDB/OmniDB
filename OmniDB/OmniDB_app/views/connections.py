@@ -24,24 +24,7 @@ from sshtunnel import SSHTunnelForwarder
 
 from OmniDB_app.views.memory_objects import *
 
-def index(request):
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
-        return redirect('login')
-
-    v_session = request.session.get('omnidb_session')
-
-    context = {
-        'session' : v_session,
-        'menu_item': 'connections',
-        'desktop_mode': settings.DESKTOP_MODE,
-        'omnidb_version': settings.OMNIDB_VERSION
-    }
-
-    template = loader.get_template('OmniDB_app/connections.html')
-    return HttpResponse(template.render(context, request))
+from django.db.models import Q
 
 def get_connections(request):
 
@@ -181,9 +164,8 @@ def get_connections_new(request):
         v_tech_list.append(tech.name)
 
     v_connection_list = []
-
     try:
-        for conn in Connection.objects.filter(user=request.user):
+        for conn in Connection.objects.filter(Q(user=request.user) | Q(public=True)):
             v_conn_object = {
                 'id': conn.id,
                 'locked': False,
@@ -199,8 +181,8 @@ def get_connections_new(request):
                     'server': conn.ssh_server,
                     'port': conn.ssh_port,
                     'user': conn.ssh_user,
-                    'password': conn.ssh_password,
-                    'key': conn.ssh_key
+                    'password': False if conn.ssh_password.strip() == '' else True,
+                    'key': False if conn.ssh_key.strip() == '' else True
                 }
             }
 
@@ -213,7 +195,7 @@ def get_connections_new(request):
                 v_conn_object['port'] = conn.port
                 v_conn_object['service'] = conn.database
                 v_conn_object['user'] = conn.username
-                v_conn_object['password'] = conn.password
+                v_conn_object['password'] = False if conn.password.strip() == '' else True
 
             v_connection_list.append(v_conn_object)
     # No connections
@@ -463,6 +445,20 @@ def test_connection_new(request):
     json_object = json.loads(request.POST.get('data', None))
     p_type = json_object['type']
 
+    password=json_object['password'].strip()
+    ssh_password=json_object['tunnel']['password'].strip()
+    ssh_key=json_object['tunnel']['key']
+
+    if json_object['id']!=-1:
+        conn = Connection.objects.get(id=json_object['id'])
+        if json_object['password'].strip()=='':
+            password=conn.password
+        if json_object['tunnel']['password'].strip()=='':
+            ssh_password=conn.ssh_password
+        if json_object['tunnel']['key'].strip()=='':
+            ssh_key=conn.ssh_key
+
+
     if p_type=='terminal':
 
         client = paramiko.SSHClient()
@@ -471,14 +467,14 @@ def test_connection_new(request):
 
         try:
             #ssh key provided
-            if json_object['tunnel']['key'].strip() != '':
+            if ssh_key.strip() != '':
                 v_file_name = '{0}'.format(str(time.time())).replace('.','_')
                 v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
                 with open(v_full_file_name,'w') as f:
-                    f.write(json_object['tunnel']['key'])
-                client.connect(hostname=json_object['tunnel']['server'],username=json_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=json_object['tunnel']['password'],port=int(json_object['tunnel']['port']))
+                    f.write(ssh_key)
+                client.connect(hostname=json_object['tunnel']['server'],username=json_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=ssh_password,port=int(json_object['tunnel']['port']))
             else:
-                client.connect(hostname=json_object['tunnel']['server'],username=json_object['tunnel']['user'],password=json_object['tunnel']['password'],port=int(json_object['tunnel']['port']))
+                client.connect(hostname=json_object['tunnel']['server'],username=json_object['tunnel']['user'],password=ssh_password,port=int(json_object['tunnel']['port']))
 
             client.close()
             v_return['v_data'] = 'Connection successful.'
@@ -493,7 +489,7 @@ def test_connection_new(request):
             json_object['port'],
             json_object['database'],
             json_object['user'],
-            json_object['password'],
+            password,
             -1,
             '',
             p_conn_string = json_object['connstring'],
@@ -504,15 +500,15 @@ def test_connection_new(request):
         if json_object['tunnel']['enabled'] == True:
 
             try:
-                if json_object['tunnel']['key'].strip() != '':
+                if ssh_key.strip() != '':
                     v_file_name = '{0}'.format(str(time.time())).replace('.','_')
                     v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
                     with open(v_full_file_name,'w') as f:
-                        f.write(json_object['tunnel']['key'])
+                        f.write(ssh_key)
                     server = SSHTunnelForwarder(
                         (json_object['tunnel']['server'], int(json_object['tunnel']['port'])),
                         ssh_username=json_object['tunnel']['user'],
-                        ssh_private_key_password=json_object['tunnel']['password'],
+                        ssh_private_key_password=ssh_password,
                         ssh_pkey = v_full_file_name,
                         remote_bind_address=(database.v_active_server, int(database.v_active_port)),
                         logger=None
@@ -521,7 +517,7 @@ def test_connection_new(request):
                     server = SSHTunnelForwarder(
                         (json_object['tunnel']['server'], int(json_object['tunnel']['port'])),
                         ssh_username=json_object['tunnel']['user'],
-                        ssh_password=json_object['tunnel']['password'],
+                        ssh_password=ssh_password,
                         remote_bind_address=(database.v_active_server, int(database.v_active_port)),
                         logger=None
                     )
@@ -584,6 +580,7 @@ def save_connection_new(request):
                 ssh_key=json_object['tunnel']['key'],
                 use_tunnel=json_object['tunnel']['enabled'],
                 conn_string=json_object['connstring'],
+                public=json_object['public']
 
             )
             conn.save()
@@ -595,15 +592,20 @@ def save_connection_new(request):
             conn.port=json_object['port']
             conn.database=json_object['database']
             conn.username=json_object['user']
-            conn.password=json_object['password']
+            if json_object['password'].strip()!='':
+                conn.password=json_object['password']
             conn.alias=json_object['title']
             conn.ssh_server=json_object['tunnel']['server']
             conn.ssh_port=json_object['tunnel']['port']
             conn.ssh_user=json_object['tunnel']['user']
-            conn.ssh_password=json_object['tunnel']['password']
-            conn.ssh_key=json_object['tunnel']['key']
+            if json_object['tunnel']['password'].strip()!='':
+                conn.ssh_password=json_object['tunnel']['password']
+            if json_object['tunnel']['key'].strip()!='':
+                conn.ssh_key=json_object['tunnel']['key']
+
             conn.use_tunnel=json_object['tunnel']['enabled']
             conn.conn_string=json_object['connstring']
+            conn.public=public=json_object['public']
             conn.save()
 
         tunnel_information = {

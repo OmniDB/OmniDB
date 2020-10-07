@@ -34,6 +34,7 @@ function startConnectionManagement() {
 function showConnectionList(p_open_modal, p_change_group) {
 
 	var v_conn_id_list = [];
+	var v_total_public_conn = 0;
 
 	for (var i=0; i < v_connTabControl.tabList.length; i++) {
 		var v_tab = v_connTabControl.tabList[i];
@@ -195,6 +196,7 @@ function showConnectionList(p_open_modal, p_change_group) {
 
 				// Adding public visuals.
 				if (v_conn_obj.public) {
+					v_total_public_conn += 1;
 					var v_public_icon = document.createElement('i');
 					v_public_icon.setAttribute('style', 'color: #FFF;position: absolute;top: -5px;left: -5px;background-color: #c57dd2;padding: 4px 2px;border-radius: 100%;');
 					v_public_icon.classList = 'fas fa-users';
@@ -232,6 +234,9 @@ function showConnectionList(p_open_modal, p_change_group) {
       if (p_change_group) {
 				groupChange(document.getElementById('group_selector').value);
 			}
+
+			// Updating total public connections counter.
+			document.getElementById('conn_list_public_counter').innerHTML = v_total_public_conn;
 
 		},
 		null,

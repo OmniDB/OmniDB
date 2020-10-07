@@ -805,6 +805,30 @@
 .omnidb__utilities-menu .omnidb__menu__btn:hover i {
   transform: scale(1.2);
 }
+#omnidb__utilities-menu__link-versioning {
+  width: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+#omnidb__utilities-menu__link-versioning i {
+  margin-left: 0px;
+  margin-right: 0px;
+  overflow: hidden;
+  padding: 0px;
+  width: 0px;
+  text-align: center;
+  transition: 0.35s;
+}
+.omnidb__utilities-menu:hover #omnidb__utilities-menu__link-versioning {
+  width: 60px;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+.omnidb__utilities-menu:hover #omnidb__utilities-menu__link-versioning i {
+  width: 15px;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+}
 
 /* PANELS */
 .omnidb__panel {

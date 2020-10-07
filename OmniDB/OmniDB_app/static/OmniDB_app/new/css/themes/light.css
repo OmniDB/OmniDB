@@ -131,7 +131,8 @@
   background-color: unset;
   color: #F9F9F9;
 }
-.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn:hover {
+.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn:hover,
+.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn-user:hover {
   color: #F9F9F9;
 }
 .omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn-text {

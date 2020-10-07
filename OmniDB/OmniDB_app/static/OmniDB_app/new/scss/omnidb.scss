@@ -6,14 +6,6 @@
   border-bottom: none;
 }
 
-.test {
-  color: blue;
-  &--child {
-    color: black;
-  }
-}
-
-
 @media (min-width: 1440px) {
   .omnidb__rounded--lg {
     border-radius: 18px;
@@ -490,6 +482,10 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+}
+.btn,
+button.close {
+  background-image: unset;
 }
 .omnidb__menu__btn {
   transition: 0.35s;
@@ -1848,4 +1844,11 @@ body {
 	}
 }
 
+@import 'interface-icon';
+@import 'node-icon';
+@import 'themes/dark';
 @import 'themes/light';
+@import './../lib/aimaraJS/scss/Aimara';
+@import './../lib/daterangepicker/scss/daterangepicker';
+@import './../lib/json_html/styles/scss/template-2';
+@import './../lib/omnis_lagere/scss/omnis-lagere';

@@ -95,6 +95,7 @@
 }
 .omnidb--theme-light .omnidb__tab-menu--primary .nav-tabs .nav-link.active {
   border-top: none;
+  background-color: #3869b3;
 }
 /* TABS WITH CARD-HEADERS */
 /* .omnidb--theme-light .omnidb__tab-menu.card-header .nav-tabs .nav-link.active {
@@ -121,19 +122,26 @@
 	color: #FFF;
 }
 .omnidb--theme-light .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
-	color: #4A81D4;
+  background-color: unset;
+  color: #F9F9F9;
 }
 
 /* UTILITIES MENU */
 .omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn {
-  background-color: #FFF !important;
-  color: #6C757D !important;
+  background-color: unset;
+  color: #F9F9F9;
+}
+.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn i {
+  transition: 0.35s;
+}
+.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn:hover i {
+  transform: rotate(45deg);
 }
 .omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn-text {
-  color: #FFF !important;
+  color: #F9F9F9;
 }
 .omnidb--theme-light .omnidb__utilities-menu .fa-code-branch {
-  color: #FFF;
+  color: #F9F9F9;
 }
 .omnidb--theme-light .omnidb__utilities-menu .badge-info {
   color: #585858;

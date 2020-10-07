@@ -122,6 +122,7 @@
 	color: #DCDDDE;
 }
 .omnidb--theme-dark .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
+  background-color: unset;
 	color: #DCDDDE;
 }
 

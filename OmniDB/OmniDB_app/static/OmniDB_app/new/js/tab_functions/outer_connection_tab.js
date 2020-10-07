@@ -26,9 +26,17 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
         p_tooltip_name += '<div class="mb-1">' + v_conn.v_details2 + '</div>';
       }
     }
+    
+    let v_icon = '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_conn.v_db_type;
+    if (v_conn.v_db_type === 'postgresql' || v_conn.v_db_type === 'oracle'|| v_conn.v_db_type === 'mariadb' || v_conn.v_db_type === 'mysql') {
+      v_icon += '.svg"/>';
+    }
+    else {
+      v_icon += '_medium.png"/>';
+    }
 
     var v_tab = v_connTabControl.createTab({
-      p_icon: '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_connTabControl.tag.connections[0].v_db_type + '_medium.png"/>',
+      p_icon: v_icon,
       p_name: v_conn_name,
       p_selectFunction: function() {
         document.title = 'OmniDB'

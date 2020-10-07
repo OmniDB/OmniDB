@@ -508,6 +508,11 @@
 .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
   font-size: 1.2rem;
 }
+
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-icon img {
+  max-width: 100%;
+  width: 20px;
+}
 .omnidb__tab-menu--secondary .nav-tabs,
 .omnidb__tree-tabs .nav-tabs,
 .omnidb__query-result-tabs .nav-tabs {
@@ -784,6 +789,10 @@
 .omnidb__utilities-menu:hover .omnidb__menu__btn-text span {
   transform: scaleX(1);
   width: auto;
+}
+.omnidb__utilities-menu .omnidb__tab-menu__link-icon img {
+  max-width: 100%;
+  width: 20px;
 }
 
 /* PANELS */
@@ -1614,6 +1623,11 @@ body {
 	to {
 		transform: translateX(0);
 	}
+}
+
+/* AIMARA MENU */
+#ul_cm.aimara_menu {
+  box-shadow: 0px 1px 4px rgba(0,0,0,0.1);
 }
 
 /* OMNIS */

@@ -118,7 +118,7 @@
 .omnidb--theme-light .omnidb__tab-menu--primary .omnidb__tab-menu__link.nav-link.active .omnidb__tab-menu__link-name {
   color: #585858;
 }
-.omnidb--theme-light .omnidb__tab-menu--primary .omnidb__tab-menu__link-name{
+.omnidb--theme-light .omnidb__tab-menu--primary .omnidb__tab-menu__link-name {
 	color: #FFF;
 }
 .omnidb--theme-light .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
@@ -131,11 +131,8 @@
   background-color: unset;
   color: #F9F9F9;
 }
-.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn i {
-  transition: 0.35s;
-}
-.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn:hover i {
-  transform: rotate(45deg);
+.omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn:hover {
+  color: #F9F9F9;
 }
 .omnidb--theme-light .omnidb__utilities-menu .omnidb__menu__btn-text {
   color: #F9F9F9;
@@ -151,9 +148,9 @@
 .omnidb--theme-light a {
   color: #4A81D4;
 }
-.omnidb--theme-light a:hover {
+/* .omnidb--theme-light a:hover {
   color: #000000;
-}
+} */
 
 /* ACE EDITOR */
 .omnidb--theme-light .ace_editor.ace-omnidb {

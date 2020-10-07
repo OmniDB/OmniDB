@@ -128,7 +128,7 @@
 
 /* UTILITIES MENU */
 .omnidb--theme-dark .omnidb__utilities-menu .omnidb__menu__btn {
-  background-color: #282A2F !important;
+  background-color: unset;
   color: #DCDDDE !important;
 }
 .omnidb--theme-dark .omnidb__utilities-menu .omnidb__menu__btn-text {

@@ -508,10 +508,17 @@
 .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
   font-size: 1.2rem;
 }
-
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-icon i,
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-icon img {
+  transition: 0.35s;
+}
 .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon img {
   max-width: 100%;
   width: 20px;
+}
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-icon:hover i ,
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-icon:hover img {
+  transform: scale(1.2);
 }
 .omnidb__tab-menu--secondary .nav-tabs,
 .omnidb__tree-tabs .nav-tabs,
@@ -785,6 +792,7 @@
 }
 .omnidb__utilities-menu:hover .omnidb__menu__btn-text i {
   width: 0px;
+  transition: 0.35s;
 }
 .omnidb__utilities-menu:hover .omnidb__menu__btn-text span {
   transform: scaleX(1);
@@ -793,6 +801,9 @@
 .omnidb__utilities-menu .omnidb__tab-menu__link-icon img {
   max-width: 100%;
   width: 20px;
+}
+.omnidb__utilities-menu .omnidb__menu__btn:hover i {
+  transform: scale(1.2);
 }
 
 /* PANELS */

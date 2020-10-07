@@ -23,7 +23,6 @@ base_urlpatterns = [
     url(r'^sign_in/$', views.login.sign_in, name='sign_in'),
 
     #CONNECTIONS
-    url(r'^connections/', views.connections.index, name='connections'),
     url(r'^get_connections/$', views.connections.get_connections, name='get_connections'),
     url(r'^test_connection/$', views.connections.test_connection, name='test_connection'),
     url(r'^select_connection/$', views.connections.select_connection, name='select_connection'),

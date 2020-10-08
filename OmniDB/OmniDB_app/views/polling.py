@@ -125,8 +125,12 @@ def long_polling(request):
 
     v_returning_data = []
 
+    client_object['returning_data_lock'].acquire()
+
     while len(client_object['returning_data'])>0:
         v_returning_data.append(client_object['returning_data'].pop(0))
+
+    client_object['returning_data_lock'].release()
 
     return JsonResponse(
     {
@@ -137,7 +141,9 @@ def long_polling(request):
 def queue_response(p_client_object, p_data):
 
     p_client_object['returning_data_lock'].acquire()
+
     p_client_object['returning_data'].append(p_data)
+
     try:
         # Attempt to release client polling lock so that the polling thread can read data
         p_client_object['polling_lock'].release()
@@ -609,6 +615,13 @@ def thread_query(self,args):
                     log_end_time = datetime.now()
                     v_duration = GetDuration(log_start_time,log_end_time)
 
+                    v_response = {
+                        'v_code': response.QueryResult,
+                        'v_context_code': args['v_context_code'],
+                        'v_error': False,
+                        'v_data': 1
+                    }
+
                     v_response['v_data'] = {
                         'v_col_names' : v_data1.Columns,
                         'v_data' : v_data1.Rows,
@@ -640,7 +653,6 @@ def thread_query(self,args):
                         k = k + 1
 
                         v_data1 = v_database.v_connection.QueryBlock(v_sql, 10000, True, True)
-
                         v_notices = v_database.v_connection.GetNotices()
                         v_notices_text = ''
                         v_notices_length = len(v_notices)
@@ -651,6 +663,13 @@ def thread_query(self,args):
 
                         log_end_time = datetime.now()
                         v_duration = GetDuration(log_start_time,log_end_time)
+
+                        v_response = {
+                            'v_code': response.QueryResult,
+                            'v_context_code': args['v_context_code'],
+                            'v_error': False,
+                            'v_data': 1
+                        }
 
                         v_response['v_data'] = {
                             'v_col_names' : v_data1.Columns,
@@ -689,6 +708,13 @@ def thread_query(self,args):
                         log_end_time = datetime.now()
                         v_duration = GetDuration(log_start_time,log_end_time)
 
+                        v_response = {
+                            'v_code': response.QueryResult,
+                            'v_context_code': args['v_context_code'],
+                            'v_error': False,
+                            'v_data': 1
+                        }
+
                         v_response['v_data'] = {
                             'v_col_names' : v_data1.Columns,
                             'v_data' : v_data1.Rows,
@@ -702,7 +728,6 @@ def thread_query(self,args):
                             'v_con_status': v_database.v_connection.GetConStatus(),
                             'v_chunks': True
                         }
-
                         queue_response(v_client_object,v_response)
 
                 elif v_mode==3 or v_mode==4:
@@ -712,6 +737,14 @@ def thread_query(self,args):
                         v_database.v_connection.Query('COMMIT;',True)
                     else:
                         v_database.v_connection.Query('ROLLBACK;',True)
+
+                    v_response = {
+                        'v_code': response.QueryResult,
+                        'v_context_code': args['v_context_code'],
+                        'v_error': False,
+                        'v_data': 1
+                    }
+
                     v_response['v_data'] = {
                         'v_col_names' : None,
                         'v_data' : [],
@@ -741,6 +774,12 @@ def thread_query(self,args):
                 log_end_time = datetime.now()
                 v_duration = GetDuration(log_start_time,log_end_time)
                 log_status = 'error'
+                v_response = {
+                    'v_code': response.QueryResult,
+                    'v_context_code': args['v_context_code'],
+                    'v_error': False,
+                    'v_data': 1
+                }
                 v_response['v_data'] = {
                     'position': v_database.GetErrorPosition(str(exc)),
                     'message' : str(exc).replace('\n','<br>'),
@@ -884,6 +923,12 @@ def thread_console(self,args):
 
             v_data_return = v_data_return.replace("\n","\r\n")
 
+            v_response = {
+                'v_code': response.ConsoleResult,
+                'v_context_code': args['v_context_code'],
+                'v_error': False,
+                'v_data': 1
+            }
             v_response['v_data'] = {
                 'v_data' : v_data_return,
                 'v_last_block': True,
@@ -897,6 +942,12 @@ def thread_console(self,args):
                     if self.cancel:
                         break
                     if not count==len(chunks)-1:
+                        v_response = {
+                            'v_code': response.ConsoleResult,
+                            'v_context_code': args['v_context_code'],
+                            'v_error': False,
+                            'v_data': 1
+                        }
                         v_response['v_data'] = {
                             'v_data' : chunks[count],
                             'v_last_block': False,
@@ -905,6 +956,12 @@ def thread_console(self,args):
                             'v_con_status': '',
                         }
                     else:
+                        v_response = {
+                            'v_code': response.ConsoleResult,
+                            'v_context_code': args['v_context_code'],
+                            'v_error': False,
+                            'v_data': 1
+                        }
                         v_response['v_data'] = {
                             'v_data' : chunks[count],
                             'v_last_block': True,
@@ -949,23 +1006,6 @@ def thread_console(self,args):
 
             query_object.save()
 
-            #keep 100 rows in console history table for current user/connection
-            #v_omnidb_database.v_connection.Execute('''
-            #    delete
-            #    from console_history
-            #    where command_date not in (
-            #        select command_date
-            #        from console_history
-            #        where user_id = {0}
-            #          and conn_id = {1}
-            #        order by command_date desc
-            #        limit 100
-            #    )
-            #    and user_id = {0}
-            #    and conn_id = {1}
-            #'''.format(v_session.v_user_id,
-            #           v_database.v_conn_id,
-            #           v_sql.replace("'","''")))
 
     except Exception as exc:
         logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))

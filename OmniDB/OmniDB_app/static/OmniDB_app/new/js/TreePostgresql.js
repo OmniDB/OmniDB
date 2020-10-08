@@ -4854,15 +4854,6 @@ function getTreeDetailsPostgresql(node) {
                                     action: 'postgresqlTerminateBackend'
                                 }]);
                         }
-                    }, {
-                        text: 'Replication',
-                        icon: 'fas cm-all fa-tasks',
-                        action: function(node) {
-                            v_connTabControl.tag.createMonitoringTab(
-                                'Replication',
-                                'SELECT * FROM pg_stat_replication',
-                                null);
-                        }
                     }]
                 }
             });

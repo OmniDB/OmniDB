@@ -250,6 +250,8 @@ def get_database_tab_object(
             v_global_database_object.v_connection.v_password!=p_tab_object['omnidatabase'].v_connection.v_password)
             ):
 
+        print('XXX - NEW - XXX')
+
         v_database_new = OmniDatabase.Generic.InstantiateDatabase(
             v_global_database_object.v_db_type,
             v_global_database_object.v_connection.v_host,
@@ -273,6 +275,7 @@ def get_database_tab_object(
 
 
         p_tab_object['omnidatabase'] = v_database_new
+
     # Try to open connection if not opened yet
     if p_attempt_to_open_connection and (not p_tab_object['omnidatabase'].v_connection.v_con or p_tab_object['omnidatabase'].v_connection.GetConStatus() == 0):
         p_tab_object['omnidatabase'].v_connection.Open()

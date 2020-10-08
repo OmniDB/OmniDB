@@ -114,7 +114,6 @@ function showAlert(p_info, p_funcYes = null, p_large = null)
 	  var v_button_cancel = document.getElementById('modal_message_cancel');
 
 	  v_content_div.innerHTML = p_info;
-		console.log(p_info)
 
 		v_button_ok.onclick = function() {
 	    if (p_funcYes!=null)

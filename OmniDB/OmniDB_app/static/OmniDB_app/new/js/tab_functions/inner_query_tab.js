@@ -204,7 +204,10 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
         text: 'Copy',
         icon: 'fas cm-all fa-terminal',
         action: function() {
-          console.log('ae')
+          // Getting the value
+          var copy_text = v_editor.getValue();
+          // Calling copy to clipboard.
+          uiCopyTextToClipboard(copy_text);
         }
       },
       {

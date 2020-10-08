@@ -113,6 +113,50 @@ var v_createConsoleTabFunction = function() {
     v_editor1.focus();
   };
 
+  document.getElementById('txt_input_' + v_tab.id).addEventListener('contextmenu',function(event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    var v_option_list = [
+      {
+        text: 'Copy',
+        icon: 'fas cm-all fa-terminal',
+        action: function() {
+          // Getting the value
+          var copy_text = v_editor1.getValue();
+          // Calling copy to clipboard.
+          uiCopyTextToClipboard(copy_text);
+        }
+      },
+      {
+        text: 'Save as snippet',
+        icon: 'fas cm-all fa-save',
+        submenu: {
+          elements: buildSnippetContextMenuObjects('save', v_connTabControl.tag.globalSnippets, v_editor1)
+        }
+      }
+    ];
+
+    if (v_connTabControl.tag.globalSnippets.files.length != 0 || v_connTabControl.tag.globalSnippets.folders.length != 0)
+      v_option_list.push(
+        {
+          text: 'Use snippet',
+          icon: 'fas cm-all fa-book',
+          submenu: {
+            elements: buildSnippetContextMenuObjects('load', v_connTabControl.tag.globalSnippets, v_editor1)
+          }
+        }
+      )
+    customMenu(
+      {
+        x:event.clientX+5,
+        y:event.clientY+5
+      },
+      v_option_list,
+      null
+    );
+  });
+
   v_editor1.focus();
 
   /*var v_editor2 = ace.edit('txt_console_' + v_tab.id);

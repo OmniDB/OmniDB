@@ -491,12 +491,18 @@
 .omnidb--theme-light .omnidb__autocomplete {
   background: #FFFFFF;
 }
-.omnidb--theme-dark .omnidb__autocomplete__data {
+.omnidb--theme-light .omnidb__autocomplete__data {
   background-color: #FBFBFB;
 }
 #div_autocomplete .handsontable tr:hover {
   background-color: #c7d6ff !important;
   cursor: pointer;
+}
+
+/* Ace-search */
+.omnidb--theme-light .ace_search {
+  background-color: #F4F4F4;
+  box-shadow: 0px 1px 5px rgba(0,0,0,0.2);
 }
 
 /* Tree Component */

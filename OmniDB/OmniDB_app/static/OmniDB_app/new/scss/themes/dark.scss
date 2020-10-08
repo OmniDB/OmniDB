@@ -481,6 +481,9 @@
   .omnidb__autocomplete {
     background: #282A2F;
   }
+  .omnidb__autocomplete__row {
+    border-bottom-color: #484A55;
+  }
   .omnidb__autocomplete__data {
     background-color: #1D1F21;
   }
@@ -488,20 +491,41 @@
     border-right: 1px solid #484a55;
   }
   .omnidb__autocomplete__data-word {
-      background-color: #25282c;
-      border: 1px solid #484a55;
+    background-color: #25282C;
+    border: 1px solid #484a55;
   }
   .omnidb__autocomplete__data-row {
-      border-bottom: 1px solid #484a55;
+    border-bottom: 1px solid #484A55;
   }
   .omnidb__autocomplete__data-row--selected {
-      background-color: #4e5a6b !important;
+    background-color: #4e5a6b !important;
   }
   .omnidb__autocomplete__data-row:hover,
   .omnidb__autocomplete__data-word:hover,
   .omnidb__autocomplete__data-row--selected:hover {
-      border: 1px solid #484a55 !important;
-      background-color: #4e5a6b !important;
+    border: 1px solid #484a55 !important;
+    background-color: #4e5a6b !important;
+  }
+
+  /* Ace Search */
+  .ace_search {
+    background-color: #2F3136;
+    border-color: #4C5365;
+
+    .ace_button {
+      color: #DCDDDE;
+    }
+    .ace_searchbtn {
+      background-color: #4C5365;
+      border-color: #4C5365;
+      color: #FFFFFF;
+    }
+    .ace_searchbtn:last-child {
+      border-right-color: #4C5365;
+    }
+    .ace_searchbtn.prev:after, .ace_searchbtn.next:after {
+      color: #FFFFFF;
+    }
   }
 
   /* Tree Component */

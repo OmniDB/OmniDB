@@ -182,12 +182,18 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_editor.setFontSize(Number(v_font_size));
 
   // Setting custom keyboard shortcuts callbacks.
-  document.getElementById('txt_query_' + v_tab.id).addEventListener('keyup',function(event) {
+  $('#txt_query_' + v_tab.id).find('.ace_text-input').on('keyup',function(event){
     autocomplete_start(v_editor,0, event);
   });
-  document.getElementById('txt_query_' + v_tab.id).addEventListener('keydown',function(event) {
+  $('#txt_query_' + v_tab.id).find('.ace_text-input').on('keydown',function(event){
     autocomplete_keydown(v_editor, event);
   });
+  // document.getElementById('txt_query_' + v_tab.id).addEventListener('keyup',function(event) {
+  //   autocomplete_start(v_editor,0, event);
+  // });
+  // document.getElementById('txt_query_' + v_tab.id).addEventListener('keydown',function(event) {
+  //   autocomplete_keydown(v_editor, event);
+  // });
 
   document.getElementById('txt_query_' + v_tab.id).addEventListener('contextmenu',function(event) {
     event.stopPropagation();

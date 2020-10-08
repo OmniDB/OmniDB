@@ -35,8 +35,7 @@ var v_createSnippetTextTabFunction = function(p_snippet = null) {
         function() {
           removeTab(v_current_tab);
         });
-    },
-    p_dblClickFunction: renameTab
+    }
   });
   v_connTabControl.snippet_tag.tabControl.selectTab(v_tab);
 

@@ -265,40 +265,41 @@ function snippetTreeFindNode(p_id, p_current_node) {
 }
 
 function saveSnippetTextConfirm(p_save_object, p_text, p_callback) {
-  execAjax('/save_snippet_text/',
-     JSON.stringify({"p_id": p_save_object.v_id,
-                     "p_parent": p_save_object.v_parent,
-                     "p_name": p_save_object.v_name,
-                     "p_text": p_text}),
-     function(p_return) {
-       var v_node = null;
-       if (p_return.v_data.parent==null) {
-         v_node = v_connTabControl.snippet_tree.childNodes[0];
-       }
-       else {
-         v_node = snippetTreeFindNode(p_return.v_data.parent, v_connTabControl.snippet_tree.childNodes[0]);
-       }
+  execAjax(
+    '/save_snippet_text/',
+    JSON.stringify({"p_id": p_save_object.v_id,
+                   "p_parent": p_save_object.v_parent,
+                   "p_name": p_save_object.v_name,
+                   "p_text": p_text
+                 }),
+    function(p_return) {
+      var v_node = null;
+      if (p_return.v_data.parent==null) {
+        v_node = v_connTabControl.snippet_tree.childNodes[0];
+      }
+      else {
+        v_node = snippetTreeFindNode(p_return.v_data.parent, v_connTabControl.snippet_tree.childNodes[0]);
+      }
 
-       if (v_node!=null) {
-         if (v_node.childNodes==0)
-           refreshTreeSnippets(v_node);
-         else {
-           v_node.collapseNode();
-           v_node.expandNode();
-         }
-       }
+      if (v_node!=null) {
+        if (v_node.childNodes==0)
+          refreshTreeSnippets(v_node);
+        else {
+          v_node.collapseNode();
+          v_node.expandNode();
+        }
+      }
 
       if (p_callback!=null)
         p_callback(p_return.v_data);
 
-      showAlert('Snippet saved.')
+      showAlert('Snippet saved.');
 
       getAllSnippets();
-     },
-     null,
-     'box');
-
-
+    },
+    null,
+    'box'
+  );
 }
 
 function newNodeSnippet(p_node,p_mode) {
@@ -306,74 +307,99 @@ function newNodeSnippet(p_node,p_mode) {
   if (p_mode=='node')
     v_placeholder = 'Node Name';
 
-  showConfirm('<input id="element_name"/ class="form-control" placeholder="' + v_placeholder + '" style="width: 100%;">',
-	            function() {
-                     execAjax('/new_node_snippet/',
-                   			JSON.stringify({"p_sn_id_parent": p_node.tag.id,
-                                        "p_mode": p_mode,
-                                        "p_name": document.getElementById('element_name').value}),
-                   			function(p_return) {
-                           refreshTreeSnippets(p_node);
+  showConfirm(
+    '<input id="element_name" class="form-control" placeholder="' + v_placeholder + '" style="width: 100%;">',
+    function() {
+           execAjax('/new_node_snippet/',
+         			JSON.stringify({"p_sn_id_parent": p_node.tag.id,
+                              "p_mode": p_mode,
+                              "p_name": document.getElementById('element_name').value}),
+         			function(p_return) {
+                 refreshTreeSnippets(p_node);
 
-                           getAllSnippets();
-                   			},
-                   			null,
-                   			'box');
+                 getAllSnippets();
+         			},
+         			null,
+         			'box');
 
-	            });
+    },
+    null,
+    function() {
+      var v_input = document.getElementById('element_name');
+      v_input.focus();
+      v_input.selectionStart = 0;
+      v_input.selectionEnd = 10000;
+    }
+  );
 
   var v_input = document.getElementById('element_name');
 	v_input.onkeydown = function() {
 		if (event.keyCode == 13)
-			document.getElementById('button_confirm_ok').click();
+			document.getElementById('modal_message_ok').click();
 		else if (event.keyCode == 27)
-			document.getElementById('button_confirm_cancel').click();
+			document.getElementById('modal_message_cancel').click();
 	}
 }
 
 function renameNodeSnippet(p_node) {
 
-  showConfirm('<input id="element_name"/ class="form-control" value="' + p_node.text + '" style="width: 100%;">',
-	            function() {
-                     execAjax('/rename_node_snippet/',
-                   			JSON.stringify({"p_id": p_node.tag.id,
-                                        "p_mode": p_node.tag.type,
-                                        "p_name": document.getElementById('element_name').value}),
-                   			function(p_return) {
-                           refreshTreeSnippets(p_node.parent);
+  showConfirm(
+    '<input id="element_name" class="form-control" value="' + p_node.text + '" style="width: 100%;">',
+    function() {
+      execAjax('/rename_node_snippet/',
+      	JSON.stringify({"p_id": p_node.tag.id,
+                      "p_mode": p_node.tag.type,
+                      "p_name": document.getElementById('element_name').value}),
+      	function(p_return) {
+         refreshTreeSnippets(p_node.parent);
 
-                           getAllSnippets();
-                   			},
-                   			null,
-                   			'box');
-
-	            });
+         getAllSnippets();
+      	},
+      	null,
+      	'box'
+      );
+    },
+    null,
+    function() {
+      var v_input = document.getElementById('element_name');
+      v_input.focus();
+      v_input.selectionStart = 0;
+      v_input.selectionEnd = 10000;
+    }
+  );
 
   var v_input = document.getElementById('element_name');
 	v_input.onkeydown = function() {
 		if (event.keyCode == 13)
-			document.getElementById('button_confirm_ok').click();
+			document.getElementById('modal_message_ok').click();
 		else if (event.keyCode == 27)
-			document.getElementById('button_confirm_cancel').click();
+			document.getElementById('modal_message_cancel').click();
 	}
 }
 
 function deleteNodeSnippet(p_node) {
 
-  showConfirm('Are you sure you want to delete this ' + p_node.tag.type + '?',
-	            function() {
-                     execAjax('/delete_node_snippet/',
-                   			JSON.stringify({"p_id": p_node.tag.id,
-                                        "p_mode": p_node.tag.type}),
-                   			function(p_return) {
-                           refreshTreeSnippets(p_node.parent);
+  showConfirm(
+    'Are you sure you want to delete this ' + p_node.tag.type + '?',
+    function() {
+      execAjax('/delete_node_snippet/',
+    		JSON.stringify({"p_id": p_node.tag.id,
+                      "p_mode": p_node.tag.type}),
+    		function(p_return) {
+         refreshTreeSnippets(p_node.parent);
 
-                           getAllSnippets();
-                   			},
-                   			null,
-                   			'box');
-
-	            });
+         getAllSnippets();
+    		},
+    		null,
+    		'box'
+      );
+    },
+    null,
+    function() {
+      var v_input = document.getElementById('modal_message_ok');
+      v_input.focus();
+    }
+  );
 }
 
 function startEditSnippetText(p_node) {
@@ -429,7 +455,7 @@ function buildSnippetContextMenuObjects(p_mode, p_object, p_editor, p_callback) 
         text: 'New Snippet',
         icon: 'fas cm-all fa-save',
         action: function() {
-          showConfirm('<input id="element_name"/ class="form-control" placeholder="Snippet Name" style="width: 100%;">',
+          showConfirm('<input id="element_name" class="form-control" placeholder="Snippet Name" style="width: 100%;">',
         	            function() {
                         saveSnippetTextConfirm(
                           {

@@ -250,8 +250,6 @@ def get_database_tab_object(
             v_global_database_object.v_connection.v_password!=p_tab_object['omnidatabase'].v_connection.v_password)
             ):
 
-        print('XXX - NEW - XXX')
-
         v_database_new = OmniDatabase.Generic.InstantiateDatabase(
             v_global_database_object.v_db_type,
             v_global_database_object.v_connection.v_host,

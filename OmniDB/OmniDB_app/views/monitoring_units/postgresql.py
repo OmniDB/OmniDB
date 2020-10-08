@@ -5,7 +5,7 @@ monitoring_units = [{
 'title': 'Transaction Rate',
 'type': 'timeseries',
 'interval': 10,
-'default': False,
+'default': True,
 'script_chart': """
 result = {
     "type": "line",
@@ -86,7 +86,7 @@ result = {
 'title': 'Backends (State)',
 'type': 'timeseries',
 'interval': 10,
-'default': False,
+'default': True,
 'script_chart': """
 max_connections = connection.ExecuteScalar('SHOW max_connections')
 
@@ -168,7 +168,7 @@ result = {
 'title': 'Autovacuum Workers Usage',
 'type': 'timeseries',
 'interval': 10,
-'default': False,
+'default': True,
 'script_chart': """
 result = {
     "type": "line",
@@ -248,7 +248,7 @@ result = {
 'title': 'WAL Production Rate',
 'type': 'timeseries',
 'interval': 10,
-'default': False,
+'default': True,
 'script_chart': """
 result = {
     "type": "line",
@@ -371,7 +371,7 @@ result = {
 'title': 'Temp Files Creation Rate',
 'type': 'timeseries',
 'interval': 10,
-'default': False,
+'default': True,
 'script_chart': """
 result = {
     "type": "line",
@@ -460,7 +460,7 @@ result = {
 'title': 'Autovacuum Freeze',
 'type': 'timeseries',
 'interval': 10,
-'default': False,
+'default': True,
 'script_chart': """
 max_age = connection.ExecuteScalar('SHOW autovacuum_freeze_max_age')
 

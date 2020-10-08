@@ -635,6 +635,8 @@ def save_connection_new(request):
 
         v_session.AddDatabase(conn.id,conn.technology.name,database,prompt_password,tunnel_information,conn.alias)
 
+
+
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True

@@ -130,7 +130,7 @@ function polling_response(p_message) {
           v_message.v_data.v_data = [];
           querySQLReturn(v_message,p_context);
           //Remove context
-          removeContext(v_queryWebSocket,p_context_code);
+          removeContext(p_context_code);
         }
 
       }
@@ -145,7 +145,7 @@ function polling_response(p_message) {
           v_message.v_data.v_data = [];
           consoleReturn(v_message,p_context);
           //Remove context
-          removeContext(v_queryWebSocket,p_context_code);
+          removeContext(p_context_code);
         }
       }
       break;
@@ -160,14 +160,14 @@ function polling_response(p_message) {
       if (p_context) {
         SetAcked(p_context);
         queryEditDataReturn(v_message,p_context);
-        removeContext(v_queryWebSocket,p_context_code);
+        removeContext(p_context_code);
       }
       break;
     }
     case parseInt(v_queryResponseCodes.SaveEditDataResult): {
       if (p_context) {
         saveEditDataReturn(v_message,p_context);
-        removeContext(v_queryWebSocket,p_context_code);
+        removeContext(p_context_code);
       }
       break;
     }
@@ -176,14 +176,14 @@ function polling_response(p_message) {
         SetAcked(p_context);
         debugResponse(p_message, p_context);
         if (p_message.v_data.v_remove_context) {
-          removeContext(v_queryWebSocket,p_context_code);
+          removeContext(p_context_code);
         }
       }
       break;
     }
     case parseInt(v_queryResponseCodes.RemoveContext): {
       if (p_context) {
-        removeContext(v_queryWebSocket,p_context_code);
+        removeContext(p_context_code);
       }
       break;
     }
@@ -195,7 +195,7 @@ function polling_response(p_message) {
         SetAcked(p_context);
         advancedObjectSearchReturn(v_message, p_context);
         //Remove context
-        removeContext(v_queryWebSocket,p_context_code);
+        removeContext(p_context_code);
       }
       break;
     }

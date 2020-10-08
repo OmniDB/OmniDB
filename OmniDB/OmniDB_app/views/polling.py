@@ -378,9 +378,305 @@ def create_request(request):
                 #t.setDaemon(True)
                 t.start()
 
+        #Debugger
+        elif v_code == requestType.Debug:
+
+            #create tab object if it doesn't exist
+            try:
+                tab_object = client_object['tab_list'][v_data['v_tab_id']]
+            except Exception as exc:
+                tab_object = create_tab_object(
+                    request.session,
+                    v_data['v_tab_id'],
+                    {
+                        'thread': None,
+                        'omnidatabase_debug': None,
+                        'omnidatabase_control': None,
+                        'port': None,
+                        'debug_pid': -1,
+                        'cancelled': False,
+                        'tab_id': v_data['v_tab_id'],
+                        'type': 'debug'
+                    }
+                )
+
+            #New debugger, create connections
+            if v_data['v_state'] == debugState.Starting:
+                try:
+                    v_conn_tab_connection = v_session.v_databases[v_data['v_db_index']]['database']
+
+                    v_database_debug = OmniDatabase.Generic.InstantiateDatabase(
+                        v_conn_tab_connection.v_db_type,
+                        v_conn_tab_connection.v_connection.v_host,
+                        str(v_conn_tab_connection.v_connection.v_port),
+                        v_conn_tab_connection.v_active_service,
+                        v_conn_tab_connection.v_active_user,
+                        v_conn_tab_connection.v_connection.v_password,
+                        v_conn_tab_connection.v_conn_id,
+                        v_conn_tab_connection.v_alias,
+                        p_conn_string = v_conn_tab_connection.v_conn_string,
+                        p_parse_conn_string = False
+                    )
+                    v_database_control = OmniDatabase.Generic.InstantiateDatabase(
+                        v_conn_tab_connection.v_db_type,
+                        v_conn_tab_connection.v_connection.v_host,
+                        str(v_conn_tab_connection.v_connection.v_port),
+                        v_conn_tab_connection.v_active_service,
+                        v_conn_tab_connection.v_active_user,
+                        v_conn_tab_connection.v_connection.v_password,
+                        v_conn_tab_connection.v_conn_id,
+                        v_conn_tab_connection.v_alias,
+                        p_conn_string = v_conn_tab_connection.v_conn_string,
+                        p_parse_conn_string = False
+                    )
+                    tab_object['omnidatabase_debug'] = v_database_debug
+                    tab_object['cancelled'] = False
+                    tab_object['omnidatabase_control'] = v_database_control
+                    tab_object['port'] = v_database_debug.v_connection.ExecuteScalar('show port')
+                except Exception as exc:
+                    logger.error('''*** Exception ***\n{0}'''.format(traceback.format_exc()))
+                    v_response['v_code'] = response.MessageException
+                    v_response['v_data'] = traceback.format_exc().replace('\n','<br>')
+                    queue_response(v_client_object,v_response)
+
+            v_data['v_context_code'] = v_context_code
+            v_data['v_tab_object'] = tab_object
+            v_data['v_client_object'] = client_object
+
+            t = StoppableThread(thread_debug,v_data)
+            tab_object['thread'] = t
+            #t.setDaemon(True)
+            t.start()
+
     return JsonResponse(
     {}
     )
+
+def thread_debug(self,args):
+    v_response = {
+        'v_code': -1,
+        'v_context_code': args['v_context_code'],
+        'v_error': False,
+        'v_data': 1
+    }
+    v_state = args['v_state']
+    v_tab_id = args['v_tab_id']
+    v_tab_object = args['v_tab_object']
+    v_client_object  = args['v_client_object']
+    v_database_debug = v_tab_object['omnidatabase_debug']
+    v_database_control = v_tab_object['omnidatabase_control']
+
+    try:
+
+        if v_state == debugState.Starting:
+
+            #Start debugger and return ready state
+            v_database_debug.v_connection.Open()
+            v_database_control.v_connection.Open()
+
+            #Cleaning contexts table
+            v_database_debug.v_connection.Execute('delete from omnidb.contexts t where t.pid not in (select pid from pg_stat_activity where pid = t.pid)')
+
+            connections_details = v_database_debug.v_connection.Query('select pg_backend_pid()',True)
+            pid = connections_details.Rows[0][0]
+
+            v_database_debug.v_connection.Execute('insert into omnidb.contexts (pid, function, hook, lineno, stmttype, breakpoint, finished) values ({0}, null, null, null, null, 0, false)'.format(pid))
+
+            #lock row for current pid
+            v_database_control.v_connection.Execute('select pg_advisory_lock({0}) from omnidb.contexts where pid = {0}'.format(pid))
+
+            #updating pid and port in tab object
+            v_tab_object['debug_pid'] = pid
+
+            #Run thread that will execute the function
+            t = StoppableThread(thread_debug_run_func,{ 'v_tab_object': v_tab_object, 'v_context_code': args['v_context_code'], 'v_function': args['v_function'], 'v_type': args['v_type'], 'v_client_object': v_client_object})
+            v_tab_object['thread'] = t
+            #t.setDaemon(True)
+            t.start()
+
+            #ws_object.v_list_tab_objects[v_tab_id] = v_tab_object
+
+            v_lineno = None
+            #wait for context to be ready or thread ends
+            while v_lineno == None and t.isAlive():
+                time.sleep(0.5)
+                v_lineno = v_database_control.v_connection.ExecuteScalar('select lineno from omnidb.contexts where pid = {0} and lineno is not null'.format(pid))
+
+            # Function ended instantly
+            if not t.isAlive():
+                v_database_control.v_connection.Close()
+            else:
+                v_variables = v_database_control.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(pid),True)
+
+                v_response['v_code'] = response.DebugResponse
+                v_response['v_data'] = {
+                'v_state': debugState.Ready,
+                'v_remove_context': False,
+                'v_variables': v_variables.Rows,
+                'v_lineno': v_lineno
+                }
+                queue_response(v_client_object,v_response)
+
+        elif v_state == debugState.Step:
+
+            v_database_control.v_connection.Execute('update omnidb.contexts set breakpoint = {0} where pid = {1}'.format(args['v_next_breakpoint'],v_tab_object['debug_pid']))
+
+            try:
+                v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0}; select pg_advisory_lock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
+
+                #acquired the lock, get variables and lineno
+                v_variables = v_database_control.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(v_tab_object['debug_pid']),True)
+                v_context_data = v_database_control.v_connection.Query('select lineno,finished from omnidb.contexts where pid = {0}'.format(v_tab_object['debug_pid']),True)
+
+                #not last statement
+                if (v_context_data.Rows[0][1]!='True'):
+                    v_response['v_code'] = response.DebugResponse
+                    v_response['v_data'] = {
+                    'v_state': debugState.Ready,
+                    'v_remove_context': True,
+                    'v_variables': v_variables.Rows,
+                    'v_lineno': v_context_data.Rows[0][0]
+                    }
+                    queue_response(v_client_object,v_response)
+                else:
+                    v_database_control.v_connection.Execute('select pg_advisory_unlock({0}) from omnidb.contexts where pid = {0};'.format(v_tab_object['debug_pid']))
+                    v_database_control.v_connection.Close()
+                    v_response['v_code'] = response.RemoveContext
+                    queue_response(v_client_object,v_response)
+
+            except Exception:
+                v_response['v_code'] = response.RemoveContext
+                queue_response(v_client_object,v_response)
+
+        #Cancelling debugger, the thread executing the function will return the cancel status
+        elif v_state == debugState.Cancel:
+            v_tab_object['cancelled'] = True
+            v_database_control.v_connection.Cancel(False)
+            v_database_control.v_connection.Terminate(v_tab_object['debug_pid'])
+            v_database_control.v_connection.Close()
+
+    except Exception as exc:
+        v_response['v_code'] = response.DebugResponse
+        v_response['v_data'] = {
+            'v_state': debugState.Finished,
+            'v_remove_context': True,
+            'v_error': True,
+            'v_error_msg': str(exc)
+        }
+
+        try:
+            v_database_debug.v_connection.Close()
+            v_database_control.v_connection.Close()
+        except Exception:
+            None
+
+        queue_response(v_client_object,v_response)
+
+def thread_debug_run_func(self,args):
+    v_response = {
+        'v_code': -1,
+        'v_context_code': args['v_context_code'],
+        'v_error': False,
+        'v_data': 1
+    }
+    v_tab_object = args['v_tab_object']
+    v_client_object  = args['v_client_object']
+    v_database_debug = v_tab_object['omnidatabase_debug']
+    v_database_control = v_tab_object['omnidatabase_control']
+
+    try:
+        #enable debugger for current connection
+        v_conn_string = "host=''localhost'' port={0} dbname=''{1}'' user=''{2}''".format(v_tab_object['port'],v_database_debug.v_service,v_database_debug.v_user);
+
+        v_database_debug.v_connection.Execute("select omnidb.omnidb_enable_debugger('{0}')".format(v_conn_string))
+
+        #run function it will lock until the function ends
+        if args['v_type'] == 'f':
+            v_func_return = v_database_debug.v_connection.Query('select * from {0} limit 1000'.format(args['v_function']),True)
+        else:
+            v_func_return = v_database_debug.v_connection.Query('call {0}'.format(args['v_function']),True)
+
+        #Not cancelled, return all data
+        if not v_tab_object['cancelled']:
+
+            #retrieve variables
+            v_variables = v_database_debug.v_connection.Query('select name,attribute,vartype,value from omnidb.variables where pid = {0}'.format(v_tab_object['debug_pid']),True)
+
+            #retrieve statistics
+            v_statistics = v_database_debug.v_connection.Query('select lineno,coalesce(trunc((extract("epoch" from tend)  - extract("epoch" from tstart))::numeric,4),0) as msec from omnidb.statistics where pid = {0} order by step'.format(v_tab_object['debug_pid']),True)
+
+            #retrieve statistics summary
+            v_statistics_summary = v_database_debug.v_connection.Query('''
+            select lineno, max(msec) as msec
+            from (select lineno,coalesce(trunc((extract("epoch" from tend) - extract("epoch" from tstart))::numeric,4),0) as msec from omnidb.statistics where pid = {0}) t
+            group by lineno
+            order by lineno
+            '''.format(v_tab_object['debug_pid']),True)
+
+            #retrieve notices
+            v_notices = v_database_debug.v_connection.GetNotices()
+            v_notices_text = ''
+            if len(v_notices) > 0:
+                for v_notice in v_notices:
+                    v_notices_text += v_notice.replace('\n','<br/>')
+
+            v_response['v_data'] = {
+                'v_state': debugState.Finished,
+                'v_remove_context': True,
+                'v_result_rows': v_func_return.Rows,
+                'v_result_columns': v_func_return.Columns,
+                'v_result_statistics': v_statistics.Rows,
+                'v_result_statistics_summary': v_statistics_summary.Rows,
+                'v_result_notices': v_notices_text,
+                'v_result_notices_length': len(v_notices),
+                'v_variables': v_variables.Rows,
+                'v_error': False
+            }
+
+            v_database_debug.v_connection.Close()
+
+            #send debugger finished message
+            v_response['v_code'] = response.DebugResponse
+
+            queue_response(v_client_object,v_response)
+        #Cancelled, return cancelled status
+        else:
+            v_response['v_code'] = response.DebugResponse
+            v_response['v_data'] = {
+                'v_state': debugState.Cancel,
+                'v_remove_context': True,
+                'v_error': False
+            }
+            queue_response(v_client_object,v_response)
+
+    except Exception as exc:
+        #Not cancelled
+        if not v_tab_object['cancelled']:
+            v_response['v_code'] = response.DebugResponse
+            v_response['v_data'] = {
+                'v_state': debugState.Finished,
+                'v_remove_context': True,
+                'v_error': True,
+                'v_error_msg': str(exc)
+            }
+            try:
+                v_database_debug.v_connection.Close()
+            except Exception:
+                None
+            try:
+                v_database_control.v_connection.Close()
+            except Exception:
+                None
+
+            queue_response(v_client_object,v_response)
+        else:
+            v_response['v_code'] = response.DebugResponse
+            v_response['v_data'] = {
+                'v_state': debugState.Cancel,
+                'v_remove_context': True,
+                'v_error': False
+            }
+            queue_response(v_client_object,v_response)
 
 def GetDuration(p_start, p_end):
     duration = ''

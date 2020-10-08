@@ -265,7 +265,6 @@ function startDebug() {
 		v_tab_tag.div_count_notices.style.display = 'none';
 		v_tab_tag.tab_loading_span.style.display = '';
 		v_tab_tag.tab_check_span.style.display = 'none';
-		// v_tab_tag.tab_stub_span.style.display = 'none';
 
 		if (v_tab_tag.htResult!=null) {
 			v_tab_tag.htResult.destroy();
@@ -285,14 +284,8 @@ function startDebug() {
 		}
 		v_tab_tag.markerList = [];
 
-	  sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Debug, v_message_data, false, v_context);
+		createRequest(v_queryRequestCodes.Debug, v_message_data, v_context);
 
-		setTimeout(function() {
-			if (!v_context.acked) {
-				cancelDebugInterface(v_context);
-				showAlert('No response from query server.');
-			}
-		},3000);
 	}
 
 }
@@ -329,7 +322,6 @@ function stepDebug(p_mode) {
 		v_tab_tag.debug_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Stepping...</b>';
 		v_tab_tag.tab_loading_span.style.display = '';
 		v_tab_tag.tab_check_span.style.display = 'none';
-		v_tab_tag.tab_stub_span.style.display = 'none';
     v_tab_tag.state = v_debugState.Step;
 
 		var v_next_breakpoint = 0;
@@ -356,15 +348,7 @@ function stepDebug(p_mode) {
     }
     v_context.tab_tag.context = v_context;
 
-    sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Debug, v_message_data, false, v_context);
-
-		setTimeout(function() {
-			if (!v_context.acked) {
-				cancelDebugInterface(v_context);
-				showAlert('No response from query server.');
-			}
-		},3000);
-
+		createRequest(v_queryRequestCodes.Debug, v_message_data, v_context);
 
   }
 }
@@ -405,7 +389,6 @@ function cancelDebug() {
 	}
 	else {
 		v_tab_tag.tab_check_span.style.display = 'none';
-		// v_tab_tag.tab_stub_span.style.display = 'none';
 		v_tab_tag.tab_loading_span.style.display = '';
 
 		v_tab_tag.state = v_debugState.Cancel;
@@ -424,14 +407,8 @@ function cancelDebug() {
 	    acked: false
 	  }
 
-		sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.Debug, v_message_data, false, v_context);
+		createRequest(v_queryRequestCodes.Debug, v_message_data);
 
-		setTimeout(function() {
-			if (!v_context.acked) {
-				cancelDebugInterface(v_context);
-				showAlert('No response from query server.');
-			}
-		},3000);
 	}
 }
 
@@ -460,7 +437,6 @@ function debugResponse(p_message, p_context) {
 
 function cancelDebugInterface(p_context) {
 	p_context.tab_tag.state = v_debugState.Cancel;
-	// p_context.tab_tag.tab_stub_span.style.display = '';
 	p_context.tab_tag.tab_check_span.style.display = 'none';
 	p_context.tab_tag.tab_loading_span.style.display = 'none';
 
@@ -482,7 +458,6 @@ function cancelDebugInterface(p_context) {
 
 function debugResponseRender(p_message, p_context) {
 
-	// p_context.tab_tag.tab_stub_span.style.display = '';
 	p_context.tab_tag.tab_check_span.style.display = 'none';
 
 	if (p_context.tab_tag.state != v_debugState.Finished) {
@@ -492,7 +467,6 @@ function debugResponseRender(p_message, p_context) {
 	//Cancelled
 	if (p_context.tab_tag.state==v_debugState.Cancel) {
 		cancelDebugInterface(p_context);
-
 	}
 	else {
 
@@ -501,6 +475,8 @@ function debugResponseRender(p_message, p_context) {
 			p_context.tab_tag.debug_info.innerHTML = '<b>Ready</b>';
 
 	  var Range = ace.require('ace/range').Range;
+		console.log(p_message.v_data.v_lineno)
+		console.log(p_context.tab_tag.editor)
 	  if (p_message.v_data.v_lineno) {
 			p_context.tab_tag.editor.scrollToLine(p_message.v_data.v_lineno, true, true, function () {});
 	    if (p_context.tab_tag.markerId)

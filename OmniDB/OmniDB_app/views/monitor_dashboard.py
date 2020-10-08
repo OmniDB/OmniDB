@@ -165,9 +165,9 @@ def get_monitor_units(request, v_database):
     try:
         user_units = MonUnitsConnections.objects.filter(user=request.user,connection=v_database_index)
 
-        print(user_units)
         # There are no units for this user/connection pair, create defaults
         if len(user_units)==0:
+            conn_object = Connection.objects.get(id=v_database.v_conn_id)
             for key, mon_unit in monitoring_units.items():
                 if mon_unit['default'] == True and mon_unit['dbms'] == v_database.v_db_type:
                     user_unit = MonUnitsConnections(

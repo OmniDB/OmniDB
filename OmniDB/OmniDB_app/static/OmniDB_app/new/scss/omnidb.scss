@@ -908,6 +908,9 @@ button.close {
 .omnidb__form-check input:checked~.form-check-label::after {
   background-color: #43afd2;
 }
+.omnidb__form-check .form-check-input {
+  transform: translateY(2px);
+}
 
 
 

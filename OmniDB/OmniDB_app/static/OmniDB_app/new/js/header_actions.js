@@ -38,8 +38,8 @@ var v_current_terminal_theme;
 /// </summary>
 $(function() {
 
-	var v_fileref = document.getElementById("ss_theme");
-  v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/' + v_theme + '.css');
+	// var v_fileref = document.getElementById("ss_theme");
+  // v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/' + v_theme + '.css');
 
 
 	//var v_configTabControl = createTabControl('config_tabs',0,null);
@@ -109,10 +109,10 @@ function adjustGraphTheme(p_graph) {
 }
 
 function changeTheme(p_option) {
-	var v_fileref = document.getElementById("ss_theme");
+	// var v_fileref = document.getElementById("ss_theme");
 
 	if (p_option=='dark') {
-		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/dark.css');
+		// v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/dark.css');
 		v_theme = 'dark';
 		v_editor_theme = 'omnidb_dark';
 		v_current_terminal_theme = v_dark_terminal_theme;
@@ -120,7 +120,7 @@ function changeTheme(p_option) {
 		document.body.classList.add('omnidb--theme-dark');
 	}
 	else {
-		v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/light.css');
+		// v_fileref.setAttribute("href", v_url_folder + '/static/OmniDB_app/new/css/themes/light.css');
 		v_theme = 'light';
 		v_editor_theme = 'omnidb';
 		v_current_terminal_theme = v_light_terminal_theme;

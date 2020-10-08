@@ -152,18 +152,18 @@ function showConnectionList(p_open_modal, p_change_group) {
 				var v_button_select = document.createElement('button');
 				v_button_select.className = 'btn btn-success btn-sm omnidb__connections__btn--select';
 				v_button_select.title = "Select";
-				if (v_conn_obj.locked==true) {
+				/*if (v_conn_obj.locked==true) {
 					v_button_select.setAttribute("disabled",true);
-				}
+				}*/
 				v_button_select.innerHTML = '<svg width="15px" height="160px" viewBox="0 0 15 160" style="width: auto;height: 100%;stroke: none;stroke-width: 0;"><path stroke-width="0" stroke="none" d="M 0 0 L 15 80 L 0 160 Z"></path></svg><i class="fas fa-plug"></i>';
 				v_card_body_buttons.appendChild(v_button_select);
 
         var v_button_edit = document.createElement('button');
         v_button_edit.className = 'btn btn-sm mx-1 omnidb__theme__btn--primary';
         v_button_edit.title = "Edit";
-        if (v_conn_obj.locked==true) {
+        /*if (v_conn_obj.locked==true) {
 					v_button_edit.setAttribute("disabled",true);
-				}
+				}*/
         v_button_edit.innerHTML = '<i class="fas fa-pen"</i>'
         v_card_body_buttons.appendChild(v_button_edit);
 

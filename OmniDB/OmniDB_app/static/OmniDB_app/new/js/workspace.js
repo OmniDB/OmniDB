@@ -1338,7 +1338,9 @@ function showMenuNewTab(e) {
 				}
 			}
 		);
+	}
 
+  if (v_connTabControl.selectedTab.tag.selectedDBMS=='postgresql') {
 		v_option_list.push(
 			{
 				text: 'Backends',

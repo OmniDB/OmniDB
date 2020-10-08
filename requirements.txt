@@ -11,3 +11,4 @@ cx_Oracle
 PyMySQL
 sqlparse
 pgspecial==1.11.5
+django-sass

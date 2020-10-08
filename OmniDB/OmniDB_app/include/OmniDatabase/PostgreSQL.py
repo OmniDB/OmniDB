@@ -792,7 +792,7 @@ class PostgreSQL:
         except Exception as exc:
             v_return = str(exc)
         return v_return
-    @lock_required
+
     def GetErrorPosition(self, p_error_message):
         vector = str(p_error_message).split('\n')
         v_return = None
@@ -810,6 +810,10 @@ class PostgreSQL:
     @lock_required
     def ExecuteScalar(self, p_sql):
         return self.v_connection.ExecuteScalar(p_sql)
+
+    @lock_required
+    def Execute(self, p_sql):
+        return self.v_connection.Execute(p_sql)
 
     @lock_required
     def Terminate(self, p_type):

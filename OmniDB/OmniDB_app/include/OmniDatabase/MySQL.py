@@ -154,18 +154,45 @@ class MySQL:
         self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
         self.v_use_server_cursor = False
 
+    # Decorator to acquire lock before performing action
+    def lock_required(function):
+        def wrap(self, *args, **kwargs):
+            try:
+                if self.v_lock != None:
+                    self.v_lock.acquire()
+            except:
+                None
+            try:
+                r = function(self, *args, **kwargs)
+            except:
+                try:
+                    if self.v_lock != None:
+                        self.v_lock.release()
+                except:
+                    None
+                raise
+            try:
+                if self.v_lock != None:
+                    self.v_lock.release()
+            except:
+                None
+            return r
+        wrap.__doc__ = function.__doc__
+        wrap.__name__ = function.__name__
+        return wrap
+
     def GetName(self):
         return self.v_service
 
     def GetVersion(self):
-        return 'MySQL ' + self.v_connection.ExecuteScalar('select version()')
+        return 'MySQL ' + self.ExecuteScalar('select version()')
 
     def GetUserName(self):
         return self.v_user
 
     def GetUserSuper(self):
         try:
-            v_super = self.v_connection.ExecuteScalar('''
+            v_super = self.ExecuteScalar('''
                 select super_priv as "super_priv"
                 from mysql.user
                 where user = '{0}'
@@ -220,24 +247,31 @@ class MySQL:
             }
         return v_return
 
+    @lock_required
     def Query(self, p_sql, p_alltypesstr=False, p_simple=False):
         return self.v_connection.Query(p_sql, p_alltypesstr, p_simple)
 
+    @lock_required
     def ExecuteScalar(self, p_sql):
         return self.v_connection.ExecuteScalar(p_sql)
 
+    @lock_required
+    def Execute(self, p_sql):
+        return self.v_connection.Execute(p_sql)
+
+    @lock_required
     def Terminate(self, p_type):
         return self.v_connection.Terminate(p_type)
 
     def QueryRoles(self):
-        return self.v_connection.Query("""
+        return self.Query("""
             select concat('''',user,'''','@','''',host,'''') as "role_name"
             from mysql.user
             order by 1
         """, True)
 
     def QueryDatabases(self):
-        return self.v_connection.Query('show databases', True, True)
+        return self.Query('show databases', True, True)
 
     def QueryTables(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
@@ -246,7 +280,7 @@ class MySQL:
                 v_filter = "and table_schema = '{0}' ".format(p_schema)
             else:
                 v_filter = "and table_schema = '{0}' ".format(self.v_schema)
-        return self.v_connection.Query('''
+        return self.Query('''
             select table_name as "table_name",
                    table_schema as "table_schema"
             from information_schema.tables
@@ -269,7 +303,7 @@ class MySQL:
         else:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
-        return self.v_connection.Query('''
+        return self.Query('''
             select distinct c.table_name as "table_name",
                    c.column_name as "column_name",
                    c.data_type as "data_type",
@@ -301,7 +335,7 @@ class MySQL:
         else:
             if p_table:
                 v_filter = "and i.table_name = '{0}' ".format(p_table)
-        return self.v_connection.Query('''
+        return self.Query('''
             select distinct i.constraint_name as "constraint_name",
                    i.table_name as "table_name",
                    k.referenced_table_name as "r_table_name",
@@ -333,7 +367,7 @@ class MySQL:
             if p_table:
                 v_filter = "and i.table_name = '{0}' ".format(p_table)
         v_filter = v_filter + "and i.constraint_name = '{0}' ".format(p_fkey)
-        return self.v_connection.Query('''
+        return self.Query('''
             select distinct i.constraint_name as "constraint_name",
                    i.table_name as "table_name",
                    k.referenced_table_name as "r_table_name",
@@ -368,7 +402,7 @@ class MySQL:
         else:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
-        return self.v_connection.Query('''
+        return self.Query('''
             select distinct concat('pk_', t.table_name) as "constraint_name",
                    t.table_name as "table_name",
                    t.table_schema as "table_schema"
@@ -394,7 +428,7 @@ class MySQL:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         v_filter = "and concat('pk_', t.table_name) = '{0}' ".format(p_pkey)
-        return self.v_connection.Query('''
+        return self.Query('''
             select distinct k.column_name as "column_name",
                    k.ordinal_position as "ordinal_position"
             from information_schema.table_constraints t
@@ -419,7 +453,7 @@ class MySQL:
         else:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
-        return self.v_connection.Query('''
+        return self.Query('''
             select distinct t.constraint_name as "constraint_name",
                    t.table_name as "table_name",
                    t.table_schema as "table_schema"
@@ -445,7 +479,7 @@ class MySQL:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         v_filter = "and t.constraint_name = '{0}' ".format(p_unique)
-        return self.v_connection.Query('''
+        return self.Query('''
             select distinct k.column_name as "column_name",
                    k.ordinal_position as "ordinal_position"
             from information_schema.table_constraints t
@@ -470,7 +504,7 @@ class MySQL:
         else:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
-        return self.v_connection.Query('''
+        return self.Query('''
             select distinct t.table_schema as "schema_name",
                    t.table_name as "table_name",
                    (case when t.index_name = 'PRIMARY' then concat('pk_', t.table_name) else t.index_name end) as "index_name",
@@ -496,7 +530,7 @@ class MySQL:
             if p_table:
                 v_filter = "and t.table_name = '{0}' ".format(p_table)
         v_filter = "and (case when t.index_name = 'PRIMARY' then concat('pk_', t.table_name) else t.index_name end) = '{0}' ".format(p_index)
-        return self.v_connection.Query('''
+        return self.Query('''
             select distinct t.column_name as "column_name",
                    t.seq_in_index as "seq_in_index"
             from information_schema.statistics t
@@ -519,13 +553,13 @@ class MySQL:
                     pass
                 raise exc
         else:
-            return self.v_connection.Query(p_query, True)
+            return self.Query(p_query, True)
 
     def QueryTableRecords(self, p_column_list, p_table, p_filter, p_count=-1):
         v_limit = ''
         if p_count != -1:
             v_limit = ' limit ' + p_count
-        return self.v_connection.Query('''
+        return self.Query('''
             select *
             from (
             select {0}
@@ -548,7 +582,7 @@ class MySQL:
                 v_filter = "and t.routine_schema = '{0}' ".format(p_schema)
             else:
                 v_filter = "and t.routine_schema = '{0}' ".format(self.v_schema)
-        return self.v_connection.Query('''
+        return self.Query('''
             select t.routine_schema as "schema_name",
                    t.routine_name as "id",
                    t.routine_name as "name"
@@ -563,7 +597,7 @@ class MySQL:
             v_schema = p_schema
         else:
             v_schema = self.v_schema
-        return self.v_connection.Query('''
+        return self.Query('''
             select 'O' as "type",
                    concat('returns ', t.data_type) as "name",
                    0 as "seq"
@@ -588,7 +622,7 @@ class MySQL:
 
     def GetFunctionDefinition(self, p_function):
         v_body = '--DROP FUNCTION {0};\n'.format(p_function)
-        v_body = v_body + self.v_connection.Query('show create function {0}.{1}'.format(self.v_schema, p_function), True, True).Rows[0][2]
+        v_body = v_body + self.Query('show create function {0}.{1}'.format(self.v_schema, p_function), True, True).Rows[0][2]
         return v_body
 
     def QueryProcedures(self, p_all_schemas=False, p_schema=None):
@@ -598,7 +632,7 @@ class MySQL:
                 v_filter = "and t.routine_schema = '{0}' ".format(p_schema)
             else:
                 v_filter = "and t.routine_schema = '{0}' ".format(self.v_schema)
-        return self.v_connection.Query('''
+        return self.Query('''
             select t.routine_schema as "schema_name",
                    t.routine_name as "id",
                    t.routine_name as "name"
@@ -613,7 +647,7 @@ class MySQL:
             v_schema = p_schema
         else:
             v_schema = self.v_schema
-        return self.v_connection.Query('''
+        return self.Query('''
             select (case t.parameter_mode
                       when 'IN' then 'I'
                       when 'OUT' then 'O'
@@ -629,7 +663,7 @@ class MySQL:
 
     def GetProcedureDefinition(self, p_procedure):
         v_body = '--DROP PROCEDURE {0};\n'.format(p_procedure)
-        v_body = v_body + self.v_connection.Query('show create procedure {0}.{1}'.format(self.v_schema, p_procedure), True, True).Rows[0][2]
+        v_body = v_body + self.Query('show create procedure {0}.{1}'.format(self.v_schema, p_procedure), True, True).Rows[0][2]
         return v_body
 
     def QueryViews(self, p_all_schemas=False, p_schema=None):
@@ -639,7 +673,7 @@ class MySQL:
                 v_filter = "and table_schema = '{0}' ".format(p_schema)
             else:
                 v_filter = "and table_schema = '{0}' ".format(self.v_schema)
-        return self.v_connection.Query('''
+        return self.Query('''
             select table_name as "table_name",
                    table_schema as "table_schema"
             from information_schema.views
@@ -662,7 +696,7 @@ class MySQL:
         else:
             if p_table:
                 v_filter = "and c.table_name = '{0}' ".format(p_table)
-        return self.v_connection.Query('''
+        return self.Query('''
             select distinct c.table_name as "table_name",
                    c.column_name as "column_name",
                    c.data_type as "data_type",
@@ -685,7 +719,7 @@ class MySQL:
             v_schema = p_schema
         else:
             v_schema = self.v_schema
-        return self.v_connection.Query('show create view {0}.{1}'.format(v_schema, p_view), True, True).Rows[0][1]
+        return self.Query('show create view {0}.{1}'.format(v_schema, p_view), True, True).Rows[0][1]
 
     def TemplateCreateRole(self):
         return Template('''CREATE USER name
@@ -1088,7 +1122,7 @@ WHERE condition
 
     def GetProperties(self, p_schema, p_table, p_object, p_type):
         if p_type == 'table':
-            return self.v_connection.Query('''
+            return self.Query('''
                 select table_schema as "Table Schema",
                        table_name as "Table Name",
                        table_type as "Table Type",
@@ -1112,7 +1146,7 @@ WHERE condition
                   and table_name = '{1}'
             '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
         elif p_type == 'view':
-            return self.v_connection.Query('''
+            return self.Query('''
                 select table_schema as "View Schema",
                        table_name as "View Name",
                        check_option as "Check Option",
@@ -1125,7 +1159,7 @@ WHERE condition
                   and table_name = '{1}'
             '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
         elif p_type == 'function':
-            return self.v_connection.Query('''
+            return self.Query('''
                 select routine_schema as "Routine Schema",
                        routine_name as "Routine Name",
                        routine_type as "Routine Type",
@@ -1156,7 +1190,7 @@ WHERE condition
                   and routine_name = '{1}'
             '''.format(p_schema, p_object), True).Transpose('Property', 'Value')
         elif p_type == 'procedure':
-            return self.v_connection.Query('''
+            return self.Query('''
                 select routine_schema as "Routine Schema",
                        routine_name as "Routine Name",
                        routine_type as "Routine Type",
@@ -1191,9 +1225,9 @@ WHERE condition
 
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'function' or p_type == 'procedure':
-            return self.v_connection.Query('show create {0} {1}.{2}'.format(p_type, p_schema, p_object), True, True).Rows[0][2]
+            return self.Query('show create {0} {1}.{2}'.format(p_type, p_schema, p_object), True, True).Rows[0][2]
         else:
-            return self.v_connection.Query('show create {0} {1}.{2}'.format(p_type, p_schema, p_object), True, True).Rows[0][1]
+            return self.Query('show create {0} {1}.{2}'.format(p_type, p_schema, p_object), True, True).Rows[0][1]
 
     def GetAutocompleteValues(self, p_columns, p_filter):
         return None

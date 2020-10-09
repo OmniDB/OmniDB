@@ -2046,6 +2046,12 @@ function getTreePostgresql(p_div) {
                                     + '.' + node.text));
                         }
                     }, {
+                        text: 'Edit Comment',
+                        icon: 'fas cm-all fa-edit',
+                        action: function(node) {
+                            getObjectDescriptionPostgresql(node);
+                        }
+                    }, {
                         text: 'Drop Table',
                         icon: 'fas cm-all fa-times',
                         action: function(node) {
@@ -2377,6 +2383,12 @@ function getTreePostgresql(p_div) {
                                 ' (Non Unique)', '')));
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Index',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -2700,6 +2712,12 @@ function getTreePostgresql(p_div) {
                             '#trigger_name#', node.text));
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Event Trigger',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -2966,18 +2984,18 @@ function getTreePostgresql(p_div) {
                     );
                 }
             }, {
-                text: 'Edit Comment',
-                icon: 'fas cm-all fa-edit',
-                action: function(node) {
-                    getObjectDescriptionPostgresql(node);
-                }
-            }, {
                 text: 'Debug Function',
                 icon: 'fas cm-all fa-bug',
                 action: function(node) {
                     v_connTabControl.tag.createDebuggerTab(
                         node.text);
                     setupDebug(node, 'f');
+                }
+            }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
                 }
             }, {
                 text: 'Drop Function',
@@ -3463,6 +3481,12 @@ function getTreePostgresql(p_div) {
                             '#sequence_name#', node.tag.schema + '.' + node.text));
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Sequence',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -3544,6 +3568,12 @@ function getTreePostgresql(p_div) {
                             node.tag.schema + '.' + node.text
                         )
                     );
+                }
+            }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
                 }
             }, {
                 text: 'Drop View',
@@ -3649,6 +3679,12 @@ function getTreePostgresql(p_div) {
                             '#table_name#',
                             node.tag.schema + '.' +
                             node.text));
+                }
+            }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
                 }
             }, {
                 text: 'Drop Mat. View',
@@ -3934,6 +3970,12 @@ function getTreePostgresql(p_div) {
                         .replace('#fdwname#', node.text));
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Foreign Data Wrapper',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -4136,6 +4178,12 @@ function getTreePostgresql(p_div) {
                             tabSQLTemplate('Alter Foreign Table', node.tree
                                 .tag.alter_foreign_table
                                 .replace('#table_name#', node.tag.schema + '.' + node.text));
+                        }
+                    }, {
+                        text: 'Edit Comment',
+                        icon: 'fas cm-all fa-edit',
+                        action: function(node) {
+                            getObjectDescriptionPostgresql(node);
                         }
                     }, {
                         text: 'Drop Foreign Table',
@@ -5865,7 +5913,8 @@ function getSequencesPostgresql(node) {
                     'fas node-all fa-sort-numeric-down node-sequence', {
                         type: 'sequence',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_sequence', null, false);
 
             }
@@ -5915,7 +5964,8 @@ function getViewsPostgresql(node) {
                         has_rules: p_return.v_data[i].v_has_rules,
                         has_triggers: p_return.v_data[i].v_has_triggers,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_view', null, false);
                 v_node.createChildNode('', false,
                     'node-spin', {
@@ -6097,7 +6147,8 @@ function getMaterializedViewsPostgresql(node) {
                         has_indexes: p_return.v_data[i].v_has_indexes,
                         has_statistics: p_return.v_data[i].v_has_statistics,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_mview', null, false);
                 v_node.createChildNode('', false,
                     'node-spin', {
@@ -6714,7 +6765,8 @@ function getIndexesPostgresql(node) {
                         'fas node-all fa-thumbtack node-index', {
                             type: 'index',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                            schema: node.tag.schema
+                            schema: node.tag.schema,
+                            oid: p_return.v_data[i][2]
                         }, 'cm_index', null, false);
 
                     v_node.createChildNode('', false,
@@ -7252,7 +7304,8 @@ function getEventTriggersPostgresql(node) {
                     var v_node = node.createChildNode(p_return.v_data[i].v_name,
                         false, 'fas node-all fa-bolt node-eventtrigger', {
                             type: 'eventtrigger',
-                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                            oid: p_return.v_data[i].v_oid
                         }, 'cm_eventtrigger', null, true);
                     v_node.createChildNode('Enabled: ' + p_return.v_data[i]
                         .v_enabled, false,
@@ -8552,7 +8605,8 @@ function getForeignDataWrappersPostgresql(node) {
               v_node = node.createChildNode(p_return.v_data[i].v_name,
                   false, 'fas node-all fa-cube node-fdw', {
                       type: 'fdw',
-                      database: v_connTabControl.selectedTab.tag.selectedDatabase
+                      database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                      oid: p_return.v_data[i].v_oid
                   }, 'cm_fdw', null, false);
               v_node = v_node.createChildNode('Foreign Servers',
                   false, 'fas node-all fa-server node-server', {
@@ -8748,7 +8802,8 @@ function getForeignTablesPostgresql(node) {
                         type: 'foreign_table',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
                         has_statistics: p_return.v_data[i].v_has_statistics,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_foreign_table', null, false);
 
                 v_node.createChildNode('', false,
@@ -9089,7 +9144,8 @@ function getPartitionedChildrenPostgresql(node) {
                         has_partitions: p_return.v_data[i].v_has_partitions,
                         has_statistics: p_return.v_data[i].v_has_statistics,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_table', null, false);
 
                 v_node.createChildNode('', false,
@@ -9205,7 +9261,8 @@ function getInheritedsChildrenPostgresql(node) {
                         has_partitions: p_return.v_data[i].v_has_partitions,
                         has_statistics: p_return.v_data[i].v_has_statistics,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_table', null, false);
 
                 v_node.createChildNode('', false,

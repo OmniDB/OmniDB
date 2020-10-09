@@ -838,17 +838,21 @@ class PostgreSQL:
     @lock_required
     def QueryDatabases(self):
         return self.v_connection.Query('''
-            select database_name
+            select database_name,
+                   oid
             from (
             select quote_ident(datname) as database_name,
-                   1 as sort
+                   1 as sort,
+                   oid
             from pg_database
             where datname = 'postgres'
             union all
             select database_name,
-                   1 + row_number() over() as sort
+                   1 + row_number() over() as sort,
+                   oid
             from (
-            select quote_ident(datname) as database_name
+            select quote_ident(datname) as database_name,
+                   oid
             from pg_database
             where not datistemplate
               and datname <> 'postgres'
@@ -861,7 +865,8 @@ class PostgreSQL:
     @lock_required
     def QueryExtensions(self):
         return self.v_connection.Query('''
-            select quote_ident(extname) as extension_name
+            select quote_ident(extname) as extension_name,
+                   oid
             from pg_extension
             order by extname
         ''', True)
@@ -1565,7 +1570,8 @@ class PostgreSQL:
                    t.evtenabled as trigger_enabled,
                    t.evtevent as event_name,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function,
-                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()' as id
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()' as id,
+                   p.oid AS function_oid
             from pg_event_trigger t
             inner join pg_proc p
             on p.oid = t.evtfoid
@@ -1596,7 +1602,8 @@ class PostgreSQL:
                    quote_ident(t.tgname) as trigger_name,
                    t.tgenabled as trigger_enabled,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function,
-                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id
+                   quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
+                   p.oid AS function_oid
             from pg_trigger t
             inner join pg_class c
             on c.oid = t.tgrelid
@@ -1919,7 +1926,8 @@ class PostgreSQL:
             return self.v_connection.Query('''
                 select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
                        quote_ident(p.proname) as name,
-                       quote_ident(n.nspname) as schema_name
+                       quote_ident(n.nspname) as schema_name,
+                       p.oid AS function_oid
                 from pg_proc p
                 join pg_namespace n
                 on p.pronamespace = n.oid
@@ -1932,7 +1940,8 @@ class PostgreSQL:
             return self.v_connection.Query('''
                 select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
                        quote_ident(p.proname) as name,
-                       quote_ident(n.nspname) as schema_name
+                       quote_ident(n.nspname) as schema_name,
+                       p.oid AS function_oid
                 from pg_proc p
                 join pg_namespace n
                 on p.pronamespace = n.oid
@@ -2097,7 +2106,8 @@ class PostgreSQL:
         return self.v_connection.Query('''
             select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
                    quote_ident(p.proname) as name,
-                   quote_ident(n.nspname) as schema_name
+                   quote_ident(n.nspname) as schema_name,
+                   p.oid AS function_oid
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
@@ -2123,7 +2133,8 @@ class PostgreSQL:
         return self.v_connection.Query('''
             select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
                    quote_ident(p.proname) as name,
-                   quote_ident(n.nspname) as schema_name
+                   quote_ident(n.nspname) as schema_name,
+                   p.oid AS function_oid
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
@@ -2715,7 +2726,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         v_table = self.v_connection.Query('''
             select quote_ident(n.nspname) as domain_schema,
-                   quote_ident(t.typname) as domain_name
+                   quote_ident(t.typname) as domain_name,
+                   t.oid
             from pg_type t
             inner join pg_namespace n
             on n.oid = t.typnamespace
@@ -8571,24 +8583,44 @@ FROM #table_name#
     def GetDDLDatabase(self, p_object):
         if int(self.v_connection.ExecuteScalar('show server_version_num')) < 90500:
             return self.v_connection.ExecuteScalar('''
-                select format(E'CREATE DATABASE %s\nOWNER %s\nENCODING %s\nLC_COLLATE ''%s''\nLC_CTYPE ''%s''\nTABLESPACE %s\CONNECTION LIMIT %s;',
+                WITH comments AS (
+                    SELECT shobj_description(oid, 'pg_database') AS comment
+                    FROM pg_database
+                    WHERE quote_ident(datname) = '{0}'
+                )
+                select format(E'CREATE DATABASE %s\nOWNER %s\nENCODING %s\nLC_COLLATE ''%s''\nLC_CTYPE ''%s''\nTABLESPACE %s\CONNECTION LIMIT %s;%s',
                               quote_ident(d.datname),
                               quote_ident(r.rolname),
                               pg_encoding_to_char(encoding),
                               datcollate,
                               datctype,
                               quote_ident(t.spcname),
-                              datconnlimit), *
+                              datconnlimit,
+                              (CASE WHEN c.comment IS NOT NULL
+                                    THEN format(
+                                             E'\n\nCOMMENT ON DATABASE %s is %s;',
+                                             quote_ident(d.datname),
+                                             quote_literal(c.comment)
+                                         )
+                                    ELSE ''
+                               END))
                 from pg_database d
                 inner join pg_roles r
                 on r.oid = d.datdba
                 inner join pg_tablespace t
                 on t.oid = d.dattablespace
+                LEFT JOIN comments c
+                       ON 1 = 1
                 where quote_ident(d.datname) = '{0}'
             '''.format(p_object))
         else:
             return self.v_connection.ExecuteScalar('''
-                select format(E'CREATE DATABASE %s\nOWNER %s\nENCODING %s\nLC_COLLATE ''%s''\nLC_CTYPE ''%s''\nTABLESPACE %s\nALLOW_CONNECTIONS %s\nCONNECTION LIMIT %s\nIS_TEMPLATE %s;',
+                WITH comments AS (
+                    SELECT shobj_description(oid, 'pg_database') AS comment
+                    FROM pg_database
+                    WHERE quote_ident(datname) = '{0}'
+                )
+                select format(E'CREATE DATABASE %s\nOWNER %s\nENCODING %s\nLC_COLLATE ''%s''\nLC_CTYPE ''%s''\nTABLESPACE %s\nALLOW_CONNECTIONS %s\nCONNECTION LIMIT %s\nIS_TEMPLATE %s;%s',
                               quote_ident(d.datname),
                               quote_ident(r.rolname),
                               pg_encoding_to_char(encoding),
@@ -8597,16 +8629,48 @@ FROM #table_name#
                               quote_ident(t.spcname),
                               datallowconn::text,
                               datconnlimit,
-                              datistemplate::text), *
+                              datistemplate::text,
+                              (CASE WHEN c.comment IS NOT NULL
+                                    THEN format(
+                                             E'\n\nCOMMENT ON DATABASE %s is %s;',
+                                             quote_ident(d.datname),
+                                             quote_literal(c.comment)
+                                         )
+                                    ELSE ''
+                               END))
                 from pg_database d
                 inner join pg_roles r
                 on r.oid = d.datdba
                 inner join pg_tablespace t
                 on t.oid = d.dattablespace
+                LEFT JOIN comments c
+                       ON 1 = 1
                 where quote_ident(d.datname) = '{0}'
             '''.format(p_object))
     @lock_required
     def GetDDLExtension(self, p_object):
+        return self.v_connection.ExecuteScalar(
+            '''
+                WITH comments AS (
+                    SELECT COALESCE(obj_description(oid, 'pg_extension'), '') AS description
+                    FROM pg_extension
+                    WHERE quote_ident(extname) = '{0}'
+                )
+                SELECT format(
+                           E'CREATE EXTENSION {0};%s',
+                           (CASE WHEN description <> ''
+                                 THEN format(
+                                          E'\n\nCOMMENT ON EXTENSION {0} IS %s;',
+                                          description
+                                      )
+                                 ELSE ''
+                            END)
+                       ) AS sql
+                FROM comments
+            '''.format(
+                p_object
+            )
+        )
         return 'CREATE EXTENSION {0};'.format(p_object)
     @lock_required
     def GetDDLSchema(self, p_object):
@@ -10750,10 +10814,25 @@ FROM #table_name#
                         end), ''),
                        '') as text
                 from privileges
+                ),
+                comments AS (
+                    SELECT coalesce(obj_description('{0}'::regprocedure, 'pg_proc'), '') AS description
+                ),
+                comment_on AS (
+                    SELECT (CASE WHEN description <> ''
+                                 THEN format(
+                                          E'\n\nCOMMENT ON FUNCTION %s IS %s;',
+                                          '{0}'::regprocedure,
+                                          quote_literal(description)
+                                      )
+                                 ELSE ''
+                            END) AS text
+                    FROM comments
                 )
                 select (select text from createfunction) ||
                        (select text from alterowner) ||
-                       (select text from grants)
+                       (select text from grants) ||
+                       (SELECT text FROM comment_on)
             '''.format(p_function))
         else:
             return self.v_connection.ExecuteScalar('''
@@ -10827,10 +10906,25 @@ FROM #table_name#
                         end), ''),
                        '') as text
                 from privileges
+                ),
+                comments AS (
+                    SELECT coalesce(obj_description('{0}'::regprocedure, 'pg_proc'), '') AS description
+                ),
+                comment_on AS (
+                    SELECT (CASE WHEN description <> ''
+                                 THEN format(
+                                          E'\n\nCOMMENT ON FUNCTION %s IS %s;',
+                                          '{0}'::regprocedure,
+                                          quote_literal(description)
+                                      )
+                                 ELSE ''
+                            END) AS text
+                    FROM comments
                 )
                 select (select text from createfunction) ||
                        (select text from alterowner) ||
-                       (select text from grants)
+                       (select text from grants) ||
+                       (SELECT text FROM comment_on)
         '''.format(p_function))
     @lock_required
     def GetDDLProcedure(self, p_procedure):
@@ -11384,10 +11478,13 @@ FROM #table_name#
                 from domain d
                 inner join pg_constraint c on c.contypid = d.oid
             ),
+            comments AS (
+                SELECT obj_description('{0}.{1}'::regtype, 'pg_type') AS description
+            ),
             create_domain as (
                 select format(
                          E'CREATE DOMAIN %s\n  AS %s\n%s%s%s\n', d.name, d.basetype,
-                         (case when d.collation is not null then format(E'  COLLATION %s', d.collation) else '' end),
+                         (case when d.collation is not null then format(E'  COLLATE %s', d.collation) else '' end),
                          (case when d.defaultvalue is not null then format(E'  DEFAULT %s\n', d.defaultvalue) else '' end),
                          (case when d.notnull then E'  NOT NULL' else '' end)
                        ) as sql
@@ -11400,11 +11497,20 @@ FROM #table_name#
             alter_domain as (
                 select format(E'ALTER DOMAIN %s OWNER TO %s;\n', d.name, d.domainowner) as sql
                 from domain d
+            ),
+            comment_on AS (
+                SELECT format(
+                           E'\n\COMMENT ON DOMAIN {0}.{1} IS %s',
+                           quote_literal(description)
+                       ) AS sql
+                FROM comments
+                WHERE description IS NOT NULL
             )
-            select format(E'%s%s;\n\n%s',
+            select format(E'%s%s;\n\n%s%s',
                      (select sql from create_domain),
                      (select substring(sql from 1 for length(sql)-1) from create_constraints),
-                     (select sql from alter_domain)
+                     (select sql from alter_domain),
+                     (SELECT sql FROM comment_on)
                    )
         '''.format(p_schema, p_object))
 
@@ -13073,6 +13179,77 @@ FROM #table_name#
             v_row['description']
         )
 
+    @lock_required
+    def GetObjectDescriptionDatabase(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT datname AS id,
+                       coalesce(shobj_description({0}, '{1}'), '') AS description
+                FROM pg_database
+                WHERE oid = {0}
+            '''.format(
+                p_oid,
+                'pg_database'
+            )
+        ).Rows[0]
+
+        return "COMMENT ON DATABASE {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionDomain(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT '{0}'::regtype AS id,
+                       coalesce(obj_description({0}, '{1}'), '') AS description
+            '''.format(
+                p_oid,
+                'pg_type'
+            )
+        ).Rows[0]
+
+        return "COMMENT ON DOMAIN {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionExtension(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT quote_ident(extname) AS id,
+                       coalesce(obj_description({0}, '{1}'), '') AS description
+                FROM pg_extension
+                WHERE oid = {0}
+            '''.format(
+                p_oid,
+                'pg_extension'
+            )
+        ).Rows[0]
+
+        return "COMMENT ON EXTENSION {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionFunction(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regprocedure AS id,
+                       coalesce(obj_description({0}, 'pg_proc'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON FUNCTION {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
     def GetObjectDescription(self, p_type, p_oid, p_position):
         if p_type == 'aggregate':
             return self.GetObjectDescriptionAggregate(p_oid)
@@ -13080,5 +13257,13 @@ FROM #table_name#
             return self.GetObjectDescriptionTableField(p_oid, p_position)
         elif p_type in ['check', 'foreign_key', 'pk', 'unique', 'exclude']:
             return self.GetObjectDescriptionConstraint(p_oid)
+        elif p_type == 'database':
+            return self.GetObjectDescriptionDatabase(p_oid)
+        elif p_type == 'domain':
+            return self.GetObjectDescriptionDomain(p_oid)
+        elif p_type == 'extension':
+            return self.GetObjectDescriptionExtension(p_oid)
+        elif p_type in ['function', 'triggerfunction', 'direct_triggerfunction', 'eventtriggerfunction', 'direct_eventtriggerfunction']:
+            return self.GetObjectDescriptionFunction(p_oid)
         else:
             return ''

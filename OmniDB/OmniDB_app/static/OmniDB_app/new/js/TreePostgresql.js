@@ -1574,6 +1574,12 @@ function getTreePostgresql(p_div) {
                             '#database_name#', node.text));
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Database',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -1790,6 +1796,12 @@ function getTreePostgresql(p_div) {
                     tabSQLTemplate('Alter Extension', node.tree
                         .tag.alter_extension.replace(
                             '#extension_name#', node.text));
+                }
+            }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
                 }
             }, {
                 text: 'Drop Extension',
@@ -2954,6 +2966,12 @@ function getTreePostgresql(p_div) {
                     );
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Debug Function',
                 icon: 'fas cm-all fa-bug',
                 action: function(node) {
@@ -3127,6 +3145,12 @@ function getTreePostgresql(p_div) {
                     );
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Trigger Function',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -3168,6 +3192,12 @@ function getTreePostgresql(p_div) {
                             node.tag.id
                         )
                     );
+                }
+            }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
                 }
             }, {
                 text: 'Drop Trigger Function',
@@ -3245,6 +3275,12 @@ function getTreePostgresql(p_div) {
                     );
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Event Trigger Function',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -3286,6 +3322,12 @@ function getTreePostgresql(p_div) {
                             node.tag.id
                         )
                     );
+                }
+            }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
                 }
             }, {
                 text: 'Drop Event Trigger Function',
@@ -4237,6 +4279,12 @@ function getTreePostgresql(p_div) {
                             '#domain_name#', node.tag.schema + '.' + node.text));
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Domain',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -4438,6 +4486,10 @@ function getObjectDescriptionPostgresql(p_node) {
     if (v_type == 'table_field') {
         v_oid = p_node.parent.parent.tag.oid;
         v_position = p_node.tag.position;
+    }
+    else if (['function', 'triggerfunction', 'direct_triggerfunction', 'eventtriggerfunction', 'direct_eventtriggerfunction'].indexOf(v_type) != -1) {
+        v_oid = p_node.tag.function_oid;
+        v_position = 0;
     }
     else {
         v_oid = p_node.tag.oid;
@@ -5304,7 +5356,8 @@ function getDatabasesPostgresql(node) {
                     false, 'fas node-all fa-database node-database', {
                         type: 'database',
                         database: p_return.v_data[i].v_name.replace(
-                            /"/g, '')
+                            /"/g, ''),
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_database', null, false);
 
                 if (v_connTabControl.selectedTab.tag.selectedDatabase ==
@@ -5452,7 +5505,8 @@ function getExtensionsPostgresql(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, 'fas node-all fa-cubes node-extension', {
                         type: 'extension',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_extension', null, false);
 
             }
@@ -7144,7 +7198,8 @@ function getTriggersPostgresql(node) {
                             type: 'direct_triggerfunction',
                             id: p_return.v_data[i].v_id,
                             database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                            schema: node.tag.schema
+                            schema: node.tag.schema,
+                            function_oid: p_return.v_data[i].v_function_oid
                         }, 'cm_direct_triggerfunction', null, true);
 
                 }
@@ -7209,7 +7264,8 @@ function getEventTriggersPostgresql(node) {
                         'fas node-all fa-cog node-etfunction', {
                             type: 'direct_eventtriggerfunction',
                             id: p_return.v_data[i].v_id,
-                            database: v_connTabControl.selectedTab.tag.selectedDatabase
+                            database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                            function_oid: p_return.v_data[i].v_function_oid
                         }, 'cm_direct_eventtriggerfunction', null, true);
 
                 }
@@ -7500,7 +7556,8 @@ function getFunctionsPostgresql(node) {
                         type: 'function',
                         id: p_return.v_data[i].v_id,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        function_oid: p_return.v_data[i].v_function_oid
                     }, 'cm_function', null, false);
                 v_node.createChildNode('', false,
                     'node-spin', {
@@ -7885,7 +7942,8 @@ function getTriggerFunctionsPostgresql(node) {
                         type: 'triggerfunction',
                         id: p_return.v_data[i].v_id,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        function_oid: p_return.v_data[i].v_function_oid
                     }, 'cm_triggerfunction', null, false);
 
             }
@@ -7981,7 +8039,8 @@ function getEventTriggerFunctionsPostgresql(node) {
                         type: 'eventtriggerfunction',
                         id: p_return.v_data[i].v_id,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        function_oid: p_return.v_data[i].v_function_oid
                     }, 'cm_eventtriggerfunction', null, false);
 
             }
@@ -8913,7 +8972,8 @@ function getDomainsPostgresql(node) {
                     'fas node-all fa-square node-domain', {
                         type: 'domain',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_domain', null, false);
 
             }

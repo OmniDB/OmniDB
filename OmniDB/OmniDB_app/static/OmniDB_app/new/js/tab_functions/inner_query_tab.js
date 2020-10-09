@@ -192,12 +192,6 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
       autocomplete_keydown(v_editor, event);
     }
   });
-  // document.getElementById('txt_query_' + v_tab.id).addEventListener('keyup',function(event) {
-  //   autocomplete_start(v_editor,0, event);
-  // });
-  // document.getElementById('txt_query_' + v_tab.id).addEventListener('keydown',function(event) {
-  //   autocomplete_keydown(v_editor, event);
-  // });
 
   document.getElementById('txt_query_' + v_tab.id).addEventListener('contextmenu',function(event) {
     event.stopPropagation();

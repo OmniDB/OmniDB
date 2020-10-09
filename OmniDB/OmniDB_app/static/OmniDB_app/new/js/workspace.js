@@ -1569,6 +1569,4 @@ function uiCopyTextToClipboard(p_value) {
 function toggleConnectionAutocomplete(p_toggler_id) {
   let checked = document.getElementById(p_toggler_id).checked;
   v_connTabControl.selectedTab.tag.enable_autocomplete = (checked);
-
-  // TODO: send to back on a proper format.
 }

@@ -995,7 +995,12 @@ function getTreeMariadb(p_div) {
     }
 
     tree.clickNodeEvent = function(node) {
-        getPropertiesMariadb(node);
+        if (v_connTabControl.selectedTab.tag.treeTabsVisible) {
+          getPropertiesMariadb(node);
+        }
+        else {
+          // Do nothing
+        }
     }
 
     tree.beforeContextMenuEvent = function(node, callback) {

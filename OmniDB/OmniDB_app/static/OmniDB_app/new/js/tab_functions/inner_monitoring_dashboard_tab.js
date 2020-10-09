@@ -115,15 +115,20 @@ var v_createNewMonitorUnitTabFunction = function() {
   // Removing last tab of the inner tab list
   v_connTabControl.selectedTab.tag.tabControl.removeLastTab();
 
+  let v_name_html =
+  '<span id="tab_title">Monitor Unit</span>' +
+  '<span id="tab_loading" style="visibility:hidden;">' +
+    '<i class="tab-icon node-spin"></i>' +
+  '</span>' +
+  '<i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>';
+
   // Creating console tab in the inner tab list
   var v_tab = v_connTabControl.selectedTab.tag.tabControl.createTab({
-    p_name: '<i class="fas fa-align-left fa-light"></i><span id="tab_title"> Monitor Unit</span>',
+    p_icon: '<i class="fas fa-align-left icon-tab-title"></i>',
+    p_name: v_name_html,
     p_selectFunction: function() {
       if(this.tag != null) {
         refreshHeights();
-      }
-      if(this.tag != null && this.tag.editor != null) {
-          this.tag.editor.focus();
       }
     },
     p_closeFunction: function(e,p_tab) {

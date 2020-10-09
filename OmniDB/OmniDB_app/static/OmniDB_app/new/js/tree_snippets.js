@@ -455,18 +455,34 @@ function buildSnippetContextMenuObjects(p_mode, p_object, p_editor, p_callback) 
         text: 'New Snippet',
         icon: 'fas cm-all fa-save',
         action: function() {
-          showConfirm('<input id="element_name" class="form-control" placeholder="Snippet Name" style="width: 100%;">',
-        	            function() {
-                        saveSnippetTextConfirm(
-                          {
-                            v_id: null,
-                            v_name : document.getElementById('element_name').value,
-                            v_parent: p_object.id
-                          },
-                          p_editor.getValue(),
-                          p_callback
-                        );
-        	            });
+          showConfirm(
+            '<input id="element_name" class="form-control" placeholder="Snippet Name" style="width: 100%;">',
+            function() {
+              saveSnippetTextConfirm(
+                {
+                  v_id: null,
+                  v_name : document.getElementById('element_name').value,
+                  v_parent: p_object.id
+                },
+                p_editor.getValue(),
+                p_callback
+              );
+            },
+            null,
+            function() {
+              var v_input = document.getElementById('element_name');
+              v_input.focus();
+              v_input.selectionStart = 0;
+              v_input.selectionEnd = 10000;
+            }
+          );
+          var v_input = document.getElementById('element_name');
+        	v_input.onkeydown = function() {
+        		if (event.keyCode == 13)
+        			document.getElementById('modal_message_ok').click();
+        		else if (event.keyCode == 27)
+        			document.getElementById('modal_message_cancel').click();
+        	}
         }
       }
     );
@@ -482,17 +498,18 @@ function buildSnippetContextMenuObjects(p_mode, p_object, p_editor, p_callback) 
           icon: 'fas cm-all fa-align-left',
           action: function() {
             showConfirm("<b>WARNING</b>, are you sure you want to overwrite file '" + v_file.name + "'?",
-          	            function() {
-                          saveSnippetTextConfirm(
-                            {
-                              v_id: v_file.id,
-                              v_name : null,
-                              v_parent: null
-                            },
-                            p_editor.getValue(),
-                            p_callback
-                          );
-          	            });
+	            function() {
+                saveSnippetTextConfirm(
+                  {
+                    v_id: v_file.id,
+                    v_name : null,
+                    v_parent: null
+                  },
+                  p_editor.getValue(),
+                  p_callback
+                );
+	            }
+            );
           }
         }
       );

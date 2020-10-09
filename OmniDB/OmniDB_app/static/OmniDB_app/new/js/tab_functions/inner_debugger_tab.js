@@ -64,7 +64,9 @@ var v_createDebuggerTabFunction = function(p_function) {
       '<button id="bt_step_over_' + v_tab.id + '" class="btn btn-sm omnidb__theme__btn--secondary omnidb__tab-actions__btn" title="Step Over (Next Statement)" style="display: none;" onclick="stepDebug(0);"><i class="fas fa-angle-right fa-light"></i></button>' +
       '<button id="bt_step_out_' + v_tab.id + '" class="btn btn-sm omnidb__theme__btn--secondary omnidb__tab-actions__btn" title="Resume (Next Breakpoint)" style="display: none;" onclick="stepDebug(1);"><i class="fas fa-angle-double-right fa-light"></i></button>' +
       '<button id="bt_cancel_' + v_tab.id + '" class="btn btn-sm btn-danger omnidb__tab-actions__btn" title="Cancel" style="display: none; vertical-align: middle;" onclick="cancelDebug();">Cancel</button>' +
-      '<div id="div_debug_info_' + v_tab.id + '" class="query_info" style="display: inline-block; margin-left: 5px; vertical-align: middle;"></div>' +
+      // '<div id="div_debug_info_' + v_tab.id + '" class="query_info" style="display: inline-block; margin-left: 5px; vertical-align: middle;"></div>' +
+
+      '<div id="div_debug_info_' + v_tab.id + '" class="omnidb__query-info"></div>' +
     "</div>" +
   "</div>" +
   "<div id='debug_result_tabs_container" + v_tab.id + "' class='omnidb__query-result-tabs'>" +

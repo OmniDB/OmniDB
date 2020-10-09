@@ -719,7 +719,8 @@ def get_triggers(request, v_database):
                 'v_name': v_trigger['trigger_name'],
                 'v_enabled': v_trigger['trigger_enabled'],
                 'v_function': v_trigger['trigger_function'],
-                'v_id': v_trigger['id']
+                'v_id': v_trigger['id'],
+                'v_function_oid': v_trigger['function_oid']
             }
             v_list_triggers.append(v_trigger_data)
     except Exception as exc:
@@ -754,7 +755,8 @@ def get_eventtriggers(request, v_database):
                 'v_enabled': v_trigger['trigger_enabled'],
                 'v_event': v_trigger['event_name'],
                 'v_function': v_trigger['trigger_function'],
-                'v_id': v_trigger['id']
+                'v_id': v_trigger['id'],
+                'v_function_oid': v_trigger['function_oid']
             }
             v_list_triggers.append(v_trigger_data)
     except Exception as exc:
@@ -1131,7 +1133,8 @@ def get_databases(request, v_database):
         v_databases = v_database.QueryDatabases()
         for v_database in v_databases.Rows:
             v_database_data = {
-                'v_name': v_database['database_name']
+                'v_name': v_database['database_name'],
+                'v_oid': v_database['oid']
             }
             v_list_databases.append(v_database_data)
     except Exception as exc:
@@ -1226,7 +1229,8 @@ def get_functions(request, v_database):
         for v_function in v_functions.Rows:
             v_function_data = {
                 'v_name': v_function['name'],
-                'v_id': v_function['id']
+                'v_id': v_function['id'],
+                'v_function_oid': v_function['function_oid']
             }
             v_list_functions.append(v_function_data)
     except Exception as exc:
@@ -1452,7 +1456,8 @@ def get_triggerfunctions(request, v_database):
         for v_function in v_functions.Rows:
             v_function_data = {
                 'v_name': v_function['name'],
-                'v_id': v_function['id']
+                'v_id': v_function['id'],
+                'v_function_oid': v_function['function_oid']
             }
             v_list_functions.append(v_function_data)
     except Exception as exc:
@@ -1508,7 +1513,8 @@ def get_eventtriggerfunctions(request, v_database):
         for v_function in v_functions.Rows:
             v_function_data = {
                 'v_name': v_function['name'],
-                'v_id': v_function['id']
+                'v_id': v_function['id'],
+                'v_function_oid': v_function['function_oid']
             }
             v_list_functions.append(v_function_data)
     except Exception as exc:
@@ -1627,7 +1633,8 @@ def get_extensions(request, v_database):
         v_extensions = v_database.QueryExtensions()
         for v_extension in v_extensions.Rows:
             v_extension_data = {
-                'v_name': v_extension['extension_name']
+                'v_name': v_extension['extension_name'],
+                'v_oid': v_extension['oid']
             }
             v_list_extensions.append(v_extension_data)
     except Exception as exc:
@@ -2061,7 +2068,8 @@ def get_domains(request, v_database):
         v_domains = v_database.QueryDomains(False,v_schema)
         for v_domain in v_domains.Rows:
             v_domain_data = {
-                'v_domain_name': v_domain['domain_name']
+                'v_domain_name': v_domain['domain_name'],
+                'v_oid': v_domain['oid']
             }
             v_list_domains.append(v_domain_data)
     except Exception as exc:

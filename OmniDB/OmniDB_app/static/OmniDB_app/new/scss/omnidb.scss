@@ -1343,6 +1343,20 @@ label.omnidb__switch--label span {
 .omnidb__switch--input:checked ~ .omnidb__switch--label span {
   margin-left: 15px;
 }
+.omnidb__switch--sm label.omnidb__switch--label {
+  width: 30px;
+}
+.omnidb__switch--sm label.omnidb__switch--label span {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+}
+.omnidb__switch--sm .omnidb__switch--input {
+  transform: translate(5px, 5px);
+}
+.omnidb__switch--sm .omnidb__switch--input:checked~.omnidb__switch--label span {
+  margin-left: 8px;
+}
 
 /* Handsontable */
 .omnidb__ht__first-col-actions td:first-child {

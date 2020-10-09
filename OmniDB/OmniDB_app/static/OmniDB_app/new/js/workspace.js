@@ -942,8 +942,11 @@ function refreshHeights(p_all) {
       }
       else if (v_tab_tag.mode=='monitor_grid') {
         v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
-        if (v_tab_tag.ht!=null)
-        v_tab_tag.ht.render();
+        setTimeout(function(){
+          if (v_tab_tag.ht!=null) {
+            v_tab_tag.ht.render();
+          }
+        },400);
       }
       else if (v_tab_tag.mode=='query_history') {
         v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - 21 + 'px';
@@ -1561,4 +1564,11 @@ function uiCopyTextToClipboard(p_value) {
   delete v_text_area;
   // Prompting an alert.
   showAlert('<b>Text copied:</b> \n<div class="mt-2 p-2 border-1 omnidb__theme-bg--light"><code>' + p_value + '</code></div>');
+}
+
+function toggleConnectionAutocomplete(p_toggler_id) {
+  let checked = document.getElementById(p_toggler_id).checked;
+  v_connTabControl.selectedTab.tag.enable_autocomplete = (checked);
+
+  // TODO: send to back on a proper format.
 }

@@ -4291,9 +4291,14 @@ function getTreePostgresql(p_div) {
     };
     var tree = createTree(p_div, '#fcfdfd', context_menu);
     v_connTabControl.selectedTab.tag.tree = tree;
+    let v_autocomplete_switch_status = (v_connTabControl.selectedTab.tag.enable_autocomplete !== false) ? ' checked ' : '';
     v_connTabControl.selectedTab.tag.divDetails.innerHTML =
-        '<i class="fas fa-server mr-1"></i>selected DB: <b>' + v_connTabControl.selectedTab.tag.selectedDatabase +
-        '</b>';
+    '<i class="fas fa-server mr-1"></i>selected DB: ' +
+    '<b>' + v_connTabControl.selectedTab.tag.selectedDatabase + '</b>' +
+    '<div class="omnidb__switch omnidb__switch--sm float-right" data-toggle="tooltip" data-placement="bottom" data-html="true" title="" data-original-title="<h5>Toggle autocomplete.</h5><div>Switch OFF <b>disables the autocomplete</b> on the inner tabs for this connection.</div>">' +
+			'<input type="checkbox" ' + v_autocomplete_switch_status + ' id="autocomplete_toggler_' + v_connTabControl.selectedTab.tag.tab_id + '" class="omnidb__switch--input" onchange="toggleConnectionAutocomplete(\'autocomplete_toggler_' + v_connTabControl.selectedTab.tag.tab_id + '\')">' +
+			'<label for="autocomplete_toggler_' + v_connTabControl.selectedTab.tag.tab_id + '" class="omnidb__switch--label"><span>A</span></label>' +
+		'</div>';
 
     tree.nodeAfterOpenEvent = function(node) {
         refreshTreePostgresql(node);

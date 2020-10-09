@@ -263,7 +263,7 @@ function startDebug() {
 		v_tab_tag.div_notices.innerHTML = '';
 		v_tab_tag.div_result.innerHTML = '';
 		v_tab_tag.div_count_notices.style.display = 'none';
-		v_tab_tag.tab_loading_span.style.display = '';
+		v_tab_tag.tab_loading_span.style.visibility = '';
 		v_tab_tag.tab_check_span.style.display = 'none';
 
 		if (v_tab_tag.htResult!=null) {
@@ -320,7 +320,7 @@ function stepDebug(p_mode) {
 							 d.getSeconds().padLeft()].join(':');
 
 		v_tab_tag.debug_info.innerHTML = '<b>Start time</b>: ' + dformat + '<br><b>Stepping...</b>';
-		v_tab_tag.tab_loading_span.style.display = '';
+		v_tab_tag.tab_loading_span.style.visibility = '';
 		v_tab_tag.tab_check_span.style.display = 'none';
     v_tab_tag.state = v_debugState.Step;
 
@@ -389,7 +389,7 @@ function cancelDebug() {
 	}
 	else {
 		v_tab_tag.tab_check_span.style.display = 'none';
-		v_tab_tag.tab_loading_span.style.display = '';
+		v_tab_tag.tab_loading_span.style.visibility = '';
 
 		v_tab_tag.state = v_debugState.Cancel;
 
@@ -421,7 +421,7 @@ function checkDebugStatus(p_tab) {
 
 function debugResponse(p_message, p_context) {
 
-	p_context.tab_tag.tab_loading_span.style.display = 'none';
+	p_context.tab_tag.tab_loading_span.style.visibility = 'hidden';
 
 	if (p_context.tab_tag.tab_id == p_context.tab_tag.tabControl.selectedTab.id && p_context.tab_tag.connTab.id == p_context.tab_tag.connTab.tag.connTabControl.selectedTab.id) {
 		debugResponseRender(p_message,p_context);
@@ -438,7 +438,7 @@ function debugResponse(p_message, p_context) {
 function cancelDebugInterface(p_context) {
 	p_context.tab_tag.state = v_debugState.Cancel;
 	p_context.tab_tag.tab_check_span.style.display = 'none';
-	p_context.tab_tag.tab_loading_span.style.display = 'none';
+	p_context.tab_tag.tab_loading_span.style.visibility = 'hidden';
 
 	p_context.tab_tag.debug_info.innerHTML = '<b>Canceled.</b>';
 

@@ -183,10 +183,14 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
   // Setting custom keyboard shortcuts callbacks.
   $('#txt_query_' + v_tab.id).find('.ace_text-input').on('keyup',function(event){
-    autocomplete_start(v_editor,0, event);
+    if (v_connTabControl.selectedTab.tag.enable_autocomplete !== false) {
+      autocomplete_start(v_editor,0, event);
+    }
   });
   $('#txt_query_' + v_tab.id).find('.ace_text-input').on('keydown',function(event){
-    autocomplete_keydown(v_editor, event);
+    if (v_connTabControl.selectedTab.tag.enable_autocomplete !== false) {
+      autocomplete_keydown(v_editor, event);
+    }
   });
   // document.getElementById('txt_query_' + v_tab.id).addEventListener('keyup',function(event) {
   //   autocomplete_start(v_editor,0, event);

@@ -31,7 +31,11 @@ var v_createDebuggerTabFunction = function(p_function) {
       var v_current_tab = p_tab;
       beforeCloseTab(e,
         function() {
-          removeTab(v_current_tab);
+          var v_message_data = { tab_id: v_current_tab.tag.tab_id, tab_db_id: null };
+          createRequest(v_queryRequestCodes.CloseTab, [v_message_data]);
+          v_current_tab.removeTab();
+          if (v_tab.tag.tabCloseFunction)
+            v_tab.tag.tabCloseFunction(v_tab.tag);
         });
     }
   });

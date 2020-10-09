@@ -1173,7 +1173,12 @@ function getTreeOracle(p_div) {
     }
 
     tree.clickNodeEvent = function(node) {
+      if (v_connTabControl.selectedTab.tag.treeTabsVisible) {
         getPropertiesOracle(node);
+      }
+      else {
+        // Do nothing
+      }
     }
 
     tree.beforeContextMenuEvent = function(node, callback) {

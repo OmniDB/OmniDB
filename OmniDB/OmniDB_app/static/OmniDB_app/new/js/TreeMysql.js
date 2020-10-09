@@ -943,7 +943,12 @@ function getTreeMysql(p_div) {
     }
 
     tree.clickNodeEvent = function(node) {
+      if (v_connTabControl.selectedTab.tag.treeTabsVisible) {
         getPropertiesMysql(node);
+      }
+      else {
+        // Do nothing
+      }
     }
 
     tree.beforeContextMenuEvent = function(node, callback) {

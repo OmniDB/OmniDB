@@ -1,6 +1,7 @@
 Django
 CherryPy
 social-auth-app-django
+django-auth-ldap
 pyscrypt
 pyaes
 openpyxl

@@ -248,7 +248,8 @@ def get_tables(request, v_database):
                 'v_has_rules': v_database.v_has_rules,
                 'v_has_triggers': v_database.v_has_triggers,
                 'v_has_partitions': v_database.v_has_partitions,
-                'v_has_statistics': v_database.v_has_statistics
+                'v_has_statistics': v_database.v_has_statistics,
+                'v_oid': v_table['oid']
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -284,7 +285,8 @@ def get_columns(request, v_database):
                 'v_column_name': v_column['column_name'],
                 'v_data_type': v_column['data_type'],
                 'v_data_length': v_column['data_length'],
-                'v_nullable': v_column['nullable']
+                'v_nullable': v_column['nullable'],
+                'v_position': v_column['position']
             }
             v_list_columns.append(v_column_data)
     except Exception as exc:
@@ -318,6 +320,7 @@ def get_pk(request, v_database):
         for v_pk in v_pks.Rows:
             v_pk_data = []
             v_pk_data.append(v_pk['constraint_name'])
+            v_pk_data.append(v_pk['oid'])
             v_list_pk.append(v_pk_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -386,6 +389,7 @@ def get_fks(request, v_database):
             v_fk_data.append(v_fk['r_table_name'])
             v_fk_data.append(v_fk['delete_rule'])
             v_fk_data.append(v_fk['update_rule'])
+            v_fk_data.append(v_fk['oid'])
             v_list_fk.append(v_fk_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -455,6 +459,7 @@ def get_uniques(request, v_database):
         for v_unique in v_uniques.Rows:
             v_unique_data = []
             v_unique_data.append(v_unique['constraint_name'])
+            v_unique_data.append(v_unique['oid'])
             v_list_uniques.append(v_unique_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -587,6 +592,7 @@ def get_checks(request, v_database):
             v_check_data = []
             v_check_data.append(v_check['constraint_name'])
             v_check_data.append(v_check['constraint_source'])
+            v_check_data.append(v_check['oid'])
             v_list_checks.append(v_check_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -621,6 +627,7 @@ def get_excludes(request, v_database):
             v_exclude_data.append(v_exclude['constraint_name'])
             v_exclude_data.append(v_exclude['attributes'])
             v_exclude_data.append(v_exclude['operations'])
+            v_exclude_data.append(v_exclude['oid'])
             v_list_excludes.append(v_exclude_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -1556,7 +1563,8 @@ def get_aggregates(request, v_database):
         for v_aggregate in v_aggregates.Rows:
             v_aggregate_data = {
                 'v_name': v_aggregate['name'],
-                'v_id': v_aggregate['id']
+                'v_id': v_aggregate['id'],
+                'v_oid': v_aggregate['oid']
             }
             v_list_aggregates.append(v_aggregate_data)
     except Exception as exc:
@@ -2422,5 +2430,31 @@ def change_role_password(request, v_database):
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
         v_return['v_error'] = True
         return JsonResponse(v_return)
+
+    return JsonResponse(v_return)
+
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_object_description(request, v_database):
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    json_object = json.loads(request.POST.get('data', None))
+    v_oid = json_object['p_oid']
+    v_type = json_object['p_type']
+    v_position = json_object['p_position']
+
+    v_data = ''
+
+    try:
+        v_data = v_database.GetObjectDescription(v_type, v_oid, v_position)
+    except Exception as exc:
+        v_return['v_data'] = {'password_timeout': True, 'message': str(exc)}
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
+
+    v_return['v_data'] = v_data
 
     return JsonResponse(v_return)

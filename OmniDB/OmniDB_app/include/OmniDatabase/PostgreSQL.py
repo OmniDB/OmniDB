@@ -927,7 +927,8 @@ class PostgreSQL:
                 {0}
             )
             select quote_ident(c.relname) as table_name,
-                   quote_ident(n.nspname) as table_schema
+                   quote_ident(n.nspname) as table_schema,
+                   c.oid
             from pg_class c
             inner join pg_namespace n
             on n.oid = c.relnamespace
@@ -1004,7 +1005,8 @@ class PostgreSQL:
                     ) x
                    ) as data_length,
                    null as data_precision,
-                   null as data_scale
+                   null as data_scale,
+                   a.attnum AS position
             from pg_attribute a
             inner join pg_class c
             on c.oid = a.attrelid
@@ -1033,44 +1035,103 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' and quote_ident(kcu1.table_name) = '{1}' ".format(p_schema, p_table)
+                v_filter = "AND c.connamespace = '{0}'::regnamespace AND quote_ident(t.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' and quote_ident(kcu1.table_name) = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "AND c.connamespace = '{0}'::regnamespace AND quote_ident(t.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' ".format(p_schema)
+                v_filter = "AND c.connamespace = '{0}'::regnamespace ".format(p_schema)
             else:
-                v_filter = "and quote_ident(rc.constraint_schema) = '{0}' ".format(self.v_schema)
+                v_filter = "AND c.connamespace = '{0}'::regnamespace ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(rc.constraint_schema) not in ('information_schema','pg_catalog') and quote_ident(kcu1.table_name) = {0}".format(p_table)
+                v_filter = "AND c.connamespace NOT IN ('information_schema'::regnamespace, 'pg_catalog'::regnamespace) AND quote_ident(t.relname) = {0}".format(p_table)
             else:
-                v_filter = "and quote_ident(rc.constraint_schema) not in ('information_schema','pg_catalog') "
+                v_filter = "AND c.connamespace NOT IN ('information_schema'::regnamespace, 'pg_catalog'::regnamespace) "
         return self.v_connection.Query('''
-            select *
-            from (select distinct
-                         quote_ident(kcu1.constraint_name) as constraint_name,
-                         quote_ident(kcu1.table_name) as table_name,
-                         quote_ident(kcu2.constraint_name) as r_constraint_name,
-                         quote_ident(kcu2.table_name) as r_table_name,
-                         quote_ident(kcu1.constraint_schema) as table_schema,
-                         quote_ident(kcu2.constraint_schema) as r_table_schema,
-                         rc.update_rule as update_rule,
-                         rc.delete_rule as delete_rule
-            from information_schema.referential_constraints rc
-            join information_schema.key_column_usage kcu1
-            on kcu1.constraint_catalog = rc.constraint_catalog
-            and kcu1.constraint_schema = rc.constraint_schema
-            and kcu1.constraint_name = rc.constraint_name
-            join information_schema.key_column_usage kcu2
-            on kcu2.constraint_catalog = rc.unique_constraint_catalog
-            and kcu2.constraint_schema = rc.unique_constraint_schema
-            and kcu2.constraint_name = rc.unique_constraint_name
-            and kcu2.ordinal_position = kcu1.ordinal_position
-            where 1 = 1
+            SELECT DISTINCT quote_ident(c.conname) AS constraint_name,
+                            quote_ident(t.relname) AS table_name,
+                            quote_ident(rc.conname) AS r_constraint_name,
+                            quote_ident(rt.relname) AS r_table_name,
+                            quote_ident(tn.nspname) AS table_schema,
+                            quote_ident(rtn.nspname) AS r_table_schema,
+                            c.update_rule,
+                            c.delete_rule,
+                            c.oid
+            FROM (
+                SELECT oid,
+                       connamespace,
+                       conname,
+                       conrelid,
+                       confrelid,
+                       (CASE confupdtype WHEN 'c'
+                                         THEN 'CASCADE'
+                                         WHEN 'n'
+                                         THEN 'SET NULL'
+                                         WHEN 'd'
+                                         THEN 'SET DEFAULT'
+                                         WHEN 'r'
+                                         THEN 'RESTRICT'
+                                         WHEN 'a'
+                                         THEN 'NO ACTION'
+                        END) AS update_rule,
+                       (CASE confdeltype WHEN 'c'
+                                         THEN 'CASCADE'
+                                         WHEN 'n'
+                                         THEN 'SET NULL'
+                                         WHEN 'd'
+                                         THEN 'SET DEFAULT'
+                                         WHEN 'r'
+                                         THEN 'RESTRICT'
+                                         WHEN 'a'
+                                         THEN 'NO ACTION'
+                        END) AS delete_rule
+                FROM pg_constraint
+                WHERE contype = 'f'
+            ) c
+            INNER JOIN pg_class t
+                    ON c.conrelid = t.oid
+            INNER JOIN pg_namespace tn
+                    ON t.relnamespace = tn.oid
+            INNER JOIN (
+                SELECT objid,
+                       refobjid
+                FROM pg_depend
+                WHERE classid = 'pg_constraint'::regclass::oid
+                  AND refclassid = 'pg_class'::regclass::oid
+                  AND refobjsubid = 0
+            ) d1
+                    ON c.oid = d1.objid
+            INNER JOIN (
+                SELECT objid,
+                       refobjid
+                FROM pg_depend
+                WHERE refclassid = 'pg_constraint'::regclass::oid
+                  AND classid = 'pg_class'::regclass::oid
+                  AND deptype = 'i'
+                  AND objsubid = 0
+            ) d2
+                    ON d1.refobjid = d2.objid
+            INNER JOIN (
+                SELECT oid,
+                       conrelid,
+                       connamespace,
+                       conname
+                FROM pg_constraint
+                WHERE contype IN (
+                    'p',
+                    'u'
+                )
+            ) rc
+                    ON d2.refobjid = rc.oid
+                   AND c.confrelid = rc.conrelid
+            INNER JOIN pg_class rt
+                    ON rc.conrelid = rt.oid
+            INNER JOIN pg_namespace rtn
+                    ON rt.relnamespace = rtn.oid
+            WHERE 1 = 1
             {0}
-            ) t
-            order by quote_ident(constraint_name),
-                     quote_ident(table_name)
+            ORDER BY quote_ident(c.conname),
+                     quote_ident(t.relname)
         '''.format(v_filter), True)
 
     @lock_required
@@ -1126,27 +1187,36 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(p_schema, p_table)
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) = '{0}' AND quote_ident(t.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) = '{0}' AND quote_ident(t.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(p_schema)
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(self.v_schema)
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') and quote_ident(tc.table_name) = {0}".format(p_table)
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) NOT IN ('information_schema','pg_catalog') AND quote_ident(t.relname) = {0}".format(p_table)
             else:
-                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') "
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) NOT IN ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select quote_ident(tc.constraint_name) as constraint_name,
-                   quote_ident(tc.table_name) as table_name,
-                   quote_ident(tc.table_schema) as table_schema
-            from information_schema.table_constraints tc
-            where tc.constraint_type = 'PRIMARY KEY'
-            {0}
-            order by quote_ident(tc.constraint_name),
-                     quote_ident(tc.table_name)
+            SELECT quote_ident(c.conname) AS constraint_name,
+                   quote_ident(t.relname) AS table_name,
+                   quote_ident(t.relnamespace::regnamespace::text) AS table_schema,
+                   c.oid
+            FROM (
+                SELECT oid,
+                       conrelid,
+                       conname
+                FROM pg_constraint
+                WHERE contype = 'p'
+            ) c
+            INNER JOIN pg_class t
+                    ON c.conrelid = t.oid
+            WHERE 1 = 1
+              {0}
+            ORDER BY quote_ident(c.conname),
+                     quote_ident(t.relnamespace::regnamespace::text)
         '''.format(v_filter), True)
 
     @lock_required
@@ -1184,27 +1254,36 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_table and p_schema:
-                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(p_schema, p_table)
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) = '{0}' AND quote_ident(t.relname) = '{1}' ".format(p_schema, p_table)
             elif p_table:
-                v_filter = "and quote_ident(tc.table_schema) = '{0}' and quote_ident(tc.table_name) = '{1}' ".format(self.v_schema, p_table)
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) = '{0}' AND quote_ident(t.relname) = '{1}' ".format(self.v_schema, p_table)
             elif p_schema:
-                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(p_schema)
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(tc.table_schema) = '{0}' ".format(self.v_schema)
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) = '{0}' ".format(self.v_schema)
         else:
             if p_table:
-                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') and quote_ident(tc.table_name) = {0}".format(p_table)
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) NOT IN ('information_schema','pg_catalog') AND quote_ident(t.relname) = {0}".format(p_table)
             else:
-                v_filter = "and quote_ident(tc.table_schema) not in ('information_schema','pg_catalog') "
+                v_filter = "AND quote_ident(t.relnamespace::regnamespace::text) NOT IN ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select quote_ident(tc.constraint_name) as constraint_name,
-                   quote_ident(tc.table_name) as table_name,
-                   quote_ident(tc.table_schema) as table_schema
-            from information_schema.table_constraints tc
-            where tc.constraint_type = 'UNIQUE'
-            {0}
-            order by quote_ident(tc.constraint_name),
-                     quote_ident(tc.table_name)
+            SELECT quote_ident(c.conname) AS constraint_name,
+                   quote_ident(t.relname) AS table_name,
+                   quote_ident(t.relnamespace::regnamespace::text) AS table_schema,
+                   c.oid
+            FROM (
+                SELECT oid,
+                       conrelid,
+                       conname
+                FROM pg_constraint
+                WHERE contype = 'u'
+            ) c
+            INNER JOIN pg_class t
+                    ON c.conrelid = t.oid
+            WHERE 1 = 1
+              {0}
+            ORDER BY quote_ident(c.conname),
+                     quote_ident(t.relnamespace::regnamespace::text)
         '''.format(v_filter), True)
 
     @lock_required
@@ -1339,7 +1418,8 @@ class PostgreSQL:
             select quote_ident(n.nspname) as schema_name,
                    quote_ident(t.relname) as table_name,
                    quote_ident(c.conname) as constraint_name,
-                   pg_get_constraintdef(c.oid) as constraint_source
+                   pg_get_constraintdef(c.oid) as constraint_source,
+                   c.oid
             from pg_constraint c
             join pg_class t
             on t.oid = c.conrelid
@@ -1429,7 +1509,8 @@ class PostgreSQL:
                        quote_ident(n.nspname),
                        quote_ident(t.relname),
                        quote_ident(c.conname)
-                   ) as attributes
+                   ) as attributes,
+                   c.oid
             from pg_constraint c
             join pg_class t
             on t.oid = c.conrelid
@@ -2068,7 +2149,8 @@ class PostgreSQL:
                 '''
                     SELECT quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' AS id,
                            quote_ident(p.proname) AS name,
-                           quote_ident(n.nspname) AS schema_name
+                           quote_ident(n.nspname) AS schema_name,
+                           p.oid
                     FROM pg_aggregate a
                     INNER JOIN pg_proc p
                             ON a.aggfnoid = p.oid
@@ -2087,7 +2169,8 @@ class PostgreSQL:
                 '''
                     SELECT quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' AS id,
                            quote_ident(p.proname) AS name,
-                           quote_ident(n.nspname) AS schema_name
+                           quote_ident(n.nspname) AS schema_name,
+                           p.oid
                     FROM pg_aggregate a
                     INNER JOIN pg_proc p
                             ON a.aggfnoid = p.oid
@@ -8162,7 +8245,7 @@ FROM #table_name#
                    n.nspname as "Schema",
                    t.typname as "Internal Type Name",
                    format_type(t.oid, null) as "SQL Type Name",
-                   oid as "OID",
+                   t.oid as "OID",
                    r.rolname as "Owner",
                    (case when t.typlen = -2 then 'Variable (null-terminated C string)'
                          when t.typlen = -1 then 'Variable (varlena type)'
@@ -10834,7 +10917,10 @@ FROM #table_name#
               select
                'ALTER TABLE ' || text(regclass(c.conrelid)) ||
                ' ADD CONSTRAINT ' || quote_ident(c.conname) ||
-               E'\n  ' || pg_get_constraintdef(c.oid, true) as sql
+               E'\n  ' || pg_get_constraintdef(c.oid, true) as sql,
+               c.oid,
+               c.conname,
+               c.conrelid
                 from pg_constraint c
                join pg_class t
                on t.oid = c.conrelid
@@ -10843,9 +10929,33 @@ FROM #table_name#
                where quote_ident(n.nspname) = '{0}'
                  and quote_ident(t.relname) = '{1}'
                  and quote_ident(c.conname) = '{2}'
+            ),
+            comments AS (
+                SELECT format(
+                           E'\n\nCOMMENT ON CONSTRAINT %s ON %s is %s;',
+                           conname,
+                           conrelid::regclass,
+                           quote_literal(x.description)
+                       ) AS sql
+                FROM (
+                    SELECT oid,
+                           conname,
+                           conrelid,
+                           obj_description(oid, 'pg_constraint') AS description
+                    FROM cs
+                ) x
+                WHERE x.description IS NOT NULL
             )
-            select coalesce(string_agg(sql,E';\n') || E';\n\n','') as text
-            from cs
+            select format(
+                       E'%s%s',
+                       coalesce(string_agg(cs.sql,E';\n') || E';\n\n',''),
+                       coalesce(c.sql, '')
+                   ) as text
+            from cs cs
+            LEFT JOIN comments c
+                   ON 1 = 1
+            GROUP BY cs.sql,
+                     c.sql
         '''.format(p_schema, p_table, p_object))
     @lock_required
     def GetDDLUserMapping(self, p_server, p_object):
@@ -11711,9 +11821,19 @@ FROM #table_name#
                                    ''
                                ) AS text
                         FROM privileges
+                    ),
+                    comments AS (
+                        SELECT format(
+                            E'\nCOMMENT ON AGGREGATE {0} is %s;',
+                            quote_literal(x.description)
+                        ) AS text
+                        FROM (
+                            SELECT obj_description ('{0}'::regprocedure, 'pg_proc') AS description
+                        ) x
+                        WHERE x.description IS NOT NULL
                     )
                     SELECT format(
-                               E'CREATE AGGREGATE %s (\n\tSFUNC = %s\n  , STYPE = %s%s%s%s%s%s%s%s%s%s%s%s%s\n);\n\nALTER AGGREGATE %s OWNER TO %s;\n\n%s',
+                               E'CREATE AGGREGATE %s (\n\tSFUNC = %s\n  , STYPE = %s%s%s%s%s%s%s%s%s%s%s%s%s\n);\n\nALTER AGGREGATE %s OWNER TO %s;\n\n%s%s',
                                p1.function_id,
                                p2.function_full_name,
                                t1.type_full_name,
@@ -11767,7 +11887,8 @@ FROM #table_name#
                                 END),
                                p1.function_id,
                                p1.function_owner,
-                               g.text
+                               g.text,
+                               c.text
                            )
                     FROM pg_aggregate a
                     INNER JOIN procs p1
@@ -11790,6 +11911,8 @@ FROM #table_name#
                            ON a.aggmtranstype = t2.type_oid
                     INNER JOIN grants g
                             ON 1 = 1
+                    LEFT JOIN comments c
+                           ON 1 = 1
                     WHERE p1.is_aggregate
                       AND p1.function_id = '{0}'
                 '''.format(
@@ -11894,9 +12017,19 @@ FROM #table_name#
                                    ''
                                ) AS text
                         FROM privileges
+                    ),
+                    comments AS (
+                        SELECT format(
+                            E'\nCOMMENT ON AGGREGATE {0} is %s;',
+                            quote_literal(x.description)
+                        ) AS text
+                        FROM (
+                            SELECT obj_description ('{0}'::regprocedure, 'pg_proc') AS description
+                        ) x
+                        WHERE x.description IS NOT NULL
                     )
                     SELECT format(
-                               E'CREATE AGGREGATE %s (\n\tSFUNC = %s\n  , STYPE = %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n);\n\nALTER AGGREGATE %s OWNER TO %s;\n\n%s',
+                               E'CREATE AGGREGATE %s (\n\tSFUNC = %s\n  , STYPE = %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n);\n\nALTER AGGREGATE %s OWNER TO %s;\n\n%s%s',
                                p1.function_id,
                                p2.function_full_name,
                                t1.type_full_name,
@@ -11972,7 +12105,8 @@ FROM #table_name#
                                ),
                                p1.function_id,
                                p1.function_owner,
-                               g.text
+                               g.text,
+                               c.text
                            )
                     FROM pg_aggregate a
                     INNER JOIN procs p1
@@ -12001,6 +12135,8 @@ FROM #table_name#
                            ON a.aggmtranstype = t2.type_oid
                     INNER JOIN grants g
                             ON 1 = 1
+                    LEFT JOIN comments c
+                           ON 1 = 1
                     WHERE p1.is_aggregate
                       AND p1.function_id = '{0}'
                 '''.format(
@@ -12105,9 +12241,19 @@ FROM #table_name#
                                    ''
                                ) AS text
                         FROM privileges
+                    ),
+                    comments AS (
+                        SELECT format(
+                            E'\nCOMMENT ON AGGREGATE {0} is %s;',
+                            quote_literal(x.description)
+                        ) AS text
+                        FROM (
+                            SELECT obj_description ('{0}'::regprocedure, 'pg_proc') AS description
+                        ) x
+                        WHERE x.description IS NOT NULL
                     )
                     SELECT format(
-                               E'CREATE AGGREGATE %s (\n\tSFUNC = %s\n  , STYPE = %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n);\n\nALTER AGGREGATE %s OWNER TO %s;\n\n%s',
+                               E'CREATE AGGREGATE %s (\n\tSFUNC = %s\n  , STYPE = %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n);\n\nALTER AGGREGATE %s OWNER TO %s;\n\n%s%s',
                                p1.function_id,
                                p2.function_full_name,
                                t1.type_full_name,
@@ -12203,7 +12349,8 @@ FROM #table_name#
                                ),
                                p1.function_id,
                                p1.function_owner,
-                               g.text
+                               g.text,
+                               c.text
                            )
                     FROM pg_aggregate a
                     INNER JOIN procs p1
@@ -12232,6 +12379,8 @@ FROM #table_name#
                            ON a.aggmtranstype = t2.type_oid
                     INNER JOIN grants g
                             ON 1 = 1
+                    LEFT JOIN comments c
+                           ON 1 = 1
                     WHERE p1.function_kind = 'a'
                       AND p1.function_id = '{0}'
                 '''.format(
@@ -12863,3 +13012,73 @@ FROM #table_name#
                 )
             )
         )
+
+    @lock_required
+    def GetObjectDescriptionAggregate(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regprocedure AS id,
+                       coalesce(obj_description({0}, 'pg_proc'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON AGGREGATE {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionTableField(self, p_oid, p_position):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT format(
+                           '%s.%s',
+                           {0}::regclass,
+                           attname
+                       ) AS id,
+                       coalesce(col_description({0}, {1}), '') AS description
+                FROM pg_attribute
+                WHERE attrelid = {0}::regclass
+                  AND attnum = {1}
+            '''.format(
+                p_oid,
+                p_position
+            )
+        ).Rows[0]
+
+        return "COMMENT ON COLUMN {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionConstraint(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT conname AS id,
+                       conrelid::regclass AS table_id,
+                       coalesce(obj_description({0}, 'pg_constraint'), '') AS description
+                FROM pg_constraint c
+                WHERE oid = {0}
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON CONSTRAINT {0} ON {1} is '{2}'".format(
+            v_row['id'],
+            v_row['table_id'],
+            v_row['description']
+        )
+
+    def GetObjectDescription(self, p_type, p_oid, p_position):
+        if p_type == 'aggregate':
+            return self.GetObjectDescriptionAggregate(p_oid)
+        elif p_type == 'table_field':
+            return self.GetObjectDescriptionTableField(p_oid, p_position)
+        elif p_type in ['check', 'foreign_key', 'pk', 'unique', 'exclude']:
+            return self.GetObjectDescriptionConstraint(p_oid)
+        else:
+            return ''

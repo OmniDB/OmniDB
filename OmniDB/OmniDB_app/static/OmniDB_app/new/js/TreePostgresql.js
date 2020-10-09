@@ -2120,6 +2120,12 @@ function getTreePostgresql(p_div) {
                             /#column_name#/g, node.text));
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Column',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -2165,6 +2171,12 @@ function getTreePostgresql(p_div) {
                         node.collapseNode();
                         node.expandNode();
                     }
+                }
+            }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
                 }
             }, {
                 text: 'Drop Primary Key',
@@ -2215,6 +2227,12 @@ function getTreePostgresql(p_div) {
                     }
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Foreign Key',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -2261,6 +2279,12 @@ function getTreePostgresql(p_div) {
                         node.collapseNode();
                         node.expandNode();
                     }
+                }
+            }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
                 }
             }, {
                 text: 'Drop Unique',
@@ -2376,6 +2400,12 @@ function getTreePostgresql(p_div) {
         },
         'cm_check': {
             elements: [{
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Check',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -2412,6 +2442,12 @@ function getTreePostgresql(p_div) {
         },
         'cm_exclude': {
             elements: [{
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Exclude',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -3321,6 +3357,12 @@ function getTreePostgresql(p_div) {
                             node.tag.id
                         )
                     );
+                }
+            }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
                 }
             }, {
                 text: 'Drop Aggregate',
@@ -4381,6 +4423,52 @@ function checkCurrentDatabase(p_node, p_complete_check, p_callback_continue,
 
     } else
         p_callback_continue();
+}
+
+/**
+ * Get comment based on node type and oid.
+ * {object} p_node - the node which comment will be fetched
+ */
+function getObjectDescriptionPostgresql(p_node) {
+    console.log(p_node);
+    var v_oid = null;
+    var v_type = p_node.tag.type;
+    var v_position = null;
+
+    if (v_type == 'table_field') {
+        v_oid = p_node.parent.parent.tag.oid;
+        v_position = p_node.tag.position;
+    }
+    else {
+        v_oid = p_node.tag.oid;
+        v_position = 0;
+    }
+
+    execAjax(
+        '/get_object_description_postgresql/',
+        JSON.stringify({
+            'p_database_index': v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+            'p_tab_id': v_connTabControl.selectedTab.id,
+            'p_oid': v_oid,
+            'p_type': v_type,
+            'p_position': v_position
+        }),
+        function(p_return) {
+            v_connTabControl.tag.createQueryTab(p_node.text + ' Comment');
+
+            var v_editor = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor;
+            v_editor.setValue(p_return.v_data);
+            v_editor.clearSelection();
+            v_editor.gotoLine(0, 0, true);
+
+            v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.innerHTML = '';
+        },
+        function(p_return) {
+            nodeOpenError(p_return, p_node);
+        },
+        'box',
+        true
+    );
 }
 
 /// <summary>
@@ -5664,7 +5752,8 @@ function getTablesPostgresql(node) {
                         has_partitions: p_return.v_data[i].v_has_partitions,
                         has_statistics: p_return.v_data[i].v_has_statistics,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[i].v_oid,
                     }, 'cm_table', null, false);
 
                 v_node.createChildNode('', false,
@@ -5906,8 +5995,6 @@ function getViewDefinitionPostgresql(node) {
 
             v_div_result.innerHTML = '';
 
-            maximizeEditor();
-
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -6107,8 +6194,6 @@ function getMaterializedViewDefinitionPostgresql(node) {
 
             v_div_result.innerHTML = '';
 
-            maximizeEditor();
-
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -6153,7 +6238,8 @@ function getColumnsPostgresql(node) {
                     false, 'fas node-all fa-columns node-column', {
                         type: 'table_field',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        position: p_return.v_data[i].v_position
                     }, 'cm_column', null, false);
                 v_node.createChildNode('Type: ' + p_return.v_data[i].v_data_type,
                     false, 'fas node-all fa-ellipsis-h node-bullet', {
@@ -6361,7 +6447,8 @@ function getPKPostgresql(node) {
                     'fas node-all fa-key node-pkey', {
                         type: 'pk',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[0][1]
                     }, 'cm_pk');
                 v_node.createChildNode('', false,
                     'node-spin', {
@@ -6457,7 +6544,8 @@ function getUniquesPostgresql(node) {
                         'fas node-all fa-key node-unique', {
                             type: 'unique',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                            schema: node.tag.schema
+                            schema: node.tag.schema,
+                            oid: p_return.v_data[i][1]
                         }, 'cm_unique', null, false);
 
                     v_node.createChildNode('', false,
@@ -6675,7 +6763,8 @@ function getFKsPostgresql(node) {
                     'fas node-all fa-key node-fkey', {
                         type: 'foreign_key',
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[i][4]
                     }, 'cm_fk', null, false);
                 v_node.createChildNode('Referenced Table: ' + p_return.v_data[
                         i][1], false,
@@ -6814,7 +6903,8 @@ function getChecksPostgresql(node) {
                         false, 'fas node-all fa-check-square node-check', {
                             type: 'check',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                            schema: node.tag.schema
+                            schema: node.tag.schema,
+                            oid: p_return.v_data[i][2]
                         }, 'cm_check', null, false);
                     v_node.createChildNode(p_return.v_data[i][1], false,
                         'fas node-all fa-edit node-check-value', {
@@ -6873,7 +6963,8 @@ function getExcludesPostgresql(node) {
                         false, 'fas node-all fa-times-circle node-exclude', {
                             type: 'exclude',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                            schema: node.tag.schema
+                            schema: node.tag.schema,
+                            oid: p_return.v_data[i][3]
                         }, 'cm_exclude', null, false);
                     v_node.createChildNode('Attributes: ' + p_return.v_data[
                             i][1],
@@ -6997,8 +7088,6 @@ function getRuleDefinitionPostgresql(node) {
             }
 
             v_div_result.innerHTML = '';
-
-            maximizeEditor();
 
         },
         function(p_return) {
@@ -7562,8 +7651,6 @@ function getFunctionDefinitionPostgresql(node) {
 
             v_div_result.innerHTML = '';
 
-            maximizeEditor();
-
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -7756,8 +7843,6 @@ function getProcedureDefinitionPostgresql(node) {
 
             v_div_result.innerHTML = '';
 
-            maximizeEditor();
-
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -7853,8 +7938,6 @@ function getTriggerFunctionDefinitionPostgresql(node) {
             }
 
             v_div_result.innerHTML = '';
-
-            maximizeEditor();
 
         },
         function(p_return) {
@@ -7952,8 +8035,6 @@ function getEventTriggerFunctionDefinitionPostgresql(node) {
 
             v_div_result.innerHTML = '';
 
-            maximizeEditor();
-
         },
         function(p_return) {
             nodeOpenError(p_return, node);
@@ -8002,7 +8083,8 @@ function getAggregatesPostgresql(node) {
                         type: 'aggregate',
                         id: p_return.v_data[i].v_id,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        oid: p_return.v_data[i].v_oid
                     },
                     'cm_aggregate',
                     null,

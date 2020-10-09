@@ -421,8 +421,6 @@ class DjangoApplication(object):
         port = parameters['listening_port']
         num_attempts = 0
 
-        print('''Starting OmniDB server...''',flush=True)
-        logger.info('''Starting OmniDB server...''')
         print('''Checking port availability...''',flush=True)
         logger.info('''Checking port availability...''')
 
@@ -483,8 +481,21 @@ class DjangoApplication(object):
             print('Tried 20 different ports without success, closing...',flush=True)
             logger.info('Tried 20 different ports without success, closing...')
 
-call_command("migrate", interactive=False)
-call_command("clearsessions")
+print('''Starting OmniDB server...''',flush=True)
+logger.info('''Starting OmniDB server...''')
+
+print('''Running database migrations...''',flush=True)
+logger.info('''Running Database Migrations...''')
+
+from os import devnull
+try:
+    call_command("migrate", interactive=False)
+    call_command("clearsessions")
+except Exception as exc:
+    print(str(exc),flush=True)
+    logger.error(str(exc))
+    sys.exit()
+
 
 #Removing Expired Sessions
 SessionStore.clear_expired()

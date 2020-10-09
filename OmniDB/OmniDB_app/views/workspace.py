@@ -104,7 +104,8 @@ def index(request):
         'shortcuts': shortcut_object,
         'tab_token': ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(20)),
         'show_terminal_option': v_show_terminal_option,
-        'url_folder': settings.PATH
+        'url_folder': settings.PATH,
+        'csrf_cookie_name': settings.CSRF_COOKIE_NAME
     }
 
     #wiping saved tabs databases list

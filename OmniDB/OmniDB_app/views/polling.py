@@ -12,6 +12,7 @@ import OmniDB_app.include.Spartacus as Spartacus
 import OmniDB_app.include.Spartacus.Database as Database
 import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
+from OmniDB.startup import clean_temp_folder
 
 from enum import IntEnum
 from datetime import datetime

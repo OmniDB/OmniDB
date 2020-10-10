@@ -250,7 +250,7 @@
                       title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh password / passphrase</h5></h4><ul><li><strong>If provided:</strong> Lorem.</li><li><strong>Leaving blank:</strong> Lorem.</li></ul>"
                     ></i>
                   </label>
-                  <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" readonly>
+                  <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" onchange="updateConnectionKey(event)" readonly>
                 </div>
               </div>
               <div class="form-row">

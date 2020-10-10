@@ -71,6 +71,9 @@ function showConnectionList(p_open_modal, p_change_group) {
         var v_col_div = document.createElement('div');
         v_col_div.className = 'omnidb__connections__cols';
         v_row.appendChild(v_col_div);
+				if (v_conn_obj.public && !v_connections_data.show_public) {
+					v_col_div.classList.add('d-none');
+				}
 
         var v_card_div = document.createElement('div');
         v_card_div.className = 'card omnidb__connections__card';
@@ -745,6 +748,8 @@ function newConnection() {
   v_connections_data.current_id = -1;
   adjustTechSelector();
 
+	document.getElementById('conn_form_button_test_connection').setAttribute('disabled',true);
+	document.getElementById('conn_form_button_save_connection').setAttribute('disabled',true);
   document.getElementById('conn_form_type').value = -1;
 	document.getElementById('conn_form_title').value = '';
 	document.getElementById('conn_form_public').checked = false;
@@ -795,13 +800,15 @@ function toggleConnectionsPublic() {
 	var v_public = document.getElementById('conn_list_public').checked;
 	if (v_public) {
 		v_connections_data.show_public = true;
+		$('.omnidb__connections__card--public').parent().removeClass('d-none');
 		$('.omnidb__connections__card--public').removeClass('d-none');
 		$('.omnidb__connections__card--public').addClass('show');
 	}
 	else {
 		v_connections_data.show_public = false;
-		$('.omnidb__connections__card--public').addClass('d-none');
 		$('.omnidb__connections__card--public').removeClass('show');
+		$('.omnidb__connections__card--public').addClass('d-none');
+		$('.omnidb__connections__card--public').parent().addClass('d-none');
 	}
 }
 
@@ -811,43 +818,61 @@ function updateModalEditConnectionState(e) {
   let v_e_value = e.target.value;
   let v_disable_list = [];
   let v_enable_list = [];
-	let v_form_cases = [];
-	// When input changed is connection string, needs to lock either for string or single inputs.
-  if (v_e_target_id === 'conn_form_connstring') {
-    if (typeof v_e_value === 'string') {
-      v_e_value = v_e_value.trim();
-    }
-		// Case where connection string is being typed.
-    if (v_e_value !== '' && v_e_value !== null) {
-      v_disable_list = [
-        'conn_form_server',
-        'conn_form_port',
-        'conn_form_database',
-        'conn_form_user',
-        'conn_form_user_pass'
-      ];
-			// Form cases will check the connection string.
-			v_form_cases.push('conn_form_connstring');
-    }
-		// Case where connection string is being empty.
-    else {
-      v_enable_list = [
-        'conn_form_server',
-        'conn_form_port',
-        'conn_form_database',
-        'conn_form_user',
-        'conn_form_user_pass'
-      ];
-			// Form cases will check for single connection inputs, except password.
-			v_form_cases.push('conn_form_server');
-			v_form_cases.push('conn_form_port');
-			v_form_cases.push('conn_form_database');
-			v_form_cases.push('conn_form_user');
-    }
-  }
-	// When single connection inputs are being type, needs to lock connection string.
-  else if (v_e_target_id === 'conn_form_server' || v_e_target_id === 'conn_form_port' || v_e_target_id === 'conn_form_database' || v_e_target_id === 'conn_form_user') {
-    let v_check_inputs = [
+	let v_form_cases = ['conn_form_type'];
+	let v_technology = document.getElementById('conn_form_type').value;
+	let v_allow_tunnel = document.getElementById('conn_form_use_tunnel').checked;
+	let v_use_connection_string = document.getElementById('conn_form_connstring').value;
+	let v_has_ssh_key_file = document.getElementById('conn_form_ssh_key_input').value
+
+	// Checking technology string.
+	if (typeof v_technology === 'string') {
+		v_technology = v_technology.trim();
+	}
+	// Case where technology is terminal.
+	if (v_technology === 'terminal') {
+		v_allow_tunnel = true;
+		document.getElementById('conn_form_use_tunnel').checked = true;
+		document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
+	}
+
+	// Checking connection string.
+	if (typeof v_use_connection_string === 'string') {
+		v_use_connection_string = v_use_connection_string.trim();
+	}
+	// Case where technology is terminal.
+	if (v_technology === 'terminal') {
+		v_disable_list.push('conn_form_connstring');
+		v_disable_list.push('conn_form_server');
+		v_disable_list.push('conn_form_port');
+		v_disable_list.push('conn_form_database');
+		v_disable_list.push('conn_form_user');
+		v_disable_list.push('conn_form_user_pass');
+	}
+	// Case where connection string has value.
+	else if (v_use_connection_string !== '' && v_use_connection_string !== null) {
+		v_disable_list.push('conn_form_server');
+		v_disable_list.push('conn_form_port');
+		v_disable_list.push('conn_form_database');
+		v_disable_list.push('conn_form_user');
+		v_disable_list.push('conn_form_user_pass');
+		// Form cases will check the connection string.
+		v_form_cases.push('conn_form_connstring');
+	}
+	// Case where connection string is empty.
+	else {
+		v_enable_list.push('conn_form_server');
+		v_enable_list.push('conn_form_port');
+		v_enable_list.push('conn_form_database');
+		v_enable_list.push('conn_form_user');
+		v_enable_list.push('conn_form_user_pass');
+		// Form cases will check for single connection inputs, except password.
+		v_form_cases.push('conn_form_server');
+		v_form_cases.push('conn_form_port');
+		v_form_cases.push('conn_form_database');
+		v_form_cases.push('conn_form_user');
+
+		let v_block_conn_string = false;
+		let v_check_inputs = [
       'conn_form_server',
       'conn_form_port',
       'conn_form_database',
@@ -866,58 +891,81 @@ function updateModalEditConnectionState(e) {
     }
 		// Case where single inputs are being type.
     if (!v_check_inputs_empty) {
-      v_disable_list = [
-        'conn_form_connstring'
-      ];
-      v_enable_list = [
-        'conn_form_server',
-        'conn_form_port',
-        'conn_form_database',
-        'conn_form_user',
-        'conn_form_user_pass'
-      ];
-			// Form cases will check for single connection inputs, except password.
-			v_form_cases.push('conn_form_server');
-			v_form_cases.push('conn_form_port');
-			v_form_cases.push('conn_form_database');
-			v_form_cases.push('conn_form_user');
-    }
+			v_block_conn_string = true;
+		}
+		if (v_block_conn_string) {
+			v_disable_list.push('conn_form_connstring');
+		}
 		// Case where connection string is avaiable.
     else {
-      v_enable_list = [
-        'conn_form_connstring'
-      ];
+      v_enable_list.push('conn_form_connstring');
 			// Form cases will check the connection string.
 			v_form_cases.push('conn_form_connstring');
     }
-  }
-	// When SSH tunnel is checked, needs to validate its inputs.
-  else if (v_e_target_id === 'conn_form_use_tunnel') {
-		// Case where SSH is checked.
-    if (v_e_target.checked) {
-      v_enable_list = [
-        'conn_form_ssh_server',
-        'conn_form_ssh_port',
-        'conn_form_ssh_user',
-        'conn_form_ssh_password',
-        'conn_form_ssh_key',
-				'conn_form_ssh_key_input'
-      ];
-    }
-		// Case where SSH is NOT checked. Locks ssh config.
-    else {
-      v_disable_list = [
-        'conn_form_ssh_server',
-        'conn_form_ssh_port',
-        'conn_form_ssh_user',
-        'conn_form_ssh_password',
-        'conn_form_ssh_key',
-				'conn_form_ssh_key_input'
-      ];
-    }
-  }
-	// When user picks a connection type in the selector, needs to validate if the technology is a terminal.
-  else if (v_e_target_id === 'conn_form_type') {
+	}
+
+
+
+	if (v_allow_tunnel) {
+		v_enable_list.push('conn_form_ssh_server');
+		v_enable_list.push('conn_form_ssh_port');
+		v_enable_list.push('conn_form_ssh_user');
+		v_form_cases.push('conn_form_ssh_server');
+		v_form_cases.push('conn_form_ssh_port');
+		v_form_cases.push('conn_form_ssh_user');
+		if (v_has_ssh_key_file !== '') {
+			v_enable_list.push('conn_form_ssh_key');
+			v_enable_list.push('conn_form_ssh_key_input');
+			v_disable_list.push('conn_form_ssh_password');
+			v_form_cases.push('conn_form_ssh_key');
+		}
+		else {
+			v_enable_list.push('conn_form_ssh_password');
+			let v_block_file_input = false;
+			let v_check_inputs = [
+	      'conn_form_ssh_password',
+	    ];
+	    let v_check_inputs_empty = true;
+	    for (let i = 0; i < v_check_inputs.length; i++) {
+	      var v_check_input_value = document.getElementById(v_check_inputs[i]).value;
+	      if (typeof v_check_input_value === 'string') {
+	        v_check_input_value = v_check_input_value.trim();
+	      }
+	      if (v_check_input_value !== '' && v_check_input_value !== null) {
+	        v_check_inputs_empty = false;
+	      }
+	    }
+			// Case where single inputs are being type.
+	    if (!v_check_inputs_empty) {
+				v_block_file_input = true;
+			}
+			if (v_block_file_input) {
+				v_disable_list.push('conn_form_ssh_key');
+				v_disable_list.push('conn_form_ssh_key_input');
+				v_form_cases.push('conn_form_ssh_password');
+			}
+			// Case where ssh file is avaiable.
+	    else {
+				v_enable_list.push('conn_form_ssh_key');
+				v_enable_list.push('conn_form_ssh_key_input');
+				// Form cases will check the connection string.
+				v_form_cases.push('conn_form_ssh_key');
+	    }
+		}
+	}
+	else {
+		v_disable_list.push('conn_form_ssh_server');
+		v_disable_list.push('conn_form_ssh_port');
+		v_disable_list.push('conn_form_ssh_user');
+		v_disable_list.push('conn_form_ssh_password');
+		v_disable_list.push('conn_form_ssh_key');
+		v_disable_list.push('conn_form_ssh_key_input');
+	}
+
+
+
+
+	if (v_e_target_id === 'conn_form_type') {
 		// Case where the user picked a terminal needs to lock all server config inputs.
     if (v_e_value === 'terminal') {
       v_disable_list = [
@@ -938,6 +986,12 @@ function updateModalEditConnectionState(e) {
       ];
 			document.getElementById('conn_form_use_tunnel').checked = true;
 			document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
+			v_form_cases.push('conn_form_ssh_server');
+			v_form_cases.push('conn_form_ssh_port');
+			v_form_cases.push('conn_form_ssh_user');
+			v_form_cases.push('conn_form_ssh_password');
+			v_form_cases.push('conn_form_ssh_key');
+			v_form_cases.push('conn_form_ssh_key_input');
     }
 		// Case where user picked DB technologies require server config.
     else {
@@ -951,19 +1005,166 @@ function updateModalEditConnectionState(e) {
       ];
       document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
 			// Form cases will check for single connection inputs, except password.
+			v_form_cases.push('conn_form_connstring');
 			v_form_cases.push('conn_form_server');
 			v_form_cases.push('conn_form_port');
 			v_form_cases.push('conn_form_database');
 			v_form_cases.push('conn_form_user');
+			v_form_cases.push('conn_form_user_pass');
     }
   }
 
-	if (document.getElementById('conn_form_use_tunnel').checked) {
-		// Form cases will check for single SSH connection inputs, except password.
-		v_form_cases.push('conn_form_ssh_server');
-		v_form_cases.push('conn_form_ssh_port');
-		v_form_cases.push('conn_form_ssh_user');
-	}
+
+
+	//
+	// // When input changed is connection string, needs to lock either for string or single inputs.
+  // if (v_e_target_id === 'conn_form_connstring') {
+  //   if (typeof v_e_value === 'string') {
+  //     v_e_value = v_e_value.trim();
+  //   }
+	// 	// Case where connection string is being typed.
+  //   if (v_e_value !== '' && v_e_value !== null) {
+  //     v_disable_list.push('conn_form_server');
+	// 		v_disable_list.push('conn_form_port');
+	// 		v_disable_list.push('conn_form_database');
+	// 		v_disable_list.push('conn_form_user');
+	// 		v_disable_list.push('conn_form_user_pass');
+	// 		// Form cases will check the connection string.
+	// 		v_form_cases.push('conn_form_connstring');
+  //   }
+	// 	// Case where connection string is being empty.
+  //   else {
+  //     v_enable_list.push('conn_form_server');
+	// 		v_enable_list.push('conn_form_port');
+	// 		v_enable_list.push('conn_form_database');
+	// 		v_enable_list.push('conn_form_user');
+	// 		v_enable_list.push('conn_form_user_pass');
+	// 		// Form cases will check for single connection inputs, except password.
+	// 		v_form_cases.push('conn_form_server');
+	// 		v_form_cases.push('conn_form_port');
+	// 		v_form_cases.push('conn_form_database');
+	// 		v_form_cases.push('conn_form_user');
+  //   }
+  // }
+	// // When single connection inputs are being type, needs to lock connection string.
+  // else if (v_e_target_id === 'conn_form_server' || v_e_target_id === 'conn_form_port' || v_e_target_id === 'conn_form_database' || v_e_target_id === 'conn_form_user') {
+  //   let v_check_inputs = [
+  //     'conn_form_server',
+  //     'conn_form_port',
+  //     'conn_form_database',
+  //     'conn_form_user',
+  //     'conn_form_user_pass'
+  //   ];
+  //   let v_check_inputs_empty = true;
+  //   for (let i = 0; i < v_check_inputs.length; i++) {
+  //     var v_check_input_value = document.getElementById(v_check_inputs[i]).value;
+  //     if (typeof v_check_input_value === 'string') {
+  //       v_check_input_value = v_check_input_value.trim();
+  //     }
+  //     if (v_check_input_value !== '' && v_check_input_value !== null) {
+  //       v_check_inputs_empty = false;
+  //     }
+  //   }
+	// 	// Case where single inputs are being type.
+  //   if (!v_check_inputs_empty) {
+  //     v_disable_list = [
+  //       'conn_form_connstring'
+  //     ];
+  //     v_enable_list = [
+  //       'conn_form_server',
+  //       'conn_form_port',
+  //       'conn_form_database',
+  //       'conn_form_user',
+  //       'conn_form_user_pass'
+  //     ];
+	// 		// Form cases will check for single connection inputs, except password.
+	// 		v_form_cases.push('conn_form_server');
+	// 		v_form_cases.push('conn_form_port');
+	// 		v_form_cases.push('conn_form_database');
+	// 		v_form_cases.push('conn_form_user');
+  //   }
+	// 	// Case where connection string is avaiable.
+  //   else {
+  //     v_enable_list = [
+  //       'conn_form_connstring'
+  //     ];
+	// 		// Form cases will check the connection string.
+	// 		v_form_cases.push('conn_form_connstring');
+  //   }
+  // }
+	// // When SSH tunnel is checked, needs to validate its inputs.
+  // else if (v_e_target_id === 'conn_form_use_tunnel') {
+	// 	// Case where SSH is checked.
+  //   if (v_allow_tunnel) {
+  //     v_enable_list = [
+  //       'conn_form_ssh_server',
+  //       'conn_form_ssh_port',
+  //       'conn_form_ssh_user',
+  //       'conn_form_ssh_password',
+  //       'conn_form_ssh_key',
+	// 			'conn_form_ssh_key_input'
+  //     ];
+  //   }
+	// 	// Case where SSH is NOT checked. Locks ssh config.
+  //   else {
+  //     v_disable_list = [
+  //       'conn_form_ssh_server',
+  //       'conn_form_ssh_port',
+  //       'conn_form_ssh_user',
+  //       'conn_form_ssh_password',
+  //       'conn_form_ssh_key',
+	// 			'conn_form_ssh_key_input'
+  //     ];
+  //   }
+  // }
+	// // When user picks a connection type in the selector, needs to validate if the technology is a terminal.
+  // else if (v_e_target_id === 'conn_form_type') {
+	// 	// Case where the user picked a terminal needs to lock all server config inputs.
+  //   if (v_e_value === 'terminal') {
+  //     v_disable_list = [
+  //       'conn_form_connstring',
+  //       'conn_form_server',
+  //       'conn_form_port',
+  //       'conn_form_database',
+  //       'conn_form_user',
+  //       'conn_form_user_pass'
+  //     ];
+  //     v_enable_list = [
+  //       'conn_form_ssh_server',
+  //       'conn_form_ssh_port',
+  //       'conn_form_ssh_user',
+  //       'conn_form_ssh_password',
+  //       'conn_form_ssh_key',
+	// 			'conn_form_ssh_key_input'
+  //     ];
+	// 		document.getElementById('conn_form_use_tunnel').checked = true;
+	// 		document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
+  //   }
+	// 	// Case where user picked DB technologies require server config.
+  //   else {
+  //     v_enable_list = [
+  //       'conn_form_connstring',
+  //       'conn_form_server',
+  //       'conn_form_port',
+  //       'conn_form_database',
+  //       'conn_form_user',
+  //       'conn_form_user_pass'
+  //     ];
+  //     document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
+	// 		// Form cases will check for single connection inputs, except password.
+	// 		v_form_cases.push('conn_form_server');
+	// 		v_form_cases.push('conn_form_port');
+	// 		v_form_cases.push('conn_form_database');
+	// 		v_form_cases.push('conn_form_user');
+  //   }
+  // }
+	//
+	// if (document.getElementById('conn_form_use_tunnel').checked) {
+	// 	// Form cases will check for single SSH connection inputs, except password.
+	// 	v_form_cases.push('conn_form_ssh_server');
+	// 	v_form_cases.push('conn_form_ssh_port');
+	// 	v_form_cases.push('conn_form_ssh_user');
+	// }
 
 	// Updating the fields.
 	updateModalEditConnectionFields(v_disable_list, v_enable_list, v_form_cases);
@@ -1012,11 +1213,12 @@ function updateModalEditConnectionFields(p_disable_list, p_enable_list, p_form_c
 }
 
 function updateConnectionKey(e) {
-  var file = e.target.files[0];
+  var file = (e.target.files) ? e.target.files[0] : false;
 	var v_input = document.getElementById('conn_form_ssh_key');
   if (!file) {
 		v_input.value = null;
 		document.getElementById('conn_form_ssh_key_input_label').innerHTML = 'Click to select';
+		updateModalEditConnectionState({target:document.getElementById('conn_form_ssh_key_input')});
     return;
   }
   var reader = new FileReader();
@@ -1024,6 +1226,7 @@ function updateConnectionKey(e) {
     var v_contents = e.target.result;
 		v_input.value = v_contents;
 		document.getElementById('conn_form_ssh_key_input_label').innerHTML = 'Key text loaded';
+		updateModalEditConnectionState({target:document.getElementById('conn_form_ssh_key_input')});
   };
   reader.readAsText(file);
 }

@@ -8,7 +8,7 @@ SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get -y update \
- && apt-get install ruby-dev build-essential rpm \
+ && apt-get -y install ruby-dev build-essential rpm \
  && gem install fpm
 
 ARG VERSION="3.0.0"

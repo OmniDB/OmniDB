@@ -526,6 +526,7 @@ def get_indexes(request, v_database):
             v_index_data = []
             v_index_data.append(v_index['index_name'])
             v_index_data.append(v_index['uniqueness'])
+            v_index_data.append(v_index['oid'])
             v_list_indexes.append(v_index_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -756,7 +757,8 @@ def get_eventtriggers(request, v_database):
                 'v_event': v_trigger['event_name'],
                 'v_function': v_trigger['trigger_function'],
                 'v_id': v_trigger['id'],
-                'v_function_oid': v_trigger['function_oid']
+                'v_function_oid': v_trigger['function_oid'],
+                'v_oid': v_trigger['oid']
             }
             v_list_triggers.append(v_trigger_data)
     except Exception as exc:
@@ -920,6 +922,7 @@ def get_views(request, v_database):
                 'v_name': v_table['table_name'],
                 'v_has_rules': v_database.v_has_rules,
                 'v_has_triggers': v_database.v_has_triggers,
+                'v_oid': v_table['oid']
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -1012,7 +1015,8 @@ def get_mviews(request, v_database):
             v_table_data = {
                 'v_name': v_table['table_name'],
                 'v_has_indexes': v_database.v_has_indexes,
-                'v_has_statistics': v_database.v_has_statistics
+                'v_has_statistics': v_database.v_has_statistics,
+                'v_oid': v_table['oid']
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -1602,7 +1606,8 @@ def get_sequences(request, v_database):
         v_sequences = v_database.QuerySequences(False,v_schema)
         for v_sequence in v_sequences.Rows:
             v_sequence_data = {
-                'v_sequence_name': v_sequence['sequence_name']
+                'v_sequence_name': v_sequence['sequence_name'],
+                'v_oid': v_sequence['oid']
             }
             v_list_sequences.append(v_sequence_data)
     except Exception as exc:
@@ -1861,7 +1866,8 @@ def get_foreign_data_wrappers(request, v_database):
         v_fdws = v_database.QueryForeignDataWrappers()
         for v_fdw in v_fdws.Rows:
             v_fdw_data = {
-                'v_name': v_fdw['fdwname']
+                'v_name': v_fdw['fdwname'],
+                'v_oid': v_fdw['oid']
             }
             v_list_fdws.append(v_fdw_data)
     except Exception as exc:
@@ -1962,7 +1968,8 @@ def get_foreign_tables(request, v_database):
         for v_table in v_tables.Rows:
             v_table_data = {
                 'v_name': v_table['table_name'],
-                'v_has_statistics': v_database.v_has_statistics
+                'v_has_statistics': v_database.v_has_statistics,
+                'v_oid': v_table['oid']
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -2144,7 +2151,8 @@ def get_inheriteds_children(request, v_database):
                 'v_has_rules': v_database.v_has_rules,
                 'v_has_triggers': v_database.v_has_triggers,
                 'v_has_partitions': v_database.v_has_partitions,
-                'v_has_statistics': v_database.v_has_statistics
+                'v_has_statistics': v_database.v_has_statistics,
+                'v_oid': v_table['oid']
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:
@@ -2219,7 +2227,8 @@ def get_partitions_children(request, v_database):
                 'v_has_rules': v_database.v_has_rules,
                 'v_has_triggers': v_database.v_has_triggers,
                 'v_has_partitions': v_database.v_has_partitions,
-                'v_has_statistics': v_database.v_has_statistics
+                'v_has_statistics': v_database.v_has_statistics,
+                'v_oid': v_table['oid']
             }
             v_list_tables.append(v_table_data)
     except Exception as exc:

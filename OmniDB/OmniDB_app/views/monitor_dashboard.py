@@ -30,7 +30,7 @@ from django.db.models import Q
 #from OmniDB_app.views.plugins import monitoring_units
 
 from OmniDB_app.views.memory_objects import *
-import OmniDB_app.views.monitoring_units.postgresql as postgresql_units
+from OmniDB_app.views.monitoring_units import postgresql as postgresql_units
 
 monitoring_units_database = {}
 monitoring_units = {}

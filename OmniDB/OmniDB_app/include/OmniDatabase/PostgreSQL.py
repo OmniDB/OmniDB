@@ -1349,7 +1349,8 @@ class PostgreSQL:
                    format(
                        '%s;',
                        pg_get_indexdef(i.indexrelid)
-                   ) AS definition
+                   ) AS definition,
+                   ci.oid
             from pg_index i
             inner join pg_class ci
             on ci.oid = i.indexrelid
@@ -1571,7 +1572,8 @@ class PostgreSQL:
                    t.evtevent as event_name,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()' as id,
-                   p.oid AS function_oid
+                   p.oid AS function_oid,
+                   t.oid
             from pg_event_trigger t
             inner join pg_proc p
             on p.oid = t.evtfoid
@@ -1694,7 +1696,8 @@ class PostgreSQL:
         if int(self.v_connection.ExecuteScalar('show server_version_num')) >= 100000:
             return self.v_connection.Query('''
                 select quote_ident(cc.relname) as table_name,
-                       quote_ident(nc.nspname) as table_schema
+                       quote_ident(nc.nspname) as table_schema,
+                       cc.oid
                 from pg_inherits i
                 inner join pg_class cp on cp.oid = i.inhparent
                 inner join pg_namespace np on np.oid = cp.relnamespace
@@ -1708,7 +1711,8 @@ class PostgreSQL:
         else:
             return self.v_connection.Query('''
                 select quote_ident(cc.relname) as table_name,
-                       quote_ident(nc.nspname) as table_schema
+                       quote_ident(nc.nspname) as table_schema,
+                       cc.oid
                 from pg_inherits i
                 inner join pg_class cp on cp.oid = i.inhparent
                 inner join pg_namespace np on np.oid = cp.relnamespace
@@ -1778,7 +1782,8 @@ class PostgreSQL:
     def QueryTablesPartitionsChildren(self, p_table, p_schema):
         return self.v_connection.Query('''
             select quote_ident(cc.relname) as table_name,
-                   quote_ident(nc.nspname) as table_schema
+                   quote_ident(nc.nspname) as table_schema,
+                   cc.oid
             from pg_inherits i
             inner join pg_class cp on cp.oid = i.inhparent
             inner join pg_namespace np on np.oid = cp.relnamespace
@@ -2205,16 +2210,17 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_schema:
-                v_filter = "and quote_ident(sequence_schema) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(relnamespace::regnamespace::text) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(sequence_schema) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(relnamespace::regnamespace::text) = '{0}' ".format(self.v_schema)
         else:
-            v_filter = "and quote_ident(sequence_schema) not in ('information_schema','pg_catalog') "
+            v_filter = "and quote_ident(relnamespace::regnamespace::text) NOT IN ('information_schema','pg_catalog') "
         v_table = self.v_connection.Query('''
-            select quote_ident(sequence_schema) as sequence_schema,
-                   quote_ident(sequence_name) as sequence_name
-            from information_schema.sequences
-            where 1 = 1
+            SELECT quote_ident(relnamespace::regnamespace::text) AS sequence_schema,
+                   quote_ident(relname) AS sequence_name,
+                   oid
+            FROM pg_class
+            WHERE relkind = 'S'
             {0}
             order by 1, 2
         '''.format(v_filter), True)
@@ -2225,16 +2231,19 @@ class PostgreSQL:
         v_filter = ''
         if not p_all_schemas:
             if p_schema:
-                v_filter = "and quote_ident(table_schema) = '{0}' ".format(p_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(p_schema)
             else:
-                v_filter = "and quote_ident(table_schema) = '{0}' ".format(self.v_schema)
+                v_filter = "and quote_ident(n.nspname) = '{0}' ".format(self.v_schema)
         else:
-            v_filter = "and quote_ident(table_schema) not in ('information_schema','pg_catalog') "
+            v_filter = "and quote_ident(t.relname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select quote_ident(table_name) as table_name,
-                   quote_ident(table_schema) as table_schema
-            from information_schema.views
-            where 1 = 1
+            select quote_ident(t.relname) as table_name,
+                   quote_ident(n.nspname) as table_schema,
+                   t.oid
+            from pg_class t
+            inner join pg_namespace n
+            on n.oid = t.relnamespace
+            where t.relkind = 'v'
             {0}
             order by 2, 1
         '''.format(v_filter), True)
@@ -2328,7 +2337,8 @@ class PostgreSQL:
             v_filter = "and quote_ident(t.relname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
             select quote_ident(t.relname) as table_name,
-                   quote_ident(n.nspname) as schema_name
+                   quote_ident(n.nspname) as schema_name,
+                   t.oid
             from pg_class t
             inner join pg_namespace n
             on n.oid = t.relnamespace
@@ -2512,7 +2522,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
     @lock_required
     def QueryForeignDataWrappers(self):
         return self.v_connection.Query('''
-            select fdwname
+            select fdwname,
+                   oid
             from pg_foreign_data_wrapper
             order by 1
         ''')
@@ -2594,7 +2605,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 select quote_ident(c.relname) as table_name,
                        quote_ident(n.nspname) as table_schema,
                        false as is_partition,
-                       false as is_partitioned
+                       false as is_partitioned,
+                       c.oid
                 from pg_class c
                 inner join pg_namespace n
                 on n.oid = c.relnamespace
@@ -2607,7 +2619,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                 select quote_ident(c.relname) as table_name,
                        quote_ident(n.nspname) as table_schema,
                        c.relispartition as is_partition,
-                       false as is_partitioned
+                       false as is_partitioned,
+                       c.oid
                 from pg_class c
                 inner join pg_namespace n
                 on n.oid = c.relnamespace
@@ -8956,7 +8969,24 @@ FROM #table_name#
                         when 'v' THEN 'OR REPLACE VIEW '
                         when 'm' THEN 'MATERIALIZED VIEW '
                       end || (oid::regclass::text) || E' AS\n'||
-                      pg_catalog.pg_get_viewdef(oid,true)||E'\n' as text
+                      pg_catalog.pg_get_viewdef(oid,true)||E'\n'||
+                      (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                            THEN (CASE relkind WHEN 'v'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON VIEW %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'm'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON MATERIALIZED VIEW %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               ELSE ''
+                                  END)
+                            ELSE ''
+                       END) as text
                      FROM pg_class t
                      WHERE oid = '{0}.{1}'::regclass
                        AND relkind in ('v','m')
@@ -8996,7 +9026,24 @@ FROM #table_name#
                            from pg_options_to_table(ft.ftoptions))||E'\n)'
                         ,'')
                       ||
-                      E';\n' as text
+                      E';\n'||
+                      (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                            THEN (CASE relkind WHEN 'r'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'f'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON FOREIGN TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               ELSE ''
+                                  END)
+                            ELSE ''
+                       END) as text
                      FROM pg_class c JOIN obj ON (true)
                      LEFT JOIN pg_foreign_table  ft ON (c.oid = ft.ftrelid)
                      LEFT JOIN pg_foreign_server fs ON (ft.ftserver = fs.oid)
@@ -9025,7 +9072,15 @@ FROM #table_name#
                                 THEN 'ALTER TABLE ' || text(c.oid::regclass)
                                      || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
                                      || ' ' || pg_get_constraintdef(cc.oid)
-                                ELSE pg_get_indexdef(i.oid)
+                                ELSE pg_get_indexdef(i.oid) ||
+                                     (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                                           THEN format(
+                                                    E'\n\nCOMMENT ON INDEX %s IS %s;',
+                                                    '{0}.{1}'::regclass,
+                                                    quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                )
+                                           ELSE ''
+                                      END)
                             END AS indexdef
                        FROM pg_index x
                        JOIN pg_class c ON c.oid = x.indrelid
@@ -9425,7 +9480,24 @@ FROM #table_name#
                         when 'v' THEN 'OR REPLACE VIEW '
                         when 'm' THEN 'MATERIALIZED VIEW '
                       end || (oid::regclass::text) || E' AS\n'||
-                      pg_catalog.pg_get_viewdef(oid,true)||E'\n' as text
+                      pg_catalog.pg_get_viewdef(oid,true)||E'\n'||
+                      (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                            THEN (CASE relkind WHEN 'v'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON VIEW %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'm'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON MATERIALIZED VIEW %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               ELSE ''
+                                  END)
+                            ELSE ''
+                       END) as text
                      FROM pg_class t
                      WHERE oid = '{0}.{1}'::regclass
                        AND relkind in ('v','m')
@@ -9480,7 +9552,30 @@ FROM #table_name#
                            from pg_options_to_table(ft.ftoptions))||E'\n)'
                         ,'')
                       ||
-                      E';\n' as text
+                      E';\n'||
+                      (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                            THEN (CASE relkind WHEN 'r'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'p'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'f'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON FOREIGN TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               ELSE ''
+                                  END)
+                            ELSE ''
+                       END) as text
                      FROM pg_class c JOIN obj ON (true)
                      LEFT JOIN pg_foreign_table  ft ON (c.oid = ft.ftrelid)
                      LEFT JOIN pg_foreign_server fs ON (ft.ftserver = fs.oid)
@@ -9509,7 +9604,15 @@ FROM #table_name#
                                 THEN 'ALTER TABLE ' || text(c.oid::regclass)
                                      || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
                                      || ' ' || pg_get_constraintdef(cc.oid)
-                                ELSE pg_get_indexdef(i.oid)
+                                ELSE pg_get_indexdef(i.oid) ||
+                                     (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                                           THEN format(
+                                                    E'\n\nCOMMENT ON INDEX %s IS %s;',
+                                                    '{0}.{1}'::regclass,
+                                                    quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                )
+                                           ELSE ''
+                                      END)
                             END AS indexdef
                        FROM pg_index x
                        JOIN pg_class c ON c.oid = x.indrelid
@@ -9912,7 +10015,24 @@ FROM #table_name#
                         when 'v' THEN 'OR REPLACE VIEW '
                         when 'm' THEN 'MATERIALIZED VIEW '
                       end || (oid::regclass::text) || E' AS\n'||
-                      pg_catalog.pg_get_viewdef(oid,true)||E'\n' as text
+                      pg_catalog.pg_get_viewdef(oid,true)||E'\n'||
+                      (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                            THEN (CASE relkind WHEN 'v'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON VIEW %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'm'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON MATERIALIZED VIEW %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               ELSE ''
+                                  END)
+                            ELSE ''
+                       END) as text
                      FROM pg_class t
                      WHERE oid = '{0}.{1}'::regclass
                        AND relkind in ('v','m')
@@ -9967,7 +10087,30 @@ FROM #table_name#
                            from pg_options_to_table(ft.ftoptions))||E'\n)'
                         ,'')
                       ||
-                      E';\n' as text
+                      E';\n'||
+                      (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                            THEN (CASE relkind WHEN 'r'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'p'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'f'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON FOREIGN TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               ELSE ''
+                                  END)
+                            ELSE ''
+                       END) as text
                      FROM pg_class c JOIN obj ON (true)
                      LEFT JOIN pg_foreign_table  ft ON (c.oid = ft.ftrelid)
                      LEFT JOIN pg_foreign_server fs ON (ft.ftserver = fs.oid)
@@ -9996,7 +10139,15 @@ FROM #table_name#
                                 THEN 'ALTER TABLE ' || text(c.oid::regclass)
                                      || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
                                      || ' ' || pg_get_constraintdef(cc.oid)
-                                ELSE pg_get_indexdef(i.oid)
+                                ELSE pg_get_indexdef(i.oid) ||
+                                     (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                                           THEN format(
+                                                    E'\n\nCOMMENT ON INDEX %s IS %s;',
+                                                    '{0}.{1}'::regclass,
+                                                    quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                )
+                                           ELSE ''
+                                      END)
                             END AS indexdef
                        FROM pg_index x
                        JOIN pg_class c ON c.oid = x.indrelid
@@ -10401,7 +10552,24 @@ FROM #table_name#
                         when 'v' THEN 'OR REPLACE VIEW '
                         when 'm' THEN 'MATERIALIZED VIEW '
                       end || (oid::regclass::text) || E' AS\n'||
-                      pg_catalog.pg_get_viewdef(oid,true)||E'\n' as text
+                      pg_catalog.pg_get_viewdef(oid,true)||E'\n'||
+                      (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                            THEN (CASE relkind WHEN 'v'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON VIEW %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'm'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON MATERIALIZED VIEW %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               ELSE ''
+                                  END)
+                            ELSE ''
+                       END) as text
                      FROM pg_class t
                      WHERE oid = '{0}.{1}'::regclass
                        AND relkind in ('v','m')
@@ -10454,7 +10622,30 @@ FROM #table_name#
                            from pg_options_to_table(ft.ftoptions))||E'\n)'
                         ,'')
                       ||
-                      E';\n' as text
+                      E';\n'||
+                      (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                            THEN (CASE relkind WHEN 'r'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'p'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               WHEN 'f'
+                                               THEN format(
+                                                        E'\n\nCOMMENT ON FOREIGN TABLE %s IS %s;',
+                                                        '{0}.{1}'::regclass,
+                                                        quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                    )
+                                               ELSE ''
+                                  END)
+                            ELSE ''
+                       END) as text
                      FROM pg_class c JOIN obj ON (true)
                      LEFT JOIN pg_foreign_table  ft ON (c.oid = ft.ftrelid)
                      LEFT JOIN pg_foreign_server fs ON (ft.ftserver = fs.oid)
@@ -10483,7 +10674,15 @@ FROM #table_name#
                                 THEN 'ALTER TABLE ' || text(c.oid::regclass)
                                      || ' ADD CONSTRAINT ' || quote_ident(cc.conname)
                                      || ' ' || pg_get_constraintdef(cc.oid)
-                                ELSE pg_get_indexdef(i.oid)
+                                ELSE pg_get_indexdef(i.oid) ||
+                                     (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                                           THEN format(
+                                                    E'\n\nCOMMENT ON INDEX %s IS %s;',
+                                                    '{0}.{1}'::regclass,
+                                                    quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                )
+                                           ELSE ''
+                                      END)
                             END AS indexdef
                        FROM pg_index x
                        JOIN pg_class c ON c.oid = x.indrelid
@@ -10720,7 +10919,7 @@ FROM #table_name#
     @lock_required
     def GetDDLEventTrigger(self, p_trigger):
         return self.v_connection.ExecuteScalar('''
-            select format(E'CREATE EVENT TRIGGER %s\n  ON %s%s\n  EXECUTE PROCEDURE %s;\n\nALTER EVENT TRIGGER %s OWNER TO %s;\n',
+            select format(E'CREATE EVENT TRIGGER %s\n  ON %s%s\n  EXECUTE PROCEDURE %s;\n\nALTER EVENT TRIGGER %s OWNER TO %s;\n%s',
                      quote_ident(t.evtname),
                      t.evtevent,
                      (case when t.evttags is not null
@@ -10729,7 +10928,15 @@ FROM #table_name#
                       end),
                      quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '()',
                      quote_ident(t.evtname),
-                     r.rolname
+                     r.rolname,
+                     (CASE WHEN obj_description(t.oid, 'pg_event_trigger') IS NOT NULL
+                           THEN format(
+                                    E'\nCOMMENT ON EVENT TRIGGER %s IS %s;',
+                                    quote_ident(t.evtname),
+                                    quote_literal(obj_description(t.oid, 'pg_event_trigger'))
+                                )
+                           ELSE ''
+                      END)
                    )
             from pg_event_trigger t
             inner join pg_proc p
@@ -11282,7 +11489,7 @@ FROM #table_name#
                 ON r.oid = w.fdwowner
                 WHERE g.grantee <> r.rolname
             )
-            select format(E'CREATE FOREIGN DATA WRAPPER %s%s%s%s;\n\nALTER FOREIGN DATA WRAPPER %s OWNER TO %s;\n\n%s',
+            select format(E'CREATE FOREIGN DATA WRAPPER %s%s%s%s;\n\nALTER FOREIGN DATA WRAPPER %s OWNER TO %s;\n\n%s%s',
                      w.fdwname,
                      (case when w.fdwhandler <> 0
                            then format(E'\n  HANDLER %s', quote_literal(h.proname))
@@ -11317,7 +11524,15 @@ FROM #table_name#
                       end),
                      w.fdwname,
                      quote_ident(r.rolname),
-                     g.text
+                     g.text,
+                     (CASE WHEN obj_description(w.oid, 'pg_foreign_data_wrapper') IS NOT NULL
+                           THEN format(
+                                    E'\n\nCOMMENT ON FOREIGN DATA WRAPPER %s IS %s;',
+                                    quote_ident(w.fdwname),
+                                    quote_literal(obj_description(w.oid, 'pg_foreign_data_wrapper'))
+                                )
+                           ELSE ''
+                      END)
                    )
             from pg_foreign_data_wrapper w
             left join pg_proc h
@@ -13183,13 +13398,12 @@ FROM #table_name#
     def GetObjectDescriptionDatabase(self, p_oid):
         v_row = self.v_connection.Query(
             '''
-                SELECT datname AS id,
-                       coalesce(shobj_description({0}, '{1}'), '') AS description
+                SELECT quote_ident(datname) AS id,
+                       coalesce(shobj_description({0}, 'pg_database'), '') AS description
                 FROM pg_database
                 WHERE oid = {0}
             '''.format(
-                p_oid,
-                'pg_database'
+                p_oid
             )
         ).Rows[0]
 
@@ -13203,10 +13417,9 @@ FROM #table_name#
         v_row = self.v_connection.Query(
             '''
                 SELECT '{0}'::regtype AS id,
-                       coalesce(obj_description({0}, '{1}'), '') AS description
+                       coalesce(obj_description({0}, 'pg_type'), '') AS description
             '''.format(
-                p_oid,
-                'pg_type'
+                p_oid
             )
         ).Rows[0]
 
@@ -13220,16 +13433,67 @@ FROM #table_name#
         v_row = self.v_connection.Query(
             '''
                 SELECT quote_ident(extname) AS id,
-                       coalesce(obj_description({0}, '{1}'), '') AS description
+                       coalesce(obj_description({0}, 'pg_extension'), '') AS description
                 FROM pg_extension
                 WHERE oid = {0}
             '''.format(
-                p_oid,
-                'pg_extension'
+                p_oid
             )
         ).Rows[0]
 
         return "COMMENT ON EXTENSION {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionEventTrigger(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT quote_ident(evtname) AS id,
+                       coalesce(obj_description({0}, 'pg_event_trigger'), '') AS description
+                FROM pg_event_trigger
+                WHERE oid = {0}
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON EVENT TRIGGER {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionForeignDataWrapper(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT quote_ident(fdwname) AS id,
+                       coalesce(obj_description({0}, 'pg_foreign_data_wrapper'), '') AS description
+                FROM pg_foreign_data_wrapper
+                WHERE oid = {0}
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON FOREIGN DATA WRAPPER {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionForeignTable(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regclass AS id,
+                       coalesce(obj_description({0}, 'pg_class'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON FOREIGN TABLE {0} is '{1}'".format(
             v_row['id'],
             v_row['description']
         )
@@ -13250,7 +13514,88 @@ FROM #table_name#
             v_row['description']
         )
 
+    @lock_required
+    def GetObjectDescriptionIndex(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regclass AS id,
+                       coalesce(obj_description({0}, 'pg_class'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON INDEX {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionMaterializedView(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regclass AS id,
+                       coalesce(obj_description({0}, 'pg_class'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON MATERIALIZED VIEW {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionSequence(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regclass AS id,
+                       coalesce(obj_description({0}, 'pg_class'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON SEQUENCE {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionTable(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regclass AS id,
+                       coalesce(obj_description({0}, 'pg_class'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON TABLE {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionView(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regclass AS id,
+                       coalesce(obj_description({0}, 'pg_class'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON VIEW {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
     def GetObjectDescription(self, p_type, p_oid, p_position):
+        print(p_type, p_oid, p_position)
         if p_type == 'aggregate':
             return self.GetObjectDescriptionAggregate(p_oid)
         elif p_type == 'table_field':
@@ -13263,7 +13608,23 @@ FROM #table_name#
             return self.GetObjectDescriptionDomain(p_oid)
         elif p_type == 'extension':
             return self.GetObjectDescriptionExtension(p_oid)
+        elif p_type == 'eventtrigger':
+            return self.GetObjectDescriptionEventTrigger(p_oid)
+        elif p_type == 'fdw':
+            return self.GetObjectDescriptionForeignDataWrapper(p_oid)
+        elif p_type == 'foreign_table':
+            return self.GetObjectDescriptionForeignTable(p_oid)
         elif p_type in ['function', 'triggerfunction', 'direct_triggerfunction', 'eventtriggerfunction', 'direct_eventtriggerfunction']:
             return self.GetObjectDescriptionFunction(p_oid)
+        elif p_type == 'index':
+            return self.GetObjectDescriptionIndex(p_oid)
+        elif p_type == 'mview':
+            return self.GetObjectDescriptionMaterializedView(p_oid)
+        elif p_type == 'table':
+            return self.GetObjectDescriptionTable(p_oid)
+        elif p_type == 'sequence':
+            return self.GetObjectDescriptionSequence(p_oid)
+        elif p_type == 'view':
+            return self.GetObjectDescriptionView(p_oid)
         else:
             return ''

@@ -198,6 +198,7 @@ django.setup()
 from OmniDB_app.models.main import *
 from django.contrib.auth.models import User
 from django.utils import timezone
+import django_sass
 
 maintenance_action = False
 

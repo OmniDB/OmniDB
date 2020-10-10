@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cd tarbuild
-docker build -t omnidb_tarbuild .
+docker build -t omnidb/tarbuild .
 cd ..

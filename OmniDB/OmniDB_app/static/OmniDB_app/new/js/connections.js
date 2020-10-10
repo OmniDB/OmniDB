@@ -910,14 +910,18 @@ function updateModalEditConnectionState(e) {
 		v_enable_list.push('conn_form_ssh_server');
 		v_enable_list.push('conn_form_ssh_port');
 		v_enable_list.push('conn_form_ssh_user');
+		v_enable_list.push('conn_form_ssh_password');
+		v_enable_list.push('conn_form_ssh_key');
+		v_enable_list.push('conn_form_ssh_key_input');
 		v_form_cases.push('conn_form_ssh_server');
 		v_form_cases.push('conn_form_ssh_port');
 		v_form_cases.push('conn_form_ssh_user');
+		/*
 		if (v_has_ssh_key_file !== '') {
 			v_enable_list.push('conn_form_ssh_key');
 			v_enable_list.push('conn_form_ssh_key_input');
 			v_disable_list.push('conn_form_ssh_password');
-			v_form_cases.push('conn_form_ssh_key');
+			// v_form_cases.push('conn_form_ssh_key');
 		}
 		else {
 			v_enable_list.push('conn_form_ssh_password');
@@ -942,7 +946,7 @@ function updateModalEditConnectionState(e) {
 			if (v_block_file_input) {
 				v_disable_list.push('conn_form_ssh_key');
 				v_disable_list.push('conn_form_ssh_key_input');
-				v_form_cases.push('conn_form_ssh_password');
+				// v_form_cases.push('conn_form_ssh_password');
 			}
 			// Case where ssh file is avaiable.
 	    else {
@@ -952,6 +956,7 @@ function updateModalEditConnectionState(e) {
 				v_form_cases.push('conn_form_ssh_key');
 	    }
 		}
+		*/
 	}
 	else {
 		v_disable_list.push('conn_form_ssh_server');

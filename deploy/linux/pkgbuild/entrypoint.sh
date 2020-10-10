@@ -159,7 +159,6 @@ cd ..
 
 dpkg -b omnidb-server_$VERSION
 dpkg -b omnidb-app_$VERSION
-mv omnidb*.deb /tmp/
 
 
 #########################
@@ -168,4 +167,11 @@ mv omnidb*.deb /tmp/
 
 fpm -s deb -t rpm omnidb-server_$VERSION.deb
 fpm -s deb -t rpm omnidb-app_$VERSION.deb
+
+
+#############################################
+# Moving packages to outside of the container
+#############################################
+
+mv omnidb*.deb /tmp/
 mv omnidb*.rpm /tmp/

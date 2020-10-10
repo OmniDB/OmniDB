@@ -47,7 +47,7 @@
   /* ICONS */
   .close,
   i.icon-close {
-    color: #d85656;
+    color: #DEDEDE;
   }
 
   /* BRANDING ICON */
@@ -242,7 +242,7 @@
   .omnidb__modal-config .nav-link {
     background-color: transparent;
     border-color: #44464c;
-    border-bottom-color: #43464E;
+    border-bottom-color: #2F3136;
     color: #DCDDDE !important;
   }
   .omnidb__modal-config .nav-link.active {
@@ -365,7 +365,7 @@
 
   /* Switch */
   label.omnidb__switch--label {
-    background-color: #656565;
+    background-color: #3D424E;
   }
   label.omnidb__switch--label span {
     color: #fff;
@@ -876,6 +876,7 @@
       color: #ffffff !important;
       border: 1px solid #6d6d6d !important;
   }
+  /*
   button {
     background: #25282c;
     border: solid #484a55 1px;
@@ -885,6 +886,7 @@
     color: #fff !important;
     background: #1E90FF !important;
   }
+  */
   #plugin_file_label {
     background: #25282c;
     border: solid #484a55 1px;

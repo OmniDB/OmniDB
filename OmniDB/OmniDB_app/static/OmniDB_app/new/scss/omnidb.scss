@@ -621,7 +621,8 @@ button.close {
 
 
 /* NAV */
-.omnidb__tab-menu .nav-tabs .nav-link {
+.omnidb__tab-menu .nav-tabs .nav-link,
+.nav-tabs .nav-link {
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
 }
@@ -1310,6 +1311,7 @@ label.omnidb__switch--label {
   align-items: center;
   background-color: #e2e2e2;
   border-radius: calc(1rem + 2px);
+  cursor: pointer;
   display: flex;
   justify-content: flex-start;
   margin-bottom: 0px;

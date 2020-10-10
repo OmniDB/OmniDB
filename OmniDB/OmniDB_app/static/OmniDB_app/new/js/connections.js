@@ -638,7 +638,7 @@ function editConnection(p_conn_obj) {
   document.getElementById('conn_form_ssh_user').value = p_conn_obj.tunnel.user;
   document.getElementById('conn_form_ssh_password').value = '';
   document.getElementById('conn_form_ssh_key').value = '';
-
+	document.getElementById('conn_form_public').checked = (p_conn_obj.public)
 
 	if (p_conn_obj.password && p_conn_obj.password !== null && p_conn_obj.password !== '') {
 		if ($('#conn_form_user_pass_check_icon').length === 0) {

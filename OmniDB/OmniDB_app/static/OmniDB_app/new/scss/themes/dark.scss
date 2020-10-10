@@ -369,7 +369,10 @@
   }
   label.omnidb__switch--label span {
     color: #fff;
-    background-color: #1d1f21;
+    background-color: #2f3136;
+  }
+  .omnidb__switch--input:checked~.omnidb__switch--label {
+    background-color: #394e83;
   }
   .secondq__omnidb--input:checked ~ .omnidb__switch--label {
     background-color: #809dde;
@@ -488,12 +491,12 @@
 
   /* Query Info */
   .omnidb__query-info__value {
-    color: #56acff;
+    /* color: #3b7fc1; */
   }
 
   /* Aimara Tree */
   .node-all {
-    color: rgb(90, 187, 255);
+    color: inherit;
   }
 
   /* Autocomplete */
@@ -574,7 +577,7 @@
     background-color: #2f3136;
   }
   span.node_selected span {
-    color: #56acff;
+    color: inherit;
   }
 
   body {

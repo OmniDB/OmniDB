@@ -1,14 +1,19 @@
 #!/bin/bash
 
+# Checking environment
+echo "REPO=$REPO"
+echo "BRANCH=$BRANCH"
+echo "VERSION=$VERSION"
+
 # Cloning repo
 git clone $REPO --depth 1 -b $BRANCH OmniDB
 
 # Installing dependencies
-cd OmniDB
+cd OmniDB/
 pip install -r requirements.txt
 
 # Building server
-cd OmniDB/OmniDB
+cd OmniDB/
 pyinstaller OmniDB-lin.spec
 mv dist/omnidb-server $HOME
 rm -rf build dist
@@ -19,7 +24,6 @@ tar -czvf omnidb-server_$VERSION.tar.gz omnidb-server_$VERSION/
 mv omnidb-server_$VERSION.tar.gz /tmp/
 
 # Building app
-cd $HOME
 curl -LO https://dl.nwjs.io/v0.38.4/nwjs-v0.38.4-linux-x64.tar.gz
 tar -xzvf nwjs-v0.38.4-linux-x64.tar.gz
 mv nwjs-v0.38.4-linux-x64 omnidb-app_$VERSION

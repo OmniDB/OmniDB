@@ -292,6 +292,10 @@
 .omnidb--theme-light .daterangepicker .ranges {
   background-color: #f8f9fa;
 }
+.omnidb--theme-light .daterangepicker .ranges li.active {
+  background-color: #4A81D4;
+  color: #FFF;
+}
 .omnidb--theme-light .daterangepicker .ranges li:hover {
   background-color: #eee;
 }

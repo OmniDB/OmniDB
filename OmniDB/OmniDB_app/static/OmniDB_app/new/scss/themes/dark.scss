@@ -287,6 +287,9 @@
   .daterangepicker .ranges {
     background-color: #252e44;
   }
+  .daterangepicker .ranges li.active {
+    background-color: #394E83;
+  }
   .daterangepicker .ranges li:hover {
     background-color: #374463;
   }
@@ -346,15 +349,15 @@
   /* DISABLED */
   .form-control:disabled,
   .form-control[readonly] {
-    background-color: #404040 !important;
+    background-color: #32343A !important;
   }
   .custom-file > input[disabled]+label {
-    background-color: #404040 !important;
+    background-color: #32343A !important;
     border-color: #4c5365;
     color: #677077;
     &::after {
       color: #636a71;
-      background-color: #404040;
+      background-color: #32343A;
     }
   }
 

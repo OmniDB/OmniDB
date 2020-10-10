@@ -912,7 +912,9 @@ button.close {
 .omnidb__form-check .form-check-input {
   transform: translateY(2px);
 }
-
+.custom-file > input {
+  opacity: 0;
+}
 
 
 /* CONNECTIONS */

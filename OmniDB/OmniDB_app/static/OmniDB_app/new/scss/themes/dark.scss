@@ -12,10 +12,10 @@
     background-color: #394e83;
   }
   .omnidb__theme-border--primary {
-    border: 1px solid #4C5365;
+    border: 1px solid #383b42;
   }
   .omnidb__theme-border-top--primary {
-    border-top: 1px solid #4C5365;
+    border-top: 1px solid #383b42;
   }
   .omnidb__theme-text--primary {
     color: #373944;
@@ -72,7 +72,7 @@
     box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
   }
   .omnidb__txt-console {
-    border-color: #4C5365;
+    border-color: #383b42;
   }
 
   /* TABS */
@@ -89,7 +89,7 @@
   }
   .nav-tabs .nav-link:focus,
   .nav-tabs .nav-link:hover {
-    border-color: #4C5365 #4C5365 #4C5365;
+    border-color: #383b42 #383b42 #383b42;
     color: #555;
   }
   .nav-tabs .nav-link.active {
@@ -100,7 +100,7 @@
   }
   /* TABS WITH CARD-HEADERS */
   .omnidb__tab-menu.card-header .nav-tabs .nav-link.active {
-    border-color: #4C5365;
+    border-color: #383b42;
     border-bottom-color: #27292E;
     border-top: 2px solid #394E83;
   }
@@ -154,7 +154,7 @@
   /* ACE EDITOR */
   .ace_editor.ace-tomorrow-night {
     background-color: #2F3136 !important;
-    border: 1px solid #4C5365 !important;
+    border: 1px solid #383b42 !important;
   }
   .ace_editor.ace-tomorrow-night .ace_gutter {
   	background-color: #282A2F;
@@ -172,7 +172,7 @@
   }
   .omnidb__tab-menu--secondary .omnidb__tab-menu__link {
     background-color: transparent;
-    border-color: #4C5365;
+    border-color: #383b42;
     border-bottom-color: #43464E;
   }
   .omnidb__tab-menu--secondary .omnidb__tab-menu__link-name {
@@ -183,7 +183,7 @@
   }
   .omnidb__tab-menu--secondary .omnidb__tab-menu__link.active {
     background-color: transparent;
-    border-color: #4C5365;
+    border-color: #383b42;
     border-bottom-color: #2F3136;
     border-top: 2px solid #394E83;
   }
@@ -205,7 +205,7 @@
   }
   .omnidb__tree-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
     background-color: transparent;
-    border-color: #4C5365;
+    border-color: #383b42;
     border-bottom-color: #282A2F;
     border-top: 2px solid #394E83;
   }
@@ -227,7 +227,7 @@
   }
   .omnidb__query-result-tabs .omnidb__tab-menu .omnidb__tab-menu__link.active {
     background-color: transparent;
-    border-color: #4C5365;
+    border-color: #383b42;
     border-bottom-color: #2f3136;
     border-top: 2px solid #394E83;
   }
@@ -247,7 +247,7 @@
   }
   .omnidb__modal-config .nav-link.active {
     background-color: transparent;
-    border-color: #4C5365;
+    border-color: #383b42;
     border-bottom-color: #2F3136;
     border-top: 2px solid #394E83;
   }
@@ -266,7 +266,7 @@
     background-color: #282A2F;
   }
   .card .card-header {
-    border-bottom-color: #4C5365;
+    border-bottom-color: #383b42;
   }
   .card .card-header .nav.nav-tabs {
     border-color: transparent;
@@ -532,18 +532,18 @@
   /* Ace Search */
   .ace_search {
     background-color: #2F3136;
-    border-color: #4C5365;
+    border-color: #383b42;
 
     .ace_button {
       color: #DCDDDE;
     }
     .ace_searchbtn {
-      background-color: #4C5365;
-      border-color: #4C5365;
+      background-color: #383b42;
+      border-color: #383b42;
       color: #FFFFFF;
     }
     .ace_searchbtn:last-child {
-      border-right-color: #4C5365;
+      border-right-color: #383b42;
     }
     .ace_searchbtn.prev:after, .ace_searchbtn.next:after {
       color: #FFFFFF;

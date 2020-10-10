@@ -896,10 +896,22 @@
     color: #fff !important;
     background: #1E90FF !important;
   }
-  input, textarea {
-      background-color: #282A2F !important;
+  input,
+  textarea,
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active  {
+    background-color: #282A2F !important;
   	color: #d7d7d7 !important;
   	border-color: #4C5365 !important;
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px #282A2F inset !important;
+      -webkit-text-fill-color: #d7d7d7 !important;
+    }
   }
 
   .cellNew {

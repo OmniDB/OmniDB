@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Checking environment
+echo "VERSION=$VERSION"
+
 ##########################################
 # Generating deb package for omnidb-server
 ##########################################
@@ -92,5 +95,5 @@ chmod 755 DEBIAN/postrm
 cd ..
 
 # Generating deb package
-dpkg -b omnidb-server_$VERSION-$ARCH
+dpkg -b omnidb-server_$VERSION
 mv omnidb-server*.deb /tmp/

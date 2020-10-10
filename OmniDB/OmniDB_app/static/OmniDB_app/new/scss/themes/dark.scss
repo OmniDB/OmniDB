@@ -333,13 +333,29 @@
     background-color: #67ff81;
   }
 
+  .custom-file > input+label {
+    background-color: #282A2F;
+    color: #d7d7d7;
+    border-color: #4C5365;
+    &::after {
+      background-color: #282A2F;
+      color: #d7d7d7;
+    }
+  }
+
   /* DISABLED */
   .form-control:disabled,
   .form-control[readonly] {
-      background-color: #B5B6B7 !important;
+    background-color: #404040 !important;
   }
   .custom-file > input[disabled]+label {
-    background-color: #B5B6B7;
+    background-color: #404040 !important;
+    border-color: #4c5365;
+    color: #677077;
+    &::after {
+      color: #636a71;
+      background-color: #404040;
+    }
   }
 
   /* Input-group */

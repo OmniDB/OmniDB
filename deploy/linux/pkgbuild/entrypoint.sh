@@ -3,9 +3,10 @@
 # Checking environment
 echo "VERSION=$VERSION"
 
-##########################################
-# Generating deb package for omnidb-server
-##########################################
+
+#######################################
+# Preparing directory for omnidb-server
+#######################################
 
 # Extracting tar.gz
 cd $HOME
@@ -94,6 +95,77 @@ EOF
 chmod 755 DEBIAN/postrm
 cd ..
 
-# Generating deb package
+
+####################################
+# Preparing directory for omnidb-app
+####################################
+
+# Extracting tar.gz
+cd $HOME
+cp /tmp/omnidb-app_$VERSION.tar.gz .
+tar -xzvf omnidb-app_$VERSION.tar.gz
+mv omnidb-app_$VERSION omnidb-app
+rm -rf omnidb-app_$VERSION.tar.gz
+
+# Creating directory structure
+mkdir omnidb-app_$VERSION
+cd omnidb-app_$VERSION/
+mkdir opt
+mv $HOME/omnidb-app opt/
+mkdir -p usr/bin
+cat > usr/bin/omnidb-app <<EOF
+#!/bin/bash
+LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:.:/opt/omnidb-app/ /opt/omnidb-app/omnidb-app \$@
+EOF
+chmod 755 usr/bin/omnidb-app
+mkdir -p usr/share
+cd usr/share/
+cp $HOME/icons.tar.gz .
+tar -xzvf icons.tar.gz
+rm icons.tar.gz
+cd ../..
+mkdir -p usr/share/applications/
+cat > usr/share/applications/omnidb-app.desktop <<EOF
+[Desktop Entry]
+Name=OmniDB
+Comment=OmniDB
+Exec="/usr/bin/omnidb-app"
+Terminal=false
+Type=Application
+Icon=omnidb
+Categories=Development
+EOF
+mkdir DEBIAN
+cat > DEBIAN/control << EOF
+Package: omnidb-app
+Version: $VERSION
+Section: base
+Priority: optional
+Architecture: amd64
+Installed-Size: $(du -s)
+Maintainer: The OmniDB Team
+Homepage: http://omnidb.org
+Description: OmniDB is a very flexible, secure and work-effective environment for multiple DBMS.
+ Server package includes web server and requires a web browser to be used. Ideal for network and server usage.
+ App package includes everything, even a simple web browser.
+ OmniDB is supported by 2ndQuadrant (http://www.2ndquadrant.com)
+EOF
+cd ..
+
+
+#########################
+# Generating deb packages
+#########################
+
 dpkg -b omnidb-server_$VERSION
-mv omnidb-server*.deb /tmp/
+dpkg -b omnidb-app_$VERSION
+mv omnidb*.deb /tmp/
+
+
+#########################
+# Generating rpm packages
+#########################
+
+fpm -s deb -t rpm omnidb-server_$VERSION.deb
+fpm -s deb -t rpm omnidb-app_$VERSION.deb
+mv omnidb*.rpm /tmp/

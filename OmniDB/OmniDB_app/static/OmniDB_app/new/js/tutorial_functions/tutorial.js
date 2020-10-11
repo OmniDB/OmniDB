@@ -31,42 +31,6 @@ function startTutorial(p_tutorial_name) {
   '</li>';
   // Configuring the available tutorials.
   var v_tutorials = {
-    'getting_started': [
-      {
-        p_message:
-        '<ol style="padding-left: 1.5rem;">' +
-          `
-          <li class="mb-2">
-            <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('utilities_menu');">
-              <i class="fas fa-user-plus mr-2"></i>Create an omnidb user
-            </button>
-          </li>
-          <li class="mb-2">
-            <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('connections_menu');">
-              <i class="fas fa-plug mr-2"></i>Create a database connection
-            </button>
-          </li>
-          <li class="mb-2">
-            <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('terminal_connection');">
-              <i class="fas fa-terminal mr-2"></i>Create a terminal connection
-            </button>
-          </li>
-          <li class="mb-2">
-            <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('snippets');">
-              <i class="fas fa-book mr-2"></i>Meet the snippets panel
-            </button>
-          </li>
-          <li class="mb-2">
-            <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('selecting_connection');">
-              <i class="fas fa-plus mr-2"></i>Using a connection
-            </button>
-          </li>
-          ` +
-          v_button_inner_query +
-        '</ol>',
-        p_title: '<i class="fas fa-list mr-2"></i> Getting started'
-      }
-    ],
     'main': [
       {
         p_message: 'This contains the outer connection and global panels [ connections_list_manager, snippets_panel, [conn_1, conn_2, ...], add_connection]',
@@ -446,6 +410,48 @@ function startTutorial(p_tutorial_name) {
 
     ]
   }
+  // Configuring tutorial getting started, changes based on gv_desktopMode
+  let v_tutorial_link_creating_user = (gv_desktopMode)
+  ? ''
+  : `
+  <li class="mb-2">
+    <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('utilities_menu');">
+      <i class="fas fa-user-plus mr-2"></i>Create an omnidb user
+    </button>
+  </li>`;
+  v_tutorials.getting_started = [
+    {
+      p_message:
+      '<ol style="padding-left: 1.5rem;">' +
+        v_tutorial_link_creating_user +
+        `
+        <li class="mb-2">
+          <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('connections_menu');">
+            <i class="fas fa-plug mr-2"></i>Create a database connection
+          </button>
+        </li>
+        <li class="mb-2">
+          <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('terminal_connection');">
+            <i class="fas fa-terminal mr-2"></i>Create a terminal connection
+          </button>
+        </li>
+        <li class="mb-2">
+          <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('snippets');">
+            <i class="fas fa-book mr-2"></i>Meet the snippets panel
+          </button>
+        </li>
+        <li class="mb-2">
+          <button type="button" class="btn omnidb__theme__btn--primary d-flex align-items-center" onclick="startTutorial('selecting_connection');">
+            <i class="fas fa-plus mr-2"></i>Using a connection
+          </button>
+        </li>
+        ` +
+        v_button_inner_query +
+      '</ol>',
+      p_title: '<i class="fas fa-list mr-2"></i> Getting started'
+    }
+  ];
+
   // Selecting a tutorial
   var v_steps = v_tutorials[v_tutorial_name];
   // Update the step list with the new walkthrough

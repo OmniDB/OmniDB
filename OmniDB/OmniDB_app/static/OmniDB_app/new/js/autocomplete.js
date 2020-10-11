@@ -523,7 +523,7 @@ function autocomplete_keydown(p_editor, p_event) {
       }
       p_editor.moveCursorTo(v_target_row,v_cursor_pos.column);
       p_editor.clearSelection();
-      p_editor.scrollToLine(v_target_row)
+      p_editor.renderer.scrollCursorIntoView({row:v_target_row});
     }
     // Handle TAB if autocomplete is not enbled
     if(p_event.keyCode === 9){

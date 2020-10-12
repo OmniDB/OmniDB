@@ -52,50 +52,6 @@ function setupDebug(p_node, p_type) {
 	};
 	v_tab_tag.selectParameterTabFunc();
 
-	//Customize editor to enable adding breakpoints
-	//Creating breakpoint options
-	$('#' + v_tab_tag.editorDivId).children('.ace_gutter').each(function () {
-	    var v_gutter = $(this);
-			v_gutter.css('cursor', 'pointer');
-			v_gutter.click(function() {
-				v_tab_tag.editor.session.selection.clearSelection();
-
-				var v_row = v_tab_tag.editor.getSelectionRange().start.row;
-				if (v_tab_tag.breakPoint == v_row)
-					v_tab_tag.breakPoint = null;
-				else
-					v_tab_tag.breakPoint = v_row;
-				/*
-				//Check if there is a breakpoint for the current row, if there is, remove it
-				//if not, add it.
-				var v_found = false;
-				for (var i=0; i<v_tab_tag.breakPoints.length; i++) {
-					if (v_tab_tag.breakPoints[i].row == v_row) {
-						v_found = true;
-						v_tab_tag.breakPoints.splice(i, 1);
-						break;
-					}
-				}
-				if (!v_found) {
-					v_tab_tag.breakPoints.push(
-						{
-						  row: v_row,
-						  column: 0,
-						  text: "Breakpoint",
-						  type: "warning"
-						}
-					)
-				}*/
-
-				v_tab_tag.editor.getSession().setAnnotations([{
-					row: v_tab_tag.breakPoint,
-					column: 0,
-					text: "Breakpoint",
-					type: "warning"
-				}]);
-			});
-	});
-
   //Instantiate grids
 
 	//Retrieve parameters

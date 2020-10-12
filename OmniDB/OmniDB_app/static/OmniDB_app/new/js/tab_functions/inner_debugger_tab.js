@@ -334,6 +334,29 @@ var v_createDebuggerTabFunction = function(p_function) {
   v_tag.selectMessageTabFunc = v_selectMessageTabFunc;
   v_tag.selectStatisticsTabFunc = v_selectStatisticsTabFunc;
 
+  //Customize editor to enable adding breakpoints
+	//Creating breakpoint options
+	$('#' + v_tab.tag.editorDivId).children('.ace_gutter').each(function () {
+	    var v_gutter = $(this);
+			v_gutter.css('cursor', 'pointer');
+			v_gutter.click(function() {
+				v_tab.tag.editor.session.selection.clearSelection();
+
+				var v_row = v_tab.tag.editor.getSelectionRange().start.row;
+				if (v_tab.tag.breakPoint == v_row)
+					v_tab.tag.breakPoint = null;
+				else
+					v_tab.tag.breakPoint = v_row;
+
+				v_tab.tag.editor.getSession().setAnnotations([{
+					row: v_tab.tag.breakPoint,
+					column: 0,
+					text: "Breakpoint",
+					type: "warning"
+				}]);
+			});
+	});
+
   // Selecting the `parameter` tab by default.
   v_selectParameterTabFunc();
 

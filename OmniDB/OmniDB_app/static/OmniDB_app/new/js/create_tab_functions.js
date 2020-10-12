@@ -359,7 +359,7 @@ function initCreateTabFunctions() {
 	// };
 
 	// Functions to create a default `add` tab
-	v_connTabControl.tag.createAddTab = function(){
+	v_connTabControl.createAddTab = function(){
 		v_connTabControl.createTab(
 	    {
 	      p_icon: '<i class="fas fa-plus"></i>',

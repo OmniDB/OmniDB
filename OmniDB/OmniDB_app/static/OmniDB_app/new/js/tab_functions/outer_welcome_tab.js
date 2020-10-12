@@ -1,6 +1,6 @@
 var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_name = false, p_tooltip_name = false) {
   // Removing the last `add` tab
-  v_connTabControl.removeLastTab();
+  // v_connTabControl.removeLastTab();
 
   var v_tab = v_connTabControl.createTab({
     p_icon: '<i class="fas fa-hand-spock"></i>',
@@ -244,7 +244,7 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
   v_tab.tag = v_tag;
 
   // Creating `Add` tab in the outer tab list
-  v_connTabControl.createAddTab();
+  // v_connTabControl.createAddTab();
 
   $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 

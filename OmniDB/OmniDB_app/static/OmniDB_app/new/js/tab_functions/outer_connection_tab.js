@@ -5,7 +5,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     showAlert('Create connections first.');
   }
   else {
-    v_connTabControl.removeLastTab();
+    // v_connTabControl.removeLastTab();
 
     let v_conn = v_connTabControl.tag.connections[0];
     for (let i = 0; i < v_connTabControl.tag.connections.length; i++) {
@@ -365,7 +365,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     }
 
     // Creating `Add` tab in the outer tab list
-    v_connTabControl.createAddTab();
+    // v_connTabControl.createAddTab();
 
     $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 

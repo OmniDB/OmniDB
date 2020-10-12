@@ -1,6 +1,6 @@
 var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Terminal') {
 
-  v_connTabControl.removeLastTab();
+  // v_connTabControl.removeLastTab();
 
   let v_tooltip_name =
   '<h5 class="my-1">Terminal</h5>' +
@@ -80,7 +80,7 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
   v_tab.tag = v_tag;
 
   // Creating `Add` tab in the outer tab list
-  v_connTabControl.createAddTab();
+  // v_connTabControl.createAddTab();
 
   $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 

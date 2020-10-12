@@ -2,6 +2,28 @@
   background-color: #f8f9fa;
 }
 
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+/* Corner */
+::-webkit-scrollbar-corner {
+  background: none;
+}
+
+.omnidb__tab-menu--primary {
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-scrollbar-width: thin;
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    -webkit-scrollbar-width: thin;
+    scrollbar-width: thin;
+    width: 2px;
+  }
+}
+
 .nav-tabs {
   border-bottom: none;
 }
@@ -103,7 +125,6 @@
     bottom: 0px;
     height: 100%;
     left: 0px;
-    overflow: hidden;
     padding: 0px;
     position: fixed;
     top: 0px;
@@ -259,7 +280,6 @@
     bottom: 0px;
     height: 100%;
     left: 0px;
-    overflow: hidden;
     padding: 0px;
     position: fixed;
     top: 0px;
@@ -416,7 +436,6 @@
     bottom: 0px;
     height: 100%;
     left: 0px;
-    overflow: hidden;
     padding: 0px;
     position: fixed;
     top: 0px;

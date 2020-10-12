@@ -18,7 +18,7 @@ var toggleSnippetPanel = function(p_set_state = false) {
 
 var v_createSnippetPanelFunction = function(p_index) {
 
-  v_connTabControl.removeLastTab();
+  // v_connTabControl.removeLastTab();
 
   var v_tab = v_connTabControl.createTab({
     p_icon: `<i class="fas fa-book"></i>`,
@@ -108,7 +108,7 @@ var v_createSnippetPanelFunction = function(p_index) {
   v_connTabControl.snippet_tag.tabControl.selectedTab.tag.editor.gotoLine(0, 0, true);
 
   // Creating `Add` tab in the outer tab list
-  v_connTabControl.createAddTab();
+  // v_connTabControl.createAddTab();
   // v_connTabControl.createTab('+',false,v_connTabControl.tag.createConnTab,false);
 
   //setTimeout(function() {

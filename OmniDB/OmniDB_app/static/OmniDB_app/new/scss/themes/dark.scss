@@ -7,6 +7,13 @@
 
   .omnidb__theme-bg--menu-primary {
     background-color: #373944;
+
+    &::-webkit-scrollbar-track {
+      background: #373944;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #4C4E58;
+    }
   }
   .omnidb__theme-bg--menu-utilities {
     background-color: #394e83;
@@ -396,11 +403,6 @@
   }
 
   /* SCROLL */
-  /* width */
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
   /* Track */
   ::-webkit-scrollbar-track {
     background: none;
@@ -409,10 +411,6 @@
   ::-webkit-scrollbar-thumb {
     background: #47505d;
     cursor: pointer;
-  }
-  /* Corner */
-  ::-webkit-scrollbar-corner {
-    background: none;
   }
 
   /* TOAST */

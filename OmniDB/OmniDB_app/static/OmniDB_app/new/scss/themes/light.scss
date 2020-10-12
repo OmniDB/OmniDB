@@ -8,6 +8,12 @@
 
 .omnidb--theme-light .omnidb__theme-bg--menu-primary {
   background-color: #4A81D4;
+  &::-webkit-scrollbar-track {
+    background: #4A81d4;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #325B9A;
+  }
 }
 .omnidb--theme-light .omnidb__theme-bg--menu-utilities {
   background-color: #4A81D4;
@@ -383,23 +389,14 @@
 }
 
 /* SCROLL */
-/* width */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
 /* Track */
-::-webkit-scrollbar-track {
+.omnidb--theme-light ::-webkit-scrollbar-track {
   background: #EFEFEF;
 }
 /* Handle */
-::-webkit-scrollbar-thumb {
+.omnidb--theme-light ::-webkit-scrollbar-thumb {
   background: #DEDEDE;
   cursor: pointer;
-}
-/* Corner */
-::-webkit-scrollbar-corner {
-  background: none;
 }
 
 /* TOAST */

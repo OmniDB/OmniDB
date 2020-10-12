@@ -529,4 +529,5 @@ try:
     )
 except KeyboardInterrupt:
     cherrypy.engine.exit()
+    print("")
     print("Bye!")

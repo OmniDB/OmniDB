@@ -457,7 +457,14 @@ class DjangoApplication(object):
                 v_cherrypy_config['server.ssl_private_key'] = parameters['ssl_key_file']
                 v_cherrypy_config['server.ssl_context'] = ssl_ctx
 
+            cherrypy.config.update({
+                'global': {
+                    'engine.autoreload.on': False
+                }
+            })
+
             cherrypy.config.update(v_cherrypy_config)
+
 
             print ("Starting server {0} at {1}:{2}{3}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port),OmniDB.settings.PATH),flush=True)
             logger.info("Starting server {0} at {1}:{2}.".format(OmniDB.settings.OMNIDB_VERSION,parameters['listening_address'],str(port)))

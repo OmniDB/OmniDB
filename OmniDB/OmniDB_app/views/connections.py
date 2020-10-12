@@ -459,6 +459,9 @@ def test_connection_new(request):
         if json_object['tunnel']['key'].strip()=='':
             ssh_key=conn.ssh_key
 
+    if json_object['temp_password']!=None:
+        password = json_object['temp_password']
+
 
     if p_type=='terminal':
 
@@ -588,6 +591,12 @@ def save_connection_new(request):
         #update
         else:
             conn = Connection.objects.get(id=p_id)
+
+            if conn.user.id != request.user.id:
+                v_return['v_data'] = 'This connection does not belong to you.'
+                v_return['v_error'] = True
+                return JsonResponse(v_return)
+
             conn.technology=Technology.objects.get(name=json_object['type'])
             conn.server=json_object['server']
             conn.port=json_object['port']
@@ -665,6 +674,12 @@ def delete_connection_new(request):
 
     try:
         conn = Connection.objects.get(id=p_id)
+
+        if conn.user.id != request.user.id:
+            v_return['v_data'] = 'This connection does not belong to you.'
+            v_return['v_error'] = True
+            return JsonResponse(v_return)
+
         conn.delete()
         v_session.RemoveDatabase(p_id)
     except Exception as exc:

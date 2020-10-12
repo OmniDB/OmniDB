@@ -28,10 +28,6 @@
 					<input id="txt_pwd" type="password" placeholder="password" onchange="validateField(this)" onkeydown="if (event.keyCode == 13) signIn();">
 				</div>
 				<button type="button" onclick="signIn()">Sign in</button>
-
-				<button class="btn omnidb__theme__btn--primary mb-2">
-            <a href="{% url 'social:begin' 'github' %}">Github</a>
-        </button>
 			</div>
 		</div>
 	</div>

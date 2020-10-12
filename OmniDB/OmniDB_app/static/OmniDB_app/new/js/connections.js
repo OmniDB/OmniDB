@@ -502,6 +502,7 @@ function testConnection(p_password = null) {
     "database": document.getElementById('conn_form_database').value,
     "user": document.getElementById('conn_form_user').value,
 		"password": document.getElementById('conn_form_user_pass').value,
+		"temp_password": p_password,
     "tunnel": {
       "enabled": document.getElementById('conn_form_use_tunnel').checked,
       "server": document.getElementById('conn_form_ssh_server').value,

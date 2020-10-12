@@ -336,7 +336,8 @@ def get_database_list(request):
     try:
         v_existing_tabs = []
         for tab in Tab.objects.filter(user=request.user).order_by('connection'):
-            v_existing_tabs.append({'index': tab.connection.id, 'snippet': tab.snippet, 'title': tab.title, 'tab_db_id': tab.id})
+            if (tab.connection.public or tab.connection.user.id == request.user.id):
+                v_existing_tabs.append({'index': tab.connection.id, 'snippet': tab.snippet, 'title': tab.title, 'tab_db_id': tab.id})
 
     except Exception as exc:
         None

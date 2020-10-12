@@ -197,23 +197,6 @@ def load_plugins():
     plugins_folders = listdir(join(settings.HOME_DIR,'plugins'))
     for plugin_folder in plugins_folders:
         load_plugin(plugin_folder,True)
-    #delete existing monitoring units from plugins that don't exist anymore
-    plugin_string = ''
-    first = True
-    for key, plugin in plugins.items():
-        if not first:
-            plugin_string = plugin_string + ','
-        first = False
-        plugin_string = plugin_string + "'" + plugin['name'] + "'"
-    try:
-        omnidb_database.v_connection.Execute('''
-            delete
-            from units_users_connections
-            where plugin_name <> ''
-              and plugin_name not in ({0})
-        '''.format(plugin_string))
-    except Exception as exc:
-        None
 
 load_plugins()
 
@@ -334,7 +317,7 @@ def upload_view(request):
             if not v_session.v_super_user:
                 return_object = {
                     'v_error': True,
-                    'v_message': 'You must be superuser to delete a plugin.'
+                    'v_message': 'You must be superuser to upload a plugin.'
                 }
                 return JsonResponse(return_object)
 
@@ -385,7 +368,7 @@ def handle_uploaded_file(f):
             'v_message': '''Package doesn't have the frontend directory.'''
         }
     else:
-        plugin_dir_name = f.name.split('.')[0]
+        plugin_dir_name = os.path.splitext(f.name)[0]
         makedirs(join(settings.HOME_DIR,'plugins',plugin_dir_name))
         try:
             files = listdir(join(v_dir_name,'backend'))

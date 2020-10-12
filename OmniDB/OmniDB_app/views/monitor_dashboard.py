@@ -26,9 +26,6 @@ from OmniDB_app.models.main import *
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-#load plugins to retrieve list of monitoring units of all loaded plugins
-#from OmniDB_app.views.plugins import monitoring_units
-
 from OmniDB_app.views.memory_objects import *
 from OmniDB_app.views.monitoring_units import postgresql as postgresql_units
 
@@ -49,10 +46,14 @@ def get_units_data():
 
     # No mon units connections
     except Exception as exc:
-        print(str(exc))
         None
 
 get_units_data()
+
+def _hook_import(name, *args, **kwargs):
+    if name =='os':
+        raise RuntimeError('You cannot import os module in this sandbox.')
+    return __import__(name,*args,**kwargs)
 
 @user_authenticated
 @database_required(p_check_timeout = True, p_open_connection = True)
@@ -196,8 +197,10 @@ def get_monitor_units(request, v_database):
             else:
                 #search plugin data
                 unit_data = None
+                found = False
                 for key, mon_unit in monitoring_units.items():
                     if mon_unit['id'] == user_unit.unit and mon_unit['plugin_name'] == user_unit.plugin_name and mon_unit['dbms'] == v_database.v_db_type:
+                        found = True
                         v_unit_data = {
                             'v_saved_id': user_unit.id,
                             'v_id': user_unit.unit,
@@ -207,6 +210,8 @@ def get_monitor_units(request, v_database):
                         }
                         v_return['v_data'].append(v_unit_data)
                         break
+                if not found:
+                    user_unit.delete()
 
     # No mon units connections
     except Exception as exc:
@@ -376,7 +381,6 @@ def remove_saved_monitor_unit(request):
     v_saved_id = json_object['p_saved_id']
 
     try:
-        print(monitoring_units_database)
         MonUnitsConnections.objects.get(id=v_saved_id).delete()
 
     except Exception as exc:
@@ -529,25 +533,27 @@ def refresh_monitor_units(request, v_database):
                     "previous_data": v_ids[unit_counter]['object_data']
                 }
 
-                builtins = safe_builtins.copy()
-                builtins['_getiter_'] = iter
-                builtins['_getitem_'] = default_guarded_getitem
+                restricted_globals = dict(__builtins__=safe_builtins)
+                restricted_globals['_getiter_'] = iter
+                restricted_globals['_getattr_'] = getattr
+                restricted_globals['_getitem_'] = default_guarded_getitem
+                restricted_globals['__builtins__']['__import__'] = _hook_import
 
                 byte_code = compile_restricted(script_data, '<inline>', 'exec')
-                exec(byte_code, builtins, loc1)
+                exec(byte_code, restricted_globals, loc1)
                 data = loc1['result']
 
                 if v_unit_data['v_type']  == 'grid' or v_id['rendered'] == 1:
                     v_unit_data['v_object'] = data
                 elif v_unit_data['v_type'] == 'graph':
                     byte_code = compile_restricted(script_chart, '<inline>', 'exec')
-                    exec(byte_code, builtins, loc2)
+                    exec(byte_code, restricted_globals, loc2)
                     result = loc2['result']
                     result['elements'] = data
                     v_unit_data['v_object'] = result
                 else:
                     byte_code = compile_restricted(script_chart, '<inline>', 'exec')
-                    exec(byte_code, builtins, loc2)
+                    exec(byte_code, restricted_globals, loc2)
                     result = loc2['result']
                     result['data'] = data
                     v_unit_data['v_object'] = result
@@ -558,8 +564,8 @@ def refresh_monitor_units(request, v_database):
                     'v_saved_id': v_id['saved_id'],
                     'v_id': v_unit_data['v_id'],
                     'v_sequence': v_unit_data['v_sequence'],
-                    'v_type': v_unit_data['type'],
-                    'v_title': v_unit_data['title'],
+                    'v_type': v_unit_data['v_type'],
+                    'v_title': v_unit_data['v_title'],
                     'v_interval': v_unit_data['v_interval'],
                     'v_object': None,
                     'v_error': True,
@@ -611,25 +617,29 @@ def test_monitor_script(request, v_database):
             "previous_data": None
         }
 
-        builtins = safe_builtins.copy()
-        builtins['_getiter_'] = iter
-        builtins['_getitem_'] = default_guarded_getitem
+        from RestrictedPython import safe_globals
+
+        restricted_globals = dict(__builtins__=safe_builtins)
+        restricted_globals['_getiter_'] = iter
+        restricted_globals['_getattr_'] = getattr
+        restricted_globals['_getitem_'] = default_guarded_getitem
+        restricted_globals['__builtins__']['__import__'] = _hook_import
 
         byte_code = compile_restricted(v_script_data, '<inline>', 'exec')
-        exec(byte_code, builtins, loc1)
+        exec(byte_code, restricted_globals, loc1)
         data = loc1['result']
 
         if v_type  == 'grid':
             v_return['v_data']['v_object'] = data
         elif v_type == 'graph':
             byte_code = compile_restricted(v_script_chart, '<inline>', 'exec')
-            exec(byte_code, builtins, loc2)
+            exec(byte_code, restricted_globals, loc2)
             result = loc2['result']
             result['elements'] = data
             v_return['v_data']['v_object'] = result
         else:
             byte_code = compile_restricted(v_script_chart, '<inline>', 'exec')
-            exec(byte_code, builtins, loc2)
+            exec(byte_code, restricted_globals, loc2)
             result = loc2['result']
             result['data'] = data
             v_return['v_data']['v_object'] = result

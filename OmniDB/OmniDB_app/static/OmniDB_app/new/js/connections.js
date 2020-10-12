@@ -823,12 +823,10 @@ function updateModalEditConnectionState(e) {
 	let v_technology = document.getElementById('conn_form_type').value;
 	let v_allow_tunnel = document.getElementById('conn_form_use_tunnel').checked;
 	let v_use_connection_string = document.getElementById('conn_form_connstring').value;
-	let v_has_ssh_key_file = document.getElementById('conn_form_ssh_key_input').value
+	let v_has_ssh_key_file = document.getElementById('conn_form_ssh_key_input').value;
 
-	// Checking technology string.
-	if (typeof v_technology === 'string') {
-		v_technology = v_technology.trim();
-	}
+	// console.log('update_connection_form_inputs', e);
+
 	// Case where technology is terminal.
 	if (v_technology === 'terminal') {
 		v_allow_tunnel = true;
@@ -890,7 +888,7 @@ function updateModalEditConnectionState(e) {
         v_check_inputs_empty = false;
       }
     }
-		// Case where single inputs are being type.
+		// Case where at least one server single input is being type.
     if (!v_check_inputs_empty) {
 			v_block_conn_string = true;
 		}
@@ -899,6 +897,7 @@ function updateModalEditConnectionState(e) {
 		}
 		// Case where connection string is avaiable.
     else {
+			// console.log('allow connstring');
       v_enable_list.push('conn_form_connstring');
 			// Form cases will check the connection string.
 			v_form_cases.push('conn_form_connstring');
@@ -995,29 +994,25 @@ function updateModalEditConnectionState(e) {
 			v_form_cases.push('conn_form_ssh_server');
 			v_form_cases.push('conn_form_ssh_port');
 			v_form_cases.push('conn_form_ssh_user');
-			v_form_cases.push('conn_form_ssh_password');
-			v_form_cases.push('conn_form_ssh_key');
-			v_form_cases.push('conn_form_ssh_key_input');
     }
 		// Case where user picked DB technologies require server config.
-    else {
-      v_enable_list = [
-        'conn_form_connstring',
-        'conn_form_server',
-        'conn_form_port',
-        'conn_form_database',
-        'conn_form_user',
-        'conn_form_user_pass'
-      ];
-      document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
-			// Form cases will check for single connection inputs, except password.
-			v_form_cases.push('conn_form_connstring');
-			v_form_cases.push('conn_form_server');
-			v_form_cases.push('conn_form_port');
-			v_form_cases.push('conn_form_database');
-			v_form_cases.push('conn_form_user');
-			v_form_cases.push('conn_form_user_pass');
-    }
+    // else {
+    //   v_enable_list = [
+    //     'conn_form_connstring',
+    //     'conn_form_server',
+    //     'conn_form_port',
+    //     'conn_form_database',
+    //     'conn_form_user',
+    //     'conn_form_user_pass'
+    //   ];
+    //   document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
+		// 	// Form cases will check for single connection inputs, except password.
+		// 	v_form_cases.push('conn_form_connstring');
+		// 	v_form_cases.push('conn_form_server');
+		// 	v_form_cases.push('conn_form_port');
+		// 	v_form_cases.push('conn_form_database');
+		// 	v_form_cases.push('conn_form_user');
+    // }
   }
 
 
@@ -1193,8 +1188,9 @@ function updateModalEditConnectionFields(p_disable_list, p_enable_list, p_form_c
 	if (p_form_cases) {
 		for (let i = 0; i < p_form_cases.length; i++) {
 			if (p_form_cases[i] === 'conn_form_type') {
-				if (document.getElementById(p_form_cases[i]).selectedIndex === 0) {
+				if (document.getElementById(p_form_cases[i]).value === '-1') {
 					v_has_invalid = true;
+					// console.log('missing case', p_form_cases[i]);
 					break;
 				}
 			}
@@ -1202,9 +1198,11 @@ function updateModalEditConnectionFields(p_disable_list, p_enable_list, p_form_c
 				let v_value_check = document.getElementById(p_form_cases[i]).value.trim();
 				if (v_value_check === '' || v_value_check === null) {
 					v_has_invalid = true;
+					console.log('missing case', p_form_cases[i]);
 					break;
 				}
 			}
+			// console.log('valid case', p_form_cases[i]);
 		}
 	}
 	if (v_has_invalid) {

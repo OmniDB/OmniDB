@@ -22,11 +22,16 @@ group = optparse.OptionGroup(parser, "General Options")
 
 group.add_option("-d", "--homedir", dest="homedir",
                   default='', type=str,
-                  help="home directory containing local databases config and log files")
+                  help="home directory containing config and log files")
 
 group.add_option("-C", "--configfile", dest="conf",
                   default='', type=str,
                   help="configuration file")
+
+group.add_option("-i", "--init", dest="init",
+                  action="store_true",
+                  default=False,
+                  help="Create home directory containing config and log files")
 
 parser.add_option_group(group)
 
@@ -106,6 +111,7 @@ else:
         OmniDB.custom_settings.HOME_DIR = os.path.join(os.path.expanduser('~'), '.omnidb', 'omnidb-server')
 
     if not os.path.exists(OmniDB.custom_settings.HOME_DIR):
+        print("Creating home directory.",flush=True)
         os.makedirs(OmniDB.custom_settings.HOME_DIR)
 
 
@@ -118,7 +124,11 @@ if options.conf!='':
 else:
     config_file = os.path.join(OmniDB.custom_settings.HOME_DIR, 'config.py')
     if not os.path.exists(config_file):
+        print("Copying config file to home directory.",flush=True)
         shutil.copyfile(os.path.join(OmniDB.custom_settings.BASE_DIR, 'config.py'), config_file)
+
+if options.init:
+    sys.exit()
 
 # Loading config file
 spec = importlib.util.spec_from_file_location("omnidb_settings", config_file)
@@ -482,7 +492,6 @@ class DjangoApplication(object):
                 #Sending response to electron app
                 print ("http://localhost:{0}/omnidb_login/?user=admin&pwd=admin&token={1}".format(str(port),OmniDB.custom_settings.APP_TOKEN),flush=True)
 
-
             cherrypy.engine.block()
             cherrypy.engine.exit()
         else:
@@ -508,12 +517,17 @@ except Exception as exc:
 #Removing Expired Sessions
 SessionStore.clear_expired()
 
-DjangoApplication().run(
-    {
-        'listening_address'   : listening_address,
-        'listening_port'      : listening_port,
-        'is_ssl'              : is_ssl,
-        'ssl_certificate_file': ssl_certificate_file,
-        'ssl_key_file'        : ssl_key_file
-    }
-)
+try:
+    DjangoApplication().run(
+        {
+            'listening_address'   : listening_address,
+            'listening_port'      : listening_port,
+            'is_ssl'              : is_ssl,
+            'ssl_certificate_file': ssl_certificate_file,
+            'ssl_key_file'        : ssl_key_file
+        }
+    )
+except KeyboardInterrupt:
+    cherrypy.engine.exit()
+    print("")
+    print("Bye!")

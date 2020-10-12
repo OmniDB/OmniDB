@@ -36,6 +36,8 @@ def check_session(request):
         user_details = UserDetails(user=request.user)
         user_details.save()
 
+    print(user_details.csv_delimiter)
+
     #Invalid session
     if not request.session.get('omnidb_session'):
         #creating session key to use it

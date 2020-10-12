@@ -244,7 +244,7 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
   v_tab.tag = v_tag;
 
   // Creating `Add` tab in the outer tab list
-  v_connTabControl.tag.createAddTab();
+  v_connTabControl.createAddTab();
 
   $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 

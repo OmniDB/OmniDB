@@ -180,7 +180,7 @@ var v_createDebuggerTabFunction = function(p_function) {
   });
   v_statistics_tab.elementDiv.innerHTML =
   '<div class="p-2 omnidb__query-result-tabs__content omnidb__theme-border--primary">' +
-    '<div id="div_statistics_' + v_tab.id + '" class="omnidb__query-result-tabs__content" style="width: 100%; overflow: hidden;">' +
+    '<div id="div_statistics_' + v_tab.id + '" class="omnidb__query-result-tabs__content" style="width: 100%; overflow-x: auto; overflow-y: hidden;">' +
       '<div id="div_statistics_container_' + v_tab.id + '" style="height: 100%; position: relative;">' +
         '<canvas id="div_statistics_canvas_' + v_tab.id + '"></canvas>' +
       '</div>' +

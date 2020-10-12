@@ -26,7 +26,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
         p_tooltip_name += '<div class="mb-1">' + v_conn.v_details2 + '</div>';
       }
     }
-    
+
     let v_icon = '<img src="' + v_url_folder + '/static/OmniDB_app/images/' + v_conn.v_db_type;
     if (v_conn.v_db_type === 'postgresql' || v_conn.v_db_type === 'oracle'|| v_conn.v_db_type === 'mariadb' || v_conn.v_db_type === 'mysql') {
       v_icon += '.svg"/>';
@@ -365,7 +365,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     }
 
     // Creating `Add` tab in the outer tab list
-    v_connTabControl.tag.createAddTab();
+    v_connTabControl.createAddTab();
 
     $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
 

@@ -36,7 +36,7 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
         v_option_list,
         null);
     },
-    p_tooltip_name: '<h5 class="my-1">Welcome to OmniDB</h5>'
+    p_omnidb_tooltip_name: '<h5 class="my-1">Welcome to OmniDB</h5>'
   });
 
   v_connTabControl.selectTab(v_tab);

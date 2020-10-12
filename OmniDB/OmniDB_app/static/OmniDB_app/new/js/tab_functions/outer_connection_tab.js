@@ -104,7 +104,7 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
           v_option_list,
           null);
       },
-      p_tooltip_name: p_tooltip_name
+      p_omnidb_tooltip_name: p_tooltip_name
     });
 
     v_connTabControl.selectTab(v_tab);

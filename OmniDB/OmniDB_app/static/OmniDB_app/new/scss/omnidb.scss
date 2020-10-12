@@ -531,6 +531,11 @@ button.close {
 .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
   font-size: 1.2rem;
 }
+.omnidb__tab-menu--primary .omnidb__tab-menu__link-icon {
+  svg, path, circle {
+    pointer-events: none;
+  }
+}
 .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon i,
 .omnidb__tab-menu--primary .omnidb__tab-menu__link-icon img {
   transition: 0.35s;
@@ -1402,6 +1407,24 @@ label.omnidb__switch--label span {
 .tooltip div {
   font-size: 1rem;
   text-align: left;
+}
+
+.omnidb__tooltip {
+  .arrow {
+    top: 10px;
+  }
+  &__inner {
+    position: relative;
+    .arrow {
+      left: -5px;
+    }
+  }
+  &--bottom {
+    .arrow {
+      top: unset;
+      bottom: 10px;
+    }
+  }
 }
 
 body {

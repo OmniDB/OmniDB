@@ -194,14 +194,17 @@ var v_createDebuggerTabFunction = function(p_function) {
   v_editor.setTheme("ace/theme/" + v_editor_theme);
   v_editor.session.setMode("ace/mode/sql");
   v_editor.setFontSize(Number(v_font_size));
+  v_editor.setOptions({
+    readOnly: true,
+  });
 
   // Setting custom keyboard shortcuts callbacks.
-  $('#txt_func_body_' + v_tab.id).find('.ace_text-input').on('keyup',function(event){
-    autocomplete_start(v_editor,0, event);
-  });
-  $('#txt_func_body_' + v_tab.id).find('.ace_text-input').on('keydown',function(event){
-    autocomplete_keydown(v_editor, event);
-  });
+  // $('#txt_func_body_' + v_tab.id).find('.ace_text-input').on('keyup',function(event){
+  //   autocomplete_start(v_editor,0, event);
+  // });
+  // $('#txt_func_body_' + v_tab.id).find('.ace_text-input').on('keydown',function(event){
+  //   autocomplete_keydown(v_editor, event);
+  // });
   //
   // document.getElementById('txt_func_body_' + v_tab.id).addEventListener('contextmenu',function(event) {
   //   event.stopPropagation();

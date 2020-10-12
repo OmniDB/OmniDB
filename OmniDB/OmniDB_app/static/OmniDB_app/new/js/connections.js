@@ -1198,7 +1198,7 @@ function updateModalEditConnectionFields(p_disable_list, p_enable_list, p_form_c
 				let v_value_check = document.getElementById(p_form_cases[i]).value.trim();
 				if (v_value_check === '' || v_value_check === null) {
 					v_has_invalid = true;
-					console.log('missing case', p_form_cases[i]);
+					// console.log('missing case', p_form_cases[i]);
 					break;
 				}
 			}

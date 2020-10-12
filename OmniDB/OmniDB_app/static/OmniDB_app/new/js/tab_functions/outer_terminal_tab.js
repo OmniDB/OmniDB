@@ -25,7 +25,7 @@ var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Termi
     p_rightClickFunction: function(e) {
       terminalContextMenu(e,v_tab);
     },
-    p_tooltip_name: v_tooltip_name
+    p_omnidb_tooltip_name: v_tooltip_name
   });
 
   v_connTabControl.selectTab(v_tab);

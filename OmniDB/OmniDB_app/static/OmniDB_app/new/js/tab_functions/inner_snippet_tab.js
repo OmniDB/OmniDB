@@ -22,9 +22,7 @@ var v_createSnippetTextTabFunction = function(p_snippet = null) {
   var v_tab = v_connTabControl.snippet_tag.tabControl.createTab({
     p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
     p_selectFunction: function() {
-      if(this.tag != null) {
-        //refreshHeights();
-      }
+      refreshHeights();
       if(this.tag != null && this.editor != null) {
           this.editor.focus();
       }

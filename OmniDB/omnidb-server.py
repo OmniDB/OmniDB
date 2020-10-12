@@ -482,7 +482,6 @@ class DjangoApplication(object):
                 #Sending response to electron app
                 print ("http://localhost:{0}/omnidb_login/?user=admin&pwd=admin&token={1}".format(str(port),OmniDB.custom_settings.APP_TOKEN),flush=True)
 
-
             cherrypy.engine.block()
             cherrypy.engine.exit()
         else:
@@ -508,12 +507,16 @@ except Exception as exc:
 #Removing Expired Sessions
 SessionStore.clear_expired()
 
-DjangoApplication().run(
-    {
-        'listening_address'   : listening_address,
-        'listening_port'      : listening_port,
-        'is_ssl'              : is_ssl,
-        'ssl_certificate_file': ssl_certificate_file,
-        'ssl_key_file'        : ssl_key_file
-    }
-)
+try:
+    DjangoApplication().run(
+        {
+            'listening_address'   : listening_address,
+            'listening_port'      : listening_port,
+            'is_ssl'              : is_ssl,
+            'ssl_certificate_file': ssl_certificate_file,
+            'ssl_key_file'        : ssl_key_file
+        }
+    )
+except KeyboardInterrupt:
+    cherrypy.engine.exit()
+    print("Bye!")

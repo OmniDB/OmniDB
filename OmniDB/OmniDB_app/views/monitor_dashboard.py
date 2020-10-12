@@ -56,7 +56,7 @@ def _hook_import(name, *args, **kwargs):
     return __import__(name,*args,**kwargs)
 
 @user_authenticated
-@database_required(p_check_timeout = True, p_open_connection = True)
+@database_required(p_check_timeout = False, p_open_connection = False)
 def get_monitor_unit_list(request, v_database):
 
     v_return = {}
@@ -141,7 +141,7 @@ def get_monitor_unit_details(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_required(p_check_timeout = True, p_open_connection = True)
+@database_required(p_check_timeout = False, p_open_connection = False)
 def get_monitor_units(request, v_database):
 
     v_return = {}
@@ -270,7 +270,7 @@ def get_monitor_unit_template(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_required(p_check_timeout = True, p_open_connection = True)
+@database_required(p_check_timeout = False, p_open_connection = False)
 def save_monitor_unit(request, v_database):
 
     v_return = {}

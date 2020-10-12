@@ -144,7 +144,7 @@ function cancelAjax() {
  					p_errorFunc(p_return);
  				}
  				else {
- 					showError(p_return.v_data);
+ 					showAlert(p_return.v_data);
  				}
  			}
 			// Resuming the workflow with the success callback function.

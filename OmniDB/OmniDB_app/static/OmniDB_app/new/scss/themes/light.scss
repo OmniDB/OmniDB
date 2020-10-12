@@ -334,6 +334,9 @@
 }
 
 /* FORMS */
+.omnidb--theme-light ::placeholder {
+  color: #808080;
+}
 .omnidb--theme-light .omnidb__form-check .form-check-label::before {
   background-color: #F4F4F4 !important;
   border: 1px solid #DEDEDE !important;

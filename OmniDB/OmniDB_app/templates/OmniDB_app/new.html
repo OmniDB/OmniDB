@@ -192,85 +192,108 @@
         					</div>
                 </div>
               </div>
-              <div class="form-row">
-                <div class="col-md mb-3">
-                  <label for="conn_form_connstring">Connection string</label>
-                  <input type="text" class="form-control" id="conn_form_connstring" placeholder="Connection string" onchange="updateModalEditConnectionState(event)">
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="col-md-3 mb-3">
-                  <label for="conn_form_server">Server</label>
-                  <input type="text" class="form-control" id="conn_form_server" placeholder="Server" onchange="updateModalEditConnectionState(event)">
-                </div>
-                <div class="col-md-1 mb-3">
-                  <label for="conn_form_port">Port</label>
-                  <input type="text" class="form-control" id="conn_form_port" placeholder="Port" onchange="updateModalEditConnectionState(event)">
-                </div>
-                <div class="col-md-3 mb-3">
-                  <label for="conn_form_database">Database</label>
-                  <input type="text" class="form-control" id="conn_form_database" placeholder="Database" onchange="updateModalEditConnectionState(event)">
-                </div>
-                <div class="col-md-3 mb-3">
-                  <label for="conn_form_user">User</label>
-                  <input type="text" class="form-control" id="conn_form_user" placeholder="User" onchange="updateModalEditConnectionState(event)">
-                </div>
-                <div class="col-md-2 mb-3">
-                  <label for="conn_form_user_pass">User Password <i class="fas fa-question-circle text-info" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional user password</h5></h4><ul><li><strong>If provided:</strong> password will be stored to omnidb configuration's database and used when connecting to this connection.</li><li><strong>Leaving blank:</strong> No password will be saved and it will be requested to be manually type everytime the user tries to use this connection. If it's a <strong>PostgreSQL</strong> connection, OmniDB will try to retrieve password from <strong>.pgpass</strong>.</li></ul>"></i></label>
-                  <input type="password" class="form-control" id="conn_form_user_pass" placeholder="User Password">
-                </div>
-              </div>
 
-              <div class="form-group">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="conn_form_use_tunnel" onchange="updateModalEditConnectionState(event)">
-                  <label class="form-check-label" for="conn_form_use_tunnel">
-                    Use SSH tunnel
-                  </label>
+              <div class="card">
+                <div class="card-header">
+                  <h6>Host Connection Info</h6>
                 </div>
-              </div>
-              <div class="form-row">
-                <div class="col-md-4 mb-3">
-                  <label for="conn_form_ssh_server">SSH Server</label>
-                  <input type="text" class="form-control" id="conn_form_ssh_server" placeholder="SSH server" readonly onchange="updateModalEditConnectionState(event)">
-                </div>
-                <div class="col-md-2 mb-3">
-                  <label for="conn_form_ssh_port">SSH Port</label>
-                  <input type="text" class="form-control" id="conn_form_ssh_port" placeholder="SSH port" readonly onchange="updateModalEditConnectionState(event)">
-                </div>
-                <div class="col-md-3 mb-3">
-                  <label for="conn_form_ssh_user">SSH User</label>
-                  <input type="text" class="form-control" id="conn_form_ssh_user" placeholder="SSH user" readonly onchange="updateModalEditConnectionState(event)">
-                </div>
-                <div class="col-md-3 mb-3">
-                  <label for="conn_form_ssh_password">
-                    Password / Passphrase
-                    <i
-                      class="fas fa-question-circle text-info ml-2" data-toggle="tooltip" data-html="true" data-placement="bottom"
-                      title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh password / passphrase</h5></h4><ul><li><strong>If provided:</strong> Lorem.</li><li><strong>Leaving blank:</strong> Lorem.</li></ul>"
-                    ></i>
-                  </label>
-                  <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" onchange="updateConnectionKey(event)" readonly>
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="col-md mb-3">
-                  <label for="conn_form_ssh_key">
-                    SSH Key Text File
-                    <i
-                      class="fas fa-question-circle text-info ml-2" data-toggle="tooltip" data-html="true" data-placement="bottom"
-                      title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh key</h5></h4><ul><li><strong>If provided:</strong> Lorem.</li><li><strong>Leaving blank:</strong> Lorem.</li></ul>"
-                    ></i>
-                  </label>
-                  <textarea style="display:none;" class="form-control" id="conn_form_ssh_key" rows="4" readonly></textarea>
-                  <div class="ml-4 d-inline-block custom-file" style="width: 200px;">
-                    <input type="file" id="conn_form_ssh_key_input" onchange="updateConnectionKey(event)" style="width: 200px;height: 100%;" disabled/>
-                    <label id="conn_form_ssh_key_input_label" class="custom-file-label" for="conn_form_ssh_key_input">Click to select</label>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="col-md-3 mb-3">
+                      <label for="conn_form_server">Server</label>
+                      <input type="text" class="form-control" id="conn_form_server" placeholder="ex: 127.0.0.1" onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-1 mb-3">
+                      <label for="conn_form_port">Port</label>
+                      <input type="text" class="form-control" id="conn_form_port" placeholder="ex: 5432" onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label for="conn_form_database">Database</label>
+                      <input type="text" class="form-control" id="conn_form_database" placeholder="ex: postgres" onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label for="conn_form_user">User</label>
+                      <input type="text" class="form-control" id="conn_form_user" placeholder="ex: postgres" onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                      <label for="conn_form_user_pass">User Password <i class="fas fa-question-circle text-info" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional user password</h5></h4><ul><li><strong>If provided:</strong> password will be stored to omnidb configuration's database and used when connecting to this connection.</li><li><strong>Leaving blank:</strong> No password will be saved and it will be requested to be manually type everytime the user tries to use this connection. If it's a <strong>PostgreSQL</strong> connection, OmniDB will try to retrieve password from <strong>.pgpass</strong>.</li></ul>"></i></label>
+                      <input type="password" class="form-control" id="conn_form_user_pass" placeholder="User Password">
+                    </div>
+                  </div>
+
+                  <div class="position-relative">
+                    <div style="position: absolute; top: -1rem; left: 2rem; padding: 0.25rem;" class="omnidb__theme-bg--light"><b>OR</b></div>
+                    <hr/>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-md mb-3">
+                      <label for="conn_form_connstring">Connection string <i class="fas fa-question-circle text-info" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional connection string</h5></h4><ul><li><strong>If provided:</strong> ...</li></ul>"></i></label>
+                      <input type="text" class="form-control" id="conn_form_connstring" placeholder="Connection string" onchange="updateModalEditConnectionState(event)">
+                    </div>
                   </div>
                 </div>
               </div>
-              <button id="conn_form_button_test_connection" class="btn omnidb__theme__btn--primary" onclick="testConnection();" disabled>Test</button>
-              <button id="conn_form_button_save_connection" class="btn btn-success" onclick="saveConnection();" disabled>Save</button>
+
+              <div class="card mt-4">
+                <div class="card-header">
+                  <div class="form-group">
+                    <div class="omnidb__form-check form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" value="" id="conn_form_use_tunnel" onchange="updateModalEditConnectionState(event)">
+                      <label class="form-check-label" for="conn_form_use_tunnel">
+                        <b style="vertical-align: middle;">Use SSH tunnel</b>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="col-md-4 mb-3">
+                      <label for="conn_form_ssh_server">SSH Server</label>
+                      <input type="text" class="form-control" id="conn_form_ssh_server" placeholder="SSH server" readonly onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                      <label for="conn_form_ssh_port">SSH Port</label>
+                      <input type="text" class="form-control" id="conn_form_ssh_port" placeholder="SSH port" readonly onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label for="conn_form_ssh_user">SSH User</label>
+                      <input type="text" class="form-control" id="conn_form_ssh_user" placeholder="SSH user" readonly onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label for="conn_form_ssh_password">
+                        Password / Passphrase
+                        <i
+                          class="fas fa-question-circle text-info ml-2" data-toggle="tooltip" data-html="true" data-placement="bottom"
+                          title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh password / passphrase</h5></h4><ul><li><strong>If provided:</strong> Lorem.</li><li><strong>Leaving blank:</strong> Lorem.</li></ul>"
+                        ></i>
+                      </label>
+                      <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" onchange="updateConnectionKey(event)" readonly>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col-md mb-3">
+                      <label for="conn_form_ssh_key">
+                        SSH Key Text File
+                        <i
+                          class="fas fa-question-circle text-info ml-2" data-toggle="tooltip" data-html="true" data-placement="bottom"
+                          title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh key</h5></h4><ul><li><strong>If provided:</strong> Lorem.</li><li><strong>Leaving blank:</strong> Lorem.</li></ul>"
+                        ></i>
+                      </label>
+                      <textarea style="display:none;" class="form-control" id="conn_form_ssh_key" rows="4" readonly></textarea>
+                      <div class="ml-4 d-inline-block custom-file" style="width: 200px;">
+                        <input type="file" id="conn_form_ssh_key_input" onchange="updateConnectionKey(event)" style="width: 200px;height: 100%;" disabled/>
+                        <label id="conn_form_ssh_key_input_label" class="custom-file-label" for="conn_form_ssh_key_input">Click to select</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <button id="conn_form_button_test_connection" class="btn omnidb__theme__btn--primary" onclick="testConnection();" disabled>Test</button>
+                <button id="conn_form_button_save_connection" class="btn btn-success" onclick="saveConnection();" disabled>Save</button>
+              </div>
 
           </div>
         </div>

@@ -328,6 +328,9 @@
   }
 
   /* FORMS */
+  ::placeholder {
+    color: #636A71;
+  }
   .omnidb__form-check .form-check-label::before {
     background-color: #2F3136 !important;
     border: 1px solid #4C5365 !important;

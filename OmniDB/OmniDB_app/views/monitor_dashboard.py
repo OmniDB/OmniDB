@@ -428,7 +428,7 @@ def update_saved_monitor_unit_interval(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_required(p_check_timeout = False, p_open_connection = True)
+@database_required(p_check_timeout = True, p_open_connection = True)
 def refresh_monitor_units(request, v_database):
 
     v_return = {}

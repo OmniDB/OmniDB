@@ -844,12 +844,31 @@ result = {
 'script_data': """
 from datetime import datetime
 
-query_data = connection.Query('''
-    SELECT sum(heap_blks_read) AS reads,
-           sum(heap_blks_hit) AS hits,
-           round(sum(heap_blks_read) / (sum(heap_blks_read) + sum(heap_blks_hit)), 2) AS miss_ratio
-    FROM pg_statio_all_tables
-''')
+if previous_data != None:
+    query = '''
+        SELECT sum(heap_blks_read) AS current_reads,
+               sum(heap_blks_hit) AS current_hits,
+               now()::time AS current_time,
+               round(
+                   (sum(heap_blks_read) - {0}) / (sum(heap_blks_read) + sum(heap_blks_hit) - {1}),
+                   2
+               ) AS miss_ratio,
+               0.0 AS miss_ratio
+        FROM pg_statio_all_tables
+    '''.format(
+        previous_data['current_reads'],
+        previous_data['current_hits'] + previous_data['current_reads']
+    )
+else:
+    query = '''
+        SELECT sum(heap_blks_read) AS current_reads,
+               sum(heap_blks_hit) AS current_hits,
+               now()::time AS current_time,
+               0.0 AS miss_ratio
+        FROM pg_statio_all_tables
+    '''
+
+query_data = connection.Query(query)
 
 datasets = []
 datasets.append({
@@ -864,7 +883,10 @@ datasets.append({
 
 result = {
     "labels": [datetime.now().strftime('%H:%M:%S')],
-    "datasets": datasets
+    "datasets": datasets,
+    "current_reads": query_data.Rows[0]['current_reads'],
+    "current_hits": query_data.Rows[0]['current_hits'],
+    'current_time': query_data.Rows[0]['current_time']
 }
 """
 },
@@ -925,12 +947,31 @@ result = {
 'script_data': """
 from datetime import datetime
 
-query_data = connection.Query('''
-    SELECT sum(idx_blks_read) AS reads,
-           sum(idx_blks_hit) AS hits,
-           round(sum(idx_blks_read) / (sum(idx_blks_read) + sum(idx_blks_hit)), 2) AS miss_ratio
-    FROM pg_statio_all_tables
-''')
+if previous_data != None:
+    query = '''
+        SELECT sum(idx_blks_read) AS current_reads,
+               sum(idx_blks_hit) AS current_hits,
+               now()::time AS current_time,
+               round(
+                   (sum(idx_blks_read) - {0}) / (sum(idx_blks_read) + sum(idx_blks_hit) - {1}),
+                   2
+               ) AS miss_ratio,
+               0.0 AS miss_ratio
+        FROM pg_statio_all_tables
+    '''.format(
+        previous_data['current_reads'],
+        previous_data['current_hits'] + previous_data['current_reads']
+    )
+else:
+    query = '''
+        SELECT sum(idx_blks_read) AS current_reads,
+               sum(idx_blks_hit) AS current_hits,
+               now()::time AS current_time,
+               0.0 AS miss_ratio
+        FROM pg_statio_all_tables
+    '''
+
+query_data = connection.Query(query)
 
 datasets = []
 datasets.append({
@@ -945,7 +986,10 @@ datasets.append({
 
 result = {
     "labels": [datetime.now().strftime('%H:%M:%S')],
-    "datasets": datasets
+    "datasets": datasets,
+    "current_reads": query_data.Rows[0]['current_reads'],
+    "current_hits": query_data.Rows[0]['current_hits'],
+    'current_time': query_data.Rows[0]['current_time']
 }
 """
 },
@@ -1006,12 +1050,30 @@ result = {
 'script_data': """
 from datetime import datetime
 
-query_data = connection.Query('''
-    SELECT sum(seq_scan) as seq,
-           sum(idx_scan) as idx,
-           round(sum(seq_scan) / (sum(seq_scan) + sum(idx_scan)), 2) AS ratio
-    FROM pg_stat_all_tables
-''')
+if previous_data != None:
+    query = '''
+        SELECT sum(seq_scan) as current_seq,
+               sum(idx_scan) as current_idx,
+               now()::time AS current_time,
+               round(
+                   (sum(seq_scan) - {1}) / (sum(seq_scan) + sum(idx_scan) - {1}),
+                   2
+               ) AS ratio
+        FROM pg_stat_all_tables
+    '''.format(
+        previous_data['current_seq'],
+        previous_data['current_seq'] + previous_data['current_idx']
+    )
+else:
+    query = '''
+        SELECT sum(seq_scan) as current_seq,
+               sum(idx_scan) as current_idx,
+               now()::time AS current_time,
+               0.0 AS ratio
+        FROM pg_stat_all_tables
+    '''
+
+query_data = connection.Query(query)
 
 datasets = []
 datasets.append({
@@ -1026,7 +1088,10 @@ datasets.append({
 
 result = {
     "labels": [datetime.now().strftime('%H:%M:%S')],
-    "datasets": datasets
+    "datasets": datasets,
+    "current_seq": query_data.Rows[0]['current_seq'],
+    "current_idx": query_data.Rows[0]['current_idx'],
+    'current_time': query_data.Rows[0]['current_time']
 }
 """
 }, {

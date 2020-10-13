@@ -832,7 +832,8 @@ class PostgreSQL:
     @lock_required
     def QueryTablespaces(self):
         return self.v_connection.Query('''
-            select quote_ident(spcname) as tablespace_name
+            select quote_ident(spcname) as tablespace_name,
+                   oid
             from pg_tablespace
             order by spcname
         ''', True)
@@ -876,21 +877,26 @@ class PostgreSQL:
     @lock_required
     def QuerySchemas(self):
         return self.v_connection.Query('''
-            select schema_name
+            select schema_name,
+                   oid
             from (
             select schema_name,
-                   row_number() over() as sort
+                   row_number() over() as sort,
+                   oid
             from (
-            select quote_ident(nspname) as schema_name
+            select quote_ident(nspname) as schema_name,
+                   oid
             from pg_catalog.pg_namespace
             where nspname in ('public', 'pg_catalog', 'information_schema')
             order by nspname desc
             ) x
             union all
             select schema_name,
-                   3 + row_number() over() as sort
+                   3 + row_number() over() as sort,
+                   oid
             from (
-            select quote_ident(nspname) as schema_name
+            select quote_ident(nspname) as schema_name,
+                   oid
             from pg_catalog.pg_namespace
             where nspname not in ('public', 'pg_catalog', 'information_schema', 'pg_toast')
               and nspname not like 'pg%%temp%%'
@@ -1621,7 +1627,8 @@ class PostgreSQL:
                    t.tgenabled as trigger_enabled,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) as trigger_function,
                    quote_ident(np.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
-                   p.oid AS function_oid
+                   p.oid AS function_oid,
+                   t.oid
             from pg_trigger t
             inner join pg_class c
             on c.oid = t.tgrelid
@@ -1834,7 +1841,8 @@ class PostgreSQL:
             '''
                 select quote_ident(c.relname) AS table_name,
                        quote_ident(se.stxname) AS statistic_name,
-                       quote_ident(n2.nspname) AS schema_name
+                       quote_ident(n2.nspname) AS schema_name,
+                       se.oid
                 FROM pg_statistic_ext se
                 INNER JOIN pg_class c
                         ON se.stxrelid = c.oid
@@ -2512,7 +2520,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             select quote_ident(s.subname) as subname,
                    s.subenabled,
                    s.subconninfo,
-                   array_to_string(s.subpublications, ',') as subpublications
+                   array_to_string(s.subpublications, ',') as subpublications,
+                   s.oid
             from pg_subscription s
             inner join pg_database d
             on d.oid = s.subdbid
@@ -2553,7 +2562,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             select s.srvname,
                    s.srvtype,
                    s.srvversion,
-                   array_to_string(srvoptions, ',') as srvoptions
+                   array_to_string(srvoptions, ',') as srvoptions,
+                   s.oid
             from pg_foreign_server s
             inner join pg_foreign_data_wrapper w
             on w.oid = s.srvfdw
@@ -2734,7 +2744,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
             v_filter = "and quote_ident(n.nspname) not in ('information_schema','pg_catalog') "
         v_table = self.v_connection.Query('''
             select quote_ident(n.nspname) as type_schema,
-                   quote_ident(t.typname) as type_name
+                   quote_ident(t.typname) as type_name,
+                   t.oid
             from pg_type t
             inner join pg_namespace n
             on n.oid = t.typnamespace
@@ -8602,10 +8613,19 @@ FROM #table_name#
     @lock_required
     def GetDDLTablespace(self, p_object):
         return self.v_connection.ExecuteScalar('''
-            select format(E'CREATE TABLESPACE %s\nLOCATION %s\nOWNER %s;',
+            select format(E'CREATE TABLESPACE %s\nLOCATION %s\nOWNER %s;%s',
                          quote_ident(t.spcname),
                          chr(39) || pg_tablespace_location(t.oid) || chr(39),
-                         quote_ident(r.rolname))
+                         quote_ident(r.rolname),
+                         (CASE WHEN shobj_description(t.oid, 'pg_tablespace') IS NOT NULL
+                               THEN format(
+                                       E'\n\nCOMMENT ON TABLESPACE %s IS %s;',
+                                       quote_ident(t.spcname),
+                                       quote_literal(shobj_description(t.oid, 'pg_tablespace'))
+                                   )
+                               ELSE ''
+                          END)
+                   )
             from pg_tablespace t
             inner join pg_roles r
             on r.oid = t.spcowner
@@ -10951,14 +10971,24 @@ FROM #table_name#
                    '  ON {0}.{1}' || chr(10) ||
                    '  FOR EACH ' || x.action_orientation || chr(10) ||
                    (case when length(coalesce(x.action_condition, '')) > 0 then '  WHEN ( ' || x.action_condition || ') ' || chr(10) else '' end) ||
-                   '  ' || x.action_statement as definition
+                   '  ' || x.action_statement ||
+                   (CASE WHEN obj_description(x.oid, 'pg_trigger') IS NOT NULL
+                         THEN format(
+                                 E'\n\nCOMMENT ON TRIGGER %s ON %s IS %s;',
+                                 quote_ident(x.trigger_name),
+                                 quote_ident('{0}.{1}'::regclass::text),
+                                 quote_literal(obj_description(x.oid, 'pg_trigger'))
+                             )
+                         ELSE ''
+                    END) as definition
             from (
             select distinct quote_ident(t.trigger_name) as trigger_name,
                    t.action_timing,
                    e.event as event_manipulation,
                    t.action_orientation,
                    t.action_condition,
-                   t.action_statement
+                   t.action_statement,
+                   t2.oid
             from information_schema.triggers t
             inner join (
             select array_to_string(array(
@@ -10970,6 +11000,13 @@ FROM #table_name#
             ), ' OR ') as event
             ) e
             on 1 = 1
+            INNER JOIN (
+                select oid
+                FROM pg_trigger
+                WHERE quote_ident(tgname) = '{2}'
+                  AND tgrelid = '{0}.{1}'::regclass
+            ) t2
+                    ON 1 = 1
             where quote_ident(t.event_object_schema) = '{0}'
               and quote_ident(t.event_object_table) = '{1}'
               and quote_ident(t.trigger_name) = '{2}'
@@ -11452,7 +11489,7 @@ FROM #table_name#
                 ON r.oid = s.srvowner
                 WHERE g.grantee <> r.rolname
             )
-            select format(E'CREATE SERVER %s%s%s\n  FOREIGN DATA WRAPPER %s%s;\n\nALTER SERVER %s OWNER TO %s;\n\n%s',
+            select format(E'CREATE SERVER %s%s%s\n  FOREIGN DATA WRAPPER %s%s;\n\nALTER SERVER %s OWNER TO %s;\n\n%s%s',
                      quote_ident(s.srvname),
                      (case when s.srvtype is not null
                            then format(E'\n  TYPE %s\n', quote_literal(s.srvtype))
@@ -11492,7 +11529,15 @@ FROM #table_name#
                       end),
                      quote_ident(s.srvname),
                      quote_ident(r.rolname),
-                     g.text
+                     g.text,
+                     (CASE WHEN obj_description(s.oid, 'pg_foreign_server') IS NOT NULL
+                           THEN format(
+                                   E'\nCOMMENT ON SERVER %s IS %s;',
+                                   quote_ident(s.srvname),
+                                   quote_literal(obj_description(s.oid, 'pg_foreign_server'))
+                               )
+                           ELSE ''
+                      END)
                    )
             from pg_foreign_server s
             inner join pg_foreign_data_wrapper w
@@ -11633,13 +11678,21 @@ FROM #table_name#
         elif v_type == 'e':
             return self.v_connection.ExecuteScalar('''
                 select format(
-                           E'CREATE TYPE %s.%s AS ENUM (\n%s\n);\n\nALTER TYPE %s.%s OWNER TO %s;\n',
+                           E'CREATE TYPE %s.%s AS ENUM (\n%s\n);\n\nALTER TYPE %s.%s OWNER TO %s;\n%s',
                            quote_ident(n.nspname),
                            quote_ident(t.typname),
                            string_agg(format('    ' || chr(39) || '%s' || chr(39), e.enumlabel), E',\n'),
                            quote_ident(n.nspname),
                            quote_ident(t.typname),
-                           quote_ident(r.rolname)
+                           quote_ident(r.rolname),
+                           (CASE WHEN obj_description(t.oid, 'pg_type') IS NOT NULL
+                                 THEN format(
+                                         E'\n\nCOMMENT ON TYPE %s IS %s;',
+                                         quote_ident(t.oid::regtype::text),
+                                         quote_literal(obj_description(t.oid, 'pg_type'))
+                                     )
+                                 ELSE ''
+                            END)
                        )
                 from pg_type t
                 inner join pg_namespace n on n.oid = t.typnamespace
@@ -11649,12 +11702,13 @@ FROM #table_name#
                   and quote_ident(t.typname) = '{1}'
                 group by n.nspname,
                          t.typname,
-                         r.rolname
+                         r.rolname,
+                         t.oid
             '''.format(p_schema, p_object))
         elif v_type == 'r':
             return self.v_connection.ExecuteScalar('''
                 select format(
-                         E'CREATE TYPE %s.%s AS RANGE (\n  SUBTYPE = %s.%s\n%s%s%s%s);\n\nALTER TYPE %s.%s OWNER TO %s;\n',
+                         E'CREATE TYPE %s.%s AS RANGE (\n  SUBTYPE = %s.%s\n%s%s%s%s);\n\nALTER TYPE %s.%s OWNER TO %s;\n%s',
                          quote_ident(n.nspname),
                          quote_ident(t.typname),
                          quote_ident(sn.nspname),
@@ -11665,7 +11719,15 @@ FROM #table_name#
                          (case when ps.proname is not null then format(E'  , SUBTYPE_DIFF = %s.%s\n', quote_ident(ns.nspname), quote_ident(ps.proname)) else '' end),
                          quote_ident(n.nspname),
                          quote_ident(t.typname),
-                         quote_ident(ro.rolname)
+                         quote_ident(ro.rolname),
+                         (CASE WHEN obj_description(t.oid, 'pg_type') IS NOT NULL
+                               THEN format(
+                                       E'\n\nCOMMENT ON TYPE %s IS %s;',
+                                       quote_ident(t.oid::regtype::text),
+                                       quote_literal(obj_description(t.oid, 'pg_type'))
+                                   )
+                               ELSE ''
+                          END)
                        )
                 from pg_type t
                 inner join pg_namespace n on n.oid = t.typnamespace
@@ -11685,7 +11747,7 @@ FROM #table_name#
         else:
             return self.v_connection.ExecuteScalar('''
                 select format(
-                         E'CREATE TYPE %s (\n  INPUT = %s,\n  , OUTPUT = %s\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s);\n\nALTER TYPE %s OWNER TO %s;\n',
+                         E'CREATE TYPE %s (\n  INPUT = %s,\n  , OUTPUT = %s\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s);\n\nALTER TYPE %s OWNER TO %s;\n%s',
                          quote_ident(n.nspname) || '.' || quote_ident(t.typname),
                          quote_ident(ninput.nspname) || '.' || quote_ident(pinput.proname),
                          quote_ident(noutput.nspname) || '.' || quote_ident(poutput.proname),
@@ -11716,7 +11778,15 @@ FROM #table_name#
                          (case when t.typdelim is not null then format(E'  , DELIMITER = ' || chr(39) || '%s' || chr(39) || E'\n', t.typdelim) else '' end),
                          (case when coll.collname is not null then E'  , COLLATABLE = true\n' else '' end),
                          quote_ident(n.nspname) || '.' || quote_ident(t.typname),
-                         quote_ident(r.rolname)
+                         quote_ident(r.rolname),
+                         (CASE WHEN obj_description(t.oid, 'pg_type') IS NOT NULL
+                               THEN format(
+                                       E'\n\nCOMMENT ON TYPE %s IS %s;',
+                                       quote_ident(t.oid::regtype::text),
+                                       quote_literal(obj_description(t.oid, 'pg_type'))
+                                   )
+                               ELSE ''
+                          END)
                        )
                 from pg_type t
                 inner join pg_roles r on r.oid = t.typowner
@@ -12045,19 +12115,38 @@ FROM #table_name#
                         FROM subscription
                     ) y
                 ) z
+            ),
+            comments AS (
+                SELECT coalesce(obj_description(oid, 'pg_subscription'), '') AS description,
+                       subname
+                FROM subscription
+            ),
+            comment_on AS (
+                SELECT (CASE WHEN description <> ''
+                             THEN format(
+                                      E'\n\nCOMMENT ON SUBSCRIPTION %s IS %s;',
+                                      quote_ident(subname),
+                                      quote_literal(description)
+                                  )
+                             ELSE ''
+                        END) AS text
+                FROM comments
             )
-            SELECT format(E'CREATE SUBSCRIPTION %s\n  CONNECTION ''%s''\n  PUBLICATION %s\n%s;\n\nALTER SUBSCRIPTION %s OWNER TO %s;',
+            SELECT format(E'CREATE SUBSCRIPTION %s\n  CONNECTION ''%s''\n  PUBLICATION %s\n%s;\n\nALTER SUBSCRIPTION %s OWNER TO %s;%s',
                      quote_ident(s.subname),
                      s.subconninfo,
                      array_to_string(s.subpublications, ', '),
                      o.text,
                      quote_ident(s.subname),
-                     quote_ident(r.rolname)
+                     quote_ident(r.rolname),
+                     c.text
                    )
             FROM subscription s
             INNER JOIN pg_roles r
                     ON r.oid = s.subowner
             INNER JOIN options o
+                    ON 1 = 1
+            INNER JOIN comment_on c
                     ON 1 = 1
         """.format(p_object))
 
@@ -12122,9 +12211,27 @@ FROM #table_name#
                             FROM statistics
                         ) x
                     ) y
+                ),
+                comments AS (
+                    SELECT coalesce(obj_description(oid, 'pg_statistic_ext'), '') AS description,
+                           stxname,
+                           statistics_schema
+                    FROM statistics
+                ),
+                comment_on AS (
+                    SELECT (CASE WHEN description <> ''
+                                 THEN format(
+                                          E'\n\nCOMMENT ON STATISTICS %s.%s IS %s;',
+                                          quote_ident(statistics_schema),
+                                          quote_ident(stxname),
+                                          quote_literal(description)
+                                      )
+                                 ELSE ''
+                            END) AS text
+                    FROM comments
                 )
                 SELECT format(
-                           E'CREATE STATISTICS %s\n%s  ON %s\n  FROM %s;\n\nALTER STATISTICS %s OWNER TO %s;',
+                           E'CREATE STATISTICS %s\n%s  ON %s\n  FROM %s;\n\nALTER STATISTICS %s OWNER TO %s;%s',
                            format(
                                '%s.%s',
                                quote_ident(s.statistics_schema),
@@ -12142,12 +12249,15 @@ FROM #table_name#
                                quote_ident(s.statistics_schema),
                                quote_ident(s.stxname)
                            ),
-                           quote_ident(r.rolname)
+                           quote_ident(r.rolname),
+                           c.text
                        )
                 FROM statistics s
                 INNER JOIN pg_roles r
                         ON r.oid = s.stxowner
                 INNER JOIN options o
+                        ON 1 = 1
+                INNER JOIN comment_on c
                         ON 1 = 1
             """.format(
                 p_schema,
@@ -13595,6 +13705,24 @@ FROM #table_name#
         )
 
     @lock_required
+    def GetObjectDescriptionForeignServer(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT quote_ident(srvname) AS id,
+                       coalesce(obj_description({0}, 'pg_foreign_server'), '') AS description
+                FROM pg_foreign_server
+                WHERE oid = {0}
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON SERVER {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
     def GetObjectDescriptionForeignTable(self, p_oid):
         v_row = self.v_connection.Query(
             '''
@@ -13693,22 +13821,6 @@ FROM #table_name#
         )
 
     @lock_required
-    def GetObjectDescriptionSequence(self, p_oid):
-        v_row = self.v_connection.Query(
-            '''
-                SELECT {0}::regclass AS id,
-                       coalesce(obj_description({0}, 'pg_class'), '') AS description
-            '''.format(
-                p_oid
-            )
-        ).Rows[0]
-
-        return "COMMENT ON SEQUENCE {0} is '{1}'".format(
-            v_row['id'],
-            v_row['description']
-        )
-
-    @lock_required
     def GetObjectDescriptionRole(self, p_oid):
         v_row = self.v_connection.Query(
             '''
@@ -13747,6 +13859,74 @@ FROM #table_name#
         )
 
     @lock_required
+    def GetObjectDescriptionSchema(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regnamespace AS id,
+                       coalesce(obj_description({0}, 'pg_namespace'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON SCHEMA {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionSequence(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regclass AS id,
+                       coalesce(obj_description({0}, 'pg_class'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON SEQUENCE {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionStatistic(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT format('%s.%s', quote_ident(stxnamespace::regnamespace::text), quote_ident(stxname)) AS id,
+                       coalesce(obj_description({0}, 'pg_statistic_ext'), '') AS description
+                FROM pg_statistic_ext
+                WHERE oid = {0}
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON STATISTICS {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionSubscription(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT quote_ident(subname) AS id,
+                       coalesce(obj_description({0}, 'pg_subscription'), '') AS description
+                FROM pg_subscription
+                WHERE oid = {0}
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON SUBSCRIPTION {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
     def GetObjectDescriptionTable(self, p_oid):
         v_row = self.v_connection.Query(
             '''
@@ -13758,6 +13938,60 @@ FROM #table_name#
         ).Rows[0]
 
         return "COMMENT ON TABLE {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionTablespace(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT quote_ident(spcname) AS id,
+                       coalesce(shobj_description({0}, 'pg_tablespace'), '') AS description
+                FROM pg_tablespace
+                WHERE oid = {0}
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON TABLESPACE {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionTrigger(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT tgname AS id,
+                       tgrelid::regclass AS table_id,
+                       coalesce(obj_description({0}, 'pg_trigger'), '') AS description
+                FROM pg_trigger
+                WHERE oid = {0}
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON TRIGGER {0} ON {1} is '{2}'".format(
+            v_row['id'],
+            v_row['table_id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionType(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT '{0}'::regtype AS id,
+                       coalesce(obj_description({0}, 'pg_type'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON TYPE {0} is '{1}'".format(
             v_row['id'],
             v_row['description']
         )
@@ -13796,6 +14030,8 @@ FROM #table_name#
             return self.GetObjectDescriptionEventTrigger(p_oid)
         elif p_type == 'fdw':
             return self.GetObjectDescriptionForeignDataWrapper(p_oid)
+        elif p_type == 'foreign_server':
+            return self.GetObjectDescriptionForeignServer(p_oid)
         elif p_type == 'foreign_table':
             return self.GetObjectDescriptionForeignTable(p_oid)
         elif p_type in ['function', 'triggerfunction', 'direct_triggerfunction', 'eventtriggerfunction', 'direct_eventtriggerfunction']:
@@ -13812,10 +14048,22 @@ FROM #table_name#
             return self.GetObjectDescriptionRole(p_oid)
         elif p_type == 'rule':
             return self.GetObjectDescriptionRule(p_oid)
-        elif p_type == 'table':
-            return self.GetObjectDescriptionTable(p_oid)
+        elif p_type == 'schema':
+            return self.GetObjectDescriptionSchema(p_oid)
         elif p_type == 'sequence':
             return self.GetObjectDescriptionSequence(p_oid)
+        elif p_type == 'statistic':
+            return self.GetObjectDescriptionStatistic(p_oid)
+        elif p_type == 'subscription':
+            return self.GetObjectDescriptionSubscription(p_oid)
+        elif p_type == 'table':
+            return self.GetObjectDescriptionTable(p_oid)
+        elif p_type == 'tablespace':
+            return self.GetObjectDescriptionTablespace(p_oid)
+        elif p_type == 'trigger':
+            return self.GetObjectDescriptionTrigger(p_oid)
+        elif p_type == 'type':
+            return self.GetObjectDescriptionType(p_oid)
         elif p_type == 'view':
             return self.GetObjectDescriptionView(p_oid)
         else:

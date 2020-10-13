@@ -12,7 +12,11 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 from OmniDB_app.include.Session import Session
 from datetime import datetime
 
-def get_tree_info(request):
+from OmniDB_app.views.memory_objects import *
+
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_tree_info(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -30,14 +34,6 @@ def get_tree_info(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     try:
         v_return['v_data'] = {
@@ -102,7 +98,9 @@ def get_tree_info(request):
 
     return JsonResponse(v_return)
 
-def get_properties(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_properties(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -121,14 +119,6 @@ def get_properties(request):
     v_database_index = json_object['p_database_index']
     v_data = json_object['p_data']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_properties = []
     v_ddl = ''
@@ -150,7 +140,9 @@ def get_properties(request):
 
     return JsonResponse(v_return)
 
-def get_tables(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_tables(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -169,14 +161,6 @@ def get_tables(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_tables = []
 
@@ -206,7 +190,9 @@ def get_tables(request):
 
     return JsonResponse(v_return)
 
-def get_columns(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -226,14 +212,6 @@ def get_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_columns = []
 
@@ -256,7 +234,9 @@ def get_columns(request):
 
     return JsonResponse(v_return)
 
-def get_pk(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_pk(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -276,14 +256,6 @@ def get_pk(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_pk = []
 
@@ -302,7 +274,9 @@ def get_pk(request):
 
     return JsonResponse(v_return)
 
-def get_pk_columns(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_pk_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -323,14 +297,6 @@ def get_pk_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_pk = []
 
@@ -349,7 +315,9 @@ def get_pk_columns(request):
 
     return JsonResponse(v_return)
 
-def get_fks(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_fks(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -369,14 +337,6 @@ def get_fks(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_fk = []
 
@@ -398,7 +358,9 @@ def get_fks(request):
 
     return JsonResponse(v_return)
 
-def get_fks_columns(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_fks_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -419,14 +381,6 @@ def get_fks_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_fk = []
 
@@ -449,7 +403,9 @@ def get_fks_columns(request):
 
     return JsonResponse(v_return)
 
-def get_uniques(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_uniques(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -469,14 +425,6 @@ def get_uniques(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_uniques = []
 
@@ -495,7 +443,9 @@ def get_uniques(request):
 
     return JsonResponse(v_return)
 
-def get_uniques_columns(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_uniques_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -516,14 +466,6 @@ def get_uniques_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_uniques = []
 
@@ -542,7 +484,9 @@ def get_uniques_columns(request):
 
     return JsonResponse(v_return)
 
-def get_indexes(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_indexes(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -562,14 +506,6 @@ def get_indexes(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_indexes = []
 
@@ -589,7 +525,9 @@ def get_indexes(request):
 
     return JsonResponse(v_return)
 
-def get_indexes_columns(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_indexes_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -610,14 +548,6 @@ def get_indexes_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_indexes = []
 
@@ -636,7 +566,9 @@ def get_indexes_columns(request):
 
     return JsonResponse(v_return)
 
-def get_tablespaces(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_tablespaces(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -654,14 +586,6 @@ def get_tablespaces(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_tablespaces = []
 
@@ -681,7 +605,9 @@ def get_tablespaces(request):
 
     return JsonResponse(v_return)
 
-def get_roles(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_roles(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -699,14 +625,6 @@ def get_roles(request):
     json_object = json.loads(request.POST.get('data', None))
     v_database_index = json_object['p_database_index']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_roles = []
 
@@ -726,7 +644,9 @@ def get_roles(request):
 
     return JsonResponse(v_return)
 
-def get_functions(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_functions(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -745,14 +665,6 @@ def get_functions(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_functions = []
 
@@ -773,7 +685,9 @@ def get_functions(request):
 
     return JsonResponse(v_return)
 
-def get_function_fields(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_function_fields(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -793,14 +707,6 @@ def get_function_fields(request):
     v_function = json_object['p_function']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_fields = []
 
@@ -821,7 +727,9 @@ def get_function_fields(request):
 
     return JsonResponse(v_return)
 
-def get_function_definition(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_function_definition(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -840,14 +748,6 @@ def get_function_definition(request):
     v_database_index = json_object['p_database_index']
     v_function = json_object['p_function']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     try:
         v_return['v_data'] = v_database.GetFunctionDefinition(v_function)
@@ -858,7 +758,9 @@ def get_function_definition(request):
 
     return JsonResponse(v_return)
 
-def get_procedures(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_procedures(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -877,14 +779,6 @@ def get_procedures(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_functions = []
 
@@ -905,7 +799,9 @@ def get_procedures(request):
 
     return JsonResponse(v_return)
 
-def get_procedure_fields(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_procedure_fields(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -925,14 +821,6 @@ def get_procedure_fields(request):
     v_function = json_object['p_procedure']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_fields = []
 
@@ -953,7 +841,9 @@ def get_procedure_fields(request):
 
     return JsonResponse(v_return)
 
-def get_procedure_definition(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_procedure_definition(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -972,14 +862,6 @@ def get_procedure_definition(request):
     v_database_index = json_object['p_database_index']
     v_function = json_object['p_procedure']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     try:
         v_return['v_data'] = v_database.GetProcedureDefinition(v_function)
@@ -990,7 +872,9 @@ def get_procedure_definition(request):
 
     return JsonResponse(v_return)
 
-def get_sequences(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_sequences(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -1009,14 +893,6 @@ def get_sequences(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_sequences = []
 
@@ -1036,7 +912,9 @@ def get_sequences(request):
 
     return JsonResponse(v_return)
 
-def get_views(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_views(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -1055,14 +933,6 @@ def get_views(request):
     v_database_index = json_object['p_database_index']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_tables = []
 
@@ -1083,7 +953,9 @@ def get_views(request):
 
     return JsonResponse(v_return)
 
-def get_views_columns(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_views_columns(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -1103,14 +975,6 @@ def get_views_columns(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     v_list_columns = []
 
@@ -1132,7 +996,9 @@ def get_views_columns(request):
 
     return JsonResponse(v_return)
 
-def get_view_definition(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def get_view_definition(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -1152,14 +1018,6 @@ def get_view_definition(request):
     v_view = json_object['p_view']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     try:
         v_return['v_data'] = v_database.GetViewDefinition(v_view, v_schema)
@@ -1170,7 +1028,9 @@ def get_view_definition(request):
 
     return JsonResponse(v_return)
 
-def kill_backend(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def kill_backend(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -1189,14 +1049,6 @@ def kill_backend(request):
     v_database_index = json_object['p_database_index']
     v_pid            = json_object['p_pid']
 
-    v_database = v_session.v_databases[v_database_index]['database']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     try:
         v_data = v_database.Terminate(v_pid)
@@ -1207,7 +1059,9 @@ def kill_backend(request):
 
     return JsonResponse(v_return)
 
-def template_select(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def template_select(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -1227,15 +1081,6 @@ def template_select(request):
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
-
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     try:
         v_template = v_database.TemplateSelect(v_schema, v_table).v_text
@@ -1250,7 +1095,9 @@ def template_select(request):
 
     return JsonResponse(v_return)
 
-def template_insert(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def template_insert(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -1271,14 +1118,6 @@ def template_insert(request):
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
 
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     try:
         v_template = v_database.TemplateInsert(v_schema, v_table).v_text
@@ -1293,7 +1132,9 @@ def template_insert(request):
 
     return JsonResponse(v_return)
 
-def template_update(request):
+@user_authenticated
+@database_required(p_check_timeout = True, p_open_connection = True)
+def template_update(request, v_database):
 
     v_return = {}
     v_return['v_data'] = ''
@@ -1313,15 +1154,6 @@ def template_update(request):
     v_tab_id = json_object['p_tab_id']
     v_table = json_object['p_table']
     v_schema = json_object['p_schema']
-
-    v_database = v_session.v_tab_connections[v_tab_id]
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(v_database_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
 
     try:
         v_template = v_database.TemplateUpdate(v_schema, v_table).v_text

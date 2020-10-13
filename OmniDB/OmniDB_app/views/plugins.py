@@ -201,6 +201,7 @@ def load_plugins():
 load_plugins()
 
 #loading javascript plugins
+@user_authenticated
 def list_plugins(request):
 
     v_return = {}
@@ -277,6 +278,7 @@ def list_plugins(request):
     return JsonResponse(v_return)
 
 #loading javascript plugins
+@user_authenticated
 def get_plugins(request):
 
     v_return = {}
@@ -399,6 +401,7 @@ def handle_uploaded_file(f):
 
 
 #reloading plugins
+@user_authenticated
 def reload_plugins(request):
 
     v_return = {}
@@ -420,6 +423,7 @@ def reload_plugins(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def delete_plugin(request):
 
     v_return = {}

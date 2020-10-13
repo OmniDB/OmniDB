@@ -17,6 +17,9 @@ from OmniDB import settings
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+from OmniDB_app.views.memory_objects import *
+
+@user_authenticated
 def get_users(request):
 
     v_return = {}
@@ -24,14 +27,7 @@ def get_users(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
     v_session = request.session.get('omnidb_session')
-    v_cryptor = request.session.get('cryptor')
 
     v_user_list = []
     v_user_id_list = []
@@ -62,18 +58,13 @@ def get_users(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def new_user(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -104,18 +95,13 @@ def new_user(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def remove_user(request):
 
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -137,6 +123,7 @@ def remove_user(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def save_users(request):
 
     v_return = {}
@@ -144,11 +131,6 @@ def save_users(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 

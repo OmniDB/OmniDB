@@ -53,6 +53,8 @@ MySQL
 '''
 class MySQL:
     def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias='', p_conn_string='', p_parse_conn_string = False):
+        self.lock = None
+
         self.v_alias = p_alias
         self.v_db_type = 'mysql'
         self.v_conn_string = p_conn_string

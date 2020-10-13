@@ -819,11 +819,13 @@ button.close {
   transition: 0.35s;
   width: 0px;
 }
-.omnidb__utilities-menu:hover .omnidb__menu__btn-text i {
+.omnidb__utilities-menu:hover .omnidb__menu__btn-text i,
+.omnidb__utilities-menu.omnidb__utilities-menu--show .omnidb__menu__btn-text i {
   width: 0px;
   transition: 0.35s;
 }
-.omnidb__utilities-menu:hover .omnidb__menu__btn-text span {
+.omnidb__utilities-menu:hover .omnidb__menu__btn-text span,
+.omnidb__utilities-menu.omnidb__utilities-menu--show .omnidb__menu__btn-text span {
   transform: scaleX(1);
   width: auto;
 }
@@ -848,12 +850,14 @@ button.close {
   text-align: center;
   transition: 0.35s;
 }
-.omnidb__utilities-menu:hover #omnidb__utilities-menu__link-versioning {
+.omnidb__utilities-menu:hover #omnidb__utilities-menu__link-versioning,
+.omnidb__utilities-menu.omnidb__utilities-menu--show #omnidb__utilities-menu__link-versioning {
   width: 60px;
   padding-left: 0.25rem;
   padding-right: 0.25rem;
 }
-.omnidb__utilities-menu:hover #omnidb__utilities-menu__link-versioning i {
+.omnidb__utilities-menu:hover #omnidb__utilities-menu__link-versioning i,
+.omnidb__utilities-menu.omnidb__utilities-menu--show #omnidb__utilities-menu__link-versioning i {
   width: 15px;
   margin-left: 0.25rem;
   margin-right: 0.25rem;

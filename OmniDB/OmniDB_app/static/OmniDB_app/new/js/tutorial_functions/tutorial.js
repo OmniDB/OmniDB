@@ -414,8 +414,37 @@ function startTutorial(p_tutorial_name) {
         `,
         p_target: function(){var v_target = v_connTabControl.selectedTab.tag.tabControl.tabList[0].elementA; return v_target;},
         p_title: 'Inner Tabs'
+      },
+      {
+        p_message: `
+        <p>These buttons request actions based on the SQL editor and the querying status.</p>
+        <p>For example, you can <span class="bg-info rounded px-1 text-white">run</span> a query, <span class="bg-info rounded px-1 text-white">cancel</span> an ongoing query, <span class="bg-info rounded px-1 text-white">fetch more</span>, <span class="bg-info rounded px-1 text-white">explain</span>, <span class="bg-info rounded px-1 text-white">explain analyze</span>.</p>
+        <p>If you navigate the Tree on the left to find a table and use the action Query Table from it's context menu, the editor will autofill and the run query will be issued.</p>
+        `,
+        p_position: function() {var v_target = $(v_connTabControl.selectedTab.tag.tabControl.selectedTab.elementDiv).find('.omnidb__tab-actions')[0]; return {x:v_target.getBoundingClientRect().x + 40,y:v_target.getBoundingClientRect().y}},
+        p_target: function(){var v_target = $(v_connTabControl.selectedTab.tag.tabControl.selectedTab.elementDiv).find('.omnidb__tab-actions')[0]; return v_target;},
+        p_title: 'Actions Panel'
+      },
+      {
+        p_message: `
+        <p>Query returns will fill the area below your screen, even when they return errors.</p>
+        <p>After running a query, this area will contain 3 special tabs.</p>
+        <ol style="padding-left: 1.5rem;">
+          <li class="mb-1">
+            <strong>Data</strong>: Contains a table with query results, when successful.
+          </li>
+          <li class="mb-1">
+            <strong>Messages</strong>: Displays error messages.
+          </li>
+          <li class="mb-1">
+            <strong>Explain</strong>: Contains a special component to display explain/explain analyze results.
+          </li>
+        </ol>
+        `,
+        p_position: function() {var v_target = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result; return {x:v_target.getBoundingClientRect().x + 40,y:v_target.getBoundingClientRect().y + 40}},
+        p_target: function(){var v_target = $(v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.divResult).find('.omnidb__tab-actions')[0]; return v_target;},
+        p_title: 'Query Result'
       }
-
     ]
   }
   // Configuring tutorial getting started, changes based on gv_desktopMode

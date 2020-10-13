@@ -1,9 +1,9 @@
-.omnis-lagere__wrapper {
+.omnis-legere__wrapper {
   opacity: 0;
-  -o-animation-name:lagereWrapperFadeIn;
-  -moz-animation-name:lagereWrapperFadeIn;
-  -webkit-animation-name:lagereWrapperFadeIn;
-  animation-name:lagereWrapperFadeIn;
+  -o-animation-name:legereWrapperFadeIn;
+  -moz-animation-name:legereWrapperFadeIn;
+  -webkit-animation-name:legereWrapperFadeIn;
+  animation-name:legereWrapperFadeIn;
   -o-animation-fill-mode:forwards;
   -moz-animation-fill-mode:forwards;
   -webkit-animation-fill-mode:forwards;
@@ -22,15 +22,15 @@
   animation-delay:0s;
 }
 
-.omnis-lagere__item.omnis-lagere__item--is_collapsed .alert-info {
+.omnis-legere__item.omnis-legere__item--is_collapsed .alert-info {
   display: none;
 }
 
-.omnis-lagere__svg path {
-  -o-animation-name:lagereSvgDrawStrokes;
-  -moz-animation-name:lagereSvgDrawStrokes;
-  -webkit-animation-name:lagereSvgDrawStrokes;
-  animation-name:lagereSvgDrawStrokes;
+.omnis-legere__svg path {
+  -o-animation-name:legereSvgDrawStrokes;
+  -moz-animation-name:legereSvgDrawStrokes;
+  -webkit-animation-name:legereSvgDrawStrokes;
+  animation-name:legereSvgDrawStrokes;
   -o-animation-fill-mode:forwards;
   -moz-animation-fill-mode:forwards;
   -webkit-animation-fill-mode:forwards;
@@ -49,39 +49,39 @@
   animation-delay:.20s;
 }
 
-.omnis-lagere__svg text {
+.omnis-legere__svg text {
   fill: #d2d2d2;
   font-size: 0.9rem;
 }
 
-@-o-keyframes lagereWrapperFadeIn{
+@-o-keyframes legereWrapperFadeIn{
   to{opacity:1;}
 }
-@-moz-keyframes lagereWrapperFadeIn{
+@-moz-keyframes legereWrapperFadeIn{
   to{opacity:1;}
 }
-@-webkit-keyframes lagereWrapperFadeIn{
+@-webkit-keyframes legereWrapperFadeIn{
   to{opacity:1;}
 }
-@-keyframes lagereWrapperFadeIn{
+@-keyframes legereWrapperFadeIn{
   to{opacity:1;}
 }
-@keyframes lagereWrapperFadeIn{
+@keyframes legereWrapperFadeIn{
   to{opacity:1;}
 }
 
-@-o-keyframes lagereSvgDrawStrokes{
+@-o-keyframes legereSvgDrawStrokes{
   to{stroke-dashoffset:0;}
 }
-@-moz-keyframes lagereSvgDrawStrokes{
+@-moz-keyframes legereSvgDrawStrokes{
   to{stroke-dashoffset:0;}
 }
-@-webkit-keyframes lagereSvgDrawStrokes{
+@-webkit-keyframes legereSvgDrawStrokes{
   to{stroke-dashoffset:0;}
 }
-@-keyframes lagereSvgDrawStrokes{
+@-keyframes legereSvgDrawStrokes{
   to{stroke-dashoffset:0;}
 }
-@keyframes lagereSvgDrawStrokes{
+@keyframes legereSvgDrawStrokes{
   to{stroke-dashoffset:0;}
 }

@@ -9622,7 +9622,7 @@ function getExplainReturn(p_data) {
           v_tab_tag.explainControl.destroy();
         }
 
-        var v_lagere_options = {
+        var v_legere_options = {
           backgroundColor: (v_editor_theme === 'omnidb_dark') ? '#282a2f' : '#e2e2e2',
           target: v_tab_tag.div_explain
         }
@@ -9632,7 +9632,7 @@ function getExplainReturn(p_data) {
           self: 'explainControl'
         };
 
-        v_tab_tag.explainControl = createLagere(v_context, v_lagere_options);
+        v_tab_tag.explainControl = createLegere(v_context, v_legere_options);
 
 
         v_tab_tag.explainControl.updatePlanList(JSON.parse(v_explain_text));

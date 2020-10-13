@@ -6,15 +6,15 @@ OmniDB is distributed in the hope that it will be useful, but WITHOUT ANY WARRAN
 You should have received a copy of the GNU General Public License along with OmniDB. If not, see http://www.gnu.org/licenses/.
 */
 
-function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_options) {
+function createLegere(p_context = {parent: window, self: 'omnisLegere'}, p_options) {
 
-  var v_lagereControl = {
+  var v_legereControl = {
     // Params
     backgroundColor: (p_options.backgroundColor) ? p_options.backgroundColor : '#e2e2e2',
     context: p_context,
     data: [],
     dataMatrix: [],
-    defaultClass: (p_options.bem_class_root) ? p_options.bem_class_root : 'omnis-lagere',
+    defaultClass: (p_options.bem_class_root) ? p_options.bem_class_root : 'omnis-legere',
     defaultMessage: 'No content',
     divElement: false,
     global_children_count: 0,
@@ -23,7 +23,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       col_count: 0,
       row_count: 0,
     },
-		id: 'omnis_lagere_control_' + Date.now(),
+		id: 'omnis_legere_control_' + Date.now(),
     planCounter: 0,
     planCountMatrix: [0],
     planList: [],
@@ -72,9 +72,9 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       p_index = 0,
       p_index_map = []
     }) {
-      var v_lagereControl = this;
+      var v_legereControl = this;
       // Updates total_count of nodes
-      v_lagereControl.planCounter++;
+      v_legereControl.planCounter++;
 
       var v_node = p_data;
       var v_index = p_index;
@@ -137,20 +137,20 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       p_index = 0,
       p_index_map = []
     }) {
-      var v_lagereControl = this;
+      var v_legereControl = this;
       // Updates total_count of nodes
-      v_lagereControl.planCounter++;
+      v_legereControl.planCounter++;
 
-      if (p_data.omnis_lagere_control === undefined) {
-        p_data.omnis_lagere_control = {
-          is_collapsed: v_lagereControl.global_collapse
+      if (p_data.omnis_legere_control === undefined) {
+        p_data.omnis_legere_control = {
+          is_collapsed: v_legereControl.global_collapse
         }
       }
-      else if (p_data.omnis_lagere_control.is_collapsed === undefined) {
-        p_data.omnis_lagere_control.is_collapsed = v_lagereControl.global_collapse;
+      else if (p_data.omnis_legere_control.is_collapsed === undefined) {
+        p_data.omnis_legere_control.is_collapsed = v_legereControl.global_collapse;
       }
 
-      var v_id = v_lagereControl.id + '_plan';
+      var v_id = v_legereControl.id + '_plan';
       var v_node = p_data;
       var v_index = p_index;
       var v_index_map = [];
@@ -167,13 +167,13 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       // Get row
       var v_row = v_index_map.length;
       // Get col
-      var v_col = v_lagereControl.global_col_count;
+      var v_col = v_legereControl.global_col_count;
 
       var v_plan_list = [];
 
       var v_data = {};
       Object.keys(p_data).forEach(function (p_data_key) {
-        if (p_data_key !== 'Plans' && p_data_key !== 'omnis_lagere_control') {
+        if (p_data_key !== 'Plans' && p_data_key !== 'omnis_legere_control') {
           v_data[p_data_key] = p_data[p_data_key];
         }
       });
@@ -190,38 +190,38 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         // children_count: v_children_count,
         data: v_data,
         grid: {
-          // col: (v_children_count === 0) ? v_index + 1 : v_index + v_lagereControl.global_children_count + 1,
-          col: v_lagereControl.global_children_count + 1,
+          // col: (v_children_count === 0) ? v_index + 1 : v_index + v_legereControl.global_children_count + 1,
+          col: v_legereControl.global_children_count + 1,
           row: v_row
         },
 				id: v_id,
         index: v_index,
         index_map: v_index_map,
-        omnis_lagere_control: p_data.omnis_lagere_control,
+        omnis_legere_control: p_data.omnis_legere_control,
         planList: []
 			};
 
 
       // Create child plans
-      var v_plan_cost = v_plan.data[v_lagereControl.total_progress_key_name];
+      var v_plan_cost = v_plan.data[v_legereControl.total_progress_key_name];
 
       var v_plan_total_cost = {
-        label: v_lagereControl.total_progress_key_name + ' (accumulated cost)',
-        percentage: v_plan_cost / v_lagereControl.total_progress_cost,
+        label: v_legereControl.total_progress_key_name + ' (accumulated cost)',
+        percentage: v_plan_cost / v_legereControl.total_progress_cost,
         value: v_plan_cost
       }
 
       v_plan.total_cost = v_plan_total_cost;
 
       var v_plan_node_cost = {
-        label: v_lagereControl.total_progress_key_name + ' (node cost)',
+        label: v_legereControl.total_progress_key_name + ' (node cost)',
         value: v_plan_cost
       }
 
       if (p_data['Plans']) {
         if (p_data['Plans'].length > 0) {
 
-          v_lagereControl.grid.row_count += 1;
+          v_legereControl.grid.row_count += 1;
 
           for (let i = 0; i < p_data['Plans'].length; i++) {
             v_plan.global_children_count += 1;
@@ -232,16 +232,16 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
             });
             v_plan.planList.push(v_new_plan);
 
-            v_plan_node_cost.value -= v_new_plan.data[v_lagereControl.total_progress_key_name];
+            v_plan_node_cost.value -= v_new_plan.data[v_legereControl.total_progress_key_name];
 
           }
         }
         else {
-          v_lagereControl.global_children_count += 1;
+          v_legereControl.global_children_count += 1;
         }
       }
       else {
-        v_lagereControl.global_children_count += 1;
+        v_legereControl.global_children_count += 1;
       }
 
       // v_plan.grid.row = v_row + 1;
@@ -249,7 +249,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
       // console.log(v_plan_progress_cost_total, v_new_plan_progress_cost_total);
 
-      v_plan_node_cost.percentage = v_plan_node_cost.value / v_lagereControl.total_progress_cost;
+      v_plan_node_cost.percentage = v_plan_node_cost.value / v_legereControl.total_progress_cost;
 
       v_plan.node_cost = v_plan_node_cost;
 
@@ -276,22 +276,22 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       }
     },
     destroy : function() {
-      v_lagereControl = this;
+      v_legereControl = this;
 
-      v_lagereControl.divElement.remove();
+      v_legereControl.divElement.remove();
 
-      v_lagereControl.context.parent[v_lagereControl.context.self] = null;
+      v_legereControl.context.parent[v_legereControl.context.self] = null;
 
-      delete v_lagereControl.context.parent[v_lagereControl.context.self];
+      delete v_legereControl.context.parent[v_legereControl.context.self];
     },
     setClickEventButtonToggleCollapse: function(p_node) {
-      var v_lagereControl = this;
+      var v_legereControl = this;
 
 
       var node_button_toggle_collapse_update = document.getElementById(p_node.id + '_button_toggle_collapse_update');
 
       node_button_toggle_collapse_update.onclick = function(event){
-        v_lagereControl.toggleCollapseNodeUpdate(p_node.index_map);
+        v_legereControl.toggleCollapseNodeUpdate(p_node.index_map);
       }
 
       var v_child_node = null;
@@ -305,7 +305,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       }
     },
     renderPlan : function(p_plan_item) {
-      var v_lagereControl = this;
+      var v_legereControl = this;
       var v_plan_item = p_plan_item;
       var v_plans_html = '';
 
@@ -338,7 +338,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         }
 
         var v_data_html =
-        '<div class="mb-2">Toggle node data <button id="' + v_plan_item.id + '_button_toggle_collapse_update" class="btn btn-sm omnidb__theme__btn--secondary ml-2 ' + v_lagereControl.defaultClass + '__btn-toggle-collapse-update" data-index-map="' + v_plan_item.index_map + '"></button></div>' +
+        '<div class="mb-2">Toggle node data <button id="' + v_plan_item.id + '_button_toggle_collapse_update" class="btn btn-sm omnidb__theme__btn--secondary ml-2 ' + v_legereControl.defaultClass + '__btn-toggle-collapse-update" data-index-map="' + v_plan_item.index_map + '"></button></div>' +
         '<div class="alert alert-info mt-2">';
         Object.keys(v_plan_item.data).forEach(function (p_data_key) {
           v_data_html +=
@@ -422,14 +422,30 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
 
       var v_plan_item_state_classes = ' ';
-      if (v_plan_item.omnis_lagere_control.is_collapsed) {
+      if (v_plan_item.omnis_legere_control.is_collapsed) {
         v_plan_item_state_classes += this.defaultClass + '__item--is_collapsed ';
       }
 
 
+
+      // Setting color
+      var v_node_percentage = v_plan_item.node_cost.percentage;
+
+      var v_fill_color = false;
+      if (v_node_percentage > 0.3 && v_node_percentage < 0.6) {
+        v_fill_color = '#ceb22b;';
+      }
+      else if (v_node_percentage >= 0.6) {
+        v_fill_color = '#ce2b2b;';
+      }
+      var v_temp_card_color = (v_fill_color) ? 'box-shadow: 0px 4px 12px ' + v_fill_color : '';
+
+
+
+
       var v_plans_html =
       '<div id="' + v_plan_item.id + '" class="' + this.defaultClass + '__item ' + v_plan_item_state_classes + '" style="grid-row: ' + v_grid_row + '; grid-column:' + v_grid_col + '">' +
-        '<div class="' + this.defaultClass + '__card card">' +
+        '<div class="' + this.defaultClass + '__card card" style="' + v_temp_card_color + '">' +
           v_title +
           v_progress_cost_html +
           v_data_html +
@@ -452,7 +468,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       }
 
       if (this.stateActive) {
-        var v_lagereControl = this;
+        var v_legereControl = this;
 
         var v_plans_html = '';
 
@@ -467,7 +483,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       }
     },
     renderProgressBar : function(p_plan_list) {
-      var v_lagereControl = this;
+      var v_legereControl = this;
       var v_node = null;
 
       for (let i = 0; i < p_plan_list.length; i++) {
@@ -478,7 +494,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         var node_button_toggle_collapse_update = document.getElementById(v_node.id + '_button_toggle_collapse_update');
 
         if (node_button_toggle_collapse_update !== null) {
-          if (v_node.omnis_lagere_control.is_collapsed) {
+          if (v_node.omnis_legere_control.is_collapsed) {
             node_button_toggle_collapse_update.innerHTML = '<i class="fas fa-eye-slash"></i>';
           }
           else {
@@ -588,7 +604,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         v_svg_paths_html +
       '</svg>';
 
-      this.divGridContainer = document.getElementById(v_lagereControl.divGridContainerId);
+      this.divGridContainer = document.getElementById(v_legereControl.divGridContainerId);
 
       if (this.divGridContainer !== null) {
         this.divGridContainer.innerHTML += v_svg_html;
@@ -657,25 +673,25 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       return v_svg_html;
     },
     renderTarget : function(p_plans_html) {
-      var v_lagereControl = this;
+      var v_legereControl = this;
 
-      var v_parent = v_lagereControl.targetDiv;
+      var v_parent = v_legereControl.targetDiv;
       var v_parent_width = v_parent.clientWidth;
       var v_parent_height = v_parent.clientHeight;
 
       // Creates outter element of the component once
-      if (!v_lagereControl.divElement) {
-        v_lagereControl.divElement = document.createElement('div');
-        v_lagereControl.divElementId = v_lagereControl.id;
-        v_lagereControl.divElement.setAttribute( 'id', v_lagereControl.divElementId );
-        v_lagereControl.divElement.classList = this.defaultClass + '__wrapper';
+      if (!v_legereControl.divElement) {
+        v_legereControl.divElement = document.createElement('div');
+        v_legereControl.divElementId = v_legereControl.id;
+        v_legereControl.divElement.setAttribute( 'id', v_legereControl.divElementId );
+        v_legereControl.divElement.classList = this.defaultClass + '__wrapper';
 
         // Template options when there's no targetDiv and the component needs a modal to render to render inside
-        if (!v_lagereControl.targetDiv) {
-          v_lagereControl.divElement.setAttribute(
+        if (!v_legereControl.targetDiv) {
+          v_legereControl.divElement.setAttribute(
             'style',
             `
-            background-color: ` + v_lagereControl.backgroundColor + `;
+            background-color: ` + v_legereControl.backgroundColor + `;
             box-shadow: 1px 0px 3px rgba(0,0,0,0.15);
             display:none;
             height: 90vh;
@@ -689,18 +705,18 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
             `
           );
 
-          document.body.appendChild(v_lagereControl.divElement);
+          document.body.appendChild(v_legereControl.divElement);
 
           // Adds close button to the modal
-          var v_close_btn_html = '<div style="position:relative;"><button id="' + v_lagereControl.id + '_btn_close" type="button" class="btn btn-sm btn-danger ml-auto" style="position: absolute; top: -10px; right: -10px;"><i class="fas fa-times"></i></button></div>';
-          v_lagereControl.divElement.innerHTML = v_close_btn_html;
+          var v_close_btn_html = '<div style="position:relative;"><button id="' + v_legereControl.id + '_btn_close" type="button" class="btn btn-sm btn-danger ml-auto" style="position: absolute; top: -10px; right: -10px;"><i class="fas fa-times"></i></button></div>';
+          v_legereControl.divElement.innerHTML = v_close_btn_html;
         }
         // Template options when there's a targetDiv to render inside
         else {
-          v_lagereControl.divElement.setAttribute(
+          v_legereControl.divElement.setAttribute(
             'style',
             `
-            background-color: ` + v_lagereControl.backgroundColor + `;
+            background-color: ` + v_legereControl.backgroundColor + `;
             display:none;
             height:` + v_parent_height + `px;
             max-width: 100%;
@@ -710,46 +726,46 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
             z-index: 99999999;
             `
           );
-          v_lagereControl.targetDiv.appendChild(v_lagereControl.divElement);
+          v_legereControl.targetDiv.appendChild(v_legereControl.divElement);
         }
 
-        v_lagereControl.divElementContent = document.createElement('div');
-        v_lagereControl.divElementContentId = v_lagereControl.id + '_content';
-        v_lagereControl.divElementContent.setAttribute('id', v_lagereControl.divElementContentId);
-        v_lagereControl.divElementContent.setAttribute('style', 'width:' + v_parent_width + 'px; height:' + v_parent_height + 'px; overflow: auto; padding: 10px;');
+        v_legereControl.divElementContent = document.createElement('div');
+        v_legereControl.divElementContentId = v_legereControl.id + '_content';
+        v_legereControl.divElementContent.setAttribute('id', v_legereControl.divElementContentId);
+        v_legereControl.divElementContent.setAttribute('style', 'width:' + v_parent_width + 'px; height:' + v_parent_height + 'px; overflow: auto; padding: 10px;');
 
-        v_lagereControl.divElement.appendChild(v_lagereControl.divElementContent);
+        v_legereControl.divElement.appendChild(v_legereControl.divElementContent);
 
-        v_lagereControl.divGrid = document.createElement('div');
-        v_lagereControl.divGridId = v_lagereControl.id + '_div_grid';
-        v_lagereControl.divGrid.setAttribute('id', v_lagereControl.divGridId);
-        v_lagereControl.divGrid.style['grid-gap'] = '40px 40px';
-        v_lagereControl.divGrid.style.display = 'grid';
-        v_lagereControl.divGrid.style.position = 'relative';
-        v_lagereControl.divGrid.style['z-index'] = 1;
-        v_lagereControl.divGridContainer = document.createElement('div');
-        v_lagereControl.divGridContainerId = v_lagereControl.id + '_div_grid_container';
-        v_lagereControl.divGridContainer.setAttribute('id', v_lagereControl.divGridContainerId);
-        v_lagereControl.divGridContainer.style.position = 'relative';
-        v_lagereControl.divGridContainer.style['transform-origin'] = 'top left';
-        v_lagereControl.divGridContainer.style['transform'] = 'scale(1)';
-        v_lagereControl.divGridContainer.style['transition'] = 'transform 0.3s ease 0s';
-        v_lagereControl.divGridContainer.appendChild(v_lagereControl.divGrid);
-        v_lagereControl.divElementContent.appendChild(v_lagereControl.divGridContainer);
+        v_legereControl.divGrid = document.createElement('div');
+        v_legereControl.divGridId = v_legereControl.id + '_div_grid';
+        v_legereControl.divGrid.setAttribute('id', v_legereControl.divGridId);
+        v_legereControl.divGrid.style['grid-gap'] = '40px 40px';
+        v_legereControl.divGrid.style.display = 'grid';
+        v_legereControl.divGrid.style.position = 'relative';
+        v_legereControl.divGrid.style['z-index'] = 1;
+        v_legereControl.divGridContainer = document.createElement('div');
+        v_legereControl.divGridContainerId = v_legereControl.id + '_div_grid_container';
+        v_legereControl.divGridContainer.setAttribute('id', v_legereControl.divGridContainerId);
+        v_legereControl.divGridContainer.style.position = 'relative';
+        v_legereControl.divGridContainer.style['transform-origin'] = 'top left';
+        v_legereControl.divGridContainer.style['transform'] = 'scale(1)';
+        v_legereControl.divGridContainer.style['transition'] = 'transform 0.3s ease 0s';
+        v_legereControl.divGridContainer.appendChild(v_legereControl.divGrid);
+        v_legereControl.divElementContent.appendChild(v_legereControl.divGridContainer);
 
         // Create control panel buttons
         var v_control_panel_div = document.createElement('div');
-        v_control_panel_div.classList = v_lagereControl.defaultClass + '__control-panel';
+        v_control_panel_div.classList = v_legereControl.defaultClass + '__control-panel';
         v_control_panel_div.setAttribute('style', 'align-items: center; display: flex; position: absolute; right: 15px; top: 15px;');
 
         v_control_panel_div.innerHTML =
-        '<button id="' + v_lagereControl.id + '_control_panel_button_toggle_collapse_update" class="btn btn-sm omnidb__theme__btn--secondary"><i class="fas fa-eye"></i></button>' +
-        '<button id="' + v_lagereControl.id + '_control_panel_button_zoomin" class="btn btn-sm omnidb__theme__btn--secondary ml-2"><i class="fas fa-search-plus"></i></button>' +
-        '<button id="' + v_lagereControl.id + '_control_panel_button_zoomout" class="btn btn-sm omnidb__theme__btn--secondary ml-2"><i class="fas fa-search-minus"></i></button>' +
-        '<button id="' + v_lagereControl.id + '_control_panel_button_fit" class="btn btn-sm omnidb__theme__btn--secondary ml-2"><i class="fas fa-vector-square"></i></button>' +
-        '<button id="' + v_lagereControl.id + '_control_panel_button_reset" class="btn btn-sm omnidb__theme__btn--secondary ml-2">reset</button>';
+        '<button id="' + v_legereControl.id + '_control_panel_button_toggle_collapse_update" class="btn btn-sm omnidb__theme__btn--secondary"><i class="fas fa-eye"></i></button>' +
+        '<button id="' + v_legereControl.id + '_control_panel_button_zoomin" class="btn btn-sm omnidb__theme__btn--secondary ml-2"><i class="fas fa-search-plus"></i></button>' +
+        '<button id="' + v_legereControl.id + '_control_panel_button_zoomout" class="btn btn-sm omnidb__theme__btn--secondary ml-2"><i class="fas fa-search-minus"></i></button>' +
+        '<button id="' + v_legereControl.id + '_control_panel_button_fit" class="btn btn-sm omnidb__theme__btn--secondary ml-2"><i class="fas fa-vector-square"></i></button>' +
+        '<button id="' + v_legereControl.id + '_control_panel_button_reset" class="btn btn-sm omnidb__theme__btn--secondary ml-2">reset</button>';
 
-        v_lagereControl.divElementContent.appendChild(v_control_panel_div);
+        v_legereControl.divElementContent.appendChild(v_control_panel_div);
 
       }
 
@@ -771,26 +787,26 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       // this.divGrid.style['grid-template-rows'] = v_grid_row_attr;
 
       // Sets the new content for the divGrid
-      document.getElementById(v_lagereControl.divGridId).innerHTML = p_plans_html;
+      document.getElementById(v_legereControl.divGridId).innerHTML = p_plans_html;
 
 
       // Adds the click event to the control panel buttons
-      var v_toggle_collapse_update_btn = document.getElementById(v_lagereControl.id + '_control_panel_button_toggle_collapse_update');
+      var v_toggle_collapse_update_btn = document.getElementById(v_legereControl.id + '_control_panel_button_toggle_collapse_update');
       if (v_toggle_collapse_update_btn !== undefined && v_toggle_collapse_update_btn !== null) {
         v_toggle_collapse_update_btn.onclick = function(){
-          v_lagereControl.global_collapse = !v_lagereControl.global_collapse;
-          var v_toggle_collapse = v_lagereControl.global_collapse;
+          v_legereControl.global_collapse = !v_legereControl.global_collapse;
+          var v_toggle_collapse = v_legereControl.global_collapse;
           if (v_toggle_collapse) {
             v_toggle_collapse_update_btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
           }
           else {
             v_toggle_collapse_update_btn.innerHTML = '<i class="fas fa-eye"></i>';
           }
-          v_lagereControl.toggleCollapseUpdate('all', false, v_toggle_collapse);
+          v_legereControl.toggleCollapseUpdate('all', false, v_toggle_collapse);
         };
       }
-      var v_div_grid_container = document.getElementById(v_lagereControl.id + '_div_grid_container');
-      var v_zoomin_btn = document.getElementById(v_lagereControl.id + '_control_panel_button_zoomin');
+      var v_div_grid_container = document.getElementById(v_legereControl.id + '_div_grid_container');
+      var v_zoomin_btn = document.getElementById(v_legereControl.id + '_control_panel_button_zoomin');
       if (v_zoomin_btn !== undefined && v_zoomin_btn !== null) {
         v_zoomin_btn.onclick = function(){
           var v_zoom_value = v_div_grid_container.style['transform'];
@@ -801,7 +817,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
           v_div_grid_container.style['transform'] = 'scale(' + v_zoom_value + ')';
         };
       }
-      var v_zoomout_btn = document.getElementById(v_lagereControl.id + '_control_panel_button_zoomout');
+      var v_zoomout_btn = document.getElementById(v_legereControl.id + '_control_panel_button_zoomout');
       if (v_zoomout_btn !== undefined && v_zoomout_btn !== null) {
         v_zoomout_btn.onclick = function(){
           var v_zoom_value = v_div_grid_container.style['transform'];
@@ -812,11 +828,11 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
           v_div_grid_container.style['transform'] = 'scale(' + v_zoom_value + ')';
         };
       }
-      var v_fit_btn = document.getElementById(v_lagereControl.id + '_control_panel_button_fit');
+      var v_fit_btn = document.getElementById(v_legereControl.id + '_control_panel_button_fit');
       if (v_fit_btn !== undefined && v_fit_btn !== null) {
         v_fit_btn.onclick = function(){
-          var v_content_div = document.getElementById(v_lagereControl.id + '_content');
-          var v_svg_div = document.getElementById(v_lagereControl.id + '_svg');
+          var v_content_div = document.getElementById(v_legereControl.id + '_content');
+          var v_svg_div = document.getElementById(v_legereControl.id + '_svg');
           var v_h_value = v_svg_div.clientWidth;
           var v_content_h_value = v_content_div.offsetWidth;
           var v_h_ratio = v_content_h_value / v_h_value;
@@ -831,7 +847,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
           }
         };
       }
-      var v_reset_btn = document.getElementById(v_lagereControl.id + '_control_panel_button_reset');
+      var v_reset_btn = document.getElementById(v_legereControl.id + '_control_panel_button_reset');
       if (v_reset_btn !== undefined && v_reset_btn !== null) {
         v_reset_btn.onclick = function(){
           v_div_grid_container.style['transform'] = 'scale(1)';
@@ -840,32 +856,32 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
 
       // Render the svg with path lines based on the content positions
       setTimeout(function(){
-        v_lagereControl.renderSvg(v_lagereControl.planList);
+        v_legereControl.renderSvg(v_legereControl.planList);
       }, 150);
 
       // Adds the click event to the button when there's no targetDiv and the component needs a modal to render to render inside
-      if (!v_lagereControl.targetDiv) {
-        var v_close_btn = document.getElementById(v_lagereControl.id + '_btn_close');
+      if (!v_legereControl.targetDiv) {
+        var v_close_btn = document.getElementById(v_legereControl.id + '_btn_close');
         if (v_close_btn !== undefined && v_close_btn !== null) {
-          v_close_btn.onclick = function(){v_lagereControl.setStateDisabled()};
+          v_close_btn.onclick = function(){v_legereControl.setStateDisabled()};
         }
       }
 
-      v_lagereControl.divElement.style.display = 'block';
+      v_legereControl.divElement.style.display = 'block';
 
     },
     resize() {
-      v_lagereControl = this;
+      v_legereControl = this;
 
-      if (v_lagereControl.divElement) {
-        var v_parent = v_lagereControl.targetDiv;
+      if (v_legereControl.divElement) {
+        var v_parent = v_legereControl.targetDiv;
         var v_parent_width = v_parent.clientWidth;
         var v_parent_height = v_parent.clientHeight;
 
-        v_lagereControl.divElement.setAttribute(
+        v_legereControl.divElement.setAttribute(
           'style',
           `
-          background-color: ` + v_lagereControl.backgroundColor + `;
+          background-color: ` + v_legereControl.backgroundColor + `;
           display:none;
           height:` + v_parent_height + `px;
           max-width: 100%;
@@ -876,14 +892,14 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
           `
         );
 
-        v_lagereControl.divElementContent.setAttribute('style', 'width:' + v_parent_width + 'px; height:' + v_parent_height + 'px; overflow: auto; padding: 10px;');
+        v_legereControl.divElementContent.setAttribute('style', 'width:' + v_parent_width + 'px; height:' + v_parent_height + 'px; overflow: auto; padding: 10px;');
 
-        if (v_lagereControl.stateActive) {
+        if (v_legereControl.stateActive) {
           this.divElement.style.display = 'block';
 
           // Render the svg with path lines based on the content positions
           setTimeout(function(){
-            v_lagereControl.renderSvg(v_lagereControl.planList);
+            v_legereControl.renderSvg(v_legereControl.planList);
           }, 150);
 
         }
@@ -898,28 +914,28 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       this.updatePlanList([]);
     },
     toggleCollapse: function(p_type = false, p_node = false, p_set_state = null) {
-      var v_lagereControl = this;
+      var v_legereControl = this;
       if (p_type === 'all') {
         var v_node_list = [];
         if (p_node) {
-          v_lagereControl.toggleCollapse(false, p_node, p_set_state);
+          v_legereControl.toggleCollapse(false, p_node, p_set_state);
           v_node_list = p_node.Plans;
           if (v_node_list) {
             for (let i = 0; i < v_node_list.length; i++) {
               var v_child_node = v_node_list[i];
-              v_lagereControl.toggleCollapse('all', v_child_node, p_set_state);
+              v_legereControl.toggleCollapse('all', v_child_node, p_set_state);
             }
           }
         }
         else {
-          var v_data = v_lagereControl.data;
+          var v_data = v_legereControl.data;
           if (v_data) {
-            v_node_list = v_lagereControl.data;
+            v_node_list = v_legereControl.data;
             if (v_node_list) {
               for (let i = 0; i < v_node_list.length; i++) {
                 if (v_node_list[i].Plan) {
                   var v_node = v_node_list[i].Plan;
-                  v_lagereControl.toggleCollapse('all', v_node, p_set_state);
+                  v_legereControl.toggleCollapse('all', v_node, p_set_state);
                 }
               }
             }
@@ -927,19 +943,19 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
         }
       }
       else if (p_set_state !== null && p_node) {
-        p_node.omnis_lagere_control.is_collapsed = p_set_state;
+        p_node.omnis_legere_control.is_collapsed = p_set_state;
       }
       else if (p_node) {
-        p_node.omnis_lagere_control.is_collapsed = !p_node.omnis_lagere_control.is_collapsed;
+        p_node.omnis_legere_control.is_collapsed = !p_node.omnis_legere_control.is_collapsed;
       }
     },
     toggleCollapseNodeUpdate: function(p_index_map) {
-      var v_lagereControl = this;
+      var v_legereControl = this;
 
-      var v_parent_node = v_lagereControl.data[p_index_map[0]];
+      var v_parent_node = v_legereControl.data[p_index_map[0]];
 
       if (p_index_map.length === 1) {
-        v_lagereControl.toggleCollapseUpdate(false, v_parent_node.Plan, null);
+        v_legereControl.toggleCollapseUpdate(false, v_parent_node.Plan, null);
       }
       else {
         var v_node_list = v_parent_node.Plans;
@@ -957,7 +973,7 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
               if (v_temp_list) {
                 v_temp_node = v_temp_list[v_index];
                 if (i === p_index_map.length - 1) {
-                  v_lagereControl.toggleCollapseUpdate(false, v_temp_node, null);
+                  v_legereControl.toggleCollapseUpdate(false, v_temp_node, null);
                 }
               }
             }
@@ -968,8 +984,8 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
     },
     toggleCollapseUpdate: function(p_type = 'all', p_node = false, p_set_state = null) {
       this.toggleCollapse(p_type, p_node, p_set_state);
-      var v_lagereControl = this;
-      this.updatePlanList(v_lagereControl.data);
+      var v_legereControl = this;
+      this.updatePlanList(v_legereControl.data);
     },
     updateRowsColsCount : function() {
 
@@ -985,11 +1001,11 @@ function createLagere(p_context = {parent: window, self: 'omnisLagere'}, p_optio
       this.totalCols = v_temp_largest_row;
 
     },
-    updateLagerePosition : function() {
+    updateLegerePosition : function() {
       // TODO
     }
   }
 
-  return v_lagereControl;
+  return v_legereControl;
 
 }

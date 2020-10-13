@@ -779,6 +779,7 @@ class PostgreSQL:
             v_rules += ' on delete ' + p_delete_rule + ' '
         return v_rules
 
+    @lock_required
     def TestConnection(self):
         v_return = ''
         if self.v_conn_string and self.v_conn_string_error!='':

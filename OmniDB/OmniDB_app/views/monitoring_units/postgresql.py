@@ -533,4 +533,812 @@ result = {
     "datasets": datasets
 }
 """
+},
+{
+'dbms': 'postgresql',
+'plugin_name': 'postgresql',
+'id': 6,
+'title': 'Locks Blocked',
+'type': 'timeseries',
+'interval': 10,
+'default': True,
+'script_chart': """
+result = {
+    "type": "line",
+    "data": None,
+    "options": {
+        "responsive": True,
+        "title":{
+            "display":True,
+            "text":"Locks Blocked"
+        },
+        "legend": {
+            "display": False
+        },
+        "tooltips": {
+            "mode": "index",
+            "intersect": False
+        },
+        "hover": {
+            "mode": "nearest",
+            "intersect": True
+        },
+        "scales": {
+            "xAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": False,
+                    "labelString": "Time"
+                }
+            }],
+            "yAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": True,
+                    "labelString": "Value"
+                },
+                "ticks": {
+                    "beginAtZero": True
+                }
+            }]
+        }
+    }
+}
+""",
+'script_data': """
+from datetime import datetime
+
+query_data = connection.Query('''
+    SELECT count(*)
+    FROM  pg_catalog.pg_locks blocked_locks
+    WHERE NOT blocked_locks.GRANTED;
+''')
+
+datasets = []
+datasets.append({
+        "label": 'Locks Blocked',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [query_data.Rows[0]["count"]]
+    })
+
+result = {
+    "labels": [datetime.now().strftime('%H:%M:%S')],
+    "datasets": datasets
+}
+"""
+},
+{
+'dbms': 'postgresql',
+'plugin_name': 'postgresql',
+'id': 7,
+'title': 'Database Size',
+'type': 'timeseries',
+'interval': 10,
+'default': True,
+'script_chart': """
+result = {
+    "type": "line",
+    "data": None,
+    "options": {
+        "responsive": True,
+        "title":{
+            "display":True,
+            "text":"Database Size"
+        },
+        "legend": {
+            "display": False
+        },
+        "tooltips": {
+            "mode": "index",
+            "intersect": False
+        },
+        "hover": {
+            "mode": "nearest",
+            "intersect": True
+        },
+        "scales": {
+            "xAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": False,
+                    "labelString": "Time"
+                }
+            }],
+            "yAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": True,
+                    "labelString": "Size (MB)"
+                },
+                "ticks": {
+                    "beginAtZero": True
+                }
+            }]
+        }
+    }
+}
+""",
+'script_data': """
+from datetime import datetime
+from decimal import Decimal
+
+query_data = connection.Query('''
+    SELECT sum(pg_database_size(datname)) AS sum
+    FROM pg_stat_database
+    WHERE datname IS NOT NULL
+''')
+
+datasets = []
+datasets.append({
+        "label": 'Database Size',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [round(query_data.Rows[0]["sum"] / Decimal(1048576.0),1)]
+    })
+
+result = {
+    "labels": [datetime.now().strftime('%H:%M:%S')],
+    "datasets": datasets
+}
+"""
+}, {
+'dbms': 'postgresql',
+'plugin_name': 'postgresql',
+'id': 8,
+'title': 'Database Growth Rate',
+'type': 'timeseries',
+'interval': 10,
+'default': True,
+'script_chart': """
+result = {
+    "type": "line",
+    "data": None,
+    "options": {
+        "legend": {
+            "display": False
+        },
+        "responsive": True,
+        "title":{
+            "display":True,
+            "text": "Database Growth Rate"
+        },
+        "tooltips": {
+            "mode": "index",
+            "intersect": False
+        },
+        "hover": {
+            "mode": "nearest",
+            "intersect": True
+        },
+        "scales": {
+            "xAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": False,
+                    "labelString": "Time"
+                }
+            }],
+            "yAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": True,
+                    "labelString": "Growh Rate"
+                },
+                "ticks": {
+                    "beginAtZero": True
+                }
+            }]
+        }
+    }
+}
+""",
+'script_data': """
+
+from datetime import datetime
+
+if previous_data != None:
+    query = '''
+        SELECT round(
+                   (sum(pg_database_size(datname)) - {0}) / (extract(epoch from now()::time - '{1}'::time))::numeric,
+                   2
+               ) AS database_growth,
+               sum(pg_database_size(datname)) AS current_sum,
+               now()::text AS current_time
+        FROM pg_stat_database
+        WHERE datname IS NOT NULL
+    '''.format(
+        previous_data['current_sum'],
+        previous_data['current_time']
+    )
+else:
+    query = '''
+        SELECT 0 AS database_growth,
+               sum(pg_database_size(datname)) AS current_sum,
+               now()::text AS current_time
+        FROM pg_stat_database
+        WHERE datname IS NOT NULL
+    '''
+
+query_data = connection.Query(query)
+
+datasets = []
+datasets.append({
+        "label": 'Rate',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [query_data.Rows[0]['database_growth']]
+    })
+
+result = {
+    "labels": [datetime.now().strftime('%H:%M:%S')],
+    "datasets": datasets,
+    "current_sum": query_data.Rows[0]['current_sum'],
+    'current_time': query_data.Rows[0]['current_time']
+}
+"""
+},
+{
+'dbms': 'postgresql',
+'plugin_name': 'postgresql',
+'id': 9,
+'title': 'Heap Cache Miss Ratio',
+'type': 'timeseries',
+'interval': 10,
+'default': True,
+'script_chart': """
+database_name = connection.ExecuteScalar('SELECT current_database()')
+
+result = {
+    "type": "line",
+    "data": None,
+    "options": {
+        "responsive": True,
+        "title":{
+            "display":True,
+            "text":"Heap Cache Miss Ratio (Database: {0})".format(database_name)
+        },
+        "legend": {
+            "display": False
+        },
+        "tooltips": {
+            "mode": "index",
+            "intersect": False
+        },
+        "hover": {
+            "mode": "nearest",
+            "intersect": True
+        },
+        "scales": {
+            "xAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": False,
+                    "labelString": "Time"
+                }
+            }],
+            "yAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": True,
+                    "labelString": "%"
+                },
+                "ticks": {
+                    "beginAtZero": True,
+                    "max": 100.0
+                }
+            }]
+        }
+    }
+}
+""",
+'script_data': """
+from datetime import datetime
+
+query_data = connection.Query('''
+    SELECT sum(heap_blks_read) AS reads,
+           sum(heap_blks_hit) AS hits,
+           round(sum(heap_blks_read) / (sum(heap_blks_read) + sum(heap_blks_hit)), 2) AS miss_ratio
+    FROM pg_statio_all_tables
+''')
+
+datasets = []
+datasets.append({
+        "label": 'Miss Ratio',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [query_data.Rows[0]["miss_ratio"]]
+    })
+
+result = {
+    "labels": [datetime.now().strftime('%H:%M:%S')],
+    "datasets": datasets
+}
+"""
+},
+{
+'dbms': 'postgresql',
+'plugin_name': 'postgresql',
+'id': 10,
+'title': 'Index Cache Miss Ratio',
+'type': 'timeseries',
+'interval': 10,
+'default': True,
+'script_chart': """
+database_name = connection.ExecuteScalar('SELECT current_database()')
+
+result = {
+    "type": "line",
+    "data": None,
+    "options": {
+        "responsive": True,
+        "title":{
+            "display":True,
+            "text":"Index Cache Miss Ratio (Database: {0})".format(database_name)
+        },
+        "legend": {
+            "display": False
+        },
+        "tooltips": {
+            "mode": "index",
+            "intersect": False
+        },
+        "hover": {
+            "mode": "nearest",
+            "intersect": True
+        },
+        "scales": {
+            "xAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": False,
+                    "labelString": "Time"
+                }
+            }],
+            "yAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": True,
+                    "labelString": "%"
+                },
+                "ticks": {
+                    "beginAtZero": True,
+                    "max": 100.0
+                }
+            }]
+        }
+    }
+}
+""",
+'script_data': """
+from datetime import datetime
+
+query_data = connection.Query('''
+    SELECT sum(idx_blks_read) AS reads,
+           sum(idx_blks_hit) AS hits,
+           round(sum(idx_blks_read) / (sum(idx_blks_read) + sum(idx_blks_hit)), 2) AS miss_ratio
+    FROM pg_statio_all_tables
+''')
+
+datasets = []
+datasets.append({
+        "label": 'Miss Ratio',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [query_data.Rows[0]["miss_ratio"]]
+    })
+
+result = {
+    "labels": [datetime.now().strftime('%H:%M:%S')],
+    "datasets": datasets
+}
+"""
+},
+{
+'dbms': 'postgresql',
+'plugin_name': 'postgresql',
+'id': 11,
+'title': 'Seq Scan Ratio',
+'type': 'timeseries',
+'interval': 10,
+'default': True,
+'script_chart': """
+database_name = connection.ExecuteScalar('SELECT current_database()')
+
+result = {
+    "type": "line",
+    "data": None,
+    "options": {
+        "responsive": True,
+        "title":{
+            "display":True,
+            "text":"Seq Scan Ratio (Database: {0})".format(database_name)
+        },
+        "legend": {
+            "display": False
+        },
+        "tooltips": {
+            "mode": "index",
+            "intersect": False
+        },
+        "hover": {
+            "mode": "nearest",
+            "intersect": True
+        },
+        "scales": {
+            "xAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": False,
+                    "labelString": "Time"
+                }
+            }],
+            "yAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": True,
+                    "labelString": "%"
+                },
+                "ticks": {
+                    "beginAtZero": True,
+                    "max": 100.0
+                }
+            }]
+        }
+    }
+}
+""",
+'script_data': """
+from datetime import datetime
+
+query_data = connection.Query('''
+    SELECT sum(seq_scan) as seq,
+           sum(idx_scan) as idx,
+           round(sum(seq_scan) / (sum(seq_scan) + sum(idx_scan)), 2) AS ratio
+    FROM pg_stat_all_tables
+''')
+
+datasets = []
+datasets.append({
+        "label": 'Seq Scan Ratio',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [query_data.Rows[0]["ratio"]]
+    })
+
+result = {
+    "labels": [datetime.now().strftime('%H:%M:%S')],
+    "datasets": datasets
+}
+"""
+}, {
+'dbms': 'postgresql',
+'plugin_name': 'postgresql',
+'id': 12,
+'title': 'Long Transaction',
+'type': 'timeseries',
+'interval': 10,
+'default': True,
+'script_chart': """
+result = {
+    "type": "line",
+    "data": None,
+    "options": {
+        "legend": {
+            "display": False
+        },
+        "responsive": True,
+        "title":{
+            "display":True,
+            "text": "Long Transaction"
+        },
+        "tooltips": {
+            "mode": "index",
+            "intersect": False
+        },
+        "hover": {
+            "mode": "nearest",
+            "intersect": True
+        },
+        "scales": {
+            "xAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": False,
+                    "labelString": "Time"
+                }
+            }],
+            "yAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": True,
+                    "labelString": "Seconds"
+                },
+                "ticks": {
+                    "beginAtZero": True
+                }
+            }]
+        }
+    }
+}
+""",
+'script_data': """
+
+from datetime import datetime
+
+if int(connection.ExecuteScalar('show server_version_num')) < 100000:
+    query = '''
+        SELECT seconds
+        FROM (
+            SELECT ROUND(EXTRACT(EPOCH FROM (clock_timestamp()-xact_start))::numeric,2) as seconds
+            FROM pg_stat_activity
+            WHERE xact_start is not null
+              AND datid is not null
+              AND query NOT LIKE 'autovacuum: %'
+        ) x
+        ORDER BY seconds DESC
+        LIMIT 1
+    '''
+else:
+    query = '''
+        SELECT seconds
+        FROM (
+            SELECT ROUND(EXTRACT(EPOCH FROM (clock_timestamp()-xact_start))::numeric,2) as seconds
+            FROM pg_stat_activity
+            WHERE xact_start is not null
+              AND datid is not null
+              AND backend_type NOT IN ('walreceiver','walsender','walwriter','autovacuum worker')
+        ) x
+        ORDER BY seconds DESC
+        LIMIT 1
+    '''
+
+query_data = connection.Query(query)
+
+datasets = []
+datasets.append({
+        "label": 'Seconds',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [query_data.Rows[0]['seconds']]
+    })
+
+result = {
+    "labels": [datetime.now().strftime('%H:%M:%S')],
+    "datasets": datasets
+}
+"""
+}, {
+'dbms': 'postgresql',
+'plugin_name': 'postgresql',
+'id': 13,
+'title': 'Long Query',
+'type': 'timeseries',
+'interval': 10,
+'default': True,
+'script_chart': """
+result = {
+    "type": "line",
+    "data": None,
+    "options": {
+        "legend": {
+            "display": False
+        },
+        "responsive": True,
+        "title":{
+            "display":True,
+            "text": "Long Query"
+        },
+        "tooltips": {
+            "mode": "index",
+            "intersect": False
+        },
+        "hover": {
+            "mode": "nearest",
+            "intersect": True
+        },
+        "scales": {
+            "xAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": False,
+                    "labelString": "Time"
+                }
+            }],
+            "yAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": True,
+                    "labelString": "Seconds"
+                },
+                "ticks": {
+                    "beginAtZero": True
+                }
+            }]
+        }
+    }
+}
+""",
+'script_data': """
+
+from datetime import datetime
+
+if int(connection.ExecuteScalar('show server_version_num')) < 100000:
+    query = '''
+        SELECT seconds
+            FROM (
+                SELECT ROUND(EXTRACT(EPOCH FROM (clock_timestamp()-query_start))::numeric,2) as seconds
+                FROM pg_stat_activity
+                WHERE state='active'
+                  AND query_start is not null
+                  AND datid is not null
+                  AND query NOT LIKE 'autovacuum: %'
+                UNION ALL
+                SELECT 0.0
+            ) x
+            ORDER BY seconds DESC
+            LIMIT 1
+    '''
+else:
+    query = '''
+        SELECT seconds
+        FROM (
+            SELECT ROUND(EXTRACT(EPOCH FROM (clock_timestamp()-query_start))::numeric,2) as seconds
+            FROM pg_stat_activity
+            WHERE state='active'
+              AND query_start is not null
+              AND datid is not null
+              AND backend_type NOT IN ('walreceiver','walsender','walwriter','autovacuum worker')
+            UNION ALL
+            SELECT 0.0
+        ) x
+        ORDER BY seconds DESC
+        LIMIT 1
+    '''
+
+query_data = connection.Query(query)
+
+datasets = []
+datasets.append({
+        "label": 'Seconds',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [query_data.Rows[0]['seconds']]
+    })
+
+result = {
+    "labels": [datetime.now().strftime('%H:%M:%S')],
+    "datasets": datasets
+}
+"""
+}, {
+'dbms': 'postgresql',
+'plugin_name': 'postgresql',
+'id': 14,
+'title': 'Long Autovacuum',
+'type': 'timeseries',
+'interval': 10,
+'default': True,
+'script_chart': """
+result = {
+    "type": "line",
+    "data": None,
+    "options": {
+        "legend": {
+            "display": False
+        },
+        "responsive": True,
+        "title":{
+            "display":True,
+            "text": "Long Autovacuum"
+        },
+        "tooltips": {
+            "mode": "index",
+            "intersect": False
+        },
+        "hover": {
+            "mode": "nearest",
+            "intersect": True
+        },
+        "scales": {
+            "xAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": False,
+                    "labelString": "Time"
+                }
+            }],
+            "yAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": True,
+                    "labelString": "Seconds"
+                },
+                "ticks": {
+                    "beginAtZero": True
+                }
+            }]
+        }
+    }
+}
+""",
+'script_data': """
+
+from datetime import datetime
+
+if int(connection.ExecuteScalar('show server_version_num')) < 100000:
+    query = '''
+        SELECT seconds
+        FROM (
+            SELECT ROUND(EXTRACT(EPOCH FROM (clock_timestamp()-query_start))::numeric,2) as seconds
+            FROM pg_stat_activity
+            WHERE state='active'
+              AND query_start is not null
+              AND datid is not null
+              AND query LIKE 'autovacuum: %'
+            UNION ALL
+            SELECT 0.0
+        ) x
+        ORDER BY seconds DESC
+        LIMIT 1
+    '''
+else:
+    query = '''
+        SELECT seconds
+        FROM (
+            SELECT ROUND(EXTRACT(EPOCH FROM (clock_timestamp()-query_start))::numeric,2) as seconds
+            FROM pg_stat_activity
+            WHERE state='active'
+              AND query_start is not null
+              AND datid is not null
+              AND backend_type = 'autovacuum worker'
+            UNION ALL
+            SELECT 0.0
+        ) x
+        ORDER BY seconds DESC
+        LIMIT 1
+    '''
+
+query_data = connection.Query(query)
+
+datasets = []
+datasets.append({
+        "label": 'Seconds',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [query_data.Rows[0]['seconds']]
+    })
+
+result = {
+    "labels": [datetime.now().strftime('%H:%M:%S')],
+    "datasets": datasets
+}
+"""
 }]

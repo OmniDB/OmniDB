@@ -37,7 +37,8 @@ result = {
             "yAxes": [{
                 "display": True,
                 "scaleLabel": {
-                    "display": False
+                    "display": True,
+                    "labelString": "TPS"
                 },
                 "ticks": {
                     "beginAtZero": True
@@ -60,7 +61,6 @@ else:
 query_data = connection.Query(query)
 
 datasets = []
-color = 'hsl(' + str(137.508) + ',50%,50%)'
 datasets.append({
         "label": 'Rate',
         "backgroundColor": 'rgba(129,223,129,0.4)',
@@ -83,7 +83,7 @@ result = {
 'dbms': 'postgresql',
 'plugin_name': 'postgresql',
 'id': 1,
-'title': 'Backends (State)',
+'title': 'Backends',
 'type': 'timeseries',
 'interval': 10,
 'default': True,
@@ -99,6 +99,9 @@ result = {
             "display":True,
             "text":"Backends (max_connections: " + str(max_connections) + ")"
         },
+        "legend": {
+            "display": False
+        },
         "tooltips": {
             "mode": "index",
             "intersect": False
@@ -111,7 +114,7 @@ result = {
             "xAxes": [{
                 "display": True,
                 "scaleLabel": {
-                    "display": True,
+                    "display": False,
                     "labelString": "Time"
                 }
             }],
@@ -134,26 +137,21 @@ result = {
 from datetime import datetime
 from random import randint
 
-databases = connection.Query('''
-SELECT coalesce(state,'other') as state,
-       count(*) as count
+backends = connection.Query('''
+SELECT count(*) as count
 FROM pg_stat_activity
-GROUP by 1
 ''')
 
 datasets = []
-for state in databases.Rows:
-    color = 'hsl(' + str(randint(1, 100) * 137.508) + ',50%,50%)'
-    datasets.append({
-            "label": state['state'],
-            "fill": False,
-            "backgroundColor": color,
-            "borderColor": color,
-            "lineTension": 0,
-            "pointRadius": 0,
-            "borderWidth": 1,
-            "data": [state["count"]]
-        })
+datasets.append({
+        "label": 'Backends',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [backends.Rows[0]["count"]]
+    })
 
 result = {
     "labels": [datetime.now().strftime('%H:%M:%S')],
@@ -200,10 +198,12 @@ result = {
             "yAxes": [{
                 "display": True,
                 "scaleLabel": {
-                    "display": False
+                    "display": True,
+                    "labelString": "%"
                 },
                 "ticks": {
-                    "beginAtZero": True
+                    "beginAtZero": True,
+                    "max": 100.0
                 }
             }]
         }
@@ -223,12 +223,10 @@ current_setting('autovacuum_max_workers')::bigint total
 perc = round((float(query_data.Rows[0]['used']))/(float(query_data.Rows[0]['total']))*100,1)
 
 datasets = []
-color = 'hsl(' + str(137.508) + ',50%,50%)'
 datasets.append({
         "label": 'Workers busy (%)',
-        "fill": False,
-        "backgroundColor": color,
-        "borderColor": color,
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
         "lineTension": 0,
         "pointRadius": 0,
         "borderWidth": 1,
@@ -280,7 +278,8 @@ result = {
             "yAxes": [{
                 "display": True,
                 "scaleLabel": {
-                    "display": False
+                    "display": True,
+                    "labelString": "MB/s"
                 },
                 "ticks": {
                     "beginAtZero": True
@@ -344,12 +343,10 @@ else:
         \"\"\")
 
 datasets = []
-color = 'hsl(' + str(137.508) + ',50%,50%)'
 datasets.append({
         "label": 'Rate (MB/s)',
-        "fill": False,
-        "backgroundColor": color,
-        "borderColor": color,
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
         "lineTension": 0,
         "pointRadius": 0,
         "borderWidth": 1,
@@ -403,7 +400,8 @@ result = {
             "yAxes": [{
                 "display": True,
                 "scaleLabel": {
-                    "display": False
+                    "display": True,
+                    "labelString": "MB/s"
                 },
                 "ticks": {
                     "beginAtZero": True
@@ -433,12 +431,10 @@ else:
     \"\"\")
 
 datasets = []
-color = 'hsl(' + str(137.508) + ',50%,50%)'
 datasets.append({
         "label": 'Rate (MB/s)',
-        "fill": False,
-        "backgroundColor": color,
-        "borderColor": color,
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
         "lineTension": 0,
         "pointRadius": 0,
         "borderWidth": 1,
@@ -495,11 +491,12 @@ result = {
             "yAxes": [{
                 "display": True,
                 "scaleLabel": {
-                    "display": False
+                    "display": True,
+                    "labelString": "%"
                 },
                 "ticks": {
                     "beginAtZero": True,
-                    "max": 100
+                    "max": 100.0
                 }
             }]
         }
@@ -521,12 +518,10 @@ r = connection.Query('''
 ''')
 
 datasets = []
-color = 'hsl(' + str(137.508) + ',50%,50%)'
 datasets.append({
         "label": 'Freeze (%)',
-        "fill": False,
-        "backgroundColor": color,
-        "borderColor": color,
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
         "lineTension": 0,
         "pointRadius": 0,
         "borderWidth": 1,

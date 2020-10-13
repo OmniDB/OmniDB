@@ -661,6 +661,7 @@ def get_rules(request, v_database):
         for v_rule in v_rules.Rows:
             v_rule_data = []
             v_rule_data.append(v_rule['rule_name'])
+            v_rule_data.append(v_rule['oid'])
             v_list_rules.append(v_rule_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -721,7 +722,8 @@ def get_triggers(request, v_database):
                 'v_enabled': v_trigger['trigger_enabled'],
                 'v_function': v_trigger['trigger_function'],
                 'v_id': v_trigger['id'],
-                'v_function_oid': v_trigger['function_oid']
+                'v_function_oid': v_trigger['function_oid'],
+                'v_oid': v_trigger['oid']
             }
             v_list_triggers.append(v_trigger_data)
     except Exception as exc:
@@ -856,6 +858,7 @@ def get_statistics(request, v_database):
             v_statistic_data = []
             v_statistic_data.append(v_statistic['statistic_name'])
             v_statistic_data.append(v_statistic['schema_name'])
+            v_statistic_data.append(v_statistic['oid'])
             v_list_statistics.append(v_statistic_data)
     except Exception as exc:
         v_return['v_data'] = {'password_timeout': True, 'message': str(exc) }
@@ -1106,7 +1109,8 @@ def get_schemas(request, v_database):
         v_schemas = v_database.QuerySchemas()
         for v_schema in v_schemas.Rows:
             v_schema_data = {
-                'v_name': v_schema['schema_name']
+                'v_name': v_schema['schema_name'],
+                'v_oid': v_schema['oid']
             }
             v_list_schemas.append(v_schema_data)
     except Exception as exc:
@@ -1169,7 +1173,8 @@ def get_tablespaces(request, v_database):
         v_tablespaces = v_database.QueryTablespaces()
         for v_tablespace in v_tablespaces.Rows:
             v_tablespace_data = {
-                'v_name': v_tablespace['tablespace_name']
+                'v_name': v_tablespace['tablespace_name'],
+                'v_oid': v_tablespace['oid']
             }
             v_list_tablespaces.append(v_tablespace_data)
     except Exception as exc:
@@ -1200,7 +1205,8 @@ def get_roles(request, v_database):
         v_roles = v_database.QueryRoles()
         for v_role in v_roles.Rows:
             v_role_data = {
-                'v_name': v_role['role_name']
+                'v_name': v_role['role_name'],
+                'v_oid': v_role['oid']
             }
             v_list_roles.append(v_role_data)
     except Exception as exc:
@@ -1347,7 +1353,8 @@ def get_procedures(request, v_database):
         for v_function in v_functions.Rows:
             v_function_data = {
                 'v_name': v_function['name'],
-                'v_id': v_function['id']
+                'v_id': v_function['id'],
+                'v_function_oid': v_function['function_oid']
             }
             v_list_functions.append(v_function_data)
     except Exception as exc:
@@ -1737,7 +1744,8 @@ def get_publications(request, v_database):
                 'v_insert': v_pub['pubinsert'],
                 'v_update': v_pub['pubupdate'],
                 'v_delete': v_pub['pubdelete'],
-                'v_truncate': v_pub['pubtruncate']
+                'v_truncate': v_pub['pubtruncate'],
+                'v_oid': v_pub['oid']
             }
             v_list_pubs.append(v_pub_data)
     except Exception as exc:
@@ -1803,7 +1811,8 @@ def get_subscriptions(request, v_database):
                 'v_name': v_sub['subname'],
                 'v_enabled': v_sub['subenabled'],
                 'v_conninfo': v_sub['subconninfo'],
-                'v_publications': v_sub['subpublications']
+                'v_publications': v_sub['subpublications'],
+                'v_oid': v_sub['oid']
             }
             v_list_subs.append(v_sub_data)
     except Exception as exc:
@@ -1902,7 +1911,8 @@ def get_foreign_servers(request, v_database):
                 'v_name': v_server['srvname'],
                 'v_type': v_server['srvtype'],
                 'v_version': v_server['srvversion'],
-                'v_options': v_server['srvoptions']
+                'v_options': v_server['srvoptions'],
+                'v_oid': v_server['oid']
             }
             v_list_servers.append(v_server_data)
     except Exception as exc:
@@ -2042,7 +2052,8 @@ def get_types(request, v_database):
         v_types = v_database.QueryTypes(False,v_schema)
         for v_type in v_types.Rows:
             v_type_data = {
-                'v_type_name': v_type['type_name']
+                'v_type_name': v_type['type_name'],
+                'v_oid': v_type['oid']
             }
             v_list_types.append(v_type_data)
     except Exception as exc:

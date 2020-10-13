@@ -823,7 +823,8 @@ class PostgreSQL:
     @lock_required
     def QueryRoles(self):
         return self.v_connection.Query('''
-            select quote_ident(rolname) as role_name
+            select quote_ident(rolname) as role_name,
+                   oid
             from pg_roles
             order by rolname
         ''', True)
@@ -1546,10 +1547,13 @@ class PostgreSQL:
             else:
                 v_filter = "and quote_ident(schemaname) not in ('information_schema','pg_catalog') "
         return self.v_connection.Query('''
-            select quote_ident(schemaname) as table_schema,
-                   quote_ident(tablename) as table_name,
-                   quote_ident(rulename) as rule_name
-            from pg_rules
+            select quote_ident(r.schemaname) as table_schema,
+                   quote_ident(r.tablename) as table_name,
+                   quote_ident(r.rulename) as rule_name,
+                   rw.oid
+            from pg_rules r
+            INNER JOIN pg_rewrite rw
+                    ON r.rulename = rw.rulename
             where 1 = 1
             {0}
             order by 1, 2, 3
@@ -1558,11 +1562,22 @@ class PostgreSQL:
     @lock_required
     def GetRuleDefinition(self, p_rule, p_table, p_schema):
         return self.v_connection.ExecuteScalar('''
-            select definition
-            from pg_rules
-            where quote_ident(schemaname) = '{0}'
-              and quote_ident(tablename) = '{1}'
-              and quote_ident(rulename) = '{2}'
+            select r.definition ||
+                   (CASE WHEN obj_description(rw.oid, 'pg_rewrite') IS NOT NULL
+                         THEN format(
+                                 E'\n\nCOMMENT ON RULE %s ON %s IS %s;',
+                                 quote_ident(r.rulename),
+                                 quote_ident(rw.ev_class::regclass::text),
+                                 quote_literal(obj_description(rw.oid, 'pg_rewrite'))
+                             )
+                         ELSE ''
+                    END)
+            from pg_rules r
+            INNER JOIN pg_rewrite rw
+                    ON r.rulename = rw.rulename
+            where quote_ident(r.schemaname) = '{0}'
+              and quote_ident(r.tablename) = '{1}'
+              and quote_ident(r.rulename) = '{2}'
         '''.format(p_schema, p_table, p_rule)).replace('CREATE RULE', 'CREATE OR REPLACE RULE')
 
     @lock_required
@@ -2043,7 +2058,8 @@ class PostgreSQL:
         return self.v_connection.Query('''
             select quote_ident(n.nspname) || '.' || quote_ident(p.proname) || '(' || oidvectortypes(p.proargtypes) || ')' as id,
                    quote_ident(p.proname) as name,
-                   quote_ident(n.nspname) as schema_name
+                   quote_ident(n.nspname) as schema_name,
+                   p.oid AS function_oid
             from pg_proc p
             join pg_namespace n
             on p.pronamespace = n.oid
@@ -2463,7 +2479,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                        pubinsert,
                        pubupdate,
                        pubdelete,
-                       pubtruncate
+                       pubtruncate,
+                       oid
                 from pg_publication
                 order by 1
             ''', True)
@@ -2474,7 +2491,8 @@ CREATE MATERIALIZED VIEW {0}.{1} AS
                        pubinsert,
                        pubupdate,
                        pubdelete,
-                       false as pubtruncate
+                       false as pubtruncate,
+                       oid
                 from pg_publication
                 order by 1
             ''', True)
@@ -9052,19 +9070,29 @@ FROM #table_name#
                     -- AND relkind in ('r','c')
                 ),
                 createsequence as (
-                    select
-                     'CREATE SEQUENCE '||(oid::regclass::text) || E';\n'
-                     ||'ALTER SEQUENCE '||(oid::regclass::text)
-                     ||E'\n INCREMENT BY '||increment
-                     ||E'\n MINVALUE '||minimum_value
-                     ||E'\n MAXVALUE '||maximum_value
-                     ||E'\n START WITH '||start_value
-                     ||E'\n '|| case cycle_option when 'YES' then 'CYCLE' else 'NO CYCLE' end
-                     ||E';\n' as text
-                     FROM information_schema.sequences s JOIN obj ON (true)
-                     WHERE sequence_schema = obj.namespace
-                       AND sequence_name = obj.name
-                       AND obj.kind = 'SEQUENCE'
+                    SELECT 'CREATE SEQUENCE '||(c.oid::regclass::text) || E';\n'
+                           ||'ALTER SEQUENCE '||(c.oid::regclass::text)
+                           ||E'\n INCREMENT BY '||sp.increment
+                           ||E'\n MINVALUE '||sp.minimum_value
+                           ||E'\n MAXVALUE '||sp.maximum_value
+                           ||E'\n START WITH '||sp.start_value
+                           ||E'\n '|| CASE cycle_option WHEN true THEN 'CYCLE' ELSE 'NO CYCLE' END
+                           ||E';\n'||
+                           (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                                 THEN (CASE relkind WHEN 'S'
+                                                    THEN format(
+                                                             E'\n\nCOMMENT ON SEQUENCE %s IS %s;',
+                                                             '{0}.{1}'::regclass,
+                                                             quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                         )
+                                                    ELSE ''
+                                       END)
+                                 ELSE ''
+                            END) as text
+                    FROM pg_class c,
+                    LATERAL pg_sequence_parameters(c.oid) sp (start_value, minimum_value, maximum_value, increment, cycle_option)
+                    WHERE c.oid = '{0}.{1}'::regclass
+                      AND c.relkind = 'S'
                 ),
                 createindex as (
                     with ii as (
@@ -9584,19 +9612,29 @@ FROM #table_name#
                     -- AND relkind in ('r','c')
                 ),
                 createsequence as (
-                    select
-                     'CREATE SEQUENCE '||(oid::regclass::text) || E';\n'
-                     ||'ALTER SEQUENCE '||(oid::regclass::text)
-                     ||E'\n INCREMENT BY '||increment
-                     ||E'\n MINVALUE '||minimum_value
-                     ||E'\n MAXVALUE '||maximum_value
-                     ||E'\n START WITH '||start_value
-                     ||E'\n '|| case cycle_option when 'YES' then 'CYCLE' else 'NO CYCLE' end
-                     ||E';\n' as text
-                     FROM information_schema.sequences s JOIN obj ON (true)
-                     WHERE sequence_schema = obj.namespace
-                       AND sequence_name = obj.name
-                       AND obj.kind = 'SEQUENCE'
+                    SELECT 'CREATE SEQUENCE '||(c.oid::regclass::text) || E';\n'
+                           ||'ALTER SEQUENCE '||(c.oid::regclass::text)
+                           ||E'\n INCREMENT BY '||sp.increment
+                           ||E'\n MINVALUE '||sp.minimum_value
+                           ||E'\n MAXVALUE '||sp.maximum_value
+                           ||E'\n START WITH '||sp.start_value
+                           ||E'\n '|| CASE cycle_option WHEN true THEN 'CYCLE' ELSE 'NO CYCLE' END
+                           ||E';\n'||
+                           (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                                 THEN (CASE relkind WHEN 'S'
+                                                    THEN format(
+                                                             E'\n\nCOMMENT ON SEQUENCE %s IS %s;',
+                                                             '{0}.{1}'::regclass,
+                                                             quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                         )
+                                                    ELSE ''
+                                       END)
+                                 ELSE ''
+                            END) as text
+                    FROM pg_class c,
+                    LATERAL pg_sequence_parameters(c.oid) sp (start_value, minimum_value, maximum_value, increment, cycle_option)
+                    WHERE c.oid = '{0}.{1}'::regclass
+                      AND c.relkind = 'S'
                 ),
                 createindex as (
                     with ii as (
@@ -10119,19 +10157,29 @@ FROM #table_name#
                     -- AND relkind in ('r','c')
                 ),
                 createsequence as (
-                    select
-                     'CREATE SEQUENCE '||(oid::regclass::text) || E';\n'
-                     ||'ALTER SEQUENCE '||(oid::regclass::text)
-                     ||E'\n INCREMENT BY '||increment
-                     ||E'\n MINVALUE '||minimum_value
-                     ||E'\n MAXVALUE '||maximum_value
-                     ||E'\n START WITH '||start_value
-                     ||E'\n '|| case cycle_option when 'YES' then 'CYCLE' else 'NO CYCLE' end
-                     ||E';\n' as text
-                     FROM information_schema.sequences s JOIN obj ON (true)
-                     WHERE sequence_schema = obj.namespace
-                       AND sequence_name = obj.name
-                       AND obj.kind = 'SEQUENCE'
+                    SELECT 'CREATE SEQUENCE '||(c.oid::regclass::text) || E';\n'
+                           ||'ALTER SEQUENCE '||(c.oid::regclass::text)
+                           ||E'\n INCREMENT BY '||sp.increment
+                           ||E'\n MINVALUE '||sp.minimum_value
+                           ||E'\n MAXVALUE '||sp.maximum_value
+                           ||E'\n START WITH '||sp.start_value
+                           ||E'\n '|| CASE cycle_option WHEN true THEN 'CYCLE' ELSE 'NO CYCLE' END
+                           ||E';\n'||
+                           (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                                 THEN (CASE relkind WHEN 'S'
+                                                    THEN format(
+                                                             E'\n\nCOMMENT ON SEQUENCE %s IS %s;',
+                                                             '{0}.{1}'::regclass,
+                                                             quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                         )
+                                                    ELSE ''
+                                       END)
+                                 ELSE ''
+                            END) as text
+                    FROM pg_class c,
+                    LATERAL pg_sequence_parameters(c.oid) sp (start_value, minimum_value, maximum_value, increment, cycle_option)
+                    WHERE c.oid = '{0}.{1}'::regclass
+                      AND c.relkind = 'S'
                 ),
                 createindex as (
                     with ii as (
@@ -10654,19 +10702,29 @@ FROM #table_name#
                     -- AND relkind in ('r','c')
                 ),
                 createsequence as (
-                    select
-                     'CREATE SEQUENCE '||(oid::regclass::text) || E';\n'
-                     ||'ALTER SEQUENCE '||(oid::regclass::text)
-                     ||E'\n INCREMENT BY '||increment
-                     ||E'\n MINVALUE '||minimum_value
-                     ||E'\n MAXVALUE '||maximum_value
-                     ||E'\n START WITH '||start_value
-                     ||E'\n '|| case cycle_option when 'YES' then 'CYCLE' else 'NO CYCLE' end
-                     ||E';\n' as text
-                     FROM information_schema.sequences s JOIN obj ON (true)
-                     WHERE sequence_schema = obj.namespace
-                       AND sequence_name = obj.name
-                       AND obj.kind = 'SEQUENCE'
+                    SELECT 'CREATE SEQUENCE '||(c.oid::regclass::text) || E';\n'
+                           ||'ALTER SEQUENCE '||(c.oid::regclass::text)
+                           ||E'\n INCREMENT BY '||sp.increment
+                           ||E'\n MINVALUE '||sp.minimum_value
+                           ||E'\n MAXVALUE '||sp.maximum_value
+                           ||E'\n START WITH '||sp.start_value
+                           ||E'\n '|| CASE cycle_option WHEN true THEN 'CYCLE' ELSE 'NO CYCLE' END
+                           ||E';\n'||
+                           (CASE WHEN obj_description('{0}.{1}'::regclass, 'pg_class') IS NOT NULL
+                                 THEN (CASE relkind WHEN 'S'
+                                                    THEN format(
+                                                             E'\n\nCOMMENT ON SEQUENCE %s IS %s;',
+                                                             '{0}.{1}'::regclass,
+                                                             quote_literal(obj_description('{0}.{1}'::regclass, 'pg_class'))
+                                                         )
+                                                    ELSE ''
+                                       END)
+                                 ELSE ''
+                            END) as text
+                    FROM pg_class c,
+                    LATERAL pg_sequence_parameters(c.oid) sp (start_value, minimum_value, maximum_value, increment, cycle_option)
+                    WHERE c.oid = '{0}.{1}'::regclass
+                      AND c.relkind = 'S'
                 ),
                 createindex as (
                     with ii as (
@@ -11207,10 +11265,25 @@ FROM #table_name#
                     end), ''),
                    '') as text
             from privileges
+            ),
+            comments AS (
+                SELECT coalesce(obj_description('{0}'::regprocedure, 'pg_proc'), '') AS description
+            ),
+            comment_on AS (
+                SELECT (CASE WHEN description <> ''
+                             THEN format(
+                                      E'\n\nCOMMENT ON PROCEDURE %s IS %s;',
+                                      '{0}'::regprocedure,
+                                      quote_literal(description)
+                                  )
+                             ELSE ''
+                        END) AS text
+                FROM comments
             )
             select (select text from createfunction) ||
                    (select text from alterowner) ||
-                   (select text from grants)
+                   (select text from grants) ||
+                   (SELECT text FROM comment_on)
         '''.format(p_procedure))
     @lock_required
     def GetDDLConstraint(self, p_schema, p_table, p_object):
@@ -11798,13 +11871,30 @@ FROM #table_name#
                             WHERE x.publish <> ''
                         ) y
                     ) z
+                ),
+                comments AS (
+                    SELECT coalesce(obj_description(oid, 'pg_publication'), '') AS description,
+                           pubname
+                    FROM publication
+                ),
+                comment_on AS (
+                    SELECT (CASE WHEN description <> ''
+                                 THEN format(
+                                          E'\n\nCOMMENT ON PUBLICATION %s IS %s;',
+                                          quote_ident(pubname),
+                                          quote_literal(description)
+                                      )
+                                 ELSE ''
+                            END) AS text
+                    FROM comments
                 )
-                SELECT format(E'CREATE PUBLICATION %s\n%s%s;\n\nALTER PUBLICATION %s OWNER TO %s;',
+                SELECT format(E'CREATE PUBLICATION %s\n%s%s;\n\nALTER PUBLICATION %s OWNER TO %s;%s',
                          quote_ident(p.pubname),
                          ft.text,
                          o.text,
                          quote_ident(p.pubname),
-                         quote_ident(r.rolname)
+                         quote_ident(r.rolname),
+                         c.text
                        )
                 FROM publication p
                 INNER JOIN pg_roles r
@@ -11812,6 +11902,8 @@ FROM #table_name#
                 INNER JOIN for_tables ft
                         ON 1 = 1
                 INNER JOIN options o
+                        ON 1 = 1
+                INNER JOIN comment_on c
                         ON 1 = 1
             """.format(p_object))
         else:
@@ -11886,13 +11978,30 @@ FROM #table_name#
                             FROM publication
                         ) y
                     ) z
+                ),
+                comments AS (
+                    SELECT coalesce(obj_description(oid, 'pg_publication'), '') AS description,
+                           pubname
+                    FROM publication
+                ),
+                comment_on AS (
+                    SELECT (CASE WHEN description <> ''
+                                 THEN format(
+                                          E'\n\nCOMMENT ON PUBLICATION %s IS %s;',
+                                          quote_ident(pubname),
+                                          quote_literal(description)
+                                      )
+                                 ELSE ''
+                            END) AS text
+                    FROM comments
                 )
-                SELECT format(E'CREATE PUBLICATION %s\n%s%s;\n\nALTER PUBLICATION %s OWNER TO %s;',
+                SELECT format(E'CREATE PUBLICATION %s\n%s%s;\n\nALTER PUBLICATION %s OWNER TO %s;%s',
                          quote_ident(p.pubname),
                          ft.text,
                          o.text,
                          quote_ident(p.pubname),
-                         quote_ident(r.rolname)
+                         quote_ident(r.rolname),
+                         c.text
                        )
                 FROM publication p
                 INNER JOIN pg_roles r
@@ -11900,6 +12009,8 @@ FROM #table_name#
                 INNER JOIN for_tables ft
                         ON 1 = 1
                 INNER JOIN options o
+                        ON 1 = 1
+                INNER JOIN comment_on c
                         ON 1 = 1
             """.format(p_object))
 
@@ -13548,6 +13659,40 @@ FROM #table_name#
         )
 
     @lock_required
+    def GetObjectDescriptionProcedure(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regprocedure AS id,
+                       coalesce(obj_description({0}, 'pg_proc'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON PROCEDURE {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionPublication(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT quote_ident(pubname) AS id,
+                       coalesce(obj_description({0}, 'pg_publication'), '') AS description
+                FROM pg_publication
+                WHERE oid = {0}
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON PUBLICATION {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
     def GetObjectDescriptionSequence(self, p_oid):
         v_row = self.v_connection.Query(
             '''
@@ -13560,6 +13705,44 @@ FROM #table_name#
 
         return "COMMENT ON SEQUENCE {0} is '{1}'".format(
             v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionRole(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT {0}::regrole AS id,
+                       coalesce(shobj_description({0}, 'pg_roles'), '') AS description
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON ROLE {0} is '{1}'".format(
+            v_row['id'],
+            v_row['description']
+        )
+
+    @lock_required
+    def GetObjectDescriptionRule(self, p_oid):
+        v_row = self.v_connection.Query(
+            '''
+                SELECT quote_ident(r.rulename) AS id,
+                       format('%s.%s', r.schemaname, r.tablename)::regclass AS table_id,
+                       coalesce(obj_description({0}, 'pg_rewrite'), '') AS description
+                FROM pg_rules r
+                INNER JOIN pg_rewrite rw
+                        ON r.rulename = rw.rulename
+                WHERE rw.oid = {0}
+            '''.format(
+                p_oid
+            )
+        ).Rows[0]
+
+        return "COMMENT ON RULE {0} ON {1} is '{2}'".format(
+            v_row['id'],
+            v_row['table_id'],
             v_row['description']
         )
 
@@ -13621,6 +13804,14 @@ FROM #table_name#
             return self.GetObjectDescriptionIndex(p_oid)
         elif p_type == 'mview':
             return self.GetObjectDescriptionMaterializedView(p_oid)
+        elif p_type == 'procedure':
+            return self.GetObjectDescriptionProcedure(p_oid)
+        elif p_type == 'publication':
+            return self.GetObjectDescriptionPublication(p_oid)
+        elif p_type == 'role':
+            return self.GetObjectDescriptionRole(p_oid)
+        elif p_type == 'rule':
+            return self.GetObjectDescriptionRule(p_oid)
         elif p_type == 'table':
             return self.GetObjectDescriptionTable(p_oid)
         elif p_type == 'sequence':

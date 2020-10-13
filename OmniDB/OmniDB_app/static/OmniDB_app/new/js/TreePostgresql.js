@@ -1749,6 +1749,12 @@ function getTreePostgresql(p_div) {
                         .replace('#role_name#', node.text));
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Role',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -2536,6 +2542,12 @@ function getTreePostgresql(p_div) {
                     getRuleDefinitionPostgresql(node);
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Rule',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -3086,6 +3098,12 @@ function getTreePostgresql(p_div) {
                     v_connTabControl.tag.createDebuggerTab(
                         node.text);
                     setupDebug(node, 'p');
+                }
+            }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
                 }
             }, {
                 text: 'Drop Procedure',
@@ -3833,6 +3851,12 @@ function getTreePostgresql(p_div) {
                         .replace('#pub_name#', node.text));
                 }
             }, {
+                text: 'Edit Comment',
+                icon: 'fas cm-all fa-edit',
+                action: function(node) {
+                    getObjectDescriptionPostgresql(node);
+                }
+            }, {
                 text: 'Drop Publication',
                 icon: 'fas cm-all fa-times',
                 action: function(node) {
@@ -4540,7 +4564,7 @@ function getObjectDescriptionPostgresql(p_node) {
         v_oid = p_node.parent.parent.tag.oid;
         v_position = p_node.tag.position;
     }
-    else if (['function', 'triggerfunction', 'direct_triggerfunction', 'eventtriggerfunction', 'direct_eventtriggerfunction'].indexOf(v_type) != -1) {
+    else if (['function', 'triggerfunction', 'direct_triggerfunction', 'eventtriggerfunction', 'direct_eventtriggerfunction', 'procedure'].indexOf(v_type) != -1) {
         v_oid = p_node.tag.function_oid;
         v_position = 0;
     }
@@ -5512,7 +5536,8 @@ function getRolesPostgresql(node) {
 
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, 'fas node-all fa-user node-user', {
-                        type: 'role'
+                        type: 'role',
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_role', null, false);
 
             }
@@ -7142,7 +7167,8 @@ function getRulesPostgresql(node) {
                         false, 'fas node-all fa-lightbulb node-rule', {
                             type: 'rule',
                             database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                            schema: node.tag.schema
+                            schema: node.tag.schema,
+                            oid: p_return.v_data[i][1]
                         }, 'cm_rule', null, false);
 
                 }
@@ -7807,7 +7833,8 @@ function getProceduresPostgresql(node) {
                         type: 'procedure',
                         id: p_return.v_data[i].v_id,
                         database: v_connTabControl.selectedTab.tag.selectedDatabase,
-                        schema: node.tag.schema
+                        schema: node.tag.schema,
+                        function_oid: p_return.v_data[i].v_function_oid
                     }, 'cm_procedure', null, false);
                 v_node.createChildNode('', false,
                     'node-spin', {
@@ -8357,7 +8384,8 @@ function getPublicationsPostgresql(node) {
                 v_node = node.createChildNode(p_return.v_data[i].v_name,
                     false, 'fas node-all fa-arrow-alt-circle-down node-publication', {
                         type: 'publication',
-                        database: v_connTabControl.selectedTab.tag.selectedDatabase
+                        database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                        oid: p_return.v_data[i].v_oid
                     }, 'cm_publication', null, false);
                 v_node.createChildNode('All Tables: ' + p_return.v_data[i].v_alltables,
                     false, 'fas node-all fa-ellipsis-h node-bullet', {

@@ -111,6 +111,7 @@ def get_monitor_unit_list(request, v_database):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def get_monitor_unit_details(request):
 
     v_return = {}
@@ -220,6 +221,7 @@ def get_monitor_units(request, v_database):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def get_monitor_unit_template(request):
 
     v_return = {}
@@ -333,6 +335,7 @@ def save_monitor_unit(request, v_database):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def delete_monitor_unit(request):
 
     v_return = {}
@@ -362,6 +365,7 @@ def delete_monitor_unit(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def remove_saved_monitor_unit(request):
 
     v_return = {}
@@ -390,6 +394,7 @@ def remove_saved_monitor_unit(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def update_saved_monitor_unit_interval(request):
 
     v_return = {}

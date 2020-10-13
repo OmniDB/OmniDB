@@ -1489,6 +1489,8 @@ def thread_save_edit_data(self,args):
                     if v_data_rows[i][j] != None:
                         v_value = v_data_rows[i][j]
 
+                    v_value = v_value.replace("'","''")
+
                     # Getting details about the data type
                     try:
                         v_type_details = v_database.v_data_types[v_columns[j-1]['v_type']]
@@ -1536,6 +1538,8 @@ def thread_save_edit_data(self,args):
                     v_value = ''
                     if v_data_rows[i][v_col_index+1] != None:
                         v_value = v_data_rows[i][v_col_index+1]
+
+                    v_value = v_value.replace("'","''")
 
                     v_command = v_command + v_columns[v_col_index]['v_column'] + ' = '
 

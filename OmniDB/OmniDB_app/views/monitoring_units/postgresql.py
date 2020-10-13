@@ -424,7 +424,7 @@ if previous_data == None:
     \"\"\")
 else:
     r = connection.Query(\"\"\"
-    SELECT round((sum(temp_bytes) - \"\"\" + previous_data["current_temp_bytes"] + \"\"\")/(extract(epoch from now()::time - '\"\"\" + previous_data["current_time"] + \"\"\"'::time))::numeric,2) as rate,
+    SELECT round(((sum(temp_bytes) - \"\"\" + previous_data["current_temp_bytes"] + \"\"\")/1048576.0)/(extract(epoch from now()::time - '\"\"\" + previous_data["current_time"] + \"\"\"'::time))::numeric,2) as rate,
            sum(temp_bytes) current_temp_bytes,
            now()::text as current_time
     FROM pg_stat_database

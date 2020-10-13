@@ -26,6 +26,7 @@ from OmniDB_app.views.memory_objects import *
 
 from django.db.models import Q
 
+@user_authenticated
 def get_connections(request):
 
     v_return = {}
@@ -143,6 +144,7 @@ def get_connections(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def get_connections_new(request):
 
     #User not authenticated
@@ -210,6 +212,7 @@ def get_connections_new(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def get_groups_new(request):
 
     v_return = {}
@@ -253,6 +256,7 @@ def get_groups_new(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def get_groups(request):
 
     v_return = {}
@@ -313,6 +317,7 @@ def get_groups(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def new_group_new(request):
     v_return = {}
     v_return['v_data'] = ''
@@ -338,6 +343,7 @@ def new_group_new(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def new_group(request):
     v_return = {}
     v_return['v_data'] = ''
@@ -369,6 +375,7 @@ def new_group(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def edit_group(request):
     v_return = {}
     v_return['v_data'] = ''
@@ -400,6 +407,7 @@ def edit_group(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def delete_group(request):
     v_return = {}
     v_return['v_data'] = ''
@@ -429,6 +437,7 @@ def delete_group(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def test_connection_new(request):
     v_return = {}
     v_return['v_data'] = ''
@@ -549,6 +558,7 @@ def test_connection_new(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def save_connection_new(request):
     v_return = {}
     v_return['v_data'] = ''
@@ -655,6 +665,7 @@ def save_connection_new(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def delete_connection_new(request):
     v_return = {}
     v_return['v_data'] = ''
@@ -691,6 +702,7 @@ def delete_connection_new(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def save_group_connections_new(request):
     v_return = {}
     v_return['v_data'] = ''
@@ -776,6 +788,7 @@ def test_connection(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def select_connection(request):
 
     v_return = {}

@@ -23,6 +23,8 @@ from django.contrib.auth.models import User
 
 from django.contrib.auth.decorators import login_required
 
+from OmniDB_app.views.memory_objects import *
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -35,8 +37,6 @@ def check_session(request):
     except Exception:
         user_details = UserDetails(user=request.user)
         user_details.save()
-
-    print(user_details.csv_delimiter)
 
     #Invalid session
     if not request.session.get('omnidb_session'):
@@ -78,6 +78,7 @@ def index(request):
     template = loader.get_template('OmniDB_app/new_login.html')
     return HttpResponse(template.render(context, request))
 
+@user_authenticated
 def logout(request):
 
     v_session = request.session.get('omnidb_session')

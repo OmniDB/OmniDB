@@ -119,6 +119,7 @@ def index(request):
     template = loader.get_template('OmniDB_app/new.html')
     return HttpResponse(template.render(context, request))
 
+@user_authenticated
 def welcome(request):
 
     context = {
@@ -129,6 +130,7 @@ def welcome(request):
     template = loader.get_template('OmniDB_app/welcome.html')
     return HttpResponse(template.render(context, request))
 
+@user_authenticated
 def shortcuts(request):
 
     context = {
@@ -139,6 +141,7 @@ def shortcuts(request):
     template = loader.get_template('OmniDB_app/shortcuts.html')
     return HttpResponse(template.render(context, request))
 
+@user_authenticated
 def close_welcome(request):
 
     v_return = {}
@@ -163,6 +166,7 @@ def close_welcome(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def save_config_user(request):
 
     v_return = {}
@@ -204,6 +208,7 @@ def save_config_user(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def save_shortcuts(request):
 
     v_return = {}
@@ -247,6 +252,7 @@ def save_shortcuts(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def get_database_list(request):
 
     v_return = {}
@@ -356,6 +362,7 @@ def get_database_list(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def change_active_database(request):
 
     v_return = {}
@@ -385,6 +392,7 @@ def change_active_database(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def renew_password(request):
 
     v_return = {}
@@ -782,6 +790,7 @@ def get_completions_table(request, v_database):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def indent_sql(request):
 
     v_return = {}
@@ -838,6 +847,7 @@ def refresh_monitoring(request, v_database):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def get_command_list(request):
 
     v_return = {}
@@ -926,6 +936,7 @@ def get_command_list(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def clear_command_list(request):
 
     v_return = {}
@@ -998,6 +1009,7 @@ def clear_command_list(request):
 
     return JsonResponse(v_return)
 
+@user_authenticated
 def get_console_history(request):
 
     #User not authenticated

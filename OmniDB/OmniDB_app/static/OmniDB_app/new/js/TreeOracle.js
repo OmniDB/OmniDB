@@ -1394,7 +1394,8 @@ function getTreeDetailsOracle(node) {
 
     execAjax('/get_tree_info_oracle/',
         JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id
         }),
         function(p_return) {
 
@@ -1652,7 +1653,8 @@ function getTablespacesOracle(node) {
 
     execAjax('/get_tablespaces_oracle/',
         JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id
         }),
         function(p_return) {
 
@@ -1696,7 +1698,8 @@ function getRolesOracle(node) {
 
     execAjax('/get_roles_oracle/',
         JSON.stringify({
-            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex
+            "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id
         }),
         function(p_return) {
 
@@ -1742,6 +1745,7 @@ function getTablesOracle(node) {
     execAjax('/get_tables_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -1800,6 +1804,7 @@ function getSequencesOracle(node) {
     execAjax('/get_sequences_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -1846,6 +1851,7 @@ function getViewsOracle(node) {
     execAjax('/get_views_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -1894,6 +1900,7 @@ function getViewsColumnsOracle(node) {
     execAjax('/get_views_columns_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.text,
             "p_schema": null
         }),
@@ -1957,6 +1964,7 @@ function getViewDefinitionOracle(node) {
     execAjax('/get_view_definition_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_view": node.text,
             "p_schema": null
         }),
@@ -2010,6 +2018,7 @@ function getMaterializedViewsOracle(node) {
     execAjax('/get_mviews_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -2054,6 +2063,7 @@ function getMaterializedViewsColumnsOracle(node) {
     execAjax('/get_mviews_columns_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.text,
             "p_schema": null
         }),
@@ -2091,6 +2101,7 @@ function getMaterializedViewDefinitionOracle(node) {
     execAjax('/get_mview_definition_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_view": node.text,
             "p_schema": null
         }),
@@ -2146,6 +2157,7 @@ function getColumnsOracle(node) {
     execAjax('/get_columns_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.text,
             "p_schema": null
         }),
@@ -2253,6 +2265,7 @@ function getPKOracle(node) {
     execAjax('/get_pk_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2301,6 +2314,7 @@ function getPKColumnsOracle(node) {
     execAjax('/get_pk_columns_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_key": node.text,
             "p_table": node.parent.parent.text,
             "p_schema": null
@@ -2342,6 +2356,7 @@ function getUniquesOracle(node) {
     execAjax('/get_uniques_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2396,6 +2411,7 @@ function getUniquesColumnsOracle(node) {
     execAjax('/get_uniques_columns_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_unique": node.text,
             "p_table": node.parent.parent.text,
             "p_schema": null
@@ -2442,6 +2458,7 @@ function getIndexesOracle(node) {
     execAjax('/get_indexes_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2498,6 +2515,7 @@ function getIndexesColumnsOracle(node) {
     execAjax('/get_indexes_columns_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_index": node.text.replace(' (Non Unique)', '').replace(
                 ' (Unique)', ''),
             "p_table": node.parent.parent.text,
@@ -2545,6 +2563,7 @@ function getFKsOracle(node) {
     execAjax('/get_fks_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2604,6 +2623,7 @@ function getFKsColumnsOracle(node) {
     execAjax('/get_fks_columns_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_fkey": node.text,
             "p_table": node.parent.parent.text,
             "p_schema": null
@@ -2661,6 +2681,7 @@ function getTriggersOracle(node) {
     execAjax('/get_triggers_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2715,6 +2736,7 @@ function getPartitionsOracle(node) {
     execAjax('/get_partitions_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": node.parent.text,
             "p_schema": null
         }),
@@ -2764,6 +2786,7 @@ function getFunctionsOracle(node) {
     execAjax('/get_functions_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -2814,6 +2837,7 @@ function getFunctionFieldsOracle(node) {
     execAjax('/get_function_fields_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id,
             "p_schema": null
         }),
@@ -2865,6 +2889,7 @@ function getFunctionFieldsOracle(node) {
     execAjax('/get_function_debug_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id
         }),
         function(p_return) {
@@ -2894,6 +2919,7 @@ function getFunctionDefinitionOracle(node) {
     execAjax('/get_function_definition_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id
         }),
         function(p_return) {
@@ -2946,6 +2972,7 @@ function getProceduresOracle(node) {
     execAjax('/get_procedures_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -2996,6 +3023,7 @@ function getProcedureFieldsOracle(node) {
     execAjax('/get_procedure_fields_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_procedure": node.tag.id,
             "p_schema": null
         }),
@@ -3047,6 +3075,7 @@ function getProcedureFieldsOracle(node) {
     execAjax('/get_function_debug_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id
         }),
         function(p_return) {
@@ -3076,6 +3105,7 @@ function getProcedureDefinitionOracle(node) {
     execAjax('/get_procedure_definition_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_procedure": node.tag.id
         }),
         function(p_return) {
@@ -3129,6 +3159,7 @@ function getTriggerFunctionsOracle(node) {
     execAjax('/get_triggerfunctions_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_schema": null
         }),
         function(p_return) {
@@ -3168,6 +3199,7 @@ function getTriggerFunctionDefinitionOracle(node) {
     execAjax('/get_triggerfunction_definition_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_function": node.tag.id
         }),
         function(p_return) {
@@ -3217,6 +3249,7 @@ function TemplateSelectOracle(p_schema, p_table) {
     execAjax('/template_select_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": p_table,
             "p_schema": p_schema
@@ -3256,6 +3289,7 @@ function TemplateInsertOracle(p_schema, p_table) {
     execAjax('/template_insert_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": p_table,
             "p_schema": p_schema
@@ -3281,6 +3315,7 @@ function TemplateUpdateOracle(p_schema, p_table) {
     execAjax('/template_update_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_tab_id": v_connTabControl.selectedTab.id,
             "p_table": p_table,
             "p_schema": p_schema
@@ -3339,6 +3374,7 @@ function oracleTerminateBackendConfirm(p_pid) {
     execAjax('/kill_backend_oracle/',
         JSON.stringify({
             "p_database_index": v_connTabControl.selectedTab.tag.selectedDatabaseIndex,
+"p_tab_id": v_connTabControl.selectedTab.id,
             "p_pid": p_pid
         }),
         function(p_return) {

@@ -174,17 +174,17 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
       v_control.stepSelected = p_index;
 
       var v_step_item = await v_control.renderStep();
-      console.log('update position after ' + v_step_item.update_delay);
+      // console.log('update position after ' + v_step_item.update_delay);
       if (v_step_item !== 'stop') {
 
         var get_v_target = new Promise(resolve => {
           setTimeout(function(){
             var v_next_btn = document.getElementById('omnis_step_btn_next');
             if (v_next_btn !== undefined && v_next_btn !== null) {
-              v_next_btn.onclick = function(){console.log(v_next_btn);v_control.goToStep(v_control.stepSelected + 1)};
+              v_next_btn.onclick = function(){/*console.log(v_next_btn);*/v_control.goToStep(v_control.stepSelected + 1)};
             }
 
-            console.log('getting the target...');
+            // console.log('getting the target...');
             var v_target;
             if (typeof v_step_item.target === 'function') {
               v_target = v_step_item.target();
@@ -193,7 +193,7 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
               v_target = v_step_item.target;
             }
 
-            console.log('target',v_target);
+            // console.log('target',v_target);
             v_control.updateOmnisPosition(v_target,v_step_item.position);
             resolve(v_target);
 
@@ -207,19 +207,23 @@ function createOmnisUiAssistant({p_callback_end = false, p_omnis, p_steps = []})
             let v_update_delay = v_step_item.update_delay;
 
             if (v_target !== null) {
-              console.log('v_target', v_target);
+              // console.log('v_target', v_target);
               let v_target_bounding_rect = v_target.getBoundingClientRect();
               let v_target_bounding_rect_left = v_target_bounding_rect.x + 'px';
               let v_target_bounding_rect_top = v_target_bounding_rect.y + 'px';
               let v_target_bounding_rect_width = v_target_bounding_rect.width + 'px';
-              var v_cloned_element = v_target.cloneNode(true);
-              console.log(v_target_bounding_rect);
-              v_control.divClonedElement.style.left = v_target_bounding_rect_left;
-              v_control.divClonedElement.style.top = v_target_bounding_rect_top;
-              v_cloned_element.style.width = v_target_bounding_rect_width;
-              v_control.updateClonedElementContent(v_cloned_element);
-              v_control.divBackdropElement.style.display = '';
-              v_cloned_element.addEventListener('click',function(){v_control.goToStep(v_control.stepSelected + 1)});
+              // Account for getBoundingClientRect slowness.
+              setTimeout(function(){
+                // console.log('v_target_rect_positions', v_target_bounding_rect);
+                var v_cloned_element = v_target.cloneNode(true);
+                v_cloned_element.setAttribute('id','omnis_temp_clone');
+                v_control.divClonedElement.style.left = v_target_bounding_rect_left;
+                v_control.divClonedElement.style.top = v_target_bounding_rect_top;
+                v_cloned_element.style.width = v_target_bounding_rect_width;
+                v_control.updateClonedElementContent(v_cloned_element);
+                v_control.divBackdropElement.style.display = '';
+                v_cloned_element.addEventListener('click',function(){v_control.goToStep(v_control.stepSelected + 1)});
+              },50);
             }
             else {
               // Emptying the divClonedElement.

@@ -222,7 +222,7 @@ function startTutorial(p_tutorial_name) {
         p_next_button: false,
         p_target: function() {var v_target = document.getElementById('button_new_connection'); return v_target},
         p_title: 'Add a New Connection',
-        p_update_delay: 600
+        p_update_delay: 1000
       },
       {
         p_message: `
@@ -244,6 +244,13 @@ function startTutorial(p_tutorial_name) {
       {
         p_message: `
         <p>The terminal utilizes SSH technology.</p>
+        <p>As you can see, in this case SSH parameters are mandatory.</p>
+        `,
+        p_target: function() {var v_target = document.getElementById('conn_form_use_tunnel'); return v_target},
+        p_title: 'SSH parameters'
+      },
+      {
+        p_message: `
         <p>Type the ssh server address. Do not include ports.</p>
         <p>i.e:127.0.0.1</p>
         `,
@@ -268,18 +275,19 @@ function startTutorial(p_tutorial_name) {
       },
       {
         p_message: `
-        <p>Type the password of your user.</p>
+        <p>If you want you can save the password of your user.</p>
+        <p>* Leaving this empty will force the tool to request for your password everytime you open a terminal connection.</p>
         <p>i.e: If you are on linux, your linux user is available for a local connection.</p>
         `,
         p_target: function() {var v_target = document.getElementById('conn_form_ssh_password'); return v_target},
-        p_title: 'SSH Password'
+        p_title: 'SSH Password (optional)'
       },
       {
         p_message: `
         <p>This is <strong>optional</strong>.</p>
         <p>It allows you to configure a SSH key.</p>
         `,
-        p_target: function() {var v_target = document.getElementById('conn_form_ssh_key'); return v_target},
+        p_target: function() {var v_target = document.getElementById('conn_form_ssh_key_input_label'); return v_target},
         p_title: 'SSH Key'
       },
       {

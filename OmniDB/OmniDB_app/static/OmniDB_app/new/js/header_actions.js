@@ -238,7 +238,7 @@ function showConfigUser() {
 	document.getElementById('sel_csv_encoding').value = v_csv_encoding;
 	document.getElementById('txt_csv_delimiter').value = v_csv_delimiter;
 
-	$('#modal_config').modal();
+	$('#modal_config').modal({ backdrop: 'static', keyboard: false });
 
 }
 

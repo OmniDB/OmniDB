@@ -833,6 +833,9 @@ function updateModalEditConnectionState(e) {
 		document.getElementById('conn_form_use_tunnel').checked = true;
 		document.getElementById('conn_form_use_tunnel').setAttribute('disabled', true);
 	}
+	else {
+		document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
+	}
 
 	// Checking connection string.
 	if (typeof v_use_connection_string === 'string') {

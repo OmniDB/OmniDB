@@ -1403,6 +1403,9 @@ label.omnidb__switch--label span {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.handsontable .htDimmed {
+  color: inherit;
+}
 
 /* TOOLTIPS */
 .tooltip h5 {

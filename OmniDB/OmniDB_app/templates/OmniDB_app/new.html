@@ -46,7 +46,7 @@
   </div>
 
   <div class="omnidb__utilities-menu omnidb__theme-bg--menu-utilities omnidb__rounded--lg">
-    <nav class="navbar navbar-expand-lg navbar-light p-0">
+    <nav class="navbar p-0">
       <!-- <img style='height: 40px;' src='/static/OmniDB_app/images/omnidb_logo.svg'/> -->
       <span class="omnidb__utilities-menu__branding"></span>
       <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,8 +68,8 @@
                 <span class="badge badge-info">{{ omnidb_short_version }}</span>
               </a>
               {% if not desktop_mode %}
-              <a id="omnidb__utilities-menu__link-username" class="omnidb__menu__btn-user omnidb__menu__btn-text nav-item nav-link mx-1 d-flex align-items-center justify-content-center">
-                <i class="fas fa-user"></i>
+              <a id="omnidb__utilities-menu__link-username" class="omnidb__menu__btn-user omnidb__menu__btn-text nav-item nav-link d-flex align-items-center justify-content-center">
+                <!-- <i class="fas fa-user"></i> -->
                 <span>{{ user_name }}</span>
               </a>
               {% endif %}

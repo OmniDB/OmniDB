@@ -62,9 +62,6 @@
     margin-right: 0.25rem;
     width: 27px;
   }
-  .omnidb__utilities-menu .omnidb__menu__btn-text {
-    padding: 0px;
-  }
 
   .omnidb__menu__btn {
     align-items: center;
@@ -216,9 +213,6 @@
     margin-left: 0.25rem;
     margin-right: 0.25rem;
     width: 27px;
-  }
-  .omnidb__utilities-menu .omnidb__menu__btn-text {
-    padding: 0px;
   }
 
   .omnidb__menu__btn {
@@ -372,9 +366,6 @@
     margin-left: 0.25rem;
     margin-right: 0.25rem;
     width: 27px;
-  }
-  .omnidb__utilities-menu .omnidb__menu__btn-text {
-    padding: 0px;
   }
 
   .omnidb__menu__btn {
@@ -804,25 +795,17 @@ button.close {
 
 /* UTILITIES MENU */
 .omnidb__utilities-menu .omnidb__menu__btn-text {
+  margin: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 0px;
   white-space: nowrap;
-}
-.omnidb__utilities-menu .omnidb__menu__btn-text i {
-  height: 27px;
-  line-height: 27px;
-  overflow: hidden;
-  text-align: center;
-  transition: 0.35s;
-  width: 27px;
 }
 .omnidb__utilities-menu .omnidb__menu__btn-text span {
   transform: scaleX(0);
   transition: 0.35s;
   width: 0px;
-}
-.omnidb__utilities-menu:hover .omnidb__menu__btn-text i,
-.omnidb__utilities-menu.omnidb__utilities-menu--show .omnidb__menu__btn-text i {
-  width: 0px;
-  transition: 0.35s;
 }
 .omnidb__utilities-menu:hover .omnidb__menu__btn-text span,
 .omnidb__utilities-menu.omnidb__utilities-menu--show .omnidb__menu__btn-text span {
@@ -862,11 +845,22 @@ button.close {
   margin-left: 0.25rem;
   margin-right: 0.25rem;
 }
+#omnidb__utilities-menu__link-config {
+  margin-left: 0.15rem;
+  margin-right: 0.15rem;
+  width: 27px;
+}
+#omnidb__utilities-menu__link-config i {
+  height: 27px;
+  line-height: 27px;
+  overflow: hidden;
+  text-align: center;
+  width: 27px;
+}
 
 /* PANELS */
 .omnidb__panel {
   box-shadow: 0px 0px 0px rgba(255,255,255,0);
-  /* display: none; */
   left: 0px;
   padding-left: 33px;
   position: fixed;

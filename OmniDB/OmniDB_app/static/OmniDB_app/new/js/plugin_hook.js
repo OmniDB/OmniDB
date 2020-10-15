@@ -302,7 +302,6 @@ function showPluginsRender() {
   execAjax('/list_plugins/',
 			JSON.stringify({}),
 			function(p_return) {
-
 				var columnProperties = [];
 
 				var col = new Object();
@@ -383,7 +382,7 @@ function showPluginsRender() {
 															cells: function (row, col, prop) {
 
 																var cellProperties = {};
-																cellProperties.renderer = grayHtmlRenderer;
+																cellProperties.renderer = showPluginDataActionRenderer;
 
 																return cellProperties;
 

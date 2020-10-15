@@ -262,6 +262,24 @@ function editDataActionRenderer(instance, td, row, col, prop, value, cellPropert
 
 }
 
+function showPluginDataActionRenderer(instance, td, row, col, prop, value, cellProperties) {
+	if (arguments[5].includes('fa-check-circle')) {
+		arguments[5] = arguments[5].replace('fa-check-circle', ' fa-check-circle omnidb__theme__text--primary ');
+	}
+	else if (arguments[5].includes('fa-exclamation-triangle')) {
+		arguments[5] = arguments[5].replace('fa-exclamation-triangle', ' fa-exclamation-triangle text-warning ');
+	}
+	else if (arguments[5].includes('fa-times')) {
+		arguments[5] = arguments[5].replace('fa-times', ' fa-times text-danger ');
+	}
+	var v_actions_html = '<div class="text-center">' + arguments[5] + '</div>';
+	arguments[5] = v_actions_html;
+	Handsontable.renderers.HtmlRenderer.apply(this, arguments);
+
+	// td.className ='cellReadOnly';
+
+}
+
 function monitorStatusRenderer(instance, td, row, col, prop, value, cellProperties) {
 
 	if (cellProperties.__proto__.type=="dropdown" || cellProperties.__proto__.type=="autocomplete") {

@@ -279,10 +279,12 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
       this.tabMenu.classList.add(this.tabCssVariation + 'shown');
     },
     toggleTabMenu : function(e) {
-      if (this.tabMenu === e.target)
-        this.showTabMenu();
-      else
-        this.hideTabMenu();
+      var v_this = this;
+      $(v_this.tabMenu).toggleClass(v_this.tabCssVariation + 'shown');
+      // if (this.tabMenu === e.target)
+      //   this.showTabMenu();
+      // else
+      //   this.hideTabMenu();
     },
     // Template
 		createTab : function({
@@ -329,9 +331,9 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
 			};
 
       // Sets tabMenu toggle action based on page interaction
-      if (this.isToggleable && v_index === 1) {
-        document.body.addEventListener("click", v_control.toggleTabMenu.bind(v_control));
-      }
+      // if (this.isToggleable && v_index === 1) {
+      //   document.body.addEventListener("click", v_control.toggleTabMenu.bind(v_control));
+      // }
 
 			var v_a = document.createElement('a');
       v_a.setAttribute('id','a_' + v_tab.id);

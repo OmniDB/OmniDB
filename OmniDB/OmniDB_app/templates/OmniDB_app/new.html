@@ -46,7 +46,7 @@
   </div>
 
   <div class="omnidb__utilities-menu omnidb__theme-bg--menu-utilities omnidb__rounded--lg">
-    <nav class="navbar navbar-expand-lg navbar-light p-0">
+    <nav class="navbar p-0">
       <!-- <img style='height: 40px;' src='/static/OmniDB_app/images/omnidb_logo.svg'/> -->
       <span class="omnidb__utilities-menu__branding"></span>
       <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,8 +68,8 @@
                 <span class="badge badge-info">{{ omnidb_short_version }}</span>
               </a>
               {% if not desktop_mode %}
-              <a id="omnidb__utilities-menu__link-username" class="omnidb__menu__btn-user omnidb__menu__btn-text nav-item nav-link mx-1 d-flex align-items-center justify-content-center">
-                <i class="fas fa-user"></i>
+              <a id="omnidb__utilities-menu__link-username" class="omnidb__menu__btn-user omnidb__menu__btn-text nav-item nav-link d-flex align-items-center justify-content-center">
+                <!-- <i class="fas fa-user"></i> -->
                 <span>{{ user_name }}</span>
               </a>
               {% endif %}
@@ -265,7 +265,7 @@
                         Password / Passphrase
                         <i
                           class="fas fa-question-circle text-info ml-2" data-toggle="tooltip" data-html="true" data-placement="bottom"
-                          title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh password / passphrase</h5></h4><ul><li><strong>If provided:</strong> Lorem.</li><li><strong>Leaving blank:</strong> Lorem.</li></ul>"
+                          title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh password / passphrase</h5></h4><div>Leave this blank if you dont want the password to be stored.</div><ul><li><strong>If provided:</strong> OmniDB will use this password when opening a SSH tunnel.</li><li><strong>Leaving blank:</strong> When the SSH tunnel is requested, OmniDB will prompt an input requesting for this password to be used exclusively to open the connection, but it wont be stored.</li></ul>"
                         ></i>
                       </label>
                       <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" onchange="updateConnectionKey(event)" readonly>
@@ -277,7 +277,7 @@
                         SSH Key Text File
                         <i
                           class="fas fa-question-circle text-info ml-2" data-toggle="tooltip" data-html="true" data-placement="bottom"
-                          title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh key</h5></h4><ul><li><strong>If provided:</strong> Lorem.</li><li><strong>Leaving blank:</strong> Lorem.</li></ul>"
+                          title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh key</h5></h4><div>Leave this blank if you dont want the key to be stored.</div><ul><li><strong>If provided:</strong> When saving this SSH tunnel, OmniDB will read the content of this file and store just the text, but not the file.</li></ul>"
                         ></i>
                       </label>
                       <textarea style="display:none;" class="form-control" id="conn_form_ssh_key" rows="4" readonly></textarea>
@@ -524,7 +524,7 @@
                   </div>
                   <div class="form-row">
                     <div class="col-md-6 mb-3">
-                      <label for="sel_csv_encoding">CSV Enconding</label>
+                      <label for="sel_csv_encoding">CSV Encoding</label>
                       <select id="sel_csv_encoding" class="form-control">
                         <option value="ascii">ascii</option>
                         <option value="big5">big5</option>

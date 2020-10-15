@@ -68,7 +68,7 @@ $(function () {
                 <path d="M18.6008 9.68901C16.6757 10.7922 16.0177 13.2345 17.1283 15.1507C18.2375 17.0633 20.6995 17.7184 22.6225 16.6152C24.5476 15.5106 25.2041 13.0612 24.095 11.1522C22.9809 9.23957 20.5252 8.5809 18.6008 9.68901Z" fill="#525678"/>
                 <path d="M18.6043 48.0832C20.5308 49.1878 22.9864 48.5334 24.097 46.6208C25.2062 44.7082 24.5475 42.2609 22.6259 41.1577C20.6994 40.051 18.2409 40.7076 17.1353 42.6188C16.0226 44.5349 16.6792 46.9808 18.6043 48.0832Z" fill="#525678"/>
               </svg>`,
-      p_name: 'Manage Connections',
+      p_name: 'Connections',
       p_close: false,
       p_selectable: false,
       p_omnidb_tooltip_name: '<h5 class="my-1">Manage Connections</h5>',
@@ -150,7 +150,7 @@ function getDatabaseList(p_init, p_callback) {
                 for (let k = 0; k < v_connTabControl.tag.connections.length; k++) {
                   if (p_return.v_data.v_existing_tabs[i].index === v_connTabControl.tag.connections[k].v_conn_id) {
                     v_conn = v_connTabControl.tag.connections[k];
-                    v_name = v_conn.v_details1 + ' - ' + v_conn.v_details2;
+                    v_name = (v_conn.v_alias) ? v_conn.v_alias : '';
                     if (v_conn.v_alias) {
                       p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';
                     }
@@ -1173,7 +1173,7 @@ function showMenuNewTabOuter(e) {
 
 				for (var i=0; i<v_connTabControl.tag.connections.length; i++) (function(i){
 					var v_conn = v_connTabControl.tag.connections[i];
-          let v_name = v_conn.v_details1 + ' - ' + v_conn.v_details2;
+          let v_name = (v_conn.alias) ? v_conn.alias : '';
           let p_tooltip_name = '';
           if (v_conn.v_alias) {
             p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';
@@ -1215,7 +1215,7 @@ function showMenuNewTabOuter(e) {
 					if (i==0) {
 						for (var k=0; k<v_connTabControl.tag.connections.length; k++) (function(k){
 							var v_conn = v_connTabControl.tag.connections[k];
-              let v_name = v_conn.v_details1 + ' - ' + v_conn.v_details2;
+              let v_name = (v_conn.alias) ? v_conn.alias : '';
               let p_tooltip_name = '';
               if (v_conn.v_alias) {
                 p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';
@@ -1243,7 +1243,7 @@ function showMenuNewTabOuter(e) {
 							//Search corresponding connection to use its data
 							for (var k=0; k<v_connTabControl.tag.connections.length; k++) (function(k){
 								var v_conn = v_connTabControl.tag.connections[k];
-                let v_name = v_conn.v_details1 + ' - ' + v_conn.v_details2;
+                let v_name = (v_conn.alias) ? v_conn.alias : '';
                 let p_tooltip_name = '';
                 if (v_conn.v_alias) {
                   p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';

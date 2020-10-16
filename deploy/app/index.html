@@ -493,13 +493,19 @@
 
 
     // GUI controls
-    function guiMinimize () {
+    function guiMinimize() {
       v_window.minimize();
     }
-    function guiToggleFullscreen () {
-      v_window.maximize();
+    function guiToggleFullscreen() {
+      var v_is_maximized = (screen.availWidth - window.innerWidth === 0);
+      if (v_is_maximized) {
+        v_window.restore();
+      }
+      else {
+        v_window.maximize();
+      }
     }
-    function guiClose () {
+    function guiClose() {
       v_window.close();
     }
     // var guiTimeoutDrag;

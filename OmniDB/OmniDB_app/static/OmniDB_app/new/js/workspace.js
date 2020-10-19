@@ -1186,7 +1186,7 @@ function showMenuNewTabOuter(e) {
 
 				for (var i=0; i<v_connTabControl.tag.connections.length; i++) (function(i){
 					var v_conn = v_connTabControl.tag.connections[i];
-          let v_name = (v_conn.alias) ? v_conn.alias : '';
+          let v_name = (v_conn.alias) ?  v_conn.alias : v_conn.v_details1 + ' - ' + v_conn.v_details2;
           let p_tooltip_name = '';
           if (v_conn.v_alias) {
             p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';
@@ -1228,7 +1228,7 @@ function showMenuNewTabOuter(e) {
 					if (i==0) {
 						for (var k=0; k<v_connTabControl.tag.connections.length; k++) (function(k){
 							var v_conn = v_connTabControl.tag.connections[k];
-              let v_name = (v_conn.alias) ? v_conn.alias : '';
+              let v_name = (v_conn.alias) ? v_conn.alias : v_conn.v_details1 + ' - ' + v_conn.v_details2;
               let p_tooltip_name = '';
               if (v_conn.v_alias) {
                 p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';
@@ -1256,7 +1256,7 @@ function showMenuNewTabOuter(e) {
 							//Search corresponding connection to use its data
 							for (var k=0; k<v_connTabControl.tag.connections.length; k++) (function(k){
 								var v_conn = v_connTabControl.tag.connections[k];
-                let v_name = (v_conn.alias) ? v_conn.alias : '';
+                let v_name = (v_conn.alias) ? v_conn.alias : v_conn.v_details1 + ' - ' + v_conn.v_details2;
                 let p_tooltip_name = '';
                 if (v_conn.v_alias) {
                   p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';

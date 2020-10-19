@@ -5,7 +5,7 @@
 	<link rel="shortcut icon" type="image/x-icon" href="{{url_folder}}/static/OmniDB_app/images/favicon.ico" />
 
 	<!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/login.css?v3.0.0b42"/> -->
-	<link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/css/login.min.css?v3.0.0b42">
+	<link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/css/login.min.css?v3.0.0b42">
 </head>
 <body>
 
@@ -51,12 +51,13 @@
 
 <div class="div_loading"><button id="bt_cancel_ajax" onclick="cancelAjax()">Cancel</button></div>
 
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/jquery-1.11.2.min.js"   ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/NotificationControl.js" ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/AjaxControl.js"         ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/WebSocketControl.js"    ></script>
+<!-- <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/old_js/jquery-1.11.2.min.js"></script> -->
+<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/notification_control.js"></script>
+<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/ajax_control.js"></script>
 <script type="text/javascript">
-	var v_url_folder = '{{ url_folder }}'
+	var v_url_folder = '{{ url_folder }}';
+	var v_csrf_cookie_name = '{{ csrf_cookie_name }}';
 	$(document).ready(function () {
 
 		checkSessionMessage();

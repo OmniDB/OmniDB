@@ -1189,7 +1189,10 @@ function showMenuNewTabOuter(e) {
           let v_name = (v_conn.alias) ?  v_conn.alias : v_conn.v_details1 + ' - ' + v_conn.v_details2;
           let p_tooltip_name = '';
           if (v_conn.v_conn_string && v_conn.v_conn_string !== '') {
-            p_tooltip_name += v_conn.v_conn_string;
+            if (v_conn.v_alias) {
+              p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
+            }
+            p_tooltip_name += '<div class="mb-1">' + v_conn.v_conn_string + '</div>';
           }
           else {
             if (v_conn.v_alias) {
@@ -1236,7 +1239,10 @@ function showMenuNewTabOuter(e) {
               let v_name = (v_conn.alias) ? v_conn.alias : v_conn.v_details1 + ' - ' + v_conn.v_details2;
               let p_tooltip_name = '';
               if (v_conn.v_conn_string && v_conn.v_conn_string !== '') {
-                p_tooltip_name += v_conn.v_conn_string;
+                if (v_conn.v_alias) {
+                  p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
+                }
+                p_tooltip_name += '<div class="mb-1">' + v_conn.v_conn_string + '</div>';
               }
               else {
                 if (v_conn.v_alias) {
@@ -1269,7 +1275,10 @@ function showMenuNewTabOuter(e) {
                 let v_name = (v_conn.alias) ? v_conn.alias : v_conn.v_details1 + ' - ' + v_conn.v_details2;
                 let p_tooltip_name = '';
                 if (v_conn.v_conn_string && v_conn.v_conn_string !== '') {
-                  p_tooltip_name += v_conn.v_conn_string;
+                  if (v_conn.v_alias) {
+                    p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
+                  }
+                  p_tooltip_name += '<div class="mb-1">' + v_conn.v_conn_string + '</div>';
                 }
                 else {
                   if (v_conn.v_alias) {

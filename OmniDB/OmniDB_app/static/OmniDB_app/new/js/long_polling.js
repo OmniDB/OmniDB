@@ -349,3 +349,8 @@ function createRequest(p_messageCode, p_messageData, p_context) {
 			'box',
       false);
 }
+
+function SetAcked(p_context) {
+	if (p_context)
+		p_context.acked = true;
+}

@@ -316,58 +316,6 @@ function refreshConsoleHistoryList() {
 	);
 }
 
-function getConsoleHistoryCommand(p_mode) {
-	//fetch command history if not fetched before
-	var v_conn_tag = v_connTabControl.selectedTab.tag;
-	if (!v_conn_tag.consoleHistoryFecthed) {
-		var input = JSON.stringify({"p_database_index": v_conn_tag.selectedDatabaseIndex,
-																"p_tab_id": v_connTabControl.selectedTab.id});
-
-	  execAjax('/get_console_history_clean/',
-	        input,
-	        function(p_return) {
-						v_conn_tag.consoleHistoryFecthed = true;
-						v_conn_tag.consoleHistoryList = p_return.v_data;
-						getConsoleHistoryCommandConfirm(p_mode);
-	        },
-	        null,
-	        'box');
-
-	}
-	else
-		getConsoleHistoryCommandConfirm(p_mode);
-}
-
-function getConsoleHistoryCommandConfirm(p_mode) {
-	var v_conn_tag = v_connTabControl.selectedTab.tag;
-	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-
-	var v_next_index = null;
-
-	if (p_mode=='previous') {
-		if (v_tab_tag.console_history_cmd_index<v_conn_tag.consoleHistoryList.length-1) {
-			v_next_index = v_tab_tag.console_history_cmd_index + 1;
-			v_tab_tag.console_history_cmd_index = v_next_index;
-		}
-	}
-	else if (p_mode=='next') {
-		if (v_tab_tag.console_history_cmd_index>=0) {
-			v_next_index = v_tab_tag.console_history_cmd_index - 1;
-			v_tab_tag.console_history_cmd_index = v_next_index;
-		}
-	}
-
-	if (v_next_index!=null) {
-		var v_command = '';
-		if (v_next_index>=0)
-			v_command = v_conn_tag.consoleHistoryList[v_next_index];
-		v_tab_tag.editor_input.setValue(v_command);
-	  v_tab_tag.editor_input.clearSelection();
-	  v_tab_tag.editor_input.focus();
-	}
-
-}
-
 function closeConsoleHistory() {
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.grid.destroy();
 	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.consoleHistory.grid = null;

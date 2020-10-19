@@ -62,7 +62,7 @@ function showConnectionList(p_open_modal, p_change_group) {
 
 	var input = JSON.stringify({"p_conn_id_list": v_conn_id_list});
 
-	execAjax('/get_connections_new/',
+	execAjax('/get_connections/',
 		input,
 		function(p_return) {
 
@@ -359,11 +359,10 @@ function manageGroupSave() {
 			'id': v_conn_obj.data.id,
 			'selected': v_conn_obj.checkbox.checked
 		});
-    // v_conn_obj.cover_div.style.display = 'none';
     v_conn_obj.checkbox.checked = false;
   }
 
-	execAjax('/save_group_connections_new/',
+	execAjax('/save_group_connections/',
 		JSON.stringify({
 			"p_group": document.getElementById('group_selector').value,
 			"p_conn_data_list": v_conn_data
@@ -378,7 +377,7 @@ function manageGroupSave() {
 }
 
 function newGroupConfirm(p_name) {
-	execAjax('/new_group_new/',
+	execAjax('/new_group/',
 		JSON.stringify({"p_name": p_name}),
 		function(p_return) {
 			getDatabaseList();
@@ -471,7 +470,7 @@ function renameGroup() {
 }
 
 function getGroups() {
-	execAjax('/get_groups_new/',
+	execAjax('/get_groups/',
 		JSON.stringify({}),
 		function(p_return) {
 			v_connections_data.v_group_list = p_return.v_data;
@@ -529,7 +528,7 @@ function testConnection(p_password = null) {
     }
   });
 
-	execAjax('/test_connection_new/',
+	execAjax('/test_connection/',
 		input,
 		function(p_return) {
 			if (p_return.v_data=="Connection successful.")
@@ -588,7 +587,7 @@ function saveConnection() {
     }
   });
 
-	execAjax('/save_connection_new/',
+	execAjax('/save_connection/',
 		input,
 		function(p_return) {
       $('#modal_edit_connection').modal('hide');
@@ -608,7 +607,7 @@ function deleteConnection(p_conn_obj) {
 	      "id": p_conn_obj.id
 	    });
 
-	  	execAjax('/delete_connection_new/',
+	  	execAjax('/delete_connection/',
 				input,
 				function(p_return) {
 					getDatabaseList();

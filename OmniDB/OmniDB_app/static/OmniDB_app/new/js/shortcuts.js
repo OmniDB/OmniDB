@@ -43,9 +43,9 @@ var v_default_shortcuts = {
         'shortcut_key': 'Q',
     },
     'macos': {
-        'ctrl_pressed': false,
+        'ctrl_pressed': true,
         'shift_pressed': false,
-        'alt_pressed': true,
+        'alt_pressed': false,
         'meta_pressed': false,
         'shortcut_key': 'Q',
     }
@@ -66,9 +66,9 @@ var v_default_shortcuts = {
         'shortcut_key': 'C',
     },
     'macos': {
-        'ctrl_pressed': false,
+        'ctrl_pressed': true,
         'shift_pressed': false,
-        'alt_pressed': true,
+        'alt_pressed': false,
         'meta_pressed': false,
         'shortcut_key': 'C',
     }
@@ -89,9 +89,9 @@ var v_default_shortcuts = {
         'shortcut_key': 'S',
     },
     'macos': {
-        'ctrl_pressed': false,
+        'ctrl_pressed': true,
         'shift_pressed': false,
-        'alt_pressed': true,
+        'alt_pressed': false,
         'meta_pressed': false,
         'shortcut_key': 'S',
     }
@@ -112,9 +112,9 @@ var v_default_shortcuts = {
         'shortcut_key': 'I',
     },
     'macos': {
-        'ctrl_pressed': false,
+        'ctrl_pressed': true,
         'shift_pressed': false,
-        'alt_pressed': true,
+        'alt_pressed': false,
         'meta_pressed': false,
         'shortcut_key': 'I',
     }
@@ -136,8 +136,8 @@ var v_default_shortcuts = {
     },
     'macos': {
         'ctrl_pressed': true,
-        'shift_pressed': false,
-        'alt_pressed': true,
+        'shift_pressed': true,
+        'alt_pressed': false,
         'meta_pressed': false,
         'shortcut_key': 'Q',
     }
@@ -158,9 +158,9 @@ var v_default_shortcuts = {
         'shortcut_key': 'O',
     },
     'macos': {
-        'ctrl_pressed': false,
+        'ctrl_pressed': true,
         'shift_pressed': false,
-        'alt_pressed': true,
+        'alt_pressed': false,
         'meta_pressed': false,
         'shortcut_key': 'O',
     }
@@ -181,9 +181,9 @@ var v_default_shortcuts = {
         'shortcut_key': 'P',
     },
     'macos': {
-        'ctrl_pressed': false,
+        'ctrl_pressed': true,
         'shift_pressed': false,
-        'alt_pressed': true,
+        'alt_pressed': false,
         'meta_pressed': false,
         'shortcut_key': 'P',
     }
@@ -208,7 +208,7 @@ var v_default_shortcuts = {
         'shift_pressed': false,
         'alt_pressed': false,
         'meta_pressed': false,
-        'shortcut_key': 'SPACE',
+        'shortcut_key': 'A',
     }
   }
 }

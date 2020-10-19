@@ -20,5 +20,4 @@ def clean_temp_folder(p_all_files = False):
             pass
 
 def startup_procedure():
-    #clean_temp_folder(True)
-    None
+    clean_temp_folder(True)

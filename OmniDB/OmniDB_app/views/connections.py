@@ -29,124 +29,6 @@ from django.db.models import Q
 @user_authenticated
 def get_connections(request):
 
-    v_return = {}
-    v_return['v_data'] = ''
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-    v_cryptor = request.session.get('cryptor')
-
-    json_object = json.loads(request.POST.get('data', None))
-    v_tab_conn_id_list = json_object['p_conn_id_list']
-
-    #sessions.omnidb_sessions[v_session.v_user_key] = v_session
-    #ws_core.omnidb_sessions[v_session.v_user_key] = v_session
-
-    try:
-        v_technologies = v_session.v_omnidb_database.v_connection.Query('''
-            select dbt_st_name
-            from (
-            select dbt_st_name,
-                   sort
-            from (
-            select dbt_st_name,
-                   1 as sort
-            from db_type
-            where dbt_in_enabled = 1
-              and dbt_st_name = 'postgresql'
-            union
-            select a.dbt_st_name,
-                   (select count(*)
-                    from db_type b
-                    where b.dbt_in_enabled = 1
-                      and b.dbt_st_name <> 'postgresql'
-                      and a.dbt_st_name >= b.dbt_st_name)+1 as sort
-            from db_type a
-            where a.dbt_in_enabled = 1
-              and a.dbt_st_name <> 'postgresql'
-            )
-            order by sort
-            )
-        ''')
-    except Exception as exc:
-        v_return['v_data'] = str(exc)
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    v_connection_list = []
-    v_conn_id_list = []
-    v_tech_list = []
-    for r in v_technologies.Rows:
-        v_tech_list.append(r['dbt_st_name'])
-
-    for key,v_connection_object in v_session.v_databases.items():
-        v_connection = v_connection_object['database']
-        v_tunnel     = v_connection_object['tunnel']
-        v_tech       = v_connection_object['technology']
-        v_alias      = v_connection_object['alias']
-        v_connection_data_list = []
-        v_connection_data_list.append(False)
-        v_connection_data_list.append(v_tech)
-        if (v_tech=='terminal'):
-            v_connection_data_list.append('')
-            v_connection_data_list.append('')
-            v_connection_data_list.append('')
-            v_connection_data_list.append('')
-            v_connection_data_list.append('')
-
-        else:
-            v_connection_data_list.append(v_connection.v_conn_string)
-            v_connection_data_list.append(v_connection.v_server)
-            v_connection_data_list.append(v_connection.v_port)
-            v_connection_data_list.append(v_connection.v_service)
-            v_connection_data_list.append(v_connection.v_user)
-        v_connection_data_list.append(v_alias)
-        v_connection_data_list.append(v_tunnel['enabled'])
-        v_connection_data_list.append(v_tunnel['server'])
-        v_connection_data_list.append(v_tunnel['port'])
-        v_connection_data_list.append(v_tunnel['user'])
-        v_connection_data_list.append(v_tunnel['password'])
-        v_connection_data_list.append(v_tunnel['key'])
-
-        v_conn_object = {
-            'id': key,
-            'mode': 0,
-            'old_mode': -1,
-            'locked': False,
-            'group_changed': False,
-            'technology': v_tech
-        }
-
-        if key in v_tab_conn_id_list:
-            v_connection_data_list.append('''<i title="Connection Locked" class='fas fa-lock action-grid action-locked' onclick='showConnectionLocked()'></i>''')
-            v_conn_object['locked'] = True
-        else:
-            v_connection_data_list.append('''<i title="Remove Connection" class='fas fa-times action-grid action-close' onclick='dropConnection()'></i>
-            <i title="Test Connection" class='fas fa-plug action-grid action-test' onclick='testConnection({1})''></i>
-            <i title="Select Connection" class='fas fa-check-circle action-grid action-check' onclick="selectConnection('{0}',{1})"></i>'''.format(v_connection_object['technology'],key))
-
-        v_conn_id_list.append(v_conn_object)
-
-        v_connection_list.append(v_connection_data_list)
-
-    v_return['v_data'] = {
-        'v_data': v_connection_list,
-        'v_technologies': v_tech_list,
-        'v_conn_ids': v_conn_id_list
-    }
-
-    return JsonResponse(v_return)
-
-@user_authenticated
-def get_connections_new(request):
-
     #User not authenticated
     if not request.user.is_authenticated:
         v_return['v_error'] = True
@@ -213,7 +95,7 @@ def get_connections_new(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-def get_groups_new(request):
+def get_groups(request):
 
     v_return = {}
     v_return['v_data'] = []
@@ -257,68 +139,7 @@ def get_groups_new(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-def get_groups(request):
-
-    v_return = {}
-    v_return['v_data'] = []
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
-
-    try:
-        v_groups_connections = v_session.v_omnidb_database.v_connection.Query('''
-            select c.cgroup_id as cgroup_id,
-                   c.cgroup_name as cgroup_name,
-                   cc.conn_id as conn_id
-            from cgroups c
-            left join cgroups_connections cc on c.cgroup_id = cc.cgroup_id
-            where c.user_id = {0}
-            order by c.cgroup_id
-        '''.format(v_session.v_user_id))
-    except Exception as exc:
-        v_return['v_data'] = str(exc)
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    if len(v_groups_connections.Rows)==0:
-        return JsonResponse(v_return)
-
-    v_group_list = []
-
-    v_current_group_data = {
-        'id': None,
-        'name': None,
-        'conn_list': []
-    }
-
-    for r in v_groups_connections.Rows:
-        if v_current_group_data['id'] != r['cgroup_id']:
-            if v_current_group_data['id'] != None:
-                v_group_list.append(v_current_group_data)
-            v_current_group_data = {
-                'id': r['cgroup_id'],
-                'name':  r['cgroup_name'],
-                'conn_list': []
-            }
-        if r['conn_id']!=None:
-            v_current_group_data['conn_list'].append(r['conn_id'])
-
-    v_group_list.append(v_current_group_data)
-
-    v_return['v_data'] = v_group_list
-
-    return JsonResponse(v_return)
-
-@user_authenticated
-def new_group_new(request):
+def new_group(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
@@ -344,49 +165,11 @@ def new_group_new(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-def new_group(request):
-    v_return = {}
-    v_return['v_data'] = ''
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
-    json_object = json.loads(request.POST.get('data', None))
-    p_name = json_object['p_name']
-
-    try:
-        v_session.v_omnidb_database.v_connection.Execute('''
-            insert into cgroups values (
-            (select coalesce(max(cgroup_id), 0) + 1 from cgroups),
-            {0},
-            '{1}')
-        '''.format(v_session.v_user_id,p_name))
-    except Exception as exc:
-        v_return['v_data'] = str(exc)
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-
-    return JsonResponse(v_return)
-
-@user_authenticated
 def edit_group(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
 
     v_session = request.session.get('omnidb_session')
 
@@ -395,11 +178,9 @@ def edit_group(request):
     p_name = json_object['p_name']
 
     try:
-        v_session.v_omnidb_database.v_connection.Execute('''
-            update cgroups
-            set cgroup_name = '{0}'
-            where cgroup_id = {1}
-        '''.format(p_name,p_id))
+        group = Group.objects.get(id=p_id)
+        group.name = p_name
+        group.save()
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -414,22 +195,14 @@ def delete_group(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
     v_session = request.session.get('omnidb_session')
 
     json_object = json.loads(request.POST.get('data', None))
     p_id = json_object['p_id']
 
     try:
-        v_session.v_omnidb_database.v_connection.Execute('''
-            delete from cgroups
-            where cgroup_id = {0}
-        '''.format(p_id))
+        group = Group.objects.get(id=p_id)
+        group.delete()
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -438,7 +211,7 @@ def delete_group(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-def test_connection_new(request):
+def test_connection(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
@@ -559,7 +332,7 @@ def test_connection_new(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-def save_connection_new(request):
+def save_connection(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
@@ -666,7 +439,7 @@ def save_connection_new(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-def delete_connection_new(request):
+def delete_connection(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
@@ -703,7 +476,7 @@ def delete_connection_new(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-def save_group_connections_new(request):
+def save_group_connections(request):
     v_return = {}
     v_return['v_data'] = ''
     v_return['v_error'] = False
@@ -735,87 +508,5 @@ def save_group_connections_new(request):
 
         except Exception as exc:
             None
-
-    return JsonResponse(v_return)
-
-@user_authenticated
-def test_connection(request):
-
-    v_return = {}
-    v_return['v_data'] = ''
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    json_object = json.loads(request.POST.get('data', None))
-    p_index = json_object['p_index']
-
-    v_conn_object = v_session.v_databases[p_index]
-
-    if v_conn_object['technology']=='terminal':
-
-        client = paramiko.SSHClient()
-        client.load_system_host_keys()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-        try:
-            #ssh key provided
-            if v_conn_object['tunnel']['key'].strip() != '':
-                v_file_name = '{0}'.format(str(time.time())).replace('.','_')
-                v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
-                with open(v_full_file_name,'w') as f:
-                    f.write(v_conn_object['tunnel']['key'])
-                client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],key_filename=v_full_file_name,passphrase=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
-            else:
-                client.connect(hostname=v_conn_object['tunnel']['server'],username=v_conn_object['tunnel']['user'],password=v_conn_object['tunnel']['password'],port=int(v_conn_object['tunnel']['port']))
-
-            client.close()
-            v_return['v_data'] = 'Connection successful.'
-        except Exception as exc:
-            v_return['v_data'] = {'password_timeout': False, 'message': str(exc) }
-            v_return['v_error'] = True
-    else:
-        #Check database prompt timeout
-        v_timeout = v_session.DatabaseReachPasswordTimeout(int(p_index))
-        if v_timeout['timeout']:
-            v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-            v_return['v_error'] = True
-            return JsonResponse(v_return)
-        else:
-            v_session.v_databases[int(p_index)]['prompt_timeout'] = datetime.now()
-
-
-        v_return['v_data'] = v_session.v_databases [int(p_index)]['database'].TestConnection()
-
-    return JsonResponse(v_return)
-
-@user_authenticated
-def select_connection(request):
-
-    v_return = {}
-    v_return['v_data'] = ''
-    v_return['v_error'] = False
-    v_return['v_error_id'] = -1
-
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
-    v_session = request.session.get('omnidb_session')
-
-    json_object = json.loads(request.POST.get('data', None))
-    p_index = json_object['p_index']
-
-    #Check database prompt timeout
-    v_timeout = v_session.DatabaseReachPasswordTimeout(int(p_index))
-    if v_timeout['timeout']:
-        v_return['v_data'] = {'password_timeout': True, 'message': v_timeout['message'] }
-        v_return['v_error'] = True
-        return JsonResponse(v_return)
-    else:
-        v_session.v_databases[int(p_index)]['prompt_timeout'] = datetime.now()
-
-    v_return['v_data'] = v_session.v_databases [int(p_index)]['database'].TestConnection()
 
     return JsonResponse(v_return)

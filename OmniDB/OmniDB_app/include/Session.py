@@ -90,13 +90,11 @@ class Session(object):
         try:
             lock_object = tunnel_locks[self.v_databases[p_database_index]['database'].v_conn_id]
         except:
-            print('creating lock object')
             lock_object = threading.Lock()
             tunnel_locks[self.v_databases[p_database_index]['database'].v_conn_id] = lock_object
 
         try:
             lock_object.acquire()
-            print('LOCK ACQUIRED')
         except:
             None
 
@@ -179,11 +177,8 @@ class Session(object):
 
         try:
             lock_object.release()
-            print('LOCK RELEASED')
         except:
             None
-
-        print('RETURNING')
 
         return v_return
 

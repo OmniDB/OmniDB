@@ -855,12 +855,6 @@ def get_command_list(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
     json_object = json.loads(request.POST.get('data', None))
     v_current_page = json_object['p_current_page']
     v_database_index = json_object['p_database_index']
@@ -888,7 +882,7 @@ def get_command_list(request):
 
         if v_command_to is not None and v_command_to != '':
             v_query = v_query.filter(
-                end_time__lte=v_command_to
+                start_time__lte=v_command_to
             )
 
         v_count = v_query.count()
@@ -944,12 +938,6 @@ def clear_command_list(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
     json_object = json.loads(request.POST.get('data', None))
 
     v_database_index = json_object['p_database_index']
@@ -962,46 +950,25 @@ def clear_command_list(request):
     v_database = v_session.v_databases[v_database_index]['database']
 
     try:
-        v_filter = '''\
-            where user_id = {0}
-              and conn_id = {1}
-        '''.format(
-            str(v_session.v_user_id),
-            str(v_database.v_conn_id)
-        )
+        conn = Connection.objects.get(id=v_database.v_conn_id)
 
-        if v_command_contains is not None and v_command_contains != '':
-            v_filter = '''\
-                {0}
-                  and cl_st_command like '%{1}%'
-            '''.format(
-                v_filter,
-                v_command_contains
-            )
+        v_query = QueryHistory.objects.filter(
+            user=request.user,
+            connection=conn,
+            snippet__icontains=v_command_contains
+        ).order_by('-start_time')
 
         if v_command_from is not None and v_command_from != '':
-            v_filter = '''\
-                {0}
-                  and date(cl_st_start) >= date('{1}')
-            '''.format(
-                v_filter,
-                v_command_from
+            v_query = v_query.filter(
+                start_time__gte=v_command_from
             )
 
         if v_command_to is not None and v_command_to != '':
-            v_filter = '''\
-                {0}
-                  and date(cl_st_start) <= date('{1}')
-            '''.format(
-                v_filter,
-                v_command_to
+            v_query = v_query.filter(
+                start_time__lte=v_command_to
             )
 
-        v_session.v_omnidb_database.v_connection.Execute('''
-                delete from command_list
-                {0}
-            '''.format(v_filter)
-        )
+        v_query.delete()
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True
@@ -1093,6 +1060,52 @@ def get_console_history(request):
         'commandList': v_command_list,
         'pages': v_page
     }
+
+    return JsonResponse(v_return)
+
+@user_authenticated
+def clear_console_list(request):
+
+    v_return = {}
+    v_return['v_data'] = ''
+    v_return['v_error'] = False
+    v_return['v_error_id'] = -1
+
+    json_object = json.loads(request.POST.get('data', None))
+
+    v_database_index = json_object['p_database_index']
+    v_command_contains = json_object['p_console_contains']
+    v_command_from = json_object['p_console_from']
+    v_command_to = json_object['p_console_to']
+
+    v_session = request.session.get('omnidb_session')
+
+    v_database = v_session.v_databases[v_database_index]['database']
+
+    try:
+        conn = Connection.objects.get(id=v_database.v_conn_id)
+
+        v_query = ConsoleHistory.objects.filter(
+            user=request.user,
+            connection=conn,
+            snippet__icontains=v_command_contains
+        ).order_by('-start_time')
+
+        if v_command_from is not None and v_command_from != '':
+            v_query = v_query.filter(
+                start_time__gte=v_command_from
+            )
+
+        if v_command_to is not None and v_command_to != '':
+            v_query = v_query.filter(
+                start_time__lte=v_command_to
+            )
+
+        v_query.delete()
+    except Exception as exc:
+        v_return['v_data'] = str(exc)
+        v_return['v_error'] = True
+        return JsonResponse(v_return)
 
     return JsonResponse(v_return)
 

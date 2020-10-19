@@ -23,21 +23,15 @@ base_urlpatterns = [
     url(r'^sign_in/$', views.login.sign_in, name='sign_in'),
 
     #CONNECTIONS
-    url(r'^get_connections/$', views.connections.get_connections, name='get_connections'),
-    url(r'^test_connection/$', views.connections.test_connection, name='test_connection'),
-    url(r'^select_connection/$', views.connections.select_connection, name='select_connection'),
-    url(r'^get_groups/$', views.connections.get_groups, name='get_groups'),
-    url(r'^new_group/$', views.connections.new_group, name='new_group'),
     url(r'^edit_group/$', views.connections.edit_group, name='edit_group'),
     url(r'^delete_group/$', views.connections.delete_group, name='delete_group'),
-
-    url(r'^get_connections_new/$', views.connections.get_connections_new, name='get_connections_new'),
-    url(r'^save_connection_new/$', views.connections.save_connection_new, name='save_connection_new'),
-    url(r'^delete_connection_new/$', views.connections.delete_connection_new, name='delete_connection_new'),
-    url(r'^test_connection_new/$', views.connections.test_connection_new, name='test_connection_new'),
-    url(r'^get_groups_new/$', views.connections.get_groups_new, name='get_groups_new'),
-    url(r'^new_group_new/$', views.connections.new_group_new, name='new_group_new'),
-    url(r'^save_group_connections_new/$', views.connections.save_group_connections_new, name='save_group_connections_new'),
+    url(r'^get_connections/$', views.connections.get_connections, name='get_connections'),
+    url(r'^save_connection/$', views.connections.save_connection, name='save_connection'),
+    url(r'^delete_connection/$', views.connections.delete_connection, name='delete_connection'),
+    url(r'^test_connection/$', views.connections.test_connection, name='test_connection'),
+    url(r'^get_groups/$', views.connections.get_groups, name='get_groups'),
+    url(r'^new_group/$', views.connections.new_group, name='new_group'),
+    url(r'^save_group_connections/$', views.connections.save_group_connections, name='save_group_connections'),
 
     #USERS
     url(r'^get_users/$', views.users.get_users, name='get_users'),
@@ -62,6 +56,7 @@ base_urlpatterns = [
     url(r'^indent_sql/', views.workspace.indent_sql, name='indent_sql'),
     url(r'^refresh_monitoring/', views.workspace.refresh_monitoring, name='refresh_monitoring'),
     url(r'^get_console_history/', views.workspace.get_console_history, name='get_console_history'),
+    url(r'^clear_console_list/', views.workspace.clear_console_list, name='clear_console_list'),
     url(r'^get_autocomplete_results/', views.workspace.get_autocomplete_results, name='get_autocomplete_results'),
     url(r'^delete_plugin/', views.plugins.delete_plugin, name='delete_plugin'),
 

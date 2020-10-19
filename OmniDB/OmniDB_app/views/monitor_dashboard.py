@@ -186,15 +186,18 @@ def get_monitor_units(request, v_database):
 
         for user_unit in user_units:
             if user_unit.plugin_name=='':
-                unit_default_data = MonUnits.objects.get(id=user_unit.unit)
-                v_unit_data = {
-                    'v_saved_id': user_unit.id,
-                    'v_id': unit_default_data.id,
-                    'v_title': unit_default_data.title,
-                    'v_plugin_name': '',
-                    'v_interval': user_unit.interval
-                }
-                v_return['v_data'].append(v_unit_data)
+                try:
+                    unit_default_data = MonUnits.objects.get(id=user_unit.unit)
+                    v_unit_data = {
+                        'v_saved_id': user_unit.id,
+                        'v_id': unit_default_data.id,
+                        'v_title': unit_default_data.title,
+                        'v_plugin_name': '',
+                        'v_interval': user_unit.interval
+                    }
+                    v_return['v_data'].append(v_unit_data)
+                except:
+                    user_unit.delete()
             else:
                 #search plugin data
                 unit_data = None
@@ -428,7 +431,7 @@ def update_saved_monitor_unit_interval(request):
     return JsonResponse(v_return)
 
 @user_authenticated
-@database_required(p_check_timeout = False, p_open_connection = True)
+@database_required(p_check_timeout = True, p_open_connection = True)
 def refresh_monitor_units(request, v_database):
 
     v_return = {}

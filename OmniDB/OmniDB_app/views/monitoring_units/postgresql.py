@@ -538,7 +538,7 @@ result = {
 'dbms': 'postgresql',
 'plugin_name': 'postgresql',
 'id': 6,
-'title': 'Locks Blocked',
+'title': 'Blocked Locks',
 'type': 'timeseries',
 'interval': 10,
 'default': True,
@@ -729,7 +729,7 @@ result = {
                 "display": True,
                 "scaleLabel": {
                     "display": True,
-                    "labelString": "Growh Rate"
+                    "labelString": "MB/s"
                 },
                 "ticks": {
                     "beginAtZero": True
@@ -746,7 +746,7 @@ from datetime import datetime
 if previous_data != None:
     query = '''
         SELECT round(
-                   (sum(pg_database_size(datname)) - {0}) / (extract(epoch from now()::time - '{1}'::time))::numeric,
+                   ((sum(pg_database_size(datname)) - {0})/1048576.0) / (extract(epoch from now()::time - '{1}'::time))::numeric,
                    2
                ) AS database_growth,
                sum(pg_database_size(datname)) AS current_sum,
@@ -852,8 +852,7 @@ if previous_data != None:
                round(
                    (sum(heap_blks_read) - {0}) / (sum(heap_blks_read) + sum(heap_blks_hit) - {1}),
                    2
-               ) AS miss_ratio,
-               0.0 AS miss_ratio
+               ) AS miss_ratio
         FROM pg_statio_all_tables
     '''.format(
         previous_data['current_reads'],
@@ -955,8 +954,7 @@ if previous_data != None:
                round(
                    (sum(idx_blks_read) - {0}) / (sum(idx_blks_read) + sum(idx_blks_hit) - {1}),
                    2
-               ) AS miss_ratio,
-               0.0 AS miss_ratio
+               ) AS miss_ratio
         FROM pg_statio_all_tables
     '''.format(
         previous_data['current_reads'],
@@ -1404,6 +1402,85 @@ datasets.append({
 result = {
     "labels": [datetime.now().strftime('%H:%M:%S')],
     "datasets": datasets
+}
+"""
+}, {
+'dbms': 'postgresql',
+'plugin_name': 'postgresql',
+'id': 15,
+'title': 'Checkpoints',
+'type': 'timeseries',
+'interval': 10,
+'default': True,
+'script_chart': """
+result = {
+    "type": "line",
+    "data": None,
+    "options": {
+        "legend": {
+            "display": False
+        },
+        "responsive": True,
+        "title":{
+            "display":True,
+            "text": "Checkpoints"
+        },
+        "tooltips": {
+            "mode": "index",
+            "intersect": False
+        },
+        "hover": {
+            "mode": "nearest",
+            "intersect": True
+        },
+        "scales": {
+            "xAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": False,
+                    "labelString": "Time"
+                }
+            }],
+            "yAxes": [{
+                "display": True,
+                "scaleLabel": {
+                    "display": True,
+                    "labelString": "Checkpoints"
+                },
+                "ticks": {
+                    "beginAtZero": True
+                }
+            }]
+        }
+    }
+}
+""",
+'script_data': """
+
+from datetime import datetime
+
+if previous_data != None:
+    query = "select (checkpoints_timed+checkpoints_req) - " + str(previous_data["current_checkpoints"]) + " as checkpoints_diff, (checkpoints_timed+checkpoints_req) as current_checkpoints FROM pg_stat_bgwriter"
+else:
+    query = 'select 0 as checkpoints_diff, (checkpoints_timed+checkpoints_req) as current_checkpoints FROM pg_stat_bgwriter'
+
+query_data = connection.Query(query)
+
+datasets = []
+datasets.append({
+        "label": 'Checkpoints',
+        "backgroundColor": 'rgba(129,223,129,0.4)',
+        "borderColor": 'rgba(129,223,129,1)',
+        "lineTension": 0,
+        "pointRadius": 0,
+        "borderWidth": 1,
+        "data": [query_data.Rows[0]['checkpoints_diff']]
+    })
+
+result = {
+    "labels": [datetime.now().strftime('%H:%M:%S')],
+    "datasets": datasets,
+    "current_checkpoints": query_data.Rows[0]['current_checkpoints']
 }
 """
 }]

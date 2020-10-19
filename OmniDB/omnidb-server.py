@@ -357,10 +357,11 @@ import social_django.config
 import social_django.strategy
 import social_django.models
 import social_core.backends.github
-import ldap
-import django_auth_ldap
-import django_auth_ldap.config
-import django_auth_ldap.backend
+if platform.system() != 'Darwin':
+    import ldap
+    import django_auth_ldap
+    import django_auth_ldap.config
+    import django_auth_ldap.backend
 
 import html.parser
 import http.cookies

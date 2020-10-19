@@ -96,7 +96,7 @@ def index(request):
         'welcome_closed': 1 if user_details.welcome_closed else 0,
         'enable_omnichat': 0,
         'csv_encoding': user_details.csv_encoding,
-        'delimiter': user_details.csv_delimiter,
+        'csv_delimiter': user_details.csv_delimiter,
         'desktop_mode': settings.DESKTOP_MODE,
         'omnidb_version': settings.OMNIDB_VERSION,
         'omnidb_short_version': settings.OMNIDB_SHORT_VERSION,

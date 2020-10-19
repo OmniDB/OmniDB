@@ -23,8 +23,11 @@ import logging
 logger = logging.getLogger('OmniDB_app.Session')
 
 from django.db.models import Q
+import threading
 
 tunnels = dict([])
+
+tunnel_locks = dict([])
 
 '''
 ------------------------------------------------------------------------
@@ -80,79 +83,109 @@ class Session(object):
        del self.v_databases[p_conn_id]
 
     def DatabaseReachPasswordTimeout(self,p_database_index):
-        #Create tunnel if enabled
-        if self.v_databases[p_database_index]['tunnel']['enabled']:
-            v_create_tunnel = False
-            if self.v_databases[p_database_index]['tunnel_object'] != None:
-                try:
-                    result = 0
-                    v_tunnel_object = tunnels[self.v_databases[p_database_index]['database'].v_conn_id]
-                    if not v_tunnel_object.is_active:
-                        v_tunnel_object.stop()
+
+        v_return = { 'timeout': False, 'message': ''}
+
+        # This region of the code cannot be accessed by multiple threads, so locking is required
+        try:
+            lock_object = tunnel_locks[self.v_databases[p_database_index]['database'].v_conn_id]
+        except:
+            print('creating lock object')
+            lock_object = threading.Lock()
+            tunnel_locks[self.v_databases[p_database_index]['database'].v_conn_id] = lock_object
+
+        try:
+            lock_object.acquire()
+            print('LOCK ACQUIRED')
+        except:
+            None
+
+        try:
+            #Create tunnel if enabled
+            if self.v_databases[p_database_index]['tunnel']['enabled']:
+                v_create_tunnel = False
+                if self.v_databases[p_database_index]['tunnel_object'] != None:
+
+                    try:
+                        result = 0
+                        v_tunnel_object = tunnels[self.v_databases[p_database_index]['database'].v_conn_id]
+                        if not v_tunnel_object.is_active:
+                            v_tunnel_object.stop()
+                            v_create_tunnel = True
+                    except Exception as exc:
                         v_create_tunnel = True
-                except Exception as exc:
-                    v_create_tunnel = True
-                    None
+                        None
 
-            if self.v_databases[p_database_index]['tunnel_object'] == None or v_create_tunnel:
-                try:
-                    if self.v_databases[p_database_index]['tunnel']['key'].strip() != '':
-                        v_file_name = '{0}'.format(str(time.time())).replace('.','_')
-                        v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
-                        with open(v_full_file_name,'w') as f:
-                            f.write(self.v_databases[p_database_index]['tunnel']['key'])
-                        server = SSHTunnelForwarder(
-                            (self.v_databases[p_database_index]['tunnel']['server'], int(self.v_databases[p_database_index]['tunnel']['port'])),
-                            ssh_username=self.v_databases[p_database_index]['tunnel']['user'],
-                            ssh_private_key_password=self.v_databases[p_database_index]['tunnel']['password'],
-                            ssh_pkey = v_full_file_name,
-                            remote_bind_address=(self.v_databases[p_database_index]['database'].v_active_server, int(self.v_databases[p_database_index]['database'].v_active_port)),
-                            logger=logger
-                        )
+                if self.v_databases[p_database_index]['tunnel_object'] == None or v_create_tunnel:
+                    try:
+                        if self.v_databases[p_database_index]['tunnel']['key'].strip() != '':
+                            v_file_name = '{0}'.format(str(time.time())).replace('.','_')
+                            v_full_file_name = os.path.join(settings.TEMP_DIR, v_file_name)
+                            with open(v_full_file_name,'w') as f:
+                                f.write(self.v_databases[p_database_index]['tunnel']['key'])
+                            server = SSHTunnelForwarder(
+                                (self.v_databases[p_database_index]['tunnel']['server'], int(self.v_databases[p_database_index]['tunnel']['port'])),
+                                ssh_username=self.v_databases[p_database_index]['tunnel']['user'],
+                                ssh_private_key_password=self.v_databases[p_database_index]['tunnel']['password'],
+                                ssh_pkey = v_full_file_name,
+                                remote_bind_address=(self.v_databases[p_database_index]['database'].v_active_server, int(self.v_databases[p_database_index]['database'].v_active_port)),
+                                logger=logger
+                            )
+                        else:
+                            server = SSHTunnelForwarder(
+                                (self.v_databases[p_database_index]['tunnel']['server'], int(self.v_databases[p_database_index]['tunnel']['port'])),
+                                ssh_username=self.v_databases[p_database_index]['tunnel']['user'],
+                                ssh_password=self.v_databases[p_database_index]['tunnel']['password'],
+                                remote_bind_address=(self.v_databases[p_database_index]['database'].v_active_server, int(self.v_databases[p_database_index]['database'].v_active_port)),
+                                logger=logger
+                            )
+                        server.set_keepalive = 120
+                        server.start()
+
+                        s = SessionStore(session_key=self.v_user_key)
+                        tunnels[self.v_databases[p_database_index]['database'].v_conn_id] = server
+
+                        self.v_databases[p_database_index]['tunnel_object'] = str(server.local_bind_port)
+                        self.v_databases[p_database_index]['database'].v_connection.v_host = '127.0.0.1'
+                        self.v_databases[p_database_index]['database'].v_connection.v_port = server.local_bind_port
+
+                        s['omnidb_session'] = self
+                        s.save()
+
+                    except Exception as exc:
+                        return { 'timeout': True, 'message': str(exc)}
+            if self.v_databases[p_database_index]['prompt_password']:
+                #Reached timeout, must request password
+                if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_TOTAL):
+                    #Try passwordless connection
+                    self.v_databases[p_database_index]['database'].v_connection.v_password = ''
+                    v_test = self.v_databases[p_database_index]['database'].TestConnection()
+
+                    if v_test=='Connection successful.':
+                        s = SessionStore(session_key=self.v_user_key)
+                        s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
+                        s['omnidb_session'].v_databases[p_database_index]['database'].v_connection.v_password = ''
+                        s.save()
+                        v_return = { 'timeout': False, 'message': ''}
                     else:
-                        server = SSHTunnelForwarder(
-                            (self.v_databases[p_database_index]['tunnel']['server'], int(self.v_databases[p_database_index]['tunnel']['port'])),
-                            ssh_username=self.v_databases[p_database_index]['tunnel']['user'],
-                            ssh_password=self.v_databases[p_database_index]['tunnel']['password'],
-                            remote_bind_address=(self.v_databases[p_database_index]['database'].v_active_server, int(self.v_databases[p_database_index]['database'].v_active_port)),
-                            logger=logger
-                        )
-                    server.set_keepalive = 120
-                    server.start()
-
-                    s = SessionStore(session_key=self.v_user_key)
-                    tunnels[self.v_databases[p_database_index]['database'].v_conn_id] = server
-
-                    self.v_databases[p_database_index]['tunnel_object'] = str(server.local_bind_port)
-                    self.v_databases[p_database_index]['database'].v_connection.v_host = '127.0.0.1'
-                    self.v_databases[p_database_index]['database'].v_connection.v_port = server.local_bind_port
-
-                    s['omnidb_session'] = self
-                    s.save()
-
-                except Exception as exc:
-                    return { 'timeout': True, 'message': str(exc)}
-        if self.v_databases[p_database_index]['prompt_password']:
-            #Reached timeout, must request password
-            if not self.v_databases[p_database_index]['prompt_timeout'] or datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_TOTAL):
-                #Try passwordless connection
-                self.v_databases[p_database_index]['database'].v_connection.v_password = ''
-                v_test = self.v_databases[p_database_index]['database'].TestConnection()
-
-                if v_test=='Connection successful.':
+                        v_return = { 'timeout': True, 'message': v_test}
+                #Reached half way to timeout, update prompt_timeout
+                if datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_REFRESH):
                     s = SessionStore(session_key=self.v_user_key)
                     s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
-                    s['omnidb_session'].v_databases[p_database_index]['database'].v_connection.v_password = ''
                     s.save()
-                    return { 'timeout': False, 'message': ''}
-                else:
-                    return { 'timeout': True, 'message': v_test}
-            #Reached half way to timeout, update prompt_timeout
-            if datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_REFRESH):
-                s = SessionStore(session_key=self.v_user_key)
-                s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
-                s.save()
-        return { 'timeout': False, 'message': ''}
+        except:
+            None
+
+        try:
+            lock_object.release()
+            print('LOCK RELEASED')
+        except:
+            None
+
+        print('RETURNING')
+
+        return v_return
 
     def GetSelectedDatabase(self):
         return self.v_databases(self.v_database_index)

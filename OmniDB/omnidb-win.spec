@@ -8,7 +8,6 @@ data_files_server = [
   ('OmniDB_app/static','OmniDB_app/static'),
   ('OmniDB_app/include','OmniDB_app/include'),
   ('OmniDB_app/templates','OmniDB_app/templates'),
-  ('OmniDB/migrations','OmniDB/migrations'),
   ('OmniDB_app/plugins','OmniDB_app/plugins')
 ]
 
@@ -17,7 +16,7 @@ a = Analysis(['omnidb-server.py'],
              pathex=['C:\\Users\\omnidb\\OmniDB\\OmniDB\\OmniDB'],
              binaries=[],
              datas=data_files_server,
-             hiddenimports=['social_django'],
+             hiddenimports=['cheroot.ssl','cheroot.ssl.builtin','psycopg2','paramiko'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

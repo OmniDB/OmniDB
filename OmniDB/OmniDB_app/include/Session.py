@@ -84,6 +84,8 @@ class Session(object):
 
     def DatabaseReachPasswordTimeout(self,p_database_index):
 
+        v_return = { 'timeout': False, 'message': ''}
+
         # This region of the code cannot be accessed by multiple threads, so locking is required
         try:
             lock_object = tunnel_locks[self.v_databases[p_database_index]['database'].v_conn_id]
@@ -94,6 +96,7 @@ class Session(object):
 
         try:
             lock_object.acquire()
+            print('LOCK ACQUIRED')
         except:
             None
 
@@ -163,9 +166,9 @@ class Session(object):
                         s['omnidb_session'].v_databases[p_database_index]['prompt_timeout'] = datetime.now()
                         s['omnidb_session'].v_databases[p_database_index]['database'].v_connection.v_password = ''
                         s.save()
-                        return { 'timeout': False, 'message': ''}
+                        v_return = { 'timeout': False, 'message': ''}
                     else:
-                        return { 'timeout': True, 'message': v_test}
+                        v_return = { 'timeout': True, 'message': v_test}
                 #Reached half way to timeout, update prompt_timeout
                 if datetime.now() > self.v_databases[p_database_index]['prompt_timeout'] + timedelta(0,settings.PWD_TIMEOUT_REFRESH):
                     s = SessionStore(session_key=self.v_user_key)
@@ -176,10 +179,13 @@ class Session(object):
 
         try:
             lock_object.release()
+            print('LOCK RELEASED')
         except:
             None
 
-        return { 'timeout': False, 'message': ''}
+        print('RETURNING')
+
+        return v_return
 
     def GetSelectedDatabase(self):
         return self.v_databases(self.v_database_index)

@@ -729,7 +729,7 @@ result = {
                 "display": True,
                 "scaleLabel": {
                     "display": True,
-                    "labelString": "Growh Rate"
+                    "labelString": "MB/s"
                 },
                 "ticks": {
                     "beginAtZero": True
@@ -746,7 +746,7 @@ from datetime import datetime
 if previous_data != None:
     query = '''
         SELECT round(
-                   (sum(pg_database_size(datname)) - {0}) / (extract(epoch from now()::time - '{1}'::time))::numeric,
+                   ((sum(pg_database_size(datname)) - {0})/1048576.0) / (extract(epoch from now()::time - '{1}'::time))::numeric,
                    2
                ) AS database_growth,
                sum(pg_database_size(datname)) AS current_sum,
@@ -852,8 +852,7 @@ if previous_data != None:
                round(
                    (sum(heap_blks_read) - {0}) / (sum(heap_blks_read) + sum(heap_blks_hit) - {1}),
                    2
-               ) AS miss_ratio,
-               0.0 AS miss_ratio
+               ) AS miss_ratio
         FROM pg_statio_all_tables
     '''.format(
         previous_data['current_reads'],
@@ -955,8 +954,7 @@ if previous_data != None:
                round(
                    (sum(idx_blks_read) - {0}) / (sum(idx_blks_read) + sum(idx_blks_hit) - {1}),
                    2
-               ) AS miss_ratio,
-               0.0 AS miss_ratio
+               ) AS miss_ratio
         FROM pg_statio_all_tables
     '''.format(
         previous_data['current_reads'],
@@ -1447,7 +1445,7 @@ result = {
                 "display": True,
                 "scaleLabel": {
                     "display": True,
-                    "labelString": "Seconds"
+                    "labelString": "Checkpoints"
                 },
                 "ticks": {
                     "beginAtZero": True

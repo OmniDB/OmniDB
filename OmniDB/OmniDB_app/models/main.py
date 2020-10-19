@@ -101,7 +101,7 @@ class MonUnits(models.Model):
     interval = models.IntegerField(blank=False,default=60)
 
 class MonUnitsConnections(models.Model):
-    unit = models.IntegerField(blank=False,default=60)
+    unit = models.IntegerField(blank=False,default=None)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     connection = models.ForeignKey(Connection,on_delete=models.CASCADE)
     interval = models.IntegerField(blank=False,default=60)

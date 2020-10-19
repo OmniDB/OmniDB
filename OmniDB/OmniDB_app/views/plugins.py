@@ -352,52 +352,111 @@ def handle_uploaded_file(f):
     #remove uploaded file
     remove(v_file)
 
-    v_has_backend_folder = isdir(join(v_dir_name,'backend'))
-    v_has_frontend_folder = isdir(join(v_dir_name,'frontend'))
+    v_has_plugins_folder = isdir(join(v_dir_name,'plugins'))
+    v_has_static_folder = isdir(join(v_dir_name,'static','plugins'))
 
     v_plugin_folder_name = ''
+    plugin_dir_name = ''
 
-    if not v_has_backend_folder:
-        shutil.rmtree(v_dir_name)
-        return {
-            'v_error': True,
-            'v_message': '''Package doesn't have the backend directory.'''
-        }
-    elif not v_has_frontend_folder:
-        shutil.rmtree(v_dir_name)
-        return {
-            'v_error': True,
-            'v_message': '''Package doesn't have the frontend directory.'''
-        }
-    else:
-        plugin_dir_name = os.path.splitext(f.name)[0]
-        makedirs(join(settings.HOME_DIR,'plugins',plugin_dir_name))
-        try:
-            files = listdir(join(v_dir_name,'backend'))
-            if len(files)==0:
-                shutil.rmtree(v_dir_name)
-                return {
-                    'v_error': True,
-                    'v_message': '''backend directory is empty.'''
-                }
+    # Old format
+    if v_has_plugins_folder:
 
-            shutil.move(join(v_dir_name,'backend'), join(settings.HOME_DIR,'plugins',plugin_dir_name))
-            shutil.move(join(v_dir_name,'frontend'), join(settings.HOME_DIR,'plugins',plugin_dir_name))
-        except Exception as exc:
-            None
+        if not v_has_static_folder:
+            shutil.rmtree(v_dir_name)
+            return {
+                'v_error': True,
+                'v_message': '''Package doesn't have the static/plugins directory.'''
+            }
+        else:
+            plugin_dir_name = os.path.splitext(f.name)[0]
+            v_plugin_folder_name = plugin_dir_name
+            makedirs(join(settings.HOME_DIR,'plugins',plugin_dir_name))
 
-        shutil.rmtree(v_dir_name)
-        if plugin_dir_name!='':
             try:
-                load_plugin(plugin_dir_name,False)
+                files = listdir(join(v_dir_name,'plugins'))
+                if len(files)==0:
+                    shutil.rmtree(v_dir_name)
+                    return {
+                        'v_error': True,
+                        'v_message': '''plugins directory is empty.'''
+                    }
+                elif len(files)>1:
+                    shutil.rmtree(v_dir_name)
+                    return {
+                        'v_error': True,
+                        'v_message': '''plugins directory contains more than one directory.'''
+                    }
+                dir_name = files[0]
+                shutil.copytree(join(v_dir_name,'plugins',dir_name),join(settings.HOME_DIR,'plugins',plugin_dir_name,'backend'))
             except Exception as exc:
-                return {
-                    'v_error': True,
-                    'v_message': str(exc)
-                }
-        return {
-            'v_error': False
-        }
+                None
+
+            try:
+                files = listdir(join(v_dir_name,'static','plugins'))
+                dir_name = files[0]
+                if len(files)==0:
+                    shutil.rmtree(v_dir_name)
+                    return {
+                        'v_error': True,
+                        'v_message': '''static/plugins directory is empty.'''
+                    }
+                elif len(files)>1:
+                    shutil.rmtree(v_dir_name)
+                    return {
+                        'v_error': True,
+                        'v_message': '''static/plugins directory contains more than one directory.'''
+                    }
+                shutil.copytree(join(v_dir_name,'static','plugins',dir_name),join(settings.HOME_DIR,'plugins',plugin_dir_name,'frontend'))
+            except Exception as exc:
+                None
+
+            shutil.rmtree(v_dir_name)
+    # New format
+    else:
+        v_has_backend_folder = isdir(join(v_dir_name,'backend'))
+        v_has_frontend_folder = isdir(join(v_dir_name,'frontend'))
+
+        if not v_has_backend_folder:
+            shutil.rmtree(v_dir_name)
+            return {
+                'v_error': True,
+                'v_message': '''Package doesn't have the backend directory.'''
+            }
+        elif not v_has_frontend_folder:
+            shutil.rmtree(v_dir_name)
+            return {
+                'v_error': True,
+                'v_message': '''Package doesn't have the frontend directory.'''
+            }
+        else:
+            plugin_dir_name = os.path.splitext(f.name)[0]
+            makedirs(join(settings.HOME_DIR,'plugins',plugin_dir_name))
+            try:
+                files = listdir(join(v_dir_name,'backend'))
+                if len(files)==0:
+                    shutil.rmtree(v_dir_name)
+                    return {
+                        'v_error': True,
+                        'v_message': '''backend directory is empty.'''
+                    }
+
+                shutil.move(join(v_dir_name,'backend'), join(settings.HOME_DIR,'plugins',plugin_dir_name))
+                shutil.move(join(v_dir_name,'frontend'), join(settings.HOME_DIR,'plugins',plugin_dir_name))
+            except Exception as exc:
+                None
+
+            shutil.rmtree(v_dir_name)
+    if plugin_dir_name!='':
+        try:
+            load_plugin(plugin_dir_name,False)
+        except Exception as exc:
+            return {
+                'v_error': True,
+                'v_message': str(exc)
+            }
+    return {
+        'v_error': False
+    }
 
 
 #reloading plugins

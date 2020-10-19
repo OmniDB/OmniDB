@@ -59,6 +59,7 @@ class MariaDB:
         self.v_db_type = 'mariadb'
         self.v_conn_string = p_conn_string
         self.v_conn_string_error = ''
+        self.v_password = p_password
         self.v_conn_id = p_conn_id
 
         self.v_server = p_server
@@ -85,6 +86,8 @@ class MariaDB:
                     self.v_active_server = parsed.hostname
                 if parsed.username!=None:
                     self.v_active_user = parsed.username
+                if parsed.password!=None and p_password == '':
+                    self.v_password = parsed.password
                 if parsed.query!=None:
                     self.v_conn_string_query = parsed.query
                 parsed_database = parsed.path
@@ -94,7 +97,7 @@ class MariaDB:
                 self.v_conn_string_error = 'Syntax error in the connection string.'
                 None
 
-        self.v_connection = Spartacus.Database.MariaDB(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_conn_string)
+        self.v_connection = Spartacus.Database.MariaDB(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, self.v_password, p_conn_string)
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -212,10 +215,7 @@ class MariaDB:
             return self.v_active_user + '@' + self.v_active_service
 
     def PrintDatabaseDetails(self):
-        if self.v_conn_string=='':
-            return self.v_active_server + ':' + self.v_active_port
-        else:
-            return "<i title='{0}' class='fas fa-asterisk icon-conn-string'></i> ".format(self.v_conn_string) + self.v_active_server + ':' + self.v_active_port
+        return self.v_active_server + ':' + self.v_active_port
 
     def HandleUpdateDeleteRules(self, p_update_rule, p_delete_rule):
         v_rules = ''

@@ -849,14 +849,17 @@ if previous_data != None:
         SELECT sum(heap_blks_read) AS current_reads,
                sum(heap_blks_hit) AS current_hits,
                now()::time AS current_time,
+               CASE (sum(heap_blks_read) + sum(heap_blks_hit) - {1})
+               WHEN 0 THEN 0.0
+               ELSE
                round(
-                   (sum(heap_blks_read) - {0}) / (sum(heap_blks_read) + sum(heap_blks_hit) - {1}),
+                   ((sum(heap_blks_read) - {0})*100::float / (sum(heap_blks_read) + sum(heap_blks_hit) - {1}))::numeric,
                    2
-               ) AS miss_ratio
+               ) END AS miss_ratio
         FROM pg_statio_all_tables
     '''.format(
         previous_data['current_reads'],
-        previous_data['current_hits'] + previous_data['current_reads']
+        int(previous_data['current_hits']) + int(previous_data['current_reads'])
     )
 else:
     query = '''
@@ -951,14 +954,17 @@ if previous_data != None:
         SELECT sum(idx_blks_read) AS current_reads,
                sum(idx_blks_hit) AS current_hits,
                now()::time AS current_time,
+               CASE (sum(idx_blks_read) + sum(idx_blks_hit) - {1})
+               WHEN 0 THEN 0.0
+               ELSE
                round(
-                   (sum(idx_blks_read) - {0}) / (sum(idx_blks_read) + sum(idx_blks_hit) - {1}),
+                   ((sum(idx_blks_read) - {0})*100::float / (sum(idx_blks_read) + sum(idx_blks_hit) - {1}))::numeric,
                    2
-               ) AS miss_ratio
+               ) END AS miss_ratio
         FROM pg_statio_all_tables
     '''.format(
         previous_data['current_reads'],
-        previous_data['current_hits'] + previous_data['current_reads']
+        int(previous_data['current_hits']) + int(previous_data['current_reads'])
     )
 else:
     query = '''
@@ -1053,14 +1059,17 @@ if previous_data != None:
         SELECT sum(seq_scan) as current_seq,
                sum(idx_scan) as current_idx,
                now()::time AS current_time,
+               CASE (sum(seq_scan) + sum(idx_scan) - {1})
+               WHEN 0 THEN 0.0
+               ELSE
                round(
-                   (sum(seq_scan) - {1}) / (sum(seq_scan) + sum(idx_scan) - {1}),
+                   ((sum(seq_scan) - {0})*100::float / (sum(seq_scan) + sum(idx_scan) - {1}))::numeric,
                    2
-               ) AS ratio
+               ) END AS ratio
         FROM pg_stat_all_tables
     '''.format(
         previous_data['current_seq'],
-        previous_data['current_seq'] + previous_data['current_idx']
+        int(previous_data['current_seq']) + int(previous_data['current_idx'])
     )
 else:
     query = '''

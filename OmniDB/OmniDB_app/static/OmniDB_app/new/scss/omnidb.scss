@@ -220,6 +220,9 @@ SOFTWARE.
     text-align: center;
     font-size: 10px;
   }
+  .omnidb__panel {
+    padding-left: 86px;
+  }
 }
 
 @media (max-width: 1980px) {
@@ -228,6 +231,9 @@ SOFTWARE.
   }
   .omnidb__tab-menu--primary.omnidb__tab-menu--shown .omnidb__tab-menu__link-name {
     width: 160px;
+  }
+  .omnidb__panel {
+    padding-left: 33px;
   }
 }
 
@@ -913,7 +919,6 @@ button.close {
 .omnidb__panel {
   box-shadow: 0px 0px 0px rgba(255,255,255,0);
   left: 0px;
-  padding-left: 33px;
   position: fixed;
   top: 100%;
   transform: translateY(0px);

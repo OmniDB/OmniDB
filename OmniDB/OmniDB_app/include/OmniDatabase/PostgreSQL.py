@@ -63,7 +63,7 @@ class PostgreSQL:
         self.v_conn_id = p_conn_id
         self.v_conn_string = p_conn_string
         self.v_conn_string_error = ''
-
+        self.v_password = p_password
         self.v_port = p_port
         if p_port is None or p_port == '':
             self.v_active_port = '5432'
@@ -89,6 +89,8 @@ class PostgreSQL:
                     self.v_active_server = parsed.hostname
                 if parsed.username!=None:
                     self.v_active_user = parsed.username
+                if parsed.password!=None and p_password == '':
+                    self.v_password = parsed.password
                 if parsed.query!=None:
                     self.v_conn_string_query = parsed.query
                 parsed_database = parsed.path
@@ -99,7 +101,7 @@ class PostgreSQL:
                 None
 
         self.v_schema = 'public'
-        self.v_connection = Spartacus.Database.PostgreSQL(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_application_name, p_conn_string)
+        self.v_connection = Spartacus.Database.PostgreSQL(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, self.v_password, p_application_name, p_conn_string)
 
         self.v_data_types = {
             'bigint': { 'quoted': False },
@@ -766,10 +768,7 @@ class PostgreSQL:
             return self.v_active_user + '@' + self.v_active_service
 
     def PrintDatabaseDetails(self):
-        if self.v_conn_string=='':
-            return self.v_active_server + ':' + self.v_active_port
-        else:
-            return "<i title='{0}' class='fas fa-asterisk icon-conn-string'></i> ".format(self.v_conn_string) + self.v_active_server + ':' + self.v_active_port
+        return self.v_active_server + ':' + self.v_active_port
 
     def HandleUpdateDeleteRules(self, p_update_rule, p_delete_rule):
         v_rules = ''

@@ -332,6 +332,7 @@ def get_database_list(request):
                 'v_conn_id': v_database.v_conn_id,
                 'v_console_help': v_database.v_console_help,
                 'v_database': v_database.v_active_service,
+                'v_conn_string': v_database.v_conn_string,
                 'v_details1': '{0}{1}'.format(v_alias,v_database.PrintDatabaseInfo()),
                 'v_details2': v_details
             }

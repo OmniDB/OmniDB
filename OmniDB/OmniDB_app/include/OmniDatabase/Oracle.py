@@ -57,6 +57,8 @@ class Oracle:
         self.v_alias = p_alias
         self.v_db_type = 'oracle'
         self.v_conn_string = p_conn_string
+        self.v_conn_string_error = ''
+        self.v_password = p_password
         self.v_conn_id = p_conn_id
 
         self.v_port = p_port
@@ -86,6 +88,8 @@ class Oracle:
                     self.v_active_server = parsed.hostname
                 if parsed.username!=None:
                     self.v_active_user = parsed.username
+                if parsed.password!=None and p_password == '':
+                    self.v_password = parsed.password
                 if parsed.query!=None:
                     self.v_conn_string_query = parsed.query
                 parsed_database = parsed.path
@@ -99,7 +103,7 @@ class Oracle:
             self.v_schema = '"{0}"'.format(p_user)
         else:
             self.v_schema = self.v_user
-        self.v_connection = Spartacus.Database.Oracle(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_conn_string)
+        self.v_connection = Spartacus.Database.Oracle(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, self.v_password, p_conn_string)
 
         self.v_has_schema = True
         self.v_has_functions = True

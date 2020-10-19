@@ -1,57 +1,41 @@
-ul.tree, ul.tree ul {
-	list-style-type: none;
-	background: url(vline.png) repeat-y;
-	margin: 0;
-	padding: 0;
-	padding-left: 7px;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	cursor: default;
-}
+/*
+This file is part of OmniDB.
+OmniDB is open-source software, distributed "AS IS" under the MIT license in the hope that it will be useful.
 
-li.last {
-	background-image: 'url("css/lastnode.png")';
-	background-repeat: no-repeat;
-}
+The MIT License (MIT)
 
-ul.tree ul {
-	padding-left: 7px;
-}
+Portions Copyright (c) 2015-2020, The OmniDB Team
+Portions Copyright (c) 2017-2020, 2ndQuadrant Limited
 
-ul.tree li {
-	margin: 0;
-	padding: 0 12px;
-	line-height: 20px;
-	background: url(node.png) no-repeat;
-	white-space: nowrap;
-}
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-ul.tree li.last {
-	background: #fff url(lastnode.png) no-repeat;
-}
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-i.exp_col {
-	margin-top: 4px;
-  margin-left: -20px;
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+.aimara_tree i.exp_col {
   width: 16px;
-  display: inline-block;
-  height: 16px;
-  vertical-align: sub;
-}
-
-i.exp_col_empty {
-	margin-top: 4px;
-	margin-left: -20px;
-	vertical-align: sub;
-	width: 16px;
+	text-align: center;
+  font-size: 12px;
 }
 
 .icon_tree {
-	margin-left: 2px;
 	margin-right: 3px;
   display: inline-block;
-  width: 20px;
+  width: 24px;
   height: 16px;
 	font-size: 15px;
   background-repeat: no-repeat;
@@ -59,38 +43,50 @@ i.exp_col_empty {
 	text-align: center;
 }
 
-a.node {
-	padding: 2px;
-}
 
-span.node a {
-}
-
-span.node {
-	position: relative;
-	display: inline-block;
-	padding-right: 3px;
-	margin-bottom: 4px;
-	border: 1px solid rgba(255, 255, 255, 0);
-}
-
-span.node:hover {
-	background-color: #DCEDFF;
-	border-radius: 2px;
-}
-
-span.node_selected {
-	position: relative;
+.aimara_tree span.node,
+.aimara_tree span.node_selected {
   display: inline-block;
-  padding-right: 3px;
-  margin-bottom: 4px;
-  background-color: #d3deff;
-  border: 1px solid #7c90f1;
-  border-radius: 2px;
+  flex-grow: 1;
+  padding-bottom: 4px;
+	padding-right: 3px;
+  padding-top: 4px;
+  white-space: nowrap;
 }
 
-span.node_selected a {
+.aimara_tree i.fa-chevron-right,
+.aimara_tree i.fa-chevron-down {
+  transition: transform 0.3s;
 }
+.aimara_tree a.nav-link:hover > span > i.fa-chevron-right {
+  transform: rotate(30deg) scale(1.2);
+}
+.aimara_tree a.nav-link:hover > span > i.fa-chevron-down {
+  transform: rotate(-30deg) scale(1.2);
+}
+
+.aimara_tree .nav-link {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  padding-top: 0px;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+     -moz-user-select: none; /* Old versions of Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                supported by Chrome, Opera and Firefox */
+  white-space: nowrap;
+}
+
+.aimara_tree ul ul {
+  /* margin-left: 10px; */
+}
+
 
 .aimara_menu,.aimara_sub-menu {
   margin: 0;
@@ -101,11 +97,8 @@ span.node_selected a {
 .aimara_menu,
 .aimara_sub-menu {
   list-style: none;
-  background: #000;
+  background: #ffffff;
 	z-index: 1000;
-}
-.aimara_sub-menu {
-  background: #F1F1F1;
 }
 .aimara_menu a {
   text-decoration: none;
@@ -142,25 +135,25 @@ span.node_selected a {
 }
 
 .aimara_menu li:hover {
-  background: #d3deff;
+  background: #efefef;
 	cursor: pointer;
 }
 
 .aimara_sub-menu li:hover {
-  background: #d3deff;
+  background: #efefef;
 }
 
 .aimara_menu {
 	min-width: 200px;
 	position: absolute;
-	background: #F1F1F1;
 	-webkit-user-select: none; /* Chrome/Safari */
 	-moz-user-select: none; /* Firefox */
 	-ms-user-select: none; /* IE10+ */
 	cursor: default;
-	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
-  border: 1px solid #949ca9;
-  border-radius: 2px;
+	background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: .25rem;
 	z-index: 999999;
 }
 
@@ -169,16 +162,27 @@ span.node_selected a {
 	display: none;
 	position: absolute;
 	min-width: 200px;
-	box-shadow: 1px 1px 1px rgba(123, 123, 123, 0.36);
-  border: 1px solid #949ca9;
-  border-radius: 2px;
-  margin-top: -1px;
+	background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: .25rem;
 	z-index: 999999;
 }
 
-.aimara_menu .aimara_sub-menu {
+.aimara_menu .aimara_sub-menu,
+ul.aimara_sub-menu.aimara_menu_right {
   top: 0;
   left: 100%;
+}
+/* Case where it escapes the screen on the right */
+ul.aimara_sub-menu.aimara_menu_left,
+.aimara_menu_left ul.aimara_sub-menu {
+  left: unset;
+  right: 100%;
+}
+ul.aimara_sub-menu.aimara_menu_bottom {
+  top: unset;
+  bottom: 0px;
 }
 
 .div_close_cm {

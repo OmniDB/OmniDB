@@ -61,7 +61,8 @@ def check_session(request):
 def index(request):
     context = {
         'omnidb_short_version': settings.OMNIDB_SHORT_VERSION,
-        'url_folder': settings.PATH
+        'url_folder': settings.PATH,
+        'csrf_cookie_name': settings.CSRF_COOKIE_NAME
     }
 
     user = request.GET.get('user', '')

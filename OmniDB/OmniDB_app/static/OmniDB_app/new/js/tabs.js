@@ -39,6 +39,20 @@ function composedPath(el) {
     }
 }
 
+
+/**
+ * ## createTabControl
+ * @desc Creates the `tabControl` with methods to manipulate the tab-system.
+ *
+ * @param  {string} { p_div   String for the ID of the target DOM element where the tabControl will create/remove tabs.
+ * @param  {type} p_hierarchy Optional string defining the tab-system classes with OmniDB pre-defined styles ['primary', 'secondary',...].
+ * The classes system refers to BEM practices implemented inside OmniDB: 'omnidb__tab-menu' (default base class), 'omnidb__tab-menu--primary', 'omnidb__tab-menu--secondary'.
+ * - 'primary': OmniDB Outer Tabs. Results in the tab classlists containing 'omnidb__tab-menu omnidb__tab-menu--primary', 'omnidb__tab-content omnidb__tab-content--primary'
+ * - 'secondary': OmniDB Inner Tabs. Results in the tab classlists containing 'omnidb__tab-menu omnidb__tab-menu--secondary', 'omnidb__tab-content omnidb__tab-content--secondary'
+ * @param  {type} p_layout}   String defining some additional ready-to-use styles for the tab system.
+ * - 'card': Adds a bootstrap based card style to the tab system, with the tab-menu inside the card-header and the tab-content inside the card-body.
+ * @return {type} Returns the `tabControl` object.
+ */
 function createTabControl({ p_div, p_hierarchy, p_layout}) {
 
 	// Get an element's exact position
@@ -216,13 +230,18 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
 		removeTabIndex : function(p_index) {
 			var v_tab = this.tabList[p_index];
 
-			v_tab.elementDiv.parentNode.removeChild(v_tab.elementDiv);
-			v_tab.elementA.parentNode.removeChild(v_tab.elementA);
-
-			this.tabList.splice(p_index, 1);
+      if (v_tab.closeFunction!=null) {
+        v_tab.closeFunction(null,v_tab);
+      }
+      else if (v_tab) {
+        this.removeTab(v_tab);
+      }
 		},
     removeLastTab : function() {
-      this.removeTabIndex(this.tabList.length-1);
+      var v_this = this
+      var v_tab_index = v_this.tabList.length-1;
+
+      this.removeTabIndex(v_tab_index);
 		},
 		removeTab : function(p_tab) {
 
@@ -306,7 +325,26 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
       // else
       //   this.hideTabMenu();
     },
-    // Template
+
+		/**
+      * ## createTab
+      * @desc Creates a generic tab object with optional parameters and callbacks.
+      * Ex: p_mode === 'customer_dashboard' expects data based on columns from customer tables, and will return all data necessary to kickoff a customer dashboard.
+      *
+      * @param  {function} p_clickFunction Callback for onclick.
+      * @param  {boolean} p_close Defines if the elementA has a closing icon.
+      * @param  {function} p_dblClickFunction  Callback for ondoubleclick.
+      * @param  {boolean} p_disabled  Defines if the elementA is disabled.
+      * @param  {string} p_icon HTML string is accepted as an optional icon.
+      * @param  {boolean} p_isDraggable Defines if the elementA is draggable inside the tab-menu.
+      * @param  {string} p_name HTML string is accepted as an optional name for the elementA.
+      * @param  {function} p_rightClickFunction Callback for oncontextmenu.
+      * @param  {function} p_selectFunction  Callback for after the tab-content is rendered.
+      * @param  {boolean} p_selectable  Defines if the the tab-content is controlled by default bootstrap tab system selection. Used together with p_clickFunction to override the selecting tab behaviour, like the snippets panel.
+      * @param  {string} p_tooltip_name  HTML string is accepted as an optional tooltip. This is bootstrap's default tooltip.
+      * @param  {string} p_omnidb_tooltip_name  HTML string is accepted as an optional tooltip. This is OmniDB custom tooltip, used in the outer menu to avoid overflow bugs from bootstrap.
+      * @return {oject} Creates the tab object in this tabControl.
+		 */
 		createTab : function({
       p_clickFunction = null,
       p_close = true,

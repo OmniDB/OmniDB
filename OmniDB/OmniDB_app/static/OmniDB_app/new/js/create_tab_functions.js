@@ -423,32 +423,39 @@ function initCreateTabFunctions() {
 }
 
 function beforeCloseTab(e,p_confirm_function) {
-  if (e.clientX==0 && e.clientY==0)
-    showConfirm('Are you sure you want to remove this tab?',
-    function() {
-      p_confirm_function();
-    });
-  else
-    customMenu(
-      {
-        x:e.clientX+5,
-        y:e.clientY+5
-      },
-      [
-        {
-          text: 'Confirm',
-          icon: 'fas cm-all fa-check',
-          action: function() {
-            p_confirm_function();
-          }
-        },
-        {
-          text: 'Cancel',
-          icon: 'fas cm-all fa-times',
-          action: function() {
-          }
-        }
-      ],
-      null);
-
+	if (e) {
+		if (e.clientX==0 && e.clientY==0)
+		showConfirm('Are you sure you want to remove this tab?',
+			function() {
+				p_confirm_function();
+			}
+		);
+		else {
+			customMenu(
+				{
+					x:e.clientX+5,
+					y:e.clientY+5
+				},
+				[
+					{
+						text: 'Confirm',
+						icon: 'fas cm-all fa-check',
+						action: function() {
+							p_confirm_function();
+						}
+					},
+					{
+						text: 'Cancel',
+						icon: 'fas cm-all fa-times',
+						action: function() {
+						}
+					}
+				],
+				null
+			);
+		}
+	}
+	else {
+		p_confirm_function();
+	}
 }

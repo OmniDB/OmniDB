@@ -1073,7 +1073,7 @@ function getTreePostgresql(p_div) {
                         .drop_database.replace(
                             '#database_name#', node.text));
                 }
-            }, {
+            }/*, {
                 text: 'Advanced Object Search',
                 icon: 'fas cm-all fa-search',
                 action: function(node) {
@@ -1083,7 +1083,8 @@ function getTreePostgresql(p_div) {
                       node.collapseNode();
                   })
                 }
-            }]
+            }*/
+          ]
         },
         'cm_tablespaces': {
             elements: [{

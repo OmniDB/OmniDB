@@ -239,7 +239,6 @@ function changeInterfaceFontSize(p_option) {
 			if (v_outer_tab_tag_inner_tab_control) {
 				var v_outer_tab_tag_inner_tab_list = v_outer_tab_tag_inner_tab_control.tabList;
 				for (let j = 0; j < v_outer_tab_tag_inner_tab_list.length; j++) {
-					console.log(v_outer_tab_tag_inner_tab_list);
 					var v_inner_tab_tag = v_outer_tab_tag_inner_tab_list[j].tag;
 					if (v_inner_tab_tag) {
 						if (v_inner_tab_tag.editor_console) {
@@ -250,6 +249,8 @@ function changeInterfaceFontSize(p_option) {
 			}
 		}
 	}
+
+	refreshHeights();
 }
 
 /// <summary>

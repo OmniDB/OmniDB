@@ -1,8 +1,11 @@
 /*
+This file is part of OmniDB.
+OmniDB is open-source software, distributed "AS IS" under the MIT license in the hope that it will be useful.
+
 The MIT License (MIT)
 
-Portions Copyright (c) 2015-2019, The OmniDB Team
-Portions Copyright (c) 2017-2019, 2ndQuadrant Limited
+Portions Copyright (c) 2015-2020, The OmniDB Team
+Portions Copyright (c) 2017-2020, 2ndQuadrant Limited
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

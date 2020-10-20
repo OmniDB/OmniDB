@@ -47,7 +47,7 @@ function startTerminal(p_conn_id) {
     tab_tag: v_tag,
     acked: false
   }
-  v_tag.context = createContext(v_queryWebSocket,v_context);
+  v_tag.context = createContext(v_context);
 	v_tag.editor_console.focus();
 	v_tag.editor_console.write('Starting terminal...')
 	v_tag.clear_terminal = true;

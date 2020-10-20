@@ -87,22 +87,18 @@ function showConnectionList(p_open_modal, p_change_group) {
 				'<button type="button" class="mt-4 btn omnidb__theme__btn--primary" onclick="newConnection();">New Connection</button>' +
 			'</div>' +
 			'<div id="connections_management_empty_with_public" class="my-4 text-center w-100" style="display:none;">' +
-				'<h5 class="">Your user has no connections configured yet, but there are public connections.</h5>' +
-				'<button type="button" class="mt-4 btn omnidb__theme__btn--primary" onclick="newConnection();">New Connection</button>' +
+				'<i class="fas fa-arrow-up text-info"></i>' +
+				'<h5 class="">Your user has no connections configured yet, but there are <i class="fas fa-users text-info mx-2"></i> public connections.</h5>' +
+				'<h5 class="d-inline-block mt-4 mr-2">You can also create your own</h5>' +
+				'<button type="button" class="mt-2 btn omnidb__theme__btn--primary" onclick="newConnection();">New Connection</button>' +
 			'</div>' +
 			'<div id="connections_management_empty_group" class="my-4 text-center w-100" style="display:none;">' +
 				'<h5 class="">No connections assigned to this group yet.</h5>' +
 				'<button type="button" class="mt-4 btn omnidb__theme__btn--primary" onclick="manageGroup();">Manage Groups</button>' +
 			'</div>';
 
-			var v_connection_owner = false;
-
       for (var i=0; i<p_return.v_data.v_conn_list.length; i++) {
         var v_conn_obj = p_return.v_data.v_conn_list[i];
-
-				if (v_conn_obj.is_mine) {
-					v_connection_owner = true;
-				}
 
         var v_col_div = document.createElement('div');
         v_col_div.className = 'omnidb__connections__cols';
@@ -282,15 +278,7 @@ function showConnectionList(p_open_modal, p_change_group) {
 			// Updating total public connections counter.
 			document.getElementById('conn_list_public_counter').innerHTML = v_total_public_conn;
 
-			// Updating empty connections info status.
-			if (v_connections_data.card_list.length === 0) {
-				if (v_connection_owner) {
-					document.getElementById('connections_management_empty_with_public').style.display = '';
-				}
-				else {
-					document.getElementById('connections_management_empty_all').style.display = '';
-				}
-			}
+			updateConnectionsTitleInfo();
 
 		},
 		null,
@@ -301,6 +289,7 @@ function showConnectionList(p_open_modal, p_change_group) {
 
 function groupChange(p_value) {
 	var v_empty_group_div = document.getElementById('connections_management_empty_group');
+
   if (p_value!=-1) {
     document.getElementById('button_group_actions').style.display = '';
 
@@ -357,24 +346,7 @@ function groupChange(p_value) {
     }
   }
 
-	// Updating empty connections info status.
-	var v_empty_cards = document.getElementById('connections_management_empty_all');
-	var v_empty_with_public = document.getElementById('connections_management_empty_with_public');
-	// Updating empty connections info status.
-	// if (v_empty_cards) {
-	// 	if (v_connections_data.card_list.length === 0) {
-	// 		if (v_connection_owner) {
-	// 			document.getElementById('connections_management_empty_with_public').style.display = '';
-	// 			v_empty_cards.style.display = 'none';
-	// 		}
-	// 		else {
-	// 			v_empty_cards.style.display = '';
-	// 		}
-	// 	}
-	// 	else {
-	// 		v_empty_cards.style.display = 'none';
-	// 	}
-	// }
+	updateConnectionsTitleInfo();
 }
 
 function manageGroup() {
@@ -388,17 +360,6 @@ function manageGroup() {
 	var v_empty_group_div = document.getElementById('connections_management_empty_group');
 	if (v_empty_group_div) {
 		v_empty_group_div.style.display = 'none';
-	}
-
-	// Updating empty connections info status.
-	var v_empty_cards = document.getElementById('connections_management_empty_all');
-	if (v_empty_cards) {
-		if (v_connections_data.card_list.length === 0) {
-			v_empty_cards.style.display = '';
-		}
-		else {
-			v_empty_cards.style.display = 'none';
-		}
 	}
 
 	$('.omnidb__connections__card-list').addClass('omnidb__connections__card-list--connection-management');
@@ -1340,4 +1301,32 @@ function updateConnectionKey(e) {
 		updateModalEditConnectionState({target:document.getElementById('conn_form_ssh_key_input')});
   };
   reader.readAsText(file);
+}
+
+function updateConnectionsTitleInfo(p_connection_owner) {
+	var v_connection_owner = false;
+	var v_connection_owner = false;
+
+	for (var i=0; i<v_connections_data.card_list.length; i++) {
+		var v_conn_obj = v_connections_data.card_list.[i].data;
+
+		if (v_conn_obj.is_mine) {
+			v_connection_owner = true;
+		}
+	}
+
+	// Updating empty connections info status.
+	var v_empty_cards = document.getElementById('connections_management_empty_all');
+	var v_empty_with_public = document.getElementById('connections_management_empty_with_public');
+	// Updating empty connections info status.
+	if (v_empty_cards) {
+		if (v_connections_data.card_list.length === 0) {
+			v_empty_with_public.style.display = 'none';
+			v_empty_cards.style.display = '';
+		}
+		else if (!p_connection_owner) {
+			v_empty_cards.style.display = 'none';
+			v_empty_with_public.style.display = '';
+		}
+	}
 }

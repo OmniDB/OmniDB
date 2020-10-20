@@ -4342,7 +4342,7 @@ function getPropertiesPostgresqlConfirm(node) {
             });
         } else if (node.tag.type == 'user_mapping') {
             getProperties('/get_properties_postgresql/', {
-                p_schema: node.tag.schema,
+                p_schema: node.tag.foreign_server,
                 p_table: null,
                 p_object: node.text,
                 p_type: node.tag.type
@@ -8304,7 +8304,8 @@ function getUserMappingsPostgresql(node) {
               v_node = node.createChildNode(p_return.v_data[i].v_name,
                   false, 'fas node-all fa-user-friends node-user', {
                       type: 'user_mapping',
-                      database: v_connTabControl.selectedTab.tag.selectedDatabase
+                      database: v_connTabControl.selectedTab.tag.selectedDatabase,
+                      foreign_server: p_return.v_data[i].v_foreign_server
                   }, 'cm_user_mapping', null, false);
 
               if (p_return.v_data[i].v_options != null) {

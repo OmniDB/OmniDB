@@ -454,7 +454,8 @@ function cancelConsole(p_tab_tag) {
 		v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
 
 	var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
-	sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CancelThread, v_tab_tag.tab_id, false);
+	//sendWebSocketMessage(v_queryWebSocket, v_queryRequestCodes.CancelThread, v_tab_tag.tab_id, false);
+	createRequest(v_queryRequestCodes.CancelThread, v_tab_tag.tab_id, null);
 
 	cancelConsoleTab(v_tab_tag);
 
@@ -478,7 +479,9 @@ function cancelConsoleTab(p_tab_tag) {
 	v_tab_tag.bt_cancel.style.display = 'none';
 	v_tab_tag.query_info.innerHTML = 'Canceled.';
 
-	removeContext(v_queryWebSocket,v_tab_tag.context.v_context_code);
+	setTabStatus(v_tab_tag,0);
+
+	removeContext(v_tab_tag.context.v_context_code);
 
 	SetAcked(v_tab_tag.context);
 

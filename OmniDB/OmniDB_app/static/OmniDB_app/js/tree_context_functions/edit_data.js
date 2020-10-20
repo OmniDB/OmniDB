@@ -161,7 +161,7 @@ function cancelEditDataTab(p_tab_tag) {
 	v_tab_tag.tab_check_span.style.display = 'none';
 	v_tab_tag.bt_cancel.style.display = 'none';
 
-	removeContext(v_queryWebSocket,v_tab_tag.context.v_context_code);
+	removeContext(v_tab_tag.context.v_context_code);
 
 	SetAcked(v_tab_tag.context);
 

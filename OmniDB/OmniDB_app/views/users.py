@@ -15,6 +15,8 @@ import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB_app.include.Session import Session
 from OmniDB import settings
 from django.utils import timezone
+from django.contrib.auth import update_session_auth_hash
+
 from django.contrib.auth.models import User
 
 from OmniDB_app.views.memory_objects import *
@@ -149,10 +151,15 @@ def save_users(request):
         for r in v_data:
             user = User.objects.get(id=v_user_id_list[v_index])
             user.username = r[0]
-            user.set_password(r[1])
+            if r[1]!="":
+                user.set_password(r[1])
             user.is_superuser = True if r[2]==1 else False
             user.save()
             v_index = v_index + 1
+
+            if request.user == user and r[1]!="":
+                update_session_auth_hash(request,user)
+
     except Exception as exc:
         v_return['v_data'] = str(exc)
         v_return['v_error'] = True

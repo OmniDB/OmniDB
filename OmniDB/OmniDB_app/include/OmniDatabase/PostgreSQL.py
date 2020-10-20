@@ -10966,7 +10966,7 @@ FROM #table_name#
     def GetDDLTrigger(self, p_trigger, p_table, p_schema):
         return self.v_connection.ExecuteScalar('''
             select 'CREATE TRIGGER ' || x.trigger_name || chr(10) ||
-                   '  ' || x.action_timing || ' ' || x.event_manipulation || chr(10) ||
+                   '  ' || x.action_timing || ' ' || x.event_manipulation || (CASE WHEN x.columns IS NOT NULL THEN ' OF ' || x.columns ELSE '' END) || chr(10) ||
                    '  ON {0}.{1}' || chr(10) ||
                    '  FOR EACH ' || x.action_orientation || chr(10) ||
                    (case when length(coalesce(x.action_condition, '')) > 0 then '  WHEN ( ' || x.action_condition || ') ' || chr(10) else '' end) ||
@@ -10987,7 +10987,8 @@ FROM #table_name#
                    t.action_orientation,
                    t.action_condition,
                    t.action_statement,
-                   t2.oid
+                   t2.oid,
+                   tuc.columns
             from information_schema.triggers t
             inner join (
             select array_to_string(array(
@@ -11006,6 +11007,17 @@ FROM #table_name#
                   AND tgrelid = '{0}.{1}'::regclass
             ) t2
                     ON 1 = 1
+            LEFT JOIN (
+                SELECT string_agg(
+                           event_object_column,
+                           ', '
+                       ) AS columns
+                FROM information_schema.triggered_update_columns
+                WHERE quote_ident(event_object_schema) = '{0}'
+                  AND quote_ident(event_object_table) = '{1}'
+                  AND quote_ident(trigger_name) = '{2}'
+            ) tuc
+                   ON 1 = 1
             where quote_ident(t.event_object_schema) = '{0}'
               and quote_ident(t.event_object_table) = '{1}'
               and quote_ident(t.trigger_name) = '{2}'

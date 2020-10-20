@@ -1945,7 +1945,8 @@ def get_user_mappings(request, v_database):
         for v_mapping in v_mappings.Rows:
             v_mapping_data = {
                 'v_name': v_mapping['rolname'],
-                'v_options': v_mapping['umoptions']
+                'v_options': v_mapping['umoptions'],
+                'v_foreign_server': v_foreign_server
             }
             v_list_mappings.append(v_mapping_data)
     except Exception as exc:

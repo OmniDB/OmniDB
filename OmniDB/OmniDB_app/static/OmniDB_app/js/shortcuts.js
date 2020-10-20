@@ -121,15 +121,15 @@ var v_default_shortcuts = {
   },
   'shortcut_remove_inner_tab': {
     'windows': {
-        'ctrl_pressed': true,
-        'shift_pressed': false,
+        'ctrl_pressed': false,
+        'shift_pressed': true,
         'alt_pressed': true,
         'meta_pressed': false,
         'shortcut_key': 'Q',
     },
     'linux': {
-        'ctrl_pressed': true,
-        'shift_pressed': false,
+        'ctrl_pressed': false,
+        'shift_pressed': true,
         'alt_pressed': true,
         'meta_pressed': false,
         'shortcut_key': 'Q',

@@ -794,7 +794,7 @@ function newConnection() {
 function selectConnection(p_conn_obj) {
 	$('#modal_connections').modal('hide');
 	if (p_conn_obj.technology === 'terminal') {
-		console.log(p_conn_obj);
+		console.log('modal_connections terminal', p_conn_obj);
 		v_connTabControl.tag.createOuterTerminalTab(p_conn_obj.id, p_conn_obj.alias);
 	}
 	else {

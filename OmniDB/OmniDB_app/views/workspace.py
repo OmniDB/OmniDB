@@ -15,6 +15,7 @@ import OmniDB_app.include.Spartacus.Utils as Utils
 import OmniDB_app.include.OmniDatabase as OmniDatabase
 from OmniDB import settings
 from OmniDB_app.include.Session import Session
+from django.contrib.auth import update_session_auth_hash
 
 from django.contrib.sessions.backends.db import SessionStore
 import sqlparse
@@ -194,9 +195,6 @@ def save_config_user(request):
     v_session.v_csv_encoding = p_csv_encoding
     v_session.v_csv_delimiter = p_csv_delimiter
 
-    if p_pwd!="":
-        request.user.set_password(p_pwd)
-
     user_details = UserDetails.objects.get(user=request.user)
     user_details.theme = p_theme
     user_details.font_size = p_font_size
@@ -205,6 +203,12 @@ def save_config_user(request):
     user_details.save()
 
     request.session['omnidb_session'] = v_session
+
+    if p_pwd!="":
+        user = User.objects.get(id=request.user.id)
+        user.set_password(p_pwd)
+        user.save()
+        update_session_auth_hash(request,user)
 
     return JsonResponse(v_return)
 

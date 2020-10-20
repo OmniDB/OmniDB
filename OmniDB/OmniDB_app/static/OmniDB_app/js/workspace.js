@@ -1186,27 +1186,31 @@ function showMenuNewTabOuter(e) {
 
 				for (var i=0; i<v_connTabControl.tag.connections.length; i++) (function(i){
 					var v_conn = v_connTabControl.tag.connections[i];
-          let v_name = (v_conn.alias) ?  v_conn.alias : v_conn.v_details1 + ' - ' + v_conn.v_details2;
+          var v_conn_name = '';
           let p_tooltip_name = '';
+          let v_name = '';
+          if (v_conn.v_alias && v_conn.v_alias !== '') {
+            v_name = v_conn.v_alias;
+            v_conn_name = '(' + v_conn.v_alias + ')';
+            p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
+          }
           if (v_conn.v_conn_string && v_conn.v_conn_string !== '') {
-            if (v_conn.v_alias) {
-              p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
-            }
+            v_conn_name += ' ' + v_conn.v_conn_string;
             p_tooltip_name += '<div class="mb-1">' + v_conn.v_conn_string + '</div>';
           }
           else {
-            if (v_conn.v_alias) {
-              p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';
-            }
+            v_conn_name = '';
             if (v_conn.v_details1) {
+              v_conn_name += v_conn.v_details1;
               p_tooltip_name += '<div class="mb-1">' + v_conn.v_details1 + '</div>';
             }
             if (v_conn.v_details2) {
+              v_conn_name += ' - ' + v_conn.v_details2;
               p_tooltip_name += '<div class="mb-1">' + v_conn.v_details2 + '</div>';
             }
           }
 					v_submenu_connection_list.push({
-						text: v_name,
+						text: v_conn_name,
 						icon: 'fas cm-all node-' + v_conn.v_db_type,
 						action: function() {
 							v_connTabControl.tag.createConnTab(v_conn.v_conn_id, true, v_name, p_tooltip_name);
@@ -1236,27 +1240,31 @@ function showMenuNewTabOuter(e) {
 					if (i==0) {
 						for (var k=0; k<v_connTabControl.tag.connections.length; k++) (function(k){
 							var v_conn = v_connTabControl.tag.connections[k];
-              let v_name = (v_conn.alias) ? v_conn.alias : v_conn.v_details1 + ' - ' + v_conn.v_details2;
+              var v_conn_name = '';
               let p_tooltip_name = '';
+              let v_name = '';
+              if (v_conn.v_alias && v_conn.v_alias !== '') {
+                v_name = v_conn.v_alias;
+                v_conn_name = '(' + v_conn.v_alias + ')';
+                p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
+              }
               if (v_conn.v_conn_string && v_conn.v_conn_string !== '') {
-                if (v_conn.v_alias) {
-                  p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
-                }
+                v_conn_name += ' ' + v_conn.v_conn_string;
                 p_tooltip_name += '<div class="mb-1">' + v_conn.v_conn_string + '</div>';
               }
               else {
-                if (v_conn.v_alias) {
-                  p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';
-                }
+                v_conn_name = '';
                 if (v_conn.v_details1) {
+                  v_conn_name += v_conn.v_details1;
                   p_tooltip_name += '<div class="mb-1">' + v_conn.v_details1 + '</div>';
                 }
                 if (v_conn.v_details2) {
+                  v_conn_name += ' - ' + v_conn.v_details2;
                   p_tooltip_name += '<div class="mb-1">' + v_conn.v_details2 + '</div>';
                 }
               }
 							v_group_connections.push({
-								text: v_conn.v_details1 + ' - ' + v_conn.v_details2,
+								text: v_conn_name,
 								icon: 'fas cm-all node-' + v_conn.v_db_type,
 								action: function() {
                   startLoading();
@@ -1272,28 +1280,32 @@ function showMenuNewTabOuter(e) {
 							//Search corresponding connection to use its data
 							for (var k=0; k<v_connTabControl.tag.connections.length; k++) (function(k){
 								var v_conn = v_connTabControl.tag.connections[k];
-                let v_name = (v_conn.alias) ? v_conn.alias : v_conn.v_details1 + ' - ' + v_conn.v_details2;
+                var v_conn_name = '';
                 let p_tooltip_name = '';
+                let v_name = '';
+                if (v_conn.v_alias && v_conn.v_alias !== '') {
+                  v_name = v_conn.v_alias;
+                  v_conn_name = '(' + v_conn.v_alias + ')';
+                  p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
+                }
                 if (v_conn.v_conn_string && v_conn.v_conn_string !== '') {
-                  if (v_conn.v_alias) {
-                    p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
-                  }
+                  v_conn_name += ' ' + v_conn.v_conn_string;
                   p_tooltip_name += '<div class="mb-1">' + v_conn.v_conn_string + '</div>';
                 }
                 else {
-                  if (v_conn.v_alias) {
-                    p_tooltip_name += '<h5 class="mb-1">' + v_conn.v_alias + '</h5>';
-                  }
+                  v_conn_name = '';
                   if (v_conn.v_details1) {
+                    v_conn_name += v_conn.v_details1;
                     p_tooltip_name += '<div class="mb-1">' + v_conn.v_details1 + '</div>';
                   }
                   if (v_conn.v_details2) {
+                    v_conn_name += ' - ' + v_conn.v_details2;
                     p_tooltip_name += '<div class="mb-1">' + v_conn.v_details2 + '</div>';
                   }
                 }
 								if (v_conn.v_conn_id==v_current_group.conn_list[j]) {
 									v_group_connections.push({
-										text: v_conn.v_details1 + ' - ' + v_conn.v_details2,
+										text: v_conn_name,
 										icon: 'fas cm-all node-' + v_conn.v_db_type,
 										action: function() {
                       startLoading();
@@ -1336,6 +1348,7 @@ function showMenuNewTabOuter(e) {
 
   		for (var i=0; i<v_connTabControl.tag.remote_terminals.length; i++) (function(i){
   			var v_term = v_connTabControl.tag.remote_terminals[i];
+        console.log(v_term);
   			v_submenu_terminal_list.push({
   				text: v_term.v_alias,
   				icon: 'fas cm-all fa-terminal',

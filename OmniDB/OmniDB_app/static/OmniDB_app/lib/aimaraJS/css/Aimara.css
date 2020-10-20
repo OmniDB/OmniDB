@@ -197,11 +197,14 @@ ul.aimara_sub-menu.aimara_menu_bottom {
   bottom: 0px;
 }
 
-.div_close_cm {
+.aimara_menu__overlay .div_close_cm {
   background-color: rgba(0,0,0,0.25);
-	height: 100%;
+}
+
+.div_close_cm {
+  height: 100%;
   position: absolute;
   top: 0px;
   width: 100%;
-	z-index: 1;
+  z-index: 1;
 }

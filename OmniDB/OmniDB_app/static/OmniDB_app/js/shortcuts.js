@@ -266,11 +266,16 @@ $(function () {
 
     },
     shortcut_remove_inner_tab: function() {
-      console.log('ae')
-
-      if (v_connTabControl.selectedTab.tag.mode=='connection' || v_connTabControl.selectedTab.tag.mode=='snippets') {
-        if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabCloseSpan)
-          v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.tabCloseSpan.click();
+      if (v_connTabControl.selectedTab.tag.mode=='connection') {
+        var v_tab = v_connTabControl.selectedTab.tag.tabControl.selectedTab;
+        if (v_tab) {
+          if (v_tab.closeFunction && v_tab.closeFunction!=null) {
+            v_tab.closeFunction(null,v_tab);
+          }
+          else {
+            v_connTabControl.selectedTab.tag.tabControl.removeTab(v_tab);
+          }
+        }
       }
 
     },

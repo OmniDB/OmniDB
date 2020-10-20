@@ -241,12 +241,13 @@ def get_database_tab_object(
     # Updating time
     p_tab_object['last_update'] = datetime.now()
 
+
     if (p_tab_object['omnidatabase'] == None or
         (v_global_database_object.v_db_type!=p_tab_object['omnidatabase'].v_db_type or
             v_global_database_object.v_connection.v_host!=p_tab_object['omnidatabase'].v_connection.v_host or
             str(v_global_database_object.v_connection.v_port)!=str(p_tab_object['omnidatabase'].v_connection.v_port) or
             v_current_tab_database!=p_tab_object['omnidatabase'].v_active_service or
-            v_global_database_object.v_user!=p_tab_object['omnidatabase'].v_user or
+            v_global_database_object.v_active_user!=p_tab_object['omnidatabase'].v_active_user or
             v_global_database_object.v_connection.v_password!=p_tab_object['omnidatabase'].v_connection.v_password)
             ):
 

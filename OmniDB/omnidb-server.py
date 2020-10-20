@@ -387,7 +387,6 @@ if options.migratedb:
 
 
                 print('Creating connections of user {0}'.format(user['username']))
-                print('X')
                 # User connections
                 v_connections = database.v_connection.Query('''
                     select *
@@ -398,7 +397,6 @@ if options.migratedb:
                 '''.format(user['userid']))
 
                 for r in v_connections.Rows:
-                    print(r)
                     try:
                         v_server = cryptor.Decrypt(r["server"])
                     except Exception as exc:

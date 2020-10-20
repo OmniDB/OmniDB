@@ -283,7 +283,7 @@ function QueryPasswordRequired(p_context, p_message) {
 	}
 }
 
-function createContext(p_connection, p_context) {
+function createContext(p_context) {
 	v_context_object.contextCode += 1;
 	v_context_code = v_context_object.contextCode;
 	p_context.v_context_code = v_context_code;

@@ -88,6 +88,18 @@ SOFTWARE.
 }
 
 
+
+.aimara_menu__overlay {
+  bottom: 0px;
+  left: 0px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: fixed;
+  right: 0px;
+  top: 0px;
+  z-index: 1051;
+}
+
 .aimara_menu,.aimara_sub-menu {
   margin: 0;
   padding: 0;
@@ -166,7 +178,7 @@ SOFTWARE.
   background-clip: padding-box;
   border: 1px solid rgba(0,0,0,.15);
   border-radius: .25rem;
-	z-index: 999999;
+	z-index: 2;
 }
 
 .aimara_menu .aimara_sub-menu,
@@ -186,9 +198,10 @@ ul.aimara_sub-menu.aimara_menu_bottom {
 }
 
 .div_close_cm {
-	width: 100%;
+  background-color: rgba(0,0,0,0.25);
 	height: 100%;
-	z-index: 900;
-	top: 0px;
-    position: absolute;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+	z-index: 1;
 }

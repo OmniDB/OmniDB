@@ -50,10 +50,14 @@ def get_connections(request):
     v_connection_list = []
     try:
         for conn in Connection.objects.filter(Q(user=request.user) | Q(public=True)):
+
+            conn.user.id != request.user.id
+
             v_conn_object = {
                 'id': conn.id,
                 'locked': False,
                 'public': conn.public,
+                'is_mine': conn.user.id == request.user.id,
                 'technology': conn.technology.name,
                 'alias': conn.alias,
                 'conn_string': '',

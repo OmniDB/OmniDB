@@ -305,7 +305,8 @@ def get_database_list(request):
             v_terminal_object = {
                 'v_conn_id': key,
                 'v_alias': v_alias,
-                'v_details': v_details
+                'v_details': v_details,
+                'v_public': v_database_object['public']
             }
             v_remote_terminals.append(v_terminal_object)
 
@@ -329,7 +330,8 @@ def get_database_list(request):
                 'v_database': v_database.v_active_service,
                 'v_conn_string': v_database.v_conn_string,
                 'v_details1': v_database.PrintDatabaseInfo(),
-                'v_details2': v_details
+                'v_details2': v_details,
+                'v_public': v_database_object['public']
             }
 
             v_databases.append(v_database_data)

@@ -127,7 +127,12 @@ function showConnectionList(p_open_modal, p_change_group) {
         if (v_conn_obj.technology=='terminal') {
 					v_icon = '<i class="fas fa-terminal"></i>';
 					// Showing connection string info
-					v_details = '<h5 class="card-title">Terminal connection</h5>';
+					if (v_conn_obj.alias && v_conn_obj.alias !== '') {
+						v_details = '<h5 class="card-title">' + v_conn_obj.alias + '</h5>';
+					}
+					else {
+						v_details = '<h5 class="card-title">Terminal</h5>';
+					}
 					// Showing tunnel info
 					v_tunnel = '<h6 class="card-subtitle text-muted">' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</h6>';
 				}
@@ -794,8 +799,7 @@ function newConnection() {
 function selectConnection(p_conn_obj) {
 	$('#modal_connections').modal('hide');
 	if (p_conn_obj.technology === 'terminal') {
-		console.log('modal_connections terminal', p_conn_obj);
-		v_connTabControl.tag.createOuterTerminalTab(p_conn_obj.id, p_conn_obj.alias);
+		v_connTabControl.tag.createOuterTerminalTab(p_conn_obj.id, p_conn_obj.alias, p_conn_obj.tunnel.user + '@' + p_conn_obj.tunnel.server + ':' + p_conn_obj.tunnel.port);
 	}
 	else {
 		v_connTabControl.tag.createConnTab(p_conn_obj.id);

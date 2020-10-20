@@ -1199,7 +1199,6 @@ function showMenuNewTabOuter(e) {
             p_tooltip_name += '<div class="mb-1">' + v_conn.v_conn_string + '</div>';
           }
           else {
-            v_conn_name = '';
             if (v_conn.v_details1) {
               v_conn_name += v_conn.v_details1;
               p_tooltip_name += '<div class="mb-1">' + v_conn.v_details1 + '</div>';
@@ -1253,7 +1252,6 @@ function showMenuNewTabOuter(e) {
                 p_tooltip_name += '<div class="mb-1">' + v_conn.v_conn_string + '</div>';
               }
               else {
-                v_conn_name = '';
                 if (v_conn.v_details1) {
                   v_conn_name += v_conn.v_details1;
                   p_tooltip_name += '<div class="mb-1">' + v_conn.v_details1 + '</div>';
@@ -1293,7 +1291,6 @@ function showMenuNewTabOuter(e) {
                   p_tooltip_name += '<div class="mb-1">' + v_conn.v_conn_string + '</div>';
                 }
                 else {
-                  v_conn_name = '';
                   if (v_conn.v_details1) {
                     v_conn_name += v_conn.v_details1;
                     p_tooltip_name += '<div class="mb-1">' + v_conn.v_details1 + '</div>';
@@ -1348,12 +1345,19 @@ function showMenuNewTabOuter(e) {
 
   		for (var i=0; i<v_connTabControl.tag.remote_terminals.length; i++) (function(i){
   			var v_term = v_connTabControl.tag.remote_terminals[i];
-        console.log(v_term);
+        var v_name = v_term.v_alias;
+        var v_term_name = '';
+        if (v_term.v_alias && v_term.v_alias !== '') {
+          v_term_name = '(' + v_term.v_alias + ') ';
+        }
+        if (v_term.v_details) {
+          v_term_name += v_term.v_details;
+        }
   			v_submenu_terminal_list.push({
-  				text: v_term.v_alias,
+  				text: v_term_name,
   				icon: 'fas cm-all fa-terminal',
   				action: function() {
-  						v_connTabControl.tag.createOuterTerminalTab(v_term.v_conn_id,v_term.v_alias);
+  						v_connTabControl.tag.createOuterTerminalTab(v_term.v_conn_id,v_name,v_term.v_details);
   				}
   			});
   		})(i);

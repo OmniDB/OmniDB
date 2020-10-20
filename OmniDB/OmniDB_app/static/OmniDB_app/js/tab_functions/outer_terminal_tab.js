@@ -26,13 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Terminal') {
+var v_createOuterTerminalTabFunction = function(p_conn_id = -1, p_alias = 'Terminal', p_details = false) {
 
   // v_connTabControl.removeLastTab();
 
-  let v_tooltip_name =
-  '<h5 class="my-1">Terminal</h5>' +
-  '<div class="mb-1">' + p_alias + '</div>';
+  let v_tooltip_name = '';
+
+  if (p_alias) {
+    v_tooltip_name += '<h5 class="my-1">' + p_alias + '</h5>';
+  }
+  if (p_details) {
+    v_tooltip_name += '<div class="mb-1">' + p_details + '</div>';
+  }
 
   var v_tab = v_connTabControl.createTab({
     p_icon: '<i class="fas fa-terminal"></i>',

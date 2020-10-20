@@ -260,12 +260,6 @@ def get_database_list(request):
     v_return['v_error'] = False
     v_return['v_error_id'] = -1
 
-    #Invalid session
-    if not request.session.get('omnidb_session'):
-        v_return['v_error'] = True
-        v_return['v_error_id'] = 1
-        return JsonResponse(v_return)
-
     v_session = request.session.get('omnidb_session')
     v_cryptor = request.session.get('cryptor')
 
@@ -304,13 +298,14 @@ def get_database_list(request):
     v_index = 0
     for key,v_database_object in v_session.v_databases.items():
         if v_database_object['tunnel']['enabled'] or v_database_object['technology']=='terminal':
+            v_alias = ''
             if v_database_object['alias']!='':
                 v_alias = v_database_object['alias']
-            else:
-                v_alias = v_database_object['tunnel']['user'] + '@' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port']
+            v_details = v_database_object['tunnel']['user'] + '@' + v_database_object['tunnel']['server'] + ':' + v_database_object['tunnel']['port']
             v_terminal_object = {
                 'v_conn_id': key,
-                'v_alias': v_alias
+                'v_alias': v_alias,
+                'v_details': v_details
             }
             v_remote_terminals.append(v_terminal_object)
 
@@ -333,7 +328,7 @@ def get_database_list(request):
                 'v_console_help': v_database.v_console_help,
                 'v_database': v_database.v_active_service,
                 'v_conn_string': v_database.v_conn_string,
-                'v_details1': '{0}{1}'.format(v_alias,v_database.PrintDatabaseInfo()),
+                'v_details1': v_database.PrintDatabaseInfo(),
                 'v_details2': v_details
             }
 

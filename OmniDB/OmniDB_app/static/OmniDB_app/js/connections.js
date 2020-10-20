@@ -81,13 +81,29 @@ function showConnectionList(p_open_modal, p_change_group) {
       var v_row = document.createElement('div');
       v_row.className = 'row';
 
+			v_row.innerHTML =
+			'<div id="connections_management_empty_all" class="my-4 text-center w-100" style="display:none;">' +
+				'<h5 class="">No connections available.</h5>' +
+				'<button type="button" class="mt-4 btn omnidb__theme__btn--primary" onclick="newConnection();">New Connection</button>' +
+			'</div>' +
+			'<div id="connections_management_empty_with_public" class="my-4 text-center w-100" style="display:none;">' +
+				'<i class="fas fa-arrow-up text-info"></i>' +
+				'<h5 class="">Your user has no connections configured yet, but there are <i class="fas fa-users text-info mx-2"></i> public connections.</h5>' +
+				'<h5 class="d-inline-block mt-4 mr-2">You can also create your own</h5>' +
+				'<button type="button" class="mt-2 btn omnidb__theme__btn--primary" onclick="newConnection();">New Connection</button>' +
+			'</div>' +
+			'<div id="connections_management_empty_group" class="my-4 text-center w-100" style="display:none;">' +
+				'<h5 class="">No connections assigned to this group yet.</h5>' +
+				'<button type="button" class="mt-4 btn omnidb__theme__btn--primary" onclick="manageGroup();">Manage Groups</button>' +
+			'</div>';
+
       for (var i=0; i<p_return.v_data.v_conn_list.length; i++) {
         var v_conn_obj = p_return.v_data.v_conn_list[i];
 
         var v_col_div = document.createElement('div');
         v_col_div.className = 'omnidb__connections__cols';
         v_row.appendChild(v_col_div);
-				if (v_conn_obj.public && !v_connections_data.show_public) {
+				if (v_conn_obj.public && !v_connections_data.show_public && !v_conn_obj.is_mine) {
 					v_col_div.classList.add('d-none');
 				}
 
@@ -229,7 +245,7 @@ function showConnectionList(p_open_modal, p_change_group) {
 					v_card_div.classList.add('omnidb__connections__card--public');
 					v_card_div.classList.add('d-none');
 					v_card_div.classList.add('fade');
-					if (v_connections_data.show_public) {
+					if (v_connections_data.show_public || v_conn_obj.is_mine) {
 						v_card_div.classList.remove('d-none');
 						v_card_div.classList.add('show');
 					}
@@ -262,6 +278,8 @@ function showConnectionList(p_open_modal, p_change_group) {
 			// Updating total public connections counter.
 			document.getElementById('conn_list_public_counter').innerHTML = v_total_public_conn;
 
+			updateConnectionsTitleInfo();
+
 		},
 		null,
 		'box',
@@ -270,11 +288,13 @@ function showConnectionList(p_open_modal, p_change_group) {
 }
 
 function groupChange(p_value) {
+	var v_empty_group_div = document.getElementById('connections_management_empty_group');
+
   if (p_value!=-1) {
     document.getElementById('button_group_actions').style.display = '';
 
     // Filtering group cards
-    var v_group_obj = null;
+    var v_group_obj = {conn_list:[]};
 
     // Finding the selected group object
     for (var i=0; i<v_connections_data.v_group_list.length; i++) {
@@ -284,20 +304,38 @@ function groupChange(p_value) {
       }
     }
 
-    // Going over the cards and adjusting cover div and checkbox
-    for (var i=0; i<v_connections_data.card_list.length; i++) {
-      var v_conn_obj = v_connections_data.card_list[i];
+		var v_group_valid_conn = 0;
 
-      // Check the div if it belongs to the currently selected group
-      if (v_group_obj.conn_list.includes(v_conn_obj.data.id)) {
+		// Going over the cards and adjusting cover div and checkbox
+		for (var i=0; i<v_connections_data.card_list.length; i++) {
+			var v_conn_obj = v_connections_data.card_list[i];
+
+			// Check the div if it belongs to the currently selected group
+			if (v_group_obj.conn_list.includes(v_conn_obj.data.id)) {
 				$(v_conn_obj.card_div).fadeIn(400);
+				v_group_valid_conn++;
 			}
-      else {
+			else {
 				$(v_conn_obj.card_div).fadeOut(400);
 			}
-    }
+		}
+
+		// Updating visibility of empty group.
+		if (v_empty_group_div) {
+			if (v_group_valid_conn === 0) {
+				v_empty_group_div.style.display = '';
+			}
+			else {
+				v_empty_group_div.style.display = 'none';
+			}
+		}
+
   }
   else {
+		// Updating visibility of empty group.
+		if (v_empty_group_div) {
+			v_empty_group_div.style.display = 'none';
+		}
     document.getElementById('button_group_actions').style.display = 'none';
     document.getElementById('group_selector').value = -1;
 
@@ -307,6 +345,8 @@ function groupChange(p_value) {
       $(v_conn_obj.card_div).fadeIn(400);
     }
   }
+
+	updateConnectionsTitleInfo();
 }
 
 function manageGroup() {
@@ -316,6 +356,11 @@ function manageGroup() {
 	document.getElementById('group_selector').setAttribute('disabled',true);
 	document.getElementById('button_new_group').setAttribute('disabled',true);
 	document.getElementById('button_group_actions').setAttribute('disabled',true);
+
+	var v_empty_group_div = document.getElementById('connections_management_empty_group');
+	if (v_empty_group_div) {
+		v_empty_group_div.style.display = 'none';
+	}
 
 	$('.omnidb__connections__card-list').addClass('omnidb__connections__card-list--connection-management');
 
@@ -341,6 +386,8 @@ function manageGroup() {
       v_conn_obj.checkbox.checked = true;
     }
   }
+
+	updateConnectionsTitleInfo();
 }
 
 function manageGroupSave() {
@@ -818,6 +865,7 @@ function toggleConnectionsLayout(l_type) {
 }
 
 function toggleConnectionsPublic() {
+	updateConnectionsTitleInfo();
 	var v_public = document.getElementById('conn_list_public').checked;
 	if (v_public) {
 		v_connections_data.show_public = true;
@@ -827,9 +875,17 @@ function toggleConnectionsPublic() {
 	}
 	else {
 		v_connections_data.show_public = false;
-		$('.omnidb__connections__card--public').removeClass('show');
-		$('.omnidb__connections__card--public').addClass('d-none');
-		$('.omnidb__connections__card--public').parent().addClass('d-none');
+		for (let i = 0; i < v_connections_data.card_list.length; i++) {
+			v_conn_div = $(v_connections_data.card_list[i].card_div);
+			v_conn_obj = v_connections_data.card_list[i].data;
+			if (v_conn_obj.public) {
+				if (!v_conn_obj.is_mine) {
+					v_conn_div.children().removeClass('show');
+					v_conn_div.children().addClass('d-none');
+					v_conn_div.addClass('d-none');
+				}
+			}
+		}
 	}
 }
 
@@ -1256,4 +1312,46 @@ function updateConnectionKey(e) {
 		updateModalEditConnectionState({target:document.getElementById('conn_form_ssh_key_input')});
   };
   reader.readAsText(file);
+}
+
+function updateConnectionsTitleInfo() {
+	var v_public = document.getElementById('conn_list_public').checked;
+	var v_group_context = document.getElementById('group_selector').value;
+	var v_connection_owner = false;
+	var v_managing_group = (v_group_context && document.getElementById('group_selector').getAttribute('disabled'));
+
+	for (var i=0; i<v_connections_data.card_list.length; i++) {
+		var v_conn_obj = v_connections_data.card_list[i].data;
+
+		if (v_conn_obj.is_mine) {
+			v_connection_owner = true;
+		}
+	}
+
+	// Updating empty connections info status.
+	var v_empty_cards = document.getElementById('connections_management_empty_all');
+	var v_empty_with_public = document.getElementById('connections_management_empty_with_public');
+	// Updating empty connections info status.
+	if (v_empty_cards) {
+		if (v_connections_data.card_list.length === 0) {
+			v_empty_with_public.style.display = 'none';
+			v_empty_cards.style.display = '';
+		}
+		else if (v_group_context !== '-1') {
+			v_empty_cards.style.display = 'none';
+			v_empty_with_public.style.display = 'none';
+		}
+		else if (v_public) {
+			v_empty_cards.style.display = 'none';
+			v_empty_with_public.style.display = 'none';
+		}
+		else if (!v_connection_owner) {
+			v_empty_cards.style.display = 'none';
+			v_empty_with_public.style.display = '';
+		}
+
+		if (!v_public && v_managing_group && !v_connection_owner) {
+			v_empty_with_public.style.display = '';
+		}
+	}
 }

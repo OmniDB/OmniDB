@@ -12,6 +12,8 @@ import importlib
 import optparse
 import configparser
 import OmniDB.custom_settings
+import OmniDB_app.include.OmniDatabase as OmniDatabase
+import OmniDB_app.include.Spartacus.Utils as Utils
 
 OmniDB.custom_settings.DEV_MODE = False
 OmniDB.custom_settings.DESKTOP_MODE = False
@@ -59,6 +61,9 @@ parser.add_option_group(group)
 
 group = optparse.OptionGroup(parser, "Management Options",
                              "Options to list, create and drop users and connections.")
+group.add_option("-M", "--migratedatabase", dest="migratedb",
+                  nargs=1,metavar="dbfile",
+                  help="migrate users and connections from OmniDB 2 to 3: -M dbfile")
 group.add_option("-r", "--resetdatabase", dest="reset",
                   default=False, action="store_true",
                   help="reset user and session databases")
@@ -335,6 +340,143 @@ if options.createconnection:
 if options.dropconnection:
     maintenance_action = True
     Connection.objects.get(id=options.dropconnection).delete()
+
+
+if options.migratedb:
+    maintenance_action = True
+    dbfile = os.path.expanduser(options.migratedb)
+    if not os.path.exists(dbfile):
+        print('Specified database file does not exist, aborting.')
+        sys.exit()
+    else:
+        print('Starting migration.')
+        database = OmniDatabase.Generic.InstantiateDatabase(
+            'sqlite','','',dbfile,'','','0',''
+        )
+        try:
+            cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
+            v_users = database.v_connection.Query('''
+                select user_id as userid,
+                       user_name as username,
+                       super_user as superuser
+                from users
+                order by user_id
+            ''')
+            for user in v_users.Rows:
+                print('Creating user {0}'.format(user['username']))
+                # Creating the user
+                try:
+                    user_object = User.objects.create_user(username=user['username'],
+                                             password='changeme',
+                                             email='',
+                                             last_login=timezone.now(),
+                                             is_superuser=user['superuser']==1,
+                                             first_name='',
+                                             last_name='',
+                                             is_staff=False,
+                                             is_active=True,
+                                             date_joined=timezone.now())
+                except:
+                    print('Failed to create user {0}'.format(user['username']))
+                    # Try to get existing user
+                    try:
+                        user_object=User.objects.get(username=user['username'])
+                    except:
+                        # User not found, skip this user
+                        continue
+
+
+                print('Creating connections of user {0}'.format(user['username']))
+                print('X')
+                # User connections
+                v_connections = database.v_connection.Query('''
+                    select *
+                    from connections
+                    where user_id = {0}
+                    order by dbt_st_name,
+                             conn_id
+                '''.format(user['userid']))
+
+                for r in v_connections.Rows:
+                    print(r)
+                    try:
+                        v_server = cryptor.Decrypt(r["server"])
+                    except Exception as exc:
+                        v_server = r["server"]
+                    try:
+                        v_port = cryptor.Decrypt(r["port"])
+                    except Exception as exc:
+                        v_port = r["port"]
+                    try:
+                        v_service = cryptor.Decrypt(r["service"])
+                    except Exception as exc:
+                        v_service = r["service"]
+                    try:
+                        v_user = cryptor.Decrypt(r["user"])
+                    except Exception as exc:
+                        v_user = r["user"]
+                    try:
+                        v_alias = cryptor.Decrypt(r["alias"])
+                    except Exception as exc:
+                        v_alias = r["alias"]
+                    try:
+                        v_conn_string = cryptor.Decrypt(r["conn_string"])
+                    except Exception as exc:
+                        v_conn_string = r["conn_string"]
+
+                    #SSH Tunnel information
+                    try:
+                        v_ssh_server = cryptor.Decrypt(r["ssh_server"])
+                    except Exception as exc:
+                        v_ssh_server = r["ssh_server"]
+                    try:
+                        v_ssh_port = cryptor.Decrypt(r["ssh_port"])
+                    except Exception as exc:
+                        v_ssh_port = r["ssh_port"]
+                    try:
+                        v_ssh_user = cryptor.Decrypt(r["ssh_user"])
+                    except Exception as exc:
+                        v_ssh_user = r["ssh_user"]
+                    try:
+                        v_ssh_password = cryptor.Decrypt(r["ssh_password"])
+                    except Exception as exc:
+                        v_ssh_password = r["ssh_password"]
+                    try:
+                        v_ssh_key = cryptor.Decrypt(r["ssh_key"])
+                    except Exception as exc:
+                        v_ssh_key = r["ssh_key"]
+                    try:
+                        v_use_tunnel = cryptor.Decrypt(r["use_tunnel"])
+                    except Exception as exc:
+                        v_use_tunnel = r["use_tunnel"]
+
+                    try:
+                        connection = Connection(
+                            user=user_object,
+                            technology=Technology.objects.get(name=r["dbt_st_name"]),
+                            server=v_server,
+                            port=v_port,
+                            database=v_service,
+                            username=v_user,
+                            password='',
+                            alias=v_alias,
+                            ssh_server=v_ssh_server,
+                            ssh_port=v_ssh_port,
+                            ssh_user=v_ssh_user,
+                            ssh_password=v_ssh_password,
+                            ssh_key=v_ssh_key,
+                            use_tunnel=v_use_tunnel==1,
+                            conn_string=v_conn_string,
+
+                        )
+                        connection.save()
+                    except:
+                        print("Failed to create connection with alias: '{0}'".format(v_alias))
+
+        except Exception as exc:
+            print(str(exc))
+            None
+        print('Database migration finished.')
 
 # Maintenance performed, exit before starting webserver
 if maintenance_action == True:

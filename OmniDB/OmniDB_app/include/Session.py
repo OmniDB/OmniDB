@@ -64,7 +64,8 @@ class Session(object):
                     p_database = None,
                     p_prompt_password = True,
                     p_tunnel_information = None,
-                    p_alias = None):
+                    p_alias = None,
+                    p_public = None):
         if len(self.v_databases)==0:
             self.v_database_index = 0
 
@@ -75,7 +76,8 @@ class Session(object):
                                 'tunnel': p_tunnel_information,
                                 'tunnel_object': None,
                                 'alias': p_alias,
-                                'technology': p_technology
+                                'technology': p_technology,
+                                'public': p_public
                                 }
 
     def RemoveDatabase(self,
@@ -214,7 +216,7 @@ class Session(object):
 
                 prompt_password = conn.password == ''
 
-                self.AddDatabase(conn.id,conn.technology.name,database,prompt_password,tunnel_information,conn.alias)
+                self.AddDatabase(conn.id,conn.technology.name,database,prompt_password,tunnel_information,conn.alias,conn.public)
         # No connections
         except Exception as exc:
             None

@@ -1189,9 +1189,12 @@ function showMenuNewTabOuter(e) {
           var v_conn_name = '';
           let p_tooltip_name = '';
           let v_name = '';
+          if (v_conn.v_public) {
+            v_conn_name += '<i class="fas fa-users mr-3" style="color:#c57dd2;"></i>';
+          }
           if (v_conn.v_alias && v_conn.v_alias !== '') {
             v_name = v_conn.v_alias;
-            v_conn_name = '(' + v_conn.v_alias + ')';
+            v_conn_name += '(' + v_conn.v_alias + ')';
             p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
           }
           if (v_conn.v_conn_string && v_conn.v_conn_string !== '') {
@@ -1242,9 +1245,12 @@ function showMenuNewTabOuter(e) {
               var v_conn_name = '';
               let p_tooltip_name = '';
               let v_name = '';
+              if (v_conn.v_public) {
+                v_conn_name += '<i class="fas fa-users mr-3" style="color:#c57dd2;"></i>';
+              }
               if (v_conn.v_alias && v_conn.v_alias !== '') {
                 v_name = v_conn.v_alias;
-                v_conn_name = '(' + v_conn.v_alias + ')';
+                v_conn_name += '(' + v_conn.v_alias + ')';
                 p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
               }
               if (v_conn.v_conn_string && v_conn.v_conn_string !== '') {
@@ -1281,9 +1287,12 @@ function showMenuNewTabOuter(e) {
                 var v_conn_name = '';
                 let p_tooltip_name = '';
                 let v_name = '';
+                if (v_conn.v_public) {
+                  v_conn_name += '<i class="fas fa-users mr-3" style="color:#c57dd2;"></i>';
+                }
                 if (v_conn.v_alias && v_conn.v_alias !== '') {
                   v_name = v_conn.v_alias;
-                  v_conn_name = '(' + v_conn.v_alias + ')';
+                  v_conn_name += '(' + v_conn.v_alias + ')';
                   p_tooltip_name += '<h5 class="my-1">' + v_conn.v_alias + '</h5>';
                 }
                 if (v_conn.v_conn_string && v_conn.v_conn_string !== '') {

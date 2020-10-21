@@ -40,9 +40,6 @@ if DEBUG:
 else:
     SECRET_KEY = ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(50))
 
-LOGIN_URL = '/omnidb_login'
-LOGIN_REDIRECT_URL = '/'
-
 INSTALLED_APPS = [
     'OmniDB_app',
     'django.contrib.admin',
@@ -85,15 +82,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'OmniDB.wsgi.application'
 
+#import ldap
+#import django_auth_ldap.config
+#from django_auth_ldap.config import LDAPSearch
 
-
-#AUTH_LDAP_SERVER_URI = 'ldap://ldap.forumsys.com'
-#AUTH_LDAP_BIND_DN = "uid=tesla,dc=example,dc=com"
+#AUTH_LDAP_SERVER_URI = 'SERVER'
+#AUTH_LDAP_BIND_DN = "uid=example,dc=example,dc=com"
 #AUTH_LDAP_BIND_PASSWORD = "password"
 #AUTH_LDAP_USER_SEARCH = django_auth_ldap.config.LDAPSearch(
-#            "uid=tesla,dc=example,dc=com", ldap.SCOPE_SUBTREE, "uid=%(user)s"
+#            "uid=example,dc=example,dc=com", ldap.SCOPE_SUBTREE, "uid=%(user)s"
 #            )
-
 #AUTH_LDAP_USER_ATTR_MAP = {
 #            "username": "sAMAccountName",
 #                "first_name": "givenName",
@@ -113,15 +111,8 @@ WSGI_APPLICATION = 'OmniDB.wsgi.application'
 #AUTH_LDAP_CACHE_GROUPS = True
 #AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
 
-
-SOCIAL_AUTH_OIDCONNECT_URL = "https://sso.2ndquadrant.com/auth/realms/sso"
-SOCIAL_AUTH_OIDCONNECT_KEY = 'test'
-SOCIAL_AUTH_OIDCONNECT_SECRET = ''
-
 AUTHENTICATION_BACKENDS = [
-    #'OmniDB.auth_oidconnect.OmniDBOpenIdConnect',
     #'django_auth_ldap.backend.LDAPBackend',
-    #'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -158,6 +149,10 @@ elif PATH != '':
         PATH = '/' + PATH
     if PATH[len(PATH)-1] == '/':
         PATH = PATH[:-1]
+
+
+LOGIN_URL = PATH + '/omnidb_login'
+LOGIN_REDIRECT_URL = PATH + '/'
 
 STATIC_URL = PATH + '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "OmniDB_app/static")

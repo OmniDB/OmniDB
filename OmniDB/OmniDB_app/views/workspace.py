@@ -41,7 +41,7 @@ def index(request):
     #Invalid session
     if not request.session.get('omnidb_session'):
         #request.session ["omnidb_alert_message"] = "Session object was destroyed, please sign in again."
-        return redirect('/')
+        return redirect(settings.LOGIN_REDIRECT_URL)
 
     v_session = request.session.get('omnidb_session')
 

@@ -56,7 +56,7 @@ def check_session(request):
 
         request.session['omnidb_session'] = v_session
 
-    return redirect('/workspace')
+    return redirect(settings.PATH + '/workspace')
 
 def index(request):
     context = {

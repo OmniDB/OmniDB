@@ -28,6 +28,7 @@ from django.db.models import Q
 
 from OmniDB_app.views.memory_objects import *
 from OmniDB_app.views.monitoring_units import postgresql as postgresql_units
+from OmniDB_app.views.monitoring_units import mysql as mysql_units
 
 monitoring_units_database = {}
 monitoring_units = {}
@@ -35,6 +36,11 @@ monitoring_units = {}
 def get_units_data():
     try:
         for mon_unit in postgresql_units.monitoring_units:
+            monitoring_units[(mon_unit['plugin_name'],mon_unit['id'])] = mon_unit
+    except Exception as exc:
+        None
+    try:
+        for mon_unit in mysql_units.monitoring_units:
             monitoring_units[(mon_unit['plugin_name'],mon_unit['id'])] = mon_unit
     except Exception as exc:
         None

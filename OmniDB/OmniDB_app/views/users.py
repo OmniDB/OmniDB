@@ -142,13 +142,30 @@ def save_users(request):
         return JsonResponse(v_return)
 
     json_object = json.loads(request.POST.get('data', None))
-    v_data = json_object['p_data']
-    v_user_id_list = json_object['p_user_id_list']
-
-    v_index = 0
 
     try:
-        for r in v_data:
+        v_data = json_object['p_data']
+        print( json_object )
+
+        # Creating new users.
+        v_data_new = v_data['new']
+        for user_item in v_data_new:
+            new_user = User.objects.create_user(username=user_item[0],
+                                     password=user_item[1],
+                                     email='',
+                                     last_login=timezone.now(),
+                                     is_superuser=False,
+                                     first_name='',
+                                     last_name='',
+                                     is_staff=False,
+                                     is_active=True,
+                                     date_joined=timezone.now())
+
+        # Editting users.
+        v_data_edited = v_data['edited']
+        v_user_id_list = json_object['p_user_id_list']
+        v_index = 0
+        for r in v_data_edited:
             user = User.objects.get(id=v_user_id_list[v_index])
             user.username = r[0]
             if r[1]!="":

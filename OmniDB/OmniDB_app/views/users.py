@@ -145,7 +145,6 @@ def save_users(request):
 
     try:
         v_data = json_object['p_data']
-        print( json_object )
 
         # Creating new users.
         v_data_new = v_data['new']

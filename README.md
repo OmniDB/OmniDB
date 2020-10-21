@@ -1,6 +1,6 @@
 # OmniDB 3.0.0b
 
-## Release Date: *December 5, 2019*
+## Release Date: *October 23, 2020*
 
 ## Release Notes
 

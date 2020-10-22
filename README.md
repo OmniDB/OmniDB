@@ -8,4 +8,4 @@
 
 **Full Documentation**: https://omnidb.readthedocs.io
 
-![](https://raw.githubusercontent.com/OmniDB/doc/master/img/image_020.png)
+![](https://raw.githubusercontent.com/OmniDB/doc/master/img/omnidb_3/dashboard.png)

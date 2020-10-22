@@ -5,7 +5,7 @@ LISTENING_ADDRESS    = '127.0.0.1'
 LISTENING_PORT       = 8000
 
 # Url path to access OmniDB, default is empty
-CUSTOM_PATH = 'test'
+CUSTOM_PATH = ''
 
 # Number of seconds between each prompt password request. Default: 30 minutes
 PWD_TIMEOUT_TOTAL = 1800
@@ -13,9 +13,11 @@ PWD_TIMEOUT_TOTAL = 1800
 # Security parameters
 # is_ssl = True requires ssl_certificate_file and ssl_key_file parameters
 # This is highly recommended to protect information
-IS_SSL               = False
-SSL_CERTIFICATE_FILE = '/path/to/cert_file'
-SSL_KEY_FILE         = '/path/to/key_file'
+IS_SSL                 = False
+SSL_CERTIFICATE_FILE   = '/path/to/cert_file'
+SSL_KEY_FILE           = '/path/to/key_file'
+#SESSION_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE    = True
 
 # Trusted origins, use this parameter if OmniDB is configured with SSL and is being accessed by another domain
 CSRF_TRUSTED_ORIGINS = []

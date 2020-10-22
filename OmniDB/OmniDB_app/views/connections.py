@@ -429,7 +429,7 @@ def save_connection(request):
 
         prompt_password = conn.password == ''
 
-        v_session.AddDatabase(conn.id,conn.technology.name,database,prompt_password,tunnel_information,conn.alias)
+        v_session.AddDatabase(conn.id,conn.technology.name,database,prompt_password,tunnel_information,conn.alias, json_object['public'])
 
 
 

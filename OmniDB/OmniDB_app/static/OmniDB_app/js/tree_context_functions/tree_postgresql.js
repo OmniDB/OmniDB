@@ -4084,7 +4084,6 @@ function checkCurrentDatabase(p_node, p_complete_check, p_callback_continue,
  * {object} p_node - the node which comment will be fetched
  */
 function getObjectDescriptionPostgresql(p_node) {
-    console.log(p_node);
     var v_oid = null;
     var v_type = p_node.tag.type;
     var v_position = null;
@@ -7110,7 +7109,6 @@ function getStatisticsColumnsPostgresql(node) {
             if (node.childNodes.length > 0) {
                 node.removeChildNodes();
             }
-            console.log(p_return);
 
             if (p_return.v_data.length > 0) {
                 for (i = 0; i < p_return.v_data.length; i++) {
@@ -9124,8 +9122,6 @@ function getExplainReturn(p_data) {
 
 
         v_tab_tag.explainControl.updatePlanList(JSON.parse(v_explain_text));
-
-        // console.log(JSON.parse(v_explain_text))
 
 
         /*

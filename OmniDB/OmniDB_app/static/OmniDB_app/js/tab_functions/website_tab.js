@@ -149,7 +149,6 @@ var v_createWebsiteOuterTabFunction = function(p_name, p_site, p_html, p_close_f
     });
 
   setTimeout(function() {
-    console.log('OP')
     refreshHeights();
   },10);
 

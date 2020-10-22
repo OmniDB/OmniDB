@@ -298,7 +298,6 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   // Creating the exportData action for the tab.
   var v_export_data = function() {
     var v_exp_callback = function(p_data) {
-      console.log('exportData callback: ', p_data);
     	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectDataTabFunc();
     	var v_text = '<div style="font-size: 14px;">The file is ready. <a class="link_text" href="' + p_data.v_data.v_filename + '" download="'+ p_data.v_data.v_downloadname + '">Save</a></div>';
     	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.innerHTML = v_text;

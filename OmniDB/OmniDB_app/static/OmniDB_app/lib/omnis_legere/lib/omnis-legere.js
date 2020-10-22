@@ -264,11 +264,6 @@ function createLegere(p_context = {parent: window, self: 'omnisLegere'}, p_optio
         v_legereControl.global_children_count += 1;
       }
 
-      // v_plan.grid.row = v_row + 1;
-      // v_plan.grid.col = v_col + 1;
-
-      // console.log(v_plan_progress_cost_total, v_new_plan_progress_cost_total);
-
       v_plan_node_cost.percentage = v_plan_node_cost.value / v_legereControl.total_progress_cost;
 
       v_plan.node_cost = v_plan_node_cost;
@@ -370,72 +365,6 @@ function createLegere(p_context = {parent: window, self: 'omnisLegere'}, p_optio
         v_data_html +=
         '</div>';
       }
-      // CSS Grid ROWxCOL starts from 1, take this into account for p_index_map
-      // var v_index = v_plan_item.index;
-      // var v_index_map = v_plan_item.index_map;
-      // var v_row_depth = v_index_map.length - 1;
-      // Get the grid_row
-      // var v_grid_row = v_plan_item.index_map.length;
-      // var v_grid_col = 0;
-      // To prevent overlapping of child_nodes, we need to offset move each node to the right ,base on the number of child_nodes inside the previous node
-
-      // var v_parent_row = null;
-      // var v_temp_parent_node = null;
-      // var v_temp_parent_node_child_list = this.planList;
-      // var v_col_offset_shift = 0;
-      // Find parent_row
-      // Get the grid_col. Col initial number is the value of the index + 1 to account for CSS Grid start at 1.
-      // if (v_row_depth === 0) {
-      //   v_grid_col = v_index + 1;
-      //   v_temp_parent_node = v_plan_item;
-      // }
-      // else {
-      //   if (v_row_depth === 1) {
-      //     v_temp_parent_node = this.planList[v_index_map[0]];
-      //     v_temp_parent_node_child_list = v_temp_parent_node.planList;
-      //   }
-      //   else {
-      //     for (let i = 0; i < v_row_depth; i++) {
-      //       v_temp_parent_node = v_temp_parent_node_child_list[v_index_map[i]];
-      //       v_temp_parent_node_child_list = v_temp_parent_node.planList;
-      //     }
-      //   }
-      //
-      //   v_grid_col = v_temp_parent_node.index_as_parent + v_index;
-      //
-      //   v_parent_row = v_temp_parent_node_child_list;
-      //   // Find number of children on previous nodes in the same row and add to the col_offset_shit
-      //   for (let i = 0; i < v_index; i++) {
-      //
-      //     if (v_parent_row[i]) {
-      //       var v_previous_node = v_parent_row[i];
-      //       if (v_row_depth === 10) {
-      //         console.log('v_parent_row', v_parent_row);
-      //         console.log('v_previous_node', v_previous_node);
-      //       }
-      //       if (v_previous_node && v_plan_item.planList) {
-      //         if (v_previous_node.planList && v_plan_item.planList.length > 1) {
-      //           v_col_offset_shift += v_previous_node.planList.length - 1;
-      //         }
-      //       }
-      //     }
-      //
-      //     v_grid_col += v_col_offset_shift;
-      //   }
-      // }
-      // else {
-      //   if (v_row_depth === 1) {
-      //     v_temp_parent_node = this.planList[v_index_map[0]];
-      //     v_temp_parent_node_child_list = v_temp_parent_node.planList;
-      //   }
-      //   else {
-      //     for (let i = 0; i < v_row_depth; i++) {
-      //       v_temp_parent_node = v_temp_parent_node_child_list[v_index_map[i]];
-      //       v_temp_parent_node_child_list = v_temp_parent_node.planList;
-      //     }
-      //   }
-      //   v_grid_col = v_index;
-      // }
 
       v_grid_row = v_plan_item.grid.row;
       v_grid_col = v_plan_item.grid.col;
@@ -445,8 +374,6 @@ function createLegere(p_context = {parent: window, self: 'omnisLegere'}, p_optio
       if (v_plan_item.omnis_legere_control.is_collapsed) {
         v_plan_item_state_classes += this.defaultClass + '__item--is_collapsed ';
       }
-
-
 
       // Setting color
       var v_node_percentage = v_plan_item.node_cost.percentage;

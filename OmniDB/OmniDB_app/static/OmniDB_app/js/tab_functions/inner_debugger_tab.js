@@ -296,26 +296,6 @@ var v_createDebuggerTabFunction = function(p_function) {
     v_editor.focus();
   };
 
-  // // Updating the tab_db_id.
-  // var v_tab_db_id = null;
-  // if (p_tab_db_id) {
-  //   v_tab_db_id = p_tab_db_id;
-  // }
-
-  // // Creating the exportData action for the tab.
-  // var v_export_data = function() {
-  //   var v_exp_callback = function(p_data) {
-  //     console.log('exportData callback: ', p_data);
-  //   	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.selectDataTabFunc();
-  //   	var v_text = '<div style="font-size: 14px;">The file is ready. <a class="link_text" href="' + p_data.v_data.v_filename + '" download="'+ p_data.v_data.v_downloadname + '">Save</a></div>';
-  //   	v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_result.innerHTML = v_text;
-  //   }
-  //
-  // 	var v_exp_query = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.getValue();
-  // 	var v_exp_type = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.sel_export_type.value;
-  // 	querySQL(0, true, v_exp_query, v_exp_callback,true,v_exp_query,'export_' + v_exp_type,true);
-  // }
-
   // Setting all tab_tag params.
   var v_tag = {
     tab_id: v_tab.id,

@@ -434,8 +434,7 @@ function debugResponseRender(p_message, p_context) {
 			p_context.tab_tag.debug_info.innerHTML = '<b>Ready</b>';
 
 	  var Range = ace.require('ace/range').Range;
-		console.log(p_message.v_data.v_lineno)
-		console.log(p_context.tab_tag.editor)
+		
 	  if (p_message.v_data.v_lineno) {
 			p_context.tab_tag.editor.scrollToLine(p_message.v_data.v_lineno, true, true, function () {});
 	    if (p_context.tab_tag.markerId)

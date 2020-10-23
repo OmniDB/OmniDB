@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>OmniDB</title>
+    <style type="text/css">
+        html, body {
+          font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+          font-weight: 400;
+          line-height: 1.5;
+        }
+        html, body {
+            display: block;
+            margin: 0; padding: 0; border: 0;
+            width: 100%; height: 100%;
+        }
+        html, body {
+            overflow: hidden;
+        }
+        webview {
+            display: block;
+            margin: 0; padding: 0; border: 0;
+            position: absolute;
+            top: 30; left: 0;
+            width: 100%; height: calc(100% - 30px);
+        }
+        #loading_interface {
+          position: absolute;
+          color: #444;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+        }
+        body {
+        	background-color: #F2F2F2;
+        }
+        .omnidb__login {
+        	display: flex;
+        	align-items: center;
+        	justify-content: center;
+
+        	height: 100%;
+        }
+        .omnidb__login__wrapper {
+        	padding: 10px;
+        	width: 480px;
+        	text-align: center;
+        	background-color: #FFFFFF;
+        	box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.2);
+        	border-radius: 3px;
+        	box-sizing: border-box;
+        }
+        .omnidb__login .div_time {
+        	display: inline-block;
+        }
+        .omnidb__login .omnidb__login__version {
+        	color: #828282;
+        	position: relative;
+        }
+        .omnidb__login small {
+        	display: block;
+        	position: absolute;
+        	right: 34px;
+          bottom: 10px;
+        }
+        .omnidb__login .omnidb__login__input-wrapper {
+        	position: relative;
+        	display: block;
+        	margin: 20px 0px;
+        	padding-top: 2px;
+        	padding-bottom: 2px;
+        	background-color: #FFFFFF;
+        	transition: 0.45s;
+        }
+        .omnidb__login {
+        	opacity: 0;
+
+        	animation: fadeIn 0.3s linear forwards 0s;
+        }
+
+        .omnidb__login .loginWrap-body {
+        	height: 0px;
+        	overflow: hidden;
+
+        	animation:	growInFromTop 0.4s linear forwards 1.4s;
+        }
+
+        .omnidb__login .omnidb__login__version,
+        .omnidb__login .omnidb__login__input-wrapper,
+        .omnidb__login button {
+        	opacity: 0;
+
+        	animation:	fadeIn 0.6s linear forwards 1.8s;
+        }
+        /* Animated Logo Omnidb styles */
+        .omnidb__login__logo svg {
+        	width: 100%;
+        }
+
+        .logo_omnidb path,
+        .logo_omnidb rect {
+        	fill: transparent;
+        	stroke: #818181;
+        	stroke-width: 1px;
+
+        	stroke-dasharray: 100;
+        	stroke-dashoffset: 100;
+        }
+
+        .logo_omnidb_to-blue path,
+        .logo_omnidb_to-blue rect {
+        	animation:  svgDrawStrokes 1s linear forwards 0.3s,
+        				svgToBlue 0.6s linear forwards 1.3s,
+        				svgFadeStrokes 0.6s linear forwards 1.3s;
+        }
+
+        .logo_omnidb_to-darkblue path,
+        .logo_omnidb_to-darkblue rect {
+        	animation:  svgDrawStrokes 1s linear forwards 0.3s,
+        				svgToDarkblue 0.6s linear forwards 1.3s,
+        				svgFadeStrokes 0.6s linear forwards 1.3s;
+        }
+
+        @keyframes  svgDrawStrokes {
+        	to {
+        		stroke-dashoffset: 0;
+        	}
+        }
+        @keyframes svgFadeStrokes {
+        	to {
+        		stroke: transparent;
+        	}
+        }
+        @keyframes svgToBlue {
+        	to {
+        		fill: #878FC6;
+        	}
+        }
+        @keyframes svgToDarkblue {
+        	to {
+        		fill: #515579;
+        	}
+        }
+        @keyframes fadeIn {
+        	to {
+        		opacity: 1;
+        	}
+        }
+        @keyframes slideInFromRight {
+        	to {
+        		transform: translateX(0);
+        	}
+        }
+        @keyframes growInFromTop {
+        	to {
+        		height: 400px;
+            overflow-y: auto;
+        	}
+        }
+
+        /* GUI DRAG EVENT */
+        .gui__webkit-drag {
+          -webkit-app-region: drag;
+        }
+
+        /* GUI TOP BAR */
+        .gui__top-bar {
+          align-items: center;
+          /* background-color: #4A81D4; */
+          /* background-color: #545e6d; */
+          background-color: #EFEFEF;
+          display: flex;
+          height: 30px;
+          justify-content: flex-end;
+          width: 100%;
+        }
+        .gui__top-bar__drag-area {
+          cursor: grab;
+          flex: 1 1 100%;
+          height: 30px;
+        }
+        .gui__top-bar__btn {
+          background-color: rgba(0,0,0,0);
+          border: none;
+          cursor: pointer;
+          display: inline-block;
+          font-size: 20px;
+          line-height: 20px;
+          margin: 2px 0px;
+          padding: 5px 8px;
+          opacity: 0.75;
+          transition: 0.35s;
+        }
+        .gui__top-bar__btn:hover {
+          background-color: rgba(0,0,0,0.25);
+          opacity: 1;
+        }
+    </style>
+  </head>
+  <body id="browser">
+    <div id="loading_interface" style="display: none;">
+      <div class="omnidb__login">
+        <div class="omnidb__login__wrapper">
+          <div class="omnidb__login__logo">
+            <svg
+                class="logo_omnidb"
+                version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                x="0px" y="0px"
+                width="269.667px" height="82.333px"
+                viewBox="0 0 269.667 82.333" enable-background="new 0 0 269.667 82.333"
+                xml:space="preserve"
+            >
+                <g class="logotype_omnidb">
+                    <g class="logotype_omni logo_omnidb_to-blue">
+                        <path fill="#878FC6" d="M109.192,30.407H98.141c-5.478,0-9.919,4.847-9.919,10.826c0,5.982,4.441,10.829,9.919,10.829h11.051
+                            c5.48,0,9.921-4.847,9.921-10.829C119.113,35.253,114.672,30.407,109.192,30.407z M106.959,47.145h-6.585
+                            c-3.264,0-5.911-2.645-5.911-5.912c0-3.264,2.646-5.909,5.911-5.909h6.585c3.266,0,5.911,2.646,5.911,5.909
+                            C112.871,44.5,110.225,47.145,106.959,47.145z"/>
+                        <path fill="#878FC6" d="M150.642,33.76c-0.66-2.21-1.79-3.358-3.812-3.358c-1.313,0-2.932,0.419-3.816,2.163
+                            c-1.638,3.23-5.112,10.241-5.112,10.241s-3.464-6.972-5.103-10.202c-0.884-1.745-2.513-2.202-3.825-2.202
+                            c-2.021,0-3.151,1.148-3.812,3.358c-0.655,2.194-5.286,17.963-5.286,17.963h6.365L129.557,39c0,0,1.636,4.402,3.127,7.943
+                            c1.026,2.438,3.197,3.315,4.987,3.315s3.551-0.805,4.842-3.113c1.581-2.823,3.734-8.249,3.734-8.249l3.315,12.827h6.364
+                            C155.927,51.723,151.297,35.955,150.642,33.76z"/>
+                        <path fill="#878FC6" d="M158.298,51.723c0,0,0-15.711,0-17.401c0-1.691,1.19-3.92,3.245-3.92s3.731,1.869,4.688,2.729
+                            c0.956,0.86,11.397,10.188,11.397,10.188V30.747h5.599c0,0,0,15.63,0,17.56s-1.192,3.761-3.575,3.761s-3.541-1.477-5.057-2.992
+                            c-1.516-1.515-10.432-10.739-10.432-10.739v13.388H158.298z"/>
+                        <rect x="187.146" y="30.747" fill="#878FC6" width="5.599" height="20.977"/>
+                    </g>
+                    <g class="logotype_db logo_omnidb_to-darkblue">
+                        <path fill="#515579" d="M196.758,38.648c0,0,0,8.991,0,10.275s0.506,2.8,2.664,2.8c2.159,0,6.265,0,11.381,0
+                            c5.117,0,12.639-4.041,12.639-10.692s-5.927-10.284-12.814-10.284s-9.73,0-9.73,0l-4.139,5.456c0,0,8.466,0,14.045,0
+                            c5.58,0,6.211,3.886,6.211,5.11c0,1.224-0.894,5.016-6.211,5.016c-5.316,0-7.525,0-7.525,0v-7.681H196.758z"/>
+                        <path fill="#515579" d="M250.405,40.937c0,0,2.853-1.397,2.853-4.39s-2.125-5.801-8.244-5.801c-6.12,0-13.892,0-13.892,0
+                            l-4.39,5.456c0,0,16.303,0,17.917,0s2.465,0.354,2.465,1.347c0,0.993-0.767,1.412-2.565,1.412c-1.8,0-17.816,0-17.816,0
+                            s0,8.061,0,9.448s0.648,3.313,4.503,3.313s10.441,0,13.933,0c3.49,0,8.521-1.923,8.521-5.831
+                            C253.688,41.985,250.405,40.937,250.405,40.937z M244.495,46.329c-1.746,0-11.243,0-11.243,0v-2.884c0,0,9.923,0,11.397,0
+                            s2.557,0.07,2.557,1.412S246.242,46.329,244.495,46.329z"/>
+                    </g>
+                </g>
+                <g class="icon_grid logo_omnidb_to-blue">
+                    <path fill="#878FC6" d="M57.694,31.129c-1.484-2.352-3.474-4.342-5.825-5.823c0.646,1.263,1.214,2.643,1.691,4.129
+                        C55.049,29.915,56.43,30.486,57.694,31.129z"/>
+                    <path fill="#878FC6" d="M43.292,22.507v5.234c2.323,0.072,4.553,0.333,6.649,0.762c-0.969-2.344-2.205-4.237-3.614-5.531
+                        C45.343,22.736,44.331,22.58,43.292,22.507z"/>
+                    <path fill="#878FC6" d="M57.692,50.87c-1.265,0.644-2.643,1.215-4.132,1.691c-0.477,1.489-1.046,2.867-1.691,4.132
+                        C54.221,55.211,56.21,53.221,57.692,50.87z"/>
+                    <path fill="#878FC6" d="M60.188,44.681c-0.359-0.742-0.612-1.537-0.744-2.381h-4.192c-0.072,2.322-0.332,4.551-0.756,6.645
+                        c2.344-0.969,4.238-2.207,5.532-3.618C60.08,45.11,60.145,44.9,60.188,44.681z"/>
+                    <path fill="#878FC6" d="M60.029,36.675c-1.293-1.414-3.187-2.652-5.534-3.624c0.424,2.097,0.684,4.325,0.756,6.647h4.192
+                        c0.132-0.844,0.385-1.639,0.747-2.378C60.145,37.101,60.08,36.889,60.029,36.675z"/>
+                    <path fill="#878FC6" d="M52.168,42.3h-8.875v8.873c2.79-0.092,5.421-0.475,7.782-1.094C51.693,47.718,52.076,45.09,52.168,42.3z"/>
+                    <path fill="#878FC6" d="M43.292,39.699h8.875c-0.092-2.79-0.475-5.421-1.094-7.782c-2.361-0.619-4.992-1.002-7.782-1.094V39.699z"
+                        />
+                    <path fill="#878FC6" d="M43.292,59.493c1.039-0.072,2.05-0.229,3.036-0.466c1.409-1.296,2.645-3.187,3.614-5.531
+                        c-2.096,0.427-4.327,0.687-6.649,0.759V59.493z"/>
+                    <path fill="#878FC6" d="M29.499,48.945c-0.427-2.094-0.687-4.322-0.759-6.645H23.5c0.071,1.036,0.228,2.046,0.462,3.026
+                        C25.257,46.741,27.152,47.976,29.499,48.945z"/>
+                    <path fill="#878FC6" d="M40.695,22.507c-1.038,0.072-2.05,0.229-3.034,0.465c-1.409,1.294-2.645,3.188-3.612,5.528
+                        c2.096-0.426,4.324-0.687,6.646-0.759V22.507z"/>
+                    <path fill="#878FC6" d="M40.695,30.823c-2.789,0.092-5.419,0.475-7.779,1.094c-0.621,2.361-1.002,4.992-1.094,7.782h8.873V30.823z"
+                        />
+                    <path fill="#878FC6" d="M32.123,25.304c-2.353,1.481-4.344,3.472-5.827,5.822c1.265-0.643,2.645-1.214,4.135-1.691
+                        C30.91,27.947,31.479,26.566,32.123,25.304z"/>
+                    <path fill="#878FC6" d="M40.695,59.493v-5.238c-2.322-0.072-4.552-0.332-6.646-0.759c0.967,2.345,2.202,4.238,3.612,5.531
+                        C38.646,59.263,39.657,59.42,40.695,59.493z"/>
+                    <path fill="#878FC6" d="M23.499,39.699h5.241c0.071-2.322,0.332-4.551,0.759-6.647c-2.348,0.969-4.243,2.21-5.538,3.624
+                        C23.727,37.656,23.571,38.665,23.499,39.699z"/>
+                    <path fill="#878FC6" d="M32.123,56.695c-0.644-1.265-1.213-2.643-1.691-4.131c-1.489-0.478-2.868-1.049-4.133-1.691
+                        C27.781,53.223,29.771,55.213,32.123,56.695z"/>
+                    <path fill="#878FC6" d="M40.695,42.3h-8.873c0.092,2.79,0.475,5.418,1.094,7.779c2.359,0.619,4.99,1.002,7.779,1.094V42.3z"/>
+                </g>
+                <g class="icon_external logo_omnidb_to-blue">
+                    <g class="icon_external_rings">
+                        <path fill="#878FC6" d="M36.436,14.434c0.642,1.11,0.979,2.306,1.082,3.505c1.451-0.281,2.944-0.438,4.477-0.438
+                            c10.299,0,19.03,6.635,22.203,15.854c1.094-0.513,2.301-0.823,3.59-0.823c0.431,0,0.846,0.064,1.26,0.127
+                            c-3.561-11.562-14.325-19.967-27.052-19.967c-2.165,0-4.264,0.266-6.291,0.726C35.961,13.743,36.223,14.065,36.436,14.434z"/>
+                        <path fill="#878FC6" d="M21.771,59.104c0.646-1.115,1.519-2.007,2.513-2.695c-3.58-4.107-5.765-9.463-5.783-15.339
+                            c0-0.022-0.006-0.044-0.006-0.068c0-0.019,0.005-0.036,0.005-0.055c0.013-5.874,2.193-11.227,5.766-15.339
+                            c-0.99-0.689-1.854-1.593-2.497-2.706c-0.211-0.366-0.356-0.747-0.508-1.127c-4.685,5.052-7.572,11.795-7.572,19.227
+                            c0,7.436,2.889,14.179,7.576,19.228C21.415,59.851,21.561,59.468,21.771,59.104z"/>
+                        <path fill="#878FC6" d="M67.787,49.47c-1.289,0-2.499-0.311-3.592-0.826c-3.175,9.222-11.901,15.853-22.2,15.853
+                            c-1.535,0-3.031-0.159-4.483-0.438c-0.103,1.202-0.432,2.401-1.072,3.515c-0.212,0.368-0.472,0.687-0.728,1.01
+                            c2.023,0.46,4.121,0.725,6.283,0.725c12.728,0,23.492-8.403,27.055-19.965C68.632,49.405,68.218,49.47,67.787,49.47z"/>
+                    </g>
+                    <g class="icon_external_spheres logo_omnidb_to-darkblue">
+                        <path fill="#525678" d="M73.462,41.001c0-3.137-2.539-5.678-5.676-5.678s-5.683,2.541-5.683,5.678s2.546,5.674,5.683,5.674
+                            S73.462,44.138,73.462,41.001z"/>
+                        <path fill="#525678" d="M26.262,13.754c-2.718,1.566-3.647,5.033-2.079,7.753c1.566,2.715,5.042,3.645,7.757,2.079
+                            c2.718-1.568,3.645-5.045,2.079-7.755C32.446,13.116,28.979,12.181,26.262,13.754z"/>
+                        <path fill="#525678" d="M26.267,68.256c2.72,1.568,6.187,0.639,7.755-2.076c1.566-2.715,0.636-6.189-2.077-7.755
+                            c-2.72-1.571-6.191-0.639-7.752,2.074C22.622,63.219,23.549,66.691,26.267,68.256z"/>
+                    </g>
+                </g>
+            </svg>
+            <div class="omnidb__login__version">
+              <small>v3.0.0b</small>
+            </div>
+          </div>
+
+          <div id="login_wrap_body" class="loginWrap-body">
+            <div class="omnidb__login__input-wrapper">
+
+                <div class="loginWrap">
+                  <div id="div_time">
+
+                  </div>
+                  <div id="loading" class="inputWrap">
+              			Starting OmniDB...<br/>
+              		</div>
+                </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="views">
+      <div id ="bar_top" class="gui__top-bar" style="display: none;">
+        <div class="gui__webkit-drag gui__top-bar__drag-area">
+          <svg
+            version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+            x="0px" y="0px"
+            width="72" height="28"
+            viewBox="0 0 72 28" fill="none" enable-background="new 0 0 72 28"
+            xml:space="preserve"
+          >
+            <path d="M14.9846 10.3299H11.2268C9.36411 10.3299 7.854 11.9783 7.854 14.0116C7.854 16.046 9.36411 17.6944 11.2268 17.6944H14.9846C16.848 17.6944 18.3581 16.046 18.3581 14.0116C18.3581 11.9779 16.848 10.3299 14.9846 10.3299ZM14.2253 16.0222H11.9861C10.8763 16.0222 9.97618 15.1227 9.97618 14.0116C9.97618 12.9016 10.8759 12.0021 11.9861 12.0021H14.2253C15.3359 12.0021 16.2353 12.9019 16.2353 14.0116C16.2356 15.1227 15.3359 16.0222 14.2253 16.0222Z" fill="#878FC6"/>
+            <path d="M29.0793 11.4702C28.8549 10.7186 28.4706 10.3282 27.7831 10.3282C27.3366 10.3282 26.7861 10.4707 26.4855 11.0638C25.9285 12.1622 24.7472 14.5466 24.7472 14.5466C24.7472 14.5466 23.5693 12.1755 23.012 11.077C22.7114 10.4836 22.1575 10.3282 21.7113 10.3282C21.0241 10.3282 20.6399 10.7186 20.4151 11.4702C20.1924 12.2163 18.6177 17.5791 18.6177 17.5791H20.782L21.9096 13.2522C21.9096 13.2522 22.4659 14.7493 22.9729 15.9535C23.3218 16.7826 24.06 17.0809 24.6687 17.0809C25.2773 17.0809 25.8761 16.8071 26.3151 16.0222C26.8527 15.0621 27.5848 13.2168 27.5848 13.2168L28.7121 17.5791H30.8761C30.8764 17.5791 29.302 12.2167 29.0793 11.4702Z" fill="#878FC6"/>
+            <path d="M31.6826 17.5791C31.6826 17.5791 31.6826 12.236 31.6826 11.6613C31.6826 11.0862 32.0873 10.3282 32.786 10.3282C33.4848 10.3282 34.0547 10.9638 34.3801 11.2563C34.7052 11.5487 38.2556 14.721 38.2556 14.721V10.4455H40.1594C40.1594 10.4455 40.1594 15.761 40.1594 16.4173C40.1594 17.0737 39.7541 17.6964 38.9438 17.6964C38.1335 17.6964 37.7397 17.1941 37.2242 16.6789C36.7087 16.1636 33.6769 13.0267 33.6769 13.0267V17.5797H31.6826V17.5791Z" fill="#878FC6"/>
+            <path d="M43.3961 10.4456H41.4922V17.5795H43.3961V10.4456Z" fill="#878FC6"/>
+            <path d="M44.7607 13.1324C44.7607 13.1324 44.7607 16.1901 44.7607 16.6268C44.7607 17.0634 44.9328 17.579 45.6666 17.579C46.4007 17.579 47.7969 17.579 49.5366 17.579C51.2766 17.579 53.8343 16.2047 53.8343 13.9428C53.8343 11.681 51.8189 10.4454 49.4771 10.4454C47.1352 10.4454 46.1685 10.4454 46.1685 10.4454L44.7611 12.3009C44.7611 12.3009 47.6398 12.3009 49.5369 12.3009C51.4343 12.3009 51.6489 13.6225 51.6489 14.0387C51.6489 14.455 51.3449 15.7446 49.5369 15.7446C47.7293 15.7446 46.9781 15.7446 46.9781 15.7446V13.1324H44.7607Z" fill="#515579"/>
+            <path d="M63.0028 13.9109C63.0028 13.9109 63.973 13.4358 63.973 12.4179C63.973 11.4001 63.2504 10.4451 61.1697 10.4451C59.0887 10.4451 56.4459 10.4451 56.4459 10.4451L54.9531 12.3006C54.9531 12.3006 60.4968 12.3006 61.0456 12.3006C61.5944 12.3006 61.8838 12.421 61.8838 12.7587C61.8838 13.0964 61.623 13.2389 61.0116 13.2389C60.3995 13.2389 54.9535 13.2389 54.9535 13.2389C54.9535 13.2389 54.9535 15.9803 54.9535 16.452C54.9535 16.9237 55.1738 17.5787 56.4847 17.5787C57.7955 17.5787 60.035 17.5787 61.2224 17.5787C62.4091 17.5787 64.1199 16.9247 64.1199 15.5957C64.1192 14.2673 63.0028 13.9109 63.0028 13.9109ZM60.9932 15.7446C60.3995 15.7446 57.1702 15.7446 57.1702 15.7446V14.7638C57.1702 14.7638 60.5444 14.7638 61.0456 14.7638C61.5468 14.7638 61.9151 14.7876 61.9151 15.244C61.9151 15.7004 61.5873 15.7446 60.9932 15.7446Z" fill="#515579"/>
+          </svg>
+        </div>
+        <a href="#" onclick="guiMinimize()" class="gui__top-bar__btn">
+          <svg
+              version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+              x="0px" y="0px"
+              width="16px" height="16px"
+              viewBox="0 0 16 16" enable-background="new 0 0 16 16"
+              xml:space="preserve"
+          >
+            <path
+              fill="transparent"
+              stroke="#454545"
+              stroke-width="2"
+              d="m 2 8 h 11"
+            />
+          </svg>
+        </a>
+        <a href="#" onclick="guiToggleFullscreen()" class="gui__top-bar__btn">
+          <svg
+              version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+              x="0px" y="0px"
+              width="16px" height="16px"
+              viewBox="0 0 16 16" enable-background="new 0 0 16 16"
+              xml:space="preserve"
+          >
+            <path
+              fill="transparent"
+              stroke="#454545"
+              stroke-width="2"
+              d="m 2 2 h 11 v 11 h -11z"
+            />
+          </svg>
+        </a>
+        <a href="#" onclick="guiClose()" class="gui__top-bar__btn">
+          <svg
+              version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+              x="0px" y="0px"
+              width="16px" height="16px"
+              viewBox="0 0 16 16" enable-background="new 0 0 16 16"
+              xml:space="preserve"
+          >
+            <path
+              fill="transparent"
+              stroke="#454545"
+              stroke-width="2"
+              d="m 2 2 l 11 11"
+            />
+            <path
+              fill="transparent"
+              stroke="#454545"
+              stroke-width="2"
+              d="m 2 13 l 11 -11"
+            />
+          </svg>
+        </a>
+      </div>
+      <webview id="view" class="page" src="" autosize="on" style="display: none;"></webview>
+    </div>
+  <script>
+
+  function simulate_startup(p_window, p_list, p_loading_data_container, p_loading_data_content, p_webview) {
+    if (p_list.length>0) {
+      var string = p_list.shift();
+      p_loading_data_content.innerHTML += '<br/>' + string;
+      setTimeout(function() {
+        simulate_startup(p_window, p_list, p_loading_data_container, p_loading_data_content, p_webview);
+      },2000);
+    }
+    // Done with the startup, adjust page and load OmniDB
+    else {
+      p_loading_data_container.style.display = 'none';
+
+      p_window.width = 1280;
+      p_window.height = 1024;
+
+      p_window.x = Math.floor((window.screen.availWidth/2) - (p_window.width/2));
+      p_window.y = Math.floor((window.screen.availHeight/2) - (p_window.height/2));
+
+      document.getElementById('bar_top').style.display = '';
+      p_webview.style.display = '';
+      p_webview.src = 'http://192.168.100.21:8000';
+    }
+  }
+
+  try {
+
+    var gui = require('nw.gui');
+    let v_window = gui.Window.get();
+    let django = null;
+    let v_loading_data_container = document.getElementById('loading_interface');
+    let v_loading_data_content = document.getElementById('loading');
+    let v_login_wrap_body = document.getElementById('login_wrap_body');
+    let v_webview = document.getElementById('view');
+
+    const child_process = require('child_process')
+    const path = require('path')
+    const url = require('url')
+
+    // Prepare loading interface
+    v_window.width = 600;
+    v_window.height = 600;
+
+    v_window.x = Math.floor((window.screen.availWidth/2) - (v_window.width/2));
+    v_window.y = Math.floor((window.screen.availHeight/2) - (v_window.height/2));
+
+    v_loading_data_container.style.display = '';
+
+    v_window.on('close', function() {
+        if (django!=null) {
+          try {
+            process.kill(django.pid);
+          }
+          catch (e) {
+          }
+        }
+        nw.App.quit();
+    });
+
+    setTimeout(function() {
+
+      django = child_process.spawn(path.join(global.__dirname,'omnidb-server/omnidb-server'),['-A'],{detached: false});
+
+      django.stderr.on('data', (data) => {
+       v_loading_data_content.innerHTML += `${data}` + '<br/>';
+      });
+
+      django.stdout.on('data', (data) => {
+        lines = data.toString().split('\n');
+
+        for (var i=0; i<lines.length-1; i++) {
+          if (lines[i].substring(0, 4)!='http') {
+            v_loading_data_content.innerHTML += lines[i] + '<br/>';
+            if (v_login_wrap_body) {
+              v_login_wrap_body.scrollTo(0,99999);
+            }
+          }
+          else {
+            v_loading_data_content.innerHTML += 'Opening OmniDB...<br/>';
+            (function(value) { setTimeout( function() {
+              //loading_interface.style.display = 'none';
+              v_loading_data_container.style.display = 'none';
+              v_window.maximize();
+
+              /*v_window.width = 1280;
+              v_window.height = 1024;
+
+              v_window.x = Math.floor((window.screen.availWidth/2) - (v_window.width/2));
+              v_window.y = Math.floor((window.screen.availHeight/2) - (v_window.height/2));*/
+
+              document.getElementById('bar_top').style.display = '';
+
+
+              v_webview.style.display = '';
+              v_webview.src = value;
+            },2000);
+          })(lines[i]);
+          }
+        }
+      });
+
+    },2000);
+
+    let simulate_startup_list = [
+      'Initiating phase 1...',
+      'Phase 1 completed.',
+      'Initiating phase 2...',
+      'Phase 2 completed.',
+      'Loading OmniDB...'
+    ];
+    /*
+    setTimeout(function(){
+      simulate_startup(v_window, simulate_startup_list, v_loading_data_container, v_loading_data_content, v_webview);
+    }, 1100);*/
+
+
+
+    // GUI controls
+    function guiMinimize() {
+      v_window.minimize();
+    }
+    function guiToggleFullscreen() {
+      var v_is_maximized = (screen.availWidth - window.innerWidth === 0);
+      if (v_is_maximized) {
+        v_window.restore();
+      }
+      else {
+        v_window.maximize();
+      }
+    }
+    function guiClose() {
+      v_window.close();
+    }
+    // var guiTimeoutDrag;
+    // function guiAllowDrag() {
+    //   document.getElementsByTagName('html')[0].classList.add('webkit-drag');
+    //   document.body.style['color'] = 'red !important';
+    // }
+    // function guiClearTimeoutDrag() {
+    //   clearTimeout(guiTimeoutDrag);
+    //   setTimeout(function(){
+    //     guiStopAllowDrag();
+    //   },550);
+    // }
+    // function guiSetTimeoutDrag() {
+    //   guiTimeoutDrag = setTimeout(function(){
+    //     guiAllowDrag();
+    //   }, 500);
+    // }
+    // function guiStopAllowDrag() {
+    //   document.getElementsByTagName('html')[0].classList.remove('webkit-drag');
+    //   document.body.style['color'] = '';
+    // }
+    //
+    // window.addEventListener('mousedown',function(){guiSetTimeoutDrag();});
+    // window.addEventListener('mouseup',function(){guiClearTimeoutDrag();});
+
+  }
+  catch(e) {
+    document.write(e);
+  }
+
+
+
+
+  </script>
+</html>

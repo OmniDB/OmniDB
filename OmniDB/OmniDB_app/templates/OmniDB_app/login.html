@@ -1,33 +1,35 @@
 <html>
 <head runat="server">
 	<title>OmniDB</title>
-
+	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<link rel="shortcut icon" type="image/x-icon" href="{{url_folder}}/static/OmniDB_app/images/favicon.ico" />
 
-	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/login.css?v2.17.0.0"/>
+	<!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/login.css?v3.0.0b42"/> -->
+	<link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/lib/bootstrap/bootstrap.min.css?v3.0.0b42">
+	<link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/css/omnidb.min.css?v3.0.0b42">
+	<link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/css/login.min.css?v3.0.0b42">
 </head>
-<body>
-	<div id="div_form">
-		<div class="loginWrap">
-			<div id="div_time">
-				<div class="logo">
-					{% include 'OmniDB_app/animated_assets/animated_logo_omnidb.svg' %}
-				</div>
-				<div class="version">
+<body class="omnidb--theme-light">
+
+	<div class="omnidb__login" autofill="false">
+		<div class="omnidb__login__wrapper">
+			<div class="omnidb__login__logo">
+				{% include 'OmniDB_app/animated_assets/animated_logo_omnidb.svg' %}
+				<div class="omnidb__login__version">
 					<small>v{{ omnidb_short_version }}</small>
 				</div>
 			</div>
 
 			<div class="loginWrap-body">
-				<div id="userBox" class="inputWrap">
+				<div class="omnidb__login__input-wrapper">
 					<label id="user_title">user</label>
-					<input id="txt_user" type="text" placeholder="user" onfocus="this.parentElement.classList.add('isActive')" onblur="this.parentElement.classList.remove('isActive')" onkeydown="if (event.keyCode == 13) signIn();">
+					<input id="txt_user" type="text" placeholder="user" onchange="validateField(this)" onkeydown="if (event.keyCode == 13) signIn();">
 				</div>
-				<div id="pwdBox" class="inputWrap">
+				<div class="omnidb__login__input-wrapper">
 					<label id="pwd_title">pwd</label>
-					<input id="txt_pwd" type="password" placeholder="password" onfocus="this.parentElement.classList.add('isActive')" onblur="this.parentElement.classList.remove('isActive')" onkeydown="if (event.keyCode == 13) signIn();">
+					<input id="txt_pwd" type="password" placeholder="password" onchange="validateField(this)" onkeydown="if (event.keyCode == 13) signIn();">
 				</div>
-				<button onclick="signIn()">Sign in</button>
+				<button type="button" onclick="signIn()">Sign in</button>
 			</div>
 		</div>
 	</div>
@@ -49,17 +51,69 @@
 		</div>
 </div>
 
-<div class="div_loading"><button id="bt_cancel_ajax" onclick="cancelAjax()">Cancel</button></div>
+<!-- Modal Generic Message -->
+<div class="modal fade" id="modal_message" tabindex="-1" role="dialog" aria-hidden="true">
+	<div id="modal_message_dialog" class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div id="modal_message_content" class="modal-body" style='white-space: pre-line;'>
+			</div>
+			<div class="modal-footer">
+				<button id="modal_message_yes" type="button" class="btn omnidb__theme__btn--primary" data-dismiss="modal">Yes</button>
+				<button id="modal_message_ok" type="button" class="btn omnidb__theme__btn--primary" data-dismiss="modal">Ok</button>
+				<button id="modal_message_no" type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+				<button id="modal_message_cancel" type="button" class="btn omnidb__theme__btn--secondary" data-dismiss="modal">Cancel</button>
+			</div>
+		</div>
+	</div>
+</div>
 
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/jquery-1.11.2.min.js"   ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/NotificationControl.js" ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/AjaxControl.js"         ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/WebSocketControl.js"    ></script>
+<div id="div_loading" class="div_loading" style='z-index: 100005;'>
+	<div class="div_loading_cover"></div>
+	<div class="div_loading_content">
+		<div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+			<span class="sr-only ">Loading...</span>
+		</div>
+		<div>
+			<button id="bt_cancel_ajax" style='display: none; margin-top: 10px;' class='btn btn-light' onclick="cancelAjax()">Cancel</button>
+		</div>
+	</div>
+</div>
+
+<!-- <div class="div_loading"><button id="bt_cancel_ajax" onclick="cancelAjax()">Cancel</button></div> -->
+
+<!-- <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/old_js/jquery-1.11.2.min.js"></script> -->
+<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/jquery/jquery.min.js?v3.0.0b42"></script>
+<script src="{{url_folder}}/static/OmniDB_app/lib/bootstrap/bootstrap.min.js?v3.0.0b42"></script>
+<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/notification_control.js?v3.0.0b42"></script>
+<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/ajax_control.js?v3.0.0b42"></script>
 <script type="text/javascript">
-	var v_url_folder = '{{ url_folder }}'
-	$(function () {
+	var v_url_folder = '{{ url_folder }}';
+	var v_csrf_cookie_name = '{{ csrf_cookie_name }}';
+	$(document).ready(function () {
 
 		checkSessionMessage();
+
+		var v_user_name = document.getElementById('txt_user');
+		var v_pwd = document.getElementById('txt_pwd');
+
+		var validate_fields = [
+			{el: v_user_name, val: v_user_name.value},
+			{el: v_pwd, val: v_pwd.value}
+		];
+		var field_errors = false;
+
+		for (let i = 0; i < validate_fields.length; i++) {
+			var v_field = validate_fields[i];
+			if (v_field === null || v_field === '') {
+				field_errors = true;
+				validateField(v_field);
+			}
+		}
 
 	});
 
@@ -68,27 +122,58 @@
 		document.getElementById("txt_user").blur();
 		document.getElementById("txt_pwd").blur();
 
-		var v_user_name = document.getElementById('txt_user').value;
-		var v_pwd = document.getElementById('txt_pwd').value;
+		var v_user_name = document.getElementById('txt_user');
+		var v_pwd = document.getElementById('txt_pwd');
 
-		execAjax('/sign_in/',
-			JSON.stringify({"p_username": v_user_name, "p_pwd": v_pwd}),
-			function(p_return) {
+		var validate_fields = [
+			{el: v_user_name, val: v_user_name.value},
+			{el: v_pwd, val: v_pwd.value}
+		];
+		var field_errors = false;
 
-				if (p_return.v_data>=0) {
-					window.open(v_url_folder + "/workspace", '_self');
-				}
-				else if (p_return.v_data==-2) {
-					showAlert('Invalid authentication token, use omnidb-server to support multiple users.');
-				}
-				else
-					showAlert('Invalid username or password.');
+		for (let i = 0; i < validate_fields.length; i++) {
+			var v_field = validate_fields[i];
+			if (v_field === null || v_field === '') {
+				field_errors = true;
+				validateField(v_field);
+			}
+		}
 
-			},
-			null,
-			'box'
-		);
+		if (!field_errors) {
+			execAjax('/sign_in/',
+				JSON.stringify({"p_username": v_user_name.value, "p_pwd": v_pwd.value}),
+				function(p_return) {
+
+					if (p_return.v_data>=0) {
+						window.open(v_url_folder + "/workspace", '_self');
+					}
+					else if (p_return.v_data==-2) {
+						showAlert('Invalid authentication token, use omnidb-server to support multiple users.');
+					}
+					else
+						showAlert('Invalid username or password.');
+
+				},
+				null,
+				'box'
+			);
+		}
+
 	}
+
+	function validateField(p_field) {
+		if (p_field) {
+			var v_parent = p_field.parentElement;
+			if (p_field.value !== null && p_field.value !== '') {
+				v_parent.classList.remove('isEmpty');
+
+			}
+			else {
+				v_parent.classList.add('isEmpty');
+			}
+		}
+	}
+
 
 </script>
 

@@ -1,154 +1,977 @@
-{% extends 'OmniDB_app/base.html' %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" type="image/x-icon" href="{{url_folder}}/static/OmniDB_app/images/favicon.ico"/>
 
-{% block header_menu %}
-<li><a id="menu_connections" onclick="startConnectionManagement()">Connections</a></li>
-{% endblock %}
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/lib/bootstrap/bootstrap.min.css?v3.0.0b42">
+    <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/lib/handsontable/handsontable.full.css?v3.0.0b42"/>
+    <!-- <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/css/omnidb.css?v3.0.0b42"> -->
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/lib/fa/css/all.css?v3.0.0b42">
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/css/xterm.css">
+    <!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/css/Aimara.css?v3.0.0b42"/> -->
+    <!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/node-icon.css?v2"/> -->
+    <!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/interface-icon.css?v3.0.0b42"/> -->
+    <!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/jquery.datetimepicker.min.css?v2"/> -->
+    <!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/daterangepicker/daterangepicker.css?v3.0.0b42"/> -->
+    <!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/json_html/styles/template-2.css?v3.0.0b42"/> -->
+    <!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/omnis_legere/css/omnis-legere.css?v3.0.0b42"/> -->
+    <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/css/omnidb.min.css?v3.0.0b42">
+    <link id="ss_theme" rel="stylesheet" type="text/css">
+    <title>OmniDB</title>
+  </head>
+  <body>
 
-{% block header_actions %}
-{% endblock %}
+  <!-- IF CHROME - Security countermeasures -->
+  <form style="display:none;" autocomplete="off">
+    <input type="text" name="prevent_autofill" id="prevent_autofill" value="" />
+    <input type="password" name="password_fake" id="password_fake" value="" />
+  </form>
+  <!-- .IF CHROME -->
 
-{% block content %}
-	<div class="conn_tabs">
-		<div id="conn_tabs" style='/*margin-left: 5px; margin-right: 5px;*/'>
-			<ul>
-			</ul>
-		</div>
-	</div>
+  <div class="toast" data-autohide="false" style="position: absolute; top: 0; right: 0;">
+    <div class="toast-header">
+      <strong class="mr-auto">Bootstrap</strong>
+      <small>11 mins ago</small>
+      <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="toast-body">
+      Hello, world! This is a toast message.
+    </div>
+  </div>
 
-    <div id="div_column_selection" class="isModal">
-        <div class="modal_background_dark">
-            <div class ="white_box" style="width: 50%; height: 40%; left: 25%; top: 30%;">
-                <a class="modal-closer" onclick="hideColumnSelection()">x</a>
+  <div class="omnidb__utilities-menu omnidb__theme-bg--menu-utilities omnidb__rounded--lg">
+    <nav class="navbar p-0">
+      <!-- <img style='height: 40px;' src='/static/OmniDB_app/images/omnidb_logo.svg'/> -->
+      <span class="omnidb__utilities-menu__branding"></span>
+      <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <div class="navbar-nav">
+        </div>
+      </div> -->
 
-                <div style="margin: 30px; position: absolute; height: auto; top: 0px; bottom: 0px; left: 0px; right: 0px;">
+      <form class="form-inline">
+        <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSecond" aria-controls="navbarSecond" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button> -->
+        <div id="navbarSecond">
+            <div class="navbar-nav flex-row">
+              <a id="omnidb__utilities-menu__link-versioning" class="omnidb__menu__btn-text-visible nav-item nav-link d-flex align-items-center justify-content-center">
+                <i class="fas fa-code-branch"></i>
+                <span class="badge badge-info">{{ omnidb_short_version }}</span>
+              </a>
+              {% if not desktop_mode %}
+              <a id="omnidb__utilities-menu__link-username" class="omnidb__menu__btn-user omnidb__menu__btn-text nav-item nav-link d-flex align-items-center justify-content-center">
+                <!-- <i class="fas fa-user"></i> -->
+                <span>{{ user_name }}</span>
+              </a>
+              {% endif %}
+              <a id="omnidb__utilities-menu__link-connections" class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="startConnectionManagement();"><i class="fas fa-plug" title="Connections"></i></a>
+              {% if not desktop_mode %}
+              {% if super_user == 1 %}
+              <a id="omnidb__utilities-menu__link-user" class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="listUsers();"><i class="fas fa-user" title="Users"></i></a>
+              {% endif %}
+              {% endif %}
+              <a id="omnidb__utilities-menu__link-config" class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="showConfigUser();"><i class="fas fa-cog" title="Settings"></i></a>
+              <a id="omnidb__utilities-menu__link-plugins" class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="showPlugins();"><i class="fas fa-cube" title="Plugins"></i></a>
+              <a id="omnidb__utilities-menu__link-about" class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="showAbout();"><i class="fas fa-info-circle" title="About"></i></a>
+              {% if not desktop_mode %}
+              <a id="omnidb__utilities-menu__link-signout" class="omnidb__menu__btn nav-item nav-link d-flex align-items-center justify-content-center" href="#" onclick="confirmSignout()"><i class="fas fa-sign-out-alt" title="Sign out"></i></a>
+              {% endif %}
+            </div>
+          </div>
+      </form>
+    </nav>
+  </div>
 
-                <select id="sel_columns_left" ondblclick="addColumnToList()" style="width: 200px; height: 100%" size="10">
-                	<option value="1">Column 1</option>
-                	<option value="1">Column 2</option>
-                	<option value="1">Column 3</option>
-                	<option value="1">Column 4</option>
+    <div id="omnidb__main" class="omnidb__main">
+      <div id="omnidb_main_tablist">
+      </div>
+    </div>
+
+    <div id="div_loading" class="div_loading" style='z-index: 100005;'>
+      <div class="div_loading_cover"></div>
+      <div class="div_loading_content">
+        <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+          <span class="sr-only ">Loading...</span>
+        </div>
+        <div>
+          <button id="bt_cancel_ajax" style='display: none; margin-top: 10px;' class='btn btn-light' onclick="cancelAjax()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Connections -->
+    <div class="modal fade" id="modal_connections" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              Connections
+              <button id="button_new_connection" type="button" class="btn omnidb__theme__btn--primary" onclick="newConnection();">New connection</button>
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class='mb-3 d-flex align-items-center justify-content-start'>
+              <span id="group_actions_1" class="d-flex align-items-center justify-content-start">
+                <span>Groups</span>
+                <select id="group_selector" class="form-control mx-1" onchange="groupChange(this.value);" style='display: inline-block; width: 200px;'>
+                  <option value=-1 selected>Select Group</option>
                 </select>
+                <button id="button_new_group" type="button" class="btn ml-2 omnidb__theme__btn--primary" onclick="newGroup();">New group</button>
+                <button id="button_group_actions" type="button" class="btn ml-2 omnidb__theme__btn--secondary dropdown-toggle" style='display: none;' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Group Actions
+                </button>
+                <div class="dropdown-menu dropdown-menu-left">
+                  <button class="dropdown-item" type="button" onclick="renameGroup();">Rename</button>
+                  <button class="dropdown-item" type="button" onclick="manageGroup();">Manage Connections</button>
+                  <button class="dropdown-item" type="button" onclick="deleteGroup();">Delete</button>
+                </div>
+              </span>
+              <span id="group_actions_2" style='display: none;'>
+                <button id="button_new_group" type="button" class="btn btn-success ml-2" onclick="manageGroupSave();">Save changes</button>
+              </span>
+              <div class="d-inline-block ml-4">
+                <span>Show Public Connections (<span id="conn_list_public_counter">0</span>)</span>
+                <div class="d-inline-block omnidb__switch ml-2" data-toggle="tooltip" data-placement="right" data-html="true" title="<h5>Show Public Connections.</h5><div>Switch ON shows all public connections.</div>">
+                  <input type="checkbox" id="conn_list_public" class="omnidb__switch--input" onchange="toggleConnectionsPublic(event)">
+                  <label for="conn_list_public" class="omnidb__switch--label"><span><i class="fas fa-users"></i></span></label>
+                </div>
+              </div>
+              <!-- <div class="btn-group ml-auto" role="group" aria-label="Basic example">
+                <button type="button" class="btn omnidb__theme__btn--secondary active" title="Display connections as a grid with cards" onclick="toggleConnectionsLayout('cards')"><i class="fas fa-th-large"></i></button>
+                <button type="button" class="btn omnidb__theme__btn--secondary" title="Display connections as a list with rows" onclick="toggleConnectionsLayout('rows')"><i class="fas fa-list"></i></button>
+              </div> -->
+            </div>
+            <div id="connection_card_list" class="text-center omnidb__connections__card-list omnidb__connections__card-list--rows"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-                <div style="display: inline-block; vertical-align: top; width: 80px; position: absolute; left: 50%; margin-left: -40px;">
+    <!-- Modal Edit Connection -->
+    <div class="modal fade" id="modal_edit_connection" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Connection</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
 
-                	<div><button onclick="addColumnToList()"   style="width: 100%; margin-bottom: 10px;">Add</button></div>
-                	<div><button onclick="remColumnFromList()" style="width: 100%;">Remove</button></div>
+              <div class="form-row">
+                <div class="col-md-4 mb-3">
+                  <label for="conn_form_type">Connection Type</label>
+                  <select id="conn_form_type" class="form-control" onchange="updateModalEditConnectionState(event)">
+                    <option value=-1 selected>Select Type</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="conn_form_title">Title</label>
+                  <input type="text" class="form-control" id="conn_form_title" placeholder="Title">
+                </div>
+                <div class="col-md-4 mt-auto mb-3">
+                  <span class="ml-2">Public connection?</span>
+        					<div class="d-inline-block ml-2">
+        						<div class="omnidb__switch mr-2" data-toggle="tooltip" data-placement="bottom" data-html="true" title="<h5>Toggle public status.</h5><div>Switch ON sets connection as usable for all other omnidb users.</div>">
+        							<input type="checkbox" id="conn_form_public" class="omnidb__switch--input">
+        							<label for="conn_form_public" class="omnidb__switch--label"><span><i class="fas fa-users"></i></span></label>
+        						</div>
+        					</div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <h6>Host Connection Info</h6>
+                </div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="col-md-3 mb-3">
+                      <label for="conn_form_server">Server</label>
+                      <input type="text" class="form-control" id="conn_form_server" placeholder="ex: 127.0.0.1" onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-1 mb-3">
+                      <label for="conn_form_port">Port</label>
+                      <input type="text" class="form-control" id="conn_form_port" placeholder="ex: 5432" onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label for="conn_form_database">Database</label>
+                      <input type="text" class="form-control" id="conn_form_database" placeholder="ex: postgres" onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label for="conn_form_user">User</label>
+                      <input type="text" class="form-control" id="conn_form_user" placeholder="ex: postgres" onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                      <label for="conn_form_user_pass">User Password <i class="fas fa-question-circle text-info" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional user password</h5></h4><ul><li><strong>If provided:</strong> password will be stored to omnidb configuration's database and used when connecting to this connection.</li><li><strong>Leaving blank:</strong> No password will be saved and it will be requested to be manually type everytime the user tries to use this connection. If it's a <strong>PostgreSQL</strong> connection, OmniDB will try to retrieve password from <strong>.pgpass</strong>.</li></ul>"></i></label>
+                      <input type="password" class="form-control" id="conn_form_user_pass" placeholder="User Password">
+                    </div>
+                  </div>
+
+                  <div class="position-relative">
+                    <div style="position: absolute; top: -1rem; left: 2rem; padding: 0.25rem;" class="omnidb__theme-bg--light"><b>OR</b></div>
+                    <hr/>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="col-md mb-3">
+                      <label for="conn_form_connstring">Connection string <i class="fas fa-question-circle text-info" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional connection string</h5></h4><ul><li><strong>If provided:</strong> ...</li></ul>"></i></label>
+                      <input type="text" class="form-control" id="conn_form_connstring" placeholder="ex: postgresql://postgres@localhost:5432/postgres" onchange="updateModalEditConnectionState(event)">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card mt-4">
+                <div class="card-header">
+                  <div class="form-group mb-0">
+                    <div class="omnidb__form-check form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" value="" id="conn_form_use_tunnel" onchange="updateModalEditConnectionState(event)">
+                      <label class="form-check-label" for="conn_form_use_tunnel">
+                        <b style="vertical-align: middle;">Use SSH tunnel</b>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="col-md-4 mb-3">
+                      <label for="conn_form_ssh_server">SSH Server</label>
+                      <input type="text" class="form-control" id="conn_form_ssh_server" placeholder="SSH server" readonly onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                      <label for="conn_form_ssh_port">SSH Port</label>
+                      <input type="text" class="form-control" id="conn_form_ssh_port" placeholder="SSH port" readonly onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label for="conn_form_ssh_user">SSH User</label>
+                      <input type="text" class="form-control" id="conn_form_ssh_user" placeholder="SSH user" readonly onchange="updateModalEditConnectionState(event)">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label for="conn_form_ssh_password">
+                        Password / Passphrase
+                        <i
+                          class="fas fa-question-circle text-info ml-2" data-toggle="tooltip" data-html="true" data-placement="bottom"
+                          title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh password / passphrase</h5></h4><div>Leave this blank if you dont want the password to be stored.</div><ul><li><strong>If provided:</strong> OmniDB will use this password when opening a SSH tunnel.</li><li><strong>Leaving blank:</strong> When the SSH tunnel is requested, OmniDB will prompt an input requesting for this password to be used exclusively to open the connection, but it wont be stored.</li></ul>"
+                        ></i>
+                      </label>
+                      <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" onchange="updateConnectionKey(event)" readonly>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col-md mb-3">
+                      <label for="conn_form_ssh_key">
+                        SSH Key Text File
+                        <i
+                          class="fas fa-question-circle text-info ml-2" data-toggle="tooltip" data-html="true" data-placement="bottom"
+                          title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh key</h5></h4><div>Leave this blank if you dont want the key to be stored.</div><ul><li><strong>If provided:</strong> When saving this SSH tunnel, OmniDB will read the content of this file and store just the text, but not the file.</li></ul>"
+                        ></i>
+                      </label>
+                      <textarea style="display:none;" class="form-control" id="conn_form_ssh_key" rows="4" readonly></textarea>
+                      <div class="ml-4 d-inline-block custom-file" style="width: 200px;">
+                        <input type="file" id="conn_form_ssh_key_input" onchange="updateConnectionKey(event)" style="width: 200px;height: 100%;" disabled/>
+                        <label id="conn_form_ssh_key_input_label" class="custom-file-label" for="conn_form_ssh_key_input">Click to select</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <button id="conn_form_button_test_connection" class="btn omnidb__theme__btn--primary" onclick="testConnection();" disabled>Test</button>
+                <button id="conn_form_button_save_connection" class="btn btn-success" onclick="saveConnection();" disabled>Save</button>
+              </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Query History -->
+    <div class="modal fade" id="modal_query_history" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button class="btn btn-danger">Delete History</button>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+              <div class="form-row">
+                <div class="col-md-3 mb-3">
+                  <label for="query_history_from">From</label>
+                  <input type="text" class="form-control" id="query_history_from" placeholder="From Date">
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label for="query_history_to">To</label>
+                  <input type="text" class="form-control" id="query_history_to" placeholder="To Date">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="query_history_contains">Query Contains</label>
+                  <input type="text" class="form-control" id="query_history_contains" placeholder="Filter">
+                </div>
+              </div>
+
+              <div class="text-center">
+                <button class="btn omnidb__theme__btn--secondary btn-sm mr-1">First</button>
+                <button class="btn omnidb__theme__btn--secondary btn-sm mr-1">Previous</button>
+                <span class="mr-1"> 1 / 217 </span>
+                <button class="btn omnidb__theme__btn--secondary btn-sm mr-1">Next</button>
+                <button class="btn omnidb__theme__btn--secondary btn-sm mr-1">Last</button>
+              </div>
+
+              <div id="query_history_grid" style="width: 100%; height: 300px; overflow: hidden;"></div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal About -->
+    <div class="modal fade" id="modal_about" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ omnidb_version }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+            <div class="my-3">
+              <img src="{{url_folder}}/static/OmniDB_app/images/postgresql_medium.png" title="PostgreSQL"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/oracle_medium.png" title="Oracle"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/mysql_medium.png" title="MySQL"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/mariadb_medium.png" title="MariaDB"/>
+              <!--<img src="{{url_folder}}/static/OmniDB_app/images/sqlserver_medium.png" title="SQL Server"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/firebird_medium.png" title="Firebird"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/sqlite_medium.png" title="SQLite"/>
+              <img src="{{url_folder}}/static/OmniDB_app/images/access_medium.png" title="Microsoft Access"/>-->
+            </div>
+            <div class="my-3"><a onclick="showWebsite('OmniDB', 'https://www.omnidb.org')" >www.omnidb.org</a></div>
+            <div class="my-3">
+              <h2>Primary Supporter:</h2>
+              <a onclick="showWebsite('2ndQuadrant', 'https://www.2ndquadrant.com')" ><img style="width: 120px;" src="{{url_folder}}/static/OmniDB_app/images/supporters/2ndquadrant.png" title="2ndQuadrant"/></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Monitoring Units -->
+    <div class="modal fade" id="modal_monitoring_units" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button class='btn omnidb__theme__btn--primary btn-sm mb-2' onclick='editMonitorUnit()'>New Unit</button>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="monitoring_units_grid" style="width: 100%; height: 300px; overflow: hidden;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Users -->
+    <div class="modal fade" id="modal_users" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4>User management</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="div_user_list" style="width: 100%; height: 300px; overflow: hidden;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Config -->
+    <div class="modal fade" id="modal_config" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="omnidb__modal-config">
+
+              <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active" id="config_shortcuts-tab" data-toggle="tab" href="#config_shortcuts" role="tab" aria-controls="config_shortcuts" aria-selected="true">Shortcuts</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="config_options-tab" data-toggle="tab" href="#config_options" role="tab" aria-controls="config_options" aria-selected="false">Options</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="config_password-tab" data-toggle="tab" href="#config_password" role="tab" aria-controls="config_password" aria-selected="false">Password</a>
+                </li>
+              </ul>
+              <div class="tab-content p-2 omnidb__theme-border--primary">
+
+                <div class="tab-pane fade show active" id="config_shortcuts" role="tabpanel" aria-labelledby="config_shortcuts-tab">
+                  <div id="div_shortcut_background_dark"><div style="position: absolute; top: 50%; width: 100%;">Press key combination... (ESC to cancel)</div></div>
+                  <div class="form-group row">
+                    <label for="shortcut_run_query" class="col-sm-6 col-form-label">Run Query</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_run_query" class='btn omnidb__theme__btn--secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_cancel_query" class="col-sm-6 col-form-label">Cancel Query</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_cancel_query" class='btn omnidb__theme__btn--secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_indent" class="col-sm-6 col-form-label">Indent</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_indent" class='btn omnidb__theme__btn--secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_autocomplete" class="col-sm-6 col-form-label">Autocomplete</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_autocomplete" class='btn omnidb__theme__btn--secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_new_inner_tab" class="col-sm-6 col-form-label">New Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_new_inner_tab" class='btn omnidb__theme__btn--secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_remove_inner_tab" class="col-sm-6 col-form-label">Remove Current Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_remove_inner_tab" class='btn omnidb__theme__btn--secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_left_inner_tab" class="col-sm-6 col-form-label">Select Left Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_left_inner_tab" class='btn omnidb__theme__btn--secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="shortcut_right_inner_tab" class="col-sm-6 col-form-label">Select Right Inner Tab</label>
+                    <div class="col-sm-6">
+                      <button id="shortcut_right_inner_tab" class='btn omnidb__theme__btn--secondary btn-sm btn-block' onclick="startSetShortcut(this)"></button>
+                    </div>
+                  </div>
+
+                  <div style="text-align:right;">
+                    <button class='btn btn-success' onclick='saveShortcuts()'>Save</button>
+                  </div>
+                </div>
+
+                <div class="tab-pane fade" id="config_options" role="tabpanel" aria-labelledby="config_options-tab">
+
+                  <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                      <label for="sel_editor_theme">Theme</label>
+                      <select id="sel_editor_theme" class="form-control" onchange="changeTheme(this.value)">
+  		                	<option value="light">Light</option>
+  							        <option value="dark">Dark</option>
+  		                </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="sel_interface_font_size">Font Size</label>
+                      <select id="sel_interface_font_size" class="form-control" onchange="changeInterfaceFontSize(this.value)">
+  		                	<option value="10">10</option>
+  		                	<option value="11">11</option>
+  		                	<option value="12">12</option>
+  		                	<option value="13">13</option>
+  		                	<option value="14">14</option>
+  		                	<option value="15">15</option>
+  		                	<option value="16">16</option>
+  		                	<option value="17">17</option>
+  		                	<option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+  		                </select>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                      <label for="sel_csv_encoding">CSV Encoding</label>
+                      <select id="sel_csv_encoding" class="form-control">
+                        <option value="ascii">ascii</option>
+                        <option value="big5">big5</option>
+                        <option value="big5hkscs">big5hkscs</option>
+                        <option value="cp037">cp037</option>
+                        <option value="cp273">cp273</option>
+                        <option value="cp424">cp424</option>
+                        <option value="cp437">cp437</option>
+                        <option value="cp500">cp500</option>
+                        <option value="cp720">cp720</option>
+                        <option value="cp737">cp737</option>
+                        <option value="cp775">cp775</option>
+                        <option value="cp850">cp850</option>
+                        <option value="cp852">cp852</option>
+                        <option value="cp855">cp855</option>
+                        <option value="cp856">cp856</option>
+                        <option value="cp857">cp857</option>
+                        <option value="cp858">cp858</option>
+                        <option value="cp860">cp860</option>
+                        <option value="cp861">cp861</option>
+                        <option value="cp862">cp862</option>
+                        <option value="cp863">cp863</option>
+                        <option value="cp864">cp864</option>
+                        <option value="cp865">cp865</option>
+                        <option value="cp866">cp866</option>
+                        <option value="cp869">cp869</option>
+                        <option value="cp874">cp874</option>
+                        <option value="cp875">cp875</option>
+                        <option value="cp932">cp932</option>
+                        <option value="cp949">cp949</option>
+                        <option value="cp950">cp950</option>
+                        <option value="cp1006">cp1006</option>
+                        <option value="cp1026">cp1026</option>
+                        <option value="cp1125">cp1125</option>
+                        <option value="cp1140">cp1140</option>
+                        <option value="cp1250">cp1250</option>
+                        <option value="cp1251">cp1251</option>
+                        <option value="cp1252">cp1252</option>
+                        <option value="cp1253">cp1253</option>
+                        <option value="cp1254">cp1254</option>
+                        <option value="cp1255">cp1255</option>
+                        <option value="cp1256">cp1256</option>
+                        <option value="cp1257">cp1257</option>
+                        <option value="cp1258">cp1258</option>
+                        <option value="cp65001">cp65001</option>
+                        <option value="euc-jp">euc-jp</option>
+                        <option value="euc-jis-2004">euc-jis-2004</option>
+                        <option value="euc-jisx0213">euc-jisx0213</option>
+                        <option value="euc-kr">euc-kr</option>
+                        <option value="gb2312">gb2312</option>
+                        <option value="gbk">gbk</option>
+                        <option value="gb18030">gb18030</option>
+                        <option value="hz">hz</option>
+                        <option value="iso2022-jp">iso2022-jp</option>
+                        <option value="iso2022-jp-1">iso2022-jp-1</option>
+                        <option value="iso2022-jp-2">iso2022-jp-2</option>
+                        <option value="iso2022-jp-2004">iso2022-jp-2004</option>
+                        <option value="iso2022-jp-3">iso2022-jp-3</option>
+                        <option value="iso2022-jp-ext">iso2022-jp-ext</option>
+                        <option value="iso2022-kr">iso2022-kr</option>
+                        <option value="latin-1">latin-1</option>
+                        <option value="iso8859-2">iso8859-2</option>
+                        <option value="iso8859-3">iso8859-3</option>
+                        <option value="iso8859-4">iso8859-4</option>
+                        <option value="iso8859-5">iso8859-5</option>
+                        <option value="iso8859-6">iso8859-6</option>
+                        <option value="iso8859-7">iso8859-7</option>
+                        <option value="iso8859-8">iso8859-8</option>
+                        <option value="iso8859-9">iso8859-9</option>
+                        <option value="iso8859-10">iso8859-10</option>
+                        <option value="iso8859-11">iso8859-11</option>
+                        <option value="iso8859-13">iso8859-13</option>
+                        <option value="iso8859-14">iso8859-14</option>
+                        <option value="iso8859-15">iso8859-15</option>
+                        <option value="iso8859-16">iso8859-16</option>
+                        <option value="johab">johab</option>
+                        <option value="koi8-r">koi8-r</option>
+                        <option value="koi8-t">koi8-t</option>
+                        <option value="koi8-u">koi8-u</option>
+                        <option value="kz1048">kz1048</option>
+                        <option value="mac-cyrillic">mac-cyrillic</option>
+                        <option value="mac-greek">mac-greek</option>
+                        <option value="mac-iceland">mac-iceland</option>
+                        <option value="mac-latin2">mac-latin2</option>
+                        <option value="mac-roman">mac-roman</option>
+                        <option value="mac-turkish">mac-turkish</option>
+                        <option value="ptcp154">ptcp154</option>
+                        <option value="shift-jis">shift-jis</option>
+                        <option value="shift-jis-2004">shift-jis-2004</option>
+                        <option value="shift-jisx0213">shift-jisx0213</option>
+                        <option value="utf-32">utf-32</option>
+                        <option value="utf-32-be">utf-32-be</option>
+                        <option value="utf-32-le">utf-32-le</option>
+                        <option value="utf-16">utf-16</option>
+                        <option value="utf-16-be">utf-16-be</option>
+                        <option value="utf-16-le">utf-16-le</option>
+                        <option value="utf-7">utf-7</option>
+                        <option value="utf-8">utf-8</option>
+                        <option value="utf-8-sig">utf-8-sig</option>
+                        <option value="windows-1252">windows-1252</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="txt_csv_delimiter">CSV Delimiter</label>
+                      <input type="text" class="form-control" id="txt_csv_delimiter" placeholder="Delimiter">
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
+                  </div>
 
                 </div>
 
-                <select id="sel_columns_right" ondblclick="remColumnFromList()" style="width: 200px; height: 100%; position: absolute; right: 0px;" size="10">
-                	<option value="1">Column 5</option>
-                	<option value="1">Column 6</option>
-                	<option value="1">Column 7</option>
-                	<option value="1">Column 8</option>
-                </select>
-							</div>
-            </div>
-        </div>
-    </div>
-
-		<div id="div_commands_log" class="isModal">
-        <div class="modal_background_dark">
-            <div class ="white_box" style="width: 90%; height: 90%; left: 5%; top: 5%;">
-                <a class="modal-closer" onclick="hideCommandsLog()">x</a>
-
-                <div style="height: 100%;">
-	                <div id="div_commands_log_list" style="margin: 20px; height: 90%; overflow: scroll; user-select: text;">
-	                </div>
+                <div class="tab-pane fade" id="config_password" role="tabpanel" aria-labelledby="config_password-tab">
+                  <div class="form-row">
+                    <div class="col-md-6 mb-3">
+                      <label for="txt_new_pwd">New Password</label>
+                      <input id="txt_new_pwd" type="password" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="txt_confirm_new_pwd">Confirm</label>
+                      <input id="txt_confirm_new_pwd" type="password" class="form-control">
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <button class='btn btn-success' onclick='saveConfigUser()'>Save</button>
+                  </div>
                 </div>
-            </div>
+              </div>
+
+            </div><!-- .container-fluid -->
+          </div>
         </div>
+      </div>
     </div>
 
-		<div id="connection_list_div" class="isModal modal_background_dark">
-			<div class='connection_list'><a class='modal-closer' onclick='closeConnectionList()'>x</a>
-				<div style='display:inline-block;'>
-					<button onclick="newConnection()">New Connection</button>
-				</div>
-				<div id='div_save' style='visibility: hidden; display:inline-block;'>
-					<button onclick="saveConnections()">Save Data</button>
-				</div>
-				<div style='display:inline-block;'>
-					Groups:
-					<select id="group_selector" onchange="groupChange(this.value)">
-						<option value=-1>Select group</option>
-						<option>Group 1</option>
-					</select>
-				</div>
-				<div id='div_show_group' style='display:inline-block;'>
-					<button id='bt_groups' onclick="newGroup()">New Group</button>
-				</div>
-				<div id='div_edit_group' style='display:none;'>
-					<button id='bt_groups' onclick="editGroup()">Edit Group</button>
-				</div>
-				<div id='div_delete_group' style='display:none;'>
-					<button id='bt_groups' class="bt_red" onclick="deleteGroup()">Delete Group</button>
-				</div>
-				<div id='connection_list_div_grid'></div>
-			</div>
-		</div>
+    <!-- Modal Plugins -->
+    <div class="modal fade" id="modal_plugins" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="plugin_file_selector" onchange="upload(this)" required>
+              <label class="custom-file-label" for="plugin_file_selector">Select plugin package to be installed...</label>
+            </div>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="plugin_grid" style="width: 100%; height: 300px; overflow: hidden;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-{% endblock %}
-{% block include_css %}
-	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/lib/aimaraJS/css/Aimara.css?v2.17.0.0"           />
-	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/chartist.min.css?v2.17.0.0"                  />
-	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/jquery-ui.min.css?v2.17.0.0"                 />
-	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/jquery-ui.structure.min.css?v2.17.0.0"       />
-	<!--<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/lib/popupJS/popupJS.css?v2.17.0.0"               />-->
-	<!--<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/lib/emojionearea/emojionearea.min.css?v2.17.0.0" />-->
-	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/node-icon.css?v2.17.0.0"                    />
-	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/grid-icon.css?v2.17.0.0"                    />
-	<link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/interface-icon.css?v2.17.0.0"                    />
-{% endblock %}
-{% block include %}
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape.min.js?v2.17.0.0"                         ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js?v2.17.0.0"                      ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Chart.bundle.js?v2.17.0.0"                                 ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/chartist.min.js?v2.17.0.0"                                     ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/chartist-plugin-axistitle.min.js?v2.17.0.0"                    ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/aimaraJS/lib/Aimara.js?v2.17.0.0"                             ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/QueryClient.js?v2.17.0.0"                                      ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Query.js?v2.17.0.0"                                            ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/advancedObjectSearch.js?v2.17.0.0"                                       ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Debug.js?v2.17.0.0"                                            ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Workspace.js?v2.17.0.0"	      	                            ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/EditData.js?v2.17.0.0"				                            ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/AlterTable.js?v2.17.0.0"			                            ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/CreateTabFunctions.js?v2.17.0.0"                               ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Tree.js?v2.17.0.0"                                             ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/TreeSnippets.js?v2.17.0.0"                                     ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/TreeMonitor.js?v2.17.0.0"                                      ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/TreePostgresql.js?v2.17.0.0"                                   ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/TreeOracle.js?v2.17.0.0"                                       ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/TreeMariadb.js?v2.17.0.0"                                      ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/TreeMysql.js?v2.17.0.0"                                        ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/CommandHistory.js?v2.17.0.0"                                   ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/MonitorDashboard.js?v2.17.0.0"                                 ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Connections.js?v2.17.0.0"                                      ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/jquery-ui.min.js?v2.17.0.0"                                    ></script>
-<!--<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/popupJS/popupJS.js?v2.17.0.0"                                 ></script>-->
-<!--<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/emojionearea/emojionearea.min.js?v2.17.0.0"                   ></script>-->
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Properties.js?v2.17.0.0"                                       ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Shortcuts.js?v2.17.0.0"                                        ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Console.js?v2.17.0.0"                                          ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Terminal.js?v2.17.0.0"                                         ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/CustomMenu.js?v2.17.0.0"                                       ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/PluginHook.js?v2.17.0.0"                                       ></script>
-<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Autocomplete.js?v2.17.0.0"                                     ></script>
+    <!-- Modal Monitoring Unit Test -->
+    <div class="modal fade" id="modal_monitoring_unit_test" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="dashboard_unit_content_group">
+              <div id="monitoring_unit_test_result">
+              </div>
+              <div id="monitoring_unit_test_legend" class="dashboard_unit_legend_box">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<script>
-	var v_query_port = {{ query_port }};
-	var v_query_port_external = {{ query_port_external }};
-	var v_is_secure = {{ is_secure }};
-	var v_dev_mode = {{ dev_mode }};
-	var v_keybind_object = { v_autocomplete: '{{ autocomplete }}',
- 							 v_autocomplete_mac: '{{ autocomplete_mac }}' };
-							 //Global variables
-	var v_connections_data;
-	var gv_chatWebSocketPort = v_query_port;
-	var gv_chatAttachmentPath = '{{ chat_link }}';
-	var gv_desktopMode = ('{{ desktop_mode }}' == 'True');
-	var v_tab_token = '{{ tab_token }}';
-	var v_show_terminal_option = {{ show_terminal_option }};
-</script>
-{% endblock %}
+    <!-- Modal Generic Message -->
+    <div class="modal fade" id="modal_message" tabindex="-1" role="dialog" aria-hidden="true">
+      <div id="modal_message_dialog" class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div id="modal_message_content" class="modal-body" style='white-space: pre-line;'>
+          </div>
+          <div class="modal-footer">
+            <button id="modal_message_yes" type="button" class="btn omnidb__theme__btn--primary" data-dismiss="modal">Yes</button>
+            <button id="modal_message_ok" type="button" class="btn omnidb__theme__btn--primary" data-dismiss="modal">Ok</button>
+            <button id="modal_message_no" type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+            <button id="modal_message_cancel" type="button" class="btn omnidb__theme__btn--secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Password -->
+    <div class="modal fade" id="modal_password" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="modal_password_content" style='white-space: pre-line;'>
+            </div>
+            <input id="txt_password_prompt" class="form-control" type="password" placeholder="Password" style="margin-top: 20px; margin-bottom:20px; text-align: center;"/>
+          </div>
+          <div class="modal-footer">
+            <button id="modal_password_ok" type="button" class="btn omnidb__theme__btn--primary" data-dismiss="modal">Ok</button>
+            <button id="modal_password_cancel" type="button" class="btn omnidb__theme__btn--secondary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="div_autocomplete" class="omnidb__autocomplete">
+      <div id='div_autocomplete_loading' class='div_loading_local' style='z-index: 1000;'></div>
+      <div id="div_test_length"></div>
+      <!--<div id="div_autocomplete_label"></div>-->
+      <div id="div_autocomplete_noresults">No results</div>
+      <div id="div_autocomplete_scroll">
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Keywords</div>
+            <i class="fas fa-font node-all node-keyword" title="Keywords"></i>
+            <div id="autocomplete_count_keyword">0 results</div>
+          </div>
+          <div id="autocomplete_grid_keyword" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Databases</div>
+            <i class="fas fa-database node-all node-database-list" title="Databases"></i>
+            <div id="autocomplete_count_database">0 results</div>
+          </div>
+          <div id="autocomplete_grid_database" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Roles</div>
+            <i class="fas fa-users node-all node-user-list" title="Roles"></i>
+            <div id="autocomplete_count_role">0 results</div>
+          </div>
+          <div id="autocomplete_grid_role" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Tablespaces</div>
+            <i class="fas fa-folder-open node-all node-tablespace-list" title="Tablespaces"></i>
+            <div id="autocomplete_count_tablespace">0 results</div>
+          </div>
+          <div id="autocomplete_grid_tablespace" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Schemas</div>
+            <i class="fas fa-layer-group node-all node-schema-list" title="Schemas"></i>
+            <div id="autocomplete_count_schema">0 results</div>
+          </div>
+          <div id="autocomplete_grid_schema" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Extensions</div>
+            <i class="fas fa-cubes node-all node-extension-list" title="Extensions"></i>
+            <div id="autocomplete_count_extension">0 results</div>
+          </div>
+          <div id="autocomplete_grid_extension" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Tables</div>
+            <i class="fas fa-table node-all node-table-list" title="Tables"></i>
+            <div id="autocomplete_count_table">0 results</div>
+          </div>
+          <div id="autocomplete_grid_table" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Views</div>
+            <i class="fas fa-eye node-all node-view-list" title="Views"></i>
+            <div id="autocomplete_count_view">0 results</div>
+          </div>
+          <div id="autocomplete_grid_view" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Columns</div>
+            <i class="fas fa-columns node-all node-column" title="Columns"></i>
+            <div id="autocomplete_count_column">0 results</div>
+          </div>
+          <div id="autocomplete_grid_column" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Functions</div>
+            <i class="fas fa-cog node-all node-function-list" title="Indexes"></i>
+            <div id="autocomplete_count_function">0 results</div>
+          </div>
+          <div id="autocomplete_grid_function" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+        <div class="omnidb__autocomplete__row">
+          <div class="omnidb__autocomplete__type">
+            <div>Indexes</div>
+            <i class="fas fa-thumbtack node-all node-index" title="Indexes"></i>
+            <div id="autocomplete_count_index">0 results</div>
+          </div>
+          <div id="autocomplete_grid_index" class="omnidb__autocomplete__data">
+          </div>
+        </div>
+      </div>
+      <div id="div_autocomplete_searching">Searching...</div>
+
+    </div>
+
+    <script src="{{url_folder}}/static/OmniDB_app/lib/jquery/jquery.min.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/ajax_control.js?v3.0.0b42"></script>
+
+    <script type="text/javascript">
+    startLoading();
+    </script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/xterm.js?v2.17.0.0"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/fit.js?v2.17.0.0"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/lib/popper/popper.min.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/lib/bootstrap/bootstrap.min.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/ace/ace.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/ace/mode-sql.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/ace/ext-language_tools.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/handsontable/handsontable.full.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape.min.js"></script>
+    <!-- <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape-spread.js"></script> -->
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/klay.js"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/cytoscape/cytoscape-klay.js"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/Chart.bundle.js?v3.0.0b42"></script>
+    <!--<script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/new/js/chartjs-plugin-datalabels.js?v3.0.0b42"></script>-->
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/chartjs-plugin-annotation.min.js?v2"></script>
+    <!-- <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/jquery.datetimepicker.full.min.js?v2"></script> -->
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/aimaraJS/lib/Aimara.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/moment/moment.min.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/lib/daterangepicker/daterangepicker.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/tree_context_functions/tree_snippets.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/tree_context_functions/tree_monitor.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/tree_context_functions/tree_postgresql.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/tree_context_functions/tree_oracle.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/tree_context_functions/tree_mariadb.js?v3.0.0b42"></script>
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/tree_context_functions/tree_mysql.js?v3.0.0b42"></script>
+
+    <script type="text/javascript" src="{{url_folder}}/static/OmniDB_app/js/renderers.js?v3.0.0b42"></script>
+
+    <script src="{{url_folder}}/static/OmniDB_app/js/header_actions.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/query.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/custom_menu.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/debug.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/notification_control.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/panel_functions/outer_snippet_panel.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/passwords.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/properties.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tabs.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/outer_connection_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/outer_terminal_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/outer_welcome_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/inner_edit_data_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/inner_graph_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/inner_snippet_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/inner_query_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/inner_console_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/inner_debugger_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/inner_monitoring_dashboard_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/inner_monitoring_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tab_functions/website_tab.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tree_context_functions/edit_data.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/create_tab_functions.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/monitoring.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/workspace.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/plugin_hook.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/users.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/shortcuts.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/connections.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/command_history.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/console.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/terminal.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/autocomplete.js?v3.0.0b41"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/tutorial_functions/tutorial.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/js/long_polling.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/lib/json_html/components.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/lib/omnis_ui_assistant/omnis-control.js?v3.0.0b42"></script>
+    <script src="{{url_folder}}/static/OmniDB_app/lib/omnis_legere/lib/omnis-legere.js?v3.0.0b42"></script>
+
+    <script type="text/javascript">
+  	//Global variables
+    var v_editor_theme = '{{ editor_theme }}';
+  	var	v_theme = '{{ theme }}';
+    var v_font_size = {{ font_size }};
+  	var v_user_id = {{ user_id }};
+    var v_user_key = '{{ user_key }}';
+    var v_user_name = '{{ user_name }}';
+    var v_csv_encoding = '{{ csv_encoding }}';
+    var v_csv_delimiter = '{{ csv_delimiter }}';
+    var v_session_key = v_user_key;
+    var v_user_login = v_user_name;
+    var v_version = '{{ omnidb_version }}';
+    var v_short_version = '{{ omnidb_short_version }}';
+    var v_url_folder = '{{ url_folder }}';
+    var v_welcome_closed = {{ welcome_closed }};
+  	var v_connections_data;
+  	var gv_desktopMode = ('{{ desktop_mode }}' === 'True');
+  	var v_tab_token = '{{ tab_token }}';
+  	var v_show_terminal_option = {{ show_terminal_option }};
+    var v_omnis = createOmnis();
+
+    var v_menu_item = '{{ menu_item }}'
+    $('#menu_' + v_menu_item).addClass('header_a_selected');
+
+    var ht;
+    var network;
+    var v_connTabControl;
+    var v_usersObject;
+    var v_editDataObject;
+    var v_canEditContent;
+    var v_editContentObject;
+    var v_database_list = null;
+    var v_completer_ready = true;
+    var v_tree_object;
+    var v_shortcut_object = {
+      shortcuts: {{shortcuts|safe}},
+      button: null,
+      actions: null
+    };
+    var v_super_user = {{ super_user }};
+    var v_csrf_cookie_name = '{{ csrf_cookie_name }}';
+    </script>
+    <script type="text/javascript">
+    </script>
+  </body>
+</html>

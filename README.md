@@ -20,6 +20,7 @@
     - Shared tunnels
     - Updated python and javascript libraries (security + stability)
     - ~~Electron~~ > NWJS (New desktop technology)
+    - Enhanced shortcuts, allowing users to maintain shortcuts per OS
   - UX/UI improvements for several elements (Connections management, Autocomplete, Global snippet panel with quick-[save/load], contextual menus).
 
 

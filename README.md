@@ -6,12 +6,14 @@
 
 - New features:
   - PostgreSQL 13 support
-  - Optional authentication method through Active Directory / LDAP
+  - Database structure tree and Properties/DDL tabs with support to additional PostgreSQL objects
+  - Option to use Active Directory / LDAP to authenticate OmniDB's users
   - Option to use PostgreSQL as OmniDB's backend database
   - Additional monitoring units
   - Omnis UI helper component (offering walkthroughs)
   - OmniDB's own graphical explain component (displaying Explain and Explain Analyze)
   - Option to share connections between OmniDB users
+
 
 - Improvements:
   - Core Changes

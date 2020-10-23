@@ -19,7 +19,6 @@ def cleanup_thread():
                 conn.v_connection.Close()
         except:
             None
-        #   None
         for client in list(global_object):
 
             # Client reached timeout

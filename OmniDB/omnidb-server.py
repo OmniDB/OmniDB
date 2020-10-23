@@ -349,7 +349,7 @@ if options.migratedb:
         print('Specified database file does not exist, aborting.')
         sys.exit()
     else:
-        print('Starting migration.')
+        print('Starting migration...')
         database = OmniDatabase.Generic.InstantiateDatabase(
             'sqlite','','',dbfile,'','','0',''
         )
@@ -363,30 +363,30 @@ if options.migratedb:
                 order by user_id
             ''')
             for user in v_users.Rows:
-                print('Creating user {0}'.format(user['username']))
-                # Creating the user
+                # Try to get existing user
                 try:
-                    user_object = User.objects.create_user(username=user['username'],
-                                             password='changeme',
-                                             email='',
-                                             last_login=timezone.now(),
-                                             is_superuser=user['superuser']==1,
-                                             first_name='',
-                                             last_name='',
-                                             is_staff=False,
-                                             is_active=True,
-                                             date_joined=timezone.now())
+                    print('Creating user {0}...'.format(user['username']))
+                    user_object=User.objects.get(username=user['username'])
+                    print('User {0} already exists...'.format(user['username']))
                 except:
-                    print('Failed to create user {0}'.format(user['username']))
-                    # Try to get existing user
+                    # Creating the user
                     try:
-                        user_object=User.objects.get(username=user['username'])
-                    except:
-                        # User not found, skip this user
+                        user_object = User.objects.create_user(username=user['username'],
+                                                 password='changeme',
+                                                 email='',
+                                                 last_login=timezone.now(),
+                                                 is_superuser=user['superuser']==1,
+                                                 first_name='',
+                                                 last_name='',
+                                                 is_staff=False,
+                                                 is_active=True,
+                                                 date_joined=timezone.now())
+                        print('User {0} created.'.format(user['username']))
+                    except Exception as exc:
+                        print('Failed to create user {0}. Error: {1}'.format(user['username'],str(exc)))
                         continue
 
 
-                print('Creating connections of user {0}'.format(user['username']))
                 # User connections
                 v_connections = database.v_connection.Query('''
                     select *
@@ -395,6 +395,26 @@ if options.migratedb:
                     order by dbt_st_name,
                              conn_id
                 '''.format(user['userid']))
+
+                num_conn = Connection.objects.filter(user=user_object).count()
+
+                create=True
+                if len(v_connections.Rows) == 0:
+                    print('User {0} does not contain connections in the source database. Skipping to next user...'.format(user['username']))
+                    continue
+                elif num_conn > 0:
+                    value = input('User {0} already contains connections in the target database. Skip this user? (y/n) '.format(user['username']))
+                    if value.lower()=='y':
+                        continue
+                    else:
+                        value = input('Delete existing connections of user {0} from target database before migrating existing ones? (y/n) '.format(user['username']))
+                        if value.lower()=='y':
+                            Connection.objects.filter(user=user_object).delete()
+                            print('Existing connections deleted.')
+
+                print('Attempting to create connections of user {0}...'.format(user['username']))
+
+
 
                 for r in v_connections.Rows:
                     try:
@@ -468,8 +488,9 @@ if options.migratedb:
 
                         )
                         connection.save()
+                        print("Connection with alias '{0}' created.".format(v_alias))
                     except:
-                        print("Failed to create connection with alias: '{0}'".format(v_alias))
+                        print("Failed to create connection with alias '{0}'.".format(v_alias))
 
         except Exception as exc:
             print(str(exc))

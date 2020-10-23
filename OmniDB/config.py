@@ -5,7 +5,7 @@ LISTENING_ADDRESS    = '127.0.0.1'
 LISTENING_PORT       = 8000
 
 # Url path to access OmniDB, default is empty
-CUSTOM_PATH = 'test'
+CUSTOM_PATH = ''
 
 # Number of seconds between each prompt password request. Default: 30 minutes
 PWD_TIMEOUT_TOTAL = 1800

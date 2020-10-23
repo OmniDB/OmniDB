@@ -76,7 +76,7 @@ def index(request):
         else:
             return HttpResponse("INVALID APP TOKEN")
 
-    template = loader.get_template('OmniDB_app/new_login.html')
+    template = loader.get_template('OmniDB_app/login.html')
     return HttpResponse(template.render(context, request))
 
 @user_authenticated
@@ -86,7 +86,7 @@ def logout(request):
     logger.info('User "{0}" logged out.'.format(v_session.v_user_name))
     logout_django(request)
 
-    return redirect('/omnidb_login')
+    return redirect(settings.PATH + '/omnidb_login')
 
 def check_session_message(request):
 

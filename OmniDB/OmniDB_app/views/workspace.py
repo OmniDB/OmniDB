@@ -117,7 +117,7 @@ def index(request):
         p_client_id = request.session.session_key
     )
 
-    template = loader.get_template('OmniDB_app/new.html')
+    template = loader.get_template('OmniDB_app/workspace.html')
     return HttpResponse(template.render(context, request))
 
 @user_authenticated

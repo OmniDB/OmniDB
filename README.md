@@ -19,11 +19,11 @@
 
       - Core Changes
 
-        - ~~Websocket~~ > Long Polling
+        - ~Websocket~ > Long Polling
         - Database connection reutilization
         - Shared tunnels
         - Updated python libraries (security + stability)
-        - ~~Electron~~ > NWJS (New desktop technology)
+        - ~Electron~ > NWJS (New desktop technology)
 
       - UX/UI improvements for several elements (Connections management, Autocomplete, Global snippet panel with quick-[save/load], contextual menus).
 

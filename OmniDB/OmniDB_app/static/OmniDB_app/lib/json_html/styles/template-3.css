@@ -1,0 +1,31 @@
+.jsonBuilder--template-3 .jsonBuilder__ul {
+  display: block;
+  margin: 0px;
+  padding: 0px;
+}
+
+.jsonBuilder--template-3 .jsonBuilder__li {
+  align-items: flex-start;
+  display: flex;
+  justify-content: flex-start;
+  margin: 0px;
+  padding: 0px;
+}
+
+.jsonBuilder--template-3 .jsonBuilder__label {
+  background-color: #e2e2e2;
+  border-radius: 5px;
+  font-size: 12px;
+  margin-right: 5px;
+  padding: 0px 2px 0px 4px;
+}
+
+.jsonBuilder--template-3 .jsonBuilder__label::after {
+  content: ":";
+  display: inline-block;
+  margin: 0px 3px;
+}
+
+.jsonBuilder--template-3 .jsonBuilder__counter {
+  display: none;
+}

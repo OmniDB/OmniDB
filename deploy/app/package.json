@@ -1,0 +1,9 @@
+{
+ "name": "OmniDB",
+ "main": "index.html",
+"window": {
+    "frame": false,
+    "transparent": true,
+    "icon": "omnidb_icon.png"
+  }
+}

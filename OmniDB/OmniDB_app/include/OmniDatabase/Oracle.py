@@ -52,9 +52,13 @@ Oracle
 '''
 class Oracle:
     def __init__(self, p_server, p_port, p_service, p_user, p_password, p_conn_id=0, p_alias='', p_conn_string='', p_parse_conn_string = False):
+        self.lock = None
+
         self.v_alias = p_alias
         self.v_db_type = 'oracle'
         self.v_conn_string = p_conn_string
+        self.v_conn_string_error = ''
+        self.v_password = p_password
         self.v_conn_id = p_conn_id
 
         self.v_port = p_port
@@ -84,6 +88,8 @@ class Oracle:
                     self.v_active_server = parsed.hostname
                 if parsed.username!=None:
                     self.v_active_user = parsed.username
+                if parsed.password!=None and p_password == '':
+                    self.v_password = parsed.password
                 if parsed.query!=None:
                     self.v_conn_string_query = parsed.query
                 parsed_database = parsed.path
@@ -97,7 +103,7 @@ class Oracle:
             self.v_schema = '"{0}"'.format(p_user)
         else:
             self.v_schema = self.v_user
-        self.v_connection = Spartacus.Database.Oracle(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, p_password, p_conn_string)
+        self.v_connection = Spartacus.Database.Oracle(self.v_active_server, self.v_active_port, self.v_active_service, self.v_active_user, self.v_password, p_conn_string)
 
         self.v_has_schema = True
         self.v_has_functions = True
@@ -112,6 +118,7 @@ class Oracle:
         self.v_has_rules = False
         self.v_has_triggers = False
         self.v_has_partitions = False
+        self.v_has_statistics = False
 
         self.v_has_update_rule = False
         self.v_can_rename_table = True
@@ -153,9 +160,37 @@ class Oracle:
         self.v_console_help = "Console tab. Type the commands in the editor below this box. \? to view command list."
         self.v_use_server_cursor = False
 
+    # Decorator to acquire lock before performing action
+    def lock_required(function):
+        def wrap(self, *args, **kwargs):
+            try:
+                if self.v_lock != None:
+                    self.v_lock.acquire()
+            except:
+                None
+            try:
+                r = function(self, *args, **kwargs)
+            except:
+                try:
+                    if self.v_lock != None:
+                        self.v_lock.release()
+                except:
+                    None
+                raise
+            try:
+                if self.v_lock != None:
+                    self.v_lock.release()
+            except:
+                None
+            return r
+        wrap.__doc__ = function.__doc__
+        wrap.__name__ = function.__name__
+        return wrap
+
     def GetName(self):
         return self.v_service
 
+    @lock_required
     def GetVersion(self):
         return self.v_connection.ExecuteScalar('''
             select (case when product like '%Express%'
@@ -169,6 +204,7 @@ class Oracle:
     def GetUserName(self):
         return self.v_user
 
+    @lock_required
     def GetUserSuper(self):
         try:
             v_sessions = self.v_connection.Query('select * from v$session where rownum <= 1')
@@ -176,6 +212,7 @@ class Oracle:
         except Exception as exc:
             return False
 
+    @lock_required
     def GetExpress(self):
         v_express = self.v_connection.Query("select * from product_component_version where product like '%Express%'")
         return (len(v_express.Rows) > 0)
@@ -215,6 +252,19 @@ class Oracle:
             }
         return v_return
 
+    @lock_required
+    def Query(self, p_sql, p_alltypesstr=False, p_simple=False):
+        return self.v_connection.Query(p_sql, p_alltypesstr, p_simple)
+
+    @lock_required
+    def ExecuteScalar(self, p_sql):
+        return self.v_connection.ExecuteScalar(p_sql)
+
+    @lock_required
+    def Terminate(self, p_type):
+        return self.v_connection.Terminate(p_type)
+
+    @lock_required
     def QueryRoles(self):
         return self.v_connection.Query('''
             select (case when upper(replace(username, ' ', '')) <> username then '"' || username || '"' else username end) as "role_name"
@@ -222,6 +272,7 @@ class Oracle:
             order by username
         ''', True)
 
+    @lock_required
     def QueryTablespaces(self):
         return self.v_connection.Query('''
             select (case when upper(replace(tablespace_name, ' ', '')) <> tablespace_name then '"' || tablespace_name || '"' else tablespace_name end) as "tablespace_name"
@@ -229,6 +280,7 @@ class Oracle:
             order by tablespace_name
         ''', True)
 
+    @lock_required
     def QueryTables(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -246,6 +298,7 @@ class Oracle:
                      table_name
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -275,6 +328,7 @@ class Oracle:
                      column_id
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesForeignKeys(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -310,6 +364,7 @@ class Oracle:
                      detail_table.table_name
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesForeignKeysColumns(self, p_fkey, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -350,6 +405,7 @@ class Oracle:
                      detail_table.position
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesPrimaryKeys(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -385,6 +441,7 @@ class Oracle:
             {0}
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesPrimaryKeysColumns(self, p_pkey, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -423,6 +480,7 @@ class Oracle:
             {0}
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesUniques(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -458,6 +516,7 @@ class Oracle:
             {0}
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesUniquesColumns(self, p_unique, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -496,6 +555,7 @@ class Oracle:
             {0}
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesIndexes(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -523,6 +583,7 @@ class Oracle:
                      index_name
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryTablesIndexesColumns(self, p_index, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -549,6 +610,7 @@ class Oracle:
             order by c.column_position
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryDataLimited(self, p_query, p_count=-1):
         if p_count != -1:
             try:
@@ -565,6 +627,7 @@ class Oracle:
         else:
             return self.v_connection.Query(p_query, True)
 
+    @lock_required
     def QueryTableRecords(self, p_column_list, p_table, p_filter, p_count=-1):
         v_limit = ''
         if p_count != -1:
@@ -585,6 +648,7 @@ class Oracle:
             ), True
         )
 
+    @lock_required
     def QueryFunctions(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -602,6 +666,7 @@ class Oracle:
             order by 2
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryFunctionFields(self, p_function, p_schema):
         if p_schema:
             v_schema = p_schema
@@ -624,11 +689,13 @@ class Oracle:
             order by 3
         '''.format(v_schema, p_function), True)
 
+    @lock_required
     def GetFunctionDefinition(self, p_function):
         v_body = '-- DROP FUNCTION {0};\n'.format(p_function)
         v_body = v_body + self.v_connection.ExecuteScalar("select dbms_lob.substr(dbms_metadata.get_ddl('FUNCTION', '{0}'), 4000, 1) from dual".format(p_function))
         return v_body
 
+    @lock_required
     def QueryProcedures(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -646,6 +713,7 @@ class Oracle:
             order by 2
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryProcedureFields(self, p_procedure, p_schema):
         if p_schema:
             v_schema = p_schema
@@ -665,11 +733,13 @@ class Oracle:
             order by 3
         '''.format(v_schema, p_procedure), True)
 
+    @lock_required
     def GetProcedureDefinition(self, p_procedure):
         v_body = '-- DROP PROCEDURE {0};\n'.format(p_procedure)
         v_body = v_body + self.v_connection.ExecuteScalar("select dbms_lob.substr(dbms_metadata.get_ddl('PROCEDURE', '{0}'), 4000, 1) from dual".format(p_procedure))
         return v_body
 
+    @lock_required
     def QuerySequences(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -688,6 +758,7 @@ class Oracle:
         '''.format(v_filter), True)
         return v_table
 
+    @lock_required
     def QueryViews(self, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -704,6 +775,7 @@ class Oracle:
             order by 2, 1
         '''.format(v_filter), True)
 
+    @lock_required
     def QueryViewFields(self, p_table=None, p_all_schemas=False, p_schema=None):
         v_filter = ''
         if not p_all_schemas:
@@ -732,6 +804,7 @@ class Oracle:
             order by table_name, column_id
         '''.format(v_filter), True)
 
+    @lock_required
     def GetViewDefinition(self, p_view, p_schema):
         if p_schema:
             v_schema = p_schema
@@ -1254,6 +1327,7 @@ SELECT ...
 WHERE condition
 ''')
 
+    @lock_required
     def GetProperties(self, p_schema, p_object, p_type):
         if p_type == 'role':
             v_table1 = self.v_connection.Query('''
@@ -1332,6 +1406,7 @@ WHERE condition
                 v_table1.Merge(v_table2)
         return v_table1
 
+    @lock_required
     def GetDDL(self, p_schema, p_table, p_object, p_type):
         if p_type == 'role' or p_type == 'tablespace' or p_type == 'database':
             return ' '

@@ -5,46 +5,39 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 base_urlpatterns = [
+
+    path('social-auth/', include('social_django.urls', namespace="social")),
+
     url(r'^upload/$', views.plugins.upload_view, name='sign_in'),
 
+    url(r'^long_polling/$', views.polling.long_polling, name='long_polling'),
+    url(r'^create_request/$', views.polling.create_request, name='create_request'),
+    url(r'^clear_client/$', views.polling.clear_client, name='clear_client'),
+    url(r'^client_keep_alive/$', views.polling.client_keep_alive, name='client_keep_alive'),
+
     #LOGIN
-    url(r'^$', views.login.index, name='login'),
-    url(r'^login/', views.login.index, name='login'),
+    url(r'^$', views.login.check_session, name='check_session'),
+    url(r'^omnidb_login/', views.login.index, name='login'),
     url(r'^logout/', views.login.logout, name='logout'),
     url(r'^check_session_message/$', views.login.check_session_message, name='check_session_message'),
     url(r'^sign_in/$', views.login.sign_in, name='sign_in'),
 
     #CONNECTIONS
-    url(r'^connections/', views.connections.index, name='connections'),
-    url(r'^get_connections/$', views.connections.get_connections, name='get_connections'),
-    url(r'^save_connections/$', views.connections.save_connections, name='save_connections'),
-    url(r'^test_connection/$', views.connections.test_connection, name='test_connection'),
-    url(r'^select_connection/$', views.connections.select_connection, name='select_connection'),
-    url(r'^get_groups/$', views.connections.get_groups, name='get_groups'),
-    url(r'^new_group/$', views.connections.new_group, name='new_group'),
     url(r'^edit_group/$', views.connections.edit_group, name='edit_group'),
     url(r'^delete_group/$', views.connections.delete_group, name='delete_group'),
+    url(r'^get_connections/$', views.connections.get_connections, name='get_connections'),
+    url(r'^save_connection/$', views.connections.save_connection, name='save_connection'),
+    url(r'^delete_connection/$', views.connections.delete_connection, name='delete_connection'),
+    url(r'^test_connection/$', views.connections.test_connection, name='test_connection'),
+    url(r'^get_groups/$', views.connections.get_groups, name='get_groups'),
+    url(r'^new_group/$', views.connections.new_group, name='new_group'),
+    url(r'^save_group_connections/$', views.connections.save_group_connections, name='save_group_connections'),
 
     #USERS
     url(r'^get_users/$', views.users.get_users, name='get_users'),
     url(r'^new_user/$', views.users.new_user, name='new_user'),
     url(r'^remove_user/$', views.users.remove_user, name='remove_user'),
     url(r'^save_users/$', views.users.save_users, name='save_users'),
-
-    #MONITORING
-    url(r'^monitoring/', views.monitoring.index, name='monitoring'),
-    url(r'^get_nodes/$', views.monitoring.get_nodes, name='get_nodes'),
-    url(r'^new_node/$', views.monitoring.new_node, name='new_node'),
-    url(r'^remove_node/$', views.monitoring.remove_node, name='remove_node'),
-    url(r'^refresh_node_key/$', views.monitoring.refresh_node_key, name='refresh_node_key'),
-    url(r'^save_nodes/$', views.monitoring.save_nodes, name='save_nodes'),
-    url(r'^get_alerts/$', views.monitoring.get_alerts, name='get_alerts'),
-    url(r'^new_alert/$', views.monitoring.new_alert, name='new_alert'),
-    url(r'^remove_alert/$', views.monitoring.remove_alert, name='remove_alert'),
-    url(r'^save_alerts/$', views.monitoring.save_alerts, name='save_alerts'),
-    url(r'^get_alert_data_list/$', views.monitoring.get_alert_data_list, name='get_alert_data_list'),
-    url(r'^view_alert_chart/$', views.monitoring.view_alert_chart, name='view_alert_chart'),
-    url(r'^receive_alert_data/', views.monitoring.receive_alert_data, name='receive_alert_data'),
 
     #WORKSPACE
     url(r'^workspace/', views.workspace.index, name='workspace'),
@@ -55,8 +48,6 @@ base_urlpatterns = [
     url(r'^get_database_list/', views.workspace.get_database_list, name='get_database_list'),
     url(r'^renew_password/', views.workspace.renew_password, name='renew_password'),
     url(r'^draw_graph/', views.workspace.draw_graph, name='draw_graph'),
-    url(r'^alter_table_data/', views.workspace.alter_table_data, name='alter_table_data'),
-    url(r'^save_alter_table/', views.workspace.save_alter_table, name='save_alter_table'),
     url(r'^start_edit_data/', views.workspace.start_edit_data, name='start_edit_data'),
     url(r'^get_completions/', views.workspace.get_completions, name='get_completions'),
     url(r'^get_completions_table/', views.workspace.get_completions_table, name='get_completions_table'),
@@ -65,7 +56,7 @@ base_urlpatterns = [
     url(r'^indent_sql/', views.workspace.indent_sql, name='indent_sql'),
     url(r'^refresh_monitoring/', views.workspace.refresh_monitoring, name='refresh_monitoring'),
     url(r'^get_console_history/', views.workspace.get_console_history, name='get_console_history'),
-    url(r'^get_console_history_clean/', views.workspace.get_console_history_clean, name='get_console_history_clean'),
+    url(r'^clear_console_list/', views.workspace.clear_console_list, name='clear_console_list'),
     url(r'^get_autocomplete_results/', views.workspace.get_autocomplete_results, name='get_autocomplete_results'),
     url(r'^delete_plugin/', views.plugins.delete_plugin, name='delete_plugin'),
 
@@ -82,6 +73,7 @@ base_urlpatterns = [
     url(r'^delete_node_snippet/', views.tree_snippets.delete_node_snippet, name='delete_node_snippet'),
     url(r'^save_snippet_text/', views.tree_snippets.save_snippet_text, name='save_snippet_text'),
     url(r'^rename_node_snippet/', views.tree_snippets.rename_node_snippet, name='rename_node_snippet'),
+    url(r'^get_all_snippets/', views.tree_snippets.get_all_snippets, name='get_all_snippets'),
 
     #TREE_POSTGRESQL
     url(r'^get_tree_info_postgresql/', views.tree_postgresql.get_tree_info, name='get_tree_info'),
@@ -108,6 +100,8 @@ base_urlpatterns = [
     url(r'^get_partitions_postgresql/', views.tree_postgresql.get_partitions, name='get_partitions'),
     url(r'^get_partitions_parents_postgresql/', views.tree_postgresql.get_partitions_parents, name='get_partitions_parents'),
     url(r'^get_partitions_children_postgresql/', views.tree_postgresql.get_partitions_children, name='get_partitions_children'),
+    url(r'^get_statistics_postgresql/', views.tree_postgresql.get_statistics, name='get_statistics'),
+    url(r'^get_statistics_columns_postgresql/', views.tree_postgresql.get_statistics_columns, name='get_statistics_columns'),
     url(r'^get_functions_postgresql/', views.tree_postgresql.get_functions, name='get_functions'),
     url(r'^get_function_fields_postgresql/', views.tree_postgresql.get_function_fields, name='get_function_fields'),
     url(r'^get_function_definition_postgresql/', views.tree_postgresql.get_function_definition, name='get_function_definition'),
@@ -120,6 +114,7 @@ base_urlpatterns = [
     url(r'^get_triggerfunction_definition_postgresql/', views.tree_postgresql.get_triggerfunction_definition, name='get_triggerfunction_definition'),
     url(r'^get_eventtriggerfunctions_postgresql/', views.tree_postgresql.get_eventtriggerfunctions, name='get_eventtriggerfunctions'),
     url(r'^get_eventtriggerfunction_definition_postgresql/', views.tree_postgresql.get_eventtriggerfunction_definition, name='get_eventtriggerfunction_definition'),
+    url(r'^get_aggregates_postgresql/', views.tree_postgresql.get_aggregates, name='get_aggregates'),
     url(r'^get_sequences_postgresql/', views.tree_postgresql.get_sequences, name='get_sequences'),
     url(r'^get_views_postgresql/', views.tree_postgresql.get_views, name='get_views'),
     url(r'^get_views_columns_postgresql/', views.tree_postgresql.get_views_columns, name='get_views_columns'),
@@ -154,6 +149,8 @@ base_urlpatterns = [
     url(r'^template_call_procedure_postgresql/', views.tree_postgresql.template_call_procedure, name='template_call_procedure'),
     url(r'^change_active_database/', views.workspace.change_active_database, name='change_active_database'),
     url(r'^get_postgresql_version/', views.tree_postgresql.get_version, name='get_version'),
+    url(r'^change_role_password_postgresql/', views.tree_postgresql.change_role_password, name='change_role_password'),
+    url(r'^get_object_description_postgresql/', views.tree_postgresql.get_object_description, name='get_object_description'),
 
     #TREE_ORACLE
     url(r'^get_tree_info_oracle/', views.tree_oracle.get_tree_info, name='get_tree_info'),
@@ -264,7 +261,6 @@ base_urlpatterns = [
     url(r'^template_update_mariadb/', views.tree_mariadb.template_update, name='template_update'),
 
     #MONITORING SYSTEM
-    url(r'^get_monitor_nodes/', views.monitor_dashboard.get_monitor_nodes, name='get_monitor_nodes'),
     url(r'^test_monitor_script/', views.monitor_dashboard.test_monitor_script, name='test_monitor_script'),
     url(r'^get_monitor_unit_list/', views.monitor_dashboard.get_monitor_unit_list, name='get_monitor_unit_list'),
     url(r'^get_monitor_unit_details/', views.monitor_dashboard.get_monitor_unit_details, name='get_monitor_unit_details'),

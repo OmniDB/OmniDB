@@ -1,0 +1,26 @@
+.jsonBuilder--template-2 .jsonBuilder__ul {
+  display: block;
+  padding: 0;
+}
+
+.jsonBuilder--template-2 .jsonBuilder__li {
+  border: 1px solid #e2e2e2;
+  display: block;
+  margin-bottom: 5px;
+  margin-left: 3px;
+  padding: 0;
+}
+
+.jsonBuilder--template-2 .jsonBuilder__li .jsonBuilder__li {
+  margin: 11px 0px 11px 11px;
+}
+
+.jsonBuilder--template-2 .jsonBuilder__label {
+  background-color: #e2e2e2;
+  font-size: 12px;
+  padding-left: 5px;
+}
+
+.jsonBuilder--template-2 .jsonBuilder__li-value {
+  padding-left: 5px;
+}

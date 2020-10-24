@@ -1,0 +1,630 @@
+/*
+This file is part of OmniDB.
+OmniDB is open-source software, distributed "AS IS" under the MIT license in the hope that it will be useful.
+
+The MIT License (MIT)
+
+Portions Copyright (c) 2015-2020, The OmniDB Team
+Portions Copyright (c) 2017-2020, 2ndQuadrant Limited
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+.omnidb--theme-light {
+  color: #454545;
+
+  .omnidb__main {
+    background-color: #F4F4F4;
+  }
+
+  .omnidb__theme-bg--menu-primary {
+    background-color: #4A81D4;
+    &::-webkit-scrollbar-track {
+      background: #4A81d4;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #325B9A;
+    }
+  }
+
+  .omnidb__theme-bg--menu-utilities {
+    background-color: #4A81D4;
+  }
+
+  .omnidb__theme-bg--light {
+    background-color: #F4F4F4;
+  }
+
+  .omnidb__theme-border--primary {
+    border: 1px solid #DEDEDE;
+  }
+
+  .omnidb__theme-border-top--primary {
+    border-top: 1px solid #DEDEDE;
+  }
+
+  /* TEXT */
+  .omnidb__theme-text {
+    color: #4A81D4;
+    &--primary {
+      color: #4A81D4;
+    }
+    &--secondary {
+      color: #6C757D;
+    }
+  }
+
+  .omnidb__workspace {
+    &__div-left {
+      background-color: #FFFFFF;
+    }
+    &__div-right {
+      background-color: #F4F4F4;
+    }
+  }
+
+  /* OMNIS */
+  .omnis {
+    background-color: rgba(255,255,255,0.25);
+
+    &.omnis--active {
+      background-color: rgba(255,255,255,1);
+    }
+
+    &__cloned-element__waves span {
+      background-color: #2E53B9;
+    }
+  }
+
+  /* ICONS */
+  .close,
+  i.icon-close {
+    color: #d85656;
+  }
+
+  /* BRANDING ICON */
+  .omnidb-icon__theme--branding {
+  	fill: #FFF;
+
+    path {
+    	fill: #FFF;
+    }
+  }
+
+  /* BUTTONS */
+  .omnidb__theme__btn {
+    &--primary {
+      background-color: #4A81D4;
+      color: #FFF;
+    }
+    &--secondary {
+      background-color: #DEDEDE;
+      color: #6C757D;
+    }
+  }
+
+  /* CONSOLE */
+  .ace_content {
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
+  }
+  .omnidb__txt-console {
+    border-color: #DEDEDE;
+  }
+
+  /* TABS */
+  .nav-tabs {
+    .nav-link {
+      &:focus,
+      &:hover {
+        border-color: #e9ecef #e9ecef #dee2e6;
+        color: #555;
+      }
+
+      &.active {
+        border-top: 2px solid #68A4FF;
+      }
+    }
+  }
+
+  /* PRIMARY TAB */
+  .omnidb__tab-menu--primary {
+    .nav-tabs .nav-link.active {
+      border-top: none;
+      background-color: #3869b3;
+    }
+
+    .omnidb__tab-menu__link-name {
+    	color: #FFF;
+    }
+
+    .omnidb__tab-menu__link-icon {
+      background-color: unset;
+      color: #F9F9F9;
+    }
+  }
+
+  /* UTILITIES MENU */
+  .omnidb__utilities-menu {
+    .omnidb__menu__btn {
+      background-color: unset;
+      color: #F9F9F9;
+    }
+
+    .omnidb__menu__btn,
+    .omnidb__menu__btn-user {
+      &:hover {
+        color: #F9F9F9;
+      }
+    }
+
+    .omnidb__menu__btn-text,
+    .fa-code-branch {
+      color: #F9F9F9;
+    }
+
+    .badge-info {
+      color: #585858;
+      background-color: #FFF;
+    }
+  }
+
+  a {
+    color: #4A81D4;
+  }
+
+  /* ACE EDITOR */
+  .ace_editor {
+    &.ace-omnidb {
+      background-color: #F4F4F4 !important;
+      border: 1px solid #DEDEDE !important;
+
+      .ace_gutter {
+        background-color: #FFF;
+      }
+
+      .ace_folding-enabled > .ace_gutter-cell {
+        color: #828282;
+      }
+    }
+  }
+
+  /* SECONDARY TAB */
+  .omnidb__tab-menu--secondary {
+    border-bottom-color: #DEDEDE;
+
+    .nav-tabs {
+      border-bottom-color: transparent !important;
+    }
+
+    .omnidb__tab-menu__link {
+      background-color: transparent;
+      border-color: #e2e2e2;
+      border-bottom-color: #DEDEDE;
+
+      &.active {
+        background-color: transparent;
+        border-color: #DEDEDE;
+        border-bottom-color: #F4F4F4;
+        border-top: 2px solid #68A4FF;
+      }
+    }
+
+    .omnidb__tab-menu__link-name {
+      color: #585858 !important;
+    }
+
+    .omnidb__tab-menu__link-icon {
+      background-color: unset;
+    }
+  }
+
+  /* TREE TAB */
+  .omnidb__tree-tabs {
+    .omnidb__tab-menu {
+      .nav-tabs {
+        border-bottom-color: transparent !important;
+      }
+
+      .omnidb__tab-menu__link {
+        background-color: transparent;
+        border-color: #DEDEDE;
+        border-bottom-color: #DEDEDE;
+
+        &.active {
+          background-color: transparent;
+          border-color: #DEDEDE;
+          border-bottom-color: #FFFFFF;
+          border-top: 2px solid #68A4FF;
+        }
+      }
+
+      .omnidb__tab-menu__link-name {
+        color: #585858 !important;
+      }
+
+      .omnidb__tab-menu__link-icon {
+        background-color: #E2E2E2 !important;
+      }
+    }
+  }
+
+  /* QUERY RESULT TABS */
+  .omnidb__query-result-tabs .omnidb__tab-menu {
+    .nav-tabs {
+      border-bottom-color: transparent !important;
+    }
+
+    .omnidb__tab-menu__link {
+      background-color: transparent;
+      border-color: #e2e2e2;
+      border-bottom-color: #DEDEDE;
+
+      &.active {
+        background-color: transparent;
+        border-color: #DEDEDE;
+        border-bottom-color: #F4F4F4;
+        border-top: 2px solid #68A4FF;
+      }
+    }
+
+    .omnidb__tab-menu__link-name {
+      color: #585858 !important;
+    }
+
+    .omnidb__tab-menu__link-icon {
+      background-color: #E2E2E2 !important;
+    }
+  }
+
+  /* MODAL CONFIG */
+  .omnidb__modal-config {
+    .nav-tabs {
+      border-bottom-color: transparent !important;
+    }
+
+    .nav-link {
+      background-color: transparent;
+      border-color: #e2e2e2;
+      border-bottom-color: #FFFFFF;
+      color: #585858 !important;
+
+      &.active {
+        background-color: transparent;
+        border-color: #DEDEDE;
+        border-bottom-color: #FFFFFF;
+        border-top: 2px solid #68A4FF;
+      }
+
+      &:focus,
+      &:hover {
+        border-bottom-color: #FFFFFF;
+      }
+    }
+  }
+
+  /* MONITORING */
+  .omnidb__monitoring-result-tabs {
+    border: 1px solid #DEDEDE;
+  }
+
+  /* CARD */
+  .card {
+    background-color: #FFF;
+
+    .card-header {
+      border-bottom-color: #D2D2D2;
+
+      .nav.nav-tabs {
+        border-color: transparent;
+      }
+    }
+  }
+
+  /* DATERANGEPICKER */
+  .daterangepicker {
+    background-color: #ffffff;
+    border: 1px solid #dfdfdf;
+
+    &:after,
+    &:before {
+      border-bottom: 7px solid #007bff;
+    }
+
+    .ranges {
+      background-color: #f8f9fa;
+
+      li {
+        &.active {
+          background-color: #4A81D4;
+          color: #FFF;
+        }
+
+        &:hover {
+          background-color: #eee;
+        }
+      }
+    }
+
+    .drp-buttons {
+      border-top: 1px solid #dfdfdf;
+    }
+
+    .cancelBtn {
+      color: #FFF;
+      background-color: #d26363;
+    }
+
+    &.show-ranges.ltr .drp-calendar.left {
+      border-left: 1px solid #dfdfdf;
+    }
+
+    .calendar-table {
+      background-color: #ffffff;
+      border: 1px solid #dfdfdf;
+    }
+
+    td {
+      &.off {
+        background-color: #ffffff;
+        color: #999;
+
+        &.in-range,
+        &.start-date,
+        &.end-date {
+          background-color: #ffffff;
+          color: #999;
+        }
+      }
+
+      &.in-range {
+        background-color: #EBF4F8;
+      }
+
+      &.active:hover {
+        background-color: #357EBD;
+        color: #FFF;
+      }
+
+    }
+
+    td.available:hover,
+    th.available:hover {
+      background-color: #EEE;
+    }
+  }
+
+  /* FORMS */
+  ::placeholder {
+    color: #808080;
+  }
+
+  .omnidb__form-check {
+    .form-check-label::before {
+      background-color: #F4F4F4 !important;
+      border: 1px solid #DEDEDE !important;
+    }
+
+    input:checked~.form-check-label::after {
+      background-color: #43afd2;
+    }
+  }
+
+  .required > label::after {
+    color: #EC2424;
+  }
+
+  /* DISABLED */
+  .form-control{
+    &:disabled,
+    &[readonly] {
+      background-color: #E9ECEF !important;
+    }
+  }
+  .custom-file > input[disabled]+label {
+    background-color: #E9ECEF;
+  }
+
+  /* Input-group */
+  span.input-group-text {
+    border-color: #CED4DA;
+  }
+
+  /* Switch */
+  label.omnidb__switch--label {
+    background-color: #E2E2E2;
+
+    span {
+      color: #888;
+      background-color: #FFF;
+    }
+  }
+
+  /* MODAL */
+  .modal-header {
+    border-color: #E2E2E2;
+  }
+  .modal-content {
+    background-color: #FFF;
+  }
+  .modal-footer {
+    border-top-color: #d2d2d2;
+  }
+
+  /* SCROLLBAR CHROME */
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #EFEFEF;
+  }
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #DEDEDE;
+    cursor: pointer;
+  }
+
+  /* SCROLLBAR FIREFOX (new versions) */
+  * {
+    scrollbar-color: #DEDEDE #EFEFEF;
+  }
+
+  /* TOAST */
+  .toast {
+    background-color: #dadada;
+    border-color: rgba(0,0,0,.1);
+   }
+  .toast-header {
+    background-color: rgba(255,255,255,.85);
+  }
+
+  /* TOOLTIPS */
+  .bs-tooltip-auto[x-placement^=bottom] .arrow::before,
+  .bs-tooltip-bottom .arrow::before {
+    border-bottom-color: #D2D2D2;
+  }
+  .tooltip-inner {
+    color: #555;
+    background-color: #FFF;
+    border: 1px solid #D2D2D2;
+  }
+
+  /* CONNECTIONS */
+  .omnidb__connections__btn--select svg {
+    fill: #FFF;
+  }
+
+  /* JSON BUILDER */
+  .jsonBuilder--template-2 .jsonBuilder__label {
+    background-color: #E2E2E2;
+  }
+
+  /* PAGINATION */
+  .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+  }
+
+  /* RESIZE LINES */
+  .resize_line_horizontal {
+    border-bottom: 1px dashed #A2AFC1 !important;
+  }
+  .resize_line_vertical {
+    border-right: 1px dashed #A2AFC1 !important;
+  }
+  .omnidb__workspace-resize-grid__draggable .resize_line_vertical {
+    border-right: 1px dashed #A2AFC1 !important;
+  }
+
+  /* Workspace Connection Info */
+  .omnidb__workspace__connection-details b {
+    color: #284AC6;
+  }
+
+  /* HANDSONTABLE */
+  .handsontable th {
+    background-color: #FFFFFF;
+    color: #9a9a9a;
+    font-weight: bold;
+  }
+  .handsontable {
+    .cellEven {
+      background-color: #FFFFFF;
+    }
+
+    thead th,
+    tr th,
+    td {
+      border-color: #DEE2E6 !important;
+      border-bottom-color: #DEE2E6 !important;
+      border-left-color: #DEE2E6 !important;
+      border-right-color: #DEE2E6 !important;
+      border-top-color: #DEE2E6 !important;
+    }
+  }
+
+  .omnidb__ht__first-col-actions td:first-child {
+    color: #4A81D4;
+  }
+
+  /* Query Info */
+  .omnidb__query-info__value {
+    color: #4A81D4;
+  }
+
+  /* Aimara Tree */
+  .node-all {
+    color: #4A81D4;
+  }
+
+  /* Autocomplete */
+  .omnidb__autocomplete {
+    background: #FFFFFF;
+
+    &__data {
+      background-color: #FBFBFB;
+    }
+  }
+
+  #div_autocomplete .handsontable tr:hover {
+    background-color: #c7d6ff !important;
+    cursor: pointer;
+  }
+
+  /* Ace-search */
+  .ace_search {
+    background-color: #F4F4F4;
+    box-shadow: 0px 1px 5px rgba(0,0,0,0.2);
+  }
+
+  /* Tree Component */
+  .aimara_tree a.nav-link:hover {
+    background-color: #f3f3f3;
+  }
+
+  span.node_selected span {
+    color: #284AC6;
+  }
+}
+
+.cellNew {
+	background-color: rgb(216, 236, 218) !important;
+}
+
+.cellEdit {
+	background-color: rgb(255, 251, 215) !important;
+}
+
+.cellRemove {
+	background-color: rgb(255, 213, 213) !important;
+}
+
+.cellReadOnly {
+	background-color: rgb(242, 242, 242) !important;
+}
+
+/*.cellEven {
+	background-color: rgb(234, 237, 249) !important;
+}*/
+
+#horizontal-resize-line {
+  border-left-color: black;
+}
+
+#vertical-resize-line {
+  border-top-color: black;
+}

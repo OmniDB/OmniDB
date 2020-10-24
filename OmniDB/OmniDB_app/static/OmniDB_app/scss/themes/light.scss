@@ -413,6 +413,7 @@ SOFTWARE.
   ::placeholder {
     color: #808080;
   }
+
   .omnidb__form-check {
     .form-check-label::before {
       background-color: #F4F4F4 !important;
@@ -422,6 +423,10 @@ SOFTWARE.
     input:checked~.form-check-label::after {
       background-color: #43afd2;
     }
+  }
+
+  .required > label::after {
+    color: #EC2424;
   }
 
   /* DISABLED */

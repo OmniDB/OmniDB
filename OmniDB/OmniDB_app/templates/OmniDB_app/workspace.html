@@ -9,9 +9,9 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/lib/bootstrap/bootstrap.min.css?v3.0.0b42">
     <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/lib/handsontable/handsontable.full.css?v3.0.0b42"/>
-    <!-- <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/new/css/omnidb.css?v3.0.0b42"> -->
     <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/lib/fa/css/all.css?v3.0.0b42">
     <link rel="stylesheet" href="{{url_folder}}/static/OmniDB_app/css/xterm.css">
+    <!-- NOW IMPORTED INSIDE SCSS -->
     <!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/lib/aimaraJS/css/Aimara.css?v3.0.0b42"/> -->
     <!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/css/node-icon.css?v2"/> -->
     <!-- <link rel="stylesheet" type="text/css" href="{{url_folder}}/static/OmniDB_app/new/css/interface-icon.css?v3.0.0b42"/> -->
@@ -172,9 +172,9 @@
           <div class="modal-body">
 
               <div class="form-row">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-4 mb-3 required">
                   <label for="conn_form_type">Connection Type</label>
-                  <select id="conn_form_type" class="form-control" onchange="updateModalEditConnectionState(event)">
+                  <select id="conn_form_type" class="form-control" oninput="updateModalEditConnectionState(event)">
                     <option value=-1 selected>Select Type</option>
                   </select>
                 </div>
@@ -195,25 +195,25 @@
 
               <div class="card">
                 <div class="card-header">
-                  <h6>Host Connection Info</h6>
+                  <h6 class="mb-0">Host Connection Info</h6>
                 </div>
                 <div class="card-body">
                   <div class="form-row">
                     <div class="col-md-3 mb-3">
                       <label for="conn_form_server">Server</label>
-                      <input type="text" class="form-control" id="conn_form_server" placeholder="ex: 127.0.0.1" onchange="updateModalEditConnectionState(event)">
+                      <input type="text" class="form-control" id="conn_form_server" placeholder="ex: 127.0.0.1" oninput="updateModalEditConnectionState(event)">
                     </div>
                     <div class="col-md-1 mb-3">
                       <label for="conn_form_port">Port</label>
-                      <input type="text" class="form-control" id="conn_form_port" placeholder="ex: 5432" onchange="updateModalEditConnectionState(event)">
+                      <input type="text" class="form-control" id="conn_form_port" placeholder="ex: 5432" oninput="updateModalEditConnectionState(event)">
                     </div>
                     <div class="col-md-3 mb-3">
                       <label for="conn_form_database">Database</label>
-                      <input type="text" class="form-control" id="conn_form_database" placeholder="ex: postgres" onchange="updateModalEditConnectionState(event)">
+                      <input type="text" class="form-control" id="conn_form_database" placeholder="ex: postgres" oninput="updateModalEditConnectionState(event)">
                     </div>
                     <div class="col-md-3 mb-3">
                       <label for="conn_form_user">User</label>
-                      <input type="text" class="form-control" id="conn_form_user" placeholder="ex: postgres" onchange="updateModalEditConnectionState(event)">
+                      <input type="text" class="form-control" id="conn_form_user" placeholder="ex: postgres" oninput="updateModalEditConnectionState(event)">
                     </div>
                     <div class="col-md-2 mb-3">
                       <label for="conn_form_user_pass">User Password <i class="fas fa-question-circle text-info" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional user password</h5></h4><ul><li><strong>If provided:</strong> password will be stored to omnidb configuration's database and used when connecting to this connection.</li><li><strong>Leaving blank:</strong> No password will be saved and it will be requested to be manually type everytime the user tries to use this connection. If it's a <strong>PostgreSQL</strong> connection, OmniDB will try to retrieve password from <strong>.pgpass</strong>.</li></ul>"></i></label>
@@ -228,8 +228,8 @@
 
                   <div class="form-row">
                     <div class="col-md mb-3">
-                      <label for="conn_form_connstring">Connection string <i class="fas fa-question-circle text-info" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional connection string</h5></h4><ul><li><strong>If provided:</strong> ...</li></ul>"></i></label>
-                      <input type="text" class="form-control" id="conn_form_connstring" placeholder="ex: postgresql://postgres@localhost:5432/postgres" onchange="updateModalEditConnectionState(event)">
+                      <label for="conn_form_connstring">Connection string <i class="fas fa-question-circle text-info" data-toggle="tooltip" data-html="true" data-placement="bottom" title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional connection string</h5></h4><ul><li><strong>If provided:</strong> OmniDB will use this as the default config, and single inputs for server should not be filled.</li><li><strong>If blank:</strong> In this case, if this is not a terminal connection, you should instead fill the required single inputs for server above.</li></ul>"></i></label>
+                      <input type="text" class="form-control" id="conn_form_connstring" placeholder="ex: postgresql://postgres@localhost:5432/postgres" oninput="updateModalEditConnectionState(event)">
                     </div>
                   </div>
                 </div>
@@ -239,7 +239,7 @@
                 <div class="card-header">
                   <div class="form-group mb-0">
                     <div class="omnidb__form-check form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" value="" id="conn_form_use_tunnel" onchange="updateModalEditConnectionState(event)">
+                      <input class="form-check-input" type="checkbox" value="" id="conn_form_use_tunnel" oninput="updateModalEditConnectionState(event)">
                       <label class="form-check-label" for="conn_form_use_tunnel">
                         <b style="vertical-align: middle;">Use SSH tunnel</b>
                       </label>
@@ -250,15 +250,15 @@
                   <div class="form-row">
                     <div class="col-md-4 mb-3">
                       <label for="conn_form_ssh_server">SSH Server</label>
-                      <input type="text" class="form-control" id="conn_form_ssh_server" placeholder="SSH server" readonly onchange="updateModalEditConnectionState(event)">
+                      <input type="text" class="form-control" id="conn_form_ssh_server" placeholder="SSH server" readonly oninput="updateModalEditConnectionState(event)">
                     </div>
                     <div class="col-md-2 mb-3">
                       <label for="conn_form_ssh_port">SSH Port</label>
-                      <input type="text" class="form-control" id="conn_form_ssh_port" placeholder="SSH port" readonly onchange="updateModalEditConnectionState(event)">
+                      <input type="text" class="form-control" id="conn_form_ssh_port" placeholder="SSH port" readonly oninput="updateModalEditConnectionState(event)">
                     </div>
                     <div class="col-md-3 mb-3">
                       <label for="conn_form_ssh_user">SSH User</label>
-                      <input type="text" class="form-control" id="conn_form_ssh_user" placeholder="SSH user" readonly onchange="updateModalEditConnectionState(event)">
+                      <input type="text" class="form-control" id="conn_form_ssh_user" placeholder="SSH user" readonly oninput="updateModalEditConnectionState(event)">
                     </div>
                     <div class="col-md-3 mb-3">
                       <label for="conn_form_ssh_password">
@@ -268,7 +268,7 @@
                           title="<h4 class=&quot;mb-0&quot;><h5 class=&quot;my-1&quot;>Optional ssh password / passphrase</h5></h4><div>Leave this blank if you dont want the password to be stored.</div><ul><li><strong>If provided:</strong> OmniDB will use this password when opening a SSH tunnel.</li><li><strong>Leaving blank:</strong> When the SSH tunnel is requested, OmniDB will prompt an input requesting for this password to be used exclusively to open the connection, but it wont be stored.</li></ul>"
                         ></i>
                       </label>
-                      <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" onchange="updateConnectionKey(event)" readonly>
+                      <input type="password" class="form-control" id="conn_form_ssh_password" placeholder="SSH password / passphrase" oninput="updateConnectionKey(event)" readonly>
                     </div>
                   </div>
                   <div class="form-row">
@@ -500,14 +500,14 @@
                   <div class="form-row">
                     <div class="col-md-6 mb-3">
                       <label for="sel_editor_theme">Theme</label>
-                      <select id="sel_editor_theme" class="form-control" onchange="changeTheme(this.value)">
+                      <select id="sel_editor_theme" class="form-control" oninput="changeTheme(this.value)">
   		                	<option value="light">Light</option>
   							        <option value="dark">Dark</option>
   		                </select>
                     </div>
                     <div class="col-md-6 mb-3">
                       <label for="sel_interface_font_size">Font Size</label>
-                      <select id="sel_interface_font_size" class="form-control" onchange="changeInterfaceFontSize(this.value)">
+                      <select id="sel_interface_font_size" class="form-control" oninput="changeInterfaceFontSize(this.value)">
   		                	<option value="10">10</option>
   		                	<option value="11">11</option>
   		                	<option value="12">12</option>

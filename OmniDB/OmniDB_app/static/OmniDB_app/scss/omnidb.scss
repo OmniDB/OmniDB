@@ -995,6 +995,11 @@ button.close {
 .custom-file > input {
   opacity: 0;
 }
+.required > label::after {
+  content: "*";
+  display: inline-block;
+  margin: 0 2px;
+}
 
 
 /* CONNECTIONS */
@@ -1054,14 +1059,19 @@ button.close {
   align-items: center;
   display: grid;
   grid-template:
-  'icon details buttons' 24px
-  'icon tunnel buttons' 24px;
+  'icon title buttons' 2rem
+  'details details details' 1.5rem
+  'tunnel tunnel tunnel' 1.5rem;
   grid-template-columns: 24px auto;
   padding: 5px;
   padding-left: 14px;
 }
 .omnidb__connections__card-list--rows .card-body-icon {
   grid-area: icon;
+}
+.omnidb__connections__card-list--rows .card-body-title {
+  grid-area: title;
+  text-align: left;
 }
 .omnidb__connections__card-list--rows .card-body-details {
   grid-area: details;

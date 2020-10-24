@@ -366,12 +366,18 @@ SOFTWARE.
   ::placeholder {
     color: #636A71;
   }
+
   .omnidb__form-check .form-check-label::before {
     background-color: #2F3136 !important;
     border: 1px solid #4C5365 !important;
   }
+
   .omnidb__form-check input:checked~.form-check-label::after {
     background-color: #67ff81;
+  }
+
+  .required > label::after {
+    color: #EC2424;
   }
 
   .custom-file > input+label {

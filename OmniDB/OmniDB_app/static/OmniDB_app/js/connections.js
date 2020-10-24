@@ -134,6 +134,8 @@ function showConnectionList(p_open_modal, p_change_group) {
         v_card_div.appendChild(v_card_body_div);
 				// Empty icon info
 				var v_icon = '';
+				// Empty title info
+				var v_title = '';
 				// Empty details info
 				var v_details = '';
 				// Empty tunnel info
@@ -144,17 +146,17 @@ function showConnectionList(p_open_modal, p_change_group) {
 					v_icon = '<i class="fas fa-terminal"></i>';
 					// Showing connection string info
 					if (v_conn_obj.alias && v_conn_obj.alias !== '') {
-						v_details = '<h5 class="card-title">' + v_conn_obj.alias + '</h5>';
+						v_title = '<h5 class="card-title">' + v_conn_obj.alias + '</h5>';
 					}
 					else {
-						v_details = '<h5 class="card-title">Terminal</h5>';
+						v_title = '<h5 class="card-title">Terminal</h5>';
 					}
 					// Showing tunnel info
 					v_tunnel = '<h6 class="card-subtitle text-muted">' + v_conn_obj.tunnel.user + '@' + v_conn_obj.tunnel.server + ':' + v_conn_obj.tunnel.port + '</h6>';
 				}
         else {
 					v_icon = '<i class="technology-icon node-' + v_conn_obj.technology + '"></i>';
-					v_details = '<h5 class="card-title">' + v_conn_obj.alias + '</h5>';
+					v_title = '<h5 class="card-title">' + v_conn_obj.alias + '</h5>';
 					// Showing connection string info
           if (v_conn_obj.conn_string && v_conn_obj.conn_string!='') {
 						v_details += '<h6 class="card-subtitle mb-2 text-muted"><i title="Connection String" class="fas fa-quote-left"></i> ' + v_conn_obj.conn_string + '</h6>';
@@ -175,6 +177,9 @@ function showConnectionList(p_open_modal, p_change_group) {
 				v_card_body_div.innerHTML +=
 				'<div class="card-body-icon">' +
 					v_icon +
+				'</div>' +
+				'<div class="card-body-title">' +
+					v_title +
 				'</div>' +
 				'<div class="card-body-details">' +
 					v_details +
@@ -892,12 +897,26 @@ function toggleConnectionsPublic() {
 	}
 }
 
+/**
+ * ## updateModalEditConnectionState
+ * @desc Constructs a set of string arrays containing connection inputs that should be validated, enabled and disabled.
+ * These arrays are constructed based on a set of rules, ex:
+ * - conn_form_type as 'Terminal' makes:
+ * 	- required: 'conn_form_server', 'conn_form_port', 'conn_form_database'
+ *  - enabled: 'conn_form_ssh_server', 'conn_form_ssh_port', 'conn_form_ssh_database', 'conn_form_ssh_password', 'conn_form_ssh_key', 'conn_form_ssh_key_input'
+ *  - disabled: 'conn_form_server', 'conn_form_port', 'conn_form_database', 'conn_form_password', 'conn_form_key', 'conn_form_ssh_input'
+ *
+ * @param  {Object} e Event.
+ */
 function updateModalEditConnectionState(e) {
   let v_e_target = e.target;
   let v_e_target_id = v_e_target.getAttribute('id');
   let v_e_value = e.target.value;
+	// IDs of elements that should be disabled.
   let v_disable_list = [];
+	// IDs of elements that should be enabled.
   let v_enable_list = [];
+	// IDs of elements that should be required.
 	let v_form_cases = ['conn_form_type'];
 	let v_technology = document.getElementById('conn_form_type').value;
 	let v_allow_tunnel = document.getElementById('conn_form_use_tunnel').checked;
@@ -1033,45 +1052,43 @@ function updateModalEditConnectionState(e) {
 			v_form_cases.push('conn_form_ssh_port');
 			v_form_cases.push('conn_form_ssh_user');
     }
-		// Case where user picked DB technologies require server config.
-    // else {
-    //   v_enable_list = [
-    //     'conn_form_connstring',
-    //     'conn_form_server',
-    //     'conn_form_port',
-    //     'conn_form_database',
-    //     'conn_form_user',
-    //     'conn_form_user_pass'
-    //   ];
-    //   document.getElementById('conn_form_use_tunnel').removeAttribute('disabled');
-		// 	// Form cases will check for single connection inputs, except password.
-		// 	v_form_cases.push('conn_form_connstring');
-		// 	v_form_cases.push('conn_form_server');
-		// 	v_form_cases.push('conn_form_port');
-		// 	v_form_cases.push('conn_form_database');
-		// 	v_form_cases.push('conn_form_user');
-    // }
   }
 
 	// Updating the fields.
 	updateModalEditConnectionFields(v_disable_list, v_enable_list, v_form_cases);
 }
 
+/**
+ * ## updateModalEditConnectionFields
+ * @desc Verifies a set of arrays to either disable, enable, set as required and clear fields when necessary.
+ *
+ * @param  {array} p_disable_list IDs of elements that should be disabled.
+ * @param  {array} p_enable_list  IDs of elements that should be enabled.
+ * @param  {array} p_form_cases   IDs of elements that should be required.
+ */
 function updateModalEditConnectionFields(p_disable_list, p_enable_list, p_form_cases) {
+	// Disabling elements.
 	for (let i = 0; i < p_disable_list.length; i++) {
     var v_item = document.getElementById(p_disable_list[i]);
     v_item.setAttribute('readonly',true);
 		v_item.setAttribute('disabled', true);
     v_item.value = null;
   }
+	// Enabling elements.
   for (let i = 0; i < p_enable_list.length; i++) {
     var v_item = document.getElementById(p_enable_list[i]);
     v_item.removeAttribute('readonly');
 		v_item.removeAttribute('disabled');
   }
-
+	// Removing 'required' class from elements inside the connection modal.
+	$('#modal_edit_connection .required').removeClass('required');
 	let v_has_invalid = false;
 	if (p_form_cases) {
+		// Adding 'required' class to required elements inside.
+		for (let i = 0; i < p_form_cases.length; i++) {
+			$('#'+p_form_cases[i]).parent().addClass('required');
+		}
+		// Validating values of required elements.
 		for (let i = 0; i < p_form_cases.length; i++) {
 			if (p_form_cases[i] === 'conn_form_type') {
 				if (document.getElementById(p_form_cases[i]).value === '-1') {
@@ -1088,6 +1105,7 @@ function updateModalEditConnectionFields(p_disable_list, p_enable_list, p_form_c
 			}
 		}
 	}
+	// Enabling or Disabling the test and save buttons based on valid data of required fields.
 	if (v_has_invalid) {
 		document.getElementById('conn_form_button_test_connection').setAttribute('disabled', true);
 		document.getElementById('conn_form_button_save_connection').setAttribute('disabled', true);

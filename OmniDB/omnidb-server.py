@@ -510,7 +510,7 @@ if platform.system() != 'Windows':
         fcntl.flock(lockfile_pointer, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception as exc:
         print("OmniDB is already running pointing to directoy '{0}'.".format(OmniDB.custom_settings.HOME_DIR))
-        exit()
+        sys.exit()
 
 import social_django
 import social_django.urls

@@ -9,6 +9,7 @@ from datetime import datetime
 from django.utils.timezone import make_aware
 
 import django.db.transaction as transaction
+from django.utils import timezone
 
 def log_message(p_logger, p_type, p_message):
     print(p_message,flush=True)

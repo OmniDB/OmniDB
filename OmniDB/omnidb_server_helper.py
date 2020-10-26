@@ -273,6 +273,8 @@ def migration_main(p_old_db_file, p_interactive, p_logger):
 
                 config_object.mig_2_to_3_done = True
                 config_object.save()
+
+                transaction.commit()
                 log_message(p_logger,'info','Database migration finished.')
 
             except Exception as exc:

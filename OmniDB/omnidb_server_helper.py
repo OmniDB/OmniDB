@@ -301,6 +301,7 @@ def migration_build_snippets_object_recursive(p_folders,p_files,p_current_object
     for folder in p_folders.Rows:
         # Match
         if ((folder['sn_id_parent'] == None and p_current_object['id'] == None) or (folder['sn_id_parent']!=None and folder['sn_id_parent'] == p_current_object['id'])):
+            new_date = make_aware(datetime.now())
             folder_object = SnippetFolder(
                 user=p_user,
                 parent=p_current_object['object'],

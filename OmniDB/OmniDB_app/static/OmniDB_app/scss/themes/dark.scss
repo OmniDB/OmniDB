@@ -545,31 +545,39 @@ SOFTWARE.
   /* Autocomplete */
   .omnidb__autocomplete {
     background: #282A2F;
-  }
-  .omnidb__autocomplete__row {
-    border-bottom-color: #484A55;
-  }
-  .omnidb__autocomplete__data {
-    background-color: #1D1F21;
-  }
-  .omnidb__autocomplete__type {
-    border-right: 1px solid #484a55;
-  }
-  .omnidb__autocomplete__data-word {
-    background-color: #25282C;
-    border: 1px solid #484a55;
-  }
-  .omnidb__autocomplete__data-row {
-    border-bottom: 1px solid #484A55;
-  }
-  .omnidb__autocomplete__data-row--selected {
-    background-color: #4e5a6b !important;
-  }
-  .omnidb__autocomplete__data-row:hover,
-  .omnidb__autocomplete__data-word:hover,
-  .omnidb__autocomplete__data-row--selected:hover {
-    border: 1px solid #484a55 !important;
-    background-color: #4e5a6b !important;
+
+    .omnidb__autocomplete__row {
+      border-bottom-color: #484A55;
+    }
+    
+    .omnidb__autocomplete__data {
+      background-color: #1D1F21;
+    }
+
+    .omnidb__autocomplete__type {
+      border-right: 1px solid #484a55;
+    }
+
+    .omnidb__autocomplete__data-word {
+      background-color: #25282C;
+      border: 1px solid #484a55;
+    }
+
+    .omnidb__autocomplete__data-row {
+      border-bottom: 1px solid #484A55;
+    }
+
+    .omnidb__autocomplete__data-row--selected {
+      background-color: #4e5a6b !important;
+    }
+
+    .omnidb__autocomplete__data-row:hover,
+    .omnidb__autocomplete__data-word:hover,
+    .omnidb__autocomplete__data-row--selected:hover {
+      border: 1px solid #484a55 !important;
+      background-color: #4e5a6b !important;
+    }
+
   }
 
   /* Ace Search */

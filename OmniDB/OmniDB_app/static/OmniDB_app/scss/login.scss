@@ -109,7 +109,22 @@ body {
 .omnidb__login #pwd_title {
 	content: "password";
 }
-.omnidb__login input,
+.omnidb__login input {
+	appearance: unset !important;
+	background-color: #FBFBFB !important;
+	box-shadow: 2px 2px 4px inset rgba(0,0,0,0.1) !important;
+	border-radius: 6px;
+	border-width: 1px !important;
+	border-color: #e2e2e2 !important;
+	box-sizing: border-box;
+	color: #2461BE !important;
+	display: block;
+	padding: 14px 18px 6px 18px;
+	position: relative;
+	transition: 0.45s;
+	width: 100%;
+	z-index: 0;
+}
 .omnidb__login input:-internal-autofill-selected {
 	appearance: unset !important;
 	background-color: #FBFBFB !important;

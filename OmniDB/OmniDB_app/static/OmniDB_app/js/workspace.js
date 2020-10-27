@@ -952,9 +952,7 @@ function refreshHeights(p_all) {
           v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - (1.25)*v_font_size + 'px';
           setTimeout(function(){
             if (v_tab_tag.explainControl) {
-              if (v_tab_tag.explainControl.lagere) {
-                v_tab_tag.explainControl.lagere.resize();
-              }
+              v_tab_tag.explainControl.resize();
             }
           },400);
         }
@@ -1599,8 +1597,6 @@ function toggleExplainContext() {
   }
 
   updateExplainComponent();
-
-  getExplain(1);
 
 }
 

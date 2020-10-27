@@ -648,7 +648,7 @@ function createLegere(p_context = {parent: window, self: 'omnisLegere'}, p_optio
             position:fixed;
             top: 5vh;
             width: 90vw;
-            z-index: 99999999;
+            z-index: 100;
             `
           );
 
@@ -670,7 +670,7 @@ function createLegere(p_context = {parent: window, self: 'omnisLegere'}, p_optio
             padding: 5px;
             position: relative;
             width:` + v_parent_width + `px;
-            z-index: 99999999;
+            z-index: 100;
             `
           );
           v_legereControl.targetDiv.appendChild(v_legereControl.divElement);
@@ -835,7 +835,7 @@ function createLegere(p_context = {parent: window, self: 'omnisLegere'}, p_optio
           padding: 5px;
           position: relative;
           width:` + v_parent_width + `px;
-          z-index: 99999999;
+          z-index: 100;
           `
         );
 

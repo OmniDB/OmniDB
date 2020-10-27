@@ -9121,17 +9121,6 @@ function getExplainReturn(p_data) {
         v_tab_tag.div_explain_default.innerHTML = '<div class="error_text">' + p_data.v_data.message + '</div>';
         v_tab_tag.div_explain.innerHTML = '<div class="error_text">' + p_data.v_data.message + '</div>';
     } else {
-        console.log(p_data.v_data.v_data);
-
-        // Instanciate the explain component
-        if (v_tab_tag.explainControl) {
-          if (v_tab_tag.explainControl.lagere) {
-            v_tab_tag.explainControl.lagere.destroy();
-          }
-        }
-        else {
-          v_tab_tag.explainControl = {}
-        }
 
         // Adjusting data.
         var v_explain_text = '';
@@ -9164,8 +9153,13 @@ function getExplainReturn(p_data) {
           }
         }
         else {
+          // Instanciate the explain component
+          if (v_tab_tag.explainControl) {
+            v_tab_tag.explainControl.destroy();
+          }
+
           var v_legere_options = {
-            backgroundColor: (v_editor_theme === 'omnidb_dark') ? '#282a2f' : '#e2e2e2',
+            backgroundColor: (v_editor_theme === 'omnidb_dark') ? '#2f3136' : '#e2e2e2',
             target: v_tab_tag.div_explain
           }
 
@@ -9174,10 +9168,10 @@ function getExplainReturn(p_data) {
             self: 'explainControl'
           };
 
-          v_tab_tag.explainControl.lagere = createLegere(v_context, v_legere_options);
+          v_tab_tag.explainControl = createLegere(v_context, v_legere_options);
 
 
-          v_tab_tag.explainControl.lagere.updatePlanList(JSON.parse(v_explain_text));
+          v_tab_tag.explainControl.updatePlanList(JSON.parse(v_explain_text));
         }
 
 

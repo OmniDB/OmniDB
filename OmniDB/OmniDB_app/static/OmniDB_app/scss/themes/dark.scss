@@ -270,6 +270,11 @@ SOFTWARE.
     /* border: 1px solid #43464E; */
   }
 
+  /* PANEL FULL VIEW */
+  .omnidb__panel-view--full {
+    background-color: #2F3136;
+  }
+
   /* MODAL CONFIG */
   .omnidb__modal-config .nav-tabs {
     border-bottom-color: transparent !important;
@@ -411,10 +416,12 @@ SOFTWARE.
   }
 
   /* Switch */
-  label.omnidb__switch--label {
+  label.omnidb__switch--label,
+  label.omnidb__switch--explain--label {
     background-color: #3D424E;
   }
-  label.omnidb__switch--label span {
+  label.omnidb__switch--label span,
+  label.omnidb__switch--explain--label span {
     color: #fff;
     background-color: #2f3136;
   }
@@ -423,6 +430,21 @@ SOFTWARE.
   }
   .secondq__omnidb--input:checked ~ .omnidb__switch--label {
     background-color: #809dde;
+  }
+  .omnidb__main:not(.omnidb__explain--default) label.omnidb__switch--explain--label {
+      background-color: #394e83;
+  }
+
+  /* EXPLAIN */
+  .omnidb__query-result-tabs__content  {
+    .table thead th,
+    .table-resultset td {
+      border-bottom-color: #383B42;
+      border-top-color: #383B42;
+    }
+    .table-resultset tbody tr:hover {
+      color: #8199b0;
+    }
   }
 
   /* MODAL */
@@ -549,7 +571,7 @@ SOFTWARE.
     .omnidb__autocomplete__row {
       border-bottom-color: #484A55;
     }
-    
+
     .omnidb__autocomplete__data {
       background-color: #1D1F21;
     }

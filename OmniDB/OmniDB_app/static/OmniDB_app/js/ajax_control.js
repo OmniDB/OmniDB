@@ -171,23 +171,26 @@ function cancelAjax() {
  			}
  		},
  		error: function(msg) {
-			// Calling the optional function assigned as a callback if the ajax request fails.
- 			if (p_onAjaxErrorCallBack) {
- 				p_onAjaxErrorCallBack(msg);
- 			}
 			// Terminating the load animation.
  			if(p_loading == null || p_loading == true) {
  				endLoading();
  			}
-			// Prompting error messages related to ajax error.
- 			if(msg.readyState != 0) {
- 				showAlert('Request error.')
+
+			// Calling the optional function assigned as a callback if the ajax request fails.
+ 			if (p_onAjaxErrorCallBack) {
+ 				p_onAjaxErrorCallBack(msg);
  			}
- 			else {
- 				if(msg.statusText!='abort') {
- 					reportOffline();
- 				}
- 			}
+			else {
+				// Prompting error messages related to ajax error.
+	 			if(msg.readyState != 0) {
+	 				showAlert('Request error.')
+	 			}
+	 			else {
+	 				if(msg.statusText!='abort') {
+	 					reportOffline();
+	 				}
+	 			}
+			}
  		}
  	});
 

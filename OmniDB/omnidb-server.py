@@ -215,6 +215,31 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 import django_sass
 
+print('''Running database migrations...''',flush=True)
+logger.info('''Running Database Migrations...''')
+
+from os import devnull
+try:
+    call_command("migrate", interactive=False)
+    call_command("clearsessions")
+except Exception as exc:
+    print(str(exc),flush=True)
+    logger.error(str(exc))
+    sys.exit()
+
+
+# Migration from 2 to 3 ########################################################
+
+from omnidb_server_helper import *
+
+old_db_file = dbfile = os.path.expanduser(os.path.join(OmniDB.custom_settings.HOME_DIR,'omnidb.db'))
+
+# SQlite database file exists, proceed with migration
+if os.path.exists(old_db_file) and not options.migratedb:
+    migration_main(old_db_file, False, logger)
+
+################################################################################
+
 maintenance_action = False
 
 def create_user(p_user,p_pwd,p_superuser):
@@ -349,153 +374,7 @@ if options.migratedb:
         print('Specified database file does not exist, aborting.')
         sys.exit()
     else:
-        print('Starting migration...')
-        database = OmniDatabase.Generic.InstantiateDatabase(
-            'sqlite','','',dbfile,'','','0',''
-        )
-        try:
-            cryptor = Utils.Cryptor('omnidb', 'iso-8859-1')
-            v_users = database.v_connection.Query('''
-                select user_id as userid,
-                       user_name as username,
-                       super_user as superuser
-                from users
-                order by user_id
-            ''')
-            for user in v_users.Rows:
-                # Try to get existing user
-                try:
-                    print('Creating user {0}...'.format(user['username']))
-                    user_object=User.objects.get(username=user['username'])
-                    print('User {0} already exists...'.format(user['username']))
-                except:
-                    # Creating the user
-                    try:
-                        user_object = User.objects.create_user(username=user['username'],
-                                                 password='changeme',
-                                                 email='',
-                                                 last_login=timezone.now(),
-                                                 is_superuser=user['superuser']==1,
-                                                 first_name='',
-                                                 last_name='',
-                                                 is_staff=False,
-                                                 is_active=True,
-                                                 date_joined=timezone.now())
-                        print('User {0} created.'.format(user['username']))
-                    except Exception as exc:
-                        print('Failed to create user {0}. Error: {1}'.format(user['username'],str(exc)))
-                        continue
-
-
-                # User connections
-                v_connections = database.v_connection.Query('''
-                    select *
-                    from connections
-                    where user_id = {0}
-                    order by dbt_st_name,
-                             conn_id
-                '''.format(user['userid']))
-
-                num_conn = Connection.objects.filter(user=user_object).count()
-
-                create=True
-                if len(v_connections.Rows) == 0:
-                    print('User {0} does not contain connections in the source database. Skipping to next user...'.format(user['username']))
-                    continue
-                elif num_conn > 0:
-                    value = input('User {0} already contains connections in the target database. Skip this user? (y/n) '.format(user['username']))
-                    if value.lower()=='y':
-                        continue
-                    else:
-                        value = input('Delete existing connections of user {0} from target database before migrating existing ones? (y/n) '.format(user['username']))
-                        if value.lower()=='y':
-                            Connection.objects.filter(user=user_object).delete()
-                            print('Existing connections deleted.')
-
-                print('Attempting to create connections of user {0}...'.format(user['username']))
-
-
-
-                for r in v_connections.Rows:
-                    try:
-                        v_server = cryptor.Decrypt(r["server"])
-                    except Exception as exc:
-                        v_server = r["server"]
-                    try:
-                        v_port = cryptor.Decrypt(r["port"])
-                    except Exception as exc:
-                        v_port = r["port"]
-                    try:
-                        v_service = cryptor.Decrypt(r["service"])
-                    except Exception as exc:
-                        v_service = r["service"]
-                    try:
-                        v_user = cryptor.Decrypt(r["user"])
-                    except Exception as exc:
-                        v_user = r["user"]
-                    try:
-                        v_alias = cryptor.Decrypt(r["alias"])
-                    except Exception as exc:
-                        v_alias = r["alias"]
-                    try:
-                        v_conn_string = cryptor.Decrypt(r["conn_string"])
-                    except Exception as exc:
-                        v_conn_string = r["conn_string"]
-
-                    #SSH Tunnel information
-                    try:
-                        v_ssh_server = cryptor.Decrypt(r["ssh_server"])
-                    except Exception as exc:
-                        v_ssh_server = r["ssh_server"]
-                    try:
-                        v_ssh_port = cryptor.Decrypt(r["ssh_port"])
-                    except Exception as exc:
-                        v_ssh_port = r["ssh_port"]
-                    try:
-                        v_ssh_user = cryptor.Decrypt(r["ssh_user"])
-                    except Exception as exc:
-                        v_ssh_user = r["ssh_user"]
-                    try:
-                        v_ssh_password = cryptor.Decrypt(r["ssh_password"])
-                    except Exception as exc:
-                        v_ssh_password = r["ssh_password"]
-                    try:
-                        v_ssh_key = cryptor.Decrypt(r["ssh_key"])
-                    except Exception as exc:
-                        v_ssh_key = r["ssh_key"]
-                    try:
-                        v_use_tunnel = cryptor.Decrypt(r["use_tunnel"])
-                    except Exception as exc:
-                        v_use_tunnel = r["use_tunnel"]
-
-                    try:
-                        connection = Connection(
-                            user=user_object,
-                            technology=Technology.objects.get(name=r["dbt_st_name"]),
-                            server=v_server,
-                            port=v_port,
-                            database=v_service,
-                            username=v_user,
-                            password='',
-                            alias=v_alias,
-                            ssh_server=v_ssh_server,
-                            ssh_port=v_ssh_port,
-                            ssh_user=v_ssh_user,
-                            ssh_password=v_ssh_password,
-                            ssh_key=v_ssh_key,
-                            use_tunnel=v_use_tunnel==1,
-                            conn_string=v_conn_string,
-
-                        )
-                        connection.save()
-                        print("Connection with alias '{0}' created.".format(v_alias))
-                    except:
-                        print("Failed to create connection with alias '{0}'.".format(v_alias))
-
-        except Exception as exc:
-            print(str(exc))
-            None
-        print('Database migration finished.')
+        migration_main(dbfile, True, logger)
 
 # Maintenance performed, exit before starting webserver
 if maintenance_action == True:
@@ -662,19 +541,6 @@ class DjangoApplication(object):
 
 print('''Starting OmniDB server...''',flush=True)
 logger.info('''Starting OmniDB server...''')
-
-print('''Running database migrations...''',flush=True)
-logger.info('''Running Database Migrations...''')
-
-from os import devnull
-try:
-    call_command("migrate", interactive=False)
-    call_command("clearsessions")
-except Exception as exc:
-    print(str(exc),flush=True)
-    logger.error(str(exc))
-    sys.exit()
-
 
 #Removing Expired Sessions
 SessionStore.clear_expired()

@@ -73,7 +73,10 @@ function call_polling(p_startup) {
 			},
 			null,
 			'box',
-      false);
+      false,
+    null,
+    function() {
+    });
 }
 
 $(window).on('beforeunload', function() {
@@ -329,7 +332,7 @@ function createRequest(p_messageCode, p_messageData, p_context) {
 
   if (v_polling_ajax == null)
     call_polling(true);
-  else if (v_polling_ajax.readyState == 0) {
+  else if (v_polling_ajax.readyState == 0 || v_polling_ajax.readyState == 4) {
     call_polling(false);
   }
 

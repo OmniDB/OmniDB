@@ -1,6 +1,6 @@
-# OmniDB 3.0.0 Beta
+# OmniDB 3.0.1 Beta
 
-## Release Date: *October 24, 2020*
+## Release Date: *October 26, 2020*
 
 ## Release Notes
 
@@ -24,6 +24,14 @@
     - ~~Electron~~ > NWJS (New desktop technology)
     - Enhanced shortcuts, allowing users to maintain shortcuts per OS
   - UX/UI improvements for several elements (Connections management, Autocomplete, Global snippet panel with quick-[save/load], contextual menus).
+
+- 3.0.1 changes
+  - Bug Fixes
+    - Fixed an issue in the long polling mechanism
+    - Dark theme colors on autocomplete selection
+  - Improvements
+    - Added snippets and custom monitoring units to the OmniDB 2 to 3 automatic migration process
+
 
 
 **Website**: https://omnidb.org

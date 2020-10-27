@@ -699,6 +699,94 @@ button.close {
   border-top-right-radius: 0px;
 }
 
+/* EXPLAIN COMPONENTS */
+.omnidb__main {
+
+  &__explain--default {
+    .omnidb__query-result-tabs__content--explain-default {
+      display: block;
+    }
+
+    .omnidb__query-result-tabs__content--explain-legere {
+      display: none;
+    }
+  }
+
+  &:not(.omnidb__explain--default) {
+    .omnidb__query-result-tabs__content--explain-default {
+      display: none;
+    }
+
+    .omnidb__query-result-tabs__content--explain-legere {
+      display: block;
+    }
+  }
+
+  /* EXPLAIN SWITCH */
+  /* SWITCH */
+  .omnidb__switch--explain {
+    position: relative;
+  }
+  label.omnidb__switch--explain--label {
+    align-items: center;
+    background-color: #e2e2e2;
+    border-radius: calc(1rem + 2px);
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 0px;
+    padding: 2px;
+    position: relative;
+    width: 40px;
+  }
+  label.omnidb__switch--explain--label span {
+    align-items: center;
+    color: #888;
+    background-color: #FFF;
+    border-radius: 50%;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+    display: flex;
+    flex-basis: 24px;
+    flex-shrink: 0;
+    font-size: 12px;
+    line-height: 12px;
+    justify-content: center;
+    height: 24px;
+    margin-left: 0px;
+    transition: 0.35s;
+    width: 24px;
+  }
+  .omnidb__switch--explain--input {
+    cursor: pointer;
+    position: absolute;
+    transform: translate(10px,10px);
+  }
+  .omnidb__switch--explain--sm label.omnidb__switch--explain--label {
+    width: 30px;
+  }
+  .omnidb__switch--explain--sm label.omnidb__switch--explain--label span {
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
+  }
+  .omnidb__switch--explain--sm .omnidb__switch--explain--input {
+    transform: translate(5px, 5px);
+  }
+
+  &:not(.omnidb__explain--default) {
+    label.omnidb__switch--explain--label {
+      background-color: #4A81D4;
+    }
+    label.omnidb__switch--explain--label span {
+      margin-left: 15px;
+    }
+    .omnidb__switch--explain--sm label.omnidb__switch--explain--label span {
+      margin-left: 8px;
+    }
+  }
+
+}
+
 
 /* RESIZE GRID */
 /* grid z-index is (modal_z-index - 1) */

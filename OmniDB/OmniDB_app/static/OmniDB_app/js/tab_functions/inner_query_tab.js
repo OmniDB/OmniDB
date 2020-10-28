@@ -285,6 +285,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
   // Remove shortcuts from ace in order to avoid conflict with omnidb shortcuts
   v_editor.commands.bindKey("ctrl-space", null);
+  v_editor.commands.bindKey("alt-e", null);
   v_editor.commands.bindKey("Cmd-,", null);
   v_editor.commands.bindKey("Ctrl-,", null);
   v_editor.commands.bindKey("Cmd-Delete", null);

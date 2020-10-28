@@ -223,6 +223,10 @@ SOFTWARE.
   .omnidb__panel {
     padding-left: 86px;
   }
+  .omnidb__panel-view--full {
+    left: 100px;
+    width: calc(100vw - 110px);
+  }
 }
 
 @media (max-width: 1980px) {
@@ -234,6 +238,10 @@ SOFTWARE.
   }
   .omnidb__panel {
     padding-left: 33px;
+  }
+  .omnidb__panel-view--full {
+    left: 45px;
+    width: calc(100vw - 60px);
   }
 }
 
@@ -678,11 +686,10 @@ button.close {
   background-color: #FFF;
   box-shadow: 1px 1px 2px rgba(0,0,0,0.25);
   height: calc(100vh - 50px);
-  left: 45px;
   position: fixed;
+  right: 20px;
   top: 40px;
   transition: 0.35s;
-  width: calc(100vw - 60px);
   z-index: 900;
 }
 

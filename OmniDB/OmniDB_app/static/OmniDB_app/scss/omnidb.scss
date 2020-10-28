@@ -1940,15 +1940,26 @@ body {
 }
 .omnis--active .animated-omnis__group--to-blue path,
 .omnis--active .animated-omnis__group--to-blue rect {
-  animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
-				animatedOmnisSvgToActiveBlue 1.2s linear infinite alternate 1s,
-				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 1s;
+  fill: #009bff;
+}
+.omnis--active .animated-omnis__group--to-blue path,
+.omnis--active .animated-omnis__group--to-blue rect {
+  animation: animatedOmnisSvgDrawStrokes 2s linear 10 alternate 0s,
+				animatedOmnisSvgToActiveBlue 1.2s linear 16 alternate 1s,
+				animatedOmnisSvgFadeStrokes 1.2s linear 16 alternate 1s,
+				animatedOmnisSvgToActiveBlue 1.2s linear 1 forwards reverse 20s;
 }
 .omnis--active .animated-omnis__group--to-darkblue path,
 .omnis--active .animated-omnis__group--to-darkblue rect {
-  animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
-        animatedOmnisSvgToActiveBlue 1.2s linear infinite alternate 2s,
-        animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 2s;
+  animation: animatedOmnisSvgDrawStrokes 2s linear 10 alternate 0s,
+        animatedOmnisSvgToActiveBlue 1.2s linear 16 alternate 2s,
+        animatedOmnisSvgFadeStrokes 1.2s linear 16 alternate 2s,
+        animatedOmnisSvgToActiveBlue 1.2s linear 1 forwards reverse 20s;
+}
+.omnis--active .animated-omnis__icon-external {
+  transform: rotate(0deg);
+  transform-origin: center;
+  animation: animatedOmnisSvgRotate 5s linear 4 0s;
 }
 
 /* Omnis UI Assistant */
@@ -2031,7 +2042,6 @@ body {
 }
 .animated-omnis path,
 .animated-omnis rect {
-	fill: transparent;
 	stroke: #818181;
 	stroke-width: 1px;
 
@@ -2040,20 +2050,30 @@ body {
 }
 .animated-omnis__group--to-blue path,
 .animated-omnis__group--to-blue rect {
-	animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
-				animatedOmnisSvgToBlue 1.2s linear infinite alternate 1s,
-				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 1s;
+  fill: #878FC6;
 }
 .animated-omnis__group--to-darkblue path,
 .animated-omnis__group--to-darkblue rect {
-	animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
-				animatedOmnisSvgToDarkblue 1.2s linear infinite alternate 2s,
-				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 2s;
+  fill: #525678;
 }
-.animated-omnis__icon-external {
-  transform: rotate(0deg);
-  transform-origin: center;
-  animation: animatedOmnisSvgRotate 5s linear infinite 0s;
+.animated-omnis:hover {
+  .animated-omnis__group--to-blue path,
+  .animated-omnis__group--to-blue rect {
+  	animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
+  				animatedOmnisSvgToBlue 1.2s linear infinite alternate 1s,
+  				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 1s;
+  }
+  .animated-omnis__group--to-darkblue path,
+  .animated-omnis__group--to-darkblue rect {
+  	animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
+  				animatedOmnisSvgToDarkblue 1.2s linear infinite forwards alternate 2s,
+  				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 2s;
+  }
+  .animated-omnis__icon-external {
+    transform: rotate(0deg);
+    transform-origin: center;
+    animation: animatedOmnisSvgRotate 5s linear infinite 0s;
+  }
 }
 
 @keyframes animatedOmnisSvgTranslate {
@@ -2082,12 +2102,12 @@ body {
 }
 @keyframes animatedOmnisSvgToBlue {
 	to {
-		fill: #878FC6;
+  	fill: transparent;
 	}
 }
 @keyframes animatedOmnisSvgToDarkblue {
 	to {
-		fill: #525678;
+  	fill: transparent;
 	}
 }
 @keyframes animatedOmnisSvgRotate {
@@ -2098,7 +2118,7 @@ body {
 /* Used only by omnis when its active */
 @keyframes animatedOmnisSvgToActiveBlue {
 	to {
-		fill: #009bff;
+		fill: transparent;
 	}
 }
 

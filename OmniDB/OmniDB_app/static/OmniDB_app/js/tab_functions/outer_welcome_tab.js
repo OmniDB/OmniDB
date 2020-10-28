@@ -74,8 +74,6 @@ var v_createWelcomeTabFunction = function(p_index,p_create_query_tab = true, p_n
 
   var v_animated_omnis =
   `<svg
-      class="animated-omnis"
-
       version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px" y="0px"
       width="82.333px" height="82.333px"

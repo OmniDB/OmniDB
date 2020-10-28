@@ -702,25 +702,25 @@ button.close {
 /* EXPLAIN COMPONENTS */
 .omnidb__main {
 
-  &__explain--default {
-    .omnidb__query-result-tabs__content--explain-default {
-      display: block;
-    }
-
-    .omnidb__query-result-tabs__content--explain-legere {
-      display: none;
-    }
-  }
-
-  &:not(.omnidb__explain--default) {
-    .omnidb__query-result-tabs__content--explain-default {
-      display: none;
-    }
-
-    .omnidb__query-result-tabs__content--explain-legere {
-      display: block;
-    }
-  }
+  // &__explain--default {
+  //   .omnidb__query-result-tabs__content--explain-default {
+  //     display: block;
+  //   }
+  //
+  //   .omnidb__query-result-tabs__content--explain-legere {
+  //     display: none;
+  //   }
+  // }
+  //
+  // &:not(.omnidb__explain--default) {
+  //   .omnidb__query-result-tabs__content--explain-default {
+  //     display: none;
+  //   }
+  //
+  //   .omnidb__query-result-tabs__content--explain-legere {
+  //     display: block;
+  //   }
+  // }
 
   /* EXPLAIN SWITCH */
   /* SWITCH */

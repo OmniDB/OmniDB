@@ -9128,7 +9128,14 @@ function getExplainReturn(p_data) {
           v_explain_text += p_data.v_data.v_data[i] + '\n';
         }
 
+        // Destroy possible legere component.
+        if (v_tab_tag.explainControl) {
+          v_tab_tag.explainControl.destroy();
+        }
+
         if (v_explain_control.context === 'default') {
+          v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain_default.style.display = 'block';
+          v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain.style.display = 'none';
           // Updating explain default component.
           var resultset = [];
           v_explain_text.split(/\n/).forEach(function(item) {
@@ -9153,10 +9160,8 @@ function getExplainReturn(p_data) {
           }
         }
         else {
-          // Instanciate the explain component
-          if (v_tab_tag.explainControl) {
-            v_tab_tag.explainControl.destroy();
-          }
+          v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain_default.style.display = 'none';
+          v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain.style.display = 'block';
 
           var v_legere_options = {
             backgroundColor: (v_editor_theme === 'omnidb_dark') ? '#2f3136' : '#e2e2e2',

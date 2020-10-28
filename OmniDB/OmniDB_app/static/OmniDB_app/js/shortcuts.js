@@ -210,6 +210,52 @@ var v_default_shortcuts = {
         'meta_pressed': false,
         'shortcut_key': 'A',
     }
+  },
+  'shortcut_explain': {
+    'windows': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'W',
+    },
+    'linux': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'W',
+    },
+    'macos': {
+        'ctrl_pressed': true,
+        'shift_pressed': false,
+        'alt_pressed': false,
+        'meta_pressed': false,
+        'shortcut_key': 'W',
+    }
+  },
+  'shortcut_explain_analyze': {
+    'windows': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'E',
+    },
+    'linux': {
+        'ctrl_pressed': false,
+        'shift_pressed': false,
+        'alt_pressed': true,
+        'meta_pressed': false,
+        'shortcut_key': 'E',
+    },
+    'macos': {
+        'ctrl_pressed': true,
+        'shift_pressed': false,
+        'alt_pressed': false,
+        'meta_pressed': false,
+        'shortcut_key': 'E',
+    }
   }
 }
 
@@ -236,6 +282,20 @@ $(function () {
       }
       else if (v_connTabControl.selectedTab.tag.mode=='outer_terminal')
         terminalRun();
+    },
+    shortcut_explain: function() {
+
+      if (v_connTabControl.selectedTab.tag.mode=='connection') {
+        if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query')
+          getExplain(0);
+      }
+    },
+    shortcut_explain_analyze: function() {
+
+      if (v_connTabControl.selectedTab.tag.mode=='connection') {
+        if (v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.mode=='query')
+          getExplain(1);
+      }
     },
     shortcut_cancel_query: function() {
 

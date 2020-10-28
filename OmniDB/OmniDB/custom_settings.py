@@ -1,8 +1,8 @@
 import os
 
 # OmniDB settings
-OMNIDB_VERSION = 'OmniDB 3.0.1b'
-OMNIDB_SHORT_VERSION = '3.0.1b'
+OMNIDB_VERSION = 'OmniDB 3.0.2b'
+OMNIDB_SHORT_VERSION = '3.0.2b'
 DEV_MODE = True
 DESKTOP_MODE = False
 APP_TOKEN = None

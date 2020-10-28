@@ -223,6 +223,10 @@ SOFTWARE.
   .omnidb__panel {
     padding-left: 86px;
   }
+  .omnidb__panel-view--full {
+    left: 100px;
+    width: calc(100vw - 110px);
+  }
 }
 
 @media (max-width: 1980px) {
@@ -234,6 +238,10 @@ SOFTWARE.
   }
   .omnidb__panel {
     padding-left: 33px;
+  }
+  .omnidb__panel-view--full {
+    left: 45px;
+    width: calc(100vw - 60px);
   }
 }
 
@@ -678,11 +686,10 @@ button.close {
   background-color: #FFF;
   box-shadow: 1px 1px 2px rgba(0,0,0,0.25);
   height: calc(100vh - 50px);
-  left: 45px;
   position: fixed;
+  right: 20px;
   top: 40px;
   transition: 0.35s;
-  width: calc(100vw - 60px);
   z-index: 900;
 }
 
@@ -697,6 +704,98 @@ button.close {
 .nav-tabs .nav-link {
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
+}
+
+/* EXPLAIN COMPONENTS */
+.omnidb__main {
+
+  // &__explain--default {
+  //   .omnidb__query-result-tabs__content--explain-default {
+  //     display: block;
+  //   }
+  //
+  //   .omnidb__query-result-tabs__content--explain-legere {
+  //     display: none;
+  //   }
+  // }
+  //
+  // &:not(.omnidb__explain--default) {
+  //   .omnidb__query-result-tabs__content--explain-default {
+  //     display: none;
+  //   }
+  //
+  //   .omnidb__query-result-tabs__content--explain-legere {
+  //     display: block;
+  //   }
+  // }
+
+  /* EXPLAIN SWITCH */
+  /* SWITCH */
+  .omnidb__switch--explain {
+    position: relative;
+  }
+  label.omnidb__switch--explain--label {
+    align-items: center;
+    background-color: #e2e2e2;
+    border-radius: calc(1rem + 2px);
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 0px;
+    padding: 2px;
+    position: relative;
+    width: 40px;
+  }
+  label.omnidb__switch--explain--label span {
+    align-items: center;
+    color: #888;
+    background-color: #FFF;
+    border-radius: 50%;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+    display: flex;
+    flex-basis: 24px;
+    flex-shrink: 0;
+    font-size: 12px;
+    line-height: 12px;
+    justify-content: center;
+    height: 24px;
+    margin-left: 0px;
+    transition: 0.35s;
+    width: 24px;
+  }
+  .omnidb__switch--explain--input {
+    cursor: pointer;
+    position: absolute;
+    transform: translate(10px,10px);
+  }
+  .omnidb__switch--explain--sm label.omnidb__switch--explain--label {
+    width: 30px;
+  }
+  .omnidb__switch--explain--sm label.omnidb__switch--explain--label span {
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
+  }
+  .omnidb__switch--explain--sm .omnidb__switch--explain--input {
+    transform: translate(5px, 5px);
+  }
+
+  &:not(.omnidb__explain--default) {
+    label.omnidb__switch--explain--label {
+      background-color: #4A81D4;
+    }
+    label.omnidb__switch--explain--label span {
+      margin-left: 15px;
+    }
+    .omnidb__switch--explain--sm label.omnidb__switch--explain--label span {
+      margin-left: 8px;
+    }
+  }
+
+}
+
+.omnidb__query-result-tabs__content .table-resultset td {
+  padding: 1px;
 }
 
 
@@ -1344,23 +1443,23 @@ button.close {
   width: 100%;
 }
 .omnis__circle-waves span:nth-of-type(1) {
-  animation: waves 2.5s linear .1s;
-  animation-iteration-count: 8;
+  animation: waves 1s linear .1s;
+  animation-iteration-count: 2;
 }
 
 .omnis__circle-waves span:nth-of-type(2) {
-  animation: waves 2.5s linear .7s forwards;
-  animation-iteration-count: 8;
+  animation: waves 1s linear .3s forwards;
+  animation-iteration-count: 2;
 }
 
 .omnis__circle-waves span:nth-of-type(3) {
-  animation: waves 2.5s linear 1.3s forwards;
-  animation-iteration-count: 8;
+  animation: waves 1s linear .6s forwards;
+  animation-iteration-count: 2;
 }
 
 .omnis__circle-waves span:nth-of-type(4) {
-  animation: waves 2.5s linear 1.9s forwards;
-  animation-iteration-count: 8;
+  animation: waves 1s linear .9s forwards;
+  animation-iteration-count: 2;
 }
 
 /* EDITOR SCALE */
@@ -1848,15 +1947,26 @@ body {
 }
 .omnis--active .animated-omnis__group--to-blue path,
 .omnis--active .animated-omnis__group--to-blue rect {
-  animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
-				animatedOmnisSvgToActiveBlue 1.2s linear infinite alternate 1s,
-				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 1s;
+  fill: #009bff;
 }
-.omnis--active .animated-omnis__group--to-darkblue path,
-.omnis--active .animated-omnis__group--to-darkblue rect {
-  animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
-        animatedOmnisSvgToActiveBlue 1.2s linear infinite alternate 2s,
-        animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 2s;
+.omnis--active:hover {
+  // .omnis--active .animated-omnis__group--to-blue path,
+  // .omnis--active .animated-omnis__group--to-blue rect {
+  //   animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
+  // 				animatedOmnisSvgToActiveBlue 1.2s linear infinite alternate 1s,
+  // 				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 1s;
+  // }
+  // .omnis--active .animated-omnis__group--to-darkblue path,
+  // .omnis--active .animated-omnis__group--to-darkblue rect {
+  //   animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
+  //         animatedOmnisSvgToActiveBlue 1.2s linear infinite alternate 2s,
+  //         animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 2s;
+  // }
+  // .omnis--active .animated-omnis__icon-external {
+  //   transform: rotate(0deg);
+  //   transform-origin: center;
+  //   animation: animatedOmnisSvgRotate 5s linear infinite 0s;
+  // }
 }
 
 /* Omnis UI Assistant */
@@ -1939,7 +2049,6 @@ body {
 }
 .animated-omnis path,
 .animated-omnis rect {
-	fill: transparent;
 	stroke: #818181;
 	stroke-width: 1px;
 
@@ -1948,20 +2057,30 @@ body {
 }
 .animated-omnis__group--to-blue path,
 .animated-omnis__group--to-blue rect {
-	animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
-				animatedOmnisSvgToBlue 1.2s linear infinite alternate 1s,
-				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 1s;
+  fill: #878FC6;
 }
 .animated-omnis__group--to-darkblue path,
 .animated-omnis__group--to-darkblue rect {
-	animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
-				animatedOmnisSvgToDarkblue 1.2s linear infinite alternate 2s,
-				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 2s;
+  fill: #525678;
 }
-.animated-omnis__icon-external {
-  transform: rotate(0deg);
-  transform-origin: center;
-  animation: animatedOmnisSvgRotate 5s linear infinite 0s;
+.animated-omnis:hover {
+  .animated-omnis__group--to-blue path,
+  .animated-omnis__group--to-blue rect {
+  	animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
+  				animatedOmnisSvgToBlue 1.2s linear infinite alternate 1s,
+  				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 1s;
+  }
+  .animated-omnis__group--to-darkblue path,
+  .animated-omnis__group--to-darkblue rect {
+  	animation: animatedOmnisSvgDrawStrokes 2s linear infinite alternate 0s,
+  				animatedOmnisSvgToDarkblue 1.2s linear infinite forwards alternate 2s,
+  				animatedOmnisSvgFadeStrokes 1.2s linear infinite alternate 2s;
+  }
+  .animated-omnis__icon-external {
+    transform: rotate(0deg);
+    transform-origin: center;
+    animation: animatedOmnisSvgRotate 5s linear infinite 0s;
+  }
 }
 
 @keyframes animatedOmnisSvgTranslate {
@@ -1990,12 +2109,12 @@ body {
 }
 @keyframes animatedOmnisSvgToBlue {
 	to {
-		fill: #878FC6;
+  	fill: transparent;
 	}
 }
 @keyframes animatedOmnisSvgToDarkblue {
 	to {
-		fill: #525678;
+  	fill: transparent;
 	}
 }
 @keyframes animatedOmnisSvgRotate {
@@ -2006,7 +2125,7 @@ body {
 /* Used only by omnis when its active */
 @keyframes animatedOmnisSvgToActiveBlue {
 	to {
-		fill: #009bff;
+		fill: transparent;
 	}
 }
 

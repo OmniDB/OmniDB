@@ -103,6 +103,9 @@ $(function () {
   // Creating the snippets panel.
   v_connTabControl.tag.createSnippetPanel();
 
+  // Updating explain component choice.
+  updateExplainComponent();
+
   // Retrieving global snippets
   getAllSnippets();
 
@@ -945,6 +948,7 @@ function refreshHeights(p_all) {
           v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - (1.25)*v_font_size + 'px';
         }
         else if (v_tab_tag.currQueryTab=='explain') {
+          v_tab_tag.div_explain_default.style.height = window.innerHeight - $(v_tab_tag.div_explain_default).offset().top - (1.25)*v_font_size + 'px';
           v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - (1.25)*v_font_size + 'px';
           setTimeout(function(){
             if (v_tab_tag.explainControl) {
@@ -1582,6 +1586,29 @@ function toggleExpandToPanelView(p_target_id) {
     },350);
   }
 }
+
+function toggleExplainContext() {
+
+  if (v_explain_control.context === 'default') {
+    v_explain_control.context = 'legere'
+  }
+  else {
+    v_explain_control.context = 'default'
+  }
+
+  updateExplainComponent();
+
+}
+
+function updateExplainComponent() {
+  if (v_explain_control.context === 'default') {
+    $('#omnidb__main').addClass('omnidb__explain--default');
+  }
+  else {
+    $('#omnidb__main').removeClass('omnidb__explain--default');
+  }
+}
+
 /**
  * ## getAttributesTooltip
  * @desc Creates and applies tooltip attributes to the target.

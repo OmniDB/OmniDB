@@ -9132,6 +9132,7 @@ function getExplainReturn(p_data) {
         if (v_tab_tag.explainControl) {
           v_tab_tag.explainControl.destroy();
         }
+        v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain_default.innerHTML = '';
 
         if (v_explain_control.context === 'default') {
           v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_explain_default.style.display = 'block';

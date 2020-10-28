@@ -126,7 +126,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   '</div>' +
   '<div id="query_result_tabs_container' + v_tab.id + '" class="omnidb__query-result-tabs">' +
     '<div style="position:absolute;top:0.25rem;right:2.5rem;">' +
-      '<div class="omnidb__switch--explain omnidb__switch--explain--sm float-right" data-toggle="tooltip" data-placement="left" data-html="true" title="" data-original-title="<h5>Toggle explain component.</h5><div>Switch ON picks the new explain visualizer and requests data based on the editor.</div>">' +
+      '<div class="omnidb__switch--explain omnidb__switch--explain--sm float-right" data-toggle="tooltip" data-placement="left" data-html="true" title="" data-original-title="<h5>Toggle explain component.</h5><div>Switch between old and new explain visualizer (experimental).</div>">' +
         '<input id="explainContextToggler' + v_tab.id + '" type="checkbox" class="omnidb__switch--explain--input" onclick="toggleExplainContext()">' +
         '<label for="explainContextToggler' + v_tab.id + '" class="omnidb__switch--explain--label">' +
           '<span><i class="fas fa-th"></i></span>' +
@@ -402,6 +402,9 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   v_add_tab.tag = {
     mode: 'add'
   }
+
+  // Loads or Updates all tooltips.
+  $('[data-toggle="tooltip"]').tooltip({animation:true});
 
   // Requesting an update on the workspace layout and sizes.
   setTimeout(function() {

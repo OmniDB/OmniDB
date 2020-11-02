@@ -104,6 +104,7 @@ function createTabControl({ p_div, p_hierarchy, p_layout}) {
   v_div.classList.add(css_tab_menu_variations[0] + 'container');
   if (p_hierarchy !== undefined) {
     v_div.classList.add(css_tab_menu_variations[0] + 'container--' + p_hierarchy);
+    v_div.classList.add(css_tab_menu_variations[0] + 'container--menu-shown');
     for (let i = 0; i < css_tab_menu_variations.length; i++) {
       v_tab_menu.classList.add(css_tab_menu_variations[i] + p_hierarchy);
     }

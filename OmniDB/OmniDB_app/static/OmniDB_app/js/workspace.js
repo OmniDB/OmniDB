@@ -596,8 +596,6 @@ var resizeSnippetPanel = async function(p_left_pos_x = false) {
           v_left_pos_x = p_left_pos_x - v_div_left_offset;
         }
 
-        console.log('resizing snippet v_left_pos_x', v_left_pos_x);
-
         var v_pixel_value = (v_left_pos_x > 50 && v_left_pos_x < v_max_allowed_left_width)
         ? v_left_pos_x
         : 120;

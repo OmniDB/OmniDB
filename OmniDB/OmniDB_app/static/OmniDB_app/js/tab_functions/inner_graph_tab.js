@@ -41,7 +41,7 @@ var v_createGraphTabFunction = function(p_name) {
     p_selectFunction: function() {
       document.title = 'OmniDB'
       if(this.tag != null) {
-        refreshHeights();
+        this.tag.resize();
       }
     },
     p_closeFunction: function(e,p_tab) {
@@ -76,6 +76,13 @@ var v_createGraphTabFunction = function(p_name) {
   // v_div.innerHTML = v_html;
   v_tab.elementDiv.innerHTML = v_html;
 
+  var v_resizeFunction = function () {
+    var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    if (v_tab_tag.graph_div) {
+      v_tab_tag.graph_div.style.height = window.innerHeight - $(v_tab_tag.graph_div).offset().top - (0.833)*v_font_size + "px";
+    }
+  }
+
   var v_tag = {
     tab_id: v_tab.id,
     divTree: document.getElementById(v_tab.id + '_tree'),
@@ -84,7 +91,8 @@ var v_createGraphTabFunction = function(p_name) {
     graph_div: document.getElementById('graph_' + v_tab.id),
     tabControl: v_connTabControl.selectedTab.tag.tabControl,
     network: null,
-    mode: 'graph'
+    mode: 'graph',
+    resize: v_resizeFunction
   };
 
   v_tab.tag = v_tag;
@@ -104,7 +112,7 @@ var v_createGraphTabFunction = function(p_name) {
   }
 
   setTimeout(function() {
-    refreshHeights();
+    v_resizeFunction();
   },10);
 
 };

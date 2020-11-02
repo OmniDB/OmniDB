@@ -34,18 +34,18 @@ function tabSQLTemplate(p_tab_name, p_template, p_showTip=true) {
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.editor.gotoLine(
         0, 0, true);
 
-    if(p_showTip) {
-      var v_instance = new Tooltip($(v_connTabControl.selectedTab.tag.tabControl.selectedLi),{
-        title: 'Adjust command and run!',
-        placement: "bottom",
-        container: 'body',
-        offset: 100
-      });
-      v_instance.show();
-      window.setTimeout(function() {
-          v_instance.dispose();
-      }, 4000);
-    }
+    // if(p_showTip) {
+    //   var v_instance = new Tooltip($(v_connTabControl.selectedTab.tag.tabControl.selectedLi),{
+    //     title: 'Adjust command and run!',
+    //     placement: "bottom",
+    //     container: 'body',
+    //     offset: 100
+    //   });
+    //   v_instance.show();
+    //   window.setTimeout(function() {
+    //       v_instance.dispose();
+    //   }, 4000);
+    // }
 }
 
 function tabAdvancedObjectSearch(node) {

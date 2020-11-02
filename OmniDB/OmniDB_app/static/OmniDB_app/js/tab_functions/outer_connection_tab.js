@@ -156,9 +156,9 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
     var v_complement_width = 100 - v_width;
 
     var v_html =
-    '<div class="container-fluid" style="position: relative;">' +
-      '<div class="row">' +
-        '<div id="' + v_tab.id + '_div_left" class="omnidb__workspace__div-left col" style="flex: 0 0 16.667%; max-width: 16.667%;">' +
+    '<div style="position: relative;">' +
+      '<div style="display: grid; grid-template-areas: \'left right\'; grid-template-columns: auto minmax(0, 1fr);">' +
+        '<div id="' + v_tab.id + '_div_left" class="omnidb__workspace__div-left col" style="max-width: 300px; width: 300px;">' +
           "<div class='row'>" +
 
             // "<div onmousedown='resizeHorizontal(event)' style='width: 10px; height: 100%; cursor: ew-resize; position: absolute; top: 0px; right: 0px;'><div class='resize_line_vertical' style='width: 5px; height: 100%; border-right: 1px dashed #acc4e8;'></div><div style='width:5px;'></div></div>" +
@@ -184,38 +184,13 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
           '</div>' +
           '<div class="resize_line_vertical omnidb__resize-line__container" onmousedown="resizeConnectionHorizontal(event)" style="position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 0px;"></div>' +
         '</div>' +//.div_left
-        '<div id="' + v_tab.id + '_div_right" class="omnidb__workspace__div-right col" style="position: relative; flex: 0 0 83.333%; max-width: 83.333%;">' +
+        '<div id="' + v_tab.id + '_div_right" class="omnidb__workspace__div-right col" style="position: relative;">' +
           // "<div class='row'>" +
+            '<button type="button" class="py-4 px-0 btn omnidb__theme__btn--secondary omnidb__tree__toggler" onclick="toggleTreeContainer()"><i class="fas fa-arrows-alt-h"></i></button>' +
             '<div id="' + v_tab.id + '_tabs" class="w-100"></div>' +
           // "</div>" +
         '</div>' +//.div_right
       '</div>' +//.row
-
-      // "<div id='" + v_tab.id + "_workspace_resize_grid' class='omnidb__workspace-resize-grid'>" +
-      //   "<div class='container-fluid h-100'>" +
-      //     "<div class='row h-100'>" +
-      //
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
-      //
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'>" +
-      //         "<div id='"+ v_tab.id + "_workspace_resize_draggable' ondragstart='dragStart(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragend='dragEnd(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' draggable='true' class='omnidb__workspace-resize-grid__draggable' style='width: 30px; height: 100%; cursor: ew-resize;'>" +
-      //           "<div class='resize_line_vertical'><span>&#8633;</span></div>" +
-      //         "</div>" +
-      //       "</div></div>" +
-      //
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
-      //       "<div class='col-1 d-flex' style='position: relative;'><div class='omnidb__workspace-resize-grid__column h-100 ml-auto' ondragenter='dragEnter(event)' ondragleave='dragLeave(event)' ondrop='drop(event, " + v_tab.id + "_workspace_resize_grid, " + v_tab.id + "_div_left, " + v_tab.id + "_div_right)' ondragover='allowDrop(event)'></div></div>" +
-      //
-      //     "</div>" +
-      //   "</div>" +
-      // "</div>" +
 
     '</div>';
 
@@ -420,4 +395,27 @@ var v_createConnTabFunction = function(p_index,p_create_query_tab = true, p_name
 
   endLoading();
 
+}
+
+function refreshOuterConnectionHeights() {
+  var v_tab_tag = v_connTabControl.selectedTab.tag;
+  if (v_tab_tag.divLeft) {
+    // Checking if the element is shrunk before resizing children elements.
+    var v_is_shrunk = $(v_tab_tag.divLeft).hasClass('omnidb__workspace__div-left--shrink');
+    // if (!v_is_shrunk) {
+      var v_div_left = v_connTabControl.selectedTab.tag.divLeft;
+      var v_div_right = v_connTabControl.selectedTab.tag.divRight;
+      var v_totalWidth = v_connTabControl.selectedDiv.getBoundingClientRect().width;
+      var v_div_left_width_value = v_connTabControl.selectedTab.tag.divLeft.getBoundingClientRect().width;
+      var v_right_width_value = v_totalWidth - v_div_left_width_value;
+      // v_div_left.style['max-width'] = v_div_left_width_value + 'px';
+      // v_div_left.style['width'] = v_div_left_width_value + 'px';
+      v_div_right.style['max-width'] = v_right_width_value + 'px';
+      v_div_right.style['width'] = v_right_width_value + 'px';
+      // v_div_left.style['flex'] = '0 0 ' + v_div_left_width_value + 'px';
+      // var v_right_width_value = v_totalWidth - v_div_left_width_value;
+      // v_div_right.style['max-width'] = v_right_width_value + 'px';
+      // v_div_right.style['flex'] = '0 0 ' + v_right_width_value + 'px';
+    // }
+  }
 }

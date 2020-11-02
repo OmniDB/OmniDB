@@ -66,17 +66,17 @@ var v_createSnippetPanelFunction = function(p_index) {
 
     "<button type='button' onclick='toggleSnippetPanel()' class='px-4 btn omnidb__theme__btn--secondary omnidb__panel__toggler'><i class='fas fa-arrows-alt-v'></i></button>" +
 
-    "<div class='container-fluid' style='position: relative;'>" +
-      "<div id='" + v_tab.id + "_snippet_div_layout_grid' class='row'>" +
-        "<div id='" + v_tab.id + "_snippet_div_left' class='omnidb__workspace__div-left col' style='flex: 0 0 16.667%'>" +
-          "<div class='row'>" +
-            "<div class='omnidb__workspace__content-left'>" +
+    "<div class='container-fluid h-100' style='position: relative;'>" +
+      "<div id='" + v_tab.id + "_snippet_div_layout_grid' class='row h-100'>" +
+        "<div id='" + v_tab.id + "_snippet_div_left' class='omnidb__snippets__div-left col h-100' style='flex: 0 0 300px;'>" +
+          "<div class='row h-100'>" +
+            "<div class='omnidb__snippets__content-left'>" +
               "<div id='" + v_tab.id + "_snippet_tree' style='overflow: auto; flex-grow: 1; transition: scroll 0.3s;'></div>" +
             "</div>" +
           "</div>" +
           "<div class='resize_line_vertical omnidb__resize-line__container' onmousedown='resizeSnippetHorizontal(event)' style='position:absolute;height: 100%;width: 10px;cursor: ew-resize;border-right: 1px dashed #acc4e8;top: 0px;right: 0px;'></div>" +
         "</div>" +//.div_left
-        "<div id='" + v_tab.id + "_snippet_div_right' class='omnidb__workspace__div-right col pt-0' style='position: relative;'>" +
+        "<div id='" + v_tab.id + "_snippet_div_right' class='omnidb__snippets__div-right col pt-0' style='position: relative;'>" +
           // "<div class='row'>" +
             "<div id='" + v_tab.id + "_snippet_tabs' class='w-100'></div>" +
           // "</div>" +

@@ -49,11 +49,11 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     p_name: v_name_html,
     p_selectFunction: function() {
       if(this.tag != null) {
-        refreshHeights();
+        this.tag.resize();
       }
       if(this.tag != null && this.tag.editor != null) {
-          this.tag.editor.focus();
-          checkQueryStatus(this);
+        this.tag.editor.focus();
+        checkQueryStatus(this);
       }
     },
     p_closeFunction: function(e,p_tab) {
@@ -148,7 +148,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   var v_selectDataTabFunc = function() {
     v_curr_tabs.selectTabIndex(0);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currQueryTab = 'data';
-    refreshHeights();
+    v_tab.tag.resize();
   }
 
   // Tab selection callback for `message` tab.
@@ -156,14 +156,14 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     v_curr_tabs.selectTabIndex(1);
     v_tag.currQueryTab = 'message';
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.div_count_notices.style.display = 'none';
-    refreshHeights();
+    v_tab.tag.resize();
   }
 
   // Tab selection callback for `explain` tab.
   var v_selectExplainTabFunc = function() {
     v_curr_tabs.selectTabIndex(2);
     v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag.currQueryTab = 'explain';
-    refreshHeights();
+    v_tab.tag.resize();
     // Loads or Updates all tooltips.
     $('[data-toggle="tooltip"]').tooltip({animation:true});
   }
@@ -320,6 +320,33 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
   	querySQL(0, true, v_exp_query, v_exp_callback,true,v_exp_query,'export_' + v_exp_type,true);
   }
 
+  var v_resizeFunction = function () {
+    var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    if (v_tab_tag.currQueryTab=='data') {
+      v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (1.25)*v_font_size + 'px';
+      setTimeout(function(){
+        if (v_tab_tag.ht!=null) {
+          v_tab_tag.ht.render();
+        }
+        if(v_tab_tag.editor != null) {
+          v_tab_tag.editor.resize();
+        }
+      },400);
+    }
+    else if (v_tab_tag.currQueryTab=='message') {
+      v_tab_tag.div_notices.style.height = window.innerHeight - $(v_tab_tag.div_notices).offset().top - (1.25)*v_font_size + 'px';
+    }
+    else if (v_tab_tag.currQueryTab=='explain') {
+      v_tab_tag.div_explain_default.style.height = window.innerHeight - $(v_tab_tag.div_explain_default).offset().top - (1.25)*v_font_size + 'px';
+      v_tab_tag.div_explain.style.height = window.innerHeight - $(v_tab_tag.div_explain).offset().top - (1.25)*v_font_size + 'px';
+      setTimeout(function(){
+        if (v_tab_tag.explainControl) {
+          v_tab_tag.explainControl.resize();
+        }
+      },400);
+    }
+  }
+
   // Setting all tab_tag params.
   var v_tag = {
     tab_id: v_tab.id,
@@ -353,6 +380,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
     bt_cancel: document.getElementById('bt_cancel_' + v_tab.id),
     bt_export: document.getElementById('bt_export_' + v_tab.id),
     check_autocommit: document.getElementById('check_autocommit_' + v_tab.id),
+    resize: v_resizeFunction,
     state : 0,
     context: null,
     tabControl: v_connTabControl.selectedTab.tag.tabControl,
@@ -408,7 +436,7 @@ var v_createQueryTabFunction = function(p_table, p_tab_db_id) {
 
   // Requesting an update on the workspace layout and sizes.
   setTimeout(function() {
-    refreshHeights();
+    v_resizeFunction();
   },10);
   adjustQueryTabObjects(false);
   v_editor.focus();

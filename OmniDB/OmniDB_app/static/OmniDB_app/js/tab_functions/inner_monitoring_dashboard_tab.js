@@ -47,7 +47,7 @@ var v_createMonitorDashboardTabFunction = function() {
     p_name: v_name_html,
     p_selectFunction: function() {
       if(this.tag != null) {
-        refreshHeights();
+        this.tag.resize();
         refreshMonitorUnitsObjects();
         if (this.tag.unit_list_grid!=null) {
           showMonitorUnitList();
@@ -89,6 +89,13 @@ var v_createMonitorDashboardTabFunction = function() {
   // Updating the html.
   v_tab.elementDiv.innerHTML = v_html;
 
+  var v_resizeFunction = function () {
+    var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    if (v_tab_tag.dashboard_div) {
+      v_tab_tag.dashboard_div.style.height = window.innerHeight - $(v_tab_tag.dashboard_div).offset().top - $(v_tab_tag.dashboard_div.parentElement).scrollTop() - (0.833)*v_font_size + "px";
+    }
+  }
+
   var v_tag = {
     tab_id: v_tab.id,
     mode: 'monitor_dashboard',
@@ -105,6 +112,7 @@ var v_createMonitorDashboardTabFunction = function() {
     unit_sequence: 0,
     tab_active: true,
     connTabTag: v_connTabControl.selectedTab.tag,
+    resize: v_resizeFunction,
     tabCloseFunction: function(p_tag) {
       for (var i=0; i<p_tag.units.length; i++) {
         try {
@@ -133,7 +141,7 @@ var v_createMonitorDashboardTabFunction = function() {
   }
 
   setTimeout(function() {
-    refreshHeights();
+    v_resizeFunction();
   },10);
 
 };
@@ -156,7 +164,7 @@ var v_createNewMonitorUnitTabFunction = function() {
     p_name: v_name_html,
     p_selectFunction: function() {
       if(this.tag != null) {
-        refreshHeights();
+        this.tag.resize();
       }
     },
     p_closeFunction: function(e,p_tab) {
@@ -249,6 +257,17 @@ var v_createNewMonitorUnitTabFunction = function() {
 
   };
 
+  var v_resizeFunction = function () {
+    var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    if (v_tab_tag.editorDataDiv) {
+      var v_new_height = window.innerHeight - $(v_tab_tag.editorDataDiv).offset().top - v_font_size + 'px';
+      v_tab_tag.editorDiv.style.height = v_new_height;
+      v_tab_tag.editorDataDiv.style.height = v_new_height;
+      v_tab_tag.editor.resize();
+      v_tab_tag.editor_data.resize();
+    }
+  }
+
   var v_tag = {
     tab_id: v_tab.id,
     mode: 'monitor_unit',
@@ -267,6 +286,7 @@ var v_createNewMonitorUnitTabFunction = function() {
     tabControl: v_connTabControl.selectedTab.tag.tabControl,
     unit_id: null,
     object: null,
+    resize: v_resizeFunction,
     tabCloseFunction: function(p_tag) {
       try {
         p_tag.object.destroy();
@@ -293,7 +313,7 @@ var v_createNewMonitorUnitTabFunction = function() {
   }
 
   setTimeout(function() {
-    refreshHeights();
+    v_resizeFunction();
   },10);
 
 };

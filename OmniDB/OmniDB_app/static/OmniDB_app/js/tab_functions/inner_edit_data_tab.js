@@ -40,7 +40,7 @@ var v_createEditDataTabFunction = function(p_table) {
     p_name: '<span id="tab_title">' + v_name + '</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i>',
     p_selectFunction: function() {
       if(this.tag != null) {
-        refreshHeights();
+        this.tag.resize();
         $('[data-toggle="tooltip"]').tooltip({animation:true});// Loads or Updates all tooltips
       }
       if(this.tag != null && this.tag.editor != null) {
@@ -194,6 +194,16 @@ var v_createEditDataTabFunction = function(p_table) {
   v_editor.completers = [qtags];
   v_editor.setOptions({enableBasicAutocompletion: true});
 
+  var v_resizeFunction = function () {
+    var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    if (v_tab_tag.editDataObject) {
+      v_tab_tag.div_result.style.height = window.innerHeight - $(v_tab_tag.div_result).offset().top - (0.833)*v_font_size + 'px';
+      if (v_tab_tag.editDataObject.ht!=null) {
+        v_tab_tag.editDataObject.ht.render();
+      }
+    }
+  }
+
   var v_tag = {
     tab_id: v_tab.id,
     editor: v_editor,
@@ -211,6 +221,7 @@ var v_createEditDataTabFunction = function(p_table) {
     tab_check_span : v_tab_check_span,
     state: 0,
     context: null,
+    resize: v_resizeFunction,
     tabControl: v_connTabControl.selectedTab.tag.tabControl,
     connTab: v_connTabControl.selectedTab,
     // tabId: v_connTabControl.selectedTab.tag.tabControl.tabCounter,
@@ -253,7 +264,7 @@ var v_createEditDataTabFunction = function(p_table) {
   }
 
   setTimeout(function() {
-    refreshHeights();
+    v_resizeFunction();
   },10);
 
 };

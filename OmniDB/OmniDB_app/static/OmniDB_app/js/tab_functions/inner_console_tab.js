@@ -37,7 +37,7 @@ var v_createConsoleTabFunction = function() {
     p_name: '<span> Console</span><span id="tab_loading" style="visibility:hidden;"><i class="tab-icon node-spin"></i></span><i title="" id="tab_check" style="display: none;" class="fas fa-check-circle tab-icon icon-check"></i></span>',
     p_selectFunction: function() {
       if(this.tag != null) {
-        refreshHeights();
+        this.tag.resize();
       }
       if(this.tag != null && this.tag.editor_input != null) {
           this.tag.editor_input.focus();
@@ -243,6 +243,16 @@ var v_createConsoleTabFunction = function() {
     consoleSQL();
   });*/
 
+  var v_resizeFunction = function () {
+    var v_tab_tag = v_connTabControl.selectedTab.tag.tabControl.selectedTab.tag;
+    if (v_tab_tag.div_console) {
+      v_tab_tag.div_console.style.height = window.innerHeight - $(v_tab_tag.div_console).offset().top - parseInt(v_tab_tag.div_result.style.height,10) - (1.25)*v_font_size - 38 + 'px';
+      v_tab_tag.editor_console.resize();
+      v_tab_tag.editor_input.resize();
+      v_tab_tag.editor_console.fit();
+    }
+  }
+
   var v_tag = {
     tab_id: v_tab.id,
     mode: 'console',
@@ -269,6 +279,7 @@ var v_createConsoleTabFunction = function() {
     tabControl: v_connTabControl.selectedTab.tag.tabControl,
     connTab: v_connTabControl.selectedTab,
     currDatabaseIndex: null,
+    resize: v_resizeFunction,
     state: 0,
     // console_history_modal: document.getElementById('modal_console_history_' + v_tab.id),
     // console_history_div: document.getElementById('console_history_div_' + v_tab.id),
@@ -312,7 +323,7 @@ var v_createConsoleTabFunction = function() {
   }
 
   setTimeout(function() {
-    refreshHeights();
+    v_resizeFunction();
   },10);
 
   adjustQueryTabObjects(false);

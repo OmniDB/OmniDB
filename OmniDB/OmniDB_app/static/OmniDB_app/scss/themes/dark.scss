@@ -33,6 +33,10 @@ SOFTWARE.
     background-color: #2F3136;
   }
 
+  iframe {
+    border-color: #383b42;
+  }
+
   .omnidb__theme-bg--menu-primary {
     background-color: #373944;
 
@@ -55,10 +59,12 @@ SOFTWARE.
   .omnidb__theme-text--primary {
     color: #373944;
   }
-  .omnidb__workspace__div-left {
+  .omnidb__workspace__div-left,
+  .omnidb__snippets__div-left {
     background-color: #282A2F;
   }
-  .omnidb__workspace__div-right {
+  .omnidb__workspace__div-right,
+  .omnidb__snippets__div-right {
     background-color: #2F3136;
   }
   .omnidb__theme-bg--light {

@@ -11,5 +11,5 @@ RestrictedPython
 cx_Oracle
 PyMySQL
 sqlparse
-pgspecial==1.11.5
+pgspecial
 django-sass

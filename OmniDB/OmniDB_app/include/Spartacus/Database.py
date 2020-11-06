@@ -823,9 +823,9 @@ class SQLite(Generic):
     def Open(self, p_autocommit=True):
         try:
             if p_autocommit:
-                self.v_con = sqlite3.connect(self.v_service, self.v_timeout, isolation_level=None)
+                self.v_con = sqlite3.connect(self.v_service, self.v_timeout, isolation_level=None, check_same_thread=False)
             else:
-                self.v_con = sqlite3.connect(self.v_service, self.v_timeout)
+                self.v_con = sqlite3.connect(self.v_service, self.v_timeout, check_same_thread=False)
             #self.v_con.row_factory = sqlite3.Row
             self.v_cur = self.v_con.cursor()
             if self.v_foreignkeys:

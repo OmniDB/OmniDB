@@ -140,8 +140,7 @@ function getDatabaseList(p_init, p_callback) {
 	execAjax('/get_database_list/',
 			JSON.stringify({}),
 			function(p_return) {
-
-				v_connTabControl.tag.connections = p_return.v_data.v_connections;
+                v_connTabControl.tag.connections = p_return.v_data.v_connections;
 
 				v_connTabControl.tag.groups = p_return.v_data.v_groups;
 				v_connTabControl.tag.remote_terminals = p_return.v_data.v_remote_terminals;
@@ -276,6 +275,9 @@ function changeDatabase(p_value) {
   }
   else if (v_conn_object.v_db_type=='mariadb') {
     getTreeMariadb(v_connTabControl.selectedTab.tag.divTree.id);
+  }
+  else if (v_conn_object.v_db_type=='sqlite') {
+    getTreeSqlite(v_connTabControl.selectedTab.tag.divTree.id);
   }
 
 }

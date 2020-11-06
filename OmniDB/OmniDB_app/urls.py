@@ -260,6 +260,27 @@ base_urlpatterns = [
     url(r'^template_insert_mariadb/', views.tree_mariadb.template_insert, name='template_insert'),
     url(r'^template_update_mariadb/', views.tree_mariadb.template_update, name='template_update'),
 
+    #TREE_SQLITE
+    url(r'^get_tree_info_sqlite/', views.tree_sqlite.get_tree_info, name='get_tree_info'),
+    url(r'^get_tables_sqlite/', views.tree_sqlite.get_tables, name='get_tables'),
+    url(r'^get_columns_sqlite/', views.tree_sqlite.get_columns, name='get_columns'),
+    url(r'^get_pk_sqlite/', views.tree_sqlite.get_pk, name='get_pk'),
+    url(r'^get_pk_columns_sqlite/', views.tree_sqlite.get_pk_columns, name='get_pk_columns'),
+    url(r'^get_fks_sqlite/', views.tree_sqlite.get_fks, name='get_fks'),
+    url(r'^get_fks_columns_sqlite/', views.tree_sqlite.get_fks_columns, name='get_fks_columns'),
+    url(r'^get_uniques_sqlite/', views.tree_sqlite.get_uniques, name='get_uniques'),
+    url(r'^get_uniques_columns_sqlite/', views.tree_sqlite.get_uniques_columns, name='get_uniques_columns'),
+    url(r'^get_indexes_sqlite/', views.tree_sqlite.get_indexes, name='get_indexes'),
+    url(r'^get_indexes_columns_sqlite/', views.tree_sqlite.get_indexes_columns, name='get_indexes_columns'),
+    url(r'^get_views_sqlite/', views.tree_sqlite.get_views, name='get_views'),
+    url(r'^get_views_columns_sqlite/', views.tree_sqlite.get_views_columns, name='get_views_columns'),
+    url(r'^get_view_definition_sqlite/', views.tree_sqlite.get_view_definition, name='get_view_definition'),
+    url(r'^get_properties_sqlite/', views.tree_sqlite.get_properties, name='get_properties'),
+    url(r'^template_select_sqlite/', views.tree_sqlite.template_select, name='template_select'),
+    url(r'^template_insert_sqlite/', views.tree_sqlite.template_insert, name='template_insert'),
+    url(r'^template_update_sqlite/', views.tree_sqlite.template_update, name='template_update'),
+    url(r'^get_sqlite_version/', views.tree_sqlite.get_version, name='get_version'),
+
     #MONITORING SYSTEM
     url(r'^test_monitor_script/', views.monitor_dashboard.test_monitor_script, name='test_monitor_script'),
     url(r'^get_monitor_unit_list/', views.monitor_dashboard.get_monitor_unit_list, name='get_monitor_unit_list'),

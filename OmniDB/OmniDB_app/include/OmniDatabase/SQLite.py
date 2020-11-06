@@ -59,7 +59,9 @@ class SQLite:
         self.v_server = ''
         self.v_port = ''
         self.v_service = p_service
+        self.v_active_service = p_service
         self.v_user = ''
+        self.v_active_user = ''
         self.v_schema = ''
         self.v_connection = Spartacus.Database.SQLite(p_service, p_foreignkeys)
 
@@ -112,6 +114,46 @@ class SQLite:
         self.v_reserved_words = []
         self.v_console_help = "Console tab."
         self.v_use_server_cursor = False
+        self.v_version = ''
+        self.v_version_num = ''
+
+    # Decorator to acquire lock before performing action
+    def lock_required(function):
+        def wrap(self, *args, **kwargs):
+            try:
+                if self.v_lock != None:
+                    self.v_lock.acquire()
+            except:
+                None
+            try:
+                r = function(self, *args, **kwargs)
+            except:
+                try:
+                    if self.v_lock != None:
+                        self.v_lock.release()
+                except:
+                    None
+                raise
+            try:
+                if self.v_lock != None:
+                    self.v_lock.release()
+            except:
+                None
+            return r
+        wrap.__doc__ = function.__doc__
+        wrap.__name__ = function.__name__
+        return wrap
+
+    @lock_required
+    def GetVersion(self):
+        self.v_version = self.v_connection.ExecuteScalar('SELECT sqlite_version()')
+        v_splitted_version = self.v_version.split('.')
+        self.v_version_num = '{0}{1}{2}'.format(
+            v_splitted_version[0].zfill(2),
+            v_splitted_version[1].zfill(2),
+            v_splitted_version[2].zfill(2)
+        )
+        return 'SQLite ' + self.v_version
 
     def GetName(self):
         return self.v_service
@@ -353,17 +395,90 @@ class SQLite:
             ), True
         )
 
+    def TemplateCreateView(self):
+        return Template('')
+
+    def TemplateAlterView(self):
+        return Template('')
+
+    def TemplateDropView(self):
+        return Template('')
+
     def TemplateCreateTable(self):
-        pass
+        return Template('''CREATE
+--TEMPORARY
+TABLE table_name
+(
+    column_name data_type
+    --CONSTRAINT constraint_name
+    --NOT NULL
+    --CHECK
+    --UNIQUE
+    --PRIMARY KEY
+    --FOREIGN KEY
+)
+--WITHOUT ROWID
+''')
 
     def TemplateAlterTable(self):
-        pass
+        return Template('')
 
     def TemplateDropTable(self):
         return Template('DROP TABLE #table_name#')
 
+    def TemplateCreateColumn(self):
+        return Template('')
+
+    def TemplateAlterColumn(self):
+        return Template('')
+
+    def TemplateDropColumn(self):
+        return Template('')
+
+    def TemplateCreatePrimaryKey(self):
+        return Template('')
+
+    def TemplateDropPrimaryKey(self):
+        return Template('')
+
+    def TemplateCreateUnique(self):
+        return Template('')
+
+    def TemplateDropUnique(self):
+        return Template('')
+
+    def TemplateCreateForeignKey(self):
+        return Template('')
+
+    def TemplateDropForeignKey(self):
+        return Template('')
+
     def TemplateCreateIndex(self):
-        pass
+        return Template('')
+
+    def TemplateAlterIndex(self):
+        return Template('')
 
     def TemplateDropIndex(self):
-        pass
+        return Template('')
+
+    def TemplateDelete(self):
+        return Template('')
+
+    def TemplateTruncate(self):
+        return Template('')
+
+    def GetAutocompleteValues(self, p_columns, p_filter):
+        return None
+
+    def GetErrorPosition(self, p_error_message):
+        vector = str(p_error_message).split('\n')
+        v_return = None
+
+        if len(vector) > 1 and vector[1][0:4]=='LINE':
+            v_return = {
+                'row': vector[1].split(':')[0].split(' ')[1],
+                'col': vector[2].index('^') - len(vector[1].split(':')[0])-2
+            }
+
+        return v_return
